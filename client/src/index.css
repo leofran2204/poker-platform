@@ -1,0 +1,259 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #0d0d1f 100%);
+  color: #e0e0e0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 168, 67, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 168, 67, 0.5);
+}
+
+/* Estilo das cartas */
+.card {
+  width: 60px;
+  height: 84px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s;
+  user-select: none;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card-red {
+  background: linear-gradient(135deg, #fff 0%, #f8f8f8 100%);
+  color: #c0392b;
+  border: 1px solid #ddd;
+}
+
+.card-black {
+  background: linear-gradient(135deg, #fff 0%, #f8f8f8 100%);
+  color: #1a1a2e;
+  border: 1px solid #ddd;
+}
+
+.card-back {
+  background: linear-gradient(135deg, #1a3a5c 0%, #2a5a8c 100%);
+  border: 2px solid #3a7abd;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 5px,
+    rgba(255, 255, 255, 0.05) 5px,
+    rgba(255, 255, 255, 0.05) 10px
+  );
+}
+
+.card-small {
+  width: 40px;
+  height: 56px;
+  font-size: 11px;
+}
+
+.card-large {
+  width: 72px;
+  height: 100px;
+  font-size: 16px;
+}
+
+/* Mesa de poker */
+.felt-table {
+  background: radial-gradient(ellipse at center, #1a6b3c 0%, #0d4d2b 50%, #0a3d22 100%);
+  border-radius: 200px;
+  box-shadow: 
+    inset 0 0 100px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(0, 0, 0, 0.5),
+    0 0 80px rgba(212, 168, 67, 0.1);
+  border: 3px solid #5a3a1a;
+  position: relative;
+}
+
+.felt-table::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 206px;
+  background: linear-gradient(135deg, #8b6914, #d4a843, #8b6914);
+  z-index: -1;
+}
+
+/* Botão de dealer */
+.dealer-button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d4a843, #f0d080);
+  color: #1a1a2e;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  border: 2px solid #f0d080;
+}
+
+/* Fichas */
+.chip {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+}
+
+.chip-red { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.chip-blue { background: linear-gradient(135deg, #3498db, #2980b9); }
+.chip-green { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+.chip-black { background: linear-gradient(135deg, #2c3e50, #1a1a2e); }
+.chip-gold { background: linear-gradient(135deg, #f1c40f, #d4a843); }
+
+/* Animações */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+/* Inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"] {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  transition: all 0.2s;
+  outline: none;
+  width: 100%;
+}
+
+input:focus {
+  border-color: #d4a843;
+  box-shadow: 0 0 0 2px rgba(212, 168, 67, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Botões */
+.btn-primary {
+  background: linear-gradient(135deg, #d4a843, #b8922e);
+  color: #1a1a2e;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 168, 67, 0.3);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+  font-weight: 500;
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
