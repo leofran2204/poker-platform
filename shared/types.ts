@@ -1,7 +1,7 @@
 // Shared types between client and server
 
 export type Suit = 'hearts' | 'diamonds' | 'clubs' | 'spades';
-export type Rank = 'A' | 'K' | 'Q' | 'J' | 'T' | '9' | '8' | '7' | '6';
+export type Rank = 'A' | 'K' | 'Q' | 'J' | 'T' | '9' | '8' | '7' | '6' | '5' | '4' | '3' | '2';
 
 export interface Card {
   rank: Rank;
@@ -68,6 +68,16 @@ export interface TableConfig {
   ante?: number;
 }
 
+export interface AllInCallContext {
+  board: Card[];
+  heroId: string;
+  heroCards: Card[];
+  villainId: string;
+  villainCards: Card[];
+  phase: GamePhase;
+  pot: number;
+}
+
 export interface TableState {
   config: TableConfig;
   players: Player[];
@@ -85,6 +95,7 @@ export interface TableState {
   handNumber: number;
   isRunning: boolean;
   timeLeft: number;
+  allInCallContext?: AllInCallContext;
 }
 
 export interface ChatMessage {
@@ -111,12 +122,20 @@ export interface AuthResponse {
 }
 
 // Socket events
+export interface LossDeflatorResult {
+  loserId: string;
+  winnerId: string;
+  cashback: number;
+  odds: number;
+  tier: '35%' | '25%' | '15%';
+}
+
 export interface ServerToClientEvents {
   tableUpdate: (state: TableState) => void;
   gameStarted: (state: TableState) => void;
   playerAction: (data: { playerId: string; action: PlayerAction; amount?: number }) => void;
   chatMessage: (message: ChatMessage) => void;
-  handResult: (data: { winners: { playerId: string; amount: number; hand: HandResult }[]; players: { id: string; cards: Card[]; hand: HandResult }[] }) => void;
+  handResult: (data: { winners: { playerId: string; amount: number; hand: HandResult }[]; players: { id: string; cards: Card[]; hand: HandResult }[]; lossDeflator?: LossDeflatorResult }) => void;
   error: (message: string) => void;
   lobbyUpdate: (tables: TableConfig[]) => void;
   balanceUpdate: (balance: number) => void;

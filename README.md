@@ -1,17 +1,21 @@
-# Poker Platform - Online Texas Hold'em Short Deck
+# Poker Platform - Online Texas Hold'em
 
-A full-stack online poker platform inspired by Full Tilt Poker, featuring Texas Hold'em Short Deck (6+ Hold'em).
+A full-stack online poker platform with a real-time table engine for traditional Texas Hold'em.
+
+## Current Rules
+- Game mode: traditional Texas Hold'em using a full 52-card deck
+- Flow: blinds, betting rounds, showdown, and pot distribution
+- Special mechanic: a loss deflator for specific heads-up all-in-call situations
+  - Applies only when the losing player was involved in a pre-river all-in call
+  - Requires the losing hand equity to be at least 55%
+  - Does not apply to coin-flip situations
+  - Cashback tiers are 15%, 25%, or 35% of the pot depending on equity
 
 ## Tech Stack
 - **Backend**: Node.js + Express + Socket.io + PostgreSQL
 - **Frontend**: React + TypeScript + Vite + Tailwind CSS
 - **Auth**: JWT + bcrypt
 - **Real-time**: WebSocket (Socket.io)
-
-## Short Deck Rules
-- Deck: 36 cards (A, K, Q, J, T, 9, 8, 7, 6 — no 2-5)
-- Hand rankings: Flush beats Full House
-- A-6-7-8-9 makes a straight (Ace plays low)
 
 ## Getting Started
 
@@ -21,7 +25,7 @@ A full-stack online poker platform inspired by Full Tilt Poker, featuring Texas 
 
 ### Setup
 ```bash
-# Install all dependencies
+# Install dependencies
 cd server && npm install
 cd ../client && npm install
 
@@ -36,4 +40,10 @@ cp server/.env.example server/.env
 # Run
 cd server && npm run dev
 cd client && npm run dev
+```
+
+## Build Verification
+```bash
+cd server && npm run build
+cd ../client && npm run build
 ```

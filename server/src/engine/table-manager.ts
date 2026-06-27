@@ -4,6 +4,7 @@ import {
   GamePhase, Pot, HandResult
 } from '@shared/types';
 import { createDeck, shuffleDeck, dealCards, evaluateHand, compareHands } from './deck';
+import { calculateLossDeflator, getHeadsupWinProbability } from './loss-deflator';
 
 const ACTION_TIMEOUTS = {
   normal: 30000,
@@ -34,6 +35,7 @@ export class TableManager {
       handNumber: 0,
       isRunning: false,
       timeLeft: 0,
+      allInCallContext: undefined,
     };
   }
 
@@ -78,6 +80,28 @@ export class TableManager {
     return this.state.players.filter(p => !p.hasFolded);
   }
 
+  private recordAllInCall(action: PlayerAction, player: Player, becameAllIn: boolean): void {
+    if (action !== 'call' || !becameAllIn) return;
+
+    const playersInHand = this.getPlayersInHand();
+    if (playersInHand.length !== 2) return;
+    if (this.state.communityCards.length >= 5) return;
+    if (this.state.phase === 'showdown') return;
+
+    const opponent = playersInHand.find(p => p.id !== player.id);
+    if (!opponent) return;
+
+    this.state.allInCallContext = {
+      board: [...this.state.communityCards],
+      heroId: player.id,
+      heroCards: [...player.cards],
+      villainId: opponent.id,
+      villainCards: [...opponent.cards],
+      phase: this.state.phase,
+      pot: this.state.currentPot,
+    };
+  }
+
   canStartHand(): boolean {
     const activePlayers = this.state.players.filter(p => p.isActive);
     return activePlayers.length >= 2;
@@ -92,6 +116,7 @@ export class TableManager {
     this.state.currentPot = 0;
     this.state.currentBet = 0;
     this.state.minRaise = this.state.config.bigBlind;
+    this.state.allInCallContext = undefined;
 
     // Reset player states
     const activePlayers = this.state.players.filter(p => p.isActive);
@@ -183,15 +208,20 @@ export class TableManager {
 
       case 'check':
         // Valid only if no bet to call
+        if (this.state.currentBet > player.bet) {
+          return false; // Jogador tentou dar check com aposta pendente
+        }
         break;
 
       case 'call':
         const callAmount = Math.min(this.state.currentBet - player.bet, player.chips);
+        const becameAllIn = callAmount === player.chips;
         player.chips -= callAmount;
         player.bet += callAmount;
         player.totalBet += callAmount;
         this.state.currentPot += callAmount;
         if (player.chips === 0) player.isAllIn = true;
+        this.recordAllInCall(action, player, becameAllIn);
         break;
 
       case 'bet':
@@ -245,7 +275,7 @@ export class TableManager {
 
     // Check if only one player remains
     if (playersInHand.length === 1) {
-      this.endHand([playersInHand[0]]);
+      this.endHand();
       return;
     }
 
@@ -267,7 +297,7 @@ export class TableManager {
           this.dealCommunityCards(1);
           break;
         case 'river':
-          this.endHand(playersInHand);
+          this.endHand();
           return;
       }
 
@@ -301,7 +331,7 @@ export class TableManager {
     return allEqual && bets[0] === this.state.currentBet;
   }
 
-  private endHand(winners: Player[]): void {
+  private endHand(): void {
     this.state.phase = 'showdown';
     this.state.isRunning = false;
     this.stopTimer();
@@ -317,27 +347,68 @@ export class TableManager {
     // Sort by hand strength
     results.sort((a, b) => compareHands(b.hand, a.hand));
 
+    // Find all winners (split pot on tie)
+    const topHand = results[0].hand;
+    const winners = results.filter(r => compareHands(r.hand, topHand) === 0);
+    const splitAmount = this.state.currentPot / winners.length;
+
+    let lossDeflatorResult = null;
+    let payoutByWinner = splitAmount;
+
+    if (winners.length === 1 && results.length === 2 && this.state.allInCallContext) {
+      const loserResult = results.find(r => r.player.id !== winners[0].player.id);
+      if (loserResult) {
+        const heroOdds = getHeadsupWinProbability(
+          this.state.allInCallContext.heroCards,
+          this.state.allInCallContext.villainCards,
+          this.state.allInCallContext.board
+        );
+        const loserOdds = loserResult.player.id === this.state.allInCallContext.heroId
+          ? heroOdds
+          : 1 - heroOdds;
+
+        const deflator = calculateLossDeflator({
+          pot: this.state.currentPot,
+          loserId: loserResult.player.id,
+          winnerId: winners[0].player.id,
+          loserOdds,
+        });
+
+        if (deflator) {
+          lossDeflatorResult = deflator;
+          payoutByWinner = Math.max(0, splitAmount - deflator.cashback);
+        }
+      }
+    }
+
     // Award pot to winner(s)
-    const winner = results[0];
-    const winnerPlayer = this.state.players.find(p => p.id === winner.player.id)!;
-    winnerPlayer.chips += this.state.currentPot;
+    for (const winner of winners) {
+      const winnerPlayer = this.state.players.find(p => p.id === winner.player.id)!;
+      winnerPlayer.chips += payoutByWinner;
+    }
+
+    if (lossDeflatorResult) {
+      const loserPlayer = this.state.players.find(p => p.id === lossDeflatorResult.loserId)!;
+      loserPlayer.chips += lossDeflatorResult.cashback;
+    }
 
     // Prepare hand result data
     const handResult = {
-      winners: [{
-        playerId: winner.player.id,
-        amount: this.state.currentPot,
-        hand: winner.hand,
-      }],
+      winners: winners.map(w => ({
+        playerId: w.player.id,
+        amount: payoutByWinner,
+        hand: w.hand,
+      })),
       players: results.map(r => ({
         id: r.player.id,
         cards: r.player.cards,
         hand: r.hand,
       })),
+      lossDeflator: lossDeflatorResult,
     };
 
     // Emit hand result (will be sent via socket)
-    this.state.pots = [{ amount: this.state.currentPot, eligiblePlayers: winners.map(w => w.id) }];
+    this.state.pots = [{ amount: this.state.currentPot, eligiblePlayers: winners.map(w => w.player.id) }];
 
     // Auto-start next hand after delay
     setTimeout(() => {

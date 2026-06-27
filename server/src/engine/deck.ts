@@ -1,11 +1,11 @@
 import { Card, Rank, Suit, HandRank, HandResult } from '@shared/types';
 
-const RANKS: Rank[] = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6'];
+const RANKS: Rank[] = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
 const SUITS: Suit[] = ['hearts', 'diamonds', 'clubs', 'spades'];
 
 const RANK_VALUES: Record<Rank, number> = {
-  '6': 6, '7': 7, '8': 8, '9': 9, 'T': 10,
-  'J': 11, 'Q': 12, 'K': 13, 'A': 14,
+  '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
+  'T': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14,
 };
 
 export function createDeck(): Card[] {
@@ -33,10 +33,8 @@ export function dealCards(deck: Card[], count: number): { cards: Card[]; remaini
   return { cards, remaining };
 }
 
-// Short Deck hand evaluation
-// Key differences from standard Hold'em:
-// 1. Flush beats Full House
-// 2. A-6-7-8-9 is a straight (Ace plays low)
+// Texas Hold'em tradicional — 52 cartas
+// Hierarquia: Royal Flush > Straight Flush > Quadra > Full House > Flush > Sequência > Trinca > Dois Pares > Par > Carta Alta
 
 function sortByRank(cards: Card[]): Card[] {
   return [...cards].sort((a, b) => RANK_VALUES[b.rank] - RANK_VALUES[a.rank]);
@@ -59,25 +57,17 @@ function getSuits(cards: Card[]): Map<Suit, number> {
 }
 
 function hasStraight(cards: Card[]): { isStraight: boolean; highCard: Rank | null } {
-  const uniqueRanks = [...new Set(cards.map(c => RANK_VALUES[c.rank]))].sort((a, b) => b - a);
+  const uniqueRanks = [...new Set(cards.map(c => RANK_VALUES[c.rank]))].sort((a, b) => a - b);
 
-  // Check normal straight (5 consecutive)
-  for (let i = 0; i <= uniqueRanks.length - 5; i++) {
-    if (uniqueRanks[i] - uniqueRanks[i + 4] === 4) {
-      const highRank = Object.entries(RANK_VALUES).find(([, v]) => v === uniqueRanks[i])![0] as Rank;
-      return { isStraight: true, highCard: highRank };
-    }
+  if (uniqueRanks.includes(14) && uniqueRanks.includes(2) && uniqueRanks.includes(3) && uniqueRanks.includes(4) && uniqueRanks.includes(5)) {
+    return { isStraight: true, highCard: '5' };
   }
 
-  // Check A-6-7-8-9 (Ace low straight in Short Deck)
-  if (uniqueRanks.includes(14)) { // Has Ace
-    const lowRanks = uniqueRanks.filter(r => r >= 6 && r <= 10);
-    if (lowRanks.length >= 4) {
-      const sortedLow = lowRanks.sort((a, b) => b - a);
-      // Check if we have 6,7,8,9 (with Ace as low)
-      if (sortedLow.includes(6) && sortedLow.includes(7) && sortedLow.includes(8) && sortedLow.includes(9)) {
-        return { isStraight: true, highCard: '9' };
-      }
+  const sortedDesc = [...uniqueRanks].sort((a, b) => b - a);
+  for (let i = 0; i <= sortedDesc.length - 5; i++) {
+    if (sortedDesc[i] - sortedDesc[i + 4] === 4) {
+      const highRank = Object.entries(RANK_VALUES).find(([, v]) => v === sortedDesc[i])![0] as Rank;
+      return { isStraight: true, highCard: highRank };
     }
   }
 
@@ -95,6 +85,7 @@ function getStraightFlush(cards: Card[]): { rank: HandRank; cards: Card[] } | nu
           .filter(c => {
             const val = RANK_VALUES[c.rank];
             const highVal = RANK_VALUES[highCard];
+            if (highCard === '5' && c.rank === 'A') return true;
             return val <= highVal && val >= highVal - 4;
           })
           .slice(0, 5);
@@ -201,7 +192,6 @@ function getOnePair(cards: Card[]): { rank: HandRank; cards: Card[]; kickers: Ca
 export function evaluateHand(holeCards: Card[], communityCards: Card[]): HandResult {
   const allCards = [...holeCards, ...communityCards];
 
-  // Check hands in order (Short Deck: Flush > Full House)
   const straightFlush = getStraightFlush(allCards);
   if (straightFlush) {
     const value = straightFlush.rank === 'royal_flush' ? 10 : 9;
@@ -213,30 +203,34 @@ export function evaluateHand(holeCards: Card[], communityCards: Card[]): HandRes
     return { ...fourOfAKind, value: 8 };
   }
 
-  // In Short Deck: Flush beats Full House
-  const flush = getFlush(allCards);
-  if (flush) {
-    return { ...flush, kickers: [], value: 7 };
-  }
-
   const fullHouse = getFullHouse(allCards);
   if (fullHouse) {
-    return { ...fullHouse, kickers: [], value: 6 };
+    return { ...fullHouse, kickers: [], value: 7 };
   }
 
-  const threeOfAKind = getThreeOfAKind(allCards);
-  if (threeOfAKind) {
-    return { ...threeOfAKind, value: 5 };
+  const flush = getFlush(allCards);
+  if (flush) {
+    return { ...flush, kickers: [], value: 6 };
   }
 
   const { isStraight, highCard } = hasStraight(allCards);
   if (isStraight && highCard) {
-    const straightCards = sortByRank(allCards).filter(c => {
+    let straightCards = sortByRank(allCards).filter(c => {
       const val = RANK_VALUES[c.rank];
       const highVal = RANK_VALUES[highCard];
+      if (highCard === '5' && c.rank === 'A') return true;
       return val <= highVal && val >= highVal - 4;
     }).slice(0, 5);
-    return { rank: 'straight', cards: straightCards, kickers: [], value: 4 };
+    if (highCard === '5' && !straightCards.some(c => c.rank === 'A')) {
+      const aceCard = allCards.find(c => c.rank === 'A');
+      if (aceCard) straightCards = [aceCard, ...straightCards.slice(0, 4)];
+    }
+    return { rank: 'straight', cards: straightCards, kickers: [], value: 5 };
+  }
+
+  const threeOfAKind = getThreeOfAKind(allCards);
+  if (threeOfAKind) {
+    return { ...threeOfAKind, value: 4 };
   }
 
   const twoPair = getTwoPair(allCards);
@@ -249,7 +243,6 @@ export function evaluateHand(holeCards: Card[], communityCards: Card[]): HandRes
     return { ...onePair, value: 2 };
   }
 
-  // High card
   const highCards = sortByRank(allCards).slice(0, 5);
   return { rank: 'high_card', cards: [highCards[0]], kickers: highCards.slice(1), value: 1 };
 }
@@ -257,21 +250,19 @@ export function evaluateHand(holeCards: Card[], communityCards: Card[]): HandRes
 export function compareHands(a: HandResult, b: HandResult): number {
   if (a.value !== b.value) return a.value - b.value;
 
-  // Compare main cards
   for (let i = 0; i < Math.min(a.cards.length, b.cards.length); i++) {
     const aVal = RANK_VALUES[a.cards[i].rank];
     const bVal = RANK_VALUES[b.cards[i].rank];
     if (aVal !== bVal) return aVal - bVal;
   }
 
-  // Compare kickers
   for (let i = 0; i < Math.min(a.kickers.length, b.kickers.length); i++) {
     const aVal = RANK_VALUES[a.kickers[i].rank];
     const bVal = RANK_VALUES[b.kickers[i].rank];
     if (aVal !== bVal) return aVal - bVal;
   }
 
-  return 0; // Tie
+  return 0;
 }
 
 export function getHandName(rank: HandRank): string {
