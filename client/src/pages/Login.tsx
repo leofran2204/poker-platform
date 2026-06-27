@@ -26,7 +26,7 @@ export default function Login() {
             <Swords size={32} className="text-white" />
           </div>
           <h1 className="text-3xl font-bold font-poker text-yellow-400">Poker Platform</h1>
-          <p className="text-white/40 text-sm mt-1">Texas Hold'em Short Deck</p>
+              <p className="text-white/40 text-sm mt-1">Texas Hold'em</p>
         </div>
 
         {/* Form */}

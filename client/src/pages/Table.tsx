@@ -139,7 +139,7 @@ export default function Table() {
           </button>
           <div>
             <h1 className="text-sm font-semibold text-white">{currentTable.name}</h1>
-            <p className="text-xs text-white/30">Short Deck - ${currentTable.smallBlind}/${currentTable.bigBlind}</p>
+            <p className="text-xs text-white/30">Texas Hold'em - ${currentTable.smallBlind}/${currentTable.bigBlind}</p>
           </div>
         </div>
 

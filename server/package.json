@@ -1,7 +1,7 @@
 {
   "name": "poker-platform-server",
   "version": "1.0.0",
-  "description": "Online Poker Platform - Texas Hold'em Short Deck",
+  "description": "Online Poker Platform - Texas Hold'em",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",

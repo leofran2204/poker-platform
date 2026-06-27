@@ -85,7 +85,7 @@ export default function Lobby() {
             </div>
             <div>
               <h1 className="text-lg font-bold font-poker text-yellow-400">Poker Platform</h1>
-              <p className="text-xs text-white/30">Short Deck</p>
+              <p className="text-xs text-white/30">Texas Hold'em</p>
             </div>
           </div>
 
@@ -139,7 +139,7 @@ export default function Lobby() {
         {/* Hero */}
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-white mb-2">Bem-vindo ao Poker Platform</h2>
-          <p className="text-white/40">Escolha uma mesa ou crie a sua para começar a jogar Texas Hold'em Short Deck</p>
+          <p className="text-white/40">Escolha uma mesa ou crie a sua para começar a jogar Texas Hold'em</p>
         </div>
 
         {/* Mesas */}
@@ -187,7 +187,7 @@ export default function Lobby() {
                     <h4 className="font-semibold text-white group-hover:text-yellow-400 transition-colors">
                       {table.name}
                     </h4>
-                    <p className="text-xs text-white/30 mt-0.5">Short Deck</p>
+                    <p className="text-xs text-white/30 mt-0.5">Texas Hold'em</p>
                   </div>
                   <div className="flex items-center gap-1 text-white/40 text-xs">
                     <Users size={12} />
