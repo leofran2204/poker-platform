@@ -1,0 +1,19 @@
+[package]
+name = "poker-engine"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rand = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bcrypt = "0.16"
+hmac = "0.12"
+sha2 = "0.10"
+base64 = "0.22"
+
+[dev-dependencies]
+# Proptest provides property‑based testing, allowing us to generate milhares de casos de teste
+# automaticamente a partir de estratégias de geração de dados. Isso aumenta a cobertura
+# sem precisar escrever manualmente cada caso individual.
+proptest = "1.0"

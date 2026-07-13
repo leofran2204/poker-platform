@@ -1,0 +1,14 @@
+C:\Users\leofr\OneDrive\Projetos\Poker_Project\09-Frontend-Dioxus\target\debug\deps\serde-1a398aa7e0234e7d.d: C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs C:\Users\leofr\OneDrive\Projetos\Poker_Project\09-Frontend-Dioxus\target\debug\build\serde-ba521c252555c593\out/private.rs
+
+C:\Users\leofr\OneDrive\Projetos\Poker_Project\09-Frontend-Dioxus\target\debug\deps\libserde-1a398aa7e0234e7d.rlib: C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs C:\Users\leofr\OneDrive\Projetos\Poker_Project\09-Frontend-Dioxus\target\debug\build\serde-ba521c252555c593\out/private.rs
+
+C:\Users\leofr\OneDrive\Projetos\Poker_Project\09-Frontend-Dioxus\target\debug\deps\libserde-1a398aa7e0234e7d.rmeta: C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs C:\Users\leofr\OneDrive\Projetos\Poker_Project\09-Frontend-Dioxus\target\debug\build\serde-ba521c252555c593\out/private.rs
+
+C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs:
+C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs:
+C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs:
+C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs:
+C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs:
+C:\Users\leofr\OneDrive\Projetos\Poker_Project\09-Frontend-Dioxus\target\debug\build\serde-ba521c252555c593\out/private.rs:
+
+# env-dep:OUT_DIR=C:\\Users\\leofr\\OneDrive\\Projetos\\Poker_Project\\09-Frontend-Dioxus\\target\\debug\\build\\serde-ba521c252555c593\\out

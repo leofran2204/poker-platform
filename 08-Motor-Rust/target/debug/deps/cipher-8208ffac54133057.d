@@ -1,0 +1,10 @@
+C:\Users\leofr\OneDrive\Projetos\Poker_Project\08-Motor-Rust\target\debug\deps\cipher-8208ffac54133057.d: C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\lib.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\block.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\errors.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\stream.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\stream_core.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\stream_wrapper.rs
+
+C:\Users\leofr\OneDrive\Projetos\Poker_Project\08-Motor-Rust\target\debug\deps\libcipher-8208ffac54133057.rmeta: C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\lib.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\block.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\errors.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\stream.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\stream_core.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\stream_wrapper.rs
+
+C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\lib.rs:
+C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\block.rs:
+C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\errors.rs:
+C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\stream.rs:
+C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\stream_core.rs:
+C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cipher-0.4.4\src\stream_wrapper.rs:

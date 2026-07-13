@@ -1,0 +1,284 @@
+name: Rust CI
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - '08-Motor-Rust/**'
+      - '09-Frontend-Dioxus/**'
+      - '10-API-Axum/**'
+      - '.github/workflows/rust-ci.yml'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '08-Motor-Rust/**'
+      - '09-Frontend-Dioxus/**'
+      - '10-API-Axum/**'
+  workflow_dispatch:  # permite rodar manualmente
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"  # warnings viram erros no CI
+
+jobs:
+  check:
+    name: Cargo Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./08-Motor-Rust
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('08-Motor-Rust/Cargo.lock') }}
+
+      - name: Cargo check
+        run: cargo check --workspace
+
+  test:
+    name: Cargo Test (484 tests)
+    runs-on: ubuntu-latest
+    needs: check
+    defaults:
+      run:
+        working-directory: ./08-Motor-Rust
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('08-Motor-Rust/Cargo.lock') }}
+
+      - name: Cache target directory
+        uses: actions/cache@v4
+        with:
+          path: 08-Motor-Rust/target
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('08-Motor-Rust/Cargo.lock') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-target-${{ hashFiles('08-Motor-Rust/Cargo.lock') }}-
+            ${{ runner.os }}-cargo-target-
+
+      - name: Run tests
+        run: cargo test --lib -- --nocapture
+
+  clippy:
+    name: Cargo Clippy (Lint)
+    runs-on: ubuntu-latest
+    needs: check
+    defaults:
+      run:
+        working-directory: ./08-Motor-Rust
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable + clippy
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('08-Motor-Rust/Cargo.lock') }}
+
+      - name: Run clippy
+        run: cargo clippy --workspace -- -D warnings
+
+  fmt:
+    name: Cargo Fmt (Format Check)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./08-Motor-Rust
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable + rustfmt
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+  audit:
+    name: Cargo Audit (CVE Scan)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./08-Motor-Rust
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked
+
+      - name: Run cargo audit
+        run: cargo audit --deny warnings
+
+  frontend-check:
+    name: Frontend Dioxus — Check + Clippy + Fmt
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./09-Frontend-Dioxus
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Install wasm32-unknown-unknown target
+        run: rustup target add wasm32-unknown-unknown
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-registry-frontend-${{ hashFiles('09-Frontend-Dioxus/Cargo.lock') }}
+
+      - name: Cargo check (wasm)
+        run: cargo check --target wasm32-unknown-unknown
+
+      - name: Run clippy
+        run: cargo clippy --target wasm32-unknown-unknown -- -D warnings
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+  # ─── API Axum (10-API-Axum) ───
+
+  api-check:
+    name: API — Cargo Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./10-API-Axum
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-registry-api-${{ hashFiles('10-API-Axum/Cargo.lock') }}
+
+      - name: Cache target directory
+        uses: actions/cache@v4
+        with:
+          path: 10-API-Axum/target
+          key: ${{ runner.os }}-cargo-target-api-${{ hashFiles('10-API-Axum/Cargo.lock') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-target-api-${{ hashFiles('10-API-Axum/Cargo.lock') }}-
+            ${{ runner.os }}-cargo-target-api-
+
+      - name: Cargo check (all targets incl. tests)
+        run: cargo check --all-targets
+
+  api-test:
+    name: API — Cargo Test (12 non-DB tests)
+    runs-on: ubuntu-latest
+    needs: api-check
+    defaults:
+      run:
+        working-directory: ./10-API-Axum
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-registry-api-${{ hashFiles('10-API-Axum/Cargo.lock') }}
+
+      - name: Cache target directory
+        uses: actions/cache@v4
+        with:
+          path: 10-API-Axum/target
+          key: ${{ runner.os }}-cargo-target-api-${{ hashFiles('10-API-Axum/Cargo.lock') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-target-api-${{ hashFiles('10-API-Axum/Cargo.lock') }}-
+            ${{ runner.os }}-cargo-target-api-
+
+      # DB-dependent tests are #[ignore] — only non-DB tests run in CI
+      - name: Run tests (non-DB only)
+        run: cargo test -- --nocapture
+
+  api-clippy:
+    name: API — Cargo Clippy (Lint)
+    runs-on: ubuntu-latest
+    needs: api-check
+    defaults:
+      run:
+        working-directory: ./10-API-Axum
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable + clippy
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-registry-api-${{ hashFiles('10-API-Axum/Cargo.lock') }}
+
+      - name: Run clippy (all targets)
+        run: cargo clippy --all-targets -- -D warnings
+
+  api-fmt:
+    name: API — Cargo Fmt (Format Check)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./10-API-Axum
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable + rustfmt
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check

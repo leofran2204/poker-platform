@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: poker-platform
+    env: node
+    rootDir: ./server
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    region: oregon
+    plan: starter
+envVars:
+  - key: DATABASE_URL
+    sync: false
+  - key: JWT_SECRET
+    sync: false
+  - key: PORT
+    sync: false

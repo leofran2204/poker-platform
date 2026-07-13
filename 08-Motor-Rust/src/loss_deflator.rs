@@ -1,0 +1,475 @@
+// loss-deflator.rs — Loss Deflator (Cashback por Bad Beat)
+// Migrado de TypeScript (loss-deflator.ts) para Rust em 2026-07-02
+//
+// O cashback é calculado baseado em QUANTAS CARTAS FALTAM para o board
+// completar quando o all-in call acontece. Quanto MENOS cartas faltam,
+// MAIOR o cashback — porque o perdedor estava mais perto de ganhar.
+//
+// Tabela de deflator (fase do all-in call):
+//
+//   Fase do all-in | Cartas restantes | Deflator | Justificativa
+//   ---------------|------------------|----------|-----------------------------------------
+//   Pré-flop       | 5 (flop+turn+river)| 15%    | All-in cego, faltam todas as cartas
+//   Flop           | 2 (turn+river)     | 25%    | 3 cartas viradas, faltam 2
+//   Turn           | 1 (river)          | 35%    | 4 cartas viradas, faltava SÓ 1
+//
+// IMPORTANTE — Sobre quais pots o cashback incide:
+// O cashback é aplicado SOMENTE sobre os pots em que o PERDEDOR participou
+// (esteve elegível). Se o perdedor só contribuiu até o nível do side pot 1,
+// o cashback incide apenas sobre main pot + side pot 1 — nunca sobre pots
+// em que ele não contribuiu. Isso preserva o dinheiro dos jogadores que
+// apostaram mais alto e não foram afetados pelo bad beat.
+//
+// Sem impacto financeiro para a plataforma: o cashback vem do próprio
+// pote disputado, nunca de saldo da casa.
+//
+// IMPORTANTE: Este deflator NÃO depende das odds do perdedor.
+// Se houve all-in + call + cartas comunitárias, o deflator se aplica.
+// A "frieza" do bad beat é medida pelas cartas restantes, não pelas odds.
+
+use crate::deck::{contains_card, create_full_deck, Card};
+use crate::types::{GamePhase, Pot};
+
+/// Tier do deflator (para serialização/exibição)
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LossDeflatorTier {
+    FifteenPercent,
+    TwentyFivePercent,
+    ThirtyFivePercent,
+}
+
+impl LossDeflatorTier {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            LossDeflatorTier::FifteenPercent => "15%",
+            LossDeflatorTier::TwentyFivePercent => "25%",
+            LossDeflatorTier::ThirtyFivePercent => "35%",
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn percent(&self) -> f64 {
+        match self {
+            LossDeflatorTier::FifteenPercent => 0.15,
+            LossDeflatorTier::TwentyFivePercent => 0.25,
+            LossDeflatorTier::ThirtyFivePercent => 0.35,
+        }
+    }
+}
+
+/// Parâmetros para o deflator progressivo
+#[derive(Debug, Clone)]
+pub struct ProgressiveLossDeflatorParams {
+    pub pots: Vec<Pot>,
+    pub loser_id: String,
+    pub winner_id: String,
+    pub phase: GamePhase,
+}
+
+/// Resultado do deflator progressivo
+#[derive(Debug, Clone)]
+#[allow(dead_code)]
+pub struct ProgressiveLossDeflatorResult {
+    pub loser_id: String,
+    pub winner_id: String,
+    pub cashback: f64, // cashback total (2 casas decimais, truncado)
+    pub odds: f64,     // não usado nesta versão (compatibilidade)
+    pub tier: LossDeflatorTier,
+    pub base_cashback: f64, // cashback total antes do rateio por pot
+    pub multiplier: f64,    // multiplicador aplicado pela fase (sempre 1.0)
+    pub phase: GamePhase,
+    pub cards_remaining: u8, // quantas cartas faltavam quando o all-in aconteceu
+    pub eligible_pot_ids: Vec<usize>, // índices dos pots em que o perdedor participou
+    pub eligible_pot_total: f64, // soma dos pots elegíveis (base do cálculo)
+    pub per_pot_cashback: Vec<PotCashbackEntry>, // rateio por pot
+}
+
+/// Entrada individual do rateio: quanto cada pot contribuiu para o cashback
+#[derive(Debug, Clone)]
+pub struct PotCashbackEntry {
+    pub pot_index: usize,
+    pub amount: f64,
+}
+
+/// Deflator baseado na fase do all-in call (cartas restantes)
+fn phase_deflator(phase: GamePhase) -> Option<(f64, u8)> {
+    match phase {
+        GamePhase::Preflop => Some((0.15, 5)), // flop + turn + river
+        GamePhase::Flop => Some((0.25, 2)),    // turn + river
+        GamePhase::Turn => Some((0.35, 1)),    // river
+        GamePhase::River => None,              // não há all-in call no river (showdown direto)
+    }
+}
+
+/// Calcula o deflator progressivo baseado na fase do all-in call.
+///
+/// O cashback incide APENAS sobre os pots em que o perdedor é elegível.
+/// Se o perdedor não participou de algum side pot (porque apostou menos
+/// que os outros jogadores all-in), esse pot é preservado integralmente.
+///
+/// # Returns
+/// Resultado com cashback final e rateio por pot, ou None se não qualifica
+pub fn calculate_progressive_loss_deflator(
+    params: ProgressiveLossDeflatorParams,
+) -> Option<ProgressiveLossDeflatorResult> {
+    let ProgressiveLossDeflatorParams {
+        pots,
+        loser_id,
+        winner_id,
+        phase,
+    } = params;
+
+    let deflator = phase_deflator(phase)?;
+    let (percent, cards_remaining) = deflator;
+
+    // 1. Identificar pots em que o PERDEDOR é elegível
+    let mut eligible_pot_indices = Vec::new();
+    for (idx, pot) in pots.iter().enumerate() {
+        if pot.eligible_players.contains(&loser_id) {
+            eligible_pot_indices.push(idx);
+        }
+    }
+
+    if eligible_pot_indices.is_empty() {
+        return None;
+    }
+
+    // 2. Somar apenas os pots elegíveis
+    let eligible_pot_total: f64 = eligible_pot_indices
+        .iter()
+        .map(|&idx| pots[idx].amount)
+        .sum();
+
+    if eligible_pot_total == 0.0 {
+        return None;
+    }
+
+    // 3. Calcular cashback total sobre os pots elegíveis
+    // Trunca para 2 casas decimais (regra fundamental do software)
+    let base_cashback = truncar_2_casas(eligible_pot_total * percent);
+
+    // 4. Ratear o cashback proporcionalmente entre os pots elegíveis
+    let mut per_pot_cashback = Vec::new();
+    let mut distributed = 0.0f64;
+
+    for (i, &idx) in eligible_pot_indices.iter().enumerate() {
+        let is_last = i == eligible_pot_indices.len() - 1;
+        let amount = if is_last {
+            // Último pot absorve o resto para evitar erro de arredondamento
+            base_cashback - distributed
+        } else {
+            let proportion = pots[idx].amount / eligible_pot_total;
+            let raw = base_cashback * proportion;
+            truncar_2_casas(raw)
+        };
+        distributed += amount;
+        per_pot_cashback.push(PotCashbackEntry {
+            pot_index: idx,
+            amount,
+        });
+    }
+
+    let tier = match percent {
+        p if (p - 0.15).abs() < f64::EPSILON => LossDeflatorTier::FifteenPercent,
+        p if (p - 0.25).abs() < f64::EPSILON => LossDeflatorTier::TwentyFivePercent,
+        p if (p - 0.35).abs() < f64::EPSILON => LossDeflatorTier::ThirtyFivePercent,
+        _ => LossDeflatorTier::FifteenPercent,
+    };
+
+    Some(ProgressiveLossDeflatorResult {
+        loser_id,
+        winner_id,
+        cashback: base_cashback,
+        odds: 0.0, // não usado nesta versão
+        tier,
+        base_cashback,
+        multiplier: 1.0,
+        phase,
+        cards_remaining,
+        eligible_pot_ids: eligible_pot_indices,
+        eligible_pot_total,
+        per_pot_cashback,
+    })
+}
+
+/// Calcula probabilidade de vitória heads-up (exata, por enumeração)
+/// Usado para compatibilidade com versão legada baseada em odds.
+#[allow(dead_code)]
+pub fn get_heads_up_win_probability(
+    hero_cards: &[Card],
+    villain_cards: &[Card],
+    board_cards: &[Card],
+) -> f64 {
+    let known_cards: Vec<Card> = hero_cards
+        .iter()
+        .chain(villain_cards.iter())
+        .chain(board_cards.iter())
+        .cloned()
+        .collect();
+
+    let remaining_deck = get_remaining_deck(&known_cards);
+    let cards_to_deal = 5 - board_cards.len();
+
+    if cards_to_deal == 0 {
+        return evaluate_outcome(hero_cards, villain_cards, board_cards);
+    }
+
+    let board_combos = combinations(&remaining_deck, cards_to_deal);
+    let mut wins = 0.0;
+    let mut ties = 0.0;
+
+    for combo in &board_combos {
+        let mut final_board = board_cards.to_vec();
+        final_board.extend(combo);
+        let outcome = evaluate_outcome(hero_cards, villain_cards, &final_board);
+        if outcome > 0.5 {
+            wins += 1.0;
+        } else if (outcome - 0.5).abs() < f64::EPSILON {
+            ties += 1.0;
+        }
+    }
+
+    let total = board_combos.len() as f64;
+    (wins + ties * 0.5) / total
+}
+
+// ─── Funções auxiliares privadas ───
+
+/// Trunca um valor f64 para exatamente 2 casas decimais, sem arredondamento.
+/// Exemplo: 49.95 → 49.95, 54.05 → 54.05
+/// Esta é uma regra fundamental do software: todos os valores monetários
+/// devem ter exatamente 2 casas decimais, truncados (nunca arredondados).
+fn truncar_2_casas(value: f64) -> f64 {
+    (value * 100.0).trunc() / 100.0
+}
+
+#[allow(dead_code)]
+fn evaluate_outcome(hero_cards: &[Card], villain_cards: &[Card], board: &[Card]) -> f64 {
+    use crate::deck::{compare_hands, evaluate_hand};
+    use std::cmp::Ordering;
+    let hero_hand = evaluate_hand(hero_cards, board);
+    let villain_hand = evaluate_hand(villain_cards, board);
+    let comparison = compare_hands(&hero_hand, &villain_hand);
+    match comparison {
+        Ordering::Greater => 1.0,
+        Ordering::Equal => 0.5,
+        Ordering::Less => 0.0,
+    }
+}
+
+#[allow(dead_code)]
+fn get_remaining_deck(known_cards: &[Card]) -> Vec<Card> {
+    create_full_deck()
+        .into_iter()
+        .filter(|card| !contains_card(known_cards, card))
+        .collect()
+}
+
+fn combinations<T: Clone>(items: &[T], k: usize) -> Vec<Vec<T>> {
+    let mut result = Vec::new();
+    let mut combination = Vec::new();
+
+    fn backtrack<T: Clone>(
+        items: &[T],
+        k: usize,
+        start: usize,
+        combination: &mut Vec<T>,
+        result: &mut Vec<Vec<T>>,
+    ) {
+        if combination.len() == k {
+            result.push(combination.clone());
+            return;
+        }
+        for i in start..items.len() {
+            combination.push(items[i].clone());
+            backtrack(items, k, i + 1, combination, result);
+            combination.pop();
+        }
+    }
+
+    backtrack(items, k, 0, &mut combination, &mut result);
+    result
+}
+
+// ─── Testes ───
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::deck::{Card, Rank, Suit};
+
+    fn make_card(rank: Rank, suit: Suit) -> Card {
+        Card { rank, suit }
+    }
+
+    fn make_pot(amount: f64, eligible: Vec<&str>) -> Pot {
+        Pot {
+            amount,
+            eligible_players: eligible.into_iter().map(|s| s.into()).collect(),
+        }
+    }
+
+    #[test]
+    fn test_deflator_preflop() {
+        let pots = vec![make_pot(200.0, vec!["loser", "winner"])];
+        let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
+            pots,
+            loser_id: "loser".into(),
+            winner_id: "winner".into(),
+            phase: GamePhase::Preflop,
+        });
+        assert!(result.is_some());
+        let r = result.unwrap();
+        assert_eq!(r.tier, LossDeflatorTier::FifteenPercent);
+        assert_eq!(r.cards_remaining, 5);
+        // 15% de 200 = 30
+        assert!((r.cashback - 30.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn test_deflator_flop() {
+        let pots = vec![make_pot(200.0, vec!["loser", "winner"])];
+        let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
+            pots,
+            loser_id: "loser".into(),
+            winner_id: "winner".into(),
+            phase: GamePhase::Flop,
+        });
+        assert!(result.is_some());
+        let r = result.unwrap();
+        assert_eq!(r.tier, LossDeflatorTier::TwentyFivePercent);
+        assert_eq!(r.cards_remaining, 2);
+        // 25% de 200 = 50
+        assert!((r.cashback - 50.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn test_deflator_turn() {
+        let pots = vec![make_pot(200.0, vec!["loser", "winner"])];
+        let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
+            pots,
+            loser_id: "loser".into(),
+            winner_id: "winner".into(),
+            phase: GamePhase::Turn,
+        });
+        assert!(result.is_some());
+        let r = result.unwrap();
+        assert_eq!(r.tier, LossDeflatorTier::ThirtyFivePercent);
+        assert_eq!(r.cards_remaining, 1);
+        // 35% de 200 = 70
+        assert!((r.cashback - 70.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn test_deflator_river_returns_none() {
+        let pots = vec![make_pot(200.0, vec!["loser", "winner"])];
+        let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
+            pots,
+            loser_id: "loser".into(),
+            winner_id: "winner".into(),
+            phase: GamePhase::River,
+        });
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_deflator_only_eligible_pots() {
+        // main pot: loser + winner (100 cada = 200)
+        // side pot: apenas winner (100)
+        // cashback só incide sobre main pot (200)
+        let pots = vec![
+            make_pot(200.0, vec!["loser", "winner"]), // main pot
+            make_pot(100.0, vec!["winner"]),          // side pot - loser não participou
+        ];
+        let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
+            pots,
+            loser_id: "loser".into(),
+            winner_id: "winner".into(),
+            phase: GamePhase::Flop, // 25%
+        });
+        assert!(result.is_some());
+        let r = result.unwrap();
+        // 25% de 200 = 50 (apenas main pot)
+        assert!((r.cashback - 50.0).abs() < f64::EPSILON);
+        assert!((r.eligible_pot_total - 200.0).abs() < f64::EPSILON);
+        assert_eq!(r.eligible_pot_ids, vec![0]);
+    }
+
+    #[test]
+    fn test_deflator_multiple_eligible_pots_proportional() {
+        // main pot: 200 (loser + winner)
+        // side pot: 100 (loser + winner) - ambos participaram
+        // total elegível = 300
+        // 25% de 300 = 75
+        // rateio: main = 75 * 200/300 = 50, side = 75 * 100/300 = 25
+        let pots = vec![
+            make_pot(200.0, vec!["loser", "winner"]),
+            make_pot(100.0, vec!["loser", "winner"]),
+        ];
+        let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
+            pots,
+            loser_id: "loser".into(),
+            winner_id: "winner".into(),
+            phase: GamePhase::Flop,
+        });
+        assert!(result.is_some());
+        let r = result.unwrap();
+        assert!((r.cashback - 75.0).abs() < f64::EPSILON);
+        assert!((r.eligible_pot_total - 300.0).abs() < f64::EPSILON);
+        assert_eq!(r.per_pot_cashback.len(), 2);
+        assert!((r.per_pot_cashback[0].amount - 50.0).abs() < f64::EPSILON); // main pot
+        assert!((r.per_pot_cashback[1].amount - 25.0).abs() < f64::EPSILON); // side pot
+    }
+
+    #[test]
+    fn test_deflator_loser_not_eligible_returns_none() {
+        let pots = vec![make_pot(200.0, vec!["winner"])];
+        let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
+            pots,
+            loser_id: "loser".into(),
+            winner_id: "winner".into(),
+            phase: GamePhase::Flop,
+        });
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_heads_up_win_probability_preflop() {
+        // AA vs KK preflop
+        let hero = vec![
+            make_card(Rank::Ace, Suit::Hearts),
+            make_card(Rank::Ace, Suit::Spades),
+        ];
+        let villain = vec![
+            make_card(Rank::King, Suit::Hearts),
+            make_card(Rank::King, Suit::Spades),
+        ];
+        let board = vec![];
+        let prob = get_heads_up_win_probability(&hero, &villain, &board);
+        // AA vs KK preflop ~82%
+        assert!(prob > 0.80 && prob < 0.85);
+    }
+
+    #[test]
+    fn test_heads_up_win_probability_river() {
+        // Board: A♥ K♥ Q♥ J♥ T♥ (royal flush)
+        // Ambos split
+        let hero = vec![
+            make_card(Rank::Two, Suit::Clubs),
+            make_card(Rank::Three, Suit::Clubs),
+        ];
+        let villain = vec![
+            make_card(Rank::Four, Suit::Diamonds),
+            make_card(Rank::Five, Suit::Diamonds),
+        ];
+        let board = vec![
+            make_card(Rank::Ace, Suit::Hearts),
+            make_card(Rank::King, Suit::Hearts),
+            make_card(Rank::Queen, Suit::Hearts),
+            make_card(Rank::Jack, Suit::Hearts),
+            make_card(Rank::Ten, Suit::Hearts),
+        ];
+        let prob = get_heads_up_win_probability(&hero, &villain, &board);
+        assert!((prob - 0.5).abs() < f64::EPSILON);
+    }
+}

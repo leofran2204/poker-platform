@@ -1,0 +1,7 @@
+# Configuração do linker para toolchain GNU no Windows
+# Usa rust-lld (empacotado com o toolchain Rust) como linker self-contained
+# Evita dependência de libgcc_eh/libgcc do LLVM-MinGW
+# O Rust já passa "-flavor gnu" automaticamente para rust-lld
+
+[target.x86_64-pc-windows-gnu]
+linker = "rust-lld"
