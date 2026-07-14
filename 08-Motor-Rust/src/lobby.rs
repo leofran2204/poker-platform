@@ -98,6 +98,7 @@ impl LobbyManager {
 
     /// Cria uma nova mesa e a adiciona ao lobby.
     /// Retorna o ID da mesa criada.
+    #[allow(clippy::too_many_arguments)]
     pub fn create_table(
         &mut self,
         name: String,
@@ -147,7 +148,7 @@ impl LobbyManager {
             .filter(|t| {
                 game_type_filter
                     .as_ref()
-                    .map_or(true, |gt| t.game_type == *gt)
+                    .is_none_or(|gt| t.game_type == *gt)
             })
             .collect()
     }

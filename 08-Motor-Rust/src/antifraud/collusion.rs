@@ -306,7 +306,7 @@ fn detect_soft_play(
 ) -> u32 {
     let mut count = 0;
 
-    for (_street, actions) in street_actions {
+    for actions in street_actions.values() {
         // Encontra ações de A e B nesta street
         let a_actions: Vec<&&ActionRecord> =
             actions.iter().filter(|a| a.player_id == player_a).collect();
@@ -357,7 +357,7 @@ fn detect_coordination(
 ) -> u32 {
     let mut count = 0;
 
-    for (_street, actions) in street_actions {
+    for actions in street_actions.values() {
         let a_actions: Vec<&&ActionRecord> =
             actions.iter().filter(|a| a.player_id == player_a).collect();
         let b_actions: Vec<&&ActionRecord> =

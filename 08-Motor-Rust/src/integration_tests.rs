@@ -235,10 +235,10 @@ fn test_tipos_compartilhados_consistencia() {
     assert_eq!(config.rake_cap, 10.0);
 
     // Verifica que GamePhase funciona
-    assert_eq!(GamePhase::Preflop.as_str(), "Preflop");
-    assert_eq!(GamePhase::Flop.as_str(), "Flop");
-    assert_eq!(GamePhase::Turn.as_str(), "Turn");
-    assert_eq!(GamePhase::River.as_str(), "River");
+    assert_eq!(GamePhase::Preflop.as_str(), "preflop");
+    assert_eq!(GamePhase::Flop.as_str(), "flop");
+    assert_eq!(GamePhase::Turn.as_str(), "turn");
+    assert_eq!(GamePhase::River.as_str(), "river");
 }
 
 #[test]

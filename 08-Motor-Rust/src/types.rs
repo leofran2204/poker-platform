@@ -47,23 +47,39 @@ impl TableConfig {
     }
 }
 
-/// Fase do jogo quando o all-in call aconteceu
+/// Fase do jogo (Texas Hold'em)
+/// Usada por loss_deflator.rs, hand_history.rs e game_loop.rs
+/// Serializada em lowercase para compatibilidade com hand_history JSON
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum GamePhase {
     Preflop,
     Flop,
     Turn,
     River,
+    Showdown,
 }
 
 impl GamePhase {
-    /// Retorna a fase como string legível
+    /// Retorna a fase como string legível (lowercase, compatível com serde)
     pub fn as_str(&self) -> &'static str {
         match self {
-            GamePhase::Preflop => "Preflop",
-            GamePhase::Flop => "Flop",
-            GamePhase::Turn => "Turn",
-            GamePhase::River => "River",
+            GamePhase::Preflop => "preflop",
+            GamePhase::Flop => "flop",
+            GamePhase::Turn => "turn",
+            GamePhase::River => "river",
+            GamePhase::Showdown => "showdown",
+        }
+    }
+
+    /// Avança para a próxima fase do jogo
+    pub fn next(&self) -> Option<GamePhase> {
+        match self {
+            GamePhase::Preflop => Some(GamePhase::Flop),
+            GamePhase::Flop => Some(GamePhase::Turn),
+            GamePhase::Turn => Some(GamePhase::River),
+            GamePhase::River => Some(GamePhase::Showdown),
+            GamePhase::Showdown => None,
         }
     }
 }

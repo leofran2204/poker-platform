@@ -1,7 +1,7 @@
 # 🏗️ Arquitetura do Motor Central da Plataforma de Poker Online
 
-**Versão:** 3.1  
-**Data:** 2026-07-03  
+**Versão:** 3.2  
+**Data:** 2026-07-14  
 **Status:** Documento oficial — fonte da verdade para decisões de arquitetura
 
 > Este documento é a **fonte da verdade** sobre a arquitetura da plataforma. Qualquer decisão de design, escolha de tecnologia ou nova pasta deve ser consultada aqui **antes** de iniciar a codificação.
@@ -197,8 +197,8 @@ Jogador                    Front-end (Rust/Dioxus)         Backend (Rust)       
 | `04-Infraestrutura-Docker/` | Docker + Deploy (PostgreSQL 15, Redis 7, Kafka) | ✅ Ativo |
 | `05-Documentacao/` | Documentação do projeto | ✅ Ativo |
 | `07-Arquitetura-Motor/` | Este documento | ✅ Ativo |
-| `08-Motor-Rust/` | Motor de jogo Rust (8 módulos + 4 antifraude, 484 testes) | ✅ Ativo |
-| `09-Frontend-Dioxus/` | Front-end WebAssembly com Dioxus 0.6 | 🔜 Placeholder (1 tela) |
+| `08-Motor-Rust/` | Motor de jogo Rust (11 módulos + 4 antifraude, 499 testes) | ✅ Ativo |
+| `09-Frontend-Dioxus/` | Front-end WebAssembly com Dioxus 0.6 | ✅ Ativo (71 testes) |
 
 ---
 
@@ -208,4 +208,4 @@ Jogador                    Front-end (Rust/Dioxus)         Backend (Rust)       
 
 ---
 
-**Próxima revisão:** Após implementação da API Axum + persistência PostgreSQL.
+**Próxima revisão:** Após integração Game Loop ↔ API Axum (WebSocket).

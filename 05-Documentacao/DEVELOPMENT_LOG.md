@@ -1,6 +1,6 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-13
+**Atualizado:** 2026-07-14
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 > 📐 Spec viva em `STATUS.md`. 📋 Painel tático em `DASHBOARD.md`. 📅 Cronograma em `CRONOGRAMA.md`.
@@ -197,6 +197,46 @@
 *Próximo passo: 3.10 Persistência PostgreSQL (já implementado, falta documentar) ou iniciar Fase 4 (Infraestrutura Docker).*
 
 ---
+
+### [14] 🔄 Game Loop — State Machine Completa de Texas Hold'em (2026-07-14) — Task 4.1 ✅
+**O que foi feito:**
+- **`game_loop.rs` criado** em `08-Motor-Rust/src/` — state machine que orquestra uma mão completa de Texas Hold'em
+- **Estruturas principais:**
+  - `PlayerState` — estado de cada jogador na mão (stack, bet atual, total bet, folded, all_in, last_action)
+  - `HandState` — estado completo da mão (fase, jogadores, dealer_idx, cartas comunitárias, pote, apostas)
+  - `GameLoop` — orquestrador com `new()`, `start_hand()`, `process_action()`, `advance_phase()`
+  - `PlayerMove` enum — Fold, Check, Call, Raise(amount), AllIn
+  - `HandResolution` — resultado final (vencedores, pote distribuído, rake)
+  - `GameLoopError` — erros do game loop (jogador não encontrado, não é sua vez, ação inválida)
+- **Fluxo completo:** Preflop → Flop → Turn → River → Showdown, com blinds automáticos, ordem de ação correta (SB primeiro no preflop, dealer primeiro pós-flop), apostas mínimas, all-in side pots
+- **Integração com módulos existentes:** `deck.rs` (avaliação de mãos), `side_pots.rs` (cálculo de side pots), `rake.rs` (rake da casa), `hand_history.rs` (registro da mão)
+- **15 testes unitários** cobrindo: preflop, flop, turn, river, showdown, all-in, fold encerra mão, raise mínimo, ordem de ação heads-up pós-flop, community cards acumulativos
+- **Quality gates validados:**
+  - `cargo clippy --lib -- -D warnings` ✅ — 0 warnings (game_loop.rs limpo)
+  - `cargo test --lib` ✅ — 499/499 passando (484 anteriores + 15 game_loop)
+- **Total de testes motor:** 499/499 passando
+
+---
+*Próximo passo: Task 4.2 — Integração Game Loop ↔ API Axum (WebSocket).*
+
+---
+
+### [15] 🧹 Correção de 15 Erros Clippy Pré-existentes (2026-07-14) — Task 4.1.1 ✅
+**O que foi feito:**
+- **15 erros clippy corrigidos** em 6 arquivos do motor (`08-Motor-Rust/src/`):
+  - `antifraud/collusion.rs` (2 erros): `for_kv_map` — `for (_street, actions) in street_actions` → `for actions in street_actions.values()`
+  - `auth.rs` (1 erro): `manual_is_multiple_of` — `result.len() % 8 != 0` → `!result.len().is_multiple_of(8)`
+  - `deck.rs` (3 erros): 2× `unnecessary_sort_by` — `sort_by(|a, b| b.rank.cmp(&a.rank))` → `sort_by_key(|c| std::cmp::Reverse(c.rank))` + 1× `collapsible_if` — if aninhado colapsado com `&&` chaining (Rust 2024)
+  - `hand_history.rs` (6 erros): 2× `needless_lifetimes` removidos, 3× `single_char_add_str` — `push_str("\n")` → `push('\n')`, 1× `useless_format` — `format!("...")` → `push_str("...")` direto
+  - `lobby.rs` (2 erros): `too_many_arguments` — `#[allow(...)]` em `create_table` (10 params), `unnecessary_map_or` — `.map_or(true, \|gt\| ...)` → `.is_none_or(\|gt\| ...)`
+  - `tournament_engine.rs` (1 erro): `unnecessary_sort_by` — `sort_by(|a, b| b.stack.cmp(&a.stack))` → `sort_by_key(|e| std::cmp::Reverse(e.stack))`
+- **Quality gates validados:**
+  - `cargo clippy --lib -- -D warnings` ✅ — **0 erros, 0 warnings** em TODOS os módulos (7.48s)
+  - `cargo test --lib` ✅ — 499/499 passando (429.72s)
+- **CI/CD garantido:** `RUSTFLAGS="-D warnings"` agora passa limpo em todos os módulos
+
+---
+*Próximo passo: Commit + push das alterações.*
 
 ### [12] 🎰 Componentes de Lobby — 5 Componentes Dioxus + CSS Puro Full Tilt Poker (2026-07-12)
 **O que foi feito:**

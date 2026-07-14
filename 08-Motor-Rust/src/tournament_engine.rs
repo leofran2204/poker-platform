@@ -353,7 +353,7 @@ pub fn finish_tournament(state: &mut TournamentState) -> Result<TournamentResult
         .values_mut()
         .filter(|e| e.eliminated_at.is_none())
         .collect();
-    remaining.sort_by(|a, b| b.stack.cmp(&a.stack));
+    remaining.sort_by_key(|e| std::cmp::Reverse(e.stack));
 
     for (i, entry) in remaining.iter_mut().enumerate() {
         let position = (i + 1) as u32;

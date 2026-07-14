@@ -1,6 +1,6 @@
 # 📐 SPEC — Status da Implementação da Plataforma de Poker (SDD)
 
-**Última atualização:** 2026-07-12
+**Última atualização:** 2026-07-14
 **Tipo:** Spec-Driven Development — este documento é a fonte da verdade sobre o que está implementado vs especificado.
 
 > ⚡ **REGRA PRIMORDIAL:** Este documento deve refletir a realidade do projeto. Se divergir de `QUALITY.md` (documento mestre), corrigir imediatamente. Ver auditoria contínua em `/memories/poker-project-golden-rules.md`.
@@ -223,6 +223,8 @@
 - [x] **3.7 Componentes de Lobby** ✅ 2026-07-12 — 5 componentes Dioxus (table_card, lobby_filters, join_button, player_count, lobby_list) + refatoração de `pages/lobby.rs` usando `LobbyFilters` + `LobbyList` com mock data. 34 testes unitários novos (7+9+5+8+5). `cargo check` ✅, `cargo clippy --all-targets -- -D warnings` ✅, `cargo test` ✅ (57/57 frontend), `cargo build --release` ✅ (0 warnings)
 - [x] **3.8 Componentes de Auth** ✅ 2026-07-12 — 3 componentes Dioxus (login_form, register_form, mfa_input) + 2 páginas atualizadas (login.rs com AuthFlow enum, register.rs). CSS puro Full Tilt Poker (~100 linhas). `cargo clippy -- -D warnings` ✅ (0 warnings), `cargo test` ✅ (61/61 frontend)
 - [x] **3.9 Integração API ↔ Front** ✅ 2026-07-12 — `api_client.rs` (HTTP via gloo-net: register/login/refresh/logout/health + token storage via web-sys localStorage) + `ws_client.rs` (WebSocket via ws_stream_wasm + gloo-net, com WsCallbacks FnMut + WsConnectionState + ClientMessage/ServerMessage serde). `pages/login.rs` e `pages/register.rs` agora chamam API real (não mais mock). `pages/table.rs` conecta ao WebSocket real. Quality gate do CI: `cargo clippy --all-targets -- -D warnings` ✅ (0 warnings), `cargo test` ✅ (73/73 frontend). 3 testes de localStorage guardados com `#[cfg(target_arch = "wasm32")]` (web-sys não funciona em testes nativos).
+- [x] **4.1 Game Loop** ✅ 2026-07-14 — State machine completa de Texas Hold'em (`game_loop.rs`): Preflop → Flop → Turn → River → Showdown. 15 testes, 499/499 motor passando, clippy 100% limpo.
+- [x] **4.1.1 Correção Clippy** ✅ 2026-07-14 — 15 erros clippy pré-existentes corrigidos em 6 arquivos (collusion, auth, deck, hand_history, lobby, tournament_engine). Clippy 0 erros, 0 warnings.
 
 ---
 
@@ -261,10 +263,10 @@
 | Regras de negócio documentadas | 45                                                                                                                                 |
 | Regras implementadas corretamente | 43 (95%)                                                                                                                       |
 | Bugs corrigidos               | 2/2 críticos                                                                                                                       |
-| Módulos Rust implementados    | **10** (deck, side_pots, loss_deflator, rake, rng_crypto, hand_history, tournament_engine, auth, lobby, utils) + 4 antifraude + 1 API + 15 componentes frontend (7 mesa + 5 lobby + 3 auth) |
+| Módulos Rust implementados    | **11** (deck, side_pots, loss_deflator, rake, rng_crypto, hand_history, tournament_engine, auth, lobby, utils, **game_loop**) + 4 antifraude + 1 API + 15 componentes frontend (7 mesa + 5 lobby + 3 auth) |
 | Módulos antifraude            | **4** (collusion, chip_dumping, bot_detection, multi_account) — 2.13 ✅ Completo                                                   |
 | API Axum                      | **✅ Implementada** (Axum 0.7, 8 endpoints REST + WebSocket + JWT middleware, 12 testes ativos) — 2.14 ✅ Completo                |
-| Testes Rust                   | **567/567 passando** (484 motor + 12 API + 71 frontend), 0 warnings
+| Testes Rust                   | **582/582 passando** (499 motor + 12 API + 71 frontend), 0 warnings
 | Funcionalidades pendentes (Rust) | 0 (Motor + API 100%)                                                                                                            |
 | Stack atual                   | **Rust puro** (Dioxus no front-end, Axum/Rust no back-end)                                                                         |
 | CI/CD                         | ✅ Implementado (10 jobs: check, test, clippy, fmt, audit, frontend-check + api-check, api-test, api-clippy, api-fmt)              |

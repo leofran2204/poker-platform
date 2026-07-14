@@ -97,7 +97,7 @@ fn phase_deflator(phase: GamePhase) -> Option<(f64, u8)> {
         GamePhase::Preflop => Some((0.15, 5)), // flop + turn + river
         GamePhase::Flop => Some((0.25, 2)),    // turn + river
         GamePhase::Turn => Some((0.35, 1)),    // river
-        GamePhase::River => None,              // não há all-in call no river (showdown direto)
+        GamePhase::River | GamePhase::Showdown => None, // showdown direto / fim
     }
 }
 

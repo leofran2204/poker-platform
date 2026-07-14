@@ -221,7 +221,7 @@ pub fn contains_card(cards: &[Card], target: &Card) -> bool {
 /// Ordena cartas por rank decrescente (A=14 primeiro)
 fn sort_by_rank(cards: &[Card]) -> Vec<Card> {
     let mut sorted = cards.to_vec();
-    sorted.sort_by(|a, b| b.rank.cmp(&a.rank));
+    sorted.sort_by_key(|c| std::cmp::Reverse(c.rank));
     sorted
 }
 
@@ -321,7 +321,7 @@ fn build_straight_cards(cards: &[Card], high: Rank) -> Vec<Card> {
         .copied()
         .collect();
 
-    result.sort_by(|a, b| b.rank.cmp(&a.rank));
+    result.sort_by_key(|c| std::cmp::Reverse(c.rank));
     result.dedup_by(|a, b| a.rank == b.rank);
     result.truncate(5);
     result
@@ -369,10 +369,8 @@ fn get_full_house(cards: &[Card]) -> Option<HandResult> {
                     }
                 }
             }
-        } else if count >= 2 {
-            if pair.is_none() || rank as u8 > pair.unwrap() as u8 {
-                pair = Some(rank);
-            }
+        } else if count >= 2 && (pair.is_none() || rank as u8 > pair.unwrap() as u8) {
+            pair = Some(rank);
         }
     }
 

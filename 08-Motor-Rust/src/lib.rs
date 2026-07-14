@@ -12,6 +12,7 @@ pub mod utils;
 pub mod antifraud;
 pub mod auth;
 pub mod deck;
+pub mod game_loop;
 pub mod hand_history;
 pub mod lobby;
 pub mod loss_deflator;

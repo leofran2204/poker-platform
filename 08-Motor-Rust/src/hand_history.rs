@@ -2,33 +2,11 @@
 // Criado em 2026-07-04 | Parte da FASE 2 — Motor de Jogo Rust
 
 use crate::deck::{Card, HandResult};
+use crate::types::GamePhase;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 // ─── Tipos (enums + structs) ───
-
-/// Fase do jogo em que a ação ocorreu
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum GamePhase {
-    Preflop,
-    Flop,
-    Turn,
-    River,
-    Showdown,
-}
-
-impl GamePhase {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            GamePhase::Preflop => "preflop",
-            GamePhase::Flop => "flop",
-            GamePhase::Turn => "turn",
-            GamePhase::River => "river",
-            GamePhase::Showdown => "showdown",
-        }
-    }
-}
 
 /// Ação de um jogador durante uma mão
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -250,7 +228,7 @@ pub fn get_player_actions<'a>(history: &'a HandHistory, player_id: &str) -> Vec<
 }
 
 /// Retorna as ações de uma fase específica
-pub fn get_phase_actions<'a>(history: &'a HandHistory, phase: GamePhase) -> Vec<&'a PlayerAction> {
+pub fn get_phase_actions(history: &HandHistory, phase: GamePhase) -> Vec<&PlayerAction> {
     history
         .actions
         .iter()
@@ -269,7 +247,7 @@ pub fn get_player_total_bet(history: &HandHistory, player_id: &str) -> u64 {
 }
 
 /// Retorna o vencedor da mão (posição 1)
-pub fn get_winner<'a>(history: &'a HandHistory) -> Option<&'a PlayerResult> {
+pub fn get_winner(history: &HandHistory) -> Option<&PlayerResult> {
     history.results.iter().find(|r| r.finish_position == 1)
 }
 
@@ -288,7 +266,7 @@ pub fn get_hand_summary(history: &HandHistory) -> String {
     if let Some(ante) = history.table_config.ante {
         summary.push_str(&format!(" | Ante: {}", ante));
     }
-    summary.push_str("\n");
+    summary.push('\n');
 
     summary.push_str(&format!("Players: {}\n", history.players.join(", ")));
 
@@ -323,7 +301,7 @@ pub fn get_hand_summary(history: &HandHistory) -> String {
     }
 
     // Resultado
-    summary.push_str(&format!("\n--- Result ---\n"));
+    summary.push_str("\n--- Result ---\n");
     summary.push_str(&format!(
         "End: {} | Pot: {} | Rake: {}\n",
         history.end_reason.as_str(),
@@ -340,7 +318,7 @@ pub fn get_hand_summary(history: &HandHistory) -> String {
             if let Some(ref name) = result.best_hand_name {
                 summary.push_str(&format!(" with {}", name));
             }
-            summary.push_str("\n");
+            summary.push('\n');
         } else if result.folded {
             summary.push_str(&format!(
                 "  {} folded (-{})\n",
@@ -354,7 +332,7 @@ pub fn get_hand_summary(history: &HandHistory) -> String {
             if let Some(ref name) = result.best_hand_name {
                 summary.push_str(&format!(" with {}", name));
             }
-            summary.push_str("\n");
+            summary.push('\n');
         }
     }
 
