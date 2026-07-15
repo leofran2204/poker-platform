@@ -32,3 +32,5 @@ mod loss_deflator_tests;
 mod motor_tests;
 #[cfg(test)]
 mod property_tests;
+#[cfg(test)]
+mod game_loop_tests;
