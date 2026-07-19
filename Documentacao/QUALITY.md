@@ -1,6 +1,6 @@
 # 🃏 QUALITY.md — Documento Mestre do Poker Project
 
-**Atualizado:** 2026-07-08 | **Versão:** 3.0 (Obra Prima Integrada)
+**Atualizado:** 2026-07-19 | **Versão:** 3.1 (Obra Prima Integrada)
 **Stack Definitiva:** Rust para TUDO (backend, motor de jogo, APIs, IA, dados, antifraude, autenticação, lobby, front-end Dioxus/WebAssembly)
 **Decisão de Stack:** Definitiva desde 2026-07-03 — Rust é a única linguagem do projeto
 
@@ -31,7 +31,7 @@
 | #   | Seção                                            | Descrição                                                                          |
 |-----|--------------------------------------------------|------------------------------------------------------------------------------------|
 | 1   | Protocolo de Aprendizagem                        | Didática Mark↔Leofran, SDD, regras de símbolos                                     |
-| 2   | Estado Atual do Projeto                          | 484 testes, 8 módulos, 4 antifraude, infraestrutura                                |
+| 2   | Estado Atual do Projeto                          | 1.848 testes, 10 módulos, 4 antifraude, infraestrutura                                |
 | 3   | Pirâmide de Testes — Estratégia Completa         | Unit, integration, property, E2E, load, stress, fuzz, mutation, chaos              |
 | 4   | Hacker Ético — Segurança Específica para Poker    | OWASP WSTG, pentests, ataques específicos de poker                                 |
 | 5   | Arquitetura de Software                          | Martin Fowler, microservices, padrões distribuídos                                 |
@@ -223,13 +223,13 @@ Na próxima aula, revisão rápida dos conceitos do tópico anterior antes de av
 |-----------------------|------------------------------------------------------------------------|
 | **Linguagem**         | Rust (100% do backend + motor)                                         |
 | **Frontend**          | Dioxus 0.6 + WebAssembly                                               |
-| **Testes totais**     | 484 testes (unitários + integração + propriedade)                     |
+| **Testes totais**     | 1.848 testes no Motor-Rust (unitários + integração + propriedade)     |
 | **Módulos do motor**  | 8 módulos principais                                                   |
 | **Módulos antifraude**| 4 módulos                                                              |
 | **Progresso geral**   | ~25% (F1=100%, F2=90%, F3=10%, F4=5%, F5=0%, F6=0%)                    |
 | **Infraestrutura**    | docker-compose.yml (PostgreSQL 15, Redis 7, Kafka+Zookeeper)           |
 
-## 🧩 2.2 MÓDULOS DO MOTOR (8 módulos, 484 testes)
+## 🧩 2.2 MÓDULOS DO MOTOR (10 módulos, 1.848 testes)
 
 | Módulo               | Arquivo                  | Testes | Função                                              |
 |----------------------|--------------------------|--------|-----------------------------------------------------|
@@ -4461,8 +4461,8 @@ let players = sqlx::query_as::<_, Player>(
 
 ### ⚙️ 18.5.1 Checklist Técnico do Motor de Poker (Rust, Tokio, Dioxus, Axum)
 
-- [ ] `cargo test` — 100% passing (484+ testes)
-- [ ] `cargo clippy` — 0 warnings
+- [ ] `cargo test` — 100% passing (1.848+ testes no Motor-Rust)
+- [ ] `cargo clippy` — 0 warnings (validado: `cargo clippy --all-targets -- -D warnings`)
 - [ ] `cargo fmt --check` — formatado
 - [ ] `cargo audit` — 0 CVEs conhecidos
 - [ ] `cargo deny check` — licenças OK

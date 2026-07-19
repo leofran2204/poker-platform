@@ -1,6 +1,6 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-17
+**Atualizado:** 2026-07-19
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 >  Painel tático em `DASHBOARD.md`. 📅 Cronograma em `CRONOGRAMA.md`.
@@ -333,3 +333,20 @@
 
 ---
 *Próximo passo: Componentes Dioxus (mesa, cartas, avatares, login).*
+
+---
+
+### [09] 🧹 Limpeza de Warnings + Otimização de Testes + Reestruturação (2026-07-19)
+**O que foi feito:**
+- **Eliminação de warnings do Motor-Rust (0 warnings / 0 erros):**
+  - Causa raiz dos 131 warnings do binário: `main.rs` redeclarava todos os módulos via `mod`, criando árvore de compilação paralela à `lib.rs`. Refatorado para consumir a crate lib (`use poker_engine::...`), eliminando dead_code sem `#[allow]` global.
+  - 23 warnings do build de testes corrigidos (`cargo fix`): imports/variáveis não usados, `mut` desnecessário; `make_config_custom` recebeu `#[allow(dead_code)]`.
+  - Lints do clippy corrigidos (parênteses redundantes, `get().is_none()`→`contains_key()`, etc.); testes de range invertido receberam `#[allow(clippy::reversed_empty_ranges)]` / `absurd_extreme_comparisons`.
+  - `cargo clippy --all-targets -- -D warnings` → **0 warnings, 0 errors**.
+- **Bug de panic corrigido (`deck.rs`):** `evaluate_hand([], [])` caía em `unreachable!` (linha 159) quando a demo de side pots passava jogadores sem cartas. Agora retorna `HandRank::HighCard` vazio para mãos vazias. `cargo run` roda até o fim.
+- **Otimização de `get_heads_up_win_probability` (`loss_deflator.rs`):** substituiu enumeração exaustiva de C(45,5)≈1.2M boards por **Monte Carlo sem reposição** (200k amostras, determinístico via seed derivada das cartas, usando `StdRng` do projeto). Boards já avaliados são ignorados via `HashSet` (sem repetição). Board completo (river) continua exato. Tempo de teste da suíte caiu de ~23min → 57s (~24x).
+- **Tolerâncias de teste ajustadas:** `test_win_prob_known_cards_dont_overlap` passou de exato (`EPSILON`) para ±0.05 (ruído estatístico esperado de Monte Carlo).
+- **Reestruturação de pastas:** removidos prefixos numéricos (`08-Motor-Rust`→`Motor-Rust`, `10-API-Axum`→`API-Axum`, `09-Frontend-Dioxus`→`Frontend-Dioxus`, etc.); `**/target/` adicionado ao `.gitignore`. Commit `4093d59` enviado ao `origin/master`.
+- **Suíte completa:** 1.848 testes passando, 0 failed, 1 ignored.
+
+*Próximo passo: Configurar cobertura de testes (llvm-cov/tarpaulin) no CI/CD e workflows de build/deploy.*
