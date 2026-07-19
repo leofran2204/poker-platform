@@ -1,0 +1,11 @@
+localhost {
+    log
+
+    # Encaminha chamadas de API e WebSockets para o container backend
+    reverse_proxy /api/* poker_api:3000
+    reverse_proxy /ws/* poker_api:3000
+
+    root * /usr/share/caddy
+    file_server
+    try_files {path} /index.html
+}

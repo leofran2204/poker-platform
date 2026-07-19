@@ -1,9 +1,0 @@
-C:\Users\leofr\OneDrive\Projetos\Poker_Project\09-Frontend-Dioxus\target\x86_64-pc-windows-gnu\debug\deps\dioxus_core_types-c84d9d78b2c2e2da.d: C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dioxus-core-types-0.6.2\src\lib.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dioxus-core-types-0.6.2\src\bubbles.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dioxus-core-types-0.6.2\src\bundled.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dioxus-core-types-0.6.2\src\formatter.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dioxus-core-types-0.6.2\src\hr_context.rs
-
-C:\Users\leofr\OneDrive\Projetos\Poker_Project\09-Frontend-Dioxus\target\x86_64-pc-windows-gnu\debug\deps\libdioxus_core_types-c84d9d78b2c2e2da.rmeta: C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dioxus-core-types-0.6.2\src\lib.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dioxus-core-types-0.6.2\src\bubbles.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dioxus-core-types-0.6.2\src\bundled.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dioxus-core-types-0.6.2\src\formatter.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dioxus-core-types-0.6.2\src\hr_context.rs
-
-C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dioxus-core-types-0.6.2\src\lib.rs:
-C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dioxus-core-types-0.6.2\src\bubbles.rs:
-C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dioxus-core-types-0.6.2\src\bundled.rs:
-C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dioxus-core-types-0.6.2\src\formatter.rs:
-C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dioxus-core-types-0.6.2\src\hr_context.rs:

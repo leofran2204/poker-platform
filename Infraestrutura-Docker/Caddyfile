@@ -1,0 +1,15 @@
+localhost {
+    # Habilita logs no stdout
+    log
+
+    # Encaminha chamadas de API e WebSockets para o backend Axum
+    reverse_proxy /api/* poker_api:3000
+    reverse_proxy /ws/* poker_api:3000
+
+    # Serve os arquivos estáticos compilados do Dioxus
+    root * /usr/share/caddy
+    file_server
+
+    # Fallback para o index.html (essencial para o Dioxus Router com HTML5 History)
+    try_files {path} /index.html
+}

@@ -44,3 +44,8 @@ coverage/
 *.pid
 *.seed
 *.pid.lock
+
+# Rust build artifacts
+**/target/
+Motor-Rust/target/
+08-Motor-Rust/target/

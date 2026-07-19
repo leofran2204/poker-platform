@@ -1,9 +1,0 @@
-C:\Users\leofr\OneDrive\Projetos\Poker_Project\08-Motor-Rust\target\debug\deps\bcrypt-1e21e6b34a62db69.d: C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bcrypt-0.16.0\src\lib.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bcrypt-0.16.0\src\bcrypt.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bcrypt-0.16.0\src\errors.rs
-
-C:\Users\leofr\OneDrive\Projetos\Poker_Project\08-Motor-Rust\target\debug\deps\libbcrypt-1e21e6b34a62db69.rlib: C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bcrypt-0.16.0\src\lib.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bcrypt-0.16.0\src\bcrypt.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bcrypt-0.16.0\src\errors.rs
-
-C:\Users\leofr\OneDrive\Projetos\Poker_Project\08-Motor-Rust\target\debug\deps\libbcrypt-1e21e6b34a62db69.rmeta: C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bcrypt-0.16.0\src\lib.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bcrypt-0.16.0\src\bcrypt.rs C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bcrypt-0.16.0\src\errors.rs
-
-C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bcrypt-0.16.0\src\lib.rs:
-C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bcrypt-0.16.0\src\bcrypt.rs:
-C:\Users\leofr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bcrypt-0.16.0\src\errors.rs:
