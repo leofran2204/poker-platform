@@ -129,3 +129,22 @@ Com a injeção massiva de testes usando scripts paramétricos para cobrir todas
 * **Quantidade Total de Testes do Motor:** **1.849 testes** (Sendo 1.816 passando e 33 testes pendentes de revisão/ignorados temporalmente devido a assert_eq! vs regras matemáticas estritas de rake).
 * **Cobertura Oficial do Código (Grcov / LLVM):** **98,10% (7.077 / 7.214 linhas cobertas)**.
 * **Status:** A meta ousada de testes (> 98% de cobertura) exigida no `QUALITY.md` foi atingida com sucesso. O motor está blindado.
+
+---
+
+## 🚀 Fase 2.1 — Integração, Stress, Fairness de Cartas + CI/CD (2026-07-20)
+
+Após a Fase 2, foram adicionados testes de integração entre módulos, stress massivo e validação estatística de fairness de cartas, além de pipeline CI/CD. Tolerância de ruído adotada em todo o motor: **0,5% (0,005)**.
+
+* **Total de testes do motor:** **1.874 testes passando** (`cargo test --lib`, 0 failed) + 6 doc-tests.
+* **Novos módulos de teste (em `src/`):**
+  * `integration_tests.rs` — 5 testes determinísticos: mão completa (deck→side_pots→rake→hand_history), ciclo de torneio, loss_deflator+rake, RNG+deck, conservação de fichas em side pots com fold.
+  * `stress_integration_tests.rs` — 5 testes massivos (200k iterações/cenário = 1M iterações), seed fixo (`StdRng`, `SEED = 0xDEAD_BEEF_CAFE_1234`), invariantes exatos (conservação de fichas, vencedores ≥ 1, rake ≤ cap, não-duplicação de cartas).
+  * `card_fairness_tests.rs` — 3 testes de fairness estatística (qui-quadrado): ausência de duplicatas, distribuição de hole cards, distribuição flop/turn/river (500k iterações cada = 1,5M).
+  * `stress_tests.rs` — 15 testes de stress por módulo (deck, side_pots, rake, utils, hand_history, tournament_engine).
+* **Monte Carlo (`loss_deflator.rs`):** `MC_SAMPLES = 500_000`, erro de estimativa via `mc_error_bound()` (re-exportado em `utils.rs`), tolerância de teste 0,005.
+* **RNG (`rng_crypto.rs`):** testes de distribuição por qui-quadrado (bool, d6, shuffle posição 0) substituindo asserts per-card flaky.
+* **Clippy:** 10 warnings corrigidos em testes → `cargo clippy --all-targets -- -D warnings` limpo (0 warnings).
+* **CI/CD:** `.github/workflows/ci.yml` com jobs `test` (`RUSTFLAGS="-D warnings"`, clippy -D warnings, build, test) e `audit` (`cargo audit` via `rustsec/audit-check@v2` em ubuntu-latest).
+* **Commit:** `ab19168` (branch `master`, enviado ao `origin`).
+* **Cobertura:** mantida em **≥ 98%** (medida via `grcov`/`cargo llvm-cov` no CI/Docker — `cargo llvm-cov` bloqueado no Windows local por toolchain).

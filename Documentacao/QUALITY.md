@@ -1,6 +1,6 @@
 # 🃏 QUALITY.md — Documento Mestre do Poker Project
 
-**Atualizado:** 2026-07-19 | **Versão:** 3.1 (Obra Prima Integrada)
+**Atualizado:** 2026-07-20 | **Versão:** 3.2 (Integração + Stress + Fairness + CI/CD)
 **Stack Definitiva:** Rust para TUDO (backend, motor de jogo, APIs, IA, dados, antifraude, autenticação, lobby, front-end Dioxus/WebAssembly)
 **Decisão de Stack:** Definitiva desde 2026-07-03 — Rust é a única linguagem do projeto
 
@@ -31,7 +31,7 @@
 | #   | Seção                                            | Descrição                                                                          |
 |-----|--------------------------------------------------|------------------------------------------------------------------------------------|
 | 1   | Protocolo de Aprendizagem                        | Didática Mark↔Leofran, SDD, regras de símbolos                                     |
-| 2   | Estado Atual do Projeto                          | 1.848 testes, 10 módulos, 4 antifraude, infraestrutura                                |
+| 2   | Estado Atual do Projeto                          | 1.874 testes, 10 módulos, 4 antifraude, infraestrutura                                |
 | 3   | Pirâmide de Testes — Estratégia Completa         | Unit, integration, property, E2E, load, stress, fuzz, mutation, chaos              |
 | 4   | Hacker Ético — Segurança Específica para Poker    | OWASP WSTG, pentests, ataques específicos de poker                                 |
 | 5   | Arquitetura de Software                          | Martin Fowler, microservices, padrões distribuídos                                 |
@@ -223,13 +223,13 @@ Na próxima aula, revisão rápida dos conceitos do tópico anterior antes de av
 |-----------------------|------------------------------------------------------------------------|
 | **Linguagem**         | Rust (100% do backend + motor)                                         |
 | **Frontend**          | Dioxus 0.6 + WebAssembly                                               |
-| **Testes totais**     | 1.848 testes no Motor-Rust (unitários + integração + propriedade)     |
+| **Testes totais**     | 1.874 testes no Motor-Rust (unitários + integração + stress + propriedade) |
 | **Módulos do motor**  | 8 módulos principais                                                   |
 | **Módulos antifraude**| 4 módulos                                                              |
 | **Progresso geral**   | ~25% (F1=100%, F2=90%, F3=10%, F4=5%, F5=0%, F6=0%)                    |
 | **Infraestrutura**    | docker-compose.yml (PostgreSQL 15, Redis 7, Kafka+Zookeeper)           |
 
-## 🧩 2.2 MÓDULOS DO MOTOR (10 módulos, 1.848 testes)
+## 🧩 2.2 MÓDULOS DO MOTOR (10 módulos engine + módulos de teste, 1.874 testes)
 
 | Módulo               | Arquivo                  | Testes | Função                                              |
 |----------------------|--------------------------|--------|-----------------------------------------------------|
@@ -242,6 +242,10 @@ Na próxima aula, revisão rápida dos conceitos do tópico anterior antes de av
 | **Tournament Engine**| `tournament_engine.rs`   | 19     | Motor de torneios (MTT/SNG)                         |
 | **Auth**             | `auth.rs`                | 153    | Autenticação, JWT, MFA, RBAC                        |
 | **Lobby**            | `lobby.rs`               | —      | GameType, TableVisibility, TableInfo                |
+| **Integração**       | `integration_tests.rs`  | 5      | Fluxo completo entre módulos (deck→side_pots→rake→hand_history, torneio, loss_deflator+rake, RNG+deck) |
+| **Stress Integração**| `stress_integration_tests.rs` | 5 | Stress massivo de integração (200k iters/cenário, seed fixo `StdRng`, invariantes exatos) |
+| **Fairness Cartas**  | `card_fairness_tests.rs`| 3      | Fairness estatística de cartas (qui-quadrado, 500k iters/teste, tolerância 0,5%) |
+| **Stress Módulos**   | `stress_tests.rs`       | 15     | Stress de cada módulo (deck, side_pots, rake, utils, hand_history, tournament) |
 
 ## 🛡️ 2.3 MÓDULOS ANTIFRAUDE (4 módulos)
 
@@ -436,7 +440,7 @@ fn rake_no_limite_exato_do_cap() {
 
 ## 🔗 3.2 NÍVEL 2 — TESTES DE INTEGRAÇÃO (Mesas de Poker Conectadas)
 
-**Status:** ⏳ Pendente | **Quando:** F2→F3
+**Status:** ✅ Implementado (10 testes: 5 determinísticos `integration_tests.rs` + 5 stress `stress_integration_tests.rs` de 200k iters) | **Quando:** F2
 
 ### Cenários de integração entre módulos
 
@@ -594,7 +598,7 @@ Frontend-Dioxus/tests/
 
 ## ⚡ 3.6 NÍVEL 6 — TESTES DE CARGA E STRESS (Mesas de Poker Sob Pressão)
 
-**Status:** ⏳ Pendente | **Quando:** F5 (antes do lançamento)
+**Status:** ✅ Implementado (20 testes: 15 `stress_tests.rs` + 5 `stress_integration_tests.rs`, até 200k iters/cenário) | **Quando:** F2
 
 ### Cenários de carga específicos para poker
 
@@ -766,9 +770,9 @@ Priorizar tarefas do `DASHBOARD.md` por **Gravidade × Urgência × Tendência**
 
 | Tarefa                | G | U | T | Score | Prioridade  |
 |-----------------------|---|---|---|-------|-------------|
-| CI/CD GitHub Actions  | 5 | 5 | 4 | 100   | 🔴 Crítica  |
+| CI/CD GitHub Actions  | 5 | 5 | 4 | 100   | ✅ Crítica (Implementado) |
 | Cobertura de testes   | 4 | 5 | 3 | 60    | 🔴 Alta     |
-| cargo audit (segurança)| 5 | 4 | 4 | 80    | 🔴 Alta     |
+| cargo audit (segurança)| 5 | 4 | 4 | 80    | ✅ Alta (Implementado no CI) |
 | Template de bug report| 3 | 3 | 2 | 18    | 🟡 Média    |
 | Fluxograma BPMN       | 2 | 3 | 1 | 6     | 🟢 Baixa    |
 

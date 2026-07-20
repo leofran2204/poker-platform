@@ -1,6 +1,6 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-19
+**Atualizado:** 2026-07-20
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 >  Painel tático em `DASHBOARD.md`. 📅 Cronograma em `CRONOGRAMA.md`.
@@ -41,6 +41,24 @@
 ---
 
 ## 📜 Log Cronológico de Desenvolvimento
+
+### [17] 🧪 Testes de Integração/Stress/Fairness + CI/CD (2026-07-20)
+**O que foi feito:**
+- **`integration_tests.rs` (5 testes):** mão completa (deck→side_pots→rake→hand_history), ciclo de torneio, loss_deflator+rake, RNG+deck, conservação de fichas em side pots com fold (foldado contribui mas não recebe payout).
+- **`stress_integration_tests.rs` (5 testes × 200k iters = 1M):** full_hand, sidepots_multiway, tournament, loss_deflator_plus_rake, rng_deck — seed fixo (`StdRng`, `SEED = 0xDEAD_BEEF_CAFE_1234`); invariantes exatos (conservação de fichas, vencedores ≥1, rake ≤ cap, não-duplicação de cartas).
+- **`card_fairness_tests.rs` (3 testes × 500k = 1,5M):** ausência de duplicatas, distribuição de hole cards, distribuição flop/turn/river — qui-quadrado, tolerância 0,5% (0,005).
+- **`stress_tests.rs` (15 testes):** stress por módulo (deck, side_pots, rake, utils, hand_history, tournament_engine).
+- **`loss_deflator.rs`:** Monte Carlo `MC_SAMPLES = 500_000`, `mc_error_bound()` re-exportado em `utils.rs`; tolerância de teste 0,005. `get_heads_up_win_probability` determinístico via seed derivada das cartas.
+- **`rng_crypto.rs`:** testes de distribuição por qui-quadrado (bool, d6, shuffle posição 0) — substitui asserts per-card flaky.
+- **Clippy:** 10 warnings corrigidos em testes (loop-index, cast redundante, `sort_by_key`, `== false`, Range::contains, `*=`) → `cargo clippy --all-targets -- -D warnings` limpo (0 warnings).
+- **CI/CD:** `.github/workflows/ci.yml` criado — jobs `test` (`RUSTFLAGS="-D warnings"`, clippy -D warnings, build, test) e `audit` (`cargo audit` via `rustsec/audit-check@v2` em ubuntu-latest).
+- **Bugs corrigidos durante os testes:** `Card` não deriva Hash (bitmap de índices); tournament paga só 1º lugar quando resta 1; foldado contribui mas não recebe payout; bound de truncagem por-pote.
+- **Quality gates validados:** `cargo clippy --all-targets -- -D warnings` ✅ 0 warnings; `cargo test --lib` ✅ **1.874 testes + 6 doc-tests, 0 falhas** (~480s).
+- **Commit:** `ab19168` (11 arquivos, +1794/−260) enviado ao `origin/master`.
+
+*Próximo passo: Acompanhar run do CI no GitHub (cargo audit em Linux).*
+
+---
 
 ### [16] 🔌 Integração Real-time & Orquestração Docker/Caddy (2026-07-17)
 **O que foi feito:**

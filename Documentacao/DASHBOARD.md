@@ -1,6 +1,6 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-17 | **Sprint atual:** S03 — Motor de Poker em Rust + Front-end Dioxus (Finalizada)
+**Atualizado:** 2026-07-20 | **Sprint atual:** S04 — CI/CD + Cobertura de Testes (Em andamento)
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📅 O cronograma completo está em `Documentacao/CRONOGRAMA.md` — veja prazos, fases e % de conclusão.
@@ -14,8 +14,8 @@
 | # | Parâmetro | Valor |
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
-| 2 | **Sprint atual** | S03 (2026-07-04 → 2026-07-17) |
-| 3 | **Próximo sprint** | S04 (2026-07-18 → 2026-07-31) |
+| 2 | **Sprint atual** | S04 (2026-07-18 → 2026-07-31) |
+| 3 | **Próximo sprint** | S05 (2026-08-01 → 2026-08-14) |
 | 4 | **Cerimônias** | Planning (dia 1) + Review + Retrospectiva (dia 14) |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
 
@@ -56,12 +56,13 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 ### 🟡 Próximas Tarefas — Backlog Priorizado
 | #   | Tarefa                              | Pasta                     | Prioridade |
 |-----|-------------------------------------|---------------------------|------------|
-| 5   | **CI/CD (GitHub Actions)** — fluxos de deploy em nuvem com Caddy | `Infraestrutura-Docker/` | 🟡 Média   |
+| 5   | **Cobertura de testes no CI/CD** — relatório `cargo llvm-cov`/`tarpaulin` (HTML) no GitHub Actions | `Infraestrutura-Docker/` | 🟡 Média   |
 
 ### ✅ Concluídas — Sprint Atual
 | #   | Tarefa                                                                                                                                                              | Data       |
 |-----|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
 | 3.9 | **Integração API ↔ Front (WebSockets)** — Conexão do Dioxus via WsClient com o TableActor e GameLoop do Axum, sincronizando apostas e turnos com anti-cheat nativo. | 2026-07-17 |
+| I2  | **Testes de Integração + Stress + Fairness + CI/CD** — `integration_tests.rs` (5 det.), `stress_integration_tests.rs` (5×200k iters, seed fixo), `card_fairness_tests.rs` (3×500k qui-quadrado), `stress_tests.rs` (15); `loss_deflator.rs` MC_SAMPLES=500k (tolerância 0,005); `rng_crypto.rs` qui-quadrado; 10 warnings clippy corrigidos; `.github/workflows/ci.yml` (clippy -D warnings + cargo audit). Total Motor: **1.874 testes, 0 falhas**. Commit `ab19168`. | 2026-07-20 |
 | 4 & 6| **Dockerfiles + HTTPS/TLS** — Dockerfiles multi-stage unificados para API e Frontend. Caddyfile de proxy reverso e local HTTPS auto-assinado adicionado e testado. | 2026-07-17 |
 | 3.8 | **Componentes de Auth** — 3 componentes Dioxus em `Frontend-Dioxus/src/components/`: `login_form.rs` (formulário de login com username/senha, props title/submit_label/on_submit), `register_form.rs` (formulário de registro com username/email/senha/confirmar senha, props title/submit_label/on_submit), `mfa_input.rs` (input de 6 dígitos TOTP, props title/instruction/on_submit). 3 páginas: `pages/login.rs` (AuthFlow enum com Login/MfaRequired/Success/Error, validação client-side, navegação para lobby), `pages/register.rs` (validação de senha, confirmação, navegação para login), `pages/login.rs` com `mfa_required` state. CSS puro (~100 linhas) em `assets/index.html` com visual Full Tilt Poker. `cargo clippy -- -D warnings` ✅ (0 warnings), `cargo test` ✅ (61/61). | 2026-07-12 |
 | 3.7 | **Componentes de Lobby** — 5 componentes Dioxus em `Frontend-Dioxus/src/components/`: `table_card.rs` (card de mesa com GameType, blinds, ocupação, 7 testes), `lobby_filters.rs` (filtros por tipo de jogo + range de blinds, 9 testes), `join_button.rs` (botão Entrar/Cheia/Assistir, 5 testes), `player_count.rs` (contador visual X/Y com barra de progresso, 8 testes), `lobby_list.rs` (lista combinando TableCard + PlayerCount + JoinButton, 5 testes). CSS puro (~250 linhas) em `assets/index.html` com visual Full Tilt Poker (dark felt #1a3a1a, gold #8b6914). Tailwind CDN removido. `cargo check` ✅, `cargo clippy --all-targets -- -D warnings` ✅, `cargo test` ✅ (57/57). Doctest `utils.rs:34` corrigido (`&Vec<f64>` → `&[Pot]`). Motor: 484/484 testes ✅ | 2026-07-12 |
@@ -104,12 +105,12 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | Regras documentadas      | 45                                                                                            |
 | Regras implementadas    | 43 (95%)                                                                                      |
 | Bugs críticos pendentes  | 0                                                                                             |
-| Tarefas pendentes        | 5                                                                                             |
+| Tarefas pendentes        | 4                                                                                         |
 | Módulos Rust implementados | 10 (deck, side_pots, loss_deflator, rake, rng_crypto, hand_history, tournament_engine, auth, lobby, utils) + 4 antifraude + 1 API (API-Axum) + Orquestrador Caddy |
-| Testes Rust              | **1.966 testes passando** (1849 motor + 13 API + 104 frontend) — **Cobertura Oficial do Motor: 98,10%** 🏆 |
+| Testes Rust              | **1.991 testes passando** (1874 motor + 13 API + 104 frontend) — **Cobertura Oficial do Motor: 98,10%** 🏆 |
 | Front-end Dioxus         | ✅ Conectado e integrado via WebSockets (3.9) — 15 componentes, 104 testes                     |
 | Progresso total          | **~70%** (ver `CRONOGRAMA.md`)                                                                        |
-| Tarefa atual             | **Fase 5 de Testes / CI/CD (GitHub Actions)**                                                 |
+| Tarefa atual             | **Fase 5 de Testes / Cobertura (CI/CD concluído — `ab19168`)**                               |
 
 ---
 
@@ -120,7 +121,7 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | —   | `Infraestrutura-Docker` | Docker, Caddy, deploy, CI/CD                                                                                             | ✅ Ativo                  |
 | —   | `Documentacao`       | Regras, dashboard, cronograma, log de desenvolvimento, guia de aprendizado                                                | ✅ Ativo                  |
 | —   | `Arquitetura-Motor`  | Arquitetura alvo (Rust puro)                                                                                              | ✅ Ativo                  |
-| —   | **`Motor-Rust`**     | **Motor de jogo em Rust (deck, side_pots, loss_deflator, rake, rng_crypto, hand_history, tournament_engine, auth, lobby + 4 antifraude)**     | **✅ Ativo — 1849 testes — Cobertura: 98,10%** |
+| —   | **`Motor-Rust`**     | **Motor de jogo em Rust (deck, side_pots, loss_deflator, rake, rng_crypto, hand_history, tournament_engine, auth, lobby + 4 antifraude)**     | **✅ Ativo — 1874 testes — Cobertura: 98,10% (≥98% mantido)** |
 | —   | **`Frontend-Dioxus`** | **Front-end WebAssembly com Dioxus — Roteamento + 15 componentes integrados via WS + Caddy Proxy com HTTPS**            | **✅ Ativo — 104 testes — 100%** |
 | —   | **`API-Axum`**       | **API HTTP/WS com Axum 0.7 e Atores (`TableActor`) + PostgreSQL via sqlx 0.8**                                             | **✅ Ativo — 13 testes — 100%** |
 
@@ -129,7 +130,7 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 ## 🔄 Comandos Rápidos — Build, Testes e Deploy
 
 ```bash
-# Testar motor Rust (1816 testes)
+# Testar motor Rust (1874 testes)
 cd Motor-Rust && cargo +stable-x86_64-pc-windows-gnu test --lib
 
 # Build motor Rust (0 warnings)
