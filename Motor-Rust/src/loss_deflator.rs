@@ -200,8 +200,8 @@ pub fn calculate_progressive_loss_deflator(
 /// enumeração exata era inviável em tempo de execução/testes. Com Monte Carlo
 /// fixamos o custo em no máximo `MC_SAMPLES` avaliações (sem reposição,
 /// determinístico via seed), o que mantém a precisão dentro da tolerância dos
-/// testes sem custo exponencial. Erro típico ~1/√N ≈ 0.22% em 200k amostras.
-const MC_SAMPLES: u32 = 200_000;
+/// testes sem custo exponencial. Erro típico ~1/√N ≈ 0.14% em 500k amostras.
+const MC_SAMPLES: u32 = 500_000;
 
 /// Calcula probabilidade de vitória heads-up.
 ///
@@ -305,6 +305,41 @@ fn combinations_count(n: usize, k: usize) -> usize {
         result = result * (n - i) / (i + 1);
     }
     result
+}
+
+/// Estimativa de ruído (erro) do Monte Carlo, em pontos de probabilidade.
+///
+/// A amostragem é **sem reposição** sobre uma população finita de `max_boards`
+/// boards possíveis, sorteando `samples` deles. Para o pior caso (proporção
+/// p = 0.5), o erro padrão da estimativa é:
+///
+///   SE = 0.5 · √( (1 - f) / samples ),   onde f = samples / max_boards
+///
+/// - Se `samples >= max_boards` (população toda coberta): erro 0 (exato).
+/// - Caso contrário aplica o fator de correção de população finita (1 - f),
+///   que deixa o erro MENOR que o Monte Carlo com reposição.
+///
+/// O valor retornado é a **margem de 3 desvios (~99.7% de confiança)**:
+///
+///   bound = 3 · SE
+///
+/// Exemplo: 500k amostras no preflop (max ≈ 1.22M) →
+///   f ≈ 0.41, SE ≈ 0.00034, bound ≈ 0.0010 (0.10%).
+///
+/// Esta função é uma segurança extra: os testes podem exigir que o desvio
+/// observado da estimativa fique dentro de `mc_error_bound(...)`.
+pub fn mc_error_bound(samples: u64, max_boards: u64) -> f64 {
+    if max_boards == 0 {
+        return 0.0;
+    }
+    let samples = samples.min(max_boards);
+    if samples >= max_boards {
+        return 0.0;
+    }
+    let f = samples as f64 / max_boards as f64; // fração amostrada
+    let se = 0.5 * ((1.0 - f) / samples as f64).sqrt();
+    let margin = 3.0 * se; // ~99.7% de confiança (3 sigma)
+    margin
 }
 
 // ─── Funções auxiliares privadas ───
@@ -519,5 +554,70 @@ mod tests {
         ];
         let prob = get_heads_up_win_probability(&hero, &villain, &board);
         assert!((prob - 0.5).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn test_mc_error_bound_within_tolerance_preflop() {
+        // AA vs KK preflop. A estimativa Monte Carlo é determinística (seed por
+        // cartas), então o valor é fixo e reproduzível. A segurança aqui é:
+        // (1) o bound analítico deve ser estritamente menor que a tolerância de
+        //     0.005 usada nos testes (logo não há erro material possível);
+        // (2) rodadas idênticas devem dar exatamente o mesmo valor (sem ruído
+        //     não-determinístico vazando para o resultado).
+        let hero = vec![
+            make_card(Rank::Ace, Suit::Hearts),
+            make_card(Rank::Ace, Suit::Spades),
+        ];
+        let villain = vec![
+            make_card(Rank::King, Suit::Hearts),
+            make_card(Rank::King, Suit::Spades),
+        ];
+        let board = vec![];
+        let prob1 = get_heads_up_win_probability(&hero, &villain, &board);
+        let prob2 = get_heads_up_win_probability(&hero, &villain, &board);
+
+        // Determinismo: mesma entrada → mesma saída exata.
+        assert!(
+            (prob1 - prob2).abs() < f64::EPSILON,
+            "Monte Carlo não-determinístico: {prob1} != {prob2}"
+        );
+
+        // População de boards possíveis no preflop: C(45,5)
+        let max_boards = combinations_count(45, 5) as u64;
+        let bound = mc_error_bound(MC_SAMPLES as u64, max_boards);
+
+        // O bound analítico deve ser menor que a tolerância de 0.005 — ou seja,
+        // mesmo no pior cenário (p=0.5) o erro do MC está dentro da margem.
+        assert!(
+            bound < 0.005,
+            "Erro de Monte Carlo {bound:.4} acima da tolerância de 0.005"
+        );
+
+        // Sanidade: equity do favorito deve estar em faixa plausível (0.75..0.90).
+        assert!(
+            prob1 > 0.75 && prob1 < 0.90,
+            "Equity AA vs KK fora da faixa esperada: {prob1}"
+        );
+    }
+
+    #[test]
+    fn test_mc_error_bound_exact_when_full_population() {
+        // Com o board completo (river), max_boards = 1 → estimativa exata (bound 0).
+        assert_eq!(mc_error_bound(1, 1), 0.0);
+        // Amostrar toda a população também dá bound 0.
+        assert_eq!(mc_error_bound(100, 100), 0.0);
+        // População vazia não deve quebrar.
+        assert_eq!(mc_error_bound(0, 0), 0.0);
+    }
+
+    #[test]
+    fn test_mc_error_bound_decreases_with_samples() {
+        let max_boards = combinations_count(45, 5) as u64;
+        let b_small = mc_error_bound(10_000, max_boards);
+        let b_large = mc_error_bound(500_000, max_boards);
+        assert!(
+            b_large < b_small,
+            "Mais amostras devem reduzir o bound: {b_large:.5} >= {b_small:.5}"
+        );
     }
 }

@@ -42,3 +42,9 @@ mod side_pots_tests;
 mod lobby_tests;
 #[cfg(test)]
 mod hand_history_tests;
+#[cfg(test)]
+mod stress_tests;
+#[cfg(test)]
+mod stress_integration_tests;
+#[cfg(test)]
+mod card_fairness_tests;

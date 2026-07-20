@@ -632,7 +632,7 @@ fn test_win_prob_known_cards_dont_overlap() {
     let prob = get_heads_up_win_probability(&hero, &villain, &[]);
     // 4 ases empatados → ~split (estimativa Monte Carlo, tolerância de ruído)
     assert!(
-        (prob - 0.5).abs() < 0.05,
+        (prob - 0.5).abs() < 0.005,
         "4 Aces dealt → ~split (~0.5), got {prob}"
     );
 }

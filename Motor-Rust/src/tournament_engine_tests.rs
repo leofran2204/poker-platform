@@ -4676,7 +4676,6 @@ mod lote_7c_lifecycle_blinds {
         assert!(!is_blind_level_expired(&s));
     }
 
-    #[ignore]
     #[test]
     fn test_life_150_expired_level_2_expired() {
         let mut s = create_tournament(long_config(10));

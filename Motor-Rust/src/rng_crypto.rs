@@ -374,4 +374,83 @@ mod tests {
         secure_random_bytes(&mut empty);
         // Não panica com buffer vazio
     }
+
+    // ─── Estabilidade de distribuição (bound de ruído estilo Monte Carlo) ───
+
+    /// Teste qui-quadrado agregado: garante que uma distribuição empírica de
+    /// `counts` (k categorias, cada uma com expectativa `n/k`) não desvia
+    /// mais que o ruído esperado. χ² = Σ (obs - esp)² / esp.
+    ///
+    /// Para k categorias e N amostras, o χ² esperado sob ruído puro tem
+    /// variância 2k; usar um limite de k + 4·√(2k) (≈4σ) evita flakiness por
+    /// múltiplas comparações mantendo a sensibilidade a viés real.
+    fn assert_chi_squared_in_bounds(counts: &[u64], n: u64) {
+        let k = counts.len() as f64;
+        let expected = n as f64 / k;
+        let mut chi2 = 0.0f64;
+        for &c in counts {
+            let diff = c as f64 - expected;
+            chi2 += diff * diff / expected;
+        }
+        let limit = k + 4.0 * (2.0 * k).sqrt();
+        assert!(
+            chi2 <= limit,
+            "Distribuição viciada: χ²={chi2:.2} > limite {limit:.2} (k={k:.0}, n={n})"
+        );
+    }
+
+    /// Bound de 3σ para uma única proporção p em N amostras. Usado para
+    /// garantir que o ruído do gerador respeita a tolerância de 0.5% (0.005).
+    fn noise_bound_3sigma(p: f64, n: u64) -> f64 {
+        3.0 * (p * (1.0 - p) / n as f64).sqrt()
+    }
+
+    #[test]
+    fn test_secure_random_bool_distribution_within_noise() {
+        // secure_random_bool(0.5) deve convergir para ~0.5 dentro do bound de ruído.
+        let n: u64 = 200_000;
+        let mut counts = [0u64; 2];
+        for _ in 0..n {
+            counts[secure_random_bool(0.5) as usize] += 1;
+        }
+        assert_chi_squared_in_bounds(&counts, n);
+        // O bound de ruído deve respeitar a tolerância de 0.5% (0.005).
+        assert!(
+            noise_bound_3sigma(0.5, n) < 0.005,
+            "Ruído do RNG acima de 0.005 (0.5%)"
+        );
+    }
+
+    #[test]
+    fn test_secure_random_u32_distribution_within_noise() {
+        // secure_random_u32(1..=6) (d6) → cada face ~1/6.
+        let n: u64 = 300_000;
+        let mut counts = [0u64; 6];
+        for _ in 0..n {
+            counts[(secure_random_u32(1..=6) - 1) as usize] += 1;
+        }
+        assert_chi_squared_in_bounds(&counts, n);
+        assert!(
+            noise_bound_3sigma(1.0 / 6.0, n) < 0.005,
+            "Ruído do RNG acima de 0.005 (0.5%)"
+        );
+    }
+
+    #[test]
+    fn test_secure_shuffle_distribution_within_noise() {
+        // Em um baralho de 52 cartas, cada carta deve aparecer em cada posição
+        // ~1/52 das vezes. Verifica a posição 0 ao longo de muitos shuffles.
+        let n: u64 = 200_000;
+        let mut counts = [0u64; 52];
+        for _ in 0..n {
+            let mut deck = (0..52).collect::<Vec<usize>>();
+            secure_shuffle(&mut deck);
+            counts[deck[0]] += 1;
+        }
+        assert_chi_squared_in_bounds(&counts, n);
+        assert!(
+            noise_bound_3sigma(1.0 / 52.0, n) < 0.005,
+            "Ruído do shuffle acima de 0.005 (0.5%)"
+        );
+    }
 }

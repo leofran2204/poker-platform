@@ -86,6 +86,22 @@ pub fn pots_elegeiveis<'a>(pots: &'a [Pot], player_id: &str) -> Vec<(usize, &'a 
         .collect()
 }
 
+/// Margem de erro (bound) de uma estimativa Monte Carlo por amostragem sem
+/// reposição sobre uma população finita.
+///
+/// Re-exporta `crate::loss_deflator::mc_error_bound` para que qualquer módulo
+/// da arquitetura possa calcular/validar o ruído de estimativas estocásticas
+/// (Monte Carlo, amostragem, simulações) com um único ponto de verdade.
+///
+/// Fórmula (pior caso p = 0.5, margem de 3σ ≈ 99.7% de confiança):
+///
+///   bound = 3 · 0.5 · √( (1 - f) / samples ),   f = samples / max_boards
+///
+/// Retorna 0.0 quando a população toda é coberta (estimativa exata).
+pub fn mc_error_bound(samples: u64, max_boards: u64) -> f64 {
+    crate::loss_deflator::mc_error_bound(samples, max_boards)
+}
+
 // ─── Testes ───
 
 #[cfg(test)]
