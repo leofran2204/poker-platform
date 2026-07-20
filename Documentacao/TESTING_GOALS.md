@@ -145,6 +145,6 @@ Após a Fase 2, foram adicionados testes de integração entre módulos, stress 
 * **Monte Carlo (`loss_deflator.rs`):** `MC_SAMPLES = 500_000`, erro de estimativa via `mc_error_bound()` (re-exportado em `utils.rs`), tolerância de teste 0,005.
 * **RNG (`rng_crypto.rs`):** testes de distribuição por qui-quadrado (bool, d6, shuffle posição 0) substituindo asserts per-card flaky.
 * **Clippy:** 10 warnings corrigidos em testes → `cargo clippy --all-targets -- -D warnings` limpo (0 warnings).
-* **CI/CD:** `.github/workflows/ci.yml` com jobs `test` (`RUSTFLAGS="-D warnings"`, clippy -D warnings, build, test) e `audit` (`cargo audit` via `rustsec/audit-check@v2` em ubuntu-latest).
+* **CI/CD:** `.github/workflows/rust-ci.yml` (raiz) com jobs `test` (clippy -D warnings + build + test), `audit` (`cargo audit --deny warnings`) e `coverage` (`cargo llvm-cov`, artefato lcov + summary). Paths antigos `08/09/10-` corrigidos para `Motor-Rust`/`Frontend-Dioxus`/`API-Axum`.
 * **Commit:** `ab19168` (branch `master`, enviado ao `origin`).
 * **Cobertura:** mantida em **≥ 98%** (medida via `grcov`/`cargo llvm-cov` no CI/Docker — `cargo llvm-cov` bloqueado no Windows local por toolchain).

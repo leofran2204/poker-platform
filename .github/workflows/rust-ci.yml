@@ -4,16 +4,16 @@ on:
   push:
     branches: [main, master]
     paths:
-      - '08-Motor-Rust/**'
-      - '09-Frontend-Dioxus/**'
-      - '10-API-Axum/**'
+      - 'Motor-Rust/**'
+      - 'Frontend-Dioxus/**'
+      - 'API-Axum/**'
       - '.github/workflows/rust-ci.yml'
   pull_request:
     branches: [main, master]
     paths:
-      - '08-Motor-Rust/**'
-      - '09-Frontend-Dioxus/**'
-      - '10-API-Axum/**'
+      - 'Motor-Rust/**'
+      - 'Frontend-Dioxus/**'
+      - 'API-Axum/**'
   workflow_dispatch:  # permite rodar manualmente
 
 env:
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./08-Motor-Rust
+        working-directory: ./Motor-Rust
     steps:
       - uses: actions/checkout@v4
 
@@ -39,18 +39,18 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('08-Motor-Rust/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Motor-Rust/Cargo.lock') }}
 
       - name: Cargo check
         run: cargo check --workspace
 
   test:
-    name: Cargo Test (484 tests)
+    name: Cargo Test (1874 tests)
     runs-on: ubuntu-latest
     needs: check
     defaults:
       run:
-        working-directory: ./08-Motor-Rust
+        working-directory: ./Motor-Rust
     steps:
       - uses: actions/checkout@v4
 
@@ -63,15 +63,15 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('08-Motor-Rust/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Motor-Rust/Cargo.lock') }}
 
       - name: Cache target directory
         uses: actions/cache@v4
         with:
-          path: 08-Motor-Rust/target
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('08-Motor-Rust/Cargo.lock') }}-${{ github.sha }}
+          path: Motor-Rust/target
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('Motor-Rust/Cargo.lock') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-cargo-target-${{ hashFiles('08-Motor-Rust/Cargo.lock') }}-
+            ${{ runner.os }}-cargo-target-${{ hashFiles('Motor-Rust/Cargo.lock') }}-
             ${{ runner.os }}-cargo-target-
 
       - name: Run tests
@@ -83,7 +83,7 @@ jobs:
     needs: check
     defaults:
       run:
-        working-directory: ./08-Motor-Rust
+        working-directory: ./Motor-Rust
     steps:
       - uses: actions/checkout@v4
 
@@ -98,7 +98,7 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('08-Motor-Rust/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Motor-Rust/Cargo.lock') }}
 
       - name: Run clippy
         run: cargo clippy --workspace -- -D warnings
@@ -108,7 +108,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./08-Motor-Rust
+        working-directory: ./Motor-Rust
     steps:
       - uses: actions/checkout@v4
 
@@ -125,7 +125,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./08-Motor-Rust
+        working-directory: ./Motor-Rust
     steps:
       - uses: actions/checkout@v4
 
@@ -138,12 +138,53 @@ jobs:
       - name: Run cargo audit
         run: cargo audit --deny warnings
 
+  coverage:
+    name: Coverage (cargo llvm-cov)
+    runs-on: ubuntu-latest
+    needs: test
+    defaults:
+      run:
+        working-directory: ./Motor-Rust
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable + llvm-tools
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            Motor-Rust/target
+          key: ${{ runner.os }}-cargo-cov-${{ hashFiles('Motor-Rust/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-cov-
+
+      - name: Install cargo-llvm-cov
+        run: cargo install cargo-llvm-cov --locked
+
+      - name: Generate coverage (lcov)
+        run: cargo llvm-cov --all-targets --lcov --output-path ${{ github.workspace }}/Motor-Rust/lcov.info
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: motor-rust-coverage
+          path: Motor-Rust/lcov.info
+
+      - name: Coverage summary
+        run: cargo llvm-cov --all-targets --summary-only
+
   frontend-check:
     name: Frontend Dioxus — Check + Clippy + Fmt
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./09-Frontend-Dioxus
+        working-directory: ./Frontend-Dioxus
     steps:
       - uses: actions/checkout@v4
 
@@ -161,7 +202,7 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: ${{ runner.os }}-cargo-registry-frontend-${{ hashFiles('09-Frontend-Dioxus/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-registry-frontend-${{ hashFiles('Frontend-Dioxus/Cargo.lock') }}
 
       - name: Cargo check (wasm)
         run: cargo check --target wasm32-unknown-unknown
@@ -172,14 +213,14 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all -- --check
 
-  # ─── API Axum (10-API-Axum) ───
+  # ─── API Axum (API-Axum) ───
 
   api-check:
     name: API — Cargo Check
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./10-API-Axum
+        working-directory: ./API-Axum
     steps:
       - uses: actions/checkout@v4
 
@@ -192,15 +233,15 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: ${{ runner.os }}-cargo-registry-api-${{ hashFiles('10-API-Axum/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-registry-api-${{ hashFiles('API-Axum/Cargo.lock') }}
 
       - name: Cache target directory
         uses: actions/cache@v4
         with:
-          path: 10-API-Axum/target
-          key: ${{ runner.os }}-cargo-target-api-${{ hashFiles('10-API-Axum/Cargo.lock') }}-${{ github.sha }}
+          path: API-Axum/target
+          key: ${{ runner.os }}-cargo-target-api-${{ hashFiles('API-Axum/Cargo.lock') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-cargo-target-api-${{ hashFiles('10-API-Axum/Cargo.lock') }}-
+            ${{ runner.os }}-cargo-target-api-${{ hashFiles('API-Axum/Cargo.lock') }}-
             ${{ runner.os }}-cargo-target-api-
 
       - name: Cargo check (all targets incl. tests)
@@ -212,7 +253,7 @@ jobs:
     needs: api-check
     defaults:
       run:
-        working-directory: ./10-API-Axum
+        working-directory: ./API-Axum
     steps:
       - uses: actions/checkout@v4
 
@@ -225,15 +266,15 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: ${{ runner.os }}-cargo-registry-api-${{ hashFiles('10-API-Axum/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-registry-api-${{ hashFiles('API-Axum/Cargo.lock') }}
 
       - name: Cache target directory
         uses: actions/cache@v4
         with:
-          path: 10-API-Axum/target
-          key: ${{ runner.os }}-cargo-target-api-${{ hashFiles('10-API-Axum/Cargo.lock') }}-${{ github.sha }}
+          path: API-Axum/target
+          key: ${{ runner.os }}-cargo-target-api-${{ hashFiles('API-Axum/Cargo.lock') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-cargo-target-api-${{ hashFiles('10-API-Axum/Cargo.lock') }}-
+            ${{ runner.os }}-cargo-target-api-${{ hashFiles('API-Axum/Cargo.lock') }}-
             ${{ runner.os }}-cargo-target-api-
 
       # DB-dependent tests are #[ignore] — only non-DB tests run in CI
@@ -246,7 +287,7 @@ jobs:
     needs: api-check
     defaults:
       run:
-        working-directory: ./10-API-Axum
+        working-directory: ./API-Axum
     steps:
       - uses: actions/checkout@v4
 
@@ -261,7 +302,7 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: ${{ runner.os }}-cargo-registry-api-${{ hashFiles('10-API-Axum/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-registry-api-${{ hashFiles('API-Axum/Cargo.lock') }}
 
       - name: Run clippy (all targets)
         run: cargo clippy --all-targets -- -D warnings
@@ -271,7 +312,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./10-API-Axum
+        working-directory: ./API-Axum
     steps:
       - uses: actions/checkout@v4
 

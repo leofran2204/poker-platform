@@ -42,6 +42,17 @@
 
 ## 📜 Log Cronológico de Desenvolvimento
 
+### [18] 🔧 CI/CD Corrigido para Raiz + Job de Cobertura (2026-07-20)
+**O que foi feito:**
+- **Descoberta:** o workflow `Motor-Rust/.github/workflows/ci.yml` criado em `ab19168` estava em subpasta — o GitHub Actions só lê `.github/workflows/` na **raiz**, logo não rodava. Além disso, o `rust-ci.yml` da raiz estava obsoleto (paths `08-Motor-Rust`/`09-Frontend-Dioxus`/`10-API-Axum` que não existem mais após a reorganização de pastas).
+- **Correção:** reescrevi `.github/workflows/rust-ci.yml` (raiz) com paths corrigidos (`Motor-Rust`/`Frontend-Dioxus`/`API-Axum`) em todos os `working-directory`, `paths` e chaves de cache; removi o arquivo mal-posicionado `Motor-Rust/.github/workflows/ci.yml`.
+- **Novo job `coverage`:** `cargo llvm-cov --all-targets --lcov` gera `lcov.info`, sobe como artefato (`motor-rust-coverage`) e imprime `--summary-only`. Relatório contínuo da cobertura do motor (sem gate rígido, para não ficar flaky).
+- **Próximo passo sugerido (backlog #5):** Fuzz tests (`cargo-fuzz`) nos módulos críticos (rake, side_pots, loss_deflator, auth, parser hand_history).
+
+*Próximo passo: Push para ativar o CI corrigido no GitHub e acompanhar o run (test/clippy/audit/coverage).*
+
+---
+
 ### [17] 🧪 Testes de Integração/Stress/Fairness + CI/CD (2026-07-20)
 **O que foi feito:**
 - **`integration_tests.rs` (5 testes):** mão completa (deck→side_pots→rake→hand_history), ciclo de torneio, loss_deflator+rake, RNG+deck, conservação de fichas em side pots com fold (foldado contribui mas não recebe payout).
