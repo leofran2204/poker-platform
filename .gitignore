@@ -49,3 +49,5 @@ coverage/
 **/target/
 Motor-Rust/target/
 08-Motor-Rust/target/
+proptest-regressions/
+*.proptest-regressions

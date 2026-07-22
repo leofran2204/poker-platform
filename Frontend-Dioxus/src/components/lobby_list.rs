@@ -48,7 +48,7 @@ fn LobbyListItem(table: TableData) -> Element {
 
     let table_id = table.id.clone();
     let on_join = move |_| {
-        let nav = navigator.clone();
+        let nav = navigator;
         let target_id = table_id.clone();
         spawn(async move {
             match crate::api_client::join_table(&target_id).await {

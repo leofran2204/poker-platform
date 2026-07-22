@@ -94,7 +94,7 @@ pub async fn register(
     sqlx::query(
         r#"
         INSERT INTO users (id, username, email, password_hash, role, status, balance, mfa_enabled, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9)
         "#,
     )
     .bind(&user.id)

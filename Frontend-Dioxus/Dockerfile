@@ -13,18 +13,15 @@ RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/ca
 RUN cargo binstall -y wasm-bindgen-cli@0.2.126
 
 # Copia os arquivos necessários do frontend
-COPY 09-Frontend-Dioxus ./09-Frontend-Dioxus
+COPY Frontend-Dioxus ./Frontend-Dioxus
 
-WORKDIR /app/09-Frontend-Dioxus
+WORKDIR /app/Frontend-Dioxus
 
 # Remove a especificação de toolchain do Windows
 RUN rm -f rust-toolchain.toml rust-toolchain
 
 # Compila o projeto para WebAssembly
 RUN cargo build --release --target wasm32-unknown-unknown
-
-# Comando temporário para listar e achar os arquivos .wasm gerados
-RUN find . -name "*.wasm" -o -name "poker-frontend"
 
 # Gera os bindings JS/WASM na pasta dist, copia o index.html e injeta o script de inicialização
 RUN mkdir dist && \
@@ -38,7 +35,7 @@ FROM caddy:2-alpine
 WORKDIR /usr/share/caddy
 
 # Copia os arquivos compilados estáticos do Dioxus (HTML, WASM, CSS, Assets)
-COPY --from=builder /app/09-Frontend-Dioxus/dist .
+COPY --from=builder /app/Frontend-Dioxus/dist .
 
 # Copia o Caddyfile para gerenciar as rotas e HTTPS
-COPY 09-Frontend-Dioxus/Caddyfile /etc/caddy/Caddyfile
+COPY Frontend-Dioxus/Caddyfile /etc/caddy/Caddyfile

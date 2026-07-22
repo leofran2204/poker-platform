@@ -35,6 +35,7 @@ use rand::SeedableRng;
 /// Tier do deflator (para serialização/exibição)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LossDeflatorTier {
+    SevenPercent,
     FifteenPercent,
     TwentyFivePercent,
     ThirtyFivePercent,
@@ -43,6 +44,7 @@ pub enum LossDeflatorTier {
 impl LossDeflatorTier {
     pub fn as_str(&self) -> &'static str {
         match self {
+            LossDeflatorTier::SevenPercent => "7%",
             LossDeflatorTier::FifteenPercent => "15%",
             LossDeflatorTier::TwentyFivePercent => "25%",
             LossDeflatorTier::ThirtyFivePercent => "35%",
@@ -52,6 +54,7 @@ impl LossDeflatorTier {
     #[allow(dead_code)]
     pub fn percent(&self) -> f64 {
         match self {
+            LossDeflatorTier::SevenPercent => 0.07,
             LossDeflatorTier::FifteenPercent => 0.15,
             LossDeflatorTier::TwentyFivePercent => 0.25,
             LossDeflatorTier::ThirtyFivePercent => 0.35,
@@ -172,6 +175,7 @@ pub fn calculate_progressive_loss_deflator(
     }
 
     let tier = match percent {
+        p if (p - 0.07).abs() < f64::EPSILON => LossDeflatorTier::SevenPercent,
         p if (p - 0.15).abs() < f64::EPSILON => LossDeflatorTier::FifteenPercent,
         p if (p - 0.25).abs() < f64::EPSILON => LossDeflatorTier::TwentyFivePercent,
         p if (p - 0.35).abs() < f64::EPSILON => LossDeflatorTier::ThirtyFivePercent,

@@ -323,3 +323,17 @@ jobs:
 
       - name: Check formatting
         run: cargo fmt --all -- --check
+
+  container-security-scan:
+    name: DevSecOps — Trivy Container Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner on repo
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'

@@ -10,6 +10,7 @@ pub mod utils;
 
 // ─── Módulos do motor ───
 pub mod antifraud;
+pub mod antifraud_engine;
 pub mod auth;
 pub mod deck;
 pub mod game_loop;
@@ -48,3 +49,7 @@ mod stress_tests;
 mod stress_integration_tests;
 #[cfg(test)]
 mod card_fairness_tests;
+#[cfg(test)]
+mod fuzz_tests;
+#[cfg(test)]
+mod tournament_fuzz_tests;

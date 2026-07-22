@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 # ── Motor (workspace path dependency) ──
-poker-engine = { path = "../08-Motor-Rust" }
+poker-engine = { path = "../Motor-Rust" }
 
 # ── Web framework ──
 axum = { version = "0.7", features = ["ws", "macros"] }
@@ -41,3 +41,5 @@ reqwest = { version = "0.12", features = ["json"] }
 tower = { version = "0.5", features = ["util"] }
 # Utilities for reading HTTP body in tests
 http-body-util = "0.1"
+# Property-based fuzz testing
+proptest = "1.5"

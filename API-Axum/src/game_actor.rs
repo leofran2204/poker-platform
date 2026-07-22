@@ -268,10 +268,12 @@ impl TableActor {
     fn get_table_info_json(&self) -> serde_json::Value {
         serde_json::json!({
             "type": "table_info",
+            "table_id": self.table_id,
             "name": self.name,
             "small_blind": self.config.big_blind / 2.0,
             "big_blind": self.config.big_blind,
-            "game_type": "cash"
+            "game_type": "cash",
+            "players": self.players
         })
     }
 

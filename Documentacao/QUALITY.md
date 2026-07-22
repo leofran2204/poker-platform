@@ -304,7 +304,7 @@ Use o script `scripts/cargo-dioxus.ps1` que configura tudo automaticamente:
 $gccLibPath = "C:\Users\leofr\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\lib\gcc\x86_64-w64-mingw32\16.1.0"
 $env:LIBRARY_PATH = $gccLibPath
 $env:C_INCLUDE_PATH = "C:\Users\leofr\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\include"
-cd "c:\Users\leofr\OneDrive\Projetos\Poker_Project\Frontend-Dioxus"
+cd "c:\Users\leofr\Projetos\Poker_Project\Frontend-Dioxus"
 cargo +stable-x86_64-pc-windows-gnu check
 ```
 

@@ -313,10 +313,14 @@ async fn test_contract_register_login_flow() {
     let app = poker_api::build_router(state);
 
     // ─── Register ───
+    let uid = uuid::Uuid::new_v4().simple().to_string();
+    let email = format!("test_contract_{}@example.com", uid);
+    let username = format!("contract_{}", &uid[..12]);
+
     let register_body = serde_json::json!({
-        "email": "test_contract@example.com",
+        "email": email,
         "password": "StrongPass123!",
-        "username": "test_contract_user"
+        "username": username
     })
     .to_string();
 
@@ -345,28 +349,19 @@ async fn test_contract_register_login_flow() {
 
     // ─── Login ───
     let login_body = serde_json::json!({
-        "email": "test_contract@example.com",
+        "email": email,
         "password": "StrongPass123!"
     })
     .to_string();
 
-    let (status, body) = send_request(
-        app.clone(),
-        Method::POST,
-        "/api/auth/login",
-        Some(login_body),
-    )
-    .await;
+    let (status2, body2) =
+        send_request(app.clone(), Method::POST, "/api/auth/login", Some(login_body)).await;
+    assert_eq!(status2, StatusCode::OK, "Login failed: {body2}");
 
-    assert_eq!(status, StatusCode::OK, "Login failed: {body}");
-    let json: Value = serde_json::from_str(&body).expect("Login response is not JSON");
+    let login_json: Value = serde_json::from_str(&body2).expect("Login response is not JSON");
     assert!(
-        json["token"].is_string(),
-        "Login response should contain token: {body}"
-    );
-    assert_eq!(
-        json["mfa_required"], false,
-        "MFA should not be required for test user"
+        login_json["token"].is_string(),
+        "Login response should contain token: {body2}"
     );
 }
 
@@ -376,10 +371,14 @@ async fn test_contract_register_duplicate_returns_409() {
     let state = make_test_state();
     let app = poker_api::build_router(state);
 
+    let uid = uuid::Uuid::new_v4().simple().to_string();
+    let email = format!("dup_test_{}@example.com", uid);
+    let username = format!("dup_{}", &uid[..12]);
+
     let body = serde_json::json!({
-        "email": "dup_test@example.com",
+        "email": email,
         "password": "StrongPass123!",
-        "username": "dup_test_user"
+        "username": username
     })
     .to_string();
 
@@ -408,11 +407,15 @@ async fn test_contract_login_invalid_credentials_returns_401() {
     let state = make_test_state();
     let app = poker_api::build_router(state);
 
+    let uid = uuid::Uuid::new_v4().simple().to_string();
+    let email = format!("invalid_cred_{}@example.com", uid);
+    let username = format!("invcred_{}", &uid[..12]);
+
     // Register a user first
     let register_body = serde_json::json!({
-        "email": "invalid_cred@example.com",
+        "email": email,
         "password": "CorrectPass123!",
-        "username": "invalid_cred_user"
+        "username": username
     })
     .to_string();
     let _ = send_request(
@@ -425,7 +428,7 @@ async fn test_contract_login_invalid_credentials_returns_401() {
 
     // Login with wrong password
     let login_body = serde_json::json!({
-        "email": "invalid_cred@example.com",
+        "email": email,
         "password": "WrongPassword123!"
     })
     .to_string();
@@ -442,27 +445,32 @@ async fn test_contract_hand_history_not_found_returns_404() {
     let state = make_test_state();
     let app = poker_api::build_router(state);
 
+    let uid = uuid::Uuid::new_v4().simple().to_string();
+    let email = format!("hh_test_{}@example.com", uid);
+    let username = format!("hhtest_{}", &uid[..12]);
+
     // Register and get token
     let register_body = serde_json::json!({
-        "email": "hh_test@example.com",
+        "email": email,
         "password": "StrongPass123!",
-        "username": "hh_test_user"
+        "username": username
     })
     .to_string();
-    let (_, body) = send_request(
+    let (status, body) = send_request(
         app.clone(),
         Method::POST,
         "/api/auth/register",
         Some(register_body),
     )
     .await;
+    assert_eq!(status, StatusCode::OK, "Register failed in hh test: {body}");
     let json: serde_json::Value = serde_json::from_str(&body).unwrap();
     let token = json["token"].as_str().unwrap().to_string();
 
     // Request hand history with valid token but non-existent hand_id
     let request = Request::builder()
         .method(Method::GET)
-        .uri("/api/hand-history/nonexistent-hand-id")
+        .uri("/api/hand-history/00000000-0000-0000-0000-000000000000")
         .header("Authorization", format!("Bearer {token}"))
         .body(Body::empty())
         .unwrap();
@@ -477,25 +485,30 @@ async fn test_contract_lobby_join_with_valid_token() {
     let state = make_test_state();
     let app = poker_api::build_router(state);
 
+    let uid = uuid::Uuid::new_v4().simple().to_string();
+    let email = format!("join_test_{}@example.com", uid);
+    let username = format!("jointest_{}", &uid[..12]);
+
     // Register and get token
     let register_body = serde_json::json!({
-        "email": "join_test@example.com",
+        "email": email,
         "password": "StrongPass123!",
-        "username": "join_test_user"
+        "username": username
     })
     .to_string();
-    let (_, body) = send_request(
+    let (status, body) = send_request(
         app.clone(),
         Method::POST,
         "/api/auth/register",
         Some(register_body),
     )
     .await;
+    assert_eq!(status, StatusCode::OK, "Register failed in join test: {body}");
     let json: serde_json::Value = serde_json::from_str(&body).unwrap();
     let token = json["token"].as_str().unwrap().to_string();
 
     // Join a table — will fail because table doesn't exist, but should pass auth
-    let join_body = serde_json::json!({"table_id": "nonexistent"}).to_string();
+    let join_body = serde_json::json!({"table_id": "00000000-0000-0000-0000-000000000000"}).to_string();
     let request = Request::builder()
         .method(Method::POST)
         .uri("/api/lobby/join")

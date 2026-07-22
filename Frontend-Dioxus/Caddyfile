@@ -1,11 +1,48 @@
 localhost {
     log
 
-    # Encaminha chamadas de API e WebSockets para o container backend
-    reverse_proxy /api/* poker_api:3000
-    reverse_proxy /ws/* poker_api:3000
+    # ─── Security Headers (OWASP Hardening) ───
+    header {
+        # Previne MIME-type sniffing
+        X-Content-Type-Options "nosniff"
+        # Impede Clickjacking incorporando em iframes
+        X-Frame-Options "DENY"
+        # Ativa proteção contra Cross-Site Scripting (XSS) no navegador
+        X-XSS-Protection "1; mode=block"
+        # Força comunicação HTTPS por 1 ano (HSTS)
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        # Controla quais informações de referrer são enviadas
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Content Security Policy (CSP) para WebAssembly + Dioxus
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:; img-src 'self' data:;"
+        # Desativa identificação do servidor
+        -Server
+    }
 
-    root * /usr/share/caddy
-    file_server
-    try_files {path} /index.html
+    # Encaminha chamadas de API para o container backend
+    handle /api/* {
+        reverse_proxy poker_api:3000 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # Encaminha chamadas de WebSockets para o container backend
+    handle /ws/* {
+        reverse_proxy poker_api:3000 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # Serve arquivos estáticos do Frontend Dioxus (WASM)
+    handle {
+        root * /usr/share/caddy
+        try_files {path} /index.html
+        file_server
+    }
 }

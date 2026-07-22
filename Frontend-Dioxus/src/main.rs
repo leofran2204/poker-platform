@@ -25,6 +25,11 @@ mod pages;
 mod router;
 mod ws_client;
 
+#[cfg(test)]
+mod fuzz_tests;
+#[cfg(test)]
+mod state_stress_tests;
+
 use dioxus::prelude::*;
 
 /// Componente raiz — delega para `router::root` que contém o `Router`.

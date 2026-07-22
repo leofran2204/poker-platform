@@ -126,7 +126,7 @@ Assistant: Attempted to copy file but file not found, then wrote conversation fi
 
 - Código-fonte: `C:\Users\leofr\OneDrive\Projetos\Project opencode\poker-platform`
 - render.yaml: `C:\Users\leofr\OneDrive\Projetos\Project opencode\poker-platform\render.yaml`
-- Instruções: `C:\Users\leofr\OneDrive\Projetos\Poker_Project\04-Infraestrutura-Docker\DEPLOY_RENDER.md`
+- Instruções: `C:\Users\leofr\Projetos\Poker_Project\Infraestrutura-Docker\DEPLOY_RENDER.md`
 
 ---
 

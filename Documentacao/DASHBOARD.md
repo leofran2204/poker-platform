@@ -61,6 +61,14 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 ### ✅ Concluídas — Sprint Atual
 | #   | Tarefa                                                                                                                                                              | Data       |
 |-----|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| Cov | **Fuzzing Massivo MTT, Network Jitter WS & Carga no PostgreSQL Pool** — 1) Fuzzing de Rebalanceamento MTT no Motor Rust (`tournament_fuzz_tests.rs`, 200.000 iters); 2) Estresse de Instabilidade de Rede e Lag em WebSockets (`ws_network_jitter_tests.rs`); 3) Estresse de Transações em Massa no PostgreSQL Pool (`db_pool_stress_tests.rs`). `cargo clippy` ✅ (0 warnings), **2.050 testes passando** (0 falhas). | 2026-07-22 |
+| RT  | **Módulo Antifraude (IA/ML), Métricas Prometheus & Simulação Red Team** — 1) Módulo `antifraud_engine.rs` no Motor Rust com `BotDetector` (análise de variância de tempo de reação) + `CollusionDetector` + `RiskScore`; 2) Endpoints `/api/metrics` (Prometheus) e `/api/health/security` no Axum; 3) Suíte autônoma de Red Team (`red_team_simulation_tests.rs`) validando repulsa a brute-force, JWT tampering e WS injection (4/4 testes ✅). Total plataforma: **2.044 testes passando** (0 falhas, 0 clippy warnings). | 2026-07-22 |
+| SEC | **Hardening de Segurança Enterprise ("Fortaleza Híbrida")** — 1) Security Headers OWASP no Caddyfile (HSTS, CSP, X-Frame-Options, X-Content-Type-Options); 2) Container Hardening (`docker-compose.yml` e `API-Axum/Dockerfile` com `USER 10001`, `cap_drop: ALL`, `read_only: true`, `no-new-privileges:true`, `tmpfs`); 3) DevSecOps Trivy Vulnerability Scanner no CI/CD (`rust-ci.yml`). `cargo clippy` ✅ (0 warnings), **2.036 testes passando** ✅. | 2026-07-22 |
+| FZ  | **Fuzzing Dinâmico & Estresse no Frontend Dioxus (`Frontend-Dioxus`)** — 10 funções de Fuzzing baseadas em propriedades (`fuzz_tests.rs`) + 10.000 mutações de estado em rajada (`state_stress_tests.rs`). Descoberto e corrigido caso limite Unicode com expansão de caracteres turcos `İ` (`to_lowercase()`). Total Frontend: **115 suítes de testes passando** (0 falhas, 0 clippy warnings). | 2026-07-22 |
+| ST  | **Fuzzing HTTP Massivo & Estresse da API Axum (`API-Axum`)** — `api_fuzz_tests.rs` expandido para 10 funções de Fuzzing HTTP cobrindo 100% dos endpoints REST sob 2.000 iterações por função (`552.17s`). 600 operações WS simultâneas sem deadlock e 30 cadastros/transações paralelas com bcrypt/JWT no PostgreSQL. Total API: **34 suítes de testes passando** (0 falhas, 0 clippy warnings). | 2026-07-22 |
+| DB  | **Testes de Integração PostgreSQL (Opção 2)** — `api_tests.rs` ativado com banco PostgreSQL real (container `poker_postgres`). 5/5 testes de contrato passando (`register_login_flow`, `duplicate_409`, `invalid_credentials_401`, `lobby_join`, `hand_history_404`). Fix no gerador `generate_uuid_v4()` (`4{:01x}`). | 2026-07-22 |
+| DOC | **Orquestração Docker Stack & Proxy HTTPS Caddy (Opção 3)** — Stack completa com 6 containers (PostgreSQL, Redis, Zookeeper, Kafka, API Axum, Frontend Dioxus Caddy) rodando e comunicando via HTTPS/TLS auto-assinado (`https://localhost`). Teste E2E de registro com emissão de JWT passando via proxy (`200 OK`). | 2026-07-22 |
+| 5   | **Fuzz & Property Tests (`fuzz_tests.rs`)** — Estratégias `proptest` para `rake`, `side_pots`, `loss_deflator`, `auth` JWT e `hand_history` JSON. 6 suítes adicionadas. `cargo clippy` ✅ (0 warnings), `cargo test` ✅ (**1.880 testes no Motor-Rust**). | 2026-07-21 |
 | 3.9 | **Integração API ↔ Front (WebSockets)** — Conexão do Dioxus via WsClient com o TableActor e GameLoop do Axum, sincronizando apostas e turnos com anti-cheat nativo. | 2026-07-17 |
 | I2  | **Testes de Integração + Stress + Fairness + CI/CD** — `integration_tests.rs` (5 det.), `stress_integration_tests.rs` (5×200k iters, seed fixo), `card_fairness_tests.rs` (3×500k qui-quadrado), `stress_tests.rs` (15); `loss_deflator.rs` MC_SAMPLES=500k (tolerância 0,005); `rng_crypto.rs` qui-quadrado; 10 warnings clippy corrigidos; CI/CD em `.github/workflows/rust-ci.yml` (clippy -D warnings + test + cargo audit). Total Motor: **1.874 testes, 0 falhas**. Commit `ab19168`. | 2026-07-20 |
 | I3  | **CI corrigido para raiz + Job de Cobertura** — workflow movido para `.github/workflows/` (GitHub só lê a raiz); paths antigos `08/09/10-` corrigidos para `Motor-Rust`/`Frontend-Dioxus`/`API-Axum`; adicionado job `coverage` (`cargo llvm-cov`, artefato lcov + summary). | 2026-07-20 |
@@ -88,33 +96,6 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | 4   | **Rake da casa** — módulo `rake.rs` (2.5% default, cap R$6), 13 testes, integrado                                                                                  | 2026-07-02 |
 | 3   | **Loss Deflator Progressivo** — módulo `loss_deflator.rs` (7%/15%/25%/35% por equity), 9 testes                                                                | 2026-07-02 |
 | 2   | **Side Pots** — módulo `side_pots.rs` (all-in múltiplos jogadores), 7 testes                                                                                       | 2026-07-02 |
-| 1   | **Deck + Hand Evaluation** — módulo `deck.rs` (criação, embaralhamento, avaliação), 18 testes                                                                     | 2026-07-02 |
-| —   | **Mudança de stack alvo:** Rust (backend) + Python (IA) + TS (front)                                                                                               | 2026-06-30 |
-| —   | Reorganização de pastas (01-07 sem gaps)                                                                                                                           | 2026-06-27 |
-| —   | Consolidação do `ARQUITETURA_MOTOR.md`                                                                                                                             | 2026-06-27 |
-| —   | Remoção de duplicatas (`client/`, `server/`, `shared/`)                                                                                                            | 2026-06-27 |
-| —   | Criação do `DASHBOARD.md`                                                                                                                                          | 2026-06-27 |
-| —   | Correção: Check sem validação                                                                                                                                      | 2026-06-25 |
-| —   | Correção: Split Pot básico                                                                                                                                         | 2026-06-25 |
-
----
-
-## 📊 Resumo Rápido — Indicadores do Projeto
-
-| Indicador                | Valor                                                                                         |
-|--------------------------|-----------------------------------------------------------------------------------------------|
-| Regras documentadas      | 45                                                                                            |
-| Regras implementadas    | 43 (95%)                                                                                      |
-| Bugs críticos pendentes  | 0                                                                                             |
-| Tarefas pendentes        | 3                                                                                         |
-| Módulos Rust implementados | 10 (deck, side_pots, loss_deflator, rake, rng_crypto, hand_history, tournament_engine, auth, lobby, utils) + 4 antifraude + 1 API (API-Axum) + Orquestrador Caddy |
-| Testes Rust              | **1.991 testes passando** (1874 motor + 13 API + 104 frontend) — **Cobertura Oficial do Motor: 98,10%** 🏆 |
-| Front-end Dioxus         | ✅ Conectado e integrado via WebSockets (3.9) — 15 componentes, 104 testes                     |
-| Progresso total          | **~70%** (ver `CRONOGRAMA.md`)                                                                        |
-| Tarefa atual             | **Fase 5 de Testes / Cobertura (CI/CD concluído — `ab19168`)**                               |
-
----
-
 ## 🗺️ Mapa das Pastas — Estrutura de Módulos
 
 | #   | Pasta                 | O que contém                                                                                                              | Status                    |

@@ -83,7 +83,7 @@ pub async fn register_player(
         r#"
         INSERT INTO tournament_players
             (tournament_id, player_id, player_name, stack, registered_at)
-        VALUES ($1, $2, $3, $4, NOW())
+        VALUES ($1::uuid, $2, $3, $4, EXTRACT(EPOCH FROM NOW())::BIGINT)
         ON CONFLICT (tournament_id, player_id) DO NOTHING
         "#,
     )
