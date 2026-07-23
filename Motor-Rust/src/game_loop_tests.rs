@@ -3976,5 +3976,42 @@ mod resolve_showdown_errors_tests {
         assert_eq!(d2.phase, GamePhase::Turn);
         assert_eq!(d2.cards_remaining, 1);
     }
+
+    #[test]
+    fn test_heads_up_action_order_preflop_and_postflop() {
+        // 2 jogadores: alice (seat 0, dealer/SB) e bob (seat 1, BB)
+        let mut gl = make_game_loop_2p();
+        gl.start_hand().unwrap();
+
+        // No Preflop: Dealer (SB / Alice) deve agir PRIMEIRO
+        assert_eq!(gl.state.active_player_index, 0);
+        assert_eq!(gl.state.players[gl.state.active_player_index].id, "alice");
+
+        // Alice iguala o BB (Call 10)
+        gl.player_action("alice", PlayerMove::Call).unwrap();
+        // Vez do Bob (BB)
+        assert_eq!(gl.state.active_player_index, 1);
+        assert_eq!(gl.state.players[gl.state.active_player_index].id, "bob");
+        // Bob dá Check -> Avança para o Flop
+        gl.player_action("bob", PlayerMove::Check).unwrap();
+
+        // No Flop: Bob (BB / Não-dealer) deve agir PRIMEIRO! Alice (Dealer/SB) age em 2º (em posição)
+        assert_eq!(gl.state.phase, GamePhase::Flop);
+        assert_eq!(gl.state.active_player_index, 1);
+        assert_eq!(gl.state.players[gl.state.active_player_index].id, "bob");
+
+        // Bob dá Check
+        gl.player_action("bob", PlayerMove::Check).unwrap();
+        // Vez de Alice (Dealer) agir por último no Flop
+        assert_eq!(gl.state.active_player_index, 0);
+        assert_eq!(gl.state.players[gl.state.active_player_index].id, "alice");
+        // Alice dá Check -> Avança para o Turn
+        gl.player_action("alice", PlayerMove::Check).unwrap();
+
+        // No Turn: Bob (BB) age PRIMEIRO novamente
+        assert_eq!(gl.state.phase, GamePhase::Turn);
+        assert_eq!(gl.state.active_player_index, 1);
+        assert_eq!(gl.state.players[gl.state.active_player_index].id, "bob");
+    }
 }
 

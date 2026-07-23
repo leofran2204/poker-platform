@@ -35,6 +35,7 @@ pub trait PixGateway: Send + Sync {
     ) -> Result<PixPayoutResult, String>;
 
     fn verify_webhook_signature(&self, header_secret: Option<&str>) -> bool;
+    fn verify_webhook_hmac(&self, body: &[u8], signature_header: Option<&str>) -> bool;
 }
 
 #[derive(Debug, Clone)]
@@ -100,6 +101,36 @@ impl PixGateway for MockPixGateway {
             Some(secret) => secret == self.secret,
             None => false,
         }
+    }
+
+    fn verify_webhook_hmac(&self, body: &[u8], signature_header: Option<&str>) -> bool {
+        let sig_str = match signature_header {
+            Some(s) => s,
+            None => return false,
+        };
+
+        // Suporte legado para testes/transição: aceita se corresponder diretamente à chave secreta
+        if sig_str == self.secret {
+            return true;
+        }
+
+        use hmac::{Hmac, Mac};
+        use sha2::Sha256;
+        type HmacSha256 = Hmac<Sha256>;
+
+        let mut mac = match HmacSha256::new_from_slice(self.secret.as_bytes()) {
+            Ok(m) => m,
+            Err(_) => return false,
+        };
+        mac.update(body);
+        let expected_bytes = mac.finalize().into_bytes();
+        let expected_hex = expected_bytes
+            .iter()
+            .map(|b| format!("{:02x}", b))
+            .collect::<String>();
+
+        let clean_sig = sig_str.trim_start_matches("sha256=");
+        clean_sig.eq_ignore_ascii_case(&expected_hex)
     }
 }
 

@@ -116,19 +116,30 @@ pub async fn create_pix_deposit_handler(
 pub async fn pix_webhook_handler(
     State(_state): State<AppState>,
     headers: HeaderMap,
-    Json(payload): Json<WebhookPixPayload>,
+    body: axum::body::Bytes,
 ) -> impl IntoResponse {
-    let secret = headers
-        .get("X-Webhook-Secret")
+    let signature = headers
+        .get("X-Signature")
+        .or_else(|| headers.get("X-Webhook-Secret"))
         .and_then(|h| h.to_str().ok());
 
     let gateway = get_payment_gateway();
-    if !gateway.verify_webhook_signature(secret) {
+    if !gateway.verify_webhook_hmac(&body, signature) {
         return (
             StatusCode::UNAUTHORIZED,
             Json(serde_json::json!({ "error": "Assinatura do webhook inválida ou ausente" })),
         );
     }
+
+    let payload: WebhookPixPayload = match serde_json::from_slice(&body) {
+        Ok(p) => p,
+        Err(_) => {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({ "error": "Payload JSON do webhook inválido" })),
+            );
+        }
+    };
 
     if payload.status != "APPROVED" && payload.status != "COMPLETED" {
         return (

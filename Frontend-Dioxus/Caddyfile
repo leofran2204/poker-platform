@@ -19,6 +19,11 @@ localhost {
         -Server
     }
 
+    # Limite máximo de corpo de requisição (WAF Payload Protection - Max 10MB)
+    request_body {
+        max_size 10MB
+    }
+
     # Encaminha chamadas de API para o container backend
     handle /api/* {
         reverse_proxy poker_api:3000 {

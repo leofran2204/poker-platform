@@ -710,11 +710,10 @@ impl AuthManager {
         has_upper && has_lower && has_digit
     }
 
-    /// Gera um UUID v4 simples (não criptograficamente perfeito, mas funcional)
+    /// Gera um UUID v4 seguro usando o CSPRNG do sistema (OsRng)
     fn generate_uuid_v4() -> String {
-        use rand::Rng;
-        let mut rng = rand::thread_rng();
-        let bytes: [u8; 16] = rng.gen();
+        let mut bytes = [0u8; 16];
+        crate::rng_crypto::secure_random_bytes(&mut bytes);
         format!(
             "{:02x}{:02x}{:02x}{:02x}-{:02x}{:02x}-4{:01x}{:02x}-{:02x}{:02x}-{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}",
             bytes[0], bytes[1], bytes[2], bytes[3],
@@ -725,20 +724,17 @@ impl AuthManager {
         )
     }
 
-    /// Gera um segredo TOTP aleatório em Base32
+    /// Gera um segredo TOTP aleatório em Base32 usando CSPRNG
     fn generate_totp_secret() -> String {
-        use rand::Rng;
-        let mut rng = rand::thread_rng();
-        let bytes: Vec<u8> = (0..TOTP_SECRET_SIZE).map(|_| rng.gen()).collect();
+        let mut bytes = vec![0u8; TOTP_SECRET_SIZE];
+        crate::rng_crypto::secure_random_bytes(&mut bytes);
         base32_encode(&bytes)
     }
 
-    /// Gera códigos de backup (8 códigos de 8 dígitos)
+    /// Gera códigos de backup (8 códigos de 8 dígitos) usando CSPRNG
     fn generate_backup_codes() -> Vec<String> {
-        use rand::Rng;
-        let mut rng = rand::thread_rng();
         (0..8)
-            .map(|_| format!("{:08}", rng.gen_range(0..100_000_000u32)))
+            .map(|_| format!("{:08}", crate::rng_crypto::secure_random_u32(0..=99_999_999)))
             .collect()
     }
 

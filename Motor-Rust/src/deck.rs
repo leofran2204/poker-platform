@@ -690,6 +690,131 @@ mod tests {
     }
 
     #[test]
+    fn test_evaluate_flush_seven_suited_cards_picks_top_5() {
+        // 7 cartas de Copas (Hearts): A, K, J, 9, 7, 5, 3
+        let hole = vec![c(Rank::Ace, Suit::Hearts), c(Rank::Three, Suit::Hearts)];
+        let community = vec![
+            c(Rank::King, Suit::Hearts),
+            c(Rank::Jack, Suit::Hearts),
+            c(Rank::Nine, Suit::Hearts),
+            c(Rank::Seven, Suit::Hearts),
+            c(Rank::Five, Suit::Hearts),
+        ];
+        let result = evaluate_hand(&hole, &community);
+        assert_eq!(result.rank, HandRank::Flush);
+        assert_eq!(result.cards.len(), 5);
+        // Garante que as 5 cartas selecionadas são exatamente as 5 maiores
+        let expected_ranks = vec![Rank::Ace, Rank::King, Rank::Jack, Rank::Nine, Rank::Seven];
+        let actual_ranks: Vec<Rank> = result.cards.iter().map(|card| card.rank).collect();
+        assert_eq!(actual_ranks, expected_ranks);
+    }
+
+    #[test]
+    fn test_evaluate_flush_six_suited_cards_picks_top_5() {
+        // 6 cartas de Paus (Clubs): K, Q, 10, 8, 6, 2 + 1 Ás de Ouros
+        let hole = vec![c(Rank::King, Suit::Clubs), c(Rank::Two, Suit::Clubs)];
+        let community = vec![
+            c(Rank::Queen, Suit::Clubs),
+            c(Rank::Ten, Suit::Clubs),
+            c(Rank::Eight, Suit::Clubs),
+            c(Rank::Six, Suit::Clubs),
+            c(Rank::Ace, Suit::Diamonds),
+        ];
+        let result = evaluate_hand(&hole, &community);
+        assert_eq!(result.rank, HandRank::Flush);
+        assert_eq!(result.cards.len(), 5);
+        let expected_ranks = vec![Rank::King, Rank::Queen, Rank::Ten, Rank::Eight, Rank::Six];
+        let actual_ranks: Vec<Rank> = result.cards.iter().map(|card| card.rank).collect();
+        assert_eq!(actual_ranks, expected_ranks);
+    }
+
+    #[test]
+    fn test_compare_flushes_with_board_4_suited() {
+        // Board com 4 de Ouros: A♦ K♦ 10♦ 4♦ 2♣
+        let community = vec![
+            c(Rank::Ace, Suit::Diamonds),
+            c(Rank::King, Suit::Diamonds),
+            c(Rank::Ten, Suit::Diamonds),
+            c(Rank::Four, Suit::Diamonds),
+            c(Rank::Two, Suit::Clubs),
+        ];
+        // Jogador 1 tem Q♦ 3♠ -> Flush: A♦ K♦ Q♦ 10♦ 4♦
+        let p1_hole = vec![c(Rank::Queen, Suit::Diamonds), c(Rank::Three, Suit::Spades)];
+        // Jogador 2 tem J♦ 9♠ -> Flush: A♦ K♦ J♦ 10♦ 4♦
+        let p2_hole = vec![c(Rank::Jack, Suit::Diamonds), c(Rank::Nine, Suit::Spades)];
+
+        let res1 = evaluate_hand(&p1_hole, &community);
+        let res2 = evaluate_hand(&p2_hole, &community);
+
+        assert_eq!(res1.rank, HandRank::Flush);
+        assert_eq!(res2.rank, HandRank::Flush);
+        // Jogador 1 vence pois Q♦ > J♦ na 3ª carta do Flush
+        assert_eq!(compare_hands(&res1, &res2), Ordering::Greater);
+    }
+
+    #[test]
+    fn test_compare_flushes_full_community_flush_tie() {
+        // Board de 5 Espadas: A♠ K♠ Q♠ J♠ 7♠
+        let community = vec![
+            c(Rank::Ace, Suit::Spades),
+            c(Rank::King, Suit::Spades),
+            c(Rank::Queen, Suit::Spades),
+            c(Rank::Jack, Suit::Spades),
+            c(Rank::Seven, Suit::Spades),
+        ];
+        // Jogador 1 tem 5♠ 2♥ (6ª espada 5♠ é menor que as 5 do board)
+        let p1_hole = vec![c(Rank::Five, Suit::Spades), c(Rank::Two, Suit::Hearts)];
+        // Jogador 2 tem 3♠ 4♦ (6ª espada 3♠ é menor que as 5 do board)
+        let p2_hole = vec![c(Rank::Three, Suit::Spades), c(Rank::Four, Suit::Diamonds)];
+
+        let res1 = evaluate_hand(&p1_hole, &community);
+        let res2 = evaluate_hand(&p2_hole, &community);
+
+        // Ambos avaliam para as mesmas 5 cartas do board
+        assert_eq!(compare_hands(&res1, &res2), Ordering::Equal);
+    }
+
+    #[test]
+    fn test_flush_vs_straight_flush_7_suited() {
+        // 7 Espadas: A♠ K♠ 7♠ 6♠ 5♠ 4♠ 3♠
+        // As 5 maiores cartas formariam Flush (A-K-7-6-5), mas 7-6-5-4-3 é Straight Flush
+        let hole = vec![c(Rank::Ace, Suit::Spades), c(Rank::King, Suit::Spades)];
+        let community = vec![
+            c(Rank::Seven, Suit::Spades),
+            c(Rank::Six, Suit::Spades),
+            c(Rank::Five, Suit::Spades),
+            c(Rank::Four, Suit::Spades),
+            c(Rank::Three, Suit::Spades),
+        ];
+        let result = evaluate_hand(&hole, &community);
+        // Deve priorizar o Straight Flush mesmo que o Flush simples tenha cartas (A, K) maiores
+        assert_eq!(result.rank, HandRank::StraightFlush);
+        let expected_ranks = vec![Rank::Seven, Rank::Six, Rank::Five, Rank::Four, Rank::Three];
+        let actual_ranks: Vec<Rank> = result.cards.iter().map(|card| card.rank).collect();
+        assert_eq!(actual_ranks, expected_ranks);
+    }
+
+    #[test]
+    fn test_compare_flushes_equal_top_four_different_fifth_card() {
+        // Jogador 1: A♣ K♣ Q♣ J♣ 9♣
+        let p1_hole = vec![c(Rank::Ace, Suit::Clubs), c(Rank::Nine, Suit::Clubs)];
+        // Jogador 2: A♣ K♣ Q♣ J♣ 8♣
+        let p2_hole = vec![c(Rank::Ace, Suit::Clubs), c(Rank::Eight, Suit::Clubs)];
+        let community = vec![
+            c(Rank::King, Suit::Clubs),
+            c(Rank::Queen, Suit::Clubs),
+            c(Rank::Jack, Suit::Clubs),
+            c(Rank::Two, Suit::Hearts),
+            c(Rank::Three, Suit::Diamonds),
+        ];
+
+        let res1 = evaluate_hand(&p1_hole, &community);
+        let res2 = evaluate_hand(&p2_hole, &community);
+
+        assert_eq!(compare_hands(&res1, &res2), Ordering::Greater);
+    }
+
+    #[test]
     fn test_evaluate_straight() {
         let hole = vec![c(Rank::Nine, Suit::Hearts), c(Rank::Eight, Suit::Diamonds)];
         let community = vec![

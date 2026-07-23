@@ -99,7 +99,18 @@ waiting → preflop → flop → turn → river → showdown → (volta para pre
 | `flop`     | 3                   | Após Dealer (sentido horário)        |
 | `turn`     | 4                   | Após Dealer (sentido horário)        |
 | `river`    | 5                   | Após Dealer (sentido horário)        |
-| `showdown` | 5                   | Avaliação final                      |
+| `showdown` | 5                   | Revelação das cartas                 |
+
+### 4.4 🪙 Resolução de Centavos Ímpares em Split Pots (Regra do Centavo Ímpar — Odd Cent Rule)
+
+Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP / TDA Regra 68):
+
+1. **Divisão Truncada (2 Casas Decimais)**:
+   - Em potes divididos (*split pots*), o valor atribuído a cada jogador empatado é truncado em 2 casas decimais (centavos exatos).
+2. **Atribuição do Centavo Remanescente**:
+   - Caso haja um resto indivisível de centavos ($R = \text{Pote} - N \times \text{Valor Base}$), o(s) centavo(s) de R$ 0,01 são entregues de 1 em 1 aos jogadores empatados **mais próximos à esquerda do Botão (Dealer)** na ordem dos assentos.
+3. **Conservação Financeira**:
+   - Garante a conservação exata de fichas na mesa ($\sum \text{Prêmios} = \text{Pote Líquido}$), sem acumular resíduos de ponto flutuante nem retenções indevidas pela casa.
 
 ### 4.2 🃏 Deal — Distribuição de Cartas
 1. Embaralhar baralho (Fisher-Yates)
