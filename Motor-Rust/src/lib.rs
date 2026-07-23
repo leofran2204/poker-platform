@@ -19,6 +19,7 @@ pub mod lobby;
 pub mod loss_deflator;
 pub mod rake;
 pub mod rng_crypto;
+pub mod provably_fair;
 pub mod side_pots;
 pub mod tournament_engine;
 

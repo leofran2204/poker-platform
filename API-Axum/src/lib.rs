@@ -5,6 +5,9 @@
 // without needing to duplicate the router construction logic.
 
 pub mod error;
+pub mod auth_paseto;
+pub mod binary_codec;
+pub mod telemetry;
 pub mod game_actor;
 pub mod handlers;
 pub mod middleware;
