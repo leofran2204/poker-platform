@@ -116,7 +116,8 @@ FASE 6 ░░░░░░░░░░░░░░░░░░░░░░░░�
 | 5.6 | LGPD (proteção de dados)               | ⏳ Pendente | 🟡 Média    |
 | 5.7 | PCI DSS (cartão de crédito)            | ⏳ Pendente | 🟢 Baixa    |
 | 5.8 | ELK Stack (logs centralizados)         | ⏳ Pendente | 🟢 Baixa    |
-| 5.9 | Grafana + Prometheus (monitoramento)   | ⏳ Pendente | 🟢 Baixa    |
+| 5.9 | Grafana + Prometheus (monitoramento)   | ✅ Completo | 🟡 Média    |
+| 5.10| **Módulo de Pagamentos PIX Instantâneo** (Asaas/Mercado Pago + Webhooks + Modais Dioxus) | ✅ Completo | 🔴 Alta |
 
 ---
 
