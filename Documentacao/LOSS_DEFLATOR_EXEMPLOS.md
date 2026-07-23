@@ -96,19 +96,19 @@ O perdedor era favorito moderado, mas o oponente tinha bons draws (ex: OESD simp
 
 ---
 
-### Tier 0 — 7% (Equity do Perdedor 60%–64,9%)
-Cenários de favoritismo marginal (quase coin-flips devido à quantidade massiva de outs do vilão).
+### Tier 0 — 7% (Equity do Perdedor 46,0%–59,9%)
+Cenários de jogada parelha ou coin-flip (onde o perdedor tinha de 46% a 59,9% de chance de vencer e acabou perdendo).
 
 | Fase do All-In | Mão melhor VS Mão pior | Chances da mão melhor perder % | Board / Desfecho | Total da perda | Tier | Deflator de perda |
 | :--- | :--- | :---: | :--- | :---: | :---: | :---: |
-| **Pré-flop** | `A♥ Q♥` vs `K♣ J♣` | **38%** *(62% Equity)* | Sem board <br> *(KJ acerta par de Reis no flop)* | 500 | **Tier 0 (7%)** | **35** |
-| **Flop** | `T♣ T♠` *(set)* vs `8♥ 7♥` | **38%** *(62% Equity)* | Board: `T♥ 9♣ 2♥` <br> *(87♥ acerta flush no river contra set)* | 500 | **Tier 0 (7%)** | **35** |
-| **Turn** | `J♣ J♦` *(overpair)* vs `A♥ K♥` | **36%** *(64% Equity)* | Board: `Q♥ T♣ 5♥ 2♠` <br> *(AK♥ acerta um de seus 16 outs no river)* | 500 | **Tier 0 (7%)** | **35** |
+| **Pré-flop** | `A♣ K♣` vs `9♠ 9♦` | **46%** *(54% Equity)* | Sem board <br> *(99 segura no river)* | 500 | **Tier 0 (7%)** | **35** |
+| **Flop** | `T♣ T♠` *(set)* vs `8♥ 7♥` | **52%** *(48% Equity)* | Board: `T♥ 9♣ 2♥` <br> *(87♥ acerta flush no river contra set)* | 500 | **Tier 0 (7%)** | **35** |
+| **Turn** | `J♣ J♦` *(overpair)* vs `A♥ K♥` | **48%** *(52% Equity)* | Board: `Q♥ T♣ 5♥ 2♠` <br> *(AK♥ acerta um de seus outs no river)* | 500 | **Tier 0 (7%)** | **35** |
 
 ---
 
-### Sem Cashback — Equity do Perdedor < 60%
-Ações normais onde a mão favorita segurou e venceu, não gerando cashback para a mão perdedora (que já era a pior).
+### Sem Cashback — Equity do Perdedor < 46%
+Ações de blefe desesperado ou zebras absolutas onde o perdedor tinha menos de 46% de chance de vencer.
 
 | Fase do All-In | Mão melhor VS Mão pior | Chances da mão melhor perder % | Board / Desfecho | Total da perda | Tier | Deflator de perda |
 | :--- | :--- | :---: | :--- | :---: | :---: | :---: |

@@ -223,13 +223,13 @@ O **Loss Deflator** é um sistema de cashback automático que devolve parte das 
 
 O cashback é determinado pela **equity** (probabilidade de vencer) do perdedor no momento do all-in, calculada via enumeração exata heads-up (`get_heads_up_win_probability()`).
 
-| Tier  | Equity do Perdedor | Cashback |
-|-------|---------------------|----------|
-| **0** | 60,0% – 64,9%       | **7%**   |
-| **1** | 65,0% – 74,9%       | **15%**  |
-| **2** | 75,0% – 84,9%       | **25%**  |
-| **3** | ≥ 85,0%             | **35%**  |
-| —     | < 60,0%             | **0%**   |
+| Tier  | Equity do Perdedor | Cashback | Perfil do Rango |
+|-------|---------------------|----------|-----------------|
+| **0** | **46,0% – 59,9%**   | **7%**   | Mão Parelha / Coin Flip |
+| **1** | **60,0% – 74,9%**   | **15%**  | Favorito Moderado |
+| **2** | **75,0% – 84,9%**   | **25%**  | Grande Favorito |
+| **3** | **≥ 85,0%**         | **35%**  | Favorito Esmagador / Bad Beat |
+| —     | **< 46,0%**         | **0%**   | Blefe sem valor ou Zebra extrema |
 
 ### 11.2 ⚙️ Regras de Aplicação e Origem Financeira
 
