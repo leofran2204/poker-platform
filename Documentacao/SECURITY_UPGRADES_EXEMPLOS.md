@@ -55,34 +55,55 @@ fn main() {
 }
 ```
 
-### 🌐 Exemplo de Verificação Independente em JavaScript/Node.js (Frontend / Site do Cassino):
+### 🦀 Exemplo de Auditoria no Cliente em 100% Rust (`Frontend-Dioxus` / WASM):
 
-```javascript
-const crypto = require('crypto');
+No frontend da plataforma, a auditoria é feita inteiramente em Rust nativo compondo um componente de interface Dioxus:
 
-function verifyProvablyFair(originalDeck, finalDeck, serverSeedHex, clientSeed, nonce) {
-    const len = originalDeck.length;
-    let items = [...originalDeck];
-    const serverSeed = Buffer.from(serverSeedHex, 'hex');
+```rust
+use dioxus::prelude::*;
+use poker_engine::provably_fair::verify_shuffle;
 
-    let round = 0;
-    for (let i = len - 1; i > 0; i--) {
-        const message = `${clientSeed}:${nonce}:${round}`;
-        const hmac = crypto.createHmac('sha256', serverSeed);
-        hmac.update(message);
-        const hash = hmac.digest();
+#[component]
+pub fn ProvablyFairAuditModal(
+    server_seed: String,
+    client_seed: String,
+    nonce: u64,
+    final_deck: Vec<u8>,
+) -> Element {
+    let mut audit_result = use_signal(|| None::<bool>);
 
-        const rawU32 = hash.readUInt32BE(0);
-        const randomIndex = rawU32 % (i + 1);
-        round++;
+    let handle_audit = move |_| {
+        let original_deck: Vec<u8> = (0..52).collect();
+        let is_valid = verify_shuffle(
+            &original_deck,
+            &final_deck,
+            &server_seed,
+            &client_seed,
+            nonce,
+        )
+        .unwrap_or(false);
 
-        // Swap
-        const temp = items[i];
-        items[i] = items[randomIndex];
-        items[randomIndex] = temp;
+        audit_result.set(Some(is_valid));
+    };
+
+    rsx! {
+        div { class: "audit-modal",
+            h3 { "🔍 Auditoria Criptográfica de Mão (Provably Fair)" }
+            p { "Server Seed: {server_seed}" }
+            p { "Client Seed: {client_seed}" }
+            p { "Nonce: {nonce}" }
+
+            button { onclick: handle_audit, "Verificar Integridade da Mão" }
+
+            if let Some(valid) = *audit_result.read() {
+                if valid {
+                    div { class: "alert-success", "✅ Baralho 100% Autêntico e Auditado em Rust WASM!" }
+                } else {
+                    div { class: "alert-danger", "🚨 Alerta: Semente ou Baralho Incompatível!" }
+                }
+            }
+        }
     }
-
-    return JSON.stringify(items) === JSON.stringify(finalDeck);
 }
 ```
 
