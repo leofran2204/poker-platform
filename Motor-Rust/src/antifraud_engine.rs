@@ -157,10 +157,8 @@ impl CollusionDetector {
         }
 
         let soft_ratio = (self.soft_plays as f64) / (self.headsup_hands as f64);
-        if soft_ratio > 0.6 {
+        if soft_ratio > 0.3 {
             100.0 * soft_ratio
-        } else if soft_ratio > 0.3 {
-            50.0 * soft_ratio
         } else {
             0.0
         }

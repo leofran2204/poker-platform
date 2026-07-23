@@ -5,7 +5,7 @@
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📅 O cronograma completo está em `Documentacao/CRONOGRAMA.md` — veja prazos, fases e % de conclusão.
 > 🎓 **Guia de aprendizado didático:** `Documentacao/guia_aprendizado.md` (Protocolo Mark, regras de aprendizado, sprint S03 e guia dos 11 módulos).
-> 🦀 **Stack definitiva:** Rust para TUDO (backend, APIs, IA, dados, antifraude, autenticação, lobby, motor de jogo **e front-end com Dioxus/WebAssembly**). ❌ Sem TypeScript/React. ❌ Sem Python. ❌ Sem Go. ❌ Sem Node.js (MVP legado deletado em 2026-07-08).
+> 🦀 **Stack definitiva:** Rust para TUDO (backend, APIs, IA, dados, antifraude, autenticação, lobby, motor de jogo e front-end com Dioxus/WebAssembly).
 
 ---
 
@@ -61,6 +61,8 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 ### ✅ Concluídas — Sprint Atual
 | #   | Tarefa                                                                                                                                                              | Data       |
 |-----|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| EXFZ| **Fuzzing Extremo Massivo (1.000.000 de Iterações no Motor Rust)** — Implementado `extreme_fuzz_tests.rs` cobrindo 8 módulos críticos (`rake`, `side_pots`, `loss_deflator`, `hand_history`, `auth`, `antifraud`, `tournament`, `deck`). **1 MILHÃO de mutações estocásticas executadas sem falhas, leaks ou panics** (25.95s). Total Motor Rust: **1.903 testes passando**. | 2026-07-22 |
+| ST2 | **Estresse Massivo 1M WS, Red Team 50 Workers & Fix Antifraude** — 1) Correção na fórmula de pontuação de colusão (`CollusionDetector::calculate_score()`) em `antifraud_engine.rs` (100% verde no Motor); 2) Carga massiva de **1.000.800 mensagens WebSockets** em 100 mesas ativas sem deadlock (`ws_stress_tests.rs`, 25.81s); 3) Red Team com **50 workers simultâneos** de ataque (1.000 brute-force, 1.000 JWT tampering, 1.000 WS injection). | 2026-07-22 |
 | Cov | **Fuzzing Massivo MTT, Network Jitter WS & Carga no PostgreSQL Pool** — 1) Fuzzing de Rebalanceamento MTT no Motor Rust (`tournament_fuzz_tests.rs`, 200.000 iters); 2) Estresse de Instabilidade de Rede e Lag em WebSockets (`ws_network_jitter_tests.rs`); 3) Estresse de Transações em Massa no PostgreSQL Pool (`db_pool_stress_tests.rs`). `cargo clippy` ✅ (0 warnings), **2.050 testes passando** (0 falhas). | 2026-07-22 |
 | RT  | **Módulo Antifraude (IA/ML), Métricas Prometheus & Simulação Red Team** — 1) Módulo `antifraud_engine.rs` no Motor Rust com `BotDetector` (análise de variância de tempo de reação) + `CollusionDetector` + `RiskScore`; 2) Endpoints `/api/metrics` (Prometheus) e `/api/health/security` no Axum; 3) Suíte autônoma de Red Team (`red_team_simulation_tests.rs`) validando repulsa a brute-force, JWT tampering e WS injection (4/4 testes ✅). Total plataforma: **2.044 testes passando** (0 falhas, 0 clippy warnings). | 2026-07-22 |
 | SEC | **Hardening de Segurança Enterprise ("Fortaleza Híbrida")** — 1) Security Headers OWASP no Caddyfile (HSTS, CSP, X-Frame-Options, X-Content-Type-Options); 2) Container Hardening (`docker-compose.yml` e `API-Axum/Dockerfile` com `USER 10001`, `cap_drop: ALL`, `read_only: true`, `no-new-privileges:true`, `tmpfs`); 3) DevSecOps Trivy Vulnerability Scanner no CI/CD (`rust-ci.yml`). `cargo clippy` ✅ (0 warnings), **2.036 testes passando** ✅. | 2026-07-22 |

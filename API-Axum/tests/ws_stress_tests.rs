@@ -1,21 +1,21 @@
-// ws_stress_tests.rs — Teste de Carga e Estresse Massivo nos WebSockets / Atores de Mesa
-// Valida o comportamento de rajada simultânea de mensagens WebSocket e conexões/desconexões abruptas.
+// ws_stress_tests.rs — Teste de Carga e Estresse Massivo nos WebSockets / Atores de Mesa (Escala 1 Milhão de Mensagens)
+// Valida o comportamento de rajada simultânea de 1 MILHÃO de mensagens WebSocket e conexões/desconexões em 100 mesas de jogo.
 
 use poker_api::game_actor::{PlayerCommand, TableActor};
 use tokio::sync::{broadcast, mpsc, oneshot};
 
 #[tokio::test]
 async fn test_ws_high_concurrency_table_actors() {
-    const NUM_TABLES: usize = 10;
-    const PLAYERS_PER_TABLE: usize = 6;
-    const COMMANDS_PER_PLAYER: usize = 50;
+    const NUM_TABLES: usize = 100;
+    const PLAYERS_PER_TABLE: usize = 9;
+    const COMMANDS_PER_PLAYER: usize = 1_112; // 100 * 9 * 1112 = 1.000.800 mensagens em rajada
 
     let mut table_handles = Vec::with_capacity(NUM_TABLES);
 
     for t in 0..NUM_TABLES {
         let table_id = format!("stress_table_{}", t);
-        let (tx_cmd, rx_cmd) = mpsc::channel(100);
-        let (tx_broadcast, _) = broadcast::channel(100);
+        let (tx_cmd, rx_cmd) = mpsc::channel(10_000);
+        let (tx_broadcast, _) = broadcast::channel(10_000);
 
         let actor = TableActor::new(table_id.clone(), format!("Table {}", t), rx_cmd, tx_broadcast);
 
@@ -24,7 +24,7 @@ async fn test_ws_high_concurrency_table_actors() {
             actor.run().await;
         });
 
-        // Adicionar jogadores
+        // Adicionar 9 jogadores por mesa
         for p in 0..PLAYERS_PER_TABLE {
             let player_id = format!("player_{}_{}", t, p);
             let player_name = format!("Player {} {}", t, p);
@@ -43,7 +43,7 @@ async fn test_ws_high_concurrency_table_actors() {
             let _ = rx_seat.await;
         }
 
-        // Subir rajada de comandos concorrentes
+        // Subir rajada massiva de 1.112 comandos por jogador
         let mut player_tasks = Vec::with_capacity(PLAYERS_PER_TABLE);
         for p in 0..PLAYERS_PER_TABLE {
             let player_id = format!("player_{}_{}", t, p);
@@ -51,7 +51,6 @@ async fn test_ws_high_concurrency_table_actors() {
 
             player_tasks.push(tokio::spawn(async move {
                 for cmd_idx in 0..COMMANDS_PER_PLAYER {
-                    // Alternar entre apostar e consultar estado
                     if cmd_idx % 2 == 0 {
                         let _ = tx_cmd_clone
                             .send(PlayerCommand::Action {
@@ -69,7 +68,7 @@ async fn test_ws_high_concurrency_table_actors() {
                             .await;
 
                         let _ = tokio::time::timeout(
-                            std::time::Duration::from_millis(500),
+                            std::time::Duration::from_millis(100),
                             rx_info.recv(),
                         )
                         .await;
@@ -81,7 +80,7 @@ async fn test_ws_high_concurrency_table_actors() {
         table_handles.push(player_tasks);
     }
 
-    // Aguardar conclusão de todas as tarefas de jogadores
+    // Aguardar conclusão de todas as tarefas de jogadores (1.000.800 mensagens)
     let mut total_completed = 0;
     for player_tasks in table_handles {
         for task in player_tasks {
@@ -93,15 +92,15 @@ async fn test_ws_high_concurrency_table_actors() {
     assert_eq!(
         total_completed,
         NUM_TABLES * PLAYERS_PER_TABLE,
-        "Todas as tarefas de jogadores devem completar sem deadlock"
+        "Todas as tarefas de 1 milhão de mensagens devem completar sem deadlock"
     );
 }
 
 #[tokio::test]
 async fn test_ws_rapid_reconnect_stress() {
     let table_id = "reconnect_table_1".to_string();
-    let (tx_cmd, rx_cmd) = mpsc::channel(100);
-    let (tx_broadcast, _) = broadcast::channel(100);
+    let (tx_cmd, rx_cmd) = mpsc::channel(1000);
+    let (tx_broadcast, _) = broadcast::channel(1000);
 
     let actor = TableActor::new(table_id, "Reconnect Test".to_string(), rx_cmd, tx_broadcast);
 
@@ -109,7 +108,7 @@ async fn test_ws_rapid_reconnect_stress() {
         actor.run().await;
     });
 
-    const RECONNECT_CYCLES: usize = 40;
+    const RECONNECT_CYCLES: usize = 1000;
     let mut success_cycles = 0;
 
     for i in 0..RECONNECT_CYCLES {

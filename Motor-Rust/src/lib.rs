@@ -53,3 +53,5 @@ mod card_fairness_tests;
 mod fuzz_tests;
 #[cfg(test)]
 mod tournament_fuzz_tests;
+#[cfg(test)]
+mod extreme_fuzz_tests;

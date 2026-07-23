@@ -38,7 +38,7 @@ Plataforma de poker online **Texas Hold'em Tradicional** (52 cartas) construída
 | **Mensageria** | Kafka + Zookeeper | Eventos de jogo, hand history streaming |
 | **Segurança** | rustls (TLS 1.3), aes-gcm (AES-256), bcrypt 0.16, JWT (hmac+sha2) | Criptografia, auth, MFA/TOTP, RBAC |
 
-> **Stack 100% Rust desde 2026-07-03** — Python, TypeScript, Go e Node.js foram removidos.
+> **Stack 100% Rust** — Arquitetura unificada em Rust para máxima performance, segurança de memória e concorrência nativa.
 
 ---
 
