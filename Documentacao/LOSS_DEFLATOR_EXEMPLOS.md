@@ -112,6 +112,85 @@ Ações normais onde a mão favorita segurou e venceu, não gerando cashback par
 
 | Fase do All-In | Mão melhor VS Mão pior | Chances da mão melhor perder % | Board / Desfecho | Total da perda | Tier | Deflator de perda |
 | :--- | :--- | :---: | :--- | :---: | :---: | :---: |
-| **Pré-flop** | `K♦ K♣` vs `A♠ T♠` | **32%** *(68% Equity)* | Sem board <br> *(KK segurou até o fim)* | 500 | **N/A** | **0** |
+| **Pré-flop** | `K♦ K♣` vs `A♠ T♠` | **32%** *(8% Equity)* | Sem board <br> *(KK segurou até o fim)* | 500 | **N/A** | **0** |
 | **Flop** | `A♦ A♣` vs `7♥ 6♥` | **5%** *(95% Equity)* | Board: `K♠ Q♦ J♣` <br> *(AA segurou até o fim)* | 500 | **N/A** | **0** |
 | **Turn** | `T♦ T♣` vs `5♠ 4♠` | **0%** *(100% Equity)* | Board: `A♥ K♦ Q♣ J♥` <br> *(54 drawing dead, TT segurou)* | 500 | **N/A** | **0** |
+
+---
+
+## 5. 💡 Origem das Fichas e Exemplos Práticos de Múltiplos All-Ins
+
+> ⚠️ **Princípio Fundamental:** O dinheiro do cashback **nunca é retirado da plataforma/casa**. Ele vem 100% das próprias fichas acumuladas no pote da mesa. O vencedor daquele pote financia o cashback do perdedor que foi All-in. Se um jogador nem participou de um pote secundário (*side pot*), o dinheiro dele fica **100% intocado**.
+
+### 🎲 6 Casos Práticos Reais (Cash Games & Torneios)
+
+#### Exemplo 1: Heads-up Simples (1 contra 1) — All-in no Flop
+* **Situação:** Ana (R$ 100) vs Beto (R$ 100). Pote Total = **R$ 200**.
+* **Ação:** Ana vai All-in no **Flop** (25% cashback) com `A♠ A♥`. Beto paga com `9♣ 8♣`.
+* **Resultado:** Beto acerta um Flush no River e vence a mão.
+* **Cálculo:** Cashback da Ana = 25% de R$ 200 = **R$ 50,00**.
+* **Distribuição Final:**
+  * Beto (Vencedor): R$ 200 - R$ 50 = **R$ 150,00**.
+  * Ana (Perdedora All-in): Recebe **R$ 50,00**.
+  * ⚖️ *Soma Total:* 150 + 50 = **R$ 200,00** (Conservação exata de 100%).
+
+#### Exemplo 2: Múltiplos Stacks (Main Pot + Side Pot) — Todos All-in no Pré-flop
+* **Situação:** Carlos (R$ 50), Diego (R$ 100) e Eduardo (R$ 100).
+* **Potes Formados:**
+  * **Main Pot:** R$ 150 (R$ 50 de cada). Elegíveis: Carlos, Diego, Eduardo.
+  * **Side Pot:** R$ 100 (R$ 50 de Diego e Eduardo). Elegíveis: Diego e Eduardo.
+* **Ação:** Todos All-in no **Pré-flop** (15% cashback). **Eduardo vence a mão inteira.**
+* **Cálculo dos Cashbacks:**
+  * Carlos: Perdeu Main Pot (R$ 150) no Pré-flop (15%) = **R$ 22,50**.
+  * Diego: Perdeu Main Pot + Side Pot (R$ 250) no Pré-flop (15%) = **R$ 37,50**.
+* **Distribuição Final:**
+  * Eduardo (Vencedor de tudo): R$ 250 - 22,50 - 37,50 = **R$ 190,00**.
+  * Carlos: Recebe **R$ 22,50**.
+  * Diego: Recebe **R$ 37,50**.
+  * ⚖️ *Soma Total:* 190 + 22,50 + 37,50 = **R$ 250,00**.
+
+#### Exemplo 3: Proteção de Side Pot (Respeito a quem não disputou)
+* **Situação:** Fernando (R$ 20), Gabriela (R$ 100), Hélio (R$ 100).
+* **Potes Formados:** Main Pot = R$ 60 | Side Pot = R$ 160 (Gabriela e Hélio).
+* **Ação:** Fernando All-in no **Pré-flop** (15%). Gabriela e Hélio All-in no **Turn** (35%).
+* **Showdown:** **Gabriela** ganha o Main Pot (R$ 60). **Hélio** ganha o Side Pot (R$ 160). Fernando perdeu.
+* **Cálculo:**
+  * Fernando perdeu o Main Pot de R$ 60 (15%) = **R$ 9,00**.
+  * Esse R$ 9,00 sai APENAS da Gabriela (ganhadora do Main Pot).
+  * O pote de Hélio (Side Pot de R$ 160) fica **100% intocado**, pois Fernando não participou do Side Pot!
+* **Distribuição Final:**
+  * Gabriela: R$ 60 - R$ 9 = **R$ 51,00**.
+  * Hélio: **R$ 160,00** (Intocado!).
+  * Fernando: **R$ 9,00**.
+  * ⚖️ *Soma Total:* 51 + 160 + 9 = **R$ 220,00**.
+
+#### Exemplo 4: All-ins em Fases Diferentes (Pré-Flop vs Turn)
+* **Situação:** Igor (R$ 40), João (R$ 100), Lucas (R$ 100).
+* **Pré-flop:** Igor All-in R$ 40. Main Pot = R$ 120 (Igor = **Pré-flop 15%**).
+* **Turn:** João All-in mais R$ 60. Side Pot = R$ 120 (João = **Turn 35%**).
+* **Showdown:** **Lucas** vence o Main Pot (R$ 120) e o Side Pot (R$ 120).
+* **Cálculos:**
+  * Igor (Pré-flop): 15% de R$ 120 = **R$ 18,00**.
+  * João (Turn): 35% de R$ 240 (sua participação total) = **R$ 84,00**.
+* **Distribuição Final:**
+  * Lucas (Vencedor): R$ 240 - R$ 18 - R$ 84 = **R$ 138,00**.
+  * Igor: **R$ 18,00**.
+  * João: **R$ 84,00**.
+  * ⚖️ *Soma Total:* 138 + 18 + 84 = **R$ 240,00**.
+
+#### Exemplo 5: Pote Dividido (Split Pot) entre 2 Vencedores
+* **Situação:** Marcelo (R$ 100), Natália (R$ 100), Otávio (R$ 100). Pote Total = R$ 300.
+* **Ação:** Marcelo All-in no **Flop** (25%). Natália e Otávio empatam na melhor mão (Split Pot).
+* **Cálculo:** Marcelo perdeu R$ 300 (25%) = **R$ 75,00**.
+* **Distribuição:** Os R$ 75,00 são descontados meio a meio dos dois vencedores (R$ 37,50 cada).
+  * Natália: R$ 150 - R$ 37,50 = **R$ 112,50**.
+  * Otávio: R$ 150 - R$ 37,50 = **R$ 112,50**.
+  * Marcelo: **R$ 75,00**.
+  * ⚖️ *Soma Total:* 112,50 + 112,50 + 75 = **R$ 300,00**.
+
+#### Exemplo 6: All-in no River (Zero Cashback)
+* **Situação:** Pedro (R$ 100) vs Quênia (R$ 100). All-in no **River** (faltavam 0 cartas).
+* **Resultado:** Quênia vence.
+* **Cálculo:** All-in no River = **0% Cashback**.
+* **Distribuição Final:** Quênia recebe **R$ 200,00 integralmente**. Pedro recebe R$ 0,00.
+

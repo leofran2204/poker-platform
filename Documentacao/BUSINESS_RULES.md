@@ -215,7 +215,7 @@ waiting → preflop → flop → turn → river → showdown → (volta para pre
 
 ---
 
-## 11. � Loss Deflator — Cashback Progressivo por Equity
+## 11. 🛡️ Loss Deflator — Cashback Progressivo por Equity
 
 O **Loss Deflator** é um sistema de cashback automático que devolve parte das perdas em all-in calls quando o jogador tinha alta probabilidade de vencer (equity) mas perdeu por azar (bad beat).
 
@@ -231,14 +231,13 @@ O cashback é determinado pela **equity** (probabilidade de vencer) do perdedor 
 | **3** | ≥ 85,0%             | **35%**  |
 | —     | < 60,0%             | **0%**   |
 
-### 11.2 ⚙️ Regras de Aplicação
+### 11.2 ⚙️ Regras de Aplicação e Origem Financeira
 
-- **Quando aplica:** All-in call pré-river (preflop, flop ou turn) com equity ≥ 60%.
-- **Quando NÃO aplica:** River, showdown, ou equity < 60%.
-- **Cálculo:** `cashback = valor_perdido × percentual_tier`.
-- **Side pots:** Cashback é calculado por pote elegível (proporcional).
-- **Saldo:** Devolvido como saldo promocional.
-- **Limite máximo:** Cashback nunca excede 35% do valor perdido.
+- **Origem das Fichas (Custo ZERO para a Plataforma):** O cashback é 100% autofinanciado pelas próprias fichas acumuladas no pote da mão. Ele é descontado da fatia do(s) vencedor(es) daquele pote específico e entregue ao perdedor All-in.
+- **Aplicação Unificada:** Funciona identicamente em **Cash Games (Ring Games)** (devolvendo R$/fichas reais) e em **Torneios (MTT/SNG)** (devolvendo fichas de torneio).
+- **Múltiplos All-Ins e Fases Distintas:** Suporta múltiplos jogadores All-in em fases diferentes (Preflop=15%, Flop=25%, Turn=35%). Cada perdedor tem sua fase rastreada individualmente (`PlayerState::all_in_phase`).
+- **Isolamento de Side Pots:** O cashback de um perdedor é calculado e descontado APENAS dos potes em que ele participou. Potes secundários nos quais o jogador não participou ficam 100% intocados.
+- **Limite Máximo:** Cashback nunca excede 35% do valor perdido.
 - **Anti-abuso:** Perder propositalmente para receber cashback é detectado pelo módulo antifraude.
 
 ### 11.3 📐 Exemplos
@@ -250,12 +249,6 @@ O cashback é determinado pela **equity** (probabilidade de vencer) do perdedor 
 | All-in turn, overpair vs set     | 7%     | —    | R$ 100  | R$ 0     |
 | All-in preflop, AK vs QQ         | 62%    | 0    | R$ 500  | R$ 35    |
 | All-in flop, flush vs straight   | 88%    | 3    | R$ 300  | R$ 105   |
-
-> 🔗 **Veja Também:** Para explicações detalhadas de probabilidade, conceitos de draws (OESD, Gutshot, Combo Draw) e tabelas completas de simulação cronológica por Tier, consulte o [Guia de Exemplos do Loss Deflator](LOSS_DEFLATOR_EXEMPLOS.md).
-
-> 📐 Implementação: `Motor-Rust/src/loss_deflator.rs` — função `calculate_progressive_loss_deflator()`.
-
----
 
 ## 12. �📖 Glossário — Termos do Poker
 
