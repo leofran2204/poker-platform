@@ -1,0 +1,203 @@
+# Guia de Exemplos Práticos — Upgrades de Segurança e Arquitetura Enterprise
+
+Este documento é o guia prático e educacional para a utilização dos novos recursos de alta segurança adicionados ao projeto **Poker_Project**:
+1. **Sistema Provably Fair** (Baralho auditável por HMAC-SHA256)
+2. **Autenticação PASETO v4** (Tokens imutáveis e seguros)
+3. **Protocolo Binário WebSocket** (Codec de baixa latência)
+4. **Outbox Pattern & Audit Logs** (Consistência financeira e antifraude SQL)
+5. **Telemetria Estruturada** (Spans de auditoria com OpenTelemetry)
+
+---
+
+## 1. 🃏 Sistema Provably Fair (Baralho Auditável)
+
+### 📐 Conceito:
+No início de cada mão, o servidor gera uma semente secreta (`Server Seed`) e publica apenas o seu hash SHA-256 (`Server Hash`). O jogador envia sua própria semente (`Client Seed`). O embaralhamento é 100% determinístico e auditável.
+
+### 💻 Exemplo em Rust (`Motor-Rust`):
+
+```rust
+use poker_engine::provably_fair::{
+    ProvablyFairState, provably_fair_shuffle, verify_shuffle, hash_server_seed_bytes
+};
+
+fn main() {
+    // 1. O Servidor inicializa o estado no início da mão
+    let client_seed = "minha_semente_aleatoria_player_123";
+    let nonce = 1; // 1ª mão da mesa
+    let mut pf_state = ProvablyFairState::new(client_seed, nonce);
+
+    println!("📢 Server Hash Público publicado na mesa: {}", pf_state.server_hash);
+
+    // 2. Embaralhamento do Baralho (52 cartas)
+    let original_deck: Vec<u8> = (0..52).collect();
+    let mut deck = original_deck.clone();
+    
+    let server_seed_bytes = hex::decode(&pf_state.server_seed_hex).unwrap();
+    provably_fair_shuffle(&mut deck, &server_seed_bytes, client_seed, nonce).unwrap();
+
+    println!("🎴 Baralho embaralhado (primeira carta): {}", deck[0]);
+
+    // 3. Pós-Mão: O servidor revela a Server Seed secreta em texto claro
+    println!("🔓 Server Seed Revelada pós-jogo: {}", pf_state.server_seed_hex);
+
+    // 4. Auditoria pelo Cliente/Jogador
+    let eh_valido = verify_shuffle(
+        &original_deck,
+        &deck,
+        &pf_state.server_seed_hex,
+        client_seed,
+        nonce,
+    ).unwrap();
+
+    assert!(eh_valido);
+    println!("✅ Baralho verificado pelo jogador: 100% Autêntico e Sem Manipulação!");
+}
+```
+
+### 🌐 Exemplo de Verificação Independente em JavaScript/Node.js (Frontend / Site do Cassino):
+
+```javascript
+const crypto = require('crypto');
+
+function verifyProvablyFair(originalDeck, finalDeck, serverSeedHex, clientSeed, nonce) {
+    const len = originalDeck.length;
+    let items = [...originalDeck];
+    const serverSeed = Buffer.from(serverSeedHex, 'hex');
+
+    let round = 0;
+    for (let i = len - 1; i > 0; i--) {
+        const message = `${clientSeed}:${nonce}:${round}`;
+        const hmac = crypto.createHmac('sha256', serverSeed);
+        hmac.update(message);
+        const hash = hmac.digest();
+
+        const rawU32 = hash.readUInt32BE(0);
+        const randomIndex = rawU32 % (i + 1);
+        round++;
+
+        // Swap
+        const temp = items[i];
+        items[i] = items[randomIndex];
+        items[randomIndex] = temp;
+    }
+
+    return JSON.stringify(items) === JSON.stringify(finalDeck);
+}
+```
+
+---
+
+## 2. 🔑 Autenticação PASETO v4 (`API-Axum`)
+
+### 💻 Exemplo em Rust (`API-Axum`):
+
+```rust
+use poker_api::auth_paseto::{PasetoClaims, encode_paseto, decode_paseto};
+
+fn main() {
+    let secret_key = [42u8; 32]; // Chave de 256 bits
+
+    // 1. Criar Claims para o jogador (Validade de 1 hora = 3600s)
+    let claims = PasetoClaims::new("usr_99812", "jogador_pro", "player", 3600);
+
+    // 2. Gerar Token PASETO v4.local
+    let token = encode_paseto(&claims, &secret_key).unwrap();
+    println!("🔐 Token PASETO Gerado: {token}");
+    // Ex: v4.local.eyJzdWIiOiJ1c3JfOTk4MTIiLCJ1c2VybmFtZSI6...
+
+    // 3. Validar e Decodificar Token
+    let claims_decodificados = decode_paseto(&token, &secret_key).unwrap();
+    println!("👤 Usuário Autenticado: {}", claims_decodificados.username);
+}
+```
+
+### 📡 Exemplo de Extrator no Handler Axum:
+
+```rust
+use axum::{routing::get, Router};
+use poker_api::auth_paseto::PasetoClaims;
+
+async fn get_user_profile(claims: PasetoClaims) -> String {
+    format!("Bem-vindo ao lobby, jogador {} (ID: {})!", claims.username, claims.sub)
+}
+```
+
+---
+
+## 3. 🚀 Protocolo Binário WebSocket (`API-Axum` / `Frontend-Dioxus`)
+
+### 💻 Exemplo de Codificação e Decodificação de Pacote:
+
+```rust
+use poker_api::binary_codec::{BinaryPacket, BinaryOpcode};
+
+fn main() {
+    // 1. Criar ação de aposta em formato binário
+    let payload = b"RAISE:5000".to_vec();
+    let packet = BinaryPacket::new(BinaryOpcode::PlayerAction, payload);
+
+    // 2. Serializar para transmissão WebSocket (Opcode + Length + Payload)
+    let binary_frame: Vec<u8> = packet.encode();
+    println!("📦 Pacote Binário Enviado pelo WebSocket (bytes): {:?}", binary_frame);
+
+    // 3. Decodificar no servidor
+    let decoded_packet = BinaryPacket::decode(&binary_frame).unwrap();
+    assert_eq!(decoded_packet.opcode, BinaryOpcode::PlayerAction as u8);
+    println!("📩 Ação Recebida: {:?}", String::from_utf8(decoded_packet.payload).unwrap());
+}
+```
+
+---
+
+## 4. 💳 Outbox Pattern & Audit Trail (Migration 003)
+
+### 🗄️ Exemplo SQL de Transação de Saque com Registro de Auditoria:
+
+```sql
+BEGIN;
+
+-- 1. Deduzir o saldo do jogador
+UPDATE users SET balance = balance - 100.00 WHERE id = 'usr_99812';
+
+-- 2. Registrar o evento no Outbox (Transactional Outbox Pattern)
+INSERT INTO outbox_events (aggregate_type, aggregate_id, event_type, payload)
+VALUES (
+    'USER_BALANCE',
+    'usr_99812',
+    'PIX_WITHDRAW_REQUESTED',
+    '{"user_id": "usr_99812", "amount": 100.00, "pix_key": "12345678900"}'::jsonb
+);
+
+-- 3. Registrar a trilha de auditoria imutável (Audit Log)
+INSERT INTO audit_logs (user_id, action, ip_address, metadata)
+VALUES (
+    'usr_99812',
+    'WITHDRAW_PIX',
+    '203.0.113.195',
+    '{"amount": 100.00, "device": "Mobile Dioxus"}'::jsonb
+);
+
+COMMIT;
+```
+
+---
+
+## 5. 🔍 Telemetria Estruturada (`telemetry.rs`)
+
+### 💻 Exemplo de Uso de Spans de Auditoria com Tracing:
+
+```rust
+use poker_api::audit_span;
+
+fn process_table_bet(user_id: &str, table_id: &str, amount: u64) {
+    let span = audit_span!(user_id, "BET_RAISE");
+    let _guard = span.enter();
+
+    tracing::info!(
+        table_id = %table_id,
+        amount = %amount,
+        "Processando aposta na mesa com rastreamento estendido."
+    );
+}
+```
