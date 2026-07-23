@@ -8,6 +8,8 @@ pub mod error;
 pub mod game_actor;
 pub mod handlers;
 pub mod middleware;
+pub mod payment_gateway;
+pub mod payments_routes;
 pub mod state;
 pub mod tournament_store;
 
@@ -31,11 +33,14 @@ use axum::middleware::from_extractor_with_state;
 ///   - GET  /api/tournament/:id
 ///   - WS   /ws/game/:table_id
 ///   - GET  /health
+///   - POST /api/webhooks/pix (PIX Payment Webhook)
 ///
 /// Protected routes (RequireAuth middleware):
 ///   - POST /api/lobby/join
 ///   - POST /api/tournament/register
 ///   - GET  /api/hand-history/:hand_id
+///   - POST /api/payments/pix/deposit
+///   - POST /api/payments/pix/withdraw
 pub fn build_router(state: AppState) -> Router {
     Router::new()
         // ─── Auth routes (public) ───
@@ -43,6 +48,10 @@ pub fn build_router(state: AppState) -> Router {
         .route("/api/auth/login", post(auth::login))
         .route("/api/auth/mfa/verify", post(auth::mfa_verify_with_username))
         .route("/api/auth/refresh", post(auth::refresh))
+        // ─── Payment routes (PIX Deposit, Webhook & Withdraw) ───
+        .route("/api/payments/pix/deposit", post(payments_routes::create_pix_deposit_handler))
+        .route("/api/webhooks/pix", post(payments_routes::pix_webhook_handler))
+        .route("/api/payments/pix/withdraw", post(payments_routes::create_pix_withdraw_handler))
         // ─── Lobby routes ───
         .route("/api/lobby/tables", get(lobby::list_tables))
         .route(
