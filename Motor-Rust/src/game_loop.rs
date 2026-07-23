@@ -50,6 +50,8 @@ pub struct PlayerState {
     pub has_folded: bool,
     /// Se o jogador está all-in
     pub is_all_in: bool,
+    /// Fase exata em que o jogador foi all-in (para Loss Deflator)
+    pub all_in_phase: Option<GamePhase>,
     /// Se o jogador já agiu nesta rodada de apostas
     pub has_acted: bool,
     /// Índice do assento (0-based)
@@ -67,6 +69,7 @@ impl PlayerState {
             total_bet: 0.0,
             has_folded: false,
             is_all_in: false,
+            all_in_phase: None,
             has_acted: false,
             seat_index,
         }
@@ -169,8 +172,10 @@ pub struct HandResolution {
     pub payouts: HashMap<String, f64>,
     /// Rake total cobrado
     pub rake: f64,
-    /// Resultado do loss deflator (se aplicável)
+    /// Resultado do loss deflator principal (se aplicável, para compatibilidade)
     pub loss_deflator: Option<loss_deflator::ProgressiveLossDeflatorResult>,
+    /// Lista de todos os resultados do loss deflator para cada perdedor All-In
+    pub loss_deflators: Vec<loss_deflator::ProgressiveLossDeflatorResult>,
     /// Resultados finais por jogador (para hand history)
     pub player_results: Vec<PlayerResult>,
     /// Fase em que a mão terminou
@@ -360,9 +365,15 @@ impl GameLoop {
         // Verificar all-in por blinds
         if self.state.players[sb_index].stack == 0.0 {
             self.state.players[sb_index].is_all_in = true;
+            if self.state.players[sb_index].all_in_phase.is_none() {
+                self.state.players[sb_index].all_in_phase = Some(GamePhase::Preflop);
+            }
         }
         if self.state.players[bb_index].stack == 0.0 {
             self.state.players[bb_index].is_all_in = true;
+            if self.state.players[bb_index].all_in_phase.is_none() {
+                self.state.players[bb_index].all_in_phase = Some(GamePhase::Preflop);
+            }
         }
 
         // 4. Distribuir hole cards (2 por jogador)
@@ -870,6 +881,7 @@ impl GameLoop {
             payouts,
             rake: 0.0,
             loss_deflator: None,
+            loss_deflators: Vec::new(),
             player_results,
             end_phase: self.state.phase,
             end_reason: EndReason::AllFolded,
@@ -891,112 +903,125 @@ impl GameLoop {
             })
             .collect();
 
-        // 2. Calcular side pots e distribuir
+        // 2. Calcular os potes (main e side pots)
         let side_pots_result: SidePotsResult =
             side_pots::resolve_side_pots(&players_for_pots, &self.state.community_cards);
 
         let pots = side_pots_result.pots.clone();
-        let mut payouts = side_pots_result.payouts.clone();
 
-        // 3. Deduzir rake
+        // 3. Deduzir o Rake proporcionalmente de cada pote
         let rake_result: RakeResult = rake::deduct_rake(&pots, &self.config, None);
         let total_rake = rake_result.total_rake;
+        let pots_after_rake = rake_result.pots_after_rake.clone();
 
-        // Aplicar rake: subtrair rake proporcionalmente dos payouts
-        for pot_entry in &rake_result.per_pot {
-            let pot_idx = pot_entry.pot_index;
-            let rake_from_pot = pot_entry.rake;
-            // Subtrair rake proporcionalmente dos vencedores deste pot
-            let pot = &pots[pot_idx];
-            let pot_total = pot.amount;
-            if pot_total > 0.0 {
-                for eligible_id in &pot.eligible_players {
-                    if let Some(winnings) = payouts.get_mut(eligible_id) {
-                        let proportion = *winnings / pot_total;
-                        *winnings -= truncar_2_casas(rake_from_pot * proportion);
-                    }
-                }
-            }
-        }
+        // 4. Distribuir os potes pós-rake DIRETAMENTE aos vencedores de cada pote
+        let mut payouts = side_pots::distribute_pots(&pots_after_rake, &players_for_pots, &self.state.community_cards);
 
-        // 4. Loss deflator (se houve all-in pré-showdown)
-        let loss_deflator_result = self.calculate_loss_deflator(&pots, &payouts);
+        // 5. Loss deflator (para TODOS os perdedores que foram All-In em fases qualificadas: Preflop, Flop, Turn)
+        let loss_deflators_result = self.calculate_loss_deflators(&pots_after_rake, &mut payouts, &players_for_pots);
+        let primary_deflator = loss_deflators_result.first().cloned();
 
-        // Se houver cashback, adicioná-lo aos payouts
-        if let Some(ref deflator) = loss_deflator_result {
-            let loser_id = &deflator.loser_id;
-            if let Some(loser_payout) = payouts.get_mut(loser_id) {
-                *loser_payout += deflator.cashback;
-            } else {
-                payouts.insert(loser_id.clone(), deflator.cashback);
-            }
-        }
-
-        // 5. Truncar todos os payouts para 2 casas
+        // 6. Truncar todos os payouts para 2 casas
         for (_, amount) in payouts.iter_mut() {
             *amount = truncar_2_casas(*amount);
         }
 
-        // 6. Construir player_results para hand history
+        // 7. Construir player_results para hand history
         let player_results = self.build_player_results(&payouts, &side_pots_result);
 
         Ok(HandResolution {
             pots,
             payouts,
             rake: total_rake,
-            loss_deflator: loss_deflator_result,
+            loss_deflator: primary_deflator,
+            loss_deflators: loss_deflators_result,
             player_results,
             end_phase: GamePhase::Showdown,
             end_reason: EndReason::Showdown,
         })
     }
 
-    /// Calcula o loss deflator para o maior perdedor do showdown
-    fn calculate_loss_deflator(
+    /// Calcula o loss deflator para TODOS os perdedores All-In cujas fases de all-in qualificam (Preflop, Flop, Turn)
+    fn calculate_loss_deflators(
         &self,
         pots: &[Pot],
-        payouts: &HashMap<String, f64>,
-    ) -> Option<loss_deflator::ProgressiveLossDeflatorResult> {
-        // Encontrar o maior perdedor (jogador que apostou mais e recebeu menos)
-        // que esteve em all-in
-        let mut biggest_loser: Option<(String, f64)> = None; // (id, net_loss)
-        let mut winner_id = String::new();
+        payouts: &mut HashMap<String, f64>,
+        players_for_pots: &[PlayerForPots],
+    ) -> Vec<loss_deflator::ProgressiveLossDeflatorResult> {
+        let mut results = Vec::new();
+        let player_hands = side_pots::precompute_hands(players_for_pots, &self.state.community_cards);
 
         for player in &self.state.players {
-            if player.has_folded || !player.is_in_hand() {
+            if player.has_folded || !player.is_in_hand() || !player.is_all_in {
                 continue;
             }
+
+            let phase = match player.all_in_phase {
+                Some(p) if p == GamePhase::Preflop || p == GamePhase::Flop || p == GamePhase::Turn => p,
+                _ => continue,
+            };
+
             let won = payouts.get(&player.id).copied().unwrap_or(0.0);
             let net = won - player.total_bet;
-            if net < 0.0 {
-                match &biggest_loser {
-                    None => {
-                        biggest_loser = Some((player.id.clone(), net));
+            if net >= 0.0 {
+                continue;
+            }
+
+            // Identificar o vencedor principal dos potes do perdedor
+            let mut winner_id = String::new();
+            for pot in pots {
+                if pot.eligible_players.contains(&player.id) {
+                    let pot_winners = side_pots::find_winners_for_pot(pot, players_for_pots, &player_hands);
+                    for w in pot_winners {
+                        if w != player.id {
+                            winner_id = w;
+                            break;
+                        }
                     }
-                    Some((_, loss)) if net < *loss => {
-                        biggest_loser = Some((player.id.clone(), net));
-                    }
-                    _ => {}
                 }
-            } else if winner_id.is_empty() || net > 0.0 {
-                winner_id = player.id.clone();
+                if !winner_id.is_empty() {
+                    break;
+                }
+            }
+
+            let params = ProgressiveLossDeflatorParams {
+                pots: pots.to_vec(),
+                loser_id: player.id.clone(),
+                winner_id,
+                phase,
+            };
+
+            if let Some(deflator) = loss_deflator::calculate_progressive_loss_deflator(params) {
+                // Descontar o cashback dos vencedores dos potes elegíveis para este perdedor
+                for entry in &deflator.per_pot_cashback {
+                    if entry.pot_index < pots.len() {
+                        let pot = &pots[entry.pot_index];
+                        let pot_winners = side_pots::find_winners_for_pot(pot, players_for_pots, &player_hands);
+                        let valid_winners: Vec<String> = pot_winners
+                            .into_iter()
+                            .filter(|w| w != &player.id)
+                            .collect();
+
+                        if !valid_winners.is_empty() {
+                            let share = truncar_2_casas(entry.amount / valid_winners.len() as f64);
+                            for winner in valid_winners {
+                                if let Some(w_payout) = payouts.get_mut(&winner) {
+                                    *w_payout = truncar_2_casas((*w_payout - share).max(0.0));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Creditar o cashback ao perdedor All-In
+                let loser_payout = payouts.entry(player.id.clone()).or_insert(0.0);
+                *loser_payout = truncar_2_casas(*loser_payout + deflator.cashback);
+
+                results.push(deflator);
             }
         }
 
-        let (loser_id, _) = biggest_loser?;
-
-        // Determinar a fase do all-in (usar a fase atual como aproximação)
-        // Em uma implementação completa, rastrearíamos a fase exata do all-in
-        let phase = self.state.phase;
-
-        let params = ProgressiveLossDeflatorParams {
-            pots: pots.to_vec(),
-            loser_id: loser_id.clone(),
-            winner_id,
-            phase,
-        };
-
-        loss_deflator::calculate_progressive_loss_deflator(params)
+        results
     }
 
     /// Constrói a lista de PlayerResult para hand history

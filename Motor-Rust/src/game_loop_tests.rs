@@ -3905,4 +3905,76 @@ mod resolve_showdown_errors_tests {
         // Carol foi resetada
         assert!(!gl.state.players[2].has_acted);
     }
+
+    #[test]
+    fn test_multi_phase_all_in_loss_deflator_exact_phases() {
+        use crate::deck::{Suit, Rank};
+        let p1 = PlayerState {
+            id: "p1".to_string(),
+            stack: 0.0,
+            hole_cards: vec![Card { rank: Rank::Two, suit: Suit::Clubs }, Card { rank: Rank::Three, suit: Suit::Hearts }],
+            current_bet: 100.0,
+            total_bet: 100.0,
+            has_folded: false,
+            is_all_in: true,
+            all_in_phase: Some(GamePhase::Preflop),
+            has_acted: true,
+            seat_index: 0,
+        };
+        let p2 = PlayerState {
+            id: "p2".to_string(),
+            stack: 0.0,
+            hole_cards: vec![Card { rank: Rank::Four, suit: Suit::Clubs }, Card { rank: Rank::Five, suit: Suit::Hearts }],
+            current_bet: 200.0,
+            total_bet: 300.0,
+            has_folded: false,
+            is_all_in: true,
+            all_in_phase: Some(GamePhase::Turn),
+            has_acted: true,
+            seat_index: 1,
+        };
+        let p3 = PlayerState {
+            id: "p3".to_string(),
+            stack: 700.0,
+            hole_cards: vec![Card { rank: Rank::Ace, suit: Suit::Spades }, Card { rank: Rank::Ace, suit: Suit::Hearts }],
+            current_bet: 300.0,
+            total_bet: 300.0,
+            has_folded: false,
+            is_all_in: false,
+            all_in_phase: None,
+            has_acted: true,
+            seat_index: 2,
+        };
+
+        let mut gl = GameLoop::new(
+            TableConfig::new(10.0, 0.0, 0.0),
+            "hand_123".to_string(),
+            "test_table".to_string(),
+            GameType::Cash,
+        );
+        gl.state.players.push(p1);
+        gl.state.players.push(p2);
+        gl.state.players.push(p3);
+        gl.state.community_cards = vec![
+            Card { rank: Rank::Two, suit: Suit::Diamonds },
+            Card { rank: Rank::Seven, suit: Suit::Spades },
+            Card { rank: Rank::Nine, suit: Suit::Clubs },
+            Card { rank: Rank::Jack, suit: Suit::Diamonds },
+            Card { rank: Rank::Ace, suit: Suit::Diamonds },
+        ];
+        gl.state.is_finished = true;
+
+        let res = gl.resolve_hand().unwrap();
+
+        assert_eq!(res.loss_deflators.len(), 2);
+
+        let d1 = res.loss_deflators.iter().find(|d| d.loser_id == "p1").unwrap();
+        assert_eq!(d1.phase, GamePhase::Preflop);
+        assert_eq!(d1.cards_remaining, 5);
+
+        let d2 = res.loss_deflators.iter().find(|d| d.loser_id == "p2").unwrap();
+        assert_eq!(d2.phase, GamePhase::Turn);
+        assert_eq!(d2.cards_remaining, 1);
+    }
 }
+

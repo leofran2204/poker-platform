@@ -162,7 +162,7 @@ pub fn distribute_pots(
 }
 
 /// Pré-computa as mãos de todos os jogadores ativos
-fn precompute_hands(
+pub fn precompute_hands(
     players: &[PlayerForPots],
     community_cards: &[Card],
 ) -> HashMap<String, HandResult> {
@@ -178,7 +178,7 @@ fn precompute_hands(
 
 /// Encontra o(s) vencedor(es) de um pote entre os jogadores elegíveis.
 /// Retorna lista de IDs empatados no topo (split pot).
-fn find_winners_for_pot(
+pub fn find_winners_for_pot(
     pot: &Pot,
     players: &[PlayerForPots],
     player_hands: &HashMap<String, HandResult>,

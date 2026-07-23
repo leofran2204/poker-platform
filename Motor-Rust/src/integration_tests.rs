@@ -114,6 +114,14 @@ fn test_integration_full_hand_deck_sidepots_rake_handhistory() {
         },
     ];
 
+    let board = vec![
+        c(Rank::Two, Suit::Clubs),
+        c(Rank::Four, Suit::Diamonds),
+        c(Rank::Seven, Suit::Hearts),
+        c(Rank::Nine, Suit::Spades),
+        c(Rank::Two, Suit::Hearts),
+    ];
+
     // 1) side_pots
     let side = resolve_side_pots(&players, &board);
     let contributions_sum: f64 = players.iter().map(|p| p.total_bet).sum();
