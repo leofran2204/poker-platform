@@ -194,3 +194,14 @@ Ações normais onde a mão favorita segurou e venceu, não gerando cashback par
 * **Cálculo:** All-in no River = **0% Cashback**.
 * **Distribuição Final:** Quênia recebe **R$ 200,00 integralmente**. Pedro recebe R$ 0,00.
 
+#### Exemplo 7: Tier 0 — Faixa Mínima de 7% (Equity de 60,0% a 64,9%)
+* **Situação:** Rodrigo (R$ 200) vs Sandra (R$ 200). Pote Total = **R$ 400**.
+* **Ação:** All-in no Pré-flop com `A♥ Q♥` (Rodrigo) vs `K♣ J♣` (Sandra). Rodrigo é favorito leve com **62% de Equity** (Tier 0 = **7%**).
+* **Resultado:** Sandra acerta um Rei no Flop e vence a mão.
+* **Cálculo:** Cashback do Rodrigo = 7% de R$ 400 = **R$ 28,00**.
+* **Distribuição Final:**
+  * Sandra (Vencedora): R$ 400 - R$ 28 = **R$ 372,00**.
+  * Rodrigo (Perdedor All-in): Recebe **R$ 28,00** (7% de cashback).
+  * ⚖️ *Soma Total:* 372 + 28 = **R$ 400,00**.
+
+
