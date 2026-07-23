@@ -1,6 +1,6 @@
 # 🃏 QUALITY.md — Documento Mestre do Poker Project
 
-**Atualizado:** 2026-07-20 | **Versão:** 3.2 (Integração + Stress + Fairness + CI/CD)
+**Atualizado:** 2026-07-22 | **Versão:** 4.1 (Fuzzing Extremo 1M + 1M WS Stress + Red Team 50-Workers + Pagamentos PIX Instantâneos + Hardening)
 **Stack Definitiva:** Rust para TUDO (backend, motor de jogo, APIs, IA, dados, antifraude, autenticação, lobby, front-end Dioxus/WebAssembly)
 **Decisão de Stack:** Definitiva desde 2026-07-03 — Rust é a única linguagem do projeto
 
@@ -221,15 +221,16 @@ Na próxima aula, revisão rápida dos conceitos do tópico anterior antes de av
 
 | Métrica               | Valor                                                                  |
 |-----------------------|------------------------------------------------------------------------|
-| **Linguagem**         | Rust (100% do backend + motor)                                         |
-| **Frontend**          | Dioxus 0.6 + WebAssembly                                               |
-| **Testes totais**     | 1.874 testes no Motor-Rust (unitários + integração + stress + propriedade) |
-| **Módulos do motor**  | 8 módulos principais                                                   |
-| **Módulos antifraude**| 4 módulos                                                              |
-| **Progresso geral**   | ~25% (F1=100%, F2=90%, F3=10%, F4=5%, F5=0%, F6=0%)                    |
-| **Infraestrutura**    | docker-compose.yml (PostgreSQL 15, Redis 7, Kafka+Zookeeper)           |
+| **Linguagem**         | Rust (100% do backend + motor + frontend WebAssembly)                 |
+| **Frontend**          | Dioxus 0.6 + WebAssembly (104 suítes de teste + 10k mutações)         |
+| **Testes totais**     | 1.903 testes no Motor-Rust + **1.000.000 iterações de Fuzzing Extremo** |
+| **Estresse API/WS**   | **1.000.800 mensagens WebSockets** em 100 mesas + 50 Red Team workers  |
+| **Módulos do motor**  | 10 módulos principais                                                  |
+| **Módulos antifraude**| 4 módulos (bot detection, collusion, chip dumping, multi-account)       |
+| **Pagamentos**        | PIX Instantâneo (Asaas/Mercado Pago + Webhooks + Deposit/Withdraw Modais) |
+| **Infraestrutura**    | docker-compose.yml (PostgreSQL 15, Redis 7, Kafka+Zookeeper, Caddy HTTPS) |
 
-## 🧩 2.2 MÓDULOS DO MOTOR (10 módulos engine + módulos de teste, 1.874 testes)
+## 🧩 2.2 MÓDULOS DO MOTOR (10 módulos engine + módulos de teste, 1.903 testes)
 
 | Módulo               | Arquivo                  | Testes | Função                                              |
 |----------------------|--------------------------|--------|-----------------------------------------------------|
@@ -241,7 +242,9 @@ Na próxima aula, revisão rápida dos conceitos do tópico anterior antes de av
 | **Hand History**     | `hand_history.rs`        | 19     | Histórico de mãos jogadas                           |
 | **Tournament Engine**| `tournament_engine.rs`   | 19     | Motor de torneios (MTT/SNG)                         |
 | **Auth**             | `auth.rs`                | 153    | Autenticação, JWT, MFA, RBAC                        |
-| **Lobby**            | `lobby.rs`               | —      | GameType, TableVisibility, TableInfo                |
+| **Lobby**            | `lobby.rs`               | 28     | GameType, TableVisibility, TableInfo                |
+| **Fuzzing Extremo**  | `extreme_fuzz_tests.rs`  | 8 (1M) | 1.000.000 de iterações de Fuzzing estocástico em 8 módulos |
+| **Pagamentos PIX**   | `payments_routes.rs`     | 5      | Depósitos PIX com QRCode, Webhooks e Saques         |
 | **Integração**       | `integration_tests.rs`  | 5      | Fluxo completo entre módulos (deck→side_pots→rake→hand_history, torneio, loss_deflator+rake, RNG+deck) |
 | **Stress Integração**| `stress_integration_tests.rs` | 5 | Stress massivo de integração (200k iters/cenário, seed fixo `StdRng`, invariantes exatos) |
 | **Fairness Cartas**  | `card_fairness_tests.rs`| 3      | Fairness estatística de cartas (qui-quadrado, 500k iters/teste, tolerância 0,5%) |
