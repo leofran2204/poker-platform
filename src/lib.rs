@@ -4,6 +4,7 @@ pub mod antifraud;
 pub mod auth;
 pub mod crypto;
 pub mod engine;
+pub mod history;
 pub mod ledger;
 pub mod security;
 pub mod server;
