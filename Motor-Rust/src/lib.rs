@@ -10,7 +10,6 @@ pub mod utils;
 
 // ─── Módulos do motor ───
 pub mod antifraud;
-pub mod antifraud_engine;
 pub mod auth;
 pub mod deck;
 pub mod game_loop;

@@ -53,6 +53,8 @@ pub struct TableActor {
     pub tx_broadcast: broadcast::Sender<serde_json::Value>,
     pub next_hand_at: Option<tokio::time::Instant>,
     pub dealer_index: usize,
+    pub antifraud: poker_engine::antifraud::AntiFraudSuite,
+    pub last_turn_start: Option<tokio::time::Instant>,
 }
 
 impl TableActor {
@@ -72,6 +74,8 @@ impl TableActor {
             tx_broadcast,
             next_hand_at: None,
             dealer_index: 0,
+            antifraud: poker_engine::antifraud::AntiFraudSuite::new(),
+            last_turn_start: Some(tokio::time::Instant::now()),
         }
     }
 
@@ -186,6 +190,18 @@ impl TableActor {
     }
 
     fn handle_action(&mut self, player_id: String, action: String, amount: f64) {
+        let elapsed_ms = self
+            .last_turn_start
+            .map(|t| t.elapsed().as_millis() as u64)
+            .unwrap_or(500);
+        self.last_turn_start = Some(tokio::time::Instant::now());
+
+        let risk_score = self.antifraud.process_action(&player_id, elapsed_ms);
+        if risk_score.recommendation == poker_engine::antifraud::RiskRecommendation::BlockSession {
+            error!("Action blocked by AntiFraud for player {}: risk score {}", player_id, risk_score.total_score);
+            return;
+        }
+
         let game_loop = match &mut self.game_loop {
             Some(gl) => gl,
             None => {

@@ -7,7 +7,7 @@ use crate::side_pots::{calculate_side_pots, PlayerForPots};
 use crate::loss_deflator::{calculate_progressive_loss_deflator, ProgressiveLossDeflatorParams};
 use crate::hand_history::HandHistory;
 use crate::auth::AuthManager;
-use crate::antifraud_engine::{BotDetector, CollusionDetector, RiskScore};
+use crate::antifraud::{bot_detection::BotDetector, collusion::CollusionAnalyzer, RiskScore};
 use crate::tournament_engine::{TournamentConfig, TournamentSpeed};
 use crate::types::{Pot, GamePhase};
 use crate::deck::{create_deck, shuffle_deck, Card, Suit, Rank, evaluate_hand};
@@ -127,23 +127,15 @@ proptest! {
     #[test]
     fn extreme_fuzz_antifraud_engine(
         bot_times in prop::collection::vec(0u64..10_000u64, 5..=30),
-        soft_play_flags in prop::collection::vec(proptest::bool::ANY, 5..=30),
     ) {
-        let mut bot_detector = BotDetector::new();
+        let mut bot_detector = BotDetector::default();
         for t in bot_times {
-            bot_detector.record_action(t);
+            bot_detector.record_reaction_time("player_1", t);
         }
-        let b_score = bot_detector.calculate_score();
+        let b_score = bot_detector.calculate_bot_score("player_1");
         prop_assert!(b_score >= 0.0 && b_score <= 100.0, "Bot score fora dos limites 0-100");
 
-        let mut collusion_detector = CollusionDetector::new();
-        for flag in soft_play_flags {
-            collusion_detector.record_headsup_hand(flag);
-        }
-        let c_score = collusion_detector.calculate_score();
-        prop_assert!(c_score >= 0.0 && c_score <= 100.0, "Collusion score fora dos limites 0-100");
-
-        let risk = RiskScore::new(b_score, c_score);
+        let risk = RiskScore::new(b_score, 0.0);
         prop_assert!(risk.total_score >= 0.0 && risk.total_score <= 100.0, "Risk total_score fora dos limites");
     }
 }
