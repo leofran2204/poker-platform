@@ -103,6 +103,13 @@ pub fn build_router(state: AppState) -> Router {
                     state.clone(),
                 )),
         )
+        .route(
+            "/api/tables/:id/history",
+            get(hand_history::list_table_hand_histories)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
         // ─── WebSocket route ───
         .route("/ws/game/:table_id", get(websocket::game_websocket))
         // ─── Health & Security Metrics check ───

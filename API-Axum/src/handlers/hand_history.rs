@@ -1,5 +1,4 @@
-// Hand history handlers — GET /api/hand-history/{hand_id}
-
+// Hand history handlers — Endpoints REST HTTPS para Replay de Mãos
 use axum::extract::{Path, State};
 use axum::Json;
 use serde::Serialize;
@@ -16,6 +15,15 @@ pub struct HandHistoryResponse {
     pub replay: Value,
 }
 
+#[derive(Debug, Serialize)]
+pub struct HandHistorySummary {
+    pub hand_id: String,
+    pub pot_total: i64,
+    pub rake_collected: i64,
+    pub end_reason: Option<String>,
+    pub created_at: i64,
+}
+
 // ─── Handlers ───
 
 /// GET /api/hand-history/{hand_id}
@@ -24,7 +32,6 @@ pub async fn get_hand_history(
     State(state): State<AppState>,
     Path(hand_id): Path<String>,
 ) -> Result<Json<HandHistoryResponse>, ApiError> {
-    // Fetch hand history from PostgreSQL
     let row: Option<(String, serde_json::Value)> = sqlx::query_as(
         r#"
         SELECT
@@ -60,4 +67,42 @@ pub async fn get_hand_history(
         hand_id: id,
         replay,
     }))
+}
+
+/// GET /api/tables/{table_id}/history
+/// Response: Lista das últimas 50 mãos finalizadas da mesa
+pub async fn list_table_hand_histories(
+    State(state): State<AppState>,
+    Path(table_id): Path<String>,
+) -> Result<Json<Vec<HandHistorySummary>>, ApiError> {
+    let rows: Vec<(String, i64, i64, Option<String>, i64)> = sqlx::query_as(
+        r#"
+        SELECT
+            id::TEXT,
+            pot_total,
+            rake_collected,
+            end_reason,
+            created_at
+        FROM hand_history
+        WHERE table_id::TEXT = $1 OR table_id IS NULL
+        ORDER BY created_at DESC
+        LIMIT 50
+        "#,
+    )
+    .bind(&table_id)
+    .fetch_all(&state.db)
+    .await?;
+
+    let summaries = rows
+        .into_iter()
+        .map(|(id, pot, rake, reason, created)| HandHistorySummary {
+            hand_id: id,
+            pot_total: pot,
+            rake_collected: rake,
+            end_reason: reason,
+            created_at: created,
+        })
+        .collect();
+
+    Ok(Json(summaries))
 }
