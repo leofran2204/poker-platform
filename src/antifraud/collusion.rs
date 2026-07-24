@@ -8,6 +8,10 @@ pub enum CollusionViolation {
     SameIpAddress(String, String, String),
     #[error("Jogadores {0} e {1} pertencem à mesma sub-rede /24 ({2})!")]
     SameSubnet(String, String, String),
+    #[error("Jogadores {0} e {1} compartilham o mesmo dispositivo físico/hardware (Hash: {2})!")]
+    SameDeviceFingerprint(String, String, String),
+    #[error("Jogadores {0} e {1} estão em extrema proximidade física ({2:.1} metros < 50.0m de distância)!")]
+    PhysicalProximityViolation(String, String, f64),
     #[error("Anomalia comportamental detectada para o jogador {0}: VPIP={1:.1}%, PFR={2:.1}% (Suspeita de Bot/Chip Dumping)")]
     SuspiciousBehaviorPattern(String, f64, f64),
 }

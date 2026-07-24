@@ -1,6 +1,8 @@
 use chrono::Utc;
 use poker_engine::admin::AdminDashboard;
-use poker_engine::antifraud::{CollusionDetector, PlayerSession};
+use poker_engine::antifraud::{
+    CollusionDetector, DeviceFingerprint, DeviceSecurityGuard, GeoLocation, PlayerSecurityContext, PlayerSession,
+};
 use poker_engine::auth::{generate_totp_code, verify_totp_code};
 use poker_engine::engine::evaluator::{evaluate_hand, Card, Rank, Suit};
 use poker_engine::engine::{calculate_side_pots, Contribution};
@@ -61,6 +63,28 @@ fn main() {
     ];
     println!("6. Avaliador de 7 Cartas Texas Hold'em: Rank = {:?}\n", evaluate_hand(&hole_and_board));
 
+    // --- ADVANCED DEVICE FINGERPRINTING & PROXIMITY DEMO ---
+    println!("--- [SEGURANÇA DE PONTA: DEVICE FINGERPRINTING & GPS PROXIMITY] ---");
+    let fp_alice = DeviceFingerprint::new("NVIDIA RTX 3080", "AudioCtx_A", "1920x1080", "Font_Hash_A", "MacBookPro", "macOS");
+    let fp_bob_4g = DeviceFingerprint::new("Apple M2 GPU", "AudioCtx_B", "2560x1600", "Font_Hash_B", "iPhone15Pro", "iOS");
+
+    let sec_alice = PlayerSecurityContext {
+        user_id: "Alice".into(),
+        ip_address: "203.0.113.88".into(), // Wi-Fi de Casa
+        device_fingerprint: fp_alice,
+        geo_location: Some(GeoLocation::new(-23.561510, -46.655910)), // Sala de casa
+    };
+
+    let sec_bob_4g = PlayerSecurityContext {
+        user_id: "Bob".into(),
+        ip_address: "177.92.14.200".into(), // 4G Móvel!
+        device_fingerprint: fp_bob_4g,
+        geo_location: Some(GeoLocation::new(-23.561518, -46.655915)), // Mesmo sofá (8 metros!)
+    };
+
+    let sec_result = DeviceSecurityGuard::validate_table_seating_advanced(&[sec_alice, sec_bob_4g]);
+    println!("7. Trava de Proximidade Física (4G no mesmo sofá < 50m): Rejeição = {:?}\n", sec_result);
+
     // --- SPRINT 3 DEMOS ---
     println!("--- [SPRINT 3: MODO TORNEIO COMPLETO & BALANCEAMENTO] ---");
     let acc1 = LedgerAccount::new("P1", 20000);
@@ -78,7 +102,7 @@ fn main() {
     let _ = tournament.register_player("P1", "Alice", &acc1);
     let _ = tournament.register_player("P2", "Bob", &acc2);
     let _ = tournament.register_player("P3", "Charlie", &acc3);
-    println!("7. Inscrições de Torneio: Prize Pool = R$ {:.2}\n", tournament.prize_pool_cents as f64 / 100.0);
+    println!("8. Inscrições de Torneio: Prize Pool = R$ {:.2}\n", tournament.prize_pool_cents as f64 / 100.0);
 
     // --- WEBSOCKET SERVER IN REAL TIME DEMO ---
     println!("--- [SERVIDOR WEBSOCKET EM TEMPO REAL (TOKIO / AXUM)] ---");
@@ -93,7 +117,7 @@ fn main() {
         let ws_server = WebSocketServer::new();
         let _ = ws_server.register_client("Player_Alice");
         let _ = ws_server.register_client("Player_Bob");
-        println!("8. WebSocket Server Ativo: {} conexões de clientes em tempo real", ws_server.active_clients_count());
+        println!("9. WebSocket Server Ativo: {} conexões de clientes em tempo real", ws_server.active_clients_count());
 
         let packet = WsIncomingPacket {
             player_id: "Player_Alice".into(),
@@ -111,7 +135,7 @@ fn main() {
     println!("--- [DASHBOARD ADMINISTRATIVO & GESTÃO DE RISCO] ---");
     let admin = AdminDashboard::new();
     let audit = admin.audit_ledger_account(&ledger);
-    println!("9. Auditoria Criptográfica do Ledger: Saldo = R$ {:.2} | Cadeia de Hashes Integras: {}\n", audit.account_balance_cents as f64 / 100.0, audit.hash_chain_valid);
+    println!("10. Auditoria Criptográfica do Ledger: Saldo = R$ {:.2} | Cadeia de Hashes Integras: {}\n", audit.account_balance_cents as f64 / 100.0, audit.hash_chain_valid);
 
     // --- SERVIÇO DE HISTÓRICO DE MÃOS & REPLAY PROVABLY FAIR ---
     println!("--- [SERVIÇO DE HISTÓRICO DE MÃOS & REPLAY PROVABLY FAIR] ---");
@@ -162,7 +186,7 @@ fn main() {
         }],
     };
 
-    println!("10. Exportação de Histórico (Padrão PokerStars):");
+    println!("11. Exportação de Histórico (Padrão PokerStars):");
     let exported = history_record.export_pokerstars_format();
     for line in exported.lines().take(6) {
         println!("    {}", line);
