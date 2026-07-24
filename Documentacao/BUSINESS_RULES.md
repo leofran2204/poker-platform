@@ -1,8 +1,9 @@
 # 🃏 Regras de Negócio — Plataforma de Poker Online Texas Hold'em
 
-**Versão:** 1.1  
-**Data:** 2026-06-30  
-**Status:** Documento vivo - deve ser atualizado a cada mudança de regra
+**Versão:** 2.0  
+**Data:** 2026-07-24  
+**Status:** Documento Oficial — 100% Sincronizado e Implementado
+
 
 ---
 
@@ -124,7 +125,7 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
 - **Big Blind (BB):** jogador à esquerda do SB
 - **Under the Gun (UTG):** primeiro a agir no preflop
 
-### 4.4 🔁 Ordem de Ação — Sentido Horário
+### 4.5 🔁 Ordem de Ação — Sentido Horário
 - **Preflop:** UTG → ... → BB (último a agir)
 - **Pos-flop:** SB → ... → Dealer (último a agir)
 - Sentido **horário**
@@ -204,7 +205,7 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
 - Campo `balance` em `users`
 - Deduzido no buy-in
 - Devolvido no cash-out
-- ⚠️ **Sem rake/taxa implementado** (ver auditoria)
+- ✅ **Rake de 2.5% (cap R$ 6.00) + Regra do Centavo Ímpar (WSOP 68)** 100% implementados em `rake.rs` e `utils.rs`
 
 ---
 

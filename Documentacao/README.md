@@ -47,13 +47,13 @@ Plataforma de poker online **Texas Hold'em Tradicional** (52 cartas) construída
 
 | Pasta | Conteúdo | Status |
 |-------|----------|--------|
-| `Motor-Rust/` | Motor de poker em Rust (11 módulos + 4 antifraude, 1816 testes) | ✅ Ativo |
-| `API-Axum/` | API REST HTTPS / WebSocket WSS (Axum + Tokio + rustls) | ✅ Ativo |
-| `Frontend-Dioxus/` | Frontend WebAssembly (Dioxus 0.6) | ✅ Ativo |
-| `Infraestrutura-Docker/` | Docker, deploy, CI/CD | ✅ Ativo |
+| `Motor-Rust/` | Motor de poker em Rust (11 módulos + 4 antifraude, 1.903 testes + 1M Fuzzing) | ✅ Ativo |
+| `API-Axum/` | API REST HTTPS / WebSocket WSS (Axum + Tokio + rustls, 34 testes) | ✅ Ativo |
+| `Frontend-Dioxus/` | Frontend WebAssembly (Dioxus 0.6, 115 suítes) | ✅ Ativo |
+| `Infraestrutura-Docker/` | Docker, Caddy, deploy, CI/CD GitHub Actions | ✅ Ativo |
 | `Documentacao/` | Regras de negócio, cronograma, dashboard, logs | ✅ Ativo |
 | `Arquitetura-Motor/` | Arquitetura do motor Rust | ✅ Ativo |
-| `scripts/` | Scripts de automação (coverage, build) | ✅ Ativo |
+| `scripts/` | Scripts de automação (coverage, build, deploy) | ✅ Ativo |
 
 ---
 
@@ -64,14 +64,15 @@ Plataforma de poker online **Texas Hold'em Tradicional** (52 cartas) construída
 | `deck.rs` | 18 | Baralho 52 cartas, Fisher-Yates com CSPRNG |
 | `side_pots.rs` | 7 | Side pots para all-in |
 | `loss_deflator.rs` | 9 | Cashback por equity no all-in (tiers 7/15/25/35%, equity ≥ 60%) |
-| `rake.rs` | 13 | Rake da casa |
+| `rake.rs` | 13 | Rake da casa (cap R$6, Regra Centavo Ímpar WSOP 68) |
 | `rng_crypto.rs` | 20 | CSPRNG com `OsRng` |
-| `hand_history.rs` | 19 | Histórico imutável de mãos |
+| `hand_history.rs` | 19 | Histórico imutável de mãos e gravação no PostgreSQL |
 | `tournament_engine.rs` | 19 | Torneios (blinds crescentes, payouts) |
 | `auth.rs` | 153 | JWT, bcrypt, MFA/TOTP, RBAC |
 | `lobby.rs` | 28 | Lobby + matchmaking |
-| `antifraud/` | — | Colusão, chip dumping, bot detection, multi-account |
-| **Total** | **1816** | 0 warnings, 0 CVEs |
+| `antifraud/` | 117 | Bot detection, collusion, chip dumping, multi-account |
+| `extreme_fuzz_tests.rs` | 8 | 1.000.000 iterações de fuzzing estocástico |
+| **Total Motor** | **1.903** | 0 warnings, 0 CVEs (2.050 total na plataforma) |
 
 ---
 

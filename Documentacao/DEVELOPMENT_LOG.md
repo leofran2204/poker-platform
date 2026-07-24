@@ -1,6 +1,6 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-20
+**Atualizado:** 2026-07-24
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 >  Painel tático em `DASHBOARD.md`. 📅 Cronograma em `CRONOGRAMA.md`.
@@ -37,6 +37,15 @@
 | 2 | **O que não funcionou** | Mismatch de versões estáticas do compilador Rust e dependências do Wasm com a CLI antiga do Dioxus causou atrito e travamentos de build em container nas primeiras tentativas. |
 | 3 | **Lições aprendidas** | Dioxus CLI engessa as versões do wasm-bindgen que usa; realizar builds manuais do WebAssembly em containers Docker de produção é mais adaptável e muito mais leve. |
 | 4 | **Melhorias para S04** | Configurar testes de cobertura (llvm-cov/tarpaulin) no CI/CD e organizar workflows automáticos de build/deploy. |
+
+### 📋 Sprint S04 & S05 (2026-07-18 → 2026-07-24) — Testes de Estresse, PIX Gateway, Hardening & Launch Ready
+
+| # | Aspecto | Avaliação |
+|---|--------|----------|
+| 1 | **O que funcionou** | Fuzzing extremo (1M iterações), carga massiva WS (1M mensagens sem deadlock), Red Team de 50 workers, Gateway PIX HTTPS (Asaas/Mercado Pago), persistência PostgreSQL imutável e Hardening Docker/Caddy enterprise com CI/CD. |
+| 2 | **O que não funcionou** | Incompatibilidade inicial entre o toolchain MinGW local e proc-macros do Dioxus no Windows exigiu ajuste estrito de ambiente (LIBRARY_PATH). |
+| 3 | **Lições aprendidas** | Fuzzing estocástico e simulação autônoma de Red Team revelam edge-cases (ex: regressoes de colusao e truncamentos de centavos) antes que afetem a produção. |
+| 4 | **Status Final** | 100% dos testes passando (2.050 suítes no total), 0 clippy warnings e plataforma 100% pronta para produção (Launch Ready). |
 
 ---
 

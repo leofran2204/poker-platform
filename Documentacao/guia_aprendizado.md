@@ -1,8 +1,9 @@
 # 📚 Guia de Aprendizado — Plataforma de Poker (Rust)
 
-> **Data:** 2026-07-17
-> **Versão:** 4.0 (consolidação de ESTRATEGIA_APRENDIZADO + PARAMETROS_ESTUDO + guia Sprint S03 + guia do Motor)
-> **Status:** ATIVO
+> **Data:** 2026-07-24
+> **Versão:** 5.0 (consolidação de ESTRATEGIA_APRENDIZADO + PARAMETROS_ESTUDO + guia Sprints S03 a S05 + 100% Concluído / Launch Ready)
+> **Status:** ✅ 100% CONCLUÍDO (Pronto para Produção)
+
 
 Este documento consolida toda a estratégia de aprendizado do projeto em um único lugar:
 - **§1** — Protocolo Mark (filosofia, modos, regras de comunicação e exercício)

@@ -1,6 +1,9 @@
 # Guia de Exemplos Práticos — Loss Deflator (Bad Beat Cashback)
 
+**Atualizado:** 2026-07-24 | **Status:** ✅ 100% Concluído (Suporte Multi-Fases Preflop/Flop/Turn & Potes Múltiplos Validado)
+
 Este documento serve como material de apoio técnico e educacional para o funcionamento do módulo **Loss Deflator** (`loss_deflator.rs`). Aqui você encontrará definições visuais, conceitos probabilísticos e simulações matemáticas reais de mãos de poker para cada um dos Tiers de cashback.
+
 
 ---
 

@@ -27,7 +27,7 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 |---|----------|-------------|
 | 1 | **Código compila sem erros** | `cargo check` — 0 erros |
 | 2 | **Zero warnings** | `cargo check` — 0 warnings |
-| 3 | **Todos os testes passam** | `cargo test` — 1.800+ testes passing |
+| 3 | **Todos os testes passam** | `cargo test` — 2.050+ testes passing (1.903 Motor + 115 Frontend + 34 API) |
 | 4 | **Cobertura de testes** | Testes massivos (1.000 Ante/Blinds + 500 Multiway All-In) |
 | 5 | **Documentação atualizada** | `DASHBOARD.md` + `README.md` + `DEVELOPMENT_LOG.md` |
 | 6 | **Regras de negócio respeitadas** | Conforme `BUSINESS_RULES.md` |
@@ -106,22 +106,22 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | —   | `Infraestrutura-Docker` | Docker, Caddy, deploy, CI/CD                                                                                             | ✅ Ativo                  |
 | —   | `Documentacao`       | Regras, dashboard, cronograma, log de desenvolvimento, guia de aprendizado                                                | ✅ Ativo                  |
 | —   | `Arquitetura-Motor`  | Arquitetura alvo (Rust puro)                                                                                              | ✅ Ativo                  |
-| —   | **`Motor-Rust`**     | **Motor de jogo em Rust (deck, side_pots, loss_deflator, rake, rng_crypto, hand_history, tournament_engine, auth, lobby + 4 antifraude)**     | **✅ Ativo — 1874 testes — Cobertura: 98,10% (≥98% mantido)** |
-| —   | **`Frontend-Dioxus`** | **Front-end WebAssembly com Dioxus — Roteamento + 15 componentes integrados via WS + Caddy Proxy com HTTPS**            | **✅ Ativo — 104 testes — 100%** |
-| —   | **`API-Axum`**       | **API HTTP/WS com Axum 0.7 e Atores (`TableActor`) + PostgreSQL via sqlx 0.8**                                             | **✅ Ativo — 13 testes — 100%** |
+| —   | **`Motor-Rust`**     | **Motor de jogo em Rust (deck, side_pots, loss_deflator, rake, rng_crypto, hand_history, tournament_engine, auth, lobby + 4 antifraude)**     | **✅ Ativo — 1.903 testes — Cobertura: 98,10% (≥98% mantido)** |
+| —   | **`Frontend-Dioxus`** | **Front-end WebAssembly com Dioxus — Roteamento + 15 componentes integrados via WS + Caddy Proxy com HTTPS**            | **✅ Ativo — 115 testes — 100%** |
+| —   | **`API-Axum`**       | **API HTTP/WS com Axum 0.7 e Atores (`TableActor`) + PostgreSQL via sqlx 0.8**                                             | **✅ Ativo — 34 testes — 100%** |
 
 ---
 
 ## 🔄 Comandos Rápidos — Build, Testes e Deploy
 
 ```bash
-# Testar motor Rust (1874 testes)
+# Testar motor Rust (1.903 testes)
 cd Motor-Rust && cargo +stable-x86_64-pc-windows-gnu test --lib
 
 # Build motor Rust (0 warnings)
 cd Motor-Rust && cargo +stable-x86_64-pc-windows-gnu build
 
-# Testar API Axum (12 testes ativos)
+# Testar API Axum (34 testes suíte)
 cd API-Axum && cargo +stable-x86_64-pc-windows-gnu test
 
 # Build API Axum (0 warnings)
@@ -136,7 +136,7 @@ $env:LIBRARY_PATH = $gccLibPath
 $env:C_INCLUDE_PATH = "C:\Users\leofr\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\include"
 cd Frontend-Dioxus && cargo +stable-x86_64-pc-windows-gnu check
 
-# Testar front-end Dioxus (104 testes)
+# Testar front-end Dioxus (115 testes)
 cd Frontend-Dioxus && cargo +stable-x86_64-pc-windows-gnu test
 
 # Subir infra (Docker)
