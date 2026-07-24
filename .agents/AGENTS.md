@@ -1,5 +1,3 @@
-# Project Rules
+# Diretrizes do Projeto Poker_Project
 
-## Local Working Directory Rule
-- Always execute terminal commands and code edits in `C:\Users\leofr\Projetos\Poker_Project` (local folder).
-- NEVER use the `OneDrive` path (`C:\Users\leofr\OneDrive\Projetos\Poker_Project`).
+- **Caminho Principal do Projeto**: O caminho oficial para arquivos e comandos do projeto é sempre `c:/Users/leofr/Projetos/Poker_Project` (NUNCA utilizar o diretório do OneDrive).
