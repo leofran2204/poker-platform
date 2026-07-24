@@ -90,7 +90,8 @@ fn main() {
     println!("8. HUD do Coach Amigável:");
     println!("   - Titular: {}", advice.headline);
     println!("   - Chance de Vitória: {}", advice.win_chance_label);
-    println!("   - Explicação Simples: {}", advice.friendly_explanation);
+    println!("   - Frequência Estimada: {}", advice.win_frequency_ratio);
+    println!("   - Explicação Didática: {}", advice.friendly_explanation);
     println!("   - {}", advice.opponent_range.range_description);
 
     println!("\n========================================================");

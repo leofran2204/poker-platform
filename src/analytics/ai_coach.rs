@@ -4,10 +4,10 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum SimpleAction {
-    Desistir,         // Fold
-    PassarAVez,       // Check
-    PagarAposta,      // Call
-    ApostarForte(f64),// ValueBet
+    Desistir,          // Fold
+    PassarAVez,        // Check
+    PagarAposta,       // Call
+    ApostarForte(f64), // ValueBet
     AumentarBlefe(f64),// BluffRaise
 }
 
@@ -21,7 +21,8 @@ pub struct OpponentRangeEstimate {
 pub struct FriendlyCoachAdvice {
     pub headline: String,
     pub simple_action: SimpleAction,
-    pub win_chance_label: String, // ex: "Muito Alta (~85%)", "Moderada (~45%)"
+    pub win_chance_label: String,       // ex: "Boa (~64%)"
+    pub win_frequency_ratio: String,    // ex: "Em média, você vencerá 6 a cada 10 mãos nesta situação!"
     pub friendly_explanation: String,
     pub opponent_range: OpponentRangeEstimate,
     pub math_detail: MathDetail,
@@ -51,6 +52,31 @@ impl AiCoach {
         (win_prob * current_pot) - (loss_prob * call_amount)
     }
 
+    /// Converte a probabilidade de vitória em uma razão de frequência humana (ex: 6 a cada 10 mãos).
+    pub fn format_win_frequency_ratio(win_equity: f64) -> String {
+        let pct = win_equity.clamp(0.0, 100.0);
+        
+        if pct >= 88.0 {
+            "Em média, você vencerá 9 a cada 10 mãos nesta situação!".to_string()
+        } else if pct >= 78.0 {
+            "Em média, você vencerá 4 a cada 5 mãos nesta situação!".to_string()
+        } else if pct >= 70.0 {
+            "Em média, você vencerá 7 a cada 10 mãos nesta situação!".to_string()
+        } else if pct >= 62.0 {
+            "Em média, você vencerá 6 a cada 10 mãos nesta situação!".to_string()
+        } else if pct >= 55.0 {
+            "Em média, você vencerá 1 a cada 2 mãos (mais da metade) nesta situação!".to_string()
+        } else if pct >= 45.0 {
+            "Em média, é um confronto equilibrado: 1 a cada 2 mãos (50/50).".to_string()
+        } else if pct >= 30.0 {
+            "Em média, você vencerá 1 a cada 3 mãos nesta situação.".to_string()
+        } else if pct >= 20.0 {
+            "Em média, você vencerá 1 a cada 5 mãos nesta situação.".to_string()
+        } else {
+            "Em média, você vencerá menos de 1 a cada 10 mãos nesta situação.".to_string()
+        }
+    }
+
     /// Estima o alcance (*range*) de mãos do oponente com base na textura da mesa e na ação.
     pub fn estimate_opponent_range(board: &[Card], is_aggressive: bool) -> OpponentRangeEstimate {
         let mut likely_types = Vec::new();
@@ -59,9 +85,9 @@ impl AiCoach {
             likely_types.push("Pares Médios e Altos (88-AA)".into());
             likely_types.push("Cartas Altas Conectadas (AK, AQ, KQ)".into());
             let desc = if is_aggressive {
-                "Oponente demonstrando força pré-flop. Provável que tenha cartas altas ou par formado."
+                "Análise do Oponente: Força pré-flop. Provável que tenha cartas altas ou par formado."
             } else {
-                "Alcance amplo pré-flop. Oponente pode estar jogando com diversas mãos."
+                "Análise do Oponente: Alcance amplo pré-flop. Oponente pode estar jogando com diversas mãos."
             };
             return OpponentRangeEstimate {
                 likely_hand_types: likely_types,
@@ -69,7 +95,6 @@ impl AiCoach {
             };
         }
 
-        // Checar se há possíveis flushes ou straights no board
         let has_flush_draw = board.iter().filter(|c| c.suit == board[0].suit).count() >= 3;
 
         if is_aggressive {
@@ -94,7 +119,7 @@ impl AiCoach {
         }
     }
 
-    /// Analisa a mão e gera um conselho amigável, humano e acessível para jogadores iniciantes/amadores.
+    /// Analisa a mão e gera um conselho amigável e explicativo para amadores com frequência exata (ex: 6 a cada 10 mãos).
     pub fn analyze_hand_friendly(
         player_hole_cards: &[Card],
         community_cards: &[Card],
@@ -115,7 +140,6 @@ impl AiCoach {
 
         let win_equity = equity.win_percentage + (equity.tie_percentage * 0.5);
 
-        // Classificação amigável de chance de vitória
         let win_chance_label = if win_equity >= 75.0 {
             format!("Excelente (~{:.0}%)", win_equity)
         } else if win_equity >= 55.0 {
@@ -126,6 +150,7 @@ impl AiCoach {
             format!("Baixa (~{:.0}%)", win_equity)
         };
 
+        let win_frequency_ratio = Self::format_win_frequency_ratio(win_equity);
         let opponent_range = Self::estimate_opponent_range(community_cards, call_amount > 0.0);
 
         let (headline, simple_action, explanation) = if call_amount == 0.0 {
@@ -134,18 +159,15 @@ impl AiCoach {
                     "💡 Dica do Coach: Faça uma Aposta de Valor!".to_string(),
                     SimpleAction::ApostarForte(current_pot * 0.5),
                     format!(
-                        "Sua mão está muito forte com cerca de {:.0}% de chance de vitória! Aconselhamos apostar R$ {:.2} para extrair fichas dos oponentes.",
-                        win_equity, current_pot * 0.5
+                        "Sua mão está muito forte. Aconselhamos apostar R$ {:.2} para extrair fichas dos oponentes.",
+                        current_pot * 0.5
                     ),
                 )
             } else {
                 (
                     "💡 Dica do Coach: Passe a Vez (Check)".to_string(),
                     SimpleAction::PassarAVez,
-                    format!(
-                        "Sua chance de vitória é {:.0}%. Como ninguém apostou ainda, passe a vez de graça para ver a próxima carta sem arriscar fichas.",
-                        win_equity
-                    ),
+                    "Como ninguém apostou ainda, passe a vez de graça para ver a próxima carta sem arriscar fichas.".to_string(),
                 )
             }
         } else {
@@ -155,8 +177,8 @@ impl AiCoach {
                         "🔥 Dica do Coach: Mão Monstra! Aumente a Aposta!".to_string(),
                         SimpleAction::AumentarBlefe(call_amount * 2.5),
                         format!(
-                            "Sua mão é dominante ({:.0}% de chance de vitória). Pagar a aposta de R$ {:.2} trará um retorno esperado médio de +R$ {:.2}. Aproveite para aumentar!",
-                            win_equity, call_amount, ev
+                            "Sua mão é dominante! Pagar a aposta de R$ {:.2} trará um retorno estimado de +R$ {:.2}. Aproveite para aumentar!",
+                            call_amount, ev
                         ),
                     )
                 } else {
@@ -164,8 +186,8 @@ impl AiCoach {
                         "✅ Dica do Coach: Vale a Pena Pagar (Call)".to_string(),
                         SimpleAction::PagarAposta,
                         format!(
-                            "Sua chance de vitória ({:.0}%) compensa o valor cobrado (R$ {:.2}). A matemática está a seu favor com um ganho médio estimado de +R$ {:.2}!",
-                            win_equity, call_amount, ev
+                            "Pagar R$ {:.2} vale a pena: a matemática está a seu favor com um ganho médio estimado de +R$ {:.2}!",
+                            call_amount, ev
                         ),
                     )
                 }
@@ -174,8 +196,8 @@ impl AiCoach {
                     "⚠️ Dica do Coach: Melhor Desistir (Fold)".to_string(),
                     SimpleAction::Desistir,
                     format!(
-                        "A aposta cobrada (R$ {:.2}) está muito alta em relação às suas chances ({:.0}%). Pagar essa aposta traria um prejuízo estimado de -R$ {:.2} no longo prazo. O correto é economizar suas fichas!",
-                        call_amount, win_equity, ev.abs()
+                        "A aposta de R$ {:.2} está muito alta para essa situação. O correto é economizar suas fichas e desistir!",
+                        call_amount
                     ),
                 )
             }
@@ -185,6 +207,7 @@ impl AiCoach {
             headline,
             simple_action,
             win_chance_label,
+            win_frequency_ratio,
             friendly_explanation: explanation,
             opponent_range,
             math_detail: MathDetail {
