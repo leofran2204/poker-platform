@@ -113,28 +113,29 @@ pub fn dividir_pote_empatado(
     ordem_assentos: &[String],
 ) -> std::collections::HashMap<String, f64> {
     let mut payouts = std::collections::HashMap::new();
-    let n = vencedores_ids.len();
+    let n = vencedores_ids.len() as i64;
     if n == 0 || pote_amount <= 0.0 {
         return payouts;
     }
 
-    let valor_base = truncar_2_casas(pote_amount / n as f64);
-    let total_base = truncar_2_casas(valor_base * n as f64);
-    let mut centavos_restantes = ((pote_amount - total_base) * 100.0).round() as i32;
+    let total_centavos = (pote_amount * 100.0).round() as i64;
+    let base_centavos = total_centavos / n;
+    let mut resto_centavos = total_centavos % n;
 
+    let valor_base_f64 = base_centavos as f64 / 100.0;
     for id in vencedores_ids {
-        payouts.insert(id.clone(), valor_base);
+        payouts.insert(id.clone(), valor_base_f64);
     }
 
     // Atribui o centavo ímpar aos jogadores empatados na ordem dos assentos à esquerda do botão
     for id in ordem_assentos {
-        if centavos_restantes <= 0 {
+        if resto_centavos <= 0 {
             break;
         }
         if vencedores_ids.contains(id) {
             if let Some(val) = payouts.get_mut(id) {
-                *val = truncar_2_casas(*val + 0.01);
-                centavos_restantes -= 1;
+                *val = ((*val * 100.0).round() as i64 + 1) as f64 / 100.0;
+                resto_centavos -= 1;
             }
         }
     }

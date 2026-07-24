@@ -1384,8 +1384,8 @@ mod game_loop_init_tests {
         // Ante é descontado do stack; total_bet é sobrescrito pelos blinds
         assert_eq!(gl.state.players[0].stack, 993.0); // 1000 - 2 ante - 5 SB
         assert_eq!(gl.state.players[1].stack, 988.0); // 1000 - 2 ante - 10 BB
-        assert_eq!(gl.state.players[0].total_bet, 5.0); // SB sobrescreve
-        assert_eq!(gl.state.players[1].total_bet, 10.0); // BB sobrescreve
+        assert_eq!(gl.state.players[0].total_bet, 7.0); // 2 ante + 5 SB
+        assert_eq!(gl.state.players[1].total_bet, 12.0); // 2 ante + 10 BB
     }
 
     #[test]
