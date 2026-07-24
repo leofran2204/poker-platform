@@ -72,10 +72,10 @@ fn main() {
     let _ = tournament.register_player("P1", "Alice", &acc1);
     let _ = tournament.register_player("P2", "Bob", &acc2);
     let _ = tournament.register_player("P3", "Charlie", &acc3);
-    println!("7. Inscrições de Torneio: Prize Pool = R$ {:.2}", tournament.prize_pool_cents as f64 / 100.0);
+    println!("7. Inscrições de Torneio: Prize Pool = R$ {:.2}\n", tournament.prize_pool_cents as f64 / 100.0);
 
-    // --- AI COACH & ANALYTICS DEMO ---
-    println!("\n--- [AI COACH & ANALYTICS MONTE CARLO] ---");
+    // --- AI COACH PERSONALIZADO PARA AMADORES ---
+    println!("--- [AI COACH PERSONALIZADO & ANÁLISE DE RANGE] ---");
     let player_cards = vec![
         Card::new(Rank::Ace, Suit::Spades),
         Card::new(Rank::King, Suit::Spades),
@@ -86,11 +86,12 @@ fn main() {
         Card::new(Rank::Two, Suit::Clubs),
     ];
 
-    let advice = AiCoach::analyze_hand(&player_cards, &board, 1, 100.0, 30.0, 5_000);
-    println!("8. AI Coach Monte Carlo Equity (5.000 Sims):");
-    println!("   - Win Rate: {:.2}% | Pot Odds: {:.2}% | EV: R$ {:.2}", advice.equity.win_percentage, advice.pot_odds_percentage, advice.expected_value);
-    println!("   - Recomendação GTO: {:?}", advice.recommendation);
-    println!("   - Justificativa: {}", advice.reasoning);
+    let advice = AiCoach::analyze_hand_friendly(&player_cards, &board, 1, 100.0, 30.0, 5_000);
+    println!("8. HUD do Coach Amigável:");
+    println!("   - Titular: {}", advice.headline);
+    println!("   - Chance de Vitória: {}", advice.win_chance_label);
+    println!("   - Explicação Simples: {}", advice.friendly_explanation);
+    println!("   - {}", advice.opponent_range.range_description);
 
     println!("\n========================================================");
     println!("  TODAS AS FUNCIONALIDADES EXECUTADAS COM SUCESSO 100% ");
