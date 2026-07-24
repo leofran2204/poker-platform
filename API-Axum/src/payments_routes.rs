@@ -1,4 +1,4 @@
-// payments_routes.rs — Endpoints REST e Webhooks para Depósitos e Saques PIX Instantâneos
+// payments_routes.rs — Endpoints REST HTTPS Estritos e Webhooks Seguros para Depósitos e Saques PIX Instantâneos
 use axum::{
     extract::State,
     http::{HeaderMap, StatusCode},
