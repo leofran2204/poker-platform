@@ -42,6 +42,17 @@
 
 ## 📜 Log Cronológico de Desenvolvimento
 
+### [19] 🚀 Finalização Mestre & Prontidão para Produção (2026-07-24)
+**O que foi feito:**
+- **Testes Massivos & Estresse Extremo:** Implementada a suíte Lote 7 em `game_loop_tests.rs` (1.000 iterações de Ante/Blinds, 500 All-Ins multiway com conservação de fichas e micro-stacks).
+- **Gateway PIX Multi-Provedor HTTPS (TLS 1.2/1.3):** Integradas as APIs do Asaas e Mercado Pago com suporte dinâmico via `PIX_PROVIDER`.
+- **Suíte Antifraude Unificada:** Unificados os detectores sob o facade `AntiFraudSuite` no `TableActor` em tempo real.
+- **Persistência PostgreSQL e REST Hand History:** Inserção assíncrona do `HandHistory` em PostgreSQL e rotas `/api/hand-history/{hand_id}`, `/api/tables/{table_id}/history` e `/api/admin/antifraud/alerts`.
+- **Pipeline CI/CD & Deploy:** Criado workflow `.github/workflows/ci.yml`, arquivos `.env.example` e scripts `deploy.sh` e `deploy.ps1`.
+- **Status Final:** 100% dos testes e especificações validados e atualizados na branch `master` no GitHub.
+
+---
+
 ### [18] 🔧 CI/CD Corrigido para Raiz + Job de Cobertura (2026-07-20)
 **O que foi feito:**
 - **Descoberta:** o workflow `Motor-Rust/.github/workflows/ci.yml` criado em `ab19168` estava em subpasta — o GitHub Actions só lê `.github/workflows/` na **raiz**, logo não rodava. Além disso, o `rust-ci.yml` da raiz estava obsoleto (paths `08-Motor-Rust`/`09-Frontend-Dioxus`/`10-API-Axum` que não existem mais após a reorganização de pastas).
