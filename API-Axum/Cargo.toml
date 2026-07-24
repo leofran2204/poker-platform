@@ -37,8 +37,6 @@ hmac = "0.12"
 sha2 = "0.10"
 
 [dev-dependencies]
-# HTTP client for integration tests
-reqwest = { version = "0.12", features = ["json"] }
 # Test utilities for tower services (oneshot, ready, etc.)
 tower = { version = "0.5", features = ["util"] }
 # Utilities for reading HTTP body in tests
