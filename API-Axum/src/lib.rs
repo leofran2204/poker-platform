@@ -110,6 +110,14 @@ pub fn build_router(state: AppState) -> Router {
                     state.clone(),
                 )),
         )
+        // ─── Admin & Antifraud routes (protected admin role) ───
+        .route(
+            "/api/admin/antifraud/alerts",
+            get(admin_routes::get_antifraud_alerts_handler)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
         // ─── WebSocket route ───
         .route("/ws/game/:table_id", get(websocket::game_websocket))
         // ─── Health & Security Metrics check ───
