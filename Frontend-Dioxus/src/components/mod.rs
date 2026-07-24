@@ -11,6 +11,7 @@
 //! - [`pot`] — Pote central com valor acumulado
 //! - [`action_buttons`] — Botões de ação (Fold/Check/Call/Raise/All-in)
 //! - [`table`] — Mesa oval completa integrando todos os componentes
+//! - [`notification`] — Componente de Notificações Toast de Confiança ao Jogador
 //!
 //! Componentes de lobby:
 //! - [`table_card`] — Card de mesa individual no lobby
@@ -29,6 +30,7 @@ pub mod lobby_filters;
 pub mod lobby_list;
 pub mod login_form;
 pub mod mfa_input;
+pub mod notification;
 pub mod player_count;
 pub mod pot;
 pub mod register_form;

@@ -29,6 +29,15 @@ pub struct WsOutgoingPacket {
     pub payload: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HumanNotificationPayload {
+    pub category: String, // "Connection", "Antifraud", "Finance", "Tournament", "ProvablyFair"
+    pub level: String,    // "Info", "Success", "Warning", "Error"
+    pub title: String,
+    pub message: String,
+    pub action_advice: Option<String>,
+}
+
 pub struct ClientSession {
     pub player_id: String,
     pub table_id: Option<String>,
@@ -48,6 +57,30 @@ impl WebSocketServer {
             clients: Arc::new(Mutex::new(HashMap::new())),
             table_broadcasters: Arc::new(Mutex::new(HashMap::new())),
             rate_limiter: Arc::new(RateLimiter::new(100.0, 50.0)),
+        }
+    }
+
+    /// Gera uma notificação de alta confiança traduzida para linguagem humana legível.
+    pub fn create_player_notification_packet(
+        table_id: &str,
+        category: &str,
+        level: &str,
+        title: &str,
+        message: &str,
+        action_advice: Option<&str>,
+    ) -> WsOutgoingPacket {
+        let payload_struct = HumanNotificationPayload {
+            category: category.to_string(),
+            level: level.to_string(),
+            title: title.to_string(),
+            message: message.to_string(),
+            action_advice: action_advice.map(|s| s.to_string()),
+        };
+
+        WsOutgoingPacket {
+            event_type: "PLAYER_NOTIFICATION_TOAST".into(),
+            table_id: table_id.to_string(),
+            payload: serde_json::to_string(&payload_struct).unwrap_or_else(|_| message.to_string()),
         }
     }
 
@@ -104,16 +137,24 @@ impl WebSocketServer {
         table_sender: &mpsc::Sender<TableMessage>,
         ip_address: &str,
     ) -> Result<WsOutgoingPacket, String> {
-        // 1. Rate Limiting Check
-        self.rate_limiter
-            .check_rate_limit(ip_address)
-            .map_err(|e| format!("Rate limit excedido para IP {}: {:?}", ip_address, e))?;
+        // 1. Rate Limiting Check com Notificação Amigável
+        if self.rate_limiter.check_rate_limit(ip_address).is_err() {
+            let notif = Self::create_player_notification_packet(
+                "Lobby",
+                "Connection",
+                "Warning",
+                "Muitas requisições em curto tempo",
+                "Para a sua segurança, desaceleramos temporariamente o envio de mensagens.",
+                Some("Aguarde alguns segundos para enviar novas ações."),
+            );
+            return Ok(notif);
+        }
 
         // 2. Encaminhamento para o Actor de Mesa via canais Tokio sem bloqueio de I/O
         match packet.action {
             WsActionType::JoinTable { ref table_id, .. } => {
                 let (resp_tx, resp_rx) = oneshot::channel();
-                table_sender
+                if table_sender
                     .send(TableMessage::PlayerJoin {
                         player_id: packet.player_id.clone(),
                         name: packet.player_id.clone(),
@@ -121,7 +162,17 @@ impl WebSocketServer {
                         respond_to: resp_tx,
                     })
                     .await
-                    .map_err(|_| "Falha ao enviar mensagem para o TableActor".to_string())?;
+                    .is_err()
+                {
+                    return Ok(Self::create_player_notification_packet(
+                        table_id,
+                        "Connection",
+                        "Error",
+                        "Servidor de Mesa Ocupado",
+                        "Não foi possível conectar a esta mesa no momento.",
+                        Some("Tente novamente em alguns segundos."),
+                    ));
+                }
 
                 let resp = resp_rx.await.map_err(|_| "Resposta do ator cancelada".to_string())?;
                 match resp {
@@ -130,19 +181,36 @@ impl WebSocketServer {
                         table_id: table_id.clone(),
                         payload: format!("Jogador {} entrou na mesa", packet.player_id),
                     }),
-                    Err(err) => Err(err),
+                    Err(err) => Ok(Self::create_player_notification_packet(
+                        table_id,
+                        "Antifraud",
+                        "Warning",
+                        "Entrada Não Permitida",
+                        &format!("Entrada recusada: {}", err),
+                        Some("Escolha outra mesa para jogar com total segurança."),
+                    )),
                 }
             }
             WsActionType::PostBet { amount } => {
                 let (resp_tx, resp_rx) = oneshot::channel();
-                table_sender
+                if table_sender
                     .send(TableMessage::PlayerAction {
                         player_id: packet.player_id.clone(),
                         action: Action::Bet(amount),
                         respond_to: resp_tx,
                     })
                     .await
-                    .map_err(|_| "Falha ao comunicar com o ator".to_string())?;
+                    .is_err()
+                {
+                    return Ok(Self::create_player_notification_packet(
+                        "Table_1",
+                        "Connection",
+                        "Error",
+                        "Falha no envio de aposta",
+                        "Sua aposta não pôde ser enviada ao servidor.",
+                        Some("Verifique sua conexão e tente novamente."),
+                    ));
+                }
 
                 let resp = resp_rx.await.map_err(|_| "Timeout de resposta".to_string())?;
                 match resp {
@@ -156,7 +224,14 @@ impl WebSocketServer {
                             payload: broadcast_msg,
                         })
                     }
-                    Err(err) => Err(err),
+                    Err(err) => Ok(Self::create_player_notification_packet(
+                        "Table_1",
+                        "Finance",
+                        "Warning",
+                        "Aposta Não Efetuada",
+                        &format!("Ação recusada: {}", err),
+                        Some("Ajuste o valor da aposta conforme seu saldo disponível."),
+                    )),
                 }
             }
             WsActionType::Fold => Ok(WsOutgoingPacket {
