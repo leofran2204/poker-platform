@@ -5,3 +5,4 @@ pub mod engine;
 pub mod ledger;
 pub mod security;
 pub mod server;
+pub mod tournament;
