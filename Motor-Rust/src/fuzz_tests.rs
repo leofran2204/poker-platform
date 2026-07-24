@@ -323,3 +323,39 @@ proptest! {
         prop_assert!(config.starting_stack > 0);
     }
 }
+
+// ─── 14. Hand Evaluation & Flush Invariants Fuzz ───
+proptest! {
+    #![proptest_config(get_proptest_config())]
+    #[test]
+    fn evaluate_hand_and_flush_invariants_fuzz(
+        hole_c1 in 0..52usize,
+        hole_c2 in 0..52usize,
+        board_c1 in 0..52usize,
+        board_c2 in 0..52usize,
+        board_c3 in 0..52usize,
+        board_c4 in 0..52usize,
+        board_c5 in 0..52usize,
+    ) {
+        let deck = crate::deck::create_deck();
+        let hole = vec![deck[hole_c1 % 52], deck[hole_c2 % 52]];
+        let board = vec![
+            deck[board_c1 % 52],
+            deck[board_c2 % 52],
+            deck[board_c3 % 52],
+            deck[board_c4 % 52],
+            deck[board_c5 % 52],
+        ];
+
+        let result = crate::deck::evaluate_hand(&hole, &board);
+        prop_assert!(result.value >= 1 && result.value <= 10);
+        if result.rank == crate::deck::HandRank::Flush {
+            prop_assert_eq!(result.cards.len(), 5);
+            // Todas as 5 cartas do Flush devem ter o mesmo naipe
+            let first_suit = result.cards[0].suit;
+            for card in &result.cards {
+                prop_assert_eq!(card.suit, first_suit);
+            }
+        }
+    }
+}

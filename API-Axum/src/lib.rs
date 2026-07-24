@@ -46,15 +46,35 @@ use axum::middleware::from_extractor_with_state;
 ///   - POST /api/payments/pix/withdraw
 pub fn build_router(state: AppState) -> Router {
     Router::new()
-        // ─── Auth routes (public) ───
-        .route("/api/auth/register", post(auth::register))
-        .route("/api/auth/login", post(auth::login))
+        // ─── Auth routes (public + rate limited) ───
+        .route(
+            "/api/auth/register",
+            post(auth::register).route_layer(from_extractor_with_state::<EnforceRateLimit, AppState>(
+                state.clone(),
+            )),
+        )
+        .route(
+            "/api/auth/login",
+            post(auth::login).route_layer(from_extractor_with_state::<EnforceRateLimit, AppState>(
+                state.clone(),
+            )),
+        )
         .route("/api/auth/mfa/verify", post(auth::mfa_verify_with_username))
         .route("/api/auth/refresh", post(auth::refresh))
-        // ─── Payment routes (PIX Deposit, Webhook & Withdraw) ───
-        .route("/api/payments/pix/deposit", post(payments_routes::create_pix_deposit_handler))
+        // ─── Payment routes (PIX Deposit, Webhook & Withdraw + rate limited) ───
+        .route(
+            "/api/payments/pix/deposit",
+            post(payments_routes::create_pix_deposit_handler).route_layer(
+                from_extractor_with_state::<EnforceRateLimit, AppState>(state.clone()),
+            ),
+        )
         .route("/api/webhooks/pix", post(payments_routes::pix_webhook_handler))
-        .route("/api/payments/pix/withdraw", post(payments_routes::create_pix_withdraw_handler))
+        .route(
+            "/api/payments/pix/withdraw",
+            post(payments_routes::create_pix_withdraw_handler).route_layer(
+                from_extractor_with_state::<EnforceRateLimit, AppState>(state.clone()),
+            ),
+        )
         // ─── Lobby routes ───
         .route("/api/lobby/tables", get(lobby::list_tables))
         .route(

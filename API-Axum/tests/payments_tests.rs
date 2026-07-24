@@ -29,6 +29,7 @@ fn make_test_state() -> AppState {
         tournaments: Arc::new(Mutex::new(HashMap::new())),
         active_tables: Arc::new(Mutex::new(HashMap::new())),
         jwt_secret: "payments-jwt-secret-key-32chars".to_string(),
+        rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
     }
 }
 

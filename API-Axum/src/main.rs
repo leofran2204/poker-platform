@@ -68,6 +68,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         tournaments: std::sync::Arc::new(tokio::sync::Mutex::new(std::collections::HashMap::new())),
         active_tables: std::sync::Arc::new(tokio::sync::Mutex::new(std::collections::HashMap::new())),
         jwt_secret,
+        rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
     };
 
     // CORS

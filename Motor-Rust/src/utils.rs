@@ -102,12 +102,78 @@ pub fn mc_error_bound(samples: u64, max_boards: u64) -> f64 {
     crate::loss_deflator::mc_error_bound(samples, max_boards)
 }
 
+/// Divide um valor de pote igualmente entre N vencedores empatados (split pot).
+/// Aplica a regra oficial do Poker Internacional (WSOP / TDA Regra 68):
+///   1. Trunca o valor base de cada jogador para 2 casas decimais.
+///   2. Os centavos remanescentes indivisíveis (resto R$ 0,01) são atribuídos de 1 em 1
+///      aos vencedores empatados na ordem dos assentos a partir do primeiro à esquerda do Botão (Dealer).
+pub fn dividir_pote_empatado(
+    pote_amount: f64,
+    vencedores_ids: &[String],
+    ordem_assentos: &[String],
+) -> std::collections::HashMap<String, f64> {
+    let mut payouts = std::collections::HashMap::new();
+    let n = vencedores_ids.len();
+    if n == 0 || pote_amount <= 0.0 {
+        return payouts;
+    }
+
+    let valor_base = truncar_2_casas(pote_amount / n as f64);
+    let total_base = truncar_2_casas(valor_base * n as f64);
+    let mut centavos_restantes = ((pote_amount - total_base) * 100.0).round() as i32;
+
+    for id in vencedores_ids {
+        payouts.insert(id.clone(), valor_base);
+    }
+
+    // Atribui o centavo ímpar aos jogadores empatados na ordem dos assentos à esquerda do botão
+    for id in ordem_assentos {
+        if centavos_restantes <= 0 {
+            break;
+        }
+        if vencedores_ids.contains(id) {
+            if let Some(val) = payouts.get_mut(id) {
+                *val = truncar_2_casas(*val + 0.01);
+                centavos_restantes -= 1;
+            }
+        }
+    }
+
+    payouts
+}
+
 // ─── Testes ───
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::types::Pot;
+
+    #[test]
+    fn test_dividir_pote_empatado_odd_cent_to_left_of_button() {
+        // Pote de 10.05 para 2 jogadores (alice e bob). Assentos: alice, bob
+        let vencedores = vec!["alice".to_string(), "bob".to_string()];
+        let ordem_assentos = vec!["alice".to_string(), "bob".to_string()];
+        let payouts = dividir_pote_empatado(10.05, &vencedores, &ordem_assentos);
+
+        assert_eq!(*payouts.get("alice").unwrap(), 5.03);
+        assert_eq!(*payouts.get("bob").unwrap(), 5.02);
+        assert_eq!(payouts.get("alice").unwrap() + payouts.get("bob").unwrap(), 10.05);
+    }
+
+    #[test]
+    fn test_dividir_pote_empatado_tres_jogadores() {
+        // Pote de 10.00 para 3 jogadores (p1, p2, p3). 10.00 / 3 = 3.33 + 0.01 de resto
+        let vencedores = vec!["p1".to_string(), "p2".to_string(), "p3".to_string()];
+        let ordem_assentos = vec!["p1".to_string(), "p2".to_string(), "p3".to_string()];
+        let payouts = dividir_pote_empatado(10.00, &vencedores, &ordem_assentos);
+
+        assert_eq!(*payouts.get("p1").unwrap(), 3.34);
+        assert_eq!(*payouts.get("p2").unwrap(), 3.33);
+        assert_eq!(*payouts.get("p3").unwrap(), 3.33);
+        let total: f64 = payouts.values().sum();
+        assert_eq!(truncar_2_casas(total), 10.00);
+    }
 
     #[test]
     fn test_truncar_2_casas() {
