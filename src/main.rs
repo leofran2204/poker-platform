@@ -1,12 +1,14 @@
 use poker_engine::antifraud::{CollusionDetector, PlayerSession};
 use poker_engine::auth::{generate_totp_code, verify_totp_code};
-use poker_engine::crypto::ProvablyFairHand;
 use poker_engine::engine::evaluator::{evaluate_hand, Card, Rank, Suit};
 use poker_engine::engine::{calculate_side_pots, Contribution};
 use poker_engine::ledger::{EntryType, LedgerAccount};
 use poker_engine::security::RateLimiter;
+use poker_engine::server::{TableActor, TableMessage, WebSocketServer, WsActionType, WsIncomingPacket};
 use poker_engine::tournament::{BlindStructure, Tournament};
 use std::collections::HashMap;
+use tokio::runtime::Runtime;
+use tokio::sync::mpsc;
 
 fn main() {
     println!("========================================================");
@@ -74,13 +76,41 @@ fn main() {
     let _ = tournament.register_player("P3", "Charlie", &acc3);
     println!("7. Inscrições de Torneio: Prize Pool = R$ {:.2}\n", tournament.prize_pool_cents as f64 / 100.0);
 
-    // --- PROVABLY FAIR & FAIRNESS TRANSPARENCY ---
-    println!("--- [TRANSPARÊNCIA CRIPTOGRÁFICA & PROVABLY FAIR] ---");
-    let pf_hand = ProvablyFairHand::new("ClientSeed_xyz", 1);
-    println!("8. Compromisso de Semente do Servidor (SHA-256): {}", pf_hand.server_seed_hash);
-    println!("   Garantia 100% Criptográfica: Servidor NÃO interfere na mesa nem emite recomendações ao vivo.");
+    // --- WEBSOCKET SERVER IN REAL TIME DEMO ---
+    println!("--- [SERVIDOR WEBSOCKET EM TEMPO REAL (TOKIO / AXUM)] ---");
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        let (tx, rx) = mpsc::channel::<TableMessage>(100);
+        let mut table_actor = TableActor::new("Table_Main_1", rx);
+        tokio::spawn(async move {
+            table_actor.run().await;
+        });
+
+        let ws_server = WebSocketServer::new();
+        let _ = ws_server.register_client("Player_Alice");
+        let _ = ws_server.register_client("Player_Bob");
+        println!("8. WebSocket Server Ativo: {} conexões de clientes em tempo real", ws_server.active_clients_count());
+
+        let packet = WsIncomingPacket {
+            player_id: "Player_Alice".into(),
+            action: WsActionType::JoinTable {
+                table_id: "Table_Main_1".into(),
+                ip_address: "203.0.113.88".into(),
+            },
+        };
+
+        let response = ws_server.process_incoming_packet(packet, &tx, "203.0.113.88").await.unwrap();
+        println!("   - Pacote Recebido -> Resposta Roteada via Actor: Evento = '{:?}', Msg = '{}'", response.event_type, response.payload);
+
+        let broadcaster = ws_server.get_or_create_table_broadcaster("Table_Main_1");
+        let mut rx_bc = broadcaster.subscribe();
+        let _ = ws_server.broadcast_to_table("Table_Main_1", "Flop: As-Kh-Qd");
+
+        let msg = rx_bc.recv().await.unwrap();
+        println!("   - Broadcast para Clientes Conectados: Payload = '{}'", msg.payload);
+    });
 
     println!("\n========================================================");
-    println!("  PLATAFORMA 100% INTEGRAL, JUSTA E ISENTA DE RTA ");
+    println!("  TODAS AS CAMADAS E SERVIDOR WEBSOCKET OPERANDO 100% ");
     println!("========================================================");
 }
