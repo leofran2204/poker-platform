@@ -27,12 +27,12 @@ impl Suit {
         }
     }
 
-    /// Cor CSS associada ao naipe (vermelho para copas/ouros, preto para paus/espadas).
+    /// Cor CSS associada ao naipe (vermelho para copas/ouros, escuro para paus/espadas).
     #[must_use]
     pub fn color_class(self) -> &'static str {
         match self {
-            Self::Hearts | Self::Diamonds => "text-red-500",
-            Self::Spades | Self::Clubs => "text-white",
+            Self::Hearts | Self::Diamonds => "text-red-600",
+            Self::Spades | Self::Clubs => "text-gray-900",
         }
     }
 }
@@ -93,12 +93,7 @@ impl PlayingCard {
     }
 }
 
-/// Componente visual de uma carta.
-///
-/// # Props
-///
-/// - `card`: dados da carta (naipe + valor)
-/// - `face_down`: se `true`, mostra o verso em vez da face
+/// Componente visual de uma carta com estética realista e alta legibilidade.
 #[component]
 pub fn Card(card: PlayingCard, face_down: Option<bool>) -> Element {
     let face_down = face_down.unwrap_or(false);
@@ -106,27 +101,32 @@ pub fn Card(card: PlayingCard, face_down: Option<bool>) -> Element {
     if face_down {
         rsx! {
             div {
-                class: "w-16 h-24 bg-gradient-to-br from-blue-700 to-blue-900 \
-                        border-2 border-white/30 rounded-lg shadow-lg \
-                        flex items-center justify-center",
+                class: "w-16 h-24 bg-gradient-to-br from-indigo-800 via-blue-900 to-indigo-950 \
+                        border-2 border-amber-400/40 rounded-xl shadow-xl \
+                        flex items-center justify-center transform hover:scale-105 transition-transform duration-200",
                 div {
-                    class: "text-2xl text-white/50",
-                    "🂠"
+                    class: "text-2xl text-amber-400/70 font-bold",
+                    "♠"
                 }
             }
         }
     } else {
         rsx! {
             div {
-                class: "w-16 h-24 bg-white border border-gray-300 rounded-lg shadow-lg \
-                        flex flex-col items-center justify-center p-1",
+                class: "w-16 h-24 bg-slate-50 border-2 border-slate-300 rounded-xl shadow-xl \
+                        flex flex-col items-center justify-between p-2 select-none \
+                        transform hover:scale-105 transition-transform duration-200",
                 div {
-                    class: "text-lg font-bold leading-none {card.suit.color_class()}",
+                    class: "text-base font-extrabold leading-none self-start {card.suit.color_class()}",
                     "{card.rank.label()}"
                 }
                 div {
-                    class: "text-2xl leading-none {card.suit.color_class()}",
+                    class: "text-3xl leading-none {card.suit.color_class()}",
                     "{card.suit.symbol()}"
+                }
+                div {
+                    class: "text-xs font-bold leading-none self-end rotate-180 {card.suit.color_class()}",
+                    "{card.rank.label()}"
                 }
             }
         }
@@ -147,10 +147,10 @@ mod tests {
 
     #[test]
     fn test_suit_colors() {
-        assert_eq!(Suit::Hearts.color_class(), "text-red-500");
-        assert_eq!(Suit::Diamonds.color_class(), "text-red-500");
-        assert_eq!(Suit::Spades.color_class(), "text-white");
-        assert_eq!(Suit::Clubs.color_class(), "text-white");
+        assert_eq!(Suit::Hearts.color_class(), "text-red-600");
+        assert_eq!(Suit::Diamonds.color_class(), "text-red-600");
+        assert_eq!(Suit::Spades.color_class(), "text-gray-900");
+        assert_eq!(Suit::Clubs.color_class(), "text-gray-900");
     }
 
     #[test]
