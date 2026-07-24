@@ -163,4 +163,9 @@ impl LedgerAccount {
 
         Ok(true)
     }
+
+    pub fn get_history(&self) -> Result<Vec<LedgerEntry>, LedgerError> {
+        let state = self.inner.lock().map_err(|_| LedgerError::LockError)?;
+        Ok(state.history.clone())
+    }
 }

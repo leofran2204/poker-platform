@@ -27,6 +27,25 @@ pub struct PlayerBehaviorStats {
 }
 
 impl PlayerBehaviorStats {
+    pub fn new(user_id: impl Into<String>) -> Self {
+        Self {
+            user_id: user_id.into(),
+            hands_played: 0,
+            hands_vpip: 0,
+            hands_pfr: 0,
+        }
+    }
+
+    pub fn record_hand(&mut self, vpip: bool, pfr: bool) {
+        self.hands_played += 1;
+        if vpip {
+            self.hands_vpip += 1;
+        }
+        if pfr {
+            self.hands_pfr += 1;
+        }
+    }
+
     pub fn vpip_percentage(&self) -> f64 {
         if self.hands_played == 0 {
             0.0

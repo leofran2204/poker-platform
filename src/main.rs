@@ -1,4 +1,5 @@
-use poker_engine::antifraud::{CollusionDetector, PlayerSession};
+use poker_engine::admin::AdminDashboard;
+use poker_engine::antifraud::{CollusionDetector, PlayerBehaviorStats, PlayerSession};
 use poker_engine::auth::{generate_totp_code, verify_totp_code};
 use poker_engine::engine::evaluator::{evaluate_hand, Card, Rank, Suit};
 use poker_engine::engine::{calculate_side_pots, Contribution};
@@ -100,17 +101,33 @@ fn main() {
         };
 
         let response = ws_server.process_incoming_packet(packet, &tx, "203.0.113.88").await.unwrap();
-        println!("   - Pacote Recebido -> Resposta Roteada via Actor: Evento = '{:?}', Msg = '{}'", response.event_type, response.payload);
-
-        let broadcaster = ws_server.get_or_create_table_broadcaster("Table_Main_1");
-        let mut rx_bc = broadcaster.subscribe();
-        let _ = ws_server.broadcast_to_table("Table_Main_1", "Flop: As-Kh-Qd");
-
-        let msg = rx_bc.recv().await.unwrap();
-        println!("   - Broadcast para Clientes Conectados: Payload = '{}'", msg.payload);
+        println!("   - Pacote Recebido -> Resposta Roteada via Actor: Evento = '{:?}', Msg = '{}'\n", response.event_type, response.payload);
     });
 
+    // --- DASHBOARD ADMINISTRATIVO & GESTÃO DE RISCO DEMO ---
+    println!("--- [DASHBOARD ADMINISTRATIVO & GESTÃO DE RISCO] ---");
+    let admin = AdminDashboard::new();
+    
+    // 1. Auditoria Financeira do Ledger
+    let audit = admin.audit_ledger_account(&ledger);
+    println!("9. Auditoria Criptográfica do Ledger: Saldo = R$ {:.2} | Cadeia de Hashes Integras: {}", audit.account_balance_cents as f64 / 100.0, audit.hash_chain_valid);
+
+    // 2. Análise de Risco e Suspensão
+    let mut bad_stats = PlayerBehaviorStats::new("Bot_Suspeito_X");
+    for _ in 0..30 {
+        bad_stats.record_hand(true, true);
+    }
+    if let Some(risk_rep) = admin.analyze_player_risk(&bad_stats) {
+        println!("   - Alerta Antifraude: Jogador '{}' -> Motivo: {}", risk_rep.user_id, risk_rep.reason);
+        let ban_msg = admin.suspend_player(&risk_rep.user_id, &risk_rep.reason);
+        println!("   - Ação Administrativa: {}", ban_msg);
+    }
+
+    admin.update_metrics(1250, 85, 250000000); // 1.250 conexões, 85 mesas, R$ 2,5 Milhões
+    let metrics = admin.get_metrics();
+    println!("   - Métricas de Cluster: Conexões = {} | Mesas Ativas = {} | Volume = R$ {:.2}", metrics.active_connections, metrics.active_tables, metrics.total_volume_cents as f64 / 100.0);
+
     println!("\n========================================================");
-    println!("  TODAS AS CAMADAS E SERVIDOR WEBSOCKET OPERANDO 100% ");
+    println!(" ALL SYSTEMS OPERATIONAL: ENGINE, SECURITY, ADMIN & WS  ");
     println!("========================================================");
 }
