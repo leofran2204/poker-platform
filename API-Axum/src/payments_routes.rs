@@ -114,7 +114,7 @@ pub async fn create_pix_deposit_handler(
 
 /// POST /api/webhooks/pix — Recebe confirmação instantânea do pagamento PIX e credita o saldo
 pub async fn pix_webhook_handler(
-    State(_state): State<AppState>,
+    State(state): State<AppState>,
     headers: HeaderMap,
     body: axum::body::Bytes,
 ) -> impl IntoResponse {
@@ -147,6 +147,15 @@ pub async fn pix_webhook_handler(
             Json(serde_json::json!({ "status": "IGNORED", "message": "Status não liquidador" })),
         );
     }
+
+    // Executar atualização real do saldo na base de dados (se houver transação registrada)
+    let _ = sqlx::query(
+        "UPDATE users SET balance = balance + $1 WHERE id = (SELECT user_id FROM transactions WHERE tx_id = $2)"
+    )
+    .bind(payload.amount)
+    .bind(&payload.tx_id)
+    .execute(&state.db)
+    .await;
 
     (
         StatusCode::OK,

@@ -4013,5 +4013,119 @@ mod resolve_showdown_errors_tests {
         assert_eq!(gl.state.active_player_index, 1);
         assert_eq!(gl.state.players[gl.state.active_player_index].id, "bob");
     }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // Lote 7 — Suíte de Estresse Massivo & Invariantes Financeiras Extremas
+    // ═══════════════════════════════════════════════════════════════════
+
+    #[test]
+    fn test_ante_blinds_total_bet_preservation_massive_stress() {
+        // 1.000 iterações testando conservação perfeita de Ante + Blinds no total_bet
+        for ante_val in 1..=1000 {
+            let ante = ante_val as f64 * 0.5;
+            let mut gl = GameLoop::new(
+                make_config(),
+                format!("hand-ante-{}", ante_val),
+                "Ante Table".to_string(),
+                GameType::Cash,
+            )
+            .with_ante(ante);
+
+            gl.add_player("p0".to_string(), 1000.0);
+            gl.add_player("p1".to_string(), 1000.0);
+            gl.add_player("p2".to_string(), 1000.0);
+            gl.set_dealer(0);
+
+            gl.start_hand().unwrap();
+
+            // SB index = 1 (p1), BB index = 2 (p2)
+            let sb_player = &gl.state.players[1];
+            let bb_player = &gl.state.players[2];
+
+            // Garante que total_bet de SB é EXACTAMENTE Ante + SB
+            let expected_sb_total = ante + gl.state.small_blind;
+            let expected_bb_total = ante + gl.state.big_blind;
+
+            assert!(
+                (sb_player.total_bet - expected_sb_total).abs() < f64::EPSILON,
+                "SB total_bet incorreto no teste {}: obtido {}, esperado {}",
+                ante_val,
+                sb_player.total_bet,
+                expected_sb_total
+            );
+
+            assert!(
+                (bb_player.total_bet - expected_bb_total).abs() < f64::EPSILON,
+                "BB total_bet incorreto no teste {}: obtido {}, esperado {}",
+                ante_val,
+                bb_player.total_bet,
+                expected_bb_total
+            );
+        }
+    }
+
+    #[test]
+    fn test_chip_conservation_under_multiway_all_in_stress() {
+        // 500 cenários de All-In com stacks heterogêneos e validação da invariante financeira
+        for seed in 1..=500 {
+            let mut gl = GameLoop::new(
+                make_config(),
+                format!("hand-stress-{}", seed),
+                "Stress Table".to_string(),
+                GameType::Cash,
+            )
+            .with_ante(seed as f64 * 0.2);
+
+            let s0 = 50.0 + (seed as f64 * 1.5);
+            let s1 = 100.0 + (seed as f64 * 2.0);
+            let s2 = 200.0 + (seed as f64 * 3.0);
+
+            let initial_sum = s0 + s1 + s2;
+
+            gl.add_player("p0".to_string(), s0);
+            gl.add_player("p1".to_string(), s1);
+            gl.add_player("p2".to_string(), s2);
+            gl.set_dealer(0);
+
+            if gl.start_hand().is_ok() {
+                let pot_sum = gl.state.total_pot();
+                let remaining_stacks_sum: f64 = gl.state.players.iter().map(|p| p.stack).sum();
+                let current_total = pot_sum + remaining_stacks_sum;
+
+                assert!(
+                    (initial_sum - current_total).abs() < 0.01,
+                    "Invariante financeira quebrada no seed {}: inicial {}, atual {}",
+                    seed,
+                    initial_sum,
+                    current_total
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_micro_stack_less_than_small_blind_stress() {
+        // Testa a robustez quando o jogador entra com stack menor que o SB (ex: 1.0 ficha com SB=5.0)
+        for micro_stack in [0.1, 0.5, 1.0, 2.0, 3.0, 4.0] {
+            let mut gl = GameLoop::new(
+                make_config(), // SB = 5.0, BB = 10.0
+                format!("hand-micro-{}", micro_stack),
+                "Micro Stack Table".to_string(),
+                GameType::Cash,
+            );
+
+            gl.add_player("alice".to_string(), micro_stack);
+            gl.add_player("bob".to_string(), 500.0);
+            gl.set_dealer(1); // bob é dealer, alice é SB com micro_stack
+
+            assert!(gl.start_hand().is_ok());
+
+            // Alice deve estar All-In no SB porque seu stack era < SB
+            let alice = &gl.state.players[0];
+            assert!(alice.is_all_in);
+            assert_eq!(alice.stack, 0.0);
+            assert_eq!(alice.total_bet, micro_stack);
+        }
+    }
 }
 

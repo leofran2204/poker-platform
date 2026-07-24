@@ -354,13 +354,13 @@ impl GameLoop {
         let sb_amount = self.state.small_blind.min(self.state.players[sb_index].stack);
         self.state.players[sb_index].stack -= sb_amount;
         self.state.players[sb_index].current_bet = sb_amount;
-        self.state.players[sb_index].total_bet = sb_amount;
+        self.state.players[sb_index].total_bet += sb_amount;
 
         // Big blind
         let bb_amount = self.state.big_blind.min(self.state.players[bb_index].stack);
         self.state.players[bb_index].stack -= bb_amount;
         self.state.players[bb_index].current_bet = bb_amount;
-        self.state.players[bb_index].total_bet = bb_amount;
+        self.state.players[bb_index].total_bet += bb_amount;
 
         // Verificar all-in por blinds
         if self.state.players[sb_index].stack == 0.0 {

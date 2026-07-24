@@ -35,24 +35,40 @@ pub async fn game_websocket(
 async fn handle_game_socket(socket: WebSocket, state: AppState, table_id: String, token: Option<String>) {
     let (mut ws_sender, mut ws_receiver) = socket.split();
 
-    // 1. Authenticate user, fallback to guest in development / fallback scenarios
-    let (user_id, username) = if let Some(ref t) = token {
-        if !t.is_empty() {
+    // 1. Authenticate user via JWT token
+    let (user_id, username) = match token {
+        Some(ref t) if !t.is_empty() => {
             let auth = state.auth.lock().await;
             match auth.validate_token(t, "access") {
                 Ok(claims) => (claims.sub, claims.username),
-                Err(_) => {
-                    let guest_id = format!("guest_{}", &uuid::Uuid::new_v4().to_string()[..6]);
-                    (guest_id.clone(), guest_id)
+                Err(err) => {
+                    warn!("WebSocket connection rejected: invalid JWT token ({:?})", err);
+                    let _ = ws_sender
+                        .send(Message::Text(
+                            serde_json::json!({
+                                "type": "error",
+                                "message": "Token de autenticação inválido ou expirado"
+                            })
+                            .to_string(),
+                        ))
+                        .await;
+                    return;
                 }
             }
-        } else {
-            let guest_id = format!("guest_{}", &uuid::Uuid::new_v4().to_string()[..6]);
-            (guest_id.clone(), guest_id)
         }
-    } else {
-        let guest_id = format!("guest_{}", &uuid::Uuid::new_v4().to_string()[..6]);
-        (guest_id.clone(), guest_id)
+        _ => {
+            warn!("WebSocket connection rejected: missing JWT token");
+            let _ = ws_sender
+                .send(Message::Text(
+                    serde_json::json!({
+                        "type": "error",
+                        "message": "Token de autenticação ausente"
+                    })
+                    .to_string(),
+                ))
+                .await;
+            return;
+        }
     };
 
     info!("User '{}' ({}) connecting to table {}", username, user_id, table_id);

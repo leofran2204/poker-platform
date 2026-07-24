@@ -167,10 +167,17 @@ impl TableActor {
         
         // Se o jogador sair e a mão estiver em andamento, devemos dar fold nele
         if let Some(ref mut gl) = self.game_loop {
-            let active_idx = gl.state.active_player_index;
-            if let Some(active_p) = gl.state.players.get(active_idx) {
-                if active_p.id == player_id {
+            if !gl.state.is_finished {
+                let active_idx = gl.state.active_player_index;
+                let is_active_turn = gl.state.players.get(active_idx).map(|p| p.id.as_str()) == Some(player_id.as_str());
+
+                if is_active_turn {
                     let _ = gl.player_action(&player_id, PlayerMove::Fold);
+                } else if let Some(p) = gl.state.players.iter_mut().find(|p| p.id == player_id) {
+                    p.has_folded = true;
+                    if gl.state.players_in_hand_count() <= 1 {
+                        gl.state.is_finished = true;
+                    }
                 }
             }
         }
