@@ -57,7 +57,7 @@ fn test_hand_history_export_pokerstars_format() {
 
     let exported_text = record.export_pokerstars_format();
     assert!(exported_text.contains("Poker Hand #HAND-999"));
-    assert!(exported_text.contains("Alice (R$1000.00 in chips)"));
+    assert!(exported_text.contains("Alice (1000.00 Fichas)"));
     assert!(exported_text.contains("*** HOLE CARDS ***"));
     assert!(exported_text.contains("Provably Fair Server Seed: SecretServerSeed_123456789"));
 

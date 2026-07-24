@@ -29,7 +29,7 @@ fn main() {
         Contribution { player_id: "Player_C".into(), total_bet: 500.0, has_folded: false },
     ];
     let side_pots = calculate_side_pots(&contributions);
-    println!("1. Side Pots (Fix Folded): Pote 1 = R$ {:.2} | Elegíveis: {:?}", side_pots[0].amount, side_pots[0].eligible_players);
+    println!("1. Side Pots (Fix Folded): Pote 1 = {:.2} Fichas | Elegíveis: {:?}", side_pots[0].amount, side_pots[0].eligible_players);
 
     let secret = b"12345678901234567890";
     let code = generate_totp_code(secret, 30, 1700000000).unwrap();
@@ -37,7 +37,7 @@ fn main() {
 
     let ledger = LedgerAccount::new("User_123", 100000);
     let _ = ledger.record_transaction(50000, EntryType::Deposit, Some("DEP-001".into()));
-    println!("3. Ledger Imutável: Saldo = R$ {:.2} | Auditoria Hash = OK\n", ledger.get_balance_cents().unwrap() as f64 / 100.0);
+    println!("3. Ledger Imutável: Saldo = {:.2} Fichas | Auditoria Hash = OK\n", ledger.get_balance_cents().unwrap() as f64 / 100.0);
 
     // --- SPRINT 2 DEMOS ---
     println!("--- [SPRINT 2: PERFORMANCE, SEGURANÇA & ANTIFRAUDE] ---");
@@ -135,7 +135,7 @@ fn main() {
     println!("--- [DASHBOARD ADMINISTRATIVO & GESTÃO DE RISCO] ---");
     let admin = AdminDashboard::new();
     let audit = admin.audit_ledger_account(&ledger);
-    println!("10. Auditoria Criptográfica do Ledger: Saldo = R$ {:.2} | Cadeia de Hashes Integras: {}\n", audit.account_balance_cents as f64 / 100.0, audit.hash_chain_valid);
+    println!("10. Auditoria Criptográfica do Ledger: Saldo = {:.2} Fichas | Cadeia de Hashes Integras: {}\n", audit.account_balance_cents as f64 / 100.0, audit.hash_chain_valid);
 
     // --- SERVIÇO DE HISTÓRICO DE MÃOS & REPLAY PROVABLY FAIR ---
     println!("--- [SERVIÇO DE HISTÓRICO DE MÃOS & REPLAY PROVABLY FAIR] ---");

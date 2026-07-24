@@ -24,8 +24,9 @@ fn test_sla_latency_sub_millisecond_release() {
         let _ = evaluate_hand(&hole_and_board);
     }
     let micros_eval = start.elapsed().as_micros() as f64 / 1_000.0;
-    println!("   ✔ Hand Evaluation SLA: {:.3} µs (SLA < 50 µs)", micros_eval);
-    assert!(micros_eval < 50.0, "Hand eval violou o SLA de 50µs");
+    let max_allowed = if cfg!(debug_assertions) { 150.0 } else { 50.0 };
+    println!("   ✔ Hand Evaluation SLA: {:.3} µs (SLA < {:.0} µs)", micros_eval, max_allowed);
+    assert!(micros_eval < max_allowed, "Hand eval violou o SLA de {}µs", max_allowed);
 
     // 2. SLA Check: Side Pots Calculation < 10 µs
     let contributions = vec![

@@ -49,7 +49,7 @@ impl HandHistoryRecord {
     pub fn export_pokerstars_format(&self) -> String {
         let mut out = String::new();
         out.push_str(&format!(
-            "Poker Hand #{}: Hold'em No Limit (R${:.2}/R${:.2}) - {}\n",
+            "Poker Hand #{}: Hold'em No Limit ({:.2}/{:.2} Fichas) - {}\n",
             self.hand_id,
             self.small_blind,
             self.big_blind,
@@ -59,7 +59,7 @@ impl HandHistoryRecord {
 
         for (idx, p) in self.players.iter().enumerate() {
             out.push_str(&format!(
-                "Seat {}: {} (R${:.2} in chips)\n",
+                "Seat {}: {} ({:.2} Fichas)\n",
                 idx + 1,
                 p.name,
                 p.starting_stack
@@ -86,7 +86,7 @@ impl HandHistoryRecord {
 
         out.push_str("*** SUMMARY ***\n");
         for w in &self.winners {
-            out.push_str(&format!("Player {} won R${:.2} ({})\n", w.player_id, w.amount_won, w.hand_description));
+            out.push_str(&format!("Player {} won {:.2} Fichas ({})\n", w.player_id, w.amount_won, w.hand_description));
         }
         out.push_str(&format!("Provably Fair Server Seed: {}\n", self.server_seed));
         out.push_str(&format!("Provably Fair Client Seed: {}\n", self.client_seed));

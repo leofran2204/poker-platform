@@ -215,7 +215,7 @@ impl WebSocketServer {
                 let resp = resp_rx.await.map_err(|_| "Timeout de resposta".to_string())?;
                 match resp {
                     Ok(_state) => {
-                        let broadcast_msg = format!("Jogador {} apostou R$ {:.2}", packet.player_id, amount);
+                        let broadcast_msg = format!("Jogador {} apostou {:.2} Fichas", packet.player_id, amount);
                         let _ = self.broadcast_to_table("Table_1", &broadcast_msg);
 
                         Ok(WsOutgoingPacket {
