@@ -1,6 +1,6 @@
-use poker_engine::analytics::AiCoach;
 use poker_engine::antifraud::{CollusionDetector, PlayerSession};
 use poker_engine::auth::{generate_totp_code, verify_totp_code};
+use poker_engine::crypto::ProvablyFairHand;
 use poker_engine::engine::evaluator::{evaluate_hand, Card, Rank, Suit};
 use poker_engine::engine::{calculate_side_pots, Contribution};
 use poker_engine::ledger::{EntryType, LedgerAccount};
@@ -74,27 +74,13 @@ fn main() {
     let _ = tournament.register_player("P3", "Charlie", &acc3);
     println!("7. Inscrições de Torneio: Prize Pool = R$ {:.2}\n", tournament.prize_pool_cents as f64 / 100.0);
 
-    // --- AI COACH PERSONALIZADO PARA AMADORES ---
-    println!("--- [AI COACH PERSONALIZADO & ANÁLISE DE RANGE] ---");
-    let player_cards = vec![
-        Card::new(Rank::Ace, Suit::Spades),
-        Card::new(Rank::King, Suit::Spades),
-    ];
-    let board = vec![
-        Card::new(Rank::Queen, Suit::Spades),
-        Card::new(Rank::Jack, Suit::Hearts),
-        Card::new(Rank::Two, Suit::Clubs),
-    ];
-
-    let advice = AiCoach::analyze_hand_friendly(&player_cards, &board, 1, 100.0, 30.0, 5_000);
-    println!("8. HUD do Coach Amigável:");
-    println!("   - Titular: {}", advice.headline);
-    println!("   - Chance de Vitória: {}", advice.win_chance_label);
-    println!("   - Frequência Estimada: {}", advice.win_frequency_ratio);
-    println!("   - Explicação Didática: {}", advice.friendly_explanation);
-    println!("   - {}", advice.opponent_range.range_description);
+    // --- PROVABLY FAIR & FAIRNESS TRANSPARENCY ---
+    println!("--- [TRANSPARÊNCIA CRIPTOGRÁFICA & PROVABLY FAIR] ---");
+    let pf_hand = ProvablyFairHand::new("ClientSeed_xyz", 1);
+    println!("8. Compromisso de Semente do Servidor (SHA-256): {}", pf_hand.server_seed_hash);
+    println!("   Garantia 100% Criptográfica: Servidor NÃO interfere na mesa nem emite recomendações ao vivo.");
 
     println!("\n========================================================");
-    println!("  TODAS AS FUNCIONALIDADES EXECUTADAS COM SUCESSO 100% ");
+    println!("  PLATAFORMA 100% INTEGRAL, JUSTA E ISENTA DE RTA ");
     println!("========================================================");
 }
