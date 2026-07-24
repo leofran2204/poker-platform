@@ -5,6 +5,14 @@ edition = "2021"
 authors = ["Poker Platform Team"]
 description = "High-performance Rust Poker Engine with zero-deadlock game loop, side pots, TOTP, and immutable ledger."
 
+[[bin]]
+name = "poker_engine"
+path = "src/main.rs"
+
+[[bin]]
+name = "poker_engine_benchmarks"
+path = "benches/poker_engine_benchmarks.rs"
+
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
