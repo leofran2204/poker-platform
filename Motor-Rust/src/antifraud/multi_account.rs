@@ -96,6 +96,7 @@ impl Default for MultiAccountThresholds {
 
 // ─── Detector de Multi-Conta ───
 
+#[derive(Debug, Clone)]
 pub struct MultiAccountDetector {
     /// Fingerprints registrados por player_id
     fingerprints: HashMap<String, PlayerFingerprint>,

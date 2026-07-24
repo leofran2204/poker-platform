@@ -7,7 +7,7 @@ use crate::side_pots::{calculate_side_pots, PlayerForPots};
 use crate::loss_deflator::{calculate_progressive_loss_deflator, ProgressiveLossDeflatorParams};
 use crate::hand_history::HandHistory;
 use crate::auth::AuthManager;
-use crate::antifraud::{bot_detection::BotDetector, collusion::CollusionAnalyzer, RiskScore};
+use crate::antifraud::{bot_detection::BotDetector, RiskScore};
 use crate::tournament_engine::{TournamentConfig, TournamentSpeed};
 use crate::types::{Pot, GamePhase};
 use crate::deck::{create_deck, shuffle_deck, Card, Suit, Rank, evaluate_hand};

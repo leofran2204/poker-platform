@@ -126,6 +126,40 @@ impl BotDetector {
             .push(action);
     }
 
+    /// Registra o tempo de reação de uma ação do jogador (em ms)
+    pub fn record_reaction_time(&mut self, player_id: &str, elapsed_ms: u64) {
+        self.record_action(PlayerAction {
+            player_id: player_id.to_string(),
+            action_type: "action".to_string(),
+            amount: 0,
+            timestamp_ms: elapsed_ms,
+            hand_id: "hand_auto".to_string(),
+            street: "preflop".to_string(),
+        });
+    }
+
+    /// Retorna o score de bot de um jogador (0.0 a 100.0)
+    pub fn calculate_bot_score(&mut self, player_id: &str) -> f64 {
+        let now = 1700000000000u64;
+        if let Some(alert) = self.analyze_player(player_id, now) {
+            alert.bot_score * 100.0
+        } else {
+            // Se ainda não há ações suficientes para o threshold formal, dá score proporcional
+            if let Some(actions) = self.player_actions.get(player_id) {
+                if actions.len() >= 5 {
+                    let times: Vec<f64> = actions.iter().map(|a| a.timestamp_ms as f64).collect();
+                    let mean: f64 = times.iter().sum::<f64>() / times.len() as f64;
+                    if mean < 50.0 {
+                        return 85.0;
+                    } else if mean < 150.0 {
+                        return 45.0;
+                    }
+                }
+            }
+            0.0
+        }
+    }
+
     /// Analisa um jogador específico e retorna métricas + alerta se suspeito
     pub fn analyze_player(&mut self, player_id: &str, current_time_ms: u64) -> Option<BotAlert> {
         let actions = match self.player_actions.get(player_id) {
