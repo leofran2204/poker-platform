@@ -55,6 +55,7 @@ pub struct TableActor {
     pub dealer_index: usize,
     pub antifraud: poker_engine::antifraud::AntiFraudSuite,
     pub last_turn_start: Option<tokio::time::Instant>,
+    pub db: Option<sqlx::PgPool>,
 }
 
 impl TableActor {
@@ -76,7 +77,13 @@ impl TableActor {
             dealer_index: 0,
             antifraud: poker_engine::antifraud::AntiFraudSuite::new(),
             last_turn_start: Some(tokio::time::Instant::now()),
+            db: None,
         }
+    }
+
+    pub fn with_db(mut self, db: sqlx::PgPool) -> Self {
+        self.db = Some(db);
+        self
     }
 
     pub async fn run(mut self) {
@@ -233,6 +240,36 @@ impl TableActor {
             // Resolver a mão
             if let Ok(res) = game_loop.resolve_hand() {
                 game_loop.finalize_history(&res);
+
+                // Persistir histórico da mão no PostgreSQL (operação desacoplada em background)
+                if let Some(history) = game_loop.get_history() {
+                    if let Ok(history_json) = serde_json::to_value(history) {
+                        let db_opt = self.db.clone();
+                        let hand_id = history.hand_id.clone();
+                        let pot = history.total_pot;
+                        let rake = history.rake;
+                        let reason = format!("{:?}", history.end_reason);
+
+                        tokio::spawn(async move {
+                            if let Some(db) = db_opt {
+                                let uuid_val = uuid::Uuid::parse_str(&hand_id).unwrap_or_else(|_| uuid::Uuid::new_v4());
+                                let _ = sqlx::query(
+                                    "INSERT INTO hand_history (id, table_id, hand_number, game_type, small_blind, big_blind, actions_json, community_cards_json, pot_total, rake_collected, end_reason)
+                                     VALUES ($1, NULL, 1, 'cash', 10, 20, $2, $3, $4, $5, $6)
+                                     ON CONFLICT (id) DO NOTHING"
+                                )
+                                .bind(uuid_val)
+                                .bind(&history_json["actions"])
+                                .bind(&history_json["community_cards"])
+                                .bind(pot as i64)
+                                .bind(rake as i64)
+                                .bind(&reason)
+                                .execute(&db)
+                                .await;
+                            }
+                        });
+                    }
+                }
 
                 // Atualizar os saldos das fichas na mesa baseado nos stacks e payouts
                 for gp in &game_loop.state.players {
