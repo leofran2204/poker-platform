@@ -5,6 +5,7 @@
 // without needing to duplicate the router construction logic.
 
 pub mod error;
+pub mod admin_routes;
 pub mod auth_paseto;
 pub mod binary_codec;
 pub mod telemetry;
@@ -21,6 +22,7 @@ use axum::Router;
 
 use crate::handlers::{auth, hand_history, lobby, tournament, websocket};
 use crate::middleware::auth::RequireAuth;
+use crate::middleware::rate_limit::EnforceRateLimit;
 use crate::state::AppState;
 use axum::middleware::from_extractor_with_state;
 

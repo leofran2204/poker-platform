@@ -9,18 +9,12 @@ use dioxus_router::prelude::*;
 // Re-exporta os componentes de página para uso externo.
 // Os nomes devem coincidir com as variantes do enum `Route` (convenção do
 // `dioxus-router` 0.6: a macro `Routable` chama `Home()`, `Login()`, etc.).
-pub use crate::pages::{home::Home, lobby::Lobby, login::Login, register::Register, table::Table};
+pub use crate::pages::{
+    admin_security::AdminSecurityPage as AdminSecurity, home::Home, lobby::Lobby, login::Login,
+    register::Register, table::Table,
+};
 
 /// Enum que define todas as rotas disponíveis na aplicação.
-///
-/// Cada variante corresponde a um caminho URL e a uma página renderizada.
-///
-/// # Exemplos
-///
-/// - `Route::Home {}` → `/`
-/// - `Route::Login {}` → `/login`
-/// - `Route::Lobby {}` → `/lobby`
-/// - `Route::Table { id }` → `/table/{id}`
 #[derive(Routable, Clone, Debug, PartialEq)]
 pub enum Route {
     /// Rota raiz — landing page com botões Jogar/Configurar.
@@ -42,6 +36,10 @@ pub enum Route {
     /// Tela de mesa de poker — recebe `id` da mesa como parâmetro de path.
     #[route("/table/:id")]
     Table { id: String },
+
+    /// Painel de segurança e antifraude administrativo.
+    #[route("/admin/security")]
+    AdminSecurity {},
 }
 
 /// Componente raiz que monta o `Router` com todas as rotas da aplicação.

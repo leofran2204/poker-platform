@@ -25,8 +25,9 @@ impl PotEntry {
 /// # Props
 ///
 /// - `pots`: lista de potes (principal + side pots)
+/// - `odd_cent_notice`: notificação opcional da regra do centavo ímpar no Showdown (TDA Regra 68)
 #[component]
-pub fn Pot(pots: Vec<PotEntry>) -> Element {
+pub fn Pot(pots: Vec<PotEntry>, odd_cent_notice: Option<String>) -> Element {
     let total: u32 = pots.iter().map(|p| p.amount).sum();
 
     rsx! {
@@ -55,6 +56,12 @@ pub fn Pot(pots: Vec<PotEntry>) -> Element {
                             "{p.label}: {p.amount}"
                         }
                     }
+                }
+            }
+            if let Some(notice) = odd_cent_notice {
+                div {
+                    class: "text-xs text-amber-300 bg-black/75 border border-amber-500/50 rounded px-2 py-0.5 shadow font-semibold animate-pulse",
+                    "🪙 {notice}"
                 }
             }
         }

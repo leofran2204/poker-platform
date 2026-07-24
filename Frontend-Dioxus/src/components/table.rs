@@ -60,6 +60,7 @@ pub fn TableView(
     pots: Vec<PotEntry>,
     available_actions: Vec<ActionKind>,
     on_action: EventHandler<ActionKind>,
+    odd_cent_notice: Option<String>,
 ) -> Element {
     rsx! {
         main {
@@ -85,7 +86,7 @@ pub fn TableView(
                 div {
                     class: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 \
                             flex flex-col items-center gap-4",
-                    Pot { pots: pots.clone() }
+                    Pot { pots: pots.clone(), odd_cent_notice: odd_cent_notice }
                     CommunityCards {
                         cards: community_cards.clone(),
                         stage: stage,

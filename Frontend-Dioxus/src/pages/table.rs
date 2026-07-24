@@ -341,6 +341,7 @@ pub fn Table(id: String) -> Element {
                 pots: snapshot.pots.clone(),
                 available_actions: snapshot.available_actions.clone(),
                 on_action: on_action,
+                odd_cent_notice: None,
             }
 
             // Indicador de status do jogador local
