@@ -58,6 +58,8 @@ services:
       context: ..
       dockerfile: API-Axum/Dockerfile
     container_name: poker_api
+    env_file:
+      - .env
     environment:
       - DATABASE_URL=postgres://user:password@postgres:5432/poker_db
       - JWT_SECRET=test-secret-key-for-poker-platform-2026
