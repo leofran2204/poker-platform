@@ -1,3 +1,4 @@
+pub mod analytics;
 pub mod antifraud;
 pub mod auth;
 pub mod crypto;

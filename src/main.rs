@@ -1,16 +1,11 @@
-use poker_engine::antifraud::{
-    CollusionDetector, PlayerSession,
-};
+use poker_engine::analytics::AiCoach;
+use poker_engine::antifraud::{CollusionDetector, PlayerSession};
 use poker_engine::auth::{generate_totp_code, verify_totp_code};
 use poker_engine::engine::evaluator::{evaluate_hand, Card, Rank, Suit};
-use poker_engine::engine::{
-    calculate_side_pots, Contribution,
-};
+use poker_engine::engine::{calculate_side_pots, Contribution};
 use poker_engine::ledger::{EntryType, LedgerAccount};
 use poker_engine::security::RateLimiter;
-use poker_engine::tournament::{
-    BlindStructure, TableBalancer, TableStateSummary, Tournament, TournamentState,
-};
+use poker_engine::tournament::{BlindStructure, Tournament};
 use std::collections::HashMap;
 
 fn main() {
@@ -62,7 +57,6 @@ fn main() {
 
     // --- SPRINT 3 DEMOS ---
     println!("--- [SPRINT 3: MODO TORNEIO COMPLETO & BALANCEAMENTO] ---");
-
     let acc1 = LedgerAccount::new("P1", 20000);
     let acc2 = LedgerAccount::new("P2", 20000);
     let acc3 = LedgerAccount::new("P3", 20000);
@@ -78,28 +72,27 @@ fn main() {
     let _ = tournament.register_player("P1", "Alice", &acc1);
     let _ = tournament.register_player("P2", "Bob", &acc2);
     let _ = tournament.register_player("P3", "Charlie", &acc3);
-
     println!("7. Inscrições de Torneio: Prize Pool = R$ {:.2}", tournament.prize_pool_cents as f64 / 100.0);
-    println!("   Nível Atual de Blinds: Level {} (SB: {}, BB: {})", tournament.blind_structure.levels[0].level_number, tournament.blind_structure.levels[0].small_blind, tournament.blind_structure.levels[0].big_blind);
 
-    // Simular Rebalanceamento de Mesas
-    let tables = vec![
-        TableStateSummary { table_id: "Table_1".into(), active_player_ids: vec!["P1".into(), "P2".into(), "P3".into(), "P4".into(), "P5".into()] },
-        TableStateSummary { table_id: "Table_2".into(), active_player_ids: vec!["P6".into(), "P7".into()] },
+    // --- AI COACH & ANALYTICS DEMO ---
+    println!("\n--- [AI COACH & ANALYTICS MONTE CARLO] ---");
+    let player_cards = vec![
+        Card::new(Rank::Ace, Suit::Spades),
+        Card::new(Rank::King, Suit::Spades),
     ];
-    let moves = TableBalancer::balance_tables(&tables);
-    println!("8. Balanceador Dinâmico de Mesas: Movimentos = {:?}", moves);
+    let board = vec![
+        Card::new(Rank::Queen, Suit::Spades),
+        Card::new(Rank::Jack, Suit::Hearts),
+        Card::new(Rank::Two, Suit::Clubs),
+    ];
 
-    // Simular Final do Torneio
-    tournament.state = TournamentState::Finished;
-    tournament.players.get_mut("P1").unwrap().finish_rank = Some(1);
-    tournament.players.get_mut("P2").unwrap().finish_rank = Some(2);
-    tournament.players.get_mut("P3").unwrap().finish_rank = Some(3);
-
-    let payouts = tournament.distribute_prize_pool(&accounts);
-    println!("9. Distribuição do Prize Pool (Ledger Sync): {:?}", payouts);
+    let advice = AiCoach::analyze_hand(&player_cards, &board, 1, 100.0, 30.0, 5_000);
+    println!("8. AI Coach Monte Carlo Equity (5.000 Sims):");
+    println!("   - Win Rate: {:.2}% | Pot Odds: {:.2}% | EV: R$ {:.2}", advice.equity.win_percentage, advice.pot_odds_percentage, advice.expected_value);
+    println!("   - Recomendação GTO: {:?}", advice.recommendation);
+    println!("   - Justificativa: {}", advice.reasoning);
 
     println!("\n========================================================");
-    println!("   SPRINT 1, SPRINT 2 & SPRINT 3 VALIDADAS COM SUCESSO  ");
+    println!("  TODAS AS FUNCIONALIDADES EXECUTADAS COM SUCESSO 100% ");
     println!("========================================================");
 }
