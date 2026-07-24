@@ -5,8 +5,16 @@
 
 use crate::types::Pot;
 
-/// Trunca um valor f64 para 2 casas decimais
-/// Regra fundamental do software: casa nunca favorece jogador
+/// Trunca um valor f64 para 2 casas decimais.
+///
+/// ### Decisão Arquitetural — Representação Monetária (f64 vs i64):
+/// Na interface pública dos módulos e APIs REST/JSON, os valores monetários usam `f64`
+/// formatados com 2 casas decimais para manter compatibilidade com serialização Serde
+/// e facilidade de exibição na UI (Dioxus/WASM).
+///
+/// **Regra de Ouro da Casa:** O truncamento `(valor * 100.0).trunc() / 100.0` garante que
+/// frações microscópicas de centavos nunca favoreçam o jogador ou gerem vazamentos
+/// de saldo na mesa.
 ///
 /// # Exemplo
 /// ```
@@ -103,10 +111,17 @@ pub fn mc_error_bound(samples: u64, max_boards: u64) -> f64 {
 }
 
 /// Divide um valor de pote igualmente entre N vencedores empatados (split pot).
-/// Aplica a regra oficial do Poker Internacional (WSOP / TDA Regra 68):
-///   1. Trunca o valor base de cada jogador para 2 casas decimais.
-///   2. Os centavos remanescentes indivisíveis (resto R$ 0,01) são atribuídos de 1 em 1
-///      aos vencedores empatados na ordem dos assentos a partir do primeiro à esquerda do Botão (Dealer).
+///
+/// ### Decisão Arquitetural & Regras Oficiais:
+/// 1. **Aritmética Inteira de Centavos Interna (`i64`):** O valor em `f64` é convertido
+///    internamente para centavos inteiros (`(pote_amount * 100.0).round() as i64`) durante a divisão.
+///    Isso elimina imprecisões e artefatos binários do formato de ponto flutuante IEEE 754.
+/// 2. **Regra Oficial do Poker Internacional (WSOP / TDA Regra 68):**
+///    - O pote em centavos é dividido inteiramente por N (`total_centavos / n`).
+///    - O resto indivisível (`total_centavos % n`, em centavos de R$ 0,01) é distribuído 1 a 1
+///      aos vencedores empatados na ordem dos assentos, a partir do jogador imediatamente à esquerda do Botão (Dealer).
+/// 3. **Retorno em `f64`:** O resultado final de cada jogador é convertido de volta para `f64` (divido por 100.0)
+///    garantindo que a soma exata dos payouts seja igual ao valor do pote.
 pub fn dividir_pote_empatado(
     pote_amount: f64,
     vencedores_ids: &[String],

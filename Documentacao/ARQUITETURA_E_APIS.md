@@ -73,10 +73,14 @@ O módulo financeiro utiliza o modelo de partidas dobradas com encadeamento de p
 
 $$\text{Hash}_k = \text{SHA256}(\text{ID}_k \parallel \text{UserID}_k \parallel \text{AmountCents}_k \parallel \text{BalanceAfterCents}_k \parallel \text{Hash}_{k-1})$$
 
-### Invariantes Financeiras:
-1. **Representação Inteira:** Todos os valores são processados em centavos (inteiros `i64`) para evitar imprecisões de ponto flutuante.
-2. **Garantia Atômica:** Saldo nunca pode se tornar negativo.
-3. **Cadeia Inviolável:** A integridade de qualquer conta é auditada em latência $< 2 \, \mu s$.
+### Invariantes Financeiras & Arquitetura Monetária:
+1. **Convivência Pragmática `f64` / `i64`:**
+   - **Interface Pública & Dioxus UI:** A comunicação WebSocket, payloads JSON Serde e estruturas de mesa expõem valores numéricos em `f64` truncados estritamente a 2 casas decimais para máxima facilidade de renderização no navegador e conveniência do desenvolvedor.
+   - **Cálculos de Pote & Ledger Imutável:** Todas as divisões de potes empatados (*split pots* via `dividir_pote_empatado()`), deduções de rake e registros de auditoria convertem os valores em tempo de execução para **centavos inteiros (`i64`)** (`(val * 100.0).round() as i64`).
+2. **Eliminação de Artefatos IEEE 754:** Operações numéricas sensíveis utilizam matemática inteira de centavos e aplicam o resto (`total_centavos % N`) conforme a **Regra do Centavo Ímpar (WSOP / TDA Regra 68)**.
+3. **Garantia Atômica:** Saldo do jogador nunca pode se tornar negativo.
+4. **Cadeia Inviolável:** A integridade de qualquer conta é auditada via hash SHA-256 encadeado em latência $< 2 \, \mu s$.
+
 
 ---
 

@@ -112,6 +112,9 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
    - Caso haja um resto indivisível de centavos ($R = \text{Pote} - N \times \text{Valor Base}$), o(s) centavo(s) de R$ 0,01 são entregues de 1 em 1 aos jogadores empatados **mais próximos à esquerda do Botão (Dealer)** na ordem dos assentos.
 3. **Conservação Financeira**:
    - Garante a conservação exata de fichas na mesa ($\sum \text{Prêmios} = \text{Pote Líquido}$), sem acumular resíduos de ponto flutuante nem retenções indevidas pela casa.
+4. **Decisão Arquitetural Monetária (`f64` na UI/API ↔ `i64` nos Bastidores)**:
+   - A interface pública (APIs REST, Dioxus WASM, WebSockets) trabalha com `f64` truncado a 2 casas para exibição natural na tela e serialização JSON limpa.
+   - Internamente, funções sensíveis como `dividir_pote_empatado` convertem o valor para **centavos inteiros (`i64`)** durante o cálculo para eliminar qualquer ruído ou discrepância da especificação IEEE 754 de ponto flutuante.
 
 ### 4.2 🃏 Deal — Distribuição de Cartas
 1. Embaralhar baralho (Fisher-Yates)
