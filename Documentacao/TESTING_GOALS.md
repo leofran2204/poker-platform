@@ -162,3 +162,15 @@ Com as últimas expansões de testes de estresse e segurança na Sprint S04 & S0
 * **API-Axum:** **34 suítes de teste de contrato REST/WS e persistência PostgreSQL real passing**.
 * **Métrica Consolidada da Plataforma:** **2.050 testes passando**, 0 warnings de clippy, 0 CVEs e cobertura mantida acima de **98,10%**.
 
+---
+
+## 🛡️ Fase 2.3 — Hardening de Segurança, Concorrência RwLock & Idempotência PIX (2026-07-24)
+
+Saneamento completo de todas as vulnerabilidades e bugs apontados no Parecer Técnico:
+
+* **Exclusão de Código Morto:** Removido `auth_paseto.rs` (que continha chave hardcoded legada).
+* **Idempotência no Webhook PIX:** Trava de idempotência atômica adicionada (`status = 'PENDING' -> 'PROCESSED'`) evitando creditação duplicada de saldo por replay attacks.
+* **Verificação de Saldo no Saque:** Verificação atômica de saldo (`balance >= amount`) antes do disparo da requisição de saque PIX.
+* **Concorrência Axum (RwLock):** Substituição de `Arc<Mutex<...>>` por `Arc<tokio::sync::RwLock<...>>` no `AppState` do Axum (auth, lobby, tournaments, active_tables), liberando leituras paralelas em alta carga.
+* **Correções no Game Loop & Frontend:** Rotação automática do botão dealer ativada no motor, remoção de disparo de Sit command no ping do WebSocket e cálculo dinâmico de apostas para Raise/AllIn no Dioxus.
+

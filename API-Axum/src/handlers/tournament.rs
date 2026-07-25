@@ -44,7 +44,7 @@ pub async fn register_player(
     State(state): State<AppState>,
     Json(body): Json<RegisterBody>,
 ) -> Result<Json<RegisterResponse>, ApiError> {
-    let mut tournaments = state.tournaments.lock().await;
+    let mut tournaments = state.tournaments.write().await;
 
     // Get or create the tournament store entry
     let store = tournaments
@@ -108,7 +108,7 @@ pub async fn get_tournament(
     State(state): State<AppState>,
     Path(tournament_id): Path<String>,
 ) -> Result<Json<TournamentInfoResponse>, ApiError> {
-    let tournaments = state.tournaments.lock().await;
+    let tournaments = state.tournaments.read().await;
 
     let store = tournaments
         .get(&tournament_id)

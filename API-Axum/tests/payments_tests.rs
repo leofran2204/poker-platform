@@ -8,7 +8,7 @@ use poker_engine::auth::{AuthManager, LoginRequest, RegisterRequest};
 use poker_engine::lobby::LobbyManager;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::Mutex;
+use tokio::sync::RwLock;
 use tower::ServiceExt;
 
 fn make_test_state() -> AppState {
@@ -24,17 +24,17 @@ fn make_test_state() -> AppState {
 
     AppState {
         db,
-        auth: Arc::new(Mutex::new(auth_mgr)),
-        lobby: Arc::new(Mutex::new(LobbyManager::new())),
-        tournaments: Arc::new(Mutex::new(HashMap::new())),
-        active_tables: Arc::new(Mutex::new(HashMap::new())),
+        auth: Arc::new(RwLock::new(auth_mgr)),
+        lobby: Arc::new(RwLock::new(LobbyManager::new())),
+        tournaments: Arc::new(RwLock::new(HashMap::new())),
+        active_tables: Arc::new(RwLock::new(HashMap::new())),
         jwt_secret: "payments-jwt-secret-key-32chars".to_string(),
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
     }
 }
 
 async fn get_valid_access_token(state: &AppState, username: &str) -> String {
-    let mut auth_mgr = state.auth.lock().await;
+    let mut auth_mgr = state.auth.write().await;
     let _ = auth_mgr.register_user(&RegisterRequest {
         username: username.to_string(),
         email: format!("{}@test.com", username),

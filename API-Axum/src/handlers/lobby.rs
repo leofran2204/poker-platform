@@ -38,7 +38,7 @@ pub struct JoinBody {
 pub async fn list_tables(
     State(state): State<AppState>,
 ) -> Result<Json<Vec<TableResponse>>, ApiError> {
-    let lobby = state.lobby.lock().await;
+    let lobby = state.lobby.read().await;
     let tables = lobby.list_available_tables();
 
     let response: Vec<TableResponse> = tables
@@ -63,7 +63,7 @@ pub async fn join_table(
     State(state): State<AppState>,
     Json(body): Json<JoinBody>,
 ) -> Result<Json<JoinResponse>, ApiError> {
-    let mut lobby = state.lobby.lock().await;
+    let mut lobby = state.lobby.write().await;
 
     // player_balance = 1000 (default), no password (public table)
     let result = lobby.join_table(&body.table_id, 1000, None);
@@ -89,7 +89,7 @@ pub async fn get_table(
     State(state): State<AppState>,
     Path(table_id): Path<String>,
 ) -> Result<Json<TableResponse>, ApiError> {
-    let lobby = state.lobby.lock().await;
+    let lobby = state.lobby.read().await;
     let table = lobby
         .find_table(&table_id)
         .ok_or_else(|| ApiError::NotFound(format!("Table {table_id} not found")))?;

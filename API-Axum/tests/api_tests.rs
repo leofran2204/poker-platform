@@ -18,7 +18,7 @@ use poker_engine::tournament_engine::TournamentConfig;
 use poker_engine::tournament_engine::TournamentSpeed;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::Mutex;
+use tokio::sync::RwLock;
 use tower::ServiceExt;
 
 use poker_api::state::AppState;
@@ -36,10 +36,10 @@ fn make_test_state() -> AppState {
 
     AppState {
         db,
-        auth: Arc::new(Mutex::new(AuthManager::new("test-secret-key-for-tests"))),
-        lobby: Arc::new(Mutex::new(LobbyManager::new())),
-        tournaments: Arc::new(Mutex::new(HashMap::new())),
-        active_tables: Arc::new(Mutex::new(HashMap::new())),
+        auth: Arc::new(RwLock::new(AuthManager::new("test-secret-key-for-tests"))),
+        lobby: Arc::new(RwLock::new(LobbyManager::new())),
+        tournaments: Arc::new(RwLock::new(HashMap::new())),
+        active_tables: Arc::new(RwLock::new(HashMap::new())),
         jwt_secret: "test-secret-key-for-tests".to_string(),
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
     }

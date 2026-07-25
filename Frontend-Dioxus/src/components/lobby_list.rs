@@ -56,9 +56,7 @@ fn LobbyListItem(table: TableData) -> Element {
                     nav.push(Route::Table { id: target_id });
                 }
                 Err(err) => {
-                    log::warn!("Erro ao registrar entrada na mesa: {err}");
-                    // Ainda tenta redirecionar em caso de erro de duplicata/sessão anterior ativa
-                    nav.push(Route::Table { id: target_id });
+                    log::warn!("Erro ao registrar entrada na mesa {target_id}: {err}");
                 }
             }
         });

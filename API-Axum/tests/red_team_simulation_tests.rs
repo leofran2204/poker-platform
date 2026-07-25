@@ -9,7 +9,7 @@ use poker_engine::auth::AuthManager;
 use poker_engine::lobby::LobbyManager;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::Mutex;
+use tokio::sync::RwLock;
 use tower::ServiceExt;
 
 fn make_test_state() -> AppState {
@@ -23,10 +23,10 @@ fn make_test_state() -> AppState {
 
     AppState {
         db,
-        auth: Arc::new(Mutex::new(AuthManager::new("red-team-jwt-secret-key-32chars"))),
-        lobby: Arc::new(Mutex::new(LobbyManager::new())),
-        tournaments: Arc::new(Mutex::new(HashMap::new())),
-        active_tables: Arc::new(Mutex::new(HashMap::new())),
+        auth: Arc::new(RwLock::new(AuthManager::new("red-team-jwt-secret-key-32chars"))),
+        lobby: Arc::new(RwLock::new(LobbyManager::new())),
+        tournaments: Arc::new(RwLock::new(HashMap::new())),
+        active_tables: Arc::new(RwLock::new(HashMap::new())),
         jwt_secret: "red-team-jwt-secret-key-32chars".to_string(),
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
     }

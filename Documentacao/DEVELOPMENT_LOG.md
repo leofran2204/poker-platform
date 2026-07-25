@@ -51,6 +51,17 @@
 
 ## 📜 Log Cronológico de Desenvolvimento
 
+### [20] 🛡️ Audit do Parecer Técnico e Saneamento Enterprise (2026-07-24)
+**O que foi feito:**
+- **Auditoria Ítem por Ítem:** Análise rigorosa das 30+ observações do parecer técnico, separando diagnósticos de arquitetura real de falsos positivos de scanners automáticos.
+- **Segurança & Idempotência PIX:** Excluído módulo legado `auth_paseto.rs` (código morto com chave estática). Adicionada idempotência atômica no webhook PIX (`UPDATE transactions SET status='PROCESSED' WHERE status='PENDING'`) prevenindo ataques de replay. Adicionada verificação atômica de saldo no saque PIX.
+- **Concorrência de Alta Carga (Axum):** Migrado `AppState` de `Arc<Mutex<...>>` para `Arc<tokio::sync::RwLock<...>>` (auth, lobby, tournaments, active_tables), permitindo milhares de leituras paralelas sem bloqueio de thread. Removida duplicação de struct em `state.rs`.
+- **Bugs Funcionais no Motor & Frontend:** Ativada a rotação do botão dealer (`dealer_index`) no game loop. Removido disparo indevido de Sit command no ping do WebSocket. Corrigido redirecionamento indevido no Dioxus `lobby_list.rs` sob falha no join. Ajustado o cálculo dinâmico de apostas para Raise e AllIn em `table.rs`.
+- **Limpeza de Infraestrutura & Workflows:** Removido arquivo de configuração legado `render.yaml` (que citava Node.js/npm) e substituído por ambiente Docker Rust. Deletados workflows duplicados no GitHub Actions, consolidando o pipeline em `.github/workflows/rust-ci.yml`. Fixadas versões no `docker-compose.yml` (`confluentinc/cp-zookeeper:7.5.0` e `cp-kafka:7.5.0`).
+- **Sincronização 100% de Documentação:** Atualizados simultaneamente todos os 12 documentos da pasta `Documentacao/` conforme regra estrita em `AGENTS.md`.
+
+---
+
 ### [19] 🚀 Finalização Mestre & Prontidão para Produção (2026-07-24)
 **O que foi feito:**
 - **Testes Massivos & Estresse Extremo:** Implementada a suíte Lote 7 em `game_loop_tests.rs` (1.000 iterações de Ante/Blinds, 500 All-Ins multiway com conservação de fichas e micro-stacks).

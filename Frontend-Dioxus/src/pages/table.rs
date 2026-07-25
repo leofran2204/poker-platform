@@ -284,11 +284,15 @@ pub fn Table(id: String) -> Element {
     let on_action = move |action: ActionKind| {
         let ws_ref = ws_client_ref;
         let action_str = action_kind_to_ws(action);
+        let snapshot_ref = state.read().borrow().clone();
         if let Some(ref client) = *ws_ref.read() {
-            let amount = if action == ActionKind::Raise || action == ActionKind::AllIn {
-                200 // valor padrão; em produção viria de um input
-            } else {
-                0
+            let amount = match action {
+                ActionKind::AllIn => snapshot_ref.my_stack() as u64,
+                ActionKind::Raise => {
+                    let bb = if snapshot_ref.big_blind > 0 { snapshot_ref.big_blind } else { 10 };
+                    (bb * 3) as u64
+                }
+                _ => 0,
             };
             client.send_action(action_str, Some(amount));
         }

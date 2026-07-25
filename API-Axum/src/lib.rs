@@ -6,7 +6,6 @@
 
 pub mod error;
 pub mod admin_routes;
-pub mod auth_paseto;
 pub mod binary_codec;
 pub mod telemetry;
 pub mod game_actor;

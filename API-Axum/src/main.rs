@@ -56,17 +56,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::info!("Migrations applied");
 
-    // Build app state
+    // Build app state with high-concurrency RwLock
     let state = AppState {
         db: pool,
-        auth: std::sync::Arc::new(tokio::sync::Mutex::new(
+        auth: std::sync::Arc::new(tokio::sync::RwLock::new(
             poker_engine::auth::AuthManager::new(&jwt_secret),
         )),
-        lobby: std::sync::Arc::new(tokio::sync::Mutex::new(
+        lobby: std::sync::Arc::new(tokio::sync::RwLock::new(
             poker_engine::lobby::LobbyManager::new(),
         )),
-        tournaments: std::sync::Arc::new(tokio::sync::Mutex::new(std::collections::HashMap::new())),
-        active_tables: std::sync::Arc::new(tokio::sync::Mutex::new(std::collections::HashMap::new())),
+        tournaments: std::sync::Arc::new(tokio::sync::RwLock::new(std::collections::HashMap::new())),
+        active_tables: std::sync::Arc::new(tokio::sync::RwLock::new(std::collections::HashMap::new())),
         jwt_secret,
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
     };

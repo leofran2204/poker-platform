@@ -35,10 +35,10 @@ pub async fn game_websocket(
 async fn handle_game_socket(socket: WebSocket, state: AppState, table_id: String, token: Option<String>) {
     let (mut ws_sender, mut ws_receiver) = socket.split();
 
-    // 1. Authenticate user via JWT token
+    // 1. Authenticate user via JWT token (parallel read lock)
     let (user_id, username) = match token {
         Some(ref t) if !t.is_empty() => {
-            let auth = state.auth.lock().await;
+            let auth = state.auth.read().await;
             match auth.validate_token(t, "access") {
                 Ok(claims) => (claims.sub, claims.username),
                 Err(err) => {
@@ -75,7 +75,7 @@ async fn handle_game_socket(socket: WebSocket, state: AppState, table_id: String
 
     // 2. Get or spawn the TableActor
     let handle = {
-        let mut active_tables = state.active_tables.lock().await;
+        let mut active_tables = state.active_tables.write().await;
         if let Some(h) = active_tables.get(&table_id) {
             h.clone()
         } else {
@@ -83,7 +83,7 @@ async fn handle_game_socket(socket: WebSocket, state: AppState, table_id: String
             let (tx_broadcast, _) = tokio::sync::broadcast::channel(100);
 
             let table_name = {
-                let lobby = state.lobby.lock().await;
+                let lobby = state.lobby.read().await;
                 lobby.find_table(&table_id).map(|t| t.name.clone()).unwrap_or_else(|| format!("Table {}", table_id))
             };
 
@@ -152,7 +152,7 @@ async fn handle_game_socket(socket: WebSocket, state: AppState, table_id: String
 
     // 6. Main receive loop to process messages from WebSocket and forward to actor
     let tx_cmd = handle.tx_cmd.clone();
-    let user_id_for_recv = user_id.clone();
+    let _user_id_for_recv = user_id.clone();
 
     while let Some(msg_result) = ws_receiver.next().await {
         match msg_result {
@@ -163,14 +163,7 @@ async fn handle_game_socket(socket: WebSocket, state: AppState, table_id: String
                         let msg_type = parsed.get("type").and_then(|t| t.as_str()).unwrap_or("");
                         match msg_type {
                             "ping" => {
-                                // Respond directly with pong to avoid latency
-                                let _ = tx_cmd.send(PlayerCommand::Sit {
-                                    player_id: user_id_for_recv.clone(),
-                                    username: username_clone.clone(),
-                                    seat: Some(seat),
-                                    chips: 1000.0, // dummy, does not overwrite if already sitting
-                                    respond_to: oneshot::channel().0,
-                                }).await;
+                                // Keepalive ping: no-op (heartbeat mantido pelo frame do protocolo)
                             }
                             "action" => {
                                 let action = parsed.get("action").and_then(|a| a.as_str()).unwrap_or("");

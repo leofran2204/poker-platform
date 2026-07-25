@@ -28,7 +28,7 @@ services:
 
   # --- Messaging Layer (Event Bus) ---
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: confluentinc/cp-zookeeper:7.5.0
     container_name: poker_zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -37,7 +37,7 @@ services:
       - no-new-privileges:true
 
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.5.0
     container_name: poker_kafka
     depends_on:
       - zookeeper

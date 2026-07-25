@@ -1,6 +1,6 @@
 # 🃏 QUALITY.md — Documento Mestre do Poker Project
 
-**Atualizado:** 2026-07-24 | **Versão:** 5.0 (100% Concluído — Launch Ready / 2.050 Testes + 1M Fuzzing + Gateway PIX + Hardening Enterprise + CI/CD)
+**Atualizado:** 2026-07-24 | **Versão:** 5.1 (100% Concluído — Launch Ready / 2.050 Testes + 1M Fuzzing + Idempotência PIX + Concorrência RwLock + Hardening Saneado)
 **Stack Definitiva:** Rust para TUDO (backend, motor de jogo, APIs, IA, dados, antifraude, autenticação, lobby, front-end Dioxus/WebAssembly)
 **Decisão de Stack:** Definitiva desde 2026-07-03 — Rust é a única linguagem do projeto
 

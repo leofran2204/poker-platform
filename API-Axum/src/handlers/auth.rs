@@ -66,7 +66,7 @@ pub async fn register(
     State(state): State<AppState>,
     Json(body): Json<RegisterBody>,
 ) -> Result<Json<TokenResponse>, ApiError> {
-    let mut auth = state.auth.lock().await;
+    let mut auth = state.auth.write().await;
 
     let request = poker_engine::auth::RegisterRequest {
         username: body.username.clone(),
@@ -135,9 +135,7 @@ pub async fn login(
     State(state): State<AppState>,
     Json(body): Json<LoginBody>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
-    let mut auth = state.auth.lock().await;
-
-    // Find username by email from DB
+    // 1. Executar query no banco de dados ANTES de adquirir lock (evita contenção)
     let row: Option<(String,)> = sqlx::query_as("SELECT username FROM users WHERE email = $1")
         .bind(&body.email)
         .fetch_optional(&state.db)
@@ -146,6 +144,9 @@ pub async fn login(
     let username = row
         .ok_or_else(|| ApiError::Unauthorized("Invalid credentials".to_string()))?
         .0;
+
+    // 2. Adquirir write lock apenas para a operação em memória de auth
+    let mut auth = state.auth.write().await;
 
     let request = poker_engine::auth::LoginRequest {
         username: username.clone(),
@@ -212,7 +213,7 @@ pub async fn mfa_verify_with_username(
     State(state): State<AppState>,
     Json(body): Json<MfaVerifyBodyWithUsername>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
-    let auth = state.auth.lock().await;
+    let auth = state.auth.read().await;
 
     let valid = auth
         .verify_mfa_for_user(&body.username, &body.code)
@@ -227,10 +228,6 @@ pub async fn mfa_verify_with_username(
         return Err(ApiError::Unauthorized("Invalid MFA code".to_string()));
     }
 
-    // MFA is valid — now issue tokens.
-    // We need to re-login, but login requires password.
-    // In production, we'd issue tokens directly after MFA validation.
-    // For now, return a success indicator.
     Ok(Json(json!({
         "mfa_verified": true,
         "message": "MFA verified. Please complete login with password.",
@@ -249,7 +246,7 @@ pub async fn refresh(
     State(state): State<AppState>,
     Json(body): Json<RefreshBody>,
 ) -> Result<Json<TokenResponse>, ApiError> {
-    let auth = state.auth.lock().await;
+    let auth = state.auth.read().await;
 
     let request = poker_engine::auth::RefreshRequest {
         refresh_token: body.refresh_token,

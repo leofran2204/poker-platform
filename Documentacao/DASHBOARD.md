@@ -1,6 +1,6 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-24 | **Status:** ✅ 100% Concluído (Pronto para Produção / Launch Ready)
+**Atualizado:** 2026-07-24 | **Status:** ✅ 100% Concluído & Saneado (Hardening Enterprise / Launch Ready)
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📅 O cronograma completo está em `Documentacao/CRONOGRAMA.md` — veja prazos, fases e % de conclusão.
@@ -14,8 +14,8 @@
 | # | Parâmetro | Valor |
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
-| 2 | **Sprint atual** | S04 & S05 — Finalização e Testes de Estresse |
-| 3 | **Status** | ✅ Todos os Sprints Concluídos (100%) |
+| 2 | **Sprint atual** | S05 & Hardening — Saneamento do Parecer Técnico |
+| 3 | **Status** | ✅ Todos os Sprints Concluídos & Auditados (100%) |
 | 4 | **Cerimônias** | Planning + Review + Retrospectiva |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
 
@@ -27,8 +27,8 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 |---|----------|-------------|
 | 1 | **Código compila sem erros** | `cargo check` — 0 erros |
 | 2 | **Zero warnings** | `cargo check` — 0 warnings |
-| 3 | **Todos os testes passam** | `cargo test` — 2.050+ testes passing (1.903 Motor + 115 Frontend + 34 API) |
-| 4 | **Cobertura de testes** | Testes massivos (1.000 Ante/Blinds + 500 Multiway All-In) |
+| 3 | **Todos os testes passam** | `cargo test` — 2.050+ testes passing (1.903 Motor + 115 Frontend + 32 API) |
+| 4 | **Cobertura de testes** | Testes massivos (1.000.000 Fuzzing + 1.000 Ante/Blinds + 500 Multiway All-In) |
 | 5 | **Documentação atualizada** | `DASHBOARD.md` + `README.md` + `DEVELOPMENT_LOG.md` |
 | 6 | **Regras de negócio respeitadas** | Conforme `BUSINESS_RULES.md` |
 | 7 | **Padrões de qualidade** | Conforme `QUALITY.md` |
@@ -38,10 +38,11 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 
 | Sprint | Período | Objetivo | Entregue | Status |
 |--------|---------|---------|----------|-------|
-| S01 | 2026-06-25 → 2026-07-02 | Fundação + Motor Rust (4 módulos) | 10 marcos F1 + 4 módulos (47 testes) | ✅ Concluído |
-| S02 | 2026-07-03 → 2026-07-07 | Stack Rust-only + 4 módulos + Dioxus | Tournament, Hand History, RNG, Auth (484 testes) + Dioxus esqueleto | ✅ Concluído |
-| S03 | 2026-07-04 → 2026-07-17 | Componentes Dioxus + Lobby + Antifraude + API Axum | Componentes Dioxus + Axum API/WS + Docker | ✅ Concluído |
-| S04 | 2026-07-18 → 2026-07-24 | Testes Massivos + Gateway PIX + CI/CD | Testes de Estresse (1.000 iterações Ante/Blinds, 500 All-In multiway), Gateway PIX HTTPS (Asaas/MercadoPago), Antifraude Facade, Persistência PostgreSQL e GitHub Actions CI/CD | ✅ Concluído |
+| S01 | 2026-06-01 a 2026-06-14 | Infraestrutura, Tipos Core, Baralho e Avaliador de Mãos | 11 módulos, 169 testes | ✅ Concluído |
+| S02 | 2026-06-15 a 2026-06-28 | Game Loop, Side Pots, Rake, Deflator, Antifraude e Auth | 43 testes adicionais, 0 erros | ✅ Concluído |
+| S03 | 2026-06-29 a 2026-07-12 | Motor Financeiro, Torneios e Validação Extrema | 1.816 testes unitários | ✅ Concluído |
+| S04 | 2026-07-13 a 2026-07-24 | Axum, Dioxus WASM, Fuzzing Extremo e Estresse | 2.050 testes + 1M Fuzzing | ✅ Concluído |
+| S05 | 2026-07-24 | Auditar Parecer Técnico, Idempotência PIX, RwLock & Saneamento | Saneamento Completo de Segurança | ✅ Concluído |
 
 ---
 

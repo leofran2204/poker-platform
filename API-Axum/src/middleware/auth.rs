@@ -37,8 +37,8 @@ where
             ApiError::Unauthorized("Missing or invalid Authorization header".to_string())
         })?;
 
-        // Validate token
-        let auth = app_state.auth.lock().await;
+        // Validate token (parallel read lock)
+        let auth = app_state.auth.read().await;
         let claims = auth.validate_token(&token, "access").map_err(|e| match e {
             poker_engine::auth::AuthResult::TokenExpired => {
                 ApiError::Unauthorized("Token expired".to_string())

@@ -12,17 +12,17 @@ use serde_json::{json, Value};
 use sqlx::postgres::PgPoolOptions;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::Mutex;
+use tokio::sync::RwLock;
 use tower::ServiceExt;
 
 /// Cria um AppState conectado a uma instância PostgreSQL real
 async fn make_real_db_state(pool: sqlx::PgPool) -> AppState {
     AppState {
         db: pool,
-        auth: Arc::new(Mutex::new(AuthManager::new("stress-test-jwt-secret-key-32chars"))),
-        lobby: Arc::new(Mutex::new(LobbyManager::new())),
-        tournaments: Arc::new(Mutex::new(HashMap::new())),
-        active_tables: Arc::new(Mutex::new(HashMap::new())),
+        auth: Arc::new(RwLock::new(AuthManager::new("stress-test-jwt-secret-key-32chars"))),
+        lobby: Arc::new(RwLock::new(LobbyManager::new())),
+        tournaments: Arc::new(RwLock::new(HashMap::new())),
+        active_tables: Arc::new(RwLock::new(HashMap::new())),
         jwt_secret: "stress-test-jwt-secret-key-32chars".to_string(),
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
     }

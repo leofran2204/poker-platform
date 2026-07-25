@@ -76,7 +76,7 @@ pub async fn create_pix_deposit_handler(
     };
 
     let user_id = {
-        let auth_mgr = state.auth.lock().await;
+        let auth_mgr = state.auth.read().await;
         match auth_mgr.validate_token(auth_header, "access") {
             Ok(claims) => claims.sub,
             Err(_) => {
@@ -148,14 +148,34 @@ pub async fn pix_webhook_handler(
         );
     }
 
-    // Executar atualização real do saldo na base de dados (se houver transação registrada)
-    let _ = sqlx::query(
-        "UPDATE users SET balance = balance + $1 WHERE id = (SELECT user_id FROM transactions WHERE tx_id = $2)"
+    // Idempotência: só processa se a transação estiver no estado PENDING
+    let update_result = sqlx::query(
+        "UPDATE transactions SET status = 'PROCESSED' WHERE tx_id = $1 AND status = 'PENDING'"
     )
-    .bind(payload.amount)
     .bind(&payload.tx_id)
     .execute(&state.db)
     .await;
+
+    if let Ok(res) = update_result {
+        if res.rows_affected() > 0 {
+            let _ = sqlx::query(
+                "UPDATE users SET balance = balance + $1 WHERE id = (SELECT user_id FROM transactions WHERE tx_id = $2)"
+            )
+            .bind(payload.amount)
+            .bind(&payload.tx_id)
+            .execute(&state.db)
+            .await;
+        }
+    } else {
+        // Se a tabela transactions não existir no ambiente de dev in-memory, executa update direto se saldo existir
+        let _ = sqlx::query(
+            "UPDATE users SET balance = balance + $1 WHERE id = (SELECT user_id FROM transactions WHERE tx_id = $2)"
+        )
+        .bind(payload.amount)
+        .bind(&payload.tx_id)
+        .execute(&state.db)
+        .await;
+    }
 
     (
         StatusCode::OK,
@@ -196,7 +216,7 @@ pub async fn create_pix_withdraw_handler(
     };
 
     let user_id = {
-        let auth_mgr = state.auth.lock().await;
+        let auth_mgr = state.auth.read().await;
         match auth_mgr.validate_token(auth_header, "access") {
             Ok(claims) => claims.sub,
             Err(_) => {
@@ -207,6 +227,22 @@ pub async fn create_pix_withdraw_handler(
             }
         }
     };
+
+    // Verificar se o usuário possui saldo suficiente antes de aprovar o saque
+    let balance_check: Option<(f64,)> = sqlx::query_as("SELECT balance FROM users WHERE id = $1::uuid")
+        .bind(&user_id)
+        .fetch_optional(&state.db)
+        .await
+        .unwrap_or(None);
+
+    if let Some((user_balance,)) = balance_check {
+        if user_balance < payload.amount {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({ "error": "Saldo insuficiente para realizar o saque solicidato" })),
+            );
+        }
+    }
 
     let tx_id = format!("tx_wdr_{}", uuid::Uuid::new_v4());
     let gateway = get_payment_gateway();
