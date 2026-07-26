@@ -56,6 +56,7 @@ pub struct TableActor {
     pub antifraud: poker_engine::antifraud::AntiFraudSuite,
     pub last_turn_start: Option<tokio::time::Instant>,
     pub db: Option<sqlx::PgPool>,
+    pub redis: Option<redis::aio::ConnectionManager>,
 }
 
 impl TableActor {
@@ -78,11 +79,17 @@ impl TableActor {
             antifraud: poker_engine::antifraud::AntiFraudSuite::new(),
             last_turn_start: Some(tokio::time::Instant::now()),
             db: None,
+            redis: None,
         }
     }
 
     pub fn with_db(mut self, db: sqlx::PgPool) -> Self {
         self.db = Some(db);
+        self
+    }
+
+    pub fn with_redis(mut self, redis: redis::aio::ConnectionManager) -> Self {
+        self.redis = Some(redis);
         self
     }
 
@@ -113,12 +120,15 @@ impl TableActor {
             PlayerCommand::Sit { player_id, username, seat, chips, respond_to } => {
                 let assigned_seat = self.handle_sit(player_id, username, seat, chips);
                 let _ = respond_to.send(assigned_seat);
+                self.save_snapshot().await;
             }
             PlayerCommand::Leave { player_id } => {
                 self.handle_leave(player_id);
+                self.save_snapshot().await;
             }
             PlayerCommand::Action { player_id, action, amount } => {
                 self.handle_action(player_id, action, amount);
+                self.save_snapshot().await;
             }
             PlayerCommand::GetTableInfo { respond_to } => {
                 let info = self.get_table_info_json();
@@ -441,6 +451,26 @@ impl TableActor {
         });
 
         let _ = self.tx_broadcast.send(state_payload);
+    }
+
+    /// Salva um snapshot do estado atual da mesa no Redis (TTL de 1 hora)
+    pub async fn save_snapshot(&mut self) {
+        if let Some(ref mut redis) = self.redis {
+            use redis::AsyncCommands;
+            let key = format!("poker:table:state:{}", self.table_id);
+            let snapshot = serde_json::json!({
+                "table_id": self.table_id,
+                "name": self.name,
+                "dealer_index": self.dealer_index,
+                "players": self.players,
+                "is_finished": self.game_loop.as_ref().map(|g| g.state.is_finished).unwrap_or(true),
+                "updated_at": chrono::Utc::now().to_rfc3339()
+            });
+
+            if let Ok(json_str) = serde_json::to_string(&snapshot) {
+                let _: Result<(), _> = redis.set_ex(key, json_str, 3600).await;
+            }
+        }
     }
 }
 

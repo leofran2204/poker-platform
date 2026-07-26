@@ -440,4 +440,14 @@
 - **Sincronização de Documentação Técnica:** Atualizado `ARQUITETURA_E_APIS.md` para tipagem estrita `u64` centavos em todas as especificações de API.
 
 ---
-*Próximo passo: Executar deploy local / túnel Ngrok para testes externos ou provisionar infraestrutura de nuvem.*
+
+### [24] 🔄 Tolerância a Falhas — Redis Snapshots no TableActor (2026-07-25)
+**O que foi feito:**
+- **Cliente Redis Integrado (`API-Axum/Cargo.toml`):** Adicionada dependência da crate `redis` (v0.25) com `std`, `tokio-comp` e `aio`.
+- **Graceful Fallback (`main.rs` & `state.rs`):** Injetado `redis: Option<ConnectionManager>` em `AppState`. Se a variável `REDIS_URL` não for informada, o sistema opera em memória RAM sem nenhuma interrupção.
+- **Persistência Assíncrona no `TableActor` (`game_actor.rs`):** Implementado o método `save_snapshot()`, gravando o estado exato da mesa em Redis com chave `poker:table:state:{table_id}` e TTL de 3.600s (1 hora) após comandos de ação/sit/leave dos jogadores.
+- **Restauração de Estado:** Garantida resiliência de mesas ativas contra reinicializações e falhas do servidor backend.
+- **Compilação do Frontend:** `cargo check` no `Frontend-Dioxus` (WASM) 100% aprovado.
+
+---
+*Próximo passo: Deploy em ambiente de staging / produção ou disponibilização de canal seguro via Ngrok.*

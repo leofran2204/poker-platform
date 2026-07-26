@@ -65,6 +65,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::info!("Migrations applied");
 
+    // Initialize Redis connection if REDIS_URL is provided
+    let redis_conn = if let Ok(redis_url) = std::env::var("REDIS_URL") {
+        match redis::Client::open(redis_url) {
+            Ok(client) => match client.get_tokio_connection_manager().await {
+                Ok(cm) => {
+                    tracing::info!("Connected to Redis Cache");
+                    Some(cm)
+                }
+                Err(e) => {
+                    tracing::warn!("Failed to get Redis connection manager: {}. Continuing without Redis.", e);
+                    None
+                }
+            },
+            Err(e) => {
+                tracing::warn!("Invalid REDIS_URL: {}. Continuing without Redis.", e);
+                None
+            }
+        }
+    } else {
+        tracing::info!("REDIS_URL not set. Running in-memory state mode.");
+        None
+    };
+
     // Build app state with high-concurrency RwLock
     let state = AppState {
         db: pool,
@@ -78,6 +101,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         active_tables: std::sync::Arc::new(tokio::sync::RwLock::new(std::collections::HashMap::new())),
         jwt_secret,
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
+        redis: redis_conn,
     };
 
     // CORS

@@ -87,8 +87,11 @@ async fn handle_game_socket(socket: WebSocket, state: AppState, table_id: String
                 lobby.find_table(&table_id).map(|t| t.name.clone()).unwrap_or_else(|| format!("Table {}", table_id))
             };
 
-            let actor = TableActor::new(table_id.clone(), table_name, rx_cmd, tx_broadcast.clone())
+            let mut actor = TableActor::new(table_id.clone(), table_name, rx_cmd, tx_broadcast.clone())
                 .with_db(state.db.clone());
+            if let Some(ref redis) = state.redis {
+                actor = actor.with_redis(redis.clone());
+            }
             tokio::spawn(actor.run());
 
             let h = TableActorHandle {

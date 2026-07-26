@@ -27,4 +27,5 @@ pub struct AppState {
     pub active_tables: Arc<RwLock<HashMap<String, TableActorHandle>>>,
     pub jwt_secret: String,
     pub rate_limiter: crate::middleware::rate_limit::RateLimiter,
+    pub redis: Option<redis::aio::ConnectionManager>,
 }
