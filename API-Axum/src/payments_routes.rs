@@ -11,13 +11,13 @@ use crate::state::AppState;
 
 #[derive(Debug, Deserialize)]
 pub struct DepositRequest {
-    pub amount: f64,
+    pub amount: u64,
 }
 
 #[derive(Debug, Serialize)]
 pub struct DepositResponse {
     pub tx_id: String,
-    pub amount: f64,
+    pub amount: u64,
     pub pix_copy_paste: String,
     pub qr_code_base64: String,
     pub expires_at: String,
@@ -27,7 +27,7 @@ pub struct DepositResponse {
 pub struct WebhookPixPayload {
     pub tx_id: String,
     pub external_tx_id: Option<String>,
-    pub amount: f64,
+    pub amount: u64,
     pub status: String,
 }
 
@@ -39,7 +39,7 @@ pub struct WebhookResponse {
 
 #[derive(Debug, Deserialize)]
 pub struct WithdrawRequest {
-    pub amount: f64,
+    pub amount: u64,
     pub pix_key_type: String, // "cpf", "email", "phone", "evp"
     pub pix_key: String,
 }
@@ -47,18 +47,18 @@ pub struct WithdrawRequest {
 #[derive(Debug, Serialize)]
 pub struct WithdrawResponse {
     pub tx_id: String,
-    pub amount: f64,
+    pub amount: u64,
     pub status: String,
     pub message: String,
 }
 
-/// POST /api/payments/pix/deposit — Gera cobrança PIX com QRCode e Copia e Cola
+/// POST /api/payments/pix/deposit — Gera cobrança PIX com QRCode e Copia e Cola em centavos
 pub async fn create_pix_deposit_handler(
     State(state): State<AppState>,
     headers: HeaderMap,
     Json(payload): Json<DepositRequest>,
 ) -> impl IntoResponse {
-    if payload.amount <= 0.0 {
+    if payload.amount == 0 {
         return (
             StatusCode::BAD_REQUEST,
             Json(serde_json::json!({ "error": "Valor de depósito deve ser maior que zero" })),
@@ -112,7 +112,7 @@ pub async fn create_pix_deposit_handler(
     (StatusCode::OK, Json(serde_json::to_value(response).unwrap()))
 }
 
-/// POST /api/webhooks/pix — Recebe confirmação instantânea do pagamento PIX e credita o saldo
+/// POST /api/webhooks/pix — Recebe confirmação instantânea do pagamento PIX e credita o saldo em centavos
 pub async fn pix_webhook_handler(
     State(state): State<AppState>,
     headers: HeaderMap,
@@ -161,7 +161,7 @@ pub async fn pix_webhook_handler(
             let _ = sqlx::query(
                 "UPDATE users SET balance = balance + $1 WHERE id = (SELECT user_id FROM transactions WHERE tx_id = $2)"
             )
-            .bind(payload.amount)
+            .bind(payload.amount as i64)
             .bind(&payload.tx_id)
             .execute(&state.db)
             .await;
@@ -171,7 +171,7 @@ pub async fn pix_webhook_handler(
         let _ = sqlx::query(
             "UPDATE users SET balance = balance + $1 WHERE id = (SELECT user_id FROM transactions WHERE tx_id = $2)"
         )
-        .bind(payload.amount)
+        .bind(payload.amount as i64)
         .bind(&payload.tx_id)
         .execute(&state.db)
         .await;
@@ -181,7 +181,7 @@ pub async fn pix_webhook_handler(
         StatusCode::OK,
         Json(serde_json::json!({
             "status": "PROCESSED",
-            "message": format!("Depósito PIX de R$ {:.2} creditado com sucesso!", payload.amount)
+            "message": format!("Depósito PIX de R$ {:.2} creditado com sucesso!", payload.amount as f64 / 100.0)
         })),
     )
 }
@@ -192,12 +192,13 @@ pub async fn create_pix_withdraw_handler(
     headers: HeaderMap,
     Json(payload): Json<WithdrawRequest>,
 ) -> impl IntoResponse {
-    if payload.amount <= 0.0 {
+    if payload.amount == 0 {
         return (
             StatusCode::BAD_REQUEST,
             Json(serde_json::json!({ "error": "Valor de saque deve ser maior que zero" })),
         );
     }
+
     if payload.pix_key.trim().is_empty() {
         return (
             StatusCode::BAD_REQUEST,
@@ -228,18 +229,18 @@ pub async fn create_pix_withdraw_handler(
         }
     };
 
-    // Verificar se o usuário possui saldo suficiente antes de aprovar o saque
-    let balance_check: Option<(f64,)> = sqlx::query_as("SELECT balance FROM users WHERE id = $1::uuid")
+    // Verificar se o usuário possui saldo suficiente antes de aprovar o saque (em centavos)
+    let balance_check: Option<(i64,)> = sqlx::query_as("SELECT balance FROM users WHERE id = $1::uuid")
         .bind(&user_id)
         .fetch_optional(&state.db)
         .await
         .unwrap_or(None);
 
     if let Some((user_balance,)) = balance_check {
-        if user_balance < payload.amount {
+        if (user_balance as u64) < payload.amount {
             return (
                 StatusCode::BAD_REQUEST,
-                Json(serde_json::json!({ "error": "Saldo insuficiente para realizar o saque solicidato" })),
+                Json(serde_json::json!({ "error": "Saldo insuficiente para realizar o saque solicitado" })),
             );
         }
     }

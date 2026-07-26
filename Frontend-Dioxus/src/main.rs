@@ -20,6 +20,7 @@
 #![allow(dead_code)]
 
 mod api_client;
+mod audio;
 mod components;
 mod pages;
 mod router;

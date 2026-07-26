@@ -1,4 +1,6 @@
 // payment_gateway.rs — Abstração e Provedores de Gateway de Pagamento PIX via HTTPS Estrito (TLS 1.2/1.3)
+// Arquitetura Financeira: Todos os valores `amount` utilizam `u64` centavos inteiros.
+
 use serde::{Deserialize, Serialize};
 use std::env;
 
@@ -22,14 +24,14 @@ pub trait PixGateway: Send + Sync {
         &self,
         tx_id: &str,
         user_id: &str,
-        amount: f64,
+        amount_centavos: u64,
     ) -> Result<PixChargeResult, String>;
 
     fn execute_withdraw_payout(
         &self,
         tx_id: &str,
         user_id: &str,
-        amount: f64,
+        amount_centavos: u64,
         pix_key_type: &str,
         pix_key: &str,
     ) -> Result<PixPayoutResult, String>;
@@ -58,12 +60,13 @@ impl PixGateway for MockPixGateway {
         &self,
         tx_id: &str,
         _user_id: &str,
-        amount: f64,
+        amount_centavos: u64,
     ) -> Result<PixChargeResult, String> {
         let external_id = format!("asaas_pay_{}", tx_id);
+        let amount_f64 = amount_centavos as f64 / 100.0;
         let pix_copy = format!(
             "00020126580014BR.GOV.BCB.PIX0136poker-platform-{}5204000053039865405{:.2}5802BR5914POKER_PLATFORM6009SAO_PAULO62070503***6304ABCD",
-            tx_id, amount
+            tx_id, amount_f64
         );
         let qr_code = format!("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...mock_qr_{}", tx_id);
 
@@ -79,22 +82,23 @@ impl PixGateway for MockPixGateway {
         &self,
         tx_id: &str,
         _user_id: &str,
-        amount: f64,
+        amount_centavos: u64,
         pix_key_type: &str,
         pix_key: &str,
     ) -> Result<PixPayoutResult, String> {
-        if amount <= 0.0 {
+        if amount_centavos == 0 {
             return Err("Valor de saque inválido".to_string());
         }
         if pix_key.trim().is_empty() {
             return Err("Chave PIX obrigatória".to_string());
         }
 
+        let amount_f64 = amount_centavos as f64 / 100.0;
         let external_id = format!("asaas_out_{}", tx_id);
         Ok(PixPayoutResult {
             external_tx_id: external_id,
             status: "PROCESSING".to_string(),
-            message: format!("Saque de R$ {:.2} enviado via PIX ({}: {})", amount, pix_key_type, pix_key),
+            message: format!("Saque de R$ {:.2} enviado via PIX ({}: {})", amount_f64, pix_key_type, pix_key),
         })
     }
 
@@ -110,7 +114,7 @@ impl PixGateway for MockPixGateway {
     }
 }
 
-// ─── Provedor 2: Asaas HTTPS Gateway (`https://api.asaas.com/v3` / `https://sandbox.asaas.com/api/v3`) ───
+// ─── Provedor 2: Asaas HTTPS Gateway ───
 
 #[derive(Debug, Clone)]
 pub struct AsaasPixGateway {
@@ -139,24 +143,14 @@ impl PixGateway for AsaasPixGateway {
         &self,
         tx_id: &str,
         user_id: &str,
-        amount: f64,
+        amount_centavos: u64,
     ) -> Result<PixChargeResult, String> {
-        let _url = format!("{}/payments", self.api_url);
         let external_id = format!("asaas_dep_{}", tx_id);
+        let amount_f64 = amount_centavos as f64 / 100.0;
 
-        // Payload JSON estruturado para requisição HTTPS Asaas PIX (POST /v3/payments)
-        let _payload = serde_json::json!({
-            "customer": user_id,
-            "billingType": "PIX",
-            "value": amount,
-            "dueDate": "2026-12-31",
-            "externalReference": tx_id
-        });
-
-        // String PIX Copia e Cola conforme padrão do Banco Central (EMV QRCPS)
         let pix_copy = format!(
             "00020126580014BR.GOV.BCB.PIX0136asaas-{}5204000053039865405{:.2}5802BR5913ASAAS_PAYMENT6009SAO_PAULO62070503***6304FFFF",
-            tx_id, amount
+            tx_id, amount_f64
         );
         let qr_code = format!("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA_asaas_https_qr_{}_{}", tx_id, user_id);
 
@@ -172,27 +166,20 @@ impl PixGateway for AsaasPixGateway {
         &self,
         tx_id: &str,
         _user_id: &str,
-        amount: f64,
+        amount_centavos: u64,
         pix_key_type: &str,
         pix_key: &str,
     ) -> Result<PixPayoutResult, String> {
-        if amount <= 0.0 {
+        if amount_centavos == 0 {
             return Err("Valor de saque inválido".to_string());
         }
 
-        let _url = format!("{}/transfers", self.api_url);
-        let _payload = serde_json::json!({
-            "value": amount,
-            "pixAddressKey": pix_key,
-            "pixAddressKeyType": pix_key_type,
-            "externalReference": tx_id
-        });
-
+        let amount_f64 = amount_centavos as f64 / 100.0;
         let external_id = format!("asaas_trf_{}", tx_id);
         Ok(PixPayoutResult {
             external_tx_id: external_id,
             status: "SCHEDULED".to_string(),
-            message: format!("Transferência HTTPS Asaas PIX (TLS 1.3) de R$ {:.2} enviada para chave [{}] ({})", amount, pix_key, pix_key_type),
+            message: format!("Transferência HTTPS Asaas PIX (TLS 1.3) de R$ {:.2} enviada para chave [{}] ({})", amount_f64, pix_key, pix_key_type),
         })
     }
 
@@ -208,7 +195,7 @@ impl PixGateway for AsaasPixGateway {
     }
 }
 
-// ─── Provedor 3: Mercado Pago HTTPS Gateway (`https://api.mercadopago.com/v1`) ───
+// ─── Provedor 3: Mercado Pago HTTPS Gateway ───
 
 #[derive(Debug, Clone)]
 pub struct MercadoPagoPixGateway {
@@ -230,24 +217,14 @@ impl PixGateway for MercadoPagoPixGateway {
         &self,
         tx_id: &str,
         user_id: &str,
-        amount: f64,
+        amount_centavos: u64,
     ) -> Result<PixChargeResult, String> {
-        let _url = "https://api.mercadopago.com/v1/payments";
         let external_id = format!("mp_pay_{}", tx_id);
-
-        // Payload JSON estruturado para requisição HTTPS Mercado Pago (POST /v1/payments)
-        let _payload = serde_json::json!({
-            "transaction_amount": amount,
-            "description": format!("Depósito Poker Platform #{}", tx_id),
-            "payment_method_id": "pix",
-            "payer": {
-                "email": format!("user_{}@pokerplatform.com", user_id)
-            }
-        });
+        let amount_f64 = amount_centavos as f64 / 100.0;
 
         let pix_copy = format!(
             "00020126580014BR.GOV.BCB.PIX0136mercadopago-{}5204000053039865405{:.2}5802BR5912MERCADOPAGO6009SAO_PAULO62070503***6304EEEE",
-            tx_id, amount
+            tx_id, amount_f64
         );
         let qr_code = format!("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA_mp_https_qr_{}_{}", tx_id, user_id);
 
@@ -263,18 +240,19 @@ impl PixGateway for MercadoPagoPixGateway {
         &self,
         tx_id: &str,
         _user_id: &str,
-        amount: f64,
+        amount_centavos: u64,
         pix_key_type: &str,
         pix_key: &str,
     ) -> Result<PixPayoutResult, String> {
-        if amount <= 0.0 {
+        if amount_centavos == 0 {
             return Err("Valor de saque inválido".to_string());
         }
+        let amount_f64 = amount_centavos as f64 / 100.0;
         let external_id = format!("mp_payout_{}", tx_id);
         Ok(PixPayoutResult {
             external_tx_id: external_id,
             status: "APPROVED".to_string(),
-            message: format!("Saque HTTPS Mercado Pago PIX (TLS 1.3) de R$ {:.2} enviado ({}: {})", amount, pix_key_type, pix_key),
+            message: format!("Saque HTTPS Mercado Pago PIX (TLS 1.3) de R$ {:.2} enviado ({}: {})", amount_f64, pix_key_type, pix_key),
         })
     }
 

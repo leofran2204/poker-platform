@@ -89,13 +89,14 @@ impl PlayerStatus {
 #[allow(clippy::too_many_arguments)]
 pub fn Avatar(
     name: String,
-    chips: u32,
+    chips: u64,
     position: Position,
     status: PlayerStatus,
     cards: Option<Vec<super::card::PlayingCard>>,
 ) -> Element {
     let border_class = status.color_class();
     let icon = status.icon();
+    let chips_formatted = format!("R$ {:.2}", chips as f64 / 100.0);
 
     rsx! {
         div {
@@ -124,7 +125,7 @@ pub fn Avatar(
             }
             div {
                 class: "text-xs text-yellow-200 font-mono",
-                "💰 {chips}"
+                "💰 {chips_formatted}"
             }
             if let Some(hand) = cards {
                 if !hand.is_empty() {

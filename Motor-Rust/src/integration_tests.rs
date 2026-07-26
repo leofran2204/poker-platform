@@ -61,11 +61,11 @@ fn deal_full_hand(n_players: usize) -> (Vec<Vec<Card>>, Vec<Card>) {
 }
 
 fn rake_config() -> TableConfig {
-    TableConfig::new(10.0, 5.0, 6.0) // BB=10, 5%, cap R$6
+    TableConfig::new(1000, 5.0, 600) // BB=10, 5%, cap R$6
 }
 
 /// Soma dos amounts de uma lista de pots.
-fn sum_pots(pots: &[Pot]) -> f64 {
+fn sum_pots(pots: &[Pot]) -> u64 {
     pots.iter().map(|p| p.amount).sum()
 }
 
@@ -96,19 +96,19 @@ fn test_integration_full_hand_deck_sidepots_rake_handhistory() {
     let players = vec![
         PlayerForPots {
             id: "p1".into(),
-            total_bet: 100.0,
+            total_bet: 10000,
             has_folded: false,
             cards: vec![c(Rank::Ace, Suit::Spades), c(Rank::Ace, Suit::Hearts)],
         },
         PlayerForPots {
             id: "p2".into(),
-            total_bet: 200.0,
+            total_bet: 20000,
             has_folded: false,
             cards: vec![c(Rank::King, Suit::Clubs), c(Rank::Queen, Suit::Diamonds)],
         },
         PlayerForPots {
             id: "p3".into(),
-            total_bet: 200.0,
+            total_bet: 20000,
             has_folded: false,
             cards: vec![c(Rank::Jack, Suit::Clubs), c(Rank::Ten, Suit::Diamonds)],
         },
@@ -124,17 +124,17 @@ fn test_integration_full_hand_deck_sidepots_rake_handhistory() {
 
     // 1) side_pots
     let side = resolve_side_pots(&players, &board);
-    let contributions_sum: f64 = players.iter().map(|p| p.total_bet).sum();
+    let contributions_sum: u64 = players.iter().map(|p| p.total_bet).sum();
     assert!(
-        (sum_pots(&side.pots) - contributions_sum).abs() < f64::EPSILON,
+        sum_pots(&side.pots) == contributions_sum,
         "soma dos pots ({}) != soma das contribuições ({}) — fichas não conservadas",
         sum_pots(&side.pots),
         contributions_sum
     );
     // main pot = (100-0)*3 = 300; side = (200-100)*2 = 200
     assert_eq!(side.pots.len(), 2, "deve haver main + 1 side pot");
-    assert!((side.pots[0].amount - 300.0).abs() < f64::EPSILON);
-    assert!((side.pots[1].amount - 200.0).abs() < f64::EPSILON);
+    assert_eq!(side.pots[0].amount, 30000);
+    assert_eq!(side.pots[1].amount, 20000);
 
     // 2) rake sobre os pots
     let rake_result = deduct_rake(&side.pots, &rake_config(), None);
@@ -144,11 +144,9 @@ fn test_integration_full_hand_deck_sidepots_rake_handhistory() {
         rake_result.total_rake,
         rake_config().rake_cap
     );
-    assert!(
-        (sum_pots(&rake_result.pots_after_rake)
-            - (sum_pots(&side.pots) - rake_result.total_rake))
-            .abs()
-            < 1e-9,
+    assert_eq!(
+        sum_pots(&rake_result.pots_after_rake),
+        sum_pots(&side.pots) - rake_result.total_rake,
         "pots após rake não batem com total - rake"
     );
 
@@ -180,7 +178,7 @@ fn test_integration_full_hand_deck_sidepots_rake_handhistory() {
     let mut results: Vec<PlayerResult> = players
         .iter()
         .map(|p| {
-            let won = *side.payouts.get(&p.id).unwrap_or(&0.0);
+            let won = *side.payouts.get(&p.id).unwrap_or(&0);
             PlayerResult {
                 player_id: p.id.clone(),
                 finish_position: 0, // preenchido abaixo
@@ -196,15 +194,14 @@ fn test_integration_full_hand_deck_sidepots_rake_handhistory() {
         .collect();
     // Posições por payout decrescente
     let mut order: Vec<usize> = (0..results.len()).collect();
-    order.sort_by(|&a, &b| side.payouts.get(&players[b].id).unwrap_or(&0.0)
-        .partial_cmp(side.payouts.get(&players[a].id).unwrap_or(&0.0))
-        .unwrap_or(std::cmp::Ordering::Equal));
+    order.sort_by(|&a, &b| side.payouts.get(&players[b].id).unwrap_or(&0)
+        .cmp(side.payouts.get(&players[a].id).unwrap_or(&0)).reverse());
     for (pos, &idx) in order.iter().enumerate() {
         results[idx].finish_position = (pos + 1) as u8;
     }
 
-    let total_pot_before = sum_pots(&side.pots) as u64;
-    finalize_hand(&mut history, results, total_pot_before, rake_result.total_rake as u64, GamePhase::River, EndReason::Showdown);
+    let total_pot_before = sum_pots(&side.pots);
+    finalize_hand(&mut history, results, total_pot_before, rake_result.total_rake, GamePhase::River, EndReason::Showdown);
 
     // Invariantes do hand_history
     assert_eq!(history.total_pot, total_pot_before, "total_pot do histórico != soma antes do rake");
@@ -299,13 +296,13 @@ fn test_integration_full_tournament_lifecycle() {
 fn test_integration_loss_deflator_plus_rake() {
     // All-in preflop: main pot de 200 entre loser e winner.
     let pots = vec![Pot {
-        amount: 200.0,
+        amount: 20000,
         eligible_players: vec!["loser".into(), "winner".into()],
     }];
 
     // Rake sobre o pote (5% de 200 = 10, cap 6) → 6
     let rake = deduct_rake(&pots, &rake_config(), None);
-    assert!((rake.total_rake - 6.0).abs() < f64::EPSILON, "rake deve ser 6 (cap)");
+    assert_eq!(rake.total_rake, 600, "rake deve ser 6 (cap)");
     assert!(rake.total_rake <= rake_config().rake_cap);
 
     // Loss deflator (preflop = 15% sobre pots elegíveis do perdedor)
@@ -317,12 +314,12 @@ fn test_integration_loss_deflator_plus_rake() {
     })
     .expect("deflator calculado");
     assert_eq!(deflator.tier, LossDeflatorTier::FifteenPercent);
-    assert!((deflator.cashback - 30.0).abs() < f64::EPSILON, "cashback deve ser 15% de 200 = 30");
-    assert_eq!(deflator.eligible_pot_total, 200.0);
+    assert_eq!(deflator.cashback, 3000, "cashback deve ser 15% de 200 = 30");
+    assert_eq!(deflator.eligible_pot_total, 20000);
 
     // Conservação: rake + cashback não podem exceder o pote original
     assert!(
-        (rake.total_rake + deflator.cashback) <= pots[0].amount + 1e-9,
+        (rake.total_rake + deflator.cashback) <= pots[0].amount,
         "rake ({}) + cashback ({}) excede o pote ({})",
         rake.total_rake,
         deflator.cashback,
@@ -331,7 +328,7 @@ fn test_integration_loss_deflator_plus_rake() {
 
     // O vencedor recebe o pote menos rake e menos o cashback do perdedor
     let winner_net = pots[0].amount - rake.total_rake - deflator.cashback;
-    assert!((winner_net - 164.0).abs() < f64::EPSILON, "vencedor líquido deve ser 200-6-30 = 164");
+    assert_eq!(winner_net, 16400, "vencedor líquido deve ser 200-6-30 = 164");
 }
 
 // ─── Cenário 4: RNG + deck (embaralhamento criptográfico) ───
@@ -382,10 +379,10 @@ fn test_integration_sidepots_chip_conservation_with_fold() {
     // 4 jogadores: p1 foldou (apostou 50), p2=50, p3=150, p4=150
     // main: (50-0)*4 = 200; side: (150-50)*2 = 200 → total 400
     let players = vec![
-        PlayerForPots { id: "p1".into(), total_bet: 50.0, has_folded: true, cards: vec![] },
-        PlayerForPots { id: "p2".into(), total_bet: 50.0, has_folded: false, cards: vec![] },
-        PlayerForPots { id: "p3".into(), total_bet: 150.0, has_folded: false, cards: vec![] },
-        PlayerForPots { id: "p4".into(), total_bet: 150.0, has_folded: false, cards: vec![] },
+        PlayerForPots { id: "p1".into(), total_bet: 5000, has_folded: true, cards: vec![] },
+        PlayerForPots { id: "p2".into(), total_bet: 5000, has_folded: false, cards: vec![] },
+        PlayerForPots { id: "p3".into(), total_bet: 15000, has_folded: false, cards: vec![] },
+        PlayerForPots { id: "p4".into(), total_bet: 15000, has_folded: false, cards: vec![] },
     ];
     let board = vec![
         c(Rank::Ace, Suit::Hearts),
@@ -396,28 +393,28 @@ fn test_integration_sidepots_chip_conservation_with_fold() {
     ];
 
     let side = resolve_side_pots(&players, &board);
-    let contributions: f64 = players.iter().map(|p| p.total_bet).sum();
+    let contributions: u64 = players.iter().map(|p| p.total_bet).sum();
     assert!(
-        (sum_pots(&side.pots) - contributions).abs() < f64::EPSILON,
+        sum_pots(&side.pots) == contributions,
         "pots ({}) divergem das contribuições ({})",
         sum_pots(&side.pots),
         contributions
     );
     assert_eq!(side.pots.len(), 2);
-    assert!((side.pots[0].amount - 200.0).abs() < f64::EPSILON);
-    assert!((side.pots[1].amount - 200.0).abs() < f64::EPSILON);
+    assert_eq!(side.pots[0].amount, 20000);
+    assert_eq!(side.pots[1].amount, 20000);
 
     // p1 foldou: continua elegível (contribuiu), mas NÃO pode ganhar nada.
     // O motor mantém p1 na lista de elegíveis do pote, mas a distribuição o exclui.
     assert!(
-        !side.payouts.contains_key("p1") || side.payouts.get("p1").copied().unwrap_or(0.0) == 0.0,
+        !side.payouts.contains_key("p1") || side.payouts.get("p1").copied().unwrap_or(0) == 0,
         "jogador foldado não pode receber payout"
     );
 
     // Payouts (pré-rake) somam os pots, com resíduo de truncagem desprezível
-    let payout_sum: f64 = side.payouts.values().sum();
+    let payout_sum: u64 = side.payouts.values().sum();
     assert!(
-        (payout_sum - sum_pots(&side.pots)).abs() < 0.01 * side.pots.len() as f64,
+        payout_sum <= sum_pots(&side.pots),
         "payouts ({}) não batem com os pots ({})",
         payout_sum,
         sum_pots(&side.pots)

@@ -35,7 +35,7 @@ async fn test_ws_high_concurrency_table_actors() {
                     player_id,
                     username: player_name,
                     seat: Some(p),
-                    chips: 1000.0,
+                    chips: 100000,
                     respond_to,
                 })
                 .await;
@@ -56,7 +56,7 @@ async fn test_ws_high_concurrency_table_actors() {
                             .send(PlayerCommand::Action {
                                 player_id: player_id.clone(),
                                 action: "call".to_string(),
-                                amount: 10.0,
+                                amount: 1000,
                             })
                             .await;
                     } else {
@@ -122,7 +122,7 @@ async fn test_ws_rapid_reconnect_stress() {
                 player_id: player_id.clone(),
                 username: name,
                 seat: None,
-                chips: 500.0,
+                chips: 50000,
                 respond_to: tx_seat,
             })
             .await

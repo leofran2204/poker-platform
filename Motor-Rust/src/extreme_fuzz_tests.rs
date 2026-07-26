@@ -29,17 +29,16 @@ proptest! {
     #![proptest_config(get_extreme_proptest_config())]
     #[test]
     fn extreme_fuzz_rake_invariants(
-        pot in 0.0..500_000_000.0f64,
+        pot in 0u64..500_000_000u64,
         pct in 0.0..50.0f64,
-        cap in 0.0..50_000.0f64,
+        cap in 0u64..50_000u64,
     ) {
         let rake = calculate_rake_for_pot(pot, pct, cap);
-        prop_assert!(rake >= 0.0, "Rake sob fuzzing resultou em valor negativo");
-        if cap > 0.0 {
-            prop_assert!(rake <= cap + 0.001, "Rake excedeu o teto (cap)");
+        if cap > 0 {
+            prop_assert!(rake <= cap, "Rake excedeu o teto (cap)");
         }
-        let pot_after = pot - rake;
-        prop_assert!(pot_after >= -0.001, "Pote resultante ficou negativo");
+        let pot_after = pot.saturating_sub(rake);
+        prop_assert!(pot_after <= pot, "Pote resultante maior que o inicial");
     }
 }
 
@@ -48,7 +47,7 @@ proptest! {
     #![proptest_config(get_extreme_proptest_config())]
     #[test]
     fn extreme_fuzz_side_pots(
-        bets in prop::collection::vec(0.0..10_000_000.0f64, 2..=9),
+        bets in prop::collection::vec(0u64..10_000_000u64, 2..=9),
     ) {
         let mut players = Vec::with_capacity(bets.len());
         for (idx, &bet) in bets.iter().enumerate() {
@@ -63,9 +62,9 @@ proptest! {
             });
         }
         let pots = calculate_side_pots(&players);
-        let total_contributed: f64 = bets.iter().sum();
-        let total_pots: f64 = pots.iter().map(|p| p.amount).sum();
-        prop_assert!((total_contributed - total_pots).abs() < 0.10, "Discrepância na conservação de fichas em side pots");
+        let total_contributed: u64 = bets.iter().sum();
+        let total_pots: u64 = pots.iter().map(|p| p.amount).sum();
+        prop_assert_eq!(total_contributed, total_pots, "Discrepância na conservação de fichas em side pots");
     }
 }
 
@@ -74,7 +73,7 @@ proptest! {
     #![proptest_config(get_extreme_proptest_config())]
     #[test]
     fn extreme_fuzz_loss_deflator(
-        pote_main in 10.0..1_000_000.0f64,
+        pote_main in 1000u64..1_000_000u64,
         phase_idx in 0..4u8,
     ) {
         let phase = match phase_idx {
@@ -91,7 +90,7 @@ proptest! {
         };
         let res = calculate_progressive_loss_deflator(params);
         if let Some(defl) = res {
-            prop_assert!(defl.cashback >= 0.0 && defl.cashback <= pote_main, "Cashback fora dos limites válidos do pote");
+            prop_assert!(defl.cashback <= pote_main, "Cashback fora dos limites válidos do pote");
         }
     }
 }

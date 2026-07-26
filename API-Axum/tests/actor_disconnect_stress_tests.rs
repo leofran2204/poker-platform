@@ -20,7 +20,7 @@ async fn test_disconnect_inactive_turn_player_stress() {
                 player_id: format!("player_{}", i),
                 username: format!("User {}", i),
                 seat: Some(i),
-                chips: 1000.0,
+                chips: 100000,
                 respond_to: resp_tx,
             })
             .await
@@ -78,7 +78,7 @@ async fn test_disconnect_all_players_successive_stress() {
                     player_id: format!("p_{}", i),
                     username: format!("User {}", i),
                     seat: Some(i),
-                    chips: 500.0,
+                    chips: 50000,
                     respond_to: resp_tx,
                 })
                 .await

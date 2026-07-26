@@ -21,6 +21,7 @@ use crate::components::avatar::{PlayerStatus, Position};
 use crate::components::seat::SeatPosition;
 use crate::router::Route;
 use crate::ws_client::{self, WsCallbacks, WsClient, WsConnectionState};
+use crate::components::deflator_notification::{DeflatorNotification, DeflatorPayload};
 
 /// Estado interno da página de mesa.
 #[derive(Clone)]
@@ -35,10 +36,11 @@ struct TableState {
     pots: Vec<PotEntry>,
     /// Ações disponíveis.
     available_actions: Vec<ActionKind>,
-    /// Estado da conexão WebSocket.
     ws_state: WsConnectionState,
     /// ID do jogador local.
     local_player_id: Option<String>,
+    /// Payload do evento Loss Deflator para exibir o overlay.
+    deflator_payload: Option<DeflatorPayload>,
 }
 
 impl Default for TableState {
@@ -51,6 +53,7 @@ impl Default for TableState {
             available_actions: Vec::new(),
             ws_state: WsConnectionState::Disconnected,
             local_player_id: None,
+            deflator_payload: None,
         }
     }
 }
@@ -158,7 +161,7 @@ fn ws_player_to_player_data(
 
     PlayerData {
         name: ws.name.clone(),
-        chips: ws.chips as u32,
+        chips: ws.chips,
         position,
         status,
         cards,
@@ -168,7 +171,7 @@ fn ws_player_to_player_data(
 
 /// Converte PotWsData para PotEntry.
 fn ws_pot_to_pot_entry(ws: &ws_client::PotWsData) -> PotEntry {
-    PotEntry::new(ws.name.clone(), ws.amount as u32)
+    PotEntry::new(ws.name.clone(), ws.amount)
 }
 
 /// Converte string de ação do frontend para string do WebSocket.
@@ -250,6 +253,28 @@ pub fn Table(id: String) -> Element {
                                 .iter()
                                 .filter_map(|a| parse_action(a))
                                 .collect();
+                            
+                            // Se começou uma nova mão (PreFlop sem cartas comunitárias), limpar o overlay do Deflator
+                            if s.stage == CommunityStage::PreFlop && s.community_cards.is_empty() {
+                                s.deflator_payload = None;
+                            }
+                        }
+                        ws_client::ServerMessage::DeflatorTriggered {
+                            loser_name,
+                            winner_name,
+                            cashback_amount,
+                            odds_broken,
+                            prevented_elimination,
+                            is_tournament,
+                        } => {
+                            s.deflator_payload = Some(DeflatorPayload {
+                                loser_name,
+                                winner_name,
+                                cashback_amount,
+                                odds_broken,
+                                prevented_elimination,
+                                is_tournament,
+                            });
                         }
                         ws_client::ServerMessage::YourTurn { actions, .. } => {
                             s.available_actions = actions
@@ -286,12 +311,17 @@ pub fn Table(id: String) -> Element {
         let action_str = action_kind_to_ws(action);
         let snapshot_ref = state.read().borrow().clone();
         if let Some(ref client) = *ws_ref.read() {
-            let amount = match action {
-                ActionKind::AllIn => snapshot_ref.my_stack() as u64,
-                ActionKind::Raise => {
-                    let bb = if snapshot_ref.big_blind > 0 { snapshot_ref.big_blind } else { 10 };
-                    (bb * 3) as u64
+            let amount: u64 = match action {
+                ActionKind::AllIn => {
+                    let local_id = snapshot_ref.local_player_id.as_ref();
+                    snapshot_ref
+                        .players
+                        .iter()
+                        .find(|p| Some(&p.name) == local_id)
+                        .map(|p| p.chips)
+                        .unwrap_or(0)
                 }
+                ActionKind::Raise => 3000, // 3000 centavos (R$ 30,00)
                 _ => 0,
             };
             client.send_action(action_str, Some(amount));
@@ -334,6 +364,11 @@ pub fn Table(id: String) -> Element {
                     class: "text-xs {status_class}",
                     "{status_text}"
                 }
+            }
+
+            // Notificação do Loss Deflator
+            DeflatorNotification {
+                payload: snapshot.deflator_payload.clone(),
             }
 
             // Mesa completa

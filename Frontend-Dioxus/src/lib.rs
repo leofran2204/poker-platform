@@ -3,6 +3,7 @@
 #![allow(dead_code)]
 
 pub mod api_client;
+pub mod audio;
 pub mod components;
 pub mod pages;
 pub mod router;

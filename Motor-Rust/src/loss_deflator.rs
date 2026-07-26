@@ -71,29 +71,29 @@ pub struct ProgressiveLossDeflatorParams {
     pub phase: GamePhase,
 }
 
-/// Resultado do deflator progressivo
+/// Resultado do deflator progressivo em centavos inteiros
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub struct ProgressiveLossDeflatorResult {
     pub loser_id: String,
     pub winner_id: String,
-    pub cashback: f64, // cashback total (2 casas decimais, truncado)
-    pub odds: f64,     // não usado nesta versão (compatibilidade)
+    pub cashback: u64, // cashback total em centavos
+    pub odds: f64,     // percentual estatístico (escala flutuante)
     pub tier: LossDeflatorTier,
-    pub base_cashback: f64, // cashback total antes do rateio por pot
-    pub multiplier: f64,    // multiplicador aplicado pela fase (sempre 1.0)
+    pub base_cashback: u64, // cashback total em centavos antes do rateio
+    pub multiplier: f64,    // multiplicador aplicado pela fase
     pub phase: GamePhase,
     pub cards_remaining: u8, // quantas cartas faltavam quando o all-in aconteceu
     pub eligible_pot_ids: Vec<usize>, // índices dos pots em que o perdedor participou
-    pub eligible_pot_total: f64, // soma dos pots elegíveis (base do cálculo)
-    pub per_pot_cashback: Vec<PotCashbackEntry>, // rateio por pot
+    pub eligible_pot_total: u64, // soma dos pots elegíveis em centavos
+    pub per_pot_cashback: Vec<PotCashbackEntry>, // rateio por pot em centavos
 }
 
-/// Entrada individual do rateio: quanto cada pot contribuiu para o cashback
+/// Entrada individual do rateio: quanto cada pot contribuiu para o cashback (em centavos)
 #[derive(Debug, Clone)]
 pub struct PotCashbackEntry {
     pub pot_index: usize,
-    pub amount: f64,
+    pub amount: u64,
 }
 
 /// Deflator baseado na fase do all-in call (cartas restantes)
@@ -106,14 +106,7 @@ fn phase_deflator(phase: GamePhase) -> Option<(f64, u8)> {
     }
 }
 
-/// Calcula o deflator progressivo baseado na fase do all-in call.
-///
-/// O cashback incide APENAS sobre os pots em que o perdedor é elegível.
-/// Se o perdedor não participou de algum side pot (porque apostou menos
-/// que os outros jogadores all-in), esse pot é preservado integralmente.
-///
-/// # Returns
-/// Resultado com cashback final e rateio por pot, ou None se não qualifica
+/// Calcula o deflator progressivo baseado na fase do all-in call (em centavos inteiros).
 pub fn calculate_progressive_loss_deflator(
     params: ProgressiveLossDeflatorParams,
 ) -> Option<ProgressiveLossDeflatorResult> {
@@ -139,38 +132,39 @@ pub fn calculate_progressive_loss_deflator(
         return None;
     }
 
-    // 2. Somar apenas os pots elegíveis
-    let eligible_pot_total: f64 = eligible_pot_indices
+    // 2. Somar apenas os pots elegíveis em centavos
+    let eligible_pot_total: u64 = eligible_pot_indices
         .iter()
         .map(|&idx| pots[idx].amount)
         .sum();
 
-    if eligible_pot_total == 0.0 {
+    if eligible_pot_total == 0 {
         return None;
     }
 
-    // 3. Calcular cashback total sobre os pots elegíveis
-    // Trunca para 2 casas decimais (regra fundamental do software)
-    let base_cashback = truncar_2_casas(eligible_pot_total * percent);
+    // 3. Calcular cashback total sobre os pots elegíveis em centavos inteiros
+    let base_cashback = ((eligible_pot_total as f64 * percent).floor()) as u64;
 
-    // 4. Ratear o cashback proporcionalmente entre os pots elegíveis
+    // 4. Ratear o cashback proporcionalmente entre os pots elegíveis (em centavos)
     let mut per_pot_cashback = Vec::new();
-    let mut distributed = 0.0f64;
+    let mut distributed: u64 = 0;
 
     for (i, &idx) in eligible_pot_indices.iter().enumerate() {
         let is_last = i == eligible_pot_indices.len() - 1;
         let amount = if is_last {
-            // Último pot absorve o resto para evitar erro de arredondamento
-            base_cashback - distributed
+            base_cashback.saturating_sub(distributed)
         } else {
-            let proportion = pots[idx].amount / eligible_pot_total;
-            let raw = base_cashback * proportion;
-            truncar_2_casas(raw)
+            if eligible_pot_total > 0 {
+                let proportion = pots[idx].amount as f64 / eligible_pot_total as f64;
+                ((base_cashback as f64 * proportion).floor()) as u64
+            } else {
+                0
+            }
         };
         distributed += amount;
         per_pot_cashback.push(PotCashbackEntry {
             pot_index: idx,
-            amount,
+            amount: amount as u64,
         });
     }
 
@@ -186,7 +180,7 @@ pub fn calculate_progressive_loss_deflator(
         loser_id,
         winner_id,
         cashback: base_cashback,
-        odds: 0.0, // não usado nesta versão
+        odds: 0.0,
         tier,
         base_cashback,
         multiplier: 1.0,
@@ -348,13 +342,6 @@ pub fn mc_error_bound(samples: u64, max_boards: u64) -> f64 {
 
 // ─── Funções auxiliares privadas ───
 
-/// Trunca um valor f64 para exatamente 2 casas decimais, sem arredondamento.
-/// Exemplo: 49.95 → 49.95, 54.05 → 54.05
-/// Esta é uma regra fundamental do software: todos os valores monetários
-/// devem ter exatamente 2 casas decimais, truncados (nunca arredondados).
-fn truncar_2_casas(value: f64) -> f64 {
-    (value * 100.0).trunc() / 100.0
-}
 
 #[allow(dead_code)]
 fn evaluate_outcome(hero_cards: &[Card], villain_cards: &[Card], board: &[Card]) -> f64 {
@@ -389,16 +376,16 @@ mod tests {
         Card { rank, suit }
     }
 
-    fn make_pot(amount: f64, eligible: Vec<&str>) -> Pot {
+    fn make_pot(amount: u64, eligible: Vec<&str>) -> Pot {
         Pot {
             amount,
-            eligible_players: eligible.into_iter().map(|s| s.into()).collect(),
+            eligible_players: eligible.into_iter().map(String::from).collect(),
         }
     }
 
     #[test]
     fn test_deflator_preflop() {
-        let pots = vec![make_pot(200.0, vec!["loser", "winner"])];
+        let pots = vec![make_pot(20000, vec!["loser", "winner"])];
         let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
             pots,
             loser_id: "loser".into(),
@@ -410,12 +397,12 @@ mod tests {
         assert_eq!(r.tier, LossDeflatorTier::FifteenPercent);
         assert_eq!(r.cards_remaining, 5);
         // 15% de 200 = 30
-        assert!((r.cashback - 30.0).abs() < f64::EPSILON);
+        assert_eq!(r.cashback, 3000);
     }
 
     #[test]
     fn test_deflator_flop() {
-        let pots = vec![make_pot(200.0, vec!["loser", "winner"])];
+        let pots = vec![make_pot(20000, vec!["loser", "winner"])];
         let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
             pots,
             loser_id: "loser".into(),
@@ -427,12 +414,12 @@ mod tests {
         assert_eq!(r.tier, LossDeflatorTier::TwentyFivePercent);
         assert_eq!(r.cards_remaining, 2);
         // 25% de 200 = 50
-        assert!((r.cashback - 50.0).abs() < f64::EPSILON);
+        assert_eq!(r.cashback, 5000);
     }
 
     #[test]
     fn test_deflator_turn() {
-        let pots = vec![make_pot(200.0, vec!["loser", "winner"])];
+        let pots = vec![make_pot(20000, vec!["loser", "winner"])];
         let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
             pots,
             loser_id: "loser".into(),
@@ -444,12 +431,12 @@ mod tests {
         assert_eq!(r.tier, LossDeflatorTier::ThirtyFivePercent);
         assert_eq!(r.cards_remaining, 1);
         // 35% de 200 = 70
-        assert!((r.cashback - 70.0).abs() < f64::EPSILON);
+        assert_eq!(r.cashback, 7000);
     }
 
     #[test]
     fn test_deflator_river_returns_none() {
-        let pots = vec![make_pot(200.0, vec!["loser", "winner"])];
+        let pots = vec![make_pot(20000, vec!["loser", "winner"])];
         let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
             pots,
             loser_id: "loser".into(),
@@ -465,8 +452,8 @@ mod tests {
         // side pot: apenas winner (100)
         // cashback só incide sobre main pot (200)
         let pots = vec![
-            make_pot(200.0, vec!["loser", "winner"]), // main pot
-            make_pot(100.0, vec!["winner"]),          // side pot - loser não participou
+            make_pot(20000, vec!["loser", "winner"]), // main pot
+            make_pot(10000, vec!["winner"]),          // side pot - loser não participou
         ];
         let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
             pots,
@@ -477,8 +464,8 @@ mod tests {
         assert!(result.is_some());
         let r = result.unwrap();
         // 25% de 200 = 50 (apenas main pot)
-        assert!((r.cashback - 50.0).abs() < f64::EPSILON);
-        assert!((r.eligible_pot_total - 200.0).abs() < f64::EPSILON);
+        assert_eq!(r.cashback, 5000);
+        assert_eq!(r.eligible_pot_total, 20000);
         assert_eq!(r.eligible_pot_ids, vec![0]);
     }
 
@@ -490,8 +477,8 @@ mod tests {
         // 25% de 300 = 75
         // rateio: main = 75 * 200/300 = 50, side = 75 * 100/300 = 25
         let pots = vec![
-            make_pot(200.0, vec!["loser", "winner"]),
-            make_pot(100.0, vec!["loser", "winner"]),
+            make_pot(20000, vec!["loser", "winner"]),
+            make_pot(10000, vec!["loser", "winner"]),
         ];
         let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
             pots,
@@ -501,16 +488,16 @@ mod tests {
         });
         assert!(result.is_some());
         let r = result.unwrap();
-        assert!((r.cashback - 75.0).abs() < f64::EPSILON);
-        assert!((r.eligible_pot_total - 300.0).abs() < f64::EPSILON);
+        assert_eq!(r.cashback, 7500);
+        assert_eq!(r.eligible_pot_total, 30000);
         assert_eq!(r.per_pot_cashback.len(), 2);
-        assert!((r.per_pot_cashback[0].amount - 50.0).abs() < f64::EPSILON); // main pot
-        assert!((r.per_pot_cashback[1].amount - 25.0).abs() < f64::EPSILON); // side pot
+        assert_eq!(r.per_pot_cashback[0].amount, 5000); // main pot
+        assert_eq!(r.per_pot_cashback[1].amount, 2500); // side pot
     }
 
     #[test]
     fn test_deflator_loser_not_eligible_returns_none() {
-        let pots = vec![make_pot(200.0, vec!["winner"])];
+        let pots = vec![make_pot(20000, vec!["winner"])];
         let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
             pots,
             loser_id: "loser".into(),

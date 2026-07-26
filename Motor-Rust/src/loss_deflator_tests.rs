@@ -16,7 +16,7 @@ fn card(rank: Rank, suit: Suit) -> Card {
     Card { rank, suit }
 }
 
-fn pot(amount: f64, eligible: Vec<&str>) -> Pot {
+fn pot(amount: u64, eligible: Vec<&str>) -> Pot {
     Pot {
         amount,
         eligible_players: eligible.into_iter().map(|s| s.into()).collect(),
@@ -42,13 +42,13 @@ fn params(
 #[test]
 fn test_preflop_cashback_15_percent() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(1000.0, vec!["a", "b"])],
+        vec![pot(100000, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Preflop,
     ))
     .unwrap();
-    assert!((r.cashback - 150.0).abs() < f64::EPSILON); // 15% de 1000
+    assert_eq!(r.cashback, 15000); // 15% de 1000
     assert_eq!(r.tier, LossDeflatorTier::FifteenPercent);
     assert_eq!(r.cards_remaining, 5);
 }
@@ -56,13 +56,13 @@ fn test_preflop_cashback_15_percent() {
 #[test]
 fn test_flop_cashback_25_percent() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(1000.0, vec!["a", "b"])],
+        vec![pot(100000, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Flop,
     ))
     .unwrap();
-    assert!((r.cashback - 250.0).abs() < f64::EPSILON);
+    assert_eq!(r.cashback, 25000);
     assert_eq!(r.tier, LossDeflatorTier::TwentyFivePercent);
     assert_eq!(r.cards_remaining, 2);
 }
@@ -70,13 +70,13 @@ fn test_flop_cashback_25_percent() {
 #[test]
 fn test_turn_cashback_35_percent() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(1000.0, vec!["a", "b"])],
+        vec![pot(100000, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Turn,
     ))
     .unwrap();
-    assert!((r.cashback - 350.0).abs() < f64::EPSILON);
+    assert_eq!(r.cashback, 35000);
     assert_eq!(r.tier, LossDeflatorTier::ThirtyFivePercent);
     assert_eq!(r.cards_remaining, 1);
 }
@@ -84,7 +84,7 @@ fn test_turn_cashback_35_percent() {
 #[test]
 fn test_river_returns_none() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(1000.0, vec!["a", "b"])],
+        vec![pot(100000, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::River,
@@ -100,7 +100,7 @@ fn test_river_returns_none() {
 #[test]
 fn test_loser_not_in_any_pot_returns_none() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(500.0, vec!["x", "y"]), pot(300.0, vec!["x"])],
+        vec![pot(50000, vec!["x", "y"]), pot(30000, vec!["x"])],
         "z",
         "x",
         GamePhase::Flop,
@@ -112,15 +112,15 @@ fn test_loser_not_in_any_pot_returns_none() {
 fn test_loser_only_in_side_pot() {
     // main pot: x + y (200), side pot: loser + x (100)
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(200.0, vec!["x", "y"]), pot(100.0, vec!["loser", "x"])],
+        vec![pot(20000, vec!["x", "y"]), pot(10000, vec!["loser", "x"])],
         "loser",
         "x",
         GamePhase::Flop,
     ))
     .unwrap();
     // 25% de 100 = 25
-    assert!((r.cashback - 25.0).abs() < f64::EPSILON);
-    assert!((r.eligible_pot_total - 100.0).abs() < f64::EPSILON);
+    assert_eq!(r.cashback, 2500);
+    assert_eq!(r.eligible_pot_total, 10000);
     assert_eq!(r.eligible_pot_ids, vec![1]);
 }
 
@@ -128,9 +128,9 @@ fn test_loser_only_in_side_pot() {
 fn test_loser_in_all_pots() {
     let r = calculate_progressive_loss_deflator(params(
         vec![
-            pot(200.0, vec!["loser", "x", "y"]),
-            pot(100.0, vec!["loser", "x"]),
-            pot(50.0, vec!["loser", "x", "y", "z"]),
+            pot(20000, vec!["loser", "x", "y"]),
+            pot(10000, vec!["loser", "x"]),
+            pot(5000, vec!["loser", "x", "y", "z"]),
         ],
         "loser",
         "x",
@@ -138,11 +138,11 @@ fn test_loser_in_all_pots() {
     ))
     .unwrap();
     // 35% de 350 = 122.5 → em f64, 350.0 * 0.35 = 122.4999... truncado para 122.49
-    assert!((r.eligible_pot_total - 350.0).abs() < f64::EPSILON);
+    assert_eq!(r.eligible_pot_total, 35000);
     assert_eq!(r.eligible_pot_ids.len(), 3);
     // 350.0 * 0.35 = 122.4999..., truncar_2_casas = 122.49
     assert!(
-        (r.cashback - 122.49).abs() < 0.01,
+        r.cashback == 12249,
         "cashback={}, expected ~122.49",
         r.cashback
     );
@@ -154,9 +154,9 @@ fn test_loser_in_all_pots() {
 fn test_proportional_distribution_sums_to_total() {
     let r = calculate_progressive_loss_deflator(params(
         vec![
-            pot(300.0, vec!["a", "b"]),
-            pot(200.0, vec!["a", "b"]),
-            pot(100.0, vec!["a", "b"]),
+            pot(30000, vec!["a", "b"]),
+            pot(20000, vec!["a", "b"]),
+            pot(10000, vec!["a", "b"]),
         ],
         "a",
         "b",
@@ -164,17 +164,17 @@ fn test_proportional_distribution_sums_to_total() {
     ))
     .unwrap();
     // 25% de 600 = 150
-    let sum: f64 = r.per_pot_cashback.iter().map(|e| e.amount).sum();
-    assert!((sum - r.cashback).abs() < f64::EPSILON);
-    assert!((r.cashback - 150.0).abs() < f64::EPSILON);
+    let sum: u64 = r.per_pot_cashback.iter().map(|e| e.amount).sum();
+    assert_eq!(sum, r.cashback);
+    assert_eq!(r.cashback, 15000);
 }
 
 #[test]
 fn test_proportional_distribution_respects_pot_sizes() {
     let r = calculate_progressive_loss_deflator(params(
         vec![
-            pot(600.0, vec!["a", "b"]), // 60%
-            pot(400.0, vec!["a", "b"]), // 40%
+            pot(60000, vec!["a", "b"]), // 60%
+            pot(40000, vec!["a", "b"]), // 40%
         ],
         "a",
         "b",
@@ -183,11 +183,11 @@ fn test_proportional_distribution_respects_pot_sizes() {
     .unwrap();
     // 15% de 1000 = 150
     // main: 150 * 600/1000 = 90, side: 150 * 400/1000 = 60
-    assert!((r.per_pot_cashback[0].amount - 90.0).abs() < f64::EPSILON);
-    assert!((r.per_pot_cashback[1].amount - 60.0).abs() < f64::EPSILON);
-    assert!(
-        ((r.per_pot_cashback[0].amount + r.per_pot_cashback[1].amount) - 150.0).abs()
-            < f64::EPSILON
+    assert!(r.per_pot_cashback[0].amount == 9000);
+    assert!(r.per_pot_cashback[1].amount == 6000);
+    assert_eq!(
+        r.per_pot_cashback[0].amount + r.per_pot_cashback[1].amount,
+        15000
     );
 }
 
@@ -196,9 +196,9 @@ fn test_last_pot_absorbs_rounding_error() {
     // Cenário com divisão que gera erro de arredondamento
     let r = calculate_progressive_loss_deflator(params(
         vec![
-            pot(333.0, vec!["a", "b"]),
-            pot(333.0, vec!["a", "b"]),
-            pot(334.0, vec!["a", "b"]),
+            pot(33300, vec!["a", "b"]),
+            pot(33300, vec!["a", "b"]),
+            pot(33400, vec!["a", "b"]),
         ],
         "a",
         "b",
@@ -206,9 +206,9 @@ fn test_last_pot_absorbs_rounding_error() {
     ))
     .unwrap();
     // 25% de 1000 = 250
-    let sum: f64 = r.per_pot_cashback.iter().map(|e| e.amount).sum();
+    let sum: u64 = r.per_pot_cashback.iter().map(|e| e.amount).sum();
     assert!(
-        (sum - r.cashback).abs() < f64::EPSILON,
+        sum == r.cashback,
         "Soma do rateio deve igualar cashback total"
     );
 }
@@ -218,21 +218,21 @@ fn test_last_pot_absorbs_rounding_error() {
 #[test]
 fn test_zero_amount_pot_ignored() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(0.0, vec!["a", "b"]), pot(100.0, vec!["a", "b"])],
+        vec![pot(0, vec!["a", "b"]), pot(10000, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Flop,
     ))
     .unwrap();
     // Pot 0 não contribui, elegível_total = 100
-    assert!((r.eligible_pot_total - 100.0).abs() < f64::EPSILON);
-    assert!((r.cashback - 25.0).abs() < f64::EPSILON);
+    assert_eq!(r.eligible_pot_total, 10000);
+    assert_eq!(r.cashback, 2500);
 }
 
 #[test]
 fn test_all_pots_zero_returns_none() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(0.0, vec!["a", "b"]), pot(0.0, vec!["a", "b"])],
+        vec![pot(0, vec!["a", "b"]), pot(0, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Flop,
@@ -243,29 +243,29 @@ fn test_all_pots_zero_returns_none() {
 #[test]
 fn test_single_chip_pot() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(1.0, vec!["a", "b"])],
+        vec![pot(100, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Turn,
     ))
     .unwrap();
     // 35% de 1 = 0.35 → truncado para 0.35 (não arredondado para 0!)
-    assert!((r.cashback - 0.35).abs() < f64::EPSILON);
-    assert!((r.eligible_pot_total - 1.0).abs() < f64::EPSILON);
+    assert_eq!(r.cashback, 35);
+    assert_eq!(r.eligible_pot_total, 100);
 }
 
 #[test]
 fn test_minimum_cashback_one_chip() {
     // 3 * 0.35 = 1.05 → em f64, 3.0 * 0.35 = 1.0499... truncado para 1.04
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(3.0, vec!["a", "b"])],
+        vec![pot(300, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Turn,
     ))
     .unwrap();
     assert!(
-        (r.cashback - 1.04).abs() < 0.01,
+        r.cashback == 104,
         "cashback={}, expected ~1.04",
         r.cashback
     );
@@ -274,20 +274,20 @@ fn test_minimum_cashback_one_chip() {
 #[test]
 fn test_large_pot_no_overflow() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(1_000_000.0, vec!["a", "b"])],
+        vec![pot(100000000, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Preflop,
     ))
     .unwrap();
-    assert!((r.cashback - 150_000.0).abs() < f64::EPSILON); // 15% de 1M
+    assert_eq!(r.cashback, 15000000); // 15% de 1M
 }
 
 #[test]
 fn test_max_f64_pot_no_panic() {
     // Testa que não há panic com valores extremos
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(f64::MAX / 2.0, vec!["a", "b"])],
+        vec![pot(u64::MAX / 2, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Preflop,
@@ -305,9 +305,9 @@ fn test_three_players_loser_in_main_only() {
     // main pot: A+B+C = 300 (100 cada), side1: B+C = 200 (100 cada), side2: C = 100
     let r = calculate_progressive_loss_deflator(params(
         vec![
-            pot(300.0, vec!["a", "b", "c"]), // main
-            pot(200.0, vec!["b", "c"]),      // side 1
-            pot(100.0, vec!["c"]),           // side 2
+            pot(30000, vec!["a", "b", "c"]), // main
+            pot(20000, vec!["b", "c"]),      // side 1
+            pot(10000, vec!["c"]),           // side 2
         ],
         "a",
         "b",
@@ -315,18 +315,18 @@ fn test_three_players_loser_in_main_only() {
     ))
     .unwrap();
     // A só está no main pot (300)
-    assert!((r.eligible_pot_total - 300.0).abs() < f64::EPSILON);
+    assert_eq!(r.eligible_pot_total, 30000);
     assert_eq!(r.eligible_pot_ids, vec![0]);
-    assert!((r.cashback - 75.0).abs() < f64::EPSILON); // 25% de 300
+    assert_eq!(r.cashback, 7500); // 25% de 300
 }
 
 #[test]
 fn test_three_players_loser_in_main_and_side1() {
     let r = calculate_progressive_loss_deflator(params(
         vec![
-            pot(300.0, vec!["a", "b", "c"]), // main
-            pot(200.0, vec!["b", "c"]),      // side 1
-            pot(100.0, vec!["c"]),           // side 2
+            pot(30000, vec!["a", "b", "c"]), // main
+            pot(20000, vec!["b", "c"]),      // side 1
+            pot(10000, vec!["c"]),           // side 2
         ],
         "b",
         "c",
@@ -334,20 +334,20 @@ fn test_three_players_loser_in_main_and_side1() {
     ))
     .unwrap();
     // B está no main (300) + side1 (200) = 500
-    assert!((r.eligible_pot_total - 500.0).abs() < f64::EPSILON);
+    assert_eq!(r.eligible_pot_total, 50000);
     assert_eq!(r.eligible_pot_ids, vec![0, 1]);
-    assert!((r.cashback - 125.0).abs() < f64::EPSILON); // 25% de 500
+    assert_eq!(r.cashback, 12500); // 25% de 500
 }
 
 #[test]
 fn test_five_players_complex_side_pots() {
     let r = calculate_progressive_loss_deflator(params(
         vec![
-            pot(500.0, vec!["a", "b", "c", "d", "e"]), // main
-            pot(400.0, vec!["b", "c", "d", "e"]),
-            pot(300.0, vec!["c", "d", "e"]),
-            pot(200.0, vec!["d", "e"]),
-            pot(100.0, vec!["e"]),
+            pot(50000, vec!["a", "b", "c", "d", "e"]), // main
+            pot(40000, vec!["b", "c", "d", "e"]),
+            pot(30000, vec!["c", "d", "e"]),
+            pot(20000, vec!["d", "e"]),
+            pot(10000, vec!["e"]),
         ],
         "c",
         "e",
@@ -355,10 +355,10 @@ fn test_five_players_complex_side_pots() {
     ))
     .unwrap();
     // C está em main(500) + side1(400) + side2(300) = 1200
-    assert!((r.eligible_pot_total - 1200.0).abs() < f64::EPSILON);
+    assert_eq!(r.eligible_pot_total, 120000);
     assert_eq!(r.eligible_pot_ids.len(), 3);
     // 35% de 1200 = 420
-    assert!((r.cashback - 420.0).abs() < f64::EPSILON);
+    assert_eq!(r.cashback, 42000);
 }
 
 // ─── Consistência de Resultados ───
@@ -366,7 +366,7 @@ fn test_five_players_complex_side_pots() {
 #[test]
 fn test_result_contains_correct_ids() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(500.0, vec!["loser1", "winner1"])],
+        vec![pot(50000, vec!["loser1", "winner1"])],
         "loser1",
         "winner1",
         GamePhase::Preflop,
@@ -379,7 +379,7 @@ fn test_result_contains_correct_ids() {
 #[test]
 fn test_odds_field_is_zero() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(500.0, vec!["a", "b"])],
+        vec![pot(50000, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Flop,
@@ -394,7 +394,7 @@ fn test_odds_field_is_zero() {
 #[test]
 fn test_multiplier_is_one() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(500.0, vec!["a", "b"])],
+        vec![pot(50000, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Turn,
@@ -406,20 +406,20 @@ fn test_multiplier_is_one() {
 #[test]
 fn test_base_cashback_equals_cashback() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(500.0, vec!["a", "b"])],
+        vec![pot(50000, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Preflop,
     ))
     .unwrap();
-    assert!((r.base_cashback - r.cashback).abs() < f64::EPSILON);
+    assert_eq!(r.base_cashback, r.cashback);
 }
 
 #[test]
 fn test_phase_preserved_in_result() {
     for phase in [GamePhase::Preflop, GamePhase::Flop, GamePhase::Turn] {
         let r = calculate_progressive_loss_deflator(params(
-            vec![pot(100.0, vec!["a", "b"])],
+            vec![pot(10000, vec!["a", "b"])],
             "a",
             "b",
             phase,
@@ -435,10 +435,10 @@ fn test_phase_preserved_in_result() {
 fn test_per_pot_indices_match_eligible() {
     let r = calculate_progressive_loss_deflator(params(
         vec![
-            pot(100.0, vec!["x"]),          // idx 0 - loser não elegível
-            pot(200.0, vec!["loser", "x"]), // idx 1
-            pot(300.0, vec!["loser", "x"]), // idx 2
-            pot(400.0, vec!["x"]),          // idx 3 - loser não elegível
+            pot(10000, vec!["x"]),          // idx 0 - loser não elegível
+            pot(20000, vec!["loser", "x"]), // idx 1
+            pot(30000, vec!["loser", "x"]), // idx 2
+            pot(40000, vec!["x"]),          // idx 3 - loser não elegível
         ],
         "loser",
         "x",
@@ -454,7 +454,7 @@ fn test_per_pot_indices_match_eligible() {
 #[test]
 fn test_per_pot_amounts_non_zero_for_positive_pots() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(1000.0, vec!["a", "b"]), pot(1000.0, vec!["a", "b"])],
+        vec![pot(100000, vec!["a", "b"]), pot(100000, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Turn,
@@ -463,7 +463,7 @@ fn test_per_pot_amounts_non_zero_for_positive_pots() {
     // 35% de 2000 = 700, rateio 50/50 = 350 cada
     for entry in &r.per_pot_cashback {
         assert!(
-            entry.amount > 0.0,
+            entry.amount > 0,
             "Cada pot elegível deve contribuir com cashback > 0"
         );
     }
@@ -670,7 +670,7 @@ fn test_empty_pots_vec_returns_none() {
 fn test_loser_equals_winner_still_works() {
     // Cenário incomum mas não deve panicar
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(500.0, vec!["p", "q"])],
+        vec![pot(50000, vec!["p", "q"])],
         "p",
         "p",
         GamePhase::Flop,
@@ -682,7 +682,7 @@ fn test_loser_equals_winner_still_works() {
 #[test]
 fn test_special_char_player_ids() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(200.0, vec!["player-1", "player_2"])],
+        vec![pot(20000, vec!["player-1", "player_2"])],
         "player-1",
         "player_2",
         GamePhase::Flop,
@@ -690,13 +690,13 @@ fn test_special_char_player_ids() {
     .unwrap();
     assert_eq!(r.loser_id, "player-1");
     assert_eq!(r.winner_id, "player_2");
-    assert!((r.cashback - 50.0).abs() < f64::EPSILON);
+    assert_eq!(r.cashback, 5000);
 }
 
 #[test]
 fn test_unicode_player_ids() {
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(200.0, vec!["jogador", "café"])],
+        vec![pot(20000, vec!["jogador", "café"])],
         "jogador",
         "café",
         GamePhase::Flop,
@@ -712,50 +712,50 @@ fn test_unicode_player_ids() {
 fn test_rounding_rounds_to_centavos() {
     // 15% de 333 = 49.95 → truncado para 49.95
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(333.0, vec!["a", "b"])],
+        vec![pot(33300, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Preflop,
     ))
     .unwrap();
     // 333 * 0.15 = 49.95 → truncado = 49.95
-    assert!((r.cashback - 49.95).abs() < f64::EPSILON);
+    assert_eq!(r.cashback, 4995);
 }
 
 #[test]
 fn test_rounding_down() {
     // 25% de 199 = 49.75 → truncado para 49.75
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(199.0, vec!["a", "b"])],
+        vec![pot(19900, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Flop,
     ))
     .unwrap();
-    assert!((r.cashback - 49.75).abs() < f64::EPSILON);
+    assert_eq!(r.cashback, 4975);
 }
 
 #[test]
 fn test_rounding_edge_499() {
-    // 15% de 33 = 4.95 → truncado para 4.95
+    // 15% de 3300 centavos = 495 centavos
     let r = calculate_progressive_loss_deflator(params(
-        vec![pot(33.0, vec!["a", "b"])],
+        vec![pot(3300, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Preflop,
     ))
     .unwrap();
-    assert!((r.cashback - 4.95).abs() < f64::EPSILON);
+    assert_eq!(r.cashback, 495);
 }
 
 // ─── Consistência com múltiplas chamadas ───
 
 #[test]
 fn test_idempotent_same_params() {
-    let p = params(vec![pot(500.0, vec!["a", "b"])], "a", "b", GamePhase::Flop);
+    let p = params(vec![pot(50000, vec!["a", "b"])], "a", "b", GamePhase::Flop);
     let r1 = calculate_progressive_loss_deflator(p.clone()).unwrap();
     let r2 = calculate_progressive_loss_deflator(p).unwrap();
-    assert!((r1.cashback - r2.cashback).abs() < f64::EPSILON);
-    assert!((r1.eligible_pot_total - r2.eligible_pot_total).abs() < f64::EPSILON);
+    assert_eq!(r1.cashback, r2.cashback);
+    assert_eq!(r1.eligible_pot_total, r2.eligible_pot_total);
     assert_eq!(r1.tier, r2.tier);
 }

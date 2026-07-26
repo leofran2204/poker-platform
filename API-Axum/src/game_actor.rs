@@ -17,7 +17,7 @@ pub enum PlayerCommand {
         player_id: String,
         username: String,
         seat: Option<usize>,
-        chips: f64,
+        chips: u64,
         respond_to: oneshot::Sender<usize>,
     },
     Leave {
@@ -26,7 +26,7 @@ pub enum PlayerCommand {
     Action {
         player_id: String,
         action: String,
-        amount: f64,
+        amount: u64,
     },
     GetTableInfo {
         respond_to: mpsc::Sender<serde_json::Value>,
@@ -38,7 +38,7 @@ pub enum PlayerCommand {
 pub struct TablePlayer {
     pub id: String,
     pub name: String,
-    pub chips: f64,
+    pub chips: u64,
     pub seat: usize,
     pub is_sitting: bool,
 }
@@ -68,7 +68,7 @@ impl TableActor {
         Self {
             table_id,
             name,
-            config: TableConfig::new(20.0, 0.05, 100.0), // Default BB=20, rake=5%, cap=100
+            config: TableConfig::new(2000, 0.05, 10000), // Default BB=2000 centavos (R$ 20,00), rake=5%, cap=10000 centavos (R$ 100,00)
             players: Vec::new(),
             game_loop: None,
             rx,
@@ -134,13 +134,13 @@ impl TableActor {
                 self.game_loop = None;
                 self.start_new_hand();
             }
-        } else if self.game_loop.is_none() && self.players.iter().filter(|p| p.is_sitting && p.chips > 0.0).count() >= 2 {
+        } else if self.game_loop.is_none() && self.players.iter().filter(|p| p.is_sitting && p.chips > 0).count() >= 2 {
             // Auto-start hand if we have enough players
             self.start_new_hand();
         }
     }
 
-    fn handle_sit(&mut self, player_id: String, username: String, seat: Option<usize>, chips: f64) -> usize {
+    fn handle_sit(&mut self, player_id: String, username: String, seat: Option<usize>, chips: u64) -> usize {
         // Remover se já estiver na mesa (para evitar duplicatas)
         self.players.retain(|p| p.id != player_id);
 
@@ -196,7 +196,7 @@ impl TableActor {
         self.broadcast_state();
     }
 
-    fn handle_action(&mut self, player_id: String, action: String, amount: f64) {
+    fn handle_action(&mut self, player_id: String, action: String, amount: u64) {
         let elapsed_ms = self
             .last_turn_start
             .map(|t| t.elapsed().as_millis() as u64)
@@ -242,8 +242,10 @@ impl TableActor {
                 game_loop.finalize_history(&res);
 
                 // Persistir histórico da mão no PostgreSQL (operação desacoplada em background)
-                if let Some(history) = game_loop.get_history() {
-                    if let Ok(history_json) = serde_json::to_value(history) {
+                if let Some(ref mut history) = game_loop.history {
+                    let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "poker_platform_audit_secret_key_2026".to_string());
+                    poker_engine::hand_history::sign_hand(history, secret.as_bytes());
+                    if let Ok(history_json) = serde_json::to_value(&history) {
                         let db_opt = self.db.clone();
                         let hand_id = history.hand_id.clone();
                         let pot = history.total_pot;
@@ -274,9 +276,49 @@ impl TableActor {
                 // Atualizar os saldos das fichas na mesa baseado nos stacks e payouts
                 for gp in &game_loop.state.players {
                     if let Some(tp) = self.players.iter_mut().find(|p| p.id == gp.id) {
-                        let payout = res.payouts.get(&gp.id).copied().unwrap_or(0.0);
+                        let payout = res.payouts.get(&gp.id).copied().unwrap_or(0);
                         tp.chips = gp.stack + payout;
                     }
+                }
+
+                // Disparar evento global do Loss Deflator se foi ativado
+                if let Some(deflator) = &res.loss_deflator {
+                    let loser_name = self.players.iter().find(|p| p.id == deflator.loser_id).map(|p| p.name.clone()).unwrap_or_else(|| deflator.loser_id.clone());
+                    let winner_name = self.players.iter().find(|p| p.id == deflator.winner_id).map(|p| p.name.clone()).unwrap_or_else(|| deflator.winner_id.clone());
+                    
+                    let final_loser_chips = self.players.iter().find(|p| p.id == deflator.loser_id).map(|p| p.chips).unwrap_or(0);
+                    let prevented_elimination = final_loser_chips == deflator.cashback;
+                    
+                    // Como game_actor.rs atualmente orquestra Cash, deixamos fixo como false para torneio (torneio usa tournament_engine)
+                    let is_tournament = false;
+                    
+                    // Como a regra de negócio atual baseia o deflator na fase e não nas odds exatas, 
+                    // vamos enviar a fase (ex: 15%, 25%, 35%) como representação do "quão quebrado" foi o river.
+                    // O UX pediu para mostrar "(18%)". Vamos mapear as probabilidades estimadas daquela fase.
+                    // Se deflator.odds foi calculado (> 0), usamos a chance do VENCEDOR (1 - loser_equity)
+                    // Exemplo: perdedor tinha 82% -> vencedor tinha 18% (odds_broken = 18%)
+                    let odds_broken = if deflator.odds > 0.0 {
+                        ((1.0 - deflator.odds) * 100.0).round() as u8
+                    } else {
+                        match deflator.tier {
+                            poker_engine::loss_deflator::LossDeflatorTier::SevenPercent => 7,
+                            poker_engine::loss_deflator::LossDeflatorTier::FifteenPercent => 15,
+                            poker_engine::loss_deflator::LossDeflatorTier::TwentyFivePercent => 25,
+                            poker_engine::loss_deflator::LossDeflatorTier::ThirtyFivePercent => 35,
+                        }
+                    };
+
+                    let event_payload = serde_json::json!({
+                        "type": "deflator_triggered",
+                        "loser_name": loser_name,
+                        "winner_name": winner_name,
+                        "cashback_amount": deflator.cashback,
+                        "odds_broken": odds_broken,
+                        "prevented_elimination": prevented_elimination,
+                        "is_tournament": is_tournament
+                    });
+                    
+                    let _ = self.tx_broadcast.send(event_payload);
                 }
             }
             self.broadcast_state();
@@ -291,7 +333,7 @@ impl TableActor {
         let mut active_players: Vec<&mut TablePlayer> = self
             .players
             .iter_mut()
-            .filter(|p| p.is_sitting && p.chips > 0.0)
+            .filter(|p| p.is_sitting && p.chips > 0)
             .collect();
 
         if active_players.len() < 2 {
@@ -330,7 +372,7 @@ impl TableActor {
             "type": "table_info",
             "table_id": self.table_id,
             "name": self.name,
-            "small_blind": self.config.big_blind / 2.0,
+            "small_blind": self.config.big_blind / 2,
             "big_blind": self.config.big_blind,
             "game_type": "cash",
             "players": self.players

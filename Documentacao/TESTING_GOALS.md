@@ -151,7 +151,7 @@ Após a Fase 2, foram adicionados testes de integração entre módulos, stress 
 
 ---
 
-## 🏆 Fase 2.2 — Fuzzing Extremo, WS Stress & Finalização Mestre (2026-07-24)
+## 🏆 Fase 2.2 — Fuzzing Extremo, WS Stress & Finalização Mestre (2026-07-25)
 
 Com as últimas expansões de testes de estresse e segurança na Sprint S04 & S05, as metas globais de qualidade e testes foram 100% batidas:
 
@@ -164,7 +164,7 @@ Com as últimas expansões de testes de estresse e segurança na Sprint S04 & S0
 
 ---
 
-## 🛡️ Fase 2.3 — Hardening de Segurança, Concorrência RwLock & Idempotência PIX (2026-07-24)
+## 🛡️ Fase 2.3 — Hardening de Segurança, Concorrência RwLock & Idempotência PIX (2026-07-25)
 
 Saneamento completo de todas as vulnerabilidades e bugs apontados no Parecer Técnico:
 
@@ -173,4 +173,13 @@ Saneamento completo de todas as vulnerabilidades e bugs apontados no Parecer Té
 * **Verificação de Saldo no Saque:** Verificação atômica de saldo (`balance >= amount`) antes do disparo da requisição de saque PIX.
 * **Concorrência Axum (RwLock):** Substituição de `Arc<Mutex<...>>` por `Arc<tokio::sync::RwLock<...>>` no `AppState` do Axum (auth, lobby, tournaments, active_tables), liberando leituras paralelas em alta carga.
 * **Correções no Game Loop & Frontend:** Rotação automática do botão dealer ativada no motor, remoção de disparo de Sit command no ping do WebSocket e cálculo dinâmico de apostas para Raise/AllIn no Dioxus.
+
+---
+
+## 💵 Fase 2.4 — Migração Arquitetural Estrita para `u64` Centavos Inteiros (2026-07-25)
+
+* **Refatoração Monetária Mestre:** Substituição completa de `f64` por `u64` centavos inteiros nos tipos de saldos, apostas, stacks, potes, rake, buy-in e blinds em todos os crates (`Motor-Rust`, `API-Axum`, `Frontend-Dioxus`).
+* **Zero Erros Flutuantes:** Eliminação completa de drifts de arredondamento IEEE-754 em divisões de pote.
+* **Preservação de Escala Estatística:** Manutenção de `f64` em probabilidades e percentuais para cálculos de equidade e exibição na UI.
+* **Formatação Visual:** Adicionado helper de exibição `R$ {:.2}` no frontend Dioxus.
 

@@ -114,6 +114,16 @@ pub enum ServerMessage {
         /// Mensagem de erro.
         message: String,
     },
+    /// Evento disparado quando o Loss Deflator devolve fichas/dinheiro ao perdedor após uma Bad Beat.
+    #[serde(rename = "deflator_triggered")]
+    DeflatorTriggered {
+        loser_name: String,
+        winner_name: String,
+        cashback_amount: u64,
+        odds_broken: u8,
+        prevented_elimination: bool,
+        is_tournament: bool,
+    },
 }
 
 /// Dados de um jogador na mensagem WebSocket.
@@ -295,6 +305,40 @@ impl WsClient {
         }
     }
 
+    /// Conecta ao servidor WebSocket com auto-reconexão e exponencial backoff.
+    pub async fn connect_with_backoff(&mut self, max_attempts: usize) {
+        use wasm_bindgen::JsCast;
+        let mut attempts = 0;
+        let mut backoff_ms = 1000u32;
+
+        while attempts < max_attempts {
+            attempts += 1;
+            log::info!("Tentativa de conexão WS {}/{}...", attempts, max_attempts);
+            self.connect().await;
+
+            if self.state == WsConnectionState::Connected {
+                log::info!("Conectado com sucesso na tentativa {}!", attempts);
+                return;
+            }
+
+            log::warn!("Falha na conexão WS. Aguardando {} ms antes da próxima tentativa...", backoff_ms);
+            let (tx, rx) = futures_channel::oneshot::channel::<()>();
+            if let Some(window) = web_sys::window() {
+                let closure = wasm_bindgen::closure::Closure::once_into_js(move || {
+                    let _ = tx.send(());
+                });
+                let _ = window.set_timeout_with_callback_and_timeout_and_arguments_0(
+                    closure.unchecked_ref(),
+                    backoff_ms as i32,
+                );
+                let _ = rx.await;
+            }
+            backoff_ms = (backoff_ms * 2).min(30000);
+        }
+
+        log::error!("Excedido número máximo de tentativas de conexão WS ({})", max_attempts);
+    }
+
     /// Envia uma ação do jogador para o servidor.
     pub fn send_action(&self, action: &str, amount: Option<u64>) {
         let msg = ClientMessage::Action {
@@ -393,6 +437,23 @@ mod tests {
             msg,
             ServerMessage::Error {
                 message: "Mesa não encontrada".to_string()
+            }
+        );
+    }
+
+    #[test]
+    fn test_server_message_deserialize_deflator() {
+        let json = r#"{"type":"deflator_triggered","loser_name":"Alice","winner_name":"Bob","cashback_amount":3500,"odds_broken":18,"prevented_elimination":true,"is_tournament":false}"#;
+        let msg: ServerMessage = serde_json::from_str(json).unwrap();
+        assert_eq!(
+            msg,
+            ServerMessage::DeflatorTriggered {
+                loser_name: "Alice".to_string(),
+                winner_name: "Bob".to_string(),
+                cashback_amount: 3500,
+                odds_broken: 18,
+                prevented_elimination: true,
+                is_tournament: false,
             }
         );
     }

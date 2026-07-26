@@ -137,6 +137,9 @@ pub struct HandHistory {
     pub end_phase: GamePhase,
     /// Motivo do fim da mão
     pub end_reason: EndReason,
+    /// Assinatura digital criptográfica HMAC-SHA256 para auditoria (GLI-19)
+    #[serde(default)]
+    pub signature: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -181,7 +184,8 @@ pub fn create_hand_history(
         total_pot: 0,
         rake: 0,
         end_phase: GamePhase::Preflop,
-        end_reason: EndReason::Showdown,
+        end_reason: EndReason::AllFolded,
+        signature: None,
     }
 }
 
@@ -219,6 +223,47 @@ pub fn finalize_hand(
     history.rake = rake;
     history.end_phase = end_phase;
     history.end_reason = end_reason;
+}
+
+/// Assina digitalmente o HandHistory utilizando HMAC-SHA256 para compliance GLI-19 anti-adulteração
+pub fn sign_hand(history: &mut HandHistory, secret_key: &[u8]) -> String {
+    use base64::Engine;
+    use hmac::{Hmac, Mac};
+    use sha2::Sha256;
+
+    type HmacSha256 = Hmac<Sha256>;
+    let payload = format!(
+        "{}:{}:{}:{}",
+        history.hand_id, history.timestamp, history.total_pot, history.rake
+    );
+    let mut mac = HmacSha256::new_from_slice(secret_key).expect("HMAC pode aceitar chave de qualquer tamanho");
+    mac.update(payload.as_bytes());
+    let sig = base64::engine::general_purpose::STANDARD.encode(mac.finalize().into_bytes());
+    history.signature = Some(sig.clone());
+    sig
+}
+
+/// Verifica a integridade da assinatura digital HMAC-SHA256 de um HandHistory
+pub fn verify_hand_signature(history: &HandHistory, secret_key: &[u8]) -> bool {
+    let Some(ref sig) = history.signature else {
+        return false;
+    };
+    use base64::Engine;
+    use hmac::{Hmac, Mac};
+    use sha2::Sha256;
+
+    type HmacSha256 = Hmac<Sha256>;
+    let payload = format!(
+        "{}:{}:{}:{}",
+        history.hand_id, history.timestamp, history.total_pot, history.rake
+    );
+    let mut mac = match HmacSha256::new_from_slice(secret_key) {
+        Ok(m) => m,
+        Err(_) => return false,
+    };
+    mac.update(payload.as_bytes());
+    let expected = base64::engine::general_purpose::STANDARD.encode(mac.finalize().into_bytes());
+    sig == &expected
 }
 
 /// Converte o histórico para JSON (comunicação entre módulos)
@@ -1113,5 +1158,28 @@ mod tests {
         let restored = from_json(&json).unwrap();
         assert_eq!(restored.hand_id, history.hand_id);
         assert_eq!(restored.actions.len(), 6);
+    }
+
+    #[test]
+    fn test_hand_history_signature_verification() {
+        let mut history = create_hand_history(
+            "hand-sig-001".to_string(),
+            test_table_config(),
+            vec!["alice".to_string(), "bob".to_string()],
+            HashMap::new(),
+        );
+
+        let key = b"super_secret_audit_key_32bytes!!";
+        let sig = sign_hand(&mut history, key);
+        assert!(!sig.is_empty());
+        assert!(verify_hand_signature(&history, key));
+
+        // Test with wrong key
+        assert!(!verify_hand_signature(&history, b"wrong_secret_key_12345678901234"));
+
+        // Tampering hand_id invalidates signature
+        let mut tampered = history.clone();
+        tampered.hand_id = "hand-sig-002".to_string();
+        assert!(!verify_hand_signature(&tampered, key));
     }
 }

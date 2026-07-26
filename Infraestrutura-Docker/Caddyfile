@@ -1,15 +1,38 @@
-localhost {
-    # Habilita logs no stdout
-    log
+# Caddyfile — Reverse Proxy & Static Web File Server (HTTPS Auto-TLS)
+#
+# Em dev: https://localhost (TLS Auto-assinado)
+# Em prod: https://{$DOMAIN_NAME} (TLS Automático via Let's Encrypt)
 
-    # Encaminha chamadas de API e WebSockets para o backend Axum
+{$DOMAIN_NAME:localhost} {
+    # Logging estruturado em JSON para stdout
+    log {
+        output stdout
+        format json
+    }
+
+    # Security Headers (OWASP Recommended)
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Frame-Options "DENY"
+        X-Content-Type-Options "nosniff"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Encaminha chamadas de API e WebSockets para o container poker_api
     reverse_proxy /api/* poker_api:3000
-    reverse_proxy /ws/* poker_api:3000
+    reverse_proxy /ws/* poker_api:3000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+    }
 
-    # Serve os arquivos estáticos compilados do Dioxus
+    # Health check direto do gateway
+    respond /caddy-health "OK" 200
+
+    # Serve os arquivos estáticos compilados do Dioxus WASM
     root * /usr/share/caddy
     file_server
 
-    # Fallback para o index.html (essencial para o Dioxus Router com HTML5 History)
+    # Fallback para index.html (suporte a Single Page Application & Dioxus Router)
     try_files {path} /index.html
 }

@@ -41,8 +41,8 @@ pub fn Lobby() -> Element {
                             id: t.id,
                             name: t.name,
                             game_type: parse_game_type(&t.game_type),
-                            small_blind: t.small_blind as u32,
-                            big_blind: t.big_blind as u32,
+                            small_blind: t.small_blind,
+                            big_blind: t.big_blind,
                             players: t.players as u32,
                             max_players: t.max_players as u32,
                         })

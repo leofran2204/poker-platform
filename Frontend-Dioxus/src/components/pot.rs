@@ -9,13 +9,13 @@ use dioxus::prelude::*;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PotEntry {
     pub label: String,
-    pub amount: u32,
+    pub amount: u64,
 }
 
 impl PotEntry {
-    /// Cria um novo pote.
+    /// Cria um novo pote com valor em centavos.
     #[must_use]
-    pub const fn new(label: String, amount: u32) -> Self {
+    pub const fn new(label: String, amount: u64) -> Self {
         Self { label, amount }
     }
 }
@@ -24,11 +24,12 @@ impl PotEntry {
 ///
 /// # Props
 ///
-/// - `pots`: lista de potes (principal + side pots)
+/// - `pots`: lista de potes (principal + side pots) em centavos
 /// - `odd_cent_notice`: notificação opcional da regra do centavo ímpar no Showdown (TDA Regra 68)
 #[component]
 pub fn Pot(pots: Vec<PotEntry>, odd_cent_notice: Option<String>) -> Element {
-    let total: u32 = pots.iter().map(|p| p.amount).sum();
+    let total: u64 = pots.iter().map(|p| p.amount).sum();
+    let total_formatted = format!("R$ {:.2}", total as f64 / 100.0);
 
     rsx! {
         div {
@@ -42,8 +43,8 @@ pub fn Pot(pots: Vec<PotEntry>, odd_cent_notice: Option<String>) -> Element {
                     "POTE"
                 }
                 div {
-                    class: "text-2xl font-bold text-white font-mono",
-                    "💰 {total}"
+                    class: "text-xl font-bold text-white font-mono",
+                    "💰 {total_formatted}"
                 }
             }
             if pots.len() > 1 {

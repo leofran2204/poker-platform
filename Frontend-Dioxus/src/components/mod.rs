@@ -38,3 +38,4 @@ pub mod seat;
 pub mod table;
 pub mod table_card;
 pub mod withdraw_modal;
+pub mod deflator_notification;

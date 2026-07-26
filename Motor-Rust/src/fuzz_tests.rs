@@ -30,17 +30,14 @@ proptest! {
     #![proptest_config(get_proptest_config())]
     #[test]
     fn rake_pot_invariants(
-        pot_amount in 0.0..100_000_000.0f64,
+        pot_amount in 0..100_000_000u64,
         rake_percent in 0.0..100.0f64,
-        rake_cap in 0.0..10_000.0f64,
+        rake_cap in 0..10_000u64,
     ) {
         let rake = calculate_rake_for_pot(pot_amount, rake_percent, rake_cap);
-        prop_assert!(rake >= 0.0, "Rake negativo");
-        if rake_cap > 0.0 {
-            prop_assert!(rake <= rake_cap + 0.01, "Rake > cap");
-        }
-        let max_possible = (pot_amount * rake_percent) / 100.0;
-        prop_assert!(rake <= max_possible + 0.01, "Rake > percentual");
+        prop_assert!(rake <= rake_cap, "Rake > cap");
+        let max_possible = ((pot_amount as f64 * rake_percent) / 100.0).floor() as u64;
+        prop_assert!(rake <= max_possible, "Rake > percentual");
     }
 }
 
@@ -49,21 +46,21 @@ proptest! {
     #![proptest_config(get_proptest_config())]
     #[test]
     fn rake_deduct_conservation(
-        p1 in 10.0..10_000.0f64,
-        p2 in 10.0..10_000.0f64,
+        p1 in 1000..10_000_000u64,
+        p2 in 1000..10_000_000u64,
         rake_percent in 1.0..10.0f64,
-        rake_cap in 1.0..500.0f64,
+        rake_cap in 100..5000u64,
     ) {
         let pots = vec![
             Pot { amount: p1, eligible_players: vec!["p1".into(), "p2".into()] },
             Pot { amount: p2, eligible_players: vec!["p1".into()] },
         ];
-        let config = TableConfig { big_blind: 2.0, rake_percent, rake_cap };
-        let result = deduct_rake(&pots, &config, Some(2.0));
+        let config = TableConfig { big_blind: 200, rake_percent, rake_cap };
+        let result = deduct_rake(&pots, &config, Some(200));
         let total_before = p1 + p2;
-        let pots_after_sum: f64 = result.pots_after_rake.iter().map(|p| p.amount).sum();
+        let pots_after_sum: u64 = result.pots_after_rake.iter().map(|p| p.amount).sum();
         let total_after = pots_after_sum + result.total_rake;
-        prop_assert!((total_before - total_after).abs() < 0.05, "Perda de fichas no rake");
+        prop_assert_eq!(total_before, total_after, "Perda/ganho de fichas no rake");
     }
 }
 
@@ -72,7 +69,7 @@ proptest! {
     #![proptest_config(get_proptest_config())]
     #[test]
     fn side_pots_extreme_multiway(
-        player_specs in prop::collection::vec((0.01..1_000_000.0f64, proptest::bool::ANY), 2..=6),
+        player_specs in prop::collection::vec((1u64..1_000_000u64, proptest::bool::ANY), 2..=6),
     ) {
         let num_players = player_specs.len();
         let mut players = Vec::with_capacity(num_players);
@@ -89,9 +86,9 @@ proptest! {
             });
         }
         let pots = calculate_side_pots(&players);
-        let total_contributed: f64 = player_specs.iter().map(|(b, _)| b).sum();
-        let total_pots: f64 = pots.iter().map(|p| p.amount).sum();
-        prop_assert!((total_contributed - total_pots).abs() < 0.10, "Erro em multiway side pots");
+        let total_contributed: u64 = player_specs.iter().map(|(b, _)| b).sum();
+        let total_pots: u64 = pots.iter().map(|p| p.amount).sum();
+        prop_assert_eq!(total_contributed, total_pots, "Erro em multiway side pots");
     }
 }
 
@@ -100,7 +97,7 @@ proptest! {
     #![proptest_config(get_proptest_config())]
     #[test]
     fn side_pots_exact_split_fuzz(
-        bet in 1.0..500_000.0f64,
+        bet in 100u64..500_000u64,
         num_players in 2..=8usize,
     ) {
         let mut players = Vec::with_capacity(num_players);
@@ -117,8 +114,8 @@ proptest! {
         }
         let pots = calculate_side_pots(&players);
         prop_assert_eq!(pots.len(), 1, "Apostas iguais devem gerar exatamente 1 pote principal");
-        let expected_total = bet * (num_players as f64);
-        prop_assert!((pots[0].amount - expected_total).abs() < 0.05, "Pote único com valor incorreto");
+        let expected_total = bet * (num_players as u64);
+        prop_assert_eq!(pots[0].amount, expected_total, "Pote único com valor incorreto");
     }
 }
 
@@ -127,7 +124,7 @@ proptest! {
     #![proptest_config(get_proptest_config())]
     #[test]
     fn side_pots_uncontested_fold_fuzz(
-        bets in prop::collection::vec(10.0..10_000.0f64, 3..=6),
+        bets in prop::collection::vec(1000u64..1_000_000u64, 3..=6),
     ) {
         let num_players = bets.len();
         let mut players = Vec::with_capacity(num_players);
@@ -144,9 +141,9 @@ proptest! {
             });
         }
         let pots = calculate_side_pots(&players);
-        let total_contributed: f64 = bets.iter().sum();
-        let total_pots: f64 = pots.iter().map(|p| p.amount).sum();
-        prop_assert!((total_contributed - total_pots).abs() < 0.05, "Invariante de fold total quebrado");
+        let total_contributed: u64 = bets.iter().sum();
+        let total_pots: u64 = pots.iter().map(|p| p.amount).sum();
+        prop_assert_eq!(total_contributed, total_pots, "Invariante de fold total quebrado");
     }
 }
 
@@ -155,7 +152,7 @@ proptest! {
     #![proptest_config(get_proptest_config())]
     #[test]
     fn loss_deflator_no_panic(
-        pot_amount in 0.0..100_000_000.0f64,
+        pot_amount in 0u64..100_000_000u64,
         phase_idx in 0..4u8,
     ) {
         let phase = match phase_idx {
@@ -172,7 +169,6 @@ proptest! {
         };
         let result = calculate_progressive_loss_deflator(params);
         if let Some(res) = result {
-            prop_assert!(res.cashback >= 0.0);
             prop_assert!(res.cashback <= pot_amount);
         }
     }
@@ -183,8 +179,8 @@ proptest! {
     #![proptest_config(get_proptest_config())]
     #[test]
     fn loss_deflator_multi_eligible_pots_fuzz(
-        p1 in 100.0..50_000.0f64,
-        p2 in 100.0..50_000.0f64,
+        p1 in 10000u64..5000000u64,
+        p2 in 10000u64..5000000u64,
     ) {
         let pots = vec![
             Pot { amount: p1, eligible_players: vec!["p1".into(), "p2".into()] },
@@ -198,8 +194,8 @@ proptest! {
         };
         let result = calculate_progressive_loss_deflator(params);
         if let Some(res) = result {
-            let expected_cashback = (p1 * 0.25 * 100.0).trunc() / 100.0;
-            prop_assert!((res.cashback - expected_cashback).abs() < 0.05, "Cashback incidiu sobre pote inelegível");
+            let expected_cashback = ((p1 as f64) * 0.25).floor() as u64;
+            prop_assert_eq!(res.cashback, expected_cashback, "Cashback incidiu sobre pote inelegível");
         }
     }
 }
@@ -271,6 +267,7 @@ proptest! {
             rake: 5,
             end_phase: GamePhase::Preflop,
             end_reason: crate::hand_history::EndReason::AllFolded,
+            signature: None,
         };
         let json = serde_json::to_string(&hh).expect("Falha ao serializar");
         let restored: HandHistory = serde_json::from_str(&json).expect("Falha ao desserializar");

@@ -3,7 +3,7 @@ use poker_engine::loss_deflator::{
     calculate_progressive_loss_deflator, ProgressiveLossDeflatorParams,
 };
 use poker_engine::rake::deduct_rake;
-use poker_engine::side_pots::{resolve_side_pots, PlayerForPots};
+use poker_engine::side_pots::{calculate_side_pots, PlayerForPots};
 use poker_engine::types::{GamePhase, Pot, TableConfig};
 
 fn main() {
@@ -32,33 +32,33 @@ fn main() {
     // ─── Demonstração do módulo de rake ───
     println!("\n=== RAKE ===");
     let config = TableConfig {
-        big_blind: 10.0,
-        rake_percent: 5.0,
-        rake_cap: 10.0,
+        big_blind: 1000,
+        rake_percent: 3.5,
+        rake_cap: 500,
     };
 
     let pots = vec![
         Pot {
-            amount: 100.0,
+            amount: 10000,
             eligible_players: vec!["alice".into(), "bob".into()],
         },
         Pot {
-            amount: 50.0,
+            amount: 5000,
             eligible_players: vec!["alice".into()],
         },
     ];
 
     let rake_result = deduct_rake(&pots, &config, None);
     println!(
-        "Pote total antes do rake: {}",
+        "Pote total antes do rake (centavos): {}",
         rake_result.total_pot_before_rake
     );
-    println!("Rake total deduzido: {}", rake_result.total_rake);
+    println!("Rake total deduzido (centavos): {}", rake_result.total_rake);
     for entry in &rake_result.per_pot {
-        println!("  Pote {}: rake = {}", entry.pot_index, entry.rake);
+        println!("  Pote {}: rake = {} centavos", entry.pot_index, entry.rake);
     }
     for (i, pot) in rake_result.pots_after_rake.iter().enumerate() {
-        println!("  Pote {} após rake: {} fichas", i, pot.amount);
+        println!("  Pote {} após rake: {} centavos", i, pot.amount);
     }
 
     // ─── Demonstração de Side Pots ───
@@ -66,28 +66,28 @@ fn main() {
     let players = vec![
         PlayerForPots {
             id: "p1".into(),
-            total_bet: 100.0,
+            total_bet: 10000,
             has_folded: false,
             cards: vec![],
         },
         PlayerForPots {
             id: "p2".into(),
-            total_bet: 200.0,
+            total_bet: 20000,
             has_folded: false,
             cards: vec![],
         },
         PlayerForPots {
             id: "p3".into(),
-            total_bet: 200.0,
+            total_bet: 20000,
             has_folded: false,
             cards: vec![],
         },
     ];
-    let sp_result = resolve_side_pots(&players, &[]);
-    println!("Pots criados: {}", sp_result.pots.len());
-    for (i, pot) in sp_result.pots.iter().enumerate() {
+    let pots_created = calculate_side_pots(&players);
+    println!("Pots criados: {}", pots_created.len());
+    for (i, pot) in pots_created.iter().enumerate() {
         println!(
-            "  Pote {}: {} fichas, elegíveis: {:?}",
+            "  Pote {}: {} centavos, elegíveis: {:?}",
             i, pot.amount, pot.eligible_players
         );
     }
@@ -96,11 +96,11 @@ fn main() {
     println!("\n=== LOSS DEFLATOR ===");
     let pots_after_rake = vec![
         Pot {
-            amount: 200.0,
+            amount: 20000,
             eligible_players: vec!["loser".into(), "winner".into()],
         },
         Pot {
-            amount: 100.0,
+            amount: 10000,
             eligible_players: vec!["winner".into()],
         },
     ];
@@ -110,14 +110,8 @@ fn main() {
         winner_id: "winner".into(),
         phase: GamePhase::Flop,
     });
-    if let Some(r) = deflator_result {
-        println!("Cashback total: {} fichas", r.cashback);
-        println!("Tier: {}", r.tier.as_str());
-        println!("Fase: {:?}", r.phase);
-        println!("Cartas restantes: {}", r.cards_remaining);
-        println!("Pots elegíveis: {:?}", r.eligible_pot_ids);
-        for entry in r.per_pot_cashback {
-            println!("  Pote {}: cashback = {}", entry.pot_index, entry.amount);
-        }
+
+    if let Some(d) = deflator_result {
+        println!("Loss Deflator ativado (centavos): {}", d.cashback);
     }
 }

@@ -106,7 +106,7 @@ async fn handle_game_socket(socket: WebSocket, state: AppState, table_id: String
         player_id: user_id.clone(),
         username: username.clone(),
         seat: None, // Auto-assign next seat
-        chips: 1000.0, // Initial chips
+        chips: 100000, // Initial chips (R$ 1.000,00 em centavos)
         respond_to: tx_sit_resp,
     };
 
@@ -152,7 +152,7 @@ async fn handle_game_socket(socket: WebSocket, state: AppState, table_id: String
 
     // 6. Main receive loop to process messages from WebSocket and forward to actor
     let tx_cmd = handle.tx_cmd.clone();
-    let _user_id_for_recv = user_id.clone();
+    let user_id_for_recv = user_id.clone();
 
     while let Some(msg_result) = ws_receiver.next().await {
         match msg_result {
@@ -167,7 +167,7 @@ async fn handle_game_socket(socket: WebSocket, state: AppState, table_id: String
                             }
                             "action" => {
                                 let action = parsed.get("action").and_then(|a| a.as_str()).unwrap_or("");
-                                let amount = parsed.get("amount").and_then(|a| a.as_f64()).unwrap_or(0.0);
+                                let amount = parsed.get("amount").and_then(|a| a.as_u64()).unwrap_or(0);
                                 let _ = tx_cmd.send(PlayerCommand::Action {
                                     player_id: user_id_for_recv.clone(),
                                     action: action.to_string(),

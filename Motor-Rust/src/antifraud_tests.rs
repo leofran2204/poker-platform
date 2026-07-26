@@ -90,7 +90,7 @@ mod collusion_edge_cases {
 
         let alerts = analyzer.get_alerts();
         assert!(!alerts.is_empty());
-        // Com 20 mãos, volume_factor = 1.0, score deve ser máximo (1.0)
+        // Com 20 mãos, volume_factor = 1, score deve ser máximo (1.0)
         let last = alerts.last().unwrap();
         assert!(last.pair.suspicion_score > 0.8);
         assert_eq!(last.severity, "critical");
@@ -107,8 +107,8 @@ mod collusion_edge_cases {
                 medium_threshold: 0.3,
             });
 
-        // 5 mãos: soft_play_count=5, coord=5 → soft_rate=1.0, coord_rate=1.0
-        // soft_score=1.0, coord_score=1.0, combined=1.0, volume=5/20=0.25
+        // 5 mãos: soft_play_count=5, coord=5 → soft_rate= 1, coord_rate= 1
+        // soft_score= 1, coord_score= 1, combined= 1, volume=5/20=0.25
         // final = 0.25 → abaixo de 0.3 → sem alerta
         for _ in 0..5 {
             let actions = vec![
@@ -225,7 +225,7 @@ mod collusion_edge_cases {
         let last = alerts.last().unwrap();
         assert_eq!(last.severity, "high");
 
-        // +10 mãos → volume=1.0, score=1.0 → critical
+        // +10 mãos → volume= 1, score= 1 → critical
         for _ in 0..10 {
             let actions = vec![
                 make_action(
@@ -594,8 +594,8 @@ mod chip_dumping_edge_cases {
         assert!(!alerts.is_empty());
         let last = alerts.last().unwrap();
         // Com 10 ocorrências VeryWeak de 10k cada:
-        // consistency=1.0, weakness=1.0, volume=min(100k/10k,1.0)=1.0, frequency=min(10/10,1.0)=1.0
-        // score = 0.30 + 0.30 + 0.25 + 0.15 = 1.0
+        // consistency= 1, weakness= 1, volume=min(100k/10k,1.0)= 1, frequency=min(10/10,1.0)= 1
+        // score = 0.30 + 0.30 + 0.25 + 0.15 = 1
         assert!(last.suspicion_score > 0.9);
         assert_eq!(last.severity, "critical");
     }
@@ -649,7 +649,7 @@ mod chip_dumping_edge_cases {
             });
 
         // 2 dumps VeryWeak de 1000 cada:
-        // consistency=1.0, weakness=1.0, volume=min(2000/10000,1.0)=0.2, frequency=min(2/10,1.0)=0.2
+        // consistency= 1, weakness= 1, volume=min(2000/10000,1.0)=0.2, frequency=min(2/10,1.0)=0.2
         // score = 0.30 + 0.30 + 0.05 + 0.03 = 0.68 → high
         analyzer.analyze_all_in(
             "alice",
@@ -687,7 +687,7 @@ mod chip_dumping_edge_cases {
             });
 
         // 2 dumps Weak (não VeryWeak) de 500 cada:
-        // consistency=1.0, weakness=0.5 (Weak, não VeryWeak), volume=min(1000/10000,1.0)=0.1, frequency=0.2
+        // consistency= 1, weakness=0.5 (Weak, não VeryWeak), volume=min(1000/10000,1.0)=0.1, frequency=0.2
         // score = 0.30 + 0.15 + 0.025 + 0.03 = 0.505 → medium
         analyzer.analyze_all_in(
             "alice",
@@ -1061,7 +1061,7 @@ mod bot_detection_edge_cases {
         let alert = detector.analyze_player("precise_bot", ts + 1000);
         assert!(alert.is_some());
         let metrics = &alert.unwrap().metrics;
-        // Todos os amounts são múltiplos de 100 → precision = 1.0
+        // Todos os amounts são múltiplos de 100 → precision = 1
         assert!(metrics.mathematical_precision > 0.9);
     }
 

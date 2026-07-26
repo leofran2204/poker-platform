@@ -10258,4 +10258,3 @@ mod lote_7f_cancel_stats_serialization {
         assert!(state2.players.get("p1").unwrap().addon_done);
     }
 }
-

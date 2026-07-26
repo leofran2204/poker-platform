@@ -17,7 +17,7 @@ use super::seat::{Seat, SeatPosition};
 #[derive(Debug, Clone, PartialEq)]
 pub struct PlayerData {
     pub name: String,
-    pub chips: u32,
+    pub chips: u64,
     pub position: Position,
     pub status: PlayerStatus,
     pub cards: Option<Vec<PlayingCard>>,
@@ -25,9 +25,9 @@ pub struct PlayerData {
 }
 
 impl PlayerData {
-    /// Cria dados de jogador com posição padrão.
+    /// Cria dados de jogador com posição padrão em centavos.
     #[must_use]
-    pub fn new(name: String, chips: u32, position: Position, seat_pos: SeatPosition) -> Self {
+    pub fn new(name: String, chips: u64, position: Position, seat_pos: SeatPosition) -> Self {
         Self {
             name,
             chips,

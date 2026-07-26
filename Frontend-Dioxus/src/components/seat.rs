@@ -40,7 +40,7 @@ impl SeatPosition {
 #[allow(clippy::too_many_arguments)]
 pub fn Seat(
     name: String,
-    chips: u32,
+    chips: u64,
     position: Position,
     status: PlayerStatus,
     cards: Option<Vec<PlayingCard>>,

@@ -1,6 +1,6 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-24
+**Atualizado:** 2026-07-25
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 >  Painel tático em `DASHBOARD.md`. 📅 Cronograma em `CRONOGRAMA.md`.
@@ -38,7 +38,7 @@
 | 3 | **Lições aprendidas** | Dioxus CLI engessa as versões do wasm-bindgen que usa; realizar builds manuais do WebAssembly em containers Docker de produção é mais adaptável e muito mais leve. |
 | 4 | **Melhorias para S04** | Configurar testes de cobertura (llvm-cov/tarpaulin) no CI/CD e organizar workflows automáticos de build/deploy. |
 
-### 📋 Sprint S04 & S05 (2026-07-18 → 2026-07-24) — Testes de Estresse, PIX Gateway, Hardening & Launch Ready
+### 📋 Sprint S04 & S05 (2026-07-18 → 2026-07-25) — Testes de Estresse, PIX Gateway, Hardening & Launch Ready
 
 | # | Aspecto | Avaliação |
 |---|--------|----------|
@@ -51,7 +51,16 @@
 
 ## 📜 Log Cronológico de Desenvolvimento
 
-### [20] 🛡️ Audit do Parecer Técnico e Saneamento Enterprise (2026-07-24)
+### [21] 💵 Migração Arquitetural Estrita para `u64` Centavos Inteiros (2026-07-25)
+**O que foi feito:**
+- **Refatoração Monetária Mestre:** Substituição completa de `f64` por `u64` centavos inteiros nos tipos de saldos, apostas, stacks, potes, rake, buy-in e blinds em todos os crates (`Motor-Rust`, `API-Axum`, `Frontend-Dioxus`).
+- **Eliminação de Erros Flutuantes IEEE-754:** Garantida a conservação de fichas e precisão bancária de centavos inteiros com divisão de pote de acordo com a regra WSOP Odd Cent (resto indivisível distribuído aos primeiros assentos à esquerda do botão).
+- **Probabilidades e Estatísticas Preservadas:** Mantida a escala flutuante (`f64` entre 0.0 e 1.0 ou 0% a 100%) para cálculos estatísticos de equidade e exibição de porcentagens na UI.
+- **Frontend Dioxus Visual:** Criados helpers de formatação de exibição `R$ {:.2}` convertendo o valor inteiro de centavos exclusivamente na camada de renderização visual.
+
+---
+
+### [20] 🛡️ Audit do Parecer Técnico e Saneamento Enterprise (2026-07-25)
 **O que foi feito:**
 - **Auditoria Ítem por Ítem:** Análise rigorosa das 30+ observações do parecer técnico, separando diagnósticos de arquitetura real de falsos positivos de scanners automáticos.
 - **Segurança & Idempotência PIX:** Excluído módulo legado `auth_paseto.rs` (código morto com chave estática). Adicionada idempotência atômica no webhook PIX (`UPDATE transactions SET status='PROCESSED' WHERE status='PENDING'`) prevenindo ataques de replay. Adicionada verificação atômica de saldo no saque PIX.
@@ -62,7 +71,7 @@
 
 ---
 
-### [19] 🚀 Finalização Mestre & Prontidão para Produção (2026-07-24)
+### [19] 🚀 Finalização Mestre & Prontidão para Produção (2026-07-25)
 **O que foi feito:**
 - **Testes Massivos & Estresse Extremo:** Implementada a suíte Lote 7 em `game_loop_tests.rs` (1.000 iterações de Ante/Blinds, 500 All-Ins multiway com conservação de fichas e micro-stacks).
 - **Gateway PIX Multi-Provedor HTTPS (TLS 1.2/1.3):** Integradas as APIs do Asaas e Mercado Pago com suporte dinâmico via `PIX_PROVIDER`.
@@ -408,5 +417,16 @@
 - **Tolerâncias de teste ajustadas:** `test_win_prob_known_cards_dont_overlap` passou de exato (`EPSILON`) para ±0.05 (ruído estatístico esperado de Monte Carlo).
 - **Reestruturação de pastas:** removidos prefixos numéricos (`08-Motor-Rust`→`Motor-Rust`, `10-API-Axum`→`API-Axum`, `09-Frontend-Dioxus`→`Frontend-Dioxus`, etc.); `**/target/` adicionado ao `.gitignore`. Commit `4093d59` enviado ao `origin/master`.
 - **Suíte completa:** 1.848 testes passando, 0 failed, 1 ignored.
+
+---
+
+### [22] 🛡️ Anúncio Global e Psicologia do Loss Deflator (2026-07-25)
+**O que foi feito:**
+- **Integração Real-Time do Engine com WebSocket:** O `game_actor.rs` do Axum agora intercepta resoluções de mão com `loss_deflator` e transmite o evento `DeflatorTriggered` para o Dioxus via WebSocket.
+- **Cálculo de Equidade Exata:** O `game_loop.rs` executa a função de Monte Carlo `get_heads_up_win_probability` no momento do All-in, transmitindo a probabilidade exata do confronto (ex: 82% vs 18%) para visualização.
+- **Componente Visual Dioxus (`deflator_notification.rs`):** Pop-up global animado com sobreposição (overlay) e 4 níveis de cores e textos adaptados à gravidade da Bad Beat (7% Teal, 15% Azul, 25% Laranja, 35% Vermelho Neon).
+- **Copywriting de Prova de Justiça:** Textos explícitos detalhando o evento de Bad Beat, o percentual de chance exato do vencedor e do perdedor, e o saldo/fichas recuperadas, adaptados dinamicamente para Cash Games e Torneios.
+- **Compilação Limpa:** 0 erros de compilação, suíte de 2.050+ testes verificada.
+
 
 *Próximo passo: Configurar cobertura de testes (llvm-cov/tarpaulin) no CI/CD e workflows de build/deploy.*

@@ -60,7 +60,7 @@ async fn test_pix_deposit_generation_success() {
 
     let app = build_router(state);
     let payload = serde_json::json!({
-        "amount": 50.0
+        "amount": 5000
     })
     .to_string();
 
@@ -79,7 +79,7 @@ async fn test_pix_deposit_generation_success() {
     let body_json: serde_json::Value = serde_json::from_slice(&body_bytes).unwrap();
 
     assert!(body_json.get("tx_id").is_some());
-    assert_eq!(body_json["amount"], 50.0);
+    assert_eq!(body_json["amount"], 5000);
     assert!(body_json["pix_copy_paste"].as_str().unwrap().contains("BR.GOV.BCB.PIX"));
     assert!(body_json["qr_code_base64"].as_str().unwrap().contains("data:image"));
 }
@@ -92,7 +92,7 @@ async fn test_pix_deposit_invalid_amount_returns_400() {
 
     let app = build_router(state);
     let payload = serde_json::json!({
-        "amount": -10.0
+        "amount": 0
     })
     .to_string();
 
@@ -117,7 +117,7 @@ async fn test_pix_webhook_success() {
     let webhook_payload = serde_json::json!({
         "tx_id": "tx_dep_123456",
         "external_tx_id": "asaas_pay_123456",
-        "amount": 50.0,
+        "amount": 5000,
         "status": "APPROVED"
     })
     .to_string();
@@ -146,7 +146,7 @@ async fn test_pix_webhook_invalid_secret_returns_401() {
 
     let webhook_payload = serde_json::json!({
         "tx_id": "tx_dep_fake",
-        "amount": 500.0,
+        "amount": 50000,
         "status": "APPROVED"
     })
     .to_string();
@@ -171,7 +171,7 @@ async fn test_pix_withdraw_success() {
 
     let app = build_router(state);
     let payload = serde_json::json!({
-        "amount": 100.0,
+        "amount": 10000,
         "pix_key_type": "cpf",
         "pix_key": "12345678900"
     })
@@ -191,6 +191,6 @@ async fn test_pix_withdraw_success() {
     let body_bytes = axum::body::to_bytes(response.into_body(), 10_000).await.unwrap();
     let body_json: serde_json::Value = serde_json::from_slice(&body_bytes).unwrap();
     assert!(body_json.get("tx_id").is_some());
-    assert_eq!(body_json["amount"], 100.0);
+    assert_eq!(body_json["amount"], 10000);
     assert_eq!(body_json["status"], "PROCESSING");
 }

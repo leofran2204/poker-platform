@@ -1,6 +1,6 @@
 # Guia de Exemplos Práticos — Upgrades de Segurança e Arquitetura Enterprise
 
-**Atualizado:** 2026-07-24 | **Status:** ✅ 100% Concluído & Validado em Produção (Hardening Enterprise, CSPRNG, Rate Limiting & TLS 1.3)
+**Atualizado:** 2026-07-25 | **Status:** ✅ 100% Concluído & Validado em Produção (Hardening Enterprise, CSPRNG, Rate Limiting & TLS 1.3)
 
 
 Este documento é o guia prático e educacional para a utilização dos novos recursos de alta segurança adicionados ao projeto **Poker_Project**:

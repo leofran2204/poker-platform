@@ -265,7 +265,7 @@ async fn test_tournament_get_with_preloaded_tournament() {
 
     // Pre-load a tournament into the in-memory store
     {
-        let mut tournaments = state.tournaments.lock().await;
+        let mut tournaments = state.tournaments.write().await;
         let config = TournamentConfig {
             name: "Test Tournament".to_string(),
             game_type: "Holdem".to_string(),

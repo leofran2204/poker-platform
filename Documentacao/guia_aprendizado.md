@@ -1,6 +1,6 @@
 # 📚 Guia de Aprendizado — Plataforma de Poker (Rust)
 
-> **Data:** 2026-07-24
+> **Data:** 2026-07-25
 > **Versão:** 5.0 (consolidação de ESTRATEGIA_APRENDIZADO + PARAMETROS_ESTUDO + guia Sprints S03 a S05 + 100% Concluído / Launch Ready)
 > **Status:** ✅ 100% CONCLUÍDO (Pronto para Produção)
 

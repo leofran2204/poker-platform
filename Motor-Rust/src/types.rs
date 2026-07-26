@@ -2,20 +2,24 @@
 //
 // Este módulo centraliza tipos que são usados em múltiplos módulos
 // do motor de poker, evitando duplicação e garantindo consistência.
+//
+// Arquitetura Monetária:
+// - Todos os valores monetários (pot, rake_cap, blinds) utilizam `u64` centavos inteiros.
+// - Percentuais (rake_percent) utilizam `f64` em escala (ex: 0.05 = 5%).
 
 use serde::{Deserialize, Serialize};
 
-/// Representa um pote (main pot ou side pot)
+/// Representa um pote em centavos inteiros (main pot ou side pot)
 /// Usado por rake.rs, side_pots.rs e loss_deflator.rs
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Pot {
-    pub amount: f64,
+    pub amount: u64,
     pub eligible_players: Vec<String>,
 }
 
 impl Pot {
-    /// Cria um novo pote
-    pub fn new(amount: f64, eligible_players: Vec<String>) -> Self {
+    /// Cria um novo pote com valor em centavos
+    pub fn new(amount: u64, eligible_players: Vec<String>) -> Self {
         Self {
             amount,
             eligible_players,
@@ -28,17 +32,17 @@ impl Pot {
     }
 }
 
-/// Configuração da mesa (parâmetros de rake)
+/// Configuração da mesa (parâmetros de rake e blinds em centavos)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TableConfig {
-    pub big_blind: f64,
+    pub big_blind: u64,
     pub rake_percent: f64,
-    pub rake_cap: f64,
+    pub rake_cap: u64,
 }
 
 impl TableConfig {
-    /// Cria uma nova configuração de mesa
-    pub fn new(big_blind: f64, rake_percent: f64, rake_cap: f64) -> Self {
+    /// Cria uma nova configuração de mesa com blinds e cap em centavos
+    pub fn new(big_blind: u64, rake_percent: f64, rake_cap: u64) -> Self {
         Self {
             big_blind,
             rake_percent,
@@ -61,7 +65,6 @@ pub enum GamePhase {
 }
 
 impl GamePhase {
-    /// Retorna a fase como string legível (lowercase, compatível com serde)
     pub fn as_str(&self) -> &'static str {
         match self {
             GamePhase::Preflop => "preflop",
@@ -72,7 +75,6 @@ impl GamePhase {
         }
     }
 
-    /// Avança para a próxima fase do jogo
     pub fn next(&self) -> Option<GamePhase> {
         match self {
             GamePhase::Preflop => Some(GamePhase::Flop),
@@ -81,5 +83,11 @@ impl GamePhase {
             GamePhase::River => Some(GamePhase::Showdown),
             GamePhase::Showdown => None,
         }
+    }
+}
+
+impl std::fmt::Display for GamePhase {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }

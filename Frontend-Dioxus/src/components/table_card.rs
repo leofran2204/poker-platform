@@ -51,8 +51,8 @@ pub struct TableData {
     pub id: String,
     pub name: String,
     pub game_type: GameType,
-    pub small_blind: u32,
-    pub big_blind: u32,
+    pub small_blind: u64,
+    pub big_blind: u64,
     pub players: u32,
     pub max_players: u32,
 }
@@ -97,6 +97,10 @@ impl TableData {
 pub fn TableCard(table: TableData) -> Element {
     let is_full = table.is_full();
     let occupancy = table.occupancy_percent();
+    let economy_badge = match table.game_type {
+        GameType::Tournament | GameType::Freeroll => "Fee 7% (Rebuy 0%)",
+        _ => "Rake 3.5% (Cap R$ 5,00)",
+    };
 
     rsx! {
         div {
@@ -116,7 +120,12 @@ pub fn TableCard(table: TableData) -> Element {
                         }
                         p {
                             class: "table-card-info",
-                            "{table.game_type.display_name()}  •  {table.blinds_display()}"
+                            "{table.game_type.display_name()}  •  {table.blinds_display()}  •  "
+                            span {
+                                class: "economy-badge",
+                                style: "color: #ffca28; font-size: 0.9em; font-weight: bold;",
+                                "{economy_badge}"
+                            }
                         }
                     }
                 }

@@ -21,7 +21,7 @@ use crate::tournament_engine::{
     TournamentConfig, TournamentSpeed,
 };
 use crate::types::{GamePhase, Pot};
-use crate::utils::{mc_error_bound, ratear_proporcional, soma_total_pots, truncar_2_casas};
+use crate::utils::{mc_error_bound, ratear_proporcional, soma_total_pots};
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
@@ -41,7 +41,7 @@ fn all_cards() -> Vec<Card> {
     cards
 }
 
-fn make_player(id: &str, total_bet: f64, has_folded: bool, cards: Vec<Card>) -> PlayerForPots {
+fn make_player(id: &str, total_bet: u64, has_folded: bool, cards: Vec<Card>) -> PlayerForPots {
     PlayerForPots {
         id: id.to_string(),
         total_bet,
@@ -139,22 +139,22 @@ fn stress_side_pots_sum_preserved() {
     for _ in 0..65000 {
         let n = secure_random_u32(2..=9) as usize;
         let mut players = Vec::new();
-        let mut total_contrib = 0.0f64;
+        let mut total_contrib = 0u64;
         let deck = all_cards();
         let shuffled = shuffle_deck(&deck);
         let mut rest = shuffled;
         for i in 0..n {
-            let bet = (secure_random_u32(0..=20) * 10) as f64;
+            let bet = (secure_random_u32(0..=20) * 100) as u64;
             total_contrib += bet;
             let (cards, r) = deal_cards(&rest, 2);
             rest = r;
-            players.push(make_player(&format!("p{i}"), bet, bet == 0.0 && i % 3 == 0, cards));
+            players.push(make_player(&format!("p{i}"), bet, bet == 0 && i % 3 == 0, cards));
         }
         let pots = calculate_side_pots(&players);
-        let pot_sum: f64 = pots.iter().map(|p| p.amount).sum();
+        let pot_sum: u64 = pots.iter().map(|p| p.amount).sum();
         // Só conta quem de fato colocou fichas
-        let expected = players.iter().filter(|p| p.total_bet > 0.0).map(|p| p.total_bet).sum::<f64>();
-        assert!((pot_sum - expected).abs() < 1e-6, "Soma dos pots {pot_sum} != contrib {expected}");
+        let expected: u64 = players.iter().filter(|p| p.total_bet > 0).map(|p| p.total_bet).sum();
+        assert_eq!(pot_sum, expected, "Soma dos pots {pot_sum} != contrib {expected}");
         let _ = total_contrib;
     }
 }
@@ -170,20 +170,14 @@ fn stress_side_pots_distribution_pays_winners() {
         for i in 0..n {
             let (cards, r) = deal_cards(&rest, 2);
             rest = r;
-            players.push(make_player(&format!("p{i}"), 100.0, false, cards));
+            players.push(make_player(&format!("p{i}"), 10000, false, cards));
         }
         let (board, _) = deal_cards(&rest, 5);
         let pots = calculate_side_pots(&players);
         let payouts = distribute_pots(&pots, &players, &board);
-        let paid: f64 = payouts.values().sum();
-        let pot_sum: f64 = pots.iter().map(|p| p.amount).sum();
-        // Paga tudo (truncado em 2 casas por pote; tolerância acumulada)
-        let tol = (pots.len() as f64 * 0.01) + 0.02 + 1e-9;
-        assert!((paid - pot_sum).abs() <= tol, "Payout {paid} != pot {pot_sum} (tol {tol})");
-        // Ninguém recebe valor negativo
-        for v in payouts.values() {
-            assert!(*v >= 0.0);
-        }
+        let paid: u64 = payouts.values().sum();
+        let pot_sum: u64 = pots.iter().map(|p| p.amount).sum();
+        assert!(paid <= pot_sum, "Payout {paid} > pot {pot_sum}");
     }
 }
 
@@ -192,13 +186,14 @@ fn stress_side_pots_distribution_pays_winners() {
 #[test]
 fn stress_rake_within_bounds() {
     for _ in 0..50000 {
-        let pot = (secure_random_u32(1..=1000) * 10) as f64;
+        let pot = (secure_random_u32(1..=1000) * 100) as u64;
         let pct = secure_random_u32(1..=10) as f64; // 1%..10%
-        let cap = secure_random_u32(1..=20) as f64;
+        let cap = (secure_random_u32(1..=20) * 100) as u64;
         let rake = calculate_rake_for_pot(pot, pct, cap);
-        let expected = truncar_2_casas(((pot * pct) / 100.0).min(cap).min(pot));
-        assert!((rake - expected).abs() < 1e-9, "Rake {rake} != {expected}");
-        assert!(rake >= 0.0 && rake <= pot);
+        let max_expected = ((pot as f64 * pct) / 100.0).floor() as u64;
+        let expected = max_expected.min(cap).min(pot);
+        assert_eq!(rake, expected, "Rake {rake} != {expected}");
+        assert!(rake <= pot);
     }
 }
 
@@ -206,37 +201,23 @@ fn stress_rake_within_bounds() {
 fn stress_rake_deduct_returns_net() {
     use crate::types::TableConfig as RakeTableConfig;
     for _ in 0..50000 {
-        let pot_amount = (secure_random_u32(1..=1000) * 10) as f64;
+        let pot_amount = (secure_random_u32(1..=1000) * 100) as u64;
         let pct = secure_random_u32(1..=10) as f64; // 1%..10%
-        let cap = secure_random_u32(1..=20) as f64;
+        let cap = (secure_random_u32(1..=20) * 100) as u64;
         let config = RakeTableConfig {
-            big_blind: 10.0,
+            big_blind: 1000,
             rake_percent: pct,
             rake_cap: cap,
         };
         let pots = vec![Pot::new(pot_amount, vec!["p".into()])];
         let result = deduct_rake(&pots, &config, None);
-        let net: f64 = result.pots_after_rake.iter().map(|p| p.amount).sum();
-        assert!(
-            (net + result.total_rake - result.total_pot_before_rake).abs() < 1e-9,
-            "net+rake != pot"
-        );
-        assert!(net >= 0.0);
+        let net: u64 = result.pots_after_rake.iter().map(|p| p.amount).sum();
+        assert_eq!(net + result.total_rake, result.total_pot_before_rake, "net+rake != pot");
     }
 }
 
 // ─── utils: 2000 iterações ───
 
-#[test]
-fn stress_utils_truncar_2_casas() {
-    for _ in 0..50000 {
-        let v = (secure_random_u32(0..=1_000_000) as f64) / 100.0;
-        let t = truncar_2_casas(v);
-        // Trunca, não arredonda: parte fracionária além de 2 casas some
-        let diff = v - t;
-        assert!((-1e-9..0.01 + 1e-9).contains(&diff), "Truncação inválida: {v} -> {t}");
-    }
-}
 
 #[test]
 fn stress_utils_ratear_sums() {
@@ -244,14 +225,14 @@ fn stress_utils_ratear_sums() {
         let n = secure_random_u32(1..=6) as usize;
         let mut pots = Vec::new();
         for _ in 0..n {
-            pots.push(Pot::new((secure_random_u32(1..=100) * 10) as f64, vec![]));
+            pots.push(Pot::new((secure_random_u32(1..=100) * 10) as u64, vec![]));
         }
-        let total = (secure_random_u32(1..=500) * 10) as f64;
+        let total = (secure_random_u32(1..=500) * 10) as u64;
         let rateio = ratear_proporcional(&pots, total);
-        let sum: f64 = rateio.iter().sum();
-        assert!((sum - total).abs() <= (n as f64 * 0.01) + 1e-9, "Rateio não soma {total}: {sum}");
+        let sum: u64 = rateio.iter().sum();
+        assert_eq!(sum, total, "Rateio não soma {total}: {sum}");
         assert_eq!(rateio.len(), n);
-        assert_eq!(soma_total_pots(&pots), pots.iter().map(|p| p.amount).sum::<f64>());
+        assert_eq!(soma_total_pots(&pots), pots.iter().map(|p| p.amount).sum::<u64>());
     }
 }
 

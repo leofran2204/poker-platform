@@ -1,7 +1,7 @@
 # 🃏 Regras de Negócio — Plataforma de Poker Online Texas Hold'em
 
 **Versão:** 2.0  
-**Data:** 2026-07-24  
+**Data:** 2026-07-25  
 **Status:** Documento Oficial — 100% Sincronizado e Implementado
 
 
@@ -18,6 +18,11 @@
 
 > 📐 Detalhes completos em `Arquitetura-Motor/ARQUITETURA_MOTOR.md`.
 > ✅ Stack 100% Rust desde 2026-07-03 — Python, TypeScript, Go e Node.js foram removidos.
+
+### 0.1. 💵 Arquitetura Financeira e Tipagem Estrita (`u64` Centavos)
+- **Princípio da Precisão Bancária:** Todos os valores financeiros (saldo, apostas, stacks, potes, rake, buy-in e blinds) utilizam estritamente `u64` centavos inteiros (`R$ 10,50` = `1050` centavos). Erros de arredondamento IEEE-754 flutuantes são eliminados na raiz.
+- **Probabilidades e Estatísticas:** Mantidos em escala flutuante (`f64` entre `0.0` e `1.0` ou `0.0%` a `100.0%`) para cálculo de equidade e exibição de porcentagens.
+- **Formatação de Exibição:** O frontend Dioxus converte os centavos `u64` apenas na camada visual de renderização via helper de exibição `R$ {:.2}`.
 
 ---
 
@@ -208,7 +213,8 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
 - Campo `balance` em `users`
 - Deduzido no buy-in
 - Devolvido no cash-out
-- ✅ **Rake de 2.5% (cap R$ 6.00) + Regra do Centavo Ímpar (WSOP 68)** 100% implementados em `rake.rs` e `utils.rs`
+- ✅ **Rake Cash Games: 3.5% (cap R$ 5.00) + Regra do Centavo Ímpar (WSOP 68)** 100% implementados em `rake.rs` e `utils.rs`
+- ✅ **Fee Torneios: 7% no Buy-in, com taxa 0% em Re-buys e Add-ons**
 
 ---
 

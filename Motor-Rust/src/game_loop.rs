@@ -28,7 +28,6 @@ use crate::loss_deflator::{self, ProgressiveLossDeflatorParams};
 use crate::rake::{self, RakeResult};
 use crate::side_pots::{self, PlayerForPots, SidePotsResult};
 use crate::types::{GamePhase, Pot, TableConfig};
-use crate::utils::truncar_2_casas;
 use std::collections::HashMap;
 
 // ─── Tipos de estado ───
@@ -38,14 +37,14 @@ use std::collections::HashMap;
 pub struct PlayerState {
     /// ID único do jogador
     pub id: String,
-    /// Fichas restantes (stack atual)
-    pub stack: f64,
+    /// Fichas restantes (stack atual em centavos)
+    pub stack: u64,
     /// Hole cards (2 cartas)
     pub hole_cards: Vec<Card>,
-    /// Aposta da rodada atual (reseta a cada fase)
-    pub current_bet: f64,
-    /// Total apostado na mão inteira (para side pots)
-    pub total_bet: f64,
+    /// Aposta da rodada atual (reseta a cada fase, em centavos)
+    pub current_bet: u64,
+    /// Total apostado na mão inteira (para side pots, em centavos)
+    pub total_bet: u64,
     /// Se o jogador foldou
     pub has_folded: bool,
     /// Se o jogador está all-in
@@ -59,14 +58,14 @@ pub struct PlayerState {
 }
 
 impl PlayerState {
-    /// Cria um novo jogador com stack inicial
-    pub fn new(id: String, stack: f64, seat_index: usize) -> Self {
+    /// Cria um novo jogador com stack inicial em centavos
+    pub fn new(id: String, stack: u64, seat_index: usize) -> Self {
         Self {
             id,
             stack,
             hole_cards: Vec::new(),
-            current_bet: 0.0,
-            total_bet: 0.0,
+            current_bet: 0,
+            total_bet: 0,
             has_folded: false,
             is_all_in: false,
             all_in_phase: None,
@@ -87,12 +86,12 @@ impl PlayerState {
 
     /// Zera a aposta da rodada (chamado ao avançar de fase)
     pub fn reset_round_bet(&mut self) {
-        self.current_bet = 0.0;
+        self.current_bet = 0;
         self.has_acted = false;
     }
 }
 
-/// Estado completo da mão em andamento
+/// Estado completo da mão em andamento em centavos inteiros
 #[derive(Debug, Clone)]
 pub struct HandState {
     /// Jogadores na mão (em ordem de assento)
@@ -107,16 +106,16 @@ pub struct HandState {
     pub deck: Vec<Card>,
     /// Cartas queimadas (burn pile)
     pub burn_pile: Vec<Card>,
-    /// Aposta máxima da rodada atual (o que cada jogador precisa igualar)
-    pub current_bet_to_match: f64,
-    /// Aumento mínimo permitido (geralmente = big blind)
-    pub min_raise: f64,
+    /// Aposta máxima da rodada atual (em centavos)
+    pub current_bet_to_match: u64,
+    /// Aumento mínimo permitido (em centavos)
+    pub min_raise: u64,
     /// Índice do jogador que deve agir agora
     pub active_player_index: usize,
-    /// Valor do small blind
-    pub small_blind: f64,
-    /// Valor do big blind
-    pub big_blind: f64,
+    /// Valor do small blind em centavos
+    pub small_blind: u64,
+    /// Valor do big blind em centavos
+    pub big_blind: u64,
     /// Se a mão já terminou
     pub is_finished: bool,
 }
@@ -142,8 +141,8 @@ impl HandState {
         self.players.get_mut(self.active_player_index)
     }
 
-    /// Soma total apostado na mão (para o pote)
-    pub fn total_pot(&self) -> f64 {
+    /// Soma total apostado na mão (pote total em centavos)
+    pub fn total_pot(&self) -> u64 {
         self.players.iter().map(|p| p.total_bet).sum()
     }
 
@@ -163,15 +162,15 @@ impl HandState {
     }
 }
 
-/// Resultado da resolução da mão (showdown ou fold generalizado)
+/// Resultado da resolução da mão (showdown ou fold generalizado) em centavos
 #[derive(Debug, Clone)]
 pub struct HandResolution {
     /// Pots calculados (antes do rake)
     pub pots: Vec<Pot>,
-    /// Pagamentos finais por jogador (após rake e deflator)
-    pub payouts: HashMap<String, f64>,
-    /// Rake total cobrado
-    pub rake: f64,
+    /// Pagamentos finais por jogador em centavos (após rake e deflator)
+    pub payouts: HashMap<String, u64>,
+    /// Rake total cobrado em centavos
+    pub rake: u64,
     /// Resultado do loss deflator principal (se aplicável, para compatibilidade)
     pub loss_deflator: Option<loss_deflator::ProgressiveLossDeflatorResult>,
     /// Lista de todos os resultados do loss deflator para cada perdedor All-In
@@ -240,20 +239,21 @@ pub enum PlayerMove {
     /// Iguala a aposta atual
     Call,
     /// Faz uma aposta inicial (quando ninguém apostou)
-    Bet(f64),
-    /// Aumenta a aposta atual
-    Raise(f64),
+    /// Faz uma aposta inicial em centavos (quando ninguém apostou)
+    Bet(u64),
+    /// Aumenta a aposta atual em centavos
+    Raise(u64),
     /// Vai all-in com todas as fichas restantes
     AllIn,
 }
 
 // ─── GameLoop principal ───
 
-/// Máquina de estados que orquestra uma mão completa de Texas Hold'em
+/// Máquina de estados que orquestra uma mão completa de Texas Hold'em (em centavos u64)
 pub struct GameLoop {
     /// Estado da mão atual
     pub state: HandState,
-    /// Configuração da mesa (rake)
+    /// Configuração da mesa (rake e blinds em centavos)
     pub config: TableConfig,
     /// ID da mão (para hand history)
     pub hand_id: String,
@@ -261,8 +261,8 @@ pub struct GameLoop {
     pub table_name: String,
     /// Tipo de jogo (cash ou tournament)
     pub game_type: GameType,
-    /// Ante (opcional)
-    pub ante: Option<f64>,
+    /// Ante em centavos (opcional)
+    pub ante: Option<u64>,
     /// Histórico da mão (construído conforme a mão progride)
     pub history: Option<HandHistory>,
     /// Timestamp de início da mão (ms)
@@ -272,7 +272,7 @@ pub struct GameLoop {
 }
 
 impl GameLoop {
-    /// Cria um novo GameLoop com a configuração da mesa
+    /// Cria um novo GameLoop com a configuração da mesa em centavos
     pub fn new(
         config: TableConfig,
         hand_id: String,
@@ -287,10 +287,10 @@ impl GameLoop {
                 phase: GamePhase::Preflop,
                 deck: Vec::new(),
                 burn_pile: Vec::new(),
-                current_bet_to_match: 0.0,
+                current_bet_to_match: 0,
                 min_raise: config.big_blind,
                 active_player_index: 0,
-                small_blind: config.big_blind / 2.0,
+                small_blind: config.big_blind / 2,
                 big_blind: config.big_blind,
                 is_finished: false,
             },
@@ -305,14 +305,14 @@ impl GameLoop {
         }
     }
 
-    /// Define o ante para a mão
-    pub fn with_ante(mut self, ante: f64) -> Self {
+    /// Define o ante para a mão em centavos
+    pub fn with_ante(mut self, ante: u64) -> Self {
         self.ante = Some(ante);
         self
     }
 
-    /// Adiciona um jogador à mão (antes de iniciar)
-    pub fn add_player(&mut self, id: String, stack: f64) {
+    /// Adiciona um jogador à mão (antes de iniciar) com stack em centavos
+    pub fn add_player(&mut self, id: String, stack: u64) {
         let seat_index = self.state.players.len();
         self.state.players.push(PlayerState::new(id, stack, seat_index));
     }
@@ -337,7 +337,7 @@ impl GameLoop {
 
         // 2. Coletar ante (se configurado)
         if let Some(ante) = self.ante {
-            if ante > 0.0 {
+            if ante > 0 {
                 for player in &mut self.state.players {
                     let ante_amount = ante.min(player.stack);
                     player.stack -= ante_amount;
@@ -363,13 +363,13 @@ impl GameLoop {
         self.state.players[bb_index].total_bet += bb_amount;
 
         // Verificar all-in por blinds
-        if self.state.players[sb_index].stack == 0.0 {
+        if self.state.players[sb_index].stack == 0 {
             self.state.players[sb_index].is_all_in = true;
             if self.state.players[sb_index].all_in_phase.is_none() {
                 self.state.players[sb_index].all_in_phase = Some(GamePhase::Preflop);
             }
         }
-        if self.state.players[bb_index].stack == 0.0 {
+        if self.state.players[bb_index].stack == 0 {
             self.state.players[bb_index].is_all_in = true;
             if self.state.players[bb_index].all_in_phase.is_none() {
                 self.state.players[bb_index].all_in_phase = Some(GamePhase::Preflop);
@@ -403,14 +403,14 @@ impl GameLoop {
             .state
             .players
             .iter()
-            .map(|p| (p.id.clone(), p.stack as u64 + p.total_bet as u64))
+            .map(|p| (p.id.clone(), p.stack + p.total_bet))
             .collect();
 
         let history_config = HistoryTableConfig {
             table_name: self.table_name.clone(),
-            small_blind: self.state.small_blind as u64,
-            big_blind: self.state.big_blind as u64,
-            ante: self.ante.map(|a| a as u64),
+            small_blind: self.state.small_blind,
+            big_blind: self.state.big_blind,
+            ante: self.ante,
             max_players: 9,
             game_type: self.game_type,
         };
@@ -425,8 +425,8 @@ impl GameLoop {
         // Registrar blinds no histórico
         let sb_id = self.state.players[sb_index].id.clone();
         let bb_id = self.state.players[bb_index].id.clone();
-        self.record_history_action(&mut history, &sb_id, Action::Call, sb_amount as u64);
-        self.record_history_action(&mut history, &bb_id, Action::Raise, bb_amount as u64);
+        self.record_history_action(&mut history, &sb_id, Action::Call, sb_amount);
+        self.record_history_action(&mut history, &bb_id, Action::Raise, bb_amount);
 
         self.history = Some(history);
 
@@ -452,7 +452,7 @@ impl GameLoop {
 
         let current_bet_to_match = self.state.current_bet_to_match;
         let player_current = self.state.players[active_idx].current_bet;
-        let to_call = current_bet_to_match - player_current;
+        let to_call = current_bet_to_match.saturating_sub(player_current);
 
         match move_type {
             PlayerMove::Fold => {
@@ -466,7 +466,7 @@ impl GameLoop {
                 }
             }
             PlayerMove::Check => {
-                if to_call > 0.0 {
+                if to_call > 0 {
                     return Err(GameLoopError::InvalidActionForPhase(
                         "Check não permitido quando há aposta a igualar".to_string(),
                     ));
@@ -475,7 +475,7 @@ impl GameLoop {
                 self.record_history_action_id(active_idx, Action::Check, 0);
             }
             PlayerMove::Call => {
-                if to_call <= 0.0 {
+                if to_call == 0 {
                     return Err(GameLoopError::InvalidActionForPhase(
                         "Call não permitido quando não há aposta a igualar".to_string(),
                     ));
@@ -484,19 +484,19 @@ impl GameLoop {
                 self.state.players[active_idx].stack -= call_amount;
                 self.state.players[active_idx].current_bet += call_amount;
                 self.state.players[active_idx].total_bet += call_amount;
-                if self.state.players[active_idx].stack == 0.0 {
+                if self.state.players[active_idx].stack == 0 {
                     self.state.players[active_idx].is_all_in = true;
                 }
                 self.state.players[active_idx].has_acted = true;
-                self.record_history_action_id(active_idx, Action::Call, call_amount as u64);
+                self.record_history_action_id(active_idx, Action::Call, call_amount);
             }
             PlayerMove::Bet(amount) => {
-                if to_call > 0.0 {
+                if to_call > 0 {
                     return Err(GameLoopError::InvalidActionForPhase(
                         "Bet não permitido quando há aposta — use Raise".to_string(),
                     ));
                 }
-                if amount <= 0.0 {
+                if amount == 0 {
                     return Err(GameLoopError::InvalidBetAmount("Aposta deve ser positiva".to_string()));
                 }
                 if amount < self.state.min_raise {
@@ -513,25 +513,21 @@ impl GameLoop {
                 self.state.players[active_idx].total_bet += amount;
                 self.state.current_bet_to_match = amount;
                 self.state.min_raise = amount;
-                if self.state.players[active_idx].stack == 0.0 {
+                if self.state.players[active_idx].stack == 0 {
                     self.state.players[active_idx].is_all_in = true;
                 }
                 // Resetar has_acted dos outros jogadores (nova rodada de apostas)
                 self.reset_other_players_acted(active_idx);
                 self.state.players[active_idx].has_acted = true;
-                self.record_history_action_id(active_idx, Action::Bet, amount as u64);
+                self.record_history_action_id(active_idx, Action::Bet, amount);
             }
             PlayerMove::Raise(amount) => {
-                // Raise é permitido quando:
-                // - Há aposta a igualar (to_call > 0), OU
-                // - O jogador já igualou mas quer aumentar (current_bet_to_match > 0)
-                if current_bet_to_match <= 0.0 {
+                if current_bet_to_match == 0 {
                     return Err(GameLoopError::InvalidActionForPhase(
                         "Raise não permitido quando não há aposta — use Bet".to_string(),
                     ));
                 }
-                // amount = valor total da aposta (não o incremento)
-                let raise_increment = amount - current_bet_to_match;
+                let raise_increment = amount.saturating_sub(current_bet_to_match);
                 if raise_increment < self.state.min_raise {
                     return Err(GameLoopError::RaiseTooSmall(format!(
                         "Aumento mínimo: {} (raise de {})",
@@ -539,11 +535,11 @@ impl GameLoop {
                         raise_increment
                     )));
                 }
-                let total_needed = amount - player_current;
+                let total_needed = amount.saturating_sub(player_current);
                 if total_needed > self.state.players[active_idx].stack {
                     // All-in raise (menor que o mínimo, mas válido se all-in)
                     let all_in_amount = player_current + self.state.players[active_idx].stack;
-                    self.state.players[active_idx].stack = 0.0;
+                    self.state.players[active_idx].stack = 0;
                     self.state.players[active_idx].current_bet = all_in_amount;
                     self.state.players[active_idx].total_bet += all_in_amount - player_current;
                     self.state.players[active_idx].is_all_in = true;
@@ -551,25 +547,25 @@ impl GameLoop {
                         self.state.current_bet_to_match = all_in_amount;
                         self.reset_other_players_acted(active_idx);
                     }
-                    self.record_history_action_id(active_idx, Action::AllIn, all_in_amount as u64);
+                    self.record_history_action_id(active_idx, Action::AllIn, all_in_amount);
                 } else {
                     self.state.players[active_idx].stack -= total_needed;
                     self.state.players[active_idx].current_bet = amount;
                     self.state.players[active_idx].total_bet += total_needed;
                     self.state.current_bet_to_match = amount;
                     self.state.min_raise = raise_increment;
-                    if self.state.players[active_idx].stack == 0.0 {
+                    if self.state.players[active_idx].stack == 0 {
                         self.state.players[active_idx].is_all_in = true;
                     }
                     self.reset_other_players_acted(active_idx);
-                    self.record_history_action_id(active_idx, Action::Raise, amount as u64);
+                    self.record_history_action_id(active_idx, Action::Raise, amount);
                 }
                 self.state.players[active_idx].has_acted = true;
             }
             PlayerMove::AllIn => {
                 let all_in_amount = self.state.players[active_idx].stack;
                 let new_total_bet = player_current + all_in_amount;
-                self.state.players[active_idx].stack = 0.0;
+                self.state.players[active_idx].stack = 0;
                 self.state.players[active_idx].current_bet = new_total_bet;
                 self.state.players[active_idx].total_bet += all_in_amount;
                 self.state.players[active_idx].is_all_in = true;
@@ -583,7 +579,7 @@ impl GameLoop {
                     self.state.current_bet_to_match = new_total_bet;
                     self.reset_other_players_acted(active_idx);
                 }
-                self.record_history_action_id(active_idx, Action::AllIn, all_in_amount as u64);
+                self.record_history_action_id(active_idx, Action::AllIn, all_in_amount);
             }
         }
 
@@ -610,7 +606,7 @@ impl GameLoop {
         for player in &mut self.state.players {
             player.reset_round_bet();
         }
-        self.state.current_bet_to_match = 0.0;
+        self.state.current_bet_to_match = 0;
         self.state.min_raise = self.state.big_blind;
 
         let next_phase = self.state.phase.next().ok_or(GameLoopError::InvalidActionForPhase(
@@ -842,7 +838,7 @@ impl GameLoop {
         Ok(())
     }
 
-    /// Resolve vitória por fold (todos foldaram exceto um)
+    /// Resolve vitória por fold (todos foldaram exceto um) em centavos
     fn resolve_fold_win(&mut self) -> Result<HandResolution, GameLoopError> {
         let winner_idx = self
             .state
@@ -854,10 +850,8 @@ impl GameLoop {
         let winner_id = self.state.players[winner_idx].id.clone();
         let total_pot = self.state.total_pot();
 
-        // Sem showdown → sem side pots complexos, sem rake sobre fold win
-        // (convenção comum: rake só em pots que vão ao showdown)
         let mut payouts = HashMap::new();
-        payouts.insert(winner_id.clone(), truncar_2_casas(total_pot));
+        payouts.insert(winner_id.clone(), total_pot);
 
         // Resultados dos jogadores para hand history
         let mut player_results = Vec::new();
@@ -869,8 +863,8 @@ impl GameLoop {
                 hole_cards: player.hole_cards.clone(),
                 best_hand: None,
                 best_hand_name: None,
-                chips_won: if is_winner { total_pot as u64 } else { 0 },
-                chips_lost: player.total_bet as u64,
+                chips_won: if is_winner { total_pot } else { 0 },
+                chips_lost: player.total_bet,
                 folded: player.has_folded,
                 was_all_in: player.is_all_in,
             });
@@ -879,7 +873,7 @@ impl GameLoop {
         Ok(HandResolution {
             pots: vec![Pot::new(total_pot, vec![winner_id.clone()])],
             payouts,
-            rake: 0.0,
+            rake: 0,
             loss_deflator: None,
             loss_deflators: Vec::new(),
             player_results,
@@ -888,9 +882,9 @@ impl GameLoop {
         })
     }
 
-    /// Resolve showdown: calcula side pots, rake, loss deflator, distribui
+    /// Resolve showdown: calcula side pots, rake, loss deflator, distribui em centavos
     fn resolve_showdown(&mut self) -> Result<HandResolution, GameLoopError> {
-        // 1. Construir PlayerForPots para side_pots
+        // 1. Construir PlayerForPots para side_pots em centavos
         let players_for_pots: Vec<PlayerForPots> = self
             .state
             .players
@@ -904,30 +898,28 @@ impl GameLoop {
             .collect();
 
         // 2. Calcular os potes (main e side pots)
-        let side_pots_result: SidePotsResult =
-            side_pots::resolve_side_pots(&players_for_pots, &self.state.community_cards);
+        let pots = side_pots::calculate_side_pots(&players_for_pots);
 
-        let pots = side_pots_result.pots.clone();
-
-        // 3. Deduzir o Rake proporcionalmente de cada pote
+        // 3. Deduzir o Rake proporcionalmente de cada pote em centavos
         let rake_result: RakeResult = rake::deduct_rake(&pots, &self.config, None);
         let total_rake = rake_result.total_rake;
         let pots_after_rake = rake_result.pots_after_rake.clone();
 
-        // 4. Distribuir os potes pós-rake DIRETAMENTE aos vencedores de cada pote
+        // 4. Distribuir os potes pós-rake aos vencedores (em centavos)
         let mut payouts = side_pots::distribute_pots(&pots_after_rake, &players_for_pots, &self.state.community_cards);
 
-        // 5. Loss deflator (para TODOS os perdedores que foram All-In em fases qualificadas: Preflop, Flop, Turn)
+        // 5. Loss deflator (em centavos inteiros)
         let loss_deflators_result = self.calculate_loss_deflators(&pots_after_rake, &mut payouts, &players_for_pots);
         let primary_deflator = loss_deflators_result.first().cloned();
 
-        // 6. Truncar todos os payouts para 2 casas
-        for (_, amount) in payouts.iter_mut() {
-            *amount = truncar_2_casas(*amount);
-        }
+        let side_pots_res = SidePotsResult {
+            pots: pots.clone(),
+            payouts: payouts.clone(),
+            contributions: Vec::new(),
+        };
 
-        // 7. Construir player_results para hand history
-        let player_results = self.build_player_results(&payouts, &side_pots_result);
+        // 6. Construir player_results para hand history
+        let player_results = self.build_player_results(&payouts, &side_pots_res);
 
         Ok(HandResolution {
             pots,
@@ -941,11 +933,11 @@ impl GameLoop {
         })
     }
 
-    /// Calcula o loss deflator para TODOS os perdedores All-In cujas fases de all-in qualificam (Preflop, Flop, Turn)
+    /// Calcula o loss deflator para TODOS os perdedores All-In cujas fases de all-in qualificam (em centavos)
     fn calculate_loss_deflators(
         &self,
         pots: &[Pot],
-        payouts: &mut HashMap<String, f64>,
+        payouts: &mut HashMap<String, u64>,
         players_for_pots: &[PlayerForPots],
     ) -> Vec<loss_deflator::ProgressiveLossDeflatorResult> {
         let mut results = Vec::new();
@@ -961,9 +953,8 @@ impl GameLoop {
                 _ => continue,
             };
 
-            let won = payouts.get(&player.id).copied().unwrap_or(0.0);
-            let net = won - player.total_bet;
-            if net >= 0.0 {
+            let won = payouts.get(&player.id).copied().unwrap_or(0);
+            if won >= player.total_bet {
                 continue;
             }
 
@@ -991,8 +982,18 @@ impl GameLoop {
                 phase,
             };
 
-            if let Some(deflator) = loss_deflator::calculate_progressive_loss_deflator(params) {
-                // Descontar o cashback dos vencedores dos potes elegíveis para este perdedor
+            if let Some(mut deflator) = loss_deflator::calculate_progressive_loss_deflator(params) {
+                // Calcular a probabilidade real de vitória no momento do All-In
+                if let Some(winner_player) = self.state.players.iter().find(|p| p.id == deflator.winner_id) {
+                    let win_prob = loss_deflator::get_heads_up_win_probability(
+                        &player.hole_cards,
+                        &winner_player.hole_cards,
+                        &self.state.community_cards,
+                    );
+                    deflator.odds = win_prob;
+                }
+
+                // Descontar o cashback dos vencedores dos potes elegíveis (em centavos)
                 for entry in &deflator.per_pot_cashback {
                     if entry.pot_index < pots.len() {
                         let pot = &pots[entry.pot_index];
@@ -1003,19 +1004,19 @@ impl GameLoop {
                             .collect();
 
                         if !valid_winners.is_empty() {
-                            let share = truncar_2_casas(entry.amount / valid_winners.len() as f64);
+                            let share = entry.amount / valid_winners.len() as u64;
                             for winner in valid_winners {
                                 if let Some(w_payout) = payouts.get_mut(&winner) {
-                                    *w_payout = truncar_2_casas((*w_payout - share).max(0.0));
+                                    *w_payout = w_payout.saturating_sub(share);
                                 }
                             }
                         }
                     }
                 }
 
-                // Creditar o cashback ao perdedor All-In
-                let loser_payout = payouts.entry(player.id.clone()).or_insert(0.0);
-                *loser_payout = truncar_2_casas(*loser_payout + deflator.cashback);
+                // Creditar o cashback em centavos ao perdedor All-In
+                let loser_payout = payouts.entry(player.id.clone()).or_insert(0);
+                *loser_payout += deflator.cashback;
 
                 results.push(deflator);
             }
@@ -1027,7 +1028,7 @@ impl GameLoop {
     /// Constrói a lista de PlayerResult para hand history
     fn build_player_results(
         &self,
-        payouts: &HashMap<String, f64>,
+        payouts: &HashMap<String, u64>,
         _side_pots_result: &SidePotsResult,
     ) -> Vec<PlayerResult> {
         // Avaliar mãos de todos os jogadores que não foldaram
@@ -1048,7 +1049,7 @@ impl GameLoop {
 
         let mut player_results = Vec::new();
         for player in &self.state.players {
-            let won = payouts.get(&player.id).copied().unwrap_or(0.0);
+            let won = payouts.get(&player.id).copied().unwrap_or(0);
             let eval = hand_evals.get(&player.id);
             let finish_position = if player.has_folded {
                 ranked.len() + 1
@@ -1062,8 +1063,8 @@ impl GameLoop {
                 hole_cards: player.hole_cards.clone(),
                 best_hand: eval.cloned(),
                 best_hand_name: eval.map(|e| get_hand_rank_name(e.rank)),
-                chips_won: won as u64,
-                chips_lost: player.total_bet as u64,
+                chips_won: won,
+                chips_lost: player.total_bet,
                 folded: player.has_folded,
                 was_all_in: player.is_all_in,
             });
@@ -1135,14 +1136,14 @@ mod tests {
     use super::*;
 
     fn make_config() -> TableConfig {
-        TableConfig::new(10.0, 5.0, 5.0) // BB=10, rake=5%, cap=5
+        TableConfig::new(1000, 5.0, 500) // BB=1000, rake=5%, cap=500
     }
 
     fn make_game_loop_with_2_players() -> GameLoop {
         let config = make_config();
         let mut gl = GameLoop::new(config, "hand-001".to_string(), "Test Table".to_string(), GameType::Cash);
-        gl.add_player("alice".to_string(), 1000.0);
-        gl.add_player("bob".to_string(), 1000.0);
+        gl.add_player("alice".to_string(), 100000);
+        gl.add_player("bob".to_string(), 100000);
         gl.set_dealer(0);
         gl
     }
@@ -1167,9 +1168,9 @@ mod tests {
         // Heads-up: dealer = SB, outro = BB
         // Alice (idx 0) é dealer → SB = 5
         // Bob (idx 1) → BB = 10
-        assert_eq!(gl.state.players[0].current_bet, 5.0, "Alice SB");
-        assert_eq!(gl.state.players[1].current_bet, 10.0, "Bob BB");
-        assert_eq!(gl.state.current_bet_to_match, 10.0);
+        assert_eq!(gl.state.players[0].current_bet, 500, "Alice SB");
+        assert_eq!(gl.state.players[1].current_bet, 1000, "Bob BB");
+        assert_eq!(gl.state.current_bet_to_match, 1000);
     }
 
     #[test]
@@ -1238,11 +1239,11 @@ mod tests {
 
         let resolution = gl.resolve_hand().unwrap();
         assert_eq!(resolution.end_reason, EndReason::AllFolded);
-        assert_eq!(resolution.rake, 0.0);
+        assert_eq!(resolution.rake, 0);
 
         // Bob ganha o pot (SB + BB = 15)
-        let bob_payout = resolution.payouts.get("bob").copied().unwrap_or(0.0);
-        assert!(bob_payout > 0.0, "Bob deve receber o pot");
+        let bob_payout = resolution.payouts.get("bob").copied().unwrap_or(0);
+        assert!(bob_payout > 0, "Bob deve receber o pot");
     }
 
     #[test]
@@ -1270,8 +1271,8 @@ mod tests {
         assert_eq!(resolution.end_reason, EndReason::Showdown);
 
         // Um dos dois deve ter ganho
-        let total_payouts: f64 = resolution.payouts.values().sum();
-        assert!(total_payouts > 0.0, "Deve haver pagamento");
+        let total_payouts: u64 = resolution.payouts.values().sum();
+        assert!(total_payouts > 0, "Deve haver pagamento");
     }
 
     #[test]
@@ -1282,8 +1283,8 @@ mod tests {
         // Alice (SB) calls
         gl.player_action("alice", PlayerMove::Call).unwrap();
         // Bob (BB) raises to 30
-        gl.player_action("bob", PlayerMove::Raise(30.0)).unwrap();
-        assert_eq!(gl.state.current_bet_to_match, 30.0);
+        gl.player_action("bob", PlayerMove::Raise(30)).unwrap();
+        assert_eq!(gl.state.current_bet_to_match, 3000);
 
         // Alice calls the raise
         gl.player_action("alice", PlayerMove::Call).unwrap();
@@ -1294,8 +1295,8 @@ mod tests {
     #[test]
     fn test_all_in() {
         let mut gl = GameLoop::new(make_config(), "hand-ai".to_string(), "AI Table".to_string(), GameType::Cash);
-        gl.add_player("alice".to_string(), 50.0); // stack pequeno
-        gl.add_player("bob".to_string(), 1000.0);
+        gl.add_player("alice".to_string(), 5000); // stack pequeno
+        gl.add_player("bob".to_string(), 100000);
         gl.set_dealer(0);
         gl.start_hand().unwrap();
 
@@ -1361,16 +1362,16 @@ mod tests {
     #[test]
     fn test_three_players_preflop_order() {
         let mut gl = GameLoop::new(make_config(), "hand-3p".to_string(), "3P Table".to_string(), GameType::Cash);
-        gl.add_player("alice".to_string(), 1000.0);
-        gl.add_player("bob".to_string(), 1000.0);
-        gl.add_player("carol".to_string(), 1000.0);
+        gl.add_player("alice".to_string(), 100000);
+        gl.add_player("bob".to_string(), 100000);
+        gl.add_player("carol".to_string(), 100000);
         gl.set_dealer(0);
         gl.start_hand().unwrap();
 
         // 3 players: dealer=0 (Alice), SB=1 (Bob), BB=2 (Carol)
         // UTG = primeiro após BB = Alice (dealer, wraps around)
-        assert_eq!(gl.state.players[1].current_bet, 5.0, "Bob SB");
-        assert_eq!(gl.state.players[2].current_bet, 10.0, "Carol BB");
+        assert_eq!(gl.state.players[1].current_bet, 500, "Bob SB");
+        assert_eq!(gl.state.players[2].current_bet, 1000, "Carol BB");
         // Primeiro a agir = UTG = índice 0 (Alice)
         assert_eq!(gl.state.active_player_index, 0);
     }
@@ -1381,7 +1382,7 @@ mod tests {
         gl.start_hand().unwrap();
 
         // Alice tenta bet maior que stack
-        let result = gl.player_action("alice", PlayerMove::Bet(10000.0));
+        let result = gl.player_action("alice", PlayerMove::Bet(10000));
         assert!(result.is_err());
     }
 
@@ -1393,7 +1394,7 @@ mod tests {
         // Alice calls
         gl.player_action("alice", PlayerMove::Call).unwrap();
         // Bob tenta raise de apenas 1 (min_raise = BB = 10)
-        let result = gl.player_action("bob", PlayerMove::Raise(11.0));
+        let result = gl.player_action("bob", PlayerMove::Raise(11));
         assert!(result.is_err());
     }
 }

@@ -55,11 +55,15 @@ pub fn ActionButtons(
             for action in available.into_iter() {
                 button {
                     key: "{action.label()}",
-                    class: "px-8 py-3.5 rounded-xl font-extrabold text-white text-base tracking-wider uppercase \
-                            border shadow-lg transform hover:-translate-y-1 active:translate-y-0 \
-                            transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-amber-400/50 \
-                            {action.color_class()}",
-                    onclick: move |_| on_action.call(action),
+                    class: "px-8 py-3.5 rounded-xl font-extrabold text-white text-base tracking-wider uppercase border shadow-lg transform hover:-translate-y-1 active:translate-y-0 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-amber-400/50",
+                    onclick: move |_| {
+                        match action {
+                            ActionKind::Fold => crate::audio::SoundManager::play(crate::audio::SoundEvent::Fold),
+                            ActionKind::Check => crate::audio::SoundManager::play(crate::audio::SoundEvent::Check),
+                            ActionKind::Call | ActionKind::Raise | ActionKind::AllIn => crate::audio::SoundManager::play(crate::audio::SoundEvent::ChipBet),
+                        }
+                        on_action.call(action);
+                    },
                     "{action.label()}"
                 }
             }

@@ -29,7 +29,7 @@ async fn test_ws_network_lag_and_jitter_resilience() {
                 player_id,
                 username,
                 seat: Some(p),
-                chips: 2000.0,
+                chips: 200000,
                 respond_to,
             })
             .await;
@@ -53,7 +53,7 @@ async fn test_ws_network_lag_and_jitter_resilience() {
                     .send(PlayerCommand::Action {
                         player_id: player_id.clone(),
                         action: action_str.to_string(),
-                        amount: 10.0 * (i + 1) as f64,
+                        amount: 1000 * (i + 1) as u64,
                     })
                     .await;
             }
@@ -88,7 +88,7 @@ async fn test_ws_out_of_order_messages_and_burst_reconnects() {
                 player_id: player_id.clone(),
                 username,
                 seat: None,
-                chips: 1000.0,
+                chips: 100000,
                 respond_to: tx_seat,
             })
             .await;

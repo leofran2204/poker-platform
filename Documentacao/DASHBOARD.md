@@ -1,6 +1,6 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-24 | **Status:** ✅ 100% Concluído & Saneado (Hardening Enterprise / Launch Ready)
+**Atualizado:** 2026-07-25 | **Status:** ✅ 100% Concluído & Saneado (Arquitetura Financeira u64 Centavos / Launch Ready)
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📅 O cronograma completo está em `Documentacao/CRONOGRAMA.md` — veja prazos, fases e % de conclusão.
@@ -14,7 +14,7 @@
 | # | Parâmetro | Valor |
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
-| 2 | **Sprint atual** | S05 & Hardening — Saneamento do Parecer Técnico |
+| 2 | **Sprint atual** | S06 — Migração Arquitetural Estrita para `u64` Centavos |
 | 3 | **Status** | ✅ Todos os Sprints Concluídos & Auditados (100%) |
 | 4 | **Cerimônias** | Planning + Review + Retrospectiva |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
@@ -41,8 +41,9 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S01 | 2026-06-01 a 2026-06-14 | Infraestrutura, Tipos Core, Baralho e Avaliador de Mãos | 11 módulos, 169 testes | ✅ Concluído |
 | S02 | 2026-06-15 a 2026-06-28 | Game Loop, Side Pots, Rake, Deflator, Antifraude e Auth | 43 testes adicionais, 0 erros | ✅ Concluído |
 | S03 | 2026-06-29 a 2026-07-12 | Motor Financeiro, Torneios e Validação Extrema | 1.816 testes unitários | ✅ Concluído |
-| S04 | 2026-07-13 a 2026-07-24 | Axum, Dioxus WASM, Fuzzing Extremo e Estresse | 2.050 testes + 1M Fuzzing | ✅ Concluído |
-| S05 | 2026-07-24 | Auditar Parecer Técnico, Idempotência PIX, RwLock & Saneamento | Saneamento Completo de Segurança | ✅ Concluído |
+| S04 | 2026-07-13 a 2026-07-25 | Axum, Dioxus WASM, Fuzzing Extremo e Estresse | 2.050 testes + 1M Fuzzing | ✅ Concluído |
+| S05 | 2026-07-25 | Auditar Parecer Técnico, Idempotência PIX, RwLock & Saneamento | Saneamento Completo de Segurança | ✅ Concluído |
+| S06 | 2026-07-25 | Migração de Tipagem Monetária f64 -> u64 Centavos Inteiros | Precisão Monetária Bancária B3 | ✅ Concluído |
 
 ---
 

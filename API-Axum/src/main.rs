@@ -26,11 +26,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()))
         .init();
 
-    // Read config
+    // Read & Validate config (Boot Guardian)
     let database_url =
         std::env::var("DATABASE_URL").expect("DATABASE_URL must be set (see .env.example)");
     let jwt_secret =
         std::env::var("JWT_SECRET").expect("JWT_SECRET must be set (see .env.example)");
+
+    // Security Hardening: Ensure JWT_SECRET is strong (>= 32 chars) and not a weak dev fallback
+    if jwt_secret.len() < 32 || jwt_secret == "supersecretkey12345678901234567890" || jwt_secret.contains("change_me") {
+        tracing::error!("FATAL: Insecure JWT_SECRET detected! Must be at least 32 random characters.");
+        if std::env::var("ENVIRONMENT").unwrap_or_default() == "production" {
+            panic!("FATAL: Refusing to boot with weak JWT_SECRET in production.");
+        }
+    }
+
     let host = std::env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string());
     let port: u16 = std::env::var("PORT")
         .unwrap_or_else(|_| "3000".to_string())

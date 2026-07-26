@@ -42,7 +42,7 @@ fn c(rank: Rank, suit: Suit) -> Card {
 }
 
 /// Cria um jogador para side pots
-fn make_player(id: &str, total_bet: f64, has_folded: bool, cards: Vec<Card>) -> PlayerForPots {
+fn make_player(id: &str, total_bet: u64, has_folded: bool, cards: Vec<Card>) -> PlayerForPots {
     PlayerForPots {
         id: id.into(),
         total_bet,
@@ -52,7 +52,7 @@ fn make_player(id: &str, total_bet: f64, has_folded: bool, cards: Vec<Card>) -> 
 }
 
 /// Cria um pot para rake
-fn make_rake_pot(amount: f64) -> Pot {
+fn make_rake_pot(amount: u64) -> Pot {
     Pot {
         amount,
         eligible_players: vec!["p1".into(), "p2".into()],
@@ -62,9 +62,9 @@ fn make_rake_pot(amount: f64) -> Pot {
 /// Configuração padrão de mesa para testes de rake
 fn default_table_config() -> TableConfig {
     TableConfig {
-        big_blind: 10.0,
+        big_blind: 1000,
         rake_percent: 5.0,
-        rake_cap: 10.0,
+        rake_cap: 1000,
     }
 }
 
@@ -310,7 +310,7 @@ mod csprng_tests {
         for (digit, &count) in counts.iter().enumerate() {
             let pct = count as f64 / 50_000.0 * 100.0;
             assert!(
-                (8.0..=12.0).contains(&pct),
+                (8.0..= 12.0).contains(&pct),
                 "Dígito {} com {} ocorrências ({:.2}%) — viés",
                 digit,
                 count,
@@ -355,7 +355,7 @@ mod csprng_tests {
         for (i, &count) in quartiles.iter().enumerate() {
             let pct = count as f64 / 40_000.0 * 100.0;
             assert!(
-                (23.0..=27.0).contains(&pct),
+                (23.0..= 27.0).contains(&pct),
                 "Quartil {} com {:.2}% — viés detectado",
                 i,
                 pct
@@ -390,7 +390,7 @@ mod csprng_tests {
         }
         let pct = trues as f64 / total as f64 * 100.0;
         assert!(
-            (48.0..=52.0).contains(&pct),
+            (48.0..= 52.0).contains(&pct),
             "P(true) = {:.2}% — viés detectado",
             pct
         );
@@ -1270,12 +1270,12 @@ mod side_pots_tests {
     #[test]
     fn pot_unico_dois_jogadores_iguais() {
         let players = vec![
-            make_player("p1", 100.0, false, vec![]),
-            make_player("p2", 100.0, false, vec![]),
+            make_player("p1", 100, false, vec![]),
+            make_player("p2", 100, false, vec![]),
         ];
         let pots = calculate_side_pots(&players);
         assert_eq!(pots.len(), 1);
-        assert!((pots[0].amount - 200.0).abs() < f64::EPSILON);
+        assert_eq!(pots[0].amount, 200);
         assert_eq!(pots[0].eligible_players.len(), 2);
     }
 
@@ -1284,15 +1284,15 @@ mod side_pots_tests {
         // p1: 100, p2: 200, p3: 200
         // main: (100-0)*3 = 300, side: (200-100)*2 = 200
         let players = vec![
-            make_player("p1", 100.0, false, vec![]),
-            make_player("p2", 200.0, false, vec![]),
-            make_player("p3", 200.0, false, vec![]),
+            make_player("p1", 100, false, vec![]),
+            make_player("p2", 200, false, vec![]),
+            make_player("p3", 200, false, vec![]),
         ];
         let pots = calculate_side_pots(&players);
         assert_eq!(pots.len(), 2);
-        assert!((pots[0].amount - 300.0).abs() < f64::EPSILON);
+        assert_eq!(pots[0].amount, 300);
         assert_eq!(pots[0].eligible_players.len(), 3);
-        assert!((pots[1].amount - 200.0).abs() < f64::EPSILON);
+        assert_eq!(pots[1].amount, 200);
         assert_eq!(pots[1].eligible_players.len(), 2);
     }
 
@@ -1301,29 +1301,29 @@ mod side_pots_tests {
         // p1: 50, p2: 100, p3: 200
         // pot0: 50*3=150, pot1: 50*2=100, pot2: 100*1=100
         let players = vec![
-            make_player("p1", 50.0, false, vec![]),
-            make_player("p2", 100.0, false, vec![]),
-            make_player("p3", 200.0, false, vec![]),
+            make_player("p1", 50, false, vec![]),
+            make_player("p2", 100, false, vec![]),
+            make_player("p3", 200, false, vec![]),
         ];
         let pots = calculate_side_pots(&players);
         assert_eq!(pots.len(), 3);
-        assert!((pots[0].amount - 150.0).abs() < f64::EPSILON);
-        assert!((pots[1].amount - 100.0).abs() < f64::EPSILON);
-        assert!((pots[2].amount - 100.0).abs() < f64::EPSILON);
+        assert_eq!(pots[0].amount, 150);
+        assert_eq!(pots[1].amount, 100);
+        assert_eq!(pots[2].amount, 100);
     }
 
     #[test]
     fn soma_dos_pots_igual_ao_total_apostado() {
         let players = vec![
-            make_player("p1", 50.0, false, vec![]),
-            make_player("p2", 100.0, false, vec![]),
-            make_player("p3", 200.0, false, vec![]),
+            make_player("p1", 50, false, vec![]),
+            make_player("p2", 100, false, vec![]),
+            make_player("p3", 200, false, vec![]),
         ];
         let pots = calculate_side_pots(&players);
-        let total_pots: f64 = pots.iter().map(|p| p.amount).sum();
-        let total_bets: f64 = players.iter().map(|p| p.total_bet).sum();
-        assert!(
-            (total_pots - total_bets).abs() < f64::EPSILON,
+        let total_pots: u64 = pots.iter().map(|p| p.amount).sum();
+        let total_bets: u64 = players.iter().map(|p| p.total_bet).sum();
+        assert_eq!(
+            total_pots, total_bets,
             "Soma dos pots deve igualar total apostado"
         );
     }
@@ -1331,8 +1331,8 @@ mod side_pots_tests {
     #[test]
     fn jogador_folded_cria_pots_mas_nao_e_elegivel() {
         let players = vec![
-            make_player("p1", 100.0, true, vec![]), // folded
-            make_player("p2", 200.0, false, vec![]),
+            make_player("p1", 100, true, vec![]), // folded
+            make_player("p2", 200, false, vec![]),
         ];
         let pots = calculate_side_pots(&players);
         assert_eq!(pots.len(), 2);
@@ -1342,13 +1342,13 @@ mod side_pots_tests {
     #[test]
     fn jogador_com_zero_aposta_nao_cria_pot() {
         let players = vec![
-            make_player("p1", 0.0, false, vec![]),
-            make_player("p2", 100.0, false, vec![]),
+            make_player("p1", 0, false, vec![]),
+            make_player("p2", 100, false, vec![]),
         ];
         let pots = calculate_side_pots(&players);
         // Apenas p2 contribuiu
         assert_eq!(pots.len(), 1);
-        assert!((pots[0].amount - 100.0).abs() < f64::EPSILON);
+        assert_eq!(pots[0].amount, 100);
     }
 
     #[test]
@@ -1360,8 +1360,8 @@ mod side_pots_tests {
     #[test]
     fn todos_com_zero_aposta_retorna_vazio() {
         let players = vec![
-            make_player("p1", 0.0, false, vec![]),
-            make_player("p2", 0.0, false, vec![]),
+            make_player("p1", 0, false, vec![]),
+            make_player("p2", 0, false, vec![]),
         ];
         let pots = calculate_side_pots(&players);
         assert!(pots.is_empty());
@@ -1375,19 +1375,19 @@ mod side_pots_tests {
         let players = vec![
             make_player(
                 "p1",
-                100.0,
+                10000,
                 false,
                 vec![c(Rank::Ace, Suit::Hearts), c(Rank::King, Suit::Hearts)],
             ),
             make_player(
                 "p2",
-                100.0,
+                10000,
                 false,
                 vec![c(Rank::Two, Suit::Clubs), c(Rank::Three, Suit::Clubs)],
             ),
         ];
         let pots = vec![Pot {
-            amount: 200.0,
+            amount: 20000,
             eligible_players: vec!["p1".into(), "p2".into()],
         }];
         let community = vec![
@@ -1398,8 +1398,8 @@ mod side_pots_tests {
             c(Rank::Two, Suit::Hearts),
         ];
         let payouts = distribute_pots(&pots, &players, &community);
-        assert!((*payouts.get("p1").unwrap() - 200.0).abs() < f64::EPSILON);
-        assert!(!payouts.contains_key("p2") || payouts.get("p2") == Some(&0.0));
+        assert_eq!(*payouts.get("p1").unwrap(), 20000);
+        assert!(!payouts.contains_key("p2") || payouts.get("p2") == Some(&0));
     }
 
     #[test]
@@ -1408,19 +1408,19 @@ mod side_pots_tests {
         let players = vec![
             make_player(
                 "p1",
-                100.0,
+                10000,
                 false,
                 vec![c(Rank::Two, Suit::Hearts), c(Rank::Three, Suit::Hearts)],
             ),
             make_player(
                 "p2",
-                100.0,
+                10000,
                 false,
                 vec![c(Rank::Four, Suit::Clubs), c(Rank::Five, Suit::Clubs)],
             ),
         ];
         let pots = vec![Pot {
-            amount: 200.0,
+            amount: 20000,
             eligible_players: vec!["p1".into(), "p2".into()],
         }];
         let community = vec![
@@ -1431,8 +1431,8 @@ mod side_pots_tests {
             c(Rank::Ten, Suit::Diamonds),
         ];
         let payouts = distribute_pots(&pots, &players, &community);
-        assert!((*payouts.get("p1").unwrap() - 100.0).abs() < f64::EPSILON);
-        assert!((*payouts.get("p2").unwrap() - 100.0).abs() < f64::EPSILON);
+        assert_eq!(*payouts.get("p1").unwrap(), 10000);
+        assert_eq!(*payouts.get("p2").unwrap(), 10000);
     }
 
     #[test]
@@ -1441,19 +1441,19 @@ mod side_pots_tests {
         let players = vec![
             make_player(
                 "p1",
-                100.0,
+                10000,
                 true,
                 vec![c(Rank::Ace, Suit::Hearts), c(Rank::Ace, Suit::Diamonds)],
             ),
             make_player(
                 "p2",
-                100.0,
+                10000,
                 false,
                 vec![c(Rank::Two, Suit::Clubs), c(Rank::Three, Suit::Clubs)],
             ),
         ];
         let pots = vec![Pot {
-            amount: 200.0,
+            amount: 20000,
             eligible_players: vec!["p1".into(), "p2".into()],
         }];
         let community = vec![
@@ -1465,8 +1465,8 @@ mod side_pots_tests {
         ];
         let payouts = distribute_pots(&pots, &players, &community);
         // p1 foldou — p2 recebe tudo
-        assert!((*payouts.get("p2").unwrap() - 200.0).abs() < f64::EPSILON);
-        assert!(!payouts.contains_key("p1") || payouts.get("p1") == Some(&0.0));
+        assert_eq!(*payouts.get("p2").unwrap(), 20000);
+        assert!(!payouts.contains_key("p1") || payouts.get("p1") == Some(&0));
     }
 
     #[test]
@@ -1476,19 +1476,19 @@ mod side_pots_tests {
         let players = vec![
             make_player(
                 "p1",
-                100.0,
+                10000,
                 false,
                 vec![c(Rank::Ace, Suit::Hearts), c(Rank::Ace, Suit::Diamonds)],
             ),
             make_player(
                 "p2",
-                200.0,
+                20000,
                 false,
                 vec![c(Rank::King, Suit::Hearts), c(Rank::King, Suit::Diamonds)],
             ),
             make_player(
                 "p3",
-                200.0,
+                20000,
                 false,
                 vec![c(Rank::Queen, Suit::Hearts), c(Rank::Queen, Suit::Diamonds)],
             ),
@@ -1502,33 +1502,33 @@ mod side_pots_tests {
         ];
         let result = resolve_side_pots(&players, &community);
         assert_eq!(result.pots.len(), 2);
-        assert!((result.pots[0].amount - 300.0).abs() < f64::EPSILON); // main
-        assert!((result.pots[1].amount - 200.0).abs() < f64::EPSILON); // side
+        assert_eq!(result.pots[0].amount, 30000); // main
+        assert_eq!(result.pots[1].amount, 20000); // side
 
         // p1 tem par de Ases (ganha main), p2 tem par de Reis (ganha side)
-        assert!((*result.payouts.get("p1").unwrap() - 300.0).abs() < f64::EPSILON);
-        assert!((*result.payouts.get("p2").unwrap() - 200.0).abs() < f64::EPSILON);
+        assert_eq!(*result.payouts.get("p1").unwrap(), 30000);
+        assert_eq!(*result.payouts.get("p2").unwrap(), 20000);
     }
 
     #[test]
     fn distribuicao_split_pot_com_resto() {
-        // Pot ímpar dividido entre 2 — floor division
+        // Pot ímpar dividido entre 2 — WSOP Rule (resto 1 centavo vai para p2 à esquerda do botão)
         let players = vec![
             make_player(
                 "p1",
-                100.0,
+                10000,
                 false,
                 vec![c(Rank::Two, Suit::Hearts), c(Rank::Three, Suit::Hearts)],
             ),
             make_player(
                 "p2",
-                100.0,
+                10000,
                 false,
                 vec![c(Rank::Four, Suit::Clubs), c(Rank::Five, Suit::Clubs)],
             ),
         ];
         let pots = vec![Pot {
-            amount: 201.0,
+            amount: 20001,
             eligible_players: vec!["p1".into(), "p2".into()],
         }];
         let community = vec![
@@ -1539,9 +1539,9 @@ mod side_pots_tests {
             c(Rank::Ten, Suit::Diamonds),
         ];
         let payouts = distribute_pots(&pots, &players, &community);
-        // 201 / 2 = 100.5 cada (truncado para 2 casas)
-        assert_eq!(payouts.get("p1"), Some(&100.5));
-        assert_eq!(payouts.get("p2"), Some(&100.5));
+        // 20001 / 2 = 10000 cada + 1 centavo de resto
+        assert_eq!(payouts.get("p1"), Some(&10000));
+        assert_eq!(payouts.get("p2"), Some(&10001));
     }
 
     #[test]
@@ -1549,13 +1549,13 @@ mod side_pots_tests {
         let players = vec![
             make_player(
                 "p1",
-                100.0,
+                10000,
                 false,
                 vec![c(Rank::Ace, Suit::Hearts), c(Rank::King, Suit::Hearts)],
             ),
             make_player(
                 "p2",
-                200.0,
+                20000,
                 false,
                 vec![c(Rank::Two, Suit::Clubs), c(Rank::Three, Suit::Clubs)],
             ),
@@ -1578,21 +1578,21 @@ mod side_pots_tests {
         /// Propriedade: soma dos pots sempre iguala soma das apostas
         #[test]
         fn prop_soma_pots_igual_apostas(
-            bets in prop::collection::vec(1.0f64..1000.0, 2..6)
+            bets in prop::collection::vec(100u64..100_000, 2..6)
         ) {
             let players: Vec<PlayerForPots> = bets.iter().enumerate()
                 .map(|(i, &bet)| make_player(&format!("p{}", i), bet, false, vec![]))
                 .collect();
             let pots = calculate_side_pots(&players);
-            let total_pots: f64 = pots.iter().map(|p| p.amount).sum();
-            let total_bets: f64 = bets.iter().sum();
-            prop_assert!((total_pots - total_bets).abs() < 0.01, "total_pots={}, total_bets={}", total_pots, total_bets);
+            let total_pots: u64 = pots.iter().map(|p| p.amount).sum();
+            let total_bets: u64 = bets.iter().sum();
+            prop_assert_eq!(total_pots, total_bets, "total_pots={}, total_bets={}", total_pots, total_bets);
         }
 
         /// Propriedade: cada pot tem pelo menos 1 jogador elegível
         #[test]
         fn prop_cada_pot_tem_elegivel(
-            bets in prop::collection::vec(1.0f64..500.0, 2..5)
+            bets in prop::collection::vec(100u64..50_000, 2..5)
         ) {
             let players: Vec<PlayerForPots> = bets.iter().enumerate()
                 .map(|(i, &bet)| make_player(&format!("p{}", i), bet, false, vec![]))
@@ -1614,107 +1614,106 @@ mod rake_tests {
 
     #[test]
     fn rake_abaixo_do_cap() {
-        // 5% de 100 = 5, cap = 10
-        assert!((calculate_rake_for_pot(100.0, 5.0, 10.0) - 5.0).abs() < f64::EPSILON);
+        // 5% de 10000 = 500 centavos, cap = 1000 centavos
+        assert_eq!(calculate_rake_for_pot(10000, 5.0, 1000), 500);
     }
 
     #[test]
     fn rake_no_cap() {
-        // 5% de 300 = 15, mas cap = 10
-        assert!((calculate_rake_for_pot(300.0, 5.0, 10.0) - 10.0).abs() < f64::EPSILON);
+        // 5% de 30000 = 1500, mas cap = 1000
+        assert_eq!(calculate_rake_for_pot(30000, 5.0, 1000), 1000);
     }
 
     #[test]
     fn rake_arredondamento_floor() {
-        // 5% de 30 = 1.5 → truncado para 1.5
-        assert!((calculate_rake_for_pot(30.0, 5.0, 10.0) - 1.5).abs() < 0.01);
+        // 5% de 3000 = 150
+        assert_eq!(calculate_rake_for_pot(3000, 5.0, 1000), 150);
     }
 
     #[test]
     fn rake_zero_percent() {
-        assert!((calculate_rake_for_pot(100.0, 0.0, 10.0) - 0.0).abs() < f64::EPSILON);
+        assert_eq!(calculate_rake_for_pot(10000, 0.0, 1000), 0);
     }
 
     #[test]
     fn rake_zero_cap() {
-        assert!((calculate_rake_for_pot(100.0, 5.0, 0.0) - 0.0).abs() < f64::EPSILON);
+        assert_eq!(calculate_rake_for_pot(10000, 5.0, 0), 0);
     }
 
     #[test]
     fn rake_pot_pequeno() {
-        // 5% de 1 = 0.05 → truncado para 0.05
-        assert!((calculate_rake_for_pot(1.0, 5.0, 10.0) - 0.05).abs() < 0.01);
+        // 5% de 100 centavos = 5 centavos
+        assert_eq!(calculate_rake_for_pot(100, 5.0, 1000), 5);
     }
 
     #[test]
     fn deduct_rake_pot_unico() {
-        let pots = vec![make_rake_pot(200.0)];
+        let pots = vec![make_rake_pot(20000)];
         let result = deduct_rake(&pots, &default_table_config(), None);
-        assert!((result.total_rake - 10.0).abs() < f64::EPSILON);
-        assert!((result.pots_after_rake[0].amount - 190.0).abs() < f64::EPSILON);
-        assert!((result.total_pot_before_rake - 200.0).abs() < f64::EPSILON);
+        assert_eq!(result.total_rake, 1000);
+        assert_eq!(result.pots_after_rake[0].amount, 19000);
+        assert_eq!(result.total_pot_before_rake, 20000);
     }
 
     #[test]
     fn deduct_rake_multipots_proporcional() {
-        let pots = vec![make_rake_pot(100.0), make_rake_pot(50.0)];
+        let pots = vec![make_rake_pot(10000), make_rake_pot(5000)];
         let result = deduct_rake(&pots, &default_table_config(), None);
-        // 5% de 150 = 7.5 → truncado para 7.5
-        // main: trunc(7.5 * 100/150) = 5.0, side: 7.5-5.0 = 2.5
-        assert!((result.total_rake - 7.5).abs() < 0.01);
-        assert!((result.per_pot[0].rake - 5.0).abs() < 0.01);
-        assert!((result.per_pot[1].rake - 2.5).abs() < 0.01);
-        assert!((result.pots_after_rake[0].amount - 95.0).abs() < 0.01);
-        assert!((result.pots_after_rake[1].amount - 47.5).abs() < 0.01);
+        // 5% de 15000 = 750 centavos
+        assert_eq!(result.total_rake, 750);
+        assert_eq!(result.per_pot[0].rake, 500);
+        assert_eq!(result.per_pot[1].rake, 250);
+        assert_eq!(result.pots_after_rake[0].amount, 9500);
+        assert_eq!(result.pots_after_rake[1].amount, 4750);
     }
 
     #[test]
     fn deduct_rake_abaixo_minimo() {
-        // BB=10, min=20. Pot=15 → sem rake
-        let pots = vec![make_rake_pot(15.0)];
+        // BB=1000 centavos, min=2000 centavos. Pot=1500 → sem rake
+        let pots = vec![make_rake_pot(1500)];
         let result = deduct_rake(&pots, &default_table_config(), None);
-        assert!((result.total_rake - 0.0).abs() < f64::EPSILON);
-        assert!((result.pots_after_rake[0].amount - 15.0).abs() < f64::EPSILON);
+        assert_eq!(result.total_rake, 0);
+        assert_eq!(result.pots_after_rake[0].amount, 1500);
     }
 
     #[test]
     fn deduct_rake_exatamente_no_minimo() {
-        // Pot=20 → cobra rake (5% de 20 = 1)
-        let pots = vec![make_rake_pot(20.0)];
+        // Pot=2000 → cobra rake (5% de 2000 = 100 centavos)
+        let pots = vec![make_rake_pot(2000)];
         let result = deduct_rake(&pots, &default_table_config(), None);
-        assert!((result.total_rake - 1.0).abs() < f64::EPSILON);
-        assert!((result.pots_after_rake[0].amount - 19.0).abs() < f64::EPSILON);
+        assert_eq!(result.total_rake, 100);
+        assert_eq!(result.pots_after_rake[0].amount, 1900);
     }
 
     #[test]
     fn deduct_rake_min_custom() {
-        let pots = vec![make_rake_pot(50.0)];
-        let result = deduct_rake(&pots, &default_table_config(), Some(100.0));
-        assert!((result.total_rake - 0.0).abs() < f64::EPSILON);
+        let pots = vec![make_rake_pot(5000)];
+        let result = deduct_rake(&pots, &default_table_config(), Some(10000));
+        assert_eq!(result.total_rake, 0);
     }
 
     #[test]
     fn deduct_rake_tres_pots_ultimo_absorve_resto() {
         let pots = vec![
-            make_rake_pot(100.0),
-            make_rake_pot(60.0),
-            make_rake_pot(40.0),
+            make_rake_pot(10000),
+            make_rake_pot(6000),
+            make_rake_pot(4000),
         ];
         let result = deduct_rake(&pots, &default_table_config(), None);
-        // total=200, 5%=10
-        // pot0: floor(10*100/200)=5, pot1: floor(10*60/200)=3, pot2: 10-5-3=2
-        assert!((result.total_rake - 10.0).abs() < f64::EPSILON);
-        assert!((result.per_pot[0].rake - 5.0).abs() < f64::EPSILON);
-        assert!((result.per_pot[1].rake - 3.0).abs() < f64::EPSILON);
-        assert!((result.per_pot[2].rake - 2.0).abs() < f64::EPSILON);
-        let sum_rake: f64 = result.per_pot.iter().map(|e| e.rake).sum();
-        assert!((sum_rake - 10.0).abs() < f64::EPSILON);
+        // total=20000, 5%=1000
+        // pot0: floor(1000*10000/20000)=500, pot1: floor(1000*6000/20000)=300, pot2: 1000-500-300=200
+        assert_eq!(result.total_rake, 1000);
+        assert_eq!(result.per_pot[0].rake, 500);
+        assert_eq!(result.per_pot[1].rake, 300);
+        assert_eq!(result.per_pot[2].rake, 200);
+        let sum_rake: u64 = result.per_pot.iter().map(|e| e.rake).sum();
+        assert_eq!(sum_rake, 1000);
     }
 
     #[test]
     fn deduct_rake_preserva_elegiveis() {
         let pot = Pot {
-            amount: 200.0,
+            amount: 20000,
             eligible_players: vec!["alice".into(), "bob".into(), "charlie".into()],
         };
         let result = deduct_rake(&[pot], &default_table_config(), None);
@@ -1727,8 +1726,8 @@ mod rake_tests {
     #[test]
     fn rake_nunca_negativo() {
         // Rake sempre ≥ 0
-        for &amount in &[0.0f64, 1.0, 10.0, 100.0, 1000.0] {
-            let rake = calculate_rake_for_pot(amount, 5.0, 100.0);
+        for &amount in &[0u64, 100, 1000, 10000, 100000] {
+            let rake = calculate_rake_for_pot(amount, 5.0, 10000);
             assert!(
                 rake <= amount,
                 "Rake {} não pode exceder pot {}",
@@ -1744,9 +1743,9 @@ mod rake_tests {
         /// Propriedade: rake nunca excede o pot
         #[test]
         fn prop_rake_nunca_excede_pot(
-            pot_amount in 0.0f64..100_000.0,
+            pot_amount in 0u64..10_000_000,
             rake_percent in 0.0..100.0,
-            rake_cap in 0.0f64..100_000.0
+            rake_cap in 0u64..10_000_000
         ) {
             let rake = calculate_rake_for_pot(pot_amount, rake_percent, rake_cap);
             prop_assert!(rake <= pot_amount, "Rake excede pot");
@@ -1755,9 +1754,9 @@ mod rake_tests {
         /// Propriedade: rake nunca excede o cap
         #[test]
         fn prop_rake_nunca_excede_cap(
-            pot_amount in 0.0f64..100_000.0,
+            pot_amount in 0u64..10_000_000,
             rake_percent in 0.1..50.0,
-            rake_cap in 1.0f64..10_000.0
+            rake_cap in 100u64..1_000_000
         ) {
             let rake = calculate_rake_for_pot(pot_amount, rake_percent, rake_cap);
             prop_assert!(rake <= rake_cap, "Rake excede cap");
@@ -1766,19 +1765,19 @@ mod rake_tests {
         /// Propriedade: soma dos rakes por pot = rake total
         #[test]
         fn prop_soma_rakes_igual_total(
-            pot_amounts in prop::collection::vec(10.0f64..1000.0, 1..5)
+            pot_amounts in prop::collection::vec(1000u64..100_000, 1..5)
         ) {
             let pots: Vec<Pot> = pot_amounts.iter()
                 .map(|&a| make_rake_pot(a))
                 .collect();
             let config = TableConfig {
-                big_blind: 5.0,
+                big_blind: 500,
                 rake_percent: 5.0,
-                rake_cap: 50.0,
+                rake_cap: 5000,
             };
             let result = deduct_rake(&pots, &config, None);
-            let sum: f64 = result.per_pot.iter().map(|e| e.rake).sum();
-            prop_assert!((sum - result.total_rake).abs() < 0.01, "sum={}, total_rake={}", sum, result.total_rake);
+            let sum: u64 = result.per_pot.iter().map(|e| e.rake).sum();
+            prop_assert_eq!(sum, result.total_rake, "sum={}, total_rake={}", sum, result.total_rake);
         }
     }
 }
@@ -1838,19 +1837,19 @@ mod integration {
         let players = vec![
             make_player(
                 "p1",
-                100.0,
+                10000,
                 false,
                 vec![c(Rank::Ace, Suit::Hearts), c(Rank::Ace, Suit::Diamonds)],
             ),
             make_player(
                 "p2",
-                200.0,
+                20000,
                 false,
                 vec![c(Rank::King, Suit::Hearts), c(Rank::King, Suit::Diamonds)],
             ),
             make_player(
                 "p3",
-                200.0,
+                20000,
                 false,
                 vec![c(Rank::Queen, Suit::Hearts), c(Rank::Queen, Suit::Diamonds)],
             ),
@@ -1876,19 +1875,19 @@ mod integration {
             })
             .collect();
         let config = TableConfig {
-            big_blind: 10.0,
+            big_blind: 10,
             rake_percent: 5.0,
-            rake_cap: 20.0,
+            rake_cap: 20,
         };
         let rake_result = deduct_rake(&rake_pots, &config, None);
-        assert!(rake_result.total_rake > 0.0);
+        assert!(rake_result.total_rake > 0);
 
         // 3. Distribui pots (sem rake para simplificar)
         let payouts = distribute_pots(&pots, &players, &community);
         // p1 tem par de Ases → ganha main pot (300)
-        assert!((*payouts.get("p1").unwrap() - 300.0).abs() < f64::EPSILON);
+        assert_eq!(*payouts.get("p1").unwrap(), 300);
         // p2 tem par de Reis → ganha side pot (200)
-        assert!((*payouts.get("p2").unwrap() - 200.0).abs() < f64::EPSILON);
+        assert_eq!(*payouts.get("p2").unwrap(), 200);
     }
 
     #[test]

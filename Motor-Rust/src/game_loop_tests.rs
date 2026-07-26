@@ -24,11 +24,11 @@ use crate::types::{GamePhase, TableConfig};
 // ═══════════════════════════════════════════════════════════════════
 
 fn make_config() -> TableConfig {
-    TableConfig::new(10.0, 5.0, 5.0) // BB=10, rake=5%, cap=5
+    TableConfig::new(1000, 5.0, 500) // BB=1000 (R$ 10,00), rake=5%, cap=500 (R$ 5,00)
 }
 
 #[allow(dead_code)]
-fn make_config_custom(bb: f64, rake: f64, cap: f64) -> TableConfig {
+fn make_config_custom(bb: u64, rake: f64, cap: u64) -> TableConfig {
     TableConfig::new(bb, rake, cap)
 }
 
@@ -39,8 +39,8 @@ fn make_game_loop_2p() -> GameLoop {
         "Test Table".to_string(),
         GameType::Cash,
     );
-    gl.add_player("alice".to_string(), 1000.0);
-    gl.add_player("bob".to_string(), 1000.0);
+    gl.add_player("alice".to_string(), 100000);
+    gl.add_player("bob".to_string(), 100000);
     gl.set_dealer(0);
     gl
 }
@@ -52,9 +52,9 @@ fn make_game_loop_3p() -> GameLoop {
         "3P Table".to_string(),
         GameType::Cash,
     );
-    gl.add_player("alice".to_string(), 1000.0);
-    gl.add_player("bob".to_string(), 1000.0);
-    gl.add_player("carol".to_string(), 1000.0);
+    gl.add_player("alice".to_string(), 1000);
+    gl.add_player("bob".to_string(), 1000);
+    gl.add_player("carol".to_string(), 1000);
     gl.set_dealer(0);
     gl
 }
@@ -66,10 +66,10 @@ fn make_game_loop_4p() -> GameLoop {
         "4P Table".to_string(),
         GameType::Cash,
     );
-    gl.add_player("alice".to_string(), 1000.0);
-    gl.add_player("bob".to_string(), 1000.0);
-    gl.add_player("carol".to_string(), 1000.0);
-    gl.add_player("dave".to_string(), 1000.0);
+    gl.add_player("alice".to_string(), 1000);
+    gl.add_player("bob".to_string(), 1000);
+    gl.add_player("carol".to_string(), 1000);
+    gl.add_player("dave".to_string(), 1000);
     gl.set_dealer(0);
     gl
 }
@@ -81,12 +81,12 @@ fn make_game_loop_6p() -> GameLoop {
         "6P Table".to_string(),
         GameType::Cash,
     );
-    gl.add_player("p0".to_string(), 1000.0);
-    gl.add_player("p1".to_string(), 1000.0);
-    gl.add_player("p2".to_string(), 1000.0);
-    gl.add_player("p3".to_string(), 1000.0);
-    gl.add_player("p4".to_string(), 1000.0);
-    gl.add_player("p5".to_string(), 1000.0);
+    gl.add_player("p0".to_string(), 1000);
+    gl.add_player("p1".to_string(), 1000);
+    gl.add_player("p2".to_string(), 1000);
+    gl.add_player("p3".to_string(), 1000);
+    gl.add_player("p4".to_string(), 1000);
+    gl.add_player("p5".to_string(), 1000);
     gl.set_dealer(0);
     gl
 }
@@ -99,7 +99,7 @@ fn make_game_loop_n(n: usize) -> GameLoop {
         GameType::Cash,
     );
     for i in 0..n {
-        gl.add_player(format!("p{i}"), 1000.0);
+        gl.add_player(format!("p{i}"), 1000);
     }
     gl.set_dealer(0);
     gl
@@ -133,64 +133,64 @@ mod player_state_tests {
 
     #[test]
     fn ps_new_cria_jogador_com_stack_correto() {
-        let p = PlayerState::new("alice".to_string(), 1000.0, 0);
+        let p = PlayerState::new("alice".to_string(), 1000, 0);
         assert_eq!(p.id, "alice");
-        assert_eq!(p.stack, 1000.0);
+        assert_eq!(p.stack, 1000);
         assert_eq!(p.seat_index, 0);
     }
 
     #[test]
     fn ps_new_stack_zero() {
-        let p = PlayerState::new("broke".to_string(), 0.0, 3);
-        assert_eq!(p.stack, 0.0);
+        let p = PlayerState::new("broke".to_string(), 0, 3);
+        assert_eq!(p.stack, 0);
     }
 
     #[test]
     fn ps_new_stack_fracionado() {
-        let p = PlayerState::new("frac".to_string(), 99.99, 1);
-        assert!((p.stack - 99.99).abs() < 1e-9);
+        let p = PlayerState::new("frac".to_string(), 99, 1);
+        assert_eq!(p.stack, 9999);
     }
 
     #[test]
     fn ps_new_hole_cards_vazio() {
-        let p = PlayerState::new("x".to_string(), 100.0, 0);
+        let p = PlayerState::new("x".to_string(), 100, 0);
         assert!(p.hole_cards.is_empty());
     }
 
     #[test]
     fn ps_new_current_bet_zero() {
-        let p = PlayerState::new("x".to_string(), 100.0, 0);
-        assert_eq!(p.current_bet, 0.0);
+        let p = PlayerState::new("x".to_string(), 100, 0);
+        assert_eq!(p.current_bet, 0);
     }
 
     #[test]
     fn ps_new_total_bet_zero() {
-        let p = PlayerState::new("x".to_string(), 100.0, 0);
-        assert_eq!(p.total_bet, 0.0);
+        let p = PlayerState::new("x".to_string(), 100, 0);
+        assert_eq!(p.total_bet, 0);
     }
 
     #[test]
     fn ps_new_nao_foldado() {
-        let p = PlayerState::new("x".to_string(), 100.0, 0);
+        let p = PlayerState::new("x".to_string(), 100, 0);
         assert!(!p.has_folded);
     }
 
     #[test]
     fn ps_new_nao_all_in() {
-        let p = PlayerState::new("x".to_string(), 100.0, 0);
+        let p = PlayerState::new("x".to_string(), 100, 0);
         assert!(!p.is_all_in);
     }
 
     #[test]
     fn ps_new_nao_agiu() {
-        let p = PlayerState::new("x".to_string(), 100.0, 0);
+        let p = PlayerState::new("x".to_string(), 100, 0);
         assert!(!p.has_acted);
     }
 
     #[test]
     fn ps_new_seat_index_preservado() {
         for i in 0..9 {
-            let p = PlayerState::new(format!("p{i}"), 100.0, i);
+            let p = PlayerState::new(format!("p{i}"), 100, i);
             assert_eq!(p.seat_index, i);
         }
     }
@@ -199,27 +199,27 @@ mod player_state_tests {
 
     #[test]
     fn ps_can_act_true_estado_inicial() {
-        let p = PlayerState::new("x".to_string(), 100.0, 0);
+        let p = PlayerState::new("x".to_string(), 100, 0);
         assert!(p.can_act());
     }
 
     #[test]
     fn ps_can_act_false_se_foldado() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.has_folded = true;
         assert!(!p.can_act());
     }
 
     #[test]
     fn ps_can_act_false_se_all_in() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.is_all_in = true;
         assert!(!p.can_act());
     }
 
     #[test]
     fn ps_can_act_false_se_foldado_e_all_in() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.has_folded = true;
         p.is_all_in = true;
         assert!(!p.can_act());
@@ -228,8 +228,8 @@ mod player_state_tests {
     #[test]
     fn ps_can_act_true_com_stack_zero_nao_all_in() {
         // Stack zero mas não marcado all_in ainda pode agir (edge case)
-        let mut p = PlayerState::new("x".to_string(), 0.0, 0);
-        p.stack = 0.0;
+        let mut p = PlayerState::new("x".to_string(), 0, 0);
+        p.stack = 0;
         // can_act só verifica folded e all_in
         assert!(p.can_act());
     }
@@ -238,27 +238,27 @@ mod player_state_tests {
 
     #[test]
     fn ps_is_in_hand_true_inicial() {
-        let p = PlayerState::new("x".to_string(), 100.0, 0);
+        let p = PlayerState::new("x".to_string(), 100, 0);
         assert!(p.is_in_hand());
     }
 
     #[test]
     fn ps_is_in_hand_false_se_foldado() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.has_folded = true;
         assert!(!p.is_in_hand());
     }
 
     #[test]
     fn ps_is_in_hand_true_se_all_in() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.is_all_in = true;
         assert!(p.is_in_hand());
     }
 
     #[test]
     fn ps_is_in_hand_true_se_all_in_e_stack_zero() {
-        let mut p = PlayerState::new("x".to_string(), 0.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 0, 0);
         p.is_all_in = true;
         assert!(p.is_in_hand());
     }
@@ -267,15 +267,15 @@ mod player_state_tests {
 
     #[test]
     fn ps_reset_round_bet_zera_current_bet() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
-        p.current_bet = 50.0;
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
+        p.current_bet = 50;
         p.reset_round_bet();
-        assert_eq!(p.current_bet, 0.0);
+        assert_eq!(p.current_bet, 0);
     }
 
     #[test]
     fn ps_reset_round_bet_zera_has_acted() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.has_acted = true;
         p.reset_round_bet();
         assert!(!p.has_acted);
@@ -283,23 +283,23 @@ mod player_state_tests {
 
     #[test]
     fn ps_reset_round_bet_nao_altera_total_bet() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
-        p.total_bet = 200.0;
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
+        p.total_bet = 200;
         p.reset_round_bet();
-        assert_eq!(p.total_bet, 200.0);
+        assert_eq!(p.total_bet, 200);
     }
 
     #[test]
     fn ps_reset_round_bet_nao_altera_stack() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
-        p.stack = 50.0;
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
+        p.stack = 50;
         p.reset_round_bet();
-        assert_eq!(p.stack, 50.0);
+        assert_eq!(p.stack, 50);
     }
 
     #[test]
     fn ps_reset_round_bet_nao_altera_folded() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.has_folded = true;
         p.reset_round_bet();
         assert!(p.has_folded);
@@ -307,7 +307,7 @@ mod player_state_tests {
 
     #[test]
     fn ps_reset_round_bet_nao_altera_all_in() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.is_all_in = true;
         p.reset_round_bet();
         assert!(p.is_all_in);
@@ -315,9 +315,9 @@ mod player_state_tests {
 
     #[test]
     fn ps_reset_round_bet_zera_ja_zero() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.reset_round_bet();
-        assert_eq!(p.current_bet, 0.0);
+        assert_eq!(p.current_bet, 0);
         assert!(!p.has_acted);
     }
 
@@ -325,9 +325,9 @@ mod player_state_tests {
 
     #[test]
     fn ps_clone_preserva_todos_campos() {
-        let mut p = PlayerState::new("alice".to_string(), 500.0, 2);
-        p.current_bet = 30.0;
-        p.total_bet = 60.0;
+        let mut p = PlayerState::new("alice".to_string(), 500, 2);
+        p.current_bet = 30;
+        p.total_bet = 60;
         p.has_folded = false;
         p.is_all_in = true;
         p.has_acted = true;
@@ -349,17 +349,17 @@ mod player_state_tests {
 
     #[test]
     fn ps_debug_nao_panic() {
-        let p = PlayerState::new("x".to_string(), 100.0, 0);
+        let p = PlayerState::new("x".to_string(), 100, 0);
         let s = format!("{p:?}");
         assert!(s.contains("PlayerState"));
     }
 
     #[test]
     fn ps_clone_e_modificar_original_nao_afeta_clone() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         let c = p.clone();
-        p.stack = 0.0;
-        assert_eq!(c.stack, 100.0);
+        p.stack = 0;
+        assert_eq!(c.stack, 100);
     }
 
     // ─── Múltiplos jogadores ───
@@ -367,7 +367,7 @@ mod player_state_tests {
     #[test]
     fn ps_criar_9_jogadores_seats_distintos() {
         let players: Vec<PlayerState> = (0..9)
-            .map(|i| PlayerState::new(format!("p{i}"), 1000.0, i))
+            .map(|i| PlayerState::new(format!("p{i}"), 1000, i))
             .collect();
         for (i, p) in players.iter().enumerate() {
             assert_eq!(p.seat_index, i);
@@ -376,15 +376,15 @@ mod player_state_tests {
 
     #[test]
     fn ps_ids_distintos() {
-        let p1 = PlayerState::new("alice".to_string(), 100.0, 0);
-        let p2 = PlayerState::new("bob".to_string(), 100.0, 1);
+        let p1 = PlayerState::new("alice".to_string(), 100, 0);
+        let p2 = PlayerState::new("bob".to_string(), 100, 1);
         assert_ne!(p1.id, p2.id);
     }
 
     #[test]
     fn ps_stacks_diferentes() {
-        let p1 = PlayerState::new("rich".to_string(), 10000.0, 0);
-        let p2 = PlayerState::new("poor".to_string(), 10.0, 1);
+        let p1 = PlayerState::new("rich".to_string(), 10000, 0);
+        let p2 = PlayerState::new("poor".to_string(), 10, 1);
         assert!(p1.stack > p2.stack);
     }
 
@@ -392,7 +392,7 @@ mod player_state_tests {
 
     #[test]
     fn ps_foldado_nao_all_in_can_act_false() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.has_folded = true;
         p.is_all_in = false;
         assert!(!p.can_act());
@@ -400,7 +400,7 @@ mod player_state_tests {
 
     #[test]
     fn ps_nao_foldado_all_in_can_act_false() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.has_folded = false;
         p.is_all_in = true;
         assert!(!p.can_act());
@@ -408,7 +408,7 @@ mod player_state_tests {
 
     #[test]
     fn ps_nao_foldado_nao_all_in_can_act_true() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.has_folded = false;
         p.is_all_in = false;
         assert!(p.can_act());
@@ -416,9 +416,9 @@ mod player_state_tests {
 
     #[test]
     fn ps_is_in_hand_independente_de_all_in() {
-        let mut p1 = PlayerState::new("a".to_string(), 100.0, 0);
+        let mut p1 = PlayerState::new("a".to_string(), 100, 0);
         p1.is_all_in = true;
-        let mut p2 = PlayerState::new("b".to_string(), 100.0, 1);
+        let mut p2 = PlayerState::new("b".to_string(), 100, 1);
         p2.has_folded = true;
         assert!(p1.is_in_hand());
         assert!(!p2.is_in_hand());
@@ -428,37 +428,37 @@ mod player_state_tests {
 
     #[test]
     fn ps_stack_grande() {
-        let p = PlayerState::new("whale".to_string(), 1_000_000.0, 0);
-        assert_eq!(p.stack, 1_000_000.0);
+        let p = PlayerState::new("whale".to_string(), 1_000_000, 0);
+        assert_eq!(p.stack, 1_000_000);
     }
 
     #[test]
     fn ps_stack_pequeno() {
-        let p = PlayerState::new("short".to_string(), 0.01, 0);
-        assert!((p.stack - 0.01).abs() < 1e-9);
+        let p = PlayerState::new("short".to_string(), 0, 0);
+        assert_eq!(p.stack, 9999);
     }
 
     #[test]
     fn ps_seat_index_maximo_8() {
-        let p = PlayerState::new("last".to_string(), 100.0, 8);
+        let p = PlayerState::new("last".to_string(), 100, 8);
         assert_eq!(p.seat_index, 8);
     }
 
     #[test]
     fn ps_id_vazio_permitido() {
-        let p = PlayerState::new("".to_string(), 100.0, 0);
+        let p = PlayerState::new("".to_string(), 100, 0);
         assert_eq!(p.id, "");
     }
 
     #[test]
     fn ps_id_com_espacos() {
-        let p = PlayerState::new("player one".to_string(), 100.0, 0);
+        let p = PlayerState::new("player one".to_string(), 100, 0);
         assert_eq!(p.id, "player one");
     }
 
     #[test]
     fn ps_id_unicode() {
-        let p = PlayerState::new("jogador_ção".to_string(), 100.0, 0);
+        let p = PlayerState::new("jogador_ção".to_string(), 100, 0);
         assert_eq!(p.id, "jogador_ção");
     }
 
@@ -466,38 +466,38 @@ mod player_state_tests {
 
     #[test]
     fn ps_reset_round_bet_apos_multiplas_apostas() {
-        let mut p = PlayerState::new("x".to_string(), 1000.0, 0);
-        p.current_bet = 100.0;
+        let mut p = PlayerState::new("x".to_string(), 1000, 0);
+        p.current_bet = 100;
         p.has_acted = true;
         p.reset_round_bet();
-        assert_eq!(p.current_bet, 0.0);
+        assert_eq!(p.current_bet, 0);
         assert!(!p.has_acted);
-        p.current_bet = 200.0;
+        p.current_bet = 200;
         p.has_acted = true;
         p.reset_round_bet();
-        assert_eq!(p.current_bet, 0.0);
+        assert_eq!(p.current_bet, 0);
         assert!(!p.has_acted);
     }
 
     #[test]
     fn ps_total_bet_acumula_manualmente() {
-        let mut p = PlayerState::new("x".to_string(), 1000.0, 0);
-        p.total_bet += 50.0;
-        p.total_bet += 30.0;
-        assert_eq!(p.total_bet, 80.0);
+        let mut p = PlayerState::new("x".to_string(), 1000, 0);
+        p.total_bet += 50;
+        p.total_bet += 30;
+        assert_eq!(p.total_bet, 80);
     }
 
     #[test]
     fn ps_current_bet_substitui_nao_acumula() {
-        let mut p = PlayerState::new("x".to_string(), 1000.0, 0);
-        p.current_bet = 50.0;
-        p.current_bet = 100.0;
-        assert_eq!(p.current_bet, 100.0);
+        let mut p = PlayerState::new("x".to_string(), 1000, 0);
+        p.current_bet = 50;
+        p.current_bet = 100;
+        assert_eq!(p.current_bet, 100);
     }
 
     #[test]
     fn ps_hole_cards_pode_ter_2_cartas() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.hole_cards = vec![
             Card { rank: Rank::Ace, suit: Suit::Spades },
             Card { rank: Rank::King, suit: Suit::Spades },
@@ -507,13 +507,13 @@ mod player_state_tests {
 
     #[test]
     fn ps_hole_cards_pode_ser_vazio() {
-        let p = PlayerState::new("x".to_string(), 100.0, 0);
+        let p = PlayerState::new("x".to_string(), 100, 0);
         assert!(p.hole_cards.is_empty());
     }
 
     #[test]
     fn ps_hole_cards_clone_independente() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.hole_cards = vec![Card { rank: Rank::Two, suit: Suit::Clubs }];
         let mut c = p.clone();
         c.hole_cards.push(Card { rank: Rank::Three, suit: Suit::Clubs });
@@ -523,7 +523,7 @@ mod player_state_tests {
 
     #[test]
     fn ps_can_act_apos_unfold_manual() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.has_folded = true;
         assert!(!p.can_act());
         p.has_folded = false;
@@ -532,7 +532,7 @@ mod player_state_tests {
 
     #[test]
     fn ps_is_in_hand_apos_unfold_manual() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.has_folded = true;
         assert!(!p.is_in_hand());
         p.has_folded = false;
@@ -541,7 +541,7 @@ mod player_state_tests {
 
     #[test]
     fn ps_reset_round_bet_idempotente() {
-        let mut p = PlayerState::new("x".to_string(), 100.0, 0);
+        let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.reset_round_bet();
         let s1 = (p.current_bet, p.has_acted);
         p.reset_round_bet();
@@ -552,7 +552,7 @@ mod player_state_tests {
     #[test]
     fn ps_dez_jogadores_todos_can_act() {
         let players: Vec<PlayerState> = (0..10)
-            .map(|i| PlayerState::new(format!("p{i}"), 1000.0, i))
+            .map(|i| PlayerState::new(format!("p{i}"), 1000, i))
             .collect();
         assert!(players.iter().all(|p| p.can_act()));
     }
@@ -560,7 +560,7 @@ mod player_state_tests {
     #[test]
     fn ps_dez_jogadores_todos_is_in_hand() {
         let players: Vec<PlayerState> = (0..10)
-            .map(|i| PlayerState::new(format!("p{i}"), 1000.0, i))
+            .map(|i| PlayerState::new(format!("p{i}"), 1000, i))
             .collect();
         assert!(players.iter().all(|p| p.is_in_hand()));
     }
@@ -581,18 +581,18 @@ mod hand_state_tests {
             phase: GamePhase::Preflop,
             deck: Vec::new(),
             burn_pile: Vec::new(),
-            current_bet_to_match: 0.0,
-            min_raise: 10.0,
+            current_bet_to_match: 0,
+            min_raise: 10,
             active_player_index: 0,
-            small_blind: 5.0,
-            big_blind: 10.0,
+            small_blind: 5,
+            big_blind: 10,
             is_finished: false,
         }
     }
 
     fn make_players(n: usize) -> Vec<PlayerState> {
         (0..n)
-            .map(|i| PlayerState::new(format!("p{i}"), 1000.0, i))
+            .map(|i| PlayerState::new(format!("p{i}"), 1000, i))
             .collect()
     }
 
@@ -759,9 +759,9 @@ mod hand_state_tests {
     fn hs_active_player_mut_modifica() {
         let mut hs = make_hand_state(make_players(2));
         if let Some(p) = hs.active_player_mut() {
-            p.stack = 500.0;
+            p.stack = 500;
         }
-        assert_eq!(hs.players[0].stack, 500.0);
+        assert_eq!(hs.players[0].stack, 500);
     }
 
     #[test]
@@ -785,42 +785,42 @@ mod hand_state_tests {
     #[test]
     fn hs_total_pot_zero_sem_apostas() {
         let hs = make_hand_state(make_players(3));
-        assert_eq!(hs.total_pot(), 0.0);
+        assert_eq!(hs.total_pot(), 0);
     }
 
     #[test]
     fn hs_total_pot_soma_total_bets() {
         let mut players = make_players(3);
-        players[0].total_bet = 100.0;
-        players[1].total_bet = 50.0;
-        players[2].total_bet = 25.0;
+        players[0].total_bet = 100;
+        players[1].total_bet = 50;
+        players[2].total_bet = 25;
         let hs = make_hand_state(players);
-        assert_eq!(hs.total_pot(), 175.0);
+        assert_eq!(hs.total_pot(), 175);
     }
 
     #[test]
     fn hs_total_pot_ignora_folded_se_total_bet_existe() {
         let mut players = make_players(2);
-        players[0].total_bet = 100.0;
+        players[0].total_bet = 100;
         players[0].has_folded = true;
-        players[1].total_bet = 50.0;
+        players[1].total_bet = 50;
         let hs = make_hand_state(players);
         // total_pot soma total_bet de todos (folded também contribuiu)
-        assert_eq!(hs.total_pot(), 150.0);
+        assert_eq!(hs.total_pot(), 150);
     }
 
     #[test]
     fn hs_total_pot_vazio() {
         let hs = make_hand_state(Vec::new());
-        assert_eq!(hs.total_pot(), 0.0);
+        assert_eq!(hs.total_pot(), 0);
     }
 
     #[test]
     fn hs_total_pot_um_jogador() {
         let mut players = make_players(1);
-        players[0].total_bet = 200.0;
+        players[0].total_bet = 200;
         let hs = make_hand_state(players);
-        assert_eq!(hs.total_pot(), 200.0);
+        assert_eq!(hs.total_pot(), 200);
     }
 
     // ─── next_active_player() ───
@@ -943,27 +943,27 @@ mod hand_state_tests {
     #[test]
     fn hs_current_bet_to_match_preservado() {
         let mut hs = make_hand_state(make_players(2));
-        hs.current_bet_to_match = 50.0;
-        assert_eq!(hs.current_bet_to_match, 50.0);
+        hs.current_bet_to_match = 50;
+        assert_eq!(hs.current_bet_to_match, 50);
     }
 
     #[test]
     fn hs_min_raise_preservado() {
         let mut hs = make_hand_state(make_players(2));
-        hs.min_raise = 20.0;
-        assert_eq!(hs.min_raise, 20.0);
+        hs.min_raise = 20;
+        assert_eq!(hs.min_raise, 20);
     }
 
     #[test]
     fn hs_small_blind_preservado() {
         let hs = make_hand_state(make_players(2));
-        assert_eq!(hs.small_blind, 5.0);
+        assert_eq!(hs.small_blind, 5);
     }
 
     #[test]
     fn hs_big_blind_preservado() {
         let hs = make_hand_state(make_players(2));
-        assert_eq!(hs.big_blind, 10.0);
+        assert_eq!(hs.big_blind, 10);
     }
 
     // ─── Clone e Debug ───
@@ -971,10 +971,10 @@ mod hand_state_tests {
     #[test]
     fn hs_clone_preserva_estado() {
         let mut hs = make_hand_state(make_players(3));
-        hs.current_bet_to_match = 100.0;
+        hs.current_bet_to_match = 100;
         hs.phase = GamePhase::Flop;
         let c = hs.clone();
-        assert_eq!(c.current_bet_to_match, 100.0);
+        assert_eq!(c.current_bet_to_match, 100);
         assert_eq!(c.phase, GamePhase::Flop);
         assert_eq!(c.players.len(), 3);
     }
@@ -983,8 +983,8 @@ mod hand_state_tests {
     fn hs_clone_independente() {
         let hs = make_hand_state(make_players(2));
         let mut c = hs.clone();
-        c.current_bet_to_match = 999.0;
-        assert_eq!(hs.current_bet_to_match, 0.0);
+        c.current_bet_to_match = 999;
+        assert_eq!(hs.current_bet_to_match, 0);
     }
 
     #[test]
@@ -1038,10 +1038,10 @@ mod hand_state_tests {
     fn hs_total_pot_9_jogadores_blinds() {
         let mut players = make_players(9);
         // Simular blinds: SB=5, BB=10
-        players[1].total_bet = 5.0;
-        players[2].total_bet = 10.0;
+        players[1].total_bet = 5;
+        players[2].total_bet = 10;
         let hs = make_hand_state(players);
-        assert_eq!(hs.total_pot(), 15.0);
+        assert_eq!(hs.total_pot(), 15);
     }
 }
 
@@ -1072,12 +1072,12 @@ mod game_loop_init_tests {
     #[test]
     fn gl_new_blinds_padrao() {
         let gl = GameLoop::new(
-            TableConfig::new(20.0, 5.0, 5.0),
+            TableConfig::new(2000, 5.0, 500),
             "h1".into(), "Mesa".into(), GameType::Cash,
         );
-        assert_eq!(gl.state.small_blind, 10.0);
-        assert_eq!(gl.state.big_blind, 20.0);
-        assert_eq!(gl.state.min_raise, 20.0);
+        assert_eq!(gl.state.small_blind, 10);
+        assert_eq!(gl.state.big_blind, 20);
+        assert_eq!(gl.state.min_raise, 20);
     }
 
     #[test]
@@ -1104,7 +1104,7 @@ mod game_loop_init_tests {
     #[test]
     fn gl_new_current_bet_to_match_zero() {
         let gl = make_game_loop_2p();
-        assert_eq!(gl.state.current_bet_to_match, 0.0);
+        assert_eq!(gl.state.current_bet_to_match, 0);
     }
 
     #[test]
@@ -1129,27 +1129,27 @@ mod game_loop_init_tests {
 
     #[test]
     fn gl_with_ante_define_valor() {
-        let gl = make_game_loop_2p().with_ante(5.0);
-        assert_eq!(gl.ante, Some(5.0));
+        let gl = make_game_loop_2p().with_ante(5);
+        assert_eq!(gl.ante, Some(5));
     }
 
     #[test]
     fn gl_with_ante_zero() {
-        let gl = make_game_loop_2p().with_ante(0.0);
-        assert_eq!(gl.ante, Some(0.0));
+        let gl = make_game_loop_2p().with_ante(0);
+        assert_eq!(gl.ante, Some(0));
     }
 
     #[test]
     fn gl_with_ante_nao_afeta_state() {
-        let gl = make_game_loop_2p().with_ante(5.0);
-        assert_eq!(gl.state.players[0].stack, 1000.0);
+        let gl = make_game_loop_2p().with_ante(5);
+        assert_eq!(gl.state.players[0].stack, 1000);
     }
 
     #[test]
     fn gl_with_ante_encadeavel() {
         let gl = make_game_loop_2p()
-            .with_ante(3.0);
-        assert_eq!(gl.ante, Some(3.0));
+            .with_ante(3);
+        assert_eq!(gl.ante, Some(3));
     }
 
     // ─── add_player() ───
@@ -1181,8 +1181,8 @@ mod game_loop_init_tests {
     #[test]
     fn gl_add_player_stack_preservado() {
         let gl = make_game_loop_2p();
-        assert_eq!(gl.state.players[0].stack, 1000.0);
-        assert_eq!(gl.state.players[1].stack, 1000.0);
+        assert_eq!(gl.state.players[0].stack, 1000);
+        assert_eq!(gl.state.players[1].stack, 1000);
     }
 
     #[test]
@@ -1230,16 +1230,16 @@ mod game_loop_init_tests {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
         // Heads-up: dealer(0) = SB, p1 = BB
-        assert_eq!(gl.state.players[0].stack, 995.0); // 1000 - 5
-        assert_eq!(gl.state.players[1].stack, 990.0); // 1000 - 10
+        assert_eq!(gl.state.players[0].stack, 995); // 1000 - 5
+        assert_eq!(gl.state.players[1].stack, 990); // 1000 - 10
     }
 
     #[test]
     fn gl_start_hand_2p_sb_bb_total_bet() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        assert_eq!(gl.state.players[0].total_bet, 5.0);
-        assert_eq!(gl.state.players[1].total_bet, 10.0);
+        assert_eq!(gl.state.players[0].total_bet, 5);
+        assert_eq!(gl.state.players[1].total_bet, 10);
     }
 
     #[test]
@@ -1247,9 +1247,9 @@ mod game_loop_init_tests {
         let mut gl = make_game_loop_3p();
         gl.start_hand().unwrap();
         // dealer=0, SB=1, BB=2
-        assert_eq!(gl.state.players[1].stack, 995.0); // SB
-        assert_eq!(gl.state.players[2].stack, 990.0); // BB
-        assert_eq!(gl.state.players[0].stack, 1000.0); // dealer não paga blind
+        assert_eq!(gl.state.players[1].stack, 995); // SB
+        assert_eq!(gl.state.players[2].stack, 990); // BB
+        assert_eq!(gl.state.players[0].stack, 1000); // dealer não paga blind
     }
 
     #[test]
@@ -1257,24 +1257,24 @@ mod game_loop_init_tests {
         let mut gl = make_game_loop_4p();
         gl.start_hand().unwrap();
         // dealer=0, SB=1, BB=2
-        assert_eq!(gl.state.players[1].total_bet, 5.0);
-        assert_eq!(gl.state.players[2].total_bet, 10.0);
-        assert_eq!(gl.state.players[0].total_bet, 0.0);
-        assert_eq!(gl.state.players[3].total_bet, 0.0);
+        assert_eq!(gl.state.players[1].total_bet, 5);
+        assert_eq!(gl.state.players[2].total_bet, 10);
+        assert_eq!(gl.state.players[0].total_bet, 0);
+        assert_eq!(gl.state.players[3].total_bet, 0);
     }
 
     #[test]
     fn gl_start_hand_current_bet_to_match_bb() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        assert_eq!(gl.state.current_bet_to_match, 10.0);
+        assert_eq!(gl.state.current_bet_to_match, 10);
     }
 
     #[test]
     fn gl_start_hand_min_raise_bb() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        assert_eq!(gl.state.min_raise, 10.0);
+        assert_eq!(gl.state.min_raise, 10);
     }
 
     #[test]
@@ -1283,12 +1283,12 @@ mod game_loop_init_tests {
             make_config(),
             "h1".into(), "Mesa".into(), GameType::Cash,
         );
-        gl.add_player("alice".to_string(), 3.0); // SB = 5, mas stack = 3
-        gl.add_player("bob".to_string(), 1000.0);
+        gl.add_player("alice".to_string(), 3); // SB = 5, mas stack = 3
+        gl.add_player("bob".to_string(), 1000);
         gl.set_dealer(0);
         gl.start_hand().unwrap();
         assert!(gl.state.players[0].is_all_in);
-        assert_eq!(gl.state.players[0].stack, 0.0);
+        assert_eq!(gl.state.players[0].stack, 0);
     }
 
     #[test]
@@ -1297,12 +1297,12 @@ mod game_loop_init_tests {
             make_config(),
             "h1".into(), "Mesa".into(), GameType::Cash,
         );
-        gl.add_player("alice".to_string(), 1000.0);
-        gl.add_player("bob".to_string(), 5.0); // BB = 10, mas stack = 5
+        gl.add_player("alice".to_string(), 1000);
+        gl.add_player("bob".to_string(), 5); // BB = 10, mas stack = 5
         gl.set_dealer(0);
         gl.start_hand().unwrap();
         assert!(gl.state.players[1].is_all_in);
-        assert_eq!(gl.state.players[1].stack, 0.0);
+        assert_eq!(gl.state.players[1].stack, 0);
     }
 
     // ─── start_hand() — hole cards ───
@@ -1379,37 +1379,37 @@ mod game_loop_init_tests {
 
     #[test]
     fn gl_start_hand_com_ante_coleta() {
-        let mut gl = make_game_loop_2p().with_ante(2.0);
+        let mut gl = make_game_loop_2p().with_ante(2);
         gl.start_hand().unwrap();
         // Ante é descontado do stack; total_bet é sobrescrito pelos blinds
-        assert_eq!(gl.state.players[0].stack, 993.0); // 1000 - 2 ante - 5 SB
-        assert_eq!(gl.state.players[1].stack, 988.0); // 1000 - 2 ante - 10 BB
-        assert_eq!(gl.state.players[0].total_bet, 7.0); // 2 ante + 5 SB
-        assert_eq!(gl.state.players[1].total_bet, 12.0); // 2 ante + 10 BB
+        assert_eq!(gl.state.players[0].stack, 993); // 1000 - 2 ante - 5 SB
+        assert_eq!(gl.state.players[1].stack, 988); // 1000 - 2 ante - 10 BB
+        assert_eq!(gl.state.players[0].total_bet, 7); // 2 ante + 5 SB
+        assert_eq!(gl.state.players[1].total_bet, 12); // 2 ante + 10 BB
     }
 
     #[test]
     fn gl_start_hand_ante_zero_ignorado() {
-        let mut gl = make_game_loop_2p().with_ante(0.0);
+        let mut gl = make_game_loop_2p().with_ante(0);
         gl.start_hand().unwrap();
-        assert_eq!(gl.state.players[0].total_bet, 5.0); // só SB
-        assert_eq!(gl.state.players[1].total_bet, 10.0); // só BB
+        assert_eq!(gl.state.players[0].total_bet, 5); // só SB
+        assert_eq!(gl.state.players[1].total_bet, 10); // só BB
     }
 
     #[test]
     fn gl_start_hand_ante_reduz_stack() {
-        let mut gl = make_game_loop_2p().with_ante(3.0);
+        let mut gl = make_game_loop_2p().with_ante(3);
         gl.start_hand().unwrap();
-        assert_eq!(gl.state.players[0].stack, 992.0); // 1000 - 3 - 5
-        assert_eq!(gl.state.players[1].stack, 987.0); // 1000 - 3 - 10
+        assert_eq!(gl.state.players[0].stack, 992); // 1000 - 3 - 5
+        assert_eq!(gl.state.players[1].stack, 987); // 1000 - 3 - 10
     }
 
     #[test]
     fn gl_start_hand_ante_6p() {
-        let mut gl = make_game_loop_6p().with_ante(1.0);
+        let mut gl = make_game_loop_6p().with_ante(1);
         gl.start_hand().unwrap();
         for p in &gl.state.players {
-            assert!(p.total_bet >= 1.0);
+            assert!(p.total_bet >= 1);
         }
     }
 
@@ -1421,7 +1421,7 @@ mod game_loop_init_tests {
             make_config(),
             "h1".into(), "Mesa".into(), GameType::Cash,
         );
-        gl.add_player("solo".to_string(), 1000.0);
+        gl.add_player("solo".to_string(), 1000);
         gl.set_dealer(0);
         let err = gl.start_hand().unwrap_err();
         assert_eq!(err, GameLoopError::NotEnoughPlayers);
@@ -1481,8 +1481,8 @@ mod game_loop_init_tests {
         gl.set_dealer(2);
         gl.start_hand().unwrap();
         // dealer=2, SB=3, BB=0
-        assert_eq!(gl.state.players[3].total_bet, 5.0); // SB
-        assert_eq!(gl.state.players[0].total_bet, 10.0); // BB
+        assert_eq!(gl.state.players[3].total_bet, 5); // SB
+        assert_eq!(gl.state.players[0].total_bet, 10); // BB
     }
 
     #[test]
@@ -1499,8 +1499,8 @@ mod game_loop_init_tests {
         let mut gl = make_game_loop_n(5);
         gl.start_hand().unwrap();
         // dealer=0, SB=1, BB=2
-        assert_eq!(gl.state.players[1].total_bet, 5.0);
-        assert_eq!(gl.state.players[2].total_bet, 10.0);
+        assert_eq!(gl.state.players[1].total_bet, 5);
+        assert_eq!(gl.state.players[2].total_bet, 10);
     }
 
     #[test]
@@ -1515,8 +1515,8 @@ mod game_loop_init_tests {
     fn gl_start_hand_9p_blinds() {
         let mut gl = make_game_loop_n(9);
         gl.start_hand().unwrap();
-        assert_eq!(gl.state.players[1].total_bet, 5.0);
-        assert_eq!(gl.state.players[2].total_bet, 10.0);
+        assert_eq!(gl.state.players[1].total_bet, 5);
+        assert_eq!(gl.state.players[2].total_bet, 10);
     }
 
     #[test]
@@ -1532,8 +1532,8 @@ mod game_loop_init_tests {
         let mut gl = make_game_loop_4p();
         gl.start_hand().unwrap();
         // dealer(0) e UTG(3) não pagam blinds
-        assert_eq!(gl.state.players[0].total_bet, 0.0);
-        assert_eq!(gl.state.players[3].total_bet, 0.0);
+        assert_eq!(gl.state.players[0].total_bet, 0);
+        assert_eq!(gl.state.players[3].total_bet, 0);
     }
 
     #[test]
@@ -1716,8 +1716,8 @@ mod fold_check_call_tests {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Fold).unwrap();
-        // Alice pagou SB = 5.0 antes de foldar
-        assert_eq!(gl.state.players[0].total_bet, 5.0);
+        // Alice pagou SB = 5 antes de foldar
+        assert_eq!(gl.state.players[0].total_bet, 5);
     }
 
     #[test]
@@ -1726,7 +1726,7 @@ mod fold_check_call_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Fold).unwrap();
         // Alice tinha 1000 - 5 (SB) = 995
-        assert_eq!(gl.state.players[0].stack, 995.0);
+        assert_eq!(gl.state.players[0].stack, 995);
     }
 
     #[test]
@@ -1742,7 +1742,7 @@ mod fold_check_call_tests {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Fold).unwrap();
-        assert_eq!(gl.state.players[0].current_bet, 5.0);
+        assert_eq!(gl.state.players[0].current_bet, 5);
     }
 
     #[test]
@@ -1871,7 +1871,7 @@ mod fold_check_call_tests {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
         // SB (alice) raises
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
         // BB (bob) tenta check → erro
         let err = gl.player_action("bob", PlayerMove::Check).unwrap_err();
         assert!(matches!(err, GameLoopError::InvalidActionForPhase(_)));
@@ -1904,7 +1904,7 @@ mod fold_check_call_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // Após check, advance_phase reseta current_bet para 0
-        assert_eq!(gl.state.players[1].current_bet, 0.0);
+        assert_eq!(gl.state.players[1].current_bet, 0);
     }
 
     #[test]
@@ -1925,7 +1925,7 @@ mod fold_check_call_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         // SB igualou BB: current_bet deve ser 10
-        assert_eq!(gl.state.players[0].current_bet, 10.0);
+        assert_eq!(gl.state.players[0].current_bet, 10);
     }
 
     #[test]
@@ -1934,7 +1934,7 @@ mod fold_check_call_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         // 1000 - 5 (SB) - 5 (call complement) = 990
-        assert_eq!(gl.state.players[0].stack, 990.0);
+        assert_eq!(gl.state.players[0].stack, 990);
     }
 
     #[test]
@@ -1942,7 +1942,7 @@ mod fold_check_call_tests {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
-        assert_eq!(gl.state.players[0].total_bet, 10.0);
+        assert_eq!(gl.state.players[0].total_bet, 10);
     }
 
     #[test]
@@ -1968,8 +1968,8 @@ mod fold_check_call_tests {
         gl.start_hand().unwrap();
         // UTG (alice) calls BB=10
         gl.player_action("alice", PlayerMove::Call).unwrap();
-        assert_eq!(gl.state.players[0].current_bet, 10.0);
-        assert_eq!(gl.state.players[0].stack, 990.0);
+        assert_eq!(gl.state.players[0].current_bet, 10);
+        assert_eq!(gl.state.players[0].stack, 990);
     }
 
     #[test]
@@ -1979,7 +1979,7 @@ mod fold_check_call_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Call).unwrap();
         // SB (bob) calls: 5 + 5 = 10
-        assert_eq!(gl.state.players[1].current_bet, 10.0);
+        assert_eq!(gl.state.players[1].current_bet, 10);
     }
 
     #[test]
@@ -1996,7 +1996,7 @@ mod fold_check_call_tests {
     #[test]
     fn call_2p_sb_call_all_in_stack_insuficiente() {
         let mut gl = make_game_loop_2p();
-        gl.add_player("shorty".to_string(), 3.0);
+        gl.add_player("shorty".to_string(), 3);
         // Agora temos 3 jogadores, mas shorty tem só 3
         // Vamos testar com 2 jogadores e stack baixo
         let mut gl2 = GameLoop::new(
@@ -2005,14 +2005,14 @@ mod fold_check_call_tests {
             "Short Table".to_string(),
             GameType::Cash,
         );
-        gl2.add_player("alice".to_string(), 3.0);
-        gl2.add_player("bob".to_string(), 1000.0);
+        gl2.add_player("alice".to_string(), 3);
+        gl2.add_player("bob".to_string(), 1000);
         gl2.set_dealer(0);
         gl2.start_hand().unwrap();
         // Alice é SB (dealer=0 heads-up), SB = min(5, 3) = 3
         // Alice tem 0 restante, está all-in
         assert!(gl2.state.players[0].is_all_in);
-        assert_eq!(gl2.state.players[0].stack, 0.0);
+        assert_eq!(gl2.state.players[0].stack, 0);
     }
 
     #[test]
@@ -2048,19 +2048,19 @@ mod fold_check_call_tests {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
         // SB raises to 30
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
         // BB calls 30
         gl.player_action("bob", PlayerMove::Call).unwrap();
         // Após call, advance_phase reseta current_bet para 0
-        assert_eq!(gl.state.players[1].current_bet, 0.0);
-        assert_eq!(gl.state.players[1].stack, 970.0);
+        assert_eq!(gl.state.players[1].current_bet, 0);
+        assert_eq!(gl.state.players[1].stack, 970);
     }
 
     #[test]
     fn call_apos_raise_flop() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
         gl.player_action("bob", PlayerMove::Call).unwrap();
         assert_eq!(gl.state.phase, GamePhase::Flop);
     }
@@ -2069,10 +2069,10 @@ mod fold_check_call_tests {
     fn call_apos_raise_current_bet_to_match() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
         gl.player_action("bob", PlayerMove::Call).unwrap();
         // Após call, advance_phase reseta current_bet_to_match para 0
-        assert_eq!(gl.state.current_bet_to_match, 0.0);
+        assert_eq!(gl.state.current_bet_to_match, 0);
     }
 
     #[test]
@@ -2094,7 +2094,7 @@ mod fold_check_call_tests {
         gl.player_action("carol", PlayerMove::Check).unwrap();
         // Após check, advance_phase reseta current_bet para 0
         for p in &gl.state.players {
-            assert_eq!(p.current_bet, 0.0);
+            assert_eq!(p.current_bet, 0);
         }
     }
 
@@ -2121,9 +2121,9 @@ mod fold_check_call_tests {
         // Alice: 1000 - 10 = 990
         // Bob: 1000 - 5 (SB) - 5 (call) = 990
         // Carol: 1000 - 10 (BB) = 990
-        assert_eq!(gl.state.players[0].stack, 990.0);
-        assert_eq!(gl.state.players[1].stack, 990.0);
-        assert_eq!(gl.state.players[2].stack, 990.0);
+        assert_eq!(gl.state.players[0].stack, 990);
+        assert_eq!(gl.state.players[1].stack, 990);
+        assert_eq!(gl.state.players[2].stack, 990);
     }
 
     #[test]
@@ -2183,7 +2183,7 @@ mod fold_check_call_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        assert_eq!(gl.state.current_bet_to_match, 0.0);
+        assert_eq!(gl.state.current_bet_to_match, 0);
     }
 
     #[test]
@@ -2193,7 +2193,7 @@ mod fold_check_call_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         for p in &gl.state.players {
-            assert_eq!(p.current_bet, 0.0);
+            assert_eq!(p.current_bet, 0);
         }
     }
 
@@ -2214,7 +2214,7 @@ mod fold_check_call_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        assert_eq!(gl.state.min_raise, 10.0);
+        assert_eq!(gl.state.min_raise, 10);
     }
 
     #[test]
@@ -2224,8 +2224,8 @@ mod fold_check_call_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // total_bet não é resetado entre fases
-        assert_eq!(gl.state.players[0].total_bet, 10.0);
-        assert_eq!(gl.state.players[1].total_bet, 10.0);
+        assert_eq!(gl.state.players[0].total_bet, 10);
+        assert_eq!(gl.state.players[1].total_bet, 10);
     }
 
     #[test]
@@ -2323,7 +2323,7 @@ mod fold_check_call_tests {
         gl.start_hand().unwrap();
         play_all_check_to_showdown(&mut gl);
         // SB + BB = 10 + 10 = 20
-        assert_eq!(gl.state.total_pot(), 20.0);
+        assert_eq!(gl.state.total_pot(), 20);
     }
 }
 
@@ -2341,8 +2341,8 @@ mod bet_raise_allin_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // Flop: bob primeiro
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
-        assert_eq!(gl.state.players[1].current_bet, 50.0);
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
+        assert_eq!(gl.state.players[1].current_bet, 50);
     }
 
     #[test]
@@ -2351,9 +2351,9 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
         // Stack inicial 1000 - 10 (BB) - 50 (bet) = 940
-        assert_eq!(gl.state.players[1].stack, 940.0);
+        assert_eq!(gl.state.players[1].stack, 940);
     }
 
     #[test]
@@ -2362,9 +2362,9 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
         // total_bet = 10 (BB) + 50 (bet) = 60
-        assert_eq!(gl.state.players[1].total_bet, 60.0);
+        assert_eq!(gl.state.players[1].total_bet, 60);
     }
 
     #[test]
@@ -2373,8 +2373,8 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
-        assert_eq!(gl.state.current_bet_to_match, 50.0);
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
+        assert_eq!(gl.state.current_bet_to_match, 50);
     }
 
     #[test]
@@ -2383,8 +2383,8 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
-        assert_eq!(gl.state.min_raise, 50.0);
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
+        assert_eq!(gl.state.min_raise, 50);
     }
 
     #[test]
@@ -2393,7 +2393,7 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
         assert!(gl.state.players[1].has_acted);
     }
 
@@ -2403,7 +2403,7 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
         // alice deve ter has_acted resetado
         assert!(!gl.state.players[0].has_acted);
     }
@@ -2414,7 +2414,7 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
         // Rodada não completa, vez da alice
         assert_eq!(gl.state.active_player_index, 0);
     }
@@ -2424,7 +2424,7 @@ mod bet_raise_allin_tests {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
         // Preflop: to_call = 5 para alice (SB)
-        let r = gl.player_action("alice", PlayerMove::Bet(50.0));
+        let r = gl.player_action("alice", PlayerMove::Bet(50));
         assert!(r.is_err());
         match r.unwrap_err() {
             GameLoopError::InvalidActionForPhase(_) => {}
@@ -2438,7 +2438,7 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        let r = gl.player_action("bob", PlayerMove::Bet(0.0));
+        let r = gl.player_action("bob", PlayerMove::Bet(0));
         assert!(matches!(r.unwrap_err(), GameLoopError::InvalidBetAmount(_)));
     }
 
@@ -2448,7 +2448,7 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        let r = gl.player_action("bob", PlayerMove::Bet(-10.0));
+        let r = gl.player_action("bob", PlayerMove::Bet(0));
         assert!(matches!(r.unwrap_err(), GameLoopError::InvalidBetAmount(_)));
     }
 
@@ -2459,7 +2459,7 @@ mod bet_raise_allin_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // min_raise = BB = 10
-        let r = gl.player_action("bob", PlayerMove::Bet(5.0));
+        let r = gl.player_action("bob", PlayerMove::Bet(5));
         assert!(matches!(r.unwrap_err(), GameLoopError::RaiseTooSmall(_)));
     }
 
@@ -2470,7 +2470,7 @@ mod bet_raise_allin_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // Stack do bob = 990, bet de 2000
-        let r = gl.player_action("bob", PlayerMove::Bet(2000.0));
+        let r = gl.player_action("bob", PlayerMove::Bet(2000));
         assert!(matches!(r.unwrap_err(), GameLoopError::InsufficientStack(_)));
     }
 
@@ -2481,8 +2481,8 @@ mod bet_raise_allin_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // Stack do bob = 990
-        gl.player_action("bob", PlayerMove::Bet(990.0)).unwrap();
-        assert_eq!(gl.state.players[1].stack, 0.0);
+        gl.player_action("bob", PlayerMove::Bet(990)).unwrap();
+        assert_eq!(gl.state.players[1].stack, 0);
         assert!(gl.state.players[1].is_all_in);
     }
 
@@ -2493,8 +2493,8 @@ mod bet_raise_allin_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // min_raise = 10, bet de 10 deve ser válido
-        gl.player_action("bob", PlayerMove::Bet(10.0)).unwrap();
-        assert_eq!(gl.state.players[1].current_bet, 10.0);
+        gl.player_action("bob", PlayerMove::Bet(10)).unwrap();
+        assert_eq!(gl.state.players[1].current_bet, 10);
     }
 
     #[test]
@@ -2506,7 +2506,7 @@ mod bet_raise_allin_tests {
         gl.player_action("bob", PlayerMove::Call).unwrap();
         gl.player_action("carol", PlayerMove::Check).unwrap();
         // Flop: bob primeiro (left of dealer = índice 1)
-        gl.player_action("bob", PlayerMove::Bet(30.0)).unwrap();
+        gl.player_action("bob", PlayerMove::Bet(30)).unwrap();
         assert!(!gl.state.players[0].has_acted);
         assert!(!gl.state.players[2].has_acted);
     }
@@ -2517,9 +2517,9 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
         // Pot = 20 (blinds) + 50 (bet) = 70
-        assert_eq!(gl.state.total_pot(), 70.0);
+        assert_eq!(gl.state.total_pot(), 70);
     }
 
     // ===================== RAISE =====================
@@ -2529,50 +2529,50 @@ mod bet_raise_allin_tests {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
         // alice (SB) raise para 30 (incremento de 20 >= min_raise 10)
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
-        assert_eq!(gl.state.players[0].current_bet, 30.0);
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
+        assert_eq!(gl.state.players[0].current_bet, 30);
     }
 
     #[test]
     fn raise_2p_preflop_reduz_stack() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
         // Stack 995 (após SB) - 25 (total_needed = 30 - 5) = 970
-        assert_eq!(gl.state.players[0].stack, 970.0);
+        assert_eq!(gl.state.players[0].stack, 970);
     }
 
     #[test]
     fn raise_2p_preflop_total_bet_acumula() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
         // total_bet = 5 (SB) + 25 (total_needed) = 30
-        assert_eq!(gl.state.players[0].total_bet, 30.0);
+        assert_eq!(gl.state.players[0].total_bet, 30);
     }
 
     #[test]
     fn raise_2p_preflop_current_bet_to_match() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
-        assert_eq!(gl.state.current_bet_to_match, 30.0);
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
+        assert_eq!(gl.state.current_bet_to_match, 30);
     }
 
     #[test]
     fn raise_2p_preflop_min_raise_incremento() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
         // min_raise = 30 - 10 (BB) = 20
-        assert_eq!(gl.state.min_raise, 20.0);
+        assert_eq!(gl.state.min_raise, 20);
     }
 
     #[test]
     fn raise_2p_preflop_reseta_outro() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
         // bob não agiu ainda
         assert!(!gl.state.players[1].has_acted);
     }
@@ -2581,7 +2581,7 @@ mod bet_raise_allin_tests {
     fn raise_2p_preflop_has_acted_true() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
         assert!(gl.state.players[0].has_acted);
     }
 
@@ -2589,7 +2589,7 @@ mod bet_raise_allin_tests {
     fn raise_2p_preflop_avanca_turno() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
         assert_eq!(gl.state.active_player_index, 1);
     }
 
@@ -2600,7 +2600,7 @@ mod bet_raise_allin_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // Flop: current_bet_to_match = 0
-        let r = gl.player_action("bob", PlayerMove::Raise(30.0));
+        let r = gl.player_action("bob", PlayerMove::Raise(30));
         assert!(matches!(r.unwrap_err(), GameLoopError::InvalidActionForPhase(_)));
     }
 
@@ -2609,7 +2609,7 @@ mod bet_raise_allin_tests {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
         // current_bet_to_match = 10 (BB), raise para 15 → incremento 5 < 10
-        let r = gl.player_action("alice", PlayerMove::Raise(15.0));
+        let r = gl.player_action("alice", PlayerMove::Raise(15));
         assert!(matches!(r.unwrap_err(), GameLoopError::RaiseTooSmall(_)));
     }
 
@@ -2618,8 +2618,8 @@ mod bet_raise_allin_tests {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
         // raise para 20 → incremento 10 == min_raise 10
-        gl.player_action("alice", PlayerMove::Raise(20.0)).unwrap();
-        assert_eq!(gl.state.current_bet_to_match, 20.0);
+        gl.player_action("alice", PlayerMove::Raise(20)).unwrap();
+        assert_eq!(gl.state.current_bet_to_match, 20);
     }
 
     #[test]
@@ -2629,9 +2629,9 @@ mod bet_raise_allin_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // Flop: bob bet 50, alice raise 100
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
-        gl.player_action("alice", PlayerMove::Raise(100.0)).unwrap();
-        assert_eq!(gl.state.players[0].current_bet, 100.0);
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(100)).unwrap();
+        assert_eq!(gl.state.players[0].current_bet, 100);
     }
 
     #[test]
@@ -2640,10 +2640,10 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
-        gl.player_action("alice", PlayerMove::Raise(100.0)).unwrap();
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(100)).unwrap();
         // min_raise = 100 - 50 = 50
-        assert_eq!(gl.state.min_raise, 50.0);
+        assert_eq!(gl.state.min_raise, 50);
     }
 
     #[test]
@@ -2652,8 +2652,8 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
-        gl.player_action("alice", PlayerMove::Raise(100.0)).unwrap();
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(100)).unwrap();
         // bob deve ter has_acted resetado
         assert!(!gl.state.players[1].has_acted);
     }
@@ -2664,8 +2664,8 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         // alice tem stack 995, raise all-in para 995+5=1000
         // incremento = 1000 - 10 = 990 >= min_raise 10 → normal raise
-        gl.player_action("alice", PlayerMove::Raise(1000.0)).unwrap();
-        assert_eq!(gl.state.players[0].stack, 0.0);
+        gl.player_action("alice", PlayerMove::Raise(1000)).unwrap();
+        assert_eq!(gl.state.players[0].stack, 0);
         assert!(gl.state.players[0].is_all_in);
     }
 
@@ -2675,26 +2675,26 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         // alice stack 995, raise para 2000 → total_needed > stack → all-in raise
         // all_in_amount = 5 + 995 = 1000
-        gl.player_action("alice", PlayerMove::Raise(2000.0)).unwrap();
-        assert_eq!(gl.state.players[0].stack, 0.0);
+        gl.player_action("alice", PlayerMove::Raise(2000)).unwrap();
+        assert_eq!(gl.state.players[0].stack, 0);
         assert!(gl.state.players[0].is_all_in);
-        assert_eq!(gl.state.players[0].current_bet, 1000.0);
+        assert_eq!(gl.state.players[0].current_bet, 1000);
     }
 
     #[test]
     fn raise_allin_atualiza_bet_to_match() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        gl.player_action("alice", PlayerMove::Raise(2000.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(2000)).unwrap();
         // all_in_amount = 1000 > current_bet_to_match 10
-        assert_eq!(gl.state.current_bet_to_match, 1000.0);
+        assert_eq!(gl.state.current_bet_to_match, 1000);
     }
 
     #[test]
     fn raise_allin_reseta_outros() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        gl.player_action("alice", PlayerMove::Raise(2000.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(2000)).unwrap();
         assert!(!gl.state.players[1].has_acted);
     }
 
@@ -2706,10 +2706,10 @@ mod bet_raise_allin_tests {
         gl.player_action("bob", PlayerMove::Call).unwrap();
         gl.player_action("carol", PlayerMove::Check).unwrap();
         // Flop: bob bet 30 (bob é primeiro postflop), carol call, alice raise 80
-        gl.player_action("bob", PlayerMove::Bet(30.0)).unwrap();
+        gl.player_action("bob", PlayerMove::Bet(30)).unwrap();
         gl.player_action("carol", PlayerMove::Call).unwrap();
-        gl.player_action("alice", PlayerMove::Raise(80.0)).unwrap();
-        assert_eq!(gl.state.current_bet_to_match, 80.0);
+        gl.player_action("alice", PlayerMove::Raise(80)).unwrap();
+        assert_eq!(gl.state.current_bet_to_match, 80);
         // bob e carol resetados
         assert!(!gl.state.players[1].has_acted);
         assert!(!gl.state.players[2].has_acted);
@@ -2719,9 +2719,9 @@ mod bet_raise_allin_tests {
     fn raise_2p_pot_acumula() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
         // Pot = 15 (blinds) + 25 (total_needed) = 40
-        assert_eq!(gl.state.total_pot(), 40.0);
+        assert_eq!(gl.state.total_pot(), 40);
     }
 
     // ===================== ALLIN =====================
@@ -2731,7 +2731,7 @@ mod bet_raise_allin_tests {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::AllIn).unwrap();
-        assert_eq!(gl.state.players[0].stack, 0.0);
+        assert_eq!(gl.state.players[0].stack, 0);
     }
 
     #[test]
@@ -2756,7 +2756,7 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         // alice: current=5 (SB), stack=995, all_in → new_total_bet = 5+995 = 1000
         gl.player_action("alice", PlayerMove::AllIn).unwrap();
-        assert_eq!(gl.state.players[0].current_bet, 1000.0);
+        assert_eq!(gl.state.players[0].current_bet, 1000);
     }
 
     #[test]
@@ -2765,7 +2765,7 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::AllIn).unwrap();
         // total_bet = 5 (SB) + 995 (all_in) = 1000
-        assert_eq!(gl.state.players[0].total_bet, 1000.0);
+        assert_eq!(gl.state.players[0].total_bet, 1000);
     }
 
     #[test]
@@ -2774,7 +2774,7 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::AllIn).unwrap();
         // new_total_bet = 1000 > current_bet_to_match 10
-        assert_eq!(gl.state.current_bet_to_match, 1000.0);
+        assert_eq!(gl.state.current_bet_to_match, 1000);
     }
 
     #[test]
@@ -2791,7 +2791,7 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::AllIn).unwrap();
         // raise_increment = 1000 - 10 = 990 >= min_raise 10
-        assert_eq!(gl.state.min_raise, 990.0);
+        assert_eq!(gl.state.min_raise, 990);
     }
 
     #[test]
@@ -2811,7 +2811,7 @@ mod bet_raise_allin_tests {
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // Flop: bob all-in
         gl.player_action("bob", PlayerMove::AllIn).unwrap();
-        assert_eq!(gl.state.players[1].stack, 0.0);
+        assert_eq!(gl.state.players[1].stack, 0);
         assert!(gl.state.players[1].is_all_in);
     }
 
@@ -2823,7 +2823,7 @@ mod bet_raise_allin_tests {
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // bob: current=0, stack=990, all_in → new_total_bet = 0+990 = 990
         gl.player_action("bob", PlayerMove::AllIn).unwrap();
-        assert_eq!(gl.state.players[1].current_bet, 990.0);
+        assert_eq!(gl.state.players[1].current_bet, 990);
     }
 
     #[test]
@@ -2846,7 +2846,7 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::AllIn).unwrap();
         // Pot = 15 (blinds) + 995 (all_in) = 1010
-        assert_eq!(gl.state.total_pot(), 1010.0);
+        assert_eq!(gl.state.total_pot(), 1010);
     }
 
     #[test]
@@ -2858,7 +2858,7 @@ mod bet_raise_allin_tests {
         gl.player_action("carol", PlayerMove::AllIn).unwrap();
         // Todos all-in
         for p in &gl.state.players {
-            assert_eq!(p.stack, 0.0);
+            assert_eq!(p.stack, 0);
             assert!(p.is_all_in);
         }
     }
@@ -2884,7 +2884,7 @@ mod bet_raise_allin_tests {
         // bob all-in: new_total_bet = 10 + 990 = 1000 == 1000 (não aumenta)
         gl.player_action("bob", PlayerMove::AllIn).unwrap();
         // Após rodada completa, advance_phase reseta current_bet para 0
-        assert_eq!(gl.state.players[1].current_bet, 0.0);
+        assert_eq!(gl.state.players[1].current_bet, 0);
         assert!(gl.state.is_finished);
     }
 
@@ -2925,7 +2925,7 @@ mod bet_raise_allin_tests {
         gl.player_action("alice", PlayerMove::AllIn).unwrap();
         gl.player_action("bob", PlayerMove::AllIn).unwrap();
         // Pot = 15 (blinds) + 995 (alice) + 990 (bob) = 2000
-        assert_eq!(gl.state.total_pot(), 2000.0);
+        assert_eq!(gl.state.total_pot(), 2000);
     }
 
     #[test]
@@ -2935,10 +2935,10 @@ mod bet_raise_allin_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // Flop: bob bet 50
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
         // alice all-in: current=0 (resetado no flop), stack=990, new_total_bet=990 > 50
         gl.player_action("alice", PlayerMove::AllIn).unwrap();
-        assert_eq!(gl.state.current_bet_to_match, 990.0);
+        assert_eq!(gl.state.current_bet_to_match, 990);
         assert!(gl.state.players[0].is_all_in);
     }
 
@@ -2948,7 +2948,7 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
         gl.player_action("alice", PlayerMove::AllIn).unwrap();
         // bob resetado
         assert!(!gl.state.players[1].has_acted);
@@ -2960,10 +2960,10 @@ mod bet_raise_allin_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
         gl.player_action("alice", PlayerMove::AllIn).unwrap();
         // raise_increment = 990 - 50 = 940 >= min_raise 50
-        assert_eq!(gl.state.min_raise, 940.0);
+        assert_eq!(gl.state.min_raise, 940);
     }
 
     #[test]
@@ -2973,7 +2973,7 @@ mod bet_raise_allin_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // Flop: bob bet 990 (all-in)
-        gl.player_action("bob", PlayerMove::Bet(990.0)).unwrap();
+        gl.player_action("bob", PlayerMove::Bet(990)).unwrap();
         // alice all-in: current=10, stack=990, new_total=1000 > 990 → reseta
         gl.player_action("alice", PlayerMove::AllIn).unwrap();
         // bob já agiu (bet), mas foi resetado pelo all-in da alice
@@ -2985,12 +2985,12 @@ mod bet_raise_allin_tests {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
         // Preflop: alice raise 30, bob call → flop
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
         gl.player_action("bob", PlayerMove::Call).unwrap();
         assert_eq!(gl.state.phase, GamePhase::Flop);
         // Flop: bob bet 50, alice raise 100, bob call → turn
-        gl.player_action("bob", PlayerMove::Bet(50.0)).unwrap();
-        gl.player_action("alice", PlayerMove::Raise(100.0)).unwrap();
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(100)).unwrap();
         gl.player_action("bob", PlayerMove::Call).unwrap();
         assert_eq!(gl.state.phase, GamePhase::Turn);
     }
@@ -3051,8 +3051,8 @@ mod resolve_showdown_errors_tests {
         gl.player_action("alice", PlayerMove::Fold).unwrap();
         let resolution = gl.resolve_hand().unwrap();
         // Pot = SB(5) + BB(10) = 15
-        let bob_winnings = resolution.payouts.get("bob").copied().unwrap_or(0.0);
-        assert!(bob_winnings > 0.0);
+        let bob_winnings = resolution.payouts.get("bob").copied().unwrap_or(0);
+        assert!(bob_winnings > 0);
     }
 
     #[test]
@@ -3062,7 +3062,7 @@ mod resolve_showdown_errors_tests {
         gl.player_action("alice", PlayerMove::Fold).unwrap();
         let resolution = gl.resolve_hand().unwrap();
         // Fold win não tem rake
-        assert_eq!(resolution.rake, 0.0);
+        assert_eq!(resolution.rake, 0);
     }
 
     #[test]
@@ -3105,8 +3105,8 @@ mod resolve_showdown_errors_tests {
         gl.player_action("alice", PlayerMove::Fold).unwrap();
         gl.player_action("bob", PlayerMove::Fold).unwrap();
         let resolution = gl.resolve_hand().unwrap();
-        let carol_winnings = resolution.payouts.get("carol").copied().unwrap_or(0.0);
-        assert!(carol_winnings >= 15.0); // pelo menos blinds
+        let carol_winnings = resolution.payouts.get("carol").copied().unwrap_or(0);
+        assert!(carol_winnings >= 15); // pelo menos blinds
     }
 
     #[test]
@@ -3162,8 +3162,8 @@ mod resolve_showdown_errors_tests {
         gl.start_hand().unwrap();
         play_all_check_to_showdown(&mut gl);
         let resolution = gl.resolve_hand().unwrap();
-        // Rake de 5% sobre pot de 20 = 1.0 (cap 5)
-        assert!(resolution.rake >= 0.0);
+        // Rake de 5% sobre pot de 20 = 1 (cap 5)
+        assert!(resolution.rake >= 0);
     }
 
     #[test]
@@ -3174,8 +3174,8 @@ mod resolve_showdown_errors_tests {
         gl.player_action("alice", PlayerMove::AllIn).unwrap();
         gl.player_action("bob", PlayerMove::AllIn).unwrap();
         let resolution = gl.resolve_hand().unwrap();
-        // Rake cap = 5.0
-        assert!(resolution.rake <= 5.0 + 0.01);
+        // Rake cap = 5
+        assert!(resolution.rake <= 500);
     }
 
     #[test]
@@ -3205,10 +3205,10 @@ mod resolve_showdown_errors_tests {
         gl.player_action("alice", PlayerMove::AllIn).unwrap();
         gl.player_action("bob", PlayerMove::AllIn).unwrap();
         let resolution = gl.resolve_hand().unwrap();
-        let total_payouts: f64 = resolution.payouts.values().sum();
-        let total_pot: f64 = resolution.pots.iter().map(|p| p.amount).sum();
+        let total_payouts: u64 = resolution.payouts.values().sum();
+        let total_pot: u64 = resolution.pots.iter().map(|p| p.amount).sum();
         // payouts + rake ≈ total_pot
-        assert!((total_payouts + resolution.rake - total_pot).abs() < 1.0);
+        assert_eq!(total_payouts + resolution.rake, total_pot);
     }
 
     // ─── HandResolution: estrutura ───
@@ -3501,7 +3501,7 @@ mod resolve_showdown_errors_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // Flop: bob bet 0 → erro
-        let result = gl.player_action("bob", PlayerMove::Bet(0.0));
+        let result = gl.player_action("bob", PlayerMove::Bet(0));
         assert!(result.is_err());
         match result.unwrap_err() {
             GameLoopError::InvalidBetAmount(_) => {}
@@ -3515,7 +3515,7 @@ mod resolve_showdown_errors_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        let result = gl.player_action("bob", PlayerMove::Bet(-10.0));
+        let result = gl.player_action("bob", PlayerMove::Bet(0));
         assert!(result.is_err());
         match result.unwrap_err() {
             GameLoopError::InvalidBetAmount(_) => {}
@@ -3528,7 +3528,7 @@ mod resolve_showdown_errors_tests {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
         // Preflop: alice raise 11 (incremento 1 < min_raise 10)
-        let result = gl.player_action("alice", PlayerMove::Raise(11.0));
+        let result = gl.player_action("alice", PlayerMove::Raise(11));
         assert!(result.is_err());
         match result.unwrap_err() {
             GameLoopError::RaiseTooSmall(_) => {}
@@ -3543,7 +3543,7 @@ mod resolve_showdown_errors_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // Flop: bob bet 2000 > stack 990
-        let result = gl.player_action("bob", PlayerMove::Bet(2000.0));
+        let result = gl.player_action("bob", PlayerMove::Bet(2000));
         assert!(result.is_err());
         match result.unwrap_err() {
             GameLoopError::InsufficientStack(_) => {}
@@ -3557,7 +3557,7 @@ mod resolve_showdown_errors_tests {
         gl.start_hand().unwrap();
         // Preflop: alice raise 2000 > stack 995 → vira AllIn automático
         // (o código trata raise acima do stack como all-in)
-        let result = gl.player_action("alice", PlayerMove::Raise(2000.0));
+        let result = gl.player_action("alice", PlayerMove::Raise(2000));
         assert!(result.is_ok());
         // Alice deve estar all-in
         assert!(gl.state.players[0].is_all_in);
@@ -3596,7 +3596,7 @@ mod resolve_showdown_errors_tests {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
         // Preflop: alice tenta bet (deveria usar raise)
-        let result = gl.player_action("alice", PlayerMove::Bet(50.0));
+        let result = gl.player_action("alice", PlayerMove::Bet(50));
         assert!(result.is_err());
         match result.unwrap_err() {
             GameLoopError::InvalidActionForPhase(_) => {}
@@ -3611,7 +3611,7 @@ mod resolve_showdown_errors_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // Flop: bob tenta raise sem aposta (deveria usar bet)
-        let result = gl.player_action("bob", PlayerMove::Raise(50.0));
+        let result = gl.player_action("bob", PlayerMove::Raise(50));
         assert!(result.is_err());
         match result.unwrap_err() {
             GameLoopError::InvalidActionForPhase(_) => {}
@@ -3703,8 +3703,8 @@ mod resolve_showdown_errors_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // Após flop, current_bet de todos deve ser 0
-        assert_eq!(gl.state.players[0].current_bet, 0.0);
-        assert_eq!(gl.state.players[1].current_bet, 0.0);
+        assert_eq!(gl.state.players[0].current_bet, 0);
+        assert_eq!(gl.state.players[1].current_bet, 0);
     }
 
     #[test]
@@ -3724,7 +3724,7 @@ mod resolve_showdown_errors_tests {
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
-        assert_eq!(gl.state.current_bet_to_match, 0.0);
+        assert_eq!(gl.state.current_bet_to_match, 0);
     }
 
     #[test]
@@ -3734,7 +3734,7 @@ mod resolve_showdown_errors_tests {
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // min_raise volta para BB
-        assert_eq!(gl.state.min_raise, 10.0);
+        assert_eq!(gl.state.min_raise, 10);
     }
 
     #[test]
@@ -3828,7 +3828,7 @@ mod resolve_showdown_errors_tests {
     fn betting_round_completo_apos_call_raise() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
         gl.player_action("bob", PlayerMove::Call).unwrap();
         // Ambos agiram, current_bet igual (30) → completa → flop
         assert_eq!(gl.state.phase, GamePhase::Flop);
@@ -3838,7 +3838,7 @@ mod resolve_showdown_errors_tests {
     fn betting_round_incompleto_apos_raise() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
-        gl.player_action("alice", PlayerMove::Raise(30.0)).unwrap();
+        gl.player_action("alice", PlayerMove::Raise(30)).unwrap();
         // Bob ainda não agiu → não completa
         assert_eq!(gl.state.phase, GamePhase::Preflop);
     }
@@ -3872,7 +3872,7 @@ mod resolve_showdown_errors_tests {
         // 3p: alice(UTG) call, bob(SB) call, carol(BB) bet
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Call).unwrap();
-        gl.player_action("carol", PlayerMove::Bet(30.0)).unwrap();
+        gl.player_action("carol", PlayerMove::Bet(30)).unwrap();
         // Carol bet, alice e bob precisam agir → não completa
         assert_eq!(gl.state.phase, GamePhase::Preflop);
     }
@@ -3884,7 +3884,7 @@ mod resolve_showdown_errors_tests {
         // 3p: alice(UTG) call, bob(SB) call, carol(BB) bet, alice call, bob call
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Call).unwrap();
-        gl.player_action("carol", PlayerMove::Bet(30.0)).unwrap();
+        gl.player_action("carol", PlayerMove::Bet(30)).unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Call).unwrap();
         // Todos agiram, current_bet igual (30) → completa → flop
@@ -3898,7 +3898,7 @@ mod resolve_showdown_errors_tests {
         // 3p: alice(UTG) call, bob(SB) call, carol(BB) bet, alice call, bob all-in
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Call).unwrap();
-        gl.player_action("carol", PlayerMove::Bet(30.0)).unwrap();
+        gl.player_action("carol", PlayerMove::Bet(30)).unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         // Bob all-in (raise) → reseta carol
         gl.player_action("bob", PlayerMove::AllIn).unwrap();
@@ -3911,10 +3911,10 @@ mod resolve_showdown_errors_tests {
         use crate::deck::{Suit, Rank};
         let p1 = PlayerState {
             id: "p1".to_string(),
-            stack: 0.0,
+            stack: 0,
             hole_cards: vec![Card { rank: Rank::Two, suit: Suit::Clubs }, Card { rank: Rank::Three, suit: Suit::Hearts }],
-            current_bet: 100.0,
-            total_bet: 100.0,
+            current_bet: 10000,
+            total_bet: 10000,
             has_folded: false,
             is_all_in: true,
             all_in_phase: Some(GamePhase::Preflop),
@@ -3923,10 +3923,10 @@ mod resolve_showdown_errors_tests {
         };
         let p2 = PlayerState {
             id: "p2".to_string(),
-            stack: 0.0,
+            stack: 0,
             hole_cards: vec![Card { rank: Rank::Four, suit: Suit::Clubs }, Card { rank: Rank::Five, suit: Suit::Hearts }],
-            current_bet: 200.0,
-            total_bet: 300.0,
+            current_bet: 20000,
+            total_bet: 30000,
             has_folded: false,
             is_all_in: true,
             all_in_phase: Some(GamePhase::Turn),
@@ -3935,10 +3935,10 @@ mod resolve_showdown_errors_tests {
         };
         let p3 = PlayerState {
             id: "p3".to_string(),
-            stack: 700.0,
+            stack: 70000,
             hole_cards: vec![Card { rank: Rank::Ace, suit: Suit::Spades }, Card { rank: Rank::Ace, suit: Suit::Hearts }],
-            current_bet: 300.0,
-            total_bet: 300.0,
+            current_bet: 30000,
+            total_bet: 30000,
             has_folded: false,
             is_all_in: false,
             all_in_phase: None,
@@ -3947,7 +3947,7 @@ mod resolve_showdown_errors_tests {
         };
 
         let mut gl = GameLoop::new(
-            TableConfig::new(10.0, 0.0, 0.0),
+            TableConfig::new(1000, 0.0, 0),
             "hand_123".to_string(),
             "test_table".to_string(),
             GameType::Cash,
@@ -4021,8 +4021,8 @@ mod resolve_showdown_errors_tests {
     #[test]
     fn test_ante_blinds_total_bet_preservation_massive_stress() {
         // 1.000 iterações testando conservação perfeita de Ante + Blinds no total_bet
-        for ante_val in 1..=1000 {
-            let ante = ante_val as f64 * 0.5;
+        for ante_val in 1..=1000u64 {
+            let ante = ante_val * 50;
             let mut gl = GameLoop::new(
                 make_config(),
                 format!("hand-ante-{}", ante_val),
@@ -4031,9 +4031,9 @@ mod resolve_showdown_errors_tests {
             )
             .with_ante(ante);
 
-            gl.add_player("p0".to_string(), 1000.0);
-            gl.add_player("p1".to_string(), 1000.0);
-            gl.add_player("p2".to_string(), 1000.0);
+            gl.add_player("p0".to_string(), 100000);
+            gl.add_player("p1".to_string(), 100000);
+            gl.add_player("p2".to_string(), 100000);
             gl.set_dealer(0);
 
             gl.start_hand().unwrap();
@@ -4046,16 +4046,16 @@ mod resolve_showdown_errors_tests {
             let expected_sb_total = ante + gl.state.small_blind;
             let expected_bb_total = ante + gl.state.big_blind;
 
-            assert!(
-                (sb_player.total_bet - expected_sb_total).abs() < f64::EPSILON,
+            assert_eq!(
+                sb_player.total_bet, expected_sb_total,
                 "SB total_bet incorreto no teste {}: obtido {}, esperado {}",
                 ante_val,
                 sb_player.total_bet,
                 expected_sb_total
             );
 
-            assert!(
-                (bb_player.total_bet - expected_bb_total).abs() < f64::EPSILON,
+            assert_eq!(
+                bb_player.total_bet, expected_bb_total,
                 "BB total_bet incorreto no teste {}: obtido {}, esperado {}",
                 ante_val,
                 bb_player.total_bet,
@@ -4067,18 +4067,18 @@ mod resolve_showdown_errors_tests {
     #[test]
     fn test_chip_conservation_under_multiway_all_in_stress() {
         // 500 cenários de All-In com stacks heterogêneos e validação da invariante financeira
-        for seed in 1..=500 {
+        for seed in 1..=500u64 {
             let mut gl = GameLoop::new(
                 make_config(),
                 format!("hand-stress-{}", seed),
                 "Stress Table".to_string(),
                 GameType::Cash,
             )
-            .with_ante(seed as f64 * 0.2);
+            .with_ante(seed * 20);
 
-            let s0 = 50.0 + (seed as f64 * 1.5);
-            let s1 = 100.0 + (seed as f64 * 2.0);
-            let s2 = 200.0 + (seed as f64 * 3.0);
+            let s0 = 5000 + (seed * 150);
+            let s1 = 10000 + (seed * 200);
+            let s2 = 20000 + (seed * 300);
 
             let initial_sum = s0 + s1 + s2;
 
@@ -4089,11 +4089,11 @@ mod resolve_showdown_errors_tests {
 
             if gl.start_hand().is_ok() {
                 let pot_sum = gl.state.total_pot();
-                let remaining_stacks_sum: f64 = gl.state.players.iter().map(|p| p.stack).sum();
+                let remaining_stacks_sum: u64 = gl.state.players.iter().map(|p| p.stack).sum();
                 let current_total = pot_sum + remaining_stacks_sum;
 
-                assert!(
-                    (initial_sum - current_total).abs() < 0.01,
+                assert_eq!(
+                    initial_sum, current_total,
                     "Invariante financeira quebrada no seed {}: inicial {}, atual {}",
                     seed,
                     initial_sum,
@@ -4105,17 +4105,17 @@ mod resolve_showdown_errors_tests {
 
     #[test]
     fn test_micro_stack_less_than_small_blind_stress() {
-        // Testa a robustez quando o jogador entra com stack menor que o SB (ex: 1.0 ficha com SB=5.0)
-        for micro_stack in [0.1, 0.5, 1.0, 2.0, 3.0, 4.0] {
+        // Testa a robustez quando o jogador entra com stack menor que o SB em centavos (ex: 100 centavos com SB=500)
+        for micro_stack in [10u64, 50, 100, 200, 300, 400] {
             let mut gl = GameLoop::new(
-                make_config(), // SB = 5.0, BB = 10.0
+                make_config(), // SB = 500 centavos, BB = 1000 centavos
                 format!("hand-micro-{}", micro_stack),
                 "Micro Stack Table".to_string(),
                 GameType::Cash,
             );
 
             gl.add_player("alice".to_string(), micro_stack);
-            gl.add_player("bob".to_string(), 500.0);
+            gl.add_player("bob".to_string(), 50000);
             gl.set_dealer(1); // bob é dealer, alice é SB com micro_stack
 
             assert!(gl.start_hand().is_ok());
@@ -4123,9 +4123,8 @@ mod resolve_showdown_errors_tests {
             // Alice deve estar All-In no SB porque seu stack era < SB
             let alice = &gl.state.players[0];
             assert!(alice.is_all_in);
-            assert_eq!(alice.stack, 0.0);
+            assert_eq!(alice.stack, 0);
             assert_eq!(alice.total_bet, micro_stack);
         }
     }
 }
-

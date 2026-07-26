@@ -21,17 +21,17 @@ fn test_tournament_registration_and_rebuy() {
     // Saldo inicial suficiente: R$ 200,00 (20000 centavos)
     let account = LedgerAccount::new("Player_1", 20000);
     let blind_structure = BlindStructure::standard_regular();
-    let mut tournament = Tournament::new("MTT-001", "Sunday Million", 5000, 500, 10000.0, blind_structure);
+    let mut tournament = Tournament::new("MTT-001", "Sunday Million", 5000, 350, 10000.0, blind_structure);
 
-    // Registra jogador (Custo: 5000 buyin + 500 rake = 5500 centavos)
+    // Registra jogador (Custo: 5000 buyin + 350 rake = 5350 centavos)
     assert!(tournament.register_player("Player_1", "Alice", &account).is_ok());
-    assert_eq!(account.get_balance_cents().unwrap(), 14500); // 20000 - 5500 = 14500
+    assert_eq!(account.get_balance_cents().unwrap(), 14650); // 20000 - 5350 = 14650
     assert_eq!(tournament.prize_pool_cents, 5000);
 
     // Re-buy com stack zerado (Custo: 5000 centavos)
     tournament.players.get_mut("Player_1").unwrap().chip_stack = 0.0;
     assert!(tournament.rebuy_player("Player_1", &account).is_ok());
-    assert_eq!(account.get_balance_cents().unwrap(), 9500); // 14500 - 5000 = 9500
+    assert_eq!(account.get_balance_cents().unwrap(), 9650); // 14650 - 5000 = 9650
     assert_eq!(tournament.prize_pool_cents, 10000);
 }
 
@@ -56,7 +56,7 @@ fn test_table_balancer_rebalancing() {
 
 #[test]
 fn test_tournament_elimination_and_prize_pool_distribution() {
-    // Saldo inicial suficiente para BuyIn (10000) + Rake (1000) = 11000 centavos
+    // Saldo inicial suficiente para BuyIn (10000) + Rake (700) = 10700 centavos
     let initial_bal = 20000i64;
     let acc_p1 = LedgerAccount::new("P1", initial_bal);
     let acc_p2 = LedgerAccount::new("P2", initial_bal);
@@ -68,7 +68,7 @@ fn test_tournament_elimination_and_prize_pool_distribution() {
     accounts.insert("P3".to_string(), acc_p3.clone());
 
     let blind_structure = BlindStructure::standard_regular();
-    let mut tournament = Tournament::new("STG-001", "Sit & Go 3-Max", 10000, 1000, 5000.0, blind_structure);
+    let mut tournament = Tournament::new("STG-001", "Sit & Go 3-Max", 10000, 700, 5000.0, blind_structure);
 
     assert!(tournament.register_player("P1", "Alice", &acc_p1).is_ok());
     assert!(tournament.register_player("P2", "Bob", &acc_p2).is_ok());
@@ -93,10 +93,10 @@ fn test_tournament_elimination_and_prize_pool_distribution() {
     let payouts = tournament.distribute_prize_pool(&accounts);
     assert_eq!(payouts.len(), 3);
 
-    // P1 (1º lugar): 20000 - 11000 + 15000 = 24000
-    // P2 (2º lugar): 20000 - 11000 + 9000  = 18000
-    // P3 (3º lugar): 20000 - 11000 + 6000  = 15000
-    assert_eq!(acc_p1.get_balance_cents().unwrap(), 24000);
-    assert_eq!(acc_p2.get_balance_cents().unwrap(), 18000);
-    assert_eq!(acc_p3.get_balance_cents().unwrap(), 15000);
+    // P1 (1º lugar): 20000 - 10700 + 15000 = 24300
+    // P2 (2º lugar): 20000 - 10700 + 9000  = 18300
+    // P3 (3º lugar): 20000 - 10700 + 6000  = 15300
+    assert_eq!(acc_p1.get_balance_cents().unwrap(), 24300);
+    assert_eq!(acc_p2.get_balance_cents().unwrap(), 18300);
+    assert_eq!(acc_p3.get_balance_cents().unwrap(), 15300);
 }

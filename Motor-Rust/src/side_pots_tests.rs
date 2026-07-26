@@ -15,7 +15,7 @@ fn make_card(rank: Rank, suit: Suit) -> Card {
     Card { rank, suit }
 }
 
-fn make_player(id: &str, total_bet: f64, has_folded: bool, cards: Vec<Card>) -> PlayerForPots {
+fn make_player(id: &str, total_bet: u64, has_folded: bool, cards: Vec<Card>) -> PlayerForPots {
     PlayerForPots {
         id: id.into(),
         total_bet,
@@ -38,8 +38,8 @@ fn test_lote_10a_empty_players() {
 #[test]
 fn test_lote_10a_zero_bets() {
     let players = vec![
-        make_player("p1", 0.0, false, vec![]),
-        make_player("p2", 0.0, false, vec![]),
+        make_player("p1", 0, false, vec![]),
+        make_player("p2", 0, false, vec![]),
     ];
     let pots = calculate_side_pots(&players);
     assert!(pots.is_empty());
@@ -49,12 +49,12 @@ fn test_lote_10a_zero_bets() {
 fn test_lote_10a_single_active_player_pot() {
     // Apenas um jogador aposta
     let players = vec![
-        make_player("p1", 150.0, false, vec![]),
-        make_player("p2", 0.0, false, vec![]),
+        make_player("p1", 15000, false, vec![]),
+        make_player("p2", 0, false, vec![]),
     ];
     let pots = calculate_side_pots(&players);
     assert_eq!(pots.len(), 1);
-    assert_eq!(pots[0].amount, 150.0);
+    assert_eq!(pots[0].amount, 15000);
     assert_eq!(pots[0].eligible_players, vec!["p1".to_string()]);
 }
 
@@ -62,12 +62,12 @@ fn test_lote_10a_single_active_player_pot() {
 fn test_lote_10a_basic_two_players_equal() {
     // Caso padrão de pot dividido por aposta igual
     let players = vec![
-        make_player("p1", 100.0, false, vec![]),
-        make_player("p2", 100.0, false, vec![]),
+        make_player("p1", 10000, false, vec![]),
+        make_player("p2", 10000, false, vec![]),
     ];
     let pots = calculate_side_pots(&players);
     assert_eq!(pots.len(), 1);
-    assert_eq!(pots[0].amount, 200.0);
+    assert_eq!(pots[0].amount, 20000);
     assert_eq!(pots[0].eligible_players.len(), 2);
     assert!(pots[0].eligible_players.contains(&"p1".to_string()));
     assert!(pots[0].eligible_players.contains(&"p2".to_string()));
@@ -77,14 +77,14 @@ fn test_lote_10a_basic_two_players_equal() {
 fn test_lote_10a_parametric_basic_calculations() {
     // Matriz de teste parametrizada contendo 60 cenários básicos para validar precisão matemática
     for bet in 1..=60 {
-        let bet_f = bet as f64 * 10.0;
+        let bet_u = bet as u64 * 1000;
         let players = vec![
-            make_player("p1", bet_f, false, vec![]),
-            make_player("p2", bet_f, false, vec![]),
+            make_player("p1", bet_u, false, vec![]),
+            make_player("p2", bet_u, false, vec![]),
         ];
         let pots = calculate_side_pots(&players);
         assert_eq!(pots.len(), 1);
-        assert!((pots[0].amount - (bet_f * 2.0)).abs() < f64::EPSILON);
+        assert_eq!(pots[0].amount, bet_u * 2);
     }
 }
 
@@ -92,15 +92,15 @@ fn test_lote_10a_parametric_basic_calculations() {
 fn test_lote_10a_parametric_three_players_equal() {
     // Mais 60 cenários parametrizados com 3 jogadores iguais
     for bet in 1..=60 {
-        let bet_f = bet as f64 * 2.5;
+        let bet_u = bet as u64 * 250;
         let players = vec![
-            make_player("p1", bet_f, false, vec![]),
-            make_player("p2", bet_f, false, vec![]),
-            make_player("p3", bet_f, false, vec![]),
+            make_player("p1", bet_u, false, vec![]),
+            make_player("p2", bet_u, false, vec![]),
+            make_player("p3", bet_u, false, vec![]),
         ];
         let pots = calculate_side_pots(&players);
         assert_eq!(pots.len(), 1);
-        assert!((pots[0].amount - (bet_f * 3.0)).abs() < f64::EPSILON);
+        assert_eq!(pots[0].amount, bet_u * 3);
         assert_eq!(pots[0].eligible_players.len(), 3);
     }
 }
@@ -111,19 +111,19 @@ fn test_lote_10a_parametric_three_players_equal() {
 
 #[test]
 fn test_lote_10b_standard_all_in_split() {
-    // p1: 100 (all-in), p2: 250, p3: 250
-    // Pot principal: 100 * 3 = 300
-    // Pot secundário: (250 - 100) * 2 = 300
+    // p1: 10000 (all-in), p2: 25000, p3: 25000
+    // Pot principal: 10000 * 3 = 30000
+    // Pot secundário: (25000 - 10000) * 2 = 30000
     let players = vec![
-        make_player("p1", 100.0, false, vec![]),
-        make_player("p2", 250.0, false, vec![]),
-        make_player("p3", 250.0, false, vec![]),
+        make_player("p1", 10000, false, vec![]),
+        make_player("p2", 25000, false, vec![]),
+        make_player("p3", 25000, false, vec![]),
     ];
     let pots = calculate_side_pots(&players);
     assert_eq!(pots.len(), 2);
-    assert_eq!(pots[0].amount, 300.0);
+    assert_eq!(pots[0].amount, 30000);
     assert_eq!(pots[0].eligible_players.len(), 3);
-    assert_eq!(pots[1].amount, 300.0);
+    assert_eq!(pots[1].amount, 30000);
     assert_eq!(pots[1].eligible_players.len(), 2);
 }
 
@@ -131,9 +131,9 @@ fn test_lote_10b_standard_all_in_split() {
 fn test_lote_10b_parametric_all_in_two_levels() {
     // 80 cenários parametrizados para 2 níveis de all-in
     for factor in 1..=80 {
-        let p1_bet = factor as f64 * 5.0;
-        let p2_bet = p1_bet * 2.0;
-        let p3_bet = p1_bet * 2.0;
+        let p1_bet = factor as u64 * 500;
+        let p2_bet = p1_bet * 2;
+        let p3_bet = p1_bet * 2;
 
         let players = vec![
             make_player("p1", p1_bet, false, vec![]),
@@ -143,8 +143,8 @@ fn test_lote_10b_parametric_all_in_two_levels() {
 
         let pots = calculate_side_pots(&players);
         assert_eq!(pots.len(), 2);
-        assert!((pots[0].amount - (p1_bet * 3.0)).abs() < f64::EPSILON);
-        assert!((pots[1].amount - ((p2_bet - p1_bet) * 2.0)).abs() < f64::EPSILON);
+        assert_eq!(pots[0].amount, p1_bet * 3);
+        assert_eq!(pots[1].amount, (p2_bet - p1_bet) * 2);
     }
 }
 
@@ -152,9 +152,9 @@ fn test_lote_10b_parametric_all_in_two_levels() {
 fn test_lote_10b_parametric_all_in_three_levels() {
     // 80 cenários parametrizados com 3 níveis de all-in distintos
     for factor in 1..=80 {
-        let p1_bet = factor as f64 * 2.0;
-        let p2_bet = p1_bet + 10.0;
-        let p3_bet = p2_bet + 20.0;
+        let p1_bet = factor as u64 * 200;
+        let p2_bet = p1_bet + 1000;
+        let p3_bet = p2_bet + 2000;
 
         let players = vec![
             make_player("p1", p1_bet, false, vec![]),
@@ -164,9 +164,9 @@ fn test_lote_10b_parametric_all_in_three_levels() {
 
         let pots = calculate_side_pots(&players);
         assert_eq!(pots.len(), 3);
-        assert!((pots[0].amount - (p1_bet * 3.0)).abs() < f64::EPSILON);
-        assert!((pots[1].amount - ((p2_bet - p1_bet) * 2.0)).abs() < f64::EPSILON);
-        assert!((pots[2].amount - (p3_bet - p2_bet)).abs() < f64::EPSILON);
+        assert_eq!(pots[0].amount, p1_bet * 3);
+        assert_eq!(pots[1].amount, (p2_bet - p1_bet) * 2);
+        assert_eq!(pots[2].amount, p3_bet - p2_bet);
     }
 }
 
@@ -180,7 +180,7 @@ fn test_lote_10c_basic_distribution() {
     let players = vec![
         make_player(
             "p1",
-            100.0,
+            10000,
             false,
             vec![
                 make_card(Rank::Ace, Suit::Spades),
@@ -189,7 +189,7 @@ fn test_lote_10c_basic_distribution() {
         ),
         make_player(
             "p2",
-            100.0,
+            10000,
             false,
             vec![
                 make_card(Rank::Two, Suit::Hearts),
@@ -198,7 +198,7 @@ fn test_lote_10c_basic_distribution() {
         ),
     ];
     let pots = vec![Pot {
-        amount: 200.0,
+        amount: 20000,
         eligible_players: vec!["p1".into(), "p2".into()],
     }];
     let community = vec![
@@ -209,7 +209,7 @@ fn test_lote_10c_basic_distribution() {
         make_card(Rank::Four, Suit::Spades),
     ];
     let payouts = distribute_pots(&pots, &players, &community);
-    assert_eq!(*payouts.get("p1").unwrap(), 200.0);
+    assert_eq!(*payouts.get("p1").unwrap(), 20000);
     assert_eq!(payouts.get("p2"), None);
 }
 
@@ -220,7 +220,7 @@ fn test_lote_10c_parametric_splits() {
         let players = vec![
             make_player(
                 "p1",
-                100.0,
+                10000,
                 false,
                 vec![
                     make_card(Rank::Ace, Suit::Spades),
@@ -229,7 +229,7 @@ fn test_lote_10c_parametric_splits() {
             ),
             make_player(
                 "p2",
-                100.0,
+                10000,
                 false,
                 vec![
                     make_card(Rank::Ace, Suit::Hearts),
@@ -238,7 +238,7 @@ fn test_lote_10c_parametric_splits() {
             ),
         ];
         let pots = vec![Pot {
-            amount: i as f64 * 10.0,
+            amount: i as u64 * 1000,
             eligible_players: vec!["p1".into(), "p2".into()],
         }];
         let community = vec![
@@ -249,9 +249,10 @@ fn test_lote_10c_parametric_splits() {
             make_card(Rank::Four, Suit::Spades),
         ];
         let payouts = distribute_pots(&pots, &players, &community);
-        let expected = (i as f64 * 10.0) / 2.0;
-        assert!((payouts.get("p1").unwrap() - expected).abs() < 1.0);
-        assert!((payouts.get("p2").unwrap() - expected).abs() < 1.0);
+        let total_pot = i as u64 * 1000;
+        let expected = total_pot / 2;
+        assert_eq!(*payouts.get("p1").unwrap(), expected);
+        assert_eq!(*payouts.get("p2").unwrap(), expected + (total_pot % 2));
     }
 }
 
@@ -262,7 +263,7 @@ fn test_lote_10c_parametric_folded_exclusion() {
         let players = vec![
             make_player(
                 "p1",
-                100.0,
+                10000,
                 true, // foldou
                 vec![
                     make_card(Rank::Ace, Suit::Spades),
@@ -271,7 +272,7 @@ fn test_lote_10c_parametric_folded_exclusion() {
             ),
             make_player(
                 "p2",
-                100.0,
+                10000,
                 false,
                 vec![
                     make_card(Rank::Two, Suit::Clubs),
@@ -280,7 +281,7 @@ fn test_lote_10c_parametric_folded_exclusion() {
             ),
         ];
         let pots = vec![Pot {
-            amount: i as f64 * 10.0,
+            amount: i as u64 * 1000,
             eligible_players: vec!["p1".into(), "p2".into()],
         }];
         let community = vec![
@@ -291,7 +292,7 @@ fn test_lote_10c_parametric_folded_exclusion() {
             make_card(Rank::Four, Suit::Spades),
         ];
         let payouts = distribute_pots(&pots, &players, &community);
-        assert_eq!(*payouts.get("p2").unwrap(), i as f64 * 10.0);
+        assert_eq!(*payouts.get("p2").unwrap(), i as u64 * 1000);
         assert_eq!(payouts.get("p1"), None);
     }
 }
@@ -307,7 +308,7 @@ fn test_lote_10d_resolve_side_pots_parametric() {
         let players = vec![
             make_player(
                 "p1",
-                50.0,
+                5000,
                 false,
                 vec![
                     make_card(Rank::Ace, Suit::Spades),
@@ -316,7 +317,7 @@ fn test_lote_10d_resolve_side_pots_parametric() {
             ),
             make_player(
                 "p2",
-                100.0 + (i as f64),
+                10000 + (i as u64 * 100),
                 false,
                 vec![
                     make_card(Rank::Queen, Suit::Hearts),
@@ -325,7 +326,7 @@ fn test_lote_10d_resolve_side_pots_parametric() {
             ),
             make_player(
                 "p3",
-                100.0 + (i as f64),
+                10000 + (i as u64 * 100),
                 false,
                 vec![
                     make_card(Rank::Two, Suit::Clubs),

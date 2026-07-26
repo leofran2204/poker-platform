@@ -40,7 +40,7 @@ async fn test_multi_table_isolation_and_concurrency() {
                         player_id,
                         username,
                         seat: Some(p_idx),
-                        chips: 1000.0,
+                        chips: 100000,
                         respond_to: resp_tx,
                     })
                     .await
@@ -93,7 +93,7 @@ async fn test_player_disconnect_resilience() {
             player_id: "p_drop".into(),
             username: "PlayerDrop".into(),
             seat: Some(0),
-            chips: 500.0,
+            chips: 50000,
             respond_to: resp_tx,
         })
         .await
