@@ -138,10 +138,27 @@ pub fn evaluate_hand(hole_cards: &[Card], community_cards: &[Card]) -> HandResul
         };
     }
 
-    // Verifica da mão mais forte para a mais fraca
+    // Pre-filtering de alta velocidade: contar naipes em array fixo sem alocar HashMap
+    let mut has_flush_suit = false;
+    let mut suit_counts = [0u8; 4];
+    for card in &all_cards {
+        let idx = match card.suit {
+            Suit::Hearts => 0,
+            Suit::Diamonds => 1,
+            Suit::Clubs => 2,
+            Suit::Spades => 3,
+        };
+        suit_counts[idx] += 1;
+        if suit_counts[idx] >= 5 {
+            has_flush_suit = true;
+        }
+    }
 
-    if let Some(result) = get_straight_flush(&all_cards) {
-        return result;
+    // Verifica da mão mais forte para a mais fraca com short-circuit
+    if has_flush_suit {
+        if let Some(result) = get_straight_flush(&all_cards) {
+            return result;
+        }
     }
     if let Some(result) = get_four_of_a_kind(&all_cards) {
         return result;
@@ -149,8 +166,10 @@ pub fn evaluate_hand(hole_cards: &[Card], community_cards: &[Card]) -> HandResul
     if let Some(result) = get_full_house(&all_cards) {
         return result;
     }
-    if let Some(result) = get_flush(&all_cards) {
-        return result;
+    if has_flush_suit {
+        if let Some(result) = get_flush(&all_cards) {
+            return result;
+        }
     }
     if let Some(result) = get_straight(&all_cards) {
         return result;

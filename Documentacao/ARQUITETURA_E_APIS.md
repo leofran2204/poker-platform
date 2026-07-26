@@ -41,7 +41,7 @@ graph TD
   "player_id": "Player_Alice",
   "action": {
     "PostBet": {
-      "amount": 150.0
+      "amount": 15000
     }
   }
 }
@@ -74,10 +74,10 @@ O módulo financeiro utiliza o modelo de partidas dobradas com encadeamento de p
 $$\text{Hash}_k = \text{SHA256}(\text{ID}_k \parallel \text{UserID}_k \parallel \text{AmountCents}_k \parallel \text{BalanceAfterCents}_k \parallel \text{Hash}_{k-1})$$
 
 ### Invariantes Financeiras & Arquitetura Monetária:
-1. **Convivência Pragmática `f64` / `i64`:**
-   - **Interface Pública & Dioxus UI:** A comunicação WebSocket, payloads JSON Serde e estruturas de mesa expõem valores numéricos em `f64` truncados estritamente a 2 casas decimais para máxima facilidade de renderização no navegador e conveniência do desenvolvedor.
-   - **Cálculos de Pote & Ledger Imutável:** Todas as divisões de potes empatados (*split pots* via `dividir_pote_empatado()`), deduções de rake e registros de auditoria convertem os valores em tempo de execução para **centavos inteiros (`i64`)** (`(val * 100.0).round() as i64`).
-2. **Eliminação de Artefatos IEEE 754:** Operações numéricas sensíveis utilizam matemática inteira de centavos e aplicam o resto (`total_centavos % N`) conforme a **Regra do Centavo Ímpar (WSOP / TDA Regra 68)**.
+1. **Arquitetura Estrita `u64` Centavos Inteiros:**
+   - **Interface Pública, Axum & Dioxus UI:** A comunicação WebSocket, payloads JSON Serde, banco de dados PostgreSQL e estruturas de mesa trafegam e armazenam valores numéricos estritamente em **centavos inteiros (`u64`)** (`R$ 150,00` = `15000` centavos). Erros de arredondamento IEEE-754 flutuantes são totalmente eliminados na raiz.
+   - **Cálculos de Pote & Ledger Imutável:** Todas as divisões de potes empatados (*split pots* via `dividir_pote_empatado()`), deduções de rake e registros de auditoria utilizam matemática inteira exata em centavos.
+2. **Eliminação de Artefatos IEEE 754:** Operações numéricas utilizam matemática inteira de centavos e aplicam o resto (`total_centavos % N`) conforme a **Regra do Centavo Ímpar (WSOP / TDA Regra 68)**.
 3. **Garantia Atômica:** Saldo do jogador nunca pode se tornar negativo.
 4. **Cadeia Inviolável:** A integridade de qualquer conta é auditada via hash SHA-256 encadeado em latência $< 2 \, \mu s$.
 

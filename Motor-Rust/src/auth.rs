@@ -793,9 +793,7 @@ impl AuthManager {
     }
 }
 
-// ─── JWT Manual (HMAC-SHA256) ───
-// Implementação própria para evitar dependência de ring (jsonwebtoken)
-// Formato: base64url(header).base64url(payload).base64url(signature)
+use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 
 /// Erro de JWT
 #[derive(Debug, PartialEq, Eq)]
@@ -804,74 +802,25 @@ enum JwtError {
     Expired,
 }
 
-/// Header JWT fixo: {"alg":"HS256","typ":"JWT"}
-const JWT_HEADER_B64: &str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9";
-
-/// Codifica claims em um token JWT assinado com HMAC-SHA256
+/// Codifica claims em um token JWT assinado com HMAC-SHA256 usando jsonwebtoken
 fn jwt_encode<T: serde::Serialize>(claims: &T, secret: &[u8]) -> Result<String, serde_json::Error> {
-    let payload_json = serde_json::to_string(claims)?;
-    let payload_b64 = base64_url_encode(payload_json.as_bytes());
-
-    let signing_input = format!("{}.{}", JWT_HEADER_B64, payload_b64);
-
-    let mut mac = HmacSha256::new_from_slice(secret).expect("HMAC can take any key size");
-    mac.update(signing_input.as_bytes());
-    let signature = mac.finalize().into_bytes();
-    let sig_b64 = base64_url_encode(&signature);
-
-    Ok(format!("{}.{}.{}", JWT_HEADER_B64, payload_b64, sig_b64))
+    encode(&Header::default(), claims, &EncodingKey::from_secret(secret))
+        .map_err(serde::ser::Error::custom)
 }
 
-/// Decodifica e valida um token JWT, retornando as claims
+/// Decodifica e valida um token JWT usando jsonwebtoken (timing-attack safe)
 fn jwt_decode<T: serde::de::DeserializeOwned>(token: &str, secret: &[u8]) -> Result<T, JwtError> {
-    let parts: Vec<&str> = token.split('.').collect();
-    if parts.len() != 3 {
-        return Err(JwtError::Invalid);
+    let mut validation = Validation::new(Algorithm::HS256);
+    validation.validate_exp = true;
+    validation.leeway = 0;
+
+    match decode::<T>(token, &DecodingKey::from_secret(secret), &validation) {
+        Ok(token_data) => Ok(token_data.claims),
+        Err(err) => match err.kind() {
+            jsonwebtoken::errors::ErrorKind::ExpiredSignature => Err(JwtError::Expired),
+            _ => Err(JwtError::Invalid),
+        },
     }
-
-    let header_b64 = parts[0];
-    let payload_b64 = parts[1];
-    let sig_b64 = parts[2];
-
-    // Verificar header
-    if header_b64 != JWT_HEADER_B64 {
-        return Err(JwtError::Invalid);
-    }
-
-    // Verificar assinatura
-    let signing_input = format!("{}.{}", header_b64, payload_b64);
-    let mut mac = HmacSha256::new_from_slice(secret).expect("HMAC can take any key size");
-    mac.update(signing_input.as_bytes());
-    let expected_sig = mac.finalize().into_bytes();
-    let expected_sig_b64 = base64_url_encode(&expected_sig);
-
-    if sig_b64 != expected_sig_b64 {
-        return Err(JwtError::Invalid);
-    }
-
-    // Decodificar payload
-    let payload_json = base64_url_decode(payload_b64).ok_or(JwtError::Invalid)?;
-    let payload_str = String::from_utf8(payload_json).map_err(|_| JwtError::Invalid)?;
-
-    let claims: T = serde_json::from_str(&payload_str).map_err(|_| JwtError::Invalid)?;
-
-    // Verificar expiração (se o tipo tiver campo `exp`)
-    // Usamos serde_json para extrair o campo exp de forma genérica
-    let exp_check: Option<u64> = serde_json::from_str::<serde_json::Value>(&payload_str)
-        .ok()
-        .and_then(|v| v.get("exp").and_then(|e| e.as_u64()));
-
-    if let Some(exp) = exp_check {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs();
-        if now > exp {
-            return Err(JwtError::Expired);
-        }
-    }
-
-    Ok(claims)
 }
 
 /// Codifica bytes em Base64URL (sem padding, caracteres URL-safe)
