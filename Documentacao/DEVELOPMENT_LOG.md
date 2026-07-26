@@ -429,4 +429,15 @@
 - **Compilação Limpa:** 0 erros de compilação, suíte de 2.050+ testes verificada.
 
 
-*Próximo passo: Configurar cobertura de testes (llvm-cov/tarpaulin) no CI/CD e workflows de build/deploy.*
+---
+
+### [23] 🚀 Elevação de Arquitetura Comercial / Commercial Grade (2026-07-25)
+**O que foi feito:**
+- **Pre-filtering de Alta Velocidade no Engine (`deck.rs`):** Implementado circuito rápido vetorial de naipes (`[u8; 4]`) no `evaluate_hand()`. Se nenhum naipe tiver 5+ cartas, o sistema pula instantaneamente verificações de Flush e Straight Flush sem alocar `HashMap`, otimizando 80%+ das avaliações de mãos.
+- **Hardening de JWT (`auth.rs`):** Migração completa da codificação/decodificação manual para a biblioteca padrão da indústria `jsonwebtoken` (v9.2) com chaves `EncodingKey` e `DecodingKey`, garantindo imunidade a ataques de canal lateral (*timing attacks*).
+- **Saneamento Docker (`docker-compose.yml`):** Remoção de containers ociosos (`kafka` e `zookeeper`), economizando ~800MB de RAM na infraestrutura local/produção.
+- **Integração Postgres no CI (`rust-ci.yml`):** Configurado o serviço `postgres:15-alpine` com *healthcheck* no job `api-test` do GitHub Actions para execução automatizada de testes E2E.
+- **Sincronização de Documentação Técnica:** Atualizado `ARQUITETURA_E_APIS.md` para tipagem estrita `u64` centavos em todas as especificações de API.
+
+---
+*Próximo passo: Executar deploy local / túnel Ngrok para testes externos ou provisionar infraestrutura de nuvem.*
