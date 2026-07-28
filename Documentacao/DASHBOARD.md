@@ -1,6 +1,6 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-28 | **Status:** S07 — revisão de segurança, arquitetura e validação WSL/gateway HTTPS em curso.
+**Atualizado:** 2026-07-28 | **Status:** S07 — revisão de segurança, arquitetura e validação WSL/gateway HTTPS concluídas localmente.
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📅 O cronograma completo está em `Documentacao/CRONOGRAMA.md` — veja prazos, fases e % de conclusão.
@@ -16,7 +16,7 @@
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
 | 2 | **Sprint atual** | S07 — revisão de segurança, arquitetura e CI |
-| 3 | **Status** | 🔄 Em validação — não é selo de produção |
+| 3 | **Status** | ✅ Validação local concluída — não é selo de produção |
 | 4 | **Cerimônias** | Planning + Review + Retrospectiva |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
 
@@ -37,6 +37,10 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 
 ### 📊 Histórico de Sprints
 
+> Estes são registros datados. O status operacional atual prevalece: a
+> integração PIX real continua adiada, embora os adaptadores permaneçam no
+> código para uma futura retomada autorizada.
+
 | Sprint | Período | Objetivo | Entregue | Status |
 |--------|---------|---------|----------|-------|
 | S01 | 2026-06-01 a 2026-06-14 | Infraestrutura, Tipos Core, Baralho e Avaliador de Mãos | 11 módulos, 169 testes | ✅ Concluído |
@@ -55,10 +59,15 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | #   | Tarefa                                                                                                      | Pasta                     | Status     |
 |-----|-------------------------------------------------------------------------------------------------------------|---------------------------|------------|
 | 1   | **Testes Massivos e de Estresse Extremo** — 1.000 iterações Ante/Blinds, 500 All-in multiway e desconexão  | `Motor-Rust/` & `API-Axum/`| ✅ Concluído |
-| 2   | **Gateway PIX Multi-Provedor (HTTPS TLS 1.2/1.3)** — Asaas, Mercado Pago e Mock                             | `API-Axum/`               | ✅ Concluído |
 | 3   | **Suíte Antifraude Unificada & Avaliação no Ator** — Real-time risk scoring no TableActor                     | `Motor-Rust/` & `API-Axum/`| ✅ Concluído |
 | 4   | **Persistência Assíncrona do Hand History** — Gravação no PostgreSQL e endpoints REST                      | `API-Axum/`               | ✅ Concluído |
 | 5   | **Pipeline CI/CD GitHub Actions & Scripts de Deploy** — `.github/workflows/ci.yml` e `scripts/deploy.sh`     | `Infraestrutura-Docker/`  | ✅ Concluído |
+
+### ⏸️ Escopo deliberadamente adiado
+
+| # | Tarefa | Pasta | Status |
+|---|--------|-------|--------|
+| PIX | Adaptadores e testes locais preservados; integração real de depósitos, saques e webhooks requer nova autorização de escopo | `API-Axum/` & `Frontend-Dioxus/` | ⏸️ Adiado |
 
 ### ✅ Concluídas — Sprint Atual
 | #   | Tarefa                                                                                                                                                              | Data       |

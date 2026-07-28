@@ -230,7 +230,7 @@ Na próxima aula, revisão rápida dos conceitos do tópico anterior antes de av
 | **Estresse API/WS**   | **1.000.800 mensagens WebSockets** em 100 mesas + 50 Red Team workers  |
 | **Módulos do motor**  | 10 módulos principais                                                  |
 | **Módulos antifraude**| 4 módulos (bot detection, collusion, chip dumping, multi-account)       |
-| **Pagamentos**        | PIX Instantâneo (Asaas/Mercado Pago + Webhooks + Deposit/Withdraw Modais) |
+| **Pagamentos**        | Adaptadores PIX locais (mock/Asaas/Mercado Pago); integração real deliberadamente adiada |
 | **Infraestrutura**    | docker-compose.yml (PostgreSQL 15, Redis 7, Kafka+Zookeeper, Caddy HTTPS) |
 
 ## 🧩 2.2 MÓDULOS DO MOTOR (10 módulos engine + módulos de teste)
@@ -247,7 +247,7 @@ Na próxima aula, revisão rápida dos conceitos do tópico anterior antes de av
 | **Auth**             | `auth.rs`                | 153    | Autenticação, JWT, MFA, RBAC                        |
 | **Lobby**            | `lobby.rs`               | 28     | GameType, TableVisibility, TableInfo                |
 | **Fuzzing Extremo**  | `extreme_fuzz_tests.rs`  | 8 (1M) | 1.000.000 de iterações de Fuzzing estocástico em 8 módulos |
-| **Pagamentos PIX**   | `payments_routes.rs`     | 5      | Depósitos PIX com QRCode, Webhooks e Saques         |
+| **Pagamentos PIX**   | `payments_routes.rs`     | 5      | Adaptadores e contratos locais; não habilitado para operação real         |
 | **Integração**       | `integration_tests.rs`  | 5      | Fluxo completo entre módulos (deck→side_pots→rake→hand_history, torneio, loss_deflator+rake, RNG+deck) |
 | **Stress Integração**| `stress_integration_tests.rs` | 5 | Stress massivo de integração (200k iters/cenário, seed fixo `StdRng`, invariantes exatos) |
 | **Fairness Cartas**  | `card_fairness_tests.rs`| 3      | Fairness estatística de cartas (qui-quadrado, 500k iters/teste, tolerância 0,5%) |

@@ -1,4 +1,4 @@
-// stress_tests.rs — Stress tests de cobertura de TODO o motor
+// stress_tests.rs — Stress tests de cobertura de todo o motor
 //
 // Objetivo: ampliar a cobertura de verificação de forma sustentável, sem
 // inflar o número de funções `#[test]` (o que deixaria o compile lento).

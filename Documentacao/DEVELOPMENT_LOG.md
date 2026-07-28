@@ -175,7 +175,7 @@
 - **4 módulos de página criados** em `Frontend-Dioxus/src/pages/`:
   - `mod.rs` — re-exporta `home`, `login`, `lobby`, `table`
   - `home.rs` — `Home()` com título "🃏 Poker Project", 3 `FeatureCard` (Texas Hold'em, Multiplayer, Antifraude)
-  - `login.rs` — `Login()` com `use_signal(String::new)` para username/password, validação client-side, `use_navigator()` para push `Route::Lobby {}` em sucesso. TODO para integração com API Axum
+  - `login.rs` — `Login()` com `use_signal(String::new)` para username/password, validação client-side, `use_navigator()` para push `Route::Lobby {}` em sucesso. A integração com API Axum era pendência desta etapa histórica e foi registrada posteriormente.
   - `lobby.rs` — `Lobby()` com 3 `MockTable` (table-001 Texas Hold'em, table-002 Omaha, table-003 Freeroll), `TableCard` com `Link` para `Route::Table { id }`
   - `table.rs` — `Table(id: String)` placeholder com "Conectando ao WebSocket..." (componentes virão no 3.6)
 - **`main.rs` refatorado:** `mod pages; mod router;`, `fn app() -> Element { router::Root() }`, `launch(app)` com logger INFO
