@@ -8,6 +8,10 @@ on:
       - 'Frontend-Dioxus/**'
       - 'API-Axum/**'
       - 'Infraestrutura-Docker/**'
+      - 'Documentacao/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'src/bin/documentation_sync.rs'
       - 'scripts/**'
       - '.github/workflows/rust-ci.yml'
   pull_request:
@@ -17,6 +21,10 @@ on:
       - 'Frontend-Dioxus/**'
       - 'API-Axum/**'
       - 'Infraestrutura-Docker/**'
+      - 'Documentacao/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'src/bin/documentation_sync.rs'
       - 'scripts/**'
   workflow_dispatch:  # permite rodar manualmente
 
@@ -25,6 +33,18 @@ env:
   RUSTFLAGS: "-D warnings"  # warnings viram erros no CI
 
 jobs:
+  documentation-sync:
+    name: Documentação — sincronização obrigatória
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Verify canonical operational status in every document
+        run: cargo run --locked --bin documentation-sync -- --check
+
   check:
     name: Cargo Check
     runs-on: ubuntu-latest
@@ -384,12 +404,12 @@ jobs:
         run: docker build -f API-Axum/Dockerfile . --target builder
 
       - name: Validate Caddyfile syntax
-        run: docker run --rm -v ${{ github.workspace }}/Frontend-Dioxus/Caddyfile:/etc/caddy/Caddyfile:ro caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile
+        run: docker run --rm -v ${{ github.workspace }}/Infraestrutura-Docker/Caddyfile:/etc/caddy/Caddyfile:ro caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile
 
   deploy-readiness-gate:
     name: Deploy Readiness Gate ✅
     runs-on: ubuntu-latest
-    needs: [test, coverage, api-test, frontend-check, clippy, api-clippy, fmt, api-fmt, audit, container-security-scan, docker-build-validation]
+    needs: [documentation-sync, test, coverage, api-test, frontend-check, clippy, api-clippy, fmt, api-fmt, audit, container-security-scan, docker-build-validation]
     steps:
       - name: All checks passed
         run: |

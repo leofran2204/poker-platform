@@ -4,6 +4,17 @@ Plataforma de poker online **Texas Hold'em Tradicional** (52 cartas) construída
 
 > **Estado validado em 2026-07-27:** a base passou por revisão local de segurança e arquitetura. Isto **não** equivale a certificação de produção: operação multi-pod de mesas ainda requer ownership distribuído, e PIX permanece deliberadamente fora do escopo de entrega.
 
+## Estado operacional e sincronização
+
+Os fatos operacionais transversais — ciclo atual, escopo validado, limitações de PIX e de ownership de mesas — têm uma fonte canônica em [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). O comando abaixo atualiza somente os blocos marcados nos documentos; ele não altera registros históricos, termos legais, exemplos ou texto didático.
+
+```bash
+cargo run --bin documentation-sync -- --write
+cargo run --bin documentation-sync -- --check
+```
+
+O segundo comando é obrigatório na CI. Se ele falhar, a mudança deve atualizar a fonte canônica e versionar todos os blocos gerados antes do merge.
+
 > ⚠️ **Regra de Ouro:** Antes de codar qualquer feature, sempre consultar:
 > 1. **`QUALITY.md`** — documento mestre (qualidade, segurança, negócio, arquitetura, compliance)
 > 2. `Arquitetura-Motor/ARQUITETURA_MOTOR.md` — arquitetura oficial do motor
@@ -131,3 +142,9 @@ cargo tarpaulin               # cobertura ≥ 80%
 ## 🔗 Repositório — Código-Fonte no GitHub
 
 https://github.com/leofran2204/poker-platform
+
+<!-- DOCUMENTATION_SYNC:START -->
+> **Estado operacional sincronizado (2026-07-28):** S07 — revisão de segurança, arquitetura e validação WSL/gateway HTTPS concluídas localmente. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais de plataforma; a CI executa somente o perfil determinístico e rápido. PIX está adiado e permanece em modo simulado/local. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
+>
+> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
+<!-- DOCUMENTATION_SYNC:END -->

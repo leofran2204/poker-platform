@@ -451,3 +451,9 @@
 
 ---
 *Próximo passo: Deploy em ambiente de staging / produção ou disponibilização de canal seguro via Ngrok.*
+
+<!-- DOCUMENTATION_SYNC:START -->
+> **Estado operacional sincronizado (2026-07-28):** S07 — revisão de segurança, arquitetura e validação WSL/gateway HTTPS concluídas localmente. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais de plataforma; a CI executa somente o perfil determinístico e rápido. PIX está adiado e permanece em modo simulado/local. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
+>
+> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
+<!-- DOCUMENTATION_SYNC:END -->

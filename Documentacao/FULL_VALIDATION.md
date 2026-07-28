@@ -1,5 +1,16 @@
 # Validação Completa Autorizada
 
+## Sincronização documental
+
+Esta validação de carga e a sincronização documental são controles diferentes: a carga intensa continua exigindo autorização humana explícita, enquanto a consistência do estado documental é verificada em toda CI. Atualize a fonte canônica e os blocos gerados com:
+
+```bash
+cargo run --bin documentation-sync -- --write
+cargo run --bin documentation-sync -- --check
+```
+
+O utilitário altera apenas o bloco `DOCUMENTATION_SYNC` de cada arquivo. Conteúdo histórico, legal, didático e exemplos técnicos permanecem sob revisão humana.
+
 ## Regra de execução
 
 Esta rotina é **automática somente depois de autorização humana explícita**. Ela não é acionada por `push`, pull request ou por `cargo test` comum.
@@ -101,3 +112,9 @@ iterações/mensagens e status. Os orçamentos atuais são 79 cenários massivos
 motor, 20.000 entradas property-based da API HTTPS, 1.000.800 mensagens WSS e
 2.000.000 entradas de fuzz no frontend. Esse registro permite comparar uma
 execução à outra sem reduzir a massividade a uma contagem nominal de testes.
+
+<!-- DOCUMENTATION_SYNC:START -->
+> **Estado operacional sincronizado (2026-07-28):** S07 — revisão de segurança, arquitetura e validação WSL/gateway HTTPS concluídas localmente. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais de plataforma; a CI executa somente o perfil determinístico e rápido. PIX está adiado e permanece em modo simulado/local. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
+>
+> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
+<!-- DOCUMENTATION_SYNC:END -->

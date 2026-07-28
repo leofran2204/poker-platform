@@ -11,7 +11,8 @@
 
 > ## ⚠️ REGRA DE OURO — LEIA ANTES DE QUALQUER AÇÃO
 >
-> **Este documento é a fonte da verdade do Poker Project.**
+> **Este documento é a fonte normativa de qualidade do Poker Project.**
+> O estado operacional transversal é mantido em `Documentacao/STATUS_OPERACIONAL.json` e sincronizado automaticamente nos documentos marcados; os registros históricos deste arquivo continuam sob revisão humana.
 > Antes de escrever uma linha de código, criar uma tarefa, tomar uma decisão técnica,
 > de negócio, de segurança ou de marketing — **CONSULTE ESTE DOCUMENTO**.
 >
@@ -4548,3 +4549,9 @@ let players = sqlx::query_as::<_, Player>(
 
 ---
 
+
+<!-- DOCUMENTATION_SYNC:START -->
+> **Estado operacional sincronizado (2026-07-28):** S07 — revisão de segurança, arquitetura e validação WSL/gateway HTTPS concluídas localmente. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais de plataforma; a CI executa somente o perfil determinístico e rápido. PIX está adiado e permanece em modo simulado/local. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
+>
+> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
+<!-- DOCUMENTATION_SYNC:END -->

@@ -14,6 +14,10 @@ path = "src/main.rs"
 name = "poker_engine_benchmarks"
 path = "benches/poker_engine_benchmarks.rs"
 
+[[bin]]
+name = "documentation-sync"
+path = "src/bin/documentation_sync.rs"
+
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

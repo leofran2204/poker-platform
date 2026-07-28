@@ -48,3 +48,9 @@ Este contrato de Termos de Uso ("Contrato") rege o uso da plataforma de poker on
 
 ## 7. ALTERAÇÕES DOS TERMOS
 7.1. A Plataforma reserva-se o direito de alterar este Contrato a qualquer momento, mediante publicação da versão atualizada com notificação prévia aos Jogadores.
+
+<!-- DOCUMENTATION_SYNC:START -->
+> **Estado operacional sincronizado (2026-07-28):** S07 — revisão de segurança, arquitetura e validação WSL/gateway HTTPS concluídas localmente. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais de plataforma; a CI executa somente o perfil determinístico e rápido. PIX está adiado e permanece em modo simulado/local. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
+>
+> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
+<!-- DOCUMENTATION_SYNC:END -->

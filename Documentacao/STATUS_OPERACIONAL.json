@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-07-28",
+  "cycle": "S07 — revisão de segurança, arquitetura e validação WSL/gateway HTTPS concluídas localmente.",
+  "production": "Sem certificação de produção.",
+  "validation": "A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais de plataforma; a CI executa somente o perfil determinístico e rápido.",
+  "pix": "PIX está adiado e permanece em modo simulado/local.",
+  "table_ownership": "Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído."
+}
