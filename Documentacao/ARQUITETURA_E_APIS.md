@@ -15,19 +15,19 @@ Este documento consolida a arquitetura técnica, esquemas de comunicação, cont
 graph TD
     Client["Client Web (Dioxus / WASM)"]
     WS["Servidor WebSocket (Tokio / Axum)"]
-    Limiter["Rate Limiter Token Bucket"]
+    Limiter["Rate limit Redis atômico"]
     Actor["TableActor Stateful (Kubernetes Pod)"]
     Engine["Motor Core (GameLoop & SidePots)"]
-    Ledger["Ledger Financeiro Imutável (SHA-256)"]
+    Ledger["Carteira PostgreSQL + outbox"]
     Antifraud["Detector de Conluio & IP Guard"]
     History["Serviço de Histórico & Provably Fair"]
 
-    Client <-->|WebSocket JSON Packets| WS
-    WS -->|Check IP Rate Limit| Limiter
+    Client <-->|WSS JSON ou binário limitado| WS
+    WS -->|Limite compartilhado por IP| Limiter
     WS -->|mpsc Async Message| Actor
     Actor -->|Executa Ação da Mão| Engine
     Engine -->|Valida IP / Subnet / VPIP| Antifraud
-    Engine -->|Transação Atômica em Centavos| Ledger
+    WS -->|Intenções financeiras em centavos| Ledger
     Engine -->|Gravação da Rodada| History
     Actor -->|broadcast State Update| WS
 ```
@@ -40,48 +40,45 @@ graph TD
 
 ```json
 {
-  "player_id": "Player_Alice",
-  "action": {
-    "PostBet": {
-      "amount": 15000
-    }
-  }
+  "action": "raise",
+  "amount": 15000
 }
 ```
 
 Ações suportadas:
 - `JoinTable { "table_id": "Table_1", "ip_address": "203.0.113.88" }`
-- `PostBet { "amount": 150.0 }`
-- `Fold`
-- `Check`
-- `Call`
-- `LeaveTable`
+- `raise`, `bet` e `call` usam `amount` em centavos inteiros (`15000` = R$ 150,00).
+- `fold`, `check` e `call` não aceitam valor fracionário.
+- O servidor aceita também um envelope binário com tamanho máximo de 64 KiB; cargas inválidas, truncadas ou com bytes excedentes são rejeitadas.
 
 ### 📢 Pacote de Saída Broadcast (`WsOutgoingPacket`)
 
 ```json
 {
-  "event_type": "TABLE_STATE_UPDATE",
+  "event_type": "table_state",
   "table_id": "Table_1",
-  "payload": "Jogador Player_Alice apostou R$ 150.00"
+  "payload": { "players": [] }
 }
 ```
 
+- O estado transmitido é filtrado para cada destinatário: cartas privadas de oponentes e campos sensíveis (`server_seed`, segredos MFA, hashes e tokens) não saem pelo WebSocket.
+- `Ping`/`Pong` é tratado tanto pelo protocolo WebSocket quanto pelo envelope binário; o ping JSON recebe `pong` de aplicação.
+- Atores medem 30 segundos por turno e aplicam `fold` automático apenas a um turno realmente ativo. A rotação do dealer é ancorada no assento físico anterior, inclusive após uma saída.
+
 ---
 
-## 🔒 3. Ledger Financeiro Imutável & Auditoria Criptográfica
+## 🔒 3. Carteira, intenções PIX e auditoria
 
-O módulo financeiro utiliza o modelo de partidas dobradas com encadeamento de ponteiros de hash SHA-256 (*Append-Only*):
-
-$$\text{Hash}_k = \text{SHA256}(\text{ID}_k \parallel \text{UserID}_k \parallel \text{AmountCents}_k \parallel \text{BalanceAfterCents}_k \parallel \text{Hash}_{k-1})$$
+O módulo financeiro usa `wallet_transactions`, `audit_logs` e `outbox_events` no PostgreSQL. Ele ainda não é um livro de partidas dobradas nem uma cadeia de hashes: essas propriedades não são alegadas até existirem no esquema e em uma auditoria independente.
 
 ### Invariantes Financeiras & Arquitetura Monetária:
 1. **Arquitetura Estrita `u64` Centavos Inteiros:**
    - **Interface Pública, Axum & Dioxus UI:** A comunicação WebSocket, payloads JSON Serde, banco de dados PostgreSQL e estruturas de mesa trafegam e armazenam valores numéricos estritamente em **centavos inteiros (`u64`)** (`R$ 150,00` = `15000` centavos). Erros de arredondamento IEEE-754 flutuantes são totalmente eliminados na raiz.
    - **Cálculos de Pote & Ledger Imutável:** Todas as divisões de potes empatados (*split pots* via `dividir_pote_empatado()`), deduções de rake e registros de auditoria utilizam matemática inteira exata em centavos.
 2. **Eliminação de Artefatos IEEE 754:** Operações numéricas utilizam matemática inteira de centavos e aplicam o resto (`total_centavos % N`) conforme a **Regra do Centavo Ímpar (WSOP / TDA Regra 68)**.
-3. **Garantia Atômica:** Saldo do jogador nunca pode se tornar negativo.
-4. **Cadeia Inviolável:** A integridade de qualquer conta é auditada via hash SHA-256 encadeado em latência $< 2 \, \mu s$.
+3. **Garantia Atômica:** O `UPDATE ... WHERE balance >= amount` reserva um saque sem permitir saldo negativo; a linha da carteira e o evento de outbox entram na mesma transação.
+4. **Depósito idempotente:** antes de criar a cobrança, a API grava uma linha `PENDING` com chave de idempotência. O webhook HMAC-SHA256 bloqueia essa linha (`FOR UPDATE`), confere valor e identificador externo persistidos e credita o saldo junto com a transição para `COMPLETED` em uma única transação.
+5. **Chaves PIX:** a chave bruta não é persistida; somente sua impressão SHA-256 é registrada. O saque fica `PENDING` no outbox e não chama um provedor de payout durante a requisição HTTPS.
 
 ### Operação de mesas cash
 
@@ -94,6 +91,12 @@ $$\text{Hash}_k = \text{SHA256}(\text{ID}_k \parallel \text{UserID}_k \parallel 
 - Administradores criam mesas com `POST /api/admin/tables` e alteram o estado com `PATCH /api/admin/tables/:id/status`. Uma mesa só fecha sem assentos ativos; `PAUSED` bloqueia novas entradas, e `OPEN` permite novas conexões.
 - O rake é armazenado em pontos-base (`500 = 5,00%`) e calculado/rateado com aritmética inteira; não há conversão financeira por ponto flutuante.
 - O histórico recebe número sequencial atômico por mesa, blinds reais da configuração e participantes na mesma transação; a assinatura usa o segredo já validado pela aplicação, sem chave de fallback.
+
+### Autorização revogável e distribuída
+
+- O JWT contém `token_version`. A migration `009_auth_token_version.sql` incrementa essa versão quando status, papel, MFA ou hash de senha mudam.
+- Todo endpoint protegido consulta o registro persistido para status, papel e versão antes de autorizar. Assim suspensão, banimento, rebaixamento ou mudança de MFA revogam tokens já emitidos em todas as réplicas.
+- O limite por IP usa script atômico no Redis em produção; o limitador em memória é um fallback exclusivo de desenvolvimento quando Redis não foi configurado.
 
 
 ---
@@ -117,16 +120,14 @@ $$\text{Hash}_k = \text{SHA256}(\text{ID}_k \parallel \text{UserID}_k \parallel 
 
 ---
 
-## 📊 6. Métricas Globais de Desempenho Medidas em Release
+## 📊 6. Readiness e métricas observáveis
 
-- **Avaliação de Mão 7-Cards:** $11,91 \, \mu s$ ($83.922$ avaliações/s)
-- **Cálculo de Side Pots:** $0,88 \, \mu s$ ($1.125.283$ cálculos/s)
-- **Transação Criptográfica no Ledger:** $1,65 \, \mu s$ ($604.525$ txs/s)
-- **Embaralhamento Provably Fair ChaCha8:** $0,56 \, \mu s$ ($1.762.207$ shuffles/s)
-- **Throughput do WebSocket Server:** **376.891 pacotes/segundo**
+- `/health` só responde `OK` após verificar PostgreSQL e, quando configurado, Redis.
+- `/api/metrics` exige papel administrativo e publica somente valores que o processo mede: uptime, WebSockets ativos e atores de mesa ativos.
+- Não há benchmark de release certificado neste repositório. Throughput, latência e capacidade devem ser obtidos exclusivamente em uma execução autorizada da validação completa, com o TSV de evidência gerado pelos scripts.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-28):** S07 — revisão de segurança, arquitetura e validação WSL/gateway HTTPS concluídas localmente. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais de plataforma; a CI executa somente o perfil determinístico e rápido. PIX está adiado e permanece em modo simulado/local. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
+> **Estado operacional sincronizado (2026-07-28):** S08 — ledger transacional PIX local, revogação persistente de tokens, turnos e WebSocket reforçados e validados no WSL. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais, inclusive contratos financeiros PostgreSQL e limite compartilhado Redis; a CI executa somente o perfil determinístico e rápido. PIX real continua adiado: o depósito cria intenção auditável e o saque reserva saldo em outbox, sem payout externo na requisição HTTPS. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

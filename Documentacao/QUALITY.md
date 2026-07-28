@@ -35,7 +35,7 @@
 | #   | Seção                                            | Descrição                                                                          |
 |-----|--------------------------------------------------|------------------------------------------------------------------------------------|
 | 1   | Protocolo de Aprendizagem                        | Didática Mark↔Leofran, SDD, regras de símbolos                                     |
-| 2   | Estado Atual do Projeto                          | 1.813 testes determinísticos do motor; perfil manual com 79 cenários extras, 20 mil entradas API HTTPS, 1.000.800 mensagens WSS e 2 milhões de entradas frontend |
+| 2   | Estado Atual do Projeto                          | 1.814 testes determinísticos do motor; perfil manual com 79 cenários extras, 20 mil entradas API HTTPS, 1.000.800 mensagens WSS e 2 milhões de entradas frontend |
 | 3   | Pirâmide de Testes — Estratégia Completa         | Unit, integration, property, E2E, load, stress, fuzz, mutation, chaos              |
 | 4   | Hacker Ético — Segurança Específica para Poker    | OWASP WSTG, pentests, ataques específicos de poker                                 |
 | 5   | Arquitetura de Software                          | Martin Fowler, microservices, padrões distribuídos                                 |
@@ -4551,7 +4551,7 @@ let players = sqlx::query_as::<_, Player>(
 
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-28):** S07 — revisão de segurança, arquitetura e validação WSL/gateway HTTPS concluídas localmente. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais de plataforma; a CI executa somente o perfil determinístico e rápido. PIX está adiado e permanece em modo simulado/local. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
+> **Estado operacional sincronizado (2026-07-28):** S08 — ledger transacional PIX local, revogação persistente de tokens, turnos e WebSocket reforçados e validados no WSL. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais, inclusive contratos financeiros PostgreSQL e limite compartilhado Redis; a CI executa somente o perfil determinístico e rápido. PIX real continua adiado: o depósito cria intenção auditável e o saque reserva saldo em outbox, sem payout externo na requisição HTTPS. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

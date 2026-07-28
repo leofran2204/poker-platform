@@ -10,6 +10,8 @@ use poker_engine::game_loop::{GameLoop, PlayerMove};
 use poker_engine::hand_history::GameType;
 use poker_engine::types::TableConfig;
 
+const DEFAULT_TURN_TIMEOUT: tokio::time::Duration = tokio::time::Duration::from_secs(30);
+
 /// Ações que podem ser solicitadas pelos jogadores.
 #[derive(Debug)]
 pub enum PlayerCommand {
@@ -58,16 +60,20 @@ pub struct TableActor {
     pub rx: mpsc::Receiver<PlayerCommand>,
     pub tx_broadcast: broadcast::Sender<serde_json::Value>,
     pub next_hand_at: Option<tokio::time::Instant>,
+    /// Index in the current GameLoop player list, used only by that hand.
     pub dealer_index: usize,
+    /// Physical seat of the most recent dealer. Unlike `dealer_index`, this
+    /// survives players leaving and joining between hands.
+    pub dealer_seat: Option<usize>,
     pub antifraud: poker_engine::antifraud::AntiFraudSuite,
     pub last_turn_start: Option<tokio::time::Instant>,
+    pub turn_timeout: tokio::time::Duration,
     pub db: Option<sqlx::PgPool>,
     pub redis: Option<redis::aio::ConnectionManager>,
     pub audit_secret: Option<String>,
 }
 
-async fn persist_hand_history(
-    db: sqlx::PgPool,
+struct HandHistoryRecord {
     hand_id: uuid::Uuid,
     table_id: uuid::Uuid,
     participants: Vec<uuid::Uuid>,
@@ -78,7 +84,9 @@ async fn persist_hand_history(
     reason: String,
     small_blind: i64,
     big_blind: i64,
-) {
+}
+
+async fn persist_hand_history(db: sqlx::PgPool, record: HandHistoryRecord) {
     let mut tx = match db.begin().await {
         Ok(tx) => tx,
         Err(error) => {
@@ -89,7 +97,7 @@ async fn persist_hand_history(
     let hand_number: i64 = match sqlx::query_scalar(
         "UPDATE tables SET hand_sequence = hand_sequence + 1 WHERE id = $1 RETURNING hand_sequence",
     )
-    .bind(table_id)
+    .bind(record.table_id)
     .fetch_one(&mut *tx)
     .await
     {
@@ -104,16 +112,16 @@ async fn persist_hand_history(
          VALUES ($1, $2, $3, 'cash', $4, $5, $6, $7, $8, $9, $10) \
          ON CONFLICT (id) DO NOTHING",
     )
-    .bind(hand_id)
-    .bind(table_id)
+    .bind(record.hand_id)
+    .bind(record.table_id)
     .bind(hand_number)
-    .bind(small_blind)
-    .bind(big_blind)
-    .bind(actions)
-    .bind(community_cards)
-    .bind(pot)
-    .bind(rake)
-    .bind(reason)
+    .bind(record.small_blind)
+    .bind(record.big_blind)
+    .bind(record.actions)
+    .bind(record.community_cards)
+    .bind(record.pot)
+    .bind(record.rake)
+    .bind(record.reason)
     .execute(&mut *tx)
     .await
     {
@@ -121,11 +129,11 @@ async fn persist_hand_history(
         return;
     }
 
-    for user_id in participants {
+    for user_id in record.participants {
         if let Err(error) = sqlx::query(
             "INSERT INTO hand_participants (hand_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
         )
-        .bind(hand_id)
+        .bind(record.hand_id)
         .bind(user_id)
         .execute(&mut *tx)
         .await
@@ -156,8 +164,10 @@ impl TableActor {
             tx_broadcast,
             next_hand_at: None,
             dealer_index: 0,
+            dealer_seat: None,
             antifraud: poker_engine::antifraud::AntiFraudSuite::new(),
             last_turn_start: Some(tokio::time::Instant::now()),
+            turn_timeout: DEFAULT_TURN_TIMEOUT,
             db: None,
             redis: None,
             audit_secret: None,
@@ -171,6 +181,12 @@ impl TableActor {
 
     pub fn with_config(mut self, config: TableConfig) -> Self {
         self.config = config;
+        self
+    }
+
+    #[cfg(test)]
+    pub fn with_turn_timeout(mut self, turn_timeout: tokio::time::Duration) -> Self {
+        self.turn_timeout = turn_timeout;
         self
     }
 
@@ -247,6 +263,30 @@ impl TableActor {
     }
 
     async fn tick(&mut self) {
+        let timed_out_player = self.game_loop.as_ref().and_then(|game_loop| {
+            (!game_loop.state.is_finished)
+                .then_some(())
+                .and(self.last_turn_start)
+                .filter(|started_at| started_at.elapsed() >= self.turn_timeout)
+                .and_then(|_| {
+                    game_loop
+                        .state
+                        .active_player()
+                        .map(|player| player.id.clone())
+                })
+        });
+        if let Some(player_id) = timed_out_player {
+            tracing::warn!(
+                table_id = %self.table_id,
+                player_id = %player_id,
+                timeout_seconds = self.turn_timeout.as_secs(),
+                "Player action timed out; applying automatic fold"
+            );
+            self.handle_action(player_id, "fold".to_string(), 0).await;
+            self.save_snapshot().await;
+            return;
+        }
+
         if let Some(next_at) = self.next_hand_at {
             if tokio::time::Instant::now() >= next_at {
                 self.next_hand_at = None;
@@ -312,6 +352,7 @@ impl TableActor {
         info!("Player {} left table {}", player_id, self.table_id);
 
         // Se o jogador sair e a mão estiver em andamento, devemos dar fold nele
+        let mut reset_turn_timer = false;
         if let Some(ref mut gl) = self.game_loop {
             if !gl.state.is_finished {
                 let active_idx = gl.state.active_player_index;
@@ -319,7 +360,8 @@ impl TableActor {
                     == Some(player_id.as_str());
 
                 if is_active_turn {
-                    let _ = gl.player_action(&player_id, PlayerMove::Fold);
+                    reset_turn_timer = gl.player_action(&player_id, PlayerMove::Fold).is_ok()
+                        && !gl.state.is_finished;
                 } else if let Some(p) = gl.state.players.iter_mut().find(|p| p.id == player_id) {
                     p.has_folded = true;
                     if gl.state.players_in_hand_count() <= 1 {
@@ -327,6 +369,9 @@ impl TableActor {
                     }
                 }
             }
+        }
+        if reset_turn_timer {
+            self.last_turn_start = Some(tokio::time::Instant::now());
         }
 
         self.broadcast_state();
@@ -362,8 +407,6 @@ impl TableActor {
             .last_turn_start
             .map(|t| t.elapsed().as_millis() as u64)
             .unwrap_or(500);
-        self.last_turn_start = Some(tokio::time::Instant::now());
-
         let risk_score = self.antifraud.process_action(&player_id, elapsed_ms);
         if risk_score.recommendation == poker_engine::antifraud::RiskRecommendation::BlockSession {
             error!(
@@ -408,6 +451,9 @@ impl TableActor {
             return;
         }
 
+        self.last_turn_start =
+            (!game_loop.state.is_finished).then_some(tokio::time::Instant::now());
+
         if game_loop.state.is_finished {
             // Resolver a mão
             if let Ok(res) = game_loop.resolve_hand() {
@@ -450,16 +496,18 @@ impl TableActor {
                     {
                         persist_hand_history(
                             db,
-                            hand_id,
-                            table_id,
-                            participants,
-                            history_json["actions"].clone(),
-                            history_json["community_cards"].clone(),
-                            pot,
-                            rake,
-                            format!("{:?}", &history.end_reason),
-                            small_blind,
-                            big_blind,
+                            HandHistoryRecord {
+                                hand_id,
+                                table_id,
+                                participants,
+                                actions: history_json["actions"].clone(),
+                                community_cards: history_json["community_cards"].clone(),
+                                pot,
+                                rake,
+                                reason: format!("{:?}", history.end_reason),
+                                small_blind,
+                                big_blind,
+                            },
                         )
                         .await;
                     } else {
@@ -576,8 +624,17 @@ impl TableActor {
             gl.add_player(p.id.clone(), p.chips);
         }
 
-        // Escolhe o dealer
-        self.dealer_index = (self.dealer_index + 1) % active_players.len();
+        // Pick the first occupied seat to the left of the previous physical
+        // dealer. Keeping a physical seat avoids repeating or skipping a
+        // dealer when the active player list shrinks between hands.
+        self.dealer_index = match self.dealer_seat {
+            Some(previous_seat) => active_players
+                .iter()
+                .position(|player| player.seat > previous_seat)
+                .unwrap_or(0),
+            None => 0,
+        };
+        self.dealer_seat = Some(active_players[self.dealer_index].seat);
         gl.set_dealer(self.dealer_index);
 
         if let Err(e) = gl.start_hand() {
@@ -586,6 +643,7 @@ impl TableActor {
         }
 
         self.game_loop = Some(gl);
+        self.last_turn_start = Some(tokio::time::Instant::now());
         info!("Started new hand at table {}", self.table_id);
         self.broadcast_state();
     }
@@ -765,6 +823,16 @@ mod tests {
     use super::{TableActor, TablePlayer};
     use tokio::sync::{broadcast, mpsc};
 
+    fn player(id: &str, seat: usize) -> TablePlayer {
+        TablePlayer {
+            id: id.to_string(),
+            name: id.to_string(),
+            chips: 10_000,
+            seat,
+            is_sitting: true,
+        }
+    }
+
     #[test]
     fn cash_out_returns_persistable_stack_between_hands() {
         let (_tx_cmd, rx_cmd) = mpsc::channel(1);
@@ -776,14 +844,79 @@ mod tests {
             tx_broadcast,
         );
         actor.players.push(TablePlayer {
-            id: "player".to_string(),
-            name: "Player".to_string(),
             chips: 12_345,
-            seat: 0,
-            is_sitting: true,
+            ..player("player", 0)
         });
 
         assert_eq!(actor.handle_cash_out("player"), Ok(Some(12_345)));
         assert!(actor.players.is_empty());
+    }
+
+    #[test]
+    fn dealer_rotation_follows_physical_seats_after_a_player_leaves() {
+        let (_tx_cmd, rx_cmd) = mpsc::channel(1);
+        let (tx_broadcast, _) = broadcast::channel(1);
+        let mut actor = TableActor::new(
+            "table".to_string(),
+            "Test".to_string(),
+            rx_cmd,
+            tx_broadcast,
+        );
+        actor.players = vec![player("a", 0), player("b", 3), player("c", 7)];
+
+        actor.start_new_hand();
+        assert_eq!(actor.dealer_seat, Some(0));
+        actor.game_loop = None;
+
+        actor.start_new_hand();
+        assert_eq!(actor.dealer_seat, Some(3));
+        actor.game_loop = None;
+
+        actor.players.retain(|table_player| table_player.seat != 3);
+        actor.start_new_hand();
+        assert_eq!(actor.dealer_seat, Some(7));
+    }
+
+    #[tokio::test]
+    async fn overdue_turn_is_folded_by_the_actor() {
+        let (_tx_cmd, rx_cmd) = mpsc::channel(1);
+        let (tx_broadcast, _) = broadcast::channel(1);
+        let mut actor = TableActor::new(
+            "table".to_string(),
+            "Test".to_string(),
+            rx_cmd,
+            tx_broadcast,
+        )
+        .with_turn_timeout(tokio::time::Duration::from_millis(1));
+        actor.players = vec![player("a", 0), player("b", 1), player("c", 2)];
+        actor.start_new_hand();
+        let active_before = actor
+            .game_loop
+            .as_ref()
+            .expect("hand should start")
+            .state
+            .active_player()
+            .expect("hand should have an active player")
+            .id
+            .clone();
+        actor.last_turn_start = Some(
+            tokio::time::Instant::now()
+                .checked_sub(tokio::time::Duration::from_secs(1))
+                .expect("instant supports one second subtraction"),
+        );
+
+        actor.tick().await;
+
+        let game_loop = actor
+            .game_loop
+            .as_ref()
+            .expect("hand should remain available");
+        assert!(
+            game_loop.state.is_finished
+                || game_loop
+                    .state
+                    .active_player()
+                    .is_some_and(|player| player.id != active_before)
+        );
     }
 }

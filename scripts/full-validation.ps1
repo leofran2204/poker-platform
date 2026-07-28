@@ -5,7 +5,8 @@ Exemplos:
   .\scripts\full-validation.ps1 -Approved
   .\scripts\full-validation.ps1 -Phase motor -Approved
 
-PIX permanece fora desta rotina enquanto estiver adiado.
+PIX real permanece adiado. Os contratos locais do ledger (sem payout externo)
+fazem parte desta rotina autorizada para impedir regressões financeiras.
 #>
 [CmdletBinding()]
 param(
@@ -103,10 +104,16 @@ function Invoke-ApiValidation {
         }
 
         Write-Host "==> API HTTPS: contratos e segurança" -ForegroundColor Cyan
-        Invoke-Cargo test --lib --bin poker-api --test api_tests --test red_team_simulation_tests -- --nocapture
+        Invoke-Cargo test --lib --bin poker-api --test api_tests --test payments_tests --test red_team_simulation_tests -- --nocapture
 
         Write-Host "==> API HTTPS: contratos funcionais PostgreSQL" -ForegroundColor Cyan
         Invoke-Cargo test --features full-validation --test api_tests -- --ignored --nocapture
+
+        Write-Host "==> API HTTPS: contratos financeiros PostgreSQL" -ForegroundColor Cyan
+        Invoke-Cargo test --features full-validation --test payments_tests -- --ignored --nocapture
+
+        Write-Host "==> API HTTPS: contrato de limite compartilhado Redis" -ForegroundColor Cyan
+        Invoke-Cargo test --features full-validation --test rate_limit_tests -- --ignored --nocapture
 
         Write-Host "==> API HTTPS: 10 cenários de fuzz (2.000 casos por cenário)" -ForegroundColor Cyan
         $env:PROPTEST_CASES = if ($env:API_FUZZ_CASES) { $env:API_FUZZ_CASES } else { "2000" }
@@ -182,7 +189,7 @@ function Invoke-GatewayValidation {
 
 try {
     if ($Phase -in @("all", "motor")) {
-        Invoke-TimedValidation "motor" "1813 rotina + 79 carga; Monte Carlo, CSPRNG, fairness e invariantes" { Invoke-MotorValidation }
+        Invoke-TimedValidation "motor" "1814 rotina + 79 carga; Monte Carlo, CSPRNG, fairness e invariantes" { Invoke-MotorValidation }
     }
     if ($Phase -in @("all", "api")) {
         Invoke-TimedValidation "api" "10 fuzzes de API x 2000 = 20000 entradas; WebSocket = 1000800 mensagens; testes funcionais" { Invoke-ApiValidation }

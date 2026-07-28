@@ -23,6 +23,7 @@ type PersistedUserRow = (
     Option<i64>,
     i64,
     Option<i64>,
+    i64,
 );
 
 // ─── Request / Response DTOs ───
@@ -89,6 +90,7 @@ fn persisted_user_from_row(row: PersistedUserRow) -> Result<poker_engine::auth::
         locked_until,
         created_at,
         last_login,
+        token_version,
     ) = row;
 
     let role = match role.as_str() {
@@ -136,6 +138,7 @@ fn persisted_user_from_row(row: PersistedUserRow) -> Result<poker_engine::auth::
             .map(u64::try_from)
             .transpose()
             .map_err(|_| ApiError::Internal("Persisted login timestamp is invalid".to_string()))?,
+        token_version,
     })
 }
 
@@ -146,7 +149,7 @@ async fn load_persisted_user(
 ) -> Result<Option<poker_engine::auth::User>, ApiError> {
     let query = format!(
         "SELECT id::text, username, email, password_hash, role, status, balance, \
-         mfa_enabled, mfa_secret, failed_login_attempts, locked_until, created_at, last_login \
+         mfa_enabled, mfa_secret, failed_login_attempts, locked_until, created_at, last_login, token_version \
          FROM users WHERE {predicate} = $1"
     );
     let row: Option<PersistedUserRow> = sqlx::query_as(&query)

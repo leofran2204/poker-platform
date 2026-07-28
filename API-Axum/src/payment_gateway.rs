@@ -4,6 +4,10 @@
 use serde::{Deserialize, Serialize};
 use std::env;
 
+fn format_brl_cents(amount_centavos: u64) -> String {
+    format!("{}.{:02}", amount_centavos / 100, amount_centavos % 100)
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PixChargeResult {
     pub external_tx_id: String,
@@ -36,7 +40,6 @@ pub trait PixGateway: Send + Sync {
         pix_key: &str,
     ) -> Result<PixPayoutResult, String>;
 
-    fn verify_webhook_signature(&self, header_secret: Option<&str>) -> bool;
     fn verify_webhook_hmac(&self, body: &[u8], signature_header: Option<&str>) -> bool;
 }
 
@@ -63,10 +66,10 @@ impl PixGateway for MockPixGateway {
         amount_centavos: u64,
     ) -> Result<PixChargeResult, String> {
         let external_id = format!("asaas_pay_{}", tx_id);
-        let amount_f64 = amount_centavos as f64 / 100.0;
+        let amount_brl = format_brl_cents(amount_centavos);
         let pix_copy = format!(
-            "00020126580014BR.GOV.BCB.PIX0136poker-platform-{}5204000053039865405{:.2}5802BR5914POKER_PLATFORM6009SAO_PAULO62070503***6304ABCD",
-            tx_id, amount_f64
+            "00020126580014BR.GOV.BCB.PIX0136poker-platform-{}5204000053039865405{}5802BR5914POKER_PLATFORM6009SAO_PAULO62070503***6304ABCD",
+            tx_id, amount_brl
         );
         let qr_code = format!(
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...mock_qr_{}",
@@ -96,23 +99,16 @@ impl PixGateway for MockPixGateway {
             return Err("Chave PIX obrigatória".to_string());
         }
 
-        let amount_f64 = amount_centavos as f64 / 100.0;
+        let amount_brl = format_brl_cents(amount_centavos);
         let external_id = format!("asaas_out_{}", tx_id);
         Ok(PixPayoutResult {
             external_tx_id: external_id,
             status: "PROCESSING".to_string(),
             message: format!(
-                "Saque de R$ {:.2} enviado via PIX ({}: {})",
-                amount_f64, pix_key_type, pix_key
+                "Saque de R$ {} registrado para processamento PIX ({})",
+                amount_brl, pix_key_type
             ),
         })
-    }
-
-    fn verify_webhook_signature(&self, header_secret: Option<&str>) -> bool {
-        match header_secret {
-            Some(secret) => secret == self.secret,
-            None => false,
-        }
     }
 
     fn verify_webhook_hmac(&self, body: &[u8], signature_header: Option<&str>) -> bool {
@@ -152,11 +148,11 @@ impl PixGateway for AsaasPixGateway {
         amount_centavos: u64,
     ) -> Result<PixChargeResult, String> {
         let external_id = format!("asaas_dep_{}", tx_id);
-        let amount_f64 = amount_centavos as f64 / 100.0;
+        let amount_brl = format_brl_cents(amount_centavos);
 
         let pix_copy = format!(
-            "00020126580014BR.GOV.BCB.PIX0136asaas-{}5204000053039865405{:.2}5802BR5913ASAAS_PAYMENT6009SAO_PAULO62070503***6304FFFF",
-            tx_id, amount_f64
+            "00020126580014BR.GOV.BCB.PIX0136asaas-{}5204000053039865405{}5802BR5913ASAAS_PAYMENT6009SAO_PAULO62070503***6304FFFF",
+            tx_id, amount_brl
         );
         let qr_code = format!(
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA_asaas_https_qr_{}_{}",
@@ -177,29 +173,22 @@ impl PixGateway for AsaasPixGateway {
         _user_id: &str,
         amount_centavos: u64,
         pix_key_type: &str,
-        pix_key: &str,
+        _pix_key: &str,
     ) -> Result<PixPayoutResult, String> {
         if amount_centavos == 0 {
             return Err("Valor de saque inválido".to_string());
         }
 
-        let amount_f64 = amount_centavos as f64 / 100.0;
+        let amount_brl = format_brl_cents(amount_centavos);
         let external_id = format!("asaas_trf_{}", tx_id);
         Ok(PixPayoutResult {
             external_tx_id: external_id,
             status: "SCHEDULED".to_string(),
             message: format!(
-                "Transferência HTTPS Asaas PIX (TLS 1.3) de R$ {:.2} enviada para chave [{}] ({})",
-                amount_f64, pix_key, pix_key_type
+                "Transferência HTTPS Asaas PIX (TLS 1.3) de R$ {} agendada ({})",
+                amount_brl, pix_key_type
             ),
         })
-    }
-
-    fn verify_webhook_signature(&self, header_secret: Option<&str>) -> bool {
-        match header_secret {
-            Some(secret) => secret == self.webhook_secret,
-            None => false,
-        }
     }
 
     fn verify_webhook_hmac(&self, body: &[u8], signature_header: Option<&str>) -> bool {
@@ -232,11 +221,11 @@ impl PixGateway for MercadoPagoPixGateway {
         amount_centavos: u64,
     ) -> Result<PixChargeResult, String> {
         let external_id = format!("mp_pay_{}", tx_id);
-        let amount_f64 = amount_centavos as f64 / 100.0;
+        let amount_brl = format_brl_cents(amount_centavos);
 
         let pix_copy = format!(
-            "00020126580014BR.GOV.BCB.PIX0136mercadopago-{}5204000053039865405{:.2}5802BR5912MERCADOPAGO6009SAO_PAULO62070503***6304EEEE",
-            tx_id, amount_f64
+            "00020126580014BR.GOV.BCB.PIX0136mercadopago-{}5204000053039865405{}5802BR5912MERCADOPAGO6009SAO_PAULO62070503***6304EEEE",
+            tx_id, amount_brl
         );
         let qr_code = format!(
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA_mp_https_qr_{}_{}",
@@ -257,28 +246,21 @@ impl PixGateway for MercadoPagoPixGateway {
         _user_id: &str,
         amount_centavos: u64,
         pix_key_type: &str,
-        pix_key: &str,
+        _pix_key: &str,
     ) -> Result<PixPayoutResult, String> {
         if amount_centavos == 0 {
             return Err("Valor de saque inválido".to_string());
         }
-        let amount_f64 = amount_centavos as f64 / 100.0;
+        let amount_brl = format_brl_cents(amount_centavos);
         let external_id = format!("mp_payout_{}", tx_id);
         Ok(PixPayoutResult {
             external_tx_id: external_id,
             status: "APPROVED".to_string(),
             message: format!(
-                "Saque HTTPS Mercado Pago PIX (TLS 1.3) de R$ {:.2} enviado ({}: {})",
-                amount_f64, pix_key_type, pix_key
+                "Saque HTTPS Mercado Pago PIX (TLS 1.3) agendado (R$ {}, {})",
+                amount_brl, pix_key_type
             ),
         })
-    }
-
-    fn verify_webhook_signature(&self, header_secret: Option<&str>) -> bool {
-        match header_secret {
-            Some(secret) => secret == self.webhook_secret,
-            None => false,
-        }
     }
 
     fn verify_webhook_hmac(&self, body: &[u8], signature_header: Option<&str>) -> bool {
@@ -293,10 +275,6 @@ fn verify_hmac_helper(body: &[u8], signature_header: Option<&str>, secret: &str)
         Some(s) => s,
         None => return false,
     };
-
-    if sig_str == secret {
-        return true;
-    }
 
     use hmac::{Hmac, Mac};
     use sha2::Sha256;

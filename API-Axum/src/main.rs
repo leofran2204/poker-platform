@@ -12,7 +12,6 @@ use axum::http::{header, HeaderValue, Method, Uri};
 use sqlx::postgres::PgPoolOptions;
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
-use tracing_subscriber::EnvFilter;
 
 use poker_api::build_router;
 use poker_api::state::AppState;
@@ -69,10 +68,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load .env
     dotenvy::dotenv().ok();
 
-    // Initialize tracing
-    tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()))
-        .init();
+    poker_api::telemetry::init_telemetry();
 
     // Read & Validate config (Boot Guardian)
     let database_url =

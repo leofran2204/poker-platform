@@ -41,7 +41,10 @@ Para a fase `gateway` da versão Bash, habilite também a integração do Docker
 Desktop com a distribuição WSL; no Windows, a versão PowerShell usa o Docker
 Desktop diretamente.
 
-PIX e seus testes de pagamento permanecem fora da rotina até nova autorização de escopo.
+PIX real e qualquer payout externo permanecem fora do escopo. Os contratos locais
+do ledger financeiro fazem parte da fase API autorizada: eles verificam webhook
+idempotente e duas reservas de saque concorrentes contra PostgreSQL, sem chamar
+provedores externos e sem persistir a chave PIX bruta.
 
 O perfil `all` também reconstrói a API e o Caddy e executa a fase `gateway`; os
 quatro lotes ficam, portanto, vinculados à mesma autorização humana. Para rodar
@@ -97,8 +100,8 @@ No frontend, o alvo de biblioteca é canônico: os fuzzes e stresses são execut
 
 | Fase | Comando | Objetivo |
 |---|---|---|
-| Motor | `-Phase motor` / `motor` | 1.813 testes de rotina e 79 cenários de carga |
-| API | `-Phase api` / `api` | HTTPS, WSS e segurança; requer PostgreSQL local ou `DATABASE_URL` apontando para o ambiente autorizado |
+| Motor | `-Phase motor` / `motor` | 1.814 testes de rotina e 79 cenários de carga |
+| API | `-Phase api` / `api` | HTTPS, WSS, segurança e contratos do ledger; requer PostgreSQL local ou `DATABASE_URL` apontando para o ambiente autorizado |
 | Frontend | `-Phase frontend` / `frontend` | Testes funcionais, 10 fuzzes e dois stresses de estado |
 | Gateway | `-Phase gateway` / `gateway` | Reconstrói API/Caddy e valida HTTPS, HSTS, redirecionamento e handshake WSS |
 
@@ -110,11 +113,12 @@ Não use apenas a quantidade de funções de teste como critério. A evidência 
 carga de cada execução deve registrar pelo menos: duração, orçamento de
 iterações/mensagens e status. Os orçamentos atuais são 79 cenários massivos do
 motor, 20.000 entradas property-based da API HTTPS, 1.000.800 mensagens WSS e
-2.000.000 entradas de fuzz no frontend. Esse registro permite comparar uma
+2.000.000 entradas de fuzz no frontend. Dois contratos financeiros PostgreSQL
+e um contrato Redis complementam esse lote com idempotência, concorrência e limite compartilhado reais. Esse registro permite comparar uma
 execução à outra sem reduzir a massividade a uma contagem nominal de testes.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-28):** S07 — revisão de segurança, arquitetura e validação WSL/gateway HTTPS concluídas localmente. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais de plataforma; a CI executa somente o perfil determinístico e rápido. PIX está adiado e permanece em modo simulado/local. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
+> **Estado operacional sincronizado (2026-07-28):** S08 — ledger transacional PIX local, revogação persistente de tokens, turnos e WebSocket reforçados e validados no WSL. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais, inclusive contratos financeiros PostgreSQL e limite compartilhado Redis; a CI executa somente o perfil determinístico e rápido. PIX real continua adiado: o depósito cria intenção auditável e o saque reserva saldo em outbox, sem payout externo na requisição HTTPS. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

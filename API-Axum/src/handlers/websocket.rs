@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::{mpsc, oneshot};
 use tracing::{debug, error, info, warn};
 
+use crate::binary_codec::{BinaryOpcode, BinaryPacket};
 use crate::error::ApiError;
 use crate::game_actor::{PlayerCommand, TableActor};
 use crate::middleware::auth::RequireAuth;
@@ -39,6 +40,21 @@ fn unix_timestamp() -> i64 {
 
 fn redis_ticket_key(ticket: &str, table_id: &str) -> String {
     format!("{WS_TICKET_REDIS_PREFIX}:{table_id}:{ticket}")
+}
+
+async fn forward_player_action(
+    tx_cmd: &mpsc::Sender<PlayerCommand>,
+    player_id: &str,
+    action: String,
+    amount: u64,
+) {
+    let _ = tx_cmd
+        .send(PlayerCommand::Action {
+            player_id: player_id.to_string(),
+            action,
+            amount,
+        })
+        .await;
 }
 
 async fn store_ws_ticket(
@@ -306,6 +322,7 @@ async fn handle_game_socket(
         "User '{}' ({}) connecting to table {}",
         username, user_id, table_id
     );
+    let _connection_guard = crate::track_websocket_connection();
 
     // 2. Get or spawn the TableActor
     let handle = {
@@ -362,14 +379,51 @@ async fn handle_game_socket(
         }
     };
 
-    // 4. Send Welcome message
+    // 4. Send all outbound frames through one task. This lets heartbeat,
+    // command replies, and broadcasts share the socket without bypassing the
+    // redaction boundary below.
+    let (tx_outbound, mut rx_outbound) = mpsc::channel::<Message>(64);
+    let mut rx_broadcast = handle.tx_broadcast.subscribe();
+    let user_id_for_broadcast = user_id.clone();
+    let ws_sender_task = tokio::spawn(async move {
+        loop {
+            tokio::select! {
+                broadcast_message = rx_broadcast.recv() => {
+                    match broadcast_message {
+                        Ok(message) => {
+                            let safe_message = filter_table_state(message, &user_id_for_broadcast);
+                            if ws_sender.send(Message::Text(safe_message.to_string())).await.is_err() {
+                                break;
+                            }
+                        }
+                        Err(tokio::sync::broadcast::error::RecvError::Lagged(skipped)) => {
+                            warn!(skipped, "WebSocket broadcast receiver lagged; waiting for the next authoritative state");
+                        }
+                        Err(tokio::sync::broadcast::error::RecvError::Closed) => break,
+                    }
+                }
+                outbound_message = rx_outbound.recv() => {
+                    match outbound_message {
+                        Some(message) => {
+                            if ws_sender.send(message).await.is_err() {
+                                break;
+                            }
+                        }
+                        None => break,
+                    }
+                }
+            }
+        }
+    });
+
+    // 5. Send Welcome message
     let welcome = serde_json::json!({
         "type": "welcome",
-        "player_id": user_id,
+        "player_id": &user_id,
         "seat": seat
     });
 
-    if ws_sender
+    if tx_outbound
         .send(Message::Text(welcome.to_string()))
         .await
         .is_err()
@@ -378,26 +432,9 @@ async fn handle_game_socket(
         return;
     }
 
-    // 5. Spawn broadcast listener to stream table states to the client (filtering cards)
-    let mut rx_broadcast = handle.tx_broadcast.subscribe();
-    let user_id_clone = user_id.clone();
+    // 6. Main receive loop to process messages from WebSocket and forward to actor.
+    // The outbound channel above is the only writer to the socket.
     let username_clone = username.clone();
-
-    let ws_sender_task = tokio::spawn(async move {
-        while let Ok(msg) = rx_broadcast.recv().await {
-            // Filter cards for other players to prevent cheating
-            let filtered_msg = filter_table_state(msg, &user_id_clone);
-            if ws_sender
-                .send(Message::Text(filtered_msg.to_string()))
-                .await
-                .is_err()
-            {
-                break;
-            }
-        }
-    });
-
-    // 6. Main receive loop to process messages from WebSocket and forward to actor
     let tx_cmd = handle.tx_cmd.clone();
     let user_id_for_recv = user_id.clone();
 
@@ -410,20 +447,24 @@ async fn handle_game_socket(
                         let msg_type = parsed.get("type").and_then(|t| t.as_str()).unwrap_or("");
                         match msg_type {
                             "ping" => {
-                                // Keepalive ping: no-op (heartbeat mantido pelo frame do protocolo)
+                                let _ = tx_outbound
+                                    .send(Message::Text(
+                                        serde_json::json!({"type": "pong"}).to_string(),
+                                    ))
+                                    .await;
                             }
                             "action" => {
                                 let action =
                                     parsed.get("action").and_then(|a| a.as_str()).unwrap_or("");
                                 let amount =
                                     parsed.get("amount").and_then(|a| a.as_u64()).unwrap_or(0);
-                                let _ = tx_cmd
-                                    .send(PlayerCommand::Action {
-                                        player_id: user_id_for_recv.clone(),
-                                        action: action.to_string(),
-                                        amount,
-                                    })
-                                    .await;
+                                forward_player_action(
+                                    &tx_cmd,
+                                    &user_id_for_recv,
+                                    action.to_string(),
+                                    amount,
+                                )
+                                .await;
                             }
                             "get_table_info" => {
                                 let (tx_info, mut rx_info) = mpsc::channel(1);
@@ -434,11 +475,12 @@ async fn handle_game_socket(
                                     .await
                                     .is_ok()
                                 {
-                                    if let Some(_info_payload) = rx_info.recv().await {
-                                        // Wait, we need to send info_payload to sender loop. But we can't easily write to ws_sender directly
-                                        // because it is moved to the broadcast task.
-                                        // However, TableActor will automatically broadcast states, and we can also just let the client receive it.
-                                        // Actually, since ws_sender is locked inside the spawned task, we can just send it back by letting TableActor broadcast the update.
+                                    if let Some(info_payload) = rx_info.recv().await {
+                                        let safe_info =
+                                            filter_table_state(info_payload, &user_id_for_recv);
+                                        let _ = tx_outbound
+                                            .send(Message::Text(safe_info.to_string()))
+                                            .await;
                                     }
                                 }
                             }
@@ -448,6 +490,73 @@ async fn handle_game_socket(
                 }
                 Message::Close(_) => {
                     break;
+                }
+                Message::Ping(payload) => {
+                    let _ = tx_outbound.send(Message::Pong(payload)).await;
+                }
+                Message::Binary(bytes) => {
+                    match BinaryPacket::decode(&bytes).and_then(|packet| {
+                        BinaryOpcode::try_from(packet.opcode).map(|opcode| (opcode, packet))
+                    }) {
+                        Ok((BinaryOpcode::Ping, _)) => {
+                            let pong = BinaryPacket::new(BinaryOpcode::Pong, Vec::new()).encode();
+                            let _ = tx_outbound.send(Message::Binary(pong)).await;
+                        }
+                        Ok((BinaryOpcode::PlayerAction, packet)) => {
+                            match serde_json::from_slice::<serde_json::Value>(&packet.payload) {
+                                Ok(action) => {
+                                    let name = action
+                                        .get("action")
+                                        .and_then(|value| value.as_str())
+                                        .unwrap_or("");
+                                    let amount = action
+                                        .get("amount")
+                                        .and_then(|value| value.as_u64())
+                                        .unwrap_or(0);
+                                    forward_player_action(
+                                        &tx_cmd,
+                                        &user_id_for_recv,
+                                        name.to_string(),
+                                        amount,
+                                    )
+                                    .await;
+                                }
+                                Err(_) => {
+                                    let _ = tx_outbound
+                                        .send(Message::Text(
+                                            serde_json::json!({
+                                                "type": "error",
+                                                "message": "Ação binária inválida"
+                                            })
+                                            .to_string(),
+                                        ))
+                                        .await;
+                                }
+                            }
+                        }
+                        Ok((_opcode, _)) => {
+                            let _ = tx_outbound
+                                .send(Message::Text(
+                                    serde_json::json!({
+                                        "type": "error",
+                                        "message": "Opcode binário não suportado"
+                                    })
+                                    .to_string(),
+                                ))
+                                .await;
+                        }
+                        Err(_) => {
+                            let _ = tx_outbound
+                                .send(Message::Text(
+                                    serde_json::json!({
+                                        "type": "error",
+                                        "message": "Pacote binário inválido"
+                                    })
+                                    .to_string(),
+                                ))
+                                .await;
+                        }
+                    }
                 }
                 _ => {}
             },
@@ -465,22 +574,57 @@ async fn handle_game_socket(
     info!("WebSocket disconnected for user {}", username_clone);
 }
 
-/// Anti-cheat card filter.
-/// Only allows the target player to see their own hole cards.
-/// Showdown cards must be delivered through an explicit, auditable reveal event.
+/// Redaction boundary for every server-originated WebSocket payload.
+///
+/// A recipient may see only their own hole cards. Credentials and server seeds
+/// are never valid shared-socket fields, so they are removed recursively from
+/// all event types as a defence against future JSON events.
 fn filter_table_state(mut state_json: serde_json::Value, for_player_id: &str) -> serde_json::Value {
+    redact_global_sensitive_fields(&mut state_json);
     if let Some(players) = state_json.get_mut("players").and_then(|v| v.as_array_mut()) {
         for player in players {
             let pid = player.get("id").and_then(|v| v.as_str()).unwrap_or("");
             if pid != for_player_id {
-                // A broadcast state is shared by every socket; never leak opponents cards.
-                if let Some(cards) = player.get_mut("cards").and_then(|v| v.as_array_mut()) {
-                    cards.clear();
+                // A broadcast state is shared by every socket; never leak an
+                // opponent's private cards even when a future state adds an
+                // alternative field name.
+                for private_cards_key in ["cards", "hole_cards", "private_cards"] {
+                    if let Some(cards) = player
+                        .get_mut(private_cards_key)
+                        .and_then(|value| value.as_array_mut())
+                    {
+                        cards.clear();
+                    }
                 }
             }
         }
     }
     state_json
+}
+
+fn redact_global_sensitive_fields(value: &mut serde_json::Value) {
+    match value {
+        serde_json::Value::Array(values) => {
+            for value in values {
+                redact_global_sensitive_fields(value);
+            }
+        }
+        serde_json::Value::Object(object) => {
+            for key in [
+                "server_seed",
+                "server_seed_hex",
+                "mfa_secret",
+                "password_hash",
+                "refresh_token",
+            ] {
+                object.remove(key);
+            }
+            for value in object.values_mut() {
+                redact_global_sensitive_fields(value);
+            }
+        }
+        _ => {}
+    }
 }
 
 #[cfg(test)]
@@ -503,5 +647,19 @@ mod tests {
 
         assert_eq!(players[0]["cards"], json!(["Ah", "Kd"]));
         assert_eq!(players[1]["cards"], json!([]));
+    }
+
+    #[test]
+    fn removes_sensitive_fields_from_any_outbound_event() {
+        let event = json!({
+            "type": "future_event",
+            "server_seed": "must-never-leave-the-server",
+            "nested": {"mfa_secret": "private", "refresh_token": "private"}
+        });
+
+        let filtered = filter_table_state(event, "me");
+        assert!(filtered.get("server_seed").is_none());
+        assert!(filtered["nested"].get("mfa_secret").is_none());
+        assert!(filtered["nested"].get("refresh_token").is_none());
     }
 }

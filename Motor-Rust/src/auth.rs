@@ -99,6 +99,8 @@ pub struct JwtClaims {
     pub username: String,
     /// Papel do usuário
     pub role: UserRole,
+    /// Incremented by durable account administration to revoke all tokens.
+    pub token_version: i64,
     /// Timestamp de emissão (epoch seconds)
     pub iat: u64,
     /// Timestamp de expiração (epoch seconds)
@@ -137,6 +139,9 @@ pub struct User {
     pub created_at: u64,
     /// Timestamp do último login
     pub last_login: Option<u64>,
+    /// Version embedded in issued JWTs. A durable version mismatch revokes
+    /// both access and refresh tokens across replicas.
+    pub token_version: i64,
 }
 
 /// Par de tokens retornado no login
@@ -306,6 +311,7 @@ impl AuthManager {
             locked_until: None,
             created_at: now,
             last_login: None,
+            token_version: 0,
         };
 
         self.users
@@ -397,6 +403,10 @@ impl AuthManager {
             .get(&claims.username.to_lowercase())
             .ok_or(AuthResult::TokenInvalid)?;
 
+        if claims.token_version != user.token_version {
+            return Err(AuthResult::TokenInvalid);
+        }
+
         if user.status != AccountStatus::Active
             && user.status != AccountStatus::PendingEmailVerification
         {
@@ -463,6 +473,7 @@ impl AuthManager {
 
         user.mfa_enabled = true;
         user.mfa_secret = Some(secret.clone());
+        user.token_version = user.token_version.saturating_add(1);
 
         Ok(MfaSetup {
             qr_uri: Self::generate_otpauth_uri(&user.username, &secret),
@@ -490,6 +501,7 @@ impl AuthManager {
 
         user.mfa_enabled = false;
         user.mfa_secret = None;
+        user.token_version = user.token_version.saturating_add(1);
         Ok(())
     }
 
@@ -609,6 +621,7 @@ impl AuthManager {
                 .get_mut(&username_lower)
                 .ok_or(AuthResult::InvalidCredentials)?;
             user.status = AccountStatus::Suspended;
+            user.token_version = user.token_version.saturating_add(1);
             user.id.clone()
         };
         self.invalidate_all_user_sessions(&user_id);
@@ -624,6 +637,7 @@ impl AuthManager {
                 .get_mut(&username_lower)
                 .ok_or(AuthResult::InvalidCredentials)?;
             user.status = AccountStatus::Banned;
+            user.token_version = user.token_version.saturating_add(1);
             user.id.clone()
         };
         self.invalidate_all_user_sessions(&user_id);
@@ -640,6 +654,7 @@ impl AuthManager {
         user.status = AccountStatus::Active;
         user.failed_login_attempts = 0;
         user.locked_until = None;
+        user.token_version = user.token_version.saturating_add(1);
         Ok(())
     }
 
@@ -651,6 +666,7 @@ impl AuthManager {
             .get_mut(&username_lower)
             .ok_or(AuthResult::InvalidCredentials)?;
         user.role = role;
+        user.token_version = user.token_version.saturating_add(1);
         Ok(())
     }
 
@@ -676,6 +692,7 @@ impl AuthManager {
             sub: user.id.clone(),
             username: user.username.clone(),
             role: user.role.clone(),
+            token_version: user.token_version,
             iat: now,
             exp: now + JWT_EXPIRATION_SECS,
             token_type: "access".to_string(),
@@ -690,6 +707,7 @@ impl AuthManager {
             sub: user.id.clone(),
             username: user.username.clone(),
             role: user.role.clone(),
+            token_version: user.token_version,
             iat: now,
             exp: now + REFRESH_TOKEN_EXPIRATION_SECS,
             token_type: "refresh".to_string(),
@@ -1366,6 +1384,25 @@ mod tests {
     }
 
     #[test]
+    fn token_version_revokes_refresh_tokens_after_account_administration() {
+        let mut manager = create_test_manager();
+        register_test_user(&mut manager);
+        let tokens = manager
+            .login(&LoginRequest {
+                username: "TestPlayer".into(),
+                password: "StrongPass1".into(),
+                mfa_code: None,
+            })
+            .expect("initial login must succeed");
+
+        manager.suspend_user("TestPlayer").unwrap();
+        let refresh = manager.refresh_access_token(&RefreshRequest {
+            refresh_token: tokens.refresh_token,
+        });
+        assert_eq!(refresh.err(), Some(AuthResult::TokenInvalid));
+    }
+
+    #[test]
     fn test_verify_mfa_for_user_without_mfa() {
         let mut manager = create_test_manager();
         register_test_user(&mut manager);
@@ -1619,6 +1656,7 @@ mod tests {
             sub: "uuid-1234".into(),
             username: "Player1".into(),
             role: UserRole::Player,
+            token_version: 0,
             iat: 1000,
             exp: 2000,
             token_type: "access".into(),

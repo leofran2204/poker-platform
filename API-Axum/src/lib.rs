@@ -16,14 +16,34 @@ pub mod state;
 pub mod telemetry;
 pub mod tournament_store;
 
+use axum::extract::State;
 use axum::routing::{get, patch, post};
 use axum::Router;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::OnceLock;
+use std::time::Instant;
 
 use crate::handlers::{auth, hand_history, lobby, tournament, websocket};
 use crate::middleware::auth::RequireAuth;
 use crate::middleware::rate_limit::EnforceRateLimit;
 use crate::state::AppState;
 use axum::middleware::from_extractor_with_state;
+
+static API_STARTED_AT: OnceLock<Instant> = OnceLock::new();
+static ACTIVE_WEBSOCKET_CONNECTIONS: AtomicUsize = AtomicUsize::new(0);
+
+pub struct WebSocketConnectionGuard;
+
+impl Drop for WebSocketConnectionGuard {
+    fn drop(&mut self) {
+        ACTIVE_WEBSOCKET_CONNECTIONS.fetch_sub(1, Ordering::Relaxed);
+    }
+}
+
+pub fn track_websocket_connection() -> WebSocketConnectionGuard {
+    ACTIVE_WEBSOCKET_CONNECTIONS.fetch_add(1, Ordering::Relaxed);
+    WebSocketConnectionGuard
+}
 
 /// Builds the Axum router with all routes wired.
 ///
@@ -49,6 +69,7 @@ use axum::middleware::from_extractor_with_state;
 ///   - WS   /ws/game/:table_id (JWT + funded active seat required)
 ///   - POST /api/admin/tables and PATCH /api/admin/tables/:id/status (admin role)
 pub fn build_router(state: AppState) -> Router {
+    API_STARTED_AT.get_or_init(Instant::now);
     Router::new()
         // ─── Auth routes (public + rate limited) ───
         .route(
@@ -166,26 +187,42 @@ pub fn build_router(state: AppState) -> Router {
         .with_state(state)
 }
 
-/// Simple health check endpoint
-async fn health_check() -> &'static str {
-    "OK"
+/// Readiness endpoint. A process is healthy only while its authoritative
+/// database is reachable; Redis is also checked whenever configured.
+async fn health_check(
+    State(state): State<AppState>,
+) -> Result<&'static str, crate::error::ApiError> {
+    let _: i32 = sqlx::query_scalar("SELECT 1").fetch_one(&state.db).await?;
+    if let Some(redis) = &state.redis {
+        let mut connection = redis.clone();
+        let _: String = redis::cmd("PING")
+            .query_async(&mut connection)
+            .await
+            .map_err(|error| {
+                crate::error::ApiError::Internal(format!("Redis health check failed: {error}"))
+            })?;
+    }
+    Ok("OK")
 }
 
-/// Security integrity check endpoint
+/// Public security-boundary metadata.
+///
+/// This endpoint intentionally does not claim that headers, TLS certificates,
+/// container flags, or anti-fraud rules have been verified at runtime: those
+/// controls are owned by the deployment gateway and operational checks. It
+/// only exposes facts that this process can truthfully assert.
 async fn security_health_check() -> axum::Json<serde_json::Value> {
     axum::Json(serde_json::json!({
-        "status": "SECURE",
-        "hsts_enabled": true,
-        "csp_enabled": true,
-        "container_isolation": "NON_ROOT_USER_10001",
-        "read_only_fs": true,
-        "antifraud_engine": "ACTIVE",
-        "prom_metrics": "ENABLED"
+        "status": "INFORMATIONAL",
+        "transport": "HTTPS is terminated by the deployment gateway",
+        "metrics_access": "administrator authentication required",
+        "runtime_security_attestation": "not available from the application process"
     }))
 }
 
 /// Prometheus metrics endpoint (format: text/plain; version=0.0.4)
 async fn prometheus_metrics(
+    State(state): State<AppState>,
     RequireAuth(auth_user): RequireAuth,
 ) -> Result<(axum::http::HeaderMap, String), crate::error::ApiError> {
     if auth_user.role != "admin" {
@@ -199,19 +236,21 @@ async fn prometheus_metrics(
         axum::http::HeaderValue::from_static("text/plain; version=0.0.4"),
     );
 
-    let metrics_text = "# HELP poker_uptime_seconds Total server uptime in seconds.\n\
+    let started_at = API_STARTED_AT.get_or_init(Instant::now);
+    let uptime_seconds = started_at.elapsed().as_secs();
+    let active_tables = state.active_tables.read().await.len();
+    let active_websockets = ACTIVE_WEBSOCKET_CONNECTIONS.load(Ordering::Relaxed);
+    let metrics_text = format!(
+        "# HELP poker_uptime_seconds Total server uptime in seconds.\n\
          # TYPE poker_uptime_seconds counter\n\
-         poker_uptime_seconds 3600\n\
-         # HELP poker_https_requests_total Total HTTPS requests processed.\n\
-         # TYPE poker_https_requests_total counter\n\
-         poker_https_requests_total 2036\n\
-         # HELP poker_antifraud_checks_total Total antifraud checks performed.\n\
-         # TYPE poker_antifraud_checks_total counter\n\
-         poker_antifraud_checks_total 104500\n\
+         poker_uptime_seconds {uptime_seconds}\n\
          # HELP poker_active_websocket_connections Current active WebSockets.\n\
          # TYPE poker_active_websocket_connections gauge\n\
-         poker_active_websocket_connections 0\n"
-        .to_string();
+         poker_active_websocket_connections {active_websockets}\n\
+         # HELP poker_active_table_actors Current in-process table actors.\n\
+         # TYPE poker_active_table_actors gauge\n\
+         poker_active_table_actors {active_tables}\n"
+    );
 
     Ok((headers, metrics_text))
 }

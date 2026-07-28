@@ -31,7 +31,7 @@ impl RateLimiter {
     }
 
     /// Avalia se o IP requisitante excedeu o limite
-    pub async fn check_rate_limit(&self, client_ip: &str) -> bool {
+    async fn check_in_memory_rate_limit(&self, client_ip: &str) -> bool {
         let mut map = self.requests.lock().await;
         let now = Instant::now();
         let timestamps = map.entry(client_ip.to_string()).or_insert_with(Vec::new);
@@ -45,6 +45,35 @@ impl RateLimiter {
             timestamps.push(now);
             true
         }
+    }
+
+    /// Uses Redis as the shared fixed-window counter whenever the application
+    /// has a Redis connection. The Lua script keeps increment and TTL setup
+    /// atomic across replicas; the in-memory limiter is only a development
+    /// fallback when Redis was intentionally not configured.
+    pub async fn check_rate_limit(
+        &self,
+        client_ip: &str,
+        redis_manager: Option<&redis::aio::ConnectionManager>,
+    ) -> Result<bool, String> {
+        let Some(redis_manager) = redis_manager else {
+            return Ok(self.check_in_memory_rate_limit(client_ip).await);
+        };
+
+        let key = format!("poker:rate-limit:{client_ip}");
+        let script = redis::Script::new(
+            "local count = redis.call('INCR', KEYS[1]) \
+             if count == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end \
+             return count",
+        );
+        let mut connection = redis_manager.clone();
+        let count: i64 = script
+            .key(key)
+            .arg(self.window.as_secs())
+            .invoke_async(&mut connection)
+            .await
+            .map_err(|error| format!("shared rate limiter unavailable: {error}"))?;
+        Ok(count <= self.max_requests as i64)
     }
 
     fn with_trusted_proxy_headers(mut self, trust_proxy_headers: bool) -> Self {
@@ -78,7 +107,12 @@ where
         let app_state = AppState::from_ref(state);
         let client_ip = extract_client_ip(parts, app_state.rate_limiter.trust_proxy_headers);
 
-        if !app_state.rate_limiter.check_rate_limit(&client_ip).await {
+        if !app_state
+            .rate_limiter
+            .check_rate_limit(&client_ip, app_state.redis.as_ref())
+            .await
+            .map_err(ApiError::Internal)?
+        {
             return Err(ApiError::TooManyRequests(
                 "Taxa de requisições excedida. Tente novamente mais tarde.".to_string(),
             ));

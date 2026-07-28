@@ -96,6 +96,7 @@ async fn send_request(
 // ─── Router structure tests (no DB required) ───
 
 #[tokio::test]
+#[ignore = "Readiness checks PostgreSQL — set DATABASE_URL to run"]
 async fn test_health_check_returns_200() {
     let state = make_test_state();
     let app = poker_api::build_router(state);
@@ -479,6 +480,55 @@ async fn test_contract_auth_survives_in_memory_cache_reset() {
     let (refresh_status, refresh_response) =
         send_request(app, Method::POST, "/api/auth/refresh", Some(refresh_body)).await;
     assert_eq!(refresh_status, StatusCode::OK, "{refresh_response}");
+
+    cleanup_contract_user(&state, &username).await;
+}
+
+#[tokio::test]
+#[ignore = "Requires PostgreSQL token-version migration — set DATABASE_URL to run"]
+async fn test_contract_security_change_revokes_an_already_issued_access_token() {
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let uid = uuid::Uuid::new_v4().simple().to_string();
+    let email = format!("token_version_{uid}@example.com");
+    let username = format!("tokver_{}", &uid[..12]);
+
+    let register_body = serde_json::json!({
+        "email": email,
+        "password": "StrongPass123!",
+        "username": username,
+    })
+    .to_string();
+    let (register_status, register_response) = send_request(
+        app.clone(),
+        Method::POST,
+        "/api/auth/register",
+        Some(register_body),
+    )
+    .await;
+    assert_eq!(register_status, StatusCode::OK, "{register_response}");
+    let token = serde_json::from_str::<serde_json::Value>(&register_response).unwrap()["token"]
+        .as_str()
+        .unwrap()
+        .to_string();
+
+    // Migration 009 increments token_version for a security-sensitive account
+    // change, making every access token issued under the old version unusable
+    // in every API replica.
+    sqlx::query("UPDATE users SET mfa_enabled = true WHERE username = $1")
+        .bind(&username)
+        .execute(&state.db)
+        .await
+        .unwrap();
+
+    let request = Request::builder()
+        .method(Method::GET)
+        .uri("/api/hand-history/00000000-0000-0000-0000-000000000000")
+        .header("Authorization", format!("Bearer {token}"))
+        .body(Body::empty())
+        .unwrap();
+    let response = app.oneshot(request).await.unwrap();
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
 
     cleanup_contract_user(&state, &username).await;
 }

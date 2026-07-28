@@ -1,6 +1,6 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-25
+**Atualizado:** 2026-07-28
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 >  Painel tático em `DASHBOARD.md`. 📅 Cronograma em `CRONOGRAMA.md`.
@@ -50,6 +50,18 @@
 ---
 
 ## 📜 Log Cronológico de Desenvolvimento
+
+### [22] 🔐 S08 — Ledger local, revogação de token e transporte em tempo real (2026-07-28)
+**O que foi feito:**
+- **Carteira PIX local:** migrations `008` e `009` passam valores de `wallet_transactions` para centavos inteiros, criam chaves únicas de idempotência/identificador externo e versão persistente de token. O webhook assinado por HMAC trava a intenção pendente, confere identificador e valor persistidos e atualiza saldo + status na mesma transação. Saques reservam saldo com condição atômica e registram outbox; nenhuma requisição HTTPS dispara payout externo, e a chave PIX bruta não é gravada.
+- **Autorização distribuída:** JWTs carregam `token_version`; o extrator de autenticação consulta status, papel e versão no PostgreSQL em cada rota protegida. O trigger de mudança sensível revoga tokens já emitidos em todas as réplicas.
+- **Jogo e WSS:** ator aplica timeout de 30 segundos com auto-fold, rotação de dealer por assento físico e snapshot após ação válida. O WebSocket responde ping/pong, aceita envelope binário limitado a 64 KiB e redige recursivamente cartas alheias e campos sensíveis.
+- **Observabilidade e rotina:** readiness consulta PostgreSQL/Redis, métricas expõem apenas gauges medidos, e os contratos financeiros PostgreSQL foram adicionados ao lote manual autorizado de validação.
+- **Evidência local:** 1.814 testes determinísticos do motor, 12 unitários da API, 9 contratos gerais PostgreSQL, 2 contratos financeiros PostgreSQL, 1 contrato Redis e Clippy estrito do motor/API passaram. A carga massiva continua manual e não foi executada nesta alteração.
+
+**Limites mantidos:** PIX real/payout continua fora do escopo e requer autorização + worker reconciliado; ownership de mesa continua local ao processo, mantendo Kubernetes em uma réplica.
+
+---
 
 ### [21] 💵 Migração Arquitetural Estrita para `u64` Centavos Inteiros (2026-07-25)
 **O que foi feito:**
@@ -453,7 +465,7 @@
 *Próximo passo: Deploy em ambiente de staging / produção ou disponibilização de canal seguro via Ngrok.*
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-28):** S07 — revisão de segurança, arquitetura e validação WSL/gateway HTTPS concluídas localmente. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais de plataforma; a CI executa somente o perfil determinístico e rápido. PIX está adiado e permanece em modo simulado/local. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
+> **Estado operacional sincronizado (2026-07-28):** S08 — ledger transacional PIX local, revogação persistente de tokens, turnos e WebSocket reforçados e validados no WSL. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais, inclusive contratos financeiros PostgreSQL e limite compartilhado Redis; a CI executa somente o perfil determinístico e rápido. PIX real continua adiado: o depósito cria intenção auditável e o saque reserva saldo em outbox, sem payout externo na requisição HTTPS. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

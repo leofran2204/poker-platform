@@ -2,9 +2,11 @@
 
 use axum::body::Body;
 use axum::http::{Method, Request, StatusCode};
+use hmac::{Hmac, Mac};
 use poker_api::build_router;
 use poker_api::state::AppState;
 use poker_engine::auth::{AuthManager, LoginRequest, RegisterRequest};
+use sha2::Sha256;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -51,53 +53,90 @@ async fn get_valid_access_token(state: &AppState, username: &str) -> String {
     token_pair.access_token
 }
 
-// ─── 1. Teste de Geração de Depósito PIX ───
-#[tokio::test]
-async fn test_pix_deposit_generation_success() {
-    let state = make_test_state();
-    let valid_token = get_valid_access_token(&state, "user_deposit_1").await;
-
-    let app = build_router(state);
-    let payload = serde_json::json!({
-        "amount": 5000
-    })
-    .to_string();
-
-    let request = Request::builder()
-        .method(Method::POST)
-        .uri("/api/payments/pix/deposit")
-        .header("Authorization", format!("Bearer {}", valid_token))
-        .header("Content-Type", "application/json")
-        .body(Body::from(payload))
-        .unwrap();
-
-    let response = app.oneshot(request).await.unwrap();
-    assert_eq!(response.status(), StatusCode::OK);
-
-    let body_bytes = axum::body::to_bytes(response.into_body(), 10_000)
+async fn make_persistent_state(username: &str) -> (AppState, String, String) {
+    let database_url =
+        std::env::var("DATABASE_URL").expect("DATABASE_URL is required for wallet contract tests");
+    let db = sqlx::postgres::PgPoolOptions::new()
+        .max_connections(5)
+        .connect(&database_url)
         .await
-        .unwrap();
-    let body_json: serde_json::Value = serde_json::from_slice(&body_bytes).unwrap();
-
-    assert!(body_json.get("tx_id").is_some());
-    assert_eq!(body_json["amount"], 5000);
-    assert!(body_json["pix_copy_paste"]
-        .as_str()
-        .unwrap()
-        .contains("BR.GOV.BCB.PIX"));
-    assert!(body_json["qr_code_base64"]
-        .as_str()
-        .unwrap()
-        .contains("data:image"));
+        .expect("wallet test database must be reachable");
+    let mut auth = AuthManager::new("payments-jwt-secret-key-32chars");
+    let user = auth
+        .register_user(&RegisterRequest {
+            username: username.to_string(),
+            email: format!("{username}@test.invalid"),
+            password: "Password123".to_string(),
+        })
+        .expect("test user must be valid");
+    sqlx::query(
+        "INSERT INTO users (id, username, email, password_hash, role, status, balance, mfa_enabled, created_at) \
+         VALUES ($1::uuid, $2, $3, $4, 'player', 'active', 0, false, $5)",
+    )
+    .bind(&user.id)
+    .bind(&user.username)
+    .bind(&user.email)
+    .bind(&user.password_hash)
+    .bind(i64::try_from(user.created_at).expect("test timestamp fits i64"))
+    .execute(&db)
+    .await
+    .expect("test user must persist");
+    let state = AppState {
+        db,
+        auth: Arc::new(RwLock::new(auth)),
+        tournaments: Arc::new(RwLock::new(HashMap::new())),
+        active_tables: Arc::new(RwLock::new(HashMap::new())),
+        jwt_secret: "payments-jwt-secret-key-32chars".to_string(),
+        rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
+        redis: None,
+        ws_tickets: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
+    };
+    let token = get_valid_access_token(&state, username).await;
+    (state, user.id, token)
 }
 
-// ─── 2. Teste de Rejeição de Depósito Negativo ou Zero ───
-#[tokio::test]
-async fn test_pix_deposit_invalid_amount_returns_400() {
-    let state = make_test_state();
-    let valid_token = get_valid_access_token(&state, "user_deposit_2").await;
+async fn cleanup_persistent_user(state: &AppState, user_id: &str) {
+    let _ = sqlx::query("DELETE FROM outbox_events WHERE payload ->> 'user_id' = $1")
+        .bind(user_id)
+        .execute(&state.db)
+        .await;
+    sqlx::query("DELETE FROM users WHERE id = $1::uuid")
+        .bind(user_id)
+        .execute(&state.db)
+        .await
+        .expect("test user cleanup must succeed");
+}
 
-    let app = build_router(state);
+fn webhook_signature(body: &[u8]) -> String {
+    let mut mac = Hmac::<Sha256>::new_from_slice(b"poker-pix-webhook-secret-key-32chars")
+        .expect("test HMAC key is valid");
+    mac.update(body);
+    let signature = mac
+        .finalize()
+        .into_bytes()
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect::<String>();
+    format!("sha256={signature}")
+}
+
+fn unique_username(prefix: &str) -> String {
+    let suffix = uuid::Uuid::new_v4().simple().to_string();
+    // AuthManager accepts user names with at most 30 characters. Keeping the
+    // random suffix short also makes the PostgreSQL integration fixtures
+    // independent when they run in parallel.
+    let suffix_len = 30usize.saturating_sub(prefix.len() + 1).min(suffix.len());
+    format!("{prefix}_{}", &suffix[..suffix_len])
+}
+
+// ─── Rejeição de Depósito Negativo ou Zero ───
+#[tokio::test]
+#[ignore = "Requires PostgreSQL authorization state — run with DATABASE_URL"]
+async fn test_pix_deposit_invalid_amount_returns_400() {
+    let username = unique_username("deposit_zero");
+    let (state, user_id, valid_token) = make_persistent_state(&username).await;
+
+    let app = build_router(state.clone());
     let payload = serde_json::json!({
         "amount": 0
     })
@@ -113,41 +152,10 @@ async fn test_pix_deposit_invalid_amount_returns_400() {
 
     let response = app.oneshot(request).await.unwrap();
     assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    cleanup_persistent_user(&state, &user_id).await;
 }
 
-// ─── 3. Teste de Recebimento de Webhook PIX Válido ───
-#[tokio::test]
-async fn test_pix_webhook_success() {
-    let state = make_test_state();
-    let app = build_router(state);
-
-    let webhook_payload = serde_json::json!({
-        "tx_id": "tx_dep_123456",
-        "external_tx_id": "asaas_pay_123456",
-        "amount": 5000,
-        "status": "APPROVED"
-    })
-    .to_string();
-
-    let request = Request::builder()
-        .method(Method::POST)
-        .uri("/api/webhooks/pix")
-        .header("X-Webhook-Secret", "poker-pix-webhook-secret-key-32chars")
-        .header("Content-Type", "application/json")
-        .body(Body::from(webhook_payload))
-        .unwrap();
-
-    let response = app.oneshot(request).await.unwrap();
-    assert_eq!(response.status(), StatusCode::OK);
-
-    let body_bytes = axum::body::to_bytes(response.into_body(), 10_000)
-        .await
-        .unwrap();
-    let body_json: serde_json::Value = serde_json::from_slice(&body_bytes).unwrap();
-    assert_eq!(body_json["status"], "PROCESSED");
-}
-
-// ─── 4. Teste de Rejeição de Webhook com Secret Inválido ───
+// ─── Rejeição de Webhook com Assinatura Inválida ───
 #[tokio::test]
 async fn test_pix_webhook_invalid_secret_returns_401() {
     let state = make_test_state();
@@ -172,36 +180,115 @@ async fn test_pix_webhook_invalid_secret_returns_401() {
     assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
 }
 
-// ─── 5. Teste de Saque PIX Válido ───
 #[tokio::test]
-async fn test_pix_withdraw_success() {
-    let state = make_test_state();
-    let valid_token = get_valid_access_token(&state, "user_withdraw_1").await;
-
-    let app = build_router(state);
-    let payload = serde_json::json!({
-        "amount": 10000,
-        "pix_key_type": "cpf",
-        "pix_key": "12345678900"
-    })
-    .to_string();
-
+#[ignore = "Requires PostgreSQL ledger — run with DATABASE_URL"]
+async fn wallet_deposit_webhook_is_atomic_and_idempotent() {
+    let username = unique_username("wallet_dep");
+    let (state, user_id, token) = make_persistent_state(&username).await;
     let request = Request::builder()
         .method(Method::POST)
-        .uri("/api/payments/pix/withdraw")
-        .header("Authorization", format!("Bearer {}", valid_token))
+        .uri("/api/payments/pix/deposit")
+        .header("Authorization", format!("Bearer {token}"))
         .header("Content-Type", "application/json")
-        .body(Body::from(payload))
+        .body(Body::from(r#"{"amount":5000}"#))
         .unwrap();
-
-    let response = app.oneshot(request).await.unwrap();
-    assert_eq!(response.status(), StatusCode::OK);
-
-    let body_bytes = axum::body::to_bytes(response.into_body(), 10_000)
+    let response = poker_api::build_router(state.clone())
+        .oneshot(request)
         .await
         .unwrap();
-    let body_json: serde_json::Value = serde_json::from_slice(&body_bytes).unwrap();
-    assert!(body_json.get("tx_id").is_some());
-    assert_eq!(body_json["amount"], 10000);
-    assert_eq!(body_json["status"], "PROCESSING");
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = axum::body::to_bytes(response.into_body(), 10_000)
+        .await
+        .unwrap();
+    let deposit: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    let tx_id = deposit["tx_id"].as_str().unwrap().to_string();
+    let external_tx_id: String = sqlx::query_scalar(
+        "SELECT external_tx_id FROM wallet_transactions WHERE idempotency_key = $1",
+    )
+    .bind(&tx_id)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+
+    let webhook = serde_json::json!({
+        "tx_id": tx_id,
+        "external_tx_id": external_tx_id,
+        "amount": 5000,
+        "status": "COMPLETED"
+    })
+    .to_string();
+    for expected_status in ["COMPLETED", "IGNORED"] {
+        let signature = webhook_signature(webhook.as_bytes());
+        let request = Request::builder()
+            .method(Method::POST)
+            .uri("/api/webhooks/pix")
+            .header("X-Signature", signature)
+            .header("Content-Type", "application/json")
+            .body(Body::from(webhook.clone()))
+            .unwrap();
+        let response = poker_api::build_router(state.clone())
+            .oneshot(request)
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = axum::body::to_bytes(response.into_body(), 10_000)
+            .await
+            .unwrap();
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&body).unwrap()["status"],
+            expected_status
+        );
+    }
+    let balance: i64 = sqlx::query_scalar("SELECT balance FROM users WHERE id = $1::uuid")
+        .bind(&user_id)
+        .fetch_one(&state.db)
+        .await
+        .unwrap();
+    assert_eq!(balance, 5_000);
+    cleanup_persistent_user(&state, &user_id).await;
+}
+
+#[tokio::test]
+#[ignore = "Requires PostgreSQL ledger — run with DATABASE_URL"]
+async fn concurrent_withdrawals_cannot_reserve_the_same_balance_twice() {
+    let username = unique_username("wallet_wdr");
+    let (state, user_id, token) = make_persistent_state(&username).await;
+    sqlx::query("UPDATE users SET balance = 10000 WHERE id = $1::uuid")
+        .bind(&user_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+    let request = || {
+        Request::builder()
+            .method(Method::POST)
+            .uri("/api/payments/pix/withdraw")
+            .header("Authorization", format!("Bearer {token}"))
+            .header("Content-Type", "application/json")
+            .body(Body::from(
+                r#"{"amount":8000,"pix_key_type":"cpf","pix_key":"12345678900"}"#,
+            ))
+            .unwrap()
+    };
+    let (first, second) = tokio::join!(
+        poker_api::build_router(state.clone()).oneshot(request()),
+        poker_api::build_router(state.clone()).oneshot(request())
+    );
+    let statuses = [first.unwrap().status(), second.unwrap().status()];
+    assert!(statuses.contains(&StatusCode::ACCEPTED));
+    assert!(statuses.contains(&StatusCode::BAD_REQUEST));
+    let balance: i64 = sqlx::query_scalar("SELECT balance FROM users WHERE id = $1::uuid")
+        .bind(&user_id)
+        .fetch_one(&state.db)
+        .await
+        .unwrap();
+    assert_eq!(balance, 2_000);
+    let reservations: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM wallet_transactions WHERE user_id = $1::uuid AND transaction_type = 'WITHDRAW'",
+    )
+    .bind(&user_id)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(reservations, 1);
+    cleanup_persistent_user(&state, &user_id).await;
 }

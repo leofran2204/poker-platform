@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Execução manual autorizada da validação completa da plataforma.
-# PIX permanece fora desta rotina enquanto estiver adiado.
+# PIX real permanece adiado. Os contratos locais do ledger (sem payout externo)
+# fazem parte desta rotina autorizada para impedir regressões financeiras.
 set -euo pipefail
 
 phase="${1:-all}"
@@ -79,10 +80,16 @@ run_api() {
   export DATABASE_URL="${DATABASE_URL:-postgres://user:password@localhost:5433/poker_db}"
 
   echo "==> API HTTPS: contratos e segurança"
-  (cd "$project_root/API-Axum" && cargo test --lib --bin poker-api --test api_tests --test red_team_simulation_tests -- --nocapture) || return 1
+  (cd "$project_root/API-Axum" && cargo test --lib --bin poker-api --test api_tests --test payments_tests --test red_team_simulation_tests -- --nocapture) || return 1
 
   echo "==> API HTTPS: contratos funcionais PostgreSQL"
   (cd "$project_root/API-Axum" && cargo test --features full-validation --test api_tests -- --ignored --nocapture) || return 1
+
+  echo "==> API HTTPS: contratos financeiros PostgreSQL"
+  (cd "$project_root/API-Axum" && cargo test --features full-validation --test payments_tests -- --ignored --nocapture) || return 1
+
+  echo "==> API HTTPS: contrato de limite compartilhado Redis"
+  (cd "$project_root/API-Axum" && cargo test --features full-validation --test rate_limit_tests -- --ignored --nocapture) || return 1
 
   echo "==> API HTTPS: 10 cenários de fuzz (2.000 casos por cenário)"
   (cd "$project_root/API-Axum" && PROPTEST_CASES="${API_FUZZ_CASES:-2000}" cargo test --features full-validation --test api_fuzz_tests -- --nocapture) || return 1
@@ -137,7 +144,7 @@ run_gateway() {
 if [[ "$phase" == "all" || "$phase" == "motor" ]]; then
   run_timed \
     "motor" \
-    "1813 rotina + 79 carga; Monte Carlo, CSPRNG, fairness e invariantes" \
+    "1814 rotina + 79 carga; Monte Carlo, CSPRNG, fairness e invariantes" \
     run_motor
 fi
 

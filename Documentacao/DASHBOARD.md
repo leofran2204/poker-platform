@@ -1,6 +1,6 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-28 | **Status:** S07 — revisão de segurança, arquitetura e validação WSL/gateway HTTPS concluídas localmente.
+**Atualizado:** 2026-07-28 | **Status:** S08 — correções transacionais e de sessão validadas localmente; sem certificação de produção.
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📅 O cronograma completo está em `Documentacao/CRONOGRAMA.md` — veja prazos, fases e % de conclusão.
@@ -15,7 +15,7 @@
 | # | Parâmetro | Valor |
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
-| 2 | **Sprint atual** | S07 — revisão de segurança, arquitetura e CI |
+| 2 | **Sprint atual** | S08 — ledger local, revogação de tokens e WebSocket |
 | 3 | **Status** | ✅ Validação local concluída — não é selo de produção |
 | 4 | **Cerimônias** | Planning + Review + Retrospectiva |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
@@ -50,6 +50,7 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S05 | 2026-07-25 | Auditar Parecer Técnico, Idempotência PIX, RwLock & Saneamento | Saneamento Completo de Segurança | ✅ Concluído |
 | S06 | 2026-07-25 | Migração de Tipagem Monetária f64 -> u64 Centavos Inteiros | Precisão Monetária Bancária B3 | ✅ Concluído |
 | S07 | 2026-07-26 | Commercial Grade & Redis Snapshots Fault Tolerance | Otimização Hand Evaluator + JWT + Redis Recovery | ✅ Concluído |
+| S08 | 2026-07-28 | Correções críticas de segurança e arquitetura | Ledger PIX local, token version, timeout de turno, WebSocket e contratos PostgreSQL | ✅ Concluído localmente |
 
 ---
 
@@ -72,6 +73,7 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 ### ✅ Concluídas — Sprint Atual
 | #   | Tarefa                                                                                                                                                              | Data       |
 |-----|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| S08 | **Correções críticas validadas localmente** — `wallet_transactions` ganhou chave de idempotência, identificador externo único, status de provedor e impressão de chave PIX; webhook liquida saldo e status na mesma transação; saque reserva saldo e emite outbox sem payout externo. `token_version` persistente revoga JWTs após mudança sensível; Redis limita IPs de forma compartilhada; timeout de turno aplica fold automático; WSS responde ping/pong e remove campos sensíveis. Passaram 1.814 testes determinísticos do motor, 12 unitários da API, 11 contratos PostgreSQL, 1 contrato Redis e Clippy estrito. A carga manual não foi acionada. | 2026-07-28 |
 | AUD | **Deep Audit Fixes, Rate Limiting & Regra do Centavo Ímpar** — 1) Validação HMAC-SHA256 em Webhook PIX (`payments_routes.rs`); 2) CSPRNG para UUID v4, TOTP e backup codes (`auth.rs`); 3) Middleware de Rate Limiting `RateLimiter` em memória por IP para endpoints sensíveis de Auth e Pagamentos (`rate_limit.rs`); 4) Suíte de 6 testes unitários para Flush e 14 proptests de Fuzzing em `fuzz_tests.rs`; 5) Implementação da Regra do Centavo Ímpar (*Odd Cent Rule* — WSOP/TDA Regra 68) em `utils::dividir_pote_empatado` e documentação na Seção 4.4 do `BUSINESS_RULES.md`. Todos os testes passando! | 2026-07-23 |
 | MALL| **Loss Deflator Multi-Fases & Rateio por Pote Múltiplo** — 1) Adicionado rastreamento exato da fase de All-In em `PlayerState::all_in_phase`; 2) Suporte a múltiplos perdedores All-In em fases distintas (Preflop=15%, Flop=25%, Turn=35%); 3) Cálculo de cashback isolado e restrito aos potes elegíveis de cada jogador; 4) Dedução exata do Rake pós-pote (`pots_after_rake`). Teste unitário de múltiplos All-Ins `test_multi_phase_all_in_loss_deflator_exact_phases` 100% verde! | 2026-07-23 |
 | PIX | **Módulo de Pagamentos PIX Instantâneo (Depósitos & Saques)** — 1) Migration PostgreSQL `002_payments_schema.sql` (`wallet_transactions`); 2) Abstração `payment_gateway.rs` (Asaas/Mercado Pago/Mock); 3) Endpoints REST `/api/payments/pix/deposit`, `/api/webhooks/pix` e `/api/payments/pix/withdraw` no Axum; 4) Modais Dioxus `DepositModal` e `WithdrawModal`; 5) Suíte `payments_tests.rs` (5/5 testes ✅). | 2026-07-22 |
@@ -161,7 +163,7 @@ cd Infraestrutura-Docker && docker-compose up -d
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-28):** S07 — revisão de segurança, arquitetura e validação WSL/gateway HTTPS concluídas localmente. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais de plataforma; a CI executa somente o perfil determinístico e rápido. PIX está adiado e permanece em modo simulado/local. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
+> **Estado operacional sincronizado (2026-07-28):** S08 — ledger transacional PIX local, revogação persistente de tokens, turnos e WebSocket reforçados e validados no WSL. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais, inclusive contratos financeiros PostgreSQL e limite compartilhado Redis; a CI executa somente o perfil determinístico e rápido. PIX real continua adiado: o depósito cria intenção auditável e o saque reserva saldo em outbox, sem payout externo na requisição HTTPS. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

@@ -49,10 +49,36 @@ where
             _ => ApiError::Unauthorized("Authentication failed".to_string()),
         })?;
 
+        // JWT validity alone is insufficient for an account that may have
+        // been suspended, banned, or demoted after the token was issued. The
+        // durable account record is consulted on every protected request so
+        // those administrative changes take effect across all replicas.
+        let account: Option<(String, String, i64)> =
+            sqlx::query_as("SELECT status, role, token_version FROM users WHERE id = $1::uuid")
+                .bind(&claims.sub)
+                .fetch_optional(&app_state.db)
+                .await?;
+        let (status, role, token_version) = account.ok_or_else(|| {
+            ApiError::Unauthorized("Account referenced by token no longer exists".to_string())
+        })?;
+        if !matches!(status.as_str(), "active" | "pending_email_verification") {
+            return Err(ApiError::Forbidden(
+                "Account is not allowed to access this resource".to_string(),
+            ));
+        }
+        if !matches!(role.as_str(), "player" | "admin" | "moderator") {
+            return Err(ApiError::Internal(
+                "Persisted account has an invalid role".to_string(),
+            ));
+        }
+        if claims.token_version != token_version {
+            return Err(ApiError::Unauthorized("Token has been revoked".to_string()));
+        }
+
         Ok(RequireAuth(AuthUser {
             user_id: claims.sub,
             username: claims.username,
-            role: format!("{:?}", claims.role).to_lowercase(),
+            role,
         }))
     }
 }

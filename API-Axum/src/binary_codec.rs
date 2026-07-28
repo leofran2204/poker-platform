@@ -5,6 +5,8 @@
 
 use serde::{Deserialize, Serialize};
 
+const MAX_BINARY_PAYLOAD_BYTES: usize = 64 * 1024;
+
 /// Tipos de mensagens binárias do protocolo de jogo.
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -72,9 +74,15 @@ impl BinaryPacket {
         len_bytes.copy_from_slice(&buf[1..5]);
         let payload_len = u32::from_be_bytes(len_bytes) as usize;
 
-        if buf.len() < 5 + payload_len {
+        if payload_len > MAX_BINARY_PAYLOAD_BYTES {
             return Err(format!(
-                "Payload truncado: esperado {payload_len} bytes, recebido {}",
+                "Payload binário excede o limite de {MAX_BINARY_PAYLOAD_BYTES} bytes"
+            ));
+        }
+
+        if buf.len() != 5 + payload_len {
+            return Err(format!(
+                "Payload binário inválido: esperado {payload_len} bytes, recebido {}",
                 buf.len() - 5
             ));
         }
@@ -107,6 +115,15 @@ mod tests {
         let invalid_buf = vec![0x01, 0x00];
         let result = BinaryPacket::decode(&invalid_buf);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn rejects_trailing_or_oversized_binary_payloads() {
+        let trailing = vec![BinaryOpcode::Ping as u8, 0, 0, 0, 0, 99];
+        assert!(BinaryPacket::decode(&trailing).is_err());
+
+        let oversized = [BinaryOpcode::PlayerAction as u8, 0, 1, 0, 1];
+        assert!(BinaryPacket::decode(&oversized).is_err());
     }
 }
 
