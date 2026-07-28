@@ -1,8 +1,10 @@
 # 🃏 QUALITY.md — Documento Mestre do Poker Project
 
-**Atualizado:** 2026-07-26 | **Versão:** 5.2 (100% Concluído — Commercial Grade + Redis Snapshots Fault Tolerance / 2.050+ Testes + 1M Fuzzing + jsonwebtoken + Hand Pre-filtering)
+**Atualizado:** 2026-07-27 | **Versão:** 5.3 (baseline de qualidade, segurança e operação)
 **Stack Definitiva:** Rust para TUDO (backend, motor de jogo, APIs, IA, dados, antifraude, autenticação, lobby, front-end Dioxus/WebAssembly)
 **Decisão de Stack:** Definitiva desde 2026-07-03 — Rust é a única linguagem do projeto
+
+> **Estado atual verificável:** este documento contém metas e registros históricos; não deve ser lido como certificado de produção ou como contagem fixa de testes. O gate atual executa lint estrito, testes determinísticos e contratos PostgreSQL. PIX está fora do escopo desta entrega; operação multi-réplica aguarda ownership distribuído de mesas.
 
 
 ---
@@ -553,7 +555,7 @@ garantindo que regressões não voltem a ocorrer.
 | 2 | **POST /api/auth/login**          | Request: `{email, password}` → Response: `{token, mfa_required?}`                                     |
 | 3 | **POST /api/auth/mfa/verify**     | Request: `{code}` → Response: `{token}` ou `401 Unauthorized`                                          |
 | 4 | **GET /api/lobby/tables**         | Response: `[{id, name, players, max_players, blinds, type}]`                                          |
-| 5 | **POST /api/lobby/join**          | Request: `{table_id}` → Response: `{seat, chips}`                                                      |
+| 5 | **POST /api/lobby/join**          | Request: `{table_id, buy_in}` → Response: `{seat, chips}`; buy-in é movido para escrow transacional    |
 | 6 | **WS /ws/game/{table_id}**        | Eventos: `deal`, `bet`, `fold`, `showdown` com schema definido                                         |
 | 7 | **POST /api/tournament/register** | Request: `{tournament_id}` → Response: `{position, chips}`                                            |
 | 8 | **GET /api/hand-history/{hand_id}**| Response: replay completo da mão                                                                       |

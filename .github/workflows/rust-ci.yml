@@ -7,6 +7,8 @@ on:
       - 'Motor-Rust/**'
       - 'Frontend-Dioxus/**'
       - 'API-Axum/**'
+      - 'Infraestrutura-Docker/**'
+      - 'scripts/**'
       - '.github/workflows/rust-ci.yml'
   pull_request:
     branches: [main, master]
@@ -14,6 +16,8 @@ on:
       - 'Motor-Rust/**'
       - 'Frontend-Dioxus/**'
       - 'API-Axum/**'
+      - 'Infraestrutura-Docker/**'
+      - 'scripts/**'
   workflow_dispatch:  # permite rodar manualmente
 
 env:
@@ -45,7 +49,7 @@ jobs:
         run: cargo check --workspace
 
   test:
-    name: Cargo Test (1874 tests)
+    name: Motor — testes determinísticos
     runs-on: ubuntu-latest
     needs: check
     defaults:
@@ -75,7 +79,14 @@ jobs:
             ${{ runner.os }}-cargo-target-
 
       - name: Run tests
-        run: cargo test --lib -- --nocapture
+        env:
+          PROPTEST_CASES: 256
+        run: >-
+          cargo test --lib -- --nocapture
+          --skip extreme_fuzz_tests
+          --skip stress_tests
+          --skip stress_integration_tests
+          --skip card_fairness_tests
 
   clippy:
     name: Cargo Clippy (Lint)
@@ -168,7 +179,14 @@ jobs:
         run: cargo install cargo-llvm-cov --locked
 
       - name: Generate coverage (lcov)
-        run: cargo llvm-cov --all-targets --lcov --output-path ${{ github.workspace }}/Motor-Rust/lcov.info
+        env:
+          PROPTEST_CASES: 256
+        run: >-
+          cargo llvm-cov --lib --lcov --output-path ${{ github.workspace }}/Motor-Rust/lcov.info --
+          --skip extreme_fuzz_tests
+          --skip stress_tests
+          --skip stress_integration_tests
+          --skip card_fairness_tests
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
@@ -177,7 +195,14 @@ jobs:
           path: Motor-Rust/lcov.info
 
       - name: Coverage summary
-        run: cargo llvm-cov --all-targets --summary-only
+        env:
+          PROPTEST_CASES: 256
+        run: >-
+          cargo llvm-cov --lib --summary-only --
+          --skip extreme_fuzz_tests
+          --skip stress_tests
+          --skip stress_integration_tests
+          --skip card_fairness_tests
 
   frontend-check:
     name: Frontend Dioxus — Check + Clippy + Fmt
@@ -248,7 +273,7 @@ jobs:
         run: cargo check --all-targets
 
   api-test:
-    name: API — Cargo Test (Full Integration & DB)
+    name: API — testes de contrato e PostgreSQL
     runs-on: ubuntu-latest
     needs: api-check
     services:
@@ -268,6 +293,9 @@ jobs:
     defaults:
       run:
         working-directory: ./API-Axum
+    env:
+      DATABASE_URL: postgres://user:password@localhost:5432/poker_db
+      PROPTEST_CASES: 256
     steps:
       - uses: actions/checkout@v4
 
@@ -291,9 +319,19 @@ jobs:
             ${{ runner.os }}-cargo-target-api-${{ hashFiles('API-Axum/Cargo.lock') }}-
             ${{ runner.os }}-cargo-target-api-
 
-      # DB-dependent tests are #[ignore] — only non-DB tests run in CI
-      - name: Run tests (non-DB only)
-        run: cargo test -- --nocapture
+      - name: Apply PostgreSQL migrations
+        run: |
+          for migration in migrations/*.sql; do
+            PGPASSWORD=password psql --host localhost --username user --dbname poker_db --file "$migration"
+          done
+
+      - name: Run deterministic API tests
+        run: >-
+          cargo test --lib --bin poker-api --test api_tests --test payments_tests
+          --test red_team_simulation_tests -- --nocapture
+
+      - name: Run PostgreSQL contract tests
+        run: cargo test --test api_tests -- --ignored --nocapture
 
   api-clippy:
     name: API — Cargo Clippy (Lint)
@@ -363,16 +401,15 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Validate API-Axum Dockerfile builds
-        run: docker build -f API-Axum/Dockerfile . --no-cache --target builder || echo "⚠️ Dockerfile build validation skipped (multi-stage builder only)"
+        run: docker build -f API-Axum/Dockerfile . --target builder
 
       - name: Validate Caddyfile syntax
-        run: |
-          docker run --rm -v ${{ github.workspace }}/Infraestrutura-Docker/Caddyfile:/etc/caddy/Caddyfile caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile || echo "⚠️ Caddyfile validation skipped"
+        run: docker run --rm -v ${{ github.workspace }}/Frontend-Dioxus/Caddyfile:/etc/caddy/Caddyfile:ro caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile
 
   deploy-readiness-gate:
     name: Deploy Readiness Gate ✅
     runs-on: ubuntu-latest
-    needs: [test, api-test, frontend-check, clippy, api-clippy, fmt, api-fmt, audit, container-security-scan]
+    needs: [test, coverage, api-test, frontend-check, clippy, api-clippy, fmt, api-fmt, audit, container-security-scan, docker-build-validation]
     steps:
       - name: All checks passed
         run: |
@@ -383,4 +420,4 @@ jobs:
           echo "API-Axum:        ✅ check + test + clippy + fmt"
           echo "Frontend-Dioxus: ✅ check + clippy + fmt (WASM target)"
           echo "Security:        ✅ Trivy CVE scan"
-          echo "============================================="
+          echo "============================================="

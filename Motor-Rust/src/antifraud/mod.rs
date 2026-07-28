@@ -6,11 +6,11 @@ pub mod chip_dumping;
 pub mod collusion;
 pub mod multi_account;
 
-use serde::{Deserialize, Serialize};
 use bot_detection::BotDetector;
 use chip_dumping::ChipDumpAnalyzer;
 use collusion::CollusionAnalyzer;
 use multi_account::MultiAccountDetector;
+use serde::{Deserialize, Serialize};
 
 /// Recomendação emitida pela análise de risco antifraude.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -74,9 +74,10 @@ impl AntiFraudSuite {
     /// Registra uma ação de jogador e calcula o score de risco atualizado
     pub fn process_action(&mut self, player_id: &str, elapsed_ms: u64) -> RiskScore {
         // Registra o tempo de reação no detector de bots
-        self.bot_detector.record_reaction_time(player_id, elapsed_ms);
+        self.bot_detector
+            .record_reaction_time(player_id, elapsed_ms);
         let bot_score = self.bot_detector.calculate_bot_score(player_id);
-        
+
         // Retorna o score combinado
         RiskScore::new(bot_score, 0.0)
     }

@@ -110,9 +110,21 @@ impl EquityCalculator {
         }
 
         let total = (wins + ties + losses) as f64;
-        let win_pct = if total > 0.0 { (wins as f64 / total) * 100.0 } else { 0.0 };
-        let tie_pct = if total > 0.0 { (ties as f64 / total) * 100.0 } else { 0.0 };
-        let loss_pct = if total > 0.0 { (losses as f64 / total) * 100.0 } else { 0.0 };
+        let win_pct = if total > 0.0 {
+            (wins as f64 / total) * 100.0
+        } else {
+            0.0
+        };
+        let tie_pct = if total > 0.0 {
+            (ties as f64 / total) * 100.0
+        } else {
+            0.0
+        };
+        let loss_pct = if total > 0.0 {
+            (losses as f64 / total) * 100.0
+        } else {
+            0.0
+        };
 
         EquityResult {
             win_percentage: win_pct,

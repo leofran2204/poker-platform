@@ -11,12 +11,10 @@ use tower::ServiceExt;
 use poker_api::build_router;
 use poker_api::state::AppState;
 use poker_engine::auth::AuthManager;
-use poker_engine::lobby::LobbyManager;
 
 fn make_test_state() -> AppState {
-    let url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
-        "postgres://unused:unused@localhost:5432/unused".to_string()
-    });
+    let url = std::env::var("DATABASE_URL")
+        .unwrap_or_else(|_| "postgres://unused:unused@localhost:5432/unused".to_string());
     let db = sqlx::postgres::PgPoolOptions::new()
         .max_connections(1)
         .connect_lazy(&url)
@@ -27,11 +25,12 @@ fn make_test_state() -> AppState {
     AppState {
         db,
         auth: Arc::new(RwLock::new(auth_mgr)),
-        lobby: Arc::new(RwLock::new(LobbyManager::new())),
         tournaments: Arc::new(RwLock::new(std::collections::HashMap::new())),
         active_tables: Arc::new(RwLock::new(std::collections::HashMap::new())),
         jwt_secret: "e2e-jwt-secret-key-32-chars-long".to_string(),
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
+        redis: None,
+        ws_tickets: Arc::new(tokio::sync::Mutex::new(std::collections::HashMap::new())),
     }
 }
 

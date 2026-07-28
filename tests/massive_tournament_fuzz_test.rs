@@ -27,7 +27,9 @@ fn test_1_million_tournament_fuzzing_and_table_balancing_simulations() {
 
         for t_id in 0..num_tables {
             let num_players = rng.gen_range(1..=9);
-            let players: Vec<String> = (0..num_players).map(|p| format!("P_{}_{}", t_id, p)).collect();
+            let players: Vec<String> = (0..num_players)
+                .map(|p| format!("P_{}_{}", t_id, p))
+                .collect();
             tables.push(TableStateSummary {
                 table_id: format!("Table_{}", t_id),
                 active_player_ids: players,
@@ -58,20 +60,30 @@ fn test_1_million_tournament_fuzzing_and_table_balancing_simulations() {
                 blind_structure,
             );
 
-            assert!(tournament.register_player(&format!("TP1_{}", i), "Alice", &acc1).is_ok());
-            assert!(tournament.register_player(&format!("TP2_{}", i), "Bob", &acc2).is_ok());
-            assert!(tournament.register_player(&format!("TP3_{}", i), "Charlie", &acc3).is_ok());
+            assert!(tournament
+                .register_player(&format!("TP1_{}", i), "Alice", &acc1)
+                .is_ok());
+            assert!(tournament
+                .register_player(&format!("TP2_{}", i), "Bob", &acc2)
+                .is_ok());
+            assert!(tournament
+                .register_player(&format!("TP3_{}", i), "Charlie", &acc3)
+                .is_ok());
 
             // Simular Eliminações até o Final
             tournament.state = TournamentState::Running;
             let _ = tournament.eliminate_player(&format!("TP3_{}", i));
             let _ = tournament.eliminate_player(&format!("TP2_{}", i));
-            tournament.players.get_mut(&format!("TP1_{}", i)).unwrap().finish_rank = Some(1);
+            tournament
+                .players
+                .get_mut(&format!("TP1_{}", i))
+                .unwrap()
+                .finish_rank = Some(1);
             tournament.state = TournamentState::Finished;
 
             let payouts = tournament.distribute_prize_pool(&accounts);
             assert_eq!(payouts.len(), 3);
-            
+
             // Validação de Conservação do Prize Pool (100% dos 30.000 centavos distribuídos)
             let total_payout_sum: i64 = payouts.iter().map(|(_, _, amt)| amt).sum();
             assert_eq!(
@@ -91,9 +103,18 @@ fn test_1_million_tournament_fuzzing_and_table_balancing_simulations() {
     println!("   ✔ 1.000.000 de iterações de torneio concluídas com SUCESSO!");
     println!("   - Tempo Total: {:.3?} s", elapsed.as_secs_f64());
     println!("   - Taxa de Processamento: {:.2} op/segundo", ops_per_sec);
-    println!("   - Movimentos de Balanceador Gerados: {}", total_table_moves_generated);
-    println!("   - Torneios Completos Fuzzados: {}", total_tournaments_completed);
-    println!("   - Payouts do Ledger Verificados: {}", total_payouts_verified);
+    println!(
+        "   - Movimentos de Balanceador Gerados: {}",
+        total_table_moves_generated
+    );
+    println!(
+        "   - Torneios Completos Fuzzados: {}",
+        total_tournaments_completed
+    );
+    println!(
+        "   - Payouts do Ledger Verificados: {}",
+        total_payouts_verified
+    );
     println!("========================================================\n");
 
     assert_eq!(total_iterations, 1_000_000);

@@ -13,10 +13,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 // ─── Crates externos ───
 use bcrypt::{hash, verify};
 use hmac::{Hmac, Mac};
-use sha2::Sha256;
-
-// ─── Alias HMAC-SHA256 ───
-type HmacSha256 = Hmac<Sha256>;
+use sha1::Sha1;
 
 // ─── Constantes ───
 
@@ -226,6 +223,20 @@ impl AuthManager {
             jwt_secret: jwt_secret.to_string(),
             session_counter: 0,
         }
+    }
+
+    /// Loads the authoritative account record from durable storage.
+    ///
+    /// The API keeps this manager as a cache for password verification, MFA and
+    /// token issuance; PostgreSQL remains the source of truth across restarts.
+    pub fn upsert_persisted_user(&mut self, user: User) {
+        self.users.insert(user.username.to_lowercase(), user);
+    }
+
+    /// Removes a user that was staged in memory but could not be persisted.
+    /// This keeps registration atomic from the API's perspective.
+    pub fn remove_user(&mut self, username: &str) -> Option<User> {
+        self.users.remove(&username.to_lowercase())
     }
 
     // ─── Registro ───
@@ -734,15 +745,19 @@ impl AuthManager {
     /// Gera códigos de backup (8 códigos de 8 dígitos) usando CSPRNG
     fn generate_backup_codes() -> Vec<String> {
         (0..8)
-            .map(|_| format!("{:08}", crate::rng_crypto::secure_random_u32(0..=99_999_999)))
+            .map(|_| {
+                format!(
+                    "{:08}",
+                    crate::rng_crypto::secure_random_u32(0..=99_999_999)
+                )
+            })
             .collect()
     }
 
     /// Gera URI otpauth:// para QR code
     fn generate_otpauth_uri(username: &str, secret: &str) -> String {
         format!(
-            "otpauth://totp/PokerPlatform:{}?secret={}&issuer=PokerPlatform&algorithm=SHA1&digits={}&period={}",
-            username, secret, TOTP_DIGITS, TOTP_PERIOD
+            "otpauth://totp/PokerPlatform:{username}?secret={secret}&issuer=PokerPlatform&algorithm=SHA1&digits={TOTP_DIGITS}&period={TOTP_PERIOD}",
         )
     }
 
@@ -771,7 +786,7 @@ impl AuthManager {
     /// Gera código TOTP para um dado contador (HMAC-SHA1, RFC 4226/6238)
     fn generate_totp_code(secret: &[u8], counter: u64) -> String {
         // HOTP: HMAC-SHA1(secret, counter)
-        type HmacSha1 = Hmac<sha2::Sha256>;
+        type HmacSha1 = Hmac<Sha1>;
 
         let mut mac = HmacSha1::new_from_slice(secret).expect("HMAC key size");
 
@@ -804,8 +819,12 @@ enum JwtError {
 
 /// Codifica claims em um token JWT assinado com HMAC-SHA256 usando jsonwebtoken
 fn jwt_encode<T: serde::Serialize>(claims: &T, secret: &[u8]) -> Result<String, serde_json::Error> {
-    encode(&Header::default(), claims, &EncodingKey::from_secret(secret))
-        .map_err(serde::ser::Error::custom)
+    encode(
+        &Header::default(),
+        claims,
+        &EncodingKey::from_secret(secret),
+    )
+    .map_err(serde::ser::Error::custom)
 }
 
 /// Decodifica e valida um token JWT usando jsonwebtoken (timing-attack safe)
@@ -821,20 +840,6 @@ fn jwt_decode<T: serde::de::DeserializeOwned>(token: &str, secret: &[u8]) -> Res
             _ => Err(JwtError::Invalid),
         },
     }
-}
-
-/// Codifica bytes em Base64URL (sem padding, caracteres URL-safe)
-fn base64_url_encode(data: &[u8]) -> String {
-    use base64::Engine;
-    base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(data)
-}
-
-/// Decodifica Base64URL para bytes
-fn base64_url_decode(encoded: &str) -> Option<Vec<u8>> {
-    use base64::Engine;
-    base64::engine::general_purpose::URL_SAFE_NO_PAD
-        .decode(encoded)
-        .ok()
 }
 
 // ─── Codificação Base32 (RFC 4648) ───

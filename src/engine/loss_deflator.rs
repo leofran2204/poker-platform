@@ -16,9 +16,9 @@ pub struct LossDeflatorPayout {
 }
 
 /// Calculates progressive cashback (Loss Deflator) for players based on hand results.
-/// 
+///
 /// FIX CRÍTICO:
-/// Previne o bug de cashback negativo em side pots. 
+/// Previne o bug de cashback negativo em side pots.
 /// O cashback é calculado exclusivamente sobre perdas líquidas REAIS (`net_loss > 0`).
 /// Se o jogador teve lucro ou empatou (`amount_won >= total_bet`), o cashback é EXATAMENTE 0.0.
 pub fn calculate_loss_deflators(stats: &[PlayerLossStats]) -> Vec<LossDeflatorPayout> {

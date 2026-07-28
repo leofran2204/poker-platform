@@ -53,6 +53,8 @@ pub struct TableData {
     pub game_type: GameType,
     pub small_blind: u64,
     pub big_blind: u64,
+    pub min_buy_in: u64,
+    pub max_buy_in: u64,
     pub players: u32,
     pub max_players: u32,
 }
@@ -79,7 +81,11 @@ impl TableData {
 
     /// Percentual de ocupação da mesa (0–100).
     #[must_use]
-    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss, clippy::cast_precision_loss)]
+    #[allow(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        clippy::cast_precision_loss
+    )]
     pub fn occupancy_percent(&self) -> u32 {
         if self.max_players == 0 {
             return 0;
@@ -99,7 +105,7 @@ pub fn TableCard(table: TableData) -> Element {
     let occupancy = table.occupancy_percent();
     let economy_badge = match table.game_type {
         GameType::Tournament | GameType::Freeroll => "Fee 7% (Rebuy 0%)",
-        _ => "Rake 3.5% (Cap R$ 5,00)",
+        _ => "Rake 5% (configurado por mesa)",
     };
 
     rsx! {
@@ -162,6 +168,8 @@ mod tests {
             game_type: GameType::TexasHoldem,
             small_blind: 1,
             big_blind: 2,
+            min_buy_in: 20,
+            max_buy_in: 200,
             players,
             max_players,
         }

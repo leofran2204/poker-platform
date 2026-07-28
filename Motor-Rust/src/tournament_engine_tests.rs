@@ -10,15 +10,14 @@
 //
 // Cada lote cobre: casos normais, edge cases, erros e invariantes.
 
-#![cfg(test)]
 #![allow(unused_imports, unused_variables, dead_code)]
 
 use crate::tournament_engine::{
     advance_blinds, cancel_tournament, create_tournament, eliminate_player, finish_tournament,
     get_current_blinds, get_tournament_stats, is_blind_level_expired, pause_tournament,
-    process_addon, process_rebuy, register_player, resume_tournament, start_tournament,
-    BlindLevel, PlayerTournamentEntry, TournamentConfig, TournamentResult, TournamentSpeed,
-    TournamentStats, TournamentStatus,
+    process_addon, process_rebuy, register_player, resume_tournament, start_tournament, BlindLevel,
+    PlayerTournamentEntry, TournamentConfig, TournamentResult, TournamentSpeed, TournamentStats,
+    TournamentStatus,
 };
 use std::collections::HashMap;
 
@@ -1020,9 +1019,9 @@ mod lote_7a_create_tournament {
 
     #[test]
     fn test_create_tournament_with_single_blind_level() {
-        let state = create_tournament(config_with_blind_levels(vec![
-            make_blind_level(1, 10, 20, 0, 10),
-        ]));
+        let state = create_tournament(config_with_blind_levels(vec![make_blind_level(
+            1, 10, 20, 0, 10,
+        )]));
         assert_eq!(state.config.blind_levels.len(), 1);
     }
 
@@ -1153,7 +1152,10 @@ mod lote_7a_create_tournament {
         let state = create_tournament(config.clone());
         assert_eq!(state.config.game_type, config.game_type);
         assert_eq!(state.config.starting_stack, config.starting_stack);
-        assert_eq!(state.config.late_registration_max_level, config.late_registration_max_level);
+        assert_eq!(
+            state.config.late_registration_max_level,
+            config.late_registration_max_level
+        );
         assert_eq!(state.config.rebuy_max_level, config.rebuy_max_level);
     }
 }
@@ -5366,7 +5368,10 @@ mod lote_7d_elimination_rebuy {
         start_tournament(&mut state).unwrap();
         eliminate_player(&mut state, "p3", Some(5)).unwrap();
         eliminate_player(&mut state, "p1", Some(4)).unwrap();
-        assert_eq!(state.eliminated_order, vec!["p3".to_string(), "p1".to_string()]);
+        assert_eq!(
+            state.eliminated_order,
+            vec!["p3".to_string(), "p1".to_string()]
+        );
     }
 
     #[test]
@@ -5769,7 +5774,10 @@ mod lote_7d_elimination_rebuy {
         let before = state.prize_pool;
         eliminate_player(&mut state, "p1", None).unwrap();
         process_rebuy(&mut state, "p1").unwrap();
-        assert_eq!(state.prize_pool, before + (state.config.buy_in as f64 * state.config.prize_pool_pct) as u64);
+        assert_eq!(
+            state.prize_pool,
+            before + (state.config.buy_in as f64 * state.config.prize_pool_pct) as u64
+        );
     }
 
     #[test]
@@ -6798,10 +6806,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -6812,10 +6820,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -6826,10 +6834,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -6840,10 +6848,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -6854,10 +6862,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -6868,10 +6876,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -6882,10 +6890,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -6896,10 +6904,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -6910,10 +6918,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -6924,10 +6932,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -6938,10 +6946,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -6952,10 +6960,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -6966,10 +6974,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -6980,10 +6988,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -6994,10 +7002,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7008,10 +7016,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7022,10 +7030,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7036,10 +7044,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7050,10 +7058,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7064,10 +7072,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7078,10 +7086,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7092,10 +7100,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7106,10 +7114,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7120,10 +7128,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7134,10 +7142,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7148,10 +7156,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7162,10 +7170,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7176,10 +7184,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7190,10 +7198,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7204,10 +7212,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7218,10 +7226,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7232,10 +7240,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7246,10 +7254,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7260,10 +7268,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7274,10 +7282,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7288,10 +7296,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7302,10 +7310,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7316,10 +7324,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7330,10 +7338,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7344,10 +7352,10 @@ mod lote_7e_addon_finish {
         register_player(&mut state, "p1", "P1").unwrap();
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
-        
+
         let res1 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res1.is_ok());
-        
+
         let res2 = process_addon(&mut state, "p1", 5000, 500);
         assert!(res2.is_err());
     }
@@ -7802,7 +7810,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -7821,7 +7834,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -7840,7 +7858,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -7859,7 +7882,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -7878,7 +7906,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -7897,7 +7930,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -7916,7 +7954,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -7935,7 +7978,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -7954,7 +8002,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -7973,7 +8026,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -7992,7 +8050,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8011,7 +8074,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8030,7 +8098,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8049,7 +8122,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8068,7 +8146,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8087,7 +8170,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8106,7 +8194,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8125,7 +8218,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8144,7 +8242,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8163,7 +8266,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8182,7 +8290,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8201,7 +8314,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8220,7 +8338,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8239,7 +8362,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8258,7 +8386,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8277,7 +8410,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8296,7 +8434,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8315,7 +8458,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8334,7 +8482,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8353,7 +8506,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8372,7 +8530,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8391,7 +8554,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8410,7 +8578,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8429,7 +8602,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8448,7 +8626,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8467,7 +8650,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8486,7 +8674,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8505,7 +8698,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8524,7 +8722,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8543,7 +8746,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8562,7 +8770,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8581,7 +8794,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8600,7 +8818,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8619,7 +8842,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8638,7 +8866,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8657,7 +8890,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8676,7 +8914,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8695,7 +8938,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8714,7 +8962,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8733,7 +8986,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8752,7 +9010,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8771,7 +9034,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8790,7 +9058,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8809,7 +9082,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8828,7 +9106,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8847,7 +9130,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8866,7 +9154,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8885,7 +9178,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8904,7 +9202,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8923,7 +9226,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8942,7 +9250,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8961,7 +9274,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8980,7 +9298,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -8999,7 +9322,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9018,7 +9346,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9037,7 +9370,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9056,7 +9394,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9075,7 +9418,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9094,7 +9442,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9113,7 +9466,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9132,7 +9490,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9151,7 +9514,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9170,7 +9538,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9189,7 +9562,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9208,7 +9586,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9227,7 +9610,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9246,7 +9634,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9265,7 +9658,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9284,7 +9682,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -9303,7 +9706,12 @@ mod lote_7e_addon_finish {
         start_tournament(&mut state).unwrap();
 
         for i in 2..=num_players {
-            eliminate_player(&mut state, &format!("p{}", i), Some(num_players as u32 - i as u32 + 2)).unwrap();
+            eliminate_player(
+                &mut state,
+                &format!("p{}", i),
+                Some(num_players as u32 - i as u32 + 2),
+            )
+            .unwrap();
         }
 
         let res = finish_tournament(&mut state);
@@ -10083,7 +10491,8 @@ mod lote_7f_cancel_stats_serialization {
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
         let json = serde_json::to_string(&state).unwrap();
-        let state2: crate::tournament_engine::TournamentState = serde_json::from_str(&json).unwrap();
+        let state2: crate::tournament_engine::TournamentState =
+            serde_json::from_str(&json).unwrap();
         assert_eq!(state2.tournament_id, state.tournament_id);
     }
 
@@ -10094,7 +10503,8 @@ mod lote_7f_cancel_stats_serialization {
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
         let json = serde_json::to_string(&state).unwrap();
-        let state2: crate::tournament_engine::TournamentState = serde_json::from_str(&json).unwrap();
+        let state2: crate::tournament_engine::TournamentState =
+            serde_json::from_str(&json).unwrap();
         assert_eq!(state2.status, state.status);
     }
 
@@ -10106,7 +10516,8 @@ mod lote_7f_cancel_stats_serialization {
         start_tournament(&mut state).unwrap();
         advance_blinds(&mut state).unwrap();
         let json = serde_json::to_string(&state).unwrap();
-        let state2: crate::tournament_engine::TournamentState = serde_json::from_str(&json).unwrap();
+        let state2: crate::tournament_engine::TournamentState =
+            serde_json::from_str(&json).unwrap();
         assert_eq!(state2.current_level, state.current_level);
     }
 
@@ -10118,7 +10529,8 @@ mod lote_7f_cancel_stats_serialization {
         }
         start_tournament(&mut state).unwrap();
         let json = serde_json::to_string(&state).unwrap();
-        let state2: crate::tournament_engine::TournamentState = serde_json::from_str(&json).unwrap();
+        let state2: crate::tournament_engine::TournamentState =
+            serde_json::from_str(&json).unwrap();
         assert_eq!(state2.players.len(), state.players.len());
     }
 
@@ -10131,7 +10543,8 @@ mod lote_7f_cancel_stats_serialization {
         start_tournament(&mut state).unwrap();
         eliminate_player(&mut state, "p1", None).unwrap();
         let json = serde_json::to_string(&state).unwrap();
-        let state2: crate::tournament_engine::TournamentState = serde_json::from_str(&json).unwrap();
+        let state2: crate::tournament_engine::TournamentState =
+            serde_json::from_str(&json).unwrap();
         assert_eq!(state2.players_remaining, state.players_remaining);
     }
 
@@ -10143,7 +10556,8 @@ mod lote_7f_cancel_stats_serialization {
         start_tournament(&mut state).unwrap();
         cancel_tournament(&mut state).unwrap();
         let json = serde_json::to_string(&state).unwrap();
-        let state2: crate::tournament_engine::TournamentState = serde_json::from_str(&json).unwrap();
+        let state2: crate::tournament_engine::TournamentState =
+            serde_json::from_str(&json).unwrap();
         assert_eq!(state2.status, TournamentStatus::Cancelled);
     }
 
@@ -10156,7 +10570,8 @@ mod lote_7f_cancel_stats_serialization {
         eliminate_player(&mut state, "p2", None).unwrap();
         finish_tournament(&mut state).unwrap();
         let json = serde_json::to_string(&state).unwrap();
-        let state2: crate::tournament_engine::TournamentState = serde_json::from_str(&json).unwrap();
+        let state2: crate::tournament_engine::TournamentState =
+            serde_json::from_str(&json).unwrap();
         assert_eq!(state2.status, TournamentStatus::Finished);
     }
 
@@ -10169,7 +10584,8 @@ mod lote_7f_cancel_stats_serialization {
         eliminate_player(&mut state, "p1", None).unwrap();
         process_rebuy(&mut state, "p1").unwrap();
         let json = serde_json::to_string(&state).unwrap();
-        let state2: crate::tournament_engine::TournamentState = serde_json::from_str(&json).unwrap();
+        let state2: crate::tournament_engine::TournamentState =
+            serde_json::from_str(&json).unwrap();
         assert_eq!(state2.total_rebuys, state.total_rebuys);
     }
 
@@ -10181,7 +10597,8 @@ mod lote_7f_cancel_stats_serialization {
         start_tournament(&mut state).unwrap();
         process_addon(&mut state, "p1", 5000, 500).unwrap();
         let json = serde_json::to_string(&state).unwrap();
-        let state2: crate::tournament_engine::TournamentState = serde_json::from_str(&json).unwrap();
+        let state2: crate::tournament_engine::TournamentState =
+            serde_json::from_str(&json).unwrap();
         assert_eq!(state2.total_addons, state.total_addons);
     }
 
@@ -10193,7 +10610,8 @@ mod lote_7f_cancel_stats_serialization {
         }
         start_tournament(&mut state).unwrap();
         let json = serde_json::to_string(&state).unwrap();
-        let state2: crate::tournament_engine::TournamentState = serde_json::from_str(&json).unwrap();
+        let state2: crate::tournament_engine::TournamentState =
+            serde_json::from_str(&json).unwrap();
         assert_eq!(state2.prize_pool, state.prize_pool);
     }
 
@@ -10207,7 +10625,8 @@ mod lote_7f_cancel_stats_serialization {
         eliminate_player(&mut state, "p1", None).unwrap();
         eliminate_player(&mut state, "p2", None).unwrap();
         let json = serde_json::to_string(&state).unwrap();
-        let state2: crate::tournament_engine::TournamentState = serde_json::from_str(&json).unwrap();
+        let state2: crate::tournament_engine::TournamentState =
+            serde_json::from_str(&json).unwrap();
         assert_eq!(state2.eliminated_order, state.eliminated_order);
     }
 
@@ -10218,7 +10637,8 @@ mod lote_7f_cancel_stats_serialization {
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
         let json = serde_json::to_string(&state).unwrap();
-        let state2: crate::tournament_engine::TournamentState = serde_json::from_str(&json).unwrap();
+        let state2: crate::tournament_engine::TournamentState =
+            serde_json::from_str(&json).unwrap();
         assert_eq!(state2.config.name, state.config.name);
     }
 
@@ -10229,8 +10649,12 @@ mod lote_7f_cancel_stats_serialization {
         register_player(&mut state, "p2", "P2").unwrap();
         start_tournament(&mut state).unwrap();
         let json = serde_json::to_string(&state).unwrap();
-        let state2: crate::tournament_engine::TournamentState = serde_json::from_str(&json).unwrap();
-        assert_eq!(state2.players.get("p1").unwrap().stack, state.players.get("p1").unwrap().stack);
+        let state2: crate::tournament_engine::TournamentState =
+            serde_json::from_str(&json).unwrap();
+        assert_eq!(
+            state2.players.get("p1").unwrap().stack,
+            state.players.get("p1").unwrap().stack
+        );
     }
 
     #[test]
@@ -10242,7 +10666,8 @@ mod lote_7f_cancel_stats_serialization {
         eliminate_player(&mut state, "p1", None).unwrap();
         process_rebuy(&mut state, "p1").unwrap();
         let json = serde_json::to_string(&state).unwrap();
-        let state2: crate::tournament_engine::TournamentState = serde_json::from_str(&json).unwrap();
+        let state2: crate::tournament_engine::TournamentState =
+            serde_json::from_str(&json).unwrap();
         assert_eq!(state2.players.get("p1").unwrap().rebuys, 1);
     }
 
@@ -10254,7 +10679,8 @@ mod lote_7f_cancel_stats_serialization {
         start_tournament(&mut state).unwrap();
         process_addon(&mut state, "p1", 5000, 500).unwrap();
         let json = serde_json::to_string(&state).unwrap();
-        let state2: crate::tournament_engine::TournamentState = serde_json::from_str(&json).unwrap();
+        let state2: crate::tournament_engine::TournamentState =
+            serde_json::from_str(&json).unwrap();
         assert!(state2.players.get("p1").unwrap().addon_done);
     }
 }

@@ -1,17 +1,21 @@
-# deploy.ps1 — Script de Deploy Automatizado para Windows
+# deploy.ps1 — Script de inicialização local via Docker Compose
+
+$ErrorActionPreference = "Stop"
+$projectRoot = Split-Path -Parent $PSScriptRoot
+$infraDir = Join-Path $projectRoot "Infraestrutura-Docker"
 
 Write-Host "🚀 [Deploy] Iniciando deploy da Plataforma de Poker..." -ForegroundColor Green
 
 # 1. Copia .env.example para .env se não existir
-if (-not (Test-Path "Infraestrutura-Docker\.env")) {
+if (-not (Test-Path (Join-Path $infraDir ".env"))) {
     Write-Host "⚠️ Arquivo .env não encontrado. Copiando .env.example..." -ForegroundColor Yellow
-    Copy-Item "Infraestrutura-Docker\.env.example" "Infraestrutura-Docker\.env"
+    Copy-Item (Join-Path $infraDir ".env.example") (Join-Path $infraDir ".env")
 }
 
 # 2. Build e Inicialização dos Containers
-Set-Location "Infraestrutura-Docker"
+Push-Location $infraDir
 Write-Host "📦 Compilando containers com Docker Compose..." -ForegroundColor Cyan
-docker-compose up -d --build
+docker compose up -d --build
 
 # 3. Health Check
 Write-Host "⏳ Aguardando serviços responderem ao Health Check..." -ForegroundColor Yellow
@@ -22,8 +26,8 @@ $healthy = $false
 while ($counter -lt $maxRetries -and -not $healthy) {
     $counter++
     try {
-        $res = Invoke-RestMethod -Uri "http://localhost:3000/api/health" -Method Get -ErrorAction Stop
-        if ($res.status -eq "ok" -or $res) {
+        $res = Invoke-WebRequest -Uri "http://127.0.0.1:3000/health" -Method Get -ErrorAction Stop
+        if ($res.StatusCode -eq 200) {
             $healthy = $true
         }
     } catch {
@@ -34,10 +38,12 @@ while ($counter -lt $maxRetries -and -not $healthy) {
 if ($healthy) {
     Write-Host "✅ API Axum respondeu com sucesso ao Health Check!" -ForegroundColor Green
 } else {
-    Write-Host "⚠️ API demorou a responder ao health check. Verifique os logs com: docker logs poker_api" -ForegroundColor Yellow
+    Write-Host "⚠️ API demorou a responder ao health check. Verifique os logs com: docker compose logs poker_api" -ForegroundColor Yellow
 }
+
+Pop-Location
 
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host "🎉 Deploy concluído com sucesso!" -ForegroundColor Green
-Write-Host "🌐 API REST: http://localhost:3000 | HTTPS: https://localhost" -ForegroundColor Yellow
+Write-Host "🌐 Frontend: https://localhost | API local: http://127.0.0.1:3000" -ForegroundColor Yellow
 Write-Host "============================================================" -ForegroundColor Cyan

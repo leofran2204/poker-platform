@@ -70,7 +70,8 @@ impl TableActor {
                     if let Some(game_loop) = &self.game_loop {
                         let _ = respond_to.send(game_loop.state.clone());
                     } else {
-                        let dummy_state = GameState::new(self.players.values().cloned().collect(), 0, 10.0);
+                        let dummy_state =
+                            GameState::new(self.players.values().cloned().collect(), 0, 10.0);
                         let _ = respond_to.send(dummy_state);
                     }
                 }

@@ -6,7 +6,9 @@ use poker_engine::engine::{calculate_side_pots, Contribution};
 use poker_engine::history::HandHistoryRecord;
 use poker_engine::ledger::{EntryType, LedgerAccount};
 use poker_engine::security::RateLimiter;
-use poker_engine::server::{TableActor, TableMessage, WebSocketServer, WsActionType, WsIncomingPacket};
+use poker_engine::server::{
+    TableActor, TableMessage, WebSocketServer, WsActionType, WsIncomingPacket,
+};
 use poker_engine::tournament::{BlindStructure, Tournament};
 use sha2::{Digest, Sha256};
 use tokio::sync::mpsc;
@@ -19,9 +21,21 @@ async fn test_final_quality_gate_all_modules_integration() {
 
     // 1. Core Engine Side Pots
     let contribs = vec![
-        Contribution { player_id: "A".into(), total_bet: 100.0, has_folded: false },
-        Contribution { player_id: "B".into(), total_bet: 500.0, has_folded: true },
-        Contribution { player_id: "C".into(), total_bet: 500.0, has_folded: false },
+        Contribution {
+            player_id: "A".into(),
+            total_bet: 100.0,
+            has_folded: false,
+        },
+        Contribution {
+            player_id: "B".into(),
+            total_bet: 500.0,
+            has_folded: true,
+        },
+        Contribution {
+            player_id: "C".into(),
+            total_bet: 500.0,
+            has_folded: false,
+        },
     ];
     let side_pots = calculate_side_pots(&contribs);
     assert_eq!(side_pots[0].eligible_players.len(), 2);
@@ -46,8 +60,14 @@ async fn test_final_quality_gate_all_modules_integration() {
 
     // 5. Antifraude Subnet Guard
     let sessions = vec![
-        PlayerSession { user_id: "P1".into(), ip_address: "192.168.1.10".into() },
-        PlayerSession { user_id: "P2".into(), ip_address: "192.168.1.55".into() },
+        PlayerSession {
+            user_id: "P1".into(),
+            ip_address: "192.168.1.10".into(),
+        },
+        PlayerSession {
+            user_id: "P2".into(),
+            ip_address: "192.168.1.55".into(),
+        },
     ];
     assert!(CollusionDetector::validate_table_seating(&sessions).is_err());
     println!("   ✔ 5. Antifraude (IP & Subnet /24 Guard): OK");
@@ -76,14 +96,22 @@ async fn test_final_quality_gate_all_modules_integration() {
     // 8. WebSocket Server & Tokio Actors
     let (tx, rx) = mpsc::channel::<TableMessage>(100);
     let mut actor = TableActor::new("Table_Final", rx);
-    tokio::spawn(async move { actor.run().await; });
+    tokio::spawn(async move {
+        actor.run().await;
+    });
 
     let ws_server = WebSocketServer::new();
     let packet = WsIncomingPacket {
         player_id: "TP1".into(),
-        action: WsActionType::JoinTable { table_id: "Table_Final".into(), ip_address: "203.0.113.99".into() },
+        action: WsActionType::JoinTable {
+            table_id: "Table_Final".into(),
+            ip_address: "203.0.113.99".into(),
+        },
     };
-    assert!(ws_server.process_incoming_packet(packet, &tx, "203.0.113.99").await.is_ok());
+    assert!(ws_server
+        .process_incoming_packet(packet, &tx, "203.0.113.99")
+        .await
+        .is_ok());
     println!("   ✔ 8. WebSocket Server & Actor Routing em Tempo Real: OK");
 
     // 9. Admin Dashboard & Audit

@@ -50,10 +50,10 @@ impl GameTypeFilter {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BlindsFilter {
     All,
-    Micro,   // big blind < R$ 1
-    Low,     // R$ 1–5
-    Medium,  // R$ 6–25
-    High,    // big blind > R$ 25
+    Micro,  // big blind < R$ 1
+    Low,    // R$ 1–5
+    Medium, // R$ 6–25
+    High,   // big blind > R$ 25
 }
 
 impl BlindsFilter {

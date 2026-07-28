@@ -1,8 +1,8 @@
 # 📚 Guia de Aprendizado — Plataforma de Poker (Rust)
 
-> **Data:** 2026-07-25
-> **Versão:** 5.0 (consolidação de ESTRATEGIA_APRENDIZADO + PARAMETROS_ESTUDO + guia Sprints S03 a S05 + 100% Concluído / Launch Ready)
-> **Status:** ✅ 100% CONCLUÍDO (Pronto para Produção)
+> **Data:** 2026-07-27
+> **Versão:** 5.1 (material didático consolidado)
+> **Status:** Em manutenção; não representa certificação de produção.
 
 
 Este documento consolida toda a estratégia de aprendizado do projeto em um único lugar:
@@ -237,7 +237,7 @@ Quando você navega em um site de notícias, seu navegador faz uma pergunta e o 
 
 Se enviássemos todas as informações da mesa de uma vez, um jogador mal-intencionado poderia abrir o console do navegador e ler as cartas de hole dos adversários.
 *   Para evitar isso, criamos o filtro de segurança `filter_table_state` no WebSocket.
-*   **A Regra:** O servidor lê o estado do jogo e apaga (torna `None` ou limpa o array) as cartas privadas de todos os outros jogadores. Você só recebe as suas próprias cartas no seu navegador. As cartas alheias só são transmitidas no Showdown (fim da mão), garantindo que ninguém consiga trapacear!
+*   **A Regra:** O servidor lê o estado do jogo e apaga (torna `None` ou limpa o array) as cartas privadas de todos os outros jogadores. Você só recebe as suas próprias cartas no seu navegador. As cartas privadas alheias não são transmitidas pelo WebSocket, inclusive ao fim da mão; o cliente recebe apenas o resultado público necessário.
 
 ---
 

@@ -5,6 +5,7 @@ use axum::Json;
 use serde::{Deserialize, Serialize};
 
 use crate::error::ApiError;
+use crate::middleware::auth::RequireAuth;
 use crate::state::AppState;
 
 // ─── Request / Response DTOs ───
@@ -42,8 +43,17 @@ pub struct TournamentInfoResponse {
 /// Request: `{tournament_id, player_id, player_name}` → Response: `{tournament_id, player_id, stack, registered}`
 pub async fn register_player(
     State(state): State<AppState>,
+    RequireAuth(auth_user): RequireAuth,
     Json(body): Json<RegisterBody>,
 ) -> Result<Json<RegisterResponse>, ApiError> {
+    // The authenticated identity is authoritative.  A request body must never
+    // be able to register or charge a different player account.
+    if body.player_id != auth_user.user_id {
+        return Err(ApiError::Forbidden(
+            "Tournament registration must use the authenticated player identity".to_string(),
+        ));
+    }
+
     let mut tournaments = state.tournaments.write().await;
 
     // Get or create the tournament store entry
@@ -73,8 +83,8 @@ pub async fn register_player(
     // Register the player in the tournament
     poker_engine::tournament_engine::register_player(
         &mut store.state,
-        &body.player_id,
-        &body.player_name,
+        &auth_user.user_id,
+        &auth_user.username,
     )
     .map_err(ApiError::BadRequest)?;
 
@@ -88,15 +98,15 @@ pub async fn register_player(
         "#,
     )
     .bind(&body.tournament_id)
-    .bind(&body.player_id)
-    .bind(&body.player_name)
+    .bind(&auth_user.user_id)
+    .bind(&auth_user.username)
     .bind(store.state.config.starting_stack as i64)
     .execute(&state.db)
     .await?;
 
     Ok(Json(RegisterResponse {
         tournament_id: body.tournament_id,
-        player_id: body.player_id,
+        player_id: auth_user.user_id,
         stack: store.state.config.starting_stack,
         registered: true,
     }))

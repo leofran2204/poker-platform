@@ -17,8 +17,8 @@ fn main() {
 
     let (hand, _remaining) = deal_cards(&shuffled, 2);
     let (community, _rest) = deal_cards(&shuffled[2..], 5);
-    println!("Mão do jogador: {:?}", hand);
-    println!("Cartas comunitárias: {:?}", community);
+    println!("Mão do jogador: {hand:?}");
+    println!("Cartas comunitárias: {community:?}");
 
     let result = evaluate_hand(&hand, &community);
     println!(
@@ -33,7 +33,7 @@ fn main() {
     println!("\n=== RAKE ===");
     let config = TableConfig {
         big_blind: 1000,
-        rake_percent: 3.5,
+        rake_basis_points: 500,
         rake_cap: 500,
     };
 

@@ -10,10 +10,26 @@ fn benchmark_sub_millisecond_latency_per_action_and_eval() {
 
     // 1. Latência do Cálculo de Potes Secundários (Side Pots)
     let contributions = vec![
-        Contribution { player_id: "P1".into(), total_bet: 100.0, has_folded: false },
-        Contribution { player_id: "P2".into(), total_bet: 500.0, has_folded: true },
-        Contribution { player_id: "P3".into(), total_bet: 500.0, has_folded: false },
-        Contribution { player_id: "P4".into(), total_bet: 250.0, has_folded: false },
+        Contribution {
+            player_id: "P1".into(),
+            total_bet: 100.0,
+            has_folded: false,
+        },
+        Contribution {
+            player_id: "P2".into(),
+            total_bet: 500.0,
+            has_folded: true,
+        },
+        Contribution {
+            player_id: "P3".into(),
+            total_bet: 500.0,
+            has_folded: false,
+        },
+        Contribution {
+            player_id: "P4".into(),
+            total_bet: 250.0,
+            has_folded: false,
+        },
     ];
 
     let iterations = 100_000;
@@ -62,9 +78,18 @@ fn benchmark_sub_millisecond_latency_per_action_and_eval() {
     let micros_per_turn = nanos_per_turn / 1000.0;
 
     println!("   ⚡ RESULTADOS DE MEDIÇÃO DE LATÊNCIA:");
-    println!("   - Cálculo de Side Pots:  {:.3} µs (microssegundos) por operação", micros_per_side_pot);
-    println!("   - Avaliação de Mão (7c): {:.3} µs (microssegundos) por operação", micros_per_eval);
-    println!("   - Rotação do Game Loop:  {:.3} µs (microssegundos) por operação", micros_per_turn);
+    println!(
+        "   - Cálculo de Side Pots:  {:.3} µs (microssegundos) por operação",
+        micros_per_side_pot
+    );
+    println!(
+        "   - Avaliação de Mão (7c): {:.3} µs (microssegundos) por operação",
+        micros_per_eval
+    );
+    println!(
+        "   - Rotação do Game Loop:  {:.3} µs (microssegundos) por operação",
+        micros_per_turn
+    );
     println!("\n   Veredito: Latência do motor backend é SUB-MILISSEGUNDO (< 0.01 ms)!");
     println!("========================================================\n");
 

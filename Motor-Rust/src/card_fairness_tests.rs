@@ -94,7 +94,10 @@ fn test_card_fairness_no_duplicates_full_deal() {
         let mut seen = [false; 52];
         for c in &all {
             let idx = card_index(c);
-            assert!(!seen[idx], "Carta duplicada detectada no deal (ex.: duas Damas de Copas)");
+            assert!(
+                !seen[idx],
+                "Carta duplicada detectada no deal (ex.: duas Damas de Copas)"
+            );
             seen[idx] = true;
         }
     }
@@ -181,7 +184,11 @@ fn test_card_fairness_community_flop_turn_river_distribution() {
     );
 
     // Bound de 3σ para qualquer posição < 0.5%.
-    for (label, total) in [("flop", flop_total / 3), ("turn", turn_total), ("river", river_total)] {
+    for (label, total) in [
+        ("flop", flop_total / 3),
+        ("turn", turn_total),
+        ("river", river_total),
+    ] {
         let bound = 3.0 * (1.0 / 52.0 * (51.0 / 52.0) / total as f64).sqrt();
         assert!(
             bound < 0.005,

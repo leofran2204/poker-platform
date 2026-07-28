@@ -26,14 +26,28 @@ fn test_500k_device_fingerprint_and_geo_proximity_fuzzing_stress() {
         let (fp2, ip2, geo2) = if i % 10_000 == 0 {
             // Falsifica 4G mas mesma localização física (< 10 metros)
             (
-                DeviceFingerprint::new("GPU_Different", "Audio_Diff", "4K", "Fonts_B", "Device_Z", "OS_W"),
+                DeviceFingerprint::new(
+                    "GPU_Different",
+                    "Audio_Diff",
+                    "4K",
+                    "Fonts_B",
+                    "Device_Z",
+                    "OS_W",
+                ),
                 format!("177.92.14.{}", i % 250),
                 GeoLocation::new(-23.561500, -46.655900),
             )
         } else {
             // Jogador legítimo em local distante (> 10 km)
             (
-                DeviceFingerprint::new(&format!("GPU_Legit_{}", i), "Audio_L", "1080p", "Fonts_L", "Device_L", "OS_L"),
+                DeviceFingerprint::new(
+                    &format!("GPU_Legit_{}", i),
+                    "Audio_L",
+                    "1080p",
+                    "Fonts_L",
+                    "Device_L",
+                    "OS_L",
+                ),
                 format!("200.100.50.{}", i % 250),
                 GeoLocation::new(-22.9068, -43.1729), // Rio de Janeiro
             )
@@ -56,7 +70,10 @@ fn test_500k_device_fingerprint_and_geo_proximity_fuzzing_stress() {
         let result = DeviceSecurityGuard::validate_table_seating_advanced(&[p1, p2]);
 
         if i % 10_000 == 0 {
-            assert!(matches!(result, Err(CollusionViolation::PhysicalProximityViolation(..))));
+            assert!(matches!(
+                result,
+                Err(CollusionViolation::PhysicalProximityViolation(..))
+            ));
         }
     }
 
@@ -65,7 +82,10 @@ fn test_500k_device_fingerprint_and_geo_proximity_fuzzing_stress() {
 
     println!("   ✔ 500.000 simulações de Device Fingerprint e GPS concluídas!");
     println!("   - Tempo Total: {:.3?} s", elapsed.as_secs_f64());
-    println!("   - Taxa de Validação: {:.2} verificações/segundo", ops_per_sec);
+    println!(
+        "   - Taxa de Validação: {:.2} verificações/segundo",
+        ops_per_sec
+    );
     println!("   - Nível de Proteção Cibernética: Estado da Arte (100% Homologado)");
     println!("========================================================\n");
 

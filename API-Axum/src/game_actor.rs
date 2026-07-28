@@ -4,11 +4,11 @@
 // e a transmissão das cartas e apostas via WebSockets.
 
 use tokio::sync::{broadcast, mpsc, oneshot};
-use tracing::{info, error};
+use tracing::{error, info};
 
 use poker_engine::game_loop::{GameLoop, PlayerMove};
-use poker_engine::types::TableConfig;
 use poker_engine::hand_history::GameType;
+use poker_engine::types::TableConfig;
 
 /// Ações que podem ser solicitadas pelos jogadores.
 #[derive(Debug)]
@@ -22,6 +22,12 @@ pub enum PlayerCommand {
     },
     Leave {
         player_id: String,
+    },
+    /// Cash-out is accepted only between hands. `Some(chips)` means the actor
+    /// had the current stack in memory; `None` lets the API use persisted escrow.
+    CashOut {
+        player_id: String,
+        respond_to: oneshot::Sender<Result<Option<u64>, String>>,
     },
     Action {
         player_id: String,
@@ -57,6 +63,80 @@ pub struct TableActor {
     pub last_turn_start: Option<tokio::time::Instant>,
     pub db: Option<sqlx::PgPool>,
     pub redis: Option<redis::aio::ConnectionManager>,
+    pub audit_secret: Option<String>,
+}
+
+async fn persist_hand_history(
+    db: sqlx::PgPool,
+    hand_id: uuid::Uuid,
+    table_id: uuid::Uuid,
+    participants: Vec<uuid::Uuid>,
+    actions: serde_json::Value,
+    community_cards: serde_json::Value,
+    pot: i64,
+    rake: i64,
+    reason: String,
+    small_blind: i64,
+    big_blind: i64,
+) {
+    let mut tx = match db.begin().await {
+        Ok(tx) => tx,
+        Err(error) => {
+            error!(?error, "Failed to begin hand history transaction");
+            return;
+        }
+    };
+    let hand_number: i64 = match sqlx::query_scalar(
+        "UPDATE tables SET hand_sequence = hand_sequence + 1 WHERE id = $1 RETURNING hand_sequence",
+    )
+    .bind(table_id)
+    .fetch_one(&mut *tx)
+    .await
+    {
+        Ok(hand_number) => hand_number,
+        Err(error) => {
+            error!(?error, "Failed to allocate hand number");
+            return;
+        }
+    };
+    if let Err(error) = sqlx::query(
+        "INSERT INTO hand_history (id, table_id, hand_number, game_type, small_blind, big_blind, actions_json, community_cards_json, pot_total, rake_collected, end_reason) \
+         VALUES ($1, $2, $3, 'cash', $4, $5, $6, $7, $8, $9, $10) \
+         ON CONFLICT (id) DO NOTHING",
+    )
+    .bind(hand_id)
+    .bind(table_id)
+    .bind(hand_number)
+    .bind(small_blind)
+    .bind(big_blind)
+    .bind(actions)
+    .bind(community_cards)
+    .bind(pot)
+    .bind(rake)
+    .bind(reason)
+    .execute(&mut *tx)
+    .await
+    {
+        error!(?error, "Failed to persist hand history");
+        return;
+    }
+
+    for user_id in participants {
+        if let Err(error) = sqlx::query(
+            "INSERT INTO hand_participants (hand_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+        )
+        .bind(hand_id)
+        .bind(user_id)
+        .execute(&mut *tx)
+        .await
+        {
+            error!(?error, "Failed to persist hand participant");
+            return;
+        }
+    }
+    if let Err(error) = tx.commit().await {
+        error!(?error, "Failed to commit hand history transaction");
+    }
 }
 
 impl TableActor {
@@ -69,7 +149,7 @@ impl TableActor {
         Self {
             table_id,
             name,
-            config: TableConfig::new(2000, 0.05, 10000), // Default BB=2000 centavos (R$ 20,00), rake=5%, cap=10000 centavos (R$ 100,00)
+            config: TableConfig::new(2000, 500, 10000), // Default BB=2000 centavos (R$ 20,00), rake=5%, cap=10000 centavos (R$ 100,00)
             players: Vec::new(),
             game_loop: None,
             rx,
@@ -80,6 +160,7 @@ impl TableActor {
             last_turn_start: Some(tokio::time::Instant::now()),
             db: None,
             redis: None,
+            audit_secret: None,
         }
     }
 
@@ -88,8 +169,18 @@ impl TableActor {
         self
     }
 
+    pub fn with_config(mut self, config: TableConfig) -> Self {
+        self.config = config;
+        self
+    }
+
     pub fn with_redis(mut self, redis: redis::aio::ConnectionManager) -> Self {
         self.redis = Some(redis);
+        self
+    }
+
+    pub fn with_audit_secret(mut self, audit_secret: String) -> Self {
+        self.audit_secret = Some(audit_secret);
         self
     }
 
@@ -117,7 +208,13 @@ impl TableActor {
 
     async fn handle_command(&mut self, cmd: PlayerCommand) {
         match cmd {
-            PlayerCommand::Sit { player_id, username, seat, chips, respond_to } => {
+            PlayerCommand::Sit {
+                player_id,
+                username,
+                seat,
+                chips,
+                respond_to,
+            } => {
                 let assigned_seat = self.handle_sit(player_id, username, seat, chips);
                 let _ = respond_to.send(assigned_seat);
                 self.save_snapshot().await;
@@ -126,8 +223,20 @@ impl TableActor {
                 self.handle_leave(player_id);
                 self.save_snapshot().await;
             }
-            PlayerCommand::Action { player_id, action, amount } => {
-                self.handle_action(player_id, action, amount);
+            PlayerCommand::CashOut {
+                player_id,
+                respond_to,
+            } => {
+                let chips = self.handle_cash_out(&player_id);
+                let _ = respond_to.send(chips);
+                self.save_snapshot().await;
+            }
+            PlayerCommand::Action {
+                player_id,
+                action,
+                amount,
+            } => {
+                self.handle_action(player_id, action, amount).await;
                 self.save_snapshot().await;
             }
             PlayerCommand::GetTableInfo { respond_to } => {
@@ -144,13 +253,26 @@ impl TableActor {
                 self.game_loop = None;
                 self.start_new_hand();
             }
-        } else if self.game_loop.is_none() && self.players.iter().filter(|p| p.is_sitting && p.chips > 0).count() >= 2 {
+        } else if self.game_loop.is_none()
+            && self
+                .players
+                .iter()
+                .filter(|p| p.is_sitting && p.chips > 0)
+                .count()
+                >= 2
+        {
             // Auto-start hand if we have enough players
             self.start_new_hand();
         }
     }
 
-    fn handle_sit(&mut self, player_id: String, username: String, seat: Option<usize>, chips: u64) -> usize {
+    fn handle_sit(
+        &mut self,
+        player_id: String,
+        username: String,
+        seat: Option<usize>,
+        chips: u64,
+    ) -> usize {
         // Remover se já estiver na mesa (para evitar duplicatas)
         self.players.retain(|p| p.id != player_id);
 
@@ -177,7 +299,10 @@ impl TableActor {
             is_sitting: true,
         });
 
-        info!("Player sat at table {} in seat {}", self.table_id, assigned_seat);
+        info!(
+            "Player sat at table {} in seat {}",
+            self.table_id, assigned_seat
+        );
         self.broadcast_state();
         assigned_seat
     }
@@ -185,12 +310,13 @@ impl TableActor {
     fn handle_leave(&mut self, player_id: String) {
         self.players.retain(|p| p.id != player_id);
         info!("Player {} left table {}", player_id, self.table_id);
-        
+
         // Se o jogador sair e a mão estiver em andamento, devemos dar fold nele
         if let Some(ref mut gl) = self.game_loop {
             if !gl.state.is_finished {
                 let active_idx = gl.state.active_player_index;
-                let is_active_turn = gl.state.players.get(active_idx).map(|p| p.id.as_str()) == Some(player_id.as_str());
+                let is_active_turn = gl.state.players.get(active_idx).map(|p| p.id.as_str())
+                    == Some(player_id.as_str());
 
                 if is_active_turn {
                     let _ = gl.player_action(&player_id, PlayerMove::Fold);
@@ -206,7 +332,32 @@ impl TableActor {
         self.broadcast_state();
     }
 
-    fn handle_action(&mut self, player_id: String, action: String, amount: u64) {
+    fn handle_cash_out(&mut self, player_id: &str) -> Result<Option<u64>, String> {
+        if let Some(game_loop) = &self.game_loop {
+            if !game_loop.state.is_finished
+                && game_loop
+                    .state
+                    .players
+                    .iter()
+                    .any(|player| player.id == player_id)
+            {
+                return Err("Cannot cash out while a hand is in progress".to_string());
+            }
+        }
+
+        let chips = self
+            .players
+            .iter()
+            .find(|player| player.id == player_id)
+            .map(|player| player.chips);
+        if chips.is_some() {
+            self.players.retain(|player| player.id != player_id);
+            self.broadcast_state();
+        }
+        Ok(chips)
+    }
+
+    async fn handle_action(&mut self, player_id: String, action: String, amount: u64) {
         let elapsed_ms = self
             .last_turn_start
             .map(|t| t.elapsed().as_millis() as u64)
@@ -215,14 +366,25 @@ impl TableActor {
 
         let risk_score = self.antifraud.process_action(&player_id, elapsed_ms);
         if risk_score.recommendation == poker_engine::antifraud::RiskRecommendation::BlockSession {
-            error!("Action blocked by AntiFraud for player {}: risk score {}", player_id, risk_score.total_score);
+            error!(
+                "Action blocked by AntiFraud for player {}: risk score {}",
+                player_id, risk_score.total_score
+            );
             return;
         }
+
+        let history_db = self.db.clone();
+        let audit_secret = self.audit_secret.clone();
+        let table_id = self.table_id.clone();
+        let table_big_blind = self.config.big_blind;
 
         let game_loop = match &mut self.game_loop {
             Some(gl) => gl,
             None => {
-                error!("Attempted action but no game loop running at table: {}", self.table_id);
+                error!(
+                    "Attempted action but no game loop running at table: {}",
+                    self.table_id
+                );
                 return;
             }
         };
@@ -251,58 +413,108 @@ impl TableActor {
             if let Ok(res) = game_loop.resolve_hand() {
                 game_loop.finalize_history(&res);
 
-                // Persistir histórico da mão no PostgreSQL (operação desacoplada em background)
-                if let Some(ref mut history) = game_loop.history {
-                    let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "poker_platform_audit_secret_key_2026".to_string());
-                    poker_engine::hand_history::sign_hand(history, secret.as_bytes());
-                    if let Ok(history_json) = serde_json::to_value(&history) {
-                        let db_opt = self.db.clone();
-                        let hand_id = history.hand_id.clone();
-                        let pot = history.total_pot;
-                        let rake = history.rake;
-                        let reason = format!("{:?}", history.end_reason);
+                // Persist the finished hand synchronously in the actor's command
+                // order. This makes the per-table sequence a reliable audit trail.
+                if let (Some(history), Some(audit_secret), Some(db)) = (
+                    game_loop.history.as_mut(),
+                    audit_secret.as_deref(),
+                    history_db,
+                ) {
+                    poker_engine::hand_history::sign_hand(history, audit_secret.as_bytes());
+                    let participants = history
+                        .players
+                        .iter()
+                        .map(|player_id| uuid::Uuid::parse_str(player_id))
+                        .collect::<Result<Vec<_>, _>>();
+                    let persistence_data = (
+                        uuid::Uuid::parse_str(&history.hand_id),
+                        uuid::Uuid::parse_str(&table_id),
+                        participants,
+                        serde_json::to_value(&*history),
+                        i64::try_from(history.total_pot),
+                        i64::try_from(history.rake),
+                        i64::try_from(table_big_blind / 2),
+                        i64::try_from(table_big_blind),
+                    );
 
-                        tokio::spawn(async move {
-                            if let Some(db) = db_opt {
-                                let uuid_val = uuid::Uuid::parse_str(&hand_id).unwrap_or_else(|_| uuid::Uuid::new_v4());
-                                let _ = sqlx::query(
-                                    "INSERT INTO hand_history (id, table_id, hand_number, game_type, small_blind, big_blind, actions_json, community_cards_json, pot_total, rake_collected, end_reason)
-                                     VALUES ($1, NULL, 1, 'cash', 10, 20, $2, $3, $4, $5, $6)
-                                     ON CONFLICT (id) DO NOTHING"
-                                )
-                                .bind(uuid_val)
-                                .bind(&history_json["actions"])
-                                .bind(&history_json["community_cards"])
-                                .bind(pot as i64)
-                                .bind(rake as i64)
-                                .bind(&reason)
-                                .execute(&db)
-                                .await;
-                            }
-                        });
+                    if let (
+                        Ok(hand_id),
+                        Ok(table_id),
+                        Ok(participants),
+                        Ok(history_json),
+                        Ok(pot),
+                        Ok(rake),
+                        Ok(small_blind),
+                        Ok(big_blind),
+                    ) = persistence_data
+                    {
+                        persist_hand_history(
+                            db,
+                            hand_id,
+                            table_id,
+                            participants,
+                            history_json["actions"].clone(),
+                            history_json["community_cards"].clone(),
+                            pot,
+                            rake,
+                            format!("{:?}", &history.end_reason),
+                            small_blind,
+                            big_blind,
+                        )
+                        .await;
+                    } else {
+                        error!("Unable to construct an auditable hand history record");
                     }
+                } else {
+                    error!("Hand history persistence is missing database or audit-secret configuration");
                 }
 
-                // Atualizar os saldos das fichas na mesa baseado nos stacks e payouts
+                // Update every game-loop stack, including a player who disconnected
+                // mid-hand. The escrow record remains the source of truth for cash-out.
+                let settled_stacks: Vec<(String, u64)> = game_loop
+                    .state
+                    .players
+                    .iter()
+                    .map(|player| {
+                        let payout = res.payouts.get(&player.id).copied().unwrap_or(0);
+                        (player.id.clone(), player.stack + payout)
+                    })
+                    .collect();
                 for gp in &game_loop.state.players {
                     if let Some(tp) = self.players.iter_mut().find(|p| p.id == gp.id) {
                         let payout = res.payouts.get(&gp.id).copied().unwrap_or(0);
                         tp.chips = gp.stack + payout;
                     }
                 }
+                self.persist_settled_stacks(settled_stacks).await;
 
                 // Disparar evento global do Loss Deflator se foi ativado
                 if let Some(deflator) = &res.loss_deflator {
-                    let loser_name = self.players.iter().find(|p| p.id == deflator.loser_id).map(|p| p.name.clone()).unwrap_or_else(|| deflator.loser_id.clone());
-                    let winner_name = self.players.iter().find(|p| p.id == deflator.winner_id).map(|p| p.name.clone()).unwrap_or_else(|| deflator.winner_id.clone());
-                    
-                    let final_loser_chips = self.players.iter().find(|p| p.id == deflator.loser_id).map(|p| p.chips).unwrap_or(0);
+                    let loser_name = self
+                        .players
+                        .iter()
+                        .find(|p| p.id == deflator.loser_id)
+                        .map(|p| p.name.clone())
+                        .unwrap_or_else(|| deflator.loser_id.clone());
+                    let winner_name = self
+                        .players
+                        .iter()
+                        .find(|p| p.id == deflator.winner_id)
+                        .map(|p| p.name.clone())
+                        .unwrap_or_else(|| deflator.winner_id.clone());
+
+                    let final_loser_chips = self
+                        .players
+                        .iter()
+                        .find(|p| p.id == deflator.loser_id)
+                        .map(|p| p.chips)
+                        .unwrap_or(0);
                     let prevented_elimination = final_loser_chips == deflator.cashback;
-                    
+
                     // Como game_actor.rs atualmente orquestra Cash, deixamos fixo como false para torneio (torneio usa tournament_engine)
                     let is_tournament = false;
-                    
-                    // Como a regra de negócio atual baseia o deflator na fase e não nas odds exatas, 
+
+                    // Como a regra de negócio atual baseia o deflator na fase e não nas odds exatas,
                     // vamos enviar a fase (ex: 15%, 25%, 35%) como representação do "quão quebrado" foi o river.
                     // O UX pediu para mostrar "(18%)". Vamos mapear as probabilidades estimadas daquela fase.
                     // Se deflator.odds foi calculado (> 0), usamos a chance do VENCEDOR (1 - loser_equity)
@@ -327,13 +539,14 @@ impl TableActor {
                         "prevented_elimination": prevented_elimination,
                         "is_tournament": is_tournament
                     });
-                    
+
                     let _ = self.tx_broadcast.send(event_payload);
                 }
             }
             self.broadcast_state();
             // Iniciar próxima mão depois de 6 segundos
-            self.next_hand_at = Some(tokio::time::Instant::now() + tokio::time::Duration::from_secs(6));
+            self.next_hand_at =
+                Some(tokio::time::Instant::now() + tokio::time::Duration::from_secs(6));
         } else {
             self.broadcast_state();
         }
@@ -354,7 +567,7 @@ impl TableActor {
 
         let mut gl = GameLoop::new(
             self.config.clone(),
-            format!("hand_{}", uuid::Uuid::new_v4()),
+            uuid::Uuid::new_v4().to_string(),
             self.name.clone(),
             GameType::Cash,
         );
@@ -375,6 +588,49 @@ impl TableActor {
         self.game_loop = Some(gl);
         info!("Started new hand at table {}", self.table_id);
         self.broadcast_state();
+    }
+
+    async fn persist_settled_stacks(&self, stacks: Vec<(String, u64)>) {
+        let (Some(db), Ok(table_id)) = (self.db.clone(), uuid::Uuid::parse_str(&self.table_id))
+        else {
+            return;
+        };
+
+        let mut tx = match db.begin().await {
+            Ok(tx) => tx,
+            Err(error) => {
+                error!(
+                    ?error,
+                    "Failed to begin table stack persistence transaction"
+                );
+                return;
+            }
+        };
+        for (player_id, chips) in stacks {
+            let Ok(chips) = i64::try_from(chips) else {
+                error!(player_id, "Player stack exceeds database range");
+                return;
+            };
+            if let Err(error) = sqlx::query(
+                "UPDATE cash_game_seats SET chips = $1 \
+                 WHERE table_id = $2 AND user_id = $3::uuid AND status = 'ACTIVE'",
+            )
+            .bind(chips)
+            .bind(table_id)
+            .bind(&player_id)
+            .execute(&mut *tx)
+            .await
+            {
+                error!(?error, player_id, "Failed to persist table stack");
+                return;
+            }
+        }
+        if let Err(error) = tx.commit().await {
+            error!(
+                ?error,
+                "Failed to commit table stack persistence transaction"
+            );
+        }
     }
 
     fn get_table_info_json(&self) -> serde_json::Value {
@@ -399,7 +655,12 @@ impl TableActor {
         if let Some(ref gl) = self.game_loop {
             is_finished = gl.state.is_finished;
             stage = format!("{:?}", gl.state.phase).to_lowercase();
-            community_cards = gl.state.community_cards.iter().map(card_to_string).collect();
+            community_cards = gl
+                .state
+                .community_cards
+                .iter()
+                .map(card_to_string)
+                .collect();
 
             // Mapeia os potes
             let main_pot_amount = gl.state.total_pot();
@@ -497,4 +758,32 @@ fn card_to_string(card: &poker_engine::deck::Card) -> String {
         poker_engine::deck::Suit::Spades => "s",
     };
     format!("{}{}", rank_str, suit_str)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{TableActor, TablePlayer};
+    use tokio::sync::{broadcast, mpsc};
+
+    #[test]
+    fn cash_out_returns_persistable_stack_between_hands() {
+        let (_tx_cmd, rx_cmd) = mpsc::channel(1);
+        let (tx_broadcast, _) = broadcast::channel(1);
+        let mut actor = TableActor::new(
+            "table".to_string(),
+            "Test".to_string(),
+            rx_cmd,
+            tx_broadcast,
+        );
+        actor.players.push(TablePlayer {
+            id: "player".to_string(),
+            name: "Player".to_string(),
+            chips: 12_345,
+            seat: 0,
+            is_sitting: true,
+        });
+
+        assert_eq!(actor.handle_cash_out("player"), Ok(Some(12_345)));
+        assert!(actor.players.is_empty());
+    }
 }

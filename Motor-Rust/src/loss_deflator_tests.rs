@@ -137,15 +137,11 @@ fn test_loser_in_all_pots() {
         GamePhase::Turn,
     ))
     .unwrap();
-    // 35% de 350 = 122.5 → em f64, 350.0 * 0.35 = 122.4999... truncado para 122.49
+    // 35% de 350 = 122,50. O cálculo em pontos-base preserva os centavos
+    // exatos, sem o erro de representação de 0,35 em ponto flutuante.
     assert_eq!(r.eligible_pot_total, 35000);
     assert_eq!(r.eligible_pot_ids.len(), 3);
-    // 350.0 * 0.35 = 122.4999..., truncar_2_casas = 122.49
-    assert!(
-        r.cashback == 12249,
-        "cashback={}, expected ~122.49",
-        r.cashback
-    );
+    assert_eq!(r.cashback, 12250);
 }
 
 // ─── Rateio Proporcional ───
@@ -256,7 +252,7 @@ fn test_single_chip_pot() {
 
 #[test]
 fn test_minimum_cashback_one_chip() {
-    // 3 * 0.35 = 1.05 → em f64, 3.0 * 0.35 = 1.0499... truncado para 1.04
+    // 3 * 0,35 = 1,05. Pontos-base mantêm o valor inteiro exato em centavos.
     let r = calculate_progressive_loss_deflator(params(
         vec![pot(300, vec!["a", "b"])],
         "a",
@@ -264,11 +260,7 @@ fn test_minimum_cashback_one_chip() {
         GamePhase::Turn,
     ))
     .unwrap();
-    assert!(
-        r.cashback == 104,
-        "cashback={}, expected ~1.04",
-        r.cashback
-    );
+    assert_eq!(r.cashback, 105);
 }
 
 #[test]
@@ -642,10 +634,12 @@ fn test_win_prob_known_cards_dont_overlap() {
 #[test]
 fn test_game_phase_debug() {
     // Verifica que GamePhase implementa Debug/Clone/Copy
-    let phases = [GamePhase::Preflop,
+    let phases = [
+        GamePhase::Preflop,
         GamePhase::Flop,
         GamePhase::Turn,
-        GamePhase::River];
+        GamePhase::River,
+    ];
     let cloned: Vec<_> = phases.to_vec();
     assert_eq!(format!("{:?}", cloned[0]), "Preflop");
     assert_eq!(cloned.len(), 4);

@@ -119,11 +119,36 @@ pub fn TableView(
 #[must_use]
 pub fn mock_table_data() -> Vec<PlayerData> {
     vec![
-        PlayerData::new("Alice".to_string(), 1500, Position::Dealer, SeatPosition::new(20.0, 50.0)),
-        PlayerData::new("Bob".to_string(), 2000, Position::SmallBlind, SeatPosition::new(50.0, 85.0)),
-        PlayerData::new("Carol".to_string(), 1200, Position::BigBlind, SeatPosition::new(80.0, 70.0)),
-        PlayerData::new("Dave".to_string(), 1800, Position::UTG, SeatPosition::new(80.0, 30.0)),
-        PlayerData::new("Eve".to_string(), 2500, Position::Button, SeatPosition::new(50.0, 15.0)),
+        PlayerData::new(
+            "Alice".to_string(),
+            1500,
+            Position::Dealer,
+            SeatPosition::new(20.0, 50.0),
+        ),
+        PlayerData::new(
+            "Bob".to_string(),
+            2000,
+            Position::SmallBlind,
+            SeatPosition::new(50.0, 85.0),
+        ),
+        PlayerData::new(
+            "Carol".to_string(),
+            1200,
+            Position::BigBlind,
+            SeatPosition::new(80.0, 70.0),
+        ),
+        PlayerData::new(
+            "Dave".to_string(),
+            1800,
+            Position::UTG,
+            SeatPosition::new(80.0, 30.0),
+        ),
+        PlayerData::new(
+            "Eve".to_string(),
+            2500,
+            Position::Button,
+            SeatPosition::new(50.0, 15.0),
+        ),
     ]
 }
 

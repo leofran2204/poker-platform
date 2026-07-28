@@ -14,9 +14,9 @@ pub struct SidePot {
 }
 
 /// Calculates main and side pots for a poker hand.
-/// 
+///
 /// FIX CRÍTICO:
-/// Jogadores que deram fold (`has_folded = true`) contribuíram para o pote, 
+/// Jogadores que deram fold (`has_folded = true`) contribuíram para o pote,
 /// mas NÃO são elegíveis para ganhar NENHUM pote (principal ou secundário).
 /// A elegibilidade é estritamente restrita a jogadores ativos que NÃO foldaram.
 pub fn calculate_side_pots(contributions: &[Contribution]) -> Vec<SidePot> {

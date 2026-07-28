@@ -1,8 +1,7 @@
 use poker_engine::auth::{generate_totp_code, verify_totp_code};
 use poker_engine::crypto::{DeckShuffler, ProvablyFairHand};
 use poker_engine::engine::{
-    calculate_loss_deflators, calculate_side_pots, Contribution, GameState, Player,
-    PlayerLossStats,
+    calculate_loss_deflators, calculate_side_pots, Contribution, GameState, Player, PlayerLossStats,
 };
 use poker_engine::ledger::{EntryType, LedgerAccount, LedgerError};
 
@@ -27,7 +26,7 @@ fn test_side_pots_excludes_folded_players() {
     ];
 
     let pots = calculate_side_pots(&contributions);
-    
+
     // Pot 1 (level 100.0): P1, P2(folded), P3 -> Eligible: P1, P3 (P2 excluded!)
     assert_eq!(pots.len(), 2);
     assert_eq!(pots[0].amount, 300.0);
@@ -88,7 +87,7 @@ fn test_totp_rfc6238_hmac_sha1_vectors() {
     // Standard RFC 6238 Test Vector Secret "12345678901234567890" (ASCII bytes)
     let secret = b"12345678901234567890";
     let timestamp = 59u64; // T0 + 59s -> step = 1
-    
+
     let code = generate_totp_code(secret, 30, timestamp).unwrap();
     assert_eq!(code.len(), 6);
     assert!(verify_totp_code(secret, &code, timestamp, 0));
@@ -97,7 +96,7 @@ fn test_totp_rfc6238_hmac_sha1_vectors() {
 #[test]
 fn test_ledger_atomic_transactions_and_hash_integrity() {
     let account = LedgerAccount::new("User_Test", 5000); // 50.00
-    
+
     let res1 = account.record_transaction(2000, EntryType::Deposit, None);
     assert!(res1.is_ok());
     assert_eq!(account.get_balance_cents().unwrap(), 7000);
@@ -113,7 +112,7 @@ fn test_ledger_atomic_transactions_and_hash_integrity() {
 #[test]
 fn test_provably_fair_reproducibility() {
     let pf_hand = ProvablyFairHand::new("Player_Seed_123", 42);
-    
+
     // Verify server seed hash commitment
     assert!(ProvablyFairHand::verify_commitment(
         &pf_hand.server_seed,

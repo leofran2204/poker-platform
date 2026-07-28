@@ -63,7 +63,7 @@ fn make_rake_pot(amount: u64) -> Pot {
 fn default_table_config() -> TableConfig {
     TableConfig {
         big_blind: 1000,
-        rake_percent: 5.0,
+        rake_basis_points: 500,
         rake_cap: 1000,
     }
 }
@@ -310,7 +310,7 @@ mod csprng_tests {
         for (digit, &count) in counts.iter().enumerate() {
             let pct = count as f64 / 50_000.0 * 100.0;
             assert!(
-                (8.0..= 12.0).contains(&pct),
+                (8.0..=12.0).contains(&pct),
                 "Dígito {} com {} ocorrências ({:.2}%) — viés",
                 digit,
                 count,
@@ -325,7 +325,11 @@ mod csprng_tests {
     fn f64_sempre_entre_0_e_1() {
         for _ in 0..10_000 {
             let val = secure_random_f64();
-            assert!((0.0..1.0).contains(&val), "Valor {} fora de [0.0, 1.0)", val);
+            assert!(
+                (0.0..1.0).contains(&val),
+                "Valor {} fora de [0.0, 1.0)",
+                val
+            );
         }
     }
 
@@ -355,7 +359,7 @@ mod csprng_tests {
         for (i, &count) in quartiles.iter().enumerate() {
             let pct = count as f64 / 40_000.0 * 100.0;
             assert!(
-                (23.0..= 27.0).contains(&pct),
+                (23.0..=27.0).contains(&pct),
                 "Quartil {} com {:.2}% — viés detectado",
                 i,
                 pct
@@ -390,7 +394,7 @@ mod csprng_tests {
         }
         let pct = trues as f64 / total as f64 * 100.0;
         assert!(
-            (48.0..= 52.0).contains(&pct),
+            (48.0..=52.0).contains(&pct),
             "P(true) = {:.2}% — viés detectado",
             pct
         );
@@ -1615,35 +1619,41 @@ mod rake_tests {
     #[test]
     fn rake_abaixo_do_cap() {
         // 5% de 10000 = 500 centavos, cap = 1000 centavos
-        assert_eq!(calculate_rake_for_pot(10000, 5.0, 1000), 500);
+        assert_eq!(calculate_rake_for_pot(10000, 500, 1000), 500);
     }
 
     #[test]
     fn rake_no_cap() {
         // 5% de 30000 = 1500, mas cap = 1000
-        assert_eq!(calculate_rake_for_pot(30000, 5.0, 1000), 1000);
+        assert_eq!(calculate_rake_for_pot(30000, 500, 1000), 1000);
     }
 
     #[test]
     fn rake_arredondamento_floor() {
         // 5% de 3000 = 150
-        assert_eq!(calculate_rake_for_pot(3000, 5.0, 1000), 150);
+        assert_eq!(calculate_rake_for_pot(3000, 500, 1000), 150);
     }
 
     #[test]
     fn rake_zero_percent() {
-        assert_eq!(calculate_rake_for_pot(10000, 0.0, 1000), 0);
+        assert_eq!(calculate_rake_for_pot(10000, 0, 1000), 0);
     }
 
     #[test]
     fn rake_zero_cap() {
-        assert_eq!(calculate_rake_for_pot(10000, 5.0, 0), 0);
+        assert_eq!(calculate_rake_for_pot(10000, 500, 0), 0);
     }
 
     #[test]
     fn rake_pot_pequeno() {
         // 5% de 100 centavos = 5 centavos
-        assert_eq!(calculate_rake_for_pot(100, 5.0, 1000), 5);
+        assert_eq!(calculate_rake_for_pot(100, 500, 1000), 5);
+    }
+
+    #[test]
+    fn rake_large_amount_is_exact_and_cannot_overflow() {
+        assert_eq!(calculate_rake_for_pot(u64::MAX, 10_000, u64::MAX), u64::MAX);
+        assert_eq!(calculate_rake_for_pot(1_000, u16::MAX, u64::MAX), 1_000);
     }
 
     #[test]
@@ -1727,7 +1737,7 @@ mod rake_tests {
     fn rake_nunca_negativo() {
         // Rake sempre ≥ 0
         for &amount in &[0u64, 100, 1000, 10000, 100000] {
-            let rake = calculate_rake_for_pot(amount, 5.0, 10000);
+            let rake = calculate_rake_for_pot(amount, 500, 10000);
             assert!(
                 rake <= amount,
                 "Rake {} não pode exceder pot {}",
@@ -1744,10 +1754,10 @@ mod rake_tests {
         #[test]
         fn prop_rake_nunca_excede_pot(
             pot_amount in 0u64..10_000_000,
-            rake_percent in 0.0..100.0,
+            rake_basis_points in 0u16..=10_000u16,
             rake_cap in 0u64..10_000_000
         ) {
-            let rake = calculate_rake_for_pot(pot_amount, rake_percent, rake_cap);
+            let rake = calculate_rake_for_pot(pot_amount, rake_basis_points, rake_cap);
             prop_assert!(rake <= pot_amount, "Rake excede pot");
         }
 
@@ -1755,10 +1765,10 @@ mod rake_tests {
         #[test]
         fn prop_rake_nunca_excede_cap(
             pot_amount in 0u64..10_000_000,
-            rake_percent in 0.1..50.0,
+            rake_basis_points in 10u16..=5_000u16,
             rake_cap in 100u64..1_000_000
         ) {
-            let rake = calculate_rake_for_pot(pot_amount, rake_percent, rake_cap);
+            let rake = calculate_rake_for_pot(pot_amount, rake_basis_points, rake_cap);
             prop_assert!(rake <= rake_cap, "Rake excede cap");
         }
 
@@ -1772,7 +1782,7 @@ mod rake_tests {
                 .collect();
             let config = TableConfig {
                 big_blind: 500,
-                rake_percent: 5.0,
+                rake_basis_points: 500,
                 rake_cap: 5000,
             };
             let result = deduct_rake(&pots, &config, None);
@@ -1876,7 +1886,7 @@ mod integration {
             .collect();
         let config = TableConfig {
             big_blind: 10,
-            rake_percent: 5.0,
+            rake_basis_points: 500,
             rake_cap: 20,
         };
         let rake_result = deduct_rake(&rake_pots, &config, None);

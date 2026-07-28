@@ -68,7 +68,10 @@ impl PixGateway for MockPixGateway {
             "00020126580014BR.GOV.BCB.PIX0136poker-platform-{}5204000053039865405{:.2}5802BR5914POKER_PLATFORM6009SAO_PAULO62070503***6304ABCD",
             tx_id, amount_f64
         );
-        let qr_code = format!("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...mock_qr_{}", tx_id);
+        let qr_code = format!(
+            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...mock_qr_{}",
+            tx_id
+        );
 
         Ok(PixChargeResult {
             external_tx_id: external_id,
@@ -98,7 +101,10 @@ impl PixGateway for MockPixGateway {
         Ok(PixPayoutResult {
             external_tx_id: external_id,
             status: "PROCESSING".to_string(),
-            message: format!("Saque de R$ {:.2} enviado via PIX ({}: {})", amount_f64, pix_key_type, pix_key),
+            message: format!(
+                "Saque de R$ {:.2} enviado via PIX ({}: {})",
+                amount_f64, pix_key_type, pix_key
+            ),
         })
     }
 
@@ -152,7 +158,10 @@ impl PixGateway for AsaasPixGateway {
             "00020126580014BR.GOV.BCB.PIX0136asaas-{}5204000053039865405{:.2}5802BR5913ASAAS_PAYMENT6009SAO_PAULO62070503***6304FFFF",
             tx_id, amount_f64
         );
-        let qr_code = format!("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA_asaas_https_qr_{}_{}", tx_id, user_id);
+        let qr_code = format!(
+            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA_asaas_https_qr_{}_{}",
+            tx_id, user_id
+        );
 
         Ok(PixChargeResult {
             external_tx_id: external_id,
@@ -179,7 +188,10 @@ impl PixGateway for AsaasPixGateway {
         Ok(PixPayoutResult {
             external_tx_id: external_id,
             status: "SCHEDULED".to_string(),
-            message: format!("Transferência HTTPS Asaas PIX (TLS 1.3) de R$ {:.2} enviada para chave [{}] ({})", amount_f64, pix_key, pix_key_type),
+            message: format!(
+                "Transferência HTTPS Asaas PIX (TLS 1.3) de R$ {:.2} enviada para chave [{}] ({})",
+                amount_f64, pix_key, pix_key_type
+            ),
         })
     }
 
@@ -226,7 +238,10 @@ impl PixGateway for MercadoPagoPixGateway {
             "00020126580014BR.GOV.BCB.PIX0136mercadopago-{}5204000053039865405{:.2}5802BR5912MERCADOPAGO6009SAO_PAULO62070503***6304EEEE",
             tx_id, amount_f64
         );
-        let qr_code = format!("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA_mp_https_qr_{}_{}", tx_id, user_id);
+        let qr_code = format!(
+            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA_mp_https_qr_{}_{}",
+            tx_id, user_id
+        );
 
         Ok(PixChargeResult {
             external_tx_id: external_id,
@@ -252,7 +267,10 @@ impl PixGateway for MercadoPagoPixGateway {
         Ok(PixPayoutResult {
             external_tx_id: external_id,
             status: "APPROVED".to_string(),
-            message: format!("Saque HTTPS Mercado Pago PIX (TLS 1.3) de R$ {:.2} enviado ({}: {})", amount_f64, pix_key_type, pix_key),
+            message: format!(
+                "Saque HTTPS Mercado Pago PIX (TLS 1.3) de R$ {:.2} enviado ({}: {})",
+                amount_f64, pix_key_type, pix_key
+            ),
         })
     }
 
@@ -302,17 +320,23 @@ fn verify_hmac_helper(body: &[u8], signature_header: Option<&str>, secret: &str)
 // ─── Fábrica Dinâmica de Provedores PIX ───
 
 pub fn get_payment_gateway() -> Box<dyn PixGateway> {
-    let provider = env::var("PIX_PROVIDER").unwrap_or_else(|_| "mock".to_string()).to_lowercase();
-    let secret = env::var("PIX_WEBHOOK_SECRET").unwrap_or_else(|_| "poker-pix-webhook-secret-key-32chars".to_string());
+    let provider = env::var("PIX_PROVIDER")
+        .unwrap_or_else(|_| "mock".to_string())
+        .to_lowercase();
+    let secret = env::var("PIX_WEBHOOK_SECRET")
+        .unwrap_or_else(|_| "poker-pix-webhook-secret-key-32chars".to_string());
 
     match provider.as_str() {
         "asaas" => {
-            let api_key = env::var("ASAAS_API_KEY").unwrap_or_else(|_| "mock_asaas_key".to_string());
-            let is_sandbox = env::var("ASAAS_SANDBOX").unwrap_or_else(|_| "true".to_string()) == "true";
+            let api_key =
+                env::var("ASAAS_API_KEY").unwrap_or_else(|_| "mock_asaas_key".to_string());
+            let is_sandbox =
+                env::var("ASAAS_SANDBOX").unwrap_or_else(|_| "true".to_string()) == "true";
             Box::new(AsaasPixGateway::new(&api_key, &secret, is_sandbox))
         }
         "mercadopago" | "mp" => {
-            let access_token = env::var("MERCADOPAGO_ACCESS_TOKEN").unwrap_or_else(|_| "mock_mp_token".to_string());
+            let access_token = env::var("MERCADOPAGO_ACCESS_TOKEN")
+                .unwrap_or_else(|_| "mock_mp_token".to_string());
             Box::new(MercadoPagoPixGateway::new(&access_token, &secret))
         }
         _ => Box::new(MockPixGateway::new(&secret)),

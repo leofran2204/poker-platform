@@ -2,11 +2,7 @@
 //
 // Meta de testes Fase 2: +720 testes (+120 Lote 9A, +200 Lote 9B, +200 Lote 9C, +120 Lote 9D, +80 Lote 9E)
 
-#![cfg(test)]
-
-use crate::lobby::{
-    GameType, LobbyManager, PlayerLobbyStatus, TableVisibility,
-};
+use crate::lobby::{GameType, LobbyManager, PlayerLobbyStatus, TableVisibility};
 
 // =========================================================================
 // LOTE 9A — Types & Creation (120 testes)

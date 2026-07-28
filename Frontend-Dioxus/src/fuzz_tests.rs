@@ -1,12 +1,12 @@
 // fuzz_tests.rs — Suíte de Fuzzing Dinâmico do Frontend Dioxus (200.000 iterações/função)
 // Valida a imunidade a panics, formatação e invariantes sob 2,0 MILHÕES de cenários visuais e de estado.
 
-use proptest::prelude::*;
-use crate::components::card::{PlayingCard, Suit, Rank};
-use crate::components::pot::PotEntry;
 use crate::components::avatar::{PlayerStatus, Position};
-use crate::components::seat::SeatPosition;
+use crate::components::card::{PlayingCard, Rank, Suit};
 use crate::components::lobby_filters::GameTypeFilter;
+use crate::components::pot::PotEntry;
+use crate::components::seat::SeatPosition;
+use proptest::prelude::*;
 
 fn get_proptest_config() -> ProptestConfig {
     let cases = std::env::var("PROPTEST_CASES")

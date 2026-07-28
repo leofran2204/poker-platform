@@ -1,16 +1,16 @@
 // fuzz_tests.rs — Suíte de Fuzzing & Property-Based Testing de Alta Densidade (200.000 iterações/função)
 // Valida a imunidade a panics, conservação de fichas e invariantes sob 2,6 MILHÕES de cenários estocásticos.
 
-use proptest::prelude::*;
+use crate::antifraud::chip_dumping::{ChipDumpAnalyzer, HandStrength};
+use crate::auth::AuthManager;
+use crate::deck::{Card, Rank, Suit};
+use crate::hand_history::{GameType, HandHistory, TableConfig as HandTableConfig};
+use crate::loss_deflator::{calculate_progressive_loss_deflator, ProgressiveLossDeflatorParams};
 use crate::rake::{calculate_rake_for_pot, deduct_rake};
 use crate::side_pots::{calculate_side_pots, PlayerForPots};
-use crate::loss_deflator::{calculate_progressive_loss_deflator, ProgressiveLossDeflatorParams};
-use crate::hand_history::{HandHistory, TableConfig as HandTableConfig, GameType};
-use crate::auth::AuthManager;
-use crate::antifraud::chip_dumping::{ChipDumpAnalyzer, HandStrength};
 use crate::tournament_engine::{TournamentConfig, TournamentSpeed};
-use crate::types::{Pot, TableConfig, GamePhase};
-use crate::deck::{Card, Suit, Rank};
+use crate::types::{GamePhase, Pot, TableConfig};
+use proptest::prelude::*;
 
 /// Função auxiliar para obter configuração proptest dinâmica via env var PROPTEST_CASES (default 200.000)
 fn get_proptest_config() -> ProptestConfig {
@@ -21,7 +21,7 @@ fn get_proptest_config() -> ProptestConfig {
     ProptestConfig {
         cases,
         max_shrink_iters: 1000,
-        .. ProptestConfig::default()
+        ..ProptestConfig::default()
     }
 }
 
@@ -31,12 +31,12 @@ proptest! {
     #[test]
     fn rake_pot_invariants(
         pot_amount in 0..100_000_000u64,
-        rake_percent in 0.0..100.0f64,
+        rake_basis_points in 0u16..=10_000u16,
         rake_cap in 0..10_000u64,
     ) {
-        let rake = calculate_rake_for_pot(pot_amount, rake_percent, rake_cap);
+        let rake = calculate_rake_for_pot(pot_amount, rake_basis_points, rake_cap);
         prop_assert!(rake <= rake_cap, "Rake > cap");
-        let max_possible = ((pot_amount as f64 * rake_percent) / 100.0).floor() as u64;
+        let max_possible = ((u128::from(pot_amount) * u128::from(rake_basis_points)) / 10_000) as u64;
         prop_assert!(rake <= max_possible, "Rake > percentual");
     }
 }
@@ -48,14 +48,14 @@ proptest! {
     fn rake_deduct_conservation(
         p1 in 1000..10_000_000u64,
         p2 in 1000..10_000_000u64,
-        rake_percent in 1.0..10.0f64,
+        rake_basis_points in 100u16..=1_000u16,
         rake_cap in 100..5000u64,
     ) {
         let pots = vec![
             Pot { amount: p1, eligible_players: vec!["p1".into(), "p2".into()] },
             Pot { amount: p2, eligible_players: vec!["p1".into()] },
         ];
-        let config = TableConfig { big_blind: 200, rake_percent, rake_cap };
+        let config = TableConfig { big_blind: 200, rake_basis_points, rake_cap };
         let result = deduct_rake(&pots, &config, Some(200));
         let total_before = p1 + p2;
         let pots_after_sum: u64 = result.pots_after_rake.iter().map(|p| p.amount).sum();

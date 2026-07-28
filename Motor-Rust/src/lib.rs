@@ -4,6 +4,12 @@
 //
 // The binary entry point remains in main.rs.
 
+// O código legado usa `format!` extensivamente em mensagens e fixtures. A
+// interpolação posicional não altera comportamento nem segurança; mantemos a
+// exceção limitada a este lint para que `-D warnings` continue bloqueando os
+// demais problemas do Clippy.
+#![allow(clippy::uninlined_format_args)]
+
 // ─── Módulos compartilhados (tipos e utilitários) ───
 pub mod types;
 pub mod utils;
@@ -16,9 +22,9 @@ pub mod game_loop;
 pub mod hand_history;
 pub mod lobby;
 pub mod loss_deflator;
+pub mod provably_fair;
 pub mod rake;
 pub mod rng_crypto;
-pub mod provably_fair;
 pub mod side_pots;
 pub mod tournament_engine;
 
@@ -26,7 +32,19 @@ pub mod tournament_engine;
 #[cfg(test)]
 mod antifraud_tests;
 #[cfg(test)]
+mod card_fairness_tests;
+#[cfg(test)]
+mod extreme_fuzz_tests;
+#[cfg(test)]
+mod fuzz_tests;
+#[cfg(test)]
+mod game_loop_tests;
+#[cfg(test)]
+mod hand_history_tests;
+#[cfg(test)]
 mod integration_tests;
+#[cfg(test)]
+mod lobby_tests;
 #[cfg(test)]
 mod loss_deflator_tests;
 #[cfg(test)]
@@ -34,24 +52,12 @@ mod motor_tests;
 #[cfg(test)]
 mod property_tests;
 #[cfg(test)]
-mod game_loop_tests;
-#[cfg(test)]
-mod tournament_engine_tests;
-#[cfg(test)]
 mod side_pots_tests;
-#[cfg(test)]
-mod lobby_tests;
-#[cfg(test)]
-mod hand_history_tests;
-#[cfg(test)]
-mod stress_tests;
 #[cfg(test)]
 mod stress_integration_tests;
 #[cfg(test)]
-mod card_fairness_tests;
+mod stress_tests;
 #[cfg(test)]
-mod fuzz_tests;
+mod tournament_engine_tests;
 #[cfg(test)]
 mod tournament_fuzz_tests;
-#[cfg(test)]
-mod extreme_fuzz_tests;

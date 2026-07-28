@@ -4,7 +4,7 @@
 //
 // O rake é a comissão que a plataforma cobra por cada mão jogada.
 // Regras:
-//   1. Percentual do pote total (rakePercent) em escala
+//   1. Percentual do pote total em pontos-base inteiros
 //   2. Nunca ultrapassa o cap (rakeCap) em centavos
 //   3. Descontado ANTES de distribuir aos vencedores
 //   4. Arredondado para baixo (floor) em centavos
@@ -39,16 +39,22 @@ pub fn soma_total_pots_centavos(pots: &[Pot]) -> u64 {
 
 /// Calcula o rake para UM pote individual em centavos.
 ///
-/// Fórmula: rake = min(floor(pote_centavos × rakePercent / 100), rakeCap_centavos)
+/// Fórmula: rake = min(floor(pote_centavos × rake_basis_points / 10_000), rake_cap)
 ///
-/// Retorna 0 se rakePercent ou rakeCap forem zero.
-pub fn calculate_rake_for_pot(pot_amount: u64, rake_percent: f64, rake_cap: u64) -> u64 {
-    if rake_percent <= 0.0 || rake_cap == 0 || pot_amount == 0 {
+/// Retorna 0 se o rake ou o cap forem zero. O produto usa `u128` para
+/// preservar precisão e evitar overflow antes da divisão em centavos.
+pub fn calculate_rake_for_pot(pot_amount: u64, rake_basis_points: u16, rake_cap: u64) -> u64 {
+    if rake_basis_points == 0 || rake_cap == 0 || pot_amount == 0 {
         return 0;
     }
 
-    let raw_rake = ((pot_amount as f64 * rake_percent) / 100.0).floor() as u64;
-    raw_rake.min(rake_cap)
+    // Callers normally enforce the operational limit of 1,000 bps (10%),
+    // but this boundary must also remain safe for manually constructed configs.
+    // At most 10,000 bps (100%) is meaningful and keeps the intermediate
+    // quotient representable as u64.
+    let effective_basis_points = rake_basis_points.min(10_000);
+    let raw_rake = ((u128::from(pot_amount) * u128::from(effective_basis_points)) / 10_000) as u64;
+    raw_rake.min(rake_cap).min(pot_amount)
 }
 
 /// Aplica o rake sobre todos os pots de uma mão.
@@ -71,7 +77,7 @@ pub fn deduct_rake(
         return zero_rake_result(pots, total_pot);
     }
 
-    let total_rake = calculate_rake_for_pot(total_pot, config.rake_percent, config.rake_cap);
+    let total_rake = calculate_rake_for_pot(total_pot, config.rake_basis_points, config.rake_cap);
     if total_rake == 0 {
         return zero_rake_result(pots, total_pot);
     }
@@ -120,12 +126,7 @@ fn distribute_rake_proportionally(
         let raw_pot_rake = if is_last {
             total_rake.saturating_sub(distributed_rake)
         } else {
-            if total_pot > 0 {
-                let proportion = pot.amount as f64 / total_pot as f64;
-                (total_rake as f64 * proportion).floor() as u64
-            } else {
-                0
-            }
+            ((u128::from(pot.amount) * u128::from(total_rake)) / u128::from(total_pot)) as u64
         };
 
         let pot_rake = raw_pot_rake.min(pot.amount);

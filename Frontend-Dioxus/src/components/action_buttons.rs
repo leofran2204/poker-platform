@@ -33,21 +33,28 @@ impl ActionKind {
     #[must_use]
     pub const fn color_class(self) -> &'static str {
         match self {
-            Self::Fold => "bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 border-red-500/50 shadow-red-900/40",
-            Self::Check => "bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 border-blue-500/50 shadow-blue-900/40",
-            Self::Call => "bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700 border-emerald-500/50 shadow-emerald-900/40",
-            Self::Raise => "bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-400 hover:to-amber-600 border-amber-400/50 shadow-amber-900/40 text-gray-950",
-            Self::AllIn => "bg-gradient-to-r from-purple-600 to-indigo-800 hover:from-purple-500 hover:to-indigo-700 border-purple-400/50 shadow-purple-900/40 animate-pulse",
+            Self::Fold => {
+                "bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 border-red-500/50 shadow-red-900/40"
+            }
+            Self::Check => {
+                "bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 border-blue-500/50 shadow-blue-900/40"
+            }
+            Self::Call => {
+                "bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700 border-emerald-500/50 shadow-emerald-900/40"
+            }
+            Self::Raise => {
+                "bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-400 hover:to-amber-600 border-amber-400/50 shadow-amber-900/40 text-gray-950"
+            }
+            Self::AllIn => {
+                "bg-gradient-to-r from-purple-600 to-indigo-800 hover:from-purple-500 hover:to-indigo-700 border-purple-400/50 shadow-purple-900/40 animate-pulse"
+            }
         }
     }
 }
 
 /// Componente de botões de ação com design premium e micro-animações.
 #[component]
-pub fn ActionButtons(
-    available: Vec<ActionKind>,
-    on_action: EventHandler<ActionKind>,
-) -> Element {
+pub fn ActionButtons(available: Vec<ActionKind>, on_action: EventHandler<ActionKind>) -> Element {
     rsx! {
         div {
             class: "flex flex-wrap gap-4 justify-center items-center p-6 bg-slate-950/90 \

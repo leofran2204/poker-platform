@@ -51,7 +51,13 @@ fn test_massive_antifraud_subnet_stress_10k_sessions() {
 
     // Gerar 10.000 sessões de jogadores sintéticos em sub-redes distintas
     for i in 0..10_000 {
-        let ip = format!("{}.{}.{}.{}", (i / 65536) % 250 + 1, (i / 256) % 250 + 1, i % 250 + 1, (i * 7) % 250 + 1);
+        let ip = format!(
+            "{}.{}.{}.{}",
+            (i / 65536) % 250 + 1,
+            (i / 256) % 250 + 1,
+            i % 250 + 1,
+            (i * 7) % 250 + 1
+        );
         sessions.push(PlayerSession {
             user_id: format!("Player_{}", i),
             ip_address: ip,
@@ -61,6 +67,9 @@ fn test_massive_antifraud_subnet_stress_10k_sessions() {
     // Processar validações de mesa em blocos de 6 jogadores
     for chunk in sessions.chunks(6) {
         let res = CollusionDetector::validate_table_seating(chunk);
-        assert!(res.is_ok(), "Falha inesperada de colusão para IPs distintos");
+        assert!(
+            res.is_ok(),
+            "Falha inesperada de colusão para IPs distintos"
+        );
     }
 }

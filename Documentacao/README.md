@@ -2,6 +2,8 @@
 
 Plataforma de poker online **Texas Hold'em Tradicional** (52 cartas) construída **100% em Rust** — motor de jogo, backend, frontend e antifraude.
 
+> **Estado validado em 2026-07-27:** a base passou por revisão local de segurança e arquitetura. Isto **não** equivale a certificação de produção: operação multi-pod de mesas ainda requer ownership distribuído, e PIX permanece deliberadamente fora do escopo de entrega.
+
 > ⚠️ **Regra de Ouro:** Antes de codar qualquer feature, sempre consultar:
 > 1. **`QUALITY.md`** — documento mestre (qualidade, segurança, negócio, arquitetura, compliance)
 > 2. `Arquitetura-Motor/ARQUITETURA_MOTOR.md` — arquitetura oficial do motor
@@ -35,8 +37,8 @@ Plataforma de poker online **Texas Hold'em Tradicional** (52 cartas) construída
 | **Antifraude** | Rust | Colusão, chip dumping, bot detection, multi-account |
 | **Banco de dados** | PostgreSQL 15 | Dados persistentes |
 | **Cache / Sessões** | Redis 7 | Sessões, rate limiting, blacklist JWT |
-| **Mensageria** | Kafka + Zookeeper | Eventos de jogo, hand history streaming |
-| **Pagamentos / PIX** | Rust (HTTPS TLS 1.2/1.3) + Asaas/Mercado Pago API + Webhooks | Depósitos instantâneos via QRCode, saques PIX e transações atômicas no PostgreSQL |
+| **Mensageria** | — | Não provisionada nesta implantação |
+| **Pagamentos / PIX** | Adaptadores Rust (mock/Asaas/Mercado Pago) | Implementação presente, mas integração de pagamento real está adiada |
 | **Segurança** | rustls (TLS 1.3), aes-gcm (AES-256), bcrypt 0.16, JWT (hmac+sha2) | Criptografia, auth, MFA/TOTP, RBAC |
 
 > **Stack 100% Rust** — Arquitetura unificada em Rust para máxima performance, segurança de memória e concorrência nativa.
@@ -47,9 +49,9 @@ Plataforma de poker online **Texas Hold'em Tradicional** (52 cartas) construída
 
 | Pasta | Conteúdo | Status |
 |-------|----------|--------|
-| `Motor-Rust/` | Motor de poker em Rust (11 módulos + 4 antifraude, 1.903 testes + 1M Fuzzing) | ✅ Ativo |
-| `API-Axum/` | API REST HTTPS / WebSocket WSS (Axum + Tokio + rustls, 34 testes) | ✅ Ativo |
-| `Frontend-Dioxus/` | Frontend WebAssembly (Dioxus 0.6, 115 suítes) | ✅ Ativo |
+| `Motor-Rust/` | Motor de poker em Rust, regras financeiras em inteiros | ✅ Ativo — CI usa testes determinísticos |
+| `API-Axum/` | API REST / WebSocket (Axum + Tokio + PostgreSQL/Redis) | ✅ Ativo — contratos PostgreSQL no CI |
+| `Frontend-Dioxus/` | Frontend WebAssembly (Dioxus 0.6) | ✅ Ativo |
 | `Infraestrutura-Docker/` | Docker, Caddy, deploy, CI/CD GitHub Actions | ✅ Ativo |
 | `Documentacao/` | Regras de negócio, cronograma, dashboard, logs | ✅ Ativo |
 | `Arquitetura-Motor/` | Arquitetura do motor Rust | ✅ Ativo |

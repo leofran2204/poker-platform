@@ -62,7 +62,9 @@ pub fn LoginForm(props: LoginFormProps) -> Element {
             return;
         }
         if u.len() < 3 {
-            error_msg.set(Some("Usuário deve ter pelo menos 3 caracteres.".to_string()));
+            error_msg.set(Some(
+                "Usuário deve ter pelo menos 3 caracteres.".to_string(),
+            ));
             return;
         }
         if p.is_empty() {

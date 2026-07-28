@@ -236,7 +236,8 @@ pub fn sign_hand(history: &mut HandHistory, secret_key: &[u8]) -> String {
         "{}:{}:{}:{}",
         history.hand_id, history.timestamp, history.total_pot, history.rake
     );
-    let mut mac = HmacSha256::new_from_slice(secret_key).expect("HMAC pode aceitar chave de qualquer tamanho");
+    let mut mac = HmacSha256::new_from_slice(secret_key)
+        .expect("HMAC pode aceitar chave de qualquer tamanho");
     mac.update(payload.as_bytes());
     let sig = base64::engine::general_purpose::STANDARD.encode(mac.finalize().into_bytes());
     history.signature = Some(sig.clone());
@@ -1175,7 +1176,10 @@ mod tests {
         assert!(verify_hand_signature(&history, key));
 
         // Test with wrong key
-        assert!(!verify_hand_signature(&history, b"wrong_secret_key_12345678901234"));
+        assert!(!verify_hand_signature(
+            &history,
+            b"wrong_secret_key_12345678901234"
+        ));
 
         // Tampering hand_id invalidates signature
         let mut tampered = history.clone();

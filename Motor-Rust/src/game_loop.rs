@@ -20,9 +20,12 @@
 //   - Todas as decisões financeiras delegam para módulos existentes
 //   - O GameLoop NÃO toma decisões de IA — apenas executa ações solicitadas
 
-use crate::deck::{compare_hands, create_deck, deal_cards, evaluate_hand, shuffle_deck, Card, HandResult};
+use crate::deck::{
+    compare_hands, create_deck, deal_cards, evaluate_hand, shuffle_deck, Card, HandResult,
+};
 use crate::hand_history::{
-    self, Action, EndReason, GameType, HandHistory, PlayerAction, PlayerResult, TableConfig as HistoryTableConfig,
+    self, Action, EndReason, GameType, HandHistory, PlayerAction, PlayerResult,
+    TableConfig as HistoryTableConfig,
 };
 use crate::loss_deflator::{self, ProgressiveLossDeflatorParams};
 use crate::rake::{self, RakeResult};
@@ -211,13 +214,13 @@ pub enum GameLoopError {
 impl std::fmt::Display for GameLoopError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            GameLoopError::PlayerNotFound(id) => write!(f, "Jogador não encontrado: {}", id),
-            GameLoopError::NotYourTurn(id) => write!(f, "Não é a vez de {}", id),
-            GameLoopError::PlayerCannotAct(id) => write!(f, "{} não pode agir", id),
-            GameLoopError::InvalidBetAmount(msg) => write!(f, "Valor de aposta inválido: {}", msg),
-            GameLoopError::RaiseTooSmall(msg) => write!(f, "Aumento menor que o mínimo: {}", msg),
-            GameLoopError::InsufficientStack(msg) => write!(f, "Stack insuficiente: {}", msg),
-            GameLoopError::InvalidActionForPhase(msg) => write!(f, "Ação inválida: {}", msg),
+            GameLoopError::PlayerNotFound(id) => write!(f, "Jogador não encontrado: {id}"),
+            GameLoopError::NotYourTurn(id) => write!(f, "Não é a vez de {id}"),
+            GameLoopError::PlayerCannotAct(id) => write!(f, "{id} não pode agir"),
+            GameLoopError::InvalidBetAmount(msg) => write!(f, "Valor de aposta inválido: {msg}"),
+            GameLoopError::RaiseTooSmall(msg) => write!(f, "Aumento menor que o mínimo: {msg}"),
+            GameLoopError::InsufficientStack(msg) => write!(f, "Stack insuficiente: {msg}"),
+            GameLoopError::InvalidActionForPhase(msg) => write!(f, "Ação inválida: {msg}"),
             GameLoopError::HandAlreadyFinished => write!(f, "A mão já terminou"),
             GameLoopError::HandNotStarted => write!(f, "A mão não foi iniciada"),
             GameLoopError::NotEnoughPlayers => write!(f, "Menos de 2 jogadores"),
@@ -314,7 +317,9 @@ impl GameLoop {
     /// Adiciona um jogador à mão (antes de iniciar) com stack em centavos
     pub fn add_player(&mut self, id: String, stack: u64) {
         let seat_index = self.state.players.len();
-        self.state.players.push(PlayerState::new(id, stack, seat_index));
+        self.state
+            .players
+            .push(PlayerState::new(id, stack, seat_index));
     }
 
     /// Define quem é o dealer (botão)
@@ -351,7 +356,10 @@ impl GameLoop {
         let bb_index = self.big_blind_index();
 
         // Small blind
-        let sb_amount = self.state.small_blind.min(self.state.players[sb_index].stack);
+        let sb_amount = self
+            .state
+            .small_blind
+            .min(self.state.players[sb_index].stack);
         self.state.players[sb_index].stack -= sb_amount;
         self.state.players[sb_index].current_bet = sb_amount;
         self.state.players[sb_index].total_bet += sb_amount;
@@ -434,7 +442,11 @@ impl GameLoop {
     }
 
     /// Processa a ação de um jogador
-    pub fn player_action(&mut self, player_id: &str, move_type: PlayerMove) -> Result<(), GameLoopError> {
+    pub fn player_action(
+        &mut self,
+        player_id: &str,
+        move_type: PlayerMove,
+    ) -> Result<(), GameLoopError> {
         if self.state.is_finished {
             return Err(GameLoopError::HandAlreadyFinished);
         }
@@ -497,7 +509,9 @@ impl GameLoop {
                     ));
                 }
                 if amount == 0 {
-                    return Err(GameLoopError::InvalidBetAmount("Aposta deve ser positiva".to_string()));
+                    return Err(GameLoopError::InvalidBetAmount(
+                        "Aposta deve ser positiva".to_string(),
+                    ));
                 }
                 if amount < self.state.min_raise {
                     return Err(GameLoopError::RaiseTooSmall(format!(
@@ -531,8 +545,7 @@ impl GameLoop {
                 if raise_increment < self.state.min_raise {
                     return Err(GameLoopError::RaiseTooSmall(format!(
                         "Aumento mínimo: {} (raise de {})",
-                        self.state.min_raise,
-                        raise_increment
+                        self.state.min_raise, raise_increment
                     )));
                 }
                 let total_needed = amount.saturating_sub(player_current);
@@ -609,9 +622,13 @@ impl GameLoop {
         self.state.current_bet_to_match = 0;
         self.state.min_raise = self.state.big_blind;
 
-        let next_phase = self.state.phase.next().ok_or(GameLoopError::InvalidActionForPhase(
-            "Já está em showdown".to_string(),
-        ))?;
+        let next_phase = self
+            .state
+            .phase
+            .next()
+            .ok_or(GameLoopError::InvalidActionForPhase(
+                "Já está em showdown".to_string(),
+            ))?;
 
         match next_phase {
             GamePhase::Flop => {
@@ -681,7 +698,12 @@ impl GameLoop {
             return Err(GameLoopError::HandNotStarted);
         }
 
-        let players_in_hand: Vec<&PlayerState> = self.state.players.iter().filter(|p| p.is_in_hand()).collect();
+        let players_in_hand: Vec<&PlayerState> = self
+            .state
+            .players
+            .iter()
+            .filter(|p| p.is_in_hand())
+            .collect();
 
         // Se todos foldaram exceto um → vencedor por fold
         if players_in_hand.len() == 1 {
@@ -699,8 +721,8 @@ impl GameLoop {
             hand_history::finalize_hand(
                 h,
                 resolution.player_results.clone(),
-                total_pot as u64,
-                resolution.rake as u64,
+                total_pot,
+                resolution.rake,
                 resolution.end_phase,
                 resolution.end_reason,
             );
@@ -737,7 +759,10 @@ impl GameLoop {
 
     /// Avança o active_player_index para o próximo jogador que pode agir
     fn advance_to_next_player(&mut self) {
-        if let Some(next) = self.state.next_active_player(self.state.active_player_index) {
+        if let Some(next) = self
+            .state
+            .next_active_player(self.state.active_player_index)
+        {
             self.state.active_player_index = next;
         }
     }
@@ -790,9 +815,13 @@ impl GameLoop {
     fn run_out_board(&mut self) -> Result<(), GameLoopError> {
         // Avançar até showdown distribuindo todas as cartas
         while self.state.phase != GamePhase::Showdown {
-            let next = self.state.phase.next().ok_or(GameLoopError::InvalidActionForPhase(
-                "Erro ao avançar para showdown".to_string(),
-            ))?;
+            let next = self
+                .state
+                .phase
+                .next()
+                .ok_or(GameLoopError::InvalidActionForPhase(
+                    "Erro ao avançar para showdown".to_string(),
+                ))?;
 
             match next {
                 GamePhase::Flop => {
@@ -845,7 +874,9 @@ impl GameLoop {
             .players
             .iter()
             .position(|p| p.is_in_hand())
-            .ok_or(GameLoopError::InvalidActionForPhase("Nenhum jogador na mão".to_string()))?;
+            .ok_or(GameLoopError::InvalidActionForPhase(
+                "Nenhum jogador na mão".to_string(),
+            ))?;
 
         let winner_id = self.state.players[winner_idx].id.clone();
         let total_pot = self.state.total_pot();
@@ -906,10 +937,15 @@ impl GameLoop {
         let pots_after_rake = rake_result.pots_after_rake.clone();
 
         // 4. Distribuir os potes pós-rake aos vencedores (em centavos)
-        let mut payouts = side_pots::distribute_pots(&pots_after_rake, &players_for_pots, &self.state.community_cards);
+        let mut payouts = side_pots::distribute_pots(
+            &pots_after_rake,
+            &players_for_pots,
+            &self.state.community_cards,
+        );
 
         // 5. Loss deflator (em centavos inteiros)
-        let loss_deflators_result = self.calculate_loss_deflators(&pots_after_rake, &mut payouts, &players_for_pots);
+        let loss_deflators_result =
+            self.calculate_loss_deflators(&pots_after_rake, &mut payouts, &players_for_pots);
         let primary_deflator = loss_deflators_result.first().cloned();
 
         let side_pots_res = SidePotsResult {
@@ -941,7 +977,8 @@ impl GameLoop {
         players_for_pots: &[PlayerForPots],
     ) -> Vec<loss_deflator::ProgressiveLossDeflatorResult> {
         let mut results = Vec::new();
-        let player_hands = side_pots::precompute_hands(players_for_pots, &self.state.community_cards);
+        let player_hands =
+            side_pots::precompute_hands(players_for_pots, &self.state.community_cards);
 
         for player in &self.state.players {
             if player.has_folded || !player.is_in_hand() || !player.is_all_in {
@@ -949,7 +986,11 @@ impl GameLoop {
             }
 
             let phase = match player.all_in_phase {
-                Some(p) if p == GamePhase::Preflop || p == GamePhase::Flop || p == GamePhase::Turn => p,
+                Some(p)
+                    if p == GamePhase::Preflop || p == GamePhase::Flop || p == GamePhase::Turn =>
+                {
+                    p
+                }
                 _ => continue,
             };
 
@@ -962,7 +1003,8 @@ impl GameLoop {
             let mut winner_id = String::new();
             for pot in pots {
                 if pot.eligible_players.contains(&player.id) {
-                    let pot_winners = side_pots::find_winners_for_pot(pot, players_for_pots, &player_hands);
+                    let pot_winners =
+                        side_pots::find_winners_for_pot(pot, players_for_pots, &player_hands);
                     for w in pot_winners {
                         if w != player.id {
                             winner_id = w;
@@ -984,7 +1026,12 @@ impl GameLoop {
 
             if let Some(mut deflator) = loss_deflator::calculate_progressive_loss_deflator(params) {
                 // Calcular a probabilidade real de vitória no momento do All-In
-                if let Some(winner_player) = self.state.players.iter().find(|p| p.id == deflator.winner_id) {
+                if let Some(winner_player) = self
+                    .state
+                    .players
+                    .iter()
+                    .find(|p| p.id == deflator.winner_id)
+                {
                     let win_prob = loss_deflator::get_heads_up_win_probability(
                         &player.hole_cards,
                         &winner_player.hole_cards,
@@ -997,7 +1044,8 @@ impl GameLoop {
                 for entry in &deflator.per_pot_cashback {
                     if entry.pot_index < pots.len() {
                         let pot = &pots[entry.pot_index];
-                        let pot_winners = side_pots::find_winners_for_pot(pot, players_for_pots, &player_hands);
+                        let pot_winners =
+                            side_pots::find_winners_for_pot(pot, players_for_pots, &player_hands);
                         let valid_winners: Vec<String> = pot_winners
                             .into_iter()
                             .filter(|w| w != &player.id)
@@ -1054,7 +1102,11 @@ impl GameLoop {
             let finish_position = if player.has_folded {
                 ranked.len() + 1
             } else {
-                ranked.iter().position(|(id, _)| id == &player.id).map(|i| i + 1).unwrap_or(ranked.len() + 1)
+                ranked
+                    .iter()
+                    .position(|(id, _)| id == &player.id)
+                    .map(|i| i + 1)
+                    .unwrap_or(ranked.len() + 1)
             };
 
             player_results.push(PlayerResult {
@@ -1090,7 +1142,13 @@ impl GameLoop {
     }
 
     /// Registra uma ação no hand history (por ID do jogador)
-    fn record_history_action(&mut self, history: &mut HandHistory, player_id: &str, action: Action, amount: u64) {
+    fn record_history_action(
+        &mut self,
+        history: &mut HandHistory,
+        player_id: &str,
+        action: Action,
+        amount: u64,
+    ) {
         self.action_counter += 1;
         let pa = PlayerAction {
             player_id: player_id.to_string(),
@@ -1136,12 +1194,17 @@ mod tests {
     use super::*;
 
     fn make_config() -> TableConfig {
-        TableConfig::new(1000, 5.0, 500) // BB=1000, rake=5%, cap=500
+        TableConfig::new(1000, 500, 500) // BB=1000, rake=5%, cap=500
     }
 
     fn make_game_loop_with_2_players() -> GameLoop {
         let config = make_config();
-        let mut gl = GameLoop::new(config, "hand-001".to_string(), "Test Table".to_string(), GameType::Cash);
+        let mut gl = GameLoop::new(
+            config,
+            "hand-001".to_string(),
+            "Test Table".to_string(),
+            GameType::Cash,
+        );
         gl.add_player("alice".to_string(), 100000);
         gl.add_player("bob".to_string(), 100000);
         gl.set_dealer(0);
@@ -1294,7 +1357,12 @@ mod tests {
 
     #[test]
     fn test_all_in() {
-        let mut gl = GameLoop::new(make_config(), "hand-ai".to_string(), "AI Table".to_string(), GameType::Cash);
+        let mut gl = GameLoop::new(
+            make_config(),
+            "hand-ai".to_string(),
+            "AI Table".to_string(),
+            GameType::Cash,
+        );
         gl.add_player("alice".to_string(), 5000); // stack pequeno
         gl.add_player("bob".to_string(), 100000);
         gl.set_dealer(0);
@@ -1319,7 +1387,10 @@ mod tests {
         // Tentar agir com o jogador errado
         let result = gl.player_action("bob", PlayerMove::Fold);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), GameLoopError::NotYourTurn("bob".to_string()));
+        assert_eq!(
+            result.unwrap_err(),
+            GameLoopError::NotYourTurn("bob".to_string())
+        );
     }
 
     #[test]
@@ -1361,7 +1432,12 @@ mod tests {
 
     #[test]
     fn test_three_players_preflop_order() {
-        let mut gl = GameLoop::new(make_config(), "hand-3p".to_string(), "3P Table".to_string(), GameType::Cash);
+        let mut gl = GameLoop::new(
+            make_config(),
+            "hand-3p".to_string(),
+            "3P Table".to_string(),
+            GameType::Cash,
+        );
         gl.add_player("alice".to_string(), 100000);
         gl.add_player("bob".to_string(), 100000);
         gl.add_player("carol".to_string(), 100000);

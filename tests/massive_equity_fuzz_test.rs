@@ -24,7 +24,10 @@ fn test_100k_monte_carlo_equity_simulations_stress() {
 
     println!("   ✔ 100.000 simulações de Monte Carlo concluídas!");
     println!("   - Tempo Total: {:.3?} s", elapsed.as_secs_f64());
-    println!("   - Taxa: {:.2} simulações/segundo", 100_000.0 / elapsed.as_secs_f64());
+    println!(
+        "   - Taxa: {:.2} simulações/segundo",
+        100_000.0 / elapsed.as_secs_f64()
+    );
     println!("   - AKs no Flop com Royal Draw vs 2 Oponentes:");
     println!("     - Win Rate:  {:.2}%", result.win_percentage);
     println!("     - Tie Rate:  {:.2}%", result.tie_percentage);

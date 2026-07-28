@@ -1,7 +1,7 @@
 // state_stress_tests.rs — Teste de Estresse de Sinais de Estado no Frontend Dioxus
 // Valida rajadas de mutações de estado da mesa e lobby sob alta frequência (10.000+ eventos).
 
-use crate::components::card::{PlayingCard, Suit, Rank};
+use crate::components::card::{PlayingCard, Rank, Suit};
 use crate::components::pot::PotEntry;
 
 #[test]
@@ -55,10 +55,7 @@ fn test_rapid_multi_pot_updates_stress() {
         pots.clear();
         let num_pots = (step % 5) + 1;
         for p in 0..num_pots {
-            pots.push(PotEntry::new(
-                format!("Pote {}", p),
-                (100 * (p + 1)) as u32,
-            ));
+            pots.push(PotEntry::new(format!("Pote {}", p), (100 * (p + 1)) as u32));
         }
 
         assert_eq!(pots.len(), num_pots);

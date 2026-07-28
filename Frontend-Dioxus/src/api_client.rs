@@ -59,6 +59,7 @@ pub struct RefreshRequest {
 #[derive(Debug, Serialize)]
 pub struct JoinTableRequest {
     pub table_id: String,
+    pub buy_in: u64,
 }
 
 // ─── DTOs de Resposta ───
@@ -86,6 +87,8 @@ pub struct TableResponse {
     pub max_players: u8,
     pub small_blind: u64,
     pub big_blind: u64,
+    pub min_buy_in: u64,
+    pub max_buy_in: u64,
     pub game_type: String,
 }
 
@@ -93,6 +96,12 @@ pub struct TableResponse {
 pub struct JoinResponse {
     pub seat: u8,
     pub chips: u64,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct WebSocketTicketResponse {
+    pub ticket: String,
+    pub expires_in: u64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -277,14 +286,33 @@ pub async fn get_table(table_id: &str) -> Result<TableResponse, String> {
 /// POST /api/lobby/join
 ///
 /// Entra em uma mesa do lobby.
-pub async fn join_table(table_id: &str) -> Result<JoinResponse, String> {
+pub async fn join_table(table_id: &str, buy_in: u64) -> Result<JoinResponse, String> {
     post_authenticated::<JoinResponse>(
         "/api/lobby/join",
         &JoinTableRequest {
             table_id: table_id.to_string(),
+            buy_in,
         },
     )
     .await
+}
+
+/// POST /api/lobby/tables/{id}/ws-ticket
+///
+/// Obtém um ticket de curta duração para o handshake WebSocket sem expor o
+/// token JWT na URL. O token é passado explicitamente porque o WsClient já o
+/// possui e não depende de localStorage durante reconexões.
+pub async fn create_ws_ticket(
+    table_id: &str,
+    token: &str,
+) -> Result<WebSocketTicketResponse, String> {
+    let url = api_url(&format!("/api/lobby/tables/{table_id}/ws-ticket"));
+    let res = Request::post(&url)
+        .header("Authorization", &format!("Bearer {token}"))
+        .send()
+        .await
+        .map_err(|error| format!("Erro de rede ao solicitar ticket WebSocket: {error}"))?;
+    handle_response::<WebSocketTicketResponse>(res).await
 }
 
 // ─── Endpoints de Torneio ───
@@ -327,7 +355,9 @@ pub async fn health_check() -> Result<String, String> {
         .send()
         .await
         .map_err(|e| format!("Erro de rede: {e}"))?;
-    res.text().await.map_err(|e| format!("Erro ao ler resposta: {e}"))
+    res.text()
+        .await
+        .map_err(|e| format!("Erro ao ler resposta: {e}"))
 }
 
 // ─── Testes ───
@@ -357,10 +387,7 @@ mod tests {
             save_tokens("test-jwt-token", "test-refresh-token");
             assert!(is_authenticated());
             assert_eq!(get_token(), Some("test-jwt-token".to_string()));
-            assert_eq!(
-                get_refresh_token(),
-                Some("test-refresh-token".to_string())
-            );
+            assert_eq!(get_refresh_token(), Some("test-refresh-token".to_string()));
 
             // Limpa
             clear_tokens();
@@ -375,7 +402,11 @@ mod tests {
             clear_tokens();
             save_tokens("my-token", "my-refresh");
             let headers = default_headers();
-            assert!(headers.iter().any(|(k, v)| *k == "Authorization" && v == "Bearer my-token"));
+            assert!(
+                headers
+                    .iter()
+                    .any(|(k, v)| *k == "Authorization" && v == "Bearer my-token")
+            );
             clear_tokens();
         }
     }

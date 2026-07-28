@@ -2,12 +2,8 @@
 //
 // Meta de testes Fase 2: +480 testes (+120 Lote 10A, +160 Lote 10B, +120 Lote 10C, +80 Lote 10D)
 
-#![cfg(test)]
-
 use crate::deck::{Card, Rank, Suit};
-use crate::side_pots::{
-    calculate_side_pots, distribute_pots, resolve_side_pots, PlayerForPots,
-};
+use crate::side_pots::{calculate_side_pots, distribute_pots, resolve_side_pots, PlayerForPots};
 use crate::types::Pot;
 
 // Helpers
@@ -346,6 +342,10 @@ fn test_lote_10d_resolve_side_pots_parametric() {
         assert_eq!(result.pots.len(), 2);
         assert_eq!(result.contributions.len(), 3);
         // p1 deve ganhar o pote principal porque tem par de As
-        assert!(result.payouts.contains_key("p1"), "p1 was not in payouts: {:?}", result.payouts);
+        assert!(
+            result.payouts.contains_key("p1"),
+            "p1 was not in payouts: {:?}",
+            result.payouts
+        );
     }
 }

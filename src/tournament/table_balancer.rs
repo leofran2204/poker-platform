@@ -32,10 +32,14 @@ impl TableBalancer {
             let mut max_idx = 0;
 
             for i in 1..current_tables.len() {
-                if current_tables[i].active_player_ids.len() < current_tables[min_idx].active_player_ids.len() {
+                if current_tables[i].active_player_ids.len()
+                    < current_tables[min_idx].active_player_ids.len()
+                {
                     min_idx = i;
                 }
-                if current_tables[i].active_player_ids.len() > current_tables[max_idx].active_player_ids.len() {
+                if current_tables[i].active_player_ids.len()
+                    > current_tables[max_idx].active_player_ids.len()
+                {
                     max_idx = i;
                 }
             }
@@ -50,7 +54,9 @@ impl TableBalancer {
 
             // Mover 1 jogador da mesa mais populosa para a menos populosa
             if let Some(moved_player) = current_tables[max_idx].active_player_ids.pop() {
-                current_tables[min_idx].active_player_ids.push(moved_player.clone());
+                current_tables[min_idx]
+                    .active_player_ids
+                    .push(moved_player.clone());
 
                 moves.push(TableMove {
                     player_id: moved_player,

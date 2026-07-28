@@ -2,7 +2,7 @@
 
 **Versão:** 2.0  
 **Data:** 2026-07-25  
-**Status:** Documento Oficial — 100% Sincronizado e Implementado
+**Status:** Documento normativo — implementação deve ser confirmada por testes e revisão de cada release
 
 
 ---
@@ -214,7 +214,7 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
 - Campo `balance` em `users`
 - Deduzido no buy-in
 - Devolvido no cash-out
-- ✅ **Rake Cash Games: 3.5% (cap R$ 5.00) + Regra do Centavo Ímpar (WSOP 68)** 100% implementados em `rake.rs` e `utils.rs`
+- **Rake Cash Games:** configuração por mesa em pontos-base inteiros (padrão: 500 = 5,00%; cap padrão: R$ 100,00). O cálculo e o rateio são feitos exclusivamente com inteiros em centavos.
 - ✅ **Fee Torneios: 7% no Buy-in, com taxa 0% em Re-buys e Add-ons**
 
 ---

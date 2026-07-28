@@ -52,7 +52,10 @@ fn test_ws_table_broadcasting_to_multiple_subscribers() {
     let mut rx2 = broadcaster.subscribe();
 
     let receivers_notified = ws_server
-        .broadcast_to_table("Table_100", "Flop virou: Ace-Spades, King-Hearts, Ten-Clubs")
+        .broadcast_to_table(
+            "Table_100",
+            "Flop virou: Ace-Spades, King-Hearts, Ten-Clubs",
+        )
         .unwrap();
 
     assert_eq!(receivers_notified, 2);
@@ -61,5 +64,8 @@ fn test_ws_table_broadcasting_to_multiple_subscribers() {
     let msg2 = rx2.try_recv().unwrap();
 
     assert_eq!(msg1.event_type, "TABLE_STATE_UPDATE");
-    assert_eq!(msg2.payload, "Flop virou: Ace-Spades, King-Hearts, Ten-Clubs");
+    assert_eq!(
+        msg2.payload,
+        "Flop virou: Ace-Spades, King-Hearts, Ten-Clubs"
+    );
 }

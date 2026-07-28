@@ -5,7 +5,7 @@
 //
 // Arquitetura Monetária:
 // - Todos os valores monetários (pot, rake_cap, blinds) utilizam `u64` centavos inteiros.
-// - Percentuais (rake_percent) utilizam `f64` em escala (ex: 0.05 = 5%).
+// - Percentuais monetários usam pontos-base inteiros (`u16`): 500 = 5,00%.
 
 use serde::{Deserialize, Serialize};
 
@@ -36,16 +36,17 @@ impl Pot {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TableConfig {
     pub big_blind: u64,
-    pub rake_percent: f64,
+    /// Commission in basis points. For example, 500 means 5.00%.
+    pub rake_basis_points: u16,
     pub rake_cap: u64,
 }
 
 impl TableConfig {
-    /// Cria uma nova configuração de mesa com blinds e cap em centavos
-    pub fn new(big_blind: u64, rake_percent: f64, rake_cap: u64) -> Self {
+    /// Creates a configuration with blinds/cap in cents and rake in basis points.
+    pub fn new(big_blind: u64, rake_basis_points: u16, rake_cap: u64) -> Self {
         Self {
             big_blind,
-            rake_percent,
+            rake_basis_points,
             rake_cap,
         }
     }

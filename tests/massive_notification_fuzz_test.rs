@@ -12,10 +12,30 @@ fn test_500k_player_notifications_routing_and_serialization_stress() {
 
     for i in 0..total_notifications {
         let (category, level, title, msg) = match i % 4 {
-            0 => ("Connection", "Warning", "Reconexão Automática", "Conexão restabelecida."),
-            1 => ("Antifraud", "Error", "Mesa Bloqueada por Proximidade", "Outro dispositivo na mesma rede já está jogando nesta mesa."),
-            2 => ("Finance", "Warning", "Saldo Insuficiente", "Saldo insuficiente para efetuar o All-in."),
-            _ => ("ProvablyFair", "Info", "Transparência do Baralho", "Semente criptográfica revelada no histórico."),
+            0 => (
+                "Connection",
+                "Warning",
+                "Reconexão Automática",
+                "Conexão restabelecida.",
+            ),
+            1 => (
+                "Antifraud",
+                "Error",
+                "Mesa Bloqueada por Proximidade",
+                "Outro dispositivo na mesma rede já está jogando nesta mesa.",
+            ),
+            2 => (
+                "Finance",
+                "Warning",
+                "Saldo Insuficiente",
+                "Saldo insuficiente para efetuar o All-in.",
+            ),
+            _ => (
+                "ProvablyFair",
+                "Info",
+                "Transparência do Baralho",
+                "Semente criptográfica revelada no histórico.",
+            ),
         };
 
         let packet = WebSocketServer::create_player_notification_packet(
@@ -40,7 +60,10 @@ fn test_500k_player_notifications_routing_and_serialization_stress() {
 
     println!("   ✔ 500.000 notificações de confiança criadas e serializadas!");
     println!("   - Tempo Total: {:.3?} s", elapsed.as_secs_f64());
-    println!("   - Taxa de Notificação: {:.2} notificações/segundo", ops_per_sec);
+    println!(
+        "   - Taxa de Notificação: {:.2} notificações/segundo",
+        ops_per_sec
+    );
     println!("   - Confiabilidade da Interface: 100% Amigável e Íntegra");
     println!("========================================================\n");
 

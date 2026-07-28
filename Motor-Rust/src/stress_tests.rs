@@ -7,7 +7,9 @@
 //
 // Total alvo: ~20000 execuções de verificação distribuídas pelos módulos.
 
-use crate::deck::{compare_hands, create_deck, deal_cards, evaluate_hand, shuffle_deck, Card, Rank, Suit};
+use crate::deck::{
+    compare_hands, create_deck, deal_cards, evaluate_hand, shuffle_deck, Card, Rank, Suit,
+};
 use crate::hand_history::{
     create_hand_history, finalize_hand, record_action, Action, EndReason, GameType, PlayerAction,
     PlayerResult, TableConfig,
@@ -30,8 +32,19 @@ use std::collections::HashMap;
 fn all_cards() -> Vec<Card> {
     let mut cards = Vec::new();
     let ranks = [
-        Rank::Two, Rank::Three, Rank::Four, Rank::Five, Rank::Six, Rank::Seven,
-        Rank::Eight, Rank::Nine, Rank::Ten, Rank::Jack, Rank::Queen, Rank::King, Rank::Ace,
+        Rank::Two,
+        Rank::Three,
+        Rank::Four,
+        Rank::Five,
+        Rank::Six,
+        Rank::Seven,
+        Rank::Eight,
+        Rank::Nine,
+        Rank::Ten,
+        Rank::Jack,
+        Rank::Queen,
+        Rank::King,
+        Rank::Ace,
     ];
     for &suit in &[Suit::Hearts, Suit::Diamonds, Suit::Clubs, Suit::Spades] {
         for &rank in &ranks {
@@ -120,7 +133,10 @@ fn stress_deck_evaluate_hand_total_order() {
         let a = evaluate_hand(&h1, &board);
         let b = evaluate_hand(&h2, &board);
         let cmp = compare_hands(&a, &b);
-        assert!(matches!(cmp, Ordering::Less | Ordering::Equal | Ordering::Greater));
+        assert!(matches!(
+            cmp,
+            Ordering::Less | Ordering::Equal | Ordering::Greater
+        ));
         // Simetria: trocar ordem inverte (ou iguala)
         let cmp2 = compare_hands(&b, &a);
         match cmp {
@@ -148,13 +164,25 @@ fn stress_side_pots_sum_preserved() {
             total_contrib += bet;
             let (cards, r) = deal_cards(&rest, 2);
             rest = r;
-            players.push(make_player(&format!("p{i}"), bet, bet == 0 && i % 3 == 0, cards));
+            players.push(make_player(
+                &format!("p{i}"),
+                bet,
+                bet == 0 && i % 3 == 0,
+                cards,
+            ));
         }
         let pots = calculate_side_pots(&players);
         let pot_sum: u64 = pots.iter().map(|p| p.amount).sum();
         // Só conta quem de fato colocou fichas
-        let expected: u64 = players.iter().filter(|p| p.total_bet > 0).map(|p| p.total_bet).sum();
-        assert_eq!(pot_sum, expected, "Soma dos pots {pot_sum} != contrib {expected}");
+        let expected: u64 = players
+            .iter()
+            .filter(|p| p.total_bet > 0)
+            .map(|p| p.total_bet)
+            .sum();
+        assert_eq!(
+            pot_sum, expected,
+            "Soma dos pots {pot_sum} != contrib {expected}"
+        );
         let _ = total_contrib;
     }
 }
@@ -187,10 +215,10 @@ fn stress_side_pots_distribution_pays_winners() {
 fn stress_rake_within_bounds() {
     for _ in 0..50000 {
         let pot = (secure_random_u32(1..=1000) * 100) as u64;
-        let pct = secure_random_u32(1..=10) as f64; // 1%..10%
+        let rake_basis_points = (secure_random_u32(1..=10) * 100) as u16; // 1%..10%
         let cap = (secure_random_u32(1..=20) * 100) as u64;
-        let rake = calculate_rake_for_pot(pot, pct, cap);
-        let max_expected = ((pot as f64 * pct) / 100.0).floor() as u64;
+        let rake = calculate_rake_for_pot(pot, rake_basis_points, cap);
+        let max_expected = ((u128::from(pot) * u128::from(rake_basis_points)) / 10_000) as u64;
         let expected = max_expected.min(cap).min(pot);
         assert_eq!(rake, expected, "Rake {rake} != {expected}");
         assert!(rake <= pot);
@@ -202,22 +230,25 @@ fn stress_rake_deduct_returns_net() {
     use crate::types::TableConfig as RakeTableConfig;
     for _ in 0..50000 {
         let pot_amount = (secure_random_u32(1..=1000) * 100) as u64;
-        let pct = secure_random_u32(1..=10) as f64; // 1%..10%
+        let rake_basis_points = (secure_random_u32(1..=10) * 100) as u16; // 1%..10%
         let cap = (secure_random_u32(1..=20) * 100) as u64;
         let config = RakeTableConfig {
             big_blind: 1000,
-            rake_percent: pct,
+            rake_basis_points,
             rake_cap: cap,
         };
         let pots = vec![Pot::new(pot_amount, vec!["p".into()])];
         let result = deduct_rake(&pots, &config, None);
         let net: u64 = result.pots_after_rake.iter().map(|p| p.amount).sum();
-        assert_eq!(net + result.total_rake, result.total_pot_before_rake, "net+rake != pot");
+        assert_eq!(
+            net + result.total_rake,
+            result.total_pot_before_rake,
+            "net+rake != pot"
+        );
     }
 }
 
 // ─── utils: 2000 iterações ───
-
 
 #[test]
 fn stress_utils_ratear_sums() {
@@ -232,7 +263,10 @@ fn stress_utils_ratear_sums() {
         let sum: u64 = rateio.iter().sum();
         assert_eq!(sum, total, "Rateio não soma {total}: {sum}");
         assert_eq!(rateio.len(), n);
-        assert_eq!(soma_total_pots(&pots), pots.iter().map(|p| p.amount).sum::<u64>());
+        assert_eq!(
+            soma_total_pots(&pots),
+            pots.iter().map(|p| p.amount).sum::<u64>()
+        );
     }
 }
 
@@ -271,7 +305,9 @@ fn stress_hand_history_roundtrip_json() {
                 game_type: GameType::Cash,
             },
             (0..6).map(|i| format!("p{i}")).collect(),
-            (0..6).map(|i| (format!("p{i}"), 1000)).collect::<HashMap<_, _>>(),
+            (0..6)
+                .map(|i| (format!("p{i}"), 1000))
+                .collect::<HashMap<_, _>>(),
         );
         let n = secure_random_u32(1..=6) as usize;
         for i in 0..n {
@@ -279,7 +315,11 @@ fn stress_hand_history_roundtrip_json() {
                 &mut hh,
                 PlayerAction {
                     player_id: format!("p{i}"),
-                    action: if i % 2 == 0 { Action::Bet } else { Action::Fold },
+                    action: if i % 2 == 0 {
+                        Action::Bet
+                    } else {
+                        Action::Fold
+                    },
                     amount: if i % 2 == 0 { 10 } else { 0 },
                     phase: GamePhase::Preflop,
                     timestamp_ms: i as u64 * 100,
@@ -314,7 +354,10 @@ fn stress_hand_history_finalize_and_summary() {
                 game_type: GameType::Cash,
             },
             players.clone(),
-            players.iter().map(|p| (p.clone(), 1000)).collect::<HashMap<_, _>>(),
+            players
+                .iter()
+                .map(|p| (p.clone(), 1000))
+                .collect::<HashMap<_, _>>(),
         );
         for i in 0..n {
             record_action(
@@ -347,7 +390,7 @@ fn stress_hand_history_finalize_and_summary() {
             results,
             100,
             0,
-                GamePhase::River,
+            GamePhase::River,
             EndReason::AllFolded,
         );
         let sum = crate::hand_history::get_hand_summary(&hh);

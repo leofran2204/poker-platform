@@ -17,7 +17,12 @@ async fn test_ws_high_concurrency_table_actors() {
         let (tx_cmd, rx_cmd) = mpsc::channel(10_000);
         let (tx_broadcast, _) = broadcast::channel(10_000);
 
-        let actor = TableActor::new(table_id.clone(), format!("Table {}", t), rx_cmd, tx_broadcast);
+        let actor = TableActor::new(
+            table_id.clone(),
+            format!("Table {}", t),
+            rx_cmd,
+            tx_broadcast,
+        );
 
         // Subir o ator de mesa em background
         tokio::spawn(async move {

@@ -7,7 +7,6 @@ use http_body_util::BodyExt;
 use poker_api::build_router;
 use poker_api::state::AppState;
 use poker_engine::auth::AuthManager;
-use poker_engine::lobby::LobbyManager;
 use serde_json::{json, Value};
 use sqlx::postgres::PgPoolOptions;
 use std::collections::HashMap;
@@ -19,12 +18,15 @@ use tower::ServiceExt;
 async fn make_real_db_state(pool: sqlx::PgPool) -> AppState {
     AppState {
         db: pool,
-        auth: Arc::new(RwLock::new(AuthManager::new("stress-test-jwt-secret-key-32chars"))),
-        lobby: Arc::new(RwLock::new(LobbyManager::new())),
+        auth: Arc::new(RwLock::new(AuthManager::new(
+            "stress-test-jwt-secret-key-32chars",
+        ))),
         tournaments: Arc::new(RwLock::new(HashMap::new())),
         active_tables: Arc::new(RwLock::new(HashMap::new())),
         jwt_secret: "stress-test-jwt-secret-key-32chars".to_string(),
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
+        redis: None,
+        ws_tickets: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
     }
 }
 
@@ -56,7 +58,11 @@ async fn test_high_concurrency_db_user_registration() {
     for i in 0..NUM_CONCURRENT_USERS {
         let app = build_router(state.clone());
         let username = format!("stress_user_{}_{}", i, start_time.elapsed().as_nanos());
-        let email = format!("stress_{}_{}@example.com", i, start_time.elapsed().as_nanos());
+        let email = format!(
+            "stress_{}_{}@example.com",
+            i,
+            start_time.elapsed().as_nanos()
+        );
 
         handles.push(tokio::spawn(async move {
             let req_body = json!({
@@ -146,7 +152,11 @@ async fn test_concurrency_hand_history_persistence() {
     let mut inserted_count = 0;
     for handle in handles {
         let res = handle.await.unwrap();
-        assert!(res.is_ok(), "Falha ao gravar historico de mão: {:?}", res.err());
+        assert!(
+            res.is_ok(),
+            "Falha ao gravar historico de mão: {:?}",
+            res.err()
+        );
         inserted_count += 1;
     }
 

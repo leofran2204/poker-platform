@@ -1,8 +1,10 @@
 # Arquitetura Técnica & Especificação de APIs - Plataforma de Poker Online em Rust
 
-**Atualizado:** 2026-07-25 | **Status:** ✅ 100% Concluído & Validado em Produção (2.050 Testes Passing)
+**Atualizado:** 2026-07-27 | **Status:** Em revisão contínua — validação local e CI; sem certificação de produção.
 
 Este documento consolida a arquitetura técnica, esquemas de comunicação, contratos de API e modelos de segurança da **Plataforma de Poker Online em Rust**.
+
+> **Limite operacional atual:** `TableActor` é local ao processo. Por isso o manifesto Kubernetes mantém uma réplica até existir ownership distribuído de mesa; Redis não transforma o ator em componente multi-pod por si só.
 
 
 ---
@@ -80,6 +82,18 @@ $$\text{Hash}_k = \text{SHA256}(\text{ID}_k \parallel \text{UserID}_k \parallel 
 2. **Eliminação de Artefatos IEEE 754:** Operações numéricas utilizam matemática inteira de centavos e aplicam o resto (`total_centavos % N`) conforme a **Regra do Centavo Ímpar (WSOP / TDA Regra 68)**.
 3. **Garantia Atômica:** Saldo do jogador nunca pode se tornar negativo.
 4. **Cadeia Inviolável:** A integridade de qualquer conta é auditada via hash SHA-256 encadeado em latência $< 2 \, \mu s$.
+
+### Operação de mesas cash
+
+- O assento ativo é a fonte de verdade no PostgreSQL: `POST /api/lobby/join` exige JWT e `buy_in` em centavos; débito de carteira, escrow, ledger e ocupação são atômicos.
+- O contador público de jogadores é uma projeção mantida por gatilho dos assentos `ACTIVE`; o banco rejeita capacidade, blinds, buy-ins e estados de mesa inválidos.
+- `POST /api/lobby/leave` só liquida entre mãos, transferindo o stack persistido de volta à carteira e registrando o cash-out.
+- O WebSocket aceita apenas o dono de um assento ativo e financiado em mesa `OPEN`; não fornece stack de demonstração.
+- O navegador primeiro solicita `POST /api/lobby/tables/:id/ws-ticket` com Bearer JWT. O WebSocket recebe somente o ticket opaco, vinculado à mesa, com validade de 60 segundos e consumo único (Redis quando configurado).
+- Redis é obrigatório em produção para que tickets e snapshots de mesa não se dividam entre réplicas; o fallback em memória existe apenas para desenvolvimento/testes locais.
+- Administradores criam mesas com `POST /api/admin/tables` e alteram o estado com `PATCH /api/admin/tables/:id/status`. Uma mesa só fecha sem assentos ativos; `PAUSED` bloqueia novas entradas, e `OPEN` permite novas conexões.
+- O rake é armazenado em pontos-base (`500 = 5,00%`) e calculado/rateado com aritmética inteira; não há conversão financeira por ponto flutuante.
+- O histórico recebe número sequencial atômico por mesa, blinds reais da configuração e participantes na mesma transação; a assinatura usa o segredo já validado pela aplicação, sem chave de fallback.
 
 
 ---

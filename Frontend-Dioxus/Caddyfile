@@ -28,19 +28,18 @@ localhost {
     handle /api/* {
         reverse_proxy poker_api:3000 {
             header_up Host {host}
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto {scheme}
         }
+    }
+
+    # Health check público, sem depender do prefixo /api.
+    handle /health {
+        reverse_proxy poker_api:3000
     }
 
     # Encaminha chamadas de WebSockets para o container backend
     handle /ws/* {
         reverse_proxy poker_api:3000 {
             header_up Host {host}
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto {scheme}
         }
     }
 

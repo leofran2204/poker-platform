@@ -50,10 +50,7 @@ impl JoinButtonState {
 /// cantos sutis, cores clássicas de poker online.
 #[allow(dead_code)]
 #[component]
-pub fn JoinButton(
-    state: JoinButtonState,
-    onclick: Option<EventHandler<MouseEvent>>,
-) -> Element {
+pub fn JoinButton(state: JoinButtonState, onclick: Option<EventHandler<MouseEvent>>) -> Element {
     let disabled = state.is_disabled();
 
     rsx! {

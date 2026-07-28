@@ -22,7 +22,7 @@ sqlx = { version = "0.8", features = [
     "chrono",
     "migrate",
 ] }
-redis = { version = "0.25", default-features = false, features = ["tokio-comp", "aio", "std"] }
+redis = { version = "0.25", default-features = false, features = ["tokio-comp", "connection-manager"] }
 
 # ── Serialization ──
 serde = { version = "1", features = ["derive"] }

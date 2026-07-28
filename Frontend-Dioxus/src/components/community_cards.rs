@@ -111,7 +111,10 @@ mod tests {
             PlayingCard::new(Suit::Spades, Rank::Ten),
         ];
         // Flop deve mostrar apenas 3
-        let visible: Vec<_> = cards.into_iter().take(CommunityStage::Flop.card_count()).collect();
+        let visible: Vec<_> = cards
+            .into_iter()
+            .take(CommunityStage::Flop.card_count())
+            .collect();
         assert_eq!(visible.len(), 3);
     }
 }

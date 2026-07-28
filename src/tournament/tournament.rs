@@ -68,9 +68,18 @@ impl Tournament {
         blind_structure: BlindStructure,
     ) -> Self {
         let payouts = vec![
-            TournamentPayout { rank: 1, percentage: 50.0 },
-            TournamentPayout { rank: 2, percentage: 30.0 },
-            TournamentPayout { rank: 3, percentage: 20.0 },
+            TournamentPayout {
+                rank: 1,
+                percentage: 50.0,
+            },
+            TournamentPayout {
+                rank: 2,
+                percentage: 30.0,
+            },
+            TournamentPayout {
+                rank: 3,
+                percentage: 20.0,
+            },
         ];
 
         Self {
@@ -96,12 +105,18 @@ impl Tournament {
         name: &str,
         account: &LedgerAccount,
     ) -> Result<(), TournamentError> {
-        if self.state != TournamentState::Registration && self.state != TournamentState::LateRegistration {
+        if self.state != TournamentState::Registration
+            && self.state != TournamentState::LateRegistration
+        {
             return Err(TournamentError::RegistrationClosed);
         }
 
         let total_cost = self.buy_in_cents + self.rake_cents;
-        account.record_transaction(-total_cost, EntryType::TableBuyIn, Some(format!("BUYIN-{}", self.id)))?;
+        account.record_transaction(
+            -total_cost,
+            EntryType::TableBuyIn,
+            Some(format!("BUYIN-{}", self.id)),
+        )?;
 
         self.prize_pool_cents += self.buy_in_cents;
         self.players.insert(
@@ -130,12 +145,19 @@ impl Tournament {
             return Err(TournamentError::RebuyNotAllowed);
         }
 
-        let player = self.players.get_mut(user_id).ok_or(TournamentError::PlayerNotFound)?;
+        let player = self
+            .players
+            .get_mut(user_id)
+            .ok_or(TournamentError::PlayerNotFound)?;
         if player.chip_stack > self.starting_stack * 0.5 {
             return Err(TournamentError::RebuyNotAllowed);
         }
 
-        account.record_transaction(-self.buy_in_cents, EntryType::TableBuyIn, Some(format!("REBUY-{}", self.id)))?;
+        account.record_transaction(
+            -self.buy_in_cents,
+            EntryType::TableBuyIn,
+            Some(format!("REBUY-{}", self.id)),
+        )?;
         self.prize_pool_cents += self.buy_in_cents;
         player.chip_stack += self.starting_stack;
         player.rebuys_count += 1;
@@ -174,7 +196,10 @@ impl Tournament {
     }
 
     /// Distribui os prêmios do Prize Pool no Ledger dos vencedores ao finalizar o torneio.
-    pub fn distribute_prize_pool(&self, accounts: &HashMap<String, LedgerAccount>) -> Vec<(String, usize, i64)> {
+    pub fn distribute_prize_pool(
+        &self,
+        accounts: &HashMap<String, LedgerAccount>,
+    ) -> Vec<(String, usize, i64)> {
         let mut payouts_done = Vec::new();
         if self.prize_pool_cents == 0 {
             return payouts_done;
@@ -182,9 +207,13 @@ impl Tournament {
 
         for payout in &self.payouts {
             let amount = ((self.prize_pool_cents as f64) * (payout.percentage / 100.0)) as i64;
-            
+
             // Encontrar jogador colocado nesta posição
-            if let Some(player) = self.players.values().find(|p| p.finish_rank == Some(payout.rank)) {
+            if let Some(player) = self
+                .players
+                .values()
+                .find(|p| p.finish_rank == Some(payout.rank))
+            {
                 if let Some(account) = accounts.get(&player.user_id) {
                     let _ = account.record_transaction(
                         amount,

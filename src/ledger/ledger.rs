@@ -73,7 +73,8 @@ struct AccountState {
 impl LedgerAccount {
     pub fn new(user_id: impl Into<String>, initial_balance_cents: i64) -> Self {
         let user_id = user_id.into();
-        let initial_hash = "0000000000000000000000000000000000000000000000000000000000000000".to_string();
+        let initial_hash =
+            "0000000000000000000000000000000000000000000000000000000000000000".to_string();
 
         let state = AccountState {
             balance_cents: initial_balance_cents,
@@ -115,7 +116,13 @@ impl LedgerAccount {
         let timestamp = Utc::now();
         let prev_hash = state.last_hash.clone();
 
-        let hash = LedgerEntry::calculate_hash(&entry_id, &self.user_id, amount_cents, new_balance, &prev_hash);
+        let hash = LedgerEntry::calculate_hash(
+            &entry_id,
+            &self.user_id,
+            amount_cents,
+            new_balance,
+            &prev_hash,
+        );
 
         let entry = LedgerEntry {
             id: entry_id,
@@ -139,7 +146,8 @@ impl LedgerAccount {
     /// Valida a integridade matemática da cadeia de auditoria do ledger.
     pub fn verify_integrity(&self) -> Result<bool, LedgerError> {
         let state = self.inner.lock().map_err(|_| LedgerError::LockError)?;
-        let mut expected_prev_hash = "0000000000000000000000000000000000000000000000000000000000000000";
+        let mut expected_prev_hash =
+            "0000000000000000000000000000000000000000000000000000000000000000";
 
         for entry in &state.history {
             if entry.prev_hash != expected_prev_hash {

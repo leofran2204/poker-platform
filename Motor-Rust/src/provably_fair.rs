@@ -14,8 +14,8 @@
 //!    re-executar a função `verify_shuffle` e comprovar que o baralho não foi alterado durante o jogo.
 
 use hmac::{Hmac, Mac};
-use sha2::{Digest, Sha256};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 type HmacSha256 = Hmac<Sha256>;
 
@@ -90,12 +90,10 @@ pub fn provably_fair_shuffle<T: Clone>(
         return Ok(());
     }
 
-    let mut round: u32 = 0;
-
-    for i in (1..len).rev() {
+    for (round, i) in (0_u32..).zip((1..len).rev()) {
         // Deriva valor numérico uniforme em [0, i] usando HMAC
-        let random_index = get_deterministic_u32(server_seed_bytes, client_seed, nonce, round, (i + 1) as u32)?;
-        round += 1;
+        let random_index =
+            get_deterministic_u32(server_seed_bytes, client_seed, nonce, round, (i + 1) as u32)?;
 
         items.swap(i, random_index as usize);
     }
@@ -119,7 +117,12 @@ pub fn verify_shuffle<T: Clone + PartialEq>(
     let server_seed_bytes = hex_decode(server_seed_hex)?;
     let mut items_to_reconstruct = original_items.to_vec();
 
-    provably_fair_shuffle(&mut items_to_reconstruct, &server_seed_bytes, client_seed, nonce)?;
+    provably_fair_shuffle(
+        &mut items_to_reconstruct,
+        &server_seed_bytes,
+        client_seed,
+        nonce,
+    )?;
 
     Ok(items_to_reconstruct == final_items)
 }
@@ -243,7 +246,10 @@ mod tests {
             nonce,
         )
         .unwrap();
-        assert!(!is_valid_tampered, "A verificação de semente alterada deveria ter falhado");
+        assert!(
+            !is_valid_tampered,
+            "A verificação de semente alterada deveria ter falhado"
+        );
     }
 
     #[test]
@@ -343,5 +349,3 @@ mod proptests {
         }
     }
 }
-
-

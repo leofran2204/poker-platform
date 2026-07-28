@@ -1,7 +1,5 @@
 use chrono::Utc;
-use poker_engine::history::{
-    HandHistoryRecord, HandPlayerInfo, HandWinnerInfo,
-};
+use poker_engine::history::{HandHistoryRecord, HandPlayerInfo, HandWinnerInfo};
 use sha2::{Digest, Sha256};
 use std::time::Instant;
 
@@ -56,7 +54,10 @@ fn test_100k_hand_history_export_and_provably_fair_audits_stress() {
 
     println!("   ✔ 100.000 históricos e verificações Provably Fair concluídos!");
     println!("   - Tempo Total: {:.3?} s", elapsed.as_secs_f64());
-    println!("   - Taxa de Gravação/Auditoria: {:.2} registros/segundo", records_per_sec);
+    println!(
+        "   - Taxa de Gravação/Auditoria: {:.2} registros/segundo",
+        records_per_sec
+    );
     println!("   - Transparência Criptográfica: 100% Provably Fair Válida");
     println!("========================================================\n");
 

@@ -68,7 +68,9 @@ pub fn RegisterForm(props: RegisterFormProps) -> Element {
             return;
         }
         if u.len() < 3 || u.len() > 30 {
-            error_msg.set(Some("Usuário deve ter entre 3 e 30 caracteres.".to_string()));
+            error_msg.set(Some(
+                "Usuário deve ter entre 3 e 30 caracteres.".to_string(),
+            ));
             return;
         }
         if !u.chars().all(|c| c.is_alphanumeric() || c == '_') {

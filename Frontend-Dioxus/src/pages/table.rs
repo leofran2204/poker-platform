@@ -13,15 +13,15 @@ use std::rc::Rc;
 
 use crate::api_client;
 use crate::components::action_buttons::ActionKind;
+use crate::components::avatar::{PlayerStatus, Position};
 use crate::components::card::{PlayingCard, Rank, Suit};
 use crate::components::community_cards::CommunityStage;
+use crate::components::deflator_notification::{DeflatorNotification, DeflatorPayload};
 use crate::components::pot::PotEntry;
-use crate::components::table::{PlayerData, TableView};
-use crate::components::avatar::{PlayerStatus, Position};
 use crate::components::seat::SeatPosition;
+use crate::components::table::{PlayerData, TableView};
 use crate::router::Route;
 use crate::ws_client::{self, WsCallbacks, WsClient, WsConnectionState};
-use crate::components::deflator_notification::{DeflatorNotification, DeflatorPayload};
 
 /// Estado interno da página de mesa.
 #[derive(Clone)]
@@ -116,20 +116,17 @@ fn parse_stage(s: &str) -> CommunityStage {
 }
 
 /// Converte PlayerWsData para PlayerData com posição no layout.
-fn ws_player_to_player_data(
-    ws: &ws_client::PlayerWsData,
-    index: usize,
-) -> PlayerData {
+fn ws_player_to_player_data(ws: &ws_client::PlayerWsData, index: usize) -> PlayerData {
     // Posições no layout oval (distribuição circular)
     let positions = [
-        SeatPosition::new(20.0, 50.0),  // topo
-        SeatPosition::new(50.0, 85.0),  // direita
-        SeatPosition::new(80.0, 70.0),  // baixo-direita
-        SeatPosition::new(80.0, 30.0),  // baixo-esquerda
-        SeatPosition::new(50.0, 15.0),  // esquerda
-        SeatPosition::new(35.0, 30.0),  // meio-esquerda
-        SeatPosition::new(35.0, 70.0),  // meio-direita
-        SeatPosition::new(65.0, 50.0),  // centro-baixo
+        SeatPosition::new(20.0, 50.0), // topo
+        SeatPosition::new(50.0, 85.0), // direita
+        SeatPosition::new(80.0, 70.0), // baixo-direita
+        SeatPosition::new(80.0, 30.0), // baixo-esquerda
+        SeatPosition::new(50.0, 15.0), // esquerda
+        SeatPosition::new(35.0, 30.0), // meio-esquerda
+        SeatPosition::new(35.0, 70.0), // meio-direita
+        SeatPosition::new(65.0, 50.0), // centro-baixo
     ];
     let seat_pos = positions[index % positions.len()];
 
@@ -208,9 +205,8 @@ pub fn Table(id: String) -> Element {
             let token = match api_client::get_token() {
                 Some(t) => t,
                 None => {
-                    state_for_effect.write().borrow_mut().ws_state = WsConnectionState::Error(
-                        "Usuário não autenticado".to_string(),
-                    );
+                    state_for_effect.write().borrow_mut().ws_state =
+                        WsConnectionState::Error("Usuário não autenticado".to_string());
                     return;
                 }
             };
@@ -221,82 +217,88 @@ pub fn Table(id: String) -> Element {
             let mut state_for_err = state_for_effect;
 
             let callbacks = WsCallbacks {
-                on_connection_state: Some(std::rc::Rc::new(std::cell::RefCell::new(move |conn_state: WsConnectionState| {
-                    state_for_conn.write().borrow_mut().ws_state = conn_state;
-                }))),
-                on_message: Some(std::rc::Rc::new(std::cell::RefCell::new(move |msg: ws_client::ServerMessage| {
-                    let binding = state_for_msg.write();
-                    let mut s = binding.borrow_mut();
-                    match msg {
-                        ws_client::ServerMessage::Welcome { player_id, .. } => {
-                            s.local_player_id = Some(player_id);
-                        }
-                        ws_client::ServerMessage::TableState {
-                            players,
-                            community_cards,
-                            stage,
-                            pots,
-                            available_actions,
-                        } => {
-                            s.players = players
-                                .iter()
-                                .enumerate()
-                                .map(|(i, p)| ws_player_to_player_data(p, i))
-                                .collect();
-                            s.community_cards = community_cards
-                                .iter()
-                                .filter_map(|c| parse_card(c))
-                                .collect();
-                            s.stage = parse_stage(&stage);
-                            s.pots = pots.iter().map(ws_pot_to_pot_entry).collect();
-                            s.available_actions = available_actions
-                                .iter()
-                                .filter_map(|a| parse_action(a))
-                                .collect();
-                            
-                            // Se começou uma nova mão (PreFlop sem cartas comunitárias), limpar o overlay do Deflator
-                            if s.stage == CommunityStage::PreFlop && s.community_cards.is_empty() {
-                                s.deflator_payload = None;
+                on_connection_state: Some(std::rc::Rc::new(std::cell::RefCell::new(
+                    move |conn_state: WsConnectionState| {
+                        state_for_conn.write().borrow_mut().ws_state = conn_state;
+                    },
+                ))),
+                on_message: Some(std::rc::Rc::new(std::cell::RefCell::new(
+                    move |msg: ws_client::ServerMessage| {
+                        let binding = state_for_msg.write();
+                        let mut s = binding.borrow_mut();
+                        match msg {
+                            ws_client::ServerMessage::Welcome { player_id, .. } => {
+                                s.local_player_id = Some(player_id);
                             }
-                        }
-                        ws_client::ServerMessage::DeflatorTriggered {
-                            loser_name,
-                            winner_name,
-                            cashback_amount,
-                            odds_broken,
-                            prevented_elimination,
-                            is_tournament,
-                        } => {
-                            s.deflator_payload = Some(DeflatorPayload {
+                            ws_client::ServerMessage::TableState {
+                                players,
+                                community_cards,
+                                stage,
+                                pots,
+                                available_actions,
+                            } => {
+                                s.players = players
+                                    .iter()
+                                    .enumerate()
+                                    .map(|(i, p)| ws_player_to_player_data(p, i))
+                                    .collect();
+                                s.community_cards = community_cards
+                                    .iter()
+                                    .filter_map(|c| parse_card(c))
+                                    .collect();
+                                s.stage = parse_stage(&stage);
+                                s.pots = pots.iter().map(ws_pot_to_pot_entry).collect();
+                                s.available_actions = available_actions
+                                    .iter()
+                                    .filter_map(|a| parse_action(a))
+                                    .collect();
+
+                                // Se começou uma nova mão (PreFlop sem cartas comunitárias), limpar o overlay do Deflator
+                                if s.stage == CommunityStage::PreFlop
+                                    && s.community_cards.is_empty()
+                                {
+                                    s.deflator_payload = None;
+                                }
+                            }
+                            ws_client::ServerMessage::DeflatorTriggered {
                                 loser_name,
                                 winner_name,
                                 cashback_amount,
                                 odds_broken,
                                 prevented_elimination,
                                 is_tournament,
-                            });
-                        }
-                        ws_client::ServerMessage::YourTurn { actions, .. } => {
-                            s.available_actions = actions
-                                .iter()
-                                .filter_map(|a| parse_action(a))
-                                .collect();
-                        }
-                        ws_client::ServerMessage::ActionResult { success, message } => {
-                            if !success {
-                                log::error!("Ação rejeitada: {message}");
+                            } => {
+                                s.deflator_payload = Some(DeflatorPayload {
+                                    loser_name,
+                                    winner_name,
+                                    cashback_amount,
+                                    odds_broken,
+                                    prevented_elimination,
+                                    is_tournament,
+                                });
                             }
+                            ws_client::ServerMessage::YourTurn { actions, .. } => {
+                                s.available_actions =
+                                    actions.iter().filter_map(|a| parse_action(a)).collect();
+                            }
+                            ws_client::ServerMessage::ActionResult { success, message } => {
+                                if !success {
+                                    log::error!("Ação rejeitada: {message}");
+                                }
+                            }
+                            ws_client::ServerMessage::Error { message } => {
+                                log::error!("Erro do servidor: {message}");
+                            }
+                            _ => {}
                         }
-                        ws_client::ServerMessage::Error { message } => {
-                            log::error!("Erro do servidor: {message}");
-                        }
-                        _ => {}
-                    }
-                }))),
-                on_error: Some(std::rc::Rc::new(std::cell::RefCell::new(move |err: String| {
-                    log::error!("WebSocket error: {err}");
-                    let _ = state_for_err.write().borrow_mut();
-                }))),
+                    },
+                ))),
+                on_error: Some(std::rc::Rc::new(std::cell::RefCell::new(
+                    move |err: String| {
+                        log::error!("WebSocket error: {err}");
+                        let _ = state_for_err.write().borrow_mut();
+                    },
+                ))),
             };
 
             let mut client = WsClient::new(table_id, token, callbacks);

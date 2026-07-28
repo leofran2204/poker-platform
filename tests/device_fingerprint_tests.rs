@@ -10,12 +10,23 @@ fn test_haversine_distance_calculation() {
     let loc_b = GeoLocation::new(-23.5617, -46.6561);
 
     let dist = loc_a.distance_meters(&loc_b);
-    assert!(dist > 10.0 && dist < 50.0, "Distância esperada ~30m, obtido: {:.2}m", dist);
+    assert!(
+        dist > 10.0 && dist < 50.0,
+        "Distância esperada ~30m, obtido: {:.2}m",
+        dist
+    );
 }
 
 #[test]
 fn test_same_device_fingerprint_rejection() {
-    let fp = DeviceFingerprint::new("NVIDIA RTX 3080", "AudioSig123", "1920x1080", "FontHash99", "MacBookPro18,1", "macOS 14");
+    let fp = DeviceFingerprint::new(
+        "NVIDIA RTX 3080",
+        "AudioSig123",
+        "1920x1080",
+        "FontHash99",
+        "MacBookPro18,1",
+        "macOS 14",
+    );
 
     let p1 = PlayerSecurityContext {
         user_id: "Alice".into(),
@@ -32,7 +43,10 @@ fn test_same_device_fingerprint_rejection() {
     };
 
     let result = DeviceSecurityGuard::validate_table_seating_advanced(&[p1, p2]);
-    assert!(matches!(result, Err(CollusionViolation::SameDeviceFingerprint(..))));
+    assert!(matches!(
+        result,
+        Err(CollusionViolation::SameDeviceFingerprint(..))
+    ));
 }
 
 #[test]
@@ -58,5 +72,8 @@ fn test_physical_proximity_guard_rejection() {
     };
 
     let result = DeviceSecurityGuard::validate_table_seating_advanced(&[p1, p2]);
-    assert!(matches!(result, Err(CollusionViolation::PhysicalProximityViolation(..))));
+    assert!(matches!(
+        result,
+        Err(CollusionViolation::PhysicalProximityViolation(..))
+    ));
 }

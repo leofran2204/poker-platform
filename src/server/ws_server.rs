@@ -8,8 +8,13 @@ use tokio::sync::{broadcast, mpsc, oneshot};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum WsActionType {
-    JoinTable { table_id: String, ip_address: String },
-    PostBet { amount: f64 },
+    JoinTable {
+        table_id: String,
+        ip_address: String,
+    },
+    PostBet {
+        amount: f64,
+    },
     Fold,
     Check,
     Call,
@@ -85,7 +90,13 @@ impl WebSocketServer {
     }
 
     /// Registra uma nova conexão de cliente WebSocket
-    pub fn register_client(&self, player_id: &str) -> (mpsc::Sender<WsOutgoingPacket>, mpsc::Receiver<WsOutgoingPacket>) {
+    pub fn register_client(
+        &self,
+        player_id: &str,
+    ) -> (
+        mpsc::Sender<WsOutgoingPacket>,
+        mpsc::Receiver<WsOutgoingPacket>,
+    ) {
         let (tx, rx) = mpsc::channel(100);
         let mut clients = self.clients.lock().unwrap();
         clients.insert(player_id.to_string(), tx.clone());
@@ -105,7 +116,10 @@ impl WebSocketServer {
     }
 
     /// Cria ou recupera o canal de Broadcast de uma mesa
-    pub fn get_or_create_table_broadcaster(&self, table_id: &str) -> broadcast::Sender<WsOutgoingPacket> {
+    pub fn get_or_create_table_broadcaster(
+        &self,
+        table_id: &str,
+    ) -> broadcast::Sender<WsOutgoingPacket> {
         let mut broadcasters = self.table_broadcasters.lock().unwrap();
         broadcasters
             .entry(table_id.to_string())
@@ -174,7 +188,9 @@ impl WebSocketServer {
                     ));
                 }
 
-                let resp = resp_rx.await.map_err(|_| "Resposta do ator cancelada".to_string())?;
+                let resp = resp_rx
+                    .await
+                    .map_err(|_| "Resposta do ator cancelada".to_string())?;
                 match resp {
                     Ok(()) => Ok(WsOutgoingPacket {
                         event_type: "JOIN_SUCCESS".into(),
@@ -212,10 +228,13 @@ impl WebSocketServer {
                     ));
                 }
 
-                let resp = resp_rx.await.map_err(|_| "Timeout de resposta".to_string())?;
+                let resp = resp_rx
+                    .await
+                    .map_err(|_| "Timeout de resposta".to_string())?;
                 match resp {
                     Ok(_state) => {
-                        let broadcast_msg = format!("Jogador {} apostou {:.2} Fichas", packet.player_id, amount);
+                        let broadcast_msg =
+                            format!("Jogador {} apostou {:.2} Fichas", packet.player_id, amount);
                         let _ = self.broadcast_to_table("Table_1", &broadcast_msg);
 
                         Ok(WsOutgoingPacket {

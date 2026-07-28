@@ -13,7 +13,7 @@
 //! O cliente gerencia um `WsState` que reflete o ciclo de vida da conexão:
 //! `Disconnected` → `Connecting` → `Connected` → `Disconnected`
 
-use futures_channel::mpsc::{unbounded, UnboundedSender};
+use futures_channel::mpsc::{UnboundedSender, unbounded};
 use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
@@ -196,7 +196,7 @@ pub struct WsCallbacks {
 pub struct WsClient {
     /// ID da mesa conectada.
     table_id: String,
-    /// Token JWT para autenticação.
+    /// Token JWT usado somente para solicitar o ticket de WebSocket via HTTP.
     token: String,
     /// Callbacks registrados.
     callbacks: WsCallbacks,
@@ -209,7 +209,7 @@ pub struct WsClient {
 impl WsClient {
     /// Cria um novo cliente WebSocket para a mesa especificada.
     ///
-    /// Requer o `table_id` e o token JWT para autenticação.
+    /// Requer o `table_id` e o token JWT para solicitar tickets de conexão.
     pub fn new(table_id: String, token: String, callbacks: WsCallbacks) -> Self {
         Self {
             table_id,
@@ -235,13 +235,25 @@ impl WsClient {
     /// Inicia o loop de mensagens em background. As mensagens recebidas
     /// são entregues via `callbacks.on_message`.
     pub async fn connect(&mut self) {
-        let url = format!(
-            "{WS_BASE}/ws/game/{}?token={}",
-            self.table_id, self.token
-        );
-
         self.state = WsConnectionState::Connecting;
         self.notify_connection_state();
+
+        // Browsers cannot attach Authorization headers to the WebSocket
+        // handshake. Request an opaque, one-time ticket over authenticated HTTP
+        // instead of putting the long-lived JWT in the URL.
+        let ticket = match crate::api_client::create_ws_ticket(&self.table_id, &self.token).await {
+            Ok(response) => response.ticket,
+            Err(error) => {
+                let err_msg = format!("Erro ao solicitar ticket WebSocket: {error}");
+                self.state = WsConnectionState::Error(err_msg.clone());
+                self.notify_connection_state();
+                if let Some(ref cb) = self.callbacks.on_error {
+                    (cb.borrow_mut())(err_msg);
+                }
+                return;
+            }
+        };
+        let url = format!("{WS_BASE}/ws/game/{}?ticket={ticket}", self.table_id);
 
         match ws_stream_wasm::WsMeta::connect(url, None).await {
             Ok((_ws_meta, ws_stream)) => {
@@ -321,7 +333,10 @@ impl WsClient {
                 return;
             }
 
-            log::warn!("Falha na conexão WS. Aguardando {} ms antes da próxima tentativa...", backoff_ms);
+            log::warn!(
+                "Falha na conexão WS. Aguardando {} ms antes da próxima tentativa...",
+                backoff_ms
+            );
             let (tx, rx) = futures_channel::oneshot::channel::<()>();
             if let Some(window) = web_sys::window() {
                 let closure = wasm_bindgen::closure::Closure::once_into_js(move || {
@@ -336,7 +351,10 @@ impl WsClient {
             backoff_ms = (backoff_ms * 2).min(30000);
         }
 
-        log::error!("Excedido número máximo de tentativas de conexão WS ({})", max_attempts);
+        log::error!(
+            "Excedido número máximo de tentativas de conexão WS ({})",
+            max_attempts
+        );
     }
 
     /// Envia uma ação do jogador para o servidor.
@@ -497,10 +515,7 @@ mod tests {
             WsConnectionState::Disconnected,
             WsConnectionState::Disconnected
         );
-        assert_eq!(
-            WsConnectionState::Connected,
-            WsConnectionState::Connected
-        );
+        assert_eq!(WsConnectionState::Connected, WsConnectionState::Connected);
         assert_ne!(
             WsConnectionState::Disconnected,
             WsConnectionState::Connected

@@ -43,8 +43,7 @@ fn app() -> Element {
 /// Função principal — inicializa o logger e lança o app Dioxus.
 fn main() {
     // Inicializa o logger com nível INFO.
-    dioxus_logger::init(dioxus_logger::tracing::Level::INFO)
-        .expect("Falha ao iniciar logger");
+    dioxus_logger::init(dioxus_logger::tracing::Level::INFO).expect("Falha ao iniciar logger");
 
     // Loga o início da aplicação.
     log::info!("🃏 Poker Project — Front-end Dioxus iniciando...");

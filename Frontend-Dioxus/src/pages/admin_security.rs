@@ -1,7 +1,7 @@
 //! Painel de Segurança e Antifraude Administrativo — Dioxus Component
+use crate::router::Route;
 use dioxus::prelude::*;
 use dioxus_router::prelude::*;
-use crate::router::Route;
 
 #[component]
 pub fn AdminSecurityPage() -> Element {

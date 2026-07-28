@@ -71,7 +71,12 @@ async fn test_ws_out_of_order_messages_and_burst_reconnects() {
     let (tx_cmd, rx_cmd) = mpsc::channel(100);
     let (tx_broadcast, _) = broadcast::channel(100);
 
-    let actor = TableActor::new(table_id, "Jitter Reconnect Table".to_string(), rx_cmd, tx_broadcast);
+    let actor = TableActor::new(
+        table_id,
+        "Jitter Reconnect Table".to_string(),
+        rx_cmd,
+        tx_broadcast,
+    );
 
     tokio::spawn(async move {
         actor.run().await;
@@ -97,10 +102,6 @@ async fn test_ws_out_of_order_messages_and_burst_reconnects() {
 
         // Simula desconexão em alta latência
         sleep(Duration::from_millis(2)).await;
-        let _ = tx_cmd
-            .send(PlayerCommand::Leave {
-                player_id,
-            })
-            .await;
+        let _ = tx_cmd.send(PlayerCommand::Leave { player_id }).await;
     }
 }

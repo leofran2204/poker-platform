@@ -66,7 +66,10 @@ impl AdminDashboard {
     pub fn suspend_player(&self, user_id: &str, reason: &str) -> String {
         let mut suspended = self.suspended_players.lock().unwrap();
         suspended.insert(user_id.to_string());
-        format!("Jogador {} suspenso com sucesso. Motivo: {}", user_id, reason)
+        format!(
+            "Jogador {} suspenso com sucesso. Motivo: {}",
+            user_id, reason
+        )
     }
 
     /// Reativa um jogador suspenso
@@ -82,7 +85,10 @@ impl AdminDashboard {
     }
 
     /// Analisa estatísticas comportamentais e gera relatórios de risco
-    pub fn analyze_player_risk(&self, stats: &PlayerBehaviorStats) -> Option<SuspiciousPlayerReport> {
+    pub fn analyze_player_risk(
+        &self,
+        stats: &PlayerBehaviorStats,
+    ) -> Option<SuspiciousPlayerReport> {
         let is_suspicious_vpip = stats.vpip_percentage() > 85.0 && stats.hands_played > 20;
         let is_suspicious_pfr = stats.pfr_percentage() > 70.0 && stats.hands_played > 20;
 

@@ -503,12 +503,14 @@ mod collusion_edge_cases {
     #[test]
     fn test_hand_strength_all_variants() {
         // Verifica que todas as variantes de HandStrength são comparáveis
-        let strengths = [collusion::HandStrength::VeryWeak,
+        let strengths = [
+            collusion::HandStrength::VeryWeak,
             collusion::HandStrength::Weak,
             collusion::HandStrength::Medium,
             collusion::HandStrength::Strong,
             collusion::HandStrength::VeryStrong,
-            collusion::HandStrength::Monster];
+            collusion::HandStrength::Monster,
+        ];
 
         for i in 1..strengths.len() {
             assert!(strengths[i] > strengths[i - 1]);

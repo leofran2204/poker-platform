@@ -84,15 +84,23 @@ impl Ord for HandRank {
 
         match (self, other) {
             (HandRank::HighCard(k1), HandRank::HighCard(k2)) => k1.cmp(k2),
-            (HandRank::OnePair(p1, k1), HandRank::OnePair(p2, k2)) => p1.cmp(p2).then_with(|| k1.cmp(k2)),
+            (HandRank::OnePair(p1, k1), HandRank::OnePair(p2, k2)) => {
+                p1.cmp(p2).then_with(|| k1.cmp(k2))
+            }
             (HandRank::TwoPair(h1, l1, k1), HandRank::TwoPair(h2, l2, k2)) => {
                 h1.cmp(h2).then_with(|| l1.cmp(l2)).then_with(|| k1.cmp(k2))
             }
-            (HandRank::ThreeOfAKind(t1, k1), HandRank::ThreeOfAKind(t2, k2)) => t1.cmp(t2).then_with(|| k1.cmp(k2)),
+            (HandRank::ThreeOfAKind(t1, k1), HandRank::ThreeOfAKind(t2, k2)) => {
+                t1.cmp(t2).then_with(|| k1.cmp(k2))
+            }
             (HandRank::Straight(s1), HandRank::Straight(s2)) => s1.cmp(s2),
             (HandRank::Flush(k1), HandRank::Flush(k2)) => k1.cmp(k2),
-            (HandRank::FullHouse(t1, p1), HandRank::FullHouse(t2, p2)) => t1.cmp(t2).then_with(|| p1.cmp(p2)),
-            (HandRank::FourOfAKind(f1, k1), HandRank::FourOfAKind(f2, k2)) => f1.cmp(f2).then_with(|| k1.cmp(k2)),
+            (HandRank::FullHouse(t1, p1), HandRank::FullHouse(t2, p2)) => {
+                t1.cmp(t2).then_with(|| p1.cmp(p2))
+            }
+            (HandRank::FourOfAKind(f1, k1), HandRank::FourOfAKind(f2, k2)) => {
+                f1.cmp(f2).then_with(|| k1.cmp(k2))
+            }
             (HandRank::StraightFlush(s1), HandRank::StraightFlush(s2)) => s1.cmp(s2),
             (HandRank::RoyalFlush, HandRank::RoyalFlush) => Ordering::Equal,
             _ => Ordering::Equal,

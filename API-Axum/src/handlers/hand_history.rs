@@ -5,6 +5,7 @@ use serde::Serialize;
 use serde_json::Value;
 
 use crate::error::ApiError;
+use crate::middleware::auth::RequireAuth;
 use crate::state::AppState;
 
 // ─── Response DTOs ───
@@ -30,6 +31,7 @@ pub struct HandHistorySummary {
 /// Response: replay completo da mão
 pub async fn get_hand_history(
     State(state): State<AppState>,
+    RequireAuth(auth_user): RequireAuth,
     Path(hand_id): Path<String>,
 ) -> Result<Json<HandHistoryResponse>, ApiError> {
     let row: Option<(String, serde_json::Value)> = sqlx::query_as(
@@ -54,9 +56,19 @@ pub async fn get_hand_history(
             ) AS replay
         FROM hand_history
         WHERE id::TEXT = $1
+          AND (
+              $2
+              OR EXISTS (
+                  SELECT 1 FROM hand_participants participant
+                  WHERE participant.hand_id = hand_history.id
+                    AND participant.user_id = $3::uuid
+              )
+          )
         "#,
     )
     .bind(&hand_id)
+    .bind(auth_user.role == "admin")
+    .bind(&auth_user.user_id)
     .fetch_optional(&state.db)
     .await?;
 
@@ -73,6 +85,7 @@ pub async fn get_hand_history(
 /// Response: Lista das últimas 50 mãos finalizadas da mesa
 pub async fn list_table_hand_histories(
     State(state): State<AppState>,
+    RequireAuth(auth_user): RequireAuth,
     Path(table_id): Path<String>,
 ) -> Result<Json<Vec<HandHistorySummary>>, ApiError> {
     let rows: Vec<(String, i64, i64, Option<String>, i64)> = sqlx::query_as(
@@ -84,12 +97,22 @@ pub async fn list_table_hand_histories(
             end_reason,
             created_at
         FROM hand_history
-        WHERE table_id::TEXT = $1 OR table_id IS NULL
+        WHERE table_id::TEXT = $1
+          AND (
+              $2
+              OR EXISTS (
+                  SELECT 1 FROM hand_participants participant
+                  WHERE participant.hand_id = hand_history.id
+                    AND participant.user_id = $3::uuid
+              )
+          )
         ORDER BY created_at DESC
         LIMIT 50
         "#,
     )
     .bind(&table_id)
+    .bind(auth_user.role == "admin")
+    .bind(&auth_user.user_id)
     .fetch_all(&state.db)
     .await?;
 

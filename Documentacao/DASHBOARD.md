@@ -1,11 +1,12 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-26 | **Status:** ✅ 100% Concluído & Saneado (Commercial Grade + Redis Snapshots Fault Tolerance / Launch Ready)
+**Atualizado:** 2026-07-27 | **Status:** S07 — revisão de segurança, arquitetura e automação em curso.
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📅 O cronograma completo está em `Documentacao/CRONOGRAMA.md` — veja prazos, fases e % de conclusão.
 > 🎓 **Guia de aprendizado didático:** `Documentacao/guia_aprendizado.md` (Protocolo Mark, regras de aprendizado, sprint S03 e guia dos 11 módulos).
 > 🦀 **Stack definitiva:** Rust para TUDO (backend, APIs, IA, dados, antifraude, autenticação, lobby, motor de jogo e front-end com Dioxus/WebAssembly).
+> **Limites conhecidos:** PIX está adiado; mesas permanecem de dono único por processo e o Kubernetes fica em uma réplica até a camada distribuída existir.
 
 ---
 
@@ -14,8 +15,8 @@
 | # | Parâmetro | Valor |
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
-| 2 | **Sprint atual** | S06 — Migração Arquitetural Estrita para `u64` Centavos |
-| 3 | **Status** | ✅ Todos os Sprints Concluídos & Auditados (100%) |
+| 2 | **Sprint atual** | S07 — revisão de segurança, arquitetura e CI |
+| 3 | **Status** | 🔄 Em validação — não é selo de produção |
 | 4 | **Cerimônias** | Planning + Review + Retrospectiva |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
 

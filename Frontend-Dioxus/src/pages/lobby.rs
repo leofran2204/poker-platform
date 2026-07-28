@@ -43,6 +43,8 @@ pub fn Lobby() -> Element {
                             game_type: parse_game_type(&t.game_type),
                             small_blind: t.small_blind,
                             big_blind: t.big_blind,
+                            min_buy_in: t.min_buy_in,
+                            max_buy_in: t.max_buy_in,
                             players: t.players as u32,
                             max_players: t.max_players as u32,
                         })

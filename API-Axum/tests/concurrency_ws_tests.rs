@@ -1,7 +1,7 @@
 // concurrency_ws_tests.rs — Testes de Concorrência, Isolamento e Resiliência dos Atores de Mesa
 
-use tokio::sync::{broadcast, mpsc, oneshot};
 use poker_api::game_actor::{PlayerCommand, TableActor};
+use tokio::sync::{broadcast, mpsc, oneshot};
 
 #[tokio::test]
 async fn test_multi_table_isolation_and_concurrency() {
@@ -46,7 +46,9 @@ async fn test_multi_table_isolation_and_concurrency() {
                     .await
                     .expect("Falha ao enviar comando Sit");
 
-                let seat = resp_rx.await.expect("Falha ao receber confirmação de assento");
+                let seat = resp_rx
+                    .await
+                    .expect("Falha ao receber confirmação de assento");
                 assert_eq!(seat, p_idx, "Assento retornado difere do solicitado");
             }
         });
@@ -61,9 +63,11 @@ async fn test_multi_table_isolation_and_concurrency() {
     // 3. Valida isolamento consultando o estado de cada mesa
     for (table_idx, tx) in table_txs.iter().enumerate() {
         let (info_tx, mut info_rx) = mpsc::channel(1);
-        tx.send(PlayerCommand::GetTableInfo { respond_to: info_tx })
-            .await
-            .expect("Falha ao solicitar info da mesa");
+        tx.send(PlayerCommand::GetTableInfo {
+            respond_to: info_tx,
+        })
+        .await
+        .expect("Falha ao solicitar info da mesa");
 
         let info = info_rx.recv().await.expect("Falha ao receber info da mesa");
         assert_eq!(
@@ -71,8 +75,14 @@ async fn test_multi_table_isolation_and_concurrency() {
             format!("table_{}", table_idx),
             "ID da mesa no evento não confere"
         );
-        let players = info["players"].as_array().expect("Array de players inválido");
-        assert_eq!(players.len(), 3, "Quantidade de jogadores na mesa incorreta");
+        let players = info["players"]
+            .as_array()
+            .expect("Array de players inválido");
+        assert_eq!(
+            players.len(),
+            3,
+            "Quantidade de jogadores na mesa incorreta"
+        );
     }
 }
 
@@ -81,7 +91,12 @@ async fn test_player_disconnect_resilience() {
     let (cmd_tx, cmd_rx) = mpsc::channel(100);
     let (bcast_tx, _bcast_rx) = broadcast::channel(100);
 
-    let actor = TableActor::new("table_disconnect".into(), "Mesa Disconnect".into(), cmd_rx, bcast_tx);
+    let actor = TableActor::new(
+        "table_disconnect".into(),
+        "Mesa Disconnect".into(),
+        cmd_rx,
+        bcast_tx,
+    );
     tokio::spawn(async move {
         actor.run().await;
     });
@@ -113,11 +128,17 @@ async fn test_player_disconnect_resilience() {
     // 3. Valida que a mesa continua operacional após a desconexão
     let (info_tx, mut info_rx) = mpsc::channel(1);
     cmd_tx
-        .send(PlayerCommand::GetTableInfo { respond_to: info_tx })
+        .send(PlayerCommand::GetTableInfo {
+            respond_to: info_tx,
+        })
         .await
         .unwrap();
 
     let info = info_rx.recv().await.unwrap();
     let players = info["players"].as_array().unwrap();
-    assert_eq!(players.len(), 0, "Jogador deveria ter sido removido após desconexão");
+    assert_eq!(
+        players.len(),
+        0,
+        "Jogador deveria ter sido removido após desconexão"
+    );
 }

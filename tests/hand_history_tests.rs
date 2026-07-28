@@ -1,9 +1,7 @@
 use chrono::Utc;
 use poker_engine::engine::evaluator::{Card, Rank, Suit};
 use poker_engine::engine::Action;
-use poker_engine::history::{
-    HandHistoryRecord, HandPlayerInfo, HandWinnerInfo, RecordedAction,
-};
+use poker_engine::history::{HandHistoryRecord, HandPlayerInfo, HandWinnerInfo, RecordedAction};
 use sha2::{Digest, Sha256};
 
 #[test]

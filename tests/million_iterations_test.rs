@@ -57,8 +57,14 @@ fn test_1_million_fuzz_hand_evaluations_and_poker_engine_simulations() {
             for pot in &side_pots {
                 assert!(pot.amount > 0.0, "Pote com valor <= 0.0 na iteração {}", i);
                 for eligible_id in &pot.eligible_players {
-                    let p = contributions.iter().find(|c| &c.player_id == eligible_id).unwrap();
-                    assert!(!p.has_folded, "VIOLAÇÃO CRÍTICA: Jogador folded elegível no pote!");
+                    let p = contributions
+                        .iter()
+                        .find(|c| &c.player_id == eligible_id)
+                        .unwrap();
+                    assert!(
+                        !p.has_folded,
+                        "VIOLAÇÃO CRÍTICA: Jogador folded elegível no pote!"
+                    );
                 }
             }
         }
@@ -84,7 +90,11 @@ fn test_1_million_fuzz_hand_evaluations_and_poker_engine_simulations() {
             total_cashbacks_calculated += deflators.len() as u64;
 
             for d in deflators {
-                assert!(d.cashback_amount >= 0.0, "Cashback negativo na iteração {}", i);
+                assert!(
+                    d.cashback_amount >= 0.0,
+                    "Cashback negativo na iteração {}",
+                    i
+                );
             }
         }
     }
@@ -94,10 +104,19 @@ fn test_1_million_fuzz_hand_evaluations_and_poker_engine_simulations() {
 
     println!("   ✔ 1.000.000 de iterações concluídas com SUCESSO ABSOLUTO!");
     println!("   - Tempo Total: {:.3?} s", elapsed.as_secs_f64());
-    println!("   - Velocidade de Processamento: {:.2} mãos/segundo", ops_per_sec);
+    println!(
+        "   - Velocidade de Processamento: {:.2} mãos/segundo",
+        ops_per_sec
+    );
     println!("   - Mãos Avaliadas: {}", total_hands_evaluated);
-    println!("   - Potes Secundários Calculados: {}", total_side_pots_calculated);
-    println!("   - Cálculos de Loss Deflator: {}", total_cashbacks_calculated);
+    println!(
+        "   - Potes Secundários Calculados: {}",
+        total_side_pots_calculated
+    );
+    println!(
+        "   - Cálculos de Loss Deflator: {}",
+        total_cashbacks_calculated
+    );
     println!("\n========================================================\n");
 
     assert_eq!(total_hands_evaluated, 1_000_000);

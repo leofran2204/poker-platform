@@ -10,12 +10,8 @@
 //
 // Cada lote cobre: casos normais, edge cases, erros e invariantes.
 
-#![cfg(test)]
-
 use crate::deck::{Card, Rank, Suit};
-use crate::game_loop::{
-    GameLoop, GameLoopError, HandState, PlayerMove, PlayerState,
-};
+use crate::game_loop::{GameLoop, GameLoopError, HandState, PlayerMove, PlayerState};
 use crate::hand_history::{EndReason, GameType};
 use crate::types::{GamePhase, TableConfig};
 
@@ -24,11 +20,11 @@ use crate::types::{GamePhase, TableConfig};
 // ═══════════════════════════════════════════════════════════════════
 
 fn make_config() -> TableConfig {
-    TableConfig::new(1000, 5.0, 500) // BB=1000 (R$ 10,00), rake=5%, cap=500 (R$ 5,00)
+    TableConfig::new(1000, 500, 500) // BB=1000 (R$ 10,00), rake=5%, cap=500 (R$ 5,00)
 }
 
 #[allow(dead_code)]
-fn make_config_custom(bb: u64, rake: f64, cap: u64) -> TableConfig {
+fn make_config_custom(bb: u64, rake: u16, cap: u64) -> TableConfig {
     TableConfig::new(bb, rake, cap)
 }
 
@@ -332,8 +328,14 @@ mod player_state_tests {
         p.is_all_in = true;
         p.has_acted = true;
         p.hole_cards = vec![
-            Card { rank: Rank::Ace, suit: Suit::Spades },
-            Card { rank: Rank::King, suit: Suit::Hearts },
+            Card {
+                rank: Rank::Ace,
+                suit: Suit::Spades,
+            },
+            Card {
+                rank: Rank::King,
+                suit: Suit::Hearts,
+            },
         ];
         let c = p.clone();
         assert_eq!(c.id, p.id);
@@ -499,8 +501,14 @@ mod player_state_tests {
     fn ps_hole_cards_pode_ter_2_cartas() {
         let mut p = PlayerState::new("x".to_string(), 100, 0);
         p.hole_cards = vec![
-            Card { rank: Rank::Ace, suit: Suit::Spades },
-            Card { rank: Rank::King, suit: Suit::Spades },
+            Card {
+                rank: Rank::Ace,
+                suit: Suit::Spades,
+            },
+            Card {
+                rank: Rank::King,
+                suit: Suit::Spades,
+            },
         ];
         assert_eq!(p.hole_cards.len(), 2);
     }
@@ -514,9 +522,15 @@ mod player_state_tests {
     #[test]
     fn ps_hole_cards_clone_independente() {
         let mut p = PlayerState::new("x".to_string(), 100, 0);
-        p.hole_cards = vec![Card { rank: Rank::Two, suit: Suit::Clubs }];
+        p.hole_cards = vec![Card {
+            rank: Rank::Two,
+            suit: Suit::Clubs,
+        }];
         let mut c = p.clone();
-        c.hole_cards.push(Card { rank: Rank::Three, suit: Suit::Clubs });
+        c.hole_cards.push(Card {
+            rank: Rank::Three,
+            suit: Suit::Clubs,
+        });
         assert_eq!(p.hole_cards.len(), 1);
         assert_eq!(c.hole_cards.len(), 2);
     }
@@ -998,9 +1012,18 @@ mod hand_state_tests {
     fn hs_clone_preserva_community_cards() {
         let mut hs = make_hand_state(make_players(2));
         hs.community_cards = vec![
-            Card { rank: Rank::Ace, suit: Suit::Spades },
-            Card { rank: Rank::King, suit: Suit::Hearts },
-            Card { rank: Rank::Queen, suit: Suit::Diamonds },
+            Card {
+                rank: Rank::Ace,
+                suit: Suit::Spades,
+            },
+            Card {
+                rank: Rank::King,
+                suit: Suit::Hearts,
+            },
+            Card {
+                rank: Rank::Queen,
+                suit: Suit::Diamonds,
+            },
         ];
         let c = hs.clone();
         assert_eq!(c.community_cards.len(), 3);
@@ -1056,12 +1079,7 @@ mod game_loop_init_tests {
 
     #[test]
     fn gl_new_cria_estrutura() {
-        let gl = GameLoop::new(
-            make_config(),
-            "h1".into(),
-            "Mesa".into(),
-            GameType::Cash,
-        );
+        let gl = GameLoop::new(make_config(), "h1".into(), "Mesa".into(), GameType::Cash);
         assert_eq!(gl.hand_id, "h1");
         assert_eq!(gl.table_name, "Mesa");
         assert_eq!(gl.state.players.len(), 0);
@@ -1072,8 +1090,10 @@ mod game_loop_init_tests {
     #[test]
     fn gl_new_blinds_padrao() {
         let gl = GameLoop::new(
-            TableConfig::new(2000, 5.0, 500),
-            "h1".into(), "Mesa".into(), GameType::Cash,
+            TableConfig::new(2000, 500, 500),
+            "h1".into(),
+            "Mesa".into(),
+            GameType::Cash,
         );
         assert_eq!(gl.state.small_blind, 10);
         assert_eq!(gl.state.big_blind, 20);
@@ -1090,7 +1110,9 @@ mod game_loop_init_tests {
     fn gl_new_game_type_tournament() {
         let gl = GameLoop::new(
             make_config(),
-            "h1".into(), "Mesa".into(), GameType::Tournament,
+            "h1".into(),
+            "Mesa".into(),
+            GameType::Tournament,
         );
         assert_eq!(gl.game_type, GameType::Tournament);
     }
@@ -1147,8 +1169,7 @@ mod game_loop_init_tests {
 
     #[test]
     fn gl_with_ante_encadeavel() {
-        let gl = make_game_loop_2p()
-            .with_ante(3);
+        let gl = make_game_loop_2p().with_ante(3);
         assert_eq!(gl.ante, Some(3));
     }
 
@@ -1279,10 +1300,7 @@ mod game_loop_init_tests {
 
     #[test]
     fn gl_start_hand_sb_all_in_se_stack_insuficiente() {
-        let mut gl = GameLoop::new(
-            make_config(),
-            "h1".into(), "Mesa".into(), GameType::Cash,
-        );
+        let mut gl = GameLoop::new(make_config(), "h1".into(), "Mesa".into(), GameType::Cash);
         gl.add_player("alice".to_string(), 3); // SB = 5, mas stack = 3
         gl.add_player("bob".to_string(), 1000);
         gl.set_dealer(0);
@@ -1293,10 +1311,7 @@ mod game_loop_init_tests {
 
     #[test]
     fn gl_start_hand_bb_all_in_se_stack_insuficiente() {
-        let mut gl = GameLoop::new(
-            make_config(),
-            "h1".into(), "Mesa".into(), GameType::Cash,
-        );
+        let mut gl = GameLoop::new(make_config(), "h1".into(), "Mesa".into(), GameType::Cash);
         gl.add_player("alice".to_string(), 1000);
         gl.add_player("bob".to_string(), 5); // BB = 10, mas stack = 5
         gl.set_dealer(0);
@@ -1417,10 +1432,7 @@ mod game_loop_init_tests {
 
     #[test]
     fn gl_start_hand_erro_menos_de_2() {
-        let mut gl = GameLoop::new(
-            make_config(),
-            "h1".into(), "Mesa".into(), GameType::Cash,
-        );
+        let mut gl = GameLoop::new(make_config(), "h1".into(), "Mesa".into(), GameType::Cash);
         gl.add_player("solo".to_string(), 1000);
         gl.set_dealer(0);
         let err = gl.start_hand().unwrap_err();
@@ -1429,10 +1441,7 @@ mod game_loop_init_tests {
 
     #[test]
     fn gl_start_hand_erro_0_jogadores() {
-        let mut gl = GameLoop::new(
-            make_config(),
-            "h1".into(), "Mesa".into(), GameType::Cash,
-        );
+        let mut gl = GameLoop::new(make_config(), "h1".into(), "Mesa".into(), GameType::Cash);
         gl.set_dealer(0);
         let err = gl.start_hand().unwrap_err();
         assert_eq!(err, GameLoopError::NotEnoughPlayers);
@@ -2471,7 +2480,10 @@ mod bet_raise_allin_tests {
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // Stack do bob = 990, bet de 2000
         let r = gl.player_action("bob", PlayerMove::Bet(2000));
-        assert!(matches!(r.unwrap_err(), GameLoopError::InsufficientStack(_)));
+        assert!(matches!(
+            r.unwrap_err(),
+            GameLoopError::InsufficientStack(_)
+        ));
     }
 
     #[test]
@@ -2601,7 +2613,10 @@ mod bet_raise_allin_tests {
         gl.player_action("bob", PlayerMove::Check).unwrap();
         // Flop: current_bet_to_match = 0
         let r = gl.player_action("bob", PlayerMove::Raise(30));
-        assert!(matches!(r.unwrap_err(), GameLoopError::InvalidActionForPhase(_)));
+        assert!(matches!(
+            r.unwrap_err(),
+            GameLoopError::InvalidActionForPhase(_)
+        ));
     }
 
     #[test]
@@ -3163,7 +3178,7 @@ mod resolve_showdown_errors_tests {
         play_all_check_to_showdown(&mut gl);
         let resolution = gl.resolve_hand().unwrap();
         // Rake de 5% sobre pot de 20 = 1 (cap 5)
-        assert!(resolution.rake >= 0);
+        assert!(resolution.rake > 0);
     }
 
     #[test]
@@ -3469,7 +3484,10 @@ mod resolve_showdown_errors_tests {
         // "zebra" não é o jogador ativo → NotYourTurn (verificação de turno vem antes)
         let result = gl.player_action("zebra", PlayerMove::Fold);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), GameLoopError::NotYourTurn("zebra".to_string()));
+        assert_eq!(
+            result.unwrap_err(),
+            GameLoopError::NotYourTurn("zebra".to_string())
+        );
     }
 
     #[test]
@@ -3479,7 +3497,10 @@ mod resolve_showdown_errors_tests {
         // Heads-up: alice (SB/dealer) age primeiro
         let result = gl.player_action("bob", PlayerMove::Fold);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), GameLoopError::NotYourTurn("bob".to_string()));
+        assert_eq!(
+            result.unwrap_err(),
+            GameLoopError::NotYourTurn("bob".to_string())
+        );
     }
 
     #[test]
@@ -3491,7 +3512,10 @@ mod resolve_showdown_errors_tests {
         // Tentar agir com alice que já foldou → NotYourTurn (turno já é de bob)
         let result = gl.player_action("alice", PlayerMove::Check);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), GameLoopError::NotYourTurn("alice".to_string()));
+        assert_eq!(
+            result.unwrap_err(),
+            GameLoopError::NotYourTurn("alice".to_string())
+        );
     }
 
     #[test]
@@ -3908,11 +3932,20 @@ mod resolve_showdown_errors_tests {
 
     #[test]
     fn test_multi_phase_all_in_loss_deflator_exact_phases() {
-        use crate::deck::{Suit, Rank};
+        use crate::deck::{Rank, Suit};
         let p1 = PlayerState {
             id: "p1".to_string(),
             stack: 0,
-            hole_cards: vec![Card { rank: Rank::Two, suit: Suit::Clubs }, Card { rank: Rank::Three, suit: Suit::Hearts }],
+            hole_cards: vec![
+                Card {
+                    rank: Rank::Two,
+                    suit: Suit::Clubs,
+                },
+                Card {
+                    rank: Rank::Three,
+                    suit: Suit::Hearts,
+                },
+            ],
             current_bet: 10000,
             total_bet: 10000,
             has_folded: false,
@@ -3924,7 +3957,16 @@ mod resolve_showdown_errors_tests {
         let p2 = PlayerState {
             id: "p2".to_string(),
             stack: 0,
-            hole_cards: vec![Card { rank: Rank::Four, suit: Suit::Clubs }, Card { rank: Rank::Five, suit: Suit::Hearts }],
+            hole_cards: vec![
+                Card {
+                    rank: Rank::Four,
+                    suit: Suit::Clubs,
+                },
+                Card {
+                    rank: Rank::Five,
+                    suit: Suit::Hearts,
+                },
+            ],
             current_bet: 20000,
             total_bet: 30000,
             has_folded: false,
@@ -3936,7 +3978,16 @@ mod resolve_showdown_errors_tests {
         let p3 = PlayerState {
             id: "p3".to_string(),
             stack: 70000,
-            hole_cards: vec![Card { rank: Rank::Ace, suit: Suit::Spades }, Card { rank: Rank::Ace, suit: Suit::Hearts }],
+            hole_cards: vec![
+                Card {
+                    rank: Rank::Ace,
+                    suit: Suit::Spades,
+                },
+                Card {
+                    rank: Rank::Ace,
+                    suit: Suit::Hearts,
+                },
+            ],
             current_bet: 30000,
             total_bet: 30000,
             has_folded: false,
@@ -3947,7 +3998,7 @@ mod resolve_showdown_errors_tests {
         };
 
         let mut gl = GameLoop::new(
-            TableConfig::new(1000, 0.0, 0),
+            TableConfig::new(1000, 0, 0),
             "hand_123".to_string(),
             "test_table".to_string(),
             GameType::Cash,
@@ -3956,11 +4007,26 @@ mod resolve_showdown_errors_tests {
         gl.state.players.push(p2);
         gl.state.players.push(p3);
         gl.state.community_cards = vec![
-            Card { rank: Rank::Two, suit: Suit::Diamonds },
-            Card { rank: Rank::Seven, suit: Suit::Spades },
-            Card { rank: Rank::Nine, suit: Suit::Clubs },
-            Card { rank: Rank::Jack, suit: Suit::Diamonds },
-            Card { rank: Rank::Ace, suit: Suit::Diamonds },
+            Card {
+                rank: Rank::Two,
+                suit: Suit::Diamonds,
+            },
+            Card {
+                rank: Rank::Seven,
+                suit: Suit::Spades,
+            },
+            Card {
+                rank: Rank::Nine,
+                suit: Suit::Clubs,
+            },
+            Card {
+                rank: Rank::Jack,
+                suit: Suit::Diamonds,
+            },
+            Card {
+                rank: Rank::Ace,
+                suit: Suit::Diamonds,
+            },
         ];
         gl.state.is_finished = true;
 
@@ -3968,11 +4034,19 @@ mod resolve_showdown_errors_tests {
 
         assert_eq!(res.loss_deflators.len(), 2);
 
-        let d1 = res.loss_deflators.iter().find(|d| d.loser_id == "p1").unwrap();
+        let d1 = res
+            .loss_deflators
+            .iter()
+            .find(|d| d.loser_id == "p1")
+            .unwrap();
         assert_eq!(d1.phase, GamePhase::Preflop);
         assert_eq!(d1.cards_remaining, 5);
 
-        let d2 = res.loss_deflators.iter().find(|d| d.loser_id == "p2").unwrap();
+        let d2 = res
+            .loss_deflators
+            .iter()
+            .find(|d| d.loser_id == "p2")
+            .unwrap();
         assert_eq!(d2.phase, GamePhase::Turn);
         assert_eq!(d2.cards_remaining, 1);
     }
@@ -4049,17 +4123,13 @@ mod resolve_showdown_errors_tests {
             assert_eq!(
                 sb_player.total_bet, expected_sb_total,
                 "SB total_bet incorreto no teste {}: obtido {}, esperado {}",
-                ante_val,
-                sb_player.total_bet,
-                expected_sb_total
+                ante_val, sb_player.total_bet, expected_sb_total
             );
 
             assert_eq!(
                 bb_player.total_bet, expected_bb_total,
                 "BB total_bet incorreto no teste {}: obtido {}, esperado {}",
-                ante_val,
-                bb_player.total_bet,
-                expected_bb_total
+                ante_val, bb_player.total_bet, expected_bb_total
             );
         }
     }
@@ -4095,9 +4165,7 @@ mod resolve_showdown_errors_tests {
                 assert_eq!(
                     initial_sum, current_total,
                     "Invariante financeira quebrada no seed {}: inicial {}, atual {}",
-                    seed,
-                    initial_sum,
-                    current_total
+                    seed, initial_sum, current_total
                 );
             }
         }

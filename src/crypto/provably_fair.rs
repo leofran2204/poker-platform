@@ -59,8 +59,19 @@ impl DeckShuffler {
     pub fn generate_standard_deck() -> Vec<Card> {
         let suits = [Suit::Clubs, Suit::Diamonds, Suit::Hearts, Suit::Spades];
         let ranks = [
-            Rank::Two, Rank::Three, Rank::Four, Rank::Five, Rank::Six, Rank::Seven,
-            Rank::Eight, Rank::Nine, Rank::Ten, Rank::Jack, Rank::Queen, Rank::King, Rank::Ace,
+            Rank::Two,
+            Rank::Three,
+            Rank::Four,
+            Rank::Five,
+            Rank::Six,
+            Rank::Seven,
+            Rank::Eight,
+            Rank::Nine,
+            Rank::Ten,
+            Rank::Jack,
+            Rank::Queen,
+            Rank::King,
+            Rank::Ace,
         ];
 
         let mut deck = Vec::with_capacity(52);

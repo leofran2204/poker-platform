@@ -5,16 +5,14 @@ use axum::http::{Method, Request, StatusCode};
 use poker_api::build_router;
 use poker_api::state::AppState;
 use poker_engine::auth::{AuthManager, LoginRequest, RegisterRequest};
-use poker_engine::lobby::LobbyManager;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tower::ServiceExt;
 
 fn make_test_state() -> AppState {
-    let url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
-        "postgres://unused:unused@localhost:5432/unused".to_string()
-    });
+    let url = std::env::var("DATABASE_URL")
+        .unwrap_or_else(|_| "postgres://unused:unused@localhost:5432/unused".to_string());
     let db = sqlx::postgres::PgPoolOptions::new()
         .max_connections(1)
         .connect_lazy(&url)
@@ -25,11 +23,12 @@ fn make_test_state() -> AppState {
     AppState {
         db,
         auth: Arc::new(RwLock::new(auth_mgr)),
-        lobby: Arc::new(RwLock::new(LobbyManager::new())),
         tournaments: Arc::new(RwLock::new(HashMap::new())),
         active_tables: Arc::new(RwLock::new(HashMap::new())),
         jwt_secret: "payments-jwt-secret-key-32chars".to_string(),
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
+        redis: None,
+        ws_tickets: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
     }
 }
 
@@ -75,13 +74,21 @@ async fn test_pix_deposit_generation_success() {
     let response = app.oneshot(request).await.unwrap();
     assert_eq!(response.status(), StatusCode::OK);
 
-    let body_bytes = axum::body::to_bytes(response.into_body(), 10_000).await.unwrap();
+    let body_bytes = axum::body::to_bytes(response.into_body(), 10_000)
+        .await
+        .unwrap();
     let body_json: serde_json::Value = serde_json::from_slice(&body_bytes).unwrap();
 
     assert!(body_json.get("tx_id").is_some());
     assert_eq!(body_json["amount"], 5000);
-    assert!(body_json["pix_copy_paste"].as_str().unwrap().contains("BR.GOV.BCB.PIX"));
-    assert!(body_json["qr_code_base64"].as_str().unwrap().contains("data:image"));
+    assert!(body_json["pix_copy_paste"]
+        .as_str()
+        .unwrap()
+        .contains("BR.GOV.BCB.PIX"));
+    assert!(body_json["qr_code_base64"]
+        .as_str()
+        .unwrap()
+        .contains("data:image"));
 }
 
 // ─── 2. Teste de Rejeição de Depósito Negativo ou Zero ───
@@ -133,7 +140,9 @@ async fn test_pix_webhook_success() {
     let response = app.oneshot(request).await.unwrap();
     assert_eq!(response.status(), StatusCode::OK);
 
-    let body_bytes = axum::body::to_bytes(response.into_body(), 10_000).await.unwrap();
+    let body_bytes = axum::body::to_bytes(response.into_body(), 10_000)
+        .await
+        .unwrap();
     let body_json: serde_json::Value = serde_json::from_slice(&body_bytes).unwrap();
     assert_eq!(body_json["status"], "PROCESSED");
 }
@@ -188,7 +197,9 @@ async fn test_pix_withdraw_success() {
     let response = app.oneshot(request).await.unwrap();
     assert_eq!(response.status(), StatusCode::OK);
 
-    let body_bytes = axum::body::to_bytes(response.into_body(), 10_000).await.unwrap();
+    let body_bytes = axum::body::to_bytes(response.into_body(), 10_000)
+        .await
+        .unwrap();
     let body_json: serde_json::Value = serde_json::from_slice(&body_bytes).unwrap();
     assert!(body_json.get("tx_id").is_some());
     assert_eq!(body_json["amount"], 10000);

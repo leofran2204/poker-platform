@@ -3,19 +3,18 @@
 
 use axum::body::Body;
 use axum::http::{Method, Request, StatusCode};
+use http_body_util::BodyExt;
 use poker_api::build_router;
 use poker_api::state::AppState;
 use poker_engine::auth::AuthManager;
-use poker_engine::lobby::LobbyManager;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tower::ServiceExt;
 
 fn make_test_state() -> AppState {
-    let url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
-        "postgres://unused:unused@localhost:5432/unused".to_string()
-    });
+    let url = std::env::var("DATABASE_URL")
+        .unwrap_or_else(|_| "postgres://unused:unused@localhost:5432/unused".to_string());
     let db = sqlx::postgres::PgPoolOptions::new()
         .max_connections(1)
         .connect_lazy(&url)
@@ -23,12 +22,15 @@ fn make_test_state() -> AppState {
 
     AppState {
         db,
-        auth: Arc::new(RwLock::new(AuthManager::new("red-team-jwt-secret-key-32chars"))),
-        lobby: Arc::new(RwLock::new(LobbyManager::new())),
+        auth: Arc::new(RwLock::new(AuthManager::new(
+            "red-team-jwt-secret-key-32chars",
+        ))),
         tournaments: Arc::new(RwLock::new(HashMap::new())),
         active_tables: Arc::new(RwLock::new(HashMap::new())),
         jwt_secret: "red-team-jwt-secret-key-32chars".to_string(),
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
+        redis: None,
+        ws_tickets: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
     }
 }
 
@@ -65,6 +67,7 @@ async fn test_red_team_attack_vector_1_brute_force_auth() {
                 assert!(
                     status == StatusCode::UNAUTHORIZED
                         || status == StatusCode::BAD_REQUEST
+                        || status == StatusCode::TOO_MANY_REQUESTS
                         || status == StatusCode::INTERNAL_SERVER_ERROR,
                     "Rejeição de força bruta falhou no lote {} índice {}: {}",
                     task_idx,
@@ -136,7 +139,7 @@ async fn test_red_team_attack_vector_3_websocket_fuzz_injection() {
             for i in 0..INJECTIONS_PER_TASK {
                 let app = build_router(state_clone.clone());
                 let malformed_uri = format!(
-                    "/ws/game/table-1?token=malicious_token_{}_{}&sqli=%27%20OR%201%3D1%20%2D%2D",
+                    "/ws/game/table-1?ticket=malicious_ticket_{}_{}&sqli=%27%20OR%201%3D1%20%2D%2D",
                     task_idx, i
                 );
 
@@ -178,11 +181,10 @@ async fn test_red_team_prometheus_and_security_health_endpoint() {
         .body(Body::empty())
         .unwrap();
     let resp2 = app2.oneshot(req2).await.unwrap();
-    assert_eq!(resp2.status(), StatusCode::OK);
-
-    let body_bytes = axum::body::to_bytes(resp2.into_body(), 10_000).await.unwrap();
-    let body_str = String::from_utf8(body_bytes.to_vec()).unwrap();
-    assert!(body_str.contains("poker_uptime_seconds"));
-    assert!(body_str.contains("poker_http_requests_total"));
-    assert!(body_str.contains("poker_antifraud_checks_total"));
+    // Operational metrics may reveal capacity and attack surface. They must not
+    // be exposed to an unauthenticated caller.
+    assert_eq!(resp2.status(), StatusCode::UNAUTHORIZED);
+    let body = resp2.into_body().collect().await.unwrap().to_bytes();
+    let body_str = std::str::from_utf8(&body).unwrap();
+    assert!(!body_str.contains("poker_"));
 }

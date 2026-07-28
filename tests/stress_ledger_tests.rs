@@ -30,7 +30,10 @@ fn test_massive_concurrent_ledger_stress_10k_transactions() {
                     Some(format!("TX-T{}-{}", t_id, i)),
                 );
 
-                assert!(res.is_ok(), "Falha ao gravar transação no ledger concorrente");
+                assert!(
+                    res.is_ok(),
+                    "Falha ao gravar transação no ledger concorrente"
+                );
             }
         });
 
@@ -48,7 +51,8 @@ fn test_massive_concurrent_ledger_stress_10k_transactions() {
 
     let final_balance = account.get_balance_cents().unwrap();
     assert_eq!(
-        final_balance, expected_final_balance,
+        final_balance,
+        expected_final_balance,
         "VIOLAÇÃO CRÍTICA: Saldo final do Ledger (R$ {}) não bate com o esperado (R$ {})",
         final_balance as f64 / 100.0,
         expected_final_balance as f64 / 100.0

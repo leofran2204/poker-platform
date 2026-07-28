@@ -16,7 +16,11 @@ pub enum TotpError {
 type HmacSha1 = Hmac<Sha1>;
 
 /// Gera um código TOTP de 6 dígitos baseado no horário atual e segredo.
-pub fn generate_totp_code(secret: &[u8], time_step_seconds: u64, current_timestamp: u64) -> Result<String, TotpError> {
+pub fn generate_totp_code(
+    secret: &[u8],
+    time_step_seconds: u64,
+    current_timestamp: u64,
+) -> Result<String, TotpError> {
     let counter = current_timestamp / time_step_seconds;
     let counter_bytes = counter.to_be_bytes();
 
@@ -35,7 +39,12 @@ pub fn generate_totp_code(secret: &[u8], time_step_seconds: u64, current_timesta
 }
 
 /// Verifica se um código TOTP é válido considerando tolerância de janela (ex: +- 30 segundos).
-pub fn verify_totp_code(secret: &[u8], code: &str, current_timestamp: u64, window_steps: u64) -> bool {
+pub fn verify_totp_code(
+    secret: &[u8],
+    code: &str,
+    current_timestamp: u64,
+    window_steps: u64,
+) -> bool {
     let step = 30u64;
     for i in 0..=window_steps {
         // Testar timestamp atual, anterior e posterior dentro da janela de tolerância

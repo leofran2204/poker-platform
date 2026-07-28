@@ -1,12 +1,11 @@
-// api_fuzz_tests.rs — Suíte de Fuzzing de Endpoints HTTP/REST (200.000 iterações/função)
-// Garante que o servidor Axum processe 2 MILHÕES de requisições estocásticas com 0 panics ou crashes.
+// api_fuzz_tests.rs — Suíte de fuzzing determinística de endpoints HTTP/REST.
+// Cargas massivas devem definir PROPTEST_CASES explicitamente e rodar fora do CI regular.
 
 use axum::body::Body;
 use axum::http::{Method, Request, StatusCode};
 use poker_api::build_router;
 use poker_api::state::AppState;
 use poker_engine::auth::AuthManager;
-use poker_engine::lobby::LobbyManager;
 use proptest::prelude::*;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -14,9 +13,8 @@ use tokio::sync::RwLock;
 use tower::ServiceExt;
 
 fn make_test_state() -> AppState {
-    let url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
-        "postgres://unused:unused@localhost:5432/unused".to_string()
-    });
+    let url = std::env::var("DATABASE_URL")
+        .unwrap_or_else(|_| "postgres://unused:unused@localhost:5432/unused".to_string());
     let db = sqlx::postgres::PgPoolOptions::new()
         .max_connections(1)
         .connect_lazy(&url)
@@ -24,12 +22,15 @@ fn make_test_state() -> AppState {
 
     AppState {
         db,
-        auth: Arc::new(RwLock::new(AuthManager::new("fuzz-test-jwt-secret-key-32chars"))),
-        lobby: Arc::new(RwLock::new(LobbyManager::new())),
+        auth: Arc::new(RwLock::new(AuthManager::new(
+            "fuzz-test-jwt-secret-key-32chars",
+        ))),
         tournaments: Arc::new(RwLock::new(HashMap::new())),
         active_tables: Arc::new(RwLock::new(HashMap::new())),
         jwt_secret: "fuzz-test-jwt-secret-key-32chars".to_string(),
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
+        redis: None,
+        ws_tickets: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
     }
 }
 
@@ -37,7 +38,7 @@ fn get_proptest_config() -> ProptestConfig {
     let cases = std::env::var("PROPTEST_CASES")
         .ok()
         .and_then(|v| v.parse::<u32>().ok())
-        .unwrap_or(200_000);
+        .unwrap_or(256);
     ProptestConfig {
         cases,
         max_shrink_iters: 100,
@@ -67,7 +68,7 @@ proptest! {
                 let response = app.oneshot(req).await.unwrap();
                 let status = response.status();
                 prop_assert!(
-                    status == StatusCode::BAD_REQUEST || status == StatusCode::UNPROCESSABLE_ENTITY || status == StatusCode::CONFLICT || status == StatusCode::OK || status == StatusCode::INTERNAL_SERVER_ERROR,
+                    status == StatusCode::BAD_REQUEST || status == StatusCode::UNPROCESSABLE_ENTITY || status == StatusCode::CONFLICT || status == StatusCode::TOO_MANY_REQUESTS || status == StatusCode::OK || status == StatusCode::INTERNAL_SERVER_ERROR,
                     "Status inesperado no register fuzzing: {}", status
                 );
             }
@@ -94,7 +95,7 @@ proptest! {
                 let response = app.oneshot(req).await.unwrap();
                 let status = response.status();
                 prop_assert!(
-                    status == StatusCode::BAD_REQUEST || status == StatusCode::UNPROCESSABLE_ENTITY || status == StatusCode::UNAUTHORIZED || status == StatusCode::OK || status == StatusCode::INTERNAL_SERVER_ERROR,
+                    status == StatusCode::BAD_REQUEST || status == StatusCode::UNPROCESSABLE_ENTITY || status == StatusCode::UNAUTHORIZED || status == StatusCode::TOO_MANY_REQUESTS || status == StatusCode::OK || status == StatusCode::INTERNAL_SERVER_ERROR,
                     "Status inesperado no login fuzzing: {}", status
                 );
             }

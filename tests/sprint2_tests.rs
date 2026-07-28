@@ -40,7 +40,10 @@ fn test_antifraud_ip_and_subnet_collusion_detection() {
     ];
 
     let result_ip = CollusionDetector::validate_table_seating(&players_same_ip);
-    assert!(matches!(result_ip, Err(CollusionViolation::SameIpAddress(_, _, _))));
+    assert!(matches!(
+        result_ip,
+        Err(CollusionViolation::SameIpAddress(_, _, _))
+    ));
 
     // Caso 2: Mesma Sub-rede /24
     let players_same_subnet = vec![
@@ -55,7 +58,10 @@ fn test_antifraud_ip_and_subnet_collusion_detection() {
     ];
 
     let result_subnet = CollusionDetector::validate_table_seating(&players_same_subnet);
-    assert!(matches!(result_subnet, Err(CollusionViolation::SameSubnet(_, _, _))));
+    assert!(matches!(
+        result_subnet,
+        Err(CollusionViolation::SameSubnet(_, _, _))
+    ));
 }
 
 #[test]
@@ -119,9 +125,11 @@ async fn test_k8s_stateful_table_actor() {
 
     // Obter estado da mesa via Actor
     let (state_tx, state_rx) = oneshot::channel();
-    tx.send(TableMessage::GetState { respond_to: state_tx })
-        .await
-        .unwrap();
+    tx.send(TableMessage::GetState {
+        respond_to: state_tx,
+    })
+    .await
+    .unwrap();
 
     let state = state_rx.await.unwrap();
     assert_eq!(state.players.len(), 1);

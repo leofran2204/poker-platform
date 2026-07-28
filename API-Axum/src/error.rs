@@ -18,6 +18,8 @@ pub enum ApiError {
     NotFound(String),
     /// 409 — conflict (duplicate, already exists)
     Conflict(String),
+    /// 429 — rate limit exceeded
+    TooManyRequests(String),
     /// 500 — internal server error (DB, panic, etc.)
     Internal(String),
 }
@@ -30,10 +32,15 @@ impl IntoResponse for ApiError {
             ApiError::Forbidden(msg) => (StatusCode::FORBIDDEN, msg.clone()),
             ApiError::NotFound(msg) => (StatusCode::NOT_FOUND, msg.clone()),
             ApiError::Conflict(msg) => (StatusCode::CONFLICT, msg.clone()),
-            ApiError::Internal(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg.clone()),
+            ApiError::TooManyRequests(msg) => (StatusCode::TOO_MANY_REQUESTS, msg.clone()),
+            // Do not expose SQL, Redis, or infrastructure details to clients.
+            ApiError::Internal(_) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Internal server error".to_string(),
+            ),
         };
 
-        tracing::error!("API error: {} — {}", status, message);
+        tracing::error!(error = ?self, "API error: {} — {}", status, message);
 
         (status, Json(json!({ "error": message }))).into_response()
     }

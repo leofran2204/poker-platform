@@ -25,14 +25,33 @@ fn test_sla_latency_sub_millisecond_release() {
     }
     let micros_eval = start.elapsed().as_micros() as f64 / 1_000.0;
     let max_allowed = if cfg!(debug_assertions) { 150.0 } else { 50.0 };
-    println!("   ✔ Hand Evaluation SLA: {:.3} µs (SLA < {:.0} µs)", micros_eval, max_allowed);
-    assert!(micros_eval < max_allowed, "Hand eval violou o SLA de {}µs", max_allowed);
+    println!(
+        "   ✔ Hand Evaluation SLA: {:.3} µs (SLA < {:.0} µs)",
+        micros_eval, max_allowed
+    );
+    assert!(
+        micros_eval < max_allowed,
+        "Hand eval violou o SLA de {}µs",
+        max_allowed
+    );
 
     // 2. SLA Check: Side Pots Calculation < 10 µs
     let contributions = vec![
-        Contribution { player_id: "P1".into(), total_bet: 100.0, has_folded: false },
-        Contribution { player_id: "P2".into(), total_bet: 500.0, has_folded: true },
-        Contribution { player_id: "P3".into(), total_bet: 500.0, has_folded: false },
+        Contribution {
+            player_id: "P1".into(),
+            total_bet: 100.0,
+            has_folded: false,
+        },
+        Contribution {
+            player_id: "P2".into(),
+            total_bet: 500.0,
+            has_folded: true,
+        },
+        Contribution {
+            player_id: "P3".into(),
+            total_bet: 500.0,
+            has_folded: false,
+        },
     ];
     let start = Instant::now();
     for _ in 0..1_000 {
@@ -49,7 +68,10 @@ fn test_sla_latency_sub_millisecond_release() {
         let _ = account.record_transaction(10, EntryType::Deposit, None);
     }
     let micros_ledger = start.elapsed().as_micros() as f64 / 100.0;
-    println!("   ✔ Ledger SHA-256 SLA: {:.3} µs (SLA < 30 µs)", micros_ledger);
+    println!(
+        "   ✔ Ledger SHA-256 SLA: {:.3} µs (SLA < 30 µs)",
+        micros_ledger
+    );
     assert!(micros_ledger < 30.0, "Ledger tx violou o SLA de 30µs");
 
     println!("========================================================\n");

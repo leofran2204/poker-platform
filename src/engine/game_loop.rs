@@ -144,7 +144,9 @@ impl GameLoop {
 
     pub fn is_street_complete(&self) -> bool {
         let active_players = self.state.players.iter().filter(|p| p.can_act());
-        active_players.into_iter().all(|p| p.has_acted && (p.current_bet == self.state.highest_bet || p.is_all_in))
+        active_players
+            .into_iter()
+            .all(|p| p.has_acted && (p.current_bet == self.state.highest_bet || p.is_all_in))
     }
 
     pub fn next_street(&mut self) -> bool {
@@ -163,7 +165,9 @@ impl GameLoop {
             Street::Showdown | Street::Finished => Street::Finished,
         };
 
-        if self.state.current_street == Street::Showdown || self.state.current_street == Street::Finished {
+        if self.state.current_street == Street::Showdown
+            || self.state.current_street == Street::Finished
+        {
             return false;
         }
 

@@ -21,10 +21,19 @@ fn test_tournament_registration_and_rebuy() {
     // Saldo inicial suficiente: R$ 200,00 (20000 centavos)
     let account = LedgerAccount::new("Player_1", 20000);
     let blind_structure = BlindStructure::standard_regular();
-    let mut tournament = Tournament::new("MTT-001", "Sunday Million", 5000, 350, 10000.0, blind_structure);
+    let mut tournament = Tournament::new(
+        "MTT-001",
+        "Sunday Million",
+        5000,
+        350,
+        10000.0,
+        blind_structure,
+    );
 
     // Registra jogador (Custo: 5000 buyin + 350 rake = 5350 centavos)
-    assert!(tournament.register_player("Player_1", "Alice", &account).is_ok());
+    assert!(tournament
+        .register_player("Player_1", "Alice", &account)
+        .is_ok());
     assert_eq!(account.get_balance_cents().unwrap(), 14650); // 20000 - 5350 = 14650
     assert_eq!(tournament.prize_pool_cents, 5000);
 
@@ -40,7 +49,14 @@ fn test_table_balancer_rebalancing() {
     let tables = vec![
         TableStateSummary {
             table_id: "Table_1".into(),
-            active_player_ids: vec!["P1".into(), "P2".into(), "P3".into(), "P4".into(), "P5".into(), "P6".into()],
+            active_player_ids: vec![
+                "P1".into(),
+                "P2".into(),
+                "P3".into(),
+                "P4".into(),
+                "P5".into(),
+                "P6".into(),
+            ],
         },
         TableStateSummary {
             table_id: "Table_2".into(),
@@ -68,7 +84,14 @@ fn test_tournament_elimination_and_prize_pool_distribution() {
     accounts.insert("P3".to_string(), acc_p3.clone());
 
     let blind_structure = BlindStructure::standard_regular();
-    let mut tournament = Tournament::new("STG-001", "Sit & Go 3-Max", 10000, 700, 5000.0, blind_structure);
+    let mut tournament = Tournament::new(
+        "STG-001",
+        "Sit & Go 3-Max",
+        10000,
+        700,
+        5000.0,
+        blind_structure,
+    );
 
     assert!(tournament.register_player("P1", "Alice", &acc_p1).is_ok());
     assert!(tournament.register_player("P2", "Bob", &acc_p2).is_ok());

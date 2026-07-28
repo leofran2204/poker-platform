@@ -31,8 +31,12 @@ impl NotificationLevel {
     pub const fn style_class(self) -> &'static str {
         match self {
             Self::Info => "bg-slate-900/90 border-blue-500/50 text-blue-200 shadow-blue-900/30",
-            Self::Success => "bg-slate-900/90 border-emerald-500/50 text-emerald-200 shadow-emerald-900/30",
-            Self::Warning => "bg-slate-900/90 border-amber-500/50 text-amber-200 shadow-amber-900/30",
+            Self::Success => {
+                "bg-slate-900/90 border-emerald-500/50 text-emerald-200 shadow-emerald-900/30"
+            }
+            Self::Warning => {
+                "bg-slate-900/90 border-amber-500/50 text-amber-200 shadow-amber-900/30"
+            }
             Self::Error => "bg-slate-900/90 border-red-500/50 text-red-200 shadow-red-900/30",
         }
     }

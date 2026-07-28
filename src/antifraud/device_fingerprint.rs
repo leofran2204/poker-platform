@@ -13,8 +13,18 @@ pub struct DeviceFingerprint {
 impl DeviceFingerprint {
     /// Gera um hash SHA-256 único combinando componentes de hardware (GPU WebGL, áudio Canvas API, tela e fontes).
     #[must_use]
-    pub fn new(webgl_gpu: &str, canvas_audio_sig: &str, screen_res: &str, fonts_hash: &str, device_model: &str, os: &str) -> Self {
-        let raw_components = format!("{}|{}|{}|{}|{}|{}", webgl_gpu, canvas_audio_sig, screen_res, fonts_hash, device_model, os);
+    pub fn new(
+        webgl_gpu: &str,
+        canvas_audio_sig: &str,
+        screen_res: &str,
+        fonts_hash: &str,
+        device_model: &str,
+        os: &str,
+    ) -> Self {
+        let raw_components = format!(
+            "{}|{}|{}|{}|{}|{}",
+            webgl_gpu, canvas_audio_sig, screen_res, fonts_hash, device_model, os
+        );
         let hardware_hash = hex::encode(Sha256::digest(raw_components.as_bytes()));
         Self {
             hardware_hash,
@@ -34,7 +44,10 @@ pub struct GeoLocation {
 impl GeoLocation {
     #[must_use]
     pub const fn new(latitude: f64, longitude: f64) -> Self {
-        Self { latitude, longitude }
+        Self {
+            latitude,
+            longitude,
+        }
     }
 
     /// Calcula a distância física exata em metros entre duas coordenadas de GPS usando a fórmula esférica de Haversine.
@@ -74,7 +87,9 @@ impl DeviceSecurityGuard {
     /// 2. Sub-rede `/24`
     /// 3. Hardware Device Fingerprint SHA-256
     /// 4. Proximidade Física GPS (< 50 metros)
-    pub fn validate_table_seating_advanced(players: &[PlayerSecurityContext]) -> Result<(), CollusionViolation> {
+    pub fn validate_table_seating_advanced(
+        players: &[PlayerSecurityContext],
+    ) -> Result<(), CollusionViolation> {
         for i in 0..players.len() {
             for j in (i + 1)..players.len() {
                 let p1 = &players[i];
@@ -90,7 +105,9 @@ impl DeviceSecurityGuard {
                 }
 
                 // 2. Trava de Sub-rede `/24`
-                if Self::extract_subnet_24(&p1.ip_address) == Self::extract_subnet_24(&p2.ip_address) {
+                if Self::extract_subnet_24(&p1.ip_address)
+                    == Self::extract_subnet_24(&p2.ip_address)
+                {
                     return Err(CollusionViolation::SameSubnet(
                         p1.user_id.clone(),
                         p2.user_id.clone(),

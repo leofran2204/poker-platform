@@ -4,19 +4,19 @@
 // in `tests/` can access `build_router`, `AppState`, and `TournamentStore`
 // without needing to duplicate the router construction logic.
 
-pub mod error;
 pub mod admin_routes;
 pub mod binary_codec;
-pub mod telemetry;
+pub mod error;
 pub mod game_actor;
 pub mod handlers;
 pub mod middleware;
 pub mod payment_gateway;
 pub mod payments_routes;
 pub mod state;
+pub mod telemetry;
 pub mod tournament_store;
 
-use axum::routing::{get, post};
+use axum::routing::{get, patch, post};
 use axum::Router;
 
 use crate::handlers::{auth, hand_history, lobby, tournament, websocket};
@@ -35,24 +35,27 @@ use axum::middleware::from_extractor_with_state;
 ///   - GET  /api/lobby/tables
 ///   - GET  /api/lobby/tables/:id
 ///   - GET  /api/tournament/:id
-///   - WS   /ws/game/:table_id
 ///   - GET  /health
 ///   - POST /api/webhooks/pix (PIX Payment Webhook)
 ///
 /// Protected routes (RequireAuth middleware):
 ///   - POST /api/lobby/join
+///   - POST /api/lobby/leave
+///   - POST /api/lobby/tables/:id/ws-ticket (short-lived WebSocket ticket)
 ///   - POST /api/tournament/register
 ///   - GET  /api/hand-history/:hand_id
 ///   - POST /api/payments/pix/deposit
 ///   - POST /api/payments/pix/withdraw
+///   - WS   /ws/game/:table_id (JWT + funded active seat required)
+///   - POST /api/admin/tables and PATCH /api/admin/tables/:id/status (admin role)
 pub fn build_router(state: AppState) -> Router {
     Router::new()
         // ─── Auth routes (public + rate limited) ───
         .route(
             "/api/auth/register",
-            post(auth::register).route_layer(from_extractor_with_state::<EnforceRateLimit, AppState>(
-                state.clone(),
-            )),
+            post(auth::register).route_layer(
+                from_extractor_with_state::<EnforceRateLimit, AppState>(state.clone()),
+            ),
         )
         .route(
             "/api/auth/login",
@@ -69,7 +72,10 @@ pub fn build_router(state: AppState) -> Router {
                 from_extractor_with_state::<EnforceRateLimit, AppState>(state.clone()),
             ),
         )
-        .route("/api/webhooks/pix", post(payments_routes::pix_webhook_handler))
+        .route(
+            "/api/webhooks/pix",
+            post(payments_routes::pix_webhook_handler),
+        )
         .route(
             "/api/payments/pix/withdraw",
             post(payments_routes::create_pix_withdraw_handler).route_layer(
@@ -83,6 +89,22 @@ pub fn build_router(state: AppState) -> Router {
             post(lobby::join_table).route_layer(
                 from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
             ),
+        )
+        .route(
+            "/api/lobby/leave",
+            post(lobby::leave_table).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/lobby/tables/:id/ws-ticket",
+            post(websocket::create_ws_ticket)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                ))
+                .route_layer(from_extractor_with_state::<EnforceRateLimit, AppState>(
+                    state.clone(),
+                )),
         )
         .route("/api/lobby/tables/:id", get(lobby::get_table))
         // ─── Tournament routes ───
@@ -112,10 +134,22 @@ pub fn build_router(state: AppState) -> Router {
         // ─── Admin & Antifraud routes (protected admin role) ───
         .route(
             "/api/admin/antifraud/alerts",
-            get(admin_routes::get_antifraud_alerts_handler)
+            get(admin_routes::get_antifraud_alerts_handler).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/tables",
+            post(admin_routes::create_cash_table_handler)
                 .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
                     state.clone(),
                 )),
+        )
+        .route(
+            "/api/admin/tables/:id/status",
+            patch(admin_routes::update_table_status_handler).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
         )
         // ─── WebSocket route ───
         .route("/ws/game/:table_id", get(websocket::game_websocket))
@@ -123,7 +157,12 @@ pub fn build_router(state: AppState) -> Router {
         .route("/health", get(health_check))
         .route("/api/health", get(health_check))
         .route("/api/health/security", get(security_health_check))
-        .route("/api/metrics", get(prometheus_metrics))
+        .route(
+            "/api/metrics",
+            get(prometheus_metrics).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
         .with_state(state)
 }
 
@@ -146,7 +185,14 @@ async fn security_health_check() -> axum::Json<serde_json::Value> {
 }
 
 /// Prometheus metrics endpoint (format: text/plain; version=0.0.4)
-async fn prometheus_metrics() -> (axum::http::HeaderMap, String) {
+async fn prometheus_metrics(
+    RequireAuth(auth_user): RequireAuth,
+) -> Result<(axum::http::HeaderMap, String), crate::error::ApiError> {
+    if auth_user.role != "admin" {
+        return Err(crate::error::ApiError::Forbidden(
+            "Metrics access is restricted to administrators".to_string(),
+        ));
+    }
     let mut headers = axum::http::HeaderMap::new();
     headers.insert(
         axum::http::header::CONTENT_TYPE,
@@ -164,7 +210,8 @@ async fn prometheus_metrics() -> (axum::http::HeaderMap, String) {
          poker_antifraud_checks_total 104500\n\
          # HELP poker_active_websocket_connections Current active WebSockets.\n\
          # TYPE poker_active_websocket_connections gauge\n\
-         poker_active_websocket_connections 0\n".to_string();
+         poker_active_websocket_connections 0\n"
+        .to_string();
 
-    (headers, metrics_text)
+    Ok((headers, metrics_text))
 }

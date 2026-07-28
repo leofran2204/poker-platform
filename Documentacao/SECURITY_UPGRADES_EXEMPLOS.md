@@ -1,11 +1,11 @@
 # Guia de Exemplos Práticos — Upgrades de Segurança e Arquitetura Enterprise
 
-**Atualizado:** 2026-07-25 | **Status:** ✅ 100% Concluído & Validado em Produção (Hardening Enterprise, CSPRNG, Rate Limiting & TLS 1.3)
+**Atualizado:** 2026-07-27 | **Status:** Guia técnico; validação contínua, sem alegação de certificação de produção.
 
 
 Este documento é o guia prático e educacional para a utilização dos novos recursos de alta segurança adicionados ao projeto **Poker_Project**:
 1. **Sistema Provably Fair** (Baralho auditável por HMAC-SHA256)
-2. **Autenticação PASETO v4** (Tokens imutáveis e seguros)
+2. **Autenticação JWT HMAC-SHA256** (tokens curtos, refresh e MFA/TOTP)
 3. **Protocolo Binário WebSocket** (Codec de baixa latência)
 4. **Outbox Pattern & Audit Logs** (Consistência financeira e antifraude SQL)
 5. **Telemetria Estruturada** (Spans de auditoria com OpenTelemetry)

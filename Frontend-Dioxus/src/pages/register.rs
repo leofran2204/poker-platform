@@ -42,7 +42,9 @@ pub fn Register() -> Element {
                 Ok(resp) => {
                     // Registro bem-sucedido — salva tokens e redireciona
                     api_client::save_tokens(&resp.token, &resp.refresh_token);
-                    success.set(Some("Conta criada com sucesso! Redirecionando...".to_string()));
+                    success.set(Some(
+                        "Conta criada com sucesso! Redirecionando...".to_string(),
+                    ));
                     error.set(None);
                     nav.push(Route::Lobby {});
                 }

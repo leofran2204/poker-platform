@@ -62,7 +62,9 @@ impl BinaryPacket {
     /// Decodifica um buffer de bytes para a estrutura BinaryPacket.
     pub fn decode(buf: &[u8]) -> Result<Self, String> {
         if buf.len() < 5 {
-            return Err("Buffer muito curto para conter cabeçalho binário (mínimo 5 bytes)".to_string());
+            return Err(
+                "Buffer muito curto para conter cabeçalho binário (mínimo 5 bytes)".to_string(),
+            );
         }
 
         let opcode = buf[0];
@@ -144,4 +146,3 @@ mod proptests {
         }
     }
 }
-

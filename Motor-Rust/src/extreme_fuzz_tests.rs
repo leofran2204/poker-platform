@@ -1,16 +1,16 @@
 // extreme_fuzz_tests.rs — Suíte de Fuzzing Extremo de Alta Densidade (1.000.000 de Iterações no Motor Rust)
 // Executa Fuzzing estocástico em 8 módulos críticos: rake, side_pots, loss_deflator, hand_history, auth, tournament, antifraud e deck.
 
-use proptest::prelude::*;
+use crate::antifraud::{bot_detection::BotDetector, RiskScore};
+use crate::auth::AuthManager;
+use crate::deck::{create_deck, evaluate_hand, shuffle_deck, Card, Rank, Suit};
+use crate::hand_history::HandHistory;
+use crate::loss_deflator::{calculate_progressive_loss_deflator, ProgressiveLossDeflatorParams};
 use crate::rake::calculate_rake_for_pot;
 use crate::side_pots::{calculate_side_pots, PlayerForPots};
-use crate::loss_deflator::{calculate_progressive_loss_deflator, ProgressiveLossDeflatorParams};
-use crate::hand_history::HandHistory;
-use crate::auth::AuthManager;
-use crate::antifraud::{bot_detection::BotDetector, RiskScore};
 use crate::tournament_engine::{TournamentConfig, TournamentSpeed};
-use crate::types::{Pot, GamePhase};
-use crate::deck::{create_deck, shuffle_deck, Card, Suit, Rank, evaluate_hand};
+use crate::types::{GamePhase, Pot};
+use proptest::prelude::*;
 
 fn get_extreme_proptest_config() -> ProptestConfig {
     let cases = std::env::var("EXTREME_FUZZ_CASES")
@@ -20,7 +20,7 @@ fn get_extreme_proptest_config() -> ProptestConfig {
     ProptestConfig {
         cases,
         max_shrink_iters: 100,
-        .. ProptestConfig::default()
+        ..ProptestConfig::default()
     }
 }
 
@@ -30,10 +30,10 @@ proptest! {
     #[test]
     fn extreme_fuzz_rake_invariants(
         pot in 0u64..500_000_000u64,
-        pct in 0.0..50.0f64,
+        rake_basis_points in 0u16..=5_000u16,
         cap in 0u64..50_000u64,
     ) {
-        let rake = calculate_rake_for_pot(pot, pct, cap);
+        let rake = calculate_rake_for_pot(pot, rake_basis_points, cap);
         if cap > 0 {
             prop_assert!(rake <= cap, "Rake excedeu o teto (cap)");
         }
@@ -132,7 +132,7 @@ proptest! {
             bot_detector.record_reaction_time("player_1", t);
         }
         let b_score = bot_detector.calculate_bot_score("player_1");
-        prop_assert!(b_score >= 0.0 && b_score <= 100.0, "Bot score fora dos limites 0-100");
+        prop_assert!((0.0..=100.0).contains(&b_score), "Bot score fora dos limites 0-100");
 
         let risk = RiskScore::new(b_score, 0.0);
         prop_assert!(risk.total_score >= 0.0 && risk.total_score <= 100.0, "Risk total_score fora dos limites");
@@ -177,8 +177,8 @@ proptest! {
     fn extreme_fuzz_deck_evaluator(
         _dummy in 0..100u32,
     ) {
-        let mut deck = create_deck();
-        shuffle_deck(&mut deck);
+        let deck = create_deck();
+        shuffle_deck(&deck);
         let hole = vec![deck[0], deck[1]];
         let community = vec![deck[2], deck[3], deck[4], deck[5], deck[6]];
 

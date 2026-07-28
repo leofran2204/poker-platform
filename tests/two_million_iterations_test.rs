@@ -34,9 +34,21 @@ fn test_2_point_1_million_fuzz_hands_and_engine_simulation() {
         // 3. Side pots
         if i % 10 == 0 {
             let contributions = vec![
-                Contribution { player_id: "P1".into(), total_bet: ((i % 100) * 10) as f64, has_folded: i % 20 == 0 },
-                Contribution { player_id: "P2".into(), total_bet: ((i % 50) * 20) as f64, has_folded: i % 30 == 0 },
-                Contribution { player_id: "P3".into(), total_bet: ((i % 80) * 15) as f64, has_folded: false },
+                Contribution {
+                    player_id: "P1".into(),
+                    total_bet: ((i % 100) * 10) as f64,
+                    has_folded: i % 20 == 0,
+                },
+                Contribution {
+                    player_id: "P2".into(),
+                    total_bet: ((i % 50) * 20) as f64,
+                    has_folded: i % 30 == 0,
+                },
+                Contribution {
+                    player_id: "P3".into(),
+                    total_bet: ((i % 80) * 15) as f64,
+                    has_folded: false,
+                },
             ];
             let pots = calculate_side_pots(&contributions);
             total_side_pots += pots.len() as u64;
@@ -44,7 +56,10 @@ fn test_2_point_1_million_fuzz_hands_and_engine_simulation() {
             for pot in &pots {
                 assert!(pot.amount > 0.0);
                 for eligible in &pot.eligible_players {
-                    let p = contributions.iter().find(|c| &c.player_id == eligible).unwrap();
+                    let p = contributions
+                        .iter()
+                        .find(|c| &c.player_id == eligible)
+                        .unwrap();
                     assert!(!p.has_folded);
                 }
             }
@@ -53,8 +68,18 @@ fn test_2_point_1_million_fuzz_hands_and_engine_simulation() {
         // 4. Loss deflator
         if i % 50 == 0 {
             let stats = vec![
-                PlayerLossStats { player_id: "P1".into(), total_bet: 500.0, amount_won: if i % 100 == 0 { 0.0 } else { 800.0 }, cashback_tier_rate: 0.10 },
-                PlayerLossStats { player_id: "P2".into(), total_bet: 300.0, amount_won: 100.0, cashback_tier_rate: 0.15 },
+                PlayerLossStats {
+                    player_id: "P1".into(),
+                    total_bet: 500.0,
+                    amount_won: if i % 100 == 0 { 0.0 } else { 800.0 },
+                    cashback_tier_rate: 0.10,
+                },
+                PlayerLossStats {
+                    player_id: "P2".into(),
+                    total_bet: 300.0,
+                    amount_won: 100.0,
+                    cashback_tier_rate: 0.15,
+                },
             ];
             let deflators = calculate_loss_deflators(&stats);
             total_cashbacks += deflators.len() as u64;
@@ -70,7 +95,10 @@ fn test_2_point_1_million_fuzz_hands_and_engine_simulation() {
 
     println!("   ✔ 2.100.000 de iterações concluídas com SUCESSO!");
     println!("   - Tempo Total: {:.3?} s", elapsed.as_secs_f64());
-    println!("   - Taxa de Processamento: {:.2} mãos/segundo", ops_per_sec);
+    println!(
+        "   - Taxa de Processamento: {:.2} mãos/segundo",
+        ops_per_sec
+    );
     println!("   - Mãos Avaliadas: {}", total_hands);
     println!("   - Potes Secundários: {}", total_side_pots);
     println!("   - Cashbacks Calculados: {}", total_cashbacks);

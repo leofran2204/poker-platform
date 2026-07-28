@@ -13,7 +13,6 @@ use axum::body::Body;
 use axum::http::{Method, Request, StatusCode};
 use http_body_util::BodyExt;
 use poker_engine::auth::AuthManager;
-use poker_engine::lobby::LobbyManager;
 use poker_engine::tournament_engine::TournamentConfig;
 use poker_engine::tournament_engine::TournamentSpeed;
 use std::collections::HashMap;
@@ -26,7 +25,7 @@ use poker_api::tournament_store::TournamentStore;
 
 // ─── Test helpers ───
 
-/// Builds a test AppState with an in-memory AuthManager and LobbyManager.
+/// Builds a test AppState with an in-memory AuthManager.
 /// The `db` field is a placeholder — DB-dependent tests are marked #[ignore].
 fn make_test_state() -> AppState {
     // We can't create a real PgPool without a DATABASE_URL.
@@ -37,11 +36,12 @@ fn make_test_state() -> AppState {
     AppState {
         db,
         auth: Arc::new(RwLock::new(AuthManager::new("test-secret-key-for-tests"))),
-        lobby: Arc::new(RwLock::new(LobbyManager::new())),
         tournaments: Arc::new(RwLock::new(HashMap::new())),
         active_tables: Arc::new(RwLock::new(HashMap::new())),
         jwt_secret: "test-secret-key-for-tests".to_string(),
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
+        redis: None,
+        ws_tickets: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
     }
 }
 
@@ -107,16 +107,16 @@ async fn test_unknown_route_returns_404() {
 }
 
 #[tokio::test]
-async fn test_lobby_tables_returns_200_empty_list() {
-    // GET /api/lobby/tables — no DB dependency, uses in-memory LobbyManager
+#[ignore = "Lobby tables are PostgreSQL-authoritative — set DATABASE_URL to run"]
+async fn test_lobby_tables_returns_200_json_list() {
+    // GET /api/lobby/tables is backed by PostgreSQL.
     let state = make_test_state();
     let app = poker_api::build_router(state);
 
     let (status, body) = send_request(app, Method::GET, "/api/lobby/tables", None).await;
 
     assert_eq!(status, StatusCode::OK);
-    // Empty lobby → empty array
-    assert_eq!(body, "[]");
+    assert!(serde_json::from_str::<Vec<serde_json::Value>>(&body).is_ok());
 }
 
 #[tokio::test]
@@ -150,6 +150,54 @@ async fn test_protected_route_without_token_returns_401() {
         body_text.contains("Authorization") || body_text.contains("token"),
         "Body should mention auth: {body_text}"
     );
+}
+
+#[tokio::test]
+async fn test_websocket_ticket_without_token_returns_401() {
+    let app = poker_api::build_router(make_test_state());
+    let (status, _) = send_request(
+        app,
+        Method::POST,
+        "/api/lobby/tables/00000000-0000-0000-0000-000000000000/ws-ticket",
+        None,
+    )
+    .await;
+
+    assert_eq!(status, StatusCode::UNAUTHORIZED);
+}
+
+#[tokio::test]
+async fn test_admin_table_routes_without_token_return_401() {
+    let create_body = serde_json::json!({
+        "name": "R$ 1/2",
+        "small_blind": 100,
+        "big_blind": 200,
+        "min_buy_in": 4_000,
+        "max_buy_in": 20_000,
+        "max_players": 6,
+        "rake_basis_points": 500,
+        "rake_cap": 10_000
+    })
+    .to_string();
+    let create_app = poker_api::build_router(make_test_state());
+    let (create_status, _) = send_request(
+        create_app,
+        Method::POST,
+        "/api/admin/tables",
+        Some(create_body),
+    )
+    .await;
+    assert_eq!(create_status, StatusCode::UNAUTHORIZED);
+
+    let update_app = poker_api::build_router(make_test_state());
+    let (update_status, _) = send_request(
+        update_app,
+        Method::PATCH,
+        "/api/admin/tables/00000000-0000-0000-0000-000000000000/status",
+        Some(serde_json::json!({"status": "PAUSED"}).to_string()),
+    )
+    .await;
+    assert_eq!(update_status, StatusCode::UNAUTHORIZED);
 }
 
 #[tokio::test]
@@ -355,8 +403,13 @@ async fn test_contract_register_login_flow() {
     })
     .to_string();
 
-    let (status2, body2) =
-        send_request(app.clone(), Method::POST, "/api/auth/login", Some(login_body)).await;
+    let (status2, body2) = send_request(
+        app.clone(),
+        Method::POST,
+        "/api/auth/login",
+        Some(login_body),
+    )
+    .await;
     assert_eq!(status2, StatusCode::OK, "Login failed: {body2}");
 
     let login_json: Value = serde_json::from_str(&body2).expect("Login response is not JSON");
@@ -364,6 +417,56 @@ async fn test_contract_register_login_flow() {
         login_json["token"].is_string(),
         "Login response should contain token: {body2}"
     );
+}
+
+#[tokio::test]
+#[ignore = "Requires PostgreSQL — set DATABASE_URL to run"]
+async fn test_contract_auth_survives_in_memory_cache_reset() {
+    use serde_json::Value;
+
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let uid = uuid::Uuid::new_v4().simple().to_string();
+    let email = format!("restart_contract_{uid}@example.com");
+    let username = format!("restart_{}", &uid[..12]);
+    let password = "StrongPass123!";
+
+    let register_body = serde_json::json!({
+        "email": email,
+        "password": password,
+        "username": username,
+    })
+    .to_string();
+    let (register_status, register_response) = send_request(
+        app.clone(),
+        Method::POST,
+        "/api/auth/register",
+        Some(register_body),
+    )
+    .await;
+    assert_eq!(register_status, StatusCode::OK, "{register_response}");
+    let refresh_token = serde_json::from_str::<Value>(&register_response).unwrap()["refresh_token"]
+        .as_str()
+        .unwrap()
+        .to_string();
+
+    // Simulates a process restart: no account is left in AuthManager memory.
+    *state.auth.write().await = AuthManager::new("test-secret-key-for-tests");
+    let login_body = serde_json::json!({ "email": email, "password": password }).to_string();
+    let (login_status, login_response) = send_request(
+        app.clone(),
+        Method::POST,
+        "/api/auth/login",
+        Some(login_body),
+    )
+    .await;
+    assert_eq!(login_status, StatusCode::OK, "{login_response}");
+
+    *state.auth.write().await = AuthManager::new("test-secret-key-for-tests");
+    let refresh_body = serde_json::json!({ "refresh_token": refresh_token }).to_string();
+    let (refresh_status, refresh_response) =
+        send_request(app, Method::POST, "/api/auth/refresh", Some(refresh_body)).await;
+    assert_eq!(refresh_status, StatusCode::OK, "{refresh_response}");
 }
 
 #[tokio::test]
@@ -504,12 +607,21 @@ async fn test_contract_lobby_join_with_valid_token() {
         Some(register_body),
     )
     .await;
-    assert_eq!(status, StatusCode::OK, "Register failed in join test: {body}");
+    assert_eq!(
+        status,
+        StatusCode::OK,
+        "Register failed in join test: {body}"
+    );
     let json: serde_json::Value = serde_json::from_str(&body).unwrap();
     let token = json["token"].as_str().unwrap().to_string();
 
-    // Join a table — will fail because table doesn't exist, but should pass auth
-    let join_body = serde_json::json!({"table_id": "00000000-0000-0000-0000-000000000000"}).to_string();
+    // Join a table — authentication and buy-in validation pass, then the
+    // unknown table is rejected without debiting the wallet.
+    let join_body = serde_json::json!({
+        "table_id": "00000000-0000-0000-0000-000000000000",
+        "buy_in": 10_000
+    })
+    .to_string();
     let request = Request::builder()
         .method(Method::POST)
         .uri("/api/lobby/join")
@@ -519,8 +631,8 @@ async fn test_contract_lobby_join_with_valid_token() {
         .unwrap();
 
     let response = app.oneshot(request).await.unwrap();
-    // Auth passes, but table doesn't exist → 400 Bad Request
-    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    // Auth passes, but the requested table does not exist.
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
 }
 
 #[tokio::test]
@@ -530,7 +642,7 @@ async fn test_websocket_upgrade_success() {
 
     let request = Request::builder()
         .method(Method::GET)
-        .uri("/ws/game/table-1?token=test")
+        .uri("/ws/game/table-1?ticket=test")
         .header("Connection", "Upgrade")
         .header("Upgrade", "websocket")
         .header("Sec-WebSocket-Key", "dGhlIHNhbXBsZSBub25jZQ==")

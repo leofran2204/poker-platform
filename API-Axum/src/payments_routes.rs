@@ -1,4 +1,6 @@
 // payments_routes.rs — Endpoints REST HTTPS Estritos e Webhooks Seguros para Depósitos e Saques PIX Instantâneos
+use crate::payment_gateway::get_payment_gateway;
+use crate::state::AppState;
 use axum::{
     extract::State,
     http::{HeaderMap, StatusCode},
@@ -6,8 +8,6 @@ use axum::{
     Json,
 };
 use serde::{Deserialize, Serialize};
-use crate::payment_gateway::get_payment_gateway;
-use crate::state::AppState;
 
 #[derive(Debug, Deserialize)]
 pub struct DepositRequest {
@@ -109,7 +109,10 @@ pub async fn create_pix_deposit_handler(
         expires_at: charge_res.expires_at,
     };
 
-    (StatusCode::OK, Json(serde_json::to_value(response).unwrap()))
+    (
+        StatusCode::OK,
+        Json(serde_json::to_value(response).unwrap()),
+    )
 }
 
 /// POST /api/webhooks/pix — Recebe confirmação instantânea do pagamento PIX e credita o saldo em centavos
@@ -150,7 +153,7 @@ pub async fn pix_webhook_handler(
 
     // Idempotência: só processa se a transação estiver no estado PENDING
     let update_result = sqlx::query(
-        "UPDATE transactions SET status = 'PROCESSED' WHERE tx_id = $1 AND status = 'PENDING'"
+        "UPDATE transactions SET status = 'PROCESSED' WHERE tx_id = $1 AND status = 'PENDING'",
     )
     .bind(&payload.tx_id)
     .execute(&state.db)
@@ -230,17 +233,20 @@ pub async fn create_pix_withdraw_handler(
     };
 
     // Verificar se o usuário possui saldo suficiente antes de aprovar o saque (em centavos)
-    let balance_check: Option<(i64,)> = sqlx::query_as("SELECT balance FROM users WHERE id = $1::uuid")
-        .bind(&user_id)
-        .fetch_optional(&state.db)
-        .await
-        .unwrap_or(None);
+    let balance_check: Option<(i64,)> =
+        sqlx::query_as("SELECT balance FROM users WHERE id = $1::uuid")
+            .bind(&user_id)
+            .fetch_optional(&state.db)
+            .await
+            .unwrap_or(None);
 
     if let Some((user_balance,)) = balance_check {
         if (user_balance as u64) < payload.amount {
             return (
                 StatusCode::BAD_REQUEST,
-                Json(serde_json::json!({ "error": "Saldo insuficiente para realizar o saque solicitado" })),
+                Json(
+                    serde_json::json!({ "error": "Saldo insuficiente para realizar o saque solicitado" }),
+                ),
             );
         }
     }
@@ -271,5 +277,8 @@ pub async fn create_pix_withdraw_handler(
         message: payout_res.message,
     };
 
-    (StatusCode::OK, Json(serde_json::to_value(response).unwrap()))
+    (
+        StatusCode::OK,
+        Json(serde_json::to_value(response).unwrap()),
+    )
 }

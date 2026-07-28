@@ -24,7 +24,8 @@ pub fn DepositModal(props: DepositModalProps) -> Element {
         // Simulação de geração de PIX via API Axum
         let simulated_code = format!(
             "00020126580014BR.GOV.BCB.PIX0136poker-platform-dep-{}5204000053039865405{}5802BR5914POKER_PLATFORM6009SAO_PAULO6304ABCD",
-            amount(), amount()
+            amount(),
+            amount()
         );
         let simulated_qr = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><rect width='150' height='150' fill='%23111827'/><text x='15' y='80' fill='%2310b981' font-size='14'>PIX QR CODE</text></svg>".to_string();
 

@@ -13,7 +13,7 @@
 
 use crate::deck::{create_deck, deal_cards, shuffle_deck, Card, HandResult, Rank, Suit};
 use crate::hand_history::{
-    create_hand_history, finalize_hand, record_action, set_community_cards, to_json, from_json,
+    create_hand_history, finalize_hand, from_json, record_action, set_community_cards, to_json,
     Action, EndReason, PlayerAction, PlayerResult,
 };
 use crate::loss_deflator::{
@@ -48,11 +48,16 @@ fn deal_full_hand(n_players: usize) -> (Vec<Vec<Card>>, Vec<Card>) {
             hole.extend(cards);
         }
     }
-    let (_b, d) = deal_cards(&deck, 1); deck = d; // burn
-    let (flop, d) = deal_cards(&deck, 3); deck = d;
-    let (_b, d) = deal_cards(&deck, 1); deck = d; // burn
-    let (turn, d) = deal_cards(&deck, 1); deck = d;
-    let (_b, d) = deal_cards(&deck, 1); deck = d; // burn
+    let (_b, d) = deal_cards(&deck, 1);
+    deck = d; // burn
+    let (flop, d) = deal_cards(&deck, 3);
+    deck = d;
+    let (_b, d) = deal_cards(&deck, 1);
+    deck = d; // burn
+    let (turn, d) = deal_cards(&deck, 1);
+    deck = d;
+    let (_b, d) = deal_cards(&deck, 1);
+    deck = d; // burn
     let (river, _d) = deal_cards(&deck, 1);
     let mut board = flop;
     board.extend(turn);
@@ -61,7 +66,7 @@ fn deal_full_hand(n_players: usize) -> (Vec<Vec<Card>>, Vec<Card>) {
 }
 
 fn rake_config() -> TableConfig {
-    TableConfig::new(1000, 5.0, 600) // BB=10, 5%, cap R$6
+    TableConfig::new(1000, 500, 600) // BB=10, 5%, cap R$6
 }
 
 /// Soma dos amounts de uma lista de pots.
@@ -81,13 +86,19 @@ fn test_integration_full_hand_deck_sidepots_rake_handhistory() {
     for hand in &holes {
         for card in hand {
             let idx = (card.suit as usize) * 13 + (card.rank as usize - 2);
-            assert!(!seen[idx], "carta duplicada no deal (integridade do baralho)");
+            assert!(
+                !seen[idx],
+                "carta duplicada no deal (integridade do baralho)"
+            );
             seen[idx] = true;
         }
     }
     for card in &board {
         let idx = (card.suit as usize) * 13 + (card.rank as usize - 2);
-        assert!(!seen[idx], "carta duplicada no board (integridade do baralho)");
+        assert!(
+            !seen[idx],
+            "carta duplicada no board (integridade do baralho)"
+        );
         seen[idx] = true;
     }
 
@@ -164,11 +175,43 @@ fn test_integration_full_hand_deck_sidepots_rake_handhistory() {
         max_players: 9,
         game_type: crate::hand_history::GameType::Cash,
     };
-    let mut history = create_hand_history("hand-integration-01".into(), hh_config, vec!["p1".into(), "p2".into(), "p3".into()], stacks);
+    let mut history = create_hand_history(
+        "hand-integration-01".into(),
+        hh_config,
+        vec!["p1".into(), "p2".into(), "p3".into()],
+        stacks,
+    );
 
-    record_action(&mut history, PlayerAction { player_id: "p1".into(), action: Action::Call, amount: 100, phase: GamePhase::Preflop, timestamp_ms: 100 });
-    record_action(&mut history, PlayerAction { player_id: "p2".into(), action: Action::Raise, amount: 200, phase: GamePhase::Preflop, timestamp_ms: 200 });
-    record_action(&mut history, PlayerAction { player_id: "p3".into(), action: Action::Call, amount: 200, phase: GamePhase::Preflop, timestamp_ms: 300 });
+    record_action(
+        &mut history,
+        PlayerAction {
+            player_id: "p1".into(),
+            action: Action::Call,
+            amount: 100,
+            phase: GamePhase::Preflop,
+            timestamp_ms: 100,
+        },
+    );
+    record_action(
+        &mut history,
+        PlayerAction {
+            player_id: "p2".into(),
+            action: Action::Raise,
+            amount: 200,
+            phase: GamePhase::Preflop,
+            timestamp_ms: 200,
+        },
+    );
+    record_action(
+        &mut history,
+        PlayerAction {
+            player_id: "p3".into(),
+            action: Action::Call,
+            amount: 200,
+            phase: GamePhase::Preflop,
+            timestamp_ms: 300,
+        },
+    );
 
     set_community_cards(&mut history, GamePhase::Flop, board[0..3].to_vec());
     set_community_cards(&mut history, GamePhase::Turn, vec![board[3]]);
@@ -183,10 +226,15 @@ fn test_integration_full_hand_deck_sidepots_rake_handhistory() {
                 player_id: p.id.clone(),
                 finish_position: 0, // preenchido abaixo
                 hole_cards: p.cards.clone(),
-                best_hand: Some(HandResult { rank: crate::deck::HandRank::HighCard, cards: p.cards.clone(), kickers: vec![], value: 0 }),
+                best_hand: Some(HandResult {
+                    rank: crate::deck::HandRank::HighCard,
+                    cards: p.cards.clone(),
+                    kickers: vec![],
+                    value: 0,
+                }),
                 best_hand_name: Some("High Card".into()),
                 chips_won: won as u64,
-                chips_lost: p.total_bet as u64,
+                chips_lost: p.total_bet,
                 folded: p.has_folded,
                 was_all_in: true,
             }
@@ -194,18 +242,36 @@ fn test_integration_full_hand_deck_sidepots_rake_handhistory() {
         .collect();
     // Posições por payout decrescente
     let mut order: Vec<usize> = (0..results.len()).collect();
-    order.sort_by(|&a, &b| side.payouts.get(&players[b].id).unwrap_or(&0)
-        .cmp(side.payouts.get(&players[a].id).unwrap_or(&0)).reverse());
+    order.sort_by(|&a, &b| {
+        side.payouts
+            .get(&players[b].id)
+            .unwrap_or(&0)
+            .cmp(side.payouts.get(&players[a].id).unwrap_or(&0))
+            .reverse()
+    });
     for (pos, &idx) in order.iter().enumerate() {
         results[idx].finish_position = (pos + 1) as u8;
     }
 
     let total_pot_before = sum_pots(&side.pots);
-    finalize_hand(&mut history, results, total_pot_before, rake_result.total_rake, GamePhase::River, EndReason::Showdown);
+    finalize_hand(
+        &mut history,
+        results,
+        total_pot_before,
+        rake_result.total_rake,
+        GamePhase::River,
+        EndReason::Showdown,
+    );
 
     // Invariantes do hand_history
-    assert_eq!(history.total_pot, total_pot_before, "total_pot do histórico != soma antes do rake");
-    assert_eq!(history.rake, rake_result.total_rake as u64, "rake do histórico != rake calculado");
+    assert_eq!(
+        history.total_pot, total_pot_before,
+        "total_pot do histórico != soma antes do rake"
+    );
+    assert_eq!(
+        history.rake, rake_result.total_rake as u64,
+        "rake do histórico != rake calculado"
+    );
     assert_eq!(history.community_cards.len(), 5);
     let winner = crate::hand_history::get_winner(&history).expect("deve haver vencedor");
     assert_eq!(winner.player_id, "p1", "vencedor deve ser p1 (melhor mão)");
@@ -232,8 +298,20 @@ fn test_integration_full_tournament_lifecycle() {
         max_players: 100,
         speed: TournamentSpeed::Normal,
         blind_levels: vec![
-            BlindLevel { level: 1, small_blind: 10, big_blind: 20, ante: 0, duration_minutes: 15 },
-            BlindLevel { level: 2, small_blind: 20, big_blind: 40, ante: 0, duration_minutes: 15 },
+            BlindLevel {
+                level: 1,
+                small_blind: 10,
+                big_blind: 20,
+                ante: 0,
+                duration_minutes: 15,
+            },
+            BlindLevel {
+                level: 2,
+                small_blind: 20,
+                big_blind: 40,
+                ante: 0,
+                duration_minutes: 15,
+            },
         ],
         prize_pool_pct: 0.9,
         prize_distribution: vec![0.6, 0.3, 0.1],
@@ -245,7 +323,10 @@ fn test_integration_full_tournament_lifecycle() {
     };
 
     let mut state = create_tournament(config);
-    assert_eq!(state.status, crate::tournament_engine::TournamentStatus::Registering);
+    assert_eq!(
+        state.status,
+        crate::tournament_engine::TournamentStatus::Registering
+    );
 
     for (i, id) in ["t1", "t2", "t3", "t4"].iter().enumerate() {
         register_player(&mut state, id, &format!("Player{}", i)).expect("registro");
@@ -254,7 +335,10 @@ fn test_integration_full_tournament_lifecycle() {
     assert_eq!(state.prize_pool, (4000.0 * 0.9) as u64); // 3600
 
     start_tournament(&mut state).expect("início");
-    assert_eq!(state.status, crate::tournament_engine::TournamentStatus::Running);
+    assert_eq!(
+        state.status,
+        crate::tournament_engine::TournamentStatus::Running
+    );
     assert_eq!(state.current_level, 1);
 
     // Blinds sobem
@@ -271,7 +355,10 @@ fn test_integration_full_tournament_lifecycle() {
 
     // Finaliza e distribui prêmios
     let result = finish_tournament(&mut state).expect("finaliza");
-    assert_eq!(state.status, crate::tournament_engine::TournamentStatus::Finished);
+    assert_eq!(
+        state.status,
+        crate::tournament_engine::TournamentStatus::Finished
+    );
     assert_eq!(result.total_players, 4);
     assert_eq!(result.total_prize_pool, state.prize_pool);
 
@@ -281,10 +368,15 @@ fn test_integration_full_tournament_lifecycle() {
     assert!(
         sum_prizes <= state.prize_pool,
         "soma dos prêmios ({}) > prize pool ({})",
-        sum_prizes, state.prize_pool
+        sum_prizes,
+        state.prize_pool
     );
     // O vencedor (posição 1) é o jogador que sobrou
-    let champ = result.winners.iter().find(|w| w.position == 1).expect("campeão");
+    let champ = result
+        .winners
+        .iter()
+        .find(|w| w.position == 1)
+        .expect("campeão");
     assert_eq!(champ.player_id, "t1");
     // Com 1 jogador restante, recebe o prêmio de 1º lugar (60% do pool)
     assert_eq!(champ.prize, (state.prize_pool as f64 * 0.6) as u64);
@@ -328,7 +420,10 @@ fn test_integration_loss_deflator_plus_rake() {
 
     // O vencedor recebe o pote menos rake e menos o cashback do perdedor
     let winner_net = pots[0].amount - rake.total_rake - deflator.cashback;
-    assert_eq!(winner_net, 16400, "vencedor líquido deve ser 200-6-30 = 164");
+    assert_eq!(
+        winner_net, 16400,
+        "vencedor líquido deve ser 200-6-30 = 164"
+    );
 }
 
 // ─── Cenário 4: RNG + deck (embaralhamento criptográfico) ───
@@ -344,7 +439,10 @@ fn test_integration_rng_deck_integrity() {
     let mut seen = [false; 52];
     for card in &shuffled {
         let idx = (card.suit as usize) * 13 + (card.rank as usize - 2);
-        assert!(!seen[idx], "shuffle produziu carta duplicada — integridade quebrada");
+        assert!(
+            !seen[idx],
+            "shuffle produziu carta duplicada — integridade quebrada"
+        );
         seen[idx] = true;
     }
 
@@ -379,10 +477,30 @@ fn test_integration_sidepots_chip_conservation_with_fold() {
     // 4 jogadores: p1 foldou (apostou 50), p2=50, p3=150, p4=150
     // main: (50-0)*4 = 200; side: (150-50)*2 = 200 → total 400
     let players = vec![
-        PlayerForPots { id: "p1".into(), total_bet: 5000, has_folded: true, cards: vec![] },
-        PlayerForPots { id: "p2".into(), total_bet: 5000, has_folded: false, cards: vec![] },
-        PlayerForPots { id: "p3".into(), total_bet: 15000, has_folded: false, cards: vec![] },
-        PlayerForPots { id: "p4".into(), total_bet: 15000, has_folded: false, cards: vec![] },
+        PlayerForPots {
+            id: "p1".into(),
+            total_bet: 5000,
+            has_folded: true,
+            cards: vec![],
+        },
+        PlayerForPots {
+            id: "p2".into(),
+            total_bet: 5000,
+            has_folded: false,
+            cards: vec![],
+        },
+        PlayerForPots {
+            id: "p3".into(),
+            total_bet: 15000,
+            has_folded: false,
+            cards: vec![],
+        },
+        PlayerForPots {
+            id: "p4".into(),
+            total_bet: 15000,
+            has_folded: false,
+            cards: vec![],
+        },
     ];
     let board = vec![
         c(Rank::Ace, Suit::Hearts),

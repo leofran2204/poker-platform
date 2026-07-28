@@ -3,6 +3,8 @@
 > **Foco:** Módulos com cobertura insuficiente identificados após Fase 1 (883 testes).
 > **Estratégia:** Metas ousadas em quantidade e complexidade — cobrir todas as combinações possíveis de estados, transições, edge cases e cenários de erro. Multiplicação por 8× sobre a base inicial.
 
+> **Nota de execução (2026-07-27):** os totais nesta página são metas e registros históricos, não um gate de release. O CI limita property tests e exclui fuzzes/estresses multimilionários da rotina; essas cargas devem ser executadas separadamente, com orçamento e ambiente controlados.
+
 ---
 
 ## 📊 Situação Atual (Fase 1 ✅)

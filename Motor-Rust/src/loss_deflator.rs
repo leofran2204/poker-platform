@@ -97,11 +97,11 @@ pub struct PotCashbackEntry {
 }
 
 /// Deflator baseado na fase do all-in call (cartas restantes)
-fn phase_deflator(phase: GamePhase) -> Option<(f64, u8)> {
+fn phase_deflator(phase: GamePhase) -> Option<(u16, u8)> {
     match phase {
-        GamePhase::Preflop => Some((0.15, 5)), // flop + turn + river
-        GamePhase::Flop => Some((0.25, 2)),    // turn + river
-        GamePhase::Turn => Some((0.35, 1)),    // river
+        GamePhase::Preflop => Some((1_500, 5)), // 15%: flop + turn + river
+        GamePhase::Flop => Some((2_500, 2)),    // 25%: turn + river
+        GamePhase::Turn => Some((3_500, 1)),    // 35%: river
         GamePhase::River | GamePhase::Showdown => None, // showdown direto / fim
     }
 }
@@ -118,7 +118,7 @@ pub fn calculate_progressive_loss_deflator(
     } = params;
 
     let deflator = phase_deflator(phase)?;
-    let (percent, cards_remaining) = deflator;
+    let (deflator_basis_points, cards_remaining) = deflator;
 
     // 1. Identificar pots em que o PERDEDOR é elegível
     let mut eligible_pot_indices = Vec::new();
@@ -143,7 +143,8 @@ pub fn calculate_progressive_loss_deflator(
     }
 
     // 3. Calcular cashback total sobre os pots elegíveis em centavos inteiros
-    let base_cashback = ((eligible_pot_total as f64 * percent).floor()) as u64;
+    let base_cashback =
+        ((eligible_pot_total as u128 * deflator_basis_points as u128) / 10_000) as u64;
 
     // 4. Ratear o cashback proporcionalmente entre os pots elegíveis (em centavos)
     let mut per_pot_cashback = Vec::new();
@@ -154,25 +155,20 @@ pub fn calculate_progressive_loss_deflator(
         let amount = if is_last {
             base_cashback.saturating_sub(distributed)
         } else {
-            if eligible_pot_total > 0 {
-                let proportion = pots[idx].amount as f64 / eligible_pot_total as f64;
-                ((base_cashback as f64 * proportion).floor()) as u64
-            } else {
-                0
-            }
+            ((base_cashback as u128 * pots[idx].amount as u128) / eligible_pot_total as u128) as u64
         };
         distributed += amount;
         per_pot_cashback.push(PotCashbackEntry {
             pot_index: idx,
-            amount: amount as u64,
+            amount,
         });
     }
 
-    let tier = match percent {
-        p if (p - 0.07).abs() < f64::EPSILON => LossDeflatorTier::SevenPercent,
-        p if (p - 0.15).abs() < f64::EPSILON => LossDeflatorTier::FifteenPercent,
-        p if (p - 0.25).abs() < f64::EPSILON => LossDeflatorTier::TwentyFivePercent,
-        p if (p - 0.35).abs() < f64::EPSILON => LossDeflatorTier::ThirtyFivePercent,
+    let tier = match deflator_basis_points {
+        700 => LossDeflatorTier::SevenPercent,
+        1_500 => LossDeflatorTier::FifteenPercent,
+        2_500 => LossDeflatorTier::TwentyFivePercent,
+        3_500 => LossDeflatorTier::ThirtyFivePercent,
         _ => LossDeflatorTier::FifteenPercent,
     };
 
@@ -336,12 +332,10 @@ pub fn mc_error_bound(samples: u64, max_boards: u64) -> f64 {
     }
     let f = samples as f64 / max_boards as f64; // fração amostrada
     let se = 0.5 * ((1.0 - f) / samples as f64).sqrt();
-    let margin = 3.0 * se; // ~99.7% de confiança (3 sigma)
-    margin
+    3.0 * se // ~99.7% de confiança (3 sigma)
 }
 
 // ─── Funções auxiliares privadas ───
-
 
 #[allow(dead_code)]
 fn evaluate_outcome(hero_cards: &[Card], villain_cards: &[Card], board: &[Card]) -> f64 {

@@ -6,10 +6,10 @@
 use dioxus::prelude::*;
 use dioxus_router::prelude::*;
 
-use crate::router::Route;
 use super::join_button::{JoinButton, JoinButtonState};
 use super::player_count::PlayerCount;
 use super::table_card::{GameType, TableCard, TableData};
+use crate::router::Route;
 
 /// Lista de mesas exibida no lobby.
 ///
@@ -47,11 +47,12 @@ fn LobbyListItem(table: TableData) -> Element {
     };
 
     let table_id = table.id.clone();
+    let min_buy_in = table.min_buy_in;
     let on_join = move |_| {
         let nav = navigator;
         let target_id = table_id.clone();
         spawn(async move {
-            match crate::api_client::join_table(&target_id).await {
+            match crate::api_client::join_table(&target_id, min_buy_in).await {
                 Ok(_) => {
                     nav.push(Route::Table { id: target_id });
                 }
@@ -118,6 +119,8 @@ pub fn mock_tables() -> Vec<TableData> {
             game_type: GameType::TexasHoldem,
             small_blind: 1,
             big_blind: 2,
+            min_buy_in: 20,
+            max_buy_in: 200,
             players: 4,
             max_players: 8,
         },
@@ -127,6 +130,8 @@ pub fn mock_tables() -> Vec<TableData> {
             game_type: GameType::Omaha,
             small_blind: 5,
             big_blind: 10,
+            min_buy_in: 100,
+            max_buy_in: 1_000,
             players: 6,
             max_players: 8,
         },
@@ -136,6 +141,8 @@ pub fn mock_tables() -> Vec<TableData> {
             game_type: GameType::Freeroll,
             small_blind: 0,
             big_blind: 0,
+            min_buy_in: 0,
+            max_buy_in: 0,
             players: 23,
             max_players: 100,
         },
@@ -145,6 +152,8 @@ pub fn mock_tables() -> Vec<TableData> {
             game_type: GameType::TexasHoldem,
             small_blind: 50,
             big_blind: 100,
+            min_buy_in: 1_000,
+            max_buy_in: 10_000,
             players: 8,
             max_players: 8,
         },
@@ -182,7 +191,10 @@ mod tests {
     fn mock_tables_inclui_mesa_com_vagas() {
         let tables = mock_tables();
         let has_available = tables.iter().any(|t| !t.is_full());
-        assert!(has_available, "Mock deve incluir pelo menos uma mesa com vagas");
+        assert!(
+            has_available,
+            "Mock deve incluir pelo menos uma mesa com vagas"
+        );
     }
 
     #[test]

@@ -7,7 +7,11 @@ use crate::tournament_engine::{
 };
 use proptest::prelude::*;
 
-fn make_default_fuzz_config(buy_in: u64, starting_stack: u64, speed: TournamentSpeed) -> TournamentConfig {
+fn make_default_fuzz_config(
+    buy_in: u64,
+    starting_stack: u64,
+    speed: TournamentSpeed,
+) -> TournamentConfig {
     TournamentConfig {
         name: "Fuzz MTT Tournament".to_string(),
         game_type: "Holdem".to_string(),
@@ -16,10 +20,34 @@ fn make_default_fuzz_config(buy_in: u64, starting_stack: u64, speed: TournamentS
         max_players: 1000,
         speed,
         blind_levels: vec![
-            BlindLevel { level: 1, small_blind: 10, big_blind: 20, ante: 0, duration_minutes: 10 },
-            BlindLevel { level: 2, small_blind: 15, big_blind: 30, ante: 0, duration_minutes: 10 },
-            BlindLevel { level: 3, small_blind: 25, big_blind: 50, ante: 5, duration_minutes: 10 },
-            BlindLevel { level: 4, small_blind: 50, big_blind: 100, ante: 10, duration_minutes: 10 },
+            BlindLevel {
+                level: 1,
+                small_blind: 10,
+                big_blind: 20,
+                ante: 0,
+                duration_minutes: 10,
+            },
+            BlindLevel {
+                level: 2,
+                small_blind: 15,
+                big_blind: 30,
+                ante: 0,
+                duration_minutes: 10,
+            },
+            BlindLevel {
+                level: 3,
+                small_blind: 25,
+                big_blind: 50,
+                ante: 5,
+                duration_minutes: 10,
+            },
+            BlindLevel {
+                level: 4,
+                small_blind: 50,
+                big_blind: 100,
+                ante: 10,
+                duration_minutes: 10,
+            },
         ],
         prize_pool_pct: 1.0,
         prize_distribution: vec![0.50, 0.30, 0.20],

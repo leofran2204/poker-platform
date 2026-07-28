@@ -1,11 +1,12 @@
 # 📅 Cronograma — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-26 | **Status:** ✅ 100% Concluído & Saneado (Commercial Grade + Redis Snapshots Fault Tolerance / Launch Ready)
+**Atualizado:** 2026-07-27 | **Status:** Roadmap histórico; ciclo atual de revisão de segurança e arquitetura em andamento.
 **Stack:** Rust para TUDO (backend + APIs + IA + dados + antifraude + autenticação + lobby + front-end Dioxus/WebAssembly)
 
 > ⚠️ **Regra de Ouro:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📐 Specs e regras de negócio em `Documentacao/BUSINESS_RULES.md`.
 > 📋 Acompanhamento tático em `DASHBOARD.md`.
+> **Importante:** os percentuais abaixo descrevem marcos planejados/históricos e não certificam lançamento. PIX está adiado; escala horizontal de mesas depende de ownership distribuído.
 
 ---
 

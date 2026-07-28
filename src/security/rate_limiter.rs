@@ -32,7 +32,7 @@ impl Bucket {
     fn try_consume(&mut self, tokens_requested: f64) -> bool {
         let now = Instant::now();
         let elapsed = now.duration_since(self.last_refill).as_secs_f64();
-        
+
         // Repor tokens com base no tempo decorrido
         self.tokens = (self.tokens + elapsed * self.refill_rate_per_sec).min(self.max_capacity);
         self.last_refill = now;
@@ -65,8 +65,11 @@ impl RateLimiter {
 
     /// Verifica e consome 1 token para uma chave (IP ou user_id).
     pub fn check_rate_limit(&self, key: &str) -> Result<(), RateLimiterError> {
-        let mut buckets = self.buckets.lock().map_err(|_| RateLimiterError::LockError)?;
-        
+        let mut buckets = self
+            .buckets
+            .lock()
+            .map_err(|_| RateLimiterError::LockError)?;
+
         let bucket = buckets
             .entry(key.to_string())
             .or_insert_with(|| Bucket::new(self.max_capacity, self.refill_rate_per_sec));
@@ -80,7 +83,10 @@ impl RateLimiter {
 
     /// Limpa buckets inativos para economizar memória.
     pub fn cleanup_inactive(&self, max_idle: Duration) -> Result<usize, RateLimiterError> {
-        let mut buckets = self.buckets.lock().map_err(|_| RateLimiterError::LockError)?;
+        let mut buckets = self
+            .buckets
+            .lock()
+            .map_err(|_| RateLimiterError::LockError)?;
         let now = Instant::now();
         let initial_len = buckets.len();
 

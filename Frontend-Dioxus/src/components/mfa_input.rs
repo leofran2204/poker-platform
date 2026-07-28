@@ -55,8 +55,7 @@ pub fn MfaInput(props: MfaInputProps) -> Element {
     let mut error_msg = use_signal(|| Option::<String>::None);
     let mut is_loading = use_signal(|| false);
 
-    let is_valid = code.read().len() == 6
-        && code.read().chars().all(|c| c.is_ascii_digit());
+    let is_valid = code.read().len() == 6 && code.read().chars().all(|c| c.is_ascii_digit());
 
     let on_input = move |e: FormEvent| {
         let raw = e.value();

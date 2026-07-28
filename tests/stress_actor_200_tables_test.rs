@@ -37,7 +37,9 @@ async fn test_stress_k8s_actor_200_tables_50k_messages() {
                     assert!(res.is_ok());
                 } else {
                     let (state_tx, state_rx) = oneshot::channel();
-                    let state_msg = TableMessage::GetState { respond_to: state_tx };
+                    let state_msg = TableMessage::GetState {
+                        respond_to: state_tx,
+                    };
                     tx.send(state_msg).await.unwrap();
                     let state = state_rx.await.unwrap();
                     assert!(state.players.len() >= 1);

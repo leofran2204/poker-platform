@@ -32,13 +32,14 @@ pub fn DeflatorNotification(payload: Option<DeflatorPayload>) -> Element {
     // Nível 1 (<= 15%): Pré-flop (15%) / Variância Amenizada
     // Nível 2 (<= 25%): Flop (25%) / Reviravolta Moderada
     // Nível 3 (> 25%): Turn (35%) / Bad Beat Severa (Milagre no River)
-    
+
     let loser_equity = 100 - p.odds_broken;
     let winner_odds = p.odds_broken;
 
     if p.odds_broken <= 7 {
         // NÍVEL 0 (7%): Verde Teal / Bad Beat em Ajuste Leve
-        color_classes = "from-emerald-950 to-teal-900 border-teal-500 shadow-[0_0_35px_rgba(20,184,166,0.4)]";
+        color_classes =
+            "from-emerald-950 to-teal-900 border-teal-500 shadow-[0_0_35px_rgba(20,184,166,0.4)]";
         if p.prevented_elimination {
             title = "🛡️ PROTEÇÃO DE BAD BEAT (7%)".to_string();
             description = format!(
@@ -54,7 +55,8 @@ pub fn DeflatorNotification(payload: Option<DeflatorPayload>) -> Element {
         }
     } else if p.odds_broken <= 15 {
         // NÍVEL 1 (15%): Azul / Bad Beat Pré-Flop
-        color_classes = "from-slate-900 to-blue-900 border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.4)]";
+        color_classes =
+            "from-slate-900 to-blue-900 border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.4)]";
         if p.prevented_elimination {
             title = "⚖️ PROTEÇÃO DE BAD BEAT (15%)".to_string();
             description = format!(

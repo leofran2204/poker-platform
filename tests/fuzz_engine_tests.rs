@@ -29,11 +29,18 @@ fn test_massive_fuzz_side_pots_and_pot_conservation_10k_iterations() {
 
         // INVARIANTE 1: Nenhum pote pode ter valor negativo ou zero
         for pot in &side_pots {
-            assert!(pot.amount > 0.0, "Pote com valor <= 0 na iteração {}", iteration);
-            
+            assert!(
+                pot.amount > 0.0,
+                "Pote com valor <= 0 na iteração {}",
+                iteration
+            );
+
             // INVARIANTE 2: Nenhum jogador que deu fold pode ser elegível
             for eligible_id in &pot.eligible_players {
-                let player_contrib = contributions.iter().find(|c| &c.player_id == eligible_id).unwrap();
+                let player_contrib = contributions
+                    .iter()
+                    .find(|c| &c.player_id == eligible_id)
+                    .unwrap();
                 assert!(
                     !player_contrib.has_folded,
                     "VIOLAÇÃO CRÍTICA: Jogador folded {} listado como elegível no pote!",
@@ -91,7 +98,10 @@ fn test_massive_fuzz_loss_deflator_10k_iterations() {
             assert!(d.net_loss >= 0.0);
 
             // INVARIANTE 3: Se o jogador não perdeu dinheiro, cashback DEVE ser 0.0
-            let original_player = stats_list.iter().find(|s| s.player_id == d.player_id).unwrap();
+            let original_player = stats_list
+                .iter()
+                .find(|s| s.player_id == d.player_id)
+                .unwrap();
             if original_player.amount_won >= original_player.total_bet {
                 assert_eq!(
                     d.cashback_amount, 0.0,

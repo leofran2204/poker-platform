@@ -3,6 +3,8 @@
 **Status:** Histórico de conversa + instruções extraídas  
 **Data:** 2026-07 (estimado)
 
+> **Use o `render.yaml` atual como fonte de configuração.** O conteúdo de conversa abaixo é histórico e menciona uma aplicação Node.js que não existe neste repositório. A implantação atual usa `API-Axum/Dockerfile`, porta `3000`, `/health`, PostgreSQL, Redis, `JWT_SECRET` aleatório de ao menos 32 caracteres e `CORS_ORIGINS` explícito.
+
 ---
 
 ## 📞 Histórico da Conversa de Deploy
@@ -65,17 +67,16 @@ Assistant: Attempted to copy file but file not found, then wrote conversation fi
 
 ---
 
-## ✅ Concluído — Código Analisado e Render.yaml Criado
+## 🗃️ Registro histórico — não usar como instrução de deploy atual
 
-- Código analisado e corrigido para produção.
-- Render.yaml criado com configurações corretas (build/start, rootDir, DB, etc.).
+- Registro preservado apenas para contexto da conversa original.
 
 ---
 
 ## 📋 Instruções Técnicas de Deploy
 
 **Projeto:** Poker Platform Online  
-**Status Atual:** Pronto para deploy no Render
+**Status Atual:** Histórico — substituído pelo `render.yaml` atual
 
 ### Arquivos Analisados
 - `server/package.json`
@@ -112,20 +113,22 @@ Assistant: Attempted to copy file but file not found, then wrote conversation fi
 
 2️⃣ **Adicionar variáveis de ambiente** no Web Service:
    - `DATABASE_URL` (copiado)
-   - `JWT_SECRET` (ex: `poker-secret-key-123`)
-   - `PORT` (sempre `3001`)
+   - `REDIS_URL` (URL interna de uma instância Redis gerenciada)
+   - `JWT_SECRET` (segredo aleatório único, com ao menos 32 caracteres)
+   - `CORS_ORIGINS` (origens HTTPS explícitas do frontend)
+   - `ENVIRONMENT=production`
+   - `PORT=3000`
 
 3️⃣ **Deploy** do Web Service no Render:
-   - Build: `npm install && npm run build`
-   - Start: `npm run start`
-   - Aguardar status **Live** e validar endpoint `/api/health`.
+   - O `render.yaml` usa o `API-Axum/Dockerfile`; não configure comandos Node.js.
+   - Aguardar status **Live** e validar endpoint `/health`.
 
 ---
 
 ## 📁 Arquivos de Referência — Código-Fonte e Configuração da Plataforma
 
-- Código-fonte: `C:\Users\leofr\OneDrive\Projetos\Project opencode\poker-platform`
-- render.yaml: `C:\Users\leofr\OneDrive\Projetos\Project opencode\poker-platform\render.yaml`
+- Código-fonte: raiz deste repositório
+- render.yaml: `Infraestrutura-Docker/render.yaml`
 - Instruções: `C:\Users\leofr\Projetos\Poker_Project\Infraestrutura-Docker\DEPLOY_RENDER.md`
 
 ---
@@ -133,4 +136,4 @@ Assistant: Attempted to copy file but file not found, then wrote conversation fi
 ## 📌 Observações — Ajustes de Senha, CORS e Health Check
 
 - Se houver ajustes de senha ou de CORS, atualizar variáveis de ambiente via dashboard do Render.
-- O endpoint `/api/health` deve responder `{"status":"ok","timestamp":"..."}`
+- O endpoint `/health` responde `OK` com HTTP 200.

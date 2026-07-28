@@ -2,8 +2,6 @@
 //
 // Meta de testes Fase 2: +800 testes (+120 Lote 8A, +200 Lote 8B, +160 Lote 8C, +120 Lote 8D, +120 Lote 8E, +80 Lote 8F)
 
-#![cfg(test)]
-
 use crate::deck::{Card, Rank, Suit};
 use crate::hand_history::{
     create_hand_history, finalize_hand, from_json, get_hand_summary, get_phase_actions,

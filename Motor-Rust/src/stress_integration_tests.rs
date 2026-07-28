@@ -18,7 +18,7 @@
 
 use crate::deck::{create_deck, deal_cards, Card, HandRank, HandResult, Rank, Suit};
 use crate::hand_history::{
-    create_hand_history, finalize_hand, record_action, set_community_cards, to_json, from_json,
+    create_hand_history, finalize_hand, from_json, record_action, set_community_cards, to_json,
     Action, EndReason, PlayerAction, PlayerResult,
 };
 use crate::loss_deflator::{
@@ -60,11 +60,16 @@ fn deal_random_hand(rng: &mut StdRng, n_players: usize) -> (Vec<Vec<Card>>, Vec<
             hole.extend(cards);
         }
     }
-    let (_b, d) = deal_cards(&deck, 1); deck = d;
-    let (flop, d) = deal_cards(&deck, 3); deck = d;
-    let (_b, d) = deal_cards(&deck, 1); deck = d;
-    let (turn, d) = deal_cards(&deck, 1); deck = d;
-    let (_b, d) = deal_cards(&deck, 1); deck = d;
+    let (_b, d) = deal_cards(&deck, 1);
+    deck = d;
+    let (flop, d) = deal_cards(&deck, 3);
+    deck = d;
+    let (_b, d) = deal_cards(&deck, 1);
+    deck = d;
+    let (turn, d) = deal_cards(&deck, 1);
+    deck = d;
+    let (_b, d) = deal_cards(&deck, 1);
+    deck = d;
     let (river, _d) = deal_cards(&deck, 1);
     let mut board = flop;
     board.extend(turn);
@@ -77,7 +82,7 @@ fn sum_pots(pots: &[Pot]) -> u64 {
 }
 
 fn rake_cfg() -> TableConfig {
-    TableConfig::new(1000, 5.0, 600)
+    TableConfig::new(1000, 500, 600)
 }
 
 // ─── Cenário 1: Mão completa (deck → side_pots → rake → hand_history) ───
@@ -124,7 +129,11 @@ fn test_stress_integration_full_hand() {
         let total_pots_sum = sum_pots(&side.pots);
 
         // Invariante 1: soma dos pots == soma das contribuições (fichas conservadas exatas)
-        assert_eq!(total_pots_sum, contributions, "fichas não conservadas: pots={} contrib={}", total_pots_sum, contributions);
+        assert_eq!(
+            total_pots_sum, contributions,
+            "fichas não conservadas: pots={} contrib={}",
+            total_pots_sum, contributions
+        );
 
         // Invariante 2: rake <= cap e <= total
         let rake = deduct_rake(&side.pots, &cfg, None);
@@ -134,13 +143,20 @@ fn test_stress_integration_full_hand() {
         // Invariante 3: pots após rake + total_rake == antes
         let before = total_pots_sum;
         let after = sum_pots(&rake.pots_after_rake);
-        assert_eq!(after + rake.total_rake, before, "pots após rake incoerentes");
+        assert_eq!(
+            after + rake.total_rake,
+            before,
+            "pots após rake incoerentes"
+        );
 
         // Invariante 4: payouts (pré-rake) somam os pots ou conservam com resto indivisível WSOP.
         let payout_sum: u64 = side.payouts.values().sum();
         assert!(payout_sum <= before, "payouts excederam os pots");
-        let folded: std::collections::HashSet<String> =
-            players.iter().filter(|p| p.has_folded).map(|p| p.id.clone()).collect();
+        let folded: std::collections::HashSet<String> = players
+            .iter()
+            .filter(|p| p.has_folded)
+            .map(|p| p.id.clone())
+            .collect();
         let residual = before.saturating_sub(payout_sum);
         let mut max_residual = 0u64;
         for pot in &side.pots {
@@ -148,11 +164,20 @@ fn test_stress_integration_full_hand() {
             if all_folded {
                 max_residual += pot.amount;
             } else {
-                let n_win = pot.eligible_players.iter().filter(|id| !folded.contains(*id)).count() as u64;
+                let n_win = pot
+                    .eligible_players
+                    .iter()
+                    .filter(|id| !folded.contains(*id))
+                    .count() as u64;
                 max_residual += n_win;
             }
         }
-        assert!(residual <= max_residual, "payouts muito abaixo dos pots (truncagem excessiva): residual={} max={}", residual, max_residual);
+        assert!(
+            residual <= max_residual,
+            "payouts muito abaixo dos pots (truncagem excessiva): residual={} max={}",
+            residual,
+            max_residual
+        );
 
         // Invariante 5: foldado não recebe payout
         for p in &players {
@@ -185,13 +210,20 @@ fn test_stress_integration_full_hand() {
             stacks,
         );
         for (i, p) in players.iter().enumerate() {
-            record_action(&mut history, PlayerAction {
-                player_id: p.id.clone(),
-                action: if p.has_folded { Action::Fold } else { Action::Call },
-                amount: p.total_bet as u64,
-                phase: TypesGamePhase::Preflop,
-                timestamp_ms: (i as u64) * 10,
-            });
+            record_action(
+                &mut history,
+                PlayerAction {
+                    player_id: p.id.clone(),
+                    action: if p.has_folded {
+                        Action::Fold
+                    } else {
+                        Action::Call
+                    },
+                    amount: p.total_bet,
+                    phase: TypesGamePhase::Preflop,
+                    timestamp_ms: (i as u64) * 10,
+                },
+            );
         }
         set_community_cards(&mut history, TypesGamePhase::Flop, board[0..3].to_vec());
         set_community_cards(&mut history, TypesGamePhase::Turn, vec![board[3]]);
@@ -205,7 +237,12 @@ fn test_stress_integration_full_hand() {
                     player_id: p.id.clone(),
                     finish_position: 0,
                     hole_cards: p.cards.clone(),
-                    best_hand: Some(HandResult { rank: HandRank::HighCard, cards: p.cards.clone(), kickers: vec![], value: 0 }),
+                    best_hand: Some(HandResult {
+                        rank: HandRank::HighCard,
+                        cards: p.cards.clone(),
+                        kickers: vec![],
+                        value: 0,
+                    }),
                     best_hand_name: Some("High Card".into()),
                     chips_won: won,
                     chips_lost: p.total_bet,
@@ -223,9 +260,19 @@ fn test_stress_integration_full_hand() {
         for (pos, &idx) in order.iter().enumerate() {
             results[idx].finish_position = (pos + 1) as u8;
         }
-        finalize_hand(&mut history, results, total_u64, rake_u64, TypesGamePhase::River, EndReason::Showdown);
+        finalize_hand(
+            &mut history,
+            results,
+            total_u64,
+            rake_u64,
+            TypesGamePhase::River,
+            EndReason::Showdown,
+        );
 
-        assert_eq!(history.total_pot, total_u64, "hand_history.total_pot diverge");
+        assert_eq!(
+            history.total_pot, total_u64,
+            "hand_history.total_pot diverge"
+        );
         assert_eq!(history.rake, rake_u64, "hand_history.rake diverge");
 
         let json = to_json(&history).expect("serialização");
@@ -260,13 +307,22 @@ fn test_stress_integration_sidepots_multiway() {
             let folded = rng.gen_bool(0.2);
             // Cartas dummy (não importa para os invariantes de conservação)
             let cards = vec![c(Rank::Two, Suit::Clubs), c(Rank::Three, Suit::Clubs)];
-            players.push(PlayerForPots { id: format!("p{}", p), total_bet: bet, has_folded: folded, cards });
+            players.push(PlayerForPots {
+                id: format!("p{}", p),
+                total_bet: bet,
+                has_folded: folded,
+                cards,
+            });
         }
 
         let side = resolve_side_pots(&players, &board);
         let contributions: u64 = players.iter().map(|p| p.total_bet).sum();
         let total_pots_sum = sum_pots(&side.pots);
-        assert_eq!(total_pots_sum, contributions, "side pots não conservam: pots={} contrib={}", total_pots_sum, contributions);
+        assert_eq!(
+            total_pots_sum, contributions,
+            "side pots não conservam: pots={} contrib={}",
+            total_pots_sum, contributions
+        );
 
         // Cada pote tem valor positivo e eligible_players não vazios
         for pot in &side.pots {
@@ -306,7 +362,11 @@ fn test_stress_integration_tournament() {
                 level: lvl as u32,
                 small_blind: sb,
                 big_blind: bb,
-                ante: if rng.gen_bool(0.3) { rng.gen_range(0u64..=sb) } else { 0 },
+                ante: if rng.gen_bool(0.3) {
+                    rng.gen_range(0u64..=sb)
+                } else {
+                    0
+                },
                 duration_minutes: rng.gen_range(5u32..=30),
             });
             sb = bb;
@@ -331,7 +391,11 @@ fn test_stress_integration_tournament() {
             buy_in,
             starting_stack,
             max_players: n_players,
-            speed: if rng.gen_bool(0.5) { TournamentSpeed::Turbo } else { TournamentSpeed::Normal },
+            speed: if rng.gen_bool(0.5) {
+                TournamentSpeed::Turbo
+            } else {
+                TournamentSpeed::Normal
+            },
             blind_levels,
             prize_pool_pct,
             prize_distribution: weights,
@@ -348,7 +412,10 @@ fn test_stress_integration_tournament() {
             register_player(&mut state, &format!("t{}", i), &format!("P{}", i)).expect("registro");
         }
         let expected_pool = (state.total_buyins as f64 * prize_pool_pct) as u64;
-        assert_eq!(state.prize_pool, expected_pool, "prize pool incompatível com buy-ins");
+        assert_eq!(
+            state.prize_pool, expected_pool,
+            "prize pool incompatível com buy-ins"
+        );
 
         start_tournament(&mut state).expect("início");
         assert_eq!(state.status, TournamentStatus::Running);
@@ -369,7 +436,10 @@ fn test_stress_integration_tournament() {
         for (pos, id) in ids.into_iter().take(to_eliminate as usize).enumerate() {
             eliminate_player(&mut state, &id, Some((pos + 1) as u32)).expect("elimina");
         }
-        assert_eq!(state.players_remaining, keep, "players_remaining incompatível");
+        assert_eq!(
+            state.players_remaining, keep,
+            "players_remaining incompatível"
+        );
 
         let result = finish_tournament(&mut state).expect("finaliza");
         assert_eq!(state.status, TournamentStatus::Finished);
@@ -378,12 +448,25 @@ fn test_stress_integration_tournament() {
 
         // Prêmios pagos não podem exceder o prize pool
         let sum_prizes: u64 = result.winners.iter().map(|w| w.prize).sum();
-        assert!(sum_prizes <= state.prize_pool, "prêmios ({}) excedem prize pool ({})", sum_prizes, state.prize_pool);
+        assert!(
+            sum_prizes <= state.prize_pool,
+            "prêmios ({}) excedem prize pool ({})",
+            sum_prizes,
+            state.prize_pool
+        );
 
         // Se sobrou 1 jogador, ele é o campeão (pos 1)
         if keep == 1 {
-            let champ = result.winners.iter().find(|w| w.position == 1).expect("campeão");
-            assert_eq!(champ.player_id, ids_restante(&state, registered), "campeão incorreto");
+            let champ = result
+                .winners
+                .iter()
+                .find(|w| w.position == 1)
+                .expect("campeão");
+            assert_eq!(
+                champ.player_id,
+                ids_restante(&state, registered),
+                "campeão incorreto"
+            );
         }
     }
 }
@@ -407,7 +490,11 @@ fn ids_restante(state: &crate::tournament_engine::TournamentState, registered: u
 fn test_stress_integration_loss_deflator_plus_rake() {
     let mut rng = StdRng::seed_from_u64(SEED ^ 0x3333);
     let cfg = rake_cfg();
-    let phases = [TypesGamePhase::Preflop, TypesGamePhase::Flop, TypesGamePhase::Turn];
+    let phases = [
+        TypesGamePhase::Preflop,
+        TypesGamePhase::Flop,
+        TypesGamePhase::Turn,
+    ];
 
     for _ in 0..ITER {
         // 1 a 4 pots com valores inteiros e elegíveis aleatórios
@@ -428,7 +515,10 @@ fn test_stress_integration_loss_deflator_plus_rake() {
                     all_ids.push(pid);
                 }
             }
-            pots.push(Pot { amount, eligible_players: elig });
+            pots.push(Pot {
+                amount,
+                eligible_players: elig,
+            });
         }
 
         // Rake
@@ -438,8 +528,10 @@ fn test_stress_integration_loss_deflator_plus_rake() {
         assert!(rake.total_rake <= total, "rake acima do total");
 
         // Loss deflator: sorteia loser/winner entre os elegíveis do pote 0
-        let loser = pots[0].eligible_players[rng.gen_range(0..pots[0].eligible_players.len())].clone();
-        let winner = pots[0].eligible_players[rng.gen_range(0..pots[0].eligible_players.len())].clone();
+        let loser =
+            pots[0].eligible_players[rng.gen_range(0..pots[0].eligible_players.len())].clone();
+        let winner =
+            pots[0].eligible_players[rng.gen_range(0..pots[0].eligible_players.len())].clone();
         let phase = phases[rng.gen_range(0..phases.len())];
 
         if let Some(deflator) = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
@@ -457,18 +549,27 @@ fn test_stress_integration_loss_deflator_plus_rake() {
             };
             assert_eq!(deflator.tier, expected_tier, "tier incompatível com fase");
 
-            // Cashback = 15/25/35% do total elegível ao perdedor, em centavos inteiros (floor)
-            let pct = match phase {
-                TypesGamePhase::Preflop => 0.15,
-                TypesGamePhase::Flop => 0.25,
-                TypesGamePhase::Turn => 0.35,
-                _ => 0.0,
+            // Cashback = 15/25/35% do total elegível, sempre em pontos-base
+            // inteiros. Isso deve usar a mesma aritmética financeira da produção.
+            let basis_points = match phase {
+                TypesGamePhase::Preflop => 1_500u128,
+                TypesGamePhase::Flop => 2_500u128,
+                TypesGamePhase::Turn => 3_500u128,
+                _ => unreachable!(),
             };
-            let expected_cb = ((deflator.eligible_pot_total as f64) * pct).floor() as u64;
-            assert_eq!(deflator.cashback, expected_cb, "cashback incompatível: {} vs {}", deflator.cashback, expected_cb);
+            let expected_cb =
+                ((deflator.eligible_pot_total as u128 * basis_points) / 10_000) as u64;
+            assert_eq!(
+                deflator.cashback, expected_cb,
+                "cashback incompatível: {} vs {}",
+                deflator.cashback, expected_cb
+            );
 
             // Conservação: rake + cashback não excedem o pote total
-            assert!(rake.total_rake + deflator.cashback <= total, "rake+cashback excedem o pote");
+            assert!(
+                rake.total_rake + deflator.cashback <= total,
+                "rake+cashback excedem o pote"
+            );
             // Cashback incide apenas sobre pots onde o perdedor é elegível
             assert!(deflator.eligible_pot_total <= total);
         }
