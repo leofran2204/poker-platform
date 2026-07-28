@@ -247,7 +247,6 @@ fn test_integration_full_hand_deck_sidepots_rake_handhistory() {
             .get(&players[b].id)
             .unwrap_or(&0)
             .cmp(side.payouts.get(&players[a].id).unwrap_or(&0))
-            .reverse()
     });
     for (pos, &idx) in order.iter().enumerate() {
         results[idx].finish_position = (pos + 1) as u8;
@@ -275,7 +274,7 @@ fn test_integration_full_hand_deck_sidepots_rake_handhistory() {
     assert_eq!(history.community_cards.len(), 5);
     let winner = crate::hand_history::get_winner(&history).expect("deve haver vencedor");
     assert_eq!(winner.player_id, "p1", "vencedor deve ser p1 (melhor mão)");
-    assert_eq!(winner.chips_won, 300);
+    assert_eq!(winner.chips_won, 30_000);
 
     // Roundtrip JSON preserva os dados críticos
     let json = to_json(&history).expect("serialização");

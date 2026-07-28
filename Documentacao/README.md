@@ -95,6 +95,8 @@ docker-compose up -d
 cd Motor-Rust
 cargo build
 cargo test
+# Cargas probabilísticas e de stress: somente sob acionamento manual explícito.
+cargo test --lib --features massive-tests
 ```
 
 ### 🖥️ Frontend WebAssembly (Dioxus)

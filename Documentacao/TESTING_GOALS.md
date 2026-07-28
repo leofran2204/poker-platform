@@ -3,7 +3,7 @@
 > **Foco:** Módulos com cobertura insuficiente identificados após Fase 1 (883 testes).
 > **Estratégia:** Metas ousadas em quantidade e complexidade — cobrir todas as combinações possíveis de estados, transições, edge cases e cenários de erro. Multiplicação por 8× sobre a base inicial.
 
-> **Nota de execução (2026-07-27):** os totais nesta página são metas e registros históricos, não um gate de release. O CI limita property tests e exclui fuzzes/estresses multimilionários da rotina; essas cargas devem ser executadas separadamente, com orçamento e ambiente controlados.
+> **Nota de execução (2026-07-28):** os totais nesta página são metas e registros históricos, não um gate de release. A rotina e a CI executam somente testes determinísticos e rápidos. Fuzzing, stress, fairness estatística, Monte Carlo preflop e amostragens CSPRNG de alta densidade exigem a feature opt-in `massive-tests`, acionada manualmente e com orçamento/ambiente controlados: `cargo test --lib --features massive-tests`.
 
 ---
 

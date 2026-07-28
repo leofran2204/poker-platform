@@ -1,6 +1,6 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-27 | **Status:** S07 — revisão de segurança, arquitetura e automação em curso.
+**Atualizado:** 2026-07-28 | **Status:** S07 — revisão de segurança, arquitetura e validação WSL em curso.
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📅 O cronograma completo está em `Documentacao/CRONOGRAMA.md` — veja prazos, fases e % de conclusão.
@@ -28,8 +28,8 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 |---|----------|-------------|
 | 1 | **Código compila sem erros** | `cargo check` — 0 erros |
 | 2 | **Zero warnings** | `cargo check` — 0 warnings |
-| 3 | **Todos os testes passam** | `cargo test` — 2.050+ testes passing (1.903 Motor + 115 Frontend + 32 API) |
-| 4 | **Cobertura de testes** | Testes massivos (1.000.000 Fuzzing + 1.000 Ante/Blinds + 500 Multiway All-In) |
+| 3 | **Testes de rotina passam** | `cargo test` — apenas a suíte determinística e rápida, sem carga probabilística implícita |
+| 4 | **Cargas de validação** | `cargo test --lib --features massive-tests` — somente acionamento manual, com orçamento e ambiente controlados |
 | 5 | **Documentação atualizada** | `DASHBOARD.md` + `README.md` + `DEVELOPMENT_LOG.md` |
 | 6 | **Regras de negócio respeitadas** | Conforme `BUSINESS_RULES.md` |
 | 7 | **Padrões de qualidade** | Conforme `QUALITY.md` |

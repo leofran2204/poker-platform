@@ -4,6 +4,7 @@
 
 use crate::deck::{compare_hands, evaluate_hand, Card, HandResult};
 use crate::types::Pot;
+use crate::utils::dividir_pote_empatado;
 use std::collections::HashMap;
 
 /// Contribuição de um jogador para o pote em centavos inteiros
@@ -82,12 +83,31 @@ pub fn calculate_side_pots(players: &[PlayerForPots]) -> Vec<Pot> {
     pots
 }
 
-/// Distribui cada pote em centavos entre os melhores hands elegíveis.
-/// Aplica a regra oficial WSOP (Odd Cent) para redistribuição do resto de centavos em empates.
+/// Distribui cada pote em centavos entre as melhores mãos elegíveis.
+///
+/// Para compatibilidade, a ordem recebida em `players` define a prioridade do
+/// centavo ímpar. O GameLoop deve preferir
+/// [`distribute_pots_with_seat_order`], que recebe explicitamente a ordem a
+/// partir do botão.
 pub fn distribute_pots(
     pots: &[Pot],
     players: &[PlayerForPots],
     community_cards: &[Card],
+) -> HashMap<String, u64> {
+    let player_order: Vec<String> = players.iter().map(|player| player.id.clone()).collect();
+    distribute_pots_with_seat_order(pots, players, community_cards, &player_order)
+}
+
+/// Distribui potes aplicando a regra WSOP/TDA do centavo ímpar.
+///
+/// `seat_order_from_button` deve começar no primeiro assento à esquerda do
+/// botão e seguir a ordem dos assentos. Entradas ausentes são completadas pela
+/// ordem dos vencedores para preservar a conservação do pote.
+pub fn distribute_pots_with_seat_order(
+    pots: &[Pot],
+    players: &[PlayerForPots],
+    community_cards: &[Card],
+    seat_order_from_button: &[String],
 ) -> HashMap<String, u64> {
     let mut payouts: HashMap<String, u64> = HashMap::new();
     let player_hands = precompute_hands(players, community_cards);
@@ -98,13 +118,20 @@ pub fn distribute_pots(
             continue;
         }
 
-        let num_winners = winners.len() as u64;
-        let base_share = pot.amount / num_winners;
-        let remainder = pot.amount % num_winners;
+        let mut ordered_winners: Vec<String> = seat_order_from_button
+            .iter()
+            .filter(|player_id| winners.contains(*player_id))
+            .cloned()
+            .collect();
+        for winner_id in &winners {
+            if !ordered_winners.contains(winner_id) {
+                ordered_winners.push(winner_id.clone());
+            }
+        }
 
-        for (idx, winner_id) in winners.iter().enumerate() {
-            let extra = if (idx as u64) < remainder { 1 } else { 0 };
-            *payouts.entry(winner_id.clone()).or_insert(0) += base_share + extra;
+        let shares = dividir_pote_empatado(pot.amount, &winners, &ordered_winners);
+        for (winner_id, share) in shares {
+            *payouts.entry(winner_id).or_insert(0) += share;
         }
     }
 

@@ -157,7 +157,7 @@ fn hex_encode(bytes: &[u8]) -> String {
 }
 
 fn hex_decode(hex_str: &str) -> Result<Vec<u8>, String> {
-    if hex_str.len() % 2 != 0 {
+    if !hex_str.len().is_multiple_of(2) {
         return Err("String hexadecimal inválida: tamanho ímpar".to_string());
     }
 
@@ -267,6 +267,10 @@ mod tests {
     // ─── TESTES MASSIVOS DE ESTRESSE & DISTRIBUIÇÃO ESTATÍSTICA ───
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "distribuicao de 500 mil amostras; habilite a feature massive-tests manualmente"
+    )]
     fn test_provably_fair_massive_distribution_chi_squared() {
         // Roda 500.000 embaralhamentos auditáveis e calcula distribuição qui-quadrado da 1ª carta
         let iterations = 500_000usize;

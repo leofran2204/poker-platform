@@ -502,6 +502,10 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "Monte Carlo preflop massivo; habilite a feature massive-tests manualmente"
+    )]
     fn test_heads_up_win_probability_preflop() {
         // AA vs KK preflop
         let hero = vec![
@@ -542,6 +546,10 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "Monte Carlo preflop massivo; habilite a feature massive-tests manualmente"
+    )]
     fn test_mc_error_bound_within_tolerance_preflop() {
         // AA vs KK preflop. A estimativa Monte Carlo é determinística (seed por
         // cartas), então o valor é fixo e reproduzível. A segurança aqui é:

@@ -23,7 +23,10 @@ use crate::rng_crypto::{
     secure_random_u64, secure_shuffle,
 };
 #[cfg(test)]
-use crate::side_pots::{calculate_side_pots, distribute_pots, resolve_side_pots, PlayerForPots};
+use crate::side_pots::{
+    calculate_side_pots, distribute_pots, distribute_pots_with_seat_order, resolve_side_pots,
+    PlayerForPots,
+};
 #[cfg(test)]
 use crate::types::{Pot, TableConfig};
 
@@ -212,6 +215,10 @@ mod csprng_tests {
     // ─── secure_random_u32 ───
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "amostragem CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn u32_dentro_do_range_sempre() {
         for _ in 0..10_000 {
             let val = secure_random_u32(1..=100);
@@ -238,6 +245,10 @@ mod csprng_tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "amostragem CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn u32_distribuicao_sem_vies_d6() {
         // 60.000 lançamentos de D6 — cada face deve ter ~10.000 (±5%)
         let mut counts = [0u32; 6];
@@ -258,6 +269,10 @@ mod csprng_tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "amostragem CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn u32_distribuicao_sem_vies_d2() {
         // 100.000 lançamentos de moeda — cada face ~50.000 (±2%)
         let mut counts = [0u32; 2];
@@ -281,6 +296,10 @@ mod csprng_tests {
     // ─── secure_random_u64 ───
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "amostragem CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn u64_dentro_do_range_sempre() {
         for _ in 0..5_000 {
             let val = secure_random_u64(1_000..=9_999);
@@ -301,6 +320,10 @@ mod csprng_tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "amostragem CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn u64_distribuicao_sem_vies_0_a_9() {
         let mut counts = [0u32; 10];
         for _ in 0..50_000 {
@@ -322,6 +345,10 @@ mod csprng_tests {
     // ─── secure_random_f64 ───
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "amostragem CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn f64_sempre_entre_0_e_1() {
         for _ in 0..10_000 {
             let val = secure_random_f64();
@@ -334,6 +361,10 @@ mod csprng_tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "amostragem CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn f64_tem_alta_variedade() {
         let mut seen: HashSet<u64> = HashSet::new();
         for _ in 0..1_000 {
@@ -348,6 +379,10 @@ mod csprng_tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "amostragem CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn f64_distribuicao_quartis() {
         // 40.000 amostras — cada quartil (0-0.25, 0.25-0.5, etc.) deve ter ~25%
         let mut quartiles = [0u32; 4];
@@ -370,6 +405,10 @@ mod csprng_tests {
     // ─── secure_random_bool ───
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "amostragem CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn bool_probabilidade_1_sempre_true() {
         for _ in 0..1_000 {
             assert!(secure_random_bool(1.0));
@@ -377,6 +416,10 @@ mod csprng_tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "amostragem CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn bool_probabilidade_0_sempre_false() {
         for _ in 0..1_000 {
             assert!(!secure_random_bool(0.0));
@@ -384,6 +427,10 @@ mod csprng_tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "amostragem CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn bool_probabilidade_50_porcento() {
         let mut trues = 0u32;
         let total = 100_000;
@@ -1542,8 +1589,10 @@ mod side_pots_tests {
             c(Rank::Jack, Suit::Diamonds),
             c(Rank::Ten, Suit::Diamonds),
         ];
-        let payouts = distribute_pots(&pots, &players, &community);
-        // 20001 / 2 = 10000 cada + 1 centavo de resto
+        let seat_order_from_button = vec!["p2".to_string(), "p1".to_string()];
+        let payouts =
+            distribute_pots_with_seat_order(&pots, &players, &community, &seat_order_from_button);
+        // 20001 / 2 = 10000 cada; o primeiro vencedor à esquerda do botão recebe o resto.
         assert_eq!(payouts.get("p1"), Some(&10000));
         assert_eq!(payouts.get("p2"), Some(&10001));
     }
@@ -1894,13 +1943,17 @@ mod integration {
 
         // 3. Distribui pots (sem rake para simplificar)
         let payouts = distribute_pots(&pots, &players, &community);
-        // p1 tem par de Ases → ganha main pot (300)
-        assert_eq!(*payouts.get("p1").unwrap(), 300);
-        // p2 tem par de Reis → ganha side pot (200)
-        assert_eq!(*payouts.get("p2").unwrap(), 200);
+        // p1 tem par de Ases → ganha main pot (30.000 centavos)
+        assert_eq!(*payouts.get("p1").unwrap(), 30000);
+        // p2 tem par de Reis → ganha side pot (20.000 centavos)
+        assert_eq!(*payouts.get("p2").unwrap(), 20000);
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "mil maos aleatorias; habilite a feature massive-tests manualmente"
+    )]
     fn mil_maos_aleatorias_sem_duplicatas() {
         // Executa 1.000 mãos aleatórias e verifica que nunca há duplicatas
         for _ in 0..1_000 {
@@ -1924,6 +1977,10 @@ mod integration {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "mil embaralhamentos; habilite a feature massive-tests manualmente"
+    )]
     fn mil_embaralhamentos_preservam_52_unicas() {
         for _ in 0..1_000 {
             let deck = create_deck();

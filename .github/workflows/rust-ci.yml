@@ -79,14 +79,9 @@ jobs:
             ${{ runner.os }}-cargo-target-
 
       - name: Run tests
-        env:
-          PROPTEST_CASES: 256
-        run: >-
-          cargo test --lib -- --nocapture
-          --skip extreme_fuzz_tests
-          --skip stress_tests
-          --skip stress_integration_tests
-          --skip card_fairness_tests
+        # A feature `massive-tests` não é habilitada na CI. Testes de carga
+        # individuais também permanecem ignored sem essa feature.
+        run: cargo test --lib -- --nocapture
 
   clippy:
     name: Cargo Clippy (Lint)
@@ -179,14 +174,7 @@ jobs:
         run: cargo install cargo-llvm-cov --locked
 
       - name: Generate coverage (lcov)
-        env:
-          PROPTEST_CASES: 256
-        run: >-
-          cargo llvm-cov --lib --lcov --output-path ${{ github.workspace }}/Motor-Rust/lcov.info --
-          --skip extreme_fuzz_tests
-          --skip stress_tests
-          --skip stress_integration_tests
-          --skip card_fairness_tests
+        run: cargo llvm-cov --lib --lcov --output-path ${{ github.workspace }}/Motor-Rust/lcov.info
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
@@ -195,14 +183,7 @@ jobs:
           path: Motor-Rust/lcov.info
 
       - name: Coverage summary
-        env:
-          PROPTEST_CASES: 256
-        run: >-
-          cargo llvm-cov --lib --summary-only --
-          --skip extreme_fuzz_tests
-          --skip stress_tests
-          --skip stress_integration_tests
-          --skip card_fairness_tests
+        run: cargo llvm-cov --lib --summary-only
 
   frontend-check:
     name: Frontend Dioxus — Check + Clippy + Fmt
@@ -295,7 +276,6 @@ jobs:
         working-directory: ./API-Axum
     env:
       DATABASE_URL: postgres://user:password@localhost:5432/poker_db
-      PROPTEST_CASES: 256
     steps:
       - uses: actions/checkout@v4
 

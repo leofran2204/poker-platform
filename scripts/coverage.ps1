@@ -26,7 +26,9 @@ $coverageCommand = @'
 set -euo pipefail
 rustup component add llvm-tools-preview
 cargo install cargo-llvm-cov --locked
-PROPTEST_CASES="${PROPTEST_CASES:-256}" cargo llvm-cov --lib --lcov --output-path target/coverage/lcov.info -- --skip extreme_fuzz_tests --skip stress_tests --skip stress_integration_tests --skip card_fairness_tests
+# A feature `massive-tests` não é habilitada neste script: cargas só rodam por
+# comando manual explícito, com orçamento e ambiente controlados.
+cargo llvm-cov --lib --lcov --output-path target/coverage/lcov.info
 '@
 docker run --rm `
     -v "${ProjectRoot}:/poker" `

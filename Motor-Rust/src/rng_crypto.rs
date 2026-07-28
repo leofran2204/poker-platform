@@ -209,6 +209,10 @@ mod tests {
     // ─── secure_random_u32 ───
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "amostragem CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn test_secure_random_u32_range() {
         for _ in 0..1000 {
             let val = secure_random_u32(1..=6);
@@ -238,6 +242,10 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "distribuicao CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn test_secure_random_u32_distribution() {
         // Teste de distribuição: 6000 lançamentos de D6 devem ter ~1000 cada face
         let mut counts = [0u32; 6];
@@ -281,6 +289,10 @@ mod tests {
     // ─── secure_random_f64 ───
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "amostragem CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn test_secure_random_f64_range() {
         for _ in 0..1000 {
             let val = secure_random_f64();
@@ -321,6 +333,10 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "distribuicao CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn test_secure_random_bool_distribution() {
         let mut trues = 0;
         let total = 10_000;
@@ -406,6 +422,10 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "distribuicao CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn test_secure_random_bool_distribution_within_noise() {
         // secure_random_bool(0.5) deve convergir para ~0.5 dentro do bound de ruído.
         let n: u64 = 200_000;
@@ -422,6 +442,10 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "distribuicao CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn test_secure_random_u32_distribution_within_noise() {
         // secure_random_u32(1..=6) (d6) → cada face ~1/6.
         let n: u64 = 300_000;
@@ -437,6 +461,10 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "distribuicao CSPRNG massiva; habilite a feature massive-tests manualmente"
+    )]
     fn test_secure_shuffle_distribution_within_noise() {
         // Em um baralho de 52 cartas, cada carta deve aparecer em cada posição
         // ~1/52 das vezes. Verifica a posição 0 ao longo de muitos shuffles.

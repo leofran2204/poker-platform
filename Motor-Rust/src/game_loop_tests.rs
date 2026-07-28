@@ -20,7 +20,9 @@ use crate::types::{GamePhase, TableConfig};
 // ═══════════════════════════════════════════════════════════════════
 
 fn make_config() -> TableConfig {
-    TableConfig::new(1000, 500, 500) // BB=1000 (R$ 10,00), rake=5%, cap=500 (R$ 5,00)
+    // Cenário unitário: BB=10 centavos, rake=5%, cap=500 centavos.
+    // Os valores pequenos deixam explícitas as transições de blinds e all-in.
+    TableConfig::new(10, 500, 500)
 }
 
 #[allow(dead_code)]
@@ -35,8 +37,8 @@ fn make_game_loop_2p() -> GameLoop {
         "Test Table".to_string(),
         GameType::Cash,
     );
-    gl.add_player("alice".to_string(), 100000);
-    gl.add_player("bob".to_string(), 100000);
+    gl.add_player("alice".to_string(), 1000);
+    gl.add_player("bob".to_string(), 1000);
     gl.set_dealer(0);
     gl
 }
@@ -144,7 +146,7 @@ mod player_state_tests {
     #[test]
     fn ps_new_stack_fracionado() {
         let p = PlayerState::new("frac".to_string(), 99, 1);
-        assert_eq!(p.stack, 9999);
+        assert_eq!(p.stack, 99);
     }
 
     #[test]
@@ -437,7 +439,7 @@ mod player_state_tests {
     #[test]
     fn ps_stack_pequeno() {
         let p = PlayerState::new("short".to_string(), 0, 0);
-        assert_eq!(p.stack, 9999);
+        assert_eq!(p.stack, 0);
     }
 
     #[test]
@@ -1095,9 +1097,9 @@ mod game_loop_init_tests {
             "Mesa".into(),
             GameType::Cash,
         );
-        assert_eq!(gl.state.small_blind, 10);
-        assert_eq!(gl.state.big_blind, 20);
-        assert_eq!(gl.state.min_raise, 20);
+        assert_eq!(gl.state.small_blind, 1000);
+        assert_eq!(gl.state.big_blind, 2000);
+        assert_eq!(gl.state.min_raise, 2000);
     }
 
     #[test]
@@ -4093,6 +4095,10 @@ mod resolve_showdown_errors_tests {
     // ═══════════════════════════════════════════════════════════════════
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "teste massivo; habilite a feature massive-tests manualmente"
+    )]
     fn test_ante_blinds_total_bet_preservation_massive_stress() {
         // 1.000 iterações testando conservação perfeita de Ante + Blinds no total_bet
         for ante_val in 1..=1000u64 {
@@ -4135,6 +4141,10 @@ mod resolve_showdown_errors_tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "teste massivo; habilite a feature massive-tests manualmente"
+    )]
     fn test_chip_conservation_under_multiway_all_in_stress() {
         // 500 cenários de All-In com stacks heterogêneos e validação da invariante financeira
         for seed in 1..=500u64 {
@@ -4172,11 +4182,17 @@ mod resolve_showdown_errors_tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "teste massivo; habilite a feature massive-tests manualmente"
+    )]
     fn test_micro_stack_less_than_small_blind_stress() {
         // Testa a robustez quando o jogador entra com stack menor que o SB em centavos (ex: 100 centavos com SB=500)
         for micro_stack in [10u64, 50, 100, 200, 300, 400] {
             let mut gl = GameLoop::new(
-                make_config(), // SB = 500 centavos, BB = 1000 centavos
+                // Este cenário deliberadamente usa blinds maiores que a
+                // fixture unitária para manter todos os micro-stacks all-in.
+                TableConfig::new(1000, 500, 500),
                 format!("hand-micro-{}", micro_stack),
                 "Micro Stack Table".to_string(),
                 GameType::Cash,

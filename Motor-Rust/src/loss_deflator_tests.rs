@@ -480,6 +480,10 @@ fn test_tier_percent() {
 // ─── Heads-Up Win Probability ───
 
 #[test]
+#[cfg_attr(
+    not(feature = "massive-tests"),
+    ignore = "Monte Carlo preflop massivo; habilite a feature massive-tests manualmente"
+)]
 fn test_win_prob_aa_vs_kk_preflop() {
     let hero = vec![card(Rank::Ace, Suit::Hearts), card(Rank::Ace, Suit::Spades)];
     let villain = vec![
@@ -494,6 +498,10 @@ fn test_win_prob_aa_vs_kk_preflop() {
 }
 
 #[test]
+#[cfg_attr(
+    not(feature = "massive-tests"),
+    ignore = "Monte Carlo preflop massivo; habilite a feature massive-tests manualmente"
+)]
 fn test_win_prob_ak_vs_qq_preflop() {
     let hero = vec![
         card(Rank::Ace, Suit::Hearts),
@@ -512,6 +520,10 @@ fn test_win_prob_ak_vs_qq_preflop() {
 }
 
 #[test]
+#[cfg_attr(
+    not(feature = "massive-tests"),
+    ignore = "Monte Carlo preflop massivo; habilite a feature massive-tests manualmente"
+)]
 fn test_win_prob_dominated_hands() {
     // AK vs AQ (dominated)
     let hero = vec![
@@ -598,6 +610,10 @@ fn test_win_prob_river_royal_split() {
 }
 
 #[test]
+#[cfg_attr(
+    not(feature = "massive-tests"),
+    ignore = "Monte Carlo preflop massivo; habilite a feature massive-tests manualmente"
+)]
 fn test_win_prob_empty_board() {
     // Verifica que funciona com board vazio (preflop)
     let hero = vec![
@@ -613,6 +629,10 @@ fn test_win_prob_empty_board() {
 }
 
 #[test]
+#[cfg_attr(
+    not(feature = "massive-tests"),
+    ignore = "Monte Carlo preflop massivo; habilite a feature massive-tests manualmente"
+)]
 fn test_win_prob_known_cards_dont_overlap() {
     // Verifica que cartas conhecidas são removidas do baralho
     let hero = vec![card(Rank::Ace, Suit::Hearts), card(Rank::Ace, Suit::Spades)];

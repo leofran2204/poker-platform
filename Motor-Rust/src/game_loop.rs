@@ -937,10 +937,17 @@ impl GameLoop {
         let pots_after_rake = rake_result.pots_after_rake.clone();
 
         // 4. Distribuir os potes pós-rake aos vencedores (em centavos)
-        let mut payouts = side_pots::distribute_pots(
+        let seat_order_from_button: Vec<String> = (1..=self.state.players.len())
+            .map(|offset| {
+                let seat_index = (self.state.dealer_index + offset) % self.state.players.len();
+                self.state.players[seat_index].id.clone()
+            })
+            .collect();
+        let mut payouts = side_pots::distribute_pots_with_seat_order(
             &pots_after_rake,
             &players_for_pots,
             &self.state.community_cards,
+            &seat_order_from_button,
         );
 
         // 5. Loss deflator (em centavos inteiros)
@@ -1345,8 +1352,8 @@ mod tests {
 
         // Alice (SB) calls
         gl.player_action("alice", PlayerMove::Call).unwrap();
-        // Bob (BB) raises to 30
-        gl.player_action("bob", PlayerMove::Raise(30)).unwrap();
+        // Bob (BB) raises para 30,00 (valores em centavos).
+        gl.player_action("bob", PlayerMove::Raise(3000)).unwrap();
         assert_eq!(gl.state.current_bet_to_match, 3000);
 
         // Alice calls the raise

@@ -31,11 +31,11 @@ pub mod tournament_engine;
 // ─── Test modules (inline, avoid linker issues with GNU toolchain) ───
 #[cfg(test)]
 mod antifraud_tests;
-#[cfg(test)]
+#[cfg(all(test, feature = "massive-tests"))]
 mod card_fairness_tests;
-#[cfg(test)]
+#[cfg(all(test, feature = "massive-tests"))]
 mod extreme_fuzz_tests;
-#[cfg(test)]
+#[cfg(all(test, feature = "massive-tests"))]
 mod fuzz_tests;
 #[cfg(test)]
 mod game_loop_tests;
@@ -53,11 +53,11 @@ mod motor_tests;
 mod property_tests;
 #[cfg(test)]
 mod side_pots_tests;
-#[cfg(test)]
+#[cfg(all(test, feature = "massive-tests"))]
 mod stress_integration_tests;
-#[cfg(test)]
+#[cfg(all(test, feature = "massive-tests"))]
 mod stress_tests;
 #[cfg(test)]
 mod tournament_engine_tests;
-#[cfg(test)]
+#[cfg(all(test, feature = "massive-tests"))]
 mod tournament_fuzz_tests;

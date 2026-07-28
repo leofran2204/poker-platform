@@ -14,6 +14,8 @@ cargo install grcov --version 0.10.7 --locked --quiet
 echo "==> Rodando testes com instrumentação de cobertura..."
 export RUSTFLAGS='-C instrument-coverage'
 export LLVM_PROFILE_FILE='target/coverage/raw-%p-%m.profraw'
+# A feature `massive-tests` não é habilitada neste script: cargas só rodam por
+# comando manual explícito, com orçamento e ambiente controlados.
 cargo test --lib --quiet
 
 echo "==> Gerando relatórios de cobertura..."
