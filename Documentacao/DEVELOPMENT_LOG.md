@@ -222,7 +222,7 @@
 
 ### [13] 🔌 Integração API ↔ Front — api_client.rs + ws_client.rs (2026-07-12)
 **O que foi feito:**
-- **`api_client.rs` criado** em `Frontend-Dioxus/src/` — cliente HTTP via `gloo-net 0.6`:
+- **`api_client.rs` criado** em `Frontend-Dioxus/src/` — cliente HTTPS via `gloo-net 0.6`:
   - `api_url(path)` constrói URL completa a partir de `window.location.origin` + path
   - `save_tokens(access, refresh)` / `get_token()` / `get_refresh_token()` / `clear_tokens()` / `is_authenticated()` — persistência via `web_sys::window().local_storage()` (browser-only)
   - `default_headers()` — retorna `Vec<(String, String)>` com `Authorization: Bearer <token>` se autenticado
@@ -232,7 +232,7 @@
   - `refresh_token(refresh)` → `POST /auth/refresh`
   - `logout()` → limpa tokens localmente
   - `health_check()` → `GET /health`
-  - Validação de status HTTP com `(200..300).contains(&status)` (clippy `manual_range_contains`)
+  - Validação de status de resposta HTTPS com `(200..300).contains(&status)` (clippy `manual_range_contains`)
   - 5 testes unitários (3 guardados com `#[cfg(target_arch = "wasm32")]` pois usam `web_sys::window()`)
 - **`ws_client.rs` criado** em `Frontend-Dioxus/src/` — cliente WebSocket via `ws_stream_wasm 0.7.5` + `gloo-net 0.6`:
   - `WsConnectionState` enum (Disconnected/Connecting/Connected/Error/Reconnecting) com `PartialEq`
@@ -339,8 +339,8 @@
 
 ### [09] 🌐 API Axum — REST + WebSocket + JWT + PostgreSQL (2026-07-10)
 **O que foi feito:**
-- **Crate `API-Axum/`** — exposição HTTP/WS do motor para o frontend Dioxus
-- **Stack:** Axum 0.7 (features `ws`, `macros`) + tower-http 0.6 (cors, trace) + sqlx 0.8 (postgres, uuid, chrono, migrate) + tokio 1 + serde 1 + uuid 1 + chrono 0.4 + tracing 0.1 + dotenvy 0.15 + futures-util 0.3
+- **Crate `API-Axum/`** — exposição HTTPS/WSS do motor para o frontend Dioxus
+- **Stack:** Axum 0.7 (features `ws`, `macros`) + middleware CORS/trace 0.6 + sqlx 0.8 (postgres, uuid, chrono, migrate) + tokio 1 + serde 1 + uuid 1 + chrono 0.4 + tracing 0.1 + dotenvy 0.15 + futures-util 0.3
 - **8 endpoints REST públicos:**
   - `POST /auth/register` — registro com bcrypt + JWT
   - `POST /auth/login` — login com JWT (access + refresh)
@@ -386,7 +386,7 @@
 - **Documentação sincronizada:** `DASHBOARD.md`, `CRONOGRAMA.md` (2026-07-10)
 
 ---
-*Próximo passo: API Axum (2.14) — exposição HTTP/WS do motor para o front-end Dioxus.*
+*Próximo passo: API Axum (2.14) — exposição HTTPS/WSS do motor para o front-end Dioxus.*
 
 ---
 

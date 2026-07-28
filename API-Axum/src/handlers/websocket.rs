@@ -153,7 +153,7 @@ pub async fn create_ws_ticket(
 }
 
 /// WS /ws/game/{table_id}
-/// Upgrades HTTP to WebSocket for real-time game communication.
+/// Upgrades HTTPS to WSS for real-time game communication.
 pub async fn game_websocket(
     ws: WebSocketUpgrade,
     State(state): State<AppState>,

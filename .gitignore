@@ -51,3 +51,6 @@ Motor-Rust/target/
 08-Motor-Rust/target/
 proptest-regressions/
 *.proptest-regressions
+
+# Relatórios locais da validação manual de carga
+artifacts/full-validation/

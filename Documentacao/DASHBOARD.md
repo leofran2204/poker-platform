@@ -1,6 +1,6 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-28 | **Status:** S07 — revisão de segurança, arquitetura e validação WSL em curso.
+**Atualizado:** 2026-07-28 | **Status:** S07 — revisão de segurança, arquitetura e validação WSL/gateway HTTPS em curso.
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📅 O cronograma completo está em `Documentacao/CRONOGRAMA.md` — veja prazos, fases e % de conclusão.
@@ -29,7 +29,7 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | 1 | **Código compila sem erros** | `cargo check` — 0 erros |
 | 2 | **Zero warnings** | `cargo check` — 0 warnings |
 | 3 | **Testes de rotina passam** | `cargo test` — apenas a suíte determinística e rápida, sem carga probabilística implícita |
-| 4 | **Cargas de validação** | `cargo test --lib --features massive-tests` — somente acionamento manual, com orçamento e ambiente controlados |
+| 4 | **Cargas de validação** | `scripts/full-validation.*` — 100 cenários centrais, somente após autorização explícita e com relatório de duração/carga/status; gateway Caddy validado por `verify-public-https.sh` |
 | 5 | **Documentação atualizada** | `DASHBOARD.md` + `README.md` + `DEVELOPMENT_LOG.md` |
 | 6 | **Regras de negócio respeitadas** | Conforme `BUSINESS_RULES.md` |
 | 7 | **Padrões de qualidade** | Conforme `QUALITY.md` |
@@ -72,7 +72,7 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | RT  | **Módulo Antifraude (IA/ML), Métricas Prometheus & Simulação Red Team** — 1) Módulo `antifraud_engine.rs` no Motor Rust com `BotDetector` (análise de variância de tempo de reação) + `CollusionDetector` + `RiskScore`; 2) Endpoints `/api/metrics` (Prometheus) e `/api/health/security` no Axum; 3) Suíte autônoma de Red Team (`red_team_simulation_tests.rs`) validando repulsa a brute-force, JWT tampering e WS injection (4/4 testes ✅). Total plataforma: **2.044 testes passando** (0 falhas, 0 clippy warnings). | 2026-07-22 |
 | SEC | **Hardening de Segurança Enterprise ("Fortaleza Híbrida")** — 1) Security Headers OWASP no Caddyfile (HSTS, CSP, X-Frame-Options, X-Content-Type-Options); 2) Container Hardening (`docker-compose.yml` e `API-Axum/Dockerfile` com `USER 10001`, `cap_drop: ALL`, `read_only: true`, `no-new-privileges:true`, `tmpfs`); 3) DevSecOps Trivy Vulnerability Scanner no CI/CD (`rust-ci.yml`). `cargo clippy` ✅ (0 warnings), **2.036 testes passando** ✅. | 2026-07-22 |
 | FZ  | **Fuzzing Dinâmico & Estresse no Frontend Dioxus (`Frontend-Dioxus`)** — 10 funções de Fuzzing baseadas em propriedades (`fuzz_tests.rs`) + 10.000 mutações de estado em rajada (`state_stress_tests.rs`). Descoberto e corrigido caso limite Unicode com expansão de caracteres turcos `İ` (`to_lowercase()`). Total Frontend: **115 suítes de testes passando** (0 falhas, 0 clippy warnings). | 2026-07-22 |
-| ST  | **Fuzzing HTTP Massivo & Estresse da API Axum (`API-Axum`)** — `api_fuzz_tests.rs` expandido para 10 funções de Fuzzing HTTP cobrindo 100% dos endpoints REST sob 2.000 iterações por função (`552.17s`). 600 operações WS simultâneas sem deadlock e 30 cadastros/transações paralelas com bcrypt/JWT no PostgreSQL. Total API: **34 suítes de testes passando** (0 falhas, 0 clippy warnings). | 2026-07-22 |
+| ST  | **Fuzzing HTTPS Massivo & Estresse da API Axum (`API-Axum`)** — `api_fuzz_tests.rs` expandido para 10 funções de fuzzing cobrindo 100% dos endpoints REST expostos via HTTPS sob 2.000 iterações por função (`552.17s`). 600 operações WSS simultâneas sem deadlock e 30 cadastros/transações paralelas com bcrypt/JWT no PostgreSQL. Total API: **34 suítes de testes passando** (0 falhas, 0 clippy warnings). | 2026-07-22 |
 | DB  | **Testes de Integração PostgreSQL (Opção 2)** — `api_tests.rs` ativado com banco PostgreSQL real (container `poker_postgres`). 5/5 testes de contrato passando (`register_login_flow`, `duplicate_409`, `invalid_credentials_401`, `lobby_join`, `hand_history_404`). Fix no gerador `generate_uuid_v4()` (`4{:01x}`). | 2026-07-22 |
 | DOC | **Orquestração Docker Stack & Proxy HTTPS Caddy (Opção 3)** — Stack completa com 6 containers (PostgreSQL, Redis, Zookeeper, Kafka, API Axum, Frontend Dioxus Caddy) rodando e comunicando via HTTPS/TLS auto-assinado (`https://localhost`). Teste E2E de registro com emissão de JWT passando via proxy (`200 OK`). | 2026-07-22 |
 | 5   | **Fuzz & Property Tests (`fuzz_tests.rs`)** — Estratégias `proptest` para `rake`, `side_pots`, `loss_deflator`, `auth` JWT e `hand_history` JSON. 6 suítes adicionadas. `cargo clippy` ✅ (0 warnings), `cargo test` ✅ (**1.880 testes no Motor-Rust**). | 2026-07-21 |
@@ -110,16 +110,16 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | —   | `Infraestrutura-Docker` | Docker, Caddy, deploy, CI/CD                                                                                             | ✅ Ativo                  |
 | —   | `Documentacao`       | Regras, dashboard, cronograma, log de desenvolvimento, guia de aprendizado                                                | ✅ Ativo                  |
 | —   | `Arquitetura-Motor`  | Arquitetura alvo (Rust puro)                                                                                              | ✅ Ativo                  |
-| —   | **`Motor-Rust`**     | **Motor de jogo em Rust (deck, side_pots, loss_deflator, rake, rng_crypto, hand_history, tournament_engine, auth, lobby + 4 antifraude)**     | **✅ Ativo — 1.903 testes — Cobertura: 98,10% (≥98% mantido)** |
-| —   | **`Frontend-Dioxus`** | **Front-end WebAssembly com Dioxus — Roteamento + 15 componentes integrados via WS + Caddy Proxy com HTTPS**            | **✅ Ativo — 115 testes — 100%** |
-| —   | **`API-Axum`**       | **API HTTP/WS com Axum 0.7 e Atores (`TableActor`) + PostgreSQL via sqlx 0.8**                                             | **✅ Ativo — 34 testes — 100%** |
+| —   | **`Motor-Rust`**     | **Motor de jogo em Rust (deck, side_pots, loss_deflator, rake, rng_crypto, hand_history, tournament_engine, auth, lobby + 4 antifraude)**     | **✅ Ativo — 1.813 rotina / 1.892 no perfil autorizado** |
+| —   | **`Frontend-Dioxus`** | **Front-end WebAssembly com Dioxus — Roteamento + 15 componentes integrados via WSS + Caddy Proxy com HTTPS**            | **✅ Ativo — validado pelo perfil manual** |
+| —   | **`API-Axum`**       | **API HTTPS/WSS pública em Axum 0.7 e Atores (`TableActor`) + PostgreSQL via sqlx 0.8**                                  | **✅ Ativo — testes funcionais e de carga no perfil manual** |
 
 ---
 
 ## 🔄 Comandos Rápidos — Build, Testes e Deploy
 
 ```bash
-# Testar motor Rust (1.903 testes)
+# Testar motor Rust (1.813 testes determinísticos)
 cd Motor-Rust && cargo +stable-x86_64-pc-windows-gnu test --lib
 
 # Build motor Rust (0 warnings)

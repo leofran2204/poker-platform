@@ -20,11 +20,11 @@ use sha1::Sha1;
 /// Os testes unitários exercitam repetidamente registro, login e bloqueio de
 /// conta. Reduzimos o custo somente no binário compilado com `cfg(test)` para
 /// manter o feedback rápido, sem alterar o hash usado pela API em produção.
-#[cfg(test)]
+#[cfg(any(test, feature = "test-fast-bcrypt"))]
 const BCRYPT_COST: u32 = 4;
 
 /// Custo bcrypt de produção (12 rounds — segurança para credenciais reais).
-#[cfg(not(test))]
+#[cfg(not(any(test, feature = "test-fast-bcrypt")))]
 const BCRYPT_COST: u32 = 12;
 
 /// Tempo de vida do JWT em segundos (15 minutos)

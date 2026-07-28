@@ -37,5 +37,5 @@ WORKDIR /usr/share/caddy
 # Copia os arquivos compilados estáticos do Dioxus (HTML, WASM, CSS, Assets)
 COPY --from=builder /app/Frontend-Dioxus/dist .
 
-# Copia o Caddyfile para gerenciar as rotas e HTTPS
-COPY Frontend-Dioxus/Caddyfile /etc/caddy/Caddyfile
+# Usa o Caddyfile canônico da infraestrutura para gerenciar rotas e HTTPS.
+COPY Infraestrutura-Docker/Caddyfile /etc/caddy/Caddyfile

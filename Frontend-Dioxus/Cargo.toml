@@ -30,6 +30,8 @@ web-sys = { version = "0.3", features = ["Storage", "Window", "AudioContext", "A
 [features]
 default = []
 web = []
+# Fuzzing e stress de estado: somente na validação manual autorizada.
+full-validation = []
 
 [dev-dependencies]
 proptest = "1.5"

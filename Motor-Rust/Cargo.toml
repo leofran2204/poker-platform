@@ -7,6 +7,9 @@ edition = "2021"
 # Suítes probabilísticas/de carga. Nunca são habilitadas pela CI ou pelo
 # `cargo test` padrão; exigem acionamento manual e ambiente com orçamento.
 massive-tests = []
+# Permite que crates consumidores usem bcrypt barato apenas em perfis de teste
+# explícitos; builds de produção continuam em 12 rounds.
+test-fast-bcrypt = []
 
 [dependencies]
 rand = "0.8"

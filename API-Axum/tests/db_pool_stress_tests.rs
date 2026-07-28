@@ -13,6 +13,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tower::ServiceExt;
+use uuid::Uuid;
 
 /// Cria um AppState conectado a uma instância PostgreSQL real
 async fn make_real_db_state(pool: sqlx::PgPool) -> AppState {
@@ -53,16 +54,15 @@ async fn test_high_concurrency_db_user_registration() {
     const NUM_CONCURRENT_USERS: usize = 30;
     let mut handles = Vec::with_capacity(NUM_CONCURRENT_USERS);
 
-    let start_time = std::time::Instant::now();
+    // Mantém cada lote identificável e removível, sem deixar usuários de
+    // stress acumulados no banco local entre execuções autorizadas.
+    let run_id = Uuid::new_v4().simple().to_string();
+    let username_prefix = format!("stress_{}", &run_id[..12]);
 
     for i in 0..NUM_CONCURRENT_USERS {
         let app = build_router(state.clone());
-        let username = format!("stress_user_{}_{}", i, start_time.elapsed().as_nanos());
-        let email = format!(
-            "stress_{}_{}@example.com",
-            i,
-            start_time.elapsed().as_nanos()
-        );
+        let username = format!("{username_prefix}_{i}");
+        let email = format!("{username_prefix}_{i}@example.com");
 
         handles.push(tokio::spawn(async move {
             let req_body = json!({
@@ -96,6 +96,12 @@ async fn test_high_concurrency_db_user_registration() {
             success_count += 1;
         }
     }
+
+    sqlx::query("DELETE FROM users WHERE username LIKE $1")
+        .bind(format!("{username_prefix}_%"))
+        .execute(&state.db)
+        .await
+        .expect("Falha ao remover usuários criados pelo stress test");
 
     assert_eq!(
         success_count, NUM_CONCURRENT_USERS,
@@ -132,7 +138,7 @@ async fn test_concurrency_hand_history_persistence() {
             let pot = (1000 + i * 50) as i64;
             let rake = (50 + i) as i64;
 
-            sqlx::query(
+            let result = sqlx::query(
                 r#"
                 INSERT INTO hand_history
                     (id, hand_number, game_type, small_blind, big_blind, pot_total, rake_collected, end_reason, created_at)
@@ -145,20 +151,30 @@ async fn test_concurrency_hand_history_persistence() {
             .bind(rake)
             .bind((start_ns / 1_000_000_000) as i64)
             .execute(&pool_clone)
-            .await
+            .await;
+
+            (hand_id, result)
         }));
     }
 
     let mut inserted_count = 0;
+    let mut inserted_ids = Vec::with_capacity(NUM_HANDS);
     for handle in handles {
-        let res = handle.await.unwrap();
+        let (hand_id, res) = handle.await.unwrap();
         assert!(
             res.is_ok(),
             "Falha ao gravar historico de mão: {:?}",
             res.err()
         );
         inserted_count += 1;
+        inserted_ids.push(hand_id);
     }
+
+    sqlx::query("DELETE FROM hand_history WHERE id = ANY($1)")
+        .bind(&inserted_ids)
+        .execute(&pool)
+        .await
+        .expect("Falha ao remover históricos criados pelo stress test");
 
     assert_eq!(inserted_count, NUM_HANDS);
 }

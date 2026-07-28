@@ -226,9 +226,9 @@ No nosso código, o **`game_actor.rs`** (em `API-Axum/src/`) funciona exatamente
 
 ---
 
-### 🔌 2. WebSockets vs HTTP (Comunicação em Tempo Real)
+### 🔌 2. WebSockets Seguros vs HTTPS (Comunicação em Tempo Real)
 
-Quando você navega em um site de notícias, seu navegador faz uma pergunta e o servidor responde (isso é HTTP REST — um ciclo de pergunta e resposta curta). Mas no Poker, as coisas acontecem muito rápido! Se um jogador apostar, você precisa ver a aposta na sua tela imediatamente, sem ter que ficar atualizando a página.
+Quando você navega em um site de notícias, seu navegador faz uma pergunta segura e o servidor responde (isso é HTTPS REST — um ciclo de pergunta e resposta curta). Mas no Poker, as coisas acontecem muito rápido! Se um jogador apostar, você precisa ver a aposta na sua tela imediatamente, sem ter que ficar atualizando a página.
 
 *   O **WebSocket** cria um "túnel aberto" bidirecional. O navegador e o servidor ficam de mãos dadas. Qualquer um dos dois pode enviar dados a qualquer momento.
 *   No **`websocket.rs`** (em `API-Axum/src/handlers/`), assim que o túnel é aberto, nós conectamos o walkie-talkie do jogador ao Dealer da mesa correspondente.
@@ -276,7 +276,7 @@ O **Caddy** funciona como a portaria de um condomínio de prédios:
 
 ### 🚀 Como aprender testando na prática?
 
-1. Abra o arquivo `Caddyfile` (em `Frontend-Dioxus/`) e veja como as regras de proxy reverso são fáceis de ler.
+1. Abra o arquivo `Infraestrutura-Docker/Caddyfile` e veja como as regras de proxy reverso são fáceis de ler.
 2. Abra o `websocket.rs` (em `API-Axum/src/handlers/`) e encontre a função `filter_table_state`. Modifique-a temporariamente e tente entender como ela protege o fluxo de dados.
 3. Suba a stack com `docker-compose up -d` e acompanhe os logs dos containers no Docker Desktop para ver as mensagens trafegando em tempo real.
 

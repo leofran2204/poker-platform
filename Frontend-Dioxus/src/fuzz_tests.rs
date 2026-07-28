@@ -55,7 +55,7 @@ proptest! {
         prop_assert!(!sym.is_empty());
         prop_assert!(!lbl.is_empty());
         let color_cls = card.suit.color_class();
-        prop_assert!(color_cls == "text-red-500" || color_cls == "text-white");
+        prop_assert!(color_cls == "text-red-600" || color_cls == "text-gray-900");
     }
 }
 
@@ -64,7 +64,7 @@ proptest! {
     #![proptest_config(get_proptest_config())]
     #[test]
     fn fuzz_pot_formatting_invariants(
-        amount in 1u32..1_000_000u32,
+        amount in 1u64..1_000_000u64,
         label_id in 0..5u32,
     ) {
         let label = format!("Pote {}", label_id);
@@ -79,7 +79,7 @@ proptest! {
     #![proptest_config(get_proptest_config())]
     #[test]
     fn fuzz_avatar_player_status(
-        chips in 0.0..100_000_000.0f64,
+        chips in 0u64..100_000_000u64,
         status_idx in 0..5u8,
         pos_idx in 0..3u8,
     ) {
@@ -97,7 +97,7 @@ proptest! {
         };
         let status_str = format!("{:?}", status);
         prop_assert!(!status_str.is_empty());
-        prop_assert!(chips >= 0.0);
+        prop_assert!(chips < 100_000_000);
         let _ = position;
     }
 }
@@ -107,9 +107,9 @@ proptest! {
     #![proptest_config(get_proptest_config())]
     #[test]
     fn fuzz_action_button_state(
-        min_raise in 1.0..10_000.0f64,
-        max_raise in 10000.0..1_000_000.0f64,
-        current_bet in 1.0..1_000_000.0f64,
+        min_raise in 1u64..10_000u64,
+        max_raise in 10_000u64..1_000_000u64,
+        current_bet in 1u64..1_000_000u64,
     ) {
         let min_val = min_raise.min(max_raise);
         let max_val = min_raise.max(max_raise);

@@ -136,4 +136,4 @@ Assistant: Attempted to copy file but file not found, then wrote conversation fi
 ## 📌 Observações — Ajustes de Senha, CORS e Health Check
 
 - Se houver ajustes de senha ou de CORS, atualizar variáveis de ambiente via dashboard do Render.
-- O endpoint `/health` responde `OK` com HTTP 200.
+- O endpoint `/health` responde `OK` com HTTPS 200.

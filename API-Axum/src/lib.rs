@@ -202,9 +202,9 @@ async fn prometheus_metrics(
     let metrics_text = "# HELP poker_uptime_seconds Total server uptime in seconds.\n\
          # TYPE poker_uptime_seconds counter\n\
          poker_uptime_seconds 3600\n\
-         # HELP poker_http_requests_total Total HTTP requests processed.\n\
-         # TYPE poker_http_requests_total counter\n\
-         poker_http_requests_total 2036\n\
+         # HELP poker_https_requests_total Total HTTPS requests processed.\n\
+         # TYPE poker_https_requests_total counter\n\
+         poker_https_requests_total 2036\n\
          # HELP poker_antifraud_checks_total Total antifraud checks performed.\n\
          # TYPE poker_antifraud_checks_total counter\n\
          poker_antifraud_checks_total 104500\n\

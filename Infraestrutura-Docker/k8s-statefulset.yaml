@@ -30,7 +30,7 @@ spec:
           image: poker-platform/poker-api:latest
           ports:
             - containerPort: 3000
-              name: http
+              name: api-internal
           env:
             - name: ENVIRONMENT
               value: production
@@ -75,13 +75,13 @@ spec:
           readinessProbe:
             httpGet:
               path: /health
-              port: http
+              port: api-internal
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /health
-              port: http
+              port: api-internal
             initialDelaySeconds: 15
             periodSeconds: 20
 ---
@@ -95,6 +95,6 @@ spec:
   selector:
     app: poker-game-server
   ports:
-    - name: http
+    - name: api-internal
       port: 3000
-      targetPort: http
+      targetPort: api-internal

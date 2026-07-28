@@ -23,19 +23,31 @@
 		-Server
 	}
 
-	# Encaminha chamadas de API e WebSockets para o container poker_api
-	reverse_proxy /api/* poker_api:3000
-	reverse_proxy /ws/* poker_api:3000 {
-		header_up Host {host}
+	# Handlers explícitos são processados antes do fallback da SPA. Assim, as
+	# rotas de plataforma não podem ser reescritas para index.html.
+	handle /caddy-health {
+		respond "OK" 200
 	}
 
-	# Health check direto do gateway
-	respond /caddy-health "OK" 200
+	# A API não publica porta no host: este é o único caminho público.
+	handle /api/* {
+		reverse_proxy poker_api:3000
+	}
 
-	# Serve os arquivos estáticos compilados do Dioxus WASM
-	root * /usr/share/caddy
-	file_server
+	handle /ws/* {
+		reverse_proxy poker_api:3000 {
+			header_up Host {host}
+		}
+	}
 
-	# Fallback para index.html (suporte a Single Page Application & Dioxus Router)
-	try_files {path} /index.html
+	handle /health {
+		reverse_proxy poker_api:3000
+	}
+
+	# Fallback para index.html (Single Page Application e Dioxus Router).
+	handle {
+		root * /usr/share/caddy
+		try_files {path} /index.html
+		file_server
+	}
 }

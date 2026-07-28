@@ -3,7 +3,7 @@
 > **Foco:** Módulos com cobertura insuficiente identificados após Fase 1 (883 testes).
 > **Estratégia:** Metas ousadas em quantidade e complexidade — cobrir todas as combinações possíveis de estados, transições, edge cases e cenários de erro. Multiplicação por 8× sobre a base inicial.
 
-> **Nota de execução (2026-07-28):** os totais nesta página são metas e registros históricos, não um gate de release. A rotina e a CI executam somente testes determinísticos e rápidos. Fuzzing, stress, fairness estatística, Monte Carlo preflop e amostragens CSPRNG de alta densidade exigem a feature opt-in `massive-tests`, acionada manualmente e com orçamento/ambiente controlados: `cargo test --lib --features massive-tests`.
+> **Nota de execução (2026-07-28):** os totais nesta página são metas e registros históricos, não um gate de release. A CI executa somente testes determinísticos e rápidos. A validação completa autorizada concentra 100 cenários centrais de carga (79 do motor, 10 da API HTTPS, 10 frontend e 1 WSS de 1.000.800 mensagens), além dos testes funcionais de plataforma. Consulte `FULL_VALIDATION.md`.
 
 ---
 
@@ -124,7 +124,12 @@ Exemplo:
 
 ---
 
-## 🎉 Resultados Finais — Fase 2 Concluída (2026-07-16)
+## 🎉 Resultados Históricos — Fase 2 Concluída (2026-07-16)
+
+> Os valores desta seção e das fases seguintes são registros datados, não a
+> contagem corrente. A referência operacional atual é **1.813 testes
+> determinísticos do motor**; o perfil autorizado executa esses testes mais
+> **79 cenários de carga**, totalizando **1.892**. Veja `FULL_VALIDATION.md`.
 
 Com a injeção massiva de testes usando scripts paramétricos para cobrir todas as combinações (Fase 2), o Motor Rust obteve os seguintes resultados:
 
@@ -134,7 +139,7 @@ Com a injeção massiva de testes usando scripts paramétricos para cobrir todas
 
 ---
 
-## 🚀 Fase 2.1 — Integração, Stress, Fairness de Cartas + CI/CD (2026-07-20)
+## 🚀 Registro Histórico: Fase 2.1 — Integração, Stress, Fairness de Cartas + CI/CD (2026-07-20)
 
 Após a Fase 2, foram adicionados testes de integração entre módulos, stress massivo e validação estatística de fairness de cartas, além de pipeline CI/CD. Tolerância de ruído adotada em todo o motor: **0,5% (0,005)**.
 
@@ -153,7 +158,7 @@ Após a Fase 2, foram adicionados testes de integração entre módulos, stress 
 
 ---
 
-## 🏆 Fase 2.2 — Fuzzing Extremo, WS Stress & Finalização Mestre (2026-07-25)
+## 🏆 Registro Histórico: Fase 2.2 — Fuzzing Extremo, WS Stress & Finalização Mestre (2026-07-25)
 
 Com as últimas expansões de testes de estresse e segurança na Sprint S04 & S05, as metas globais de qualidade e testes foram 100% batidas:
 
@@ -166,7 +171,7 @@ Com as últimas expansões de testes de estresse e segurança na Sprint S04 & S0
 
 ---
 
-## 🛡️ Fase 2.3 — Hardening de Segurança, Concorrência RwLock & Idempotência PIX (2026-07-25)
+## 🛡️ Registro Histórico: Fase 2.3 — Hardening de Segurança, Concorrência RwLock & Idempotência PIX (2026-07-25)
 
 Saneamento completo de todas as vulnerabilidades e bugs apontados no Parecer Técnico:
 
@@ -178,7 +183,7 @@ Saneamento completo de todas as vulnerabilidades e bugs apontados no Parecer Té
 
 ---
 
-## 💵 Fase 2.4 — Migração Arquitetural Estrita para `u64` Centavos Inteiros (2026-07-25)
+## 💵 Registro Histórico: Fase 2.4 — Migração Arquitetural Estrita para `u64` Centavos Inteiros (2026-07-25)
 
 * **Refatoração Monetária Mestre:** Substituição completa de `f64` por `u64` centavos inteiros nos tipos de saldos, apostas, stacks, potes, rake, buy-in e blinds em todos os crates (`Motor-Rust`, `API-Axum`, `Frontend-Dioxus`).
 * **Zero Erros Flutuantes:** Eliminação completa de drifts de arredondamento IEEE-754 em divisões de pote.

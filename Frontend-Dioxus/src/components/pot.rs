@@ -87,14 +87,14 @@ mod tests {
             PotEntry::new("Side 1".to_string(), 300),
             PotEntry::new("Side 2".to_string(), 200),
         ];
-        let total: u32 = pots.iter().map(|p| p.amount).sum();
+        let total: u64 = pots.iter().map(|p| p.amount).sum();
         assert_eq!(total, 1000);
     }
 
     #[test]
     fn test_empty_pot() {
         let pots: Vec<PotEntry> = vec![];
-        let total: u32 = pots.iter().map(|p| p.amount).sum();
+        let total: u64 = pots.iter().map(|p| p.amount).sum();
         assert_eq!(total, 0);
     }
 }

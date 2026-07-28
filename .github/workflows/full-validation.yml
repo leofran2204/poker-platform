@@ -1,0 +1,126 @@
+name: Full Validation (Manual Authorization)
+
+on:
+  workflow_dispatch:
+    inputs:
+      approved:
+        description: "Confirma a execução da carga intensa"
+        required: true
+        type: choice
+        options: ["no", "yes"]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+
+jobs:
+  motor:
+    name: Motor — 79 cenários de carga
+    if: inputs.approved == 'yes'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Motor-Rust
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run routine and massive scenarios
+        env:
+          FULL_VALIDATION_APPROVED: "1"
+          FULL_VALIDATION_REPORT_DIR: ${{ github.workspace }}/artifacts/full-validation
+        run: bash ../scripts/full-validation.sh motor
+      - name: Upload workload metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-validation-metrics-motor
+          path: artifacts/full-validation
+          if-no-files-found: warn
+
+  api:
+    name: API HTTPS — handlers, WebSocket and security
+    if: inputs.approved == 'yes'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: poker_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: ./API-Axum
+    env:
+      DATABASE_URL: postgres://user:password@localhost:5432/poker_db
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Apply PostgreSQL migrations
+        run: |
+          for migration in migrations/*.sql; do
+            PGPASSWORD=password psql --host localhost --username user --dbname poker_db --file "$migration"
+          done
+      - name: Run API validation profile
+        env:
+          FULL_VALIDATION_APPROVED: "1"
+          FULL_VALIDATION_REPORT_DIR: ${{ github.workspace }}/artifacts/full-validation
+          API_FUZZ_CASES: "2000"
+        run: bash ../scripts/full-validation.sh api
+      - name: Upload workload metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-validation-metrics-api
+          path: artifacts/full-validation
+          if-no-files-found: warn
+
+  frontend:
+    name: Frontend — fuzz and state stress
+    if: inputs.approved == 'yes'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Frontend-Dioxus
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run routine and full validation scenarios
+        env:
+          FULL_VALIDATION_APPROVED: "1"
+          FULL_VALIDATION_REPORT_DIR: ${{ github.workspace }}/artifacts/full-validation
+        run: bash ../scripts/full-validation.sh frontend
+      - name: Upload workload metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-validation-metrics-frontend
+          path: artifacts/full-validation
+          if-no-files-found: warn
+
+  public_gateway:
+    name: Gateway público HTTPS/WSS — Caddy E2E
+    if: inputs.approved == 'yes'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start hardened local stack
+        run: |
+          cp Infraestrutura-Docker/.env.example Infraestrutura-Docker/.env
+          docker compose -f Infraestrutura-Docker/docker-compose.yml up -d --build
+      - name: Verify HTTPS, HSTS, redirect and WSS handshake
+        env:
+          PUBLIC_GATEWAY_URL: https://localhost
+          PUBLIC_GATEWAY_INSECURE_LOCAL_CERT: "1"
+        run: bash scripts/verify-public-https.sh
+      - name: Collect container logs on failure
+        if: failure()
+        run: docker compose -f Infraestrutura-Docker/docker-compose.yml logs --no-color
+      - name: Stop local stack
+        if: always()
+        run: docker compose -f Infraestrutura-Docker/docker-compose.yml down -v

@@ -8,7 +8,7 @@ use crate::components::pot::PotEntry;
 fn test_rapid_table_phase_transitions_stress() {
     const NUM_PHASES: usize = 10_000;
 
-    let mut current_pot = 0u32;
+    let mut current_pot = 0u64;
     let mut community_cards = Vec::new();
 
     for step in 0..NUM_PHASES {
@@ -55,11 +55,11 @@ fn test_rapid_multi_pot_updates_stress() {
         pots.clear();
         let num_pots = (step % 5) + 1;
         for p in 0..num_pots {
-            pots.push(PotEntry::new(format!("Pote {}", p), (100 * (p + 1)) as u32));
+            pots.push(PotEntry::new(format!("Pote {}", p), (100 * (p + 1)) as u64));
         }
 
         assert_eq!(pots.len(), num_pots);
-        let total_pot_sum: u32 = pots.iter().map(|p| p.amount).sum();
+        let total_pot_sum: u64 = pots.iter().map(|p| p.amount).sum();
         assert!(total_pot_sum > 0);
     }
 }

@@ -3,6 +3,11 @@ name = "poker-api"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+# Perfis de carga executados apenas pela rotina manual autorizada. O custo
+# reduzido de bcrypt vale exclusivamente para o binário de teste da API.
+full-validation = ["poker-engine/test-fast-bcrypt"]
+
 [dependencies]
 # ── Motor (workspace path dependency) ──
 poker-engine = { path = "../Motor-Rust" }
@@ -40,7 +45,37 @@ sha2 = "0.10"
 [dev-dependencies]
 # Test utilities for tower services (oneshot, ready, etc.)
 tower = { version = "0.5", features = ["util"] }
-# Utilities for reading HTTP body in tests
+# Utilities for reading API response bodies in tests
 http-body-util = "0.1"
 # Property-based fuzz testing
 proptest = "1.5"
+
+[[test]]
+name = "api_fuzz_tests"
+path = "tests/api_fuzz_tests.rs"
+required-features = ["full-validation"]
+
+[[test]]
+name = "ws_stress_tests"
+path = "tests/ws_stress_tests.rs"
+required-features = ["full-validation"]
+
+[[test]]
+name = "ws_network_jitter_tests"
+path = "tests/ws_network_jitter_tests.rs"
+required-features = ["full-validation"]
+
+[[test]]
+name = "concurrency_ws_tests"
+path = "tests/concurrency_ws_tests.rs"
+required-features = ["full-validation"]
+
+[[test]]
+name = "actor_disconnect_stress_tests"
+path = "tests/actor_disconnect_stress_tests.rs"
+required-features = ["full-validation"]
+
+[[test]]
+name = "db_pool_stress_tests"
+path = "tests/db_pool_stress_tests.rs"
+required-features = ["full-validation"]

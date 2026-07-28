@@ -1,7 +1,7 @@
-//! Cliente HTTP para a API Axum.
+//! Cliente HTTPS para a API Axum.
 //!
 //! Fornece funções tipadas para todos os endpoints REST da API.
-//! Usa `gloo-net` para requisições HTTP no navegador (WASM).
+//! Usa `gloo-net` para requisições HTTPS no navegador (WASM).
 //!
 //! # URLs
 //!
@@ -165,7 +165,7 @@ fn default_headers() -> Vec<(&'static str, String)> {
     headers
 }
 
-/// Processa a resposta HTTP, retornando o JSON tipado ou um erro.
+/// Processa a resposta HTTPS, retornando o JSON tipado ou um erro.
 async fn handle_response<T: DeserializeOwned>(res: Response) -> Result<T, String> {
     let status = res.status();
     if (200..300).contains(&status) {
@@ -178,7 +178,7 @@ async fn handle_response<T: DeserializeOwned>(res: Response) -> Result<T, String
         if let Ok(err) = serde_json::from_str::<ErrorResponse>(&body) {
             Err(err.error)
         } else {
-            Err(format!("Erro HTTP {status}: {body}"))
+            Err(format!("Erro HTTPS {status}: {body}"))
         }
     }
 }
@@ -370,7 +370,7 @@ mod tests {
     fn test_api_url_format() {
         let url = api_url("/api/auth/login");
         assert!(url.contains("/api/auth/login"));
-        assert!(url.starts_with("http"));
+        assert!(url.starts_with("https://"));
     }
 
     #[test]

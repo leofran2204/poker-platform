@@ -1,7 +1,7 @@
 // API Axum — main entry point
 //
 // Wires all routes, initializes DB pool, runs migrations, sets up CORS,
-// tracing, and starts the HTTP server.
+// tracing, and starts the API served publicamente via HTTPS.
 //
 // The router construction logic lives in `lib.rs` (`poker_api::build_router`)
 // so that integration tests can reuse it without binding a TCP port.
@@ -20,7 +20,7 @@ use poker_api::state::AppState;
 /// Parses the CORS allow-list and accepts only browser origins protected by TLS.
 ///
 /// The API is public only behind an HTTPS-terminating reverse proxy. Accepting
-/// an HTTP origin here would allow a browser served over an insecure transport
+/// an origin without HTTPS here would allow a browser served over an insecure transport
 /// to make authenticated API requests.
 fn parse_https_cors_origins(cors_origins: &str) -> Result<Vec<HeaderValue>, String> {
     let origins: Vec<HeaderValue> = cors_origins

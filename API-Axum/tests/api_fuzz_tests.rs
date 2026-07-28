@@ -1,4 +1,4 @@
-// api_fuzz_tests.rs — Suíte de fuzzing determinística de endpoints HTTP/REST.
+// api_fuzz_tests.rs — Suíte property-based de fuzzing de endpoints HTTPS/REST.
 // Cargas massivas devem definir PROPTEST_CASES explicitamente e rodar fora do CI regular.
 
 use axum::body::Body;
@@ -7,21 +7,33 @@ use poker_api::build_router;
 use poker_api::state::AppState;
 use poker_engine::auth::AuthManager;
 use proptest::prelude::*;
+use proptest::test_runner::FileFailurePersistence;
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 use tokio::sync::RwLock;
 use tower::ServiceExt;
 
-fn make_test_state() -> AppState {
+/// Compartilha apenas o pool entre casos de fuzz. Cada caso ainda recebe seu
+/// próprio estado de auth/rate limiting, evitando que uma entrada contamine a
+/// próxima, sem abrir milhares de conexões PostgreSQL idênticas.
+fn test_db_pool() -> sqlx::PgPool {
+    static DB_POOL: OnceLock<sqlx::PgPool> = OnceLock::new();
+
     let url = std::env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://unused:unused@localhost:5432/unused".to_string());
-    let db = sqlx::postgres::PgPoolOptions::new()
-        .max_connections(1)
-        .connect_lazy(&url)
-        .unwrap();
+    DB_POOL
+        .get_or_init(|| {
+            sqlx::postgres::PgPoolOptions::new()
+                .max_connections(1)
+                .connect_lazy(&url)
+                .expect("DATABASE_URL de teste inválida")
+        })
+        .clone()
+}
 
+fn make_test_state() -> AppState {
     AppState {
-        db,
+        db: test_db_pool(),
         auth: Arc::new(RwLock::new(AuthManager::new(
             "fuzz-test-jwt-secret-key-32chars",
         ))),
@@ -42,6 +54,12 @@ fn get_proptest_config() -> ProptestConfig {
     ProptestConfig {
         cases,
         max_shrink_iters: 100,
+        // Este é um integration test (fora de src/), portanto a persistência
+        // padrão SourceParallel não encontra lib.rs. Um caminho explícito
+        // mantém contraexemplos reproduzíveis sem emitir aviso por cenário.
+        failure_persistence: Some(Box::new(FileFailurePersistence::Direct(
+            "proptest-regressions/api_fuzz_tests.txt",
+        ))),
         ..ProptestConfig::default()
     }
 }

@@ -1,0 +1,25 @@
+# Controle de versão e metadados locais
+.git/
+.github/
+.agents/
+.codex/
+
+# Saídas de compilação e artefatos de validação
+**/target/
+artifacts/
+proptest-regressions/
+**/*.log
+
+# Arquivos locais que nunca devem entrar no contexto de build
+.env
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+
+# Metadados do sistema/editor
+**/.DS_Store
+**/Thumbs.db
+.vscode/

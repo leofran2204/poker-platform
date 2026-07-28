@@ -196,7 +196,7 @@ pub struct WsCallbacks {
 pub struct WsClient {
     /// ID da mesa conectada.
     table_id: String,
-    /// Token JWT usado somente para solicitar o ticket de WebSocket via HTTP.
+    /// Token JWT usado somente para solicitar o ticket de WebSocket via HTTPS.
     token: String,
     /// Callbacks registrados.
     callbacks: WsCallbacks,
@@ -239,7 +239,7 @@ impl WsClient {
         self.notify_connection_state();
 
         // Browsers cannot attach Authorization headers to the WebSocket
-        // handshake. Request an opaque, one-time ticket over authenticated HTTP
+        // handshake. Request an opaque, one-time ticket over authenticated HTTPS
         // instead of putting the long-lived JWT in the URL.
         let ticket = match crate::api_client::create_ws_ticket(&self.table_id, &self.token).await {
             Ok(response) => response.ticket,

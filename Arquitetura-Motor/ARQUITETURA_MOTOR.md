@@ -53,7 +53,7 @@
 │   TLS 1.3 · AES-256 · JWT · MFA · bcrypt · PCI DSS · Antifraude    │
 └─────────────────────────────────────────────────────────────────────┘
 
-┌──────────────┐      JSON/HTTP (TLS)      ┌──────────────┐
+┌──────────────┐      JSON/HTTPS (TLS)     ┌──────────────┐
 │   Front-end  │ ◄───────────────────────► │   Backend    │
 │ Rust (Dioxus)│   WebSocket Seguro (WSS)  │     Rust     │
 │  WebAssembly │   JWT + MFA               │  (Axum/Actix)│
@@ -74,7 +74,7 @@
        │                                  └──────────────┘
 ```
 
-- **Rust (Dioxus) ↔ Rust (Axum/Actix):** HTTP REST + WebSocket (eventos de jogo em tempo real).
+- **Rust (Dioxus) ↔ Rust (Axum/Actix):** HTTPS REST + WSS (eventos de jogo em tempo real).
 - **Formato universal:** JSON em todas as fronteiras (schemas validados).
 - **🔐 Segurança:** TODA comunicação usa TLS 1.3. TODO dado sensível é criptografado.
 
@@ -199,7 +199,7 @@ Jogador                    Front-end (Rust/Dioxus)         Backend (Rust)       
 | `Arquitetura-Motor/` | Este documento | ✅ Ativo |
 | `Motor-Rust/` | Motor de jogo Rust (11 módulos + 4 antifraude, 1816 testes) | ✅ Ativo |
 | `Frontend-Dioxus/` | Front-end WebAssembly com Dioxus 0.6 | ✅ Ativo (104 testes) |
-| `API-Axum/` | API HTTP/WebSocket (Axum + Tokio) | ✅ Ativo |
+| `API-Axum/` | API HTTPS/WSS (Axum + Tokio) | ✅ Ativo |
 
 ---
 

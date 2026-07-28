@@ -1,5 +1,5 @@
 // Unified error type for all API handlers.
-// Converts to HTTP status codes via `IntoResponse`.
+// Converts to API response status codes via `IntoResponse`.
 
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};

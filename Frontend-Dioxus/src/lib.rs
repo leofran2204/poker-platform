@@ -9,7 +9,7 @@ pub mod pages;
 pub mod router;
 pub mod ws_client;
 
-#[cfg(test)]
+#[cfg(all(test, feature = "full-validation"))]
 mod fuzz_tests;
-#[cfg(test)]
+#[cfg(all(test, feature = "full-validation"))]
 mod state_stress_tests;

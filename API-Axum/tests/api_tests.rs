@@ -61,6 +61,16 @@ fn create_placeholder_pool() -> sqlx::PgPool {
         .expect("connect_lazy should not fail — it defers the actual connection")
 }
 
+/// Remove o único usuário criado por um contrato PostgreSQL. Os testes de
+/// integração podem rodar repetidamente no banco local sem acumular dados.
+async fn cleanup_contract_user(state: &AppState, username: &str) {
+    sqlx::query("DELETE FROM users WHERE username = $1")
+        .bind(username)
+        .execute(&state.db)
+        .await
+        .expect("Falha ao remover usuário criado pelo teste de contrato");
+}
+
 /// Sends a request to the router and returns (status, body_text).
 async fn send_request(
     app: axum::Router,
@@ -359,7 +369,7 @@ async fn test_contract_register_login_flow() {
     use serde_json::Value;
 
     let state = make_test_state();
-    let app = poker_api::build_router(state);
+    let app = poker_api::build_router(state.clone());
 
     // ─── Register ───
     let uid = uuid::Uuid::new_v4().simple().to_string();
@@ -417,6 +427,8 @@ async fn test_contract_register_login_flow() {
         login_json["token"].is_string(),
         "Login response should contain token: {body2}"
     );
+
+    cleanup_contract_user(&state, &username).await;
 }
 
 #[tokio::test]
@@ -467,13 +479,15 @@ async fn test_contract_auth_survives_in_memory_cache_reset() {
     let (refresh_status, refresh_response) =
         send_request(app, Method::POST, "/api/auth/refresh", Some(refresh_body)).await;
     assert_eq!(refresh_status, StatusCode::OK, "{refresh_response}");
+
+    cleanup_contract_user(&state, &username).await;
 }
 
 #[tokio::test]
 #[ignore = "Requires PostgreSQL — set DATABASE_URL to run"]
 async fn test_contract_register_duplicate_returns_409() {
     let state = make_test_state();
-    let app = poker_api::build_router(state);
+    let app = poker_api::build_router(state.clone());
 
     let uid = uuid::Uuid::new_v4().simple().to_string();
     let email = format!("dup_test_{}@example.com", uid);
@@ -503,13 +517,15 @@ async fn test_contract_register_duplicate_returns_409() {
         StatusCode::CONFLICT,
         "Duplicate register should return 409: {body2}"
     );
+
+    cleanup_contract_user(&state, &username).await;
 }
 
 #[tokio::test]
 #[ignore = "Requires PostgreSQL — set DATABASE_URL to run"]
 async fn test_contract_login_invalid_credentials_returns_401() {
     let state = make_test_state();
-    let app = poker_api::build_router(state);
+    let app = poker_api::build_router(state.clone());
 
     let uid = uuid::Uuid::new_v4().simple().to_string();
     let email = format!("invalid_cred_{}@example.com", uid);
@@ -539,6 +555,8 @@ async fn test_contract_login_invalid_credentials_returns_401() {
 
     let (status, _) = send_request(app, Method::POST, "/api/auth/login", Some(login_body)).await;
     assert_eq!(status, StatusCode::UNAUTHORIZED);
+
+    cleanup_contract_user(&state, &username).await;
 }
 
 #[tokio::test]
@@ -547,7 +565,7 @@ async fn test_contract_hand_history_not_found_returns_404() {
     // This test needs a valid token to pass the auth middleware,
     // then queries DB for a non-existent hand → 404
     let state = make_test_state();
-    let app = poker_api::build_router(state);
+    let app = poker_api::build_router(state.clone());
 
     let uid = uuid::Uuid::new_v4().simple().to_string();
     let email = format!("hh_test_{}@example.com", uid);
@@ -581,13 +599,15 @@ async fn test_contract_hand_history_not_found_returns_404() {
 
     let response = app.oneshot(request).await.unwrap();
     assert_eq!(response.status(), StatusCode::NOT_FOUND);
+
+    cleanup_contract_user(&state, &username).await;
 }
 
 #[tokio::test]
 #[ignore = "Requires PostgreSQL — set DATABASE_URL to run"]
 async fn test_contract_lobby_join_with_valid_token() {
     let state = make_test_state();
-    let app = poker_api::build_router(state);
+    let app = poker_api::build_router(state.clone());
 
     let uid = uuid::Uuid::new_v4().simple().to_string();
     let email = format!("join_test_{}@example.com", uid);
@@ -633,6 +653,8 @@ async fn test_contract_lobby_join_with_valid_token() {
     let response = app.oneshot(request).await.unwrap();
     // Auth passes, but the requested table does not exist.
     assert_eq!(response.status(), StatusCode::NOT_FOUND);
+
+    cleanup_contract_user(&state, &username).await;
 }
 
 #[tokio::test]

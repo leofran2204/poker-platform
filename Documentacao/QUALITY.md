@@ -34,7 +34,7 @@
 | #   | Seção                                            | Descrição                                                                          |
 |-----|--------------------------------------------------|------------------------------------------------------------------------------------|
 | 1   | Protocolo de Aprendizagem                        | Didática Mark↔Leofran, SDD, regras de símbolos                                     |
-| 2   | Estado Atual do Projeto                          | 2.050 testes na plataforma (1.903 Motor + 115 Front + 34 API), 1M Fuzzing, 1M WS Stress |
+| 2   | Estado Atual do Projeto                          | 1.813 testes determinísticos do motor; perfil manual com 79 cenários extras, 20 mil entradas API HTTPS, 1.000.800 mensagens WSS e 2 milhões de entradas frontend |
 | 3   | Pirâmide de Testes — Estratégia Completa         | Unit, integration, property, E2E, load, stress, fuzz, mutation, chaos              |
 | 4   | Hacker Ético — Segurança Específica para Poker    | OWASP WSTG, pentests, ataques específicos de poker                                 |
 | 5   | Arquitetura de Software                          | Martin Fowler, microservices, padrões distribuídos                                 |
@@ -226,14 +226,14 @@ Na próxima aula, revisão rápida dos conceitos do tópico anterior antes de av
 |-----------------------|------------------------------------------------------------------------|
 | **Linguagem**         | Rust (100% do backend + motor + frontend WebAssembly)                 |
 | **Frontend**          | Dioxus 0.6 + WebAssembly (104 suítes de teste + 10k mutações)         |
-| **Testes totais**     | 1.903 testes no Motor-Rust + **1.000.000 iterações de Fuzzing Extremo** |
+| **Testes totais**     | 1.813 testes determinísticos no Motor-Rust; perfil autorizado com 79 cenários de carga adicionais |
 | **Estresse API/WS**   | **1.000.800 mensagens WebSockets** em 100 mesas + 50 Red Team workers  |
 | **Módulos do motor**  | 10 módulos principais                                                  |
 | **Módulos antifraude**| 4 módulos (bot detection, collusion, chip dumping, multi-account)       |
 | **Pagamentos**        | PIX Instantâneo (Asaas/Mercado Pago + Webhooks + Deposit/Withdraw Modais) |
 | **Infraestrutura**    | docker-compose.yml (PostgreSQL 15, Redis 7, Kafka+Zookeeper, Caddy HTTPS) |
 
-## 🧩 2.2 MÓDULOS DO MOTOR (10 módulos engine + módulos de teste, 1.903 testes)
+## 🧩 2.2 MÓDULOS DO MOTOR (10 módulos engine + módulos de teste)
 
 | Módulo               | Arquivo                  | Testes | Função                                              |
 |----------------------|--------------------------|--------|-----------------------------------------------------|
@@ -344,7 +344,7 @@ proptest = "1.0"        # Testes baseados em propriedades
 [dependencies]
 dioxus = "0.6"          # Framework frontend (estilo React, em Rust/WebAssembly)
 wasm-bindgen = "0.2"    # Bridge Rust↔JavaScript
-gloo-net = "0.6"        # HTTP/WebSocket no WASM
+gloo-net = "0.6"        # HTTPS/WSS no WASM
 ```
 
 ---
@@ -3155,11 +3155,11 @@ não urgente) — é onde está o trabalho que previne crises e gera valor real.
 | Tipo                          | Protocolo               | Quando        | Por quê                              |
 |-------------------------------|-------------------------|---------------|--------------------------------------|
 | **Cliente ↔ Servidor**        | WebSocket (TLS 1.3)     | Tempo real de jogo | Baixa latência, bidirecional     |
-| **Serviço ↔ Serviço**         | gRPC (HTTP/2 + Protobuf)| F3+           | Tipado, performático, streaming     |
-| **Serviço ↔ Serviço (atual)** | HTTP/JSON (REST)        | F2            | Simples, interoperável              |
+| **Serviço ↔ Serviço**         | gRPC (TLS + Protobuf)   | F3+           | Tipado, performático, streaming     |
+| **Serviço ↔ Serviço (atual)** | API REST via HTTPS/JSON | F2            | Simples, interoperável              |
 | **Eventos assíncronos**       | Kafka                   | F2+           | Desacoplar, replay, audit           |
 | **Cache**                     | Redis (RESP)            | F2            | Sub-ms, pub/sub                     |
-| **Métricas**                  | Prometheus (HTTP /metrics)| F2           | Padrão de mercado                   |
+| **Métricas**                  | Prometheus (HTTPS /metrics)| F2          | Padrão de mercado                   |
 
 ### 📜 12.3.2 Event Sourcing para Hand History (Histórico de Mãos de Poker)
 
@@ -3411,7 +3411,7 @@ jobs:
     steps:
       - run: docker compose up -d
       - run: cargo test --test integration_tests
-      - run: owasp-zap-baseline http://localhost:8080
+      - run: owasp-zap-baseline https://localhost
 
   # 5. Container Scanning
   container:
@@ -3495,7 +3495,7 @@ RUN groupadd -r poker && useradd -r -g poker -u 1000 poker
 COPY --from=builder /app/target/release/poker /usr/local/bin/poker
 USER 1000:1000
 EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:8080/health || exit 1
+HEALTHCHECK --interval=30s --timeout=3s CMD curl -fk https://localhost/health || exit 1
 ENTRYPOINT ["poker"]
 ```
 
@@ -3882,7 +3882,7 @@ async fn run_table(table: Arc<Table>, mut events: Receiver<PlayerAction>) {
 | Camada              | Crate                                  | Função                                            |
 |---------------------|----------------------------------------|---------------------------------------------------|
 | **Runtime**         | `tokio`                                | Executor assíncrono                               |
-| **HTTP server**     | `axum`                                 | API REST (sobre Hyper + Tokio)                    |
+| **HTTPS server**    | `axum` + Caddy                         | API REST protegida (sobre Hyper + Tokio)          |
 | **WebSocket**       | `tokio-tungstenite`                    | Conexões WS em tempo real                         |
 | **gRPC**            | `tonic`                                | RPC entre serviços (F3+)                          |
 | **Middleware**      | `tower`                                | Composição de middleware (auth, rate limit, tracing)|
@@ -4144,7 +4144,7 @@ let players = sqlx::query_as::<_, Player>(
 | **Output encoding**                | JSON com `serde_json`, nunca concatenar                      |
 | **No sensitive data in response**  | Não retornar hash de senha, saldo de outros                  |
 | **CORS whitelist**                 | Apenas origens permitidas                                    |
-| **HTTPS only**                     | Redirect HTTP → HTTPS, HSTS header                           |
+| **HTTPS only**                     | Redirecionar tráfego inseguro → HTTPS, HSTS header            |
 | **API versioning**                 | `/api/v1/...` para backward compat                           |
 | **Pagination**                     | Limitar resultados (max 100 por página)                      |
 | **Idempotency keys**               | Para POST de saque/deposito (evitar duplicação)              |
@@ -4169,7 +4169,7 @@ let players = sqlx::query_as::<_, Player>(
 | **No TLS 1.0/1.1**             | Desativado (deprecado, vulnerável)                               |
 | **HSTS**                       | `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`|
 | **Certificate pinning**        | Para app mobile (se aplicável)                                   |
-| **No mixed content**           | Tudo HTTPS, sem HTTP em recursos                                 |
+| **No mixed content**           | Tudo HTTPS, sem recursos inseguros                                  |
 | **Forward secrecy**            | TLS 1.3 tem por padrão (ECDHE)                                   |
 
 ### ⚠️ 16.1.10 Error Handling Cheat Sheet — Tratamento de Erros do Motor de Poker
@@ -4435,7 +4435,7 @@ let players = sqlx::query_as::<_, Player>(
 |--------------------------------|------------------------------------|---------------------------------------------------------|
 | `Motor-Rust/`                  | Motor de poker em Rust             | `src/` (10 módulos + 4 antifraude), `tests/`            |
 | `Frontend-Dioxus/`             | Frontend WebAssembly               | `src/main.rs`, `Dioxus.toml`                            |
-| `API-Axum/`                    | API HTTP/WebSocket                 | `src/` (handlers, middleware, state), `migrations/`     |
+| `API-Axum/`                    | API HTTPS/WSS                      | `src/` (handlers, middleware, state), `migrations/`     |
 | `Infraestrutura-Docker/`       | Infraestrutura como código         | `docker-compose.yml`, `render.yaml`, `Caddyfile`        |
 | `Documentacao/`                | Documentação do projeto            | Todos os `.md` de documentação                          |
 | `Arquitetura-Motor/`           | Arquitetura do motor               | `ARQUITETURA_MOTOR.md`                                  |
@@ -4471,7 +4471,8 @@ let players = sqlx::query_as::<_, Player>(
 
 ### ⚙️ 18.5.1 Checklist Técnico do Motor de Poker (Rust, Tokio, Dioxus, Axum)
 
-- [ ] `cargo test` — 100% passing (1.848+ testes no Motor-Rust)
+- [ ] `cargo test --lib` — 100% passing (1.813 testes determinísticos no Motor-Rust)
+- [ ] Perfil autorizado — 1.892 testes do motor, mais cargas de API HTTPS, WSS e frontend registradas em `FULL_VALIDATION.md`
 - [ ] `cargo clippy` — 0 warnings (validado: `cargo clippy --all-targets -- -D warnings`)
 - [ ] `cargo fmt --check` — formatado
 - [ ] `cargo audit` — 0 CVEs conhecidos

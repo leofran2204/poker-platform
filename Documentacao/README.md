@@ -22,7 +22,7 @@ Plataforma de poker online **Texas Hold'em Tradicional** (52 cartas) construída
 | **`CRONOGRAMA.md`** | Roadmap, fases, prazos e marcos | Gestão + Dev |
 | **`DEVELOPMENT_LOG.md`** | Histórico cronológico de desenvolvimento | Dev |
 | **`guia_aprendizado.md`** | Guia consolidado de aprendizado (Protocolo Mark + Regras Rust-only + Sprint S03 + 11 Módulos) | Dev |
-| **`TESTING_GOALS.md`** | Metas de testes (2960 objetivos de teste) | Dev + QA |
+| **`TESTING_GOALS.md`** | Metas e registros históricos; perfil atual de validação | Dev + QA |
 | `Arquitetura-Motor/ARQUITETURA_MOTOR.md` | Arquitetura detalhada do motor Rust | Arquiteto + Dev |
 
 ---
@@ -74,7 +74,7 @@ Plataforma de poker online **Texas Hold'em Tradicional** (52 cartas) construída
 | `lobby.rs` | 28 | Lobby + matchmaking |
 | `antifraud/` | 117 | Bot detection, collusion, chip dumping, multi-account |
 | `extreme_fuzz_tests.rs` | 8 | 1.000.000 iterações de fuzzing estocástico |
-| **Total Motor** | **1.903** | 0 warnings, 0 CVEs (2.050 total na plataforma) |
+| **Validação do Motor** | **1.813 rotina / 1.892 perfil autorizado** | 79 cenários massivos adicionais; métricas por execução |
 
 ---
 
@@ -95,8 +95,8 @@ docker-compose up -d
 cd Motor-Rust
 cargo build
 cargo test
-# Cargas probabilísticas e de stress: somente sob acionamento manual explícito.
-cargo test --lib --features massive-tests
+# Cargas de plataforma: exigem autorização explícita.
+.\scripts\full-validation.ps1 -Approved
 ```
 
 ### 🖥️ Frontend WebAssembly (Dioxus)
