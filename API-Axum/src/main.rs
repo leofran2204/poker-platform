@@ -8,14 +8,61 @@
 
 use std::net::SocketAddr;
 
-use axum::http::{header, HeaderValue, Method};
+use axum::http::{header, HeaderValue, Method, Uri};
 use sqlx::postgres::PgPoolOptions;
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::EnvFilter;
 
 use poker_api::build_router;
 use poker_api::state::AppState;
+
+/// Parses the CORS allow-list and accepts only browser origins protected by TLS.
+///
+/// The API is public only behind an HTTPS-terminating reverse proxy. Accepting
+/// an HTTP origin here would allow a browser served over an insecure transport
+/// to make authenticated API requests.
+fn parse_https_cors_origins(cors_origins: &str) -> Result<Vec<HeaderValue>, String> {
+    let origins: Vec<HeaderValue> = cors_origins
+        .split(',')
+        .map(str::trim)
+        .filter(|origin| !origin.is_empty())
+        .map(|origin| {
+            let uri = origin
+                .parse::<Uri>()
+                .map_err(|_| format!("CORS origin is not a valid URI: {origin}"))?;
+
+            let authority = uri
+                .authority()
+                .ok_or_else(|| format!("CORS origin must include a host: {origin}"))?;
+            let path = uri
+                .path_and_query()
+                .map(|path_and_query| path_and_query.as_str())
+                .unwrap_or_default();
+
+            if uri.scheme_str() != Some("https")
+                || authority.as_str().contains('@')
+                || (!path.is_empty() && path != "/")
+            {
+                return Err(format!(
+                    "CORS origin must be an HTTPS origin without a path: {origin}"
+                ));
+            }
+
+            // Browsers serialize Origin without a trailing slash. Normalize
+            // a harmless slash in the configuration so it still matches.
+            format!("https://{authority}")
+                .parse::<HeaderValue>()
+                .map_err(|_| format!("CORS origin is not a valid header value: {origin}"))
+        })
+        .collect::<Result<_, _>>()?;
+
+    if origins.is_empty() {
+        return Err("CORS_ORIGINS must contain at least one HTTPS origin".to_string());
+    }
+
+    Ok(origins)
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -54,7 +101,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let port: u16 = std::env::var("PORT")
         .unwrap_or_else(|_| "3000".to_string())
         .parse()?;
-    let cors_origins = std::env::var("CORS_ORIGINS").unwrap_or_default();
+    let cors_origins = std::env::var("CORS_ORIGINS")
+        .map_err(|_| "CORS_ORIGINS must be set to at least one HTTPS origin")?;
 
     // Initialize DB pool
     let pool = PgPoolOptions::new()
@@ -125,27 +173,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ws_tickets: std::sync::Arc::new(tokio::sync::Mutex::new(std::collections::HashMap::new())),
     };
 
-    // CORS
-    let cors = if cors_origins.is_empty() {
-        if is_production {
-            return Err("CORS_ORIGINS must be explicitly set in production".into());
-        }
-        tracing::warn!("CORS_ORIGINS is not set; allowing all origins outside production only");
-        CorsLayer::new().allow_origin(Any)
-    } else {
-        let origins: Vec<HeaderValue> = cors_origins
-            .split(',')
-            .map(str::trim)
-            .filter(|origin| !origin.is_empty())
-            .map(str::parse)
-            .collect::<Result<_, _>>()?;
-        if origins.is_empty() {
-            return Err("CORS_ORIGINS must contain at least one valid origin".into());
-        }
-        CorsLayer::new().allow_origin(origins)
-    }
-    .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
-    .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE]);
+    // CORS is explicit and restricted to HTTPS origins in every environment.
+    let cors = CorsLayer::new()
+        .allow_origin(parse_https_cors_origins(&cors_origins)?)
+        .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
+        .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE]);
 
     // Build router
     let app = build_router(state)
@@ -164,4 +196,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     .await?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_https_cors_origins;
+
+    #[test]
+    fn cors_origins_accept_only_https_origins() {
+        let origins = parse_https_cors_origins("https://localhost, https://poker.example.com")
+            .expect("HTTPS origins should be accepted");
+        assert_eq!(origins.len(), 2);
+
+        for invalid_origin in [
+            "",
+            "http://localhost",
+            "wss://localhost",
+            "https://localhost/app",
+        ] {
+            assert!(
+                parse_https_cors_origins(invalid_origin).is_err(),
+                "{invalid_origin} must not be accepted"
+            );
+        }
+    }
 }

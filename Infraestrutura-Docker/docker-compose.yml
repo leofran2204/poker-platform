@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: poker_db
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     security_opt:
@@ -23,7 +23,7 @@ services:
     image: redis:7-alpine
     container_name: poker_redis
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
     security_opt:
@@ -48,14 +48,15 @@ services:
       - DATABASE_URL=postgres://user:password@postgres:5432/poker_db
       - HOST=0.0.0.0
       - PORT=3000
+      - CORS_ORIGINS=https://localhost
       - TRUST_PROXY_HEADERS=true
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    ports:
-      - "127.0.0.1:3000:3000"
+    # A API só é acessível pela rede interna do Compose. O Caddy é o único
+    # ponto de entrada público e termina TLS antes de encaminhar as requisições.
     # ─── Hardening de Segurança (OWASP Container Security) ───
     user: "10001:10001"
     read_only: true

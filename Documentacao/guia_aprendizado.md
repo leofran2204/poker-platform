@@ -267,7 +267,7 @@ Durante o desenvolvimento do Frontend no Docker, a ferramenta automática do Dio
 ### 🔑 5. O Gateway com Caddy (HTTPS Local)
 
 O **Caddy** funciona como a portaria de um condomínio de prédios:
-*   Ele escuta nas portas de entrada da internet (`80` para HTTP e `443` para HTTPS).
+*   Ele escuta na `443` para HTTPS; se a porta `80` estiver publicada, ela apenas redireciona o navegador para HTTPS.
 *   Se alguém pede uma página do site, o Caddy lê o arquivo estático e entrega (o Frontend Dioxus).
 *   Se alguém pede uma chamada de API (`/api/*`) ou uma conexão em tempo real (`/ws/*`), o Caddy redireciona essa chamada silenciosamente para o container do backend Axum (`poker_api:3000`).
 *   Ele gera um certificado de segurança local automaticamente. Assim, rodamos o site em `https://localhost` com o cadeado verde ativo no navegador, que é um requisito de segurança real para proteger a senha e fichas dos jogadores.

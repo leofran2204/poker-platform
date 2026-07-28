@@ -5,7 +5,7 @@
 //!
 //! # URLs
 //!
-//! - **Dev (debug_assertions):** `ws://localhost:3000`
+//! - **Dev (debug_assertions):** `wss://localhost`
 //! - **Prod:** `wss://api.pokerplatform.com`
 //!
 //! # Estados
@@ -21,9 +21,9 @@ use wasm_bindgen_futures::spawn_local;
 
 // ─── Constantes ───
 
-/// Base URL do WebSocket — WS em dev, WSS em produção.
+/// Base URL do WebSocket — sempre WSS; o Caddy faz o proxy interno.
 const WS_BASE: &str = if cfg!(debug_assertions) {
-    "ws://localhost:3000"
+    "wss://localhost"
 } else {
     "wss://api.pokerplatform.com"
 };

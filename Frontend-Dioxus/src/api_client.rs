@@ -5,7 +5,7 @@
 //!
 //! # URLs
 //!
-//! - **Dev (debug_assertions):** `http://localhost:3000`
+//! - **Dev (debug_assertions):** `https://localhost`
 //! - **Prod:** `https://api.pokerplatform.com`
 //!
 //! # Gerenciamento de Token
@@ -19,9 +19,9 @@ use serde::{Deserialize, Serialize};
 
 // ─── Constantes ───
 
-/// Base URL da API — HTTP em dev, HTTPS em produção.
+/// Base URL da API — sempre HTTPS; o Caddy encaminha internamente à API.
 const API_BASE: &str = if cfg!(debug_assertions) {
-    "http://localhost:3000"
+    "https://localhost"
 } else {
     "https://api.pokerplatform.com"
 };

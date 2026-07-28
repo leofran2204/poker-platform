@@ -24,20 +24,21 @@ docker compose up -d --build || docker-compose up -d --build
 echo "⏳ Aguardando serviços responderem ao Health Check..."
 max_retries=15
 counter=0
-until curl -s http://localhost:3000/api/health > /dev/null || [ $counter -eq $max_retries ]; do
+# O certificado de desenvolvimento do Caddy é local; -k só vale para este probe.
+until curl --fail --silent --show-error --insecure https://localhost/health > /dev/null || [ $counter -eq $max_retries ]; do
     counter=$((counter+1))
     echo "  Aguardando API ficar pronta... ($counter/$max_retries)"
     sleep 2
 done
 
 if [ $counter -eq $max_retries ]; then
-    echo "⚠️ Aviso: API demorou a responder o health check na porta 3000. Verifique os logs com: docker logs poker_api"
+    echo "⚠️ Aviso: API demorou a responder o health check HTTPS. Verifique os logs com: docker logs poker_api"
 else
     echo "✅ API Axum respondeu com sucesso ao Health Check!"
 fi
 
 echo "============================================================"
 echo "🎉 Deploy concluído com sucesso!"
-echo "🌐 API REST: http://localhost:3000 / https://localhost"
-echo "💬 WebSockets: ws://localhost:3000/ws/game/{table_id}"
+echo "🌐 Frontend e API REST: https://localhost"
+echo "💬 WebSockets: wss://localhost/ws/game/{table_id}"
 echo "============================================================"

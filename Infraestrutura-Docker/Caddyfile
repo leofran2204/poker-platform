@@ -1,38 +1,41 @@
 # Caddyfile — Reverse Proxy & Static Web File Server (HTTPS Auto-TLS)
 #
-# Em dev: https://localhost (TLS Auto-assinado)
-# Em prod: https://{$DOMAIN_NAME} (TLS Automático via Let's Encrypt)
+# Em dev: https://localhost (TLS local automático)
+# Em prod: https://{$DOMAIN_NAME} (TLS automático via Let's Encrypt)
+# A porta 80, quando publicada, é usada apenas pelo redirecionamento automático
+# do Caddy para HTTPS.
 
 {$DOMAIN_NAME:localhost} {
-    # Logging estruturado em JSON para stdout
-    log {
-        output stdout
-        format json
-    }
+	# Logging estruturado em JSON para stdout
+	log {
+		output stdout
+		format json
+	}
 
-    # Security Headers (OWASP Recommended)
-    header {
-        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-        X-Frame-Options "DENY"
-        X-Content-Type-Options "nosniff"
-        X-XSS-Protection "1; mode=block"
-        Referrer-Policy "strict-origin-when-cross-origin"
-    }
+	# Security Headers (OWASP Recommended)
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Frame-Options "DENY"
+		X-Content-Type-Options "nosniff"
+		X-XSS-Protection "1; mode=block"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' wss:; img-src 'self' data:;"
+		-Server
+	}
 
-    # Encaminha chamadas de API e WebSockets para o container poker_api
-    reverse_proxy /api/* poker_api:3000
-    reverse_proxy /ws/* poker_api:3000 {
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-    }
+	# Encaminha chamadas de API e WebSockets para o container poker_api
+	reverse_proxy /api/* poker_api:3000
+	reverse_proxy /ws/* poker_api:3000 {
+		header_up Host {host}
+	}
 
-    # Health check direto do gateway
-    respond /caddy-health "OK" 200
+	# Health check direto do gateway
+	respond /caddy-health "OK" 200
 
-    # Serve os arquivos estáticos compilados do Dioxus WASM
-    root * /usr/share/caddy
-    file_server
+	# Serve os arquivos estáticos compilados do Dioxus WASM
+	root * /usr/share/caddy
+	file_server
 
-    # Fallback para index.html (suporte a Single Page Application & Dioxus Router)
-    try_files {path} /index.html
+	# Fallback para index.html (suporte a Single Page Application & Dioxus Router)
+	try_files {path} /index.html
 }

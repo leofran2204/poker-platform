@@ -1,6 +1,11 @@
 # deploy.ps1 — Script de inicialização local via Docker Compose
 
 $ErrorActionPreference = "Stop"
+$psMajorVersion = $PSVersionTable.PSVersion.Major
+if ($psMajorVersion -lt 7) {
+    throw "Use PowerShell 7 ou superior para executar o health check HTTPS local."
+}
+
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $infraDir = Join-Path $projectRoot "Infraestrutura-Docker"
 
@@ -26,7 +31,9 @@ $healthy = $false
 while ($counter -lt $maxRetries -and -not $healthy) {
     $counter++
     try {
-        $res = Invoke-WebRequest -Uri "http://127.0.0.1:3000/health" -Method Get -ErrorAction Stop
+        # O certificado local do Caddy não pertence ao repositório de CAs do host.
+        # Esta exceção vale somente para este probe local; o tráfego é HTTPS.
+        $res = Invoke-WebRequest -Uri "https://localhost/health" -Method Get -SkipCertificateCheck -ErrorAction Stop
         if ($res.StatusCode -eq 200) {
             $healthy = $true
         }
@@ -45,5 +52,5 @@ Pop-Location
 
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host "🎉 Deploy concluído com sucesso!" -ForegroundColor Green
-Write-Host "🌐 Frontend: https://localhost | API local: http://127.0.0.1:3000" -ForegroundColor Yellow
+Write-Host "🌐 Frontend e API: https://localhost | WebSocket: wss://localhost/ws/game/{table_id}" -ForegroundColor Yellow
 Write-Host "============================================================" -ForegroundColor Cyan
