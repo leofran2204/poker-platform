@@ -42,7 +42,7 @@
 
 | # | Aspecto | Avaliação |
 |---|--------|----------|
-| 1 | **O que funcionou** | Fuzzing extremo (1M iterações), carga massiva WS (1M mensagens sem deadlock), Red Team de 50 workers, Gateway PIX HTTPS (Asaas/Mercado Pago), persistência PostgreSQL imutável e Hardening Docker/Caddy enterprise com CI/CD. |
+| 1 | **O que funcionou** | Fuzzing extremo (1M iterações), carga massiva WS (1M mensagens sem deadlock), Red Team de 50 workers, Mock PIX e persistência PostgreSQL imutável, com hardening Docker/Caddy e CI/CD. |
 | 2 | **O que não funcionou** | Incompatibilidade inicial entre o toolchain MinGW local e proc-macros do Dioxus no Windows exigiu ajuste estrito de ambiente (LIBRARY_PATH). |
 | 3 | **Lições aprendidas** | Fuzzing estocástico e simulação autônoma de Red Team revelam edge-cases (ex: regressoes de colusao e truncamentos de centavos) antes que afetem a produção. |
 | 4 | **Status Final** | 100% dos testes passando (2.050 suítes no total), 0 clippy warnings e plataforma 100% pronta para produção (Launch Ready). |
@@ -86,7 +86,7 @@
 ### [19] 🚀 Finalização Mestre & Prontidão para Produção (2026-07-25)
 **O que foi feito:**
 - **Testes Massivos & Estresse Extremo:** Implementada a suíte Lote 7 em `game_loop_tests.rs` (1.000 iterações de Ante/Blinds, 500 All-Ins multiway com conservação de fichas e micro-stacks).
-- **Gateway PIX Multi-Provedor HTTPS (TLS 1.2/1.3):** Integradas as APIs do Asaas e Mercado Pago com suporte dinâmico via `PIX_PROVIDER`.
+- **Correção S09 do registro anterior:** o projeto não integra Mercado Pago e não habilita PIX de produção. Existe somente Mock e adaptador Asaas Sandbox autenticado, restrito por allow-list; operações reais e payout permanecem bloqueados.
 - **Suíte Antifraude Unificada:** Unificados os detectores sob o facade `AntiFraudSuite` no `TableActor` em tempo real.
 - **Persistência PostgreSQL e REST Hand History:** Inserção assíncrona do `HandHistory` em PostgreSQL e rotas `/api/hand-history/{hand_id}`, `/api/tables/{table_id}/history` e `/api/admin/antifraud/alerts`.
 - **Pipeline CI/CD & Deploy:** Criado workflow `.github/workflows/ci.yml`, arquivos `.env.example` e scripts `deploy.sh` e `deploy.ps1`.
@@ -465,7 +465,7 @@
 *Próximo passo: Deploy em ambiente de staging / produção ou disponibilização de canal seguro via Ngrok.*
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-28):** S08 — ledger transacional PIX local, revogação persistente de tokens, turnos e WebSocket reforçados e validados no WSL. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais, inclusive contratos financeiros PostgreSQL e limite compartilhado Redis; a CI executa somente o perfil determinístico e rápido. PIX real continua adiado: o depósito cria intenção auditável e o saque reserva saldo em outbox, sem payout externo na requisição HTTPS. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
+> **Estado operacional sincronizado (2026-07-29):** S09 — liquidação de mãos protegida por guarda transacional e PIX Asaas apenas em Sandbox autenticado. **Sem certificação de produção; o código rejeita PIX em modo production.** cargo fmt, cargo check --all-targets e cargo clippy --all-targets -- -D warnings passaram no WSL; cargo test --lib passou com 17 testes e a migration foi aceita em transação PostgreSQL revertida. A carga completa autorizada continua manual e não foi acionada neste ciclo. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

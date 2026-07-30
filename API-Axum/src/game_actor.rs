@@ -71,6 +71,7 @@ pub struct TableActor {
     pub db: Option<sqlx::PgPool>,
     pub redis: Option<redis::aio::ConnectionManager>,
     pub audit_secret: Option<String>,
+    pub persistence_halted: bool,
 }
 
 struct HandHistoryRecord {
@@ -86,28 +87,19 @@ struct HandHistoryRecord {
     big_blind: i64,
 }
 
-async fn persist_hand_history(db: sqlx::PgPool, record: HandHistoryRecord) {
-    let mut tx = match db.begin().await {
-        Ok(tx) => tx,
-        Err(error) => {
-            error!(?error, "Failed to begin hand history transaction");
-            return;
-        }
-    };
-    let hand_number: i64 = match sqlx::query_scalar(
+async fn persist_completed_hand(
+    db: sqlx::PgPool,
+    record: HandHistoryRecord,
+    settled_stacks: &[(uuid::Uuid, i64)],
+) -> Result<(), sqlx::Error> {
+    let mut tx = db.begin().await?;
+    let hand_number: i64 = sqlx::query_scalar(
         "UPDATE tables SET hand_sequence = hand_sequence + 1 WHERE id = $1 RETURNING hand_sequence",
     )
     .bind(record.table_id)
     .fetch_one(&mut *tx)
-    .await
-    {
-        Ok(hand_number) => hand_number,
-        Err(error) => {
-            error!(?error, "Failed to allocate hand number");
-            return;
-        }
-    };
-    if let Err(error) = sqlx::query(
+    .await?;
+    sqlx::query(
         "INSERT INTO hand_history (id, table_id, hand_number, game_type, small_blind, big_blind, actions_json, community_cards_json, pot_total, rake_collected, end_reason) \
          VALUES ($1, $2, $3, 'cash', $4, $5, $6, $7, $8, $9, $10) \
          ON CONFLICT (id) DO NOTHING",
@@ -123,28 +115,41 @@ async fn persist_hand_history(db: sqlx::PgPool, record: HandHistoryRecord) {
     .bind(record.rake)
     .bind(record.reason)
     .execute(&mut *tx)
-    .await
-    {
-        error!(?error, "Failed to persist hand history");
-        return;
-    }
+    .await?;
 
     for user_id in record.participants {
-        if let Err(error) = sqlx::query(
+        sqlx::query(
             "INSERT INTO hand_participants (hand_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
         )
         .bind(record.hand_id)
         .bind(user_id)
         .execute(&mut *tx)
-        .await
-        {
-            error!(?error, "Failed to persist hand participant");
-            return;
+        .await?;
+    }
+    for (user_id, chips) in settled_stacks {
+        let updated = sqlx::query(
+            "UPDATE cash_game_seats SET chips = $1 \
+             WHERE table_id = $2 AND user_id = $3 AND status = 'ACTIVE'",
+        )
+        .bind(chips)
+        .bind(record.table_id)
+        .bind(user_id)
+        .execute(&mut *tx)
+        .await?;
+        if updated.rows_affected() != 1 {
+            return Err(sqlx::Error::RowNotFound);
         }
     }
-    if let Err(error) = tx.commit().await {
-        error!(?error, "Failed to commit hand history transaction");
+    let cleared =
+        sqlx::query("DELETE FROM table_hand_recovery_guards WHERE table_id = $1 AND hand_id = $2")
+            .bind(record.table_id)
+            .bind(record.hand_id)
+            .execute(&mut *tx)
+            .await?;
+    if cleared.rows_affected() != 1 {
+        return Err(sqlx::Error::RowNotFound);
     }
+    tx.commit().await
 }
 
 impl TableActor {
@@ -170,6 +175,7 @@ impl TableActor {
             turn_timeout: DEFAULT_TURN_TIMEOUT,
             db: None,
             redis: None,
+            persistence_halted: false,
             audit_secret: None,
         }
     }
@@ -263,6 +269,10 @@ impl TableActor {
     }
 
     async fn tick(&mut self) {
+        if self.persistence_halted {
+            return;
+        }
+
         let timed_out_player = self.game_loop.as_ref().and_then(|game_loop| {
             (!game_loop.state.is_finished)
                 .then_some(())
@@ -291,7 +301,7 @@ impl TableActor {
             if tokio::time::Instant::now() >= next_at {
                 self.next_hand_at = None;
                 self.game_loop = None;
-                self.start_new_hand();
+                self.start_new_hand().await;
             }
         } else if self.game_loop.is_none()
             && self
@@ -302,7 +312,7 @@ impl TableActor {
                 >= 2
         {
             // Auto-start hand if we have enough players
-            self.start_new_hand();
+            self.start_new_hand().await;
         }
     }
 
@@ -459,67 +469,10 @@ impl TableActor {
             if let Ok(res) = game_loop.resolve_hand() {
                 game_loop.finalize_history(&res);
 
-                // Persist the finished hand synchronously in the actor's command
-                // order. This makes the per-table sequence a reliable audit trail.
-                if let (Some(history), Some(audit_secret), Some(db)) = (
-                    game_loop.history.as_mut(),
-                    audit_secret.as_deref(),
-                    history_db,
-                ) {
-                    poker_engine::hand_history::sign_hand(history, audit_secret.as_bytes());
-                    let participants = history
-                        .players
-                        .iter()
-                        .map(|player_id| uuid::Uuid::parse_str(player_id))
-                        .collect::<Result<Vec<_>, _>>();
-                    let persistence_data = (
-                        uuid::Uuid::parse_str(&history.hand_id),
-                        uuid::Uuid::parse_str(&table_id),
-                        participants,
-                        serde_json::to_value(&*history),
-                        i64::try_from(history.total_pot),
-                        i64::try_from(history.rake),
-                        i64::try_from(table_big_blind / 2),
-                        i64::try_from(table_big_blind),
-                    );
-
-                    if let (
-                        Ok(hand_id),
-                        Ok(table_id),
-                        Ok(participants),
-                        Ok(history_json),
-                        Ok(pot),
-                        Ok(rake),
-                        Ok(small_blind),
-                        Ok(big_blind),
-                    ) = persistence_data
-                    {
-                        persist_hand_history(
-                            db,
-                            HandHistoryRecord {
-                                hand_id,
-                                table_id,
-                                participants,
-                                actions: history_json["actions"].clone(),
-                                community_cards: history_json["community_cards"].clone(),
-                                pot,
-                                rake,
-                                reason: format!("{:?}", history.end_reason),
-                                small_blind,
-                                big_blind,
-                            },
-                        )
-                        .await;
-                    } else {
-                        error!("Unable to construct an auditable hand history record");
-                    }
-                } else {
-                    error!("Hand history persistence is missing database or audit-secret configuration");
-                }
-
-                // Update every game-loop stack, including a player who disconnected
-                // mid-hand. The escrow record remains the source of truth for cash-out.
-                let settled_stacks: Vec<(String, u64)> = game_loop
+                // The hand history, resulting stacks, and recovery guard are
+                // committed in one transaction. A crash before commit leaves
+                // the pre-hand escrow intact and a guard that pauses the table.
+                let memory_stacks: Vec<(String, u64)> = game_loop
                     .state
                     .players
                     .iter()
@@ -528,13 +481,84 @@ impl TableActor {
                         (player.id.clone(), player.stack + payout)
                     })
                     .collect();
-                for gp in &game_loop.state.players {
-                    if let Some(tp) = self.players.iter_mut().find(|p| p.id == gp.id) {
-                        let payout = res.payouts.get(&gp.id).copied().unwrap_or(0);
-                        tp.chips = gp.stack + payout;
+                let durable_stacks = memory_stacks
+                    .iter()
+                    .map(|(player_id, chips)| {
+                        Ok((
+                            uuid::Uuid::parse_str(player_id)
+                                .map_err(|_| "Invalid player id while settling hand".to_string())?,
+                            i64::try_from(*chips)
+                                .map_err(|_| "Player stack exceeds database range".to_string())?,
+                        ))
+                    })
+                    .collect::<Result<Vec<_>, String>>();
+                let persistence_result = match (
+                    game_loop.history.as_mut(),
+                    audit_secret.as_deref(),
+                    history_db,
+                    durable_stacks.as_ref(),
+                ) {
+                    (Some(history), Some(audit_secret), Some(db), Ok(durable_stacks)) => {
+                        poker_engine::hand_history::sign_hand(history, audit_secret.as_bytes());
+                        let record = (|| -> Result<HandHistoryRecord, String> {
+                            let history_json = serde_json::to_value(&*history)
+                                .map_err(|_| "Could not serialize hand history".to_string())?;
+                            Ok(HandHistoryRecord {
+                                hand_id: uuid::Uuid::parse_str(&history.hand_id).map_err(|_| {
+                                    "Invalid hand id while settling hand".to_string()
+                                })?,
+                                table_id: uuid::Uuid::parse_str(&table_id).map_err(|_| {
+                                    "Invalid table id while settling hand".to_string()
+                                })?,
+                                participants: history
+                                    .players
+                                    .iter()
+                                    .map(|player_id| uuid::Uuid::parse_str(player_id))
+                                    .collect::<Result<Vec<_>, _>>()
+                                    .map_err(|_| "Invalid hand participant id".to_string())?,
+                                actions: history_json["actions"].clone(),
+                                community_cards: history_json["community_cards"].clone(),
+                                pot: i64::try_from(history.total_pot)
+                                    .map_err(|_| "Hand pot exceeds database range".to_string())?,
+                                rake: i64::try_from(history.rake)
+                                    .map_err(|_| "Hand rake exceeds database range".to_string())?,
+                                reason: format!("{:?}", history.end_reason),
+                                small_blind: i64::try_from(table_big_blind / 2).map_err(|_| {
+                                    "Small blind exceeds database range".to_string()
+                                })?,
+                                big_blind: i64::try_from(table_big_blind)
+                                    .map_err(|_| "Big blind exceeds database range".to_string())?,
+                            })
+                        })();
+                        match record {
+                            Ok(record) => persist_completed_hand(db, record, durable_stacks)
+                                .await
+                                .map_err(|error| error.to_string()),
+                            Err(error) => Err(error),
+                        }
+                    }
+                    (None, _, _, _) => Err("Hand history is unavailable".to_string()),
+                    (_, None, _, _) => {
+                        Err("Hand-history signing secret is unavailable".to_string())
+                    }
+                    (_, _, None, _) => Err("Database persistence is unavailable".to_string()),
+                    (_, _, _, Err(error)) => Err(error.clone()),
+                };
+                if let Err(error) = persistence_result {
+                    error!(?error, table_id = %self.table_id, "Hand settlement was not committed atomically");
+                    self.pause_for_recovery("hand settlement persistence failed")
+                        .await;
+                    return;
+                }
+                for (player_id, chips) in memory_stacks {
+                    if let Some(table_player) = self
+                        .players
+                        .iter_mut()
+                        .find(|player| player.id == player_id)
+                    {
+                        table_player.chips = chips;
                     }
                 }
-                self.persist_settled_stacks(settled_stacks).await;
 
                 // Disparar evento global do Loss Deflator se foi ativado
                 if let Some(deflator) = &res.loss_deflator {
@@ -600,28 +624,63 @@ impl TableActor {
         }
     }
 
-    fn start_new_hand(&mut self) {
-        let mut active_players: Vec<&mut TablePlayer> = self
-            .players
-            .iter_mut()
-            .filter(|p| p.is_sitting && p.chips > 0)
-            .collect();
-
-        if active_players.len() < 2 {
+    async fn start_new_hand(&mut self) {
+        if self.persistence_halted {
             return;
         }
 
-        active_players.sort_by_key(|p| p.seat);
+        let mut active_players: Vec<(String, u64, usize)> = self
+            .players
+            .iter()
+            .filter(|player| player.is_sitting && player.chips > 0)
+            .map(|player| (player.id.clone(), player.chips, player.seat))
+            .collect();
+        if active_players.len() < 2 {
+            return;
+        }
+        active_players.sort_by_key(|(_, _, seat)| *seat);
+
+        let hand_id = uuid::Uuid::new_v4();
+        if let Some(db) = self.db.clone() {
+            let table_id = match uuid::Uuid::parse_str(&self.table_id) {
+                Ok(table_id) => table_id,
+                Err(_) => {
+                    self.pause_for_recovery("table id is not a UUID").await;
+                    return;
+                }
+            };
+            match sqlx::query(
+                "INSERT INTO table_hand_recovery_guards (table_id, hand_id) \
+                 VALUES ($1, $2) ON CONFLICT DO NOTHING",
+            )
+            .bind(table_id)
+            .bind(hand_id)
+            .execute(&db)
+            .await
+            {
+                Ok(result) if result.rows_affected() == 1 => {}
+                Ok(_) => {
+                    self.pause_for_recovery("an unrecovered hand guard already exists")
+                        .await;
+                    return;
+                }
+                Err(error) => {
+                    error!(?error, table_id = %self.table_id, "Failed to persist hand recovery guard");
+                    self.pause_for_recovery("could not persist hand recovery guard")
+                        .await;
+                    return;
+                }
+            }
+        }
 
         let mut gl = GameLoop::new(
             self.config.clone(),
-            uuid::Uuid::new_v4().to_string(),
+            hand_id.to_string(),
             self.name.clone(),
             GameType::Cash,
         );
-
-        for p in &active_players {
-            gl.add_player(p.id.clone(), p.chips);
+        for (player_id, chips, _) in &active_players {
+            gl.add_player(player_id.clone(), *chips);
         }
 
         // Pick the first occupied seat to the left of the previous physical
@@ -630,65 +689,40 @@ impl TableActor {
         self.dealer_index = match self.dealer_seat {
             Some(previous_seat) => active_players
                 .iter()
-                .position(|player| player.seat > previous_seat)
+                .position(|(_, _, seat)| *seat > previous_seat)
                 .unwrap_or(0),
             None => 0,
         };
-        self.dealer_seat = Some(active_players[self.dealer_index].seat);
+        self.dealer_seat = Some(active_players[self.dealer_index].2);
         gl.set_dealer(self.dealer_index);
 
-        if let Err(e) = gl.start_hand() {
-            error!("Failed to start hand: {}", e);
+        if let Err(error) = gl.start_hand() {
+            error!(?error, table_id = %self.table_id, "Failed to start hand after recovery guard");
+            self.pause_for_recovery("could not initialize guarded hand")
+                .await;
             return;
         }
 
         self.game_loop = Some(gl);
         self.last_turn_start = Some(tokio::time::Instant::now());
-        info!("Started new hand at table {}", self.table_id);
+        info!(table_id = %self.table_id, hand_id = %hand_id, "Started guarded hand");
         self.broadcast_state();
     }
 
-    async fn persist_settled_stacks(&self, stacks: Vec<(String, u64)>) {
-        let (Some(db), Ok(table_id)) = (self.db.clone(), uuid::Uuid::parse_str(&self.table_id))
-        else {
-            return;
-        };
-
-        let mut tx = match db.begin().await {
-            Ok(tx) => tx,
-            Err(error) => {
-                error!(
-                    ?error,
-                    "Failed to begin table stack persistence transaction"
-                );
-                return;
-            }
-        };
-        for (player_id, chips) in stacks {
-            let Ok(chips) = i64::try_from(chips) else {
-                error!(player_id, "Player stack exceeds database range");
-                return;
-            };
-            if let Err(error) = sqlx::query(
-                "UPDATE cash_game_seats SET chips = $1 \
-                 WHERE table_id = $2 AND user_id = $3::uuid AND status = 'ACTIVE'",
-            )
-            .bind(chips)
-            .bind(table_id)
-            .bind(&player_id)
-            .execute(&mut *tx)
-            .await
+    async fn pause_for_recovery(&mut self, reason: &str) {
+        self.persistence_halted = true;
+        self.next_hand_at = None;
+        error!(table_id = %self.table_id, reason, "Table halted pending recovery review");
+        if let (Some(db), Ok(table_id)) = (self.db.clone(), uuid::Uuid::parse_str(&self.table_id)) {
+            if let Err(error) = sqlx::query("UPDATE tables SET status = 'PAUSED' WHERE id = $1")
+                .bind(table_id)
+                .execute(&db)
+                .await
             {
-                error!(?error, player_id, "Failed to persist table stack");
-                return;
+                error!(?error, table_id = %self.table_id, "Failed to pause table after persistence failure");
             }
         }
-        if let Err(error) = tx.commit().await {
-            error!(
-                ?error,
-                "Failed to commit table stack persistence transaction"
-            );
-        }
+        self.broadcast_state();
     }
 
     fn get_table_info_json(&self) -> serde_json::Value {
@@ -852,8 +886,8 @@ mod tests {
         assert!(actor.players.is_empty());
     }
 
-    #[test]
-    fn dealer_rotation_follows_physical_seats_after_a_player_leaves() {
+    #[tokio::test]
+    async fn dealer_rotation_follows_physical_seats_after_a_player_leaves() {
         let (_tx_cmd, rx_cmd) = mpsc::channel(1);
         let (tx_broadcast, _) = broadcast::channel(1);
         let mut actor = TableActor::new(
@@ -864,16 +898,16 @@ mod tests {
         );
         actor.players = vec![player("a", 0), player("b", 3), player("c", 7)];
 
-        actor.start_new_hand();
+        actor.start_new_hand().await;
         assert_eq!(actor.dealer_seat, Some(0));
         actor.game_loop = None;
 
-        actor.start_new_hand();
+        actor.start_new_hand().await;
         assert_eq!(actor.dealer_seat, Some(3));
         actor.game_loop = None;
 
         actor.players.retain(|table_player| table_player.seat != 3);
-        actor.start_new_hand();
+        actor.start_new_hand().await;
         assert_eq!(actor.dealer_seat, Some(7));
     }
 
@@ -889,7 +923,7 @@ mod tests {
         )
         .with_turn_timeout(tokio::time::Duration::from_millis(1));
         actor.players = vec![player("a", 0), player("b", 1), player("c", 2)];
-        actor.start_new_hand();
+        actor.start_new_hand().await;
         let active_before = actor
             .game_loop
             .as_ref()

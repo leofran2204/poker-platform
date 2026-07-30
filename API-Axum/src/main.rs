@@ -63,6 +63,16 @@ fn parse_https_cors_origins(cors_origins: &str) -> Result<Vec<HeaderValue>, Stri
     Ok(origins)
 }
 
+async fn pause_unrecovered_tables(pool: &sqlx::PgPool) -> Result<u64, sqlx::Error> {
+    let result = sqlx::query(
+        "UPDATE tables SET status = 'PAUSED' \
+         WHERE status = 'OPEN' \
+           AND EXISTS (SELECT 1 FROM table_hand_recovery_guards guard WHERE guard.table_id = tables.id)",
+    )
+    .execute(pool)
+    .await?;
+    Ok(result.rows_affected())
+}
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load .env
@@ -118,6 +128,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         })?;
 
     tracing::info!("Migrations applied");
+    let paused_tables = pause_unrecovered_tables(&pool).await?;
+    if paused_tables > 0 {
+        tracing::error!(
+            paused_tables,
+            "Paused tables with an unrecovered hand; administrator recovery review is required"
+        );
+    }
 
     // Initialize Redis connection if REDIS_URL is provided
     let redis_conn = if let Ok(redis_url) = std::env::var("REDIS_URL") {

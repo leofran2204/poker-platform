@@ -247,6 +247,51 @@ pub async fn update_table_status_handler(
     Ok(Json(admin_table_response(row)?))
 }
 
+/// POST /api/admin/tables/:id/recovery/abort — records the explicit abort of
+/// a hand left incomplete by a process failure. The pre-hand escrow remains in
+/// PostgreSQL; the administrator must reopen the table separately after review.
+pub async fn abort_table_recovery_handler(
+    RequireAuth(auth_user): RequireAuth,
+    State(state): State<AppState>,
+    Path(table_id): Path<String>,
+) -> Result<Json<AdminTableResponse>, ApiError> {
+    require_admin(&auth_user)?;
+    let table_id = uuid::Uuid::parse_str(&table_id)
+        .map_err(|_| ApiError::BadRequest("Invalid table id".to_string()))?;
+    let mut tx = state.db.begin().await?;
+    let guard: Option<(uuid::Uuid,)> = sqlx::query_as(
+        "SELECT hand_id FROM table_hand_recovery_guards WHERE table_id = $1 FOR UPDATE",
+    )
+    .bind(table_id)
+    .fetch_optional(&mut *tx)
+    .await?;
+    let (hand_id,) = guard
+        .ok_or_else(|| ApiError::NotFound("Table does not have an unrecovered hand".to_string()))?;
+    sqlx::query("DELETE FROM table_hand_recovery_guards WHERE table_id = $1 AND hand_id = $2")
+        .bind(table_id)
+        .bind(hand_id)
+        .execute(&mut *tx)
+        .await?;
+    let row: AdminTableRow = sqlx::query_as(
+        "UPDATE tables SET status = 'PAUSED' WHERE id = $1 \
+         RETURNING id, name, status, small_blind, big_blind, min_buy_in, max_buy_in, max_players, rake_basis_points, rake_cap",
+    )
+    .bind(table_id)
+    .fetch_one(&mut *tx)
+    .await?;
+    sqlx::query(
+        "INSERT INTO audit_logs (user_id, action, metadata) \
+         VALUES ($1, 'TABLE_HAND_RECOVERY_ABORTED', $2)",
+    )
+    .bind(&auth_user.user_id)
+    .bind(serde_json::json!({"table_id": table_id, "hand_id": hand_id}))
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
+
+    Ok(Json(admin_table_response(row)?))
+}
+///
 /// GET /api/admin/antifraud/alerts — Retorna métricas e alertas antifraude para o painel admin
 pub async fn get_antifraud_alerts_handler(
     RequireAuth(auth_user): RequireAuth,

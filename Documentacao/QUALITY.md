@@ -231,7 +231,7 @@ Na próxima aula, revisão rápida dos conceitos do tópico anterior antes de av
 | **Estresse API/WS**   | **1.000.800 mensagens WebSockets** em 100 mesas + 50 Red Team workers  |
 | **Módulos do motor**  | 10 módulos principais                                                  |
 | **Módulos antifraude**| 4 módulos (bot detection, collusion, chip dumping, multi-account)       |
-| **Pagamentos**        | Adaptadores PIX locais (mock/Asaas/Mercado Pago); integração real deliberadamente adiada |
+| **Pagamentos**        | Mock local e Asaas Sandbox autenticado com allow-list; Mercado Pago e PIX de produção desabilitados |
 | **Infraestrutura**    | docker-compose.yml (PostgreSQL 15, Redis 7, Kafka+Zookeeper, Caddy HTTPS) |
 
 ## 🧩 2.2 MÓDULOS DO MOTOR (10 módulos engine + módulos de teste)
@@ -4551,7 +4551,7 @@ let players = sqlx::query_as::<_, Player>(
 
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-28):** S08 — ledger transacional PIX local, revogação persistente de tokens, turnos e WebSocket reforçados e validados no WSL. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais, inclusive contratos financeiros PostgreSQL e limite compartilhado Redis; a CI executa somente o perfil determinístico e rápido. PIX real continua adiado: o depósito cria intenção auditável e o saque reserva saldo em outbox, sem payout externo na requisição HTTPS. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
+> **Estado operacional sincronizado (2026-07-29):** S09 — liquidação de mãos protegida por guarda transacional e PIX Asaas apenas em Sandbox autenticado. **Sem certificação de produção; o código rejeita PIX em modo production.** cargo fmt, cargo check --all-targets e cargo clippy --all-targets -- -D warnings passaram no WSL; cargo test --lib passou com 17 testes e a migration foi aceita em transação PostgreSQL revertida. A carga completa autorizada continua manual e não foi acionada neste ciclo. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

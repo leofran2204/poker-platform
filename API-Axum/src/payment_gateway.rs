@@ -2,7 +2,8 @@
 // Arquitetura Financeira: Todos os valores `amount` utilizam `u64` centavos inteiros.
 
 use serde::{Deserialize, Serialize};
-use std::env;
+use std::{env, time::Duration};
+use subtle::ConstantTimeEq;
 
 fn format_brl_cents(amount_centavos: u64) -> String {
     format!("{}.{:02}", amount_centavos / 100, amount_centavos % 100)
@@ -116,26 +117,67 @@ impl PixGateway for MockPixGateway {
     }
 }
 
-// ─── Provedor 2: Asaas HTTPS Gateway ───
+// ─── Provedor 2: Asaas PIX Sandbox ───
+//
+// This adapter makes real HTTPS calls only to the Asaas Sandbox. Production is
+// deliberately rejected by the factory until the operator has written approval
+// from a compatible PSP and the regulated real-money controls are implemented.
+
+#[derive(Debug, Deserialize)]
+struct AsaasPaymentResponse {
+    id: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct AsaasPixQrCodeResponse {
+    payload: String,
+    #[serde(rename = "encodedImage")]
+    encoded_image: String,
+    #[serde(rename = "expirationDate")]
+    expiration_date: String,
+}
 
 #[derive(Debug, Clone)]
 pub struct AsaasPixGateway {
     pub api_key: String,
-    pub webhook_secret: String,
+    pub webhook_token: String,
+    pub customer_id: String,
     pub api_url: String,
 }
 
 impl AsaasPixGateway {
-    pub fn new(api_key: &str, webhook_secret: &str, is_sandbox: bool) -> Self {
-        let api_url = if is_sandbox {
-            "https://sandbox.asaas.com/api/v3".to_string()
-        } else {
-            "https://api.asaas.com/v3".to_string()
-        };
+    pub fn sandbox(api_key: &str, webhook_token: &str, customer_id: &str) -> Self {
         Self {
             api_key: api_key.to_string(),
-            webhook_secret: webhook_secret.to_string(),
-            api_url,
+            webhook_token: webhook_token.to_string(),
+            customer_id: customer_id.to_string(),
+            api_url: "https://api-sandbox.asaas.com/v3".to_string(),
+        }
+    }
+
+    fn client() -> Result<reqwest::blocking::Client, String> {
+        reqwest::blocking::Client::builder()
+            .timeout(Duration::from_secs(10))
+            .build()
+            .map_err(|error| format!("Could not initialize Asaas HTTPS client: {error}"))
+    }
+
+    fn value_number(amount_centavos: u64) -> Result<serde_json::Number, String> {
+        format_brl_cents(amount_centavos)
+            .parse::<serde_json::Number>()
+            .map_err(|_| "Could not represent PIX amount exactly".to_string())
+    }
+
+    fn check_success(
+        response: reqwest::blocking::Response,
+    ) -> Result<reqwest::blocking::Response, String> {
+        if response.status().is_success() {
+            Ok(response)
+        } else {
+            Err(format!(
+                "Asaas HTTPS request failed with status {}",
+                response.status()
+            ))
         }
     }
 }
@@ -144,135 +186,115 @@ impl PixGateway for AsaasPixGateway {
     fn create_deposit_charge(
         &self,
         tx_id: &str,
-        user_id: &str,
+        _user_id: &str,
         amount_centavos: u64,
     ) -> Result<PixChargeResult, String> {
-        let external_id = format!("asaas_dep_{}", tx_id);
-        let amount_brl = format_brl_cents(amount_centavos);
-
-        let pix_copy = format!(
-            "00020126580014BR.GOV.BCB.PIX0136asaas-{}5204000053039865405{}5802BR5913ASAAS_PAYMENT6009SAO_PAULO62070503***6304FFFF",
-            tx_id, amount_brl
-        );
-        let qr_code = format!(
-            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA_asaas_https_qr_{}_{}",
-            tx_id, user_id
-        );
+        let client = Self::client()?;
+        let payment_request = serde_json::json!({
+            "customer": self.customer_id,
+            "billingType": "PIX",
+            "value": Self::value_number(amount_centavos)?,
+            "dueDate": chrono::Utc::now().date_naive().to_string(),
+            "description": "Poker_Project sandbox deposit",
+            "externalReference": tx_id,
+        });
+        let payment = client
+            .post(format!("{}/payments", self.api_url))
+            .header("access_token", &self.api_key)
+            .json(&payment_request)
+            .send()
+            .map_err(|error| format!("Asaas payment request failed: {error}"))
+            .and_then(Self::check_success)?
+            .json::<AsaasPaymentResponse>()
+            .map_err(|error| format!("Asaas payment response was invalid: {error}"))?;
+        let qr_code = client
+            .get(format!(
+                "{}/payments/{}/pixQrCode",
+                self.api_url, payment.id
+            ))
+            .header("access_token", &self.api_key)
+            .send()
+            .map_err(|error| format!("Asaas PIX QR request failed: {error}"))
+            .and_then(Self::check_success)?
+            .json::<AsaasPixQrCodeResponse>()
+            .map_err(|error| format!("Asaas PIX QR response was invalid: {error}"))?;
 
         Ok(PixChargeResult {
-            external_tx_id: external_id,
-            pix_copy_paste: pix_copy,
-            qr_code_base64: qr_code,
-            expires_at: "2026-12-31T23:59:59Z".to_string(),
+            external_tx_id: payment.id,
+            pix_copy_paste: qr_code.payload,
+            qr_code_base64: format!("data:image/png;base64,{}", qr_code.encoded_image),
+            expires_at: qr_code.expiration_date,
         })
     }
 
     fn execute_withdraw_payout(
         &self,
-        tx_id: &str,
+        _tx_id: &str,
         _user_id: &str,
-        amount_centavos: u64,
-        pix_key_type: &str,
+        _amount_centavos: u64,
+        _pix_key_type: &str,
         _pix_key: &str,
     ) -> Result<PixPayoutResult, String> {
-        if amount_centavos == 0 {
-            return Err("Valor de saque inválido".to_string());
-        }
-
-        let amount_brl = format_brl_cents(amount_centavos);
-        let external_id = format!("asaas_trf_{}", tx_id);
-        Ok(PixPayoutResult {
-            external_tx_id: external_id,
-            status: "SCHEDULED".to_string(),
-            message: format!(
-                "Transferência HTTPS Asaas PIX (TLS 1.3) de R$ {} agendada ({})",
-                amount_brl, pix_key_type
-            ),
-        })
+        Err("PIX payouts are unavailable: no reconciled outbox worker is enabled".to_string())
     }
 
-    fn verify_webhook_hmac(&self, body: &[u8], signature_header: Option<&str>) -> bool {
-        verify_hmac_helper(body, signature_header, &self.webhook_secret)
+    fn verify_webhook_hmac(&self, _body: &[u8], token_header: Option<&str>) -> bool {
+        token_header
+            .map(|token| {
+                self.webhook_token
+                    .as_bytes()
+                    .ct_eq(token.trim().as_bytes())
+                    .unwrap_u8()
+                    == 1
+            })
+            .unwrap_or(false)
     }
 }
-
-// ─── Provedor 3: Mercado Pago HTTPS Gateway ───
 
 #[derive(Debug, Clone)]
-pub struct MercadoPagoPixGateway {
-    pub access_token: String,
-    pub webhook_secret: String,
+pub struct DisabledPixGateway {
+    reason: String,
 }
 
-impl MercadoPagoPixGateway {
-    pub fn new(access_token: &str, webhook_secret: &str) -> Self {
+impl DisabledPixGateway {
+    fn new(reason: impl Into<String>) -> Self {
         Self {
-            access_token: access_token.to_string(),
-            webhook_secret: webhook_secret.to_string(),
+            reason: reason.into(),
         }
     }
 }
 
-impl PixGateway for MercadoPagoPixGateway {
+impl PixGateway for DisabledPixGateway {
     fn create_deposit_charge(
         &self,
-        tx_id: &str,
-        user_id: &str,
-        amount_centavos: u64,
+        _tx_id: &str,
+        _user_id: &str,
+        _amount_centavos: u64,
     ) -> Result<PixChargeResult, String> {
-        let external_id = format!("mp_pay_{}", tx_id);
-        let amount_brl = format_brl_cents(amount_centavos);
-
-        let pix_copy = format!(
-            "00020126580014BR.GOV.BCB.PIX0136mercadopago-{}5204000053039865405{}5802BR5912MERCADOPAGO6009SAO_PAULO62070503***6304EEEE",
-            tx_id, amount_brl
-        );
-        let qr_code = format!(
-            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA_mp_https_qr_{}_{}",
-            tx_id, user_id
-        );
-
-        Ok(PixChargeResult {
-            external_tx_id: external_id,
-            pix_copy_paste: pix_copy,
-            qr_code_base64: qr_code,
-            expires_at: "2026-12-31T23:59:59Z".to_string(),
-        })
+        Err(self.reason.clone())
     }
 
     fn execute_withdraw_payout(
         &self,
-        tx_id: &str,
+        _tx_id: &str,
         _user_id: &str,
-        amount_centavos: u64,
-        pix_key_type: &str,
+        _amount_centavos: u64,
+        _pix_key_type: &str,
         _pix_key: &str,
     ) -> Result<PixPayoutResult, String> {
-        if amount_centavos == 0 {
-            return Err("Valor de saque inválido".to_string());
-        }
-        let amount_brl = format_brl_cents(amount_centavos);
-        let external_id = format!("mp_payout_{}", tx_id);
-        Ok(PixPayoutResult {
-            external_tx_id: external_id,
-            status: "APPROVED".to_string(),
-            message: format!(
-                "Saque HTTPS Mercado Pago PIX (TLS 1.3) agendado (R$ {}, {})",
-                amount_brl, pix_key_type
-            ),
-        })
+        Err(self.reason.clone())
     }
 
-    fn verify_webhook_hmac(&self, body: &[u8], signature_header: Option<&str>) -> bool {
-        verify_hmac_helper(body, signature_header, &self.webhook_secret)
+    fn verify_webhook_hmac(&self, _body: &[u8], _signature_header: Option<&str>) -> bool {
+        false
     }
 }
 
-// ─── Helper de validação HMAC (SHA-256) ───
+// ─── Webhook authentication for the local mock ───
 
 fn verify_hmac_helper(body: &[u8], signature_header: Option<&str>, secret: &str) -> bool {
-    let sig_str = match signature_header {
-        Some(s) => s,
+    let signature = match signature_header {
+        Some(signature) => signature,
         None => return false,
     };
 
@@ -281,42 +303,114 @@ fn verify_hmac_helper(body: &[u8], signature_header: Option<&str>, secret: &str)
     type HmacSha256 = Hmac<Sha256>;
 
     let mut mac = match HmacSha256::new_from_slice(secret.as_bytes()) {
-        Ok(m) => m,
+        Ok(mac) => mac,
         Err(_) => return false,
     };
     mac.update(body);
-    let expected_bytes = mac.finalize().into_bytes();
-    let expected_hex = expected_bytes
+    let expected = mac.finalize().into_bytes();
+    let expected_hex = expected
         .iter()
-        .map(|b| format!("{:02x}", b))
+        .map(|byte| format!("{byte:02x}"))
         .collect::<String>();
-
-    let clean_sig = sig_str.trim_start_matches("sha256=");
-    clean_sig.eq_ignore_ascii_case(&expected_hex)
+    expected_hex
+        .as_bytes()
+        .ct_eq(signature.trim_start_matches("sha256=").as_bytes())
+        .unwrap_u8()
+        == 1
 }
 
-// ─── Fábrica Dinâmica de Provedores PIX ───
+// ─── Factory ───
+//
+// Mock is the safe default for unit tests. The only non-mock adapter is the
+// documented Asaas Sandbox integration. Production is hard-disabled until the
+// operator is approved by a PSP compatible with the intended regulated activity.
 
 pub fn get_payment_gateway() -> Box<dyn PixGateway> {
     let provider = env::var("PIX_PROVIDER")
         .unwrap_or_else(|_| "mock".to_string())
-        .to_lowercase();
-    let secret = env::var("PIX_WEBHOOK_SECRET")
-        .unwrap_or_else(|_| "poker-pix-webhook-secret-key-32chars".to_string());
+        .trim()
+        .to_ascii_lowercase();
+    let mode = env::var("PIX_MODE")
+        .unwrap_or_else(|_| "mock".to_string())
+        .trim()
+        .to_ascii_lowercase();
 
-    match provider.as_str() {
-        "asaas" => {
-            let api_key =
-                env::var("ASAAS_API_KEY").unwrap_or_else(|_| "mock_asaas_key".to_string());
-            let is_sandbox =
-                env::var("ASAAS_SANDBOX").unwrap_or_else(|_| "true".to_string()) == "true";
-            Box::new(AsaasPixGateway::new(&api_key, &secret, is_sandbox))
+    match (provider.as_str(), mode.as_str()) {
+        ("mock", "mock") => {
+            let secret = env::var("PIX_WEBHOOK_SECRET")
+                .unwrap_or_else(|_| "poker-pix-webhook-secret-key-32chars".to_string());
+            Box::new(MockPixGateway::new(&secret))
         }
-        "mercadopago" | "mp" => {
-            let access_token = env::var("MERCADOPAGO_ACCESS_TOKEN")
-                .unwrap_or_else(|_| "mock_mp_token".to_string());
-            Box::new(MercadoPagoPixGateway::new(&access_token, &secret))
+        ("asaas", "sandbox") => {
+            let api_key = env::var("ASAAS_API_KEY").ok();
+            let webhook_token = env::var("ASAAS_WEBHOOK_TOKEN").ok();
+            let customer_id = env::var("ASAAS_TEST_CUSTOMER_ID").ok();
+            match (api_key, webhook_token, customer_id) {
+                (Some(api_key), Some(webhook_token), Some(customer_id))
+                    if !api_key.trim().is_empty()
+                        && !customer_id.trim().is_empty()
+                        && webhook_token.len() >= 32
+                        && !webhook_token.contains(char::is_whitespace) =>
+                {
+                    Box::new(AsaasPixGateway::sandbox(
+                        &api_key,
+                        &webhook_token,
+                        &customer_id,
+                    ))
+                }
+                _ => Box::new(DisabledPixGateway::new(
+                    "Asaas Sandbox requires ASAAS_API_KEY, ASAAS_WEBHOOK_TOKEN (at least 32 characters), and ASAAS_TEST_CUSTOMER_ID",
+                )),
+            }
         }
-        _ => Box::new(MockPixGateway::new(&secret)),
+        ("asaas", "production") => Box::new(DisabledPixGateway::new(
+            "Asaas production PIX is intentionally disabled pending PSP approval and real-money compliance controls",
+        )),
+        ("mercadopago" | "mp", _) => Box::new(DisabledPixGateway::new(
+            "Mercado Pago PIX has no verified adapter in this project",
+        )),
+        _ => Box::new(DisabledPixGateway::new(
+            "PIX is disabled; use PIX_PROVIDER=mock with PIX_MODE=mock or configure the verified Asaas Sandbox adapter",
+        )),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{AsaasPixGateway, MockPixGateway, PixGateway};
+    use hmac::{Hmac, Mac};
+    use sha2::Sha256;
+
+    fn signature(body: &[u8], secret: &str) -> String {
+        let mut mac = Hmac::<Sha256>::new_from_slice(secret.as_bytes()).expect("valid HMAC key");
+        mac.update(body);
+        let digest = mac.finalize().into_bytes();
+        format!(
+            "sha256={}",
+            digest
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>()
+        )
+    }
+
+    #[test]
+    fn mock_webhook_requires_the_exact_hmac() {
+        let body = br#"{\"tx_id\":\"pix_dep_test\"}"#;
+        let gateway = MockPixGateway::new("test-webhook-secret");
+        let valid = signature(body, "test-webhook-secret");
+
+        assert!(gateway.verify_webhook_hmac(body, Some(&valid)));
+        assert!(!gateway.verify_webhook_hmac(body, Some("sha256=00")));
+        assert!(!gateway.verify_webhook_hmac(b"different", Some(&valid)));
+    }
+
+    #[test]
+    fn asaas_sandbox_webhook_requires_the_configured_token() {
+        let token = "0123456789abcdef0123456789abcdef";
+        let gateway = AsaasPixGateway::sandbox("sandbox-key", token, "cus_test");
+
+        assert!(gateway.verify_webhook_hmac(b"ignored", Some(token)));
+        assert!(!gateway.verify_webhook_hmac(b"ignored", Some("different-token")));
     }
 }

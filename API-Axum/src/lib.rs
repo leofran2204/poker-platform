@@ -167,6 +167,12 @@ pub fn build_router(state: AppState) -> Router {
                 )),
         )
         .route(
+            "/api/admin/tables/:id/recovery/abort",
+            post(admin_routes::abort_table_recovery_handler).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
             "/api/admin/tables/:id/status",
             patch(admin_routes::update_table_status_handler).route_layer(
                 from_extractor_with_state::<RequireAuth, AppState>(state.clone()),

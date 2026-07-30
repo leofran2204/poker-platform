@@ -46,7 +46,88 @@ pub struct WebhookPixPayload {
     pub amount: u64,
     pub status: String,
 }
+#[derive(Debug, Deserialize)]
+struct AsaasWebhookPayment {
+    id: String,
+    #[serde(rename = "externalReference")]
+    external_reference: Option<String>,
+    value: serde_json::Value,
+    status: String,
+}
 
+#[derive(Debug, Deserialize)]
+struct AsaasWebhookPayload {
+    event: String,
+    payment: AsaasWebhookPayment,
+}
+
+fn brl_value_to_cents(value: &serde_json::Value) -> Result<u64, ApiError> {
+    let raw = value
+        .as_str()
+        .map(str::to_owned)
+        .or_else(|| value.as_number().map(ToString::to_string))
+        .ok_or_else(|| ApiError::BadRequest("Asaas webhook amount is invalid".to_string()))?;
+    let (whole, fractional) = raw
+        .split_once('.')
+        .map_or((raw.as_str(), ""), |(whole, fractional)| {
+            (whole, fractional)
+        });
+    if whole.is_empty()
+        || !whole.chars().all(|character| character.is_ascii_digit())
+        || fractional.len() > 2
+        || !fractional
+            .chars()
+            .all(|character| character.is_ascii_digit())
+    {
+        return Err(ApiError::BadRequest(
+            "Asaas webhook amount is not an exact BRL decimal".to_string(),
+        ));
+    }
+    let whole_cents = whole
+        .parse::<u64>()
+        .map_err(|_| ApiError::BadRequest("Asaas webhook amount is too large".to_string()))?
+        .checked_mul(100)
+        .ok_or_else(|| ApiError::BadRequest("Asaas webhook amount is too large".to_string()))?;
+    let fractional_cents = match fractional.len() {
+        0 => 0,
+        1 => {
+            fractional
+                .parse::<u64>()
+                .map_err(|_| ApiError::BadRequest("Asaas webhook amount is invalid".to_string()))?
+                * 10
+        }
+        2 => fractional
+            .parse::<u64>()
+            .map_err(|_| ApiError::BadRequest("Asaas webhook amount is invalid".to_string()))?,
+        _ => unreachable!("fraction length was validated"),
+    };
+    whole_cents
+        .checked_add(fractional_cents)
+        .ok_or_else(|| ApiError::BadRequest("Asaas webhook amount is too large".to_string()))
+}
+
+fn parse_verified_webhook(provider: &str, body: &[u8]) -> Result<WebhookPixPayload, ApiError> {
+    if provider == "asaas" {
+        let payload: AsaasWebhookPayload = serde_json::from_slice(body)?;
+        let tx_id = payload.payment.external_reference.ok_or_else(|| {
+            ApiError::BadRequest("Asaas webhook is missing externalReference".to_string())
+        })?;
+        return Ok(WebhookPixPayload {
+            tx_id,
+            external_tx_id: Some(payload.payment.id),
+            amount: brl_value_to_cents(&payload.payment.value)?,
+            status: if payload.event == "PAYMENT_RECEIVED"
+                && payload.payment.status.eq_ignore_ascii_case("RECEIVED")
+            {
+                "RECEIVED".to_string()
+            } else {
+                payload.payment.status
+            },
+        });
+    }
+
+    Ok(serde_json::from_slice(body)?)
+}
 #[derive(Debug, Serialize)]
 pub struct WebhookResponse {
     pub status: String,
@@ -88,7 +169,30 @@ fn pix_provider() -> String {
         .unwrap_or_else(|_| "mock".to_string())
         .to_ascii_lowercase()
 }
+fn ensure_pix_depositor_is_allowlisted(user_id: &str) -> Result<(), ApiError> {
+    let provider = pix_provider();
+    let mode = std::env::var("PIX_MODE")
+        .unwrap_or_else(|_| "mock".to_string())
+        .to_ascii_lowercase();
+    if provider != "asaas" || mode != "sandbox" {
+        return Ok(());
+    }
 
+    let allowed = std::env::var("PIX_ALLOWED_DEPOSITOR_IDS").map_err(|_| {
+        ApiError::Forbidden("Asaas Sandbox deposits require PIX_ALLOWED_DEPOSITOR_IDS".to_string())
+    })?;
+    if allowed
+        .split(',')
+        .map(str::trim)
+        .any(|configured_user_id| configured_user_id == user_id)
+    {
+        Ok(())
+    } else {
+        Err(ApiError::Forbidden(
+            "This account is not authorized for Asaas Sandbox deposits".to_string(),
+        ))
+    }
+}
 fn pix_key_fingerprint(pix_key: &str) -> String {
     format!("{:x}", Sha256::digest(pix_key.trim().as_bytes()))
 }
@@ -103,6 +207,7 @@ pub async fn create_pix_deposit_handler(
     Json(payload): Json<DepositRequest>,
 ) -> Result<Json<DepositResponse>, ApiError> {
     let amount = cents_to_i64(payload.amount, "Deposit amount")?;
+    ensure_pix_depositor_is_allowlisted(&auth_user.user_id)?;
     let tx_id = format!("pix_dep_{}", uuid::Uuid::new_v4());
     let provider = pix_provider();
     let _audit = crate::audit_span!(&auth_user.user_id, "PIX_DEPOSIT_CREATED");
@@ -129,9 +234,16 @@ pub async fn create_pix_deposit_handler(
     transaction.commit().await?;
 
     let gateway = get_payment_gateway();
-    let charge = match gateway.create_deposit_charge(&tx_id, &auth_user.user_id, payload.amount) {
-        Ok(charge) => charge,
-        Err(error) => {
+    let charge_tx_id = tx_id.clone();
+    let charge_user_id = auth_user.user_id.clone();
+    let charge_amount = payload.amount;
+    let charge = match tokio::task::spawn_blocking(move || {
+        gateway.create_deposit_charge(&charge_tx_id, &charge_user_id, charge_amount)
+    })
+    .await
+    {
+        Ok(Ok(charge)) => charge,
+        Ok(Err(error)) => {
             sqlx::query(
                 "UPDATE wallet_transactions SET status = 'CANCELLED', provider_status = 'CREATE_FAILED' \
                  WHERE idempotency_key = $1 AND status = 'PENDING'",
@@ -141,6 +253,18 @@ pub async fn create_pix_deposit_handler(
             .await?;
             return Err(ApiError::Internal(format!(
                 "PIX charge creation failed: {error}"
+            )));
+        }
+        Err(error) => {
+            sqlx::query(
+                "UPDATE wallet_transactions SET status = 'CANCELLED', provider_status = 'CREATE_FAILED' \
+                 WHERE idempotency_key = $1 AND status = 'PENDING'",
+            )
+            .bind(&tx_id)
+            .execute(&state.db)
+            .await?;
+            return Err(ApiError::Internal(format!(
+                "PIX charge task failed: {error}"
             )));
         }
     };
@@ -179,19 +303,24 @@ pub async fn pix_webhook_handler(
     headers: HeaderMap,
     body: Bytes,
 ) -> Result<(StatusCode, Json<WebhookResponse>), ApiError> {
-    let signature = headers
-        .get("X-Signature")
+    let provider = pix_provider();
+    let webhook_token = headers
+        .get("asaas-access-token")
+        .or_else(|| headers.get("X-Signature"))
         .or_else(|| headers.get("X-Webhook-Secret"))
         .and_then(|header| header.to_str().ok());
     let gateway = get_payment_gateway();
-    if !gateway.verify_webhook_hmac(&body, signature) {
+    if !gateway.verify_webhook_hmac(&body, webhook_token) {
         return Err(ApiError::Unauthorized(
-            "Invalid or missing PIX webhook signature".to_string(),
+            "Invalid or missing PIX webhook authentication".to_string(),
         ));
     }
 
-    let payload: WebhookPixPayload = serde_json::from_slice(&body)?;
-    if !matches!(payload.status.as_str(), "APPROVED" | "COMPLETED") {
+    let payload = parse_verified_webhook(&provider, &body)?;
+    if !matches!(
+        payload.status.as_str(),
+        "APPROVED" | "COMPLETED" | "RECEIVED"
+    ) {
         return Ok((
             StatusCode::OK,
             Json(WebhookResponse {
@@ -365,4 +494,45 @@ pub async fn create_pix_withdraw_handler(
             message: "PIX withdrawal reserved for reconciled processing".to_string(),
         }),
     ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{brl_value_to_cents, parse_verified_webhook};
+
+    #[test]
+    fn asaas_webhook_keeps_exact_cent_values() {
+        assert_eq!(
+            brl_value_to_cents(&serde_json::json!("12.34")).unwrap(),
+            1234
+        );
+        assert_eq!(brl_value_to_cents(&serde_json::json!(12.3)).unwrap(), 1230);
+        assert_eq!(brl_value_to_cents(&serde_json::json!(7)).unwrap(), 700);
+    }
+
+    #[test]
+    fn asaas_webhook_rejects_non_exact_brl_values() {
+        assert!(brl_value_to_cents(&serde_json::json!("12.345")).is_err());
+        assert!(brl_value_to_cents(&serde_json::json!("-1.00")).is_err());
+        assert!(brl_value_to_cents(&serde_json::json!("1e2")).is_err());
+    }
+
+    #[test]
+    fn asaas_webhook_uses_provider_ids_and_received_status() {
+        let body = br#"{
+            "event":"PAYMENT_RECEIVED",
+            "payment":{
+                "id":"pay_sandbox_1",
+                "externalReference":"pix_dep_internal_1",
+                "value":"9.99",
+                "status":"RECEIVED"
+            }
+        }"#;
+        let payload = parse_verified_webhook("asaas", body).unwrap();
+
+        assert_eq!(payload.tx_id, "pix_dep_internal_1");
+        assert_eq!(payload.external_tx_id.as_deref(), Some("pay_sandbox_1"));
+        assert_eq!(payload.amount, 999);
+        assert_eq!(payload.status, "RECEIVED");
+    }
 }

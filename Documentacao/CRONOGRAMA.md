@@ -111,7 +111,7 @@ FASE 6 ████████████████████████�
 | 5.3 | MFA / TOTP (RFC 6238)                  | ✅ Completo | —           |
 | 5.4 | bcrypt 0.16 para senhas                | ✅ Completo | —           |
 | 5.5 | Container Hardening (read_only, cap_drop)| ✅ Completo | —           |
-| 5.6 | Gateway PIX Multi-Provedor (Asaas/Mercado Pago/Mock) | ✅ Completo | — |
+| 5.6 | PIX para desenvolvimento: Mock + Asaas Sandbox autenticado | ⏸️ Produção bloqueada | Requer PSP compatível, conformidade e operação reconciliada |
 | 5.7 | Validação Webhook PIX HMAC-SHA256      | ✅ Completo | —           |
 | 5.8 | Audit de Segurança (DevSecOps Trivy)   | ✅ Completo | —           |
 | 5.9 | Prometheus & Health Security Endpoints | ✅ Completo | —           |
@@ -166,7 +166,7 @@ FASE 6 ████████████████████████�
 > 💡 **Dica:** O projeto atingiu 100% de conclusão com 2.050 testes passando, zero clippy warnings e zero vulnerabilidades.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-28):** S08 — ledger transacional PIX local, revogação persistente de tokens, turnos e WebSocket reforçados e validados no WSL. **Sem certificação de produção.** A validação completa autorizada cobre 100 cenários centrais de carga e os testes funcionais, inclusive contratos financeiros PostgreSQL e limite compartilhado Redis; a CI executa somente o perfil determinístico e rápido. PIX real continua adiado: o depósito cria intenção auditável e o saque reserva saldo em outbox, sem payout externo na requisição HTTPS. Mesas continuam com dono único por processo; Kubernetes permanece em uma réplica até existir ownership distribuído.
+> **Estado operacional sincronizado (2026-07-29):** S09 — liquidação de mãos protegida por guarda transacional e PIX Asaas apenas em Sandbox autenticado. **Sem certificação de produção; o código rejeita PIX em modo production.** cargo fmt, cargo check --all-targets e cargo clippy --all-targets -- -D warnings passaram no WSL; cargo test --lib passou com 17 testes e a migration foi aceita em transação PostgreSQL revertida. A carga completa autorizada continua manual e não foi acionada neste ciclo. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->
