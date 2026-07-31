@@ -1,0 +1,66 @@
+# Caddyfile — origem HTTP para Cloudflare Tunnel (ou qualquer reverse-proxy externo)
+#
+# TLS termina na Cloudflare. O Caddy escuta só HTTP na porta 80.
+# Não tenta Let's Encrypt (evita falha em casa / atrás de NAT).
+#
+# Uso (compose / Docker):
+#   monte este arquivo como /etc/caddy/Caddyfile no container poker_frontend
+#   e publique apenas 127.0.0.1:80:80
+#
+# Cloudflare Tunnel (exemplo de Public Hostname):
+#   zerotiltpoker.net  →  http://127.0.0.1:80
+#   (tipo HTTP; Cloudflare entrega https://zerotiltpoker.net ao browser)
+#
+# API / CORS:
+#   CORS_ORIGINS=https://zerotiltpoker.net
+#   TRUST_PROXY_HEADERS=true
+
+{
+	# Desliga HTTPS automático global (origem atrás do tunnel)
+	auto_https off
+	admin off
+}
+
+# Aceita o host público e localhost (smoke local)
+http://zerotiltpoker.net, http://www.zerotiltpoker.net, http://localhost, http://127.0.0.1 {
+	log {
+		output stdout
+		format json
+	}
+
+	header {
+		X-Frame-Options "DENY"
+		X-Content-Type-Options "nosniff"
+		X-XSS-Protection "1; mode=block"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# HSTS fica a cargo da Cloudflare (edge). Não forçar aqui na origem HTTP.
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' wss: https:; img-src 'self' data:;"
+		-Server
+	}
+
+	handle /caddy-health {
+		respond "OK" 200
+	}
+
+	handle /api/* {
+		reverse_proxy poker_api:3000
+	}
+
+	handle /ws/* {
+		reverse_proxy poker_api:3000 {
+			header_up Host {host}
+			header_up X-Forwarded-Proto https
+			header_up X-Forwarded-Host {host}
+		}
+	}
+
+	handle /health {
+		reverse_proxy poker_api:3000
+	}
+
+	handle {
+		root * /usr/share/caddy
+		try_files {path} /index.html
+		file_server
+	}
+}
