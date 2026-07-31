@@ -52,6 +52,14 @@ docker compose up -d --build
 
 Documentação completa: [`Documentacao/README.md`](Documentacao/README.md) · Painel: [`Documentacao/DASHBOARD.md`](Documentacao/DASHBOARD.md)
 
+## Demo com amigos (feedback)
+
+Ver **[`Documentacao/DEMO_AMIGOS.md`](Documentacao/DEMO_AMIGOS.md)**.
+
+- Registro público com **R$ 1.000** play-money
+- Mesas demo NL2–NL25 (seed na migration `013`)
+- Frontend usa **mesmo domínio** da página (API + WSS)
+
 ## Limites honestos
 
 - PIX real e payout automático **desabilitados**

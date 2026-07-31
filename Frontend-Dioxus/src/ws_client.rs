@@ -5,8 +5,8 @@
 //!
 //! # URLs
 //!
-//! - **Dev (debug_assertions):** `wss://localhost`
-//! - **Prod:** `wss://api.pokerplatform.com`
+//! No browser: **mesmo host** da página (`wss://zerotiltpoker.net`, etc.).
+//! O Caddy faz reverse_proxy de `/ws/*`.
 //!
 //! # Estados
 //!
@@ -19,14 +19,25 @@ use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use wasm_bindgen_futures::spawn_local;
 
-// ─── Constantes ───
+// ─── Helpers de URL ───
 
-/// Base URL do WebSocket — sempre WSS; o Caddy faz o proxy interno.
-const WS_BASE: &str = if cfg!(debug_assertions) {
-    "wss://localhost"
-} else {
-    "wss://api.pokerplatform.com"
-};
+/// Base WSS/WS a partir do origin da página (same-host no deploy).
+fn ws_base() -> String {
+    #[cfg(target_arch = "wasm32")]
+    {
+        if let Some(window) = web_sys::window() {
+            if let Ok(origin) = window.location().origin() {
+                if let Some(rest) = origin.strip_prefix("https://") {
+                    return format!("wss://{rest}");
+                }
+                if let Some(rest) = origin.strip_prefix("http://") {
+                    return format!("ws://{rest}");
+                }
+            }
+        }
+    }
+    "wss://localhost".to_string()
+}
 
 // ─── Tipos de Mensagem ───
 
@@ -258,7 +269,7 @@ impl WsClient {
                 return;
             }
         };
-        let url = format!("{WS_BASE}/ws/game/{}?ticket={ticket}", self.table_id);
+        let url = format!("{}/ws/game/{}?ticket={ticket}", ws_base(), self.table_id);
 
         match ws_stream_wasm::WsMeta::connect(url, None).await {
             Ok((_ws_meta, ws_stream)) => {

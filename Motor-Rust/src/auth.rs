@@ -48,6 +48,10 @@ const MAX_LOGIN_ATTEMPTS: u32 = 5;
 /// Duração do lockout em segundos (15 minutos)
 const LOCKOUT_DURATION_SECS: u64 = 900;
 
+/// Saldo inicial em centavos ao registrar (play-money / demo).
+/// 100_000 = R$ 1.000,00 — suficiente para várias mesas NL sem PIX real.
+pub const DEMO_STARTING_BALANCE_CENTS: i64 = 100_000;
+
 // ─── Tipos / Enums ───
 
 /// Papel do usuário no sistema
@@ -304,7 +308,9 @@ impl AuthManager {
             password_hash,
             role: UserRole::Player,
             status: AccountStatus::Active,
-            balance: 0,
+            // Demo / soft-launch: fichas iniciais para jogar sem PIX real.
+            // 100_000 centavos = R$ 1.000,00 de play-money.
+            balance: DEMO_STARTING_BALANCE_CENTS,
             mfa_enabled: false,
             mfa_secret: None,
             failed_login_attempts: 0,
@@ -956,7 +962,7 @@ mod tests {
         assert_eq!(user.email, "test@example.com");
         assert_eq!(user.role, UserRole::Player);
         assert_eq!(user.status, AccountStatus::Active);
-        assert_eq!(user.balance, 0);
+        assert_eq!(user.balance, DEMO_STARTING_BALANCE_CENTS);
         assert!(!user.mfa_enabled);
         assert!(user.mfa_secret.is_none());
         assert_eq!(user.failed_login_attempts, 0);

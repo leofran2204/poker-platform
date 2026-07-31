@@ -5,8 +5,8 @@
 //!
 //! # URLs
 //!
-//! - **Dev (debug_assertions):** `https://localhost`
-//! - **Prod:** `https://api.pokerplatform.com`
+//! No browser (WASM): **mesmo origin** da página (`https://zerotiltpoker.net`,
+//! `https://localhost`, etc.). O Caddy faz reverse_proxy de `/api/*`.
 //!
 //! # Gerenciamento de Token
 //!
@@ -16,15 +16,6 @@
 use gloo_net::http::{Request, Response};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
-
-// ─── Constantes ───
-
-/// Base URL da API — sempre HTTPS; o Caddy encaminha internamente à API.
-const API_BASE: &str = if cfg!(debug_assertions) {
-    "https://localhost"
-} else {
-    "https://api.pokerplatform.com"
-};
 
 /// Chave no localStorage para o token JWT.
 const STORAGE_TOKEN_KEY: &str = "poker_jwt";
@@ -150,9 +141,30 @@ pub fn is_authenticated() -> bool {
 
 // ─── Helpers Internos ───
 
-/// Monta a URL completa para um path da API.
+/// Origin da página no browser; fallback para testes nativos.
+fn api_origin() -> String {
+    #[cfg(target_arch = "wasm32")]
+    {
+        if let Some(window) = web_sys::window() {
+            if let Ok(origin) = window.location().origin() {
+                if !origin.is_empty() && origin != "null" {
+                    return origin;
+                }
+            }
+        }
+    }
+    // Testes nativos / SSR sem window
+    "https://localhost".to_string()
+}
+
+/// Monta a URL completa para um path da API (same-origin no deploy).
 fn api_url(path: &str) -> String {
-    format!("{API_BASE}{path}")
+    let path = if path.starts_with('/') {
+        path.to_string()
+    } else {
+        format!("/{path}")
+    };
+    format!("{}{path}", api_origin())
 }
 
 /// Cria headers padrão, incluindo Authorization se token existir.
@@ -370,7 +382,8 @@ mod tests {
     fn test_api_url_format() {
         let url = api_url("/api/auth/login");
         assert!(url.contains("/api/auth/login"));
-        assert!(url.starts_with("https://"));
+        // Nativo: fallback localhost; no WASM: origin da página.
+        assert!(url.ends_with("/api/auth/login"));
     }
 
     #[test]

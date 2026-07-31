@@ -57,6 +57,11 @@ fn LobbyListItem(table: TableData) -> Element {
                     nav.push(Route::Table { id: target_id });
                 }
                 Err(err) => {
+                    // Superfície visível no console do browser (F12) — join falhou
+                    // (saldo, mesa cheia, rede). Log estruturado para feedback de demo.
+                    web_sys::console::error_1(
+                        &format!("Não foi possível entrar na mesa {target_id}: {err}").into(),
+                    );
                     log::warn!("Erro ao registrar entrada na mesa {target_id}: {err}");
                 }
             }
