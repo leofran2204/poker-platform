@@ -70,15 +70,13 @@ fn test_2_point_1_million_fuzz_hands_and_engine_simulation() {
             let stats = vec![
                 PlayerLossStats {
                     player_id: "P1".into(),
-                    total_bet: 500.0,
-                    amount_won: if i % 100 == 0 { 0.0 } else { 800.0 },
-                    cashback_tier_rate: 0.10,
+                    eligible_loss_after_rake: if i % 100 == 0 { 500.0 } else { 0.0 },
+                    loser_equity: 0.60,
                 },
                 PlayerLossStats {
                     player_id: "P2".into(),
-                    total_bet: 300.0,
-                    amount_won: 100.0,
-                    cashback_tier_rate: 0.15,
+                    eligible_loss_after_rake: 200.0,
+                    loser_equity: 0.70,
                 },
             ];
             let deflators = calculate_loss_deflators(&stats);

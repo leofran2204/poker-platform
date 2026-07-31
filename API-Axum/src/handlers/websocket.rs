@@ -256,8 +256,19 @@ async fn handle_game_socket(
 
     // Admission is authorized by a persisted, funded escrow seat. A valid JWT
     // alone is not enough to create a table or receive demo chips.
-    let seat: Option<(String, i64, i16, i64, i64, i16)> = match sqlx::query_as(
-        "SELECT t.name, t.big_blind, t.rake_basis_points, t.rake_cap, s.chips, s.seat \
+    type SeatAdmissionRow = (
+        String,
+        i64,
+        i16,
+        i64,
+        Option<i64>,
+        Option<i64>,
+        Option<i64>,
+        i64,
+        i16,
+    );
+    let seat: Option<SeatAdmissionRow> = match sqlx::query_as(
+        "SELECT t.name, t.big_blind, t.rake_basis_points, t.rake_cap, t.rake_cap_heads_up, t.rake_cap_three_to_four, t.rake_cap_five_plus, s.chips, s.seat \
          FROM cash_game_seats s \
          JOIN tables t ON t.id = s.table_id \
          WHERE s.table_id = $1::uuid AND s.user_id = $2::uuid \
@@ -283,19 +294,49 @@ async fn handle_game_socket(
             return;
         }
     };
-    let (table_name, big_blind, rake_basis_points, rake_cap, chips, seat) = match seat {
-        Some((table_name, big_blind, rake_basis_points, rake_cap, chips, seat))
-            if big_blind > 0
-                && rake_basis_points >= 0
-                && rake_cap >= 0
-                && chips > 0
-                && seat >= 0 =>
+    let (
+        table_name,
+        big_blind,
+        rake_basis_points,
+        rake_cap,
+        rake_cap_heads_up,
+        rake_cap_three_to_four,
+        rake_cap_five_plus,
+        chips,
+        seat,
+    ) = match seat {
+        Some((
+            table_name,
+            big_blind,
+            rake_basis_points,
+            rake_cap,
+            rake_cap_heads_up,
+            rake_cap_three_to_four,
+            rake_cap_five_plus,
+            chips,
+            seat,
+        )) if big_blind > 0
+            && rake_basis_points >= 0
+            && rake_cap >= 0
+            && chips > 0
+            && seat >= 0
+            && matches!(
+                (
+                    rake_cap_heads_up,
+                    rake_cap_three_to_four,
+                    rake_cap_five_plus
+                ),
+                (None, None, None) | (Some(0..), Some(0..), Some(0..))
+            ) =>
         {
             (
                 table_name,
                 big_blind as u64,
                 rake_basis_points as u16,
                 rake_cap as u64,
+                rake_cap_heads_up.map(|value| value as u64),
+                rake_cap_three_to_four.map(|value| value as u64),
+                rake_cap_five_plus.map(|value| value as u64),
                 chips as u64,
                 seat as usize,
             )
@@ -333,15 +374,25 @@ async fn handle_game_socket(
             let (tx_cmd, rx_cmd) = mpsc::channel(100);
             let (tx_broadcast, _) = tokio::sync::broadcast::channel(100);
 
+            let mut table_config =
+                poker_engine::types::TableConfig::new(big_blind, rake_basis_points, rake_cap);
+            if let (Some(heads_up), Some(three_to_four), Some(five_plus)) = (
+                rake_cap_heads_up,
+                rake_cap_three_to_four,
+                rake_cap_five_plus,
+            ) {
+                table_config =
+                    table_config.with_rake_cap_schedule(poker_engine::types::RakeCapSchedule {
+                        heads_up,
+                        three_to_four,
+                        five_plus,
+                    });
+            }
             let mut actor =
                 TableActor::new(table_id.clone(), table_name, rx_cmd, tx_broadcast.clone())
                     .with_db(state.db.clone())
                     .with_audit_secret(state.jwt_secret.clone())
-                    .with_config(poker_engine::types::TableConfig::new(
-                        big_blind,
-                        rake_basis_points,
-                        rake_cap,
-                    ));
+                    .with_config(table_config);
             if let Some(ref redis) = state.redis {
                 actor = actor.with_redis(redis.clone());
             }

@@ -385,7 +385,7 @@ gloo-net = "0.6"        # HTTPS/WSS no WASM
 |-------------------------|------------------------------------------------|-------------------------------------------------------------------------------------------------------|
 | **deck.rs**             | Embaralhamento, distribuição, integridade      | Baralho tem 52 cartas únicas; embaralhamento muda ordem; distribuição não repete carta               |
 | **side_pots.rs**        | Potes laterais com all-in parcial              | 3 jogadores all-in com valores diferentes → potes calculados corretamente                            |
-| **loss_deflator.rs**    | Cashback por equity (7/15/25/35%)               | Perda de R$100 com equity 70% → cashback R$15; equity 62% → R$7; equity <60% → R$0; limite 35% respeitado |
+| **loss_deflator.rs**    | Cashback pós-rake por equity (7/15/25/35%)       | Base líquida 100: equity 70% → 15; equity 62% → 7; equity 55,9% → 0; equity 86% → 35 |
 | **rake.rs**             | Taxa da casa com cap R$6                       | Pote R$50 → rake R$2.50; pote R$500 → rake R$6 (cap); pote < mínimo → rake zero                      |
 | **rng_crypto.rs**      | Aleatoriedade criptográfica                    | Distribuição uniforme; não repete sequência; passa em NIST SP 800-22                                 |
 | **hand_history.rs**     | Registro e replay de mãos                      | Replay reproduz mão idêntica; ações ordenadas corretamente                                           |
@@ -455,7 +455,7 @@ fn rake_no_limite_exato_do_cap() {
 |---|--------------------------|-----------------------------------------|------------------------------------------------------------------------------------------------|
 | 1 | **Mão completa**         | deck → side_pots → rake → hand_history  | Distribuir cartas, jogar rodadas, calcular potes laterais, cobrar rake, registrar histórico    |
 | 2 | **Torneio completo**     | tournament_engine → deck → side_pots   | Blinds sobem, jogadores eliminados, vencedor recebe prêmio                                     |
-| 3 | **Loss deflator + rake** | loss_deflator → rake                    | Jogador perde, recebe cashback, rake cobrado corretamente                                      |
+| 3 | **Rake + Loss Deflator** | side_pots → rake → loss_deflator → payouts | Tier vem da equity no all-in e cashback usa somente potes líquidos elegíveis                   |
 | 4 | **Auth + lobby**         | auth → lobby                            | Jogador autentica, entra no lobby, vê mesas disponíveis                                        |
 | 5 | **Antifraude + hand_history** | collusion → hand_history           | Detectar colusão analisando histórico de mãos                                                  |
 | 6 | **Multi-account + auth** | multi_account → auth                   | Mesma fingerprint tentando criar 2ª conta → bloquear                                          |
@@ -2135,15 +2135,13 @@ O cashback é determinado pela **equity** (probabilidade de vencer) do perdedor 
 
 | Tier  | Equity do Perdedor | Cashback   | Descrição                              |
 |-------|--------------------|------------|----------------------------------------|
-| **0** | 60,0% – 64,9%      | 7%         | Favorito moderado, bad beat leve       |
-| **1** | 65,0% – 74,9%      | 15%        | Favorito claro, bad beat comum         |
-| **2** | 75,0% – 84,9%      | 25%        | Favorito forte, bad beat raro          |
-| **3** | ≥ 85,0%            | 35%        | Favorito esmagador, bad beat extremo   |
-| —     | < 60,0%            | 0%         | Não elegível (não era favorito)        |
+| **0** | 56,0% – 65,9%      | 7%         | Favorito leve, bad beat leve           |
+| **1** | 66,0% – 75,9%      | 15%        | Favorito moderado                      |
+| **2** | 76,0% – 85,9%      | 25%        | Favorito forte                         |
+| **3** | ≥ 86,0%            | 35%        | Favorito esmagador, bad beat extremo   |
+| —     | < 56,0%            | 0%         | Não elegível                           |
 
-> **Diferencial:** Nenhuma outra plataforma oferece cashback automático por
-> equity em all-ins. Isso reduz o churn de jogadores que perdem bad beats e
-> desanimam. O cálculo usa enumeração exata heads-up (`get_heads_up_win_probability()`).
+> **Regra normativa:** a equity é congelada no instante em que o all-in é pago; a fase não define o tier. Primeiro o rake é retirado do main pot e dos side pots, depois o cashback é calculado somente sobre os potes líquidos elegíveis. O cálculo heads-up é determinístico, com enumeração quando viável e Monte Carlo determinístico nos espaços maiores.
 
 ## 📊 8.5 MÉTRICAS DE MARKETING — Performance da Plataforma de Poker
 

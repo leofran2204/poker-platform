@@ -346,18 +346,19 @@ O arquivo **`side_pots.rs`** resolve essa matemática:
 
 Poker pode ser um jogo cruel para iniciantes que perdem suas fichas rapidamente em All-ins infelizes. Para incentivar o jogo responsável e reter jogadores casuais, criamos um sistema inédito de **Cashback Progressivo (Loss Deflator)**.
 
-*   **Como funciona?** O algoritmo calcula a **equity** (probabilidade exata de vencer) do perdedor no momento do all-in, via enumeração heads-up (`get_heads_up_win_probability()`).
+*   **Como funciona?** O algoritmo calcula a **equity** do perdedor no instante em que o all-in é pago. A função heads-up é determinística, usando enumeração quando viável e Monte Carlo determinístico nos espaços maiores (`get_heads_up_win_probability()`). A fase apenas define quais cartas compõem o snapshot.
 *   Se um jogador vai All-in com uma mão favorita mas sofre uma derrota de azar (um "bad beat"), o sistema devolve parte do valor perdido em saldo promocional, de acordo com a equity:
 
 | Equity do Perdedor | Tier | Cashback |
 |---------------------|------|----------|
-| 60,0% – 64,9%       | 0    | **7%**   |
-| 65,0% – 74,9%       | 1    | **15%**  |
-| 75,0% – 84,9%       | 2    | **25%**  |
-| ≥ 85,0%             | 3    | **35%**  |
-| < 60,0%             | —    | 0%       |
+| 56,0% – 65,9%       | 0    | **7%**   |
+| 66,0% – 75,9%       | 1    | **15%**  |
+| 76,0% – 85,9%       | 2    | **25%**  |
+| ≥ 86,0%             | 3    | **35%**  |
+| < 56,0%             | —    | 0%       |
 
-*   **Exemplo:** All-in preflop com A♠A♦ vs K♠K♦ (equity ≈ 82%, Tier 2). Se o perdedor com AA perde R$ 200, recebe R$ 50 de cashback (25%).
+*   **Exemplo:** All-in preflop com A♠A♦ vs K♠K♦ (equity ≈ 82%, Tier 2). Se o pote elegível já líquido do rake é 200 fichas playmoney, o cashback é 50 (25%).
+*   **Ordem:** potes e side pots → rake → Loss Deflator sobre cada pote líquido elegível → pagamentos.
 
 > 💡 **Quer aprender mais?** Veja explicações detalhadas sobre Equity, OESD, Gutshots, Combo Draws e tabelas reais de simulação em [Exemplos Detalhados do Loss Deflator](LOSS_DEFLATOR_EXEMPLOS.md).
 

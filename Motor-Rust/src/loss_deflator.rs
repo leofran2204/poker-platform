@@ -1,17 +1,16 @@
 // loss-deflator.rs — Loss Deflator (Cashback por Bad Beat)
 // Migrado de TypeScript (loss-deflator.ts) para Rust em 2026-07-02
 //
-// O cashback é calculado baseado em QUANTAS CARTAS FALTAM para o board
-// completar quando o all-in call acontece. Quanto MENOS cartas faltam,
-// MAIOR o cashback — porque o perdedor estava mais perto de ganhar.
+// O cashback é determinado exclusivamente pela equity do jogador que perdeu,
+// calculada no momento em que seu all-in foi pago:
 //
-// Tabela de deflator (fase do all-in call):
-//
-//   Fase do all-in | Cartas restantes | Deflator | Justificativa
-//   ---------------|------------------|----------|-----------------------------------------
-//   Pré-flop       | 5 (flop+turn+river)| 15%    | All-in cego, faltam todas as cartas
-//   Flop           | 2 (turn+river)     | 25%    | 3 cartas viradas, faltam 2
-//   Turn           | 1 (river)          | 35%    | 4 cartas viradas, faltava SÓ 1
+//   Equity do perdedor | Deflator
+//   -------------------|---------
+//   abaixo de 56%      |  0%
+//   56% até < 66%      |  7%
+//   66% até < 76%      | 15%
+//   76% até < 86%      | 25%
+//   86% ou mais        | 35%
 //
 // IMPORTANTE — Sobre quais pots o cashback incide:
 // O cashback é aplicado SOMENTE sobre os pots em que o PERDEDOR participou
@@ -23,9 +22,9 @@
 // Sem impacto financeiro para a plataforma: o cashback vem do próprio
 // pote disputado, nunca de saldo da casa.
 //
-// IMPORTANTE: Este deflator NÃO depende das odds do perdedor.
-// Se houve all-in + call + cartas comunitárias, o deflator se aplica.
-// A "frieza" do bad beat é medida pelas cartas restantes, não pelas odds.
+// A fase do all-in é preservada apenas para reconstruir o board conhecido
+// naquele instante e para auditoria. Ela não escolhe o percentual.
+// A ordem financeira obrigatória é pots → rake → Loss Deflator → pagamentos.
 
 use crate::deck::{contains_card, create_full_deck, Card};
 use crate::types::{GamePhase, Pot};
@@ -60,6 +59,37 @@ impl LossDeflatorTier {
             LossDeflatorTier::ThirtyFivePercent => 0.35,
         }
     }
+
+    pub fn basis_points(&self) -> u16 {
+        match self {
+            LossDeflatorTier::SevenPercent => 700,
+            LossDeflatorTier::FifteenPercent => 1_500,
+            LossDeflatorTier::TwentyFivePercent => 2_500,
+            LossDeflatorTier::ThirtyFivePercent => 3_500,
+        }
+    }
+
+    /// Classifica a equity do perdedor conforme a regra financeira oficial.
+    ///
+    /// As faixas são inclusivas no limite inferior e exclusivas no superior:
+    /// [56%, 66%), [66%, 76%), [76%, 86%) e [86%, 100%].
+    pub fn from_loser_equity(loser_equity: f64) -> Option<Self> {
+        if !loser_equity.is_finite() || !(0.0..=1.0).contains(&loser_equity) {
+            return None;
+        }
+
+        if loser_equity >= 0.86 {
+            Some(LossDeflatorTier::ThirtyFivePercent)
+        } else if loser_equity >= 0.76 {
+            Some(LossDeflatorTier::TwentyFivePercent)
+        } else if loser_equity >= 0.66 {
+            Some(LossDeflatorTier::FifteenPercent)
+        } else if loser_equity >= 0.56 {
+            Some(LossDeflatorTier::SevenPercent)
+        } else {
+            None
+        }
+    }
 }
 
 /// Parâmetros para o deflator progressivo
@@ -69,6 +99,8 @@ pub struct ProgressiveLossDeflatorParams {
     pub loser_id: String,
     pub winner_id: String,
     pub phase: GamePhase,
+    /// Equity do perdedor no instante do all-in pago, na escala 0.0..=1.0.
+    pub loser_equity: f64,
 }
 
 /// Resultado do deflator progressivo em centavos inteiros
@@ -77,11 +109,11 @@ pub struct ProgressiveLossDeflatorParams {
 pub struct ProgressiveLossDeflatorResult {
     pub loser_id: String,
     pub winner_id: String,
-    pub cashback: u64, // cashback total em centavos
-    pub odds: f64,     // percentual estatístico (escala flutuante)
+    pub cashback: u64,     // cashback total em centavos
+    pub loser_equity: f64, // equity no instante do all-in, escala 0.0..=1.0
     pub tier: LossDeflatorTier,
     pub base_cashback: u64, // cashback total em centavos antes do rateio
-    pub multiplier: f64,    // multiplicador aplicado pela fase
+    pub multiplier: f64,    // mantido em 1.0 para compatibilidade
     pub phase: GamePhase,
     pub cards_remaining: u8, // quantas cartas faltavam quando o all-in aconteceu
     pub eligible_pot_ids: Vec<usize>, // índices dos pots em que o perdedor participou
@@ -96,17 +128,16 @@ pub struct PotCashbackEntry {
     pub amount: u64,
 }
 
-/// Deflator baseado na fase do all-in call (cartas restantes)
-fn phase_deflator(phase: GamePhase) -> Option<(u16, u8)> {
+fn cards_remaining_at_all_in(phase: GamePhase) -> u8 {
     match phase {
-        GamePhase::Preflop => Some((1_500, 5)), // 15%: flop + turn + river
-        GamePhase::Flop => Some((2_500, 2)),    // 25%: turn + river
-        GamePhase::Turn => Some((3_500, 1)),    // 35%: river
-        GamePhase::River | GamePhase::Showdown => None, // showdown direto / fim
+        GamePhase::Preflop => 5,
+        GamePhase::Flop => 2,
+        GamePhase::Turn => 1,
+        GamePhase::River | GamePhase::Showdown => 0,
     }
 }
 
-/// Calcula o deflator progressivo baseado na fase do all-in call (em centavos inteiros).
+/// Calcula o Loss Deflator pelo tier de equity sobre potes já líquidos de rake.
 pub fn calculate_progressive_loss_deflator(
     params: ProgressiveLossDeflatorParams,
 ) -> Option<ProgressiveLossDeflatorResult> {
@@ -115,10 +146,12 @@ pub fn calculate_progressive_loss_deflator(
         loser_id,
         winner_id,
         phase,
+        loser_equity,
     } = params;
 
-    let deflator = phase_deflator(phase)?;
-    let (deflator_basis_points, cards_remaining) = deflator;
+    let tier = LossDeflatorTier::from_loser_equity(loser_equity)?;
+    let deflator_basis_points = tier.basis_points();
+    let cards_remaining = cards_remaining_at_all_in(phase);
 
     // 1. Identificar pots em que o PERDEDOR é elegível
     let mut eligible_pot_indices = Vec::new();
@@ -164,19 +197,11 @@ pub fn calculate_progressive_loss_deflator(
         });
     }
 
-    let tier = match deflator_basis_points {
-        700 => LossDeflatorTier::SevenPercent,
-        1_500 => LossDeflatorTier::FifteenPercent,
-        2_500 => LossDeflatorTier::TwentyFivePercent,
-        3_500 => LossDeflatorTier::ThirtyFivePercent,
-        _ => LossDeflatorTier::FifteenPercent,
-    };
-
     Some(ProgressiveLossDeflatorResult {
         loser_id,
         winner_id,
         cashback: base_cashback,
-        odds: 0.0,
+        loser_equity,
         tier,
         base_cashback,
         multiplier: 1.0,
@@ -378,66 +403,112 @@ mod tests {
     }
 
     #[test]
-    fn test_deflator_preflop() {
+    fn test_deflator_seven_percent_from_equity() {
         let pots = vec![make_pot(20000, vec!["loser", "winner"])];
         let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
             pots,
             loser_id: "loser".into(),
             winner_id: "winner".into(),
             phase: GamePhase::Preflop,
+            loser_equity: 0.60,
         });
         assert!(result.is_some());
         let r = result.unwrap();
-        assert_eq!(r.tier, LossDeflatorTier::FifteenPercent);
+        assert_eq!(r.tier, LossDeflatorTier::SevenPercent);
         assert_eq!(r.cards_remaining, 5);
-        // 15% de 200 = 30
-        assert_eq!(r.cashback, 3000);
+        assert_eq!(r.loser_equity, 0.60);
+        assert_eq!(r.cashback, 1400);
     }
 
     #[test]
-    fn test_deflator_flop() {
+    fn test_deflator_twenty_five_percent_from_equity() {
         let pots = vec![make_pot(20000, vec!["loser", "winner"])];
         let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
             pots,
             loser_id: "loser".into(),
             winner_id: "winner".into(),
             phase: GamePhase::Flop,
+            loser_equity: 0.80,
         });
         assert!(result.is_some());
         let r = result.unwrap();
         assert_eq!(r.tier, LossDeflatorTier::TwentyFivePercent);
         assert_eq!(r.cards_remaining, 2);
-        // 25% de 200 = 50
+        assert_eq!(r.loser_equity, 0.80);
         assert_eq!(r.cashback, 5000);
     }
 
     #[test]
-    fn test_deflator_turn() {
+    fn test_deflator_fifteen_percent_from_equity() {
         let pots = vec![make_pot(20000, vec!["loser", "winner"])];
         let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
             pots,
             loser_id: "loser".into(),
             winner_id: "winner".into(),
             phase: GamePhase::Turn,
-        });
-        assert!(result.is_some());
-        let r = result.unwrap();
-        assert_eq!(r.tier, LossDeflatorTier::ThirtyFivePercent);
-        assert_eq!(r.cards_remaining, 1);
-        // 35% de 200 = 70
-        assert_eq!(r.cashback, 7000);
+            loser_equity: 0.70,
+        })
+        .unwrap();
+        assert_eq!(result.tier, LossDeflatorTier::FifteenPercent);
+        assert_eq!(result.cards_remaining, 1);
+        assert_eq!(result.cashback, 3000);
     }
 
     #[test]
-    fn test_deflator_river_returns_none() {
+    fn test_deflator_thirty_five_percent_from_equity() {
         let pots = vec![make_pot(20000, vec!["loser", "winner"])];
         let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
             pots,
             loser_id: "loser".into(),
             winner_id: "winner".into(),
-            phase: GamePhase::River,
+            phase: GamePhase::Turn,
+            loser_equity: 0.90,
+        });
+        assert!(result.is_some());
+        let r = result.unwrap();
+        assert_eq!(r.tier, LossDeflatorTier::ThirtyFivePercent);
+        assert_eq!(r.cards_remaining, 1);
+        assert_eq!(r.loser_equity, 0.90);
+        assert_eq!(r.cashback, 7000);
+    }
+
+    #[test]
+    fn test_equity_below_fifty_six_percent_returns_none() {
+        let pots = vec![make_pot(20000, vec!["loser", "winner"])];
+        let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
+            pots,
+            loser_id: "loser".into(),
+            winner_id: "winner".into(),
+            phase: GamePhase::Preflop,
+            loser_equity: 0.559_999,
         });
         assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_exact_equity_boundaries() {
+        let cases = [
+            (0.559_999, None),
+            (0.56, Some(LossDeflatorTier::SevenPercent)),
+            (0.659_999, Some(LossDeflatorTier::SevenPercent)),
+            (0.66, Some(LossDeflatorTier::FifteenPercent)),
+            (0.759_999, Some(LossDeflatorTier::FifteenPercent)),
+            (0.76, Some(LossDeflatorTier::TwentyFivePercent)),
+            (0.859_999, Some(LossDeflatorTier::TwentyFivePercent)),
+            (0.86, Some(LossDeflatorTier::ThirtyFivePercent)),
+            (1.0, Some(LossDeflatorTier::ThirtyFivePercent)),
+        ];
+
+        for (equity, expected) in cases {
+            assert_eq!(
+                LossDeflatorTier::from_loser_equity(equity),
+                expected,
+                "tier incorreto para equity {equity}"
+            );
+        }
+        assert_eq!(LossDeflatorTier::from_loser_equity(f64::NAN), None);
+        assert_eq!(LossDeflatorTier::from_loser_equity(-0.01), None);
+        assert_eq!(LossDeflatorTier::from_loser_equity(1.01), None);
     }
 
     #[test]
@@ -454,6 +525,7 @@ mod tests {
             loser_id: "loser".into(),
             winner_id: "winner".into(),
             phase: GamePhase::Flop, // 25%
+            loser_equity: 0.80,
         });
         assert!(result.is_some());
         let r = result.unwrap();
@@ -479,6 +551,7 @@ mod tests {
             loser_id: "loser".into(),
             winner_id: "winner".into(),
             phase: GamePhase::Flop,
+            loser_equity: 0.80,
         });
         assert!(result.is_some());
         let r = result.unwrap();
@@ -497,6 +570,7 @@ mod tests {
             loser_id: "loser".into(),
             winner_id: "winner".into(),
             phase: GamePhase::Flop,
+            loser_equity: 0.80,
         });
         assert!(result.is_none());
     }

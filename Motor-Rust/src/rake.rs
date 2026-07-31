@@ -4,26 +4,42 @@
 //
 // O rake é a comissão que a plataforma cobra por cada mão jogada.
 // Regras:
-//   1. Percentual do pote total em pontos-base inteiros
-//   2. Nunca ultrapassa o cap (rakeCap) em centavos
-//   3. Descontado ANTES de distribuir aos vencedores
-//   4. Arredondado para baixo (floor) em centavos
-//   5. Pote mínimo = 2× big blind para cobrar rake
+//   1. Percentual em pontos-base inteiros
+//   2. Cap único por mão, consumido na ordem main pot → side pots
+//   3. Potes com um único participante são devoluções de aposta não coberta
+//      e nunca pagam rake
+//   4. Descontado ANTES de distribuir aos vencedores
+//   5. Arredondamento configurável; o padrão é half-to-even
+//   6. No flop, no drop é aplicado pelo contexto da mão
 
 use crate::types::{Pot, TableConfig};
 
 // ─── Tipos locais ───
 
+/// Política de arredondamento da fração de centavo gerada pelo percentual.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum RakeRounding {
+    /// Descarta a fração de centavo.
+    Floor,
+    /// Arredonda a metade para o inteiro par mais próximo.
+    #[default]
+    HalfToEven,
+}
+
 /// Resultado do cálculo de rake em centavos inteiros
 #[derive(Debug, Clone)]
 pub struct RakeResult {
-    pub total_rake: u64,            // rake total deduzido em centavos
-    pub per_pot: Vec<PotRakeEntry>, // rateio por pote em centavos
-    pub pots_after_rake: Vec<Pot>,  // pots após dedução
-    pub total_pot_before_rake: u64, // soma de todos os pots antes do rake
+    pub total_rake: u64,
+    pub per_pot: Vec<PotRakeEntry>,
+    pub pots_after_rake: Vec<Pot>,
+    pub total_pot_before_rake: u64,
+    /// Soma dos potes disputados por pelo menos dois jogadores.
+    pub total_rakeable_pot: u64,
+    /// Apostas não cobertas, representadas por potes de um único jogador.
+    pub uncalled_amount: u64,
 }
 
-/// Entrada individual do rateio: quanto cada pote contribuiu (em centavos)
+/// Entrada individual: quanto cada pote contribuiu para o rake.
 #[derive(Debug, Clone)]
 pub struct PotRakeEntry {
     pub pot_index: usize,
@@ -37,53 +53,127 @@ pub fn soma_total_pots_centavos(pots: &[Pot]) -> u64 {
     pots.iter().map(|p| p.amount).sum()
 }
 
-/// Calcula o rake para UM pote individual em centavos.
+/// Calcula o rake para UM pote individual usando half-to-even.
 ///
-/// Fórmula: rake = min(floor(pote_centavos × rake_basis_points / 10_000), rake_cap)
-///
-/// Retorna 0 se o rake ou o cap forem zero. O produto usa `u128` para
-/// preservar precisão e evitar overflow antes da divisão em centavos.
+/// Fórmula: rake = min(round_even(pote × basis_points / 10_000), rake_cap)
 pub fn calculate_rake_for_pot(pot_amount: u64, rake_basis_points: u16, rake_cap: u64) -> u64 {
+    calculate_rake_for_pot_with_rounding(
+        pot_amount,
+        rake_basis_points,
+        rake_cap,
+        RakeRounding::HalfToEven,
+    )
+}
+
+/// Calcula o rake de um pote com política de arredondamento explícita.
+pub fn calculate_rake_for_pot_with_rounding(
+    pot_amount: u64,
+    rake_basis_points: u16,
+    rake_cap: u64,
+    rounding: RakeRounding,
+) -> u64 {
     if rake_basis_points == 0 || rake_cap == 0 || pot_amount == 0 {
         return 0;
     }
 
-    // Callers normally enforce the operational limit of 1,000 bps (10%),
-    // but this boundary must also remain safe for manually constructed configs.
-    // At most 10,000 bps (100%) is meaningful and keeps the intermediate
-    // quotient representable as u64.
+    // Limitar a 100% mantém o resultado significativo mesmo quando callers
+    // constroem configurações manualmente fora do limite operacional.
     let effective_basis_points = rake_basis_points.min(10_000);
-    let raw_rake = ((u128::from(pot_amount) * u128::from(effective_basis_points)) / 10_000) as u64;
-    raw_rake.min(rake_cap).min(pot_amount)
+    let numerator = u128::from(pot_amount) * u128::from(effective_basis_points);
+    let quotient = numerator / 10_000;
+    let remainder = numerator % 10_000;
+    let rounded = match rounding {
+        RakeRounding::Floor => quotient,
+        RakeRounding::HalfToEven => {
+            let above_half = remainder * 2 > 10_000;
+            let exactly_half = remainder * 2 == 10_000;
+            if above_half || (exactly_half && quotient % 2 == 1) {
+                quotient + 1
+            } else {
+                quotient
+            }
+        }
+    };
+
+    (rounded as u64).min(rake_cap).min(pot_amount)
 }
 
-/// Aplica o rake sobre todos os pots de uma mão.
+/// Aplica rake inferindo a quantidade de jogadores pelo maior pote.
 ///
-/// O rake é distribuído PROPORCIONALMENTE entre os pots em centavos inteiros.
-/// O último pote absorve o resto da divisão para evitar erro de arredondamento.
-///
-/// Se o pote total for menor que `min_pot_for_rake` (default: 2× big blind),
-/// não cobra rake.
+/// Callers que conhecem todos os jogadores que receberam cartas devem usar
+/// [`deduct_rake_with_rounding_for_players`].
 pub fn deduct_rake(
     pots: &[Pot],
     config: &TableConfig,
     min_pot_for_rake: Option<u64>,
 ) -> RakeResult {
-    let min_pot = min_pot_for_rake.unwrap_or(config.big_blind * 2);
+    deduct_rake_with_rounding(pots, config, min_pot_for_rake, RakeRounding::HalfToEven)
+}
+
+/// Aplica o rake com arredondamento explícito e player count inferido.
+pub fn deduct_rake_with_rounding(
+    pots: &[Pot],
+    config: &TableConfig,
+    min_pot_for_rake: Option<u64>,
+    rounding: RakeRounding,
+) -> RakeResult {
+    let players_dealt = inferred_players_dealt(pots);
+    deduct_rake_with_rounding_for_players(pots, config, min_pot_for_rake, rounding, players_dealt)
+}
+
+/// Aplica o rake usando a quantidade exata de jogadores que receberam cartas.
+///
+/// Os potes devem estar na ordem main pot → side pots. Cada pote disputado
+/// contribui com seu percentual até que o cap único da mão seja atingido.
+/// Potes com menos de dois participantes representam aposta não coberta e são
+/// preservados integralmente.
+pub fn deduct_rake_with_rounding_for_players(
+    pots: &[Pot],
+    config: &TableConfig,
+    min_pot_for_rake: Option<u64>,
+    rounding: RakeRounding,
+    players_dealt: usize,
+) -> RakeResult {
+    let min_pot = min_pot_for_rake.unwrap_or(0);
     let total_pot = soma_total_pots_centavos(pots);
+    let total_rakeable_pot: u64 = pots
+        .iter()
+        .filter(|pot| pot.eligible_players.len() >= 2)
+        .map(|pot| pot.amount)
+        .sum();
+    let uncalled_amount = total_pot.saturating_sub(total_rakeable_pot);
+    let rake_cap = config.rake_cap_for_players(players_dealt);
 
-    // Pote muito pequeno → sem rake
-    if total_pot < min_pot {
-        return zero_rake_result(pots, total_pot);
+    if total_rakeable_pot < min_pot
+        || total_rakeable_pot == 0
+        || config.rake_basis_points == 0
+        || rake_cap == 0
+    {
+        return zero_rake_result(pots, total_pot, total_rakeable_pot, uncalled_amount);
     }
 
-    let total_rake = calculate_rake_for_pot(total_pot, config.rake_basis_points, config.rake_cap);
-    if total_rake == 0 {
-        return zero_rake_result(pots, total_pot);
+    let mut cap_remaining = rake_cap;
+    let mut per_pot = Vec::with_capacity(pots.len());
+
+    for (pot_index, pot) in pots.iter().enumerate() {
+        let pot_rake = if pot.eligible_players.len() < 2 || cap_remaining == 0 {
+            0
+        } else {
+            calculate_rake_for_pot_with_rounding(
+                pot.amount,
+                config.rake_basis_points,
+                cap_remaining,
+                rounding,
+            )
+        };
+        cap_remaining = cap_remaining.saturating_sub(pot_rake);
+        per_pot.push(PotRakeEntry {
+            pot_index,
+            rake: pot_rake,
+        });
     }
 
-    let per_pot = distribute_rake_proportionally(pots, total_pot, total_rake);
-    let effective_total_rake: u64 = per_pot.iter().map(|p| p.rake).sum();
+    let effective_total_rake: u64 = per_pot.iter().map(|entry| entry.rake).sum();
     let pots_after_rake = apply_rake_to_pots(pots, &per_pot);
 
     RakeResult {
@@ -91,62 +181,88 @@ pub fn deduct_rake(
         per_pot,
         pots_after_rake,
         total_pot_before_rake: total_pot,
+        total_rakeable_pot,
+        uncalled_amount,
     }
 }
 
-/// Constrói um RakeResult sem rake (pote abaixo do mínimo ou rake zero)
-fn zero_rake_result(pots: &[Pot], total_pot: u64) -> RakeResult {
+/// Aplica no-flop-no-drop inferindo a quantidade de jogadores pelo maior pote.
+pub fn deduct_rake_for_hand(
+    pots: &[Pot],
+    config: &TableConfig,
+    min_pot_for_rake: Option<u64>,
+    flop_was_dealt: bool,
+    rounding: RakeRounding,
+) -> RakeResult {
+    deduct_rake_for_hand_with_player_count(
+        pots,
+        config,
+        min_pot_for_rake,
+        flop_was_dealt,
+        rounding,
+        inferred_players_dealt(pots),
+    )
+}
+
+/// Aplica no-flop-no-drop e o cap do número exato de jogadores que receberam cartas.
+pub fn deduct_rake_for_hand_with_player_count(
+    pots: &[Pot],
+    config: &TableConfig,
+    min_pot_for_rake: Option<u64>,
+    flop_was_dealt: bool,
+    rounding: RakeRounding,
+    players_dealt: usize,
+) -> RakeResult {
+    if !flop_was_dealt {
+        let total_pot = soma_total_pots_centavos(pots);
+        let total_rakeable_pot: u64 = pots
+            .iter()
+            .filter(|pot| pot.eligible_players.len() >= 2)
+            .map(|pot| pot.amount)
+            .sum();
+        return zero_rake_result(
+            pots,
+            total_pot,
+            total_rakeable_pot,
+            total_pot.saturating_sub(total_rakeable_pot),
+        );
+    }
+
+    deduct_rake_with_rounding_for_players(pots, config, min_pot_for_rake, rounding, players_dealt)
+}
+
+fn inferred_players_dealt(pots: &[Pot]) -> usize {
+    pots.iter()
+        .map(|pot| pot.eligible_players.len())
+        .max()
+        .unwrap_or(0)
+}
+
+fn zero_rake_result(
+    pots: &[Pot],
+    total_pot: u64,
+    total_rakeable_pot: u64,
+    uncalled_amount: u64,
+) -> RakeResult {
     RakeResult {
         total_rake: 0,
         per_pot: pots
             .iter()
             .enumerate()
-            .map(|(i, _)| PotRakeEntry {
-                pot_index: i,
-                rake: 0,
-            })
+            .map(|(pot_index, _)| PotRakeEntry { pot_index, rake: 0 })
             .collect(),
         pots_after_rake: pots.to_vec(),
         total_pot_before_rake: total_pot,
+        total_rakeable_pot,
+        uncalled_amount,
     }
 }
 
-/// Rateia o rake total proporcionalmente entre os pots (em centavos).
-/// O último pote absorve o resto para garantir conservação perfeita de centavos.
-fn distribute_rake_proportionally(
-    pots: &[Pot],
-    total_pot: u64,
-    total_rake: u64,
-) -> Vec<PotRakeEntry> {
-    let mut per_pot: Vec<PotRakeEntry> = Vec::with_capacity(pots.len());
-    let mut distributed_rake: u64 = 0;
-
-    for (i, pot) in pots.iter().enumerate() {
-        let is_last = i == pots.len() - 1;
-        let raw_pot_rake = if is_last {
-            total_rake.saturating_sub(distributed_rake)
-        } else {
-            ((u128::from(pot.amount) * u128::from(total_rake)) / u128::from(total_pot)) as u64
-        };
-
-        let pot_rake = raw_pot_rake.min(pot.amount);
-
-        distributed_rake += pot_rake;
-        per_pot.push(PotRakeEntry {
-            pot_index: i,
-            rake: pot_rake,
-        });
-    }
-
-    per_pot
-}
-
-/// Subtrai o rake de cada pot em centavos, preservando a lista de elegíveis
 fn apply_rake_to_pots(pots: &[Pot], per_pot: &[PotRakeEntry]) -> Vec<Pot> {
     pots.iter()
         .enumerate()
-        .map(|(i, pot)| Pot {
-            amount: pot.amount.saturating_sub(per_pot[i].rake),
+        .map(|(pot_index, pot)| Pot {
+            amount: pot.amount.saturating_sub(per_pot[pot_index].rake),
             eligible_players: pot.eligible_players.clone(),
         })
         .collect()

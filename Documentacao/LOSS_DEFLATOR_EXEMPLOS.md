@@ -1,6 +1,6 @@
 # Guia de Exemplos Práticos — Loss Deflator (Bad Beat Cashback)
 
-**Atualizado:** 2026-07-27 | **Status:** Exemplos técnicos; cálculos monetários usam inteiros e pontos-base.
+**Atualizado:** 2026-07-30 | **Status:** Regra normativa 56/66/76/86; exemplos em fichas playmoney e potes pós-rake.
 
 Este documento serve como material de apoio técnico e educacional para o funcionamento do módulo **Loss Deflator** (`loss_deflator.rs`). Aqui você encontrará definições visuais, conceitos probabilísticos e simulações matemáticas reais de mãos de poker para cada um dos Tiers de cashback.
 
@@ -14,7 +14,9 @@ A **Equity** representa a sua **chance percentual matemática de vencer o pote**
 
 *   Ela é calculada simulando todas as combinações possíveis de cartas comunitárias (*board*) restantes e dividindo o número de vitórias pelo total de cenários.
 *   A Equity é dinâmica: ela muda drasticamente a cada rodada (Pré-flop ➔ Flop ➔ Turn ➔ River) à medida que novas cartas são reveladas.
-*   **O Loss Deflator só é ativado se o jogador com Equity ≥ 60% perder a mão.**
+*   **O Loss Deflator só é ativado se o perdedor tinha equity ≥ 56% no instante em que o all-in foi pago.**
+*   **A fase não determina o tier:** ela apenas define quantas cartas do board já eram conhecidas no snapshot.
+*   **A base financeira é pós-rake:** primeiro o rake sai do main pot e de todos os side pots; depois aplica-se o percentual somente aos potes líquidos em que o perdedor era elegível.
 
 ---
 
@@ -66,7 +68,7 @@ A tabela abaixo resume a probabilidade de um draw bater a partir do Flop (2 cart
 
 Nas tabelas a seguir, todas as perdas simuladas foram padronizadas em **500** fichas/moeda (sem moedas específicas).
 
-### Tier 3 — 35% (Equity do Perdedor ≥ 85%)
+### Tier 3 — 35% (Equity do Perdedor ≥ 86%)
 O perdedor tinha chance quase nula de perder a mão (Bad Beats extremos).
 
 | Fase do All-In | Mão melhor VS Mão pior | Chances da mão melhor perder % | Board / Desfecho | Total da perda | Tier | Deflator de perda |
@@ -77,7 +79,7 @@ O perdedor tinha chance quase nula de perder a mão (Bad Beats extremos).
 
 ---
 
-### Tier 2 — 25% (Equity do Perdedor 75%–84,9%)
+### Tier 2 — 25% (Equity do Perdedor 76%–85,9%)
 O perdedor era claro favorito, mas o oponente possuía um projeto com alguns outs (ex: gutshot simples).
 
 | Fase do All-In | Mão melhor VS Mão pior | Chances da mão melhor perder % | Board / Desfecho | Total da perda | Tier | Deflator de perda |
@@ -88,7 +90,7 @@ O perdedor era claro favorito, mas o oponente possuía um projeto com alguns out
 
 ---
 
-### Tier 1 — 15% (Equity do Perdedor 65%–74,9%)
+### Tier 1 — 15% (Equity do Perdedor 66%–75,9%)
 O perdedor era favorito moderado, mas o oponente tinha bons draws (ex: OESD simples).
 
 | Fase do All-In | Mão melhor VS Mão pior | Chances da mão melhor perder % | Board / Desfecho | Total da perda | Tier | Deflator de perda |
@@ -99,37 +101,37 @@ O perdedor era favorito moderado, mas o oponente tinha bons draws (ex: OESD simp
 
 ---
 
-### Tier 0 — 7% (Equity do Perdedor 46,0%–59,9%)
-Cenários de jogada parelha ou coin-flip (onde o perdedor tinha de 46% a 59,9% de chance de vencer e acabou perdendo).
+### Tier 0 — 7% (Equity do Perdedor 56,0%–65,9%)
+Cenários em que o perdedor era favorito leve e acabou superado.
 
-| Fase do All-In | Mão melhor VS Mão pior | Chances da mão melhor perder % | Board / Desfecho | Total da perda | Tier | Deflator de perda |
+| Fase do All-In | Mão do perdedor VS vencedor | Equity do perdedor no all-in | Board / Desfecho | Pote líquido elegível | Tier | Devolução |
 | :--- | :--- | :---: | :--- | :---: | :---: | :---: |
-| **Pré-flop** | `A♣ K♣` vs `9♠ 9♦` | **46%** *(54% Equity)* | Sem board <br> *(99 segura no river)* | 500 | **Tier 0 (7%)** | **35** |
-| **Flop** | `T♣ T♠` *(set)* vs `8♥ 7♥` | **52%** *(48% Equity)* | Board: `T♥ 9♣ 2♥` <br> *(87♥ acerta flush no river contra set)* | 500 | **Tier 0 (7%)** | **35** |
-| **Turn** | `J♣ J♦` *(overpair)* vs `A♥ K♥` | **48%** *(52% Equity)* | Board: `Q♥ T♣ 5♥ 2♠` <br> *(AK♥ acerta um de seus outs no river)* | 500 | **Tier 0 (7%)** | **35** |
+| **Pré-flop** | `A♠ Q♦` vs `K♥ J♥` | **≈62%** | `2♣ 5♦ 7♠ J♣ 9♦` | 500 | **Tier 0 (7%)** | **35** |
+| **Flop** | overpair vs combo draw | **60%** | O draw completa no river | 500 | **Tier 0 (7%)** | **35** |
+| **Turn** | par maior vs duas overcards + draw | **58%** | O oponente acerta um out no river | 500 | **Tier 0 (7%)** | **35** |
 
 ---
 
-### Sem Cashback — Equity do Perdedor < 46%
-Ações de blefe desesperado ou zebras absolutas onde o perdedor tinha menos de 46% de chance de vencer.
+### Sem Cashback — Equity do Perdedor < 56%
+Perdas em que o jogador não alcançava a faixa mínima de 56% no snapshot do all-in.
 
-| Fase do All-In | Mão melhor VS Mão pior | Chances da mão melhor perder % | Board / Desfecho | Total da perda | Tier | Deflator de perda |
+| Fase do All-In | Mão do perdedor VS vencedor | Equity do perdedor no all-in | Board / Desfecho | Pote líquido elegível | Tier | Devolução |
 | :--- | :--- | :---: | :--- | :---: | :---: | :---: |
-| **Pré-flop** | `K♦ K♣` vs `A♠ T♠` | **32%** *(8% Equity)* | Sem board <br> *(KK segurou até o fim)* | 500 | **N/A** | **0** |
-| **Flop** | `A♦ A♣` vs `7♥ 6♥` | **5%** *(95% Equity)* | Board: `K♠ Q♦ J♣` <br> *(AA segurou até o fim)* | 500 | **N/A** | **0** |
-| **Turn** | `T♦ T♣` vs `5♠ 4♠` | **0%** *(100% Equity)* | Board: `A♥ K♦ Q♣ J♥` <br> *(54 drawing dead, TT segurou)* | 500 | **N/A** | **0** |
+| **Pré-flop** | `9♠ 9♦` vs `A♣ K♣` | **≈54%** | Um Ás aparece no board | 500 | **N/A** | **0** |
+| **Flop** | projeto de sequência vs par feito | **48%** | O projeto não completa | 500 | **N/A** | **0** |
+| **Turn** | duas overcards vs par | **≈14%** | O par segura | 500 | **N/A** | **0** |
 
 ---
 
 ## 5. 💡 Origem das Fichas e Exemplos Práticos de Múltiplos All-Ins
 
-> ⚠️ **Princípio Fundamental:** O dinheiro do cashback **nunca é retirado da plataforma/casa**. Ele vem 100% das próprias fichas acumuladas no pote da mesa. O vencedor daquele pote financia o cashback do perdedor que foi All-in. Se um jogador nem participou de um pote secundário (*side pot*), o dinheiro dele fica **100% intocado**.
+> ⚠️ **Princípio Fundamental:** os exemplos usam fichas playmoney e valores de pote **já líquidos de rake**. A ordem é main pot/side pots → rake → Loss Deflator nos potes líquidos elegíveis → pagamentos. O vencedor daquele pote financia o cashback; um side pot do qual o perdedor não participou fica intocado.
 
 ### 🎲 6 Casos Práticos Reais (Cash Games & Torneios)
 
 #### Exemplo 1: Heads-up Simples (1 contra 1) — All-in no Flop
-* **Situação:** Ana (R$ 100) vs Beto (R$ 100). Pote Total = **R$ 200**.
-* **Ação:** Ana vai All-in no **Flop** (25% cashback) com `A♠ A♥`. Beto paga com `9♣ 8♣`.
+* **Situação:** Ana (100) vs Beto (100). Pote líquido elegível após o rake = **200 fichas playmoney**.
+* **Ação:** Ana vai all-in no flop com `A♠ A♥`; sua equity registrada é **80%**, portanto o tier é 25%. Beto paga com `9♣ 8♣`.
 * **Resultado:** Beto acerta um Flush no River e vence a mão.
 * **Cálculo:** Cashback da Ana = 25% de R$ 200 = **R$ 50,00**.
 * **Distribuição Final:**
@@ -142,10 +144,10 @@ Ações de blefe desesperado ou zebras absolutas onde o perdedor tinha menos de 
 * **Potes Formados:**
   * **Main Pot:** R$ 150 (R$ 50 de cada). Elegíveis: Carlos, Diego, Eduardo.
   * **Side Pot:** R$ 100 (R$ 50 de Diego e Eduardo). Elegíveis: Diego e Eduardo.
-* **Ação:** Todos All-in no **Pré-flop** (15% cashback). **Eduardo vence a mão inteira.**
-* **Cálculo dos Cashbacks:**
-  * Carlos: Perdeu Main Pot (R$ 150) no Pré-flop (15%) = **R$ 22,50**.
-  * Diego: Perdeu Main Pot + Side Pot (R$ 250) no Pré-flop (15%) = **R$ 37,50**.
+* **Ação:** Todos vão all-in no pré-flop. Carlos e Diego têm **70% de equity** em seus confrontos elegíveis, portanto recebem a faixa de 15%. **Eduardo vence a mão inteira.**
+* **Cálculo dos cashbacks sobre potes líquidos pós-rake:**
+  * Carlos: 15% de 150 = **22,50**.
+  * Diego: 15% de 250 = **37,50**.
 * **Distribuição Final:**
   * Eduardo (Vencedor de tudo): R$ 250 - 22,50 - 37,50 = **R$ 190,00**.
   * Carlos: Recebe **R$ 22,50**.
@@ -155,10 +157,10 @@ Ações de blefe desesperado ou zebras absolutas onde o perdedor tinha menos de 
 #### Exemplo 3: Proteção de Side Pot (Respeito a quem não disputou)
 * **Situação:** Fernando (R$ 20), Gabriela (R$ 100), Hélio (R$ 100).
 * **Potes Formados:** Main Pot = R$ 60 | Side Pot = R$ 160 (Gabriela e Hélio).
-* **Ação:** Fernando All-in no **Pré-flop** (15%). Gabriela e Hélio All-in no **Turn** (35%).
+* **Ação:** Fernando vai all-in no pré-flop com **70% de equity** (tier 15%). Gabriela e Hélio vão all-in no turn; suas fases não definem qualquer percentual.
 * **Showdown:** **Gabriela** ganha o Main Pot (R$ 60). **Hélio** ganha o Side Pot (R$ 160). Fernando perdeu.
 * **Cálculo:**
-  * Fernando perdeu o Main Pot de R$ 60 (15%) = **R$ 9,00**.
+  * Fernando: 15% do main pot líquido de 60 = **9**.
   * Esse R$ 9,00 sai APENAS da Gabriela (ganhadora do Main Pot).
   * O pote de Hélio (Side Pot de R$ 160) fica **100% intocado**, pois Fernando não participou do Side Pot!
 * **Distribuição Final:**
@@ -167,14 +169,14 @@ Ações de blefe desesperado ou zebras absolutas onde o perdedor tinha menos de 
   * Fernando: **R$ 9,00**.
   * ⚖️ *Soma Total:* 51 + 160 + 9 = **R$ 220,00**.
 
-#### Exemplo 4: All-ins em Fases Diferentes (Pré-Flop vs Turn)
-* **Situação:** Igor (R$ 40), João (R$ 100), Lucas (R$ 100).
-* **Pré-flop:** Igor All-in R$ 40. Main Pot = R$ 120 (Igor = **Pré-flop 15%**).
-* **Turn:** João All-in mais R$ 60. Side Pot = R$ 120 (João = **Turn 35%**).
+#### Exemplo 4: All-ins em fases diferentes, tiers definidos pela equity
+* **Situação:** Igor (40), João (100), Lucas (100); os valores abaixo já são líquidos de rake.
+* **Pré-flop:** Igor all-in; sua equity no snapshot é **70%**, então recebe 15%.
+* **Turn:** João all-in; sua equity no snapshot é **90%**, então recebe 35%.
 * **Showdown:** **Lucas** vence o Main Pot (R$ 120) e o Side Pot (R$ 120).
 * **Cálculos:**
-  * Igor (Pré-flop): 15% de R$ 120 = **R$ 18,00**.
-  * João (Turn): 35% de R$ 240 (sua participação total) = **R$ 84,00**.
+  * Igor: 15% de 120 = **18**.
+  * João: 35% de 240 (sua participação elegível total) = **84**.
 * **Distribuição Final:**
   * Lucas (Vencedor): R$ 240 - R$ 18 - R$ 84 = **R$ 138,00**.
   * Igor: **R$ 18,00**.
@@ -183,7 +185,7 @@ Ações de blefe desesperado ou zebras absolutas onde o perdedor tinha menos de 
 
 #### Exemplo 5: Pote Dividido (Split Pot) entre 2 Vencedores
 * **Situação:** Marcelo (R$ 100), Natália (R$ 100), Otávio (R$ 100). Pote Total = R$ 300.
-* **Ação:** Marcelo All-in no **Flop** (25%). Natália e Otávio empatam na melhor mão (Split Pot).
+* **Ação:** Marcelo vai all-in no flop com **80% de equity** (tier 25%). Natália e Otávio empatam na melhor mão.
 * **Cálculo:** Marcelo perdeu R$ 300 (25%) = **R$ 75,00**.
 * **Distribuição:** Os R$ 75,00 são descontados meio a meio dos dois vencedores (R$ 37,50 cada).
   * Natália: R$ 150 - R$ 37,50 = **R$ 112,50**.
@@ -191,13 +193,13 @@ Ações de blefe desesperado ou zebras absolutas onde o perdedor tinha menos de 
   * Marcelo: **R$ 75,00**.
   * ⚖️ *Soma Total:* 112,50 + 112,50 + 75 = **R$ 300,00**.
 
-#### Exemplo 6: All-in no River (Zero Cashback)
-* **Situação:** Pedro (R$ 100) vs Quênia (R$ 100). All-in no **River** (faltavam 0 cartas).
+#### Exemplo 6: Equity abaixo do mínimo no river
+* **Situação:** Pedro (100) vs Quênia (100). Com o board completo, Pedro paga all-in no river já drawing dead.
 * **Resultado:** Quênia vence.
-* **Cálculo:** All-in no River = **0% Cashback**.
+* **Cálculo:** A equity de Pedro no snapshot era 0%, abaixo de 56%; por isso o cashback é 0%. O motivo é a equity, não a fase.
 * **Distribuição Final:** Quênia recebe **R$ 200,00 integralmente**. Pedro recebe R$ 0,00.
 
-#### Exemplo 7: Tier 0 — Faixa Mínima de 7% (Equity de 60,0% a 64,9%)
+#### Exemplo 7: Tier 0 — Faixa mínima de 7% (equity de 56,0% a 65,9%)
 * **Situação:** Rodrigo (R$ 200) vs Sandra (R$ 200). Pote Total = **R$ 400**.
 * **Ação:** All-in no Pré-flop com `A♥ Q♥` (Rodrigo) vs `K♣ J♣` (Sandra). Rodrigo é favorito leve com **62% de Equity** (Tier 0 = **7%**).
 * **Resultado:** Sandra acerta um Rei no Flop e vence a mão.

@@ -28,7 +28,7 @@ use crate::hand_history::{
     TableConfig as HistoryTableConfig,
 };
 use crate::loss_deflator::{self, ProgressiveLossDeflatorParams};
-use crate::rake::{self, RakeResult};
+use crate::rake::{self, RakeResult, RakeRounding};
 use crate::side_pots::{self, PlayerForPots, SidePotsResult};
 use crate::types::{GamePhase, Pot, TableConfig};
 use std::collections::HashMap;
@@ -272,6 +272,8 @@ pub struct GameLoop {
     pub start_timestamp: u64,
     /// Contador de ações (para timestamp relativo no histórico)
     action_counter: u64,
+    /// Arredondamento aplicado às frações de centavo do rake.
+    pub rake_rounding: RakeRounding,
 }
 
 impl GameLoop {
@@ -305,12 +307,18 @@ impl GameLoop {
             history: None,
             start_timestamp: now_timestamp_ms(),
             action_counter: 0,
+            rake_rounding: RakeRounding::HalfToEven,
         }
     }
 
     /// Define o ante para a mão em centavos
     pub fn with_ante(mut self, ante: u64) -> Self {
         self.ante = Some(ante);
+        self
+    }
+    /// Define explicitamente a política de arredondamento do rake.
+    pub fn with_rake_rounding(mut self, rounding: RakeRounding) -> Self {
+        self.rake_rounding = rounding;
         self
     }
 
@@ -370,17 +378,13 @@ impl GameLoop {
         self.state.players[bb_index].current_bet = bb_amount;
         self.state.players[bb_index].total_bet += bb_amount;
 
-        // Verificar all-in por blinds
-        if self.state.players[sb_index].stack == 0 {
-            self.state.players[sb_index].is_all_in = true;
-            if self.state.players[sb_index].all_in_phase.is_none() {
-                self.state.players[sb_index].all_in_phase = Some(GamePhase::Preflop);
-            }
-        }
-        if self.state.players[bb_index].stack == 0 {
-            self.state.players[bb_index].is_all_in = true;
-            if self.state.players[bb_index].all_in_phase.is_none() {
-                self.state.players[bb_index].all_in_phase = Some(GamePhase::Preflop);
+        // Verificar all-in por ante, blinds ou stack inicial zerado.
+        for player in &mut self.state.players {
+            if player.stack == 0 {
+                player.is_all_in = true;
+                if player.all_in_phase.is_none() {
+                    player.all_in_phase = Some(GamePhase::Preflop);
+                }
             }
         }
 
@@ -497,7 +501,7 @@ impl GameLoop {
                 self.state.players[active_idx].current_bet += call_amount;
                 self.state.players[active_idx].total_bet += call_amount;
                 if self.state.players[active_idx].stack == 0 {
-                    self.state.players[active_idx].is_all_in = true;
+                    self.mark_player_all_in(active_idx);
                 }
                 self.state.players[active_idx].has_acted = true;
                 self.record_history_action_id(active_idx, Action::Call, call_amount);
@@ -528,7 +532,7 @@ impl GameLoop {
                 self.state.current_bet_to_match = amount;
                 self.state.min_raise = amount;
                 if self.state.players[active_idx].stack == 0 {
-                    self.state.players[active_idx].is_all_in = true;
+                    self.mark_player_all_in(active_idx);
                 }
                 // Resetar has_acted dos outros jogadores (nova rodada de apostas)
                 self.reset_other_players_acted(active_idx);
@@ -555,7 +559,7 @@ impl GameLoop {
                     self.state.players[active_idx].stack = 0;
                     self.state.players[active_idx].current_bet = all_in_amount;
                     self.state.players[active_idx].total_bet += all_in_amount - player_current;
-                    self.state.players[active_idx].is_all_in = true;
+                    self.mark_player_all_in(active_idx);
                     if all_in_amount > current_bet_to_match {
                         self.state.current_bet_to_match = all_in_amount;
                         self.reset_other_players_acted(active_idx);
@@ -568,7 +572,7 @@ impl GameLoop {
                     self.state.current_bet_to_match = amount;
                     self.state.min_raise = raise_increment;
                     if self.state.players[active_idx].stack == 0 {
-                        self.state.players[active_idx].is_all_in = true;
+                        self.mark_player_all_in(active_idx);
                     }
                     self.reset_other_players_acted(active_idx);
                     self.record_history_action_id(active_idx, Action::Raise, amount);
@@ -581,7 +585,7 @@ impl GameLoop {
                 self.state.players[active_idx].stack = 0;
                 self.state.players[active_idx].current_bet = new_total_bet;
                 self.state.players[active_idx].total_bet += all_in_amount;
-                self.state.players[active_idx].is_all_in = true;
+                self.mark_player_all_in(active_idx);
                 self.state.players[active_idx].has_acted = true;
 
                 if new_total_bet > current_bet_to_match {
@@ -767,6 +771,16 @@ impl GameLoop {
         }
     }
 
+    /// Marca o jogador como all-in e preserva a fase exata da primeira ocorrência.
+    fn mark_player_all_in(&mut self, player_idx: usize) {
+        let phase = self.state.phase;
+        let player = &mut self.state.players[player_idx];
+        player.is_all_in = true;
+        if player.all_in_phase.is_none() {
+            player.all_in_phase = Some(phase);
+        }
+    }
+
     /// Define o primeiro a agir no pós-flop (primeiro ativo à esquerda do dealer)
     fn set_first_to_act_postflop(&mut self) {
         let start = self.state.dealer_index;
@@ -879,10 +893,34 @@ impl GameLoop {
             ))?;
 
         let winner_id = self.state.players[winner_idx].id.clone();
-        let total_pot = self.state.total_pot();
+        let players_for_pots: Vec<PlayerForPots> = self
+            .state
+            .players
+            .iter()
+            .map(|player| PlayerForPots {
+                id: player.id.clone(),
+                total_bet: player.total_bet,
+                has_folded: player.has_folded,
+                cards: player.hole_cards.clone(),
+            })
+            .collect();
+        let pots = side_pots::calculate_side_pots(&players_for_pots);
+        let rake_result = rake::deduct_rake_for_hand_with_player_count(
+            &pots,
+            &self.config,
+            None,
+            self.state.community_cards.len() >= 3,
+            self.rake_rounding,
+            self.state.players.len(),
+        );
+        let winner_payout: u64 = rake_result
+            .pots_after_rake
+            .iter()
+            .map(|pot| pot.amount)
+            .sum();
 
         let mut payouts = HashMap::new();
-        payouts.insert(winner_id.clone(), total_pot);
+        payouts.insert(winner_id.clone(), winner_payout);
 
         // Resultados dos jogadores para hand history
         let mut player_results = Vec::new();
@@ -894,7 +932,7 @@ impl GameLoop {
                 hole_cards: player.hole_cards.clone(),
                 best_hand: None,
                 best_hand_name: None,
-                chips_won: if is_winner { total_pot } else { 0 },
+                chips_won: if is_winner { winner_payout } else { 0 },
                 chips_lost: player.total_bet,
                 folded: player.has_folded,
                 was_all_in: player.is_all_in,
@@ -902,9 +940,9 @@ impl GameLoop {
         }
 
         Ok(HandResolution {
-            pots: vec![Pot::new(total_pot, vec![winner_id.clone()])],
+            pots,
             payouts,
-            rake: 0,
+            rake: rake_result.total_rake,
             loss_deflator: None,
             loss_deflators: Vec::new(),
             player_results,
@@ -931,8 +969,15 @@ impl GameLoop {
         // 2. Calcular os potes (main e side pots)
         let pots = side_pots::calculate_side_pots(&players_for_pots);
 
-        // 3. Deduzir o Rake proporcionalmente de cada pote em centavos
-        let rake_result: RakeResult = rake::deduct_rake(&pots, &self.config, None);
+        // 3. Deduzir rake do main pot e side pots, sob um único cap.
+        let rake_result: RakeResult = rake::deduct_rake_for_hand_with_player_count(
+            &pots,
+            &self.config,
+            None,
+            self.state.community_cards.len() >= 3,
+            self.rake_rounding,
+            self.state.players.len(),
+        );
         let total_rake = rake_result.total_rake;
         let pots_after_rake = rake_result.pots_after_rake.clone();
 
@@ -976,7 +1021,78 @@ impl GameLoop {
         })
     }
 
-    /// Calcula o loss deflator para TODOS os perdedores All-In cujas fases de all-in qualificam (em centavos)
+    /// Debita um cashback de forma exata e determinística entre vencedores.
+    ///
+    /// O débito nunca excede a parcela ainda disponível de cada vencedor no
+    /// pote. Centavos ímpares seguem a ordem dos assentos a partir do botão.
+    fn debit_cashback_from_winners(
+        payouts: &mut HashMap<String, u64>,
+        pot_payouts_remaining: &mut HashMap<String, u64>,
+        ordered_winners: &[String],
+        requested: u64,
+    ) -> u64 {
+        let total_available: u64 = ordered_winners
+            .iter()
+            .map(|winner_id| {
+                let pot_available = pot_payouts_remaining.get(winner_id).copied().unwrap_or(0);
+                let payout_available = payouts.get(winner_id).copied().unwrap_or(0);
+                pot_available.min(payout_available)
+            })
+            .sum();
+        let target = requested.min(total_available);
+        let mut pending = target;
+
+        while pending > 0 {
+            let active_winners: Vec<String> = ordered_winners
+                .iter()
+                .filter(|winner_id| {
+                    pot_payouts_remaining.get(*winner_id).copied().unwrap_or(0) > 0
+                        && payouts.get(*winner_id).copied().unwrap_or(0) > 0
+                })
+                .cloned()
+                .collect();
+            if active_winners.is_empty() {
+                break;
+            }
+
+            let share = pending / active_winners.len() as u64;
+            let odd_cents = pending % active_winners.len() as u64;
+            let mut debited_this_round = 0u64;
+
+            for (position, winner_id) in active_winners.iter().enumerate() {
+                let requested_from_winner = share + u64::from((position as u64) < odd_cents);
+                if requested_from_winner == 0 {
+                    continue;
+                }
+
+                let pot_available = pot_payouts_remaining.get(winner_id).copied().unwrap_or(0);
+                let payout_available = payouts.get(winner_id).copied().unwrap_or(0);
+                let debit = requested_from_winner
+                    .min(pot_available)
+                    .min(payout_available);
+                if debit == 0 {
+                    continue;
+                }
+
+                if let Some(remaining) = pot_payouts_remaining.get_mut(winner_id) {
+                    *remaining -= debit;
+                }
+                if let Some(payout) = payouts.get_mut(winner_id) {
+                    *payout -= debit;
+                }
+                debited_this_round += debit;
+            }
+
+            if debited_this_round == 0 {
+                break;
+            }
+            pending -= debited_this_round;
+        }
+
+        target - pending
+    }
+
+    /// Calcula o Loss Deflator por equity para todos os perdedores all-in elegíveis.
     fn calculate_loss_deflators(
         &self,
         pots: &[Pot],
@@ -986,6 +1102,23 @@ impl GameLoop {
         let mut results = Vec::new();
         let player_hands =
             side_pots::precompute_hands(players_for_pots, &self.state.community_cards);
+        let seat_order_from_button: Vec<String> = (1..=self.state.players.len())
+            .map(|offset| {
+                let seat_index = (self.state.dealer_index + offset) % self.state.players.len();
+                self.state.players[seat_index].id.clone()
+            })
+            .collect();
+        let mut pot_payouts_remaining: Vec<HashMap<String, u64>> = pots
+            .iter()
+            .map(|pot| {
+                side_pots::distribute_pots_with_seat_order(
+                    std::slice::from_ref(pot),
+                    players_for_pots,
+                    &self.state.community_cards,
+                    &seat_order_from_button,
+                )
+            })
+            .collect();
 
         for player in &self.state.players {
             if player.has_folded || !player.is_in_hand() || !player.is_all_in {
@@ -993,11 +1126,7 @@ impl GameLoop {
             }
 
             let phase = match player.all_in_phase {
-                Some(p)
-                    if p == GamePhase::Preflop || p == GamePhase::Flop || p == GamePhase::Turn =>
-                {
-                    p
-                }
+                Some(p) if p != GamePhase::Showdown => p,
                 _ => continue,
             };
 
@@ -1006,15 +1135,15 @@ impl GameLoop {
                 continue;
             }
 
-            // Identificar o vencedor principal dos potes do perdedor
+            // Identificar o vencedor principal dos potes do perdedor.
             let mut winner_id = String::new();
             for pot in pots {
                 if pot.eligible_players.contains(&player.id) {
                     let pot_winners =
                         side_pots::find_winners_for_pot(pot, players_for_pots, &player_hands);
-                    for w in pot_winners {
-                        if w != player.id {
-                            winner_id = w;
+                    for winner in pot_winners {
+                        if winner != player.id {
+                            winner_id = winner;
                             break;
                         }
                     }
@@ -1024,62 +1153,113 @@ impl GameLoop {
                 }
             }
 
+            if winner_id.is_empty() {
+                continue;
+            }
+
+            let winner_player = match self
+                .state
+                .players
+                .iter()
+                .find(|candidate| candidate.id == winner_id)
+            {
+                Some(winner) => winner,
+                None => continue,
+            };
+
+            // Reconstruir somente as cartas que já estavam abertas no instante
+            // do all-in. A fase serve para o snapshot; o tier vem da equity.
+            let board_len_at_all_in = match phase {
+                GamePhase::Preflop => 0,
+                GamePhase::Flop => 3,
+                GamePhase::Turn => 4,
+                GamePhase::River | GamePhase::Showdown => 5,
+            }
+            .min(self.state.community_cards.len());
+            let loser_equity = loss_deflator::get_heads_up_win_probability(
+                &player.hole_cards,
+                &winner_player.hole_cards,
+                &self.state.community_cards[..board_len_at_all_in],
+            );
+
             let params = ProgressiveLossDeflatorParams {
                 pots: pots.to_vec(),
                 loser_id: player.id.clone(),
                 winner_id,
                 phase,
+                loser_equity,
             };
 
             if let Some(mut deflator) = loss_deflator::calculate_progressive_loss_deflator(params) {
-                // Calcular a probabilidade real de vitória no momento do All-In
-                if let Some(winner_player) = self
-                    .state
-                    .players
-                    .iter()
-                    .find(|p| p.id == deflator.winner_id)
-                {
-                    let win_prob = loss_deflator::get_heads_up_win_probability(
-                        &player.hole_cards,
-                        &winner_player.hole_cards,
-                        &self.state.community_cards,
-                    );
-                    deflator.odds = win_prob;
-                }
+                // O cashback creditado deve ser exatamente o que foi debitado.
+                let requested_entries = deflator.per_pot_cashback.clone();
+                let mut actual_entries = Vec::new();
+                let mut actual_cashback = 0u64;
 
-                // Descontar o cashback dos vencedores dos potes elegíveis (em centavos)
-                for entry in &deflator.per_pot_cashback {
-                    if entry.pot_index < pots.len() {
-                        let pot = &pots[entry.pot_index];
-                        let pot_winners =
-                            side_pots::find_winners_for_pot(pot, players_for_pots, &player_hands);
-                        let valid_winners: Vec<String> = pot_winners
-                            .into_iter()
-                            .filter(|w| w != &player.id)
-                            .collect();
+                for entry in requested_entries {
+                    if entry.pot_index >= pots.len() {
+                        continue;
+                    }
+                    let pot = &pots[entry.pot_index];
+                    let pot_winners =
+                        side_pots::find_winners_for_pot(pot, players_for_pots, &player_hands);
+                    let valid_winners: Vec<String> = pot_winners
+                        .into_iter()
+                        .filter(|winner| winner != &player.id)
+                        .collect();
+                    if valid_winners.is_empty() {
+                        continue;
+                    }
 
-                        if !valid_winners.is_empty() {
-                            let share = entry.amount / valid_winners.len() as u64;
-                            for winner in valid_winners {
-                                if let Some(w_payout) = payouts.get_mut(&winner) {
-                                    *w_payout = w_payout.saturating_sub(share);
-                                }
-                            }
+                    let mut ordered_winners: Vec<String> = seat_order_from_button
+                        .iter()
+                        .filter(|winner_id| valid_winners.contains(*winner_id))
+                        .cloned()
+                        .collect();
+                    for winner_id in valid_winners {
+                        if !ordered_winners.contains(&winner_id) {
+                            ordered_winners.push(winner_id);
                         }
+                    }
+
+                    let debited = Self::debit_cashback_from_winners(
+                        payouts,
+                        &mut pot_payouts_remaining[entry.pot_index],
+                        &ordered_winners,
+                        entry.amount,
+                    );
+                    if debited > 0 {
+                        actual_cashback += debited;
+                        actual_entries.push(loss_deflator::PotCashbackEntry {
+                            pot_index: entry.pot_index,
+                            amount: debited,
+                        });
                     }
                 }
 
-                // Creditar o cashback em centavos ao perdedor All-In
-                let loser_payout = payouts.entry(player.id.clone()).or_insert(0);
-                *loser_payout += deflator.cashback;
+                if actual_cashback == 0 {
+                    continue;
+                }
 
+                deflator.cashback = actual_cashback;
+                deflator.base_cashback = actual_cashback;
+                deflator.eligible_pot_ids =
+                    actual_entries.iter().map(|entry| entry.pot_index).collect();
+                deflator.eligible_pot_total = deflator
+                    .eligible_pot_ids
+                    .iter()
+                    .map(|pot_index| pots[*pot_index].amount)
+                    .sum();
+                deflator.per_pot_cashback = actual_entries;
+
+                let loser_payout = payouts.entry(player.id.clone()).or_insert(0);
+                *loser_payout += actual_cashback;
                 results.push(deflator);
             }
         }
 
         results
     }
-
     /// Constrói a lista de PlayerResult para hand history
     fn build_player_results(
         &self,

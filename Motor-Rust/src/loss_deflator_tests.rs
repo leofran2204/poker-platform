@@ -29,32 +29,44 @@ fn params(
     winner: &str,
     phase: GamePhase,
 ) -> ProgressiveLossDeflatorParams {
+    params_with_equity(pots, loser, winner, phase, 0.80)
+}
+
+fn params_with_equity(
+    pots: Vec<Pot>,
+    loser: &str,
+    winner: &str,
+    phase: GamePhase,
+    loser_equity: f64,
+) -> ProgressiveLossDeflatorParams {
     ProgressiveLossDeflatorParams {
         pots,
         loser_id: loser.into(),
         winner_id: winner.into(),
         phase,
+        loser_equity,
     }
 }
 
 // ─── Cashback Progressivo ───
 
 #[test]
-fn test_preflop_cashback_15_percent() {
-    let r = calculate_progressive_loss_deflator(params(
+fn test_equity_60_percent_gets_7_percent_cashback() {
+    let r = calculate_progressive_loss_deflator(params_with_equity(
         vec![pot(100000, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Preflop,
+        0.60,
     ))
     .unwrap();
-    assert_eq!(r.cashback, 15000); // 15% de 1000
-    assert_eq!(r.tier, LossDeflatorTier::FifteenPercent);
+    assert_eq!(r.cashback, 7000); // 7% de 1000
+    assert_eq!(r.tier, LossDeflatorTier::SevenPercent);
     assert_eq!(r.cards_remaining, 5);
 }
 
 #[test]
-fn test_flop_cashback_25_percent() {
+fn test_equity_80_percent_gets_25_percent_cashback() {
     let r = calculate_progressive_loss_deflator(params(
         vec![pot(100000, vec!["a", "b"])],
         "a",
@@ -68,12 +80,13 @@ fn test_flop_cashback_25_percent() {
 }
 
 #[test]
-fn test_turn_cashback_35_percent() {
-    let r = calculate_progressive_loss_deflator(params(
+fn test_equity_90_percent_gets_35_percent_cashback() {
+    let r = calculate_progressive_loss_deflator(params_with_equity(
         vec![pot(100000, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Turn,
+        0.90,
     ))
     .unwrap();
     assert_eq!(r.cashback, 35000);
@@ -82,17 +95,15 @@ fn test_turn_cashback_35_percent() {
 }
 
 #[test]
-fn test_river_returns_none() {
-    let r = calculate_progressive_loss_deflator(params(
+fn test_equity_below_56_percent_returns_none() {
+    let r = calculate_progressive_loss_deflator(params_with_equity(
         vec![pot(100000, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::River,
+        0.559_999,
     ));
-    assert!(
-        r.is_none(),
-        "River não deve gerar cashback (showdown direto)"
-    );
+    assert!(r.is_none(), "equity abaixo de 56% não deve gerar cashback");
 }
 
 // ─── Elegibilidade de Pots ───
@@ -126,7 +137,7 @@ fn test_loser_only_in_side_pot() {
 
 #[test]
 fn test_loser_in_all_pots() {
-    let r = calculate_progressive_loss_deflator(params(
+    let r = calculate_progressive_loss_deflator(params_with_equity(
         vec![
             pot(20000, vec!["loser", "x", "y"]),
             pot(10000, vec!["loser", "x"]),
@@ -135,6 +146,7 @@ fn test_loser_in_all_pots() {
         "loser",
         "x",
         GamePhase::Turn,
+        0.90,
     ))
     .unwrap();
     // 35% de 350 = 122,50. O cálculo em pontos-base preserva os centavos
@@ -167,7 +179,7 @@ fn test_proportional_distribution_sums_to_total() {
 
 #[test]
 fn test_proportional_distribution_respects_pot_sizes() {
-    let r = calculate_progressive_loss_deflator(params(
+    let r = calculate_progressive_loss_deflator(params_with_equity(
         vec![
             pot(60000, vec!["a", "b"]), // 60%
             pot(40000, vec!["a", "b"]), // 40%
@@ -175,15 +187,16 @@ fn test_proportional_distribution_respects_pot_sizes() {
         "a",
         "b",
         GamePhase::Preflop,
+        0.60,
     ))
     .unwrap();
-    // 15% de 1000 = 150
-    // main: 150 * 600/1000 = 90, side: 150 * 400/1000 = 60
-    assert!(r.per_pot_cashback[0].amount == 9000);
-    assert!(r.per_pot_cashback[1].amount == 6000);
+    // 7% de 1000 = 70
+    // main: 70 * 600/1000 = 42, side: 70 * 400/1000 = 28
+    assert!(r.per_pot_cashback[0].amount == 4200);
+    assert!(r.per_pot_cashback[1].amount == 2800);
     assert_eq!(
         r.per_pot_cashback[0].amount + r.per_pot_cashback[1].amount,
-        15000
+        7000
     );
 }
 
@@ -238,11 +251,12 @@ fn test_all_pots_zero_returns_none() {
 
 #[test]
 fn test_single_chip_pot() {
-    let r = calculate_progressive_loss_deflator(params(
+    let r = calculate_progressive_loss_deflator(params_with_equity(
         vec![pot(100, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Turn,
+        0.90,
     ))
     .unwrap();
     // 35% de 1 = 0.35 → truncado para 0.35 (não arredondado para 0!)
@@ -253,11 +267,12 @@ fn test_single_chip_pot() {
 #[test]
 fn test_minimum_cashback_one_chip() {
     // 3 * 0,35 = 1,05. Pontos-base mantêm o valor inteiro exato em centavos.
-    let r = calculate_progressive_loss_deflator(params(
+    let r = calculate_progressive_loss_deflator(params_with_equity(
         vec![pot(300, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Turn,
+        0.90,
     ))
     .unwrap();
     assert_eq!(r.cashback, 105);
@@ -265,14 +280,15 @@ fn test_minimum_cashback_one_chip() {
 
 #[test]
 fn test_large_pot_no_overflow() {
-    let r = calculate_progressive_loss_deflator(params(
+    let r = calculate_progressive_loss_deflator(params_with_equity(
         vec![pot(100000000, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Preflop,
+        0.60,
     ))
     .unwrap();
-    assert_eq!(r.cashback, 15000000); // 15% de 1M
+    assert_eq!(r.cashback, 7000000); // 7% de 1M
 }
 
 #[test]
@@ -333,7 +349,7 @@ fn test_three_players_loser_in_main_and_side1() {
 
 #[test]
 fn test_five_players_complex_side_pots() {
-    let r = calculate_progressive_loss_deflator(params(
+    let r = calculate_progressive_loss_deflator(params_with_equity(
         vec![
             pot(50000, vec!["a", "b", "c", "d", "e"]), // main
             pot(40000, vec!["b", "c", "d", "e"]),
@@ -344,6 +360,7 @@ fn test_five_players_complex_side_pots() {
         "c",
         "e",
         GamePhase::Turn,
+        0.90,
     ))
     .unwrap();
     // C está em main(500) + side1(400) + side2(300) = 1200
@@ -369,7 +386,7 @@ fn test_result_contains_correct_ids() {
 }
 
 #[test]
-fn test_odds_field_is_zero() {
+fn test_loser_equity_is_preserved() {
     let r = calculate_progressive_loss_deflator(params(
         vec![pot(50000, vec!["a", "b"])],
         "a",
@@ -377,10 +394,7 @@ fn test_odds_field_is_zero() {
         GamePhase::Flop,
     ))
     .unwrap();
-    assert_eq!(
-        r.odds, 0.0,
-        "Campo odds deve ser 0 (não usado nesta versão)"
-    );
+    assert_eq!(r.loser_equity, 0.80);
 }
 
 #[test]
@@ -445,11 +459,12 @@ fn test_per_pot_indices_match_eligible() {
 
 #[test]
 fn test_per_pot_amounts_non_zero_for_positive_pots() {
-    let r = calculate_progressive_loss_deflator(params(
+    let r = calculate_progressive_loss_deflator(params_with_equity(
         vec![pot(100000, vec!["a", "b"]), pot(100000, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Turn,
+        0.90,
     ))
     .unwrap();
     // 35% de 2000 = 700, rateio 50/50 = 350 cada
@@ -465,6 +480,7 @@ fn test_per_pot_amounts_non_zero_for_positive_pots() {
 
 #[test]
 fn test_tier_as_str() {
+    assert_eq!(LossDeflatorTier::SevenPercent.as_str(), "7%");
     assert_eq!(LossDeflatorTier::FifteenPercent.as_str(), "15%");
     assert_eq!(LossDeflatorTier::TwentyFivePercent.as_str(), "25%");
     assert_eq!(LossDeflatorTier::ThirtyFivePercent.as_str(), "35%");
@@ -472,6 +488,7 @@ fn test_tier_as_str() {
 
 #[test]
 fn test_tier_percent() {
+    assert!((LossDeflatorTier::SevenPercent.percent() - 0.07).abs() < f64::EPSILON);
     assert!((LossDeflatorTier::FifteenPercent.percent() - 0.15).abs() < f64::EPSILON);
     assert!((LossDeflatorTier::TwentyFivePercent.percent() - 0.25).abs() < f64::EPSILON);
     assert!((LossDeflatorTier::ThirtyFivePercent.percent() - 0.35).abs() < f64::EPSILON);
@@ -724,16 +741,16 @@ fn test_unicode_player_ids() {
 
 #[test]
 fn test_rounding_rounds_to_centavos() {
-    // 15% de 333 = 49.95 → truncado para 49.95
-    let r = calculate_progressive_loss_deflator(params(
+    // 7% de 333 = 23.31
+    let r = calculate_progressive_loss_deflator(params_with_equity(
         vec![pot(33300, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Preflop,
+        0.60,
     ))
     .unwrap();
-    // 333 * 0.15 = 49.95 → truncado = 49.95
-    assert_eq!(r.cashback, 4995);
+    assert_eq!(r.cashback, 2331);
 }
 
 #[test]
@@ -751,15 +768,16 @@ fn test_rounding_down() {
 
 #[test]
 fn test_rounding_edge_499() {
-    // 15% de 3300 centavos = 495 centavos
-    let r = calculate_progressive_loss_deflator(params(
+    // 7% de 3300 centavos = 231 centavos
+    let r = calculate_progressive_loss_deflator(params_with_equity(
         vec![pot(3300, vec!["a", "b"])],
         "a",
         "b",
         GamePhase::Preflop,
+        0.60,
     ))
     .unwrap();
-    assert_eq!(r.cashback, 495);
+    assert_eq!(r.cashback, 231);
 }
 
 // ─── Consistência com múltiplas chamadas ───

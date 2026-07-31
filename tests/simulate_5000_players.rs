@@ -464,9 +464,12 @@ fn test_simulate_5000_simultaneous_players() {
                         let net_change = (p.stack + p.total_bet) - initial;
                         PlayerLossStats {
                             player_id: p.id.clone(),
-                            total_bet: p.total_bet,
-                            amount_won: if net_change > 0.0 { net_change } else { 0.0 },
-                            cashback_tier_rate: if p.is_all_in { 0.25 } else { 0.07 },
+                            eligible_loss_after_rake: if net_change < 0.0 {
+                                -net_change
+                            } else {
+                                0.0
+                            },
+                            loser_equity: if p.is_all_in { 0.80 } else { 0.60 },
                         }
                     })
                     .collect();

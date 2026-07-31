@@ -120,7 +120,12 @@ pub enum ServerMessage {
         loser_name: String,
         winner_name: String,
         cashback_amount: u64,
-        odds_broken: u8,
+        #[serde(default)]
+        deflator_percent: Option<u8>,
+        #[serde(default)]
+        loser_equity_percent: Option<f64>,
+        #[serde(default)]
+        odds_broken: Option<u8>,
         prevented_elimination: bool,
         is_tournament: bool,
     },
@@ -461,7 +466,7 @@ mod tests {
 
     #[test]
     fn test_server_message_deserialize_deflator() {
-        let json = r#"{"type":"deflator_triggered","loser_name":"Alice","winner_name":"Bob","cashback_amount":3500,"odds_broken":18,"prevented_elimination":true,"is_tournament":false}"#;
+        let json = r#"{"type":"deflator_triggered","loser_name":"Alice","winner_name":"Bob","cashback_amount":3500,"deflator_percent":25,"loser_equity_percent":80.25,"odds_broken":20,"prevented_elimination":true,"is_tournament":false}"#;
         let msg: ServerMessage = serde_json::from_str(json).unwrap();
         assert_eq!(
             msg,
@@ -469,8 +474,29 @@ mod tests {
                 loser_name: "Alice".to_string(),
                 winner_name: "Bob".to_string(),
                 cashback_amount: 3500,
-                odds_broken: 18,
+                deflator_percent: Some(25),
+                loser_equity_percent: Some(80.25),
+                odds_broken: Some(20),
                 prevented_elimination: true,
+                is_tournament: false,
+            }
+        );
+    }
+
+    #[test]
+    fn test_server_message_deserialize_legacy_deflator_percent() {
+        let json = r#"{"type":"deflator_triggered","loser_name":"Alice","winner_name":"Bob","cashback_amount":3500,"odds_broken":15,"prevented_elimination":false,"is_tournament":false}"#;
+        let msg: ServerMessage = serde_json::from_str(json).unwrap();
+        assert_eq!(
+            msg,
+            ServerMessage::DeflatorTriggered {
+                loser_name: "Alice".to_string(),
+                winner_name: "Bob".to_string(),
+                cashback_amount: 3500,
+                deflator_percent: None,
+                loser_equity_percent: None,
+                odds_broken: Some(15),
+                prevented_elimination: false,
                 is_tournament: false,
             }
         );

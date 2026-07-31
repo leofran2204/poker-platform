@@ -61,21 +61,19 @@ fn test_loss_deflator_never_negative() {
     let stats = vec![
         PlayerLossStats {
             player_id: "P1".into(),
-            total_bet: 100.0,
-            amount_won: 20.0, // Loss = 80.0
-            cashback_tier_rate: 0.10,
+            eligible_loss_after_rake: 80.0,
+            loser_equity: 0.70,
         },
         PlayerLossStats {
             player_id: "P2".into(),
-            total_bet: 100.0,
-            amount_won: 150.0, // Win = 50.0 (Net positive)
-            cashback_tier_rate: 0.10,
+            eligible_loss_after_rake: 0.0,
+            loser_equity: 0.70,
         },
     ];
 
     let results = calculate_loss_deflators(&stats);
     assert_eq!(results[0].net_loss, 80.0);
-    assert_eq!(results[0].cashback_amount, 8.0);
+    assert_eq!(results[0].cashback_amount, 12.0);
 
     // P2 won money, cashback MUST be 0.0, never negative
     assert_eq!(results[1].net_loss, 0.0);

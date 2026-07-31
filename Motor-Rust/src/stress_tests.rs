@@ -232,11 +232,7 @@ fn stress_rake_deduct_returns_net() {
         let pot_amount = (secure_random_u32(1..=1000) * 100) as u64;
         let rake_basis_points = (secure_random_u32(1..=10) * 100) as u16; // 1%..10%
         let cap = (secure_random_u32(1..=20) * 100) as u64;
-        let config = RakeTableConfig {
-            big_blind: 1000,
-            rake_basis_points,
-            rake_cap: cap,
-        };
+        let config = RakeTableConfig::new(1000, rake_basis_points, cap);
         let pots = vec![Pot::new(pot_amount, vec!["p".into()])];
         let result = deduct_rake(&pots, &config, None);
         let net: u64 = result.pots_after_rake.iter().map(|p| p.amount).sum();

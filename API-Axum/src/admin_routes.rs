@@ -39,6 +39,9 @@ pub struct CreateCashTableRequest {
     pub max_players: u8,
     pub rake_basis_points: u16,
     pub rake_cap: u64,
+    pub rake_cap_heads_up: Option<u64>,
+    pub rake_cap_three_to_four: Option<u64>,
+    pub rake_cap_five_plus: Option<u64>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -58,6 +61,9 @@ pub struct AdminTableResponse {
     pub max_players: u8,
     pub rake_basis_points: u16,
     pub rake_cap: u64,
+    pub rake_cap_heads_up: Option<u64>,
+    pub rake_cap_three_to_four: Option<u64>,
+    pub rake_cap_five_plus: Option<u64>,
 }
 
 type AdminTableRow = (
@@ -71,6 +77,9 @@ type AdminTableRow = (
     i16,
     i16,
     i64,
+    Option<i64>,
+    Option<i64>,
+    Option<i64>,
 );
 
 fn require_admin(auth_user: &crate::middleware::auth::AuthUser) -> Result<(), ApiError> {
@@ -87,6 +96,13 @@ fn as_i64(value: u64, field: &str) -> Result<i64, ApiError> {
     i64::try_from(value)
         .map_err(|_| ApiError::BadRequest(format!("{field} exceeds the supported range")))
 }
+fn optional_u64(value: Option<i64>, field: &str) -> Result<Option<u64>, ApiError> {
+    value
+        .map(|stored| {
+            u64::try_from(stored).map_err(|_| ApiError::Internal(format!("Invalid stored {field}")))
+        })
+        .transpose()
+}
 
 fn admin_table_response(
     (
@@ -100,6 +116,9 @@ fn admin_table_response(
         max_players,
         rake_basis_points,
         rake_cap,
+        rake_cap_heads_up,
+        rake_cap_three_to_four,
+        rake_cap_five_plus,
     ): AdminTableRow,
 ) -> Result<AdminTableResponse, ApiError> {
     Ok(AdminTableResponse {
@@ -120,6 +139,9 @@ fn admin_table_response(
             .map_err(|_| ApiError::Internal("Invalid stored rake".to_string()))?,
         rake_cap: u64::try_from(rake_cap)
             .map_err(|_| ApiError::Internal("Invalid stored rake cap".to_string()))?,
+        rake_cap_heads_up: optional_u64(rake_cap_heads_up, "heads-up rake cap")?,
+        rake_cap_three_to_four: optional_u64(rake_cap_three_to_four, "3-4 rake cap")?,
+        rake_cap_five_plus: optional_u64(rake_cap_five_plus, "5+ rake cap")?,
     })
 }
 
@@ -149,6 +171,24 @@ pub async fn create_cash_table_handler(
         ));
     }
 
+    let rake_cap_schedule = match (
+        body.rake_cap_heads_up,
+        body.rake_cap_three_to_four,
+        body.rake_cap_five_plus,
+    ) {
+        (None, None, None) => None,
+        (Some(heads_up), Some(three_to_four), Some(five_plus)) => Some((
+            as_i64(heads_up, "rake_cap_heads_up")?,
+            as_i64(three_to_four, "rake_cap_three_to_four")?,
+            as_i64(five_plus, "rake_cap_five_plus")?,
+        )),
+        _ => {
+            return Err(ApiError::BadRequest(
+                "All player-count rake caps must be provided together".to_string(),
+            ))
+        }
+    };
+
     let small_blind = as_i64(body.small_blind, "small_blind")?;
     let big_blind = as_i64(body.big_blind, "big_blind")?;
     let min_buy_in = as_i64(body.min_buy_in, "min_buy_in")?;
@@ -156,12 +196,17 @@ pub async fn create_cash_table_handler(
     let rake_cap = as_i64(body.rake_cap, "rake_cap")?;
     let rake_basis_points = i16::try_from(body.rake_basis_points)
         .map_err(|_| ApiError::BadRequest("Invalid rake".to_string()))?;
+    let (rake_cap_heads_up, rake_cap_three_to_four, rake_cap_five_plus) = rake_cap_schedule
+        .map(|(heads_up, three_to_four, five_plus)| {
+            (Some(heads_up), Some(three_to_four), Some(five_plus))
+        })
+        .unwrap_or((None, None, None));
 
     let mut tx = state.db.begin().await?;
     let row: AdminTableRow = sqlx::query_as(
-        "INSERT INTO tables (name, game_type, small_blind, big_blind, min_buy_in, max_buy_in, max_players, visibility, status, rake_basis_points, rake_cap) \
-         VALUES ($1, 'cash', $2, $3, $4, $5, $6, 'public', 'OPEN', $7, $8) \
-         RETURNING id, name, status, small_blind, big_blind, min_buy_in, max_buy_in, max_players, rake_basis_points, rake_cap",
+        "INSERT INTO tables (name, game_type, small_blind, big_blind, min_buy_in, max_buy_in, max_players, visibility, status, rake_basis_points, rake_cap, rake_cap_heads_up, rake_cap_three_to_four, rake_cap_five_plus) \
+         VALUES ($1, 'cash', $2, $3, $4, $5, $6, 'public', 'OPEN', $7, $8, $9, $10, $11) \
+         RETURNING id, name, status, small_blind, big_blind, min_buy_in, max_buy_in, max_players, rake_basis_points, rake_cap, rake_cap_heads_up, rake_cap_three_to_four, rake_cap_five_plus",
     )
     .bind(name)
     .bind(small_blind)
@@ -171,6 +216,9 @@ pub async fn create_cash_table_handler(
     .bind(i16::from(body.max_players))
     .bind(rake_basis_points)
     .bind(rake_cap)
+    .bind(rake_cap_heads_up)
+    .bind(rake_cap_three_to_four)
+    .bind(rake_cap_five_plus)
     .fetch_one(&mut *tx)
     .await?;
     sqlx::query(
@@ -229,7 +277,7 @@ pub async fn update_table_status_handler(
 
     let row: AdminTableRow = sqlx::query_as(
         "UPDATE tables SET status = $1 WHERE id = $2 \
-         RETURNING id, name, status, small_blind, big_blind, min_buy_in, max_buy_in, max_players, rake_basis_points, rake_cap",
+         RETURNING id, name, status, small_blind, big_blind, min_buy_in, max_buy_in, max_players, rake_basis_points, rake_cap, rake_cap_heads_up, rake_cap_three_to_four, rake_cap_five_plus",
     )
     .bind(&status)
     .bind(table_id)
@@ -274,7 +322,7 @@ pub async fn abort_table_recovery_handler(
         .await?;
     let row: AdminTableRow = sqlx::query_as(
         "UPDATE tables SET status = 'PAUSED' WHERE id = $1 \
-         RETURNING id, name, status, small_blind, big_blind, min_buy_in, max_buy_in, max_players, rake_basis_points, rake_cap",
+         RETURNING id, name, status, small_blind, big_blind, min_buy_in, max_buy_in, max_players, rake_basis_points, rake_cap, rake_cap_heads_up, rake_cap_three_to_four, rake_cap_five_plus",
     )
     .bind(table_id)
     .fetch_one(&mut *tx)

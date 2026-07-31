@@ -264,15 +264,19 @@ pub fn Table(id: String) -> Element {
                                 loser_name,
                                 winner_name,
                                 cashback_amount,
-                                odds_broken,
+                                deflator_percent,
+                                loser_equity_percent,
+                                odds_broken: _, // winner upset % (compat); not cashback tier
                                 prevented_elimination,
                                 is_tournament,
                             } => {
+                                let applied_percent = deflator_percent.unwrap_or_default();
                                 s.deflator_payload = Some(DeflatorPayload {
                                     loser_name,
                                     winner_name,
                                     cashback_amount,
-                                    odds_broken,
+                                    deflator_percent: applied_percent,
+                                    loser_equity_percent,
                                     prevented_elimination,
                                     is_tournament,
                                 });

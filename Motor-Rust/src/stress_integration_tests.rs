@@ -13,7 +13,7 @@
 //   1. Mão completa:       deck → side_pots → rake → hand_history
 //   2. Side pots multi-way: all-ins/folds aleatórios, conservação + fold excluído
 //   3. Torneio completo:    config/registro/blinds/eliminação aleatórios
-//   4. Loss deflator+rake:  pots/phase aleatórios, cashback por tier + conservação
+//   4. Loss deflator+rake: pots/equities aleatórios, cashback por tier + conservação
 //   5. RNG + deck:          200k embaralhamentos, 52 únicas (permutação exata)
 
 use crate::deck::{create_deck, deal_cards, Card, HandRank, HandResult, Rank, Suit};
@@ -533,30 +533,29 @@ fn test_stress_integration_loss_deflator_plus_rake() {
         let winner =
             pots[0].eligible_players[rng.gen_range(0..pots[0].eligible_players.len())].clone();
         let phase = phases[rng.gen_range(0..phases.len())];
+        let loser_equity = rng.gen_range(0.0f64..=1.0f64);
+        let expected_tier = LossDeflatorTier::from_loser_equity(loser_equity);
 
-        if let Some(deflator) = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
-            pots: pots.clone(),
+        let deflator = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
+            pots: rake.pots_after_rake.clone(),
             loser_id: loser.clone(),
             winner_id: winner.clone(),
             phase,
-        }) {
-            // Tier e percentual corretos por fase
-            let expected_tier = match phase {
-                TypesGamePhase::Preflop => LossDeflatorTier::FifteenPercent,
-                TypesGamePhase::Flop => LossDeflatorTier::TwentyFivePercent,
-                TypesGamePhase::Turn => LossDeflatorTier::ThirtyFivePercent,
-                _ => unreachable!(),
-            };
-            assert_eq!(deflator.tier, expected_tier, "tier incompatível com fase");
+            loser_equity,
+        });
+        assert_eq!(
+            deflator.is_some(),
+            expected_tier.is_some(),
+            "elegibilidade incompatível com a equity {loser_equity}"
+        );
 
-            // Cashback = 15/25/35% do total elegível, sempre em pontos-base
-            // inteiros. Isso deve usar a mesma aritmética financeira da produção.
-            let basis_points = match phase {
-                TypesGamePhase::Preflop => 1_500u128,
-                TypesGamePhase::Flop => 2_500u128,
-                TypesGamePhase::Turn => 3_500u128,
-                _ => unreachable!(),
-            };
+        if let Some(deflator) = deflator {
+            let expected_tier = expected_tier.unwrap();
+            assert_eq!(deflator.tier, expected_tier, "tier incompatível com equity");
+            assert_eq!(deflator.loser_equity, loser_equity);
+
+            // A aritmética financeira usa pontos-base inteiros.
+            let basis_points = u128::from(expected_tier.basis_points());
             let expected_cb =
                 ((deflator.eligible_pot_total as u128 * basis_points) / 10_000) as u64;
             assert_eq!(

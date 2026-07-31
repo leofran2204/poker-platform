@@ -586,28 +586,29 @@ impl TableActor {
                     // Como game_actor.rs atualmente orquestra Cash, deixamos fixo como false para torneio (torneio usa tournament_engine)
                     let is_tournament = false;
 
-                    // Como a regra de negócio atual baseia o deflator na fase e não nas odds exatas,
-                    // vamos enviar a fase (ex: 15%, 25%, 35%) como representação do "quão quebrado" foi o river.
-                    // O UX pediu para mostrar "(18%)". Vamos mapear as probabilidades estimadas daquela fase.
-                    // Se deflator.odds foi calculado (> 0), usamos a chance do VENCEDOR (1 - loser_equity)
-                    // Exemplo: perdedor tinha 82% -> vencedor tinha 18% (odds_broken = 18%)
-                    let odds_broken = if deflator.odds > 0.0 {
-                        ((1.0 - deflator.odds) * 100.0).round() as u8
-                    } else {
-                        match deflator.tier {
-                            poker_engine::loss_deflator::LossDeflatorTier::SevenPercent => 7,
-                            poker_engine::loss_deflator::LossDeflatorTier::FifteenPercent => 15,
-                            poker_engine::loss_deflator::LossDeflatorTier::TwentyFivePercent => 25,
-                            poker_engine::loss_deflator::LossDeflatorTier::ThirtyFivePercent => 35,
-                        }
+                    // Percentual financeiro aplicado e equity do perdedor no
+                    // instante do all-in. A fase não determina o tier.
+                    let deflator_percent = match deflator.tier {
+                        poker_engine::loss_deflator::LossDeflatorTier::SevenPercent => 7,
+                        poker_engine::loss_deflator::LossDeflatorTier::FifteenPercent => 15,
+                        poker_engine::loss_deflator::LossDeflatorTier::TwentyFivePercent => 25,
+                        poker_engine::loss_deflator::LossDeflatorTier::ThirtyFivePercent => 35,
                     };
+                    let loser_equity_percent = (deflator.loser_equity * 10_000.0).round() / 100.0;
+                    let winner_upset_percent = ((1.0 - deflator.loser_equity) * 100.0)
+                        .round()
+                        .clamp(0.0, 100.0) as u8;
 
                     let event_payload = serde_json::json!({
                         "type": "deflator_triggered",
                         "loser_name": loser_name,
                         "winner_name": winner_name,
                         "cashback_amount": deflator.cashback,
-                        "odds_broken": odds_broken,
+                        "deflator_percent": deflator_percent,
+                        "loser_equity_percent": loser_equity_percent,
+                        // Compatibilidade temporária com clientes anteriores:
+                        // chance aproximada que o vencedor tinha de causar a virada.
+                        "odds_broken": winner_upset_percent,
                         "prevented_elimination": prevented_elimination,
                         "is_tournament": is_tournament
                     });

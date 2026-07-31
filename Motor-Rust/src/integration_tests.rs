@@ -396,17 +396,21 @@ fn test_integration_loss_deflator_plus_rake() {
     assert_eq!(rake.total_rake, 600, "rake deve ser 6 (cap)");
     assert!(rake.total_rake <= rake_config().rake_cap);
 
-    // Loss deflator (preflop = 15% sobre pots elegíveis do perdedor)
+    // Equity de 60% = tier de 7% sobre os potes líquidos após o rake.
     let deflator = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
-        pots: pots.clone(),
+        pots: rake.pots_after_rake.clone(),
         loser_id: "loser".into(),
         winner_id: "winner".into(),
         phase: GamePhase::Preflop,
+        loser_equity: 0.60,
     })
     .expect("deflator calculado");
-    assert_eq!(deflator.tier, LossDeflatorTier::FifteenPercent);
-    assert_eq!(deflator.cashback, 3000, "cashback deve ser 15% de 200 = 30");
-    assert_eq!(deflator.eligible_pot_total, 20000);
+    assert_eq!(deflator.tier, LossDeflatorTier::SevenPercent);
+    assert_eq!(
+        deflator.cashback, 1358,
+        "cashback deve ser 7% de 194 = 13,58"
+    );
+    assert_eq!(deflator.eligible_pot_total, 19400);
 
     // Conservação: rake + cashback não podem exceder o pote original
     assert!(
@@ -417,11 +421,11 @@ fn test_integration_loss_deflator_plus_rake() {
         pots[0].amount
     );
 
-    // O vencedor recebe o pote menos rake e menos o cashback do perdedor
-    let winner_net = pots[0].amount - rake.total_rake - deflator.cashback;
+    // O vencedor recebe o pote pós-rake menos o cashback do perdedor.
+    let winner_net = rake.pots_after_rake[0].amount - deflator.cashback;
     assert_eq!(
-        winner_net, 16400,
-        "vencedor líquido deve ser 200-6-30 = 164"
+        winner_net, 18042,
+        "vencedor líquido deve ser 194-13,58 = 180,42"
     );
 }
 

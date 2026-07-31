@@ -3309,12 +3309,15 @@ mod resolve_showdown_errors_tests {
     }
 
     #[test]
-    fn hand_resolution_fold_pot_unico() {
+    fn hand_resolution_fold_separa_aposta_nao_coberta() {
         let mut gl = make_game_loop_2p();
         gl.start_hand().unwrap();
         gl.player_action("alice", PlayerMove::Fold).unwrap();
         let resolution = gl.resolve_hand().unwrap();
-        assert_eq!(resolution.pots.len(), 1);
+        assert_eq!(resolution.pots.len(), 2);
+        assert_eq!(resolution.pots[1].amount, 5);
+        assert_eq!(resolution.pots[1].eligible_players, vec!["bob"]);
+        assert_eq!(resolution.rake, 0);
     }
 
     #[test]
@@ -3933,18 +3936,18 @@ mod resolve_showdown_errors_tests {
     }
 
     #[test]
-    fn test_multi_phase_all_in_loss_deflator_exact_phases() {
+    fn test_multi_phase_all_in_loss_deflator_uses_equity_snapshots() {
         use crate::deck::{Rank, Suit};
         let p1 = PlayerState {
             id: "p1".to_string(),
             stack: 0,
             hole_cards: vec![
                 Card {
-                    rank: Rank::Two,
-                    suit: Suit::Clubs,
+                    rank: Rank::King,
+                    suit: Suit::Diamonds,
                 },
                 Card {
-                    rank: Rank::Three,
+                    rank: Rank::King,
                     suit: Suit::Hearts,
                 },
             ],
@@ -3961,12 +3964,12 @@ mod resolve_showdown_errors_tests {
             stack: 0,
             hole_cards: vec![
                 Card {
-                    rank: Rank::Four,
-                    suit: Suit::Clubs,
+                    rank: Rank::Ace,
+                    suit: Suit::Spades,
                 },
                 Card {
-                    rank: Rank::Five,
-                    suit: Suit::Hearts,
+                    rank: Rank::Ace,
+                    suit: Suit::Diamonds,
                 },
             ],
             current_bet: 20000,
@@ -3982,12 +3985,12 @@ mod resolve_showdown_errors_tests {
             stack: 70000,
             hole_cards: vec![
                 Card {
-                    rank: Rank::Ace,
-                    suit: Suit::Spades,
+                    rank: Rank::Queen,
+                    suit: Suit::Clubs,
                 },
                 Card {
-                    rank: Rank::Ace,
-                    suit: Suit::Hearts,
+                    rank: Rank::Jack,
+                    suit: Suit::Clubs,
                 },
             ],
             current_bet: 30000,
@@ -4011,11 +4014,11 @@ mod resolve_showdown_errors_tests {
         gl.state.community_cards = vec![
             Card {
                 rank: Rank::Two,
-                suit: Suit::Diamonds,
+                suit: Suit::Hearts,
             },
             Card {
-                rank: Rank::Seven,
-                suit: Suit::Spades,
+                rank: Rank::Three,
+                suit: Suit::Diamonds,
             },
             Card {
                 rank: Rank::Nine,
@@ -4023,11 +4026,11 @@ mod resolve_showdown_errors_tests {
             },
             Card {
                 rank: Rank::Jack,
-                suit: Suit::Diamonds,
+                suit: Suit::Hearts,
             },
             Card {
-                rank: Rank::Ace,
-                suit: Suit::Diamonds,
+                rank: Rank::Jack,
+                suit: Suit::Spades,
             },
         ];
         gl.state.is_finished = true;
@@ -4043,6 +4046,11 @@ mod resolve_showdown_errors_tests {
             .unwrap();
         assert_eq!(d1.phase, GamePhase::Preflop);
         assert_eq!(d1.cards_remaining, 5);
+        assert_eq!(
+            d1.tier,
+            crate::loss_deflator::LossDeflatorTier::TwentyFivePercent
+        );
+        assert!((0.76..0.86).contains(&d1.loser_equity));
 
         let d2 = res
             .loss_deflators
@@ -4051,6 +4059,11 @@ mod resolve_showdown_errors_tests {
             .unwrap();
         assert_eq!(d2.phase, GamePhase::Turn);
         assert_eq!(d2.cards_remaining, 1);
+        assert_eq!(
+            d2.tier,
+            crate::loss_deflator::LossDeflatorTier::ThirtyFivePercent
+        );
+        assert!(d2.loser_equity >= 0.86);
     }
 
     #[test]

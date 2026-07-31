@@ -76,7 +76,7 @@ O segundo comando é obrigatório na CI. Se ele falhar, a mudança deve atualiza
 |--------|--------|-------------------|
 | `deck.rs` | 18 | Baralho 52 cartas, Fisher-Yates com CSPRNG |
 | `side_pots.rs` | 7 | Side pots para all-in |
-| `loss_deflator.rs` | 9 | Cashback por equity no all-in (tiers 7/15/25/35%, equity ≥ 60%) |
+| `loss_deflator.rs` | 9+ | Cashback pós-rake por equity no all-in (56–65,9%: 7%; 66–75,9%: 15%; 76–85,9%: 25%; ≥86%: 35%) |
 | `rake.rs` | 13 | Rake da casa (cap R$6, Regra Centavo Ímpar WSOP 68) |
 | `rng_crypto.rs` | 20 | CSPRNG com `OsRng` |
 | `hand_history.rs` | 19 | Histórico imutável de mãos e gravação no PostgreSQL |
@@ -133,7 +133,7 @@ cargo tarpaulin               # cobertura ≥ 80%
 - **Variante:** Texas Hold'em Tradicional (52 cartas)
 - **Formatos:** Cash Game e Tournament
 - **Jogadores:** 2 a 9 por mesa
-- **Loss Deflator:** Cashback por equity no all-in (≥ 60%): 7% (60–64,9%), 15% (65–74,9%), 25% (75–84,9%), 35% (≥ 85%)
+- **Loss Deflator:** calculado após o rake sobre os potes elegíveis; <56%: 0%, 56–65,9%: 7%, 66–75,9%: 15%, 76–85,9%: 25%, ≥86%: 35%. A fase do all-in apenas define o board do snapshot.
 - **Side Pots:** Suporte completo a all-in com tamanhos diferentes
 - **Rake:** Configurável por mesa (ver `rake.rs`)
 

@@ -243,22 +243,23 @@ O **Loss Deflator** é um sistema de cashback automático que devolve parte das 
 
 ### 11.1 🎯 Modelo Baseado em Equity
 
-O cashback é determinado pela **equity** (probabilidade de vencer) do perdedor no momento do all-in, calculada via enumeração exata heads-up (`get_heads_up_win_probability()`).
+O cashback é determinado pela **equity do perdedor no instante em que o all-in é pago**. O cálculo heads-up é determinístico: enumeração quando viável e Monte Carlo determinístico nos espaços maiores (`get_heads_up_win_probability()`). A fase da mão serve apenas para reconstruir quais cartas já estavam abertas; **preflop, flop, turn ou river nunca determinam o percentual**.
 
 | Tier  | Equity do Perdedor | Cashback | Perfil do Rango |
 |-------|---------------------|----------|-----------------|
-| **0** | **46,0% – 59,9%**   | **7%**   | Mão Parelha / Coin Flip |
-| **1** | **60,0% – 74,9%**   | **15%**  | Favorito Moderado |
-| **2** | **75,0% – 84,9%**   | **25%**  | Grande Favorito |
-| **3** | **≥ 85,0%**         | **35%**  | Favorito Esmagador / Bad Beat |
-| —     | **< 46,0%**         | **0%**   | Blefe sem valor ou Zebra extrema |
+| **0** | **56,0% – 65,9%**   | **7%**   | Favorito leve |
+| **1** | **66,0% – 75,9%**   | **15%**  | Favorito moderado |
+| **2** | **76,0% – 85,9%**   | **25%**  | Grande favorito |
+| **3** | **≥ 86,0%**         | **35%**  | Favorito esmagador / bad beat extrema |
+| —     | **< 56,0%**         | **0%**   | Não elegível |
 
 ### 11.2 ⚙️ Regras de Aplicação e Origem Financeira
 
-- **Origem das Fichas (Custo ZERO para a Plataforma):** O cashback é 100% autofinanciado pelas próprias fichas acumuladas no pote da mão. Ele é descontado da fatia do(s) vencedor(es) daquele pote específico e entregue ao perdedor All-in.
-- **Aplicação Unificada:** Funciona identicamente em **Cash Games (Ring Games)** (devolvendo R$/fichas reais) e em **Torneios (MTT/SNG)** (devolvendo fichas de torneio).
-- **Múltiplos All-Ins e Fases Distintas:** Suporta múltiplos jogadores All-in em fases diferentes (Preflop=15%, Flop=25%, Turn=35%). Cada perdedor tem sua fase rastreada individualmente (`PlayerState::all_in_phase`).
-- **Isolamento de Side Pots:** O cashback de um perdedor é calculado e descontado APENAS dos potes em que ele participou. Potes secundários nos quais o jogador não participou ficam 100% intocados.
+- **Ordem financeira obrigatória:** formar main pot e side pots → retirar o rake de cada pote → calcular o Loss Deflator somente sobre os potes elegíveis já líquidos → concluir os pagamentos.
+- **Origem das Fichas:** O cashback é autofinanciado pelas fichas playmoney dos potes líquidos da mão. Ele é descontado da fatia do(s) vencedor(es) do pote elegível e entregue ao perdedor all-in; não cria fichas novas.
+- **Aplicação atual:** Cash Games e torneios usam apenas fichas **playmoney**; não há dinheiro real habilitado.
+- **Múltiplos All-Ins e Fases Distintas:** Cada perdedor possui um snapshot individual de fase e board para calcular sua equity. A fase não escolhe o tier.
+- **Isolamento de Side Pots:** O cashback de um perdedor é calculado e descontado APENAS dos potes líquidos pós-rake em que ele participou. Side pots nos quais não era elegível ficam intocados.
 - **Limite Máximo:** Cashback nunca excede 35% do valor perdido.
 - **Anti-abuso:** Perder propositalmente para receber cashback é detectado pelo módulo antifraude.
 
@@ -267,7 +268,7 @@ O cashback é determinado pela **equity** (probabilidade de vencer) do perdedor 
 | Cenário                          | Equity | Tier | Perda   | Cashback |
 |----------------------------------|--------|------|---------|----------|
 | All-in preflop, A♠A♦ vs K♠K♦    | 82%    | 2    | R$ 200  | R$ 50    |
-| All-in flop, set vs flush draw   | 65%    | 1    | R$ 100  | R$ 15    |
+| All-in flop, set vs flush draw   | 65%    | 0    | R$ 100  | R$ 7     |
 | All-in turn, overpair vs set     | 7%     | —    | R$ 100  | R$ 0     |
 | All-in preflop, AK vs QQ         | 62%    | 0    | R$ 500  | R$ 35    |
 | All-in flop, flush vs straight   | 88%    | 3    | R$ 300  | R$ 105   |

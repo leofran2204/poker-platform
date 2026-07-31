@@ -70,15 +70,13 @@ fn test_massive_fuzz_loss_deflator_10k_iterations() {
         let num_players = rng.gen_range(2..=9);
 
         for p in 0..num_players {
-            let total_bet = (rng.gen_range(1..=1000) as f64) * 10.0;
-            let amount_won = (rng.gen_range(0..=1500) as f64) * 10.0;
-            let tier_rate = rng.gen_range(0.05..=0.25);
+            let eligible_loss_after_rake = (rng.gen_range(0..=1000) as f64) * 10.0;
+            let loser_equity = rng.gen_range(0.0..=1.0);
 
             stats_list.push(PlayerLossStats {
                 player_id: format!("P_{}", p),
-                total_bet,
-                amount_won,
-                cashback_tier_rate: tier_rate,
+                eligible_loss_after_rake,
+                loser_equity,
             });
         }
 
@@ -102,7 +100,7 @@ fn test_massive_fuzz_loss_deflator_10k_iterations() {
                 .iter()
                 .find(|s| s.player_id == d.player_id)
                 .unwrap();
-            if original_player.amount_won >= original_player.total_bet {
+            if original_player.eligible_loss_after_rake == 0.0 {
                 assert_eq!(
                     d.cashback_amount, 0.0,
                     "Jogador vitorioso/empatado recebeu cashback indevido!"

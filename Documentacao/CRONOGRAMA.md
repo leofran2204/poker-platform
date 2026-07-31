@@ -49,7 +49,7 @@ FASE 6 ████████████████████████�
 |------|------------------------------------------|-------------------------|-------------------|---------------|-------------|
 | 2.1  | **Deck + Hand Evaluation**               | `deck.rs`               | 18 ✅             | ✅ Completo   | —           |
 | 2.2  | **Side Pots** (all-in múltiplos)         | `side_pots.rs`          | 7 ✅              | ✅ Completo   | —           |
-| 2.3  | **Loss Deflator Multi-Fases**            | `loss_deflator.rs`      | 9 ✅              | ✅ Completo   | —           |
+| 2.3  | **Loss Deflator por Equity pós-rake**     | `loss_deflator.rs`      | limites + integração ✅ | ✅ Completo | Regra 56/66/76/86 |
 | 2.4  | **Rake da Casa & Regra Centavo Ímpar**   | `rake.rs` & `utils.rs`  | 13 ✅             | ✅ Completo   | —           |
 | 2.5  | **evaluate_hand refatorado** (9 helpers) | `deck.rs`               | —                 | ✅ Completo   | —           |
 | 2.6  | **8 warnings de dead code limpos**       | —                       | —                 | ✅ Completo   | —           |
@@ -157,7 +157,8 @@ FASE 6 ████████████████████████�
 2026-07-17 ██  Integração Real-time WebSockets ↔ Dioxus & Docker Caddy
 2026-07-20 ██  CI/CD GitHub Actions + Job de Cobertura (llvm-cov)
 2026-07-22 ██  Hardening Enterprise + Gateway PIX + Red Team + Fuzzing 1M
-2026-07-23 ██  Deep Audit Fixes + Odd Cent Rule (WSOP 68) + Multi-Phase Loss Deflator
+2026-07-23 ██  Deep Audit Fixes + Odd Cent Rule (WSOP 68) + snapshots multi-all-in
+2026-07-30 ██  Loss Deflator por equity 56/66/76/86, sempre após o rake
 2026-07-25 ██  100% Concluído — Plataforma Pronta para Produção (Launch Ready)
 ```
 

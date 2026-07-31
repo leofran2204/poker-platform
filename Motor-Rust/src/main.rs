@@ -31,11 +31,7 @@ fn main() {
 
     // ─── Demonstração do módulo de rake ───
     println!("\n=== RAKE ===");
-    let config = TableConfig {
-        big_blind: 1000,
-        rake_basis_points: 500,
-        rake_cap: 500,
-    };
+    let config = TableConfig::new(1000, 500, 500);
 
     let pots = vec![
         Pot {
@@ -109,6 +105,7 @@ fn main() {
         loser_id: "loser".into(),
         winner_id: "winner".into(),
         phase: GamePhase::Flop,
+        loser_equity: 0.80,
     });
 
     if let Some(d) = deflator_result {

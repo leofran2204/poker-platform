@@ -32,13 +32,35 @@ impl Pot {
     }
 }
 
+/// Caps opcionais conforme a quantidade de jogadores que receberam cartas.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RakeCapSchedule {
+    pub heads_up: u64,
+    pub three_to_four: u64,
+    pub five_plus: u64,
+}
+
+impl RakeCapSchedule {
+    pub fn cap_for_players(self, players_dealt: usize) -> u64 {
+        match players_dealt {
+            0..=2 => self.heads_up,
+            3..=4 => self.three_to_four,
+            _ => self.five_plus,
+        }
+    }
+}
+
 /// Configuração da mesa (parâmetros de rake e blinds em centavos)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TableConfig {
     pub big_blind: u64,
     /// Commission in basis points. For example, 500 means 5.00%.
     pub rake_basis_points: u16,
+    /// Cap legado aplicado quando não há agenda por número de jogadores.
     pub rake_cap: u64,
+    /// Caps opcionais para heads-up, 3–4 jogadores e 5+ jogadores.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rake_cap_schedule: Option<RakeCapSchedule>,
 }
 
 impl TableConfig {
@@ -48,7 +70,21 @@ impl TableConfig {
             big_blind,
             rake_basis_points,
             rake_cap,
+            rake_cap_schedule: None,
         }
+    }
+
+    /// Configura caps distintos para heads-up, 3–4 jogadores e 5+ jogadores.
+    pub fn with_rake_cap_schedule(mut self, schedule: RakeCapSchedule) -> Self {
+        self.rake_cap_schedule = Some(schedule);
+        self
+    }
+
+    /// Retorna o cap correspondente à quantidade de jogadores que receberam cartas.
+    pub fn rake_cap_for_players(&self, players_dealt: usize) -> u64 {
+        self.rake_cap_schedule
+            .map(|schedule| schedule.cap_for_players(players_dealt))
+            .unwrap_or(self.rake_cap)
     }
 }
 

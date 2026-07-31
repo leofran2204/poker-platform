@@ -149,7 +149,7 @@ Após a Fase 2, foram adicionados testes de integração entre módulos, stress 
   * `stress_integration_tests.rs` — 5 testes massivos (200k iterações/cenário = 1M iterações), seed fixo (`StdRng`, `SEED = 0xDEAD_BEEF_CAFE_1234`), invariantes exatos (conservação de fichas, vencedores ≥ 1, rake ≤ cap, não-duplicação de cartas).
   * `card_fairness_tests.rs` — 3 testes de fairness estatística (qui-quadrado): ausência de duplicatas, distribuição de hole cards, distribuição flop/turn/river (500k iterações cada = 1,5M).
   * `stress_tests.rs` — 15 testes de stress por módulo (deck, side_pots, rake, utils, hand_history, tournament_engine).
-* **Monte Carlo (`loss_deflator.rs`):** `MC_SAMPLES = 500_000`, erro de estimativa via `mc_error_bound()` (re-exportado em `utils.rs`), tolerância de teste 0,005.
+* **Equity e tiers (`loss_deflator.rs`):** `MC_SAMPLES = 500_000`, cálculo determinístico e testes exatos das fronteiras 56/66/76/86. A suíte também verifica a ordem potes → rake → Loss Deflator pós-rake → pagamentos e snapshots em fases diferentes.
 * **RNG (`rng_crypto.rs`):** testes de distribuição por qui-quadrado (bool, d6, shuffle posição 0) substituindo asserts per-card flaky.
 * **Clippy:** 10 warnings corrigidos em testes → `cargo clippy --all-targets -- -D warnings` limpo (0 warnings).
 * **CI/CD:** `.github/workflows/rust-ci.yml` (raiz) com jobs `test` (clippy -D warnings + build + test), `audit` (`cargo audit --deny warnings`) e `coverage` (`cargo llvm-cov`, artefato lcov + summary). Paths antigos `08/09/10-` corrigidos para `Motor-Rust`/`Frontend-Dioxus`/`API-Axum`.

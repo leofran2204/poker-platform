@@ -1,6 +1,6 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-28
+**Atualizado:** 2026-07-30
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 >  Painel tático em `DASHBOARD.md`. 📅 Cronograma em `CRONOGRAMA.md`.
@@ -435,11 +435,20 @@
 ### [22] 🛡️ Anúncio Global e Psicologia do Loss Deflator (2026-07-25)
 **O que foi feito:**
 - **Integração Real-Time do Engine com WebSocket:** O `game_actor.rs` do Axum agora intercepta resoluções de mão com `loss_deflator` e transmite o evento `DeflatorTriggered` para o Dioxus via WebSocket.
-- **Cálculo de Equidade Exata:** O `game_loop.rs` executa a função de Monte Carlo `get_heads_up_win_probability` no momento do All-in, transmitindo a probabilidade exata do confronto (ex: 82% vs 18%) para visualização.
+- **Cálculo de Equity:** O `game_loop.rs` usa `get_heads_up_win_probability` com o board conhecido no instante do all-in; a rotina é determinística e usa enumeração ou Monte Carlo determinístico conforme o espaço.
 - **Componente Visual Dioxus (`deflator_notification.rs`):** Pop-up global animado com sobreposição (overlay) e 4 níveis de cores e textos adaptados à gravidade da Bad Beat (7% Teal, 15% Azul, 25% Laranja, 35% Vermelho Neon).
 - **Copywriting de Prova de Justiça:** Textos explícitos detalhando o evento de Bad Beat, o percentual de chance exato do vencedor e do perdedor, e o saldo/fichas recuperadas, adaptados dinamicamente para Cash Games e Torneios.
 - **Compilação Limpa:** 0 erros de compilação, suíte de 2.050+ testes verificada.
 
+
+---
+
+### [22.1] 📐 Regra normativa do Loss Deflator por equity (2026-07-30)
+**O que foi feito:**
+- Faixas vigentes centralizadas no motor: <56%=0%; 56–65,9%=7%; 66–75,9%=15%; 76–85,9%=25%; ≥86%=35%.
+- O tier é escolhido pela equity do perdedor no instante em que o all-in é pago. A fase serve somente para reconstruir o board conhecido.
+- A ordem financeira foi fixada em potes/side pots → rake → Loss Deflator nos potes líquidos elegíveis → pagamentos.
+- API e Dioxus agora transportam e mostram a equity do perdedor, a faixa aplicada e o valor devolvido.
 
 ---
 

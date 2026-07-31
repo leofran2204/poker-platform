@@ -24,7 +24,7 @@ Este contrato de Termos de Uso ("Contrato") rege o uso da plataforma de poker on
 ## 3. TRANSAÇÕES FINANCEIRAS E SALDOS
 3.1. Todos os saldos e apostas são registrados de forma atômica no Ledger Financeiro Imutável em centavos de moeda corrente.
 3.2. Os depósitos e saques só serão processados após a verificação de segurança da conta.
-3.3. **Cashback e Loss Deflator:** Benefícios de reembolso sobre perdas líquidas são calculados conforme a fórmula oficial da Plataforma sobre perdas reais, não acumulando em caso de vitórias na sessão.
+3.3. **Cashback e Loss Deflator:** No estágio atual, o benefício opera somente com fichas playmoney. Após a retirada do rake do main pot e de cada side pot, a Plataforma pode devolver ao perdedor all-in parte dos potes líquidos em que era elegível: 7% para equity de 56,0% a 65,9%; 15% de 66,0% a 75,9%; 25% de 76,0% a 85,9%; e 35% a partir de 86,0%. Abaixo de 56,0% não há devolução. A equity considerada é a do instante em que o all-in é pago; a fase da mão não determina a faixa.
 
 ---
 

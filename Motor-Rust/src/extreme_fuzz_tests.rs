@@ -75,6 +75,7 @@ proptest! {
     fn extreme_fuzz_loss_deflator(
         pote_main in 1000u64..1_000_000u64,
         phase_idx in 0..4u8,
+        loser_equity in any::<f64>(),
     ) {
         let phase = match phase_idx {
             0 => GamePhase::Preflop,
@@ -87,6 +88,7 @@ proptest! {
             loser_id: "p1".into(),
             winner_id: "p2".into(),
             phase,
+            loser_equity,
         };
         let res = calculate_progressive_loss_deflator(params);
         if let Some(defl) = res {

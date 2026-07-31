@@ -36,8 +36,9 @@ proptest! {
     ) {
         let rake = calculate_rake_for_pot(pot_amount, rake_basis_points, rake_cap);
         prop_assert!(rake <= rake_cap, "Rake > cap");
-        let max_possible = ((u128::from(pot_amount) * u128::from(rake_basis_points)) / 10_000) as u64;
-        prop_assert!(rake <= max_possible, "Rake > percentual");
+        let numerator = u128::from(pot_amount) * u128::from(rake_basis_points);
+        let rounded_upper_bound = ((numerator + 9_999) / 10_000) as u64;
+        prop_assert!(rake <= rounded_upper_bound, "Rake > percentual arredondado");
     }
 }
 
@@ -55,7 +56,7 @@ proptest! {
             Pot { amount: p1, eligible_players: vec!["p1".into(), "p2".into()] },
             Pot { amount: p2, eligible_players: vec!["p1".into()] },
         ];
-        let config = TableConfig { big_blind: 200, rake_basis_points, rake_cap };
+        let config = TableConfig::new(200, rake_basis_points, rake_cap);
         let result = deduct_rake(&pots, &config, Some(200));
         let total_before = p1 + p2;
         let pots_after_sum: u64 = result.pots_after_rake.iter().map(|p| p.amount).sum();
@@ -154,6 +155,7 @@ proptest! {
     fn loss_deflator_no_panic(
         pot_amount in 0u64..100_000_000u64,
         phase_idx in 0..4u8,
+        loser_equity in any::<f64>(),
     ) {
         let phase = match phase_idx {
             0 => GamePhase::Preflop,
@@ -166,6 +168,7 @@ proptest! {
             loser_id: "p1".into(),
             winner_id: "p2".into(),
             phase,
+            loser_equity,
         };
         let result = calculate_progressive_loss_deflator(params);
         if let Some(res) = result {
@@ -191,6 +194,7 @@ proptest! {
             loser_id: "p1".into(),
             winner_id: "p2".into(),
             phase: GamePhase::Flop,
+            loser_equity: 0.80,
         };
         let result = calculate_progressive_loss_deflator(params);
         if let Some(res) = result {

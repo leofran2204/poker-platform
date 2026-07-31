@@ -64,11 +64,7 @@ fn make_rake_pot(amount: u64) -> Pot {
 
 /// Configuração padrão de mesa para testes de rake
 fn default_table_config() -> TableConfig {
-    TableConfig {
-        big_blind: 1000,
-        rake_basis_points: 500,
-        rake_cap: 1000,
-    }
+    TableConfig::new(1000, 500, 1000)
 }
 
 /// Converte um baralho em HashSet para detecção rápida de duplicatas
@@ -1728,9 +1724,9 @@ mod rake_tests {
 
     #[test]
     fn deduct_rake_abaixo_minimo() {
-        // BB=1000 centavos, min=2000 centavos. Pot=1500 → sem rake
+        // Mínimo explícito=2000 centavos. Pot=1500 → sem rake.
         let pots = vec![make_rake_pot(1500)];
-        let result = deduct_rake(&pots, &default_table_config(), None);
+        let result = deduct_rake(&pots, &default_table_config(), Some(2000));
         assert_eq!(result.total_rake, 0);
         assert_eq!(result.pots_after_rake[0].amount, 1500);
     }
@@ -1829,11 +1825,7 @@ mod rake_tests {
             let pots: Vec<Pot> = pot_amounts.iter()
                 .map(|&a| make_rake_pot(a))
                 .collect();
-            let config = TableConfig {
-                big_blind: 500,
-                rake_basis_points: 500,
-                rake_cap: 5000,
-            };
+            let config = TableConfig::new(500, 500, 5000);
             let result = deduct_rake(&pots, &config, None);
             let sum: u64 = result.per_pot.iter().map(|e| e.rake).sum();
             prop_assert_eq!(sum, result.total_rake, "sum={}, total_rake={}", sum, result.total_rake);
@@ -1933,11 +1925,7 @@ mod integration {
                 eligible_players: p.eligible_players.clone(),
             })
             .collect();
-        let config = TableConfig {
-            big_blind: 10,
-            rake_basis_points: 500,
-            rake_cap: 20,
-        };
+        let config = TableConfig::new(10, 500, 20);
         let rake_result = deduct_rake(&rake_pots, &config, None);
         assert!(rake_result.total_rake > 0);
 
