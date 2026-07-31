@@ -730,6 +730,11 @@ impl GameLoop {
                 resolution.end_phase,
                 resolution.end_reason,
             );
+            h.loss_deflators = resolution
+                .loss_deflators
+                .iter()
+                .map(|entry| entry.to_audit())
+                .collect();
         }
     }
 
@@ -1135,7 +1140,33 @@ impl GameLoop {
                 continue;
             }
 
-            // Identificar o vencedor principal dos potes do perdedor.
+            // Oponentes que compartilham potes elegíveis com o perdedor e ainda
+            // estão na mão. Equity multiway quando há 2+; HU quando há 1.
+            let mut opponent_ids: Vec<String> = Vec::new();
+            for pot in pots {
+                if !pot.eligible_players.contains(&player.id) {
+                    continue;
+                }
+                for other_id in &pot.eligible_players {
+                    if other_id == &player.id {
+                        continue;
+                    }
+                    if opponent_ids.iter().any(|id| id == other_id) {
+                        continue;
+                    }
+                    let still_in = self.state.players.iter().any(|candidate| {
+                        candidate.id == *other_id
+                            && candidate.is_in_hand()
+                            && !candidate.has_folded
+                    });
+                    if still_in {
+                        opponent_ids.push(other_id.clone());
+                    }
+                }
+            }
+
+            // Vencedor contábil principal (para cashback debit) = primeiro
+            // vencedor de pote que não é o perdedor.
             let mut winner_id = String::new();
             for pot in pots {
                 if pot.eligible_players.contains(&player.id) {
@@ -1153,19 +1184,9 @@ impl GameLoop {
                 }
             }
 
-            if winner_id.is_empty() {
+            if winner_id.is_empty() || opponent_ids.is_empty() {
                 continue;
             }
-
-            let winner_player = match self
-                .state
-                .players
-                .iter()
-                .find(|candidate| candidate.id == winner_id)
-            {
-                Some(winner) => winner,
-                None => continue,
-            };
 
             // Reconstruir somente as cartas que já estavam abertas no instante
             // do all-in. A fase serve para o snapshot; o tier vem da equity.
@@ -1176,10 +1197,28 @@ impl GameLoop {
                 GamePhase::River | GamePhase::Showdown => 5,
             }
             .min(self.state.community_cards.len());
-            let loser_equity = loss_deflator::get_heads_up_win_probability(
+            let board_slice = &self.state.community_cards[..board_len_at_all_in];
+
+            let villain_owned: Vec<Vec<crate::deck::Card>> = opponent_ids
+                .iter()
+                .filter_map(|id| {
+                    self.state
+                        .players
+                        .iter()
+                        .find(|p| p.id == *id)
+                        .map(|p| p.hole_cards.clone())
+                })
+                .collect();
+            if villain_owned.is_empty() {
+                continue;
+            }
+            let villain_refs: Vec<&[crate::deck::Card]> =
+                villain_owned.iter().map(|h| h.as_slice()).collect();
+            let opponents_counted = villain_refs.len() as u8;
+            let loser_equity = loss_deflator::get_multiway_win_probability(
                 &player.hole_cards,
-                &winner_player.hole_cards,
-                &self.state.community_cards[..board_len_at_all_in],
+                &villain_refs,
+                board_slice,
             );
 
             let params = ProgressiveLossDeflatorParams {
@@ -1251,6 +1290,7 @@ impl GameLoop {
                     .map(|pot_index| pots[*pot_index].amount)
                     .sum();
                 deflator.per_pot_cashback = actual_entries;
+                deflator.opponents_counted = opponents_counted.max(1);
 
                 let loser_payout = payouts.entry(player.id.clone()).or_insert(0);
                 *loser_payout += actual_cashback;

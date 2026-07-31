@@ -214,7 +214,8 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
 - Campo `balance` em `users`
 - Deduzido no buy-in
 - Devolvido no cash-out
-- **Rake Cash Games:** configuração por mesa em pontos-base inteiros (padrão: 500 = 5,00%; cap padrão: R$ 100,00). O cálculo e o rateio são feitos exclusivamente com inteiros em centavos.
+- **Rake Cash Games:** configuração por mesa em pontos-base inteiros (padrão: 500 = 5,00%; cap legado padrão: R$ 100,00). O cálculo e o rateio são feitos exclusivamente com inteiros em centavos.
+- **Cap de rake por nº de jogadores (opcional):** a mesa pode definir agenda completa `rake_cap_heads_up` / `rake_cap_three_to_four` / `rake_cap_five_plus` (todos NULL = só cap legado; ou os três preenchidos). O motor escolhe o cap conforme quantos jogadores receberam cartas na mão (`RakeCapSchedule`).
 - ✅ **Fee Torneios: 7% no Buy-in, com taxa 0% em Re-buys e Add-ons**
 
 ---
@@ -259,6 +260,7 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 - **Origem das Fichas:** O cashback é autofinanciado pelas fichas playmoney dos potes líquidos da mão. Ele é descontado da fatia do(s) vencedor(es) do pote elegível e entregue ao perdedor all-in; não cria fichas novas.
 - **Aplicação atual:** Cash Games e torneios usam apenas fichas **playmoney**; não há dinheiro real habilitado.
 - **Múltiplos All-Ins e Fases Distintas:** Cada perdedor possui um snapshot individual de fase e board para calcular sua equity. A fase não escolhe o tier.
+- **Equity multiway:** quando o perdedor all-in compartilha potes com **dois ou mais** oponentes ainda na mão, a equity usa Monte Carlo multiway determinístico (`get_multiway_win_probability`). Com um único oponente, usa heads-up.
 - **Isolamento de Side Pots:** O cashback de um perdedor é calculado e descontado APENAS dos potes líquidos pós-rake em que ele participou. Side pots nos quais não era elegível ficam intocados.
 - **Limite Máximo:** Cashback nunca excede 35% do valor perdido.
 - **Anti-abuso:** Perder propositalmente para receber cashback é detectado pelo módulo antifraude.

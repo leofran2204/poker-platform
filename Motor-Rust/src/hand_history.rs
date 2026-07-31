@@ -15,6 +15,7 @@
 // ============================================================
 
 use crate::deck::{Card, HandResult};
+use crate::loss_deflator::LossDeflatorAudit;
 use crate::types::GamePhase;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -137,6 +138,9 @@ pub struct HandHistory {
     pub end_phase: GamePhase,
     /// Motivo do fim da mão
     pub end_reason: EndReason,
+    /// Eventos de Loss Deflator (equity, tier e cashback) para auditoria.
+    #[serde(default)]
+    pub loss_deflators: Vec<LossDeflatorAudit>,
     /// Assinatura digital criptográfica HMAC-SHA256 para auditoria (GLI-19)
     #[serde(default)]
     pub signature: Option<String>,
@@ -185,6 +189,7 @@ pub fn create_hand_history(
         rake: 0,
         end_phase: GamePhase::Preflop,
         end_reason: EndReason::AllFolded,
+        loss_deflators: Vec::new(),
         signature: None,
     }
 }

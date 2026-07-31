@@ -450,6 +450,13 @@
 - A ordem financeira foi fixada em potes/side pots → rake → Loss Deflator nos potes líquidos elegíveis → pagamentos.
 - API e Dioxus agora transportam e mostram a equity do perdedor, a faixa aplicada e o valor devolvido.
 
+### [22.2] 📡 Multi-deflator, multiway equity e auditoria HH (2026-07-31)
+**O que foi feito:**
+- WS emite `deflator_triggered` para **cada** entrada de `loss_deflators` (não só a primary).
+- Equity multiway determinística quando há 2+ oponentes elegíveis; heads-up permanece o atalho de 1 oponente.
+- `hand_history.loss_deflators_json` (migration `012`) grava equity, tier e cashback por perdedor.
+- Caps de rake opcionais por agenda HU/3–4/5+ (migration `011`) documentados; schema WS em `ARQUITETURA_E_APIS.md`.
+
 ---
 
 ### [23] 🚀 Elevação de Arquitetura Comercial / Commercial Grade (2026-07-25)

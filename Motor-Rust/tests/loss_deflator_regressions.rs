@@ -179,10 +179,18 @@ fn multiple_deflators_never_credit_more_than_winners_pay() {
         resolution.pots.iter().map(|pot| pot.amount).sum::<u64>(),
         400
     );
+    // Conservação: pagamentos + rake = pote. Cashback multiway pode ser
+    // menor que no modelo HU-vs-único-vencedor (equity real é multiway).
     assert_eq!(payout_total + resolution.rake, 400);
-    assert_eq!(cashback_total, 400);
-    assert_eq!(resolution.payouts.get("winner").copied().unwrap_or(0), 0);
-    assert_eq!(resolution.loss_deflators.len(), 3);
+    assert!(cashback_total <= 400);
+    for entry in &resolution.loss_deflators {
+        assert!(entry.opponents_counted >= 1);
+        assert!(entry.cashback > 0);
+        assert!(entry.loser_equity >= 0.56);
+    }
+    // Nenhum perdedor recebe mais cashback do que o vencedor tinha no pote.
+    let winner_final = resolution.payouts.get("winner").copied().unwrap_or(0);
+    assert!(winner_final + cashback_total <= 400);
 }
 
 #[test]

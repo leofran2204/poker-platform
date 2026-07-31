@@ -80,6 +80,7 @@ struct HandHistoryRecord {
     participants: Vec<uuid::Uuid>,
     actions: serde_json::Value,
     community_cards: serde_json::Value,
+    loss_deflators: serde_json::Value,
     pot: i64,
     rake: i64,
     reason: String,
@@ -100,8 +101,8 @@ async fn persist_completed_hand(
     .fetch_one(&mut *tx)
     .await?;
     sqlx::query(
-        "INSERT INTO hand_history (id, table_id, hand_number, game_type, small_blind, big_blind, actions_json, community_cards_json, pot_total, rake_collected, end_reason) \
-         VALUES ($1, $2, $3, 'cash', $4, $5, $6, $7, $8, $9, $10) \
+        "INSERT INTO hand_history (id, table_id, hand_number, game_type, small_blind, big_blind, actions_json, community_cards_json, loss_deflators_json, pot_total, rake_collected, end_reason) \
+         VALUES ($1, $2, $3, 'cash', $4, $5, $6, $7, $8, $9, $10, $11) \
          ON CONFLICT (id) DO NOTHING",
     )
     .bind(record.hand_id)
@@ -111,6 +112,7 @@ async fn persist_completed_hand(
     .bind(record.big_blind)
     .bind(record.actions)
     .bind(record.community_cards)
+    .bind(record.loss_deflators)
     .bind(record.pot)
     .bind(record.rake)
     .bind(record.reason)
@@ -518,6 +520,10 @@ impl TableActor {
                                     .map_err(|_| "Invalid hand participant id".to_string())?,
                                 actions: history_json["actions"].clone(),
                                 community_cards: history_json["community_cards"].clone(),
+                                loss_deflators: history_json
+                                    .get("loss_deflators")
+                                    .cloned()
+                                    .unwrap_or_else(|| serde_json::json!([])),
                                 pot: i64::try_from(history.total_pot)
                                     .map_err(|_| "Hand pot exceeds database range".to_string())?,
                                 rake: i64::try_from(history.rake)
@@ -560,8 +566,8 @@ impl TableActor {
                     }
                 }
 
-                // Disparar evento global do Loss Deflator se foi ativado
-                if let Some(deflator) = &res.loss_deflator {
+                // Um evento público por perdedor elegível (multi-all-in).
+                for deflator in &res.loss_deflators {
                     let loser_name = self
                         .players
                         .iter()
@@ -583,11 +589,9 @@ impl TableActor {
                         .unwrap_or(0);
                     let prevented_elimination = final_loser_chips == deflator.cashback;
 
-                    // Como game_actor.rs atualmente orquestra Cash, deixamos fixo como false para torneio (torneio usa tournament_engine)
+                    // Cash games only in this actor path.
                     let is_tournament = false;
 
-                    // Percentual financeiro aplicado e equity do perdedor no
-                    // instante do all-in. A fase não determina o tier.
                     let deflator_percent = match deflator.tier {
                         poker_engine::loss_deflator::LossDeflatorTier::SevenPercent => 7,
                         poker_engine::loss_deflator::LossDeflatorTier::FifteenPercent => 15,
@@ -606,9 +610,9 @@ impl TableActor {
                         "cashback_amount": deflator.cashback,
                         "deflator_percent": deflator_percent,
                         "loser_equity_percent": loser_equity_percent,
-                        // Compatibilidade temporária com clientes anteriores:
-                        // chance aproximada que o vencedor tinha de causar a virada.
+                        // Compat: approx chance the winner had of causing the upset.
                         "odds_broken": winner_upset_percent,
+                        "opponents_counted": deflator.opponents_counted,
                         "prevented_elimination": prevented_elimination,
                         "is_tournament": is_tournament
                     });

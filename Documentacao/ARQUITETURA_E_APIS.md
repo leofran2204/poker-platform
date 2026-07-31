@@ -65,6 +65,24 @@ Ações suportadas:
 - `Ping`/`Pong` é tratado tanto pelo protocolo WebSocket quanto pelo envelope binário; o ping JSON recebe `pong` de aplicação.
 - Atores medem 30 segundos por turno e aplicam `fold` automático apenas a um turno realmente ativo. A rotação do dealer é ancorada no assento físico anterior, inclusive após uma saída.
 
+### Evento `deflator_triggered` (broadcast público)
+
+Emitido **uma vez por perdedor** elegível ao Loss Deflator após a liquidação da mão (cash game). Campos:
+
+| Campo | Tipo | Escala / significado |
+|-------|------|----------------------|
+| `type` | string | sempre `"deflator_triggered"` |
+| `loser_name` / `winner_name` | string | nomes de exibição |
+| `cashback_amount` | u64 | centavos devolvidos |
+| `deflator_percent` | u8 | **7 / 15 / 25 / 35** (tier de cashback) |
+| `loser_equity_percent` | f64 | equity do perdedor **0–100** com 2 casas |
+| `odds_broken` | u8 | compat: ~% de “upset” do vencedor `(1 - equity)×100` — **não** é o tier |
+| `opponents_counted` | u8 | 1 = heads-up; 2+ = equity multiway |
+| `prevented_elimination` | bool | stack final do perdedor == cashback |
+| `is_tournament` | bool | `false` no path cash do `TableActor` |
+
+Motor interno usa equity em **0.0..=1.0**; o wire expõe percentuais **0–100**. Ordem financeira: potes → rake → Loss Deflator → pagamentos. Auditoria também em `hand_history.loss_deflators_json`.
+
 ---
 
 ## 🔒 3. Carteira, intenções PIX e auditoria

@@ -32,7 +32,7 @@ use rand::seq::SliceRandom;
 use rand::SeedableRng;
 
 /// Tier do deflator (para serialização/exibição)
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum LossDeflatorTier {
     SevenPercent,
     FifteenPercent,
@@ -104,7 +104,7 @@ pub struct ProgressiveLossDeflatorParams {
 }
 
 /// Resultado do deflator progressivo em centavos inteiros
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[allow(dead_code)]
 pub struct ProgressiveLossDeflatorResult {
     pub loser_id: String,
@@ -119,13 +119,54 @@ pub struct ProgressiveLossDeflatorResult {
     pub eligible_pot_ids: Vec<usize>, // índices dos pots em que o perdedor participou
     pub eligible_pot_total: u64, // soma dos pots elegíveis em centavos
     pub per_pot_cashback: Vec<PotCashbackEntry>, // rateio por pot em centavos
+    /// Quantos oponentes entraram no cálculo de equity (1 = heads-up).
+    #[serde(default = "default_one_opponent")]
+    pub opponents_counted: u8,
+}
+
+fn default_one_opponent() -> u8 {
+    1
 }
 
 /// Entrada individual do rateio: quanto cada pot contribuiu para o cashback (em centavos)
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct PotCashbackEntry {
     pub pot_index: usize,
     pub amount: u64,
+}
+
+/// Resumo auditável do deflator para hand history / API.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+pub struct LossDeflatorAudit {
+    pub loser_id: String,
+    pub winner_id: String,
+    pub cashback: u64,
+    /// Equity do perdedor na escala 0.0..=1.0.
+    pub loser_equity: f64,
+    /// Percentual de cashback aplicado (7, 15, 25 ou 35).
+    pub tier_percent: u8,
+    pub phase: GamePhase,
+    /// Quantos oponentes entraram no cálculo de equity (1 = heads-up).
+    pub opponents_counted: u8,
+}
+
+impl ProgressiveLossDeflatorResult {
+    pub fn to_audit(&self) -> LossDeflatorAudit {
+        LossDeflatorAudit {
+            loser_id: self.loser_id.clone(),
+            winner_id: self.winner_id.clone(),
+            cashback: self.cashback,
+            loser_equity: self.loser_equity,
+            tier_percent: match self.tier {
+                LossDeflatorTier::SevenPercent => 7,
+                LossDeflatorTier::FifteenPercent => 15,
+                LossDeflatorTier::TwentyFivePercent => 25,
+                LossDeflatorTier::ThirtyFivePercent => 35,
+            },
+            phase: self.phase,
+            opponents_counted: self.opponents_counted.max(1),
+        }
+    }
 }
 
 fn cards_remaining_at_all_in(phase: GamePhase) -> u8 {
@@ -205,6 +246,7 @@ pub fn calculate_progressive_loss_deflator(
         tier,
         base_cashback,
         multiplier: 1.0,
+        opponents_counted: 1,
         phase,
         cards_remaining,
         eligible_pot_ids: eligible_pot_indices,
@@ -295,6 +337,96 @@ pub fn get_heads_up_win_probability(
 
     let total = seen.len() as f64;
     (wins as f64 + ties as f64 * 0.5) / total
+}
+
+/// Equity multiway do herói contra um ou mais vilões no board conhecido.
+///
+/// - 0 vilões → 1.0  
+/// - 1 vilão → delega para `get_heads_up_win_probability`  
+/// - 2+ vilões → Monte Carlo determinístico: herói vence se tiver a melhor mão
+///   (empates contam como 1/N entre os empatados).
+pub fn get_multiway_win_probability(
+    hero_cards: &[Card],
+    villain_hands: &[&[Card]],
+    board_cards: &[Card],
+) -> f64 {
+    if villain_hands.is_empty() {
+        return 1.0;
+    }
+    if villain_hands.len() == 1 {
+        return get_heads_up_win_probability(hero_cards, villain_hands[0], board_cards);
+    }
+
+    let mut known_cards: Vec<Card> = hero_cards.to_vec();
+    for hand in villain_hands {
+        known_cards.extend_from_slice(hand);
+    }
+    known_cards.extend_from_slice(board_cards);
+
+    let cards_to_deal = 5 - board_cards.len();
+    if cards_to_deal == 0 {
+        return multiway_outcome(hero_cards, villain_hands, board_cards);
+    }
+
+    let deck = get_remaining_deck(&known_cards);
+    let mut rng = monte_carlo_rng(&known_cards);
+    let max_boards = combinations_count(deck.len(), cards_to_deal);
+    let samples = MC_SAMPLES.min(max_boards as u32) as usize;
+
+    let mut equity_sum = 0.0_f64;
+    let mut seen: std::collections::HashSet<u64> = std::collections::HashSet::new();
+    let mut indices: Vec<usize> = (0..deck.len()).collect();
+
+    while seen.len() < samples && seen.len() < max_boards {
+        indices.shuffle(&mut rng);
+        let board_idx: Vec<usize> = indices[..cards_to_deal].to_vec();
+        let mut key_idx = board_idx.clone();
+        key_idx.sort_unstable();
+        let mut key = 0u64;
+        for &i in &key_idx {
+            key = key.wrapping_mul(67).wrapping_add(i as u64 + 1);
+        }
+        if !seen.insert(key) {
+            continue;
+        }
+
+        let mut final_board = board_cards.to_vec();
+        for &i in &board_idx {
+            final_board.push(deck[i]);
+        }
+        equity_sum += multiway_outcome(hero_cards, villain_hands, &final_board);
+    }
+
+    equity_sum / seen.len() as f64
+}
+
+fn multiway_outcome(hero_cards: &[Card], villain_hands: &[&[Card]], board: &[Card]) -> f64 {
+    use crate::deck::{compare_hands, evaluate_hand};
+    use std::cmp::Ordering;
+
+    let hero_hand = evaluate_hand(hero_cards, board);
+    let mut best = hero_hand.clone();
+    let mut tied = 1u32;
+
+    for hand in villain_hands {
+        let villain_hand = evaluate_hand(hand, board);
+        match compare_hands(&villain_hand, &best) {
+            Ordering::Greater => {
+                best = villain_hand;
+                tied = 1;
+            }
+            Ordering::Equal => {
+                tied += 1;
+            }
+            Ordering::Less => {}
+        }
+    }
+
+    match compare_hands(&hero_hand, &best) {
+        Ordering::Equal => 1.0 / f64::from(tied),
+        Ordering::Less => 0.0,
+        Ordering::Greater => 1.0, // hero sole best
+    }
 }
 
 /// CSPRNG determinístico: seed derivada das cartas conhecidas (não do relógio),
