@@ -2,7 +2,9 @@
 
 Plataforma de poker online **Texas Hold'em Tradicional** (52 cartas) construída **100% em Rust** — motor de jogo, backend, frontend e antifraude.
 
-> **Estado validado em 2026-07-29:** a base passou por revisão local de segurança e arquitetura. Isto **não** equivale a certificação de produção: operação multi-pod de mesas ainda requer ownership distribuído, e o único PIX externo disponível é o Asaas Sandbox restrito a contas autorizadas.
+**Domínio do produto (demo/staging):** [zerotiltpoker.net](https://zerotiltpoker.net)
+
+> **Estado (ver `STATUS_OPERACIONAL.json`):** base com revisão local de segurança/arquitetura e caminhos de deploy HTTPS documentados. Isto **não** equivale a certificação de produção: multi-pod de mesas ainda requer ownership distribuído; PIX de produção desabilitado; site público depende de Cloudflare Tunnel (casa) ou VPS.
 
 ## Estado operacional e sincronização
 
@@ -63,10 +65,20 @@ O segundo comando é obrigatório na CI. Se ele falhar, a mudança deve atualiza
 | `Motor-Rust/` | Motor de poker em Rust, regras financeiras em inteiros | ✅ Ativo — CI usa testes determinísticos |
 | `API-Axum/` | API REST / WebSocket (Axum + Tokio + PostgreSQL/Redis) | ✅ Ativo — contratos PostgreSQL no CI |
 | `Frontend-Dioxus/` | Frontend WebAssembly (Dioxus 0.6) | ✅ Ativo |
-| `Infraestrutura-Docker/` | Docker, Caddy, deploy, CI/CD GitHub Actions | ✅ Ativo |
+| `Infraestrutura-Docker/` | Docker, Caddy, deploy (casa/VPS), CI/CD | ✅ Ativo |
 | `Documentacao/` | Regras de negócio, cronograma, dashboard, logs | ✅ Ativo |
 | `Arquitetura-Motor/` | Arquitetura do motor Rust | ✅ Ativo |
 | `scripts/` | Scripts de automação (coverage, build, deploy) | ✅ Ativo |
+
+### Deploy e domínio
+
+| Documento | Uso |
+|-----------|-----|
+| [`Infraestrutura-Docker/DEPLOY_HOME_CLOUDFLARE.md`](../Infraestrutura-Docker/DEPLOY_HOME_CLOUDFLARE.md) | **Preferido sem VPS:** PC + Cloudflare Tunnel, **HTTPS E2E** (Origin CA) |
+| [`Infraestrutura-Docker/DEPLOY_HETZNER.md`](../Infraestrutura-Docker/DEPLOY_HETZNER.md) | VPS Ubuntu (Hetzner ou similar) + Let's Encrypt |
+| [`Infraestrutura-Docker/.env.tunnel.example`](../Infraestrutura-Docker/.env.tunnel.example) | Env da demo em casa |
+| [`Infraestrutura-Docker/.env.staging.example`](../Infraestrutura-Docker/.env.staging.example) | Env staging VPS (`zerotiltpoker.net`) |
+| [`Infraestrutura-Docker/certs/README.md`](../Infraestrutura-Docker/certs/README.md) | Como gerar Origin CA |
 
 ---
 
@@ -144,7 +156,7 @@ cargo tarpaulin               # cobertura ≥ 80%
 https://github.com/leofran2204/poker-platform
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-29):** S09 — liquidação de mãos protegida por guarda transacional e PIX Asaas apenas em Sandbox autenticado. **Sem certificação de produção; o código rejeita PIX em modo production.** cargo fmt, cargo check --all-targets e cargo clippy --all-targets -- -D warnings passaram no WSL; cargo test --lib passou com 17 testes e a migration foi aceita em transação PostgreSQL revertida. A carga completa autorizada continua manual e não foi acionada neste ciclo. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
+> **Estado operacional sincronizado (2026-07-31):** S10 — domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta (Origin CA + Full strict); templates VPS/Hetzner e compose staging-ready. Sem certificação de produção. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ.** Infra e docs de deploy (compose por .env, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel) versionados em master. Carga full-validation e smoke público no domínio ainda pendem de execução após tunnel/VPS no ar. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

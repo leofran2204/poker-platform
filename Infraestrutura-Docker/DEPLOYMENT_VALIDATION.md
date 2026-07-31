@@ -1,28 +1,49 @@
-# Guia de Validação de Deploy & Orquestração em Produção
+# Guia de Validação de Deploy & Orquestração
 
-Este documento detalha o procedimento estrito de validação do deploy da plataforma de poker em ambientes containerizados (**Docker Compose**) e orquestrados em cluster (**Kubernetes StatefulSets**).
+Procedimento de validação da plataforma em **Docker Compose**, **demo residencial (Cloudflare Tunnel HTTPS)** e **Kubernetes** (1 réplica).
+
+**Domínio demo:** `zerotiltpoker.net`  
+**Não é certificação de produção.** PIX permanece mock/sandbox.
+
+| Caminho | Guia | HTTPS |
+|---------|------|--------|
+| Casa + Tunnel | [DEPLOY_HOME_CLOUDFLARE.md](DEPLOY_HOME_CLOUDFLARE.md) | E2E (CF + Origin CA) |
+| VPS | [DEPLOY_HETZNER.md](DEPLOY_HETZNER.md) | Caddy + Let's Encrypt |
+| Lab | `docker compose up` | localhost / self-signed |
 
 ---
 
 ## 🐋 1. Orquestração em Docker Compose
 
-O arquivo [docker-compose.yml](file:///c:/Users/leofr/Projetos/Poker_Project/Infraestrutura-Docker/docker-compose.yml) orquestra a pilha enterprise completa:
-- **`postgres`**: Banco relacional PostgreSQL v15.
-- **`redis`**: Cache de baixa latência e estado de sessão v7.
-- **`zookeeper` / `kafka`**: Barramento de eventos assíncronos.
-- **`poker_api`**: API REST Axum / Motor em Rust.
-- **`poker_frontend`**: Servidor Web Caddy com SPA WebAssembly Dioxus v0.6.
+O arquivo `docker-compose.yml` orquestra:
+- **`postgres`**: PostgreSQL 15
+- **`redis`**: Redis 7
+- **`poker_api`**: API Axum / motor
+- **`poker_frontend`**: Caddy + SPA Dioxus WASM
 
-### Comando para Subir a Pilha Local:
+> Kafka/Zookeeper **não** fazem parte do compose atual.
+
+### Lab local
 ```bash
 cd Infraestrutura-Docker
+cp .env.example .env
 docker compose up --build -d
 ```
 
-### Validação de Saúde dos Containers:
+### Demo casa (HTTPS tunnel)
+```bash
+cp .env.tunnel.example .env
+# certs/origin.pem + origin-key.pem (ver certs/README.md)
+docker compose -f docker-compose.yml -f docker-compose.tunnel.yml up --build -d
+# + cloudflared tunnel run (ver DEPLOY_HOME_CLOUDFLARE.md)
+```
+
+### Validação de saúde
 ```bash
 docker compose ps
 docker compose logs -f poker_api
+curl -fsS https://zerotiltpoker.net/caddy-health   # com tunnel/VPS no ar
+curl -fsS https://zerotiltpoker.net/health
 ```
 
 ---

@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "reviewed_on": "2026-07-29",
-  "cycle": "S09 — liquidação de mãos protegida por guarda transacional e PIX Asaas apenas em Sandbox autenticado.",
-  "production": "Sem certificação de produção; o código rejeita PIX em modo production.",
-  "validation": "cargo fmt, cargo check --all-targets e cargo clippy --all-targets -- -D warnings passaram no WSL; cargo test --lib passou com 17 testes e a migration foi aceita em transação PostgreSQL revertida. A carga completa autorizada continua manual e não foi acionada neste ciclo.",
+  "reviewed_on": "2026-07-31",
+  "cycle": "S10 — domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta (Origin CA + Full strict); templates VPS/Hetzner e compose staging-ready. Sem certificação de produção.",
+  "production": "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ.",
+  "validation": "Infra e docs de deploy (compose por .env, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel) versionados em master. Carga full-validation e smoke público no domínio ainda pendem de execução após tunnel/VPS no ar.",
   "pix": "Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado.",
   "table_ownership": "Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura."
 }

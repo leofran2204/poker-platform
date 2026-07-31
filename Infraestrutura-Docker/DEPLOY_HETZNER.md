@@ -6,7 +6,9 @@
 **Domínio do produto:** [`zerotiltpoker.net`](https://zerotiltpoker.net)  
 **Host público (staging/demo):** `zerotiltpoker.net` (apex) — Caddy + Let's Encrypt + reverse_proxy da API no mesmo host.
 
-> Fonte de stack: `Infraestrutura-Docker/docker-compose.yml`, `API-Axum/Dockerfile`, `Frontend-Dioxus/Dockerfile`, `Caddyfile`, `.env.example`, `.env.staging.example`.
+> **Sem cartão / sem VPS?** Use a demo em casa com HTTPS: [`DEPLOY_HOME_CLOUDFLARE.md`](DEPLOY_HOME_CLOUDFLARE.md) (Cloudflare Tunnel + Origin CA). Este guia é para **VPS 24/7** (Hetzner ou Ubuntu em provedor BR com PIX).
+
+> Fonte de stack: `docker-compose.yml`, Dockerfiles API/Frontend, `Caddyfile` (LE), `.env.staging.example`.
 
 ---
 

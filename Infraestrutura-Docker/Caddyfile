@@ -2,8 +2,10 @@
 #
 # Domínio vem da env DOMAIN_NAME (docker-compose → poker_frontend).
 #   Local / lab:     DOMAIN_NAME=localhost           → https://localhost
-#   Staging Hetzner: DOMAIN_NAME=zerotiltpoker.net → Let's Encrypt na 80/443
-# CORS da API: https://zerotiltpoker.net (ver .env.staging.example).
+#   VPS / LE:        DOMAIN_NAME=zerotiltpoker.net → Let's Encrypt na 80/443
+#   Casa + Tunnel:   NÃO use este arquivo — use Caddyfile.tunnel (Origin CA)
+#                    ver DEPLOY_HOME_CLOUDFLARE.md
+# CORS da API: https://zerotiltpoker.net (.env.staging / .env.tunnel).
 # A porta 80, quando publicada, é usada pelo redirecionamento / ACME do Caddy.
 
 {$DOMAIN_NAME:localhost} {

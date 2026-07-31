@@ -1,12 +1,13 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-28 | **Status:** S08 — correções transacionais e de sessão validadas localmente; sem certificação de produção.
+**Atualizado:** 2026-07-31 | **Status:** S10 — domínio **zerotiltpoker.net**; demo HTTPS (casa + Cloudflare Tunnel) documentada; sem certificação de produção.
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📅 O cronograma completo está em `Documentacao/CRONOGRAMA.md` — veja prazos, fases e % de conclusão.
 > 🎓 **Guia de aprendizado didático:** `Documentacao/guia_aprendizado.md` (Protocolo Mark, regras de aprendizado, sprint S03 e guia dos 11 módulos).
 > 🦀 **Stack definitiva:** Rust para TUDO (backend, APIs, IA, dados, antifraude, autenticação, lobby, motor de jogo e front-end com Dioxus/WebAssembly).
-> **Limites conhecidos:** PIX está adiado; mesas permanecem de dono único por processo e o Kubernetes fica em uma réplica até a camada distribuída existir.
+> **Domínio do produto:** [`zerotiltpoker.net`](https://zerotiltpoker.net) (demo/staging — site no ar depende do tunnel ou VPS).
+> **Limites conhecidos:** PIX mock/sandbox; mesas com dono único por processo; K8s em 1 réplica; sem cartão de crédito na Hetzner → caminho preferido atual é **casa + Cloudflare Tunnel HTTPS**.
 
 ---
 
@@ -15,8 +16,8 @@
 | # | Parâmetro | Valor |
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
-| 2 | **Sprint atual** | S08 — ledger local, revogação de tokens e WebSocket |
-| 3 | **Status** | ✅ Validação local concluída — não é selo de produção |
+| 2 | **Sprint atual** | S10 — domínio público, deploy demo HTTPS (Cloudflare Tunnel / VPS opcional) |
+| 3 | **Status** | 🟡 Infra de demo pronta no Git; smoke em https://zerotiltpoker.net pendente de execução |
 | 4 | **Cerimônias** | Planning + Review + Retrospectiva |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
 
@@ -51,6 +52,21 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S06 | 2026-07-25 | Migração de Tipagem Monetária f64 -> u64 Centavos Inteiros | Precisão Monetária Bancária B3 | ✅ Concluído |
 | S07 | 2026-07-26 | Commercial Grade & Redis Snapshots Fault Tolerance | Otimização Hand Evaluator + JWT + Redis Recovery | ✅ Concluído |
 | S08 | 2026-07-28 | Correções críticas de segurança e arquitetura | Ledger PIX local, token version, timeout de turno, WebSocket e contratos PostgreSQL | ✅ Concluído localmente |
+| S09 | 2026-07-29 | Recovery de mão + PIX sandbox | Guarda transacional de liquidação; Asaas sandbox restrito | ✅ Concluído localmente |
+| S10 | 2026-07-31 | Domínio e caminhos de demo HTTPS | `zerotiltpoker.net`; compose `.env`; `Caddyfile.tunnel` + Origin CA; `DEPLOY_HOME_CLOUDFLARE.md`; Hetzner opcional | 🟡 Docs/código no Git — go-live do tunnel pendente |
+
+---
+
+## 🌐 Deploy da demo (escolha um caminho)
+
+| Caminho | Quando usar | Guia |
+|---------|-------------|------|
+| **Casa + Cloudflare Tunnel (HTTPS E2E)** | Sem cartão / sem VPS; PC ligado | `Infraestrutura-Docker/DEPLOY_HOME_CLOUDFLARE.md` |
+| **VPS (Hetzner ou BR com PIX)** | Servidor 24/7 na nuvem | `Infraestrutura-Docker/DEPLOY_HETZNER.md` + `.env.staging.example` |
+| **Lab local só na máquina** | Dev sem domínio | `docker compose up` + `DOMAIN_NAME=localhost` |
+
+**HTTPS obrigatório no browser:** tunnel com Origin CA + Cloudflare **Full (strict)**; VPS com Caddy + Let's Encrypt.  
+**CORS:** `https://zerotiltpoker.net` · **PIX:** mock.
 
 ---
 
@@ -163,7 +179,7 @@ cd Infraestrutura-Docker && docker-compose up -d
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-29):** S09 — liquidação de mãos protegida por guarda transacional e PIX Asaas apenas em Sandbox autenticado. **Sem certificação de produção; o código rejeita PIX em modo production.** cargo fmt, cargo check --all-targets e cargo clippy --all-targets -- -D warnings passaram no WSL; cargo test --lib passou com 17 testes e a migration foi aceita em transação PostgreSQL revertida. A carga completa autorizada continua manual e não foi acionada neste ciclo. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
+> **Estado operacional sincronizado (2026-07-31):** S10 — domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta (Origin CA + Full strict); templates VPS/Hetzner e compose staging-ready. Sem certificação de produção. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ.** Infra e docs de deploy (compose por .env, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel) versionados em master. Carga full-validation e smoke público no domínio ainda pendem de execução após tunnel/VPS no ar. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

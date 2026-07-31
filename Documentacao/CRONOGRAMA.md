@@ -1,12 +1,12 @@
 # 📅 Cronograma — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-27 | **Status:** Roadmap histórico; ciclo atual de revisão de segurança e arquitetura em andamento.
+**Atualizado:** 2026-07-31 | **Status:** Roadmap histórico; ciclo S10 — domínio **zerotiltpoker.net** e caminhos de demo HTTPS (casa/VPS).
 **Stack:** Rust para TUDO (backend + APIs + IA + dados + antifraude + autenticação + lobby + front-end Dioxus/WebAssembly)
 
 > ⚠️ **Regra de Ouro:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📐 Specs e regras de negócio em `Documentacao/BUSINESS_RULES.md`.
 > 📋 Acompanhamento tático em `DASHBOARD.md`.
-> **Importante:** os percentuais abaixo descrevem marcos planejados/históricos e não certificam lançamento. PIX está adiado; escala horizontal de mesas depende de ownership distribuído.
+> **Importante:** os percentuais abaixo descrevem marcos planejados/históricos e **não** certificam lançamento. PIX mock; escala horizontal depende de ownership distribuído. Deploy demo: `DEPLOY_HOME_CLOUDFLARE.md` ou `DEPLOY_HETZNER.md`.
 
 ---
 
@@ -167,7 +167,7 @@ FASE 6 ████████████████████████�
 > 💡 **Dica:** O projeto atingiu 100% de conclusão com 2.050 testes passando, zero clippy warnings e zero vulnerabilidades.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-29):** S09 — liquidação de mãos protegida por guarda transacional e PIX Asaas apenas em Sandbox autenticado. **Sem certificação de produção; o código rejeita PIX em modo production.** cargo fmt, cargo check --all-targets e cargo clippy --all-targets -- -D warnings passaram no WSL; cargo test --lib passou com 17 testes e a migration foi aceita em transação PostgreSQL revertida. A carga completa autorizada continua manual e não foi acionada neste ciclo. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
+> **Estado operacional sincronizado (2026-07-31):** S10 — domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta (Origin CA + Full strict); templates VPS/Hetzner e compose staging-ready. Sem certificação de produção. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ.** Infra e docs de deploy (compose por .env, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel) versionados em master. Carga full-validation e smoke público no domínio ainda pendem de execução após tunnel/VPS no ar. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->
