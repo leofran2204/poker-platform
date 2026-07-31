@@ -1,0 +1,52 @@
+# Alternativa: origem só HTTP (NÃO é o modo recomendado).
+# O browser AINDA usa HTTPS (Cloudflare na borda). O trecho CF→PC no tunnel
+# já é cifrado pelo cloudflared; só a última milha 127.0.0.1 fica em HTTP.
+#
+# Prefira Caddyfile.tunnel (HTTPS na origem) quando puder gerar Origin CA.
+# Este arquivo existe só se você quiser subir a demo sem certificados locais.
+
+{
+	auto_https off
+	admin off
+}
+
+http://zerotiltpoker.net, http://www.zerotiltpoker.net, http://localhost, http://127.0.0.1 {
+	log {
+		output stdout
+		format json
+	}
+
+	header {
+		X-Frame-Options "DENY"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' wss: https:; img-src 'self' data:;"
+		-Server
+	}
+
+	handle /caddy-health {
+		respond "OK" 200
+	}
+
+	handle /api/* {
+		reverse_proxy poker_api:3000
+	}
+
+	handle /ws/* {
+		reverse_proxy poker_api:3000 {
+			header_up Host {host}
+			header_up X-Forwarded-Proto https
+			header_up X-Forwarded-Host {host}
+		}
+	}
+
+	handle /health {
+		reverse_proxy poker_api:3000
+	}
+
+	handle {
+		root * /usr/share/caddy
+		try_files {path} /index.html
+		file_server
+	}
+}

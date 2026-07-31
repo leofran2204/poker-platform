@@ -1,39 +1,47 @@
-# Caddyfile — origem HTTP para Cloudflare Tunnel (ou qualquer reverse-proxy externo)
+# Caddyfile — origem HTTPS para Cloudflare Tunnel (TLS de ponta a ponta)
 #
-# TLS termina na Cloudflare. O Caddy escuta só HTTP na porta 80.
-# Não tenta Let's Encrypt (evita falha em casa / atrás de NAT).
+# Segurança em camadas:
+#   1) Browser  ←HTTPS→  Cloudflare (certificado público Free)
+#   2) cloudflared  ←canal cifrado do tunnel→  Cloudflare
+#   3) Caddy no PC  ←HTTPS local :443→  cloudflared (Origin CA ou cert local)
 #
-# Uso (compose / Docker):
-#   monte este arquivo como /etc/caddy/Caddyfile no container poker_frontend
-#   e publique apenas 127.0.0.1:80:80
+# Certificados (Origin CA da Cloudflare — grátis, 15 anos):
+#   SSL/TLS → Origin Server → Create Certificate
+#   Salve em Infraestrutura-Docker/certs/:
+#     origin.pem      (certificado)
+#     origin-key.pem  (chave privada)  ← NÃO commitar
 #
-# Cloudflare Tunnel (exemplo de Public Hostname):
-#   zerotiltpoker.net  →  http://127.0.0.1:80
-#   (tipo HTTP; Cloudflare entrega https://zerotiltpoker.net ao browser)
+# Se os arquivos de cert não existirem no build/run, use o modo
+# "tls internal" abaixo (self-signed): no tunnel use noTLSVerify: true
+# e no painel Cloudflare SSL mode Full (não Strict).
 #
-# API / CORS:
-#   CORS_ORIGINS=https://zerotiltpoker.net
-#   TRUST_PROXY_HEADERS=true
+# Cloudflare Tunnel Public Hostname:
+#   zerotiltpoker.net → https://127.0.0.1:443
+#
+# CORS: https://zerotiltpoker.net
 
 {
-	# Desliga HTTPS automático global (origem atrás do tunnel)
-	auto_https off
 	admin off
 }
 
-# Aceita o host público e localhost (smoke local)
-http://zerotiltpoker.net, http://www.zerotiltpoker.net, http://localhost, http://127.0.0.1 {
+# Preferência: certificado Origin CA (Full Strict na Cloudflare)
+# Fallback documentado: troque o bloco tls por  tls internal
+zerotiltpoker.net, www.zerotiltpoker.net, localhost {
+	# Origin CA (monte ./certs no container). Sem os arquivos o Caddy não sobe —
+	# gere-os no painel Cloudflare antes do primeiro up.
+	tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin-key.pem
+
 	log {
 		output stdout
 		format json
 	}
 
 	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 		X-Frame-Options "DENY"
 		X-Content-Type-Options "nosniff"
 		X-XSS-Protection "1; mode=block"
 		Referrer-Policy "strict-origin-when-cross-origin"
-		# HSTS fica a cargo da Cloudflare (edge). Não forçar aqui na origem HTTP.
 		Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' wss: https:; img-src 'self' data:;"
 		-Server
 	}

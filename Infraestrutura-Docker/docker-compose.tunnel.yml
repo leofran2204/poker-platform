@@ -1,17 +1,15 @@
-# Overlay: Caddy em HTTP (TLS na Cloudflare). Não tenta Let's Encrypt.
+# Overlay: origem HTTPS (Caddy + cert Origin CA) para Cloudflare Tunnel.
 #
-#   cd Infraestrutura-Docker
-#   copy .env.tunnel.example .env
-#   docker compose -f docker-compose.yml -f docker-compose.tunnel.yml up -d --build
+#   1) Gere certs (ver DEPLOY_HOME_CLOUDFLARE.md) em ./certs/
+#   2) copy .env.tunnel.example .env
+#   3) docker compose -f docker-compose.yml -f docker-compose.tunnel.yml up -d --build
 #
-# cloudflared no host:
-#   zerotiltpoker.net → http://127.0.0.1:80
-#
-# Nota: o compose base ainda publica 80 (e 443). Com Caddyfile.tunnel o Caddy
-# só escuta HTTP/80; a 443 pode ficar ociosa. Em casa, se a porta 80 do PC
-# não estiver redirecionada no roteador, a internet não entra — só o tunnel.
+# cloudflared → https://127.0.0.1:443
+# Cloudflare SSL/TLS mode: Full (strict) com Origin CA
 
 services:
   poker_frontend:
     volumes:
       - ./Caddyfile.tunnel:/etc/caddy/Caddyfile:ro
+      - ./certs/origin.pem:/etc/caddy/certs/origin.pem:ro
+      - ./certs/origin-key.pem:/etc/caddy/certs/origin-key.pem:ro

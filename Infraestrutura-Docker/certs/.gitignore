@@ -1,0 +1,4 @@
+# Chaves e certificados de origem — NUNCA commitar
+*
+!.gitignore
+!README.md
