@@ -82,7 +82,7 @@ services:
       dockerfile: Frontend-Dioxus/Dockerfile
     container_name: poker_frontend
     environment:
-      # Caddyfile usa {$DOMAIN_NAME:localhost} — staging: poker.seudominio.com
+      # Caddyfile usa {$DOMAIN_NAME:localhost} — staging: zerotiltpoker.com
       - DOMAIN_NAME=${DOMAIN_NAME:-localhost}
     ports:
       - "80:80"

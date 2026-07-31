@@ -3,7 +3,10 @@
 **Objetivo:** subir a stack Docker (Postgres + Redis + API Axum + Frontend/Caddy) em VPS **robusto e barato**.  
 **Status do produto:** staging / demo. **Sem certificação de produção.** PIX continua mock/sandbox; mesas com dono único por processo.
 
-> Fonte de stack: `Infraestrutura-Docker/docker-compose.yml`, `API-Axum/Dockerfile`, `Frontend-Dioxus/Dockerfile`, `Caddyfile`, `.env.example`.
+**Domínio do produto:** [`zerotiltpoker.com`](https://zerotiltpoker.com)  
+**Host público (staging/demo):** `zerotiltpoker.com` (apex) — Caddy + Let's Encrypt + reverse_proxy da API no mesmo host.
+
+> Fonte de stack: `Infraestrutura-Docker/docker-compose.yml`, `API-Axum/Dockerfile`, `Frontend-Dioxus/Dockerfile`, `Caddyfile`, `.env.example`, `.env.staging.example`.
 
 ---
 
@@ -54,13 +57,13 @@ Postgres e Redis ficam em `127.0.0.1` no compose (não exponha na internet).
 ## 3. Checklist pré-voo
 
 - [ ] Conta Hetzner + cartão
-- [ ] Domínio (ex.: `poker.seudominio.com`) apontando **A** para o IP da VM
+- [ ] Domínio **zerotiltpoker.com** com registro **A** (e opcional **www**) para o IP da VM
 - [ ] Repositório no GitHub (já: `poker-platform`)
 - [ ] Segredos gerados (nunca commitar `.env`):
   - `JWT_SECRET` ≥ 32 bytes aleatórios
   - `POSTGRES_PASSWORD` forte
   - `PIX_PROVIDER=mock` / `PIX_MODE=mock` (padrão seguro)
-- [ ] `CORS_ORIGINS=https://seu-dominio.com` (só HTTPS; a API **rejeita** origem sem HTTPS)
+- [ ] `CORS_ORIGINS=https://zerotiltpoker.com` (só HTTPS; a API **rejeita** origem sem HTTPS)
 
 ---
 
@@ -84,15 +87,25 @@ Postgres e Redis ficam em `127.0.0.1` no compose (não exponha na internet).
 
 7. Create → anote o **IPv4**
 
-### 4.2 DNS
+### 4.2 DNS (zerotiltpoker.com)
 
-No provedor do domínio:
+No provedor onde registrou o domínio (registro A no painel DNS):
 
 ```text
-A   poker.seudominio.com   →   IP_DA_VPS
+A      @      →   IP_DA_VPS          # zerotiltpoker.com
+A      www    →   IP_DA_VPS          # opcional: www.zerotiltpoker.com
 ```
 
-TTL baixo (300s) na primeira vez. Espere propagar (`dig poker.seudominio.com`).
+Se o painel não aceitar `@`, use o hostname nu `zerotiltpoker.com` ou o registro de apex que o registrar oferecer.
+
+TTL baixo (300s) na primeira vez. Espere propagar:
+
+```bash
+dig +short zerotiltpoker.com A
+# deve imprimir o IPv4 da Hetzner
+```
+
+**Ordem importante:** DNS apontando **antes** (ou junto) do `docker compose up` do frontend — o Caddy só emite Let's Encrypt se a 80/443 do host responder no nome público.
 
 ### 4.3 Preparar o servidor
 
@@ -133,50 +146,21 @@ O `docker-compose.yml` já interpola `POSTGRES_*`, `DATABASE_URL`, `JWT_SECRET`,
 
 ```bash
 cd /opt/poker-platform/Infraestrutura-Docker
-cp .env.example .env
-# edite senhas, JWT, domínio e CORS — depois:
+cp .env.staging.example .env
+# gere senhas/JWT (nunca use os placeholders TROCAR_*):
+#   openssl rand -base64 48
+# edite POSTGRES_PASSWORD, DATABASE_URL, JWT_SECRET, PIX_WEBHOOK_SECRET
 chmod 600 .env
 ```
 
-Exemplo mínimo de staging (troque todos os `TROCAR_*`):
-
-```bash
-cat > .env <<'EOF'
-DOMAIN_NAME=poker.seudominio.com
-
-HOST=0.0.0.0
-PORT=3000
-ENVIRONMENT=development
-
-POSTGRES_USER=poker_user
-POSTGRES_PASSWORD=TROCAR_SENHA_FORTE_AQUI
-POSTGRES_DB=poker_db
-DATABASE_URL=postgres://poker_user:TROCAR_SENHA_FORTE_AQUI@postgres:5432/poker_db
-
-REDIS_URL=redis://redis:6379
-TRUST_PROXY_HEADERS=true
-
-JWT_SECRET=TROCAR_MINIMO_32_BYTES_ALEATORIOS________________
-CORS_ORIGINS=https://poker.seudominio.com
-
-PIX_PROVIDER=mock
-PIX_MODE=mock
-PIX_WEBHOOK_SECRET=TROCAR_WEBHOOK_SECRET
-
-DEFAULT_BIG_BLIND_CENTS=2000
-DEFAULT_RAKE_BASIS_POINTS=500
-DEFAULT_RAKE_CAP_CENTS=10000
-LOSS_DEFLATOR_ENABLED=true
-EOF
-
-chmod 600 .env
-```
+Template versionado: **`.env.staging.example`** (já com `DOMAIN_NAME=zerotiltpoker.com` e CORS HTTPS).
 
 **Invariantes:**
 
 - `DATABASE_URL` deve usar o **mesmo** user/senha/db de `POSTGRES_*`.
-- `CORS_ORIGINS` = origem HTTPS completa (`https://` + `DOMAIN_NAME`).
-- `DOMAIN_NAME` **sem** `https://` (só o host que o Caddy escuta).
+- `CORS_ORIGINS` = origem HTTPS completa (`https://zerotiltpoker.com`).
+- `DOMAIN_NAME=zerotiltpoker.com` **sem** `https://`.
+- Se servir também `www`, inclua no CORS: `https://zerotiltpoker.com,https://www.zerotiltpoker.com` e considere redirect www→apex no Caddy (opcional).
 - PIX: mantenha `mock`; não use `PIX_MODE=production`.
 
 ### 4.6 Caddy / domínio
@@ -206,12 +190,12 @@ Ordem automática do Compose: **postgres → redis → api → frontend**.
 ### 4.8 Validar
 
 ```bash
-curl -fsS https://poker.seudominio.com/health
-curl -fsS https://poker.seudominio.com/caddy-health   # se exposto no Caddyfile
-curl -fsS https://poker.seudominio.com/api/lobby/tables
+curl -fsS https://zerotiltpoker.com/health
+curl -fsS https://zerotiltpoker.com/caddy-health
+curl -fsS https://zerotiltpoker.com/api/lobby/tables
 ```
 
-Navegador: `https://poker.seudominio.com/login`
+Navegador: `https://zerotiltpoker.com/login`
 
 Smoke de mesa: register/login → lobby → join → WS (all-in pode demorar no preflop por Monte Carlo de equity).
 
@@ -278,4 +262,4 @@ docker exec -it poker_postgres psql -U poker_user -d poker_db
 
 ---
 
-**Resumo:** compre **Hetzner ~8 GB**, Ubuntu, Docker, clone o repo, `.env` com HTTPS no `CORS_ORIGINS`, `compose build && up -d`, DNS no domínio. Custo típico **~€10–16/mês** com backup. Ideal para **staging/demo**; não é selo de produção.
+**Resumo:** compre **Hetzner ~8 GB**, Ubuntu, Docker, clone o repo, DNS **A** de `zerotiltpoker.com` → IP da VPS, `.env` a partir de `.env.staging.example`, `compose build && up -d`. Custo típico **~€10–16/mês** com backup. Ideal para **staging/demo**; não é selo de produção.
