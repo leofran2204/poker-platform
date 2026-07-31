@@ -4,9 +4,9 @@ services:
     image: postgres:15-alpine
     container_name: poker_postgres
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: poker_db
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-poker_db}
     ports:
       - "127.0.0.1:5433:5432"
     volumes:
@@ -14,7 +14,7 @@ services:
     security_opt:
       - no-new-privileges:true
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d poker_db"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -34,8 +34,6 @@ services:
       timeout: 5s
       retries: 10
 
-
-
   # --- App Services (Hardened Enterprise Containers) ---
   poker_api:
     build:
@@ -45,11 +43,22 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgres://user:password@postgres:5432/poker_db
-      - HOST=0.0.0.0
-      - PORT=3000
-      - CORS_ORIGINS=https://localhost
-      - TRUST_PROXY_HEADERS=true
+      # Compose interpolation: defaults match local lab; staging overrides via .env
+      - DATABASE_URL=${DATABASE_URL:-postgres://user:password@postgres:5432/poker_db}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - HOST=${HOST:-0.0.0.0}
+      - PORT=${PORT:-3000}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - CORS_ORIGINS=${CORS_ORIGINS:-https://localhost}
+      - JWT_SECRET=${JWT_SECRET:-dev-only-replace-with-a-random-secret-of-at-least-32-chars}
+      - TRUST_PROXY_HEADERS=${TRUST_PROXY_HEADERS:-true}
+      - PIX_PROVIDER=${PIX_PROVIDER:-mock}
+      - PIX_MODE=${PIX_MODE:-mock}
+      - PIX_WEBHOOK_SECRET=${PIX_WEBHOOK_SECRET:-dev-only-replace-with-a-random-webhook-secret}
+      - DEFAULT_BIG_BLIND_CENTS=${DEFAULT_BIG_BLIND_CENTS:-2000}
+      - DEFAULT_RAKE_BASIS_POINTS=${DEFAULT_RAKE_BASIS_POINTS:-500}
+      - DEFAULT_RAKE_CAP_CENTS=${DEFAULT_RAKE_CAP_CENTS:-10000}
+      - LOSS_DEFLATOR_ENABLED=${LOSS_DEFLATOR_ENABLED:-true}
     depends_on:
       postgres:
         condition: service_healthy
@@ -72,6 +81,9 @@ services:
       context: ..
       dockerfile: Frontend-Dioxus/Dockerfile
     container_name: poker_frontend
+    environment:
+      # Caddyfile usa {$DOMAIN_NAME:localhost} — staging: poker.seudominio.com
+      - DOMAIN_NAME=${DOMAIN_NAME:-localhost}
     ports:
       - "80:80"
       - "443:443"

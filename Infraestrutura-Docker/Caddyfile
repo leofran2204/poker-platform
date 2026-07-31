@@ -1,9 +1,10 @@
 # Caddyfile — Reverse Proxy & Static Web File Server (HTTPS Auto-TLS)
 #
-# Em dev: https://localhost (TLS local automático)
-# Em prod: https://{$DOMAIN_NAME} (TLS automático via Let's Encrypt)
-# A porta 80, quando publicada, é usada apenas pelo redirecionamento automático
-# do Caddy para HTTPS.
+# Domínio vem da env DOMAIN_NAME (docker-compose → poker_frontend).
+#   Local / lab:     DOMAIN_NAME=localhost          → https://localhost
+#   Staging Hetzner: DOMAIN_NAME=poker.seudominio.com → Let's Encrypt na 80/443
+# CORS da API deve usar a origem HTTPS completa (ex.: https://poker.seudominio.com).
+# A porta 80, quando publicada, é usada pelo redirecionamento / ACME do Caddy.
 
 {$DOMAIN_NAME:localhost} {
 	# Logging estruturado em JSON para stdout

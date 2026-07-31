@@ -13,7 +13,7 @@ name = "poker-frontend"
 path = "src/main.rs"
 
 [dependencies]
-dioxus = { version = "0.6", features = ["logger"] }
+dioxus = { version = "0.6", features = ["web", "logger"] }
 dioxus-logger = "0.6"
 dioxus-router = "0.6"
 log = "0.4"
@@ -28,7 +28,8 @@ ws_stream_wasm = "0.7"
 web-sys = { version = "0.3", features = ["Storage", "Window", "AudioContext", "AudioDestinationNode", "AudioParam", "AudioNode", "OscillatorNode", "GainNode", "OscillatorType"] }
 
 [features]
-default = []
+default = ["web"]
+# Alias retained for scripts that pass `--features web`.
 web = []
 # Fuzzing e stress de estado: somente na validação manual autorizada.
 full-validation = []
