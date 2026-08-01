@@ -370,3 +370,294 @@ pub async fn get_antifraud_alerts_handler(
 
     (StatusCode::OK, Json(serde_json::to_value(summary).unwrap()))
 }
+
+// ─── Phase 2 & Dashboard B2B SaaS Routes ───
+
+#[derive(Serialize, Deserialize, sqlx::FromRow)]
+pub struct Club {
+    pub id: Option<uuid::Uuid>,
+    pub name: String,
+    pub subdomain: String,
+    pub custom_theme_json: serde_json::Value,
+    pub status: String,
+}
+
+pub async fn create_club(
+    RequireAuth(auth_user): RequireAuth,
+    State(state): State<AppState>,
+    Json(payload): Json<Club>,
+) -> Result<Json<Club>, ApiError> {
+    require_admin(&auth_user)?;
+    let result = sqlx::query_as::<_, Club>(
+        "INSERT INTO clubs (name, subdomain, custom_theme_json, status) \
+         VALUES ($1, $2, $3, $4) \
+         RETURNING id, name, subdomain, custom_theme_json, status",
+    )
+    .bind(&payload.name)
+    .bind(&payload.subdomain)
+    .bind(&payload.custom_theme_json)
+    .bind(&payload.status)
+    .fetch_one(&state.db)
+    .await;
+
+    match result {
+        Ok(club) => Ok(Json(club)),
+        Err(_) => Err(ApiError::Internal("Could not create club".to_string())),
+    }
+}
+
+pub async fn list_clubs(
+    RequireAuth(auth_user): RequireAuth,
+    State(state): State<AppState>,
+) -> Result<Json<Vec<Club>>, ApiError> {
+    require_admin(&auth_user)?;
+    let clubs = sqlx::query_as::<_, Club>(
+        "SELECT id, name, subdomain, custom_theme_json, status FROM clubs",
+    )
+    .fetch_all(&state.db)
+    .await
+    .map_err(|_| ApiError::Internal("Could not list clubs".to_string()))?;
+
+    Ok(Json(clubs))
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ClubFinancialsResponse {
+    pub club_id: uuid::Uuid,
+    pub name: String,
+    pub balance: i64,
+    pub total_rake_generated: i64,
+    pub net_club_rake: i64,
+    pub platform_fee_paid: i64,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct WithdrawClubBalanceRequest {
+    pub amount: u64,
+    pub pix_key: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateClubThemeRequest {
+    pub custom_theme_json: serde_json::Value,
+}
+
+pub async fn get_club_financials(
+    RequireAuth(auth_user): RequireAuth,
+    State(state): State<AppState>,
+    Path(club_id): Path<uuid::Uuid>,
+) -> Result<Json<ClubFinancialsResponse>, ApiError> {
+    require_admin(&auth_user)?;
+
+    let club: Option<(uuid::Uuid, String, i64)> = sqlx::query_as(
+        "SELECT id, name, balance FROM clubs WHERE id = $1",
+    )
+    .bind(club_id)
+    .fetch_optional(&state.db)
+    .await
+    .map_err(|_| ApiError::Internal("Database error".to_string()))?;
+
+    let (c_id, name, balance) = club.ok_or_else(|| ApiError::NotFound("Club not found".to_string()))?;
+
+    let net_club_rake = balance;
+    let platform_fee_paid = (balance * 15) / 85;
+    let total_rake_generated = net_club_rake + platform_fee_paid;
+
+    Ok(Json(ClubFinancialsResponse {
+        club_id: c_id,
+        name,
+        balance,
+        total_rake_generated,
+        net_club_rake,
+        platform_fee_paid,
+    }))
+}
+
+pub async fn withdraw_club_balance(
+    RequireAuth(auth_user): RequireAuth,
+    State(state): State<AppState>,
+    Path(club_id): Path<uuid::Uuid>,
+    Json(payload): Json<WithdrawClubBalanceRequest>,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    require_admin(&auth_user)?;
+
+    let amount_i64 = as_i64(payload.amount, "amount")?;
+
+    let mut tx = state.db.begin().await.map_err(|_| ApiError::Internal("Transaction error".to_string()))?;
+
+    let club: Option<(i64,)> = sqlx::query_as(
+        "SELECT balance FROM clubs WHERE id = $1 FOR UPDATE",
+    )
+    .bind(club_id)
+    .fetch_optional(&mut *tx)
+    .await
+    .map_err(|_| ApiError::Internal("Database error".to_string()))?;
+
+    let (balance,) = club.ok_or_else(|| ApiError::NotFound("Club not found".to_string()))?;
+
+    if balance < amount_i64 {
+        return Err(ApiError::BadRequest("Insufficient club balance".to_string()));
+    }
+
+    sqlx::query("UPDATE clubs SET balance = balance - $1 WHERE id = $2")
+        .bind(amount_i64)
+        .bind(club_id)
+        .execute(&mut *tx)
+        .await
+        .map_err(|_| ApiError::Internal("Failed to update club balance".to_string()))?;
+
+    tx.commit().await.map_err(|_| ApiError::Internal("Commit error".to_string()))?;
+
+    Ok(Json(serde_json::json!({
+        "status": "SUCCESS",
+        "message": format!("Withdrawal of {} cents requested to PIX key {}", payload.amount, payload.pix_key)
+    })))
+}
+
+pub async fn update_club_theme(
+    RequireAuth(auth_user): RequireAuth,
+    State(state): State<AppState>,
+    Path(club_id): Path<uuid::Uuid>,
+    Json(payload): Json<UpdateClubThemeRequest>,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    require_admin(&auth_user)?;
+
+    sqlx::query("UPDATE clubs SET custom_theme_json = $1 WHERE id = $2")
+        .bind(&payload.custom_theme_json)
+        .bind(club_id)
+        .execute(&state.db)
+        .await
+        .map_err(|_| ApiError::Internal("Failed to update club theme".to_string()))?;
+
+    Ok(Json(serde_json::json!({
+        "status": "SUCCESS",
+        "message": "Club theme updated successfully"
+    })))
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ClubAgent {
+    pub agent_id: String,
+    pub name: String,
+    pub rakeback_percentage: u8,
+    pub total_players_referred: u32,
+    pub total_commission_earned: u64,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateClubAgentRequest {
+    pub name: String,
+    pub rakeback_percentage: u8,
+}
+
+type ClubAgentRow = (uuid::Uuid, String, i16, i32, i64);
+
+fn club_agent_from_row(
+    (id, name, rakeback_percentage, total_players_referred, total_commission_earned): ClubAgentRow,
+) -> Result<ClubAgent, ApiError> {
+    Ok(ClubAgent {
+        agent_id: id.to_string(),
+        name,
+        rakeback_percentage: u8::try_from(rakeback_percentage)
+            .map_err(|_| ApiError::Internal("Invalid stored rakeback percentage".to_string()))?,
+        total_players_referred: u32::try_from(total_players_referred)
+            .map_err(|_| ApiError::Internal("Invalid stored player referral count".to_string()))?,
+        total_commission_earned: u64::try_from(total_commission_earned)
+            .map_err(|_| ApiError::Internal("Invalid stored commission".to_string()))?,
+    })
+}
+
+async fn require_club_exists(
+    state: &AppState,
+    club_id: uuid::Uuid,
+) -> Result<(), ApiError> {
+    let exists: Option<(uuid::Uuid,)> =
+        sqlx::query_as("SELECT id FROM clubs WHERE id = $1")
+            .bind(club_id)
+            .fetch_optional(&state.db)
+            .await
+            .map_err(|_| ApiError::Internal("Database error".to_string()))?;
+    if exists.is_none() {
+        return Err(ApiError::NotFound("Club not found".to_string()));
+    }
+    Ok(())
+}
+
+/// GET /api/admin/clubs/:id/agents — lista agentes e comissões acumuladas do clube.
+pub async fn list_club_agents(
+    RequireAuth(auth_user): RequireAuth,
+    State(state): State<AppState>,
+    Path(club_id): Path<uuid::Uuid>,
+) -> Result<Json<Vec<ClubAgent>>, ApiError> {
+    require_admin(&auth_user)?;
+    require_club_exists(&state, club_id).await?;
+
+    let rows: Vec<ClubAgentRow> = sqlx::query_as(
+        "SELECT id, name, rakeback_percentage, total_players_referred, total_commission_earned \
+         FROM club_agents \
+         WHERE club_id = $1 AND status = 'active' \
+         ORDER BY created_at DESC",
+    )
+    .bind(club_id)
+    .fetch_all(&state.db)
+    .await
+    .map_err(|_| ApiError::Internal("Could not list club agents".to_string()))?;
+
+    let agents = rows
+        .into_iter()
+        .map(club_agent_from_row)
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(Json(agents))
+}
+
+/// POST /api/admin/clubs/:id/agents — cadastra agente com percentual de rakeback (0–50).
+pub async fn create_club_agent(
+    RequireAuth(auth_user): RequireAuth,
+    State(state): State<AppState>,
+    Path(club_id): Path<uuid::Uuid>,
+    Json(payload): Json<CreateClubAgentRequest>,
+) -> Result<(StatusCode, Json<ClubAgent>), ApiError> {
+    require_admin(&auth_user)?;
+    require_club_exists(&state, club_id).await?;
+
+    let name = payload.name.trim();
+    if name.is_empty() || name.len() > 100 {
+        return Err(ApiError::BadRequest(
+            "Agent name must contain between 1 and 100 characters".to_string(),
+        ));
+    }
+    if payload.rakeback_percentage > 50 {
+        return Err(ApiError::BadRequest(
+            "Rakeback percentage cannot exceed 50%".to_string(),
+        ));
+    }
+
+    let mut tx = state.db.begin().await?;
+    let row: ClubAgentRow = sqlx::query_as(
+        "INSERT INTO club_agents (club_id, name, rakeback_percentage) \
+         VALUES ($1, $2, $3) \
+         RETURNING id, name, rakeback_percentage, total_players_referred, total_commission_earned",
+    )
+    .bind(club_id)
+    .bind(name)
+    .bind(i16::from(payload.rakeback_percentage))
+    .fetch_one(&mut *tx)
+    .await
+    .map_err(|_| ApiError::Internal("Could not create club agent".to_string()))?;
+
+    sqlx::query(
+        "INSERT INTO audit_logs (user_id, action, metadata) VALUES ($1, 'CLUB_AGENT_CREATED', $2)",
+    )
+    .bind(&auth_user.user_id)
+    .bind(serde_json::json!({
+        "club_id": club_id,
+        "agent_id": row.0,
+        "name": name,
+        "rakeback_percentage": payload.rakeback_percentage
+    }))
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
+
+    Ok((StatusCode::CREATED, Json(club_agent_from_row(row)?)))
+}

@@ -17,7 +17,7 @@ pub mod telemetry;
 pub mod tournament_store;
 
 use axum::extract::State;
-use axum::routing::{get, patch, post};
+use axum::routing::{get, patch, post, put};
 use axum::Router;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::OnceLock;
@@ -177,6 +177,41 @@ pub fn build_router(state: AppState) -> Router {
             patch(admin_routes::update_table_status_handler).route_layer(
                 from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
             ),
+        )
+        // ─── B2B SaaS Admin routes ───
+        .route(
+            "/api/admin/clubs",
+            post(admin_routes::create_club)
+                .get(admin_routes::list_clubs)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/admin/clubs/:id/financials",
+            get(admin_routes::get_club_financials).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/clubs/:id/withdraw",
+            post(admin_routes::withdraw_club_balance).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/clubs/:id/theme",
+            put(admin_routes::update_club_theme).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/clubs/:id/agents",
+            post(admin_routes::create_club_agent)
+                .get(admin_routes::list_club_agents)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         // ─── WebSocket route ───
         .route("/ws/game/:table_id", get(websocket::game_websocket))

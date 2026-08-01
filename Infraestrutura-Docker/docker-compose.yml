@@ -1,3 +1,6 @@
+# Stack canônica: Postgres + Redis + API Axum + Caddy (WASM).
+# Portas públicas na VPS: somente 80/443 (e 22 no host). Postgres/Redis em loopback.
+# Cadeia healthy: postgres → redis → poker_api → poker_frontend.
 services:
   # --- Database Layer ---
   postgres:
@@ -8,6 +11,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
       POSTGRES_DB: ${POSTGRES_DB:-poker_db}
     ports:
+      # Loopback only — never expose Postgres on the public interface
       - "127.0.0.1:5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -18,11 +22,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 10s
 
   redis:
     image: redis:7-alpine
     container_name: poker_redis
     ports:
+      # Loopback only — session cache must not face the internet
       - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
@@ -33,6 +39,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 5s
 
   # --- App Services (Hardened Enterprise Containers) ---
   poker_api:
@@ -66,6 +73,15 @@ services:
         condition: service_healthy
     # A API só é acessível pela rede interna do Compose. O Caddy é o único
     # ponto de entrada público e termina TLS antes de encaminhar as requisições.
+    expose:
+      - "3000"
+    healthcheck:
+      # Readiness real: SELECT 1 no Postgres + PING no Redis (handler /health)
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
     # ─── Hardening de Segurança (OWASP Container Security) ───
     user: "10001:10001"
     read_only: true
@@ -85,10 +101,19 @@ services:
       # Caddyfile usa {$DOMAIN_NAME:localhost} — staging: zerotiltpoker.net
       - DOMAIN_NAME=${DOMAIN_NAME:-localhost}
     ports:
+      # Únicas portas públicas da stack (HTTPS via Caddy + Let's Encrypt / Origin CA)
       - "80:80"
       - "443:443"
     depends_on:
-      - poker_api
+      poker_api:
+        condition: service_healthy
+    healthcheck:
+      # Proxy Caddy respondendo na origem (HTTP local; TLS no host público)
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+      start_period: 20s
     # ─── Hardening de Segurança (OWASP Container Security) ───
     read_only: true
     tmpfs:

@@ -1,10 +1,12 @@
 # 🏗️ Arquitetura do Motor Central da Plataforma de Poker Online
 
-**Versão:** 3.2  
-**Data:** 2026-07-14  
-**Status:** Documento oficial — fonte da verdade para decisões de arquitetura
+**Versão:** 3.3  
+**Data:** 2026-08-01  
+**Status:** Documento oficial — fonte da verdade para decisões de arquitetura de **motor e stack**
 
-> Este documento é a **fonte da verdade** sobre a arquitetura da plataforma. Qualquer decisão de design, escolha de tecnologia ou nova pasta deve ser consultada aqui **antes** de iniciar a codificação.
+> Este documento é a **fonte da verdade** sobre a arquitetura da plataforma (stack Rust, motor, camadas). Qualquer decisão de design, escolha de tecnologia ou nova pasta deve ser consultada aqui **antes** de iniciar a codificação.
+>
+> **Estado operacional** (ciclo S10, PIX, ownership, certificação): prevalece [`Documentacao/STATUS_OPERACIONAL.json`](../Documentacao/STATUS_OPERACIONAL.json). Transporte público: **HTTPS**.
 
 ---
 

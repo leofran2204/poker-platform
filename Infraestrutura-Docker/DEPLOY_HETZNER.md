@@ -45,14 +45,15 @@
 ## 2. Ordem dos containers (igual ao compose)
 
 ```text
-1. postgres     (volume postgres_data)
-2. redis        (volume redis_data)
-3. poker_api    (build Motor-Rust + API-Axum; depende de postgres+redis healthy)
-4. poker_frontend (Caddy + WASM estático; publica 80/443; reverse_proxy → poker_api)
+1. postgres     (volume postgres_data; healthcheck pg_isready)
+2. redis        (volume redis_data; healthcheck PING)
+3. poker_api    (build Motor-Rust + API-Axum; healthcheck curl http://127.0.0.1:3000/health — readiness Postgres+Redis)
+4. poker_frontend (Caddy + WASM; healthcheck wget :80; depends_on API healthy; publica 80/443 HTTPS)
 ```
 
-Portas públicas na VPS: **apenas 22, 80, 443**.  
-Postgres e Redis ficam em `127.0.0.1` no compose (não exponha na internet).
+Portas públicas na VPS: **apenas 22, 80, 443** (tráfego de produto em **HTTPS**).  
+Postgres e Redis ficam em `127.0.0.1` no compose (não exponha na internet).  
+Env de referência: `.env.staging.example` ou `../.env.production.example` (nunca commitar `.env` real).
 
 ---
 

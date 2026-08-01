@@ -1,15 +1,16 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-31
+**Atualizado:** 2026-08-01
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
->  Painel tático em `DASHBOARD.md`. 📅 Cronograma em `CRONOGRAMA.md`.
+> Painel tático em `DASHBOARD.md`. Cronograma em `CRONOGRAMA.md`. Estado canônico em `STATUS_OPERACIONAL.json` (prevalece sobre retrospectivas históricas que digam “Launch Ready”).
 
 ---
 
 ## 🔄 Retrospectivas de Sprint
 
 > **Metodologia:** Ao final de cada sprint (2 semanas), registrar: o que funcionou, o que não funcionou, e o que melhorar no próximo sprint.
+> **Nota (2026-08-01):** trechos históricos que mencionam “pronta para produção / Launch Ready” referem-se a readiness de **código/demo local** na época; o produto **permanece sem certificação de produção** (ver `STATUS_OPERACIONAL.json`).
 
 ### 📋 Sprint S01 (2026-06-25 → 2026-07-02) — Fundação + Motor Rust
 
@@ -45,11 +46,24 @@
 | 1 | **O que funcionou** | Fuzzing extremo (1M iterações), carga massiva WS (1M mensagens sem deadlock), Red Team de 50 workers, Mock PIX e persistência PostgreSQL imutável, com hardening Docker/Caddy e CI/CD. |
 | 2 | **O que não funcionou** | Incompatibilidade inicial entre o toolchain MinGW local e proc-macros do Dioxus no Windows exigiu ajuste estrito de ambiente (LIBRARY_PATH). |
 | 3 | **Lições aprendidas** | Fuzzing estocástico e simulação autônoma de Red Team revelam edge-cases (ex: regressoes de colusao e truncamentos de centavos) antes que afetem a produção. |
-| 4 | **Status Final** | 100% dos testes passando (2.050 suítes no total), 0 clippy warnings e plataforma 100% pronta para produção (Launch Ready). |
+| 4 | **Status Final** | 100% dos testes da suíte de rotina (2.051 no total reportado), 0 clippy warnings; **não** certificação de produção (PIX mock; ownership single-process). |
 
 ---
 
 ## 📜 Log Cronológico de Desenvolvimento
+
+### [24] 🏢 S10 — B2B SaaS multi-tenant, agentes HTTPS e lobby MTT (2026-08-01)
+**O que foi feito:**
+- **Schema B2B:** migration `014_b2b_organizations_schema.sql` — `clubs`, `club_memberships`, `club_agents`, `club_id` em `tables`/`tournaments`.
+- **Motor:** rake split 15% plataforma / 85% clube em `RakeResult` + invariante de soma; crédito de `club_rake` no ledger do clube ao liquidar mão (`game_actor`).
+- **API admin:** clubs, financials, withdraw, theme, agents (GET/POST) com persistência PostgreSQL e audit log.
+- **Frontend:** `/admin/clubs` consome a API via **HTTPS** same-origin + JWT (fallback demo sem token); `/tournament/:id` lobby MTT (blinds, prizepool, inscritos).
+- **Deploy:** healthchecks Compose (Postgres, Redis, API `/health`, Caddy); `curl` na imagem da API; `.env.production.example`.
+- **Docs:** `STATUS_OPERACIONAL.json` e blocos `DOCUMENTATION_SYNC` realinhados; remoção de alegações “Launch Ready de produção” no cronograma.
+
+**Limites mantidos:** sem certificação de produção; PIX mock; ownership single-process; smoke do domínio e commit completo do WIP ainda operacionais.
+
+---
 
 ### [23] 🌐 S10 — Domínio zerotiltpoker.net e demo HTTPS (casa + Cloudflare) (2026-07-31)
 **O que foi feito:**
@@ -73,7 +87,7 @@
 - **Autorização distribuída:** JWTs carregam `token_version`; o extrator de autenticação consulta status, papel e versão no PostgreSQL em cada rota protegida. O trigger de mudança sensível revoga tokens já emitidos em todas as réplicas.
 - **Jogo e WSS:** ator aplica timeout de 30 segundos com auto-fold, rotação de dealer por assento físico e snapshot após ação válida. O WebSocket responde ping/pong, aceita envelope binário limitado a 64 KiB e redige recursivamente cartas alheias e campos sensíveis.
 - **Observabilidade e rotina:** readiness consulta PostgreSQL/Redis, métricas expõem apenas gauges medidos, e os contratos financeiros PostgreSQL foram adicionados ao lote manual autorizado de validação.
-- **Evidência local:** 1.814 testes determinísticos do motor, 12 unitários da API, 9 contratos gerais PostgreSQL, 2 contratos financeiros PostgreSQL, 1 contrato Redis e Clippy estrito do motor/API passaram. A carga massiva continua manual e não foi executada nesta alteração.
+- **Evidência local:** 1.815 testes determinísticos do motor, 12 unitários da API, 9 contratos gerais PostgreSQL, 2 contratos financeiros PostgreSQL, 1 contrato Redis e Clippy estrito do motor/API passaram. A carga massiva continua manual e não foi executada nesta alteração.
 
 **Limites mantidos:** PIX real/payout continua fora do escopo e requer autorização + worker reconciliado; ownership de mesa continua local ao processo, mantendo Kubernetes em uma réplica.
 
@@ -454,7 +468,7 @@
 - **Cálculo de Equity:** O `game_loop.rs` usa `get_heads_up_win_probability` com o board conhecido no instante do all-in; a rotina é determinística e usa enumeração ou Monte Carlo determinístico conforme o espaço.
 - **Componente Visual Dioxus (`deflator_notification.rs`):** Pop-up global animado com sobreposição (overlay) e 4 níveis de cores e textos adaptados à gravidade da Bad Beat (7% Teal, 15% Azul, 25% Laranja, 35% Vermelho Neon).
 - **Copywriting de Prova de Justiça:** Textos explícitos detalhando o evento de Bad Beat, o percentual de chance exato do vencedor e do perdedor, e o saldo/fichas recuperadas, adaptados dinamicamente para Cash Games e Torneios.
-- **Compilação Limpa:** 0 erros de compilação, suíte de 2.050+ testes verificada.
+- **Compilação Limpa:** 0 erros de compilação, suíte de 2.051+ testes verificada.
 
 
 ---
@@ -497,7 +511,7 @@
 *Próximo passo: Deploy em ambiente de staging / produção ou disponibilização de canal seguro via Ngrok.*
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-31):** S10 — domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta (Origin CA + Full strict); templates VPS/Hetzner e compose staging-ready. Sem certificação de produção. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ.** Infra e docs de deploy (compose por .env, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel) versionados em master. Carga full-validation e smoke público no domínio ainda pendem de execução após tunnel/VPS no ar. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
+> **Estado operacional sincronizado (2026-08-01):** S10 — B2B SaaS Multi-Tenant White-Label (clubs, rake split 15/85, agentes/rakeback, dashboard admin via HTTPS, lobby MTT); domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta; VPS/Hetzner opcional. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ. Staging/demo apenas; não alegar Launch Ready de produção.** Infra e docs de deploy (compose com healthchecks Postgres/Redis/API/Caddy, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel/.env.production.example) versionados no working tree. Suíte histórica reportada: ~2.051 testes (1.904 Motor Rust + 115 Dioxus + 32 API); full-validation e smoke em https://zerotiltpoker.net ainda pendem de execução. Migration 014 (clubs, memberships, club_agents, club_id em mesas/torneios) e endpoints admin B2B implementados localmente. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
 >
-> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
+> Fonte canônica: [STATUS_OPERACIONAL.json](STATUS_OPERACIONAL.json). Verificação: cargo run --bin documentation-sync -- --check.
 <!-- DOCUMENTATION_SYNC:END -->

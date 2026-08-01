@@ -63,3 +63,9 @@ A migration `013_demo_public_tables.sql` roda no boot da API e cria as mesas se 
 [ ] Entrar na mesa (saldo R$1000)
 [ ] Segundo browser/perfil entra na mesma mesa
 ```
+
+<!-- DOCUMENTATION_SYNC:START -->
+> **Estado operacional sincronizado (2026-08-01):** S10 — B2B SaaS Multi-Tenant White-Label (clubs, rake split 15/85, agentes/rakeback, dashboard admin via HTTPS, lobby MTT); domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta; VPS/Hetzner opcional. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ. Staging/demo apenas; não alegar Launch Ready de produção.** Infra e docs de deploy (compose com healthchecks Postgres/Redis/API/Caddy, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel/.env.production.example) versionados no working tree. Suíte histórica reportada: ~2.051 testes (1.904 Motor Rust + 115 Dioxus + 32 API); full-validation e smoke em https://zerotiltpoker.net ainda pendem de execução. Migration 014 (clubs, memberships, club_agents, club_id em mesas/torneios) e endpoints admin B2B implementados localmente. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
+>
+> Fonte canônica: [STATUS_OPERACIONAL.json](STATUS_OPERACIONAL.json). Verificação: cargo run --bin documentation-sync -- --check.
+<!-- DOCUMENTATION_SYNC:END -->

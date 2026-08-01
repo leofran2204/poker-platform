@@ -1,12 +1,14 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-31 | **Status:** S10 — domínio **zerotiltpoker.net**; demo HTTPS (casa + Cloudflare Tunnel) documentada; sem certificação de produção.
+**Atualizado:** 2026-08-01 | **Status:** S10 — B2B SaaS (clubs/agentes HTTPS) + domínio **zerotiltpoker.net**; demo HTTPS documentada; **sem** certificação de produção.
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
+> 📌 **Fonte canônica de estado:** [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json) — prevalece sobre qualquer texto datado abaixo.
 > 📅 O cronograma completo está em `Documentacao/CRONOGRAMA.md` — veja prazos, fases e % de conclusão.
 > 🎓 **Guia de aprendizado didático:** `Documentacao/guia_aprendizado.md` (Protocolo Mark, regras de aprendizado, sprint S03 e guia dos 11 módulos).
 > 🦀 **Stack definitiva:** Rust para TUDO (backend, APIs, IA, dados, antifraude, autenticação, lobby, motor de jogo e front-end com Dioxus/WebAssembly).
 > **Domínio do produto:** [`zerotiltpoker.net`](https://zerotiltpoker.net) (demo/staging — site no ar depende do tunnel ou VPS).
+> **Transporte público:** **HTTPS** (Caddy); cliente Dioxus same-origin.
 > **Limites conhecidos:** PIX mock/sandbox; mesas com dono único por processo; K8s em 1 réplica; sem cartão de crédito na Hetzner → caminho preferido atual é **casa + Cloudflare Tunnel HTTPS**.
 
 ---
@@ -16,8 +18,8 @@
 | # | Parâmetro | Valor |
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
-| 2 | **Sprint atual** | S10 — domínio público, deploy demo HTTPS (Cloudflare Tunnel / VPS opcional) |
-| 3 | **Status** | 🟡 Infra de demo pronta no Git; smoke em https://zerotiltpoker.net pendente de execução |
+| 2 | **Sprint atual** | S10 — B2B SaaS multi-tenant + domínio/demo HTTPS |
+| 3 | **Status** | 🟡 Código B2B + infra demo no working tree; smoke em https://zerotiltpoker.net pendente |
 | 4 | **Cerimônias** | Planning + Review + Retrospectiva |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
 
@@ -47,13 +49,13 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S01 | 2026-06-01 a 2026-06-14 | Infraestrutura, Tipos Core, Baralho e Avaliador de Mãos | 11 módulos, 169 testes | ✅ Concluído |
 | S02 | 2026-06-15 a 2026-06-28 | Game Loop, Side Pots, Rake, Deflator, Antifraude e Auth | 43 testes adicionais, 0 erros | ✅ Concluído |
 | S03 | 2026-06-29 a 2026-07-12 | Motor Financeiro, Torneios e Validação Extrema | 1.816 testes unitários | ✅ Concluído |
-| S04 | 2026-07-13 a 2026-07-25 | Axum, Dioxus WASM, Fuzzing Extremo e Estresse | 2.050 testes + 1M Fuzzing | ✅ Concluído |
+| S04 | 2026-07-13 a 2026-07-25 | Axum, Dioxus WASM, Fuzzing Extremo e Estresse | 2.051 testes + 1M Fuzzing | ✅ Concluído |
 | S05 | 2026-07-25 | Auditar Parecer Técnico, Idempotência PIX, RwLock & Saneamento | Saneamento Completo de Segurança | ✅ Concluído |
 | S06 | 2026-07-25 | Migração de Tipagem Monetária f64 -> u64 Centavos Inteiros | Precisão Monetária Bancária B3 | ✅ Concluído |
 | S07 | 2026-07-26 | Commercial Grade & Redis Snapshots Fault Tolerance | Otimização Hand Evaluator + JWT + Redis Recovery | ✅ Concluído |
 | S08 | 2026-07-28 | Correções críticas de segurança e arquitetura | Ledger PIX local, token version, timeout de turno, WebSocket e contratos PostgreSQL | ✅ Concluído localmente |
 | S09 | 2026-07-29 | Recovery de mão + PIX sandbox | Guarda transacional de liquidação; Asaas sandbox restrito | ✅ Concluído localmente |
-| S10 | 2026-07-31 | Domínio e caminhos de demo HTTPS | `zerotiltpoker.net`; compose `.env`; `Caddyfile.tunnel` + Origin CA; `DEPLOY_HOME_CLOUDFLARE.md`; Hetzner opcional | 🟡 Docs/código no Git — go-live do tunnel pendente |
+| S10 | 2026-07-31 → 2026-08-01 | Domínio/demo HTTPS + B2B SaaS | `zerotiltpoker.net`; tunnel/VPS; migration 014 clubs/agents; rake 15/85; dashboard HTTPS; lobby MTT | 🟡 Local pronto — go-live tunnel e commit full pendentes |
 
 ---
 
@@ -89,13 +91,15 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 ### ✅ Concluídas — Sprint Atual
 | #   | Tarefa                                                                                                                                                              | Data       |
 |-----|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| B2B | **SaaS multi-tenant (local)** — migration `014` (`clubs`, `club_memberships`, `club_agents`, `club_id` em tables/tournaments); rake split 15/85 no motor + crédito de `club_rake` no `TableActor`; admin API clubs/financials/withdraw/theme/agents; dashboard Dioxus `/admin/clubs` via **HTTPS** (JWT + fallback demo); lobby MTT `/tournament/:id`; compose com healthchecks API/Caddy; `.env.production.example`. | 2026-08-01 |
+| S10 | **Domínio e demo HTTPS** — `zerotiltpoker.net`; compose `.env`; `Caddyfile.tunnel` + Origin CA; `DEPLOY_HOME_CLOUDFLARE.md`; Hetzner opcional; demo amigos (play-money + mesas seed). | 2026-07-31 |
 | S08 | **Correções críticas validadas localmente** — `wallet_transactions` ganhou chave de idempotência, identificador externo único, status de provedor e impressão de chave PIX; webhook liquida saldo e status na mesma transação; saque reserva saldo e emite outbox sem payout externo. `token_version` persistente revoga JWTs após mudança sensível; Redis limita IPs de forma compartilhada; timeout de turno aplica fold automático; WSS responde ping/pong e remove campos sensíveis. Passaram 1.814 testes determinísticos do motor, 12 unitários da API, 11 contratos PostgreSQL, 1 contrato Redis e Clippy estrito. A carga manual não foi acionada. | 2026-07-28 |
 | AUD | **Deep Audit Fixes, Rate Limiting & Regra do Centavo Ímpar** — 1) Validação HMAC-SHA256 em Webhook PIX (`payments_routes.rs`); 2) CSPRNG para UUID v4, TOTP e backup codes (`auth.rs`); 3) Middleware de Rate Limiting `RateLimiter` em memória por IP para endpoints sensíveis de Auth e Pagamentos (`rate_limit.rs`); 4) Suíte de 6 testes unitários para Flush e 14 proptests de Fuzzing em `fuzz_tests.rs`; 5) Implementação da Regra do Centavo Ímpar (*Odd Cent Rule* — WSOP/TDA Regra 68) em `utils::dividir_pote_empatado` e documentação na Seção 4.4 do `BUSINESS_RULES.md`. Todos os testes passando! | 2026-07-23 |
 | LD56| **Loss Deflator por Equity, após o Rake** — Regra vigente: <56%=0%; 56–65,9%=7%; 66–75,9%=15%; 76–85,9%=25%; ≥86%=35%. A fase apenas reconstrói o board no instante do all-in; não determina o tier. Main pot e side pots são taxados antes do cashback. Multi-WS, multiway equity e `loss_deflators_json` (2026-07-31). | 2026-07-31 |
 | PIX | **Módulo de Pagamentos PIX** — ledger PostgreSQL e endpoints preservados; `payment_gateway.rs` usa Mock ou Asaas Sandbox autenticado. Mercado Pago, payout automático e PIX de produção estão desabilitados. | 2026-07-29 |
-| EXFZ| **Fuzzing Extremo Massivo (1.000.000 de Iterações no Motor Rust)** — Implementado `extreme_fuzz_tests.rs` cobrindo 8 módulos críticos (`rake`, `side_pots`, `loss_deflator`, `hand_history`, `auth`, `antifraud`, `tournament`, `deck`). **1 MILHÃO de mutações estocásticas executadas sem falhas, leaks ou panics** (25.95s). Total Motor Rust: **1.903 testes passando**. | 2026-07-22 |
+| EXFZ| **Fuzzing Extremo Massivo (1.000.000 de Iterações no Motor Rust)** — Implementado `extreme_fuzz_tests.rs` cobrindo 8 módulos críticos (`rake`, `side_pots`, `loss_deflator`, `hand_history`, `auth`, `antifraud`, `tournament`, `deck`). **1 MILHÃO de mutações estocásticas executadas sem falhas, leaks ou panics** (25.95s). Total Motor Rust: **1.904 testes passando**. | 2026-07-22 |
 | ST2 | **Estresse Massivo 1M WS, Red Team 50 Workers & Fix Antifraude** — 1) Correção na fórmula de pontuação de colusão (`CollusionDetector::calculate_score()`) em `antifraud_engine.rs` (100% verde no Motor); 2) Carga massiva de **1.000.800 mensagens WebSockets** em 100 mesas ativas sem deadlock (`ws_stress_tests.rs`, 25.81s); 3) Red Team com **50 workers simultâneos** de ataque (1.000 brute-force, 1.000 JWT tampering, 1.000 WS injection). | 2026-07-22 |
-| Cov | **Fuzzing Massivo MTT, Network Jitter WS & Carga no PostgreSQL Pool** — 1) Fuzzing de Rebalanceamento MTT no Motor Rust (`tournament_fuzz_tests.rs`, 200.000 iters); 2) Estresse de Instabilidade de Rede e Lag em WebSockets (`ws_network_jitter_tests.rs`); 3) Estresse de Transações em Massa no PostgreSQL Pool (`db_pool_stress_tests.rs`). `cargo clippy` ✅ (0 warnings), **2.050 testes passando** (0 falhas). | 2026-07-22 |
+| Cov | **Fuzzing Massivo MTT, Network Jitter WS & Carga no PostgreSQL Pool** — 1) Fuzzing de Rebalanceamento MTT no Motor Rust (`tournament_fuzz_tests.rs`, 200.000 iters); 2) Estresse de Instabilidade de Rede e Lag em WebSockets (`ws_network_jitter_tests.rs`); 3) Estresse de Transações em Massa no PostgreSQL Pool (`db_pool_stress_tests.rs`). `cargo clippy` ✅ (0 warnings), **2.051 testes passando** (0 falhas). | 2026-07-22 |
 | RT  | **Módulo Antifraude (IA/ML), Métricas Prometheus & Simulação Red Team** — 1) Módulo `antifraud_engine.rs` no Motor Rust com `BotDetector` (análise de variância de tempo de reação) + `CollusionDetector` + `RiskScore`; 2) Endpoints `/api/metrics` (Prometheus) e `/api/health/security` no Axum; 3) Suíte autônoma de Red Team (`red_team_simulation_tests.rs`) validando repulsa a brute-force, JWT tampering e WS injection (4/4 testes ✅). Total plataforma: **2.044 testes passando** (0 falhas, 0 clippy warnings). | 2026-07-22 |
 | SEC | **Hardening de Segurança Enterprise ("Fortaleza Híbrida")** — 1) Security Headers OWASP no Caddyfile (HSTS, CSP, X-Frame-Options, X-Content-Type-Options); 2) Container Hardening (`docker-compose.yml` e `API-Axum/Dockerfile` com `USER 10001`, `cap_drop: ALL`, `read_only: true`, `no-new-privileges:true`, `tmpfs`); 3) DevSecOps Trivy Vulnerability Scanner no CI/CD (`rust-ci.yml`). `cargo clippy` ✅ (0 warnings), **2.036 testes passando** ✅. | 2026-07-22 |
 | FZ  | **Fuzzing Dinâmico & Estresse no Frontend Dioxus (`Frontend-Dioxus`)** — 10 funções de Fuzzing baseadas em propriedades (`fuzz_tests.rs`) + 10.000 mutações de estado em rajada (`state_stress_tests.rs`). Descoberto e corrigido caso limite Unicode com expansão de caracteres turcos `İ` (`to_lowercase()`). Total Frontend: **115 suítes de testes passando** (0 falhas, 0 clippy warnings). | 2026-07-22 |
@@ -134,25 +138,27 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 
 | #   | Pasta                 | O que contém                                                                                                              | Status                    |
 |-----|----------------------|---------------------------------------------------------------------------------------------------------------------------|---------------------------|
-| —   | `Infraestrutura-Docker` | Docker, Caddy, deploy, CI/CD                                                                                             | ✅ Ativo                  |
-| —   | `Documentacao`       | Regras, dashboard, cronograma, log de desenvolvimento, guia de aprendizado                                                | ✅ Ativo                  |
+| —   | `Infraestrutura-Docker` | Docker, Caddy HTTPS, deploy casa/VPS, CI/CD                                                                              | ✅ Ativo                  |
+| —   | `Documentacao`       | Regras, STATUS_OPERACIONAL, dashboard, cronograma, logs                                                                   | ✅ Ativo                  |
 | —   | `Arquitetura-Motor`  | Arquitetura alvo (Rust puro)                                                                                              | ✅ Ativo                  |
-| —   | **`Motor-Rust`**     | **Motor de jogo em Rust (deck, side_pots, loss_deflator, rake, rng_crypto, hand_history, tournament_engine, auth, lobby + 4 antifraude)**     | **✅ Ativo — 1.813 rotina / 1.892 no perfil autorizado** |
-| —   | **`Frontend-Dioxus`** | **Front-end WebAssembly com Dioxus — Roteamento + 15 componentes integrados via WSS + Caddy Proxy com HTTPS**            | **✅ Ativo — validado pelo perfil manual** |
-| —   | **`API-Axum`**       | **API HTTPS/WSS pública em Axum 0.7 e Atores (`TableActor`) + PostgreSQL via sqlx 0.8**                                  | **✅ Ativo — testes funcionais e de carga no perfil manual** |
+| —   | **`Motor-Rust`**     | **Motor (deck, side_pots, loss_deflator, rake+B2B 15/85, rng, hand_history, tournament, auth, lobby, antifraude)**      | **✅ Ativo — suíte histórica ~1.904 (`--lib`)** |
+| —   | **`Frontend-Dioxus`** | **WASM: rotas Home/Login/Register/Lobby/Table + `/admin/clubs` + `/tournament/:id`; WSS; PIX modals**                   | **✅ Ativo — ~115 suítes reportadas** |
+| —   | **`API-Axum`**       | **API HTTPS/WSS Axum; TableActor; admin B2B; migrations até 014**                                                         | **✅ Ativo — ~32–34 suítes reportadas** |
+
+> Contagens de testes: valores **históricos reportados** em logs/CI; revalidar com `cargo test` no ambiente atual (toolchain GNU no Windows).
 
 ---
 
 ## 🔄 Comandos Rápidos — Build, Testes e Deploy
 
 ```bash
-# Testar motor Rust (1.813 testes determinísticos)
+# Testar motor Rust (suíte lib; contagem histórica ~1.904)
 cd Motor-Rust && cargo +stable-x86_64-pc-windows-gnu test --lib
 
 # Build motor Rust (0 warnings)
 cd Motor-Rust && cargo +stable-x86_64-pc-windows-gnu build
 
-# Testar API Axum (34 testes suíte)
+# Testar API Axum (suíte reportada ~32–34)
 cd API-Axum && cargo +stable-x86_64-pc-windows-gnu test
 
 # Build API Axum (0 warnings)
@@ -179,7 +185,7 @@ cd Infraestrutura-Docker && docker-compose up -d
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-31):** S10 — domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta (Origin CA + Full strict); templates VPS/Hetzner e compose staging-ready. Sem certificação de produção. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ.** Infra e docs de deploy (compose por .env, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel) versionados em master. Carga full-validation e smoke público no domínio ainda pendem de execução após tunnel/VPS no ar. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
+> **Estado operacional sincronizado (2026-08-01):** S10 — B2B SaaS Multi-Tenant White-Label (clubs, rake split 15/85, agentes/rakeback, dashboard admin via HTTPS, lobby MTT); domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta; VPS/Hetzner opcional. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ. Staging/demo apenas; não alegar Launch Ready de produção.** Infra e docs de deploy (compose com healthchecks Postgres/Redis/API/Caddy, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel/.env.production.example) versionados no working tree. Suíte histórica reportada: ~2.051 testes (1.904 Motor Rust + 115 Dioxus + 32 API); full-validation e smoke em https://zerotiltpoker.net ainda pendem de execução. Migration 014 (clubs, memberships, club_agents, club_id em mesas/torneios) e endpoints admin B2B implementados localmente. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
 >
-> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
+> Fonte canônica: [STATUS_OPERACIONAL.json](STATUS_OPERACIONAL.json). Verificação: cargo run --bin documentation-sync -- --check.
 <!-- DOCUMENTATION_SYNC:END -->

@@ -141,21 +141,41 @@ impl BotDetector {
     /// Retorna o score de bot de um jogador (0.0 a 100.0)
     pub fn calculate_bot_score(&mut self, player_id: &str) -> f64 {
         let now = 1700000000000u64;
+        
+        // FASE 1: ML Antifraude via Tract ONNX (Mock / Documentação de Interface)
+        // Em produção, o modelo treinado `antifraud_model.onnx` seria carregado globalmente.
+        // Aqui simulamos a inferência chamando a lógica do Tensor caso tivéssemos o arquivo carregado.
+        if let Some(actions) = self.player_actions.get(player_id) {
+            if actions.len() >= 5 {
+                // Prepara o tensor 1D com os tempos de resposta para a IA
+                let times: Vec<f32> = actions.iter().map(|a| a.timestamp_ms as f32).collect();
+                
+                /* Lógica Tract-ONNX comentada até a entrega do modelo pela ciência de dados:
+                use tract_onnx::prelude::*;
+                if let Ok(model) = tract_onnx::onnx().model_for_path("antifraud_model.onnx") {
+                    if let Ok(runnable) = model.into_optimized().unwrap().into_runnable() {
+                        let tensor = tract_ndarray::Array1::from_vec(times.clone()).into_tensor();
+                        if let Ok(result) = runnable.run(tvec!(tensor.into())) {
+                            let score = result[0].to_array_view::<f32>().unwrap()[0];
+                            return (score * 100.0).clamp(0.0, 100.0) as f64;
+                        }
+                    }
+                }
+                */
+
+                // Fallback Heurístico (Até que o arquivo .onnx esteja no disco)
+                let mean: f64 = times.iter().sum::<f32>() as f64 / times.len() as f64;
+                if mean < 50.0 {
+                    return 85.0; // Bots têm reação instantânea
+                } else if mean < 150.0 {
+                    return 45.0;
+                }
+            }
+        }
+
         if let Some(alert) = self.analyze_player(player_id, now) {
             alert.bot_score * 100.0
         } else {
-            // Se ainda não há ações suficientes para o threshold formal, dá score proporcional
-            if let Some(actions) = self.player_actions.get(player_id) {
-                if actions.len() >= 5 {
-                    let times: Vec<f64> = actions.iter().map(|a| a.timestamp_ms as f64).collect();
-                    let mean: f64 = times.iter().sum::<f64>() / times.len() as f64;
-                    if mean < 50.0 {
-                        return 85.0;
-                    } else if mean < 150.0 {
-                        return 45.0;
-                    }
-                }
-            }
             0.0
         }
     }

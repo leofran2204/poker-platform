@@ -18,6 +18,7 @@
 
 > 📐 Detalhes completos em `Arquitetura-Motor/ARQUITETURA_MOTOR.md`.
 > ✅ Stack 100% Rust desde 2026-07-03 — Python, TypeScript, Go e Node.js foram removidos.
+> 📌 Estado operacional (PIX, ownership, ciclo S10/B2B): ver `STATUS_OPERACIONAL.json` — **sem** certificação de produção.
 
 ### 0.1. 💵 Arquitetura Financeira e Tipagem Estrita (`u64` Centavos)
 - **Princípio da Precisão Bancária:** Todos os valores financeiros (saldo, apostas, stacks, potes, rake, buy-in e blinds) utilizam estritamente `u64` centavos inteiros (`R$ 10,50` = `1050` centavos). Erros de arredondamento IEEE-754 flutuantes são eliminados na raiz.
@@ -218,6 +219,12 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
 - **Cap de rake por nº de jogadores (opcional):** a mesa pode definir agenda completa `rake_cap_heads_up` / `rake_cap_three_to_four` / `rake_cap_five_plus` (todos NULL = só cap legado; ou os três preenchidos). O motor escolhe o cap conforme quantos jogadores receberam cartas na mão (`RakeCapSchedule`).
 - ✅ **Fee Torneios: 7% no Buy-in, com taxa 0% em Re-buys e Add-ons**
 
+### 9.3 🏢 Divisão Financeira B2B SaaS (Rake Split 15% / 85%)
+- **Ordem de Execução Inviolável**: Potes brutos → Cálculo de Rake → **Split B2B (15% Plataforma Zerotilt / 85% Clube Locatário)** → Aplicação do Loss Deflator sobre o pote líquido pós-rake → Distribuição dos prêmios.
+- **Roteamento de Ledger**: O valor do Rake do Clube (`club_rake`) é injetado diretamente no saldo administrativo da tabela `clubs` (`balance`) ao final de cada mão (apenas mesas com `club_id`). O fee da plataforma (`platform_fee`) é contabilizado para a Zerotilt.
+- **Agentes / rakeback**: percentuais 0–50% cadastrados em `club_agents` (admin HTTPS); comissões acumuladas em centavos. Não altera o split 15/85 plataforma/clube — o rakeback do agente é subconjunto da fatia do clube.
+- **Play-money**: operação atual permanece sem dinheiro real; saques de clube via admin são intenções mock/sandbox.
+
 ---
 
 ## 10. ⚡ Estados Especiais — All-In, Timeout e Desconexão
@@ -360,7 +367,7 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 **Próxima revisão:** Após implementação de side pots e split pot.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-31):** S10 — domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta (Origin CA + Full strict); templates VPS/Hetzner e compose staging-ready. Sem certificação de produção. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ.** Infra e docs de deploy (compose por .env, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel) versionados em master. Carga full-validation e smoke público no domínio ainda pendem de execução após tunnel/VPS no ar. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
+> **Estado operacional sincronizado (2026-08-01):** S10 — B2B SaaS Multi-Tenant White-Label (clubs, rake split 15/85, agentes/rakeback, dashboard admin via HTTPS, lobby MTT); domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta; VPS/Hetzner opcional. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ. Staging/demo apenas; não alegar Launch Ready de produção.** Infra e docs de deploy (compose com healthchecks Postgres/Redis/API/Caddy, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel/.env.production.example) versionados no working tree. Suíte histórica reportada: ~2.051 testes (1.904 Motor Rust + 115 Dioxus + 32 API); full-validation e smoke em https://zerotiltpoker.net ainda pendem de execução. Migration 014 (clubs, memberships, club_agents, club_id em mesas/torneios) e endpoints admin B2B implementados localmente. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
 >
-> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
+> Fonte canônica: [STATUS_OPERACIONAL.json](STATUS_OPERACIONAL.json). Verificação: cargo run --bin documentation-sync -- --check.
 <!-- DOCUMENTATION_SYNC:END -->

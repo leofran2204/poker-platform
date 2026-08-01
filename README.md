@@ -6,18 +6,19 @@ Plataforma de poker online **Texas Hold'em** em **Rust** (motor, API Axum, front
 |--|--|
 | **Domínio (demo)** | [https://zerotiltpoker.net](https://zerotiltpoker.net) |
 | **Repositório** | https://github.com/leofran2204/poker-platform |
-| **Estado** | Staging/demo — **sem** certificação de produção; PIX mock/sandbox |
+| **Estado** | Staging/demo — **sem** certificação de produção; PIX mock/sandbox; B2B multi-tenant em implementação local |
 | **Status canônico** | [`Documentacao/STATUS_OPERACIONAL.json`](Documentacao/STATUS_OPERACIONAL.json) |
+| **Transporte público** | **HTTPS** (Caddy); API e WASM same-origin |
 
 ## Pastas principais
 
 | Pasta | Função |
 |-------|--------|
-| `Motor-Rust/` | Regras de jogo, rake, loss deflator, antifraude |
-| `API-Axum/` | REST + WebSocket, PostgreSQL, Redis |
-| `Frontend-Dioxus/` | UI WebAssembly |
-| `Infraestrutura-Docker/` | Compose, Caddy, deploys |
-| `Documentacao/` | Regras, dashboard, qualidade |
+| `Motor-Rust/` | Regras de jogo, rake (incl. split B2B 15/85), loss deflator, antifraude |
+| `API-Axum/` | REST + WebSocket (WSS), PostgreSQL, Redis, admin B2B |
+| `Frontend-Dioxus/` | UI WebAssembly (lobby, mesa, `/admin/clubs`, `/tournament/:id`) |
+| `Infraestrutura-Docker/` | Compose, Caddy HTTPS, deploys casa/VPS |
+| `Documentacao/` | Regras, dashboard, qualidade, status operacional |
 
 ## Como publicar a demo (HTTPS)
 

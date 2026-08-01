@@ -3,7 +3,7 @@
 > **Foco:** Módulos com cobertura insuficiente identificados após Fase 1 (883 testes).
 > **Estratégia:** Metas ousadas em quantidade e complexidade — cobrir todas as combinações possíveis de estados, transições, edge cases e cenários de erro. Multiplicação por 8× sobre a base inicial.
 
-> **Nota de execução (2026-07-28):** os totais nesta página são metas e registros históricos, não um gate de release. A CI executa somente testes determinísticos e rápidos. A validação completa autorizada concentra 100 cenários centrais de carga (79 do motor, 10 da API HTTPS, 10 frontend e 1 WSS de 1.000.800 mensagens), além dos testes funcionais de plataforma. Consulte `FULL_VALIDATION.md`.
+> **Nota de execução (2026-08-01):** os totais nesta página são metas e registros históricos, não um gate de release. A CI executa somente testes determinísticos e rápidos. A validação completa autorizada concentra 100 cenários centrais de carga (79 do motor, 10 da API HTTPS, 10 frontend e 1 WSS de 1.000.800 mensagens), além dos testes funcionais de plataforma. Consulte `FULL_VALIDATION.md` e o estado canônico em `STATUS_OPERACIONAL.json`.
 
 ---
 
@@ -162,12 +162,12 @@ Após a Fase 2, foram adicionados testes de integração entre módulos, stress 
 
 Com as últimas expansões de testes de estresse e segurança na Sprint S04 & S05, as metas globais de qualidade e testes foram 100% batidas:
 
-* **Motor-Rust:** **1.903 testes unitários, de integração e fuzzing passando** (`cargo test --lib` ✅).
+* **Motor-Rust:** **1.904 testes unitários, de integração e fuzzing passando** (`cargo test --lib` ✅), incluindo a auditoria de invariante contábil B2B Rake Split (`b2b_rake_split_always_totals_100_percent`).
 * **Fuzzing Extremo Massivo:** **1.000.000 de iterações de mutação estocástica** executadas em `extreme_fuzz_tests.rs` cobrindo 8 módulos críticos (`rake`, `side_pots`, `loss_deflator`, `hand_history`, `auth`, `antifraud`, `tournament`, `deck`) com **0 panics, 0 leaks e 0 falhas** (25.95s).
 * **WebSocket Stress & Red Team:** **1.000.800 mensagens WebSockets simultâneas** em 100 mesas ativas + simulação de ataque Red Team com 50 workers concorrentes.
 * **Frontend-Dioxus:** **115 suítes de teste de estado e componentes visual/WASM passing**.
 * **API-Axum:** **34 suítes de teste de contrato REST/WS e persistência PostgreSQL real passing**.
-* **Métrica Consolidada da Plataforma:** **2.050 testes passando**, 0 warnings de clippy, 0 CVEs e cobertura mantida acima de **98,10%**.
+* **Métrica Consolidada da Plataforma:** **2.051 testes passando**, 0 warnings de clippy, 0 CVEs e cobertura mantida acima de **98,10%**.
 
 ---
 
@@ -192,7 +192,7 @@ Saneamento completo de todas as vulnerabilidades e bugs apontados no Parecer Té
 
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-31):** S10 — domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta (Origin CA + Full strict); templates VPS/Hetzner e compose staging-ready. Sem certificação de produção. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ.** Infra e docs de deploy (compose por .env, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel) versionados em master. Carga full-validation e smoke público no domínio ainda pendem de execução após tunnel/VPS no ar. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
+> **Estado operacional sincronizado (2026-08-01):** S10 — B2B SaaS Multi-Tenant White-Label (clubs, rake split 15/85, agentes/rakeback, dashboard admin via HTTPS, lobby MTT); domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta; VPS/Hetzner opcional. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ. Staging/demo apenas; não alegar Launch Ready de produção.** Infra e docs de deploy (compose com healthchecks Postgres/Redis/API/Caddy, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel/.env.production.example) versionados no working tree. Suíte histórica reportada: ~2.051 testes (1.904 Motor Rust + 115 Dioxus + 32 API); full-validation e smoke em https://zerotiltpoker.net ainda pendem de execução. Migration 014 (clubs, memberships, club_agents, club_id em mesas/torneios) e endpoints admin B2B implementados localmente. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
 >
-> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
+> Fonte canônica: [STATUS_OPERACIONAL.json](STATUS_OPERACIONAL.json). Verificação: cargo run --bin documentation-sync -- --check.
 <!-- DOCUMENTATION_SYNC:END -->

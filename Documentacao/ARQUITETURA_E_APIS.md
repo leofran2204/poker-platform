@@ -1,6 +1,6 @@
 # Arquitetura Técnica & Especificação de APIs - Plataforma de Poker Online em Rust
 
-**Atualizado:** 2026-07-27 | **Status:** Em revisão contínua — validação local e CI; sem certificação de produção.
+**Atualizado:** 2026-08-01 | **Status:** Em revisão contínua — validação local e CI; B2B admin via HTTPS documentado; sem certificação de produção.
 
 Este documento consolida a arquitetura técnica, esquemas de comunicação, contratos de API e modelos de segurança da **Plataforma de Poker Online em Rust**.
 
@@ -107,8 +107,18 @@ O módulo financeiro usa `wallet_transactions`, `audit_logs` e `outbox_events` n
 - O navegador primeiro solicita `POST /api/lobby/tables/:id/ws-ticket` com Bearer JWT. O WebSocket recebe somente o ticket opaco, vinculado à mesa, com validade de 60 segundos e consumo único (Redis quando configurado).
 - Redis é obrigatório em produção para que tickets e snapshots de mesa não se dividam entre réplicas; o fallback em memória existe apenas para desenvolvimento/testes locais.
 - Administradores criam mesas com `POST /api/admin/tables` e alteram o estado com `PATCH /api/admin/tables/:id/status`. Uma mesa só fecha sem assentos ativos; `PAUSED` bloqueia novas entradas, e `OPEN` permite novas conexões.
-- O rake é armazenado em pontos-base (`500 = 5,00%`) e calculado/rateado com aritmética inteira; não há conversão financeira por ponto flutuante.
 - O histórico recebe número sequencial atômico por mesa, blinds reais da configuração e participantes na mesma transação; a assinatura usa o segredo já validado pela aplicação, sem chave de fallback.
+
+### Endpoints Administrativos B2B SaaS (Clube & White-Label)
+
+- `POST /api/admin/clubs`: Criação de um novo clube na rede B2B com subdomínio dinâmico e tema inicial.
+- `GET /api/admin/clubs`: Lista todos os clubes registrados e seus status na plataforma.
+- `GET /api/admin/clubs/:id/financials`: Retorna o extrato financeiro do clube: saldo acumulado (`balance`), Rake Líquido do Clube (85%), Fee da Plataforma (15%) e Rake Bruto.
+- `POST /api/admin/clubs/:id/withdraw`: Solicita o saque das comissões do saldo acumulado do clube via chave PIX.
+- `PUT /api/admin/clubs/:id/theme`: Atualiza o JSON de personalização visual (`custom_theme_json`) para a injeção do tema White-Label no Frontend.
+- `GET /api/admin/clubs/:id/agents`: Lista agentes ativos do clube (rakeback %, indicados, comissão em centavos).
+- `POST /api/admin/clubs/:id/agents`: Cadastra agente com nome e rakeback 0–50%; persiste em `club_agents` e registra audit log.
+- **Cliente Dioxus:** o dashboard `/admin/clubs` consome esses endpoints via **HTTPS** same-origin (`api_client` + JWT admin). Sem JWT ou falha de rede, a UI cai em modo demo local com aviso explícito.
 
 ### Autorização revogável e distribuída
 
@@ -145,7 +155,7 @@ O módulo financeiro usa `wallet_transactions`, `audit_logs` e `outbox_events` n
 - Não há benchmark de release certificado neste repositório. Throughput, latência e capacidade devem ser obtidos exclusivamente em uma execução autorizada da validação completa, com o TSV de evidência gerado pelos scripts.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-31):** S10 — domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta (Origin CA + Full strict); templates VPS/Hetzner e compose staging-ready. Sem certificação de produção. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ.** Infra e docs de deploy (compose por .env, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel) versionados em master. Carga full-validation e smoke público no domínio ainda pendem de execução após tunnel/VPS no ar. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
+> **Estado operacional sincronizado (2026-08-01):** S10 — B2B SaaS Multi-Tenant White-Label (clubs, rake split 15/85, agentes/rakeback, dashboard admin via HTTPS, lobby MTT); domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta; VPS/Hetzner opcional. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ. Staging/demo apenas; não alegar Launch Ready de produção.** Infra e docs de deploy (compose com healthchecks Postgres/Redis/API/Caddy, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel/.env.production.example) versionados no working tree. Suíte histórica reportada: ~2.051 testes (1.904 Motor Rust + 115 Dioxus + 32 API); full-validation e smoke em https://zerotiltpoker.net ainda pendem de execução. Migration 014 (clubs, memberships, club_agents, club_id em mesas/torneios) e endpoints admin B2B implementados localmente. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
 >
-> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
+> Fonte canônica: [STATUS_OPERACIONAL.json](STATUS_OPERACIONAL.json). Verificação: cargo run --bin documentation-sync -- --check.
 <!-- DOCUMENTATION_SYNC:END -->

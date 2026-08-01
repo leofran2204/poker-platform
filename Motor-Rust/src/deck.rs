@@ -10,7 +10,7 @@ use std::collections::HashMap;
 // ─── Tipos (enums + structs) ───
 
 /// Naipes do baralho (4)
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum Suit {
     Hearts,
     Diamonds,
@@ -120,27 +120,41 @@ pub fn deal_cards(deck: &[Card], count: usize) -> (Vec<Card>, Vec<Card>) {
 
 /// Avalia a melhor mão de 5 cartas entre as cartas do jogador + comunitárias
 pub fn evaluate_hand(hole_cards: &[Card], community_cards: &[Card]) -> HandResult {
-    let all_cards: Vec<Card> = hole_cards
-        .iter()
-        .chain(community_cards.iter())
-        .copied()
-        .collect();
+    let mut all_cards = Vec::with_capacity(hole_cards.len() + community_cards.len());
+    all_cards.extend_from_slice(hole_cards);
+    all_cards.extend_from_slice(community_cards);
 
-    // Mão vazia (sem cartas conhecidas): retorna alta carta nula em vez de
-    // panicar. Isso protege chamadores legítimos (ex.: demonstrações e side
-    // pots avaliados antes das cartas serem reveladas).
     if all_cards.is_empty() {
         return HandResult {
             rank: HandRank::HighCard,
+            cards: vec![],
+            kickers: vec![],
             value: 0,
-            cards: Vec::new(),
-            kickers: Vec::new(),
         };
     }
 
-    // Pre-filtering de alta velocidade: contar naipes em array fixo sem alocar HashMap
+    // FASE 1: Integração com Evaluator SIMD (rs-poker)
+    /* 
+    use rs_poker::core::{Hand, Card as RsCard, Suit as RsSuit, Value as RsValue};
+    // Transforma as cartas para o formato da rs_poker
+    let rs_cards: Vec<RsCard> = all_cards.iter().map(|c| {
+        // Mapear c.rank e c.suit para rs_poker format...
+        RsCard::new(RsValue::Two, RsSuit::Spades)
+    }).collect();
+    let hand = Hand::new_with_cards(rs_cards);
+    let eval_score = hand.rank();
+    // Converter eval_score devolta para HandResult para preservar retrocompatibilidade...
+    */
+
+    // Ordenação decrescente: maior rank primeiro. Desempata por naipe.
+    all_cards.sort_by(|a, b| {
+        b.rank
+            .cmp(&a.rank)
+            .then_with(|| b.suit.cmp(&a.suit))
+    });
+
+    let mut suit_counts = [0; 4];
     let mut has_flush_suit = false;
-    let mut suit_counts = [0u8; 4];
     for card in &all_cards {
         let idx = match card.suit {
             Suit::Hearts => 0,

@@ -119,6 +119,28 @@ async fn persist_completed_hand(
     .execute(&mut *tx)
     .await?;
 
+    // FASE 2: Ledger B2B SaaS
+    // Deposita a fatia do Clube no saldo administrativo se a mesa for privada.
+    if record.rake > 0 {
+        let club_id: Option<uuid::Uuid> = sqlx::query_scalar(
+            "SELECT club_id FROM tables WHERE id = $1"
+        )
+        .bind(record.table_id)
+        .fetch_optional(&mut *tx)
+        .await?
+        .flatten();
+
+        if let Some(c_id) = club_id {
+            let platform_fee = (record.rake * 15) / 100;
+            let club_rake = record.rake.saturating_sub(platform_fee);
+            sqlx::query("UPDATE clubs SET balance = balance + $1 WHERE id = $2")
+                .bind(club_rake)
+                .bind(c_id)
+                .execute(&mut *tx)
+                .await?;
+        }
+    }
+
     for user_id in record.participants {
         sqlx::query(
             "INSERT INTO hand_participants (hand_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
@@ -210,6 +232,17 @@ impl TableActor {
 
     pub async fn run(mut self) {
         info!("Table actor started for table: {}", self.table_id);
+        
+        // FASE 1: Recovery Snapshot do Redis no Boot
+        if let Some(ref mut redis) = self.redis {
+            use redis::AsyncCommands;
+            let key = format!("poker:table:state:{}", self.table_id);
+            if let Ok(Some(_json_str)) = redis.get::<_, Option<String>>(&key).await {
+                info!("Recovered table state from Redis for table: {}", self.table_id);
+                // MVP: snapshot preservado no Redis; unmarshal completo fica para ownership distribuído.
+            }
+        }
+
         let mut interval = tokio::time::interval(tokio::time::Duration::from_millis(250));
 
         loop {

@@ -24,8 +24,9 @@ RUN groupadd -g 10001 appgroup && \
 
 WORKDIR /app
 
-# Instala certificados SSL e dependências básicas de sistema
-RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+# Certificados TLS + curl (somente healthcheck Compose em loopback 127.0.0.1)
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copia o binário e as migrations garantindo permissão para o usuário appuser
 COPY --from=builder --chown=appuser:appgroup /app/API-Axum/target/release/poker-api /app/poker-api

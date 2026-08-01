@@ -30,6 +30,8 @@ pub enum RakeRounding {
 #[derive(Debug, Clone)]
 pub struct RakeResult {
     pub total_rake: u64,
+    pub club_rake: u64,
+    pub platform_fee: u64,
     pub per_pot: Vec<PotRakeEntry>,
     pub pots_after_rake: Vec<Pot>,
     pub total_pot_before_rake: u64,
@@ -174,10 +176,18 @@ pub fn deduct_rake_with_rounding_for_players(
     }
 
     let effective_total_rake: u64 = per_pot.iter().map(|entry| entry.rake).sum();
+    
+    // FASE 2: B2B Split - 15% Platform Fee, 85% Club Rake
+    // Arredonda a favor da plataforma (math.ceil-ish) ou floor. Usaremos floor pro platform e resto pro clube.
+    let platform_fee = (effective_total_rake * 15) / 100;
+    let club_rake = effective_total_rake.saturating_sub(platform_fee);
+
     let pots_after_rake = apply_rake_to_pots(pots, &per_pot);
 
     RakeResult {
         total_rake: effective_total_rake,
+        club_rake,
+        platform_fee,
         per_pot,
         pots_after_rake,
         total_pot_before_rake: total_pot,
@@ -246,6 +256,8 @@ fn zero_rake_result(
 ) -> RakeResult {
     RakeResult {
         total_rake: 0,
+        club_rake: 0,
+        platform_fee: 0,
         per_pot: pots
             .iter()
             .enumerate()
@@ -266,4 +278,42 @@ fn apply_rake_to_pots(pots: &[Pot], per_pot: &[PotRakeEntry]) -> Vec<Pot> {
             eligible_players: pot.eligible_players.clone(),
         })
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::types::{Pot, TableConfig};
+
+    #[test]
+    fn b2b_rake_split_always_totals_100_percent() {
+        let config = TableConfig::new(200, 500, 3000); // Rake 5%, cap 30.00
+        let pots = vec![
+            Pot {
+                amount: 1573, // Pote arbitrário
+                eligible_players: vec![uuid::Uuid::new_v4(), uuid::Uuid::new_v4()],
+            },
+        ];
+
+        let result = deduct_rake_with_rounding(
+            &pots,
+            &config,
+            None,
+            RakeRounding::HalfToEven,
+        );
+
+        // A soma do fee da plataforma (15%) + rake do clube (85%) DEVE ser idêntica ao total coletado.
+        assert_eq!(
+            result.platform_fee + result.club_rake,
+            result.total_rake,
+            "Rake math violation! Platform {} + Club {} != Total {}",
+            result.platform_fee, result.club_rake, result.total_rake
+        );
+        
+        // Assert de sanidade dos valores (exato 15% via floor)
+        // O total_rake deve ser min(round(1573 * 500 / 10000), 3000) = round(78.65) = 79
+        assert_eq!(result.total_rake, 79);
+        assert_eq!(result.platform_fee, (79 * 15) / 100); // floor(11.85) = 11
+        assert_eq!(result.club_rake, 79 - 11); // 68
+    }
 }

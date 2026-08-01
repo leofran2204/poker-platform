@@ -4,7 +4,7 @@ Plataforma de poker online **Texas Hold'em Tradicional** (52 cartas) construída
 
 **Domínio do produto (demo/staging):** [zerotiltpoker.net](https://zerotiltpoker.net)
 
-> **Estado (ver `STATUS_OPERACIONAL.json`):** base com revisão local de segurança/arquitetura e caminhos de deploy HTTPS documentados. Isto **não** equivale a certificação de produção: multi-pod de mesas ainda requer ownership distribuído; PIX de produção desabilitado; site público depende de Cloudflare Tunnel (casa) ou VPS.
+> **Estado (ver `STATUS_OPERACIONAL.json`):** S10 — demo HTTPS + B2B SaaS multi-tenant (clubs, rake 15/85, agentes, dashboard admin via **HTTPS**). Isto **não** equivale a certificação de produção: multi-pod de mesas ainda requer ownership distribuído; PIX de produção desabilitado; site público depende de Cloudflare Tunnel (casa) ou VPS.
 
 ## Estado operacional e sincronização
 
@@ -29,11 +29,14 @@ O segundo comando é obrigatório na CI. Se ele falhar, a mudança deve atualiza
 
 | Documento | Propósito | Público |
 |-----------|-----------|---------|
+| **`STATUS_OPERACIONAL.json`** | **Fonte canônica** de ciclo, limites PIX, ownership e validação | Toda a equipe |
 | **`QUALITY.md`** | Documento mestre — qualidade, segurança, negócio, arquitetura, compliance | Toda a equipe |
-| **`BUSINESS_RULES.md`** | Regras de negócio do poker (45 regras documentadas) | Negócio + Dev |
+| **`BUSINESS_RULES.md`** | Regras de negócio do poker (45+ regras documentadas, incl. B2B 15/85) | Negócio + Dev |
+| **`ARQUITETURA_E_APIS.md`** | Contratos de API REST/WSS, admin B2B, protocolo de jogo | Arquiteto + Dev |
 | **`DASHBOARD.md`** | Painel de controle tático — progresso, métricas, backlog | Gestão + Dev |
-| **`CRONOGRAMA.md`** | Roadmap, fases, prazos e marcos | Gestão + Dev |
+| **`CRONOGRAMA.md`** | Roadmap, fases, prazos e marcos (não certifica produção) | Gestão + Dev |
 | **`DEVELOPMENT_LOG.md`** | Histórico cronológico de desenvolvimento | Dev |
+| **`DEMO_AMIGOS.md`** | Como rodar demo play-money para feedback | Dev + ops |
 | **`guia_aprendizado.md`** | Guia consolidado de aprendizado (Protocolo Mark + Regras Rust-only + Sprint S03 + 11 Módulos) | Dev |
 | **`TESTING_GOALS.md`** | Metas e registros históricos; perfil atual de validação | Dev + QA |
 | `Arquitetura-Motor/ARQUITETURA_MOTOR.md` | Arquitetura detalhada do motor Rust | Arquiteto + Dev |
@@ -156,7 +159,7 @@ cargo tarpaulin               # cobertura ≥ 80%
 https://github.com/leofran2204/poker-platform
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-31):** S10 — domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta (Origin CA + Full strict); templates VPS/Hetzner e compose staging-ready. Sem certificação de produção. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ.** Infra e docs de deploy (compose por .env, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel) versionados em master. Carga full-validation e smoke público no domínio ainda pendem de execução após tunnel/VPS no ar. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
+> **Estado operacional sincronizado (2026-08-01):** S10 — B2B SaaS Multi-Tenant White-Label (clubs, rake split 15/85, agentes/rakeback, dashboard admin via HTTPS, lobby MTT); domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta; VPS/Hetzner opcional. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ. Staging/demo apenas; não alegar Launch Ready de produção.** Infra e docs de deploy (compose com healthchecks Postgres/Redis/API/Caddy, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel/.env.production.example) versionados no working tree. Suíte histórica reportada: ~2.051 testes (1.904 Motor Rust + 115 Dioxus + 32 API); full-validation e smoke em https://zerotiltpoker.net ainda pendem de execução. Migration 014 (clubs, memberships, club_agents, club_id em mesas/torneios) e endpoints admin B2B implementados localmente. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
 >
-> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
+> Fonte canônica: [STATUS_OPERACIONAL.json](STATUS_OPERACIONAL.json). Verificação: cargo run --bin documentation-sync -- --check.
 <!-- DOCUMENTATION_SYNC:END -->

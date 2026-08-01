@@ -10,8 +10,9 @@ use dioxus_router::prelude::*;
 // Os nomes devem coincidir com as variantes do enum `Route` (convenção do
 // `dioxus-router` 0.6: a macro `Routable` chama `Home()`, `Login()`, etc.).
 pub use crate::pages::{
+    admin_clubs::AdminClubsPage as AdminClubs,
     admin_security::AdminSecurityPage as AdminSecurity, home::Home, lobby::Lobby, login::Login,
-    register::Register, table::Table,
+    register::Register, table::Table, tournament_lobby::TournamentLobbyPage as TournamentLobby,
 };
 
 /// Enum que define todas as rotas disponíveis na aplicação.
@@ -37,9 +38,17 @@ pub enum Route {
     #[route("/table/:id")]
     Table { id: String },
 
+    /// Tela de lobby de torneio multimesas — recebe `id` do torneio como parâmetro.
+    #[route("/tournament/:id")]
+    TournamentLobby { id: String },
+
     /// Painel de segurança e antifraude administrativo.
     #[route("/admin/security")]
     AdminSecurity {},
+
+    /// Painel B2B de gestão do clube.
+    #[route("/admin/clubs")]
+    AdminClubs {},
 }
 
 /// Componente raiz que monta o `Router` com todas as rotas da aplicação.
@@ -93,6 +102,11 @@ fn Navbar() -> Element {
                     "🎪 Lobby"
                 }
                 Link {
+                    to: Route::AdminClubs {},
+                    class: "text-amber-300 hover:text-white transition-colors",
+                    "🏛️ Gestão B2B"
+                }
+                Link {
                     to: Route::Login {},
                     class: "text-green-200 hover:text-white transition-colors",
                     "🔐 Login"
@@ -111,10 +125,16 @@ mod tests {
     fn test_route_variants() {
         let _home = Route::Home {};
         let _login = Route::Login {};
+        let _register = Route::Register {};
         let _lobby = Route::Lobby {};
         let _table = Route::Table {
             id: "abc-123".to_string(),
         };
+        let _mtt = Route::TournamentLobby {
+            id: "demo-1".to_string(),
+        };
+        let _admin_sec = Route::AdminSecurity {};
+        let _admin_clubs = Route::AdminClubs {};
     }
 
     /// Testa que `Route` implementa `Clone` e `PartialEq`.
@@ -125,5 +145,11 @@ mod tests {
         };
         let r2 = r1.clone();
         assert_eq!(r1, r2);
+
+        let t1 = Route::TournamentLobby {
+            id: "1".to_string(),
+        };
+        let t2 = t1.clone();
+        assert_eq!(t1, t2);
     }
 }

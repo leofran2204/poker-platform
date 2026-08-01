@@ -1,12 +1,13 @@
 # 📅 Cronograma — Plataforma de Poker Online
 
-**Atualizado:** 2026-07-31 | **Status:** Roadmap histórico; ciclo S10 — domínio **zerotiltpoker.net** e caminhos de demo HTTPS (casa/VPS).
+**Atualizado:** 2026-08-01 | **Status:** Roadmap histórico; ciclo S10 — B2B SaaS (clubs/agentes) + domínio **zerotiltpoker.net** e demo HTTPS (casa/VPS).
 **Stack:** Rust para TUDO (backend + APIs + IA + dados + antifraude + autenticação + lobby + front-end Dioxus/WebAssembly)
 
 > ⚠️ **Regra de Ouro:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📐 Specs e regras de negócio em `Documentacao/BUSINESS_RULES.md`.
 > 📋 Acompanhamento tático em `DASHBOARD.md`.
-> **Importante:** os percentuais abaixo descrevem marcos planejados/históricos e **não** certificam lançamento. PIX mock; escala horizontal depende de ownership distribuído. Deploy demo: `DEPLOY_HOME_CLOUDFLARE.md` ou `DEPLOY_HETZNER.md`.
+> 📌 Fonte canônica de estado: `STATUS_OPERACIONAL.json` (prevalece sobre percentuais deste arquivo).
+> **Importante:** os percentuais abaixo descrevem marcos de código/documentação e **não** certificam lançamento em produção. PIX mock; escala horizontal depende de ownership distribuído. Deploy demo: `DEPLOY_HOME_CLOUDFLARE.md` ou `DEPLOY_HETZNER.md`.
 
 ---
 
@@ -14,11 +15,12 @@
 
 ```
 FASE 1 ████████████████████████████ 100%  Fundação (docs + regras + stack)
-FASE 2 ████████████████████████████ 100%  Motor de Jogo Rust + API Axum (1.903 testes + 1M Fuzzing)
+FASE 2 ████████████████████████████ 100%  Motor de Jogo Rust + API Axum (1.904 testes + 1M Fuzzing)
 FASE 3 ████████████████████████████ 100%  Front-end Dioxus (115 testes + Roteamento + WS + Modais PIX)
 FASE 4 ████████████████████████████ 100%  Infraestrutura (Docker Multi-stage + Caddy HTTPS + CI/CD GitHub Actions)
 FASE 5 ████████████████████████████ 100%  Segurança & Pagamentos (TLS 1.3 + JWT + MFA + Hardening + Gateway PIX)
 FASE 6 ████████████████████████████ 100%  IA Antifraude & Analytics (BotDetector + Collusion + Prometheus + Red Team 50w)
+FASE 7 ████████████████████████░░  90%  B2B SaaS Multi-Tenant & Dashboard B2B (Clubs, Rake 15/85, Agentes HTTPS, MTT lobby — sem cert. produção)
 ```
 
 ---
@@ -40,7 +42,7 @@ FASE 6 ████████████████████████�
 
 ---
 
-### ✅ FASE 2 — Motor de Poker em Rust + API Axum (100% — 1.903 testes + 1M Fuzzing)
+### ✅ FASE 2 — Motor de Poker em Rust + API Axum (100% — 1.904 testes + 1M Fuzzing)
 
 **Local:** `Motor-Rust/src/` + `API-Axum/`  
 **Progresso:** ████████████████████████████ 100%
@@ -50,7 +52,7 @@ FASE 6 ████████████████████████�
 | 2.1  | **Deck + Hand Evaluation**               | `deck.rs`               | 18 ✅             | ✅ Completo   | —           |
 | 2.2  | **Side Pots** (all-in múltiplos)         | `side_pots.rs`          | 7 ✅              | ✅ Completo   | —           |
 | 2.3  | **Loss Deflator por Equity pós-rake**     | `loss_deflator.rs`      | limites + integração ✅ | ✅ Completo | Regra 56/66/76/86 |
-| 2.4  | **Rake da Casa & Regra Centavo Ímpar**   | `rake.rs` & `utils.rs`  | 13 ✅             | ✅ Completo   | —           |
+| 2.4  | **Rake da Casa & Regra Centavo Ímpar**   | `rake.rs` & `utils.rs`  | 14 ✅             | ✅ Completo   | —           |
 | 2.5  | **evaluate_hand refatorado** (9 helpers) | `deck.rs`               | —                 | ✅ Completo   | —           |
 | 2.6  | **8 warnings de dead code limpos**       | —                       | —                 | ✅ Completo   | —           |
 | 2.7  | **Tournament Engine**                    | `tournament_engine.rs`  | 19 ✅             | ✅ Completo   | —           |
@@ -62,7 +64,7 @@ FASE 6 ████████████████████████�
 | 2.13 | **Antifraude Unificada (Facade)**        | `antifraud/`            | 117 ✅            | ✅ Completo   | —           |
 | 2.14 | **API Axum (REST + WebSocket Atores)**   | `API-Axum/`              | 34 ✅             | ✅ Completo   | —           |
 | 2.15 | **Fuzzing Extremo Massivo**              | `extreme_fuzz_tests.rs` | 1.000.000 iters ✅| ✅ Completo   | —           |
-|      | **Total Motor Rust**                     |                         | **1.903 testes ✅**| **✅**        |             |
+|      | **Total Motor Rust**                     |                         | **1.904 testes ✅**| **✅**        |             |
 
 ---
 
@@ -129,18 +131,33 @@ FASE 6 ████████████████████████�
 
 ---
 
+### 🟡 FASE 7 — B2B SaaS Multi-Tenant & Dashboard (~90% — código local; sem cert. produção)
+
+| #   | Marco | Status | Notas |
+|-----|-------|--------|-------|
+| 7.1 | Schema `014` clubs / memberships / `club_id` | ✅ Local | Untracked até commit |
+| 7.2 | Rake split 15/85 no motor + crédito `clubs.balance` | ✅ Local | Invariante testada |
+| 7.3 | Admin API clubs + agents + financials/theme/withdraw | ✅ Local | Role `admin` + JWT |
+| 7.4 | Dashboard Dioxus `/admin/clubs` via HTTPS | ✅ Local | Fallback demo sem JWT |
+| 7.5 | Lobby MTT `/tournament/:id` | ✅ Local | UI demo + estrutura blinds/prizepool |
+| 7.6 | Smoke público `https://zerotiltpoker.net` | 🟡 Pendente | Tunnel/VPS operacional |
+| 7.7 | Certificação produção / PIX real | ⏸️ Fora de escopo | Ver STATUS_OPERACIONAL |
+
+---
+
 ## 📈 Resumo do Progresso — Visão Consolidada
 
 | Fase                      | %         | Concluído                                     | Pendente      |
 |---------------------------|-----------|-----------------------------------------------|---------------|
 | **F1 — Fundação**         | **100%**  | 8/8 marcos                                    | 0             |
-| **F2 — Motor Rust + API** | **100%**  | 15/15 módulos (1.903 testes + 1M Fuzzing)     | 0             |
+| **F2 — Motor Rust + API** | **100%**  | 15/15 módulos (1.904 testes + 1M Fuzzing)     | 0             |
 | **F3 — Front-end Dioxus** | **100%**  | 11/11 marcos (115 suítes de teste)            | 0             |
 | **F4 — Infraestrutura**   | **100%**  | 5/5 marcos (Docker + Caddy + CI/CD)           | 0             |
 | **F5 — Segurança & PIX**  | **100%**  | 9/9 marcos (HTTPS + Rate Limit + PIX)         | 0             |
 | **F6 — IA & Red Team**    | **100%**  | 4/4 marcos (1M WS Stress + 50 Red Team workers)| 0             |
+| **F7 — B2B SaaS & Admin** | **~90%**  | Clubs, rake 15/85, agentes, dashboard HTTPS, MTT UI | Go-live demo + cert. produção fora de escopo |
 |                           |           |                                               |               |
-| **Total do Projeto**      | **100%**  | **52 marcos entregues**                       | **0 pendentes**|
+| **Total da plataforma**   | **~98%**  | Marcos de código/demo entregues               | Smoke domínio + PIX real + multi-pod |
 
 ---
 
@@ -159,15 +176,15 @@ FASE 6 ████████████████████████�
 2026-07-22 ██  Hardening Enterprise + Gateway PIX + Red Team + Fuzzing 1M
 2026-07-23 ██  Deep Audit Fixes + Odd Cent Rule (WSOP 68) + snapshots multi-all-in
 2026-07-30 ██  Loss Deflator por equity 56/66/76/86, sempre após o rake
-2026-07-25 ██  100% Concluído — Plataforma Pronta para Produção (Launch Ready)
+2026-08-01 ██  B2B SaaS Multi-Tenant (014: clubs, agents), Rake Split 15/85, dashboard HTTPS, lobby MTT
 ```
 
 ---
 
-> 💡 **Dica:** O projeto atingiu 100% de conclusão com 2.050 testes passando, zero clippy warnings e zero vulnerabilidades.
+> 💡 **Nota (2026-08-01):** a suíte histórica reporta ~2.051 testes e 0 clippy warnings no perfil de rotina. Isso **não** equivale a certificação de produção: PIX real desabilitado, ownership de mesa single-process, smoke em `https://zerotiltpoker.net` ainda pendente. Ver `STATUS_OPERACIONAL.json`.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-07-31):** S10 — domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta (Origin CA + Full strict); templates VPS/Hetzner e compose staging-ready. Sem certificação de produção. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ.** Infra e docs de deploy (compose por .env, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel) versionados em master. Carga full-validation e smoke público no domínio ainda pendem de execução após tunnel/VPS no ar. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
+> **Estado operacional sincronizado (2026-08-01):** S10 — B2B SaaS Multi-Tenant White-Label (clubs, rake split 15/85, agentes/rakeback, dashboard admin via HTTPS, lobby MTT); domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta; VPS/Hetzner opcional. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ. Staging/demo apenas; não alegar Launch Ready de produção.** Infra e docs de deploy (compose com healthchecks Postgres/Redis/API/Caddy, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel/.env.production.example) versionados no working tree. Suíte histórica reportada: ~2.051 testes (1.904 Motor Rust + 115 Dioxus + 32 API); full-validation e smoke em https://zerotiltpoker.net ainda pendem de execução. Migration 014 (clubs, memberships, club_agents, club_id em mesas/torneios) e endpoints admin B2B implementados localmente. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
 >
-> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
+> Fonte canônica: [STATUS_OPERACIONAL.json](STATUS_OPERACIONAL.json). Verificação: cargo run --bin documentation-sync -- --check.
 <!-- DOCUMENTATION_SYNC:END -->

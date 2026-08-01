@@ -233,6 +233,30 @@ async fn post_authenticated<T: DeserializeOwned>(
     handle_response::<T>(res).await
 }
 
+/// Faz uma requisição PUT autenticada com body JSON (HTTPS).
+async fn put_authenticated<T: DeserializeOwned>(
+    path: &str,
+    body: &impl Serialize,
+) -> Result<T, String> {
+    let url = api_url(path);
+    let headers = default_headers();
+    let body_str =
+        serde_json::to_string(body).map_err(|e| format!("Erro ao serializar body: {e}"))?;
+
+    let mut req = Request::put(&url);
+    for (key, val) in &headers {
+        req = req.header(key, val);
+    }
+
+    let res = req
+        .body(body_str)
+        .map_err(|e| format!("Erro ao montar requisição: {e}"))?
+        .send()
+        .await
+        .map_err(|e| format!("Erro de rede: {e}"))?;
+    handle_response::<T>(res).await
+}
+
 /// Faz uma requisição POST pública (sem auth) com body JSON.
 async fn post_public<T: DeserializeOwned>(path: &str, body: &impl Serialize) -> Result<T, String> {
     let url = api_url(path);
@@ -356,11 +380,119 @@ pub async fn get_hand_history(hand_id: &str) -> Result<serde_json::Value, String
     get_authenticated::<serde_json::Value>(&format!("/api/hand-history/{hand_id}")).await
 }
 
+// ─── Endpoints Admin B2B (HTTPS, JWT admin) ───
+
+#[derive(Debug, Clone, Deserialize, PartialEq)]
+pub struct ClubResponse {
+    pub id: Option<String>,
+    pub name: String,
+    pub subdomain: String,
+    #[serde(default)]
+    pub custom_theme_json: serde_json::Value,
+    pub status: String,
+}
+
+#[derive(Debug, Clone, Deserialize, PartialEq)]
+pub struct ClubFinancialsResponse {
+    pub club_id: String,
+    pub name: String,
+    /// Saldo do clube em centavos inteiros.
+    pub balance: i64,
+    pub total_rake_generated: i64,
+    pub net_club_rake: i64,
+    pub platform_fee_paid: i64,
+}
+
+#[derive(Debug, Clone, Deserialize, PartialEq)]
+pub struct ClubAgentResponse {
+    pub agent_id: String,
+    pub name: String,
+    pub rakeback_percentage: u8,
+    pub total_players_referred: u32,
+    /// Comissão acumulada em centavos inteiros.
+    pub total_commission_earned: u64,
+}
+
+#[derive(Debug, Serialize)]
+pub struct CreateClubAgentRequest {
+    pub name: String,
+    pub rakeback_percentage: u8,
+}
+
+#[derive(Debug, Serialize)]
+pub struct WithdrawClubBalanceRequest {
+    /// Valor do saque em centavos inteiros.
+    pub amount: u64,
+    pub pix_key: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct UpdateClubThemeRequest {
+    pub custom_theme_json: serde_json::Value,
+}
+
+/// GET /api/admin/clubs — lista clubes (HTTPS + Bearer admin).
+pub async fn list_admin_clubs() -> Result<Vec<ClubResponse>, String> {
+    get_authenticated::<Vec<ClubResponse>>("/api/admin/clubs").await
+}
+
+/// GET /api/admin/clubs/{id}/financials
+pub async fn get_club_financials(club_id: &str) -> Result<ClubFinancialsResponse, String> {
+    get_authenticated::<ClubFinancialsResponse>(&format!(
+        "/api/admin/clubs/{club_id}/financials"
+    ))
+    .await
+}
+
+/// GET /api/admin/clubs/{id}/agents
+pub async fn list_club_agents(club_id: &str) -> Result<Vec<ClubAgentResponse>, String> {
+    get_authenticated::<Vec<ClubAgentResponse>>(&format!(
+        "/api/admin/clubs/{club_id}/agents"
+    ))
+    .await
+}
+
+/// POST /api/admin/clubs/{id}/agents
+pub async fn create_club_agent(
+    club_id: &str,
+    req: &CreateClubAgentRequest,
+) -> Result<ClubAgentResponse, String> {
+    post_authenticated::<ClubAgentResponse>(
+        &format!("/api/admin/clubs/{club_id}/agents"),
+        req,
+    )
+    .await
+}
+
+/// POST /api/admin/clubs/{id}/withdraw
+pub async fn withdraw_club_balance(
+    club_id: &str,
+    req: &WithdrawClubBalanceRequest,
+) -> Result<serde_json::Value, String> {
+    post_authenticated::<serde_json::Value>(
+        &format!("/api/admin/clubs/{club_id}/withdraw"),
+        req,
+    )
+    .await
+}
+
+/// PUT /api/admin/clubs/{id}/theme
+pub async fn update_club_theme(
+    club_id: &str,
+    req: &UpdateClubThemeRequest,
+) -> Result<serde_json::Value, String> {
+    put_authenticated::<serde_json::Value>(
+        &format!("/api/admin/clubs/{club_id}/theme"),
+        req,
+    )
+    .await
+}
+
 // ─── Health Check ───
 
 /// GET /health
 ///
-/// Verifica se a API está online.
+/// Verifica se a API está online (mesmo origin HTTPS em deploy).
 pub async fn health_check() -> Result<String, String> {
     let url = api_url("/health");
     let res = Request::get(&url)
