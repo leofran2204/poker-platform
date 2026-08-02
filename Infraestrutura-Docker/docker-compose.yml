@@ -108,8 +108,8 @@ services:
       poker_api:
         condition: service_healthy
     healthcheck:
-      # Proxy Caddy respondendo na origem (HTTP local; TLS no host público)
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/"]
+      # HTTP /caddy-health (sem redirect) — ver Caddyfile bloco http://
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/caddy-health"]
       interval: 10s
       timeout: 5s
       retries: 8

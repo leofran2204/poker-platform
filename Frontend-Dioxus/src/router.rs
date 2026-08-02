@@ -63,9 +63,10 @@ pub enum Route {
 /// └── <Outlet /> (renderiza a página da rota atual)
 /// ```
 pub fn root() -> Element {
+    // Estilos inline: o index.html usa CSS puro (sem Tailwind CDN).
     rsx! {
         div {
-            class: "min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-emerald-900 text-white",
+            style: "min-height: 100vh; background: linear-gradient(180deg, #1a3a1a 0%, #0f2a0f 100%); color: #e8e0d0;",
             Navbar {}
             Router::<Route> {}
         }
@@ -79,36 +80,36 @@ pub fn root() -> Element {
 fn Navbar() -> Element {
     rsx! {
         nav {
-            class: "bg-green-950/80 backdrop-blur-sm border-b border-green-700/50 px-6 py-3 flex items-center justify-between shadow-lg",
+            style: "background: #0f2a0f; border-bottom: 2px solid #8b6914; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between;",
             div {
-                class: "flex items-center gap-2",
-                span { class: "text-2xl", "🃏" }
+                style: "display: flex; align-items: center; gap: 8px;",
+                span { style: "font-size: 1.5rem;", "🃏" }
                 Link {
                     to: Route::Home {},
-                    class: "text-xl font-bold text-yellow-400 hover:text-yellow-300 transition-colors",
+                    style: "font-size: 1.25rem; font-weight: 700; color: #d4a843; text-decoration: none;",
                     "Poker Project"
                 }
             }
             div {
-                class: "flex gap-4 text-sm font-semibold",
+                style: "display: flex; gap: 16px; font-size: 0.875rem; font-weight: 600;",
                 Link {
                     to: Route::Home {},
-                    class: "text-green-200 hover:text-white transition-colors",
+                    style: "color: #7ab87a; text-decoration: none;",
                     "🏠 Início"
                 }
                 Link {
                     to: Route::Lobby {},
-                    class: "text-green-200 hover:text-white transition-colors",
+                    style: "color: #7ab87a; text-decoration: none;",
                     "🎪 Lobby"
                 }
                 Link {
                     to: Route::AdminClubs {},
-                    class: "text-amber-300 hover:text-white transition-colors",
+                    style: "color: #d4a843; text-decoration: none;",
                     "🏛️ Gestão B2B"
                 }
                 Link {
                     to: Route::Login {},
-                    class: "text-green-200 hover:text-white transition-colors",
+                    style: "color: #7ab87a; text-decoration: none;",
                     "🔐 Login"
                 }
             }

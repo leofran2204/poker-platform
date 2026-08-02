@@ -21,9 +21,10 @@ WORKDIR /app/Frontend-Dioxus
 RUN rm -f rust-toolchain.toml rust-toolchain
 
 # Compila o projeto para WebAssembly (feature web = default do Cargo.toml)
-RUN cargo build --release --target wasm32-unknown-unknown --features web
+RUN CARGO_BUILD_JOBS=1 cargo build --release --target wasm32-unknown-unknown --features web
 
 # Gera bindings JS/WASM; nomes dependem do crate (hífen vs underscore).
+# boot.js: await init + erro visível (evita tela verde silenciosa).
 RUN mkdir dist && \
     wasm-bindgen --target web --out-dir dist --no-typescript target/wasm32-unknown-unknown/release/poker-frontend.wasm && \
     cp assets/index.html dist/index.html && \
@@ -32,7 +33,23 @@ RUN mkdir dist && \
     elif [ -f dist/poker_frontend.js ]; then JS=poker_frontend.js; \
     else echo "wasm-bindgen JS entry not found" >&2; ls -la dist; exit 1; fi && \
     WASM_BG="${JS%.js}_bg.wasm" && \
-    sed -i "s|</body>|<script type=\"module\">import init from \"./${JS}\"; init({ module_or_path: \"./${WASM_BG}\" });</script></body>|" dist/index.html
+    printf '%s\n' \
+      "import init from \"./${JS}\";" \
+      "async function boot() {" \
+      "  try {" \
+      "    await init({ module_or_path: new URL(\"./${WASM_BG}\", import.meta.url) });" \
+      "  } catch (e) {" \
+      "    console.error(e);" \
+      "    const el = document.getElementById(\"main\");" \
+      "    if (el) {" \
+      "      el.innerHTML = \"<pre style='color:#ffcc66;padding:1.5rem;white-space:pre-wrap;font:14px monospace'>Falha ao carregar o app WASM:\\n\"" \
+      "        + String(e) + (e && e.stack ? \"\\n\" + e.stack : \"\") + \"</pre>\";" \
+      "    }" \
+      "  }" \
+      "}" \
+      "boot();" \
+      > dist/boot.js && \
+    sed -i 's|</body>|<script type="module" src="./boot.js"></script></body>|' dist/index.html
 
 # Stage 2: Servidor estático leve usando Caddy
 FROM caddy:2-alpine

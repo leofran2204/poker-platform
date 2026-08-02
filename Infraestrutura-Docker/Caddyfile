@@ -8,6 +8,15 @@
 # CORS da API: https://zerotiltpoker.net (.env.staging / .env.tunnel).
 # A porta 80, quando publicada, é usada pelo redirecionamento / ACME do Caddy.
 
+# Healthcheck HTTP sem redirect (Docker wget em :80)
+http://{$DOMAIN_NAME:localhost} {
+	handle /caddy-health {
+		respond "OK" 200
+	}
+	# Demais rotas HTTP → HTTPS
+	redir https://{host}{uri} 308
+}
+
 {$DOMAIN_NAME:localhost} {
 	# Logging estruturado em JSON para stdout
 	log {
@@ -16,18 +25,22 @@
 	}
 
 	# Security Headers (OWASP Recommended)
+	# connect-src inclui https: para fetch do .wasm e API same-origin.
+	# script-src com wasm-unsafe-eval para WebAssembly.
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 		X-Frame-Options "DENY"
 		X-Content-Type-Options "nosniff"
 		X-XSS-Protection "1; mode=block"
 		Referrer-Policy "strict-origin-when-cross-origin"
-		Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' wss:; img-src 'self' data:;"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https: wss: ws:; img-src 'self' data: blob:; worker-src 'self' blob:; font-src 'self' data:;"
 		-Server
 	}
 
-	# Handlers explícitos são processados antes do fallback da SPA. Assim, as
-	# rotas de plataforma não podem ser reescritas para index.html.
+	@wasm path *.wasm
+	header @wasm Content-Type application/wasm
+
+	# Handlers explícitos são processados antes do fallback da SPA.
 	handle /caddy-health {
 		respond "OK" 200
 	}
