@@ -518,7 +518,11 @@ pub fn AdminClubsPage() -> Element {
                     }
                     button {
                         class: "px-4 py-2 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-lg hover:bg-amber-500/20 text-sm font-semibold transition-all",
-                        onclick: move |_| show_agent_form.set(!*show_agent_form.read()),
+                        onclick: move |_| {
+                            // Split read/write across statements to avoid E0502.
+                            let next = !*show_agent_form.read();
+                            show_agent_form.set(next);
+                        },
                         if *show_agent_form.read() { "✖ Fechar formulário" } else { "➕ Cadastrar Novo Agente" }
                     }
                 }
