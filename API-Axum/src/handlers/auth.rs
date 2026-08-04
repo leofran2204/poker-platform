@@ -363,7 +363,7 @@ pub async fn register(
     if state.require_email_verification {
         if let Err(e) = issue_verification_code(&state, &user.id, &user.email, &user.username).await
         {
-            tracing::error!(error = %e, "failed to issue verification code after register");
+            tracing::error!(error = ?e, "failed to issue verification code after register");
             // Conta criada; usuário pode reenviar. Não desfaz o registro.
         }
         return Ok(Json(json!({
