@@ -1,0 +1,68 @@
+# Caddyfile TEMPORÁRIO — HTTPS com certificado interno (self-signed).
+# Use quando Let's Encrypt estiver em rate limit (HTTP 429).
+#
+#   cp Caddyfile.tls-internal Caddyfile
+#   docker compose up -d --force-recreate poker_frontend
+#
+# Browser vai avisar "Não seguro" — avançar mesmo assim (demo).
+# Após o rate limit (ex.: 2026-08-05 ~07:40 UTC), volte ao Caddyfile com LE:
+#   git checkout -- Caddyfile
+#   docker compose up -d --force-recreate poker_frontend
+#
+# NÃO use em produção real; só para desbloquear demo.
+
+http://127.0.0.1 {
+	handle /caddy-health {
+		respond "OK" 200
+	}
+	respond "not found" 404
+}
+
+http://{$DOMAIN_NAME:localhost} {
+	handle /caddy-health {
+		respond "OK" 200
+	}
+	redir https://{host}{uri} 308
+}
+
+{$DOMAIN_NAME:localhost} {
+	# Certificado local do Caddy (não passa no Let's Encrypt)
+	tls internal
+
+	log {
+		output stdout
+		format json
+	}
+
+	header {
+		X-Frame-Options "DENY"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https: wss: ws:; img-src 'self' data: blob:; font-src 'self' data:;"
+		-Server
+	}
+
+	handle /caddy-health {
+		respond "OK" 200
+	}
+
+	handle /api/* {
+		reverse_proxy poker_api:3000
+	}
+
+	handle /ws/* {
+		reverse_proxy poker_api:3000 {
+			header_up Host {host}
+		}
+	}
+
+	handle /health {
+		reverse_proxy poker_api:3000
+	}
+
+	handle {
+		root * /usr/share/caddy
+		try_files {path} /index.html
+		file_server
+	}
+}

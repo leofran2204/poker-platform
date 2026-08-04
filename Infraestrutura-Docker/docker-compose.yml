@@ -102,9 +102,13 @@ services:
     environment:
       # Caddyfile usa {$DOMAIN_NAME:localhost} — staging: zerotiltpoker.net
       - DOMAIN_NAME=${DOMAIN_NAME:-localhost}
-    # Caddyfile do host sobrescreve o da imagem — fix de health sem rebuild SPA
+    # Caddyfile do host sobrescreve o da imagem — fix de health sem rebuild SPA.
+    # caddy_data/caddy_config PERSISTEM certificados LE (NÃO usar tmpfs em /data —
+    # cada recreate pedia cert novo e estourava o rate limit 5/semana do Let's Encrypt).
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
     ports:
       # Únicas portas públicas da stack (HTTPS via Caddy + Let's Encrypt / Origin CA)
       - "80:80"
@@ -125,8 +129,6 @@ services:
       - /tmp:rw,noexec,nosuid
       - /var/run:rw,noexec,nosuid
       - /var/cache/caddy:rw,noexec,nosuid
-      - /config/caddy:rw,noexec,nosuid
-      - /data/caddy:rw,noexec,nosuid
     cap_drop:
       - ALL
     cap_add:
@@ -137,3 +139,5 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  caddy_data:
+  caddy_config:
