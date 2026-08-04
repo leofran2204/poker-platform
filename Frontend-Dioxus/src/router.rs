@@ -18,6 +18,7 @@ pub use crate::pages::{
 /// Enum que define todas as rotas disponíveis na aplicação.
 #[derive(Routable, Clone, Debug, PartialEq)]
 pub enum Route {
+    #[layout(AppLayout)]
     /// Rota raiz — landing page com botões Jogar/Configurar.
     #[route("/")]
     Home {},
@@ -49,25 +50,25 @@ pub enum Route {
     /// Painel B2B de gestão do clube.
     #[route("/admin/clubs")]
     AdminClubs {},
+    #[end_layout]
+}
+
+/// Layout principal da aplicação que contém a Navbar e a saída da rota atual (Outlet).
+#[component]
+fn AppLayout() -> Element {
+    rsx! {
+        Navbar {}
+        Outlet::<Route> {}
+    }
 }
 
 /// Componente raiz que monta o `Router` com todas as rotas da aplicação.
 ///
 /// Este é o componente que deve ser passado para `launch()` no `main.rs`.
-///
-/// # Estrutura
-///
-/// ```text
-/// Router
-/// ├── navbar (sempre visível)
-/// └── <Outlet /> (renderiza a página da rota atual)
-/// ```
 pub fn root() -> Element {
-    // Estilos inline: o index.html usa CSS puro (sem Tailwind CDN).
     rsx! {
         div {
             style: "min-height: 100vh; background: linear-gradient(180deg, #1a3a1a 0%, #0f2a0f 100%); color: #e8e0d0;",
-            Navbar {}
             Router::<Route> {}
         }
     }
