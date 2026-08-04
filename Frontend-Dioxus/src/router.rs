@@ -50,7 +50,6 @@ pub enum Route {
     /// Painel B2B de gestão do clube.
     #[route("/admin/clubs")]
     AdminClubs {},
-    #[end_layout]
 }
 
 /// Layout principal da aplicação que contém a Navbar e a saída da rota atual (Outlet).
