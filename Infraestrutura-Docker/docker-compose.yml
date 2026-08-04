@@ -100,6 +100,9 @@ services:
     environment:
       # Caddyfile usa {$DOMAIN_NAME:localhost} — staging: zerotiltpoker.net
       - DOMAIN_NAME=${DOMAIN_NAME:-localhost}
+    # Caddyfile do host sobrescreve o da imagem — fix de health sem rebuild SPA
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
     ports:
       # Únicas portas públicas da stack (HTTPS via Caddy + Let's Encrypt / Origin CA)
       - "80:80"
@@ -108,12 +111,12 @@ services:
       poker_api:
         condition: service_healthy
     healthcheck:
-      # HTTP /caddy-health (sem redirect) — ver Caddyfile bloco http://
+      # HTTP /caddy-health em 127.0.0.1 (Caddyfile bloco http://127.0.0.1)
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1/caddy-health"]
       interval: 10s
       timeout: 5s
       retries: 8
-      start_period: 20s
+      start_period: 30s
     # ─── Hardening de Segurança (OWASP Container Security) ───
     read_only: true
     tmpfs:

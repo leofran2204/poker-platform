@@ -8,7 +8,16 @@
 # CORS da API: https://zerotiltpoker.net (.env.staging / .env.tunnel).
 # A porta 80, quando publicada, é usada pelo redirecionamento / ACME do Caddy.
 
-# Healthcheck HTTP sem redirect (Docker wget em :80)
+# Healthcheck HTTP sem redirect (Docker wget usa Host: 127.0.0.1 — NÃO
+# casa com http://{$DOMAIN_NAME}, o que deixava poker_frontend "unhealthy").
+http://127.0.0.1 {
+	handle /caddy-health {
+		respond "OK" 200
+	}
+	respond "not found" 404
+}
+
+# HTTP público do domínio: health + redirect para HTTPS (ACME/LE na 80 via Caddy).
 http://{$DOMAIN_NAME:localhost} {
 	handle /caddy-health {
 		respond "OK" 200
