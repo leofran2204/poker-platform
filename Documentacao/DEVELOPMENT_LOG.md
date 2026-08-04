@@ -1,9 +1,22 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-08-01
+**Atualizado:** 2026-08-04
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 > Painel tático em `DASHBOARD.md`. Cronograma em `CRONOGRAMA.md`. Estado canônico em `STATUS_OPERACIONAL.json` (prevalece sobre retrospectivas históricas que digam “Launch Ready”).
+
+---
+
+## 📌 2026-08-04 — S11: Frontend TypeScript + stack híbrida
+
+| Item | Detalhe |
+|------|---------|
+| **Decisão** | Abandonar regra “100% Rust no frontend”. UI canônica em **TypeScript + React + Vite + Tailwind** (`Frontend-Web/`). |
+| **Visual** | Skin moderna inspirada no **Full Tilt** (felt, rail dourado, lobby tabular) — sem estética genérica de landing “AI”. |
+| **Deploy** | `docker-compose` → `Frontend-Web/Dockerfile`; `Frontend-Dioxus/` marcado legado. |
+| **Docs** | `ARQUITETURA_MOTOR.md` v4.0, BUSINESS_RULES, README, DASHBOARD, STATUS_OPERACIONAL, QUALITY, CRONOGRAMA. |
+| **Regulação** | Trilho de compliance / real-money planejado para **janeiro de 2027**. |
+| **Build** | `npm run build` em Frontend-Web OK (Vite produção). |
 
 ---
 

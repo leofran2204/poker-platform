@@ -25,20 +25,17 @@ http://{$DOMAIN_NAME:localhost} {
 	}
 
 	# Security Headers (OWASP Recommended)
-	# connect-src inclui https: para fetch do .wasm e API same-origin.
-	# script-src com wasm-unsafe-eval para WebAssembly.
+	# SPA TypeScript/React (Vite): scripts e estilos do próprio origin.
+	# connect-src: API same-origin + WSS.
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 		X-Frame-Options "DENY"
 		X-Content-Type-Options "nosniff"
 		X-XSS-Protection "1; mode=block"
 		Referrer-Policy "strict-origin-when-cross-origin"
-		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https: wss: ws:; img-src 'self' data: blob:; worker-src 'self' blob:; font-src 'self' data:;"
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https: wss: ws:; img-src 'self' data: blob:; font-src 'self' data:;"
 		-Server
 	}
-
-	@wasm path *.wasm
-	header @wasm Content-Type application/wasm
 
 	# Handlers explícitos são processados antes do fallback da SPA.
 	handle /caddy-health {
@@ -60,7 +57,7 @@ http://{$DOMAIN_NAME:localhost} {
 		reverse_proxy poker_api:3000
 	}
 
-	# Fallback para index.html (Single Page Application e Dioxus Router).
+	# Fallback para index.html (SPA React Router — Frontend-Web).
 	handle {
 		root * /usr/share/caddy
 		try_files {path} /index.html

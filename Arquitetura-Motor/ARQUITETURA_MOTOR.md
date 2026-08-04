@@ -1,83 +1,80 @@
 # 🏗️ Arquitetura do Motor Central da Plataforma de Poker Online
 
-**Versão:** 3.3  
-**Data:** 2026-08-01  
+**Versão:** 4.0  
+**Data:** 2026-08-04  
 **Status:** Documento oficial — fonte da verdade para decisões de arquitetura de **motor e stack**
 
-> Este documento é a **fonte da verdade** sobre a arquitetura da plataforma (stack Rust, motor, camadas). Qualquer decisão de design, escolha de tecnologia ou nova pasta deve ser consultada aqui **antes** de iniciar a codificação.
+> Este documento é a **fonte da verdade** sobre a arquitetura da plataforma (motor, API, frontend e camadas). Qualquer decisão de design, escolha de tecnologia ou nova pasta deve ser consultada aqui **antes** de iniciar a codificação.
 >
-> **Estado operacional** (ciclo S10, PIX, ownership, certificação): prevalece [`Documentacao/STATUS_OPERACIONAL.json`](../Documentacao/STATUS_OPERACIONAL.json). Transporte público: **HTTPS**.
+> **Estado operacional** (ciclo S10+, PIX, ownership, certificação, frontend TS): prevalece [`Documentacao/STATUS_OPERACIONAL.json`](../Documentacao/STATUS_OPERACIONAL.json). Transporte público: **HTTPS**.
+>
+> **Regulação / compliance de jogo e dinheiro real:** trilho planejado para **janeiro de 2027** (não bloqueia demo play-money).
 
 ---
 
 ## 1. 📐 Metodologia — SDD e MCP
 
 - **SDD (Spec-Driven Development):** todas as funcionalidades começam com especificações formais (contratos de API, schemas JSON, regras de negócio).
-- Specs são a "fonte da verdade" e guiam o desenvolvimento em Rust.
+- Specs são a "fonte da verdade" e guiam o desenvolvimento do **motor e da API em Rust** e do **frontend em TypeScript**.
 - **MCP (Middleware Control Plane):** garante que os serviços sigam as specs, centraliza logs e políticas de segurança.
 - **WebMCP:** interface web para admins configurarem specs, monitorarem serviços e acessarem relatórios.
 
 ---
 
-## 2. 🦀 Arquitetura de Linguagens — Stack 100% Rust (STACK ALVO v3.1)
+## 2. 🏗️ Arquitetura de Linguagens — Stack híbrida (STACK ALVO v4.0)
 
-> **Atualizado em 2026-07-03:** Stack consolidada em Rust para TUDO — backend, APIs, IA, dados, antifraude, autenticação, lobby e **front-end (Dioxus/WebAssembly)**. ❌ TypeScript/React removido. ❌ Python removido. ❌ Go removido.
+> **Atualizado em 2026-08-04:**  
+> - **Backend crítico (motor, API, antifraude, pagamentos, ledger):** **Rust**  
+> - **Frontend (UI jogador + admin B2B):** **TypeScript + React + Vite + Tailwind CSS** em `Frontend-Web/`  
+> - **Direção visual:** moderno, denso, inspirado no **Full Tilt** clássico (felt, rail dourado, lobby tabular) — sem estética genérica de “site feito por IA”  
+> - `Frontend-Dioxus/` permanece como **legado** (não é o deploy canônico)
 
-| Camada                                                                                                                  | Linguagem  | Responsabilidade                                                                                                                              |
-|-------------------------------------------------------------------------------------------------------------------------|------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| **Tudo (backend + APIs + IA + dados + antifraude + autenticação + lobby + front-end)**                                  | **Rust**   | Motor crítico de jogo (cálculo de mãos, RNG, criptografia), APIs REST/WebSocket, IA de jogo, antifraude, estatísticas, relatórios, autenticação, lobby, controle de usuários, **UI para jogadores e administradores (Dioxus/WebAssembly)** |
-| **Comunicação**                                                                                                         | **JSON**   | Formato universal entre módulos (Rust ↔ Rust)                                                                                                |
+| Camada | Linguagem | Responsabilidade |
+|--------|-----------|------------------|
+| **Motor de jogo, API, antifraude, auth server-side, ledger** | **Rust** | Regras de poker, RNG, side pots, rake, loss deflator, REST/WSS (Axum), persistência |
+| **Front-end (SPA)** | **TypeScript (React)** | Lobby, mesa, login/registro, admin clubs; CSS/Tailwind; same-origin via Caddy |
+| **Comunicação** | **JSON** | Contratos REST + mensagens WebSocket |
 
-### 2.1 🦀 Por que Rust em TUDO?
+### 2.1 🦀 Por que Rust no backend e no motor?
 
 - **Performance:** cálculo de mãos em tempo real sem latência perceptível.
 - **Segurança de memória:** elimina classes inteiras de bugs (buffer overflow, use-after-free).
 - **Concorrência:** modelo async/await nativo, ideal para milhares de conexões WebSocket simultâneas.
 - **Criptografia:** crates auditados (`ring`, `rustls`, `aes-gcm`) para TLS 1.3 e AES-256.
 - **RNG criptograficamente seguro:** essencial para integridade do jogo.
-- **Ecossistema de IA:** `candle`, `burn`, `tch-rs` para ML e inferência em Rust.
-- **Unificação:** uma única linguagem elimina fricção entre camadas, reduz complexidade de deploy e simplifica a equipe.
+- **Dinheiro em `u64` centavos:** precisão bancária no motor e na API.
 
-### 2.2 🖥️ Por que Rust (Dioxus) no Frontend WebAssembly?
+### 2.2 🖥️ Por que TypeScript no Frontend (decisão 2026-08)?
 
-- **Mesma linguagem do backend:** componentes, estado e lógica compartilhados sem boundary JS↔Rust.
-- **WebAssembly nativo:** performance de código compilado no navegador, sem interpretação.
-- **Dioxus:** framework React-like com suporte a web, desktop e mobile a partir do mesmo código.
-- **Tipagem forte:** Rust elimina undefined is not a function e null pointer exceptions.
-- **Comunicação direta:** WebSocket via `wasm-bindgen` + `gloo-net` para eventos em tempo real.
-- **SSR nativo:** Dioxus suporta Server-Side Rendering sem ferramentas externas.
+- **Velocidade de UI/UX:** design system Full Tilt + Tailwind, iteração de layout sem rebuild WASM.
+- **Ecossistema web maduro:** tooling, designers, componentes e acessibilidade.
+- **Contrato estável com a API:** o frontend **não** reimplementa regras de dinheiro; só consome JSON/WSS.
+- **Deploy mais leve:** build Node/Vite em minutos vs. toolchain `wasm32` + `wasm-bindgen` na VPS.
+- **Regra abandonada:** “100% Rust incluindo frontend” — o motor e a API continuam 100% Rust; a UI não.
 
 ### 2.3 🔗 Comunicação entre Camadas — JSON + WebSocket
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │              🔐 CAMADA DE SEGURANÇA (transversal a tudo)            │
-│   TLS 1.3 · AES-256 · JWT · MFA · bcrypt · PCI DSS · Antifraude    │
+│   TLS 1.3 · JWT · MFA · rate limit · antifraude · Caddy headers    │
 └─────────────────────────────────────────────────────────────────────┘
 
 ┌──────────────┐      JSON/HTTPS (TLS)     ┌──────────────┐
 │   Front-end  │ ◄───────────────────────► │   Backend    │
-│ Rust (Dioxus)│   WebSocket Seguro (WSS)  │     Rust     │
-│  WebAssembly │   JWT + MFA               │  (Axum/Actix)│
+│ TypeScript   │   WebSocket Seguro (WSS)  │  Rust Axum   │
+│ React + Vite │   JWT + ticket WS         │  + Motor     │
 └──────┬───────┘                           └──────┬───────┘
-       │                                         │
        │                                         │
        │                                         ▼
        │                                  ┌──────────────┐
        │                                  │  PostgreSQL  │
-       │                                  │ AES-256 em   │
-       │                                  │ repouso      │
-       │                                  └──────┬───────┘
-       │                                         │
-       │                                         ▼
-       │                                  ┌──────────────┐
-       │                                  │ ELK + Grafana│
-       │                                  │ Logs + Audit │
+       │                                  │  + Redis     │
        │                                  └──────────────┘
 ```
 
-- **Rust (Dioxus) ↔ Rust (Axum/Actix):** HTTPS REST + WSS (eventos de jogo em tempo real).
-- **Formato universal:** JSON em todas as fronteiras (schemas validados).
+- **TypeScript (React) ↔ Rust (Axum):** HTTPS REST + WSS (eventos de jogo em tempo real), same-origin atrás do Caddy.
+- **Formato universal:** JSON em todas as fronteiras (schemas validados no servidor).
 - **🔐 Segurança:** TODA comunicação usa TLS 1.3. TODO dado sensível é criptografado.
 
 ---
@@ -137,7 +134,7 @@
 ### 5.5 🔄 Diagrama de Fluxo Seguro — Login e Jogada
 
 ```
-Jogador                    Front-end (Rust/Dioxus)         Backend (Rust)              Banco (PG)
+Jogador                    Front-end (TypeScript/React)    Backend (Rust)              Banco (PG)
    │                            │                            │                          │
    │ 1. Login (senha+MFA)      │                            │                          │
    ├───────────────────────────►│                            │                          │
@@ -172,11 +169,11 @@ Jogador                    Front-end (Rust/Dioxus)         Backend (Rust)       
 
 ## 6. 🔄 Fluxo de Dados — Da Jogada ao Resultado
 
-1. Jogador faz jogada no front-end (Rust/Dioxus WebAssembly) → envia via WebSocket.
+1. Jogador faz jogada no front-end (TypeScript/React) → envia via WebSocket.
 2. Backend Rust recebe → valida → motor calcula → resultado em JSON.
 3. Backend Rust registra no PostgreSQL → publica evento em Kafka.
 4. Backend Rust (IA/antifraude) consome eventos → gera estatísticas, detecta fraude → resultados em JSON.
-5. Front-end Rust/Dioxus consome APIs → renderiza mesas, dashboards.
+5. Front-end TypeScript/React consome APIs → renderiza mesas, dashboards.
 6. MCP valida specs e segurança → WebMCP mostra status e relatórios.
 
 ---
@@ -192,7 +189,7 @@ Jogador                    Front-end (Rust/Dioxus)         Backend (Rust)       
 
 ## 8. ✅ Estado Atual da Implementação — Módulos e Testes
 
-> ⚡ **Stack 100% Rust** — sem Node.js, Python, Go ou TypeScript. Pastas legadas (01, 02, 03, 06) foram deletadas em 2026-07-03.
+> ⚡ **Stack v4.0:** Rust no motor/API; TypeScript no frontend (`Frontend-Web`). Node só no build da SPA.
 
 | Pasta | Conteúdo | Status |
 |-------|----------|--------|
@@ -200,7 +197,8 @@ Jogador                    Front-end (Rust/Dioxus)         Backend (Rust)       
 | `Documentacao/` | Documentação do projeto | ✅ Ativo |
 | `Arquitetura-Motor/` | Este documento | ✅ Ativo |
 | `Motor-Rust/` | Motor de jogo Rust (11 módulos + 4 antifraude, 1816 testes) | ✅ Ativo |
-| `Frontend-Dioxus/` | Front-end WebAssembly com Dioxus 0.6 | ✅ Ativo (104 testes) |
+| `Frontend-Web/` | Front-end TypeScript + React + Vite + Tailwind (Full Tilt skin) | ✅ Ativo (deploy canônico) |
+| `Frontend-Dioxus/` | Legado WASM/Dioxus 0.6 | 📦 Legado (não canônico) |
 | `API-Axum/` | API HTTPS/WSS (Axum + Tokio) | ✅ Ativo |
 
 ---

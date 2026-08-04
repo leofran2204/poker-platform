@@ -19,7 +19,7 @@ O arquivo `docker-compose.yml` orquestra:
 - **`postgres`**: PostgreSQL 15
 - **`redis`**: Redis 7
 - **`poker_api`**: API Axum / motor
-- **`poker_frontend`**: Caddy + SPA Dioxus WASM
+- **`poker_frontend`**: Caddy + SPA TypeScript (`Frontend-Web` / Vite build)
 
 > Kafka/Zookeeper **não** fazem parte do compose atual.
 

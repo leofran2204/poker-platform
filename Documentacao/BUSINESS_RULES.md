@@ -7,29 +7,30 @@
 
 ---
 
-## 0. 🦀 Stack Alvo — Rust para Toda a Plataforma (atualizado em 2026-07-03)
+## 0. 🏗️ Stack Alvo — Backend Rust + Frontend TypeScript (atualizado em 2026-08-04)
 
-| Camada            | Linguagem                      | Responsabilidade                                  |
-|-------------------|--------------------------------|---------------------------------------------------|
-| **Backend**       | **Rust**                       | Motor de jogo, APIs, autenticação, lobby          |
-| **IA e Dados**    | **Rust**                       | Antifraude, estatísticas, relatórios              |
-| **Front-end**     | **Rust (Dioxus/WebAssembly)**  | UI para jogadores e administradores               |
-| **Comunicação**   | **JSON**                       | Formato universal entre módulos                   |
+| Camada            | Linguagem                                      | Responsabilidade                                  |
+|-------------------|------------------------------------------------|---------------------------------------------------|
+| **Backend**       | **Rust**                                       | Motor de jogo, APIs, autenticação, lobby          |
+| **IA e Dados**    | **Rust**                                       | Antifraude, estatísticas, relatórios              |
+| **Front-end**     | **TypeScript (React + Vite + Tailwind)**       | UI jogadores e admin B2B (`Frontend-Web/`)        |
+| **Comunicação**   | **JSON**                                       | Formato universal entre módulos                   |
 
-> 📐 Detalhes completos em `Arquitetura-Motor/ARQUITETURA_MOTOR.md`.
-> ✅ Stack 100% Rust desde 2026-07-03 — Python, TypeScript, Go e Node.js foram removidos.
-> 📌 Estado operacional (PIX, ownership, ciclo S10/B2B): ver `STATUS_OPERACIONAL.json` — **sem** certificação de produção.
+> 📐 Detalhes completos em `Arquitetura-Motor/ARQUITETURA_MOTOR.md` (v4.0).
+> ✅ **Motor e API em Rust.** Frontend canônico em TypeScript desde 2026-08-04. `Frontend-Dioxus/` é legado.
+> 📌 Estado operacional (PIX, ownership, ciclo S11): ver `STATUS_OPERACIONAL.json` — **sem** certificação de produção.
+> ⚖️ **Regulação / compliance de jogo e dinheiro real:** planejada para **janeiro de 2027**.
 
 ### 0.1. 💵 Arquitetura Financeira e Tipagem Estrita (`u64` Centavos)
-- **Princípio da Precisão Bancária:** Todos os valores financeiros (saldo, apostas, stacks, potes, rake, buy-in e blinds) utilizam estritamente `u64` centavos inteiros (`R$ 10,50` = `1050` centavos). Erros de arredondamento IEEE-754 flutuantes são eliminados na raiz.
+- **Princípio da Precisão Bancária:** Todos os valores financeiros (saldo, apostas, stacks, potes, rake, buy-in e blinds) utilizam estritamente `u64` centavos inteiros no **backend** (`R$ 10,50` = `1050` centavos). Erros de arredondamento IEEE-754 flutuantes são eliminados na raiz.
 - **Probabilidades e Estatísticas:** Mantidos em escala flutuante (`f64` entre `0.0` e `1.0` ou `0.0%` a `100.0%`) para cálculo de equidade e exibição de porcentagens.
-- **Formatação de Exibição:** O frontend Dioxus converte os centavos `u64` apenas na camada visual de renderização via helper de exibição `R$ {:.2}`.
+- **Formatação de Exibição:** O frontend TypeScript converte centavos apenas na camada visual (`formatBrlFromCents` em `Frontend-Web/src/lib/money.ts`).
 
 ---
 
 ## 1. 🎯 Visão Geral — Texas Hold'em Tradicional
 
-Plataforma de poker online **Texas Hold'em Tradicional** inspirada no Full Tilt Poker. Suporta mesas de **Cash Game** e **Tournament** com até 9 jogadores.
+Plataforma de poker online **Texas Hold'em Tradicional** inspirada no Full Tilt Poker (skin moderna, lobby denso, mesa de feltro). Suporta mesas de **Cash Game** e **Tournament** com até 9 jogadores.
 
 ---
 

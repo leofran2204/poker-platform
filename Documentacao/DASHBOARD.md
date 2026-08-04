@@ -1,15 +1,15 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-08-01 | **Status:** S10 — B2B SaaS (clubs/agentes HTTPS) + domínio **zerotiltpoker.net**; demo HTTPS documentada; **sem** certificação de produção.
+**Atualizado:** 2026-08-04 | **Status:** S11 — Frontend **TypeScript** (Full Tilt) + B2B + domínio **zerotiltpoker.net**; **sem** certificação de produção; **regulação → jan/2027**.
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📌 **Fonte canônica de estado:** [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json) — prevalece sobre qualquer texto datado abaixo.
 > 📅 O cronograma completo está em `Documentacao/CRONOGRAMA.md` — veja prazos, fases e % de conclusão.
-> 🎓 **Guia de aprendizado didático:** `Documentacao/guia_aprendizado.md` (Protocolo Mark, regras de aprendizado, sprint S03 e guia dos 11 módulos).
-> 🦀 **Stack definitiva:** Rust para TUDO (backend, APIs, IA, dados, antifraude, autenticação, lobby, motor de jogo e front-end com Dioxus/WebAssembly).
-> **Domínio do produto:** [`zerotiltpoker.net`](https://zerotiltpoker.net) (demo/staging — site no ar depende do tunnel ou VPS).
-> **Transporte público:** **HTTPS** (Caddy); cliente Dioxus same-origin.
-> **Limites conhecidos:** PIX mock/sandbox; mesas com dono único por processo; K8s em 1 réplica; sem cartão de crédito na Hetzner → caminho preferido atual é **casa + Cloudflare Tunnel HTTPS**.
+> 🏗️ **Stack v4.0:** Rust no motor/API; TypeScript + React + Vite + Tailwind no frontend (`Frontend-Web/`). `Frontend-Dioxus/` legado.
+> **Domínio do produto:** [`zerotiltpoker.net`](https://zerotiltpoker.net) (demo/staging).
+> **Transporte público:** **HTTPS** (Caddy); SPA same-origin.
+> **Limites conhecidos:** PIX mock/sandbox; mesas com dono único por processo; VPS Hostinger KVM 2 ok para ~40 concurrent.
+> ⚖️ **Regulação / KYC / real-money compliance:** planejado para **janeiro de 2027**.
 
 ---
 
@@ -18,8 +18,8 @@
 | # | Parâmetro | Valor |
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
-| 2 | **Sprint atual** | S10 — B2B SaaS multi-tenant + domínio/demo HTTPS |
-| 3 | **Status** | 🟡 Código B2B + infra demo no working tree; smoke em https://zerotiltpoker.net pendente |
+| 2 | **Sprint atual** | S11 — Frontend-Web TS Full Tilt + stack docs v4.0 + regulação 2027 |
+| 3 | **Status** | 🟡 SPA TypeScript no compose; polish UI contínuo; smoke domínio depende de deploy |
 | 4 | **Cerimônias** | Planning + Review + Retrospectiva |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
 
@@ -56,6 +56,7 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S08 | 2026-07-28 | Correções críticas de segurança e arquitetura | Ledger PIX local, token version, timeout de turno, WebSocket e contratos PostgreSQL | ✅ Concluído localmente |
 | S09 | 2026-07-29 | Recovery de mão + PIX sandbox | Guarda transacional de liquidação; Asaas sandbox restrito | ✅ Concluído localmente |
 | S10 | 2026-07-31 → 2026-08-01 | Domínio/demo HTTPS + B2B SaaS | `zerotiltpoker.net`; tunnel/VPS; migration 014 clubs/agents; rake 15/85; dashboard HTTPS; lobby MTT | 🟡 Local pronto — go-live tunnel e commit full pendentes |
+| S11 | 2026-08-04 | Frontend TypeScript + stack híbrida | `Frontend-Web` React/Vite/Tailwind; deploy canônico fora do Dioxus; docs v4.0; regulação marcada jan/2027 | 🟡 Em curso |
 
 ---
 

@@ -1,4 +1,4 @@
-# Stack canônica: Postgres + Redis + API Axum + Caddy (WASM).
+# Stack canônica: Postgres + Redis + API Axum + Frontend-Web (TS/React) + Caddy.
 # Portas públicas na VPS: somente 80/443 (e 22 no host). Postgres/Redis em loopback.
 # Cadeia healthy: postgres → redis → poker_api → poker_frontend.
 services:
@@ -95,7 +95,7 @@ services:
   poker_frontend:
     build:
       context: ..
-      dockerfile: Frontend-Dioxus/Dockerfile
+      dockerfile: Frontend-Web/Dockerfile
     container_name: poker_frontend
     environment:
       # Caddyfile usa {$DOMAIN_NAME:localhost} — staging: zerotiltpoker.net

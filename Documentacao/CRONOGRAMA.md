@@ -1,7 +1,7 @@
 # 📅 Cronograma — Plataforma de Poker Online
 
-**Atualizado:** 2026-08-01 | **Status:** Roadmap histórico; ciclo S10 — B2B SaaS (clubs/agentes) + domínio **zerotiltpoker.net** e demo HTTPS (casa/VPS).
-**Stack:** Rust para TUDO (backend + APIs + IA + dados + antifraude + autenticação + lobby + front-end Dioxus/WebAssembly)
+**Atualizado:** 2026-08-04 | **Status:** Roadmap; ciclo S11 — Frontend TypeScript Full Tilt + B2B + domínio **zerotiltpoker.net**.
+**Stack:** Rust (motor + API + antifraude) + TypeScript/React (frontend canônico). Regulação: **jan/2027**.
 
 > ⚠️ **Regra de Ouro:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📐 Specs e regras de negócio em `Documentacao/BUSINESS_RULES.md`.
@@ -16,7 +16,7 @@
 ```
 FASE 1 ████████████████████████████ 100%  Fundação (docs + regras + stack)
 FASE 2 ████████████████████████████ 100%  Motor de Jogo Rust + API Axum (1.904 testes + 1M Fuzzing)
-FASE 3 ████████████████████████████ 100%  Front-end Dioxus (115 testes + Roteamento + WS + Modais PIX)
+FASE 3 ██████████████████████████░░  90%  Front-end: legado Dioxus → canônico TypeScript Full Tilt (S11)
 FASE 4 ████████████████████████████ 100%  Infraestrutura (Docker Multi-stage + Caddy HTTPS + CI/CD GitHub Actions)
 FASE 5 ████████████████████████████ 100%  Segurança & Pagamentos (TLS 1.3 + JWT + MFA + Hardening + Gateway PIX)
 FASE 6 ████████████████████████████ 100%  IA Antifraude & Analytics (BotDetector + Collusion + Prometheus + Red Team 50w)
@@ -36,7 +36,7 @@ FASE 7 ████████████████████████�
 | 1.3  | `ARQUITETURA_MOTOR.md` v3.1 — stack definitiva                 | 2026-07-03 | ✅                             |
 | 1.4  | `DASHBOARD.md` — painel de controle tático                     | 2026-06-27 | ✅                             |
 | 1.5  | `DEVELOPMENT_LOG.md` — histórico de dev                        | 2026-06-25 | ✅                             |
-| 1.6  | **Stack definitiva:** Rust para TUDO (Python/Go/TS removidos)  | 2026-07-03 | ✅                             |
+| 1.6  | Stack motor/API Rust; frontend reavaliado (TS canônico em 2026-08) | 2026-08-04 | ✅ (v4.0)                      |
 | 1.7  | Golden rules salvas em memória persistente                     | 2026-07-03 | ✅                             |
 | 1.8  | Pastas legadas excluídas (01, 02, 03, 06)                      | 2026-07-03 | ✅                             |
 

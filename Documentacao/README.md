@@ -43,21 +43,22 @@ O segundo comando é obrigatório na CI. Se ele falhar, a mudança deve atualiza
 
 ---
 
-## 🛠️ Stack Tecnológica — 100% Rust
+## 🛠️ Stack Tecnológica — Rust (motor/API) + TypeScript (UI)
 
 | Camada | Tecnologia | Responsabilidade |
 |--------|------------|------------------|
 | **Motor de jogo** | Rust + Tokio | Cálculo de mãos, RNG, side pots, rake, loss deflator |
 | **Backend / APIs** | Rust + Axum + Tokio | Auth, lobby, salas, hand history |
-| **Frontend** | Rust + Dioxus 0.6 (WebAssembly) | UI no navegador via WASM |
+| **Frontend** | TypeScript + React + Vite + Tailwind (`Frontend-Web/`) | UI Full Tilt moderna no navegador |
 | **Antifraude** | Rust | Colusão, chip dumping, bot detection, multi-account |
 | **Banco de dados** | PostgreSQL 15 | Dados persistentes |
 | **Cache / Sessões** | Redis 7 | Sessões, rate limiting, blacklist JWT |
 | **Mensageria** | — | Não provisionada nesta implantação |
-| **Pagamentos / PIX** | Mock + Asaas Sandbox autenticado | Mercado Pago e PIX de produção estão desabilitados; nenhum dinheiro real é aceito |
-| **Segurança** | rustls (TLS 1.3), aes-gcm (AES-256), bcrypt 0.16, JWT (hmac+sha2) | Criptografia, auth, MFA/TOTP, RBAC |
+| **Pagamentos / PIX** | Mock + Asaas Sandbox autenticado | Mercado Pago e PIX de produção desabilitados |
+| **Segurança** | rustls (TLS 1.3), JWT, bcrypt, Caddy headers | Criptografia, auth, MFA/TOTP, RBAC |
+| **Regulação** | — | Trilho planejado para **janeiro de 2027** |
 
-> **Stack 100% Rust** — Arquitetura unificada em Rust para máxima performance, segurança de memória e concorrência nativa.
+> **Motor e API em Rust** (performance e dinheiro seguro). **UI em TypeScript** para velocidade de produto e skin Full Tilt. Ver `ARQUITETURA_MOTOR.md` v4.0.
 
 ---
 
@@ -67,10 +68,11 @@ O segundo comando é obrigatório na CI. Se ele falhar, a mudança deve atualiza
 |-------|----------|--------|
 | `Motor-Rust/` | Motor de poker em Rust, regras financeiras em inteiros | ✅ Ativo — CI usa testes determinísticos |
 | `API-Axum/` | API REST / WebSocket (Axum + Tokio + PostgreSQL/Redis) | ✅ Ativo — contratos PostgreSQL no CI |
-| `Frontend-Dioxus/` | Frontend WebAssembly (Dioxus 0.6) | ✅ Ativo |
+| `Frontend-Web/` | SPA TypeScript/React (deploy canônico) | ✅ Ativo |
+| `Frontend-Dioxus/` | WASM legado | 📦 Legado |
 | `Infraestrutura-Docker/` | Docker, Caddy, deploy (casa/VPS), CI/CD | ✅ Ativo |
 | `Documentacao/` | Regras de negócio, cronograma, dashboard, logs | ✅ Ativo |
-| `Arquitetura-Motor/` | Arquitetura do motor Rust | ✅ Ativo |
+| `Arquitetura-Motor/` | Arquitetura do motor e stack | ✅ Ativo |
 | `scripts/` | Scripts de automação (coverage, build, deploy) | ✅ Ativo |
 
 ### Deploy e domínio
@@ -125,11 +127,12 @@ cargo test
 .\scripts\full-validation.ps1 -Approved
 ```
 
-### 🖥️ Frontend WebAssembly (Dioxus)
+### 🖥️ Frontend TypeScript (canônico)
 ```bash
-cd Frontend-Dioxus
-cargo install dioxus-cli --version 0.6
-dx serve
+cd Frontend-Web
+npm install
+npm run dev
+# build produção: npm run build
 ```
 
 ### ✅ Validação de Qualidade — Clippy, Fmt, Audit e Cobertura

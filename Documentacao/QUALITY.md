@@ -1,7 +1,7 @@
 # 🃏 QUALITY.md — Documento Mestre do Poker Project
 
 **Atualizado:** 2026-07-27 | **Versão:** 5.3 (baseline de qualidade, segurança e operação)
-**Stack Definitiva:** Rust para TUDO (backend, motor de jogo, APIs, IA, dados, antifraude, autenticação, lobby, front-end Dioxus/WebAssembly)
+**Stack Definitiva (v4.0):** Rust no backend/motor/API/antifraude; TypeScript + React + Vite + Tailwind no frontend (`Frontend-Web`). Regulação planejada jan/2027.
 **Decisão de Stack:** Definitiva desde 2026-07-03 — Rust é a única linguagem do projeto
 
 > **Estado atual verificável:** este documento contém metas e registros históricos; não deve ser lido como certificado de produção ou como contagem fixa de testes. O gate atual executa lint estrito, testes determinísticos e contratos PostgreSQL. PIX está fora do escopo desta entrega; operação multi-réplica aguarda ownership distribuído de mesas.
@@ -225,8 +225,8 @@ Na próxima aula, revisão rápida dos conceitos do tópico anterior antes de av
 
 | Métrica               | Valor                                                                  |
 |-----------------------|------------------------------------------------------------------------|
-| **Linguagem**         | Rust (100% do backend + motor + frontend WebAssembly)                 |
-| **Frontend**          | Dioxus 0.6 + WebAssembly (104 suítes de teste + 10k mutações)         |
+| **Linguagem**         | Rust (motor + API) + TypeScript (SPA)                                 |
+| **Frontend**          | React 18 + Vite + Tailwind (`Frontend-Web`) — Full Tilt skin          |
 | **Testes totais**     | 1.813 testes determinísticos no Motor-Rust; perfil autorizado com 79 cenários de carga adicionais |
 | **Estresse API/WS**   | **1.000.800 mensagens WebSockets** em 100 mesas + 50 Red Team workers  |
 | **Módulos do motor**  | 10 módulos principais                                                  |
