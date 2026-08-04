@@ -7,6 +7,19 @@
 
 ---
 
+## 📌 2026-08-04 — Registro: confirmar senha + verificação de e-mail
+
+| Item | Detalhe |
+|------|---------|
+| **API** | `password_confirm`; status `pending_email_verification`; `POST /api/auth/verify-email` e `/resend-verification` |
+| **Migration** | `015_email_verification.sql` (códigos hash SHA-256, TTL 15 min) |
+| **E-mail** | Template boas-vindas Full Tilt; `EMAIL_PROVIDER=log` (código nos logs da API) até SMTP |
+| **Flag** | `REQUIRE_EMAIL_VERIFICATION` (padrão true em runtime; false nos testes) |
+| **Front** | Confirmar senha; página `/verify-email`; login redireciona se pendente |
+| **Join mesa** | JWT só com conta `active` |
+
+---
+
 ## 📌 2026-08-04 — S11: Frontend TypeScript + stack híbrida
 
 | Item | Detalhe |

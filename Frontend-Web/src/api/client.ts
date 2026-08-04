@@ -55,27 +55,69 @@ async function request<T>(
   return (await res.json()) as T;
 }
 
+export interface RegisterResult {
+  email_verification_required?: boolean;
+  email?: string;
+  username?: string;
+  message?: string;
+  token?: string;
+  refresh_token?: string;
+  expires_in?: number;
+}
+
+export interface LoginResult extends RegisterResult {
+  mfa_required?: boolean;
+}
+
 export async function register(
   username: string,
   email: string,
   password: string,
-): Promise<TokenResponse> {
-  return request<TokenResponse>(
+  passwordConfirm: string,
+): Promise<RegisterResult> {
+  return request<RegisterResult>(
     "/api/auth/register",
     {
       method: "POST",
-      body: JSON.stringify({ username, email, password }),
+      body: JSON.stringify({
+        username,
+        email,
+        password,
+        password_confirm: passwordConfirm,
+      }),
     },
     false,
   );
 }
 
-export async function login(email: string, password: string): Promise<TokenResponse> {
-  return request<TokenResponse>(
+export async function login(email: string, password: string): Promise<LoginResult> {
+  return request<LoginResult>(
     "/api/auth/login",
     {
       method: "POST",
       body: JSON.stringify({ email, password }),
+    },
+    false,
+  );
+}
+
+export async function verifyEmail(email: string, code: string): Promise<RegisterResult & { already_verified?: boolean }> {
+  return request(
+    "/api/auth/verify-email",
+    {
+      method: "POST",
+      body: JSON.stringify({ email, code }),
+    },
+    false,
+  );
+}
+
+export async function resendVerification(email: string): Promise<{ ok: boolean; message: string }> {
+  return request(
+    "/api/auth/resend-verification",
+    {
+      method: "POST",
+      body: JSON.stringify({ email }),
     },
     false,
   );

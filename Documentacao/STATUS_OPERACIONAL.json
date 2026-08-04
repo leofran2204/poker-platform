@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "reviewed_on": "2026-08-04",
-  "cycle": "S11 — Frontend TypeScript (React/Vite/Tailwind) Full Tilt skin; backend Rust permanece; regulação/compliance planejada para janeiro/2027; B2B multi-tenant + domínio zerotiltpoker.net; VPS Hostinger KVM 2.",
+  "cycle": "S11 — Frontend TypeScript Full Tilt; registro com confirmação de senha + verificação de e-mail (código 6 dígitos, EMAIL_PROVIDER=log); regulação/compliance jan/2027; B2B + zerotiltpoker.net; VPS KVM 2.",
   "stack": {
     "motor_api": "Rust (Motor-Rust + API-Axum)",
     "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",

@@ -6,6 +6,7 @@
 
 pub mod admin_routes;
 pub mod binary_codec;
+pub mod email_service;
 pub mod error;
 pub mod game_actor;
 pub mod handlers;
@@ -86,6 +87,18 @@ pub fn build_router(state: AppState) -> Router {
         )
         .route("/api/auth/mfa/verify", post(auth::mfa_verify_with_username))
         .route("/api/auth/refresh", post(auth::refresh))
+        .route(
+            "/api/auth/verify-email",
+            post(auth::verify_email).route_layer(
+                from_extractor_with_state::<EnforceRateLimit, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/auth/resend-verification",
+            post(auth::resend_verification).route_layer(
+                from_extractor_with_state::<EnforceRateLimit, AppState>(state.clone()),
+            ),
+        )
         // ─── Payment routes (PIX Deposit, Webhook & Withdraw + rate limited) ───
         .route(
             "/api/payments/pix/deposit",

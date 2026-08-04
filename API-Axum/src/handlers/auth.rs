@@ -1,4 +1,5 @@
-// Auth handlers — POST /api/auth/register, /login, /mfa/verify, /refresh
+// Auth handlers — POST /api/auth/register, /login, /mfa/verify, /refresh,
+//                 /verify-email, /resend-verification
 
 use axum::extract::State;
 use axum::Json;
@@ -6,6 +7,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use crate::email_service::{
+    codes_equal_hash, generate_numeric_code, hash_code, send_verification_email, CODE_TTL_SECS,
+};
 use crate::error::ApiError;
 use crate::state::AppState;
 
@@ -32,7 +36,22 @@ type PersistedUserRow = (
 pub struct RegisterBody {
     pub email: String,
     pub password: String,
+    /// Confirmação de senha (obrigatória quando require_email_verification;
+    /// se enviada, deve sempre coincidir).
+    #[serde(default)]
+    pub password_confirm: Option<String>,
     pub username: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct VerifyEmailBody {
+    pub email: String,
+    pub code: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ResendVerificationBody {
+    pub email: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -73,6 +92,68 @@ fn now_epoch() -> u64 {
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_secs()
+}
+
+fn account_status_db(status: &poker_engine::auth::AccountStatus) -> &'static str {
+    match status {
+        poker_engine::auth::AccountStatus::Active => "active",
+        poker_engine::auth::AccountStatus::Suspended => "suspended",
+        poker_engine::auth::AccountStatus::Banned => "banned",
+        poker_engine::auth::AccountStatus::PendingEmailVerification => {
+            "pending_email_verification"
+        }
+    }
+}
+
+fn role_db(role: &poker_engine::auth::UserRole) -> &'static str {
+    match role {
+        poker_engine::auth::UserRole::Player => "player",
+        poker_engine::auth::UserRole::Admin => "admin",
+        poker_engine::auth::UserRole::Moderator => "moderator",
+    }
+}
+
+fn passwords_match(password: &str, confirm: &Option<String>) -> bool {
+    match confirm {
+        Some(c) => password == c,
+        None => true, // campo omitido: aceito se flag de verificação desligada
+    }
+}
+
+async fn issue_verification_code(
+    state: &AppState,
+    user_id: &str,
+    email: &str,
+    username: &str,
+) -> Result<(), ApiError> {
+    let code = generate_numeric_code();
+    let code_hash = hash_code(&code);
+    let now = now_epoch() as i64;
+    let expires_at = now + CODE_TTL_SECS as i64;
+
+    // Invalida códigos anteriores não consumidos
+    sqlx::query(
+        "UPDATE email_verification_codes SET consumed_at = $1 \
+         WHERE user_id = $2::uuid AND consumed_at IS NULL",
+    )
+    .bind(now)
+    .bind(user_id)
+    .execute(&state.db)
+    .await?;
+
+    sqlx::query(
+        "INSERT INTO email_verification_codes (user_id, code_hash, expires_at, created_at) \
+         VALUES ($1::uuid, $2, $3, $4)",
+    )
+    .bind(user_id)
+    .bind(&code_hash)
+    .bind(expires_at)
+    .bind(now)
+    .execute(&state.db)
+    .await?;
+
+    send_verification_email(email, username, &code);
+    Ok(())
 }
 
 fn persisted_user_from_row(row: PersistedUserRow) -> Result<poker_engine::auth::User, ApiError> {
@@ -193,18 +274,43 @@ async fn persist_login_state(
 // ─── Handlers ───
 
 /// POST /api/auth/register
-/// Request: `{email, password, username}` → Response: `{token, expires_in}`
+///
+/// Com `REQUIRE_EMAIL_VERIFICATION=true` (padrão em runtime de produto):
+/// `{email, password, password_confirm, username}` →
+/// `{email_verification_required, email, username, message}` (sem JWT).
+///
+/// Com flag desligada (testes): devolve tokens como antes.
 pub async fn register(
     State(state): State<AppState>,
     Json(body): Json<RegisterBody>,
-) -> Result<Json<TokenResponse>, ApiError> {
+) -> Result<Json<serde_json::Value>, ApiError> {
+    if state.require_email_verification {
+        match &body.password_confirm {
+            None => {
+                return Err(ApiError::BadRequest(
+                    "password_confirm is required".to_string(),
+                ));
+            }
+            Some(confirm) if confirm != &body.password => {
+                return Err(ApiError::BadRequest(
+                    "password and password_confirm do not match".to_string(),
+                ));
+            }
+            Some(_) => {}
+        }
+    } else if !passwords_match(&body.password, &body.password_confirm) {
+        return Err(ApiError::BadRequest(
+            "password and password_confirm do not match".to_string(),
+        ));
+    }
+
     let request = poker_engine::auth::RegisterRequest {
         username: body.username.clone(),
         email: body.email.clone(),
         password: body.password.clone(),
     };
 
-    let user = {
+    let mut user = {
         let mut auth = state.auth.write().await;
         auth.register_user(&request).map_err(|e| match e {
             poker_engine::auth::AuthResult::UsernameAlreadyExists => {
@@ -214,7 +320,9 @@ pub async fn register(
                 ApiError::Conflict("Email already exists".to_string())
             }
             poker_engine::auth::AuthResult::PasswordTooWeak => {
-                ApiError::BadRequest("Password too weak".to_string())
+                ApiError::BadRequest(
+                    "Password too weak (min 8 chars, 1 upper, 1 lower, 1 digit)".to_string(),
+                )
             }
             poker_engine::auth::AuthResult::InvalidEmail => {
                 ApiError::BadRequest("Invalid email".to_string())
@@ -222,6 +330,12 @@ pub async fn register(
             _ => ApiError::Internal(format!("Auth error: {e:?}")),
         })?
     };
+
+    if state.require_email_verification {
+        user.status = poker_engine::auth::AccountStatus::PendingEmailVerification;
+        let mut auth = state.auth.write().await;
+        auth.upsert_persisted_user(user.clone());
+    }
 
     // Persist user to PostgreSQL
     let persist_result = sqlx::query(
@@ -234,8 +348,8 @@ pub async fn register(
     .bind(&user.username)
     .bind(&user.email)
     .bind(&user.password_hash)
-    .bind(format!("{:?}", user.role).to_lowercase())
-    .bind(format!("{:?}", user.status).to_lowercase())
+    .bind(role_db(&user.role))
+    .bind(account_status_db(&user.status))
     .bind(user.balance)
     .bind(user.mfa_enabled)
     .bind(user.created_at as i64)
@@ -246,7 +360,21 @@ pub async fn register(
         return Err(error.into());
     }
 
-    // Generate token pair
+    if state.require_email_verification {
+        if let Err(e) = issue_verification_code(&state, &user.id, &user.email, &user.username).await
+        {
+            tracing::error!(error = %e, "failed to issue verification code after register");
+            // Conta criada; usuário pode reenviar. Não desfaz o registro.
+        }
+        return Ok(Json(json!({
+            "email_verification_required": true,
+            "email": user.email,
+            "username": user.username,
+            "message": "Conta criada. Verifique seu e-mail e informe o código de 6 dígitos para ativar o acesso.",
+        })));
+    }
+
+    // Generate token pair (modo legado / testes)
     let login_req = poker_engine::auth::LoginRequest {
         username: body.username,
         password: body.password,
@@ -262,11 +390,12 @@ pub async fn register(
 
     let expires_in = tokens.expires_at.saturating_sub(now_epoch());
 
-    Ok(Json(TokenResponse {
-        token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
-        expires_in,
-    }))
+    Ok(Json(json!({
+        "token": tokens.access_token,
+        "refresh_token": tokens.refresh_token,
+        "expires_in": expires_in,
+        "email_verification_required": false,
+    })))
 }
 
 /// POST /api/auth/login
@@ -301,12 +430,32 @@ pub async fn login(
     // First attempt — may return MfaRequired
     match login_result {
         Ok(tokens) => {
+            let pending = {
+                let auth = state.auth.read().await;
+                auth.get_user(&username)
+                    .map(|u| {
+                        u.status == poker_engine::auth::AccountStatus::PendingEmailVerification
+                    })
+                    .unwrap_or(false)
+            };
+
+            if state.require_email_verification && pending {
+                return Ok(Json(json!({
+                    "email_verification_required": true,
+                    "email": body.email.to_lowercase(),
+                    "username": username,
+                    "message": "Confirme o código enviado ao seu e-mail para ativar a conta.",
+                    "mfa_required": false,
+                })));
+            }
+
             let expires_in = tokens.expires_at.saturating_sub(now_epoch());
             Ok(Json(json!({
                 "token": tokens.access_token,
                 "refresh_token": tokens.refresh_token,
                 "expires_in": expires_in,
                 "mfa_required": false,
+                "email_verification_required": false,
             })))
         }
         Err(poker_engine::auth::AuthResult::MfaRequired) => Ok(Json(json!({
@@ -324,6 +473,142 @@ pub async fn login(
         }
         Err(e) => Err(ApiError::Internal(format!("Login error: {e:?}"))),
     }
+}
+
+/// POST /api/auth/verify-email
+/// Request: `{email, code}` → tokens JWT se o código for válido.
+pub async fn verify_email(
+    State(state): State<AppState>,
+    Json(body): Json<VerifyEmailBody>,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    let email = body.email.trim().to_lowercase();
+    let code = body.code.trim();
+    if code.len() != 6 || !code.chars().all(|c| c.is_ascii_digit()) {
+        return Err(ApiError::BadRequest(
+            "Code must be a 6-digit number".to_string(),
+        ));
+    }
+
+    let user = load_persisted_user(&state, "email", &email)
+        .await?
+        .ok_or_else(|| ApiError::BadRequest("Invalid verification request".to_string()))?;
+
+    if user.status == poker_engine::auth::AccountStatus::Active {
+        // Já ativo: devolve tokens se souber a senha? Não — pede login.
+        return Ok(Json(json!({
+            "already_verified": true,
+            "message": "E-mail já verificado. Faça login.",
+        })));
+    }
+    if user.status != poker_engine::auth::AccountStatus::PendingEmailVerification {
+        return Err(ApiError::Forbidden(
+            "Account cannot be verified in its current state".to_string(),
+        ));
+    }
+
+    let now = now_epoch() as i64;
+    let row: Option<(uuid::Uuid, String, i64)> = sqlx::query_as(
+        "SELECT id, code_hash, expires_at FROM email_verification_codes \
+         WHERE user_id = $1::uuid AND consumed_at IS NULL \
+         ORDER BY created_at DESC LIMIT 1",
+    )
+    .bind(&user.id)
+    .fetch_optional(&state.db)
+    .await?;
+
+    let (code_id, code_hash, expires_at) =
+        row.ok_or_else(|| ApiError::BadRequest("No active verification code".to_string()))?;
+
+    if expires_at < now {
+        return Err(ApiError::BadRequest(
+            "Verification code expired. Request a new one.".to_string(),
+        ));
+    }
+    if !codes_equal_hash(code, &code_hash) {
+        return Err(ApiError::Unauthorized("Invalid verification code".to_string()));
+    }
+
+    let mut tx = state.db.begin().await?;
+    sqlx::query(
+        "UPDATE email_verification_codes SET consumed_at = $1 WHERE id = $2",
+    )
+    .bind(now)
+    .bind(code_id)
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query(
+        "UPDATE users SET status = 'active', email_verified_at = $1 WHERE id = $2::uuid",
+    )
+    .bind(now)
+    .bind(&user.id)
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
+
+    let mut active_user = user;
+    active_user.status = poker_engine::auth::AccountStatus::Active;
+    {
+        let mut auth = state.auth.write().await;
+        auth.upsert_persisted_user(active_user.clone());
+    }
+
+    // Emite tokens sem revalidar senha (prova de posse do e-mail + código)
+    let tokens = {
+        let auth = state.auth.read().await;
+        auth.issue_tokens_for_user(&active_user)
+            .map_err(|e| ApiError::Internal(format!("Token issue failed: {e:?}")))?
+    };
+
+    let expires_in = tokens.expires_at.saturating_sub(now_epoch());
+    Ok(Json(json!({
+        "token": tokens.access_token,
+        "refresh_token": tokens.refresh_token,
+        "expires_in": expires_in,
+        "email_verification_required": false,
+        "username": active_user.username,
+        "message": "E-mail confirmado. Bem-vindo à Zero Tilt — o lobby é seu.",
+    })))
+}
+
+/// POST /api/auth/resend-verification
+/// Request: `{email}` — sempre responde generico (anti-enumeration).
+pub async fn resend_verification(
+    State(state): State<AppState>,
+    Json(body): Json<ResendVerificationBody>,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    let email = body.email.trim().to_lowercase();
+    let generic = Json(json!({
+        "ok": true,
+        "message": "Se o e-mail existir e estiver pendente, enviamos um novo código.",
+    }));
+
+    let Some(user) = load_persisted_user(&state, "email", &email).await? else {
+        return Ok(generic);
+    };
+    if user.status != poker_engine::auth::AccountStatus::PendingEmailVerification {
+        return Ok(generic);
+    }
+
+    // Rate limit simples: no máximo 1 reenvio a cada 60s
+    let now = now_epoch() as i64;
+    let last: Option<i64> = sqlx::query_scalar(
+        "SELECT MAX(created_at) FROM email_verification_codes WHERE user_id = $1::uuid",
+    )
+    .bind(&user.id)
+    .fetch_optional(&state.db)
+    .await?
+    .flatten();
+    if let Some(created) = last {
+        if now - created < 60 {
+            return Err(ApiError::BadRequest(
+                "Aguarde 60 segundos antes de reenviar o código".to_string(),
+            ));
+        }
+    }
+
+    let _ = issue_verification_code(&state, &user.id, &user.email, &user.username).await;
+    Ok(generic)
 }
 
 #[allow(dead_code)]

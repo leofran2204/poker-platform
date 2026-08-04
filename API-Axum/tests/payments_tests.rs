@@ -31,6 +31,7 @@ fn make_test_state() -> AppState {
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
         redis: None,
         ws_tickets: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
+        require_email_verification: false,
     }
 }
 
@@ -90,6 +91,7 @@ async fn make_persistent_state(username: &str) -> (AppState, String, String) {
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
         redis: None,
         ws_tickets: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
+        require_email_verification: false,
     };
     let token = get_valid_access_token(&state, username).await;
     (state, user.id, token)

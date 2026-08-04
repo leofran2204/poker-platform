@@ -168,6 +168,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
+    // Verificação de e-mail no registro (padrão: ligada).
+    // REQUIRE_EMAIL_VERIFICATION=false desliga (testes / lab sem SMTP).
+    let require_email_verification = std::env::var("REQUIRE_EMAIL_VERIFICATION")
+        .map(|v| !matches!(v.to_ascii_lowercase().as_str(), "0" | "false" | "no" | "off"))
+        .unwrap_or(true);
+
     // Build app state with high-concurrency RwLock
     let state = AppState {
         db: pool,
@@ -184,7 +190,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
         redis: redis_conn,
         ws_tickets: std::sync::Arc::new(tokio::sync::Mutex::new(std::collections::HashMap::new())),
+        require_email_verification,
     };
+    tracing::info!(
+        require_email_verification,
+        email_provider = %std::env::var("EMAIL_PROVIDER").unwrap_or_else(|_| "log".into()),
+        "Auth policy loaded"
+    );
 
     // CORS is explicit and restricted to HTTPS origins in every environment.
     let cors = CorsLayer::new()

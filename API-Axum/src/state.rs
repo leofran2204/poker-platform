@@ -40,4 +40,7 @@ pub struct AppState {
     /// Development fallback when Redis is not configured. Production instances
     /// should provide Redis so ticket consumption is shared across replicas.
     pub ws_tickets: Arc<Mutex<HashMap<String, WebSocketTicket>>>,
+    /// Quando true: registro exige confirmação de senha + código por e-mail
+    /// antes de liberar tokens e join em mesa.
+    pub require_email_verification: bool,
 }

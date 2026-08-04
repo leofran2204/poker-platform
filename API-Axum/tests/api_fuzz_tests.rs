@@ -43,6 +43,7 @@ fn make_test_state() -> AppState {
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
         redis: None,
         ws_tickets: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
+        require_email_verification: false,
     }
 }
 

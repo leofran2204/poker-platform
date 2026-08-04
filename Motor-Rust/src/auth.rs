@@ -398,6 +398,23 @@ impl AuthManager {
         })
     }
 
+    /// Emite par de tokens para um usuário já autenticado por outro meio
+    /// (ex.: verificação de e-mail). Só para contas `Active`.
+    pub fn issue_tokens_for_user(&self, user: &User) -> Result<TokenPair, AuthResult> {
+        if user.status != AccountStatus::Active {
+            return Err(AuthResult::AccountSuspended);
+        }
+        let access_token = self.generate_access_token(user)?;
+        let refresh_token = self.generate_refresh_token(user)?;
+        let expires_at = Self::current_timestamp() + JWT_EXPIRATION_SECS;
+        Ok(TokenPair {
+            access_token,
+            refresh_token,
+            expires_at,
+            token_type: "Bearer".to_string(),
+        })
+    }
+
     // ─── Refresh de Token ───
 
     /// Renova um access token usando um refresh token válido
@@ -413,9 +430,7 @@ impl AuthManager {
             return Err(AuthResult::TokenInvalid);
         }
 
-        if user.status != AccountStatus::Active
-            && user.status != AccountStatus::PendingEmailVerification
-        {
+        if user.status != AccountStatus::Active {
             return Err(AuthResult::AccountSuspended);
         }
 

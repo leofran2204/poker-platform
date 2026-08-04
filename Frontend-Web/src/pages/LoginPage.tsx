@@ -15,8 +15,26 @@ export function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const tokens = await login(email.trim(), password);
-      applyAuthTokens(tokens);
+      const res = await login(email.trim(), password);
+      if (res.email_verification_required) {
+        navigate(
+          `/verify-email?email=${encodeURIComponent(res.email ?? email.trim())}`,
+        );
+        return;
+      }
+      if (res.mfa_required) {
+        setError("MFA necessário — use o fluxo MFA (ainda simplificado na UI).");
+        return;
+      }
+      if (!res.token) {
+        setError(res.message ?? "Login incompleto");
+        return;
+      }
+      applyAuthTokens({
+        token: res.token,
+        refresh_token: res.refresh_token,
+        expires_in: res.expires_in,
+      });
       saveUsername(email.trim().split("@")[0] || "jogador");
       navigate("/lobby");
     } catch (err) {
@@ -71,6 +89,10 @@ export function LoginPage() {
             Novo por aqui?{" "}
             <Link to="/register" className="font-semibold text-gold-bright hover:underline">
               Criar conta
+            </Link>
+            {" · "}
+            <Link to="/verify-email" className="font-semibold text-felt-200 hover:underline">
+              Verificar e-mail
             </Link>
           </p>
         </form>

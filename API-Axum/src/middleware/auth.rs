@@ -61,7 +61,9 @@ where
         let (status, role, token_version) = account.ok_or_else(|| {
             ApiError::Unauthorized("Account referenced by token no longer exists".to_string())
         })?;
-        if !matches!(status.as_str(), "active" | "pending_email_verification") {
+        // Rotas autenticadas (join mesa, etc.) exigem conta ativa.
+        // pending_email_verification não recebe JWT de jogo; se token legado existir, bloqueia.
+        if status != "active" {
             return Err(ApiError::Forbidden(
                 "Account is not allowed to access this resource".to_string(),
             ));

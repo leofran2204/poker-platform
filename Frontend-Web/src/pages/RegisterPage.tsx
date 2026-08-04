@@ -8,18 +8,45 @@ export function RegisterPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (password !== passwordConfirm) {
+      setError("As senhas não coincidem.");
+      return;
+    }
+    if (password.length < 8) {
+      setError("A senha deve ter no mínimo 8 caracteres.");
+      return;
+    }
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+      setError("Use ao menos 1 maiúscula, 1 minúscula e 1 dígito.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const tokens = await register(username.trim(), email.trim(), password);
-      applyAuthTokens(tokens);
-      saveUsername(username.trim());
-      navigate("/lobby");
+      const res = await register(username.trim(), email.trim(), password, passwordConfirm);
+      if (res.email_verification_required) {
+        navigate(`/verify-email?email=${encodeURIComponent(res.email ?? email.trim())}`);
+        return;
+      }
+      if (res.token) {
+        applyAuthTokens({
+          token: res.token,
+          refresh_token: res.refresh_token,
+          expires_in: res.expires_in,
+        });
+        saveUsername(username.trim());
+        navigate("/lobby");
+        return;
+      }
+      setError(res.message ?? "Registro incompleto — tente novamente.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha no registro");
     } finally {
@@ -33,7 +60,8 @@ export function RegisterPage() {
         <div className="zt-panel-title">Criar conta</div>
         <form className="space-y-4 p-5" onSubmit={onSubmit}>
           <p className="text-sm text-felt-300">
-            Contas de demo recebem play-money para testar mesas. Sem depósito real nesta fase.
+            Contas de demo recebem play-money. Após o cadastro, confirme o e-mail
+            com o código de 6 dígitos para liberar o lobby.
           </p>
           <div>
             <label className="zt-label" htmlFor="username">
@@ -72,8 +100,27 @@ export function RegisterPage() {
               className="zt-input"
               required
               minLength={8}
+              autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+            />
+            <p className="mt-1 text-xs text-felt-400">
+              Mín. 8 caracteres, com maiúscula, minúscula e número.
+            </p>
+          </div>
+          <div>
+            <label className="zt-label" htmlFor="passwordConfirm">
+              Confirmar senha
+            </label>
+            <input
+              id="passwordConfirm"
+              type="password"
+              className="zt-input"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
             />
           </div>
           {error && (
@@ -88,6 +135,10 @@ export function RegisterPage() {
             Já tem conta?{" "}
             <Link to="/login" className="font-semibold text-gold-bright hover:underline">
               Entrar
+            </Link>
+            {" · "}
+            <Link to="/verify-email" className="font-semibold text-felt-200 hover:underline">
+              Verificar e-mail
             </Link>
           </p>
         </form>
