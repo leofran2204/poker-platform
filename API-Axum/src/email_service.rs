@@ -1,11 +1,15 @@
 //! Envio de e-mails de verificação / boas-vindas.
 //!
-//! Providers:
-//! - `log` (padrão): grava no tracing (dev/demo sem SMTP)
-//! - `smtp`: reserva para futuro (variáveis SMTP_*); por ora loga aviso e cai no log
+//! Providers (`EMAIL_PROVIDER`):
+//! - `log` (padrão): grava no tracing — só para dev/lab
+//! - `resend`: envia via [Resend](https://resend.com) API (`RESEND_API_KEY`, `EMAIL_FROM`)
+//!
+//! Sem `RESEND_API_KEY` com provider=resend → cai no log e registra erro.
 
+use serde_json::json;
 use sha2::{Digest, Sha256};
 use std::env;
+use std::time::Duration;
 
 /// Validade do código em segundos (15 minutos).
 pub const CODE_TTL_SECS: u64 = 15 * 60;
@@ -13,7 +17,6 @@ pub const CODE_TTL_SECS: u64 = 15 * 60;
 /// Gera código numérico de 6 dígitos com CSPRNG.
 pub fn generate_numeric_code() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    // Prefer OsRng via getrandom if available; fallback mix with time+uuid entropy
     let mut buf = [0u8; 4];
     if getrandom_fill(&mut buf).is_err() {
         let t = SystemTime::now()
@@ -27,13 +30,11 @@ pub fn generate_numeric_code() -> String {
 }
 
 fn getrandom_fill(buf: &mut [u8]) -> Result<(), ()> {
-    // Use uuid's random for entropy without new dependency if getrandom not direct
     let u = uuid::Uuid::new_v4();
     let bytes = u.as_bytes();
     for (i, b) in buf.iter_mut().enumerate() {
         *b = bytes[i % bytes.len()];
     }
-    // Mix a second uuid for better entropy on small buffers
     let u2 = uuid::Uuid::new_v4();
     for (i, b) in buf.iter_mut().enumerate() {
         *b ^= u2.as_bytes()[i % 16];
@@ -57,8 +58,8 @@ pub fn codes_equal_hash(code: &str, stored_hash: &str) -> bool {
         .into()
 }
 
-/// Corpo HTML/texto criativo de boas-vindas + código.
-pub fn build_welcome_message(username: &str, code: &str) -> (String, String) {
+/// Subject + texto plano + HTML do e-mail de boas-vindas.
+pub fn build_welcome_message(username: &str, code: &str) -> (String, String, String) {
     let subject = "♠ Zero Tilt — confirme sua conta e puxe a cadeira".to_string();
     let text = format!(
         r#"Olá, {username}!
@@ -115,7 +116,7 @@ Se você não criou uma conta, ignore esta mensagem.
         code = code
     );
 
-    (subject, text + "\n\n--- HTML omitted in log ---\n" + &html)
+    (subject, text, html)
 }
 
 fn html_escape(s: &str) -> String {
@@ -125,28 +126,127 @@ fn html_escape(s: &str) -> String {
         .replace('"', "&quot;")
 }
 
-/// Envia e-mail de verificação conforme EMAIL_PROVIDER.
-pub fn send_verification_email(to_email: &str, username: &str, code: &str) {
-    let (subject, body) = build_welcome_message(username, code);
-    let provider = env::var("EMAIL_PROVIDER")
-        .unwrap_or_else(|_| "log".to_string())
+fn resolve_provider() -> String {
+    let explicit = env::var("EMAIL_PROVIDER")
+        .unwrap_or_default()
         .to_lowercase();
+    if !explicit.is_empty() {
+        return explicit;
+    }
+    // Atalho: se há chave Resend e não forçou log, usa resend
+    if env::var("RESEND_API_KEY")
+        .map(|k| !k.trim().is_empty())
+        .unwrap_or(false)
+    {
+        return "resend".to_string();
+    }
+    "log".to_string()
+}
+
+/// Envia e-mail de verificação conforme EMAIL_PROVIDER / RESEND_API_KEY.
+pub fn send_verification_email(to_email: &str, username: &str, code: &str) {
+    let (subject, text, html) = build_welcome_message(username, code);
+    let provider = resolve_provider();
 
     match provider.as_str() {
+        "resend" => match send_via_resend(to_email, &subject, &text, &html) {
+            Ok(id) => {
+                tracing::info!(
+                    target: "email",
+                    to = to_email,
+                    %subject,
+                    resend_id = %id,
+                    "E-mail de verificação enviado via Resend"
+                );
+                // Não logar o código em produção se o envio real funcionou
+                if env::var("EMAIL_LOG_CODE_ALWAYS")
+                    .map(|v| matches!(v.to_ascii_lowercase().as_str(), "1" | "true" | "yes"))
+                    .unwrap_or(false)
+                {
+                    log_email(to_email, &subject, code, &text);
+                }
+            }
+            Err(err) => {
+                tracing::error!(
+                    target: "email",
+                    to = to_email,
+                    error = %err,
+                    "Falha ao enviar via Resend — caindo para log (código nos logs da API)"
+                );
+                log_email(to_email, &subject, code, &text);
+            }
+        },
         "smtp" => {
-            // SMTP real fica para o trilho de ops; por enquanto não bloqueamos o registro.
             tracing::warn!(
                 target: "email",
                 %to_email,
-                %subject,
-                "EMAIL_PROVIDER=smtp ainda não implementado — caindo para log"
+                "EMAIL_PROVIDER=smtp ainda não implementado — use resend ou log"
             );
-            log_email(to_email, &subject, code, &body);
+            log_email(to_email, &subject, code, &text);
         }
         _ => {
-            log_email(to_email, &subject, code, &body);
+            log_email(to_email, &subject, code, &text);
         }
     }
+}
+
+fn send_via_resend(
+    to_email: &str,
+    subject: &str,
+    text: &str,
+    html: &str,
+) -> Result<String, String> {
+    let api_key = env::var("RESEND_API_KEY")
+        .map_err(|_| "RESEND_API_KEY não configurada".to_string())?
+        .trim()
+        .to_string();
+    if api_key.is_empty() {
+        return Err("RESEND_API_KEY vazia".to_string());
+    }
+
+    // Domínio verificado no Resend, ou onboarding@resend.dev (só para o e-mail da conta Resend).
+    let from = env::var("EMAIL_FROM").unwrap_or_else(|_| {
+        "Zero Tilt Poker <onboarding@resend.dev>".to_string()
+    });
+
+    let client = reqwest::blocking::Client::builder()
+        .timeout(Duration::from_secs(20))
+        .build()
+        .map_err(|e| format!("cliente HTTP: {e}"))?;
+
+    let body = json!({
+        "from": from,
+        "to": [to_email],
+        "subject": subject,
+        "text": text,
+        "html": html,
+    });
+
+    let response = client
+        .post("https://api.resend.com/emails")
+        .bearer_auth(&api_key)
+        .header("Content-Type", "application/json")
+        .json(&body)
+        .send()
+        .map_err(|e| format!("rede Resend: {e}"))?;
+
+    let status = response.status();
+    let response_text = response
+        .text()
+        .unwrap_or_else(|_| String::from("(sem corpo)"));
+
+    if !status.is_success() {
+        return Err(format!("Resend HTTP {status}: {response_text}"));
+    }
+
+    // {"id":"re_..."}
+    let parsed: serde_json::Value =
+        serde_json::from_str(&response_text).unwrap_or_else(|_| json!({}));
+    Ok(parsed
+        .get("id")
+        .and_then(|v| v.as_str())
+        .unwrap_or("ok")
+        .to_string())
 }
 
 fn log_email(to: &str, subject: &str, code: &str, body: &str) {
@@ -157,8 +257,5 @@ fn log_email(to: &str, subject: &str, code: &str, body: &str) {
         verification_code = %code,
         "=== E-mail de verificação Zero Tilt (provider=log) ===\n{body}"
     );
-    // Também em stderr legível em docker logs
-    eprintln!(
-        "[email:log] to={to} subject={subject} code={code} (veja logs da API)"
-    );
+    eprintln!("[email:log] to={to} subject={subject} code={code} (veja logs da API)");
 }

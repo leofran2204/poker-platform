@@ -63,8 +63,9 @@ export function VerifyEmailPage() {
         <form className="space-y-4 p-5" onSubmit={onSubmit}>
           <p className="text-sm leading-relaxed text-felt-200">
             Enviamos um código de 6 dígitos para o seu e-mail — é o dealer
-            pedindo para confirmar que a cadeira é sua. Em ambiente demo o
-            código também aparece nos logs da API (<code className="text-gold-soft">EMAIL_PROVIDER=log</code>).
+            pedindo para confirmar que a cadeira é sua. Confira a caixa de
+            entrada e o spam. Se o envio real não estiver configurado no
+            servidor, o código ainda aparece nos logs da API.
           </p>
           <div>
             <label className="zt-label" htmlFor="email">

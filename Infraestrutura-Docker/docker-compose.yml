@@ -67,7 +67,11 @@ services:
       - DEFAULT_RAKE_CAP_CENTS=${DEFAULT_RAKE_CAP_CENTS:-10000}
       - LOSS_DEFLATOR_ENABLED=${LOSS_DEFLATOR_ENABLED:-true}
       - REQUIRE_EMAIL_VERIFICATION=${REQUIRE_EMAIL_VERIFICATION:-true}
+      # log = só nos logs da API; resend = e-mail real (precisa RESEND_API_KEY + EMAIL_FROM)
       - EMAIL_PROVIDER=${EMAIL_PROVIDER:-log}
+      - RESEND_API_KEY=${RESEND_API_KEY:-}
+      - EMAIL_FROM=${EMAIL_FROM:-Zero Tilt Poker <onboarding@resend.dev>}
+      - EMAIL_LOG_CODE_ALWAYS=${EMAIL_LOG_CODE_ALWAYS:-false}
     depends_on:
       postgres:
         condition: service_healthy

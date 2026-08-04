@@ -7,6 +7,17 @@
 
 ---
 
+## 📌 2026-08-04 — Resend: e-mail real de verificação
+
+| Item | Detalhe |
+|------|---------|
+| **Provider** | `EMAIL_PROVIDER=resend` + `RESEND_API_KEY` + `EMAIL_FROM` |
+| **Fallback** | Falha no Resend → log com código (registro não trava) |
+| **Docs** | `Infraestrutura-Docker/EMAIL_RESEND.md` |
+| **Amigos** | Com domínio verificado no Resend, cada jogador recebe o código sozinho |
+
+---
+
 ## 📌 2026-08-04 — Registro: confirmar senha + verificação de e-mail
 
 | Item | Detalhe |
