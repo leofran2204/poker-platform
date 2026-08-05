@@ -4,7 +4,7 @@ Plataforma de poker online **Texas Hold'em Tradicional** (52 cartas) construída
 
 **Domínio do produto (demo/staging):** [zerotiltpoker.net](https://zerotiltpoker.net)
 
-> **Estado (ver `STATUS_OPERACIONAL.json`):** S10 — demo HTTPS + B2B SaaS multi-tenant (clubs, rake 15/85, agentes, dashboard admin via **HTTPS**). Isto **não** equivale a certificação de produção: multi-pod de mesas ainda requer ownership distribuído; PIX de produção desabilitado; site público depende de Cloudflare Tunnel (casa) ou VPS.
+> **Estado (ver `STATUS_OPERACIONAL.json`):** S11 — demo VPS **https://zerotiltpoker.net** (Caddy + Let's Encrypt), frontend TypeScript Full Tilt, B2B multi-tenant, e-mail Resend (domínio verified). Isto **não** equivale a certificação de produção: multi-pod de mesas ainda requer ownership distribuído; PIX de produção desabilitado.
 
 ## Estado operacional e sincronização
 

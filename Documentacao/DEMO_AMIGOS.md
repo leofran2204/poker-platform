@@ -4,11 +4,12 @@ Guia curto para convidar dezenas de pessoas a testar e mandar feedback.
 
 ## O que cada amigo precisa fazer
 
-1. Abrir **https://zerotiltpoker.net**
-2. **Registrar** (username 3–30 chars, email válido, senha forte: maiúscula + minúscula + número, ex. `PokerDemo1`)
-3. Ir ao **Lobby**
-4. Clicar **Entrar** em uma mesa (buy-in mínimo automático)
-5. Jogar e anotar bugs / sensações
+1. Abrir **https://zerotiltpoker.net** (HTTPS público Let's Encrypt)
+2. **Registrar** (username 3–30 chars, e-mail válido, senha forte + confirmação; ex. `PokerDemo1`)
+3. **Verificar e-mail** — código de 6 dígitos enviado via Resend (inbox + spam); tela `/verify-email`
+4. Ir ao **Lobby**
+5. Clicar **Entrar** em uma mesa (buy-in mínimo automático)
+6. Jogar e anotar bugs / sensações
 
 ## O que a conta ganha
 
@@ -25,9 +26,10 @@ Teste do Zero Tilt Poker (demo HTTPS, fichas virtuais):
 
 https://zerotiltpoker.net
 
-1) Crie conta (senha tipo PokerDemo1 — precisa letra maiúscula e número)
-2) Lobby → Entrar numa mesa
-3) Me diga: o que travou, o que gostou, se a mesa abriu ok
+1) Crie conta (senha tipo PokerDemo1 — maiúscula + minúscula + número; confirme a senha)
+2) Abra o e-mail e digite o código de 6 dígitos (olhe o spam)
+3) Lobby → Entrar numa mesa
+4) Me diga: o que travou, o que gostou, se a mesa abriu ok
 
 É play-money, sem dinheiro real. Site no ar só enquanto a demo estiver ligada.
 ```

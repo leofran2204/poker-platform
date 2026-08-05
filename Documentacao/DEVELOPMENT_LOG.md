@@ -1,13 +1,29 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-08-04
+**Atualizado:** 2026-08-05
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 > Painel tático em `DASHBOARD.md`. Cronograma em `CRONOGRAMA.md`. Estado canônico em `STATUS_OPERACIONAL.json` (prevalece sobre retrospectivas históricas que digam “Launch Ready”).
 
 ---
 
-## 📌 2026-08-04 — Resend: e-mail real de verificação
+## 📌 2026-08-05 — VPS: HTTPS Let's Encrypt + Resend go-live
+
+| Item | Detalhe |
+|------|---------|
+| **VPS** | Hostinger KVM; stack Docker healthy (`poker_api`, `poker_frontend`/Caddy, Postgres, Redis) |
+| **DNS** | `A zerotiltpoker.net` → IPv4 da VPS; UFW 80/443 |
+| **TLS** | Após rate limit LE 429 (5 certs/168h), cert público emitido **2026-08-05** — issuer Let's Encrypt YE2, validade ~90 dias; Caddyfile **sem** `tls internal` |
+| **Browser** | `ERR_CERT_AUTHORITY_INVALID` era CA local do Caddy (`tls internal`); resolvido com LE |
+| **Resend** | Domínio `zerotiltpoker.net` **verified** (Hostinger: TXT DKIM `resend._domainkey`, MX+TXT SPF em `send`) |
+| **API** | `Auth policy loaded require_email_verification=true email_provider=resend` nos logs; rebuild `poker_api` com código Resend |
+| **From** | Recomendado `noreply@zerotiltpoker.net` (domínio verified); caixa `admin@` (webmail) é independente do envio transacional |
+| **Cuidado** | Não apagar volume `caddy_data` a cada recreate — reestoura rate limit LE |
+| **Docs** | `STATUS_OPERACIONAL.json`, `EMAIL_RESEND.md`, `Caddyfile.tls-internal` |
+
+---
+
+## 📌 2026-08-04 — Resend: e-mail real de verificação (código)
 
 | Item | Detalhe |
 |------|---------|
@@ -15,6 +31,7 @@
 | **Fallback** | Falha no Resend → log com código (registro não trava) |
 | **Docs** | `Infraestrutura-Docker/EMAIL_RESEND.md` |
 | **Amigos** | Com domínio verificado no Resend, cada jogador recebe o código sozinho |
+| **Go-live** | Ver entrada 2026-08-05 |
 
 ---
 
@@ -24,7 +41,7 @@
 |------|---------|
 | **API** | `password_confirm`; status `pending_email_verification`; `POST /api/auth/verify-email` e `/resend-verification` |
 | **Migration** | `015_email_verification.sql` (códigos hash SHA-256, TTL 15 min) |
-| **E-mail** | Template boas-vindas Full Tilt; `EMAIL_PROVIDER=log` (código nos logs da API) até SMTP |
+| **E-mail** | Template boas-vindas Full Tilt; provider **resend** no deploy demo (2026-08-05); `log` em lab/testes |
 | **Flag** | `REQUIRE_EMAIL_VERIFICATION` (padrão true em runtime; false nos testes) |
 | **Front** | Confirmar senha; página `/verify-email`; login redireciona se pendente |
 | **Join mesa** | JWT só com conta `active` |

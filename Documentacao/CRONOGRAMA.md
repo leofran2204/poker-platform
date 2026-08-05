@@ -1,13 +1,13 @@
 # 📅 Cronograma — Plataforma de Poker Online
 
-**Atualizado:** 2026-08-04 | **Status:** Roadmap; ciclo S11 — Frontend TypeScript Full Tilt + B2B + domínio **zerotiltpoker.net**.
+**Atualizado:** 2026-08-05 | **Status:** Roadmap; ciclo S11 — Frontend TypeScript Full Tilt + demo VPS **zerotiltpoker.net** (LE + Resend).
 **Stack:** Rust (motor + API + antifraude) + TypeScript/React (frontend canônico). Regulação: **jan/2027**.
 
 > ⚠️ **Regra de Ouro:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📐 Specs e regras de negócio em `Documentacao/BUSINESS_RULES.md`.
 > 📋 Acompanhamento tático em `DASHBOARD.md`.
 > 📌 Fonte canônica de estado: `STATUS_OPERACIONAL.json` (prevalece sobre percentuais deste arquivo).
-> **Importante:** os percentuais abaixo descrevem marcos de código/documentação e **não** certificam lançamento em produção. PIX mock; escala horizontal depende de ownership distribuído. Deploy demo: `DEPLOY_HOME_CLOUDFLARE.md` ou `DEPLOY_HETZNER.md`.
+> **Importante:** os percentuais abaixo descrevem marcos de código/documentação e **não** certificam lançamento em produção. PIX mock; escala horizontal depende de ownership distribuído. Deploy demo: VPS Hostinger ou `DEPLOY_HOME_CLOUDFLARE.md` / `DEPLOY_HETZNER.md`.
 
 ---
 
@@ -16,11 +16,11 @@
 ```
 FASE 1 ████████████████████████████ 100%  Fundação (docs + regras + stack)
 FASE 2 ████████████████████████████ 100%  Motor de Jogo Rust + API Axum (1.904 testes + 1M Fuzzing)
-FASE 3 ██████████████████████████░░  90%  Front-end: legado Dioxus → canônico TypeScript Full Tilt (S11)
-FASE 4 ████████████████████████████ 100%  Infraestrutura (Docker Multi-stage + Caddy HTTPS + CI/CD GitHub Actions)
-FASE 5 ████████████████████████████ 100%  Segurança & Pagamentos (TLS 1.3 + JWT + MFA + Hardening + Gateway PIX)
+FASE 3 ██████████████████████████░░  92%  Front-end: legado Dioxus → canônico TypeScript Full Tilt (S11; polish UI)
+FASE 4 ████████████████████████████ 100%  Infraestrutura (Docker + Caddy HTTPS LE em VPS + CI/CD)
+FASE 5 ████████████████████████████ 100%  Segurança & Pagamentos (TLS LE + JWT + MFA + Hardening + PIX mock + Resend e-mail)
 FASE 6 ████████████████████████████ 100%  IA Antifraude & Analytics (BotDetector + Collusion + Prometheus + Red Team 50w)
-FASE 7 ████████████████████████░░  90%  B2B SaaS Multi-Tenant & Dashboard B2B (Clubs, Rake 15/85, Agentes HTTPS, MTT lobby — sem cert. produção)
+FASE 7 ████████████████████████░░  92%  B2B SaaS Multi-Tenant & demo pública HTTPS (sem cert. produção)
 ```
 
 ---

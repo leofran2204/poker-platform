@@ -20,7 +20,7 @@
 > ✅ **Motor e API em Rust.** Frontend canônico em TypeScript desde 2026-08-04. `Frontend-Dioxus/` é legado.
 > 📌 Estado operacional (PIX, ownership, ciclo S11): ver `STATUS_OPERACIONAL.json` — **sem** certificação de produção.
 > ⚖️ **Regulação / compliance de jogo e dinheiro real:** planejada para **janeiro de 2027**.
-> ✉️ **Registro (S11):** senha + confirmação; com `REQUIRE_EMAIL_VERIFICATION=true`, conta fica `pending_email_verification` até código de 6 dígitos no e-mail. Provedor padrão de e-mail: **log** (SMTP futuro).
+> ✉️ **Registro (S11):** senha + confirmação; com `REQUIRE_EMAIL_VERIFICATION=true`, conta fica `pending_email_verification` até código de 6 dígitos no e-mail. Deploy demo: **`EMAIL_PROVIDER=resend`** (domínio verified); lab/testes: **log**. SMTP da caixa webmail ainda não implementado.
 
 ### 0.1. 💵 Arquitetura Financeira e Tipagem Estrita (`u64` Centavos)
 - **Princípio da Precisão Bancária:** Todos os valores financeiros (saldo, apostas, stacks, potes, rake, buy-in e blinds) utilizam estritamente `u64` centavos inteiros no **backend** (`R$ 10,50` = `1050` centavos). Erros de arredondamento IEEE-754 flutuantes são eliminados na raiz.

@@ -1,16 +1,18 @@
 {
   "schema_version": 1,
-  "reviewed_on": "2026-08-04",
-  "cycle": "S11 — Frontend TypeScript Full Tilt; registro com confirmação de senha + verificação de e-mail (código 6 dígitos, EMAIL_PROVIDER=log); regulação/compliance jan/2027; B2B + zerotiltpoker.net; VPS KVM 2.",
+  "reviewed_on": "2026-08-05",
+  "cycle": "S11 — Frontend TypeScript Full Tilt; VPS Hostinger com HTTPS Let's Encrypt; Resend domínio zerotiltpoker.net verified; verificação de e-mail com EMAIL_PROVIDER=resend; regulação/compliance jan/2027; B2B multi-tenant; staging/demo.",
   "stack": {
     "motor_api": "Rust (Motor-Rust + API-Axum)",
     "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",
     "frontend_legacy": "Frontend-Dioxus (WASM) — não canônico no deploy",
-    "edge": "Caddy HTTPS same-origin /api /ws"
+    "edge": "Caddy HTTPS same-origin /api /ws (Let's Encrypt em VPS)"
   },
-  "production": "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS — não multi-AZ. Staging/demo apenas; não alegar Launch Ready de produção.",
+  "production": "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.",
   "regulation": "Trilho de regulação, KYC/AML e compliance de jogo/dinheiro real: planejado para janeiro de 2027. Até lá: play-money / demo e freios de PIX real.",
-  "validation": "Infra e docs de deploy versionados. Suíte histórica motor/API (~1.904 Motor + ~32 API). Frontend-Web build Vite substitui Dioxus no compose. Smoke em https://zerotiltpoker.net depende de stack no ar. Migration 014 B2B local.",
+  "validation": "VPS stack healthy (postgres, redis, api, frontend/Caddy). Certificado público Let's Encrypt (emitido 2026-08-05; renovação automática Caddy). Suíte histórica motor/API (~1.904 Motor + ~32 API). Frontend-Web build Vite canônico. Migration 014 B2B + 015 e-mail verification.",
+  "email": "Resend: domínio zerotiltpoker.net status verified (DNS Hostinger: DKIM resend._domainkey, SPF+MX em send). API em runtime com REQUIRE_EMAIL_VERIFICATION=true e EMAIL_PROVIDER=resend. From recomendado: noreply@zerotiltpoker.net. Fallback: log com código se Resend falhar. Caixa admin@ (webmail Hostinger) é separada do envio transacional.",
+  "tls_notes": "Rate limit Let's Encrypt (5 certs/168h) já ocorreu; workaround Caddyfile.tls-internal gera ERR_CERT_AUTHORITY_INVALID no browser. Após liberação LE, Caddyfile canônico sem tls internal + volume caddy_data persistido. Não apagar caddy_data em cada recreate.",
   "pix": "Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado.",
   "table_ownership": "Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.",
   "ui_direction": "Moderno + nostalgia Full Tilt (felt, gold rail, lobby denso). Evitar estética genérica de landing AI."

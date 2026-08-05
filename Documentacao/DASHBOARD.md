@@ -1,14 +1,15 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-08-04 | **Status:** S11 — Frontend **TypeScript** (Full Tilt) + B2B + domínio **zerotiltpoker.net**; **sem** certificação de produção; **regulação → jan/2027**.
+**Atualizado:** 2026-08-05 | **Status:** S11 — Frontend **TypeScript** (Full Tilt) + B2B + VPS demo **https://zerotiltpoker.net** (LE) + Resend verified; **sem** certificação de produção; **regulação → jan/2027**.
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📌 **Fonte canônica de estado:** [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json) — prevalece sobre qualquer texto datado abaixo.
 > 📅 O cronograma completo está em `Documentacao/CRONOGRAMA.md` — veja prazos, fases e % de conclusão.
 > 🏗️ **Stack v4.0:** Rust no motor/API; TypeScript + React + Vite + Tailwind no frontend (`Frontend-Web/`). `Frontend-Dioxus/` legado.
-> **Domínio do produto:** [`zerotiltpoker.net`](https://zerotiltpoker.net) (demo/staging).
-> **Transporte público:** **HTTPS** (Caddy); SPA same-origin.
-> **Limites conhecidos:** PIX mock/sandbox; mesas com dono único por processo; VPS Hostinger KVM 2 ok para ~40 concurrent.
+> **Domínio do produto:** [`zerotiltpoker.net`](https://zerotiltpoker.net) (demo/staging — VPS Hostinger).
+> **Transporte público:** **HTTPS** (Caddy + **Let's Encrypt**); SPA same-origin.
+> **E-mail:** Resend domínio **verified**; `EMAIL_PROVIDER=resend` na API (ver `EMAIL_RESEND.md`).
+> **Limites conhecidos:** PIX mock/sandbox; mesas com dono único por processo; VPS Hostinger KVM 2 ok para ~40 concurrent; LE rate limit 5 certs/168h se recriar `caddy_data`.
 > ⚖️ **Regulação / KYC / real-money compliance:** planejado para **janeiro de 2027**.
 
 ---
@@ -18,8 +19,8 @@
 | # | Parâmetro | Valor |
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
-| 2 | **Sprint atual** | S11 — Frontend-Web TS Full Tilt + stack docs v4.0 + regulação 2027 |
-| 3 | **Status** | 🟡 SPA TypeScript no compose; polish UI contínuo; smoke domínio depende de deploy |
+| 2 | **Sprint atual** | S11 — Frontend-Web TS Full Tilt + demo VPS HTTPS + Resend |
+| 3 | **Status** | 🟢 Demo pública com LE + e-mail Resend; polish UI e smoke de registro contínuos |
 | 4 | **Cerimônias** | Planning + Review + Retrospectiva |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
 
@@ -56,7 +57,7 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S08 | 2026-07-28 | Correções críticas de segurança e arquitetura | Ledger PIX local, token version, timeout de turno, WebSocket e contratos PostgreSQL | ✅ Concluído localmente |
 | S09 | 2026-07-29 | Recovery de mão + PIX sandbox | Guarda transacional de liquidação; Asaas sandbox restrito | ✅ Concluído localmente |
 | S10 | 2026-07-31 → 2026-08-01 | Domínio/demo HTTPS + B2B SaaS | `zerotiltpoker.net`; tunnel/VPS; migration 014 clubs/agents; rake 15/85; dashboard HTTPS; lobby MTT | 🟡 Local pronto — go-live tunnel e commit full pendentes |
-| S11 | 2026-08-04 | Frontend TypeScript + stack híbrida | `Frontend-Web` React/Vite/Tailwind; deploy canônico fora do Dioxus; docs v4.0; regulação marcada jan/2027 | 🟡 Em curso |
+| S11 | 2026-08-04 → 2026-08-05 | Frontend TypeScript + demo VPS | `Frontend-Web` React/Vite/Tailwind; docs v4.0; regulação jan/2027; VPS Hostinger LE (2026-08-05); Resend `zerotiltpoker.net` verified; auth e-mail + Resend na API | 🟢 Demo HTTPS + e-mail operacionais |
 
 ---
 
@@ -92,6 +93,8 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 ### ✅ Concluídas — Sprint Atual
 | #   | Tarefa                                                                                                                                                              | Data       |
 |-----|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| TLS | **HTTPS público Let's Encrypt** — VPS Hostinger; DNS A `zerotiltpoker.net` → IP da VPS; Caddyfile canônico (sem `tls internal`); volume `caddy_data` persistido; cert LE emitido 2026-08-05 (issuer Let's Encrypt YE2, validade ~90d). Rate limit 429 documentado em `Caddyfile.tls-internal` e `STATUS_OPERACIONAL.json`. | 2026-08-05 |
+| MAIL| **Resend go-live** — domínio `zerotiltpoker.net` **verified** (DKIM `resend._domainkey`, SPF+MX `send` na Hostinger); API `email_provider=resend` + `require_email_verification=true`; rebuild `poker_api` com código Resend; `EMAIL_FROM` `noreply@` recomendado. Guia: `EMAIL_RESEND.md`. | 2026-08-05 |
 | B2B | **SaaS multi-tenant (local)** — migration `014` (`clubs`, `club_memberships`, `club_agents`, `club_id` em tables/tournaments); rake split 15/85 no motor + crédito de `club_rake` no `TableActor`; admin API clubs/financials/withdraw/theme/agents; dashboard Dioxus `/admin/clubs` via **HTTPS** (JWT + fallback demo); lobby MTT `/tournament/:id`; compose com healthchecks API/Caddy; `.env.production.example`. | 2026-08-01 |
 | S10 | **Domínio e demo HTTPS** — `zerotiltpoker.net`; compose `.env`; `Caddyfile.tunnel` + Origin CA; `DEPLOY_HOME_CLOUDFLARE.md`; Hetzner opcional; demo amigos (play-money + mesas seed). | 2026-07-31 |
 | S08 | **Correções críticas validadas localmente** — `wallet_transactions` ganhou chave de idempotência, identificador externo único, status de provedor e impressão de chave PIX; webhook liquida saldo e status na mesma transação; saque reserva saldo e emite outbox sem payout externo. `token_version` persistente revoga JWTs após mudança sensível; Redis limita IPs de forma compartilhada; timeout de turno aplica fold automático; WSS responde ping/pong e remove campos sensíveis. Passaram 1.814 testes determinísticos do motor, 12 unitários da API, 11 contratos PostgreSQL, 1 contrato Redis e Clippy estrito. A carga manual não foi acionada. | 2026-07-28 |
