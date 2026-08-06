@@ -1,0 +1,7 @@
+# cargo-audit scans optional packages retained in Cargo.lock even when they are
+# absent from the compiled dependency graph. RUSTSEC-2023-0071 belongs to
+# rsa through sqlx-mysql; this API enables only PostgreSQL and cargo tree -i
+# rsa --target all returns no active path. Keep every other advisory blocking.
+
+[advisories]
+ignore = ["RUSTSEC-2023-0071"]
