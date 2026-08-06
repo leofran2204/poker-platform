@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { applyAuthTokens, login } from "@/api/client";
+import { applyAuthTokens, login, verifyMfa } from "@/api/client";
 import { saveUsername } from "@/lib/auth";
 
 export function LoginPage() {
@@ -8,6 +8,8 @@ export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [mfaChallenge, setMfaChallenge] = useState<string | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: FormEvent) {
@@ -15,6 +17,14 @@ export function LoginPage() {
     setError(null);
     setLoading(true);
     try {
+      if (mfaChallenge) {
+        const tokens = await verifyMfa(mfaChallenge, mfaCode.trim());
+        applyAuthTokens(tokens);
+        saveUsername(tokens.username ?? (email.trim().split("@")[0] || "jogador"));
+        navigate("/lobby");
+        return;
+      }
+
       const res = await login(email.trim(), password);
       if (res.email_verification_required) {
         navigate(
@@ -23,7 +33,12 @@ export function LoginPage() {
         return;
       }
       if (res.mfa_required) {
-        setError("MFA necessário — use o fluxo MFA (ainda simplificado na UI).");
+        if (!res.mfa_challenge) {
+          setError("O servidor não forneceu um challenge MFA válido.");
+          return;
+        }
+        setMfaChallenge(res.mfa_challenge);
+        setPassword("");
         return;
       }
       if (!res.token) {
@@ -35,7 +50,7 @@ export function LoginPage() {
         refresh_token: res.refresh_token,
         expires_in: res.expires_in,
       });
-      saveUsername(email.trim().split("@")[0] || "jogador");
+      saveUsername(res.username ?? (email.trim().split("@")[0] || "jogador"));
       navigate("/lobby");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha no login");
@@ -49,41 +64,78 @@ export function LoginPage() {
       <div className="zt-panel">
         <div className="zt-panel-title">Entrar</div>
         <form className="space-y-4 p-5" onSubmit={onSubmit}>
-          <div>
-            <label className="zt-label" htmlFor="email">
-              E-mail
-            </label>
-            <input
-              id="email"
-              type="email"
-              className="zt-input"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="zt-label" htmlFor="password">
-              Senha
-            </label>
-            <input
-              id="password"
-              type="password"
-              className="zt-input"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+          {mfaChallenge ? (
+            <div>
+              <label className="zt-label" htmlFor="mfa-code">
+                Código do autenticador
+              </label>
+              <input
+                id="mfa-code"
+                type="text"
+                className="zt-input"
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                required
+                autoFocus
+                value={mfaCode}
+                onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ""))}
+              />
+              <button
+                type="button"
+                className="mt-3 text-sm text-felt-200 hover:underline"
+                onClick={() => {
+                  setMfaChallenge(null);
+                  setMfaCode("");
+                }}
+              >
+                Voltar ao login
+              </button>
+            </div>
+          ) : (
+            <>
+              <div>
+                <label className="zt-label" htmlFor="email">
+                  E-mail
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  className="zt-input"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="zt-label" htmlFor="password">
+                  Senha
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  className="zt-input"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+            </>
+          )}
           {error && (
             <p className="rounded border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-200">
               {error}
             </p>
           )}
           <button type="submit" className="zt-btn-primary w-full" disabled={loading}>
-            {loading ? "Entrando…" : "Entrar"}
+            {loading
+              ? mfaChallenge ? "Verificando…" : "Entrando…"
+              : mfaChallenge
+                ? "Confirmar MFA"
+                : "Entrar"}
           </button>
           <p className="text-center text-sm text-felt-300">
             Novo por aqui?{" "}

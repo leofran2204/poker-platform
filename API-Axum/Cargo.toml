@@ -49,6 +49,8 @@ subtle = "2.6"
 tower = { version = "0.5", features = ["util"] }
 # Utilities for reading API response bodies in tests
 http-body-util = "0.1"
+# RFC 6238 contract vectors for the MFA integration test.
+sha1 = "0.10"
 # Property-based fuzz testing
 proptest = "1.5"
 

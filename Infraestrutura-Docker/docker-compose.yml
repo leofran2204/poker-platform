@@ -4,7 +4,7 @@
 services:
   # --- Database Layer ---
   postgres:
-    image: postgres:15-alpine
+    image: postgres:15-alpine@sha256:3d0f7584ed7d04e27fa050d6683a74746608faf21f202be78460d679cc56461f
     container_name: poker_postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-user}
@@ -25,7 +25,7 @@ services:
       start_period: 10s
 
   redis:
-    image: redis:7-alpine
+    image: redis:7-alpine@sha256:e7723ff73d963f5cc6d9c4643ea3d989527a402a319239054e9472a7fb9219a2
     container_name: poker_redis
     ports:
       # Loopback only — session cache must not face the internet
@@ -59,6 +59,7 @@ services:
       - CORS_ORIGINS=${CORS_ORIGINS:-https://localhost}
       - JWT_SECRET=${JWT_SECRET:-dev-only-replace-with-a-random-secret-of-at-least-32-chars}
       - TRUST_PROXY_HEADERS=${TRUST_PROXY_HEADERS:-true}
+      - AUTH_PASSWORD_WORKERS=${AUTH_PASSWORD_WORKERS:-4}
       - PIX_PROVIDER=${PIX_PROVIDER:-mock}
       - PIX_MODE=${PIX_MODE:-mock}
       - PIX_WEBHOOK_SECRET=${PIX_WEBHOOK_SECRET:-dev-only-replace-with-a-random-webhook-secret}
@@ -71,7 +72,7 @@ services:
       - EMAIL_PROVIDER=${EMAIL_PROVIDER:-log}
       - RESEND_API_KEY=${RESEND_API_KEY:-}
       - EMAIL_FROM=${EMAIL_FROM:-Zero Tilt Poker <onboarding@resend.dev>}
-      - EMAIL_LOG_CODE_ALWAYS=${EMAIL_LOG_CODE_ALWAYS:-false}
+      - EMAIL_CODE_PEPPER=${EMAIL_CODE_PEPPER:-development-email-code-pepper}
     depends_on:
       postgres:
         condition: service_healthy

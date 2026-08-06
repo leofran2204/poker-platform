@@ -43,14 +43,19 @@ const TOTP_PERIOD: u64 = 30;
 const TOTP_DIGITS: u32 = 6;
 
 /// Tentativas máximas de login antes de lockout temporário
-const MAX_LOGIN_ATTEMPTS: u32 = 5;
+pub const MAX_LOGIN_ATTEMPTS: u32 = 5;
 
 /// Duração do lockout em segundos (15 minutos)
-const LOCKOUT_DURATION_SECS: u64 = 900;
+pub const LOCKOUT_DURATION_SECS: u64 = 900;
 
 /// Saldo inicial em centavos ao registrar (play-money / demo).
 /// 100_000 = R$ 1.000,00 — suficiente para várias mesas NL sem PIX real.
 pub const DEMO_STARTING_BALANCE_CENTS: i64 = 100_000;
+
+/// Verifica uma credencial bcrypt sem expor detalhes do hash ao chamador.
+pub fn verify_password_hash(password: &str, password_hash: &str) -> bool {
+    verify(password, password_hash).unwrap_or(false)
+}
 
 // ─── Tipos / Enums ───
 

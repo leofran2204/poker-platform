@@ -141,7 +141,7 @@ impl BotDetector {
     /// Retorna o score de bot de um jogador (0.0 a 100.0)
     pub fn calculate_bot_score(&mut self, player_id: &str) -> f64 {
         let now = 1700000000000u64;
-        
+
         // FASE 1: ML Antifraude via Tract ONNX (Mock / Documentação de Interface)
         // Em produção, o modelo treinado `antifraud_model.onnx` seria carregado globalmente.
         // Aqui simulamos a inferência chamando a lógica do Tensor caso tivéssemos o arquivo carregado.
@@ -149,7 +149,7 @@ impl BotDetector {
             if actions.len() >= 5 {
                 // Prepara o tensor 1D com os tempos de resposta para a IA
                 let times: Vec<f32> = actions.iter().map(|a| a.timestamp_ms as f32).collect();
-                
+
                 /* Lógica Tract-ONNX comentada até a entrega do modelo pela ciência de dados:
                 use tract_onnx::prelude::*;
                 if let Ok(model) = tract_onnx::onnx().model_for_path("antifraud_model.onnx") {

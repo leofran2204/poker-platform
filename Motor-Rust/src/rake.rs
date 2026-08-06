@@ -176,7 +176,7 @@ pub fn deduct_rake_with_rounding_for_players(
     }
 
     let effective_total_rake: u64 = per_pot.iter().map(|entry| entry.rake).sum();
-    
+
     // FASE 2: B2B Split - 15% Platform Fee, 85% Club Rake
     // Arredonda a favor da plataforma (math.ceil-ish) ou floor. Usaremos floor pro platform e resto pro clube.
     let platform_fee = (effective_total_rake * 15) / 100;
@@ -288,28 +288,23 @@ mod tests {
     #[test]
     fn b2b_rake_split_always_totals_100_percent() {
         let config = TableConfig::new(200, 500, 3000); // Rake 5%, cap 30.00
-        let pots = vec![
-            Pot {
-                amount: 1573, // Pote arbitrário
-                eligible_players: vec![uuid::Uuid::new_v4(), uuid::Uuid::new_v4()],
-            },
-        ];
+        let pots = vec![Pot {
+            amount: 1573, // Pote arbitrário
+            eligible_players: vec!["alice".to_string(), "bob".to_string()],
+        }];
 
-        let result = deduct_rake_with_rounding(
-            &pots,
-            &config,
-            None,
-            RakeRounding::HalfToEven,
-        );
+        let result = deduct_rake_with_rounding(&pots, &config, None, RakeRounding::HalfToEven);
 
         // A soma do fee da plataforma (15%) + rake do clube (85%) DEVE ser idêntica ao total coletado.
         assert_eq!(
             result.platform_fee + result.club_rake,
             result.total_rake,
             "Rake math violation! Platform {} + Club {} != Total {}",
-            result.platform_fee, result.club_rake, result.total_rake
+            result.platform_fee,
+            result.club_rake,
+            result.total_rake
         );
-        
+
         // Assert de sanidade dos valores (exato 15% via floor)
         // O total_rake deve ser min(round(1573 * 500 / 10000), 3000) = round(78.65) = 79
         assert_eq!(result.total_rake, 79);

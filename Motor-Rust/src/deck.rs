@@ -134,7 +134,7 @@ pub fn evaluate_hand(hole_cards: &[Card], community_cards: &[Card]) -> HandResul
     }
 
     // FASE 1: Integração com Evaluator SIMD (rs-poker)
-    /* 
+    /*
     use rs_poker::core::{Hand, Card as RsCard, Suit as RsSuit, Value as RsValue};
     // Transforma as cartas para o formato da rs_poker
     let rs_cards: Vec<RsCard> = all_cards.iter().map(|c| {
@@ -147,11 +147,7 @@ pub fn evaluate_hand(hole_cards: &[Card], community_cards: &[Card]) -> HandResul
     */
 
     // Ordenação decrescente: maior rank primeiro. Desempata por naipe.
-    all_cards.sort_by(|a, b| {
-        b.rank
-            .cmp(&a.rank)
-            .then_with(|| b.suit.cmp(&a.suit))
-    });
+    all_cards.sort_by(|a, b| b.rank.cmp(&a.rank).then_with(|| b.suit.cmp(&a.suit)));
 
     let mut suit_counts = [0; 4];
     let mut has_flush_suit = false;

@@ -97,8 +97,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             | "test-secret-key-for-poker-platform-2026"
             | "test-secret-key-for-tests"
     );
+    let normalized_jwt_secret = jwt_secret.to_ascii_lowercase();
     if is_production
-        && (jwt_secret.len() < 32 || is_known_sample_secret || jwt_secret.contains("change_me"))
+        && (jwt_secret.len() < 32
+            || is_known_sample_secret
+            || normalized_jwt_secret.contains("change_me")
+            || normalized_jwt_secret.contains("trocar"))
     {
         return Err("Refusing to boot production with an insecure JWT_SECRET".into());
     }
@@ -171,8 +175,45 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Verificação de e-mail no registro (padrão: ligada).
     // REQUIRE_EMAIL_VERIFICATION=false desliga (testes / lab sem SMTP).
     let require_email_verification = std::env::var("REQUIRE_EMAIL_VERIFICATION")
-        .map(|v| !matches!(v.to_ascii_lowercase().as_str(), "0" | "false" | "no" | "off"))
+        .map(|v| {
+            !matches!(
+                v.to_ascii_lowercase().as_str(),
+                "0" | "false" | "no" | "off"
+            )
+        })
         .unwrap_or(true);
+    if is_production && require_email_verification {
+        let email_provider = std::env::var("EMAIL_PROVIDER").unwrap_or_default();
+        if !email_provider.eq_ignore_ascii_case("resend") {
+            return Err("EMAIL_PROVIDER=resend is required in production".into());
+        }
+        let resend_api_key = std::env::var("RESEND_API_KEY").unwrap_or_default();
+        let normalized_resend_key = resend_api_key.trim().to_ascii_lowercase();
+        let insecure_resend_key = normalized_resend_key.len() < 16
+            || !normalized_resend_key.starts_with("re_")
+            || normalized_resend_key.contains("change_me")
+            || normalized_resend_key.contains("trocar");
+        if insecure_resend_key {
+            return Err("A valid RESEND_API_KEY is required in production".into());
+        }
+        let email_from = std::env::var("EMAIL_FROM").unwrap_or_default();
+        if email_from.trim().is_empty()
+            || email_from
+                .to_ascii_lowercase()
+                .contains("onboarding@resend.dev")
+        {
+            return Err("A verified production EMAIL_FROM is required".into());
+        }
+        let email_code_pepper = std::env::var("EMAIL_CODE_PEPPER").unwrap_or_default();
+        let insecure_pepper = email_code_pepper.len() < 32
+            || email_code_pepper.to_ascii_lowercase().contains("change_me")
+            || email_code_pepper.to_ascii_lowercase().contains("trocar")
+            || email_code_pepper == "development-email-code-pepper"
+            || email_code_pepper == jwt_secret;
+        if insecure_pepper {
+            return Err("Refusing to boot production without a strong EMAIL_CODE_PEPPER".into());
+        }
+    }
 
     // Build app state with high-concurrency RwLock
     let state = AppState {

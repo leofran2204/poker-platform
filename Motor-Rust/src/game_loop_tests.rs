@@ -3936,7 +3936,7 @@ mod resolve_showdown_errors_tests {
     }
 
     #[test]
-    fn test_multi_phase_all_in_loss_deflator_uses_equity_snapshots() {
+    fn test_multi_phase_all_in_loss_deflator_uses_multiway_equity_snapshots() {
         use crate::deck::{Rank, Suit};
         let p1 = PlayerState {
             id: "p1".to_string(),
@@ -4037,20 +4037,10 @@ mod resolve_showdown_errors_tests {
 
         let res = gl.resolve_hand().unwrap();
 
-        assert_eq!(res.loss_deflators.len(), 2);
-
-        let d1 = res
-            .loss_deflators
-            .iter()
-            .find(|d| d.loser_id == "p1")
-            .unwrap();
-        assert_eq!(d1.phase, GamePhase::Preflop);
-        assert_eq!(d1.cards_remaining, 5);
-        assert_eq!(
-            d1.tier,
-            crate::loss_deflator::LossDeflatorTier::TwentyFivePercent
-        );
-        assert!((0.76..0.86).contains(&d1.loser_equity));
+        // P1 (KK) enfrentava AA e QJ no main pot. A equity multiway preflop fica
+        // abaixo do piso de 56%, portanto ele não é elegível ao deflator.
+        assert_eq!(res.loss_deflators.len(), 1);
+        assert!(res.loss_deflators.iter().all(|d| d.loser_id != "p1"));
 
         let d2 = res
             .loss_deflators
@@ -4061,9 +4051,10 @@ mod resolve_showdown_errors_tests {
         assert_eq!(d2.cards_remaining, 1);
         assert_eq!(
             d2.tier,
-            crate::loss_deflator::LossDeflatorTier::ThirtyFivePercent
+            crate::loss_deflator::LossDeflatorTier::TwentyFivePercent
         );
-        assert!(d2.loser_equity >= 0.86);
+        assert!((0.76..0.86).contains(&d2.loser_equity));
+        assert_eq!(d2.opponents_counted, 2);
     }
 
     #[test]

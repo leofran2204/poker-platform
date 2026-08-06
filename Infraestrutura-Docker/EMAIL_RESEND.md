@@ -59,7 +59,6 @@ RESEND_API_KEY=re_xxxxxxxx
 EMAIL_FROM=Zero Tilt Poker <noreply@zerotiltpoker.net>
 # Só teste próprio (sem domínio):
 # EMAIL_FROM=Zero Tilt Poker <onboarding@resend.dev>
-EMAIL_LOG_CODE_ALWAYS=false
 ```
 
 ## 3. Subir a API com o código Resend
