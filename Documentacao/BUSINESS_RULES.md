@@ -18,9 +18,10 @@
 
 > 📐 Detalhes completos em `Arquitetura-Motor/ARQUITETURA_MOTOR.md` (v4.0).
 > ✅ **Motor e API em Rust.** Frontend canônico em TypeScript desde 2026-08-04. `Frontend-Dioxus/` é legado.
-> 📌 Estado operacional (PIX, ownership, ciclo S11): ver `STATUS_OPERACIONAL.json` — **sem** certificação de produção.
+> 📌 Estado operacional (PIX, ownership, ciclo **S13**): ver `STATUS_OPERACIONAL.json` — **sem** certificação de produção.
 > ⚖️ **Regulação / compliance de jogo e dinheiro real:** planejada para **janeiro de 2027**.
-> ✉️ **Registro (S11):** senha + confirmação; com `REQUIRE_EMAIL_VERIFICATION=true`, conta fica `pending_email_verification` até código de 6 dígitos no e-mail. Deploy demo: **`EMAIL_PROVIDER=resend`** (domínio verified); lab/testes: **log**. SMTP da caixa webmail ainda não implementado.
+> ✉️ **Registro:** senha + confirmação; com `REQUIRE_EMAIL_VERIFICATION=true`, conta fica `pending_email_verification` até código de 6 dígitos no e-mail. Deploy demo: **`EMAIL_PROVIDER=resend`** (domínio verified); lab/testes: **log**.
+> 👥 **Presença (S13):** `GET /api/presence/online` conta logados com heartbeat (TTL 90s). Cash game exige **≥ 2 assentos** na mesma mesa para iniciar mão.
 
 ### 0.1. 💵 Arquitetura Financeira e Tipagem Estrita (`u64` Centavos)
 - **Princípio da Precisão Bancária:** Todos os valores financeiros (saldo, apostas, stacks, potes, rake, buy-in e blinds) utilizam estritamente `u64` centavos inteiros no **backend** (`R$ 10,50` = `1050` centavos). Erros de arredondamento IEEE-754 flutuantes são eliminados na raiz.
@@ -121,8 +122,8 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
 3. **Conservação Financeira**:
    - Garante a conservação exata de fichas na mesa ($\sum \text{Prêmios} = \text{Pote Líquido}$), sem acumular resíduos de ponto flutuante nem retenções indevidas pela casa.
 4. **Decisão Arquitetural Monetária Estrita (`u64` Centavos Inteiros em Toda a Stack)**:
-   - A plataforma opera 100% em **centavos inteiros (`u64`)** em todas as camadas (Banco de Dados, Motor de Jogo, APIs REST, WebSockets e Dioxus WASM).
-   - O frontend Dioxus converte os centavos `u64` para o formato legível `R$ {:.2}` exclusivamente na camada visual de renderização.
+   - A plataforma opera 100% em **centavos inteiros (`u64`)** em todas as camadas (Banco de Dados, Motor de Jogo, APIs REST e WebSockets).
+   - O frontend (`Frontend-Web`) converte os centavos `u64` para o formato legível `R$ x,xx` exclusivamente na camada visual de renderização.
    - Elimina 100% de ruídos ou discrepâncias de ponto flutuante IEEE 754 e preserva precisão bancária B3 de centavos exatos em todas as operações de potes, rake e saldos.
 
 ### 4.2 🃏 Deal — Distribuição de Cartas
@@ -369,7 +370,7 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 **Próxima revisão:** Após implementação de side pots e split pot.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-08-07):** S12 — Auth MFA + supply-chain CI; ações legais na mesa; settle pós-disconnect; liquidação de mão assinada (migração 017); smoke live 10 usuários/100 mãos com settlement verificado na VPS demo; branch codex/security-supply-chain fechada e documentada. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017 aplicadas (017 hand settlement audit). Smoke live scripts/live-e2e-ten-users.mjs: run 202608070833 PASS (10 reg/100 mãos); run 202608070920 PASS com settlementsVerified=2 (assinatura + winner + payouts+rake=pote por mesa). Simulação motor 100k mãos release OK. Segundo lote sintético zte2e202608070920* removido; lote original zte2e202608070833* preservado (10 contas demo). Suíte histórica motor/API + gates supply-chain (Dependabot, audit, SBOM/Trivy workflows). Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura. Liquidação de mão agora persiste settlement assinado (HMAC) e a API verifica assinatura no replay; históricos legados sem assinatura permanecem legíveis como não verificados.
+> **Estado operacional sincronizado (2026-08-07):** S13 — Contador de presença online (badge + hero); S12 fechada (MFA, supply-chain, settlements 017, smoke 10×100); demo VPS zerotiltpoker.net pronta para amigos (play-money, mín. 2 na mesma mesa). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017. Presence API no ar: GET /api/presence/online e POST /api/presence/heartbeat (TTL 90s, Redis). Smoke live 10×100 PASS (0833 jornada; 0920 settlementsVerified=2). Frontend badge/hero online deployados. Mock é o padrão. Asaas Sandbox restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção desabilitados. Nenhum depósito com dinheiro real. Mesas com dono único por processo; guarda de recovery entre início e liquidação. Settlement assinado (HMAC) na liquidação; API verifica no replay.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

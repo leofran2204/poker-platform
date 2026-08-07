@@ -52,5 +52,12 @@ Motor-Rust/target/
 proptest-regressions/
 *.proptest-regressions
 
-# Relatórios locais da validação manual de carga
-artifacts/full-validation/
+# Relatórios e artefatos locais (nunca versionar)
+artifacts/
+.codex-tmp/
+.agents/
+coverage-run.log
+
+# Pastas de trabalho temporárias / lixo de shell
+tmp/
+temp/

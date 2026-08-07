@@ -1,10 +1,10 @@
 # 📚 Documentação — Plataforma de Poker Online Texas Hold'em
 
-Plataforma de poker online **Texas Hold'em Tradicional** (52 cartas) construída **100% em Rust** — motor de jogo, backend, frontend e antifraude.
+Plataforma de poker online **Texas Hold'em Tradicional** (52 cartas): **motor e API em Rust**, **UI em TypeScript** (React).
 
 **Domínio do produto (demo/staging):** [zerotiltpoker.net](https://zerotiltpoker.net)
 
-> **Estado (ver `STATUS_OPERACIONAL.json`):** S11 — demo VPS **https://zerotiltpoker.net** (Caddy + Let's Encrypt), frontend TypeScript Full Tilt, B2B multi-tenant, e-mail Resend (domínio verified). Isto **não** equivale a certificação de produção: multi-pod de mesas ainda requer ownership distribuído; PIX de produção desabilitado.
+> **Estado (ver `STATUS_OPERACIONAL.json`):** **S13** — contador de presença online; base S12 (MFA, settlements, smoke 10×100); demo VPS HTTPS + Resend. Isto **não** equivale a certificação de produção: multi-pod de mesas ainda requer ownership distribuído; PIX de produção desabilitado.
 
 ## Estado operacional e sincronização
 
@@ -36,8 +36,8 @@ O segundo comando é obrigatório na CI. Se ele falhar, a mudança deve atualiza
 | **`DASHBOARD.md`** | Painel de controle tático — progresso, métricas, backlog | Gestão + Dev |
 | **`CRONOGRAMA.md`** | Roadmap, fases, prazos e marcos (não certifica produção) | Gestão + Dev |
 | **`DEVELOPMENT_LOG.md`** | Histórico cronológico de desenvolvimento | Dev |
-| **`DEMO_AMIGOS.md`** | Como rodar demo play-money para feedback | Dev + ops |
-| **`guia_aprendizado.md`** | Guia consolidado de aprendizado (Protocolo Mark + Regras Rust-only + Sprint S03 + 11 Módulos) | Dev |
+| **`DEMO_AMIGOS.md`** | Convite amigos: cadastro, e-mail, contador online, mín. 2 na mesa | Dev + ops + anfitrião |
+| **`guia_aprendizado.md`** | Guia consolidado de aprendizado (histórico; stack UI atual é TypeScript) | Dev |
 | **`TESTING_GOALS.md`** | Metas e registros históricos; perfil atual de validação | Dev + QA |
 | `Arquitetura-Motor/ARQUITETURA_MOTOR.md` | Arquitetura detalhada do motor Rust | Arquiteto + Dev |
 
@@ -52,7 +52,7 @@ O segundo comando é obrigatório na CI. Se ele falhar, a mudança deve atualiza
 | **Frontend** | TypeScript + React + Vite + Tailwind (`Frontend-Web/`) | UI Full Tilt moderna no navegador |
 | **Antifraude** | Rust | Colusão, chip dumping, bot detection, multi-account |
 | **Banco de dados** | PostgreSQL 15 | Dados persistentes |
-| **Cache / Sessões** | Redis 7 | Sessões, rate limiting, blacklist JWT |
+| **Cache / Sessões** | Redis 7 | Sessões, rate limiting, tickets WS, presença online |
 | **Mensageria** | — | Não provisionada nesta implantação |
 | **Pagamentos / PIX** | Mock + Asaas Sandbox autenticado | Mercado Pago e PIX de produção desabilitados |
 | **Segurança** | rustls (TLS 1.3), JWT, bcrypt, Caddy headers | Criptografia, auth, MFA/TOTP, RBAC |
@@ -68,12 +68,13 @@ O segundo comando é obrigatório na CI. Se ele falhar, a mudança deve atualiza
 |-------|----------|--------|
 | `Motor-Rust/` | Motor de poker em Rust, regras financeiras em inteiros | ✅ Ativo — CI usa testes determinísticos |
 | `API-Axum/` | API REST / WebSocket (Axum + Tokio + PostgreSQL/Redis) | ✅ Ativo — contratos PostgreSQL no CI |
-| `Frontend-Web/` | SPA TypeScript/React (deploy canônico) | ✅ Ativo |
-| `Frontend-Dioxus/` | WASM legado | 📦 Legado |
+| `Frontend-Web/` | SPA TypeScript/React (deploy canônico) + contador online | ✅ Ativo |
+| `Frontend-Dioxus/` | WASM legado — **não** deploy | 📦 Legado |
 | `Infraestrutura-Docker/` | Docker, Caddy, deploy (casa/VPS), CI/CD | ✅ Ativo |
 | `Documentacao/` | Regras de negócio, cronograma, dashboard, logs | ✅ Ativo |
 | `Arquitetura-Motor/` | Arquitetura do motor e stack | ✅ Ativo |
-| `scripts/` | Scripts de automação (coverage, build, deploy) | ✅ Ativo |
+| `scripts/` | Deploy, full-validation, live e2e, coverage; utilitários WASM legados | ✅ Ativo |
+| `src/` + `tests/` | Pacote raiz `poker_engine` (`documentation-sync`) e testes massivos | ✅ Tooling |
 
 ### Deploy e domínio
 
@@ -162,7 +163,7 @@ cargo tarpaulin               # cobertura ≥ 80%
 https://github.com/leofran2204/poker-platform
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-08-07):** S12 — Auth MFA + supply-chain CI; ações legais na mesa; settle pós-disconnect; liquidação de mão assinada (migração 017); smoke live 10 usuários/100 mãos com settlement verificado na VPS demo; branch codex/security-supply-chain fechada e documentada. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017 aplicadas (017 hand settlement audit). Smoke live scripts/live-e2e-ten-users.mjs: run 202608070833 PASS (10 reg/100 mãos); run 202608070920 PASS com settlementsVerified=2 (assinatura + winner + payouts+rake=pote por mesa). Simulação motor 100k mãos release OK. Segundo lote sintético zte2e202608070920* removido; lote original zte2e202608070833* preservado (10 contas demo). Suíte histórica motor/API + gates supply-chain (Dependabot, audit, SBOM/Trivy workflows). Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura. Liquidação de mão agora persiste settlement assinado (HMAC) e a API verifica assinatura no replay; históricos legados sem assinatura permanecem legíveis como não verificados.
+> **Estado operacional sincronizado (2026-08-07):** S13 — Contador de presença online (badge + hero); S12 fechada (MFA, supply-chain, settlements 017, smoke 10×100); demo VPS zerotiltpoker.net pronta para amigos (play-money, mín. 2 na mesma mesa). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017. Presence API no ar: GET /api/presence/online e POST /api/presence/heartbeat (TTL 90s, Redis). Smoke live 10×100 PASS (0833 jornada; 0920 settlementsVerified=2). Frontend badge/hero online deployados. Mock é o padrão. Asaas Sandbox restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção desabilitados. Nenhum depósito com dinheiro real. Mesas com dono único por processo; guarda de recovery entre início e liquidação. Settlement assinado (HMAC) na liquidação; API verifica no replay.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

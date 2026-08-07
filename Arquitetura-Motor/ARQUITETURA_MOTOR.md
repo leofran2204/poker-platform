@@ -74,6 +74,7 @@
 ```
 
 - **TypeScript (React) ↔ Rust (Axum):** HTTPS REST + WSS (eventos de jogo em tempo real), same-origin atrás do Caddy.
+- **Presença online:** `GET /api/presence/online` (público) + `POST /api/presence/heartbeat` (JWT); Redis ZSET com TTL 90s; UI badge no header e hero na home.
 - **Formato universal:** JSON em todas as fronteiras (schemas validados no servidor).
 - **🔐 Segurança:** TODA comunicação usa TLS 1.3. TODO dado sensível é criptografado.
 

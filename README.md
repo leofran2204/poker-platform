@@ -6,23 +6,30 @@ Plataforma de poker online **Texas Hold'em**: **motor e API em Rust**, **fronten
 |--|--|
 | **Domínio (demo)** | [https://zerotiltpoker.net](https://zerotiltpoker.net) |
 | **Repositório** | https://github.com/leofran2204/poker-platform |
-| **Estado** | Staging/demo (**S12**) — **sem** certificação de produção; PIX mock/sandbox; B2B multi-tenant; settlements assinados |
+| **Estado** | Staging/demo (**S13**) — **sem** certificação de produção; PIX mock; B2B multi-tenant; settlements assinados; contador **online** |
 | **Status canônico** | [`Documentacao/STATUS_OPERACIONAL.json`](Documentacao/STATUS_OPERACIONAL.json) |
 | **Transporte público** | **HTTPS** (Caddy + Let's Encrypt na VPS); API + SPA same-origin |
 | **E-mail (demo)** | Resend — domínio `zerotiltpoker.net` verified; ver [`EMAIL_RESEND.md`](Infraestrutura-Docker/EMAIL_RESEND.md) |
-| **Live smoke** | `scripts/live-e2e-ten-users.mjs` — 10 users / 100 hands + settlement verificado (demo VPS) |
+| **Presença** | Badge no header + hero na home; `GET /api/presence/online` |
+| **Live smoke** | `scripts/live-e2e-ten-users.mjs` — 10 users / 100 hands + settlement verificado |
+| **Demo amigos** | [`Documentacao/DEMO_AMIGOS.md`](Documentacao/DEMO_AMIGOS.md) — mín. **2 na mesma mesa** |
 | **Regulação** | Trilho de compliance planejado para **janeiro de 2027** |
 
-## Pastas principais
+## Mapa de pastas (canônico)
 
-| Pasta | Função |
-|-------|--------|
-| `Motor-Rust/` | Regras de jogo, rake (incl. split B2B 15/85), loss deflator, antifraude |
-| `API-Axum/` | REST + WebSocket (WSS), PostgreSQL, Redis, admin B2B |
-| `Frontend-Web/` | **UI canônica** — TypeScript, React, Vite, Tailwind (lobby, mesa, admin clubs) |
-| `Frontend-Dioxus/` | **Legado** WASM (não usado no deploy canônico) |
-| `Infraestrutura-Docker/` | Compose, Caddy HTTPS, deploys casa/VPS |
-| `Documentacao/` | Regras, dashboard, qualidade, status operacional |
+| Pasta | Função | Status |
+|-------|--------|--------|
+| `Motor-Rust/` | Regras de jogo, rake, loss deflator, antifraude, auth helpers | ✅ Ativo (dependência da API) |
+| `API-Axum/` | REST + WebSocket, PostgreSQL, Redis, presence, payments, admin B2B | ✅ Ativo |
+| `Frontend-Web/` | **UI canônica** — React/Vite/Tailwind (lobby, mesa, auth, admin) | ✅ Ativo (deploy) |
+| `Frontend-Dioxus/` | UI WASM legada | 📦 Legado — **não** deploy |
+| `Infraestrutura-Docker/` | Compose, Caddy HTTPS, deploys casa/VPS | ✅ Ativo |
+| `Documentacao/` | Regras, dashboard, status operacional, demo amigos | ✅ Ativo |
+| `Arquitetura-Motor/` | Spec de arquitetura do motor/stack | ✅ Ativo |
+| `scripts/` | Deploy, full-validation, live e2e, coverage | ✅ Ativo |
+| `src/` + `tests/` + `benches/` | Pacote raiz `poker_engine` (incl. `documentation-sync`) e testes massivos | ✅ Ativo (tooling/CI histórico) |
+
+> **Não usar** `Frontend-Dioxus` em deploy. Scripts `*wasm*` / `cargo-dioxus*` servem só ao legado.
 
 ## Stack (v4.0)
 
@@ -70,15 +77,17 @@ npm install
 npm run dev
 ```
 
-Documentação completa: [`Documentacao/README.md`](Documentacao/README.md) · Painel: [`Documentacao/DASHBOARD.md`](Documentacao/DASHBOARD.md) · Arquitetura: [`Arquitetura-Motor/ARQUITETURA_MOTOR.md`](Arquitetura-Motor/ARQUITETURA_MOTOR.md)
+Documentação: [`Documentacao/README.md`](Documentacao/README.md) · Painel: [`Documentacao/DASHBOARD.md`](Documentacao/DASHBOARD.md) · Arquitetura: [`Arquitetura-Motor/ARQUITETURA_MOTOR.md`](Arquitetura-Motor/ARQUITETURA_MOTOR.md)
 
 ## Demo com amigos (feedback)
 
 Ver **[`Documentacao/DEMO_AMIGOS.md`](Documentacao/DEMO_AMIGOS.md)**.
 
 - Registro público com **R$ 1.000** play-money
-- Mesas demo NL2–NL25 (seed na migration `013`)
-- Frontend usa **mesmo domínio** da página (API + WSS)
+- Contador **online** no topo e na home
+- Mesas demo NL2–NL25 (seed migration `013`)
+- **Mínimo 2 pessoas na mesma mesa** para iniciar mão
+- Frontend same-origin (API + WSS)
 
 ## Limites honestos
 

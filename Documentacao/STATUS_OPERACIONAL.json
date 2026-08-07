@@ -1,20 +1,22 @@
 {
   "schema_version": 1,
   "reviewed_on": "2026-08-07",
-  "cycle": "S12 — Auth MFA + supply-chain CI; ações legais na mesa; settle pós-disconnect; liquidação de mão assinada (migração 017); smoke live 10 usuários/100 mãos com settlement verificado na VPS demo; branch codex/security-supply-chain fechada e documentada.",
+  "cycle": "S13 — Contador de presença online (badge + hero); S12 fechada (MFA, supply-chain, settlements 017, smoke 10×100); demo VPS zerotiltpoker.net pronta para amigos (play-money, mín. 2 na mesma mesa).",
   "stack": {
     "motor_api": "Rust (Motor-Rust + API-Axum)",
     "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",
-    "frontend_legacy": "Frontend-Dioxus (WASM) — não canônico no deploy",
+    "frontend_legacy": "Frontend-Dioxus (WASM) — legado; CI opcional de check; NÃO é deploy canônico",
     "edge": "Caddy HTTPS same-origin /api /ws (Let's Encrypt em VPS)"
   },
   "production": "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.",
   "regulation": "Trilho de regulação, KYC/AML e compliance de jogo/dinheiro real: planejado para janeiro de 2027. Até lá: play-money / demo e freios de PIX real.",
-  "validation": "VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017 aplicadas (017 hand settlement audit). Smoke live scripts/live-e2e-ten-users.mjs: run 202608070833 PASS (10 reg/100 mãos); run 202608070920 PASS com settlementsVerified=2 (assinatura + winner + payouts+rake=pote por mesa). Simulação motor 100k mãos release OK. Segundo lote sintético zte2e202608070920* removido; lote original zte2e202608070833* preservado (10 contas demo). Suíte histórica motor/API + gates supply-chain (Dependabot, audit, SBOM/Trivy workflows).",
-  "email": "Resend: domínio zerotiltpoker.net status verified. API com REQUIRE_EMAIL_VERIFICATION=true e EMAIL_PROVIDER=resend. From recomendado: noreply@zerotiltpoker.net. MFA login challenges (migração 016) com challenge opaco, TTL e tentativas limitadas. Fallback: log com código se Resend falhar (lab). Chave Resend de produção rotacionada na sessão S12 quando 401 foi detectado.",
-  "tls_notes": "Rate limit Let's Encrypt (5 certs/168h) já ocorreu; workaround Caddyfile.tls-internal gera ERR_CERT_AUTHORITY_INVALID no browser. Após liberação LE, Caddyfile canônico sem tls internal + volume caddy_data persistido. Não apagar caddy_data em cada recreate.",
-  "pix": "Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado.",
-  "table_ownership": "Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura. Liquidação de mão agora persiste settlement assinado (HMAC) e a API verifica assinatura no replay; históricos legados sem assinatura permanecem legíveis como não verificados.",
-  "ui_direction": "Moderno + nostalgia Full Tilt (felt, gold rail, lobby denso). Mesa expõe legal_actions ao jogador ativo (WS + Frontend-Web). Evitar estética genérica de landing AI.",
-  "live_e2e": "Script canônico: scripts/live-e2e-ten-users.mjs (ALLOW_TEMP_MAIL=true, BASE_URL=https://zerotiltpoker.net, fixo 10 users / 100 hands). Prova de jornada: Mail.tm → register → verify-email → login → join → 100 mãos → cash-out → checagem de settlement assinado por mesa."
+  "validation": "VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017. Presence API no ar: GET /api/presence/online e POST /api/presence/heartbeat (TTL 90s, Redis). Smoke live 10×100 PASS (0833 jornada; 0920 settlementsVerified=2). Frontend badge/hero online deployados.",
+  "email": "Resend: domínio zerotiltpoker.net verified. REQUIRE_EMAIL_VERIFICATION=true, EMAIL_PROVIDER=resend. MFA challenges (016). From recomendado: noreply@zerotiltpoker.net.",
+  "tls_notes": "Caddyfile canônico sem tls internal + volume caddy_data persistido. Não apagar caddy_data em cada recreate (rate limit LE 5 certs/168h).",
+  "pix": "Mock é o padrão. Asaas Sandbox restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção desabilitados. Nenhum depósito com dinheiro real.",
+  "table_ownership": "Mesas com dono único por processo; guarda de recovery entre início e liquidação. Settlement assinado (HMAC) na liquidação; API verifica no replay.",
+  "ui_direction": "Full Tilt moderno (felt, gold rail). Contador online bem visível no header e na home. legal_actions no WS/mesa. Mín. 2 jogadores na mesma mesa para iniciar mão.",
+  "presence": "Usuários autenticados com heartbeat recente contam como online (ZSET Redis poker:presence:online ou fallback memória). Visitantes leem a contagem pública. TTL 90s. UI: OnlinePresenceNav + OnlinePresenceHero.",
+  "live_e2e": "scripts/live-e2e-ten-users.mjs — ALLOW_TEMP_MAIL=true, BASE_URL=https://zerotiltpoker.net, 10 users / 100 hands + settlement assinado.",
+  "friends_demo": "Guia Documentacao/DEMO_AMIGOS.md. Play-money R$1000. Combinar horário e mesma mesa. Contador online ajuda a ver quem já entrou."
 }

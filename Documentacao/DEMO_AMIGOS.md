@@ -39,7 +39,7 @@ https://zerotiltpoker.net
 
 ## Do seu lado (anfitrião)
 
-1. **Rebuild e subir** após este pacote de demo (API + frontend WASM):
+1. **Stack demo** — VPS Hostinger já hospeda `zerotiltpoker.net` (API + `Frontend-Web` + Caddy). Em casa (alternativa):
 
 ```powershell
 cd C:\Users\leofr\Projetos\Poker_Project\Infraestrutura-Docker
@@ -49,8 +49,8 @@ docker compose -f docker-compose.yml -f docker-compose.tunnel.yml up -d --build
 
 A migration `013_demo_public_tables.sql` roda no boot da API e cria as mesas se ainda não existirem.
 
-2. PC ligado + tunnel/Docker estáveis.
-3. Peça feedback estruturado: registro, lobby, join, lag, mobile, crashes.
+2. Confirme o contador online e o health: `https://zerotiltpoker.net/api/health` e `/api/presence/online`.
+3. Peça feedback estruturado: registro, e-mail, contador online, lobby, join, lag, mobile, crashes.
 
 ## Limites honestos (avise os amigos)
 
@@ -62,15 +62,18 @@ A migration `013_demo_public_tables.sql` roda no boot da API e cria as mesas se 
 ## Checklist rápido “está pronto?”
 
 ```text
-[ ] https://zerotiltpoker.net/caddy-health → OK
+[ ] https://zerotiltpoker.net/api/health → OK
+[ ] https://zerotiltpoker.net/api/presence/online → JSON online_count
+[ ] Badge “N online” visível no header
 [ ] Registrar conta nova no browser
+[ ] Após login, contador sobe (heartbeat)
 [ ] Lobby lista mesas Demo NL*
-[ ] Entrar na mesa (saldo R$1000)
-[ ] Segundo browser/perfil entra na mesma mesa
+[ ] Dois perfis entram na MESMA mesa (saldo R$1000)
+[ ] Mão inicia com ≥ 2 assentos
 ```
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-08-07):** S12 — Auth MFA + supply-chain CI; ações legais na mesa; settle pós-disconnect; liquidação de mão assinada (migração 017); smoke live 10 usuários/100 mãos com settlement verificado na VPS demo; branch codex/security-supply-chain fechada e documentada. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017 aplicadas (017 hand settlement audit). Smoke live scripts/live-e2e-ten-users.mjs: run 202608070833 PASS (10 reg/100 mãos); run 202608070920 PASS com settlementsVerified=2 (assinatura + winner + payouts+rake=pote por mesa). Simulação motor 100k mãos release OK. Segundo lote sintético zte2e202608070920* removido; lote original zte2e202608070833* preservado (10 contas demo). Suíte histórica motor/API + gates supply-chain (Dependabot, audit, SBOM/Trivy workflows). Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura. Liquidação de mão agora persiste settlement assinado (HMAC) e a API verifica assinatura no replay; históricos legados sem assinatura permanecem legíveis como não verificados.
+> **Estado operacional sincronizado (2026-08-07):** S13 — Contador de presença online (badge + hero); S12 fechada (MFA, supply-chain, settlements 017, smoke 10×100); demo VPS zerotiltpoker.net pronta para amigos (play-money, mín. 2 na mesma mesa). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017. Presence API no ar: GET /api/presence/online e POST /api/presence/heartbeat (TTL 90s, Redis). Smoke live 10×100 PASS (0833 jornada; 0920 settlementsVerified=2). Frontend badge/hero online deployados. Mock é o padrão. Asaas Sandbox restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção desabilitados. Nenhum depósito com dinheiro real. Mesas com dono único por processo; guarda de recovery entre início e liquidação. Settlement assinado (HMAC) na liquidação; API verifica no replay.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

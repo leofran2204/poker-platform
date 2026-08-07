@@ -1,6 +1,6 @@
 # Arquitetura Técnica & Especificação de APIs - Plataforma de Poker Online em Rust
 
-**Atualizado:** 2026-08-01 | **Status:** Em revisão contínua — validação local e CI; B2B admin via HTTPS documentado; sem certificação de produção.
+**Atualizado:** 2026-08-07 | **Status:** Em revisão contínua — presence online, settlements 017, Frontend-Web canônico; B2B admin via HTTPS; sem certificação de produção.
 
 Este documento consolida a arquitetura técnica, esquemas de comunicação, contratos de API e modelos de segurança da **Plataforma de Poker Online em Rust**.
 
@@ -13,7 +13,7 @@ Este documento consolida a arquitetura técnica, esquemas de comunicação, cont
 
 ```mermaid
 graph TD
-    Client["Client Web (Dioxus / WASM)"]
+    Client["Client Web (React TS / Frontend-Web)"]
     WS["Servidor WebSocket (Tokio / Axum)"]
     Limiter["Rate limit Redis atômico"]
     Actor["TableActor Stateful (Kubernetes Pod)"]
@@ -91,17 +91,31 @@ O módulo financeiro usa `wallet_transactions`, `audit_logs` e `outbox_events` n
 
 ### Invariantes Financeiras & Arquitetura Monetária:
 1. **Arquitetura Estrita `u64` Centavos Inteiros:**
-   - **Interface Pública, Axum & Dioxus UI:** A comunicação WebSocket, payloads JSON Serde, banco de dados PostgreSQL e estruturas de mesa trafegam e armazenam valores numéricos estritamente em **centavos inteiros (`u64`)** (`R$ 150,00` = `15000` centavos). Erros de arredondamento IEEE-754 flutuantes são totalmente eliminados na raiz.
+   - **Interface Pública, Axum & Frontend-Web:** A comunicação WebSocket, payloads JSON Serde, banco de dados PostgreSQL e estruturas de mesa trafegam e armazenam valores numéricos estritamente em **centavos inteiros (`u64`)** (`R$ 150,00` = `15000` centavos). Erros de arredondamento IEEE-754 flutuantes são totalmente eliminados na raiz.
    - **Cálculos de Pote & Ledger Imutável:** Todas as divisões de potes empatados (*split pots* via `dividir_pote_empatado()`), deduções de rake e registros de auditoria utilizam matemática inteira exata em centavos.
 2. **Eliminação de Artefatos IEEE 754:** Operações numéricas utilizam matemática inteira de centavos e aplicam o resto (`total_centavos % N`) conforme a **Regra do Centavo Ímpar (WSOP / TDA Regra 68)**.
 3. **Garantia Atômica:** O `UPDATE ... WHERE balance >= amount` reserva um saque sem permitir saldo negativo; a linha da carteira e o evento de outbox entram na mesma transação.
 4. **Depósito idempotente:** antes de criar a cobrança, a API grava uma linha `PENDING` com chave de idempotência. O webhook HMAC-SHA256 bloqueia essa linha (`FOR UPDATE`), confere valor e identificador externo persistidos e credita o saldo junto com a transição para `COMPLETED` em uma única transação.
 5. **Chaves PIX:** a chave bruta não é persistida; somente sua impressão SHA-256 é registrada. O saque fica `PENDING` no outbox e não chama um provedor de payout durante a requisição HTTPS.
 
+### Presença online (plataforma)
+
+Contador de usuários **logados** com heartbeat recente — distinto dos assentos por mesa.
+
+| Endpoint | Auth | Função |
+|----------|------|--------|
+| `GET /api/presence/online` | público | `{ online_count, ttl_seconds }` — amizades veem quantos estão logados |
+| `POST /api/presence/heartbeat` | JWT (`RequireAuth`) | renova presença do usuário e devolve a contagem |
+
+- **TTL:** 90 segundos sem heartbeat ⇒ some da contagem.
+- **Backend:** Redis ZSET `poker:presence:online` (score = epoch); fallback `HashMap` em memória se Redis ausente (lab/testes).
+- **Frontend:** `OnlinePresenceNav` (header, todas as páginas) + `OnlinePresenceHero` (home); clientes autenticados enviam heartbeat ~25s e ao focar a aba.
+- **Regra de jogo:** o contador **não** inicia mão; a mesa ainda exige **≥ 2 assentos ACTIVE** na mesma mesa.
+
 ### Operação de mesas cash
 
 - O assento ativo é a fonte de verdade no PostgreSQL: `POST /api/lobby/join` exige JWT e `buy_in` em centavos; débito de carteira, escrow, ledger e ocupação são atômicos.
-- O contador público de jogadores é uma projeção mantida por gatilho dos assentos `ACTIVE`; o banco rejeita capacidade, blinds, buy-ins e estados de mesa inválidos.
+- O contador público de jogadores **por mesa** é uma projeção mantida por gatilho dos assentos `ACTIVE`; o banco rejeita capacidade, blinds, buy-ins e estados de mesa inválidos.
 - `POST /api/lobby/leave` só liquida entre mãos, transferindo o stack persistido de volta à carteira e registrando o cash-out.
 - O WebSocket aceita apenas o dono de um assento ativo e financiado em mesa `OPEN`; não fornece stack de demonstração.
 - O navegador primeiro solicita `POST /api/lobby/tables/:id/ws-ticket` com Bearer JWT. O WebSocket recebe somente o ticket opaco, vinculado à mesa, com validade de 60 segundos e consumo único (Redis quando configurado).
@@ -118,7 +132,7 @@ O módulo financeiro usa `wallet_transactions`, `audit_logs` e `outbox_events` n
 - `PUT /api/admin/clubs/:id/theme`: Atualiza o JSON de personalização visual (`custom_theme_json`) para a injeção do tema White-Label no Frontend.
 - `GET /api/admin/clubs/:id/agents`: Lista agentes ativos do clube (rakeback %, indicados, comissão em centavos).
 - `POST /api/admin/clubs/:id/agents`: Cadastra agente com nome e rakeback 0–50%; persiste em `club_agents` e registra audit log.
-- **Cliente Dioxus:** o dashboard `/admin/clubs` consome esses endpoints via **HTTPS** same-origin (`api_client` + JWT admin). Sem JWT ou falha de rede, a UI cai em modo demo local com aviso explícito.
+- **Cliente canônico:** o dashboard `/admin/clubs` em `Frontend-Web` consome esses endpoints via **HTTPS** same-origin (`api/client.ts` + JWT admin).
 
 ### Autorização revogável e distribuída
 
@@ -155,7 +169,7 @@ O módulo financeiro usa `wallet_transactions`, `audit_logs` e `outbox_events` n
 - Não há benchmark de release certificado neste repositório. Throughput, latência e capacidade devem ser obtidos exclusivamente em uma execução autorizada da validação completa, com o TSV de evidência gerado pelos scripts.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-08-07):** S12 — Auth MFA + supply-chain CI; ações legais na mesa; settle pós-disconnect; liquidação de mão assinada (migração 017); smoke live 10 usuários/100 mãos com settlement verificado na VPS demo; branch codex/security-supply-chain fechada e documentada. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017 aplicadas (017 hand settlement audit). Smoke live scripts/live-e2e-ten-users.mjs: run 202608070833 PASS (10 reg/100 mãos); run 202608070920 PASS com settlementsVerified=2 (assinatura + winner + payouts+rake=pote por mesa). Simulação motor 100k mãos release OK. Segundo lote sintético zte2e202608070920* removido; lote original zte2e202608070833* preservado (10 contas demo). Suíte histórica motor/API + gates supply-chain (Dependabot, audit, SBOM/Trivy workflows). Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura. Liquidação de mão agora persiste settlement assinado (HMAC) e a API verifica assinatura no replay; históricos legados sem assinatura permanecem legíveis como não verificados.
+> **Estado operacional sincronizado (2026-08-07):** S13 — Contador de presença online (badge + hero); S12 fechada (MFA, supply-chain, settlements 017, smoke 10×100); demo VPS zerotiltpoker.net pronta para amigos (play-money, mín. 2 na mesma mesa). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017. Presence API no ar: GET /api/presence/online e POST /api/presence/heartbeat (TTL 90s, Redis). Smoke live 10×100 PASS (0833 jornada; 0920 settlementsVerified=2). Frontend badge/hero online deployados. Mock é o padrão. Asaas Sandbox restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção desabilitados. Nenhum depósito com dinheiro real. Mesas com dono único por processo; guarda de recovery entre início e liquidação. Settlement assinado (HMAC) na liquidação; API verifica no replay.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

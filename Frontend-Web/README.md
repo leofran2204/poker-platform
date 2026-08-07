@@ -17,6 +17,14 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 | Build | Vite 5 |
 | Estilo | Tailwind 3 + CSS de componentes `.zt-*` |
 | Rotas | react-router-dom 6 |
+| Presença | `components/OnlinePresence.tsx` → `/api/presence/*` |
+
+## Presença online
+
+- **Header:** badge `N online` (todas as rotas via `Layout`)
+- **Home:** faixa hero com contagem e aviso de mín. 2 na mesa
+- Logado: `POST /api/presence/heartbeat` periódico
+- Visitante: `GET /api/presence/online`
 
 ## Desenvolvimento local
 
