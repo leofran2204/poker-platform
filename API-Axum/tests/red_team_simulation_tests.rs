@@ -32,6 +32,7 @@ fn make_test_state() -> AppState {
         redis: None,
         ws_tickets: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
         require_email_verification: false,
+        presence: poker_api::presence::PresenceTracker::new(),
     }
 }
 

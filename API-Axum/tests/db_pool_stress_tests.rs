@@ -29,6 +29,7 @@ async fn make_real_db_state(pool: sqlx::PgPool) -> AppState {
         redis: None,
         ws_tickets: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
         require_email_verification: false,
+        presence: poker_api::presence::PresenceTracker::new(),
     }
 }
 

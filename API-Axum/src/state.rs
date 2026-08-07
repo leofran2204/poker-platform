@@ -8,6 +8,7 @@ use std::sync::Arc;
 use tokio::sync::{broadcast, mpsc, Mutex, RwLock};
 
 use crate::game_actor::PlayerCommand;
+use crate::presence::PresenceTracker;
 use crate::tournament_store::TournamentStore;
 
 #[derive(Clone)]
@@ -43,4 +44,6 @@ pub struct AppState {
     /// Quando true: registro exige confirmação de senha + código por e-mail
     /// antes de liberar tokens e join em mesa.
     pub require_email_verification: bool,
+    /// Contador de usuários autenticados com heartbeat recente (Redis ou memória).
+    pub presence: PresenceTracker,
 }

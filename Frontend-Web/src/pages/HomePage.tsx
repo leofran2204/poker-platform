@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
 import { isAuthenticated } from "@/lib/auth";
+import { OnlinePresenceHero } from "@/components/OnlinePresence";
 
 export function HomePage() {
   const authed = isAuthenticated();
 
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="zt-panel overflow-hidden">
+      <OnlinePresenceHero />
+      <div className="zt-panel mt-4 overflow-hidden">
         <div className="border-b-2 border-rail bg-felt-850 px-6 py-10 text-center">
           <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-gold-soft">
             Texas Hold&apos;em · Cash &amp; Torneios
@@ -17,6 +19,9 @@ export function HomePage() {
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-cream-muted">
             Sala de poker online com o espírito do Full Tilt clássico: lobby denso,
             mesa de feltro e jogo limpo. Motor em Rust. Interface moderna em TypeScript.
+          </p>
+          <p className="mx-auto mt-3 max-w-lg text-sm font-semibold text-gold-soft">
+            Mínimo 2 pessoas na mesma mesa para iniciar uma mão.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link to={authed ? "/lobby" : "/register"} className="zt-btn-primary px-8 py-3">
