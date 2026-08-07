@@ -397,6 +397,28 @@ try {
     const currentRun = history.body.filter((hand) => hand.created_at >= playStartedAt);
     for (const hand of currentRun) handIds.add(hand.hand_id);
     group.persistedHands = currentRun.length;
+    if (currentRun.length === 0) throw new Error(`No persisted hand found for ${group.table.name}`);
+    const detail = await pokerRequest(`/api/hand-history/${currentRun[0].hand_id}`, {
+      token: group.users[0].token,
+    });
+    const replay = detail.body?.replay;
+    const settlement = replay?.settlement;
+    const payouts = settlement?.payouts;
+    if (replay?.settlement_verified !== true) throw new Error(`Unsigned settlement for ${group.table.name}`);
+    if (!/^[0-9a-f]{64}$/.test(replay?.settlement_signature ?? "")) {
+      throw new Error(`Invalid settlement signature for ${group.table.name}`);
+    }
+    if (typeof replay?.winner !== "string" || replay.winner.length === 0) {
+      throw new Error(`Winner was not persisted for ${group.table.name}`);
+    }
+    if (!Array.isArray(payouts) || !payouts.some((entry) => entry.player_id === replay.winner)) {
+      throw new Error(`Winner is absent from payouts for ${group.table.name}`);
+    }
+    const payoutTotal = payouts.reduce((sum, entry) => sum + Number(entry.amount), 0);
+    if (payoutTotal + Number(replay.rake_collected) !== Number(replay.pot_total)) {
+      throw new Error(`Payout conservation failed for ${group.table.name}`);
+    }
+    group.settlementVerified = true;
   }
   if (handIds.size < HAND_TARGET) throw new Error(`Only ${handIds.size}/${HAND_TARGET} hands were observable in persisted history`);
 
@@ -411,6 +433,7 @@ try {
     joined: joinedSeats.length,
     handsPlayed: groups.reduce((sum, group) => sum + group.completedHands, 0),
     persistedHands: handIds.size,
+    settlementsVerified: groups.filter((group) => group.settlementVerified).length,
     cashedOut: joinedSeats.filter((seat) => seat.left).length,
     tables: groups.map((group) => ({
       id: group.table.id,
