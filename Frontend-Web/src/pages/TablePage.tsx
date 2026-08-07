@@ -20,6 +20,9 @@ export function TablePage() {
   const [pots, setPots] = useState<PotWsData[]>([]);
   const [actions, setActions] = useState<string[]>([]);
   const [raiseAmount, setRaiseAmount] = useState(200);
+  const [callAmount, setCallAmount] = useState(0);
+  const [minimumWager, setMinimumWager] = useState(0);
+  const [maximumWager, setMaximumWager] = useState(0);
   const [deflatorMsg, setDeflatorMsg] = useState<string | null>(null);
   const [tableName, setTableName] = useState(id);
 
@@ -42,6 +45,17 @@ export function TablePage() {
             setStage(msg.stage ?? "waiting");
             setPots(msg.pots ?? []);
             setActions(msg.available_actions ?? []);
+            setCallAmount(msg.call_amount ?? 0);
+            setMinimumWager(msg.minimum_wager ?? 0);
+            setMaximumWager(msg.maximum_wager ?? 0);
+            setRaiseAmount((current) =>
+              (msg.minimum_wager ?? 0) > 0
+                ? Math.min(
+                    msg.maximum_wager || Number.MAX_SAFE_INTEGER,
+                    Math.max(current, msg.minimum_wager),
+                  )
+                : current,
+            );
             break;
           case "your_turn":
             setActions(msg.actions ?? []);
@@ -146,6 +160,9 @@ export function TablePage() {
         onAction={onAction}
         raiseAmount={raiseAmount}
         onRaiseChange={setRaiseAmount}
+        callAmount={callAmount}
+        minimumWager={minimumWager}
+        maximumWager={maximumWager}
       />
     </div>
   );

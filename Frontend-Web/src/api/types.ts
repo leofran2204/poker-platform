@@ -77,6 +77,9 @@ export type ServerMessage =
       stage: string;
       pots: PotWsData[];
       available_actions: string[];
+      call_amount: number;
+      minimum_wager: number;
+      maximum_wager: number;
     }
   | { type: "your_turn"; actions: string[]; time_bank: number }
   | { type: "action_result"; success: boolean; message: string }

@@ -840,6 +840,8 @@ impl TableActor {
             "community_cards": community_cards,
             "pots": pots,
             "players": players_json,
+            "current_bet_to_match": self.game_loop.as_ref().map(|g| g.state.current_bet_to_match).unwrap_or(0),
+            "min_raise": self.game_loop.as_ref().map(|g| g.state.min_raise).unwrap_or(self.config.big_blind),
             "is_finished": is_finished
         });
 
