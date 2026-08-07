@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "reviewed_on": "2026-08-05",
-  "cycle": "S11 — Frontend TypeScript Full Tilt; VPS Hostinger com HTTPS Let's Encrypt; Resend domínio zerotiltpoker.net verified; verificação de e-mail com EMAIL_PROVIDER=resend; regulação/compliance jan/2027; B2B multi-tenant; staging/demo.",
+  "reviewed_on": "2026-08-07",
+  "cycle": "S12 — Auth MFA + supply-chain CI; ações legais na mesa; settle pós-disconnect; liquidação de mão assinada (migração 017); smoke live 10 usuários/100 mãos com settlement verificado na VPS demo; branch codex/security-supply-chain fechada e documentada.",
   "stack": {
     "motor_api": "Rust (Motor-Rust + API-Axum)",
     "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",
@@ -10,10 +10,11 @@
   },
   "production": "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.",
   "regulation": "Trilho de regulação, KYC/AML e compliance de jogo/dinheiro real: planejado para janeiro de 2027. Até lá: play-money / demo e freios de PIX real.",
-  "validation": "VPS stack healthy (postgres, redis, api, frontend/Caddy). Certificado público Let's Encrypt (emitido 2026-08-05; renovação automática Caddy). Suíte histórica motor/API (~1.904 Motor + ~32 API). Frontend-Web build Vite canônico. Migration 014 B2B + 015 e-mail verification.",
-  "email": "Resend: domínio zerotiltpoker.net status verified (DNS Hostinger: DKIM resend._domainkey, SPF+MX em send). API em runtime com REQUIRE_EMAIL_VERIFICATION=true e EMAIL_PROVIDER=resend. From recomendado: noreply@zerotiltpoker.net. Fallback: log com código se Resend falhar. Caixa admin@ (webmail Hostinger) é separada do envio transacional.",
+  "validation": "VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017 aplicadas (017 hand settlement audit). Smoke live scripts/live-e2e-ten-users.mjs: run 202608070833 PASS (10 reg/100 mãos); run 202608070920 PASS com settlementsVerified=2 (assinatura + winner + payouts+rake=pote por mesa). Simulação motor 100k mãos release OK. Segundo lote sintético zte2e202608070920* removido; lote original zte2e202608070833* preservado (10 contas demo). Suíte histórica motor/API + gates supply-chain (Dependabot, audit, SBOM/Trivy workflows).",
+  "email": "Resend: domínio zerotiltpoker.net status verified. API com REQUIRE_EMAIL_VERIFICATION=true e EMAIL_PROVIDER=resend. From recomendado: noreply@zerotiltpoker.net. MFA login challenges (migração 016) com challenge opaco, TTL e tentativas limitadas. Fallback: log com código se Resend falhar (lab). Chave Resend de produção rotacionada na sessão S12 quando 401 foi detectado.",
   "tls_notes": "Rate limit Let's Encrypt (5 certs/168h) já ocorreu; workaround Caddyfile.tls-internal gera ERR_CERT_AUTHORITY_INVALID no browser. Após liberação LE, Caddyfile canônico sem tls internal + volume caddy_data persistido. Não apagar caddy_data em cada recreate.",
   "pix": "Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado.",
-  "table_ownership": "Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.",
-  "ui_direction": "Moderno + nostalgia Full Tilt (felt, gold rail, lobby denso). Evitar estética genérica de landing AI."
+  "table_ownership": "Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura. Liquidação de mão agora persiste settlement assinado (HMAC) e a API verifica assinatura no replay; históricos legados sem assinatura permanecem legíveis como não verificados.",
+  "ui_direction": "Moderno + nostalgia Full Tilt (felt, gold rail, lobby denso). Mesa expõe legal_actions ao jogador ativo (WS + Frontend-Web). Evitar estética genérica de landing AI.",
+  "live_e2e": "Script canônico: scripts/live-e2e-ten-users.mjs (ALLOW_TEMP_MAIL=true, BASE_URL=https://zerotiltpoker.net, fixo 10 users / 100 hands). Prova de jornada: Mail.tm → register → verify-email → login → join → 100 mãos → cash-out → checagem de settlement assinado por mesa."
 }

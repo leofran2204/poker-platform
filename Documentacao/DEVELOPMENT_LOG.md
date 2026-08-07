@@ -1,9 +1,38 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-08-05
+**Atualizado:** 2026-08-07
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 > Painel tático em `DASHBOARD.md`. Cronograma em `CRONOGRAMA.md`. Estado canônico em `STATUS_OPERACIONAL.json` (prevalece sobre retrospectivas históricas que digam “Launch Ready”).
+
+---
+
+## 📌 2026-08-07 — S12 fechamento: auth/MFA, settlements assinados, smoke live 10×100
+
+| Item | Detalhe |
+|------|---------|
+| **Branch** | `codex/security-supply-chain` (trabalho Codex 05–07/08 + fechamento documental) |
+| **Auth / MFA** | Challenges de login (mig **016**), bcrypt em `spawn_blocking`, lockout atômico no Postgres, Resend assíncrono, guards de produção, UI MFA no `Frontend-Web` |
+| **Supply chain** | Workflows CI reforçados, Dependabot, audit/SBOM/Trivy (publicação GHCR sob autorização) |
+| **Mesa jogável** | WS expõe `legal_actions`; Frontend-Web usa ações legais; liquidação após disconnect corrigida no `game_actor` |
+| **Settlement audit** | Mig **017** + HMAC de liquidação; API verifica assinatura no replay; históricos legados sem assinatura = não verificados |
+| **Smoke live (1º lote)** | `run=202608070833` — **PASS**: 10 reg/verify/login/join, 100 mãos, cash-out; contas `zte2e202608070833*` **preservadas** |
+| **Smoke live (2º lote + settlement)** | `run=202608070920` container `zero-tilt-e2e-10-v5` — **PASS**: 100 mãos, `settlementsVerified=2` (assinatura + winner + payouts+rake=pote por mesa) |
+| **Limpeza** | Removido apenas lote `zte2e202608070920*`; zero assentos ACTIVE; zero recovery guards órfãos; stack healthy |
+| **Script** | `scripts/live-e2e-ten-users.mjs` (Mail.tm, 10/100 fixos, checagem de settlement) |
+| **Limites mantidos** | Sem certificação de produção; PIX mock; ownership single-process; regulação → jan/2027 |
+| **Docs** | `STATUS_OPERACIONAL.json` S12; este log; `DASHBOARD.md`; `documentation-sync --write` |
+
+### Commits principais (S12)
+
+| Hash | Mensagem |
+|------|----------|
+| `96ea2a0` | feat: harden authentication and software supply chain |
+| `c0934d1` | fix: unblock CI security validation |
+| `7aebfe6` | fix: expose legal table actions to players |
+| `0d7d415` | fix: settle hands after player disconnects |
+| `71253f4` | feat: sign and verify hand settlements |
+| `e0cdb1a` | test: verify signed hand settlements in live e2e |
 
 ---
 
@@ -565,7 +594,7 @@
 *Próximo passo: Deploy em ambiente de staging / produção ou disponibilização de canal seguro via Ngrok.*
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-08-05):** S11 — Frontend TypeScript Full Tilt; VPS Hostinger com HTTPS Let's Encrypt; Resend domínio zerotiltpoker.net verified; verificação de e-mail com EMAIL_PROVIDER=resend; regulação/compliance jan/2027; B2B multi-tenant; staging/demo. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Certificado público Let's Encrypt (emitido 2026-08-05; renovação automática Caddy). Suíte histórica motor/API (~1.904 Motor + ~32 API). Frontend-Web build Vite canônico. Migration 014 B2B + 015 e-mail verification. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
+> **Estado operacional sincronizado (2026-08-07):** S12 — Auth MFA + supply-chain CI; ações legais na mesa; settle pós-disconnect; liquidação de mão assinada (migração 017); smoke live 10 usuários/100 mãos com settlement verificado na VPS demo; branch codex/security-supply-chain fechada e documentada. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017 aplicadas (017 hand settlement audit). Smoke live scripts/live-e2e-ten-users.mjs: run 202608070833 PASS (10 reg/100 mãos); run 202608070920 PASS com settlementsVerified=2 (assinatura + winner + payouts+rake=pote por mesa). Simulação motor 100k mãos release OK. Segundo lote sintético zte2e202608070920* removido; lote original zte2e202608070833* preservado (10 contas demo). Suíte histórica motor/API + gates supply-chain (Dependabot, audit, SBOM/Trivy workflows). Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura. Liquidação de mão agora persiste settlement assinado (HMAC) e a API verifica assinatura no replay; históricos legados sem assinatura permanecem legíveis como não verificados.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

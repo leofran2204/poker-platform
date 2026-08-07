@@ -6,10 +6,11 @@ Plataforma de poker online **Texas Hold'em**: **motor e API em Rust**, **fronten
 |--|--|
 | **Domínio (demo)** | [https://zerotiltpoker.net](https://zerotiltpoker.net) |
 | **Repositório** | https://github.com/leofran2204/poker-platform |
-| **Estado** | Staging/demo — **sem** certificação de produção; PIX mock/sandbox; B2B multi-tenant |
+| **Estado** | Staging/demo (**S12**) — **sem** certificação de produção; PIX mock/sandbox; B2B multi-tenant; settlements assinados |
 | **Status canônico** | [`Documentacao/STATUS_OPERACIONAL.json`](Documentacao/STATUS_OPERACIONAL.json) |
 | **Transporte público** | **HTTPS** (Caddy + Let's Encrypt na VPS); API + SPA same-origin |
 | **E-mail (demo)** | Resend — domínio `zerotiltpoker.net` verified; ver [`EMAIL_RESEND.md`](Infraestrutura-Docker/EMAIL_RESEND.md) |
+| **Live smoke** | `scripts/live-e2e-ten-users.mjs` — 10 users / 100 hands + settlement verificado (demo VPS) |
 | **Regulação** | Trilho de compliance planejado para **janeiro de 2027** |
 
 ## Pastas principais
