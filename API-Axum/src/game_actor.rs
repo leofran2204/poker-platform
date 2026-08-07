@@ -310,6 +310,32 @@ impl TableActor {
             return;
         }
 
+        let disconnected_active_player = self.game_loop.as_ref().and_then(|game_loop| {
+            (!game_loop.state.is_finished)
+                .then(|| {
+                    game_loop
+                        .state
+                        .active_player()
+                        .map(|player| player.id.clone())
+                })
+                .flatten()
+                .filter(|player_id| {
+                    self.players
+                        .iter()
+                        .find(|player| player.id == *player_id)
+                        .is_none_or(|player| !player.is_sitting)
+                })
+        });
+        if let Some(player_id) = disconnected_active_player {
+            tracing::warn!(
+                table_id = %self.table_id,
+                player_id = %player_id,
+                "Disconnected active player; applying automatic fold"
+            );
+            self.handle_action(player_id, "fold".to_string(), 0).await;
+            return;
+        }
+
         let timed_out_player = self.game_loop.as_ref().and_then(|game_loop| {
             (!game_loop.state.is_finished)
                 .then_some(())
@@ -395,30 +421,29 @@ impl TableActor {
     }
 
     fn handle_leave(&mut self, player_id: String) {
-        self.players.retain(|p| p.id != player_id);
-        info!("Player {} left table {}", player_id, self.table_id);
-
-        // Se o jogador sair e a mão estiver em andamento, devemos dar fold nele
-        let mut reset_turn_timer = false;
-        if let Some(ref mut gl) = self.game_loop {
-            if !gl.state.is_finished {
-                let active_idx = gl.state.active_player_index;
-                let is_active_turn = gl.state.players.get(active_idx).map(|p| p.id.as_str())
-                    == Some(player_id.as_str());
-
-                if is_active_turn {
-                    reset_turn_timer = gl.player_action(&player_id, PlayerMove::Fold).is_ok()
-                        && !gl.state.is_finished;
-                } else if let Some(p) = gl.state.players.iter_mut().find(|p| p.id == player_id) {
-                    p.has_folded = true;
-                    if gl.state.players_in_hand_count() <= 1 {
-                        gl.state.is_finished = true;
-                    }
-                }
+        let player_is_in_active_hand = self.game_loop.as_ref().is_some_and(|game_loop| {
+            !game_loop.state.is_finished
+                && game_loop
+                    .state
+                    .players
+                    .iter()
+                    .any(|player| player.id == player_id)
+        });
+        if player_is_in_active_hand {
+            if let Some(player) = self
+                .players
+                .iter_mut()
+                .find(|player| player.id == player_id)
+            {
+                player.is_sitting = false;
             }
-        }
-        if reset_turn_timer {
-            self.last_turn_start = Some(tokio::time::Instant::now());
+            info!(
+                "Player {} disconnected from active hand at table {}; automatic fold scheduled",
+                player_id, self.table_id
+            );
+        } else {
+            self.players.retain(|player| player.id != player_id);
+            info!("Player {} left table {}", player_id, self.table_id);
         }
 
         self.broadcast_state();
@@ -654,6 +679,7 @@ impl TableActor {
 
                     let _ = self.tx_broadcast.send(event_payload);
                 }
+                self.players.retain(|player| player.is_sitting);
             }
             self.broadcast_state();
             // Iniciar próxima mão depois de 6 segundos
@@ -994,5 +1020,48 @@ mod tests {
                     .active_player()
                     .is_some_and(|player| player.id != active_before)
         );
+    }
+
+    #[tokio::test]
+    async fn disconnected_active_player_is_folded_without_waiting_for_timeout() {
+        let (_tx_cmd, rx_cmd) = mpsc::channel(1);
+        let (tx_broadcast, _) = broadcast::channel(1);
+        let mut actor = TableActor::new(
+            "table".to_string(),
+            "Test".to_string(),
+            rx_cmd,
+            tx_broadcast,
+        );
+        actor.players = vec![player("a", 0), player("b", 1), player("c", 2)];
+        actor.start_new_hand().await;
+        let active_before = actor
+            .game_loop
+            .as_ref()
+            .expect("hand should start")
+            .state
+            .active_player()
+            .expect("hand should have an active player")
+            .id
+            .clone();
+
+        actor.handle_leave(active_before.clone());
+        assert!(actor
+            .players
+            .iter()
+            .find(|player| player.id == active_before)
+            .is_some_and(|player| !player.is_sitting));
+
+        actor.tick().await;
+
+        let active_after = actor
+            .game_loop
+            .as_ref()
+            .expect("hand should remain available")
+            .state
+            .active_player()
+            .expect("another player should become active")
+            .id
+            .clone();
+        assert_ne!(active_after, active_before);
     }
 }
