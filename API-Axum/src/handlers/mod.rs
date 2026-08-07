@@ -3,5 +3,6 @@
 pub mod auth;
 pub mod hand_history;
 pub mod lobby;
+pub mod presence;
 pub mod tournament;
 pub mod websocket;

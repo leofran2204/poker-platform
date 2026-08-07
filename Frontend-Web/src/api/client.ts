@@ -199,3 +199,24 @@ export function applyAuthTokens(tokens: TokenResponse): void {
 export function logout(): void {
   clearTokens();
 }
+
+export interface OnlinePresenceResponse {
+  online_count: number;
+  ttl_seconds: number;
+}
+
+export interface PresenceHeartbeatResponse extends OnlinePresenceResponse {
+  ok: boolean;
+}
+
+/** Contagem pública de usuários autenticados com heartbeat recente. */
+export async function getOnlinePresence(): Promise<OnlinePresenceResponse> {
+  return request<OnlinePresenceResponse>("/api/presence/online", {}, false);
+}
+
+/** Renova presença do usuário logado e devolve a contagem atualizada. */
+export async function sendPresenceHeartbeat(): Promise<PresenceHeartbeatResponse> {
+  return request<PresenceHeartbeatResponse>("/api/presence/heartbeat", {
+    method: "POST",
+  });
+}

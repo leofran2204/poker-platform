@@ -232,6 +232,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         redis: redis_conn,
         ws_tickets: std::sync::Arc::new(tokio::sync::Mutex::new(std::collections::HashMap::new())),
         require_email_verification,
+        presence: poker_api::presence::PresenceTracker::new(),
     };
     tracing::info!(
         require_email_verification,

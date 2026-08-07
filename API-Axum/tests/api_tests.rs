@@ -47,6 +47,7 @@ fn make_test_state() -> AppState {
         redis: None,
         ws_tickets: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
         require_email_verification: false,
+        presence: poker_api::presence::PresenceTracker::new(),
     }
 }
 
@@ -120,6 +121,16 @@ async fn test_unknown_route_returns_404() {
     let (status, _) = send_request(app, Method::GET, "/nonexistent", None).await;
 
     assert_eq!(status, StatusCode::NOT_FOUND);
+}
+
+#[tokio::test]
+async fn presence_online_starts_at_zero() {
+    let app = poker_api::build_router(make_test_state());
+    let (status, body) = send_request(app, Method::GET, "/api/presence/online", None).await;
+    assert_eq!(status, StatusCode::OK);
+    let json: serde_json::Value = serde_json::from_str(&body).unwrap();
+    assert_eq!(json["online_count"], 0);
+    assert_eq!(json["ttl_seconds"], 90);
 }
 
 #[tokio::test]

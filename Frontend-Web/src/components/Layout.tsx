@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { getUsername, isAuthenticated } from "@/lib/auth";
 import { logout } from "@/api/client";
+import { OnlinePresenceNav } from "@/components/OnlinePresence";
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `zt-nav-link ${isActive ? "zt-nav-link-active" : ""}`;
@@ -19,12 +20,15 @@ export function Layout() {
     <div className="zt-shell">
       <header className="zt-nav">
         <div className="zt-nav-inner">
-          <NavLink to="/" className="zt-brand">
-            <span className="text-cream" aria-hidden>
-              ♠
-            </span>
-            Zero Tilt
-          </NavLink>
+          <div className="flex flex-wrap items-center gap-3">
+            <NavLink to="/" className="zt-brand">
+              <span className="text-cream" aria-hidden>
+                ♠
+              </span>
+              Zero Tilt
+            </NavLink>
+            <OnlinePresenceNav />
+          </div>
           <nav className="flex flex-wrap items-center gap-4">
             <NavLink to="/lobby" className={linkClass}>
               Lobby
