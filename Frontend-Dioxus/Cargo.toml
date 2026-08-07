@@ -13,7 +13,7 @@ name = "poker-frontend"
 path = "src/main.rs"
 
 [dependencies]
-dioxus = { version = "0.6", features = ["web", "logger"] }
+dioxus = { version = "0.7", features = ["web", "logger"] }
 dioxus-logger = "0.6"
 dioxus-router = "0.6"
 log = "0.4"
