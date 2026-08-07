@@ -5,6 +5,7 @@ use serde::Serialize;
 use serde_json::Value;
 
 use crate::error::ApiError;
+use crate::game_actor::settlement_signature_valid;
 use crate::middleware::auth::RequireAuth;
 use crate::state::AppState;
 
@@ -50,6 +51,8 @@ pub async fn get_hand_history(
                     'rake_collected', rake_collected,
                     'end_reason', end_reason,
                     'winner', winner_player_id,
+                    'settlement', settlement_json,
+                    'settlement_signature', settlement_signature,
                     'created_at', created_at
                 ),
                 '{}'::JSONB
@@ -72,8 +75,30 @@ pub async fn get_hand_history(
     .fetch_optional(&state.db)
     .await?;
 
-    let (id, replay) =
+    let (id, mut replay) =
         row.ok_or_else(|| ApiError::NotFound(format!("Hand history {hand_id} not found")))?;
+
+    let settlement = replay
+        .get("settlement")
+        .cloned()
+        .unwrap_or_else(|| serde_json::json!({}));
+    if settlement
+        .as_object()
+        .is_some_and(|value| !value.is_empty())
+    {
+        let signature = replay
+            .get("settlement_signature")
+            .and_then(Value::as_str)
+            .ok_or_else(|| ApiError::Internal("Settlement signature is missing".to_string()))?;
+        if !settlement_signature_valid(&settlement, signature, state.jwt_secret.as_bytes()) {
+            return Err(ApiError::Internal(
+                "Settlement signature verification failed".to_string(),
+            ));
+        }
+        replay["settlement_verified"] = Value::Bool(true);
+    } else {
+        replay["settlement_verified"] = Value::Null;
+    }
 
     Ok(Json(HandHistoryResponse {
         hand_id: id,

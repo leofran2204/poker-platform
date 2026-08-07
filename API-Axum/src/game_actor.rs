@@ -6,6 +6,10 @@
 use tokio::sync::{broadcast, mpsc, oneshot};
 use tracing::{error, info};
 
+use hmac::{Hmac, Mac};
+use sha2::Sha256;
+use subtle::ConstantTimeEq;
+
 use poker_engine::game_loop::{GameLoop, PlayerMove};
 use poker_engine::hand_history::GameType;
 use poker_engine::types::TableConfig;
@@ -81,11 +85,53 @@ struct HandHistoryRecord {
     actions: serde_json::Value,
     community_cards: serde_json::Value,
     loss_deflators: serde_json::Value,
+    settlement: serde_json::Value,
+    settlement_signature: String,
+    winner_player_id: Option<String>,
     pot: i64,
     rake: i64,
     reason: String,
     small_blind: i64,
     big_blind: i64,
+}
+
+fn sign_settlement(settlement: &serde_json::Value, secret: &[u8]) -> Result<String, String> {
+    let payload = serde_json::to_vec(settlement)
+        .map_err(|error| format!("Could not serialize settlement: {error}"))?;
+    let mut mac = Hmac::<Sha256>::new_from_slice(secret)
+        .map_err(|_| "Invalid settlement signing secret".to_string())?;
+    mac.update(&payload);
+    Ok(mac
+        .finalize()
+        .into_bytes()
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect())
+}
+
+pub(crate) fn settlement_signature_valid(
+    settlement: &serde_json::Value,
+    signature: &str,
+    secret: &[u8],
+) -> bool {
+    sign_settlement(settlement, secret)
+        .is_ok_and(|expected| expected.as_bytes().ct_eq(signature.as_bytes()).into())
+}
+
+fn validate_chip_conservation(
+    starting_total: u128,
+    final_total: u128,
+    pot_total: u128,
+    payout_total: u128,
+    rake: u128,
+) -> Result<(), String> {
+    if payout_total.checked_add(rake) != Some(pot_total) {
+        return Err("Payouts plus rake do not equal the pot".to_string());
+    }
+    if final_total.checked_add(rake) != Some(starting_total) {
+        return Err("Final stacks plus rake do not equal starting stacks".to_string());
+    }
+    Ok(())
 }
 
 async fn persist_completed_hand(
@@ -101,8 +147,8 @@ async fn persist_completed_hand(
     .fetch_one(&mut *tx)
     .await?;
     sqlx::query(
-        "INSERT INTO hand_history (id, table_id, hand_number, game_type, small_blind, big_blind, actions_json, community_cards_json, loss_deflators_json, pot_total, rake_collected, end_reason) \
-         VALUES ($1, $2, $3, 'cash', $4, $5, $6, $7, $8, $9, $10, $11) \
+        "INSERT INTO hand_history (id, table_id, hand_number, game_type, small_blind, big_blind, actions_json, community_cards_json, loss_deflators_json, settlement_json, settlement_signature, winner_player_id, pot_total, rake_collected, end_reason) \
+         VALUES ($1, $2, $3, 'cash', $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) \
          ON CONFLICT (id) DO NOTHING",
     )
     .bind(record.hand_id)
@@ -113,6 +159,9 @@ async fn persist_completed_hand(
     .bind(record.actions)
     .bind(record.community_cards)
     .bind(record.loss_deflators)
+    .bind(record.settlement)
+    .bind(record.settlement_signature)
+    .bind(record.winner_player_id)
     .bind(record.pot)
     .bind(record.rake)
     .bind(record.reason)
@@ -543,6 +592,31 @@ impl TableActor {
                         (player.id.clone(), player.stack + payout)
                     })
                     .collect();
+                let starting_total = game_loop
+                    .history
+                    .as_ref()
+                    .map(|history| {
+                        history
+                            .starting_stacks
+                            .values()
+                            .map(|chips| u128::from(*chips))
+                            .sum()
+                    })
+                    .ok_or_else(|| "Hand history is unavailable".to_string());
+                let final_total: u128 = memory_stacks
+                    .iter()
+                    .map(|(_, chips)| u128::from(*chips))
+                    .sum();
+                let payout_total: u128 = res.payouts.values().map(|chips| u128::from(*chips)).sum();
+                let settlement_validation = starting_total.and_then(|starting_total| {
+                    validate_chip_conservation(
+                        starting_total,
+                        final_total,
+                        u128::from(game_loop.state.total_pot()),
+                        payout_total,
+                        u128::from(res.rake),
+                    )
+                });
                 let durable_stacks = memory_stacks
                     .iter()
                     .map(|(player_id, chips)| {
@@ -559,12 +633,77 @@ impl TableActor {
                     audit_secret.as_deref(),
                     history_db,
                     durable_stacks.as_ref(),
+                    settlement_validation.as_ref(),
                 ) {
-                    (Some(history), Some(audit_secret), Some(db), Ok(durable_stacks)) => {
+                    (Some(history), Some(audit_secret), Some(db), Ok(durable_stacks), Ok(())) => {
                         poker_engine::hand_history::sign_hand(history, audit_secret.as_bytes());
                         let record = (|| -> Result<HandHistoryRecord, String> {
                             let history_json = serde_json::to_value(&*history)
                                 .map_err(|_| "Could not serialize hand history".to_string())?;
+                            let mut payouts = res
+                                .payouts
+                                .iter()
+                                .map(|(player_id, amount)| {
+                                    serde_json::json!({
+                                        "player_id": player_id,
+                                        "amount": amount,
+                                    })
+                                })
+                                .collect::<Vec<_>>();
+                            payouts.sort_by(|left, right| {
+                                left["player_id"].as_str().cmp(&right["player_id"].as_str())
+                            });
+                            let mut players = history
+                                .results
+                                .iter()
+                                .map(|result| {
+                                    let final_stack = memory_stacks
+                                        .iter()
+                                        .find(|(player_id, _)| player_id == &result.player_id)
+                                        .map(|(_, chips)| *chips)
+                                        .ok_or_else(|| {
+                                            "Final stack missing from settlement".to_string()
+                                        })?;
+                                    Ok(serde_json::json!({
+                                        "player_id": result.player_id,
+                                        "finish_position": result.finish_position,
+                                        "chips_won": result.chips_won,
+                                        "chips_lost": result.chips_lost,
+                                        "folded": result.folded,
+                                        "was_all_in": result.was_all_in,
+                                        "best_hand_name": result.best_hand_name,
+                                        "final_stack": final_stack,
+                                    }))
+                                })
+                                .collect::<Result<Vec<_>, String>>()?;
+                            players.sort_by(|left, right| {
+                                left["player_id"].as_str().cmp(&right["player_id"].as_str())
+                            });
+                            let loss_deflators = history_json
+                                .get("loss_deflators")
+                                .cloned()
+                                .unwrap_or_else(|| serde_json::json!([]));
+                            let settlement = serde_json::json!({
+                                "version": 1,
+                                "hand_id": history.hand_id,
+                                "table_id": table_id,
+                                "pot_total": history.total_pot,
+                                "rake_collected": history.rake,
+                                "end_reason": history.end_reason.as_str(),
+                                "payouts": payouts,
+                                "players": players,
+                                "loss_deflators": loss_deflators,
+                            });
+                            let settlement_signature =
+                                sign_settlement(&settlement, audit_secret.as_bytes())?;
+                            let winner_player_id = history
+                                .results
+                                .iter()
+                                .filter(|result| {
+                                    result.finish_position == 1 && result.chips_won > 0
+                                })
+                                .map(|result| result.player_id.clone())
+                                .min();
                             Ok(HandHistoryRecord {
                                 hand_id: uuid::Uuid::parse_str(&history.hand_id).map_err(|_| {
                                     "Invalid hand id while settling hand".to_string()
@@ -580,10 +719,10 @@ impl TableActor {
                                     .map_err(|_| "Invalid hand participant id".to_string())?,
                                 actions: history_json["actions"].clone(),
                                 community_cards: history_json["community_cards"].clone(),
-                                loss_deflators: history_json
-                                    .get("loss_deflators")
-                                    .cloned()
-                                    .unwrap_or_else(|| serde_json::json!([])),
+                                loss_deflators,
+                                settlement,
+                                settlement_signature,
+                                winner_player_id,
                                 pot: i64::try_from(history.total_pot)
                                     .map_err(|_| "Hand pot exceeds database range".to_string())?,
                                 rake: i64::try_from(history.rake)
@@ -603,12 +742,13 @@ impl TableActor {
                             Err(error) => Err(error),
                         }
                     }
-                    (None, _, _, _) => Err("Hand history is unavailable".to_string()),
-                    (_, None, _, _) => {
+                    (None, _, _, _, _) => Err("Hand history is unavailable".to_string()),
+                    (_, None, _, _, _) => {
                         Err("Hand-history signing secret is unavailable".to_string())
                     }
-                    (_, _, None, _) => Err("Database persistence is unavailable".to_string()),
-                    (_, _, _, Err(error)) => Err(error.clone()),
+                    (_, _, None, _, _) => Err("Database persistence is unavailable".to_string()),
+                    (_, _, _, Err(error), _) => Err(error.clone()),
+                    (_, _, _, _, Err(error)) => Err(error.clone()),
                 };
                 if let Err(error) = persistence_result {
                     error!(?error, table_id = %self.table_id, "Hand settlement was not committed atomically");
@@ -922,7 +1062,10 @@ fn card_to_string(card: &poker_engine::deck::Card) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{TableActor, TablePlayer};
+    use super::{
+        settlement_signature_valid, sign_settlement, validate_chip_conservation, TableActor,
+        TablePlayer,
+    };
     use tokio::sync::{broadcast, mpsc};
 
     fn player(id: &str, seat: usize) -> TablePlayer {
@@ -1020,6 +1163,39 @@ mod tests {
                     .active_player()
                     .is_some_and(|player| player.id != active_before)
         );
+    }
+
+    #[test]
+    fn settlement_signature_changes_when_payment_changes() {
+        let first = serde_json::json!({
+            "hand_id": "hand",
+            "payouts": [{"player_id": "a", "amount": 300}],
+        });
+        let second = serde_json::json!({
+            "hand_id": "hand",
+            "payouts": [{"player_id": "a", "amount": 299}],
+        });
+        let first_signature = sign_settlement(&first, b"audit-secret").unwrap();
+        let second_signature = sign_settlement(&second, b"audit-secret").unwrap();
+        assert_eq!(first_signature.len(), 64);
+        assert_ne!(first_signature, second_signature);
+        assert!(settlement_signature_valid(
+            &first,
+            &first_signature,
+            b"audit-secret"
+        ));
+        assert!(!settlement_signature_valid(
+            &second,
+            &first_signature,
+            b"audit-secret"
+        ));
+    }
+
+    #[test]
+    fn settlement_conservation_rejects_wrong_pot_or_final_stack() {
+        assert!(validate_chip_conservation(1_000, 990, 300, 290, 10).is_ok());
+        assert!(validate_chip_conservation(1_000, 990, 300, 289, 10).is_err());
+        assert!(validate_chip_conservation(1_000, 989, 300, 290, 10).is_err());
     }
 
     #[tokio::test]
