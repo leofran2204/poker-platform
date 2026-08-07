@@ -5,11 +5,14 @@ Guia curto para convidar dezenas de pessoas a testar e mandar feedback.
 ## O que cada amigo precisa fazer
 
 1. Abrir **https://zerotiltpoker.net** (HTTPS público Let's Encrypt)
-2. **Registrar** (username 3–30 chars, e-mail válido, senha forte + confirmação; ex. `PokerDemo1`)
-3. **Verificar e-mail** — código de 6 dígitos enviado via Resend (inbox + spam); tela `/verify-email`
-4. Ir ao **Lobby**
-5. Clicar **Entrar** em uma mesa (buy-in mínimo automático)
-6. Jogar e anotar bugs / sensações
+2. Ver o contador **“X online”** no topo (e o banner na home) — só conta quem **está logado** com heartbeat recente (~90s)
+3. **Registrar** (username 3–30 chars, e-mail válido, senha forte + confirmação; ex. `PokerDemo1`)
+4. **Verificar e-mail** — código de 6 dígitos enviado via Resend (inbox + spam); tela `/verify-email`
+5. Ir ao **Lobby** e combinar a **mesma mesa** com pelo menos **2 pessoas**
+6. Clicar **Entrar** (buy-in mínimo automático)
+7. Jogar e anotar bugs / sensações
+
+> **Importante:** 1 pessoa sozinha no site **não** inicia mão. Precisa de **≥ 2 assentos ocupados na mesma mesa**.
 
 ## O que a conta ganha
 
