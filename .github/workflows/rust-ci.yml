@@ -6,6 +6,7 @@ on:
     paths:
       - 'Motor-Rust/**'
       - 'Frontend-Dioxus/**'
+      - 'Frontend-Web/**'
       - 'API-Axum/**'
       - 'Infraestrutura-Docker/**'
       - 'Documentacao/**'
@@ -19,6 +20,7 @@ on:
     paths:
       - 'Motor-Rust/**'
       - 'Frontend-Dioxus/**'
+      - 'Frontend-Web/**'
       - 'API-Axum/**'
       - 'Infraestrutura-Docker/**'
       - 'Documentacao/**'
@@ -32,15 +34,25 @@ env:
   CARGO_TERM_COLOR: always
   RUSTFLAGS: "-D warnings"  # warnings viram erros no CI
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   documentation-sync:
     name: Documentação — sincronização obrigatória
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
 
       - name: Verify canonical operational status in every document
         run: cargo run --locked --bin documentation-sync -- --check
@@ -48,17 +60,20 @@ jobs:
   check:
     name: Cargo Check
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: ./Motor-Rust
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
 
       - name: Cache cargo registry
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cargo/registry
@@ -71,18 +86,21 @@ jobs:
   test:
     name: Motor — testes determinísticos
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     needs: check
     defaults:
       run:
         working-directory: ./Motor-Rust
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
 
       - name: Cache cargo registry
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cargo/registry
@@ -90,7 +108,7 @@ jobs:
           key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Motor-Rust/Cargo.lock') }}
 
       - name: Cache target directory
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: Motor-Rust/target
           key: ${{ runner.os }}-cargo-target-${{ hashFiles('Motor-Rust/Cargo.lock') }}-${{ github.sha }}
@@ -106,20 +124,23 @@ jobs:
   clippy:
     name: Cargo Clippy (Lint)
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     needs: check
     defaults:
       run:
         working-directory: ./Motor-Rust
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Rust stable + clippy
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
         with:
           components: clippy
 
       - name: Cache cargo registry
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cargo/registry
@@ -132,14 +153,17 @@ jobs:
   fmt:
     name: Cargo Fmt (Format Check)
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: ./Motor-Rust
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Rust stable + rustfmt
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
         with:
           components: rustfmt
 
@@ -149,14 +173,17 @@ jobs:
   audit:
     name: Cargo Audit (CVE Scan)
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: ./Motor-Rust
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
 
       - name: Install cargo-audit
         run: cargo install cargo-audit --locked
@@ -167,6 +194,7 @@ jobs:
   dependency-audit:
     name: Supply chain — API e frontend
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -175,10 +203,12 @@ jobs:
       run:
         working-directory: ./${{ matrix.directory }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
 
       - name: Install cargo-audit
         run: cargo install cargo-audit --locked
@@ -189,20 +219,23 @@ jobs:
   coverage:
     name: Coverage (cargo llvm-cov)
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     needs: test
     defaults:
       run:
         working-directory: ./Motor-Rust
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Rust stable + llvm-tools
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
         with:
           components: llvm-tools-preview
 
       - name: Cache cargo
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cargo/registry
@@ -219,7 +252,7 @@ jobs:
         run: cargo llvm-cov --lib --lcov --output-path ${{ github.workspace }}/Motor-Rust/lcov.info
 
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: motor-rust-coverage
           path: Motor-Rust/lcov.info
@@ -227,17 +260,51 @@ jobs:
       - name: Coverage summary
         run: cargo llvm-cov --lib --summary-only
 
+  frontend-web:
+    name: Frontend Web — lockfile, auditoria, lint e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: ./Frontend-Web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: Frontend-Web/package-lock.json
+
+      - name: Install exact dependencies
+        run: npm ci
+
+      - name: Audit npm dependency graph
+        run: npm audit --audit-level=high
+
+      - name: TypeScript lint
+        run: npm run lint
+
+      - name: Production build
+        run: npm run build
+
   frontend-check:
     name: Frontend Dioxus — Check + Clippy + Fmt
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: ./Frontend-Dioxus
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
         with:
           components: clippy, rustfmt
 
@@ -245,7 +312,7 @@ jobs:
         run: rustup target add wasm32-unknown-unknown
 
       - name: Cache cargo registry
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cargo/registry
@@ -266,17 +333,20 @@ jobs:
   api-check:
     name: API — Cargo Check
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: ./API-Axum
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
 
       - name: Cache cargo registry
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cargo/registry
@@ -284,7 +354,7 @@ jobs:
           key: ${{ runner.os }}-cargo-registry-api-${{ hashFiles('API-Axum/Cargo.lock') }}
 
       - name: Cache target directory
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: API-Axum/target
           key: ${{ runner.os }}-cargo-target-api-${{ hashFiles('API-Axum/Cargo.lock') }}-${{ github.sha }}
@@ -298,10 +368,11 @@ jobs:
   api-test:
     name: API — testes de contrato e PostgreSQL
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     needs: api-check
     services:
       postgres:
-        image: postgres:15-alpine
+        image: postgres:15-alpine@sha256:3d0f7584ed7d04e27fa050d6683a74746608faf21f202be78460d679cc56461f
         env:
           POSTGRES_USER: user
           POSTGRES_PASSWORD: password
@@ -314,7 +385,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       redis:
-        image: redis:7-alpine
+        image: redis:7-alpine@sha256:e7723ff73d963f5cc6d9c4643ea3d989527a402a319239054e9472a7fb9219a2
         ports:
           - 6379:6379
         options: >-
@@ -329,13 +400,15 @@ jobs:
       DATABASE_URL: postgres://user:password@localhost:5432/poker_db
       REDIS_URL: redis://localhost:6379
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
 
       - name: Cache cargo registry
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cargo/registry
@@ -343,7 +416,7 @@ jobs:
           key: ${{ runner.os }}-cargo-registry-api-${{ hashFiles('API-Axum/Cargo.lock') }}
 
       - name: Cache target directory
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: API-Axum/target
           key: ${{ runner.os }}-cargo-target-api-${{ hashFiles('API-Axum/Cargo.lock') }}-${{ github.sha }}
@@ -374,20 +447,23 @@ jobs:
   api-clippy:
     name: API — Cargo Clippy (Lint)
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     needs: api-check
     defaults:
       run:
         working-directory: ./API-Axum
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Rust stable + clippy
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
         with:
           components: clippy
 
       - name: Cache cargo registry
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cargo/registry
@@ -400,14 +476,17 @@ jobs:
   api-fmt:
     name: API — Cargo Fmt (Format Check)
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: ./API-Axum
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Rust stable + rustfmt
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
         with:
           components: rustfmt
 
@@ -417,37 +496,50 @@ jobs:
   container-security-scan:
     name: DevSecOps — Trivy Container Vulnerability Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Run Trivy vulnerability scanner on repo
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
+          scanners: 'vuln,misconfig,secret'
+          format: 'table'
+          exit-code: '1'
           ignore-unfixed: true
           severity: 'CRITICAL,HIGH'
 
   docker-build-validation:
-    name: Docker — Build Validation (API + Caddy)
+    name: Docker — Build Validation (API + Frontend + Caddy)
     runs-on: ubuntu-latest
-    needs: [api-check, frontend-check]
+    timeout-minutes: 60
+    needs: [api-check, frontend-check, frontend-web]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Validate API-Axum Dockerfile builds
         run: docker build -f API-Axum/Dockerfile . --target builder
 
+      - name: Validate Frontend-Web Dockerfile builds
+        run: docker build -f Frontend-Web/Dockerfile . --target builder
+
       - name: Validate Caddyfile syntax
-        run: docker run --rm -v ${{ github.workspace }}/Infraestrutura-Docker/Caddyfile:/etc/caddy/Caddyfile:ro caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile
+        run: docker run --rm -v ${{ github.workspace }}/Infraestrutura-Docker/Caddyfile:/etc/caddy/Caddyfile:ro caddy:2.10.2-alpine@sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d caddy validate --config /etc/caddy/Caddyfile
 
   deploy-readiness-gate:
     name: Deploy Readiness Gate ✅
     runs-on: ubuntu-latest
-    needs: [documentation-sync, test, coverage, api-test, frontend-check, clippy, api-clippy, fmt, api-fmt, audit, dependency-audit, container-security-scan, docker-build-validation]
+    timeout-minutes: 60
+    needs: [documentation-sync, test, coverage, api-test, frontend-check, frontend-web, clippy, api-clippy, fmt, api-fmt, audit, dependency-audit, container-security-scan, docker-build-validation]
     steps:
       - name: All checks passed
         run: |
@@ -457,5 +549,6 @@ jobs:
           echo "Motor-Rust:      ✅ check + test + clippy + fmt + audit + coverage"
           echo "API-Axum:        ✅ check + test + clippy + fmt"
           echo "Frontend-Dioxus: ✅ check + clippy + fmt (WASM target)"
+          echo "Frontend-Web:   ✅ audit + lint + production build"
           echo "Security:        ✅ Trivy CVE scan"
           echo "============================================="

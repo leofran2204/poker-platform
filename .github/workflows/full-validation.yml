@@ -13,17 +13,27 @@ env:
   CARGO_TERM_COLOR: always
   RUSTFLAGS: "-D warnings"
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   motor:
     name: Motor — 79 cenários de carga
     if: inputs.approved == 'yes'
     runs-on: ubuntu-latest
+    timeout-minutes: 180
     defaults:
       run:
         working-directory: ./Motor-Rust
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
       - name: Run routine and massive scenarios
         env:
           FULL_VALIDATION_APPROVED: "1"
@@ -31,7 +41,7 @@ jobs:
         run: bash ../scripts/full-validation.sh motor
       - name: Upload workload metrics
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: full-validation-metrics-motor
           path: artifacts/full-validation
@@ -41,9 +51,10 @@ jobs:
     name: API HTTPS — handlers, WebSocket and security
     if: inputs.approved == 'yes'
     runs-on: ubuntu-latest
+    timeout-minutes: 180
     services:
       postgres:
-        image: postgres:15-alpine
+        image: postgres:15-alpine@sha256:3d0f7584ed7d04e27fa050d6683a74746608faf21f202be78460d679cc56461f
         env:
           POSTGRES_USER: user
           POSTGRES_PASSWORD: password
@@ -59,8 +70,10 @@ jobs:
     env:
       DATABASE_URL: postgres://user:password@localhost:5432/poker_db
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
       - name: Apply PostgreSQL migrations
         run: |
           for migration in migrations/*.sql; do
@@ -74,7 +87,7 @@ jobs:
         run: bash ../scripts/full-validation.sh api
       - name: Upload workload metrics
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: full-validation-metrics-api
           path: artifacts/full-validation
@@ -84,12 +97,15 @@ jobs:
     name: Frontend — fuzz and state stress
     if: inputs.approved == 'yes'
     runs-on: ubuntu-latest
+    timeout-minutes: 180
     defaults:
       run:
         working-directory: ./Frontend-Dioxus
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
       - name: Run routine and full validation scenarios
         env:
           FULL_VALIDATION_APPROVED: "1"
@@ -97,7 +113,7 @@ jobs:
         run: bash ../scripts/full-validation.sh frontend
       - name: Upload workload metrics
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: full-validation-metrics-frontend
           path: artifacts/full-validation
@@ -107,8 +123,11 @@ jobs:
     name: Gateway público HTTPS/WSS — Caddy E2E
     if: inputs.approved == 'yes'
     runs-on: ubuntu-latest
+    timeout-minutes: 180
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Start hardened local stack
         run: |
           cp Infraestrutura-Docker/.env.example Infraestrutura-Docker/.env

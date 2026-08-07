@@ -4,58 +4,50 @@
 //! - `log` (padrão): grava no tracing — só para dev/lab
 //! - `resend`: envia via [Resend](https://resend.com) API (`RESEND_API_KEY`, `EMAIL_FROM`)
 //!
-//! Sem `RESEND_API_KEY` com provider=resend → cai no log e registra erro.
+//! Falhas do provider real nunca expõem o código em logs.
 
+use hmac::{Hmac, Mac};
 use serde_json::json;
-use sha2::{Digest, Sha256};
+use sha2::Sha256;
 use std::env;
 use std::time::Duration;
+
+type HmacSha256 = Hmac<Sha256>;
 
 /// Validade do código em segundos (15 minutos).
 pub const CODE_TTL_SECS: u64 = 15 * 60;
 
-/// Gera código numérico de 6 dígitos com CSPRNG.
+/// Gera código numérico de 6 dígitos com CSPRNG e rejection sampling.
 pub fn generate_numeric_code() -> String {
-    use std::time::{SystemTime, UNIX_EPOCH};
-    let mut buf = [0u8; 4];
-    if getrandom_fill(&mut buf).is_err() {
-        let t = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map(|d| d.as_nanos() as u64)
-            .unwrap_or(1);
-        buf = (t as u32).to_le_bytes();
+    const RANGE: u32 = 1_000_000;
+    const UNBIASED_ZONE: u32 = u32::MAX - (u32::MAX % RANGE);
+
+    loop {
+        let random = uuid::Uuid::new_v4();
+        let bytes = random.as_bytes();
+        let sample = u32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
+        if sample < UNBIASED_ZONE {
+            return format!("{:06}", sample % RANGE);
+        }
     }
-    let n = u32::from_le_bytes(buf) % 1_000_000;
-    format!("{n:06}")
 }
 
-fn getrandom_fill(buf: &mut [u8]) -> Result<(), ()> {
-    let u = uuid::Uuid::new_v4();
-    let bytes = u.as_bytes();
-    for (i, b) in buf.iter_mut().enumerate() {
-        *b = bytes[i % bytes.len()];
-    }
-    let u2 = uuid::Uuid::new_v4();
-    for (i, b) in buf.iter_mut().enumerate() {
-        *b ^= u2.as_bytes()[i % 16];
-    }
-    Ok(())
-}
-
+/// HMAC com pepper impede força bruta offline caso somente a tabela de códigos
+/// seja exposta. Em produção, o boot guardian exige um pepper dedicado.
 pub fn hash_code(code: &str) -> String {
-    let mut hasher = Sha256::new();
-    hasher.update(code.as_bytes());
-    hasher.update(b"|zero-tilt-email-v1");
-    format!("{:x}", hasher.finalize())
+    let pepper = env::var("EMAIL_CODE_PEPPER")
+        .unwrap_or_else(|_| "development-email-code-pepper".to_string());
+    let mut mac =
+        HmacSha256::new_from_slice(pepper.as_bytes()).expect("HMAC accepts keys of any size");
+    mac.update(b"zero-tilt-email-v2\0");
+    mac.update(code.as_bytes());
+    format!("{:x}", mac.finalize().into_bytes())
 }
 
 pub fn codes_equal_hash(code: &str, stored_hash: &str) -> bool {
     use subtle::ConstantTimeEq;
     let computed = hash_code(code);
-    computed
-        .as_bytes()
-        .ct_eq(stored_hash.as_bytes())
-        .into()
+    computed.as_bytes().ct_eq(stored_hash.as_bytes()).into()
 }
 
 /// Subject + texto plano + HTML do e-mail de boas-vindas.
@@ -144,12 +136,16 @@ fn resolve_provider() -> String {
 }
 
 /// Envia e-mail de verificação conforme EMAIL_PROVIDER / RESEND_API_KEY.
-pub fn send_verification_email(to_email: &str, username: &str, code: &str) {
+pub async fn send_verification_email(
+    to_email: &str,
+    username: &str,
+    code: &str,
+) -> Result<(), String> {
     let (subject, text, html) = build_welcome_message(username, code);
     let provider = resolve_provider();
 
     match provider.as_str() {
-        "resend" => match send_via_resend(to_email, &subject, &text, &html) {
+        "resend" => match send_via_resend(to_email, &subject, &text, &html).await {
             Ok(id) => {
                 tracing::info!(
                     target: "email",
@@ -158,39 +154,33 @@ pub fn send_verification_email(to_email: &str, username: &str, code: &str) {
                     resend_id = %id,
                     "E-mail de verificação enviado via Resend"
                 );
-                // Não logar o código em produção se o envio real funcionou
-                if env::var("EMAIL_LOG_CODE_ALWAYS")
-                    .map(|v| matches!(v.to_ascii_lowercase().as_str(), "1" | "true" | "yes"))
-                    .unwrap_or(false)
-                {
-                    log_email(to_email, &subject, code, &text);
-                }
+                Ok(())
             }
             Err(err) => {
                 tracing::error!(
                     target: "email",
                     to = to_email,
                     error = %err,
-                    "Falha ao enviar via Resend — caindo para log (código nos logs da API)"
+                    "Falha ao enviar e-mail de verificação via Resend"
                 );
-                log_email(to_email, &subject, code, &text);
+                Err(err)
             }
         },
-        "smtp" => {
-            tracing::warn!(
-                target: "email",
-                %to_email,
-                "EMAIL_PROVIDER=smtp ainda não implementado — use resend ou log"
-            );
+        "log" if !is_production() => {
             log_email(to_email, &subject, code, &text);
+            Ok(())
         }
-        _ => {
-            log_email(to_email, &subject, code, &text);
-        }
+        "log" => Err("EMAIL_PROVIDER=log is forbidden in production".to_string()),
+        "smtp" => Err("EMAIL_PROVIDER=smtp is not implemented".to_string()),
+        other => Err(format!("Unsupported EMAIL_PROVIDER: {other}")),
     }
 }
 
-fn send_via_resend(
+fn is_production() -> bool {
+    env::var("ENVIRONMENT").is_ok_and(|value| value.eq_ignore_ascii_case("production"))
+}
+
+async fn send_via_resend(
     to_email: &str,
     subject: &str,
     text: &str,
@@ -205,11 +195,10 @@ fn send_via_resend(
     }
 
     // Domínio verificado no Resend, ou onboarding@resend.dev (só para o e-mail da conta Resend).
-    let from = env::var("EMAIL_FROM").unwrap_or_else(|_| {
-        "Zero Tilt Poker <onboarding@resend.dev>".to_string()
-    });
+    let from = env::var("EMAIL_FROM")
+        .unwrap_or_else(|_| "Zero Tilt Poker <onboarding@resend.dev>".to_string());
 
-    let client = reqwest::blocking::Client::builder()
+    let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(20))
         .build()
         .map_err(|e| format!("cliente HTTP: {e}"))?;
@@ -228,11 +217,13 @@ fn send_via_resend(
         .header("Content-Type", "application/json")
         .json(&body)
         .send()
+        .await
         .map_err(|e| format!("rede Resend: {e}"))?;
 
     let status = response.status();
     let response_text = response
         .text()
+        .await
         .unwrap_or_else(|_| String::from("(sem corpo)"));
 
     if !status.is_success() {
@@ -258,4 +249,26 @@ fn log_email(to: &str, subject: &str, code: &str, body: &str) {
         "=== E-mail de verificação Zero Tilt (provider=log) ===\n{body}"
     );
     eprintln!("[email:log] to={to} subject={subject} code={code} (veja logs da API)");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{codes_equal_hash, generate_numeric_code, hash_code};
+
+    #[test]
+    fn verification_code_is_always_six_ascii_digits() {
+        for _ in 0..1_000 {
+            let code = generate_numeric_code();
+            assert_eq!(code.len(), 6);
+            assert!(code.bytes().all(|byte| byte.is_ascii_digit()));
+        }
+    }
+
+    #[test]
+    fn verification_hash_is_deterministic_and_constant_time_comparable() {
+        let stored = hash_code("123456");
+        assert_eq!(stored.len(), 64);
+        assert!(codes_equal_hash("123456", &stored));
+        assert!(!codes_equal_hash("123457", &stored));
+    }
 }

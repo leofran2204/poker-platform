@@ -13,6 +13,9 @@ interface Props {
   onAction: (action: string, amount?: number) => void;
   raiseAmount: number;
   onRaiseChange: (v: number) => void;
+  callAmount: number;
+  minimumWager: number;
+  maximumWager: number;
 }
 
 export function PokerTable({
@@ -25,9 +28,20 @@ export function PokerTable({
   onAction,
   raiseAmount,
   onRaiseChange,
+  callAmount,
+  minimumWager,
+  maximumWager,
 }: Props) {
   const potTotal = pots.reduce((s, p) => s + p.amount, 0);
-  const canRaise = availableActions.some((a) => a.toLowerCase() === "raise" || a.toLowerCase() === "allin" || a.toLowerCase() === "all-in");
+  const normalizedActions = availableActions.map((action) => action.toLowerCase());
+  const wagerAction = normalizedActions.includes("bet")
+    ? "bet"
+    : normalizedActions.includes("raise")
+      ? "raise"
+      : null;
+  const canAllIn = normalizedActions.some(
+    (action) => action === "allin" || action === "all-in",
+  );
 
   return (
     <div>
@@ -102,9 +116,15 @@ export function PokerTable({
           <>
             {availableActions.map((raw) => {
               const a = raw.toLowerCase();
-              if (a === "raise" || a === "allin" || a === "all-in") return null;
+              if (a === "bet" || a === "raise" || a === "allin" || a === "all-in") return null;
               const label =
-                a === "fold" ? "Fold" : a === "check" ? "Check" : a === "call" ? "Call" : raw;
+                a === "fold"
+                  ? "Fold"
+                  : a === "check"
+                    ? "Check"
+                    : a === "call"
+                      ? `Call ${formatChips(callAmount)}`
+                      : raw;
               const danger = a === "fold";
               return (
                 <button
@@ -117,32 +137,35 @@ export function PokerTable({
                 </button>
               );
             })}
-            {canRaise && (
+            {wagerAction && (
               <div className="flex items-center gap-2">
                 <input
                   type="number"
-                  min={0}
+                  min={minimumWager}
+                  max={maximumWager || undefined}
                   step={100}
                   className="zt-input w-28"
                   value={raiseAmount}
                   onChange={(e) => onRaiseChange(Number(e.target.value) || 0)}
-                  aria-label="Valor do raise em centavos"
+                  aria-label="Valor da aposta em centavos"
                 />
                 <button
                   type="button"
                   className="zt-btn-primary"
-                  onClick={() => onAction("raise", raiseAmount)}
+                  onClick={() => onAction(wagerAction, raiseAmount)}
                 >
-                  Raise
-                </button>
-                <button
-                  type="button"
-                  className="zt-btn-secondary"
-                  onClick={() => onAction("allin", 0)}
-                >
-                  All-in
+                  {wagerAction === "bet" ? "Bet" : "Raise"}
                 </button>
               </div>
+            )}
+            {canAllIn && (
+              <button
+                type="button"
+                className="zt-btn-secondary"
+                onClick={() => onAction("allin", 0)}
+              >
+                All-in
+              </button>
             )}
           </>
         )}

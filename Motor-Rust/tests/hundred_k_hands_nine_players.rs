@@ -34,9 +34,7 @@ fn auto_play_until_finished(gl: &mut GameLoop) {
                 .iter()
                 .find(|p| p.id == active)
                 .expect("active player");
-            gl.state
-                .current_bet_to_match
-                .saturating_sub(p.current_bet)
+            gl.state.current_bet_to_match.saturating_sub(p.current_bet)
         };
         // Mix: majority call/check, rare fold, rare raise (stress paths)
         let roll = steps.wrapping_mul(17).wrapping_add(active.len() as u32) % 100;

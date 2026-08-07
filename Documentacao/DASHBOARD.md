@@ -1,6 +1,6 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-08-05 | **Status:** S11 — Frontend **TypeScript** (Full Tilt) + B2B + VPS demo **https://zerotiltpoker.net** (LE) + Resend verified; **sem** certificação de produção; **regulação → jan/2027**.
+**Atualizado:** 2026-08-07 | **Status:** **S12** — Auth MFA + supply-chain + settlements assinados + smoke live 10×100 **PASS** na demo **https://zerotiltpoker.net**; **sem** certificação de produção; **regulação → jan/2027**.
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📌 **Fonte canônica de estado:** [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json) — prevalece sobre qualquer texto datado abaixo.
@@ -9,6 +9,7 @@
 > **Domínio do produto:** [`zerotiltpoker.net`](https://zerotiltpoker.net) (demo/staging — VPS Hostinger).
 > **Transporte público:** **HTTPS** (Caddy + **Let's Encrypt**); SPA same-origin.
 > **E-mail:** Resend domínio **verified**; `EMAIL_PROVIDER=resend` na API (ver `EMAIL_RESEND.md`).
+> **Live E2E:** `scripts/live-e2e-ten-users.mjs` — 10 users / 100 hands + settlement assinado.
 > **Limites conhecidos:** PIX mock/sandbox; mesas com dono único por processo; VPS Hostinger KVM 2 ok para ~40 concurrent; LE rate limit 5 certs/168h se recriar `caddy_data`.
 > ⚖️ **Regulação / KYC / real-money compliance:** planejado para **janeiro de 2027**.
 
@@ -19,8 +20,8 @@
 | # | Parâmetro | Valor |
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
-| 2 | **Sprint atual** | S11 — Frontend-Web TS Full Tilt + demo VPS HTTPS + Resend |
-| 3 | **Status** | 🟢 Demo pública com LE + e-mail Resend; polish UI e smoke de registro contínuos |
+| 2 | **Sprint atual** | S12 — Auth MFA, supply-chain, settlements, smoke live |
+| 3 | **Status** | 🟢 Demo HTTPS + Resend + jornada 10×100 com liquidação assinada validada |
 | 4 | **Cerimônias** | Planning + Review + Retrospectiva |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
 
@@ -58,6 +59,7 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S09 | 2026-07-29 | Recovery de mão + PIX sandbox | Guarda transacional de liquidação; Asaas sandbox restrito | ✅ Concluído localmente |
 | S10 | 2026-07-31 → 2026-08-01 | Domínio/demo HTTPS + B2B SaaS | `zerotiltpoker.net`; tunnel/VPS; migration 014 clubs/agents; rake 15/85; dashboard HTTPS; lobby MTT | 🟡 Local pronto — go-live tunnel e commit full pendentes |
 | S11 | 2026-08-04 → 2026-08-05 | Frontend TypeScript + demo VPS | `Frontend-Web` React/Vite/Tailwind; docs v4.0; regulação jan/2027; VPS Hostinger LE (2026-08-05); Resend `zerotiltpoker.net` verified; auth e-mail + Resend na API | 🟢 Demo HTTPS + e-mail operacionais |
+| S12 | 2026-08-05 → 2026-08-07 | Auth MFA + supply chain + prova live | MFA challenges (016); CI/Dependabot/SBOM; legal_actions; settle pós-disconnect; settlement HMAC (017); smoke live 10×100 PASS com settlementsVerified; lote sintético 2º limpo | 🟢 Fechado (demo); sem cert. produção |
 
 ---
 
@@ -90,9 +92,14 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 |---|--------|-------|--------|
 | PIX | Adaptadores e testes locais preservados; integração real de depósitos, saques e webhooks requer nova autorização de escopo | `API-Axum/` & `Frontend-Dioxus/` | ⏸️ Adiado |
 
-### ✅ Concluídas — Sprint Atual
+### ✅ Concluídas — Sprint Atual (S12)
 | #   | Tarefa                                                                                                                                                              | Data       |
 |-----|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| AUTH| **MFA + harden auth** — challenges opacos (mig 016), bcrypt non-blocking, lockout atômico, Resend async, guards de produção, LoginPage 2 passos | 2026-08-06 |
+| SEC | **Supply-chain CI** — rust-ci reforçado, supply-chain workflow, Dependabot, audit.toml | 2026-08-06 |
+| PLAY| **Mesa jogável no e2e** — `legal_actions` no WS/Frontend; settle após disconnect no `game_actor` | 2026-08-07 |
+| SETL| **Settlement assinado** — mig 017, HMAC na liquidação, verify no hand-history replay | 2026-08-07 |
+| E2E | **Smoke live 10×100** — `live-e2e-ten-users.mjs`; PASS `0833` (jornada) + PASS `0920` (`settlementsVerified=2`); 2º lote removido, 10 originais preservados | 2026-08-07 |
 | TLS | **HTTPS público Let's Encrypt** — VPS Hostinger; DNS A `zerotiltpoker.net` → IP da VPS; Caddyfile canônico (sem `tls internal`); volume `caddy_data` persistido; cert LE emitido 2026-08-05 (issuer Let's Encrypt YE2, validade ~90d). Rate limit 429 documentado em `Caddyfile.tls-internal` e `STATUS_OPERACIONAL.json`. | 2026-08-05 |
 | MAIL| **Resend go-live** — domínio `zerotiltpoker.net` **verified** (DKIM `resend._domainkey`, SPF+MX `send` na Hostinger); API `email_provider=resend` + `require_email_verification=true`; rebuild `poker_api` com código Resend; `EMAIL_FROM` `noreply@` recomendado. Guia: `EMAIL_RESEND.md`. | 2026-08-05 |
 | B2B | **SaaS multi-tenant (local)** — migration `014` (`clubs`, `club_memberships`, `club_agents`, `club_id` em tables/tournaments); rake split 15/85 no motor + crédito de `club_rake` no `TableActor`; admin API clubs/financials/withdraw/theme/agents; dashboard Dioxus `/admin/clubs` via **HTTPS** (JWT + fallback demo); lobby MTT `/tournament/:id`; compose com healthchecks API/Caddy; `.env.production.example`. | 2026-08-01 |
@@ -189,7 +196,7 @@ cd Infraestrutura-Docker && docker-compose up -d
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-08-01):** S10 — B2B SaaS Multi-Tenant White-Label (clubs, rake split 15/85, agentes/rakeback, dashboard admin via HTTPS, lobby MTT); domínio público zerotiltpoker.net; demo em casa com Cloudflare Tunnel e HTTPS de ponta a ponta; VPS/Hetzner opcional. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público previsto: demo residencial (Cloudflare Tunnel) ou VPS opcional — não multi-AZ. Staging/demo apenas; não alegar Launch Ready de produção.** Infra e docs de deploy (compose com healthchecks Postgres/Redis/API/Caddy, Caddyfile.tunnel HTTPS, DEPLOY_HOME_CLOUDFLARE, DEPLOY_HETZNER, .env.staging/.env.tunnel/.env.production.example) versionados no working tree. Suíte histórica reportada: ~2.051 testes (1.904 Motor Rust + 115 Dioxus + 32 API); full-validation e smoke em https://zerotiltpoker.net ainda pendem de execução. Migration 014 (clubs, memberships, club_agents, club_id em mesas/torneios) e endpoints admin B2B implementados localmente. Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura.
+> **Estado operacional sincronizado (2026-08-07):** S12 — Auth MFA + supply-chain CI; ações legais na mesa; settle pós-disconnect; liquidação de mão assinada (migração 017); smoke live 10 usuários/100 mãos com settlement verificado na VPS demo; branch codex/security-supply-chain fechada e documentada. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017 aplicadas (017 hand settlement audit). Smoke live scripts/live-e2e-ten-users.mjs: run 202608070833 PASS (10 reg/100 mãos); run 202608070920 PASS com settlementsVerified=2 (assinatura + winner + payouts+rake=pote por mesa). Simulação motor 100k mãos release OK. Segundo lote sintético zte2e202608070920* removido; lote original zte2e202608070833* preservado (10 contas demo). Suíte histórica motor/API + gates supply-chain (Dependabot, audit, SBOM/Trivy workflows). Mock é o padrão. O único adaptador externo é o Asaas Sandbox, restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção permanecem desabilitados. Nenhum depósito com dinheiro real foi habilitado. Mesas continuam com dono único por processo; uma guarda persistente pausa a mesa após falha entre início e liquidação da mão, exigindo revisão/abort administrativo antes da reabertura. Liquidação de mão agora persiste settlement assinado (HMAC) e a API verifica assinatura no replay; históricos legados sem assinatura permanecem legíveis como não verificados.
 >
-> Fonte canônica: [STATUS_OPERACIONAL.json](STATUS_OPERACIONAL.json). Verificação: cargo run --bin documentation-sync -- --check.
+> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

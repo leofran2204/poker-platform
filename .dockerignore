@@ -6,6 +6,8 @@
 
 # Saídas de compilação e artefatos de validação
 **/target/
+**/node_modules/
+**/dist/
 artifacts/
 proptest-regressions/
 **/*.log

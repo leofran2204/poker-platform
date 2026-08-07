@@ -5,7 +5,10 @@ use axum::extract::State;
 use axum::Json;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use sha2::{Digest, Sha256};
+use std::sync::{Arc, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
+use tokio::sync::Semaphore;
 
 use crate::email_service::{
     codes_equal_hash, generate_numeric_code, hash_code, send_verification_email, CODE_TTL_SECS,
@@ -60,9 +63,9 @@ pub struct LoginBody {
     pub password: String,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct MfaVerifyBody {
+    pub challenge: String,
     pub code: String,
 }
 
@@ -99,9 +102,7 @@ fn account_status_db(status: &poker_engine::auth::AccountStatus) -> &'static str
         poker_engine::auth::AccountStatus::Active => "active",
         poker_engine::auth::AccountStatus::Suspended => "suspended",
         poker_engine::auth::AccountStatus::Banned => "banned",
-        poker_engine::auth::AccountStatus::PendingEmailVerification => {
-            "pending_email_verification"
-        }
+        poker_engine::auth::AccountStatus::PendingEmailVerification => "pending_email_verification",
     }
 }
 
@@ -152,7 +153,9 @@ async fn issue_verification_code(
     .execute(&state.db)
     .await?;
 
-    send_verification_email(email, username, &code);
+    send_verification_email(email, username, &code)
+        .await
+        .map_err(ApiError::Internal)?;
     Ok(())
 }
 
@@ -240,37 +243,90 @@ async fn load_persisted_user(
     row.map(persisted_user_from_row).transpose()
 }
 
-async fn persist_login_state(
-    state: &AppState,
-    user: &poker_engine::auth::User,
-) -> Result<(), ApiError> {
-    let failed_login_attempts = i32::try_from(user.failed_login_attempts).map_err(|_| {
-        ApiError::Internal("Login attempt counter exceeds database range".to_string())
-    })?;
-    let locked_until = user
-        .locked_until
-        .map(i64::try_from)
-        .transpose()
-        .map_err(|_| ApiError::Internal("Lock timestamp exceeds database range".to_string()))?;
-    let last_login = user
-        .last_login
-        .map(i64::try_from)
-        .transpose()
-        .map_err(|_| ApiError::Internal("Login timestamp exceeds database range".to_string()))?;
-
-    sqlx::query(
-        "UPDATE users SET failed_login_attempts = $1, locked_until = $2, last_login = $3 \
-         WHERE id = $4::uuid",
-    )
-    .bind(failed_login_attempts)
-    .bind(locked_until)
-    .bind(last_login)
-    .bind(&user.id)
-    .execute(&state.db)
-    .await?;
-    Ok(())
+fn password_work_slots() -> Arc<Semaphore> {
+    static SLOTS: OnceLock<Arc<Semaphore>> = OnceLock::new();
+    let permits = std::env::var("AUTH_PASSWORD_WORKERS")
+        .ok()
+        .and_then(|value| value.parse::<usize>().ok())
+        .filter(|value| *value > 0)
+        .unwrap_or(4);
+    Arc::clone(SLOTS.get_or_init(|| Arc::new(Semaphore::new(permits))))
 }
 
+async fn register_user_off_runtime(
+    request: poker_engine::auth::RegisterRequest,
+    jwt_secret: String,
+) -> Result<Result<poker_engine::auth::User, poker_engine::auth::AuthResult>, ApiError> {
+    let _permit = password_work_slots()
+        .acquire_owned()
+        .await
+        .map_err(|_| ApiError::Internal("Password worker pool is unavailable".to_string()))?;
+    tokio::task::spawn_blocking(move || {
+        let mut auth = poker_engine::auth::AuthManager::new(&jwt_secret);
+        auth.register_user(&request)
+    })
+    .await
+    .map_err(|error| ApiError::Internal(format!("Password worker failed: {error}")))
+}
+
+async fn verify_password_off_runtime(
+    password: String,
+    password_hash: String,
+) -> Result<bool, ApiError> {
+    let _permit = password_work_slots()
+        .acquire_owned()
+        .await
+        .map_err(|_| ApiError::Internal("Password worker pool is unavailable".to_string()))?;
+    tokio::task::spawn_blocking(move || {
+        poker_engine::auth::verify_password_hash(&password, &password_hash)
+    })
+    .await
+    .map_err(|error| ApiError::Internal(format!("Password worker failed: {error}")))
+}
+const MFA_CHALLENGE_TTL_SECS: i64 = 5 * 60;
+const MFA_CHALLENGE_MAX_ATTEMPTS: i16 = 5;
+const MFA_CHALLENGE_RETENTION_SECS: i64 = 24 * 60 * 60;
+
+fn hash_mfa_challenge(challenge: &str) -> String {
+    format!("{:x}", Sha256::digest(challenge.as_bytes()))
+}
+
+async fn create_mfa_challenge(state: &AppState, user_id: &str) -> Result<String, ApiError> {
+    let challenge = format!("{}.{}", uuid::Uuid::new_v4(), uuid::Uuid::new_v4());
+    let token_hash = hash_mfa_challenge(&challenge);
+    let now = now_epoch() as i64;
+    let expires_at = now + MFA_CHALLENGE_TTL_SECS;
+    let mut tx = state.db.begin().await?;
+    // Limpeza oportunista, limitada e indexada: mantém o request path curto
+    // mesmo após longos períodos de operação.
+    sqlx::query("DELETE FROM auth_mfa_challenges WHERE id IN (SELECT id FROM auth_mfa_challenges WHERE expires_at < $1 ORDER BY expires_at LIMIT 1000)")
+        .bind(now - MFA_CHALLENGE_RETENTION_SECS)
+        .execute(&mut *tx)
+        .await?;
+
+    sqlx::query(
+        "UPDATE auth_mfa_challenges SET consumed_at = $1 \
+         WHERE user_id = $2::uuid AND consumed_at IS NULL",
+    )
+    .bind(now)
+    .bind(user_id)
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query(
+        "INSERT INTO auth_mfa_challenges (user_id, token_hash, expires_at, created_at) \
+         VALUES ($1::uuid, $2, $3, $4)",
+    )
+    .bind(user_id)
+    .bind(token_hash)
+    .bind(expires_at)
+    .bind(now)
+    .execute(&mut *tx)
+    .await?;
+
+    tx.commit().await?;
+    Ok(challenge)
+}
 // ─── Handlers ───
 
 /// POST /api/auth/register
@@ -310,31 +366,26 @@ pub async fn register(
         password: body.password.clone(),
     };
 
-    let mut user = {
-        let mut auth = state.auth.write().await;
-        auth.register_user(&request).map_err(|e| match e {
+    let mut user = register_user_off_runtime(request, state.jwt_secret.clone())
+        .await?
+        .map_err(|error| match error {
             poker_engine::auth::AuthResult::UsernameAlreadyExists => {
                 ApiError::Conflict("Username already exists".to_string())
             }
             poker_engine::auth::AuthResult::EmailAlreadyExists => {
                 ApiError::Conflict("Email already exists".to_string())
             }
-            poker_engine::auth::AuthResult::PasswordTooWeak => {
-                ApiError::BadRequest(
-                    "Password too weak (min 8 chars, 1 upper, 1 lower, 1 digit)".to_string(),
-                )
-            }
+            poker_engine::auth::AuthResult::PasswordTooWeak => ApiError::BadRequest(
+                "Password too weak (min 8 chars, 1 upper, 1 lower, 1 digit)".to_string(),
+            ),
             poker_engine::auth::AuthResult::InvalidEmail => {
                 ApiError::BadRequest("Invalid email".to_string())
             }
-            _ => ApiError::Internal(format!("Auth error: {e:?}")),
-        })?
-    };
+            _ => ApiError::Internal(format!("Auth error: {error:?}")),
+        })?;
 
     if state.require_email_verification {
         user.status = poker_engine::auth::AccountStatus::PendingEmailVerification;
-        let mut auth = state.auth.write().await;
-        auth.upsert_persisted_user(user.clone());
     }
 
     // Persist user to PostgreSQL
@@ -356,9 +407,10 @@ pub async fn register(
     .execute(&state.db)
     .await;
     if let Err(error) = persist_result {
-        state.auth.write().await.remove_user(&user.username);
         return Err(error.into());
     }
+
+    state.auth.write().await.upsert_persisted_user(user.clone());
 
     if state.require_email_verification {
         if let Err(e) = issue_verification_code(&state, &user.id, &user.email, &user.username).await
@@ -375,18 +427,12 @@ pub async fn register(
     }
 
     // Generate token pair (modo legado / testes)
-    let login_req = poker_engine::auth::LoginRequest {
-        username: body.username,
-        password: body.password,
-        mfa_code: None,
-    };
-
     let tokens = state
         .auth
-        .write()
+        .read()
         .await
-        .login(&login_req)
-        .map_err(|e| ApiError::Internal(format!("Login after register failed: {e:?}")))?;
+        .issue_tokens_for_user(&user)
+        .map_err(|error| ApiError::Internal(format!("Token issue failed: {error:?}")))?;
 
     let expires_in = tokens.expires_at.saturating_sub(now_epoch());
 
@@ -404,75 +450,142 @@ pub async fn login(
     State(state): State<AppState>,
     Json(body): Json<LoginBody>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
-    // PostgreSQL is authoritative across API restarts; the AuthManager is a
-    // short-lived in-memory verifier/cache.
-    let user = load_persisted_user(&state, "email", &body.email)
+    // PostgreSQL is authoritative. Bcrypt runs before the row lock, while the
+    // counter transition is serialized so independent replicas cannot lose
+    // failed attempts through read-modify-write races.
+    let snapshot = load_persisted_user(&state, "email", &body.email)
         .await?
         .ok_or_else(|| ApiError::Unauthorized("Invalid credentials".to_string()))?;
+    let password_valid =
+        verify_password_off_runtime(body.password, snapshot.password_hash.clone()).await?;
+    let now = now_epoch() as i64;
+    let mut tx = state.db.begin().await?;
+    let current_row: Option<PersistedUserRow> = sqlx::query_as(
+        concat!(
+            "SELECT id::text, username, email, password_hash, role, status, balance, ",
+            "mfa_enabled, mfa_secret, failed_login_attempts, locked_until, created_at, last_login, token_version ",
+            "FROM users WHERE id = $1::uuid FOR UPDATE"
+        ),
+    )
+    .bind(&snapshot.id)
+    .fetch_optional(&mut *tx)
+    .await?;
+    let mut user = current_row
+        .map(persisted_user_from_row)
+        .transpose()?
+        .ok_or_else(|| ApiError::Unauthorized("Invalid credentials".to_string()))?;
+
+    // A password change between the initial read and the row lock invalidates
+    // this attempt. The client can retry against the new credential.
+    if user.password_hash != snapshot.password_hash {
+        tx.rollback().await?;
+        return Err(ApiError::Unauthorized("Invalid credentials".to_string()));
+    }
+
+    if user
+        .locked_until
+        .is_some_and(|locked_until| locked_until > now as u64)
+    {
+        tx.rollback().await?;
+        return Err(ApiError::Unauthorized("Invalid credentials".to_string()));
+    }
+
+    if !password_valid {
+        let previous_lock_expired = user
+            .locked_until
+            .is_some_and(|locked_until| locked_until <= now as u64);
+        let base_attempts = if previous_lock_expired {
+            0
+        } else {
+            user.failed_login_attempts
+        };
+        let next_attempts = base_attempts.saturating_add(1);
+        let next_locked_until = (next_attempts >= poker_engine::auth::MAX_LOGIN_ATTEMPTS)
+            .then_some(
+                now + i64::try_from(poker_engine::auth::LOCKOUT_DURATION_SECS)
+                    .expect("lockout duration fits i64"),
+            );
+        sqlx::query(
+            "UPDATE users SET failed_login_attempts = $1, locked_until = $2 WHERE id = $3::uuid",
+        )
+        .bind(i32::try_from(next_attempts).map_err(|_| {
+            ApiError::Internal("Login attempt counter exceeds database range".to_string())
+        })?)
+        .bind(next_locked_until)
+        .bind(&user.id)
+        .execute(&mut *tx)
+        .await?;
+        tx.commit().await?;
+        return Err(ApiError::Unauthorized("Invalid credentials".to_string()));
+    }
+
+    match user.status {
+        poker_engine::auth::AccountStatus::Suspended => {
+            tx.rollback().await?;
+            return Err(ApiError::Forbidden("Account suspended".to_string()));
+        }
+        poker_engine::auth::AccountStatus::Banned => {
+            tx.rollback().await?;
+            return Err(ApiError::Forbidden("Account banned".to_string()));
+        }
+        poker_engine::auth::AccountStatus::Active
+        | poker_engine::auth::AccountStatus::PendingEmailVerification => {}
+    }
+
     let username = user.username.clone();
-
-    let request = poker_engine::auth::LoginRequest {
-        username: username.clone(),
-        password: body.password,
-        mfa_code: None,
-    };
-    let (login_result, updated_user) = {
-        let mut auth = state.auth.write().await;
-        auth.upsert_persisted_user(user);
-        let login_result = auth.login(&request);
-        let updated_user = auth.get_user(&username).cloned();
-        (login_result, updated_user)
-    };
-    if let Some(updated_user) = updated_user {
-        persist_login_state(&state, &updated_user).await?;
-    }
-
-    // First attempt — may return MfaRequired
-    match login_result {
-        Ok(tokens) => {
-            let pending = {
-                let auth = state.auth.read().await;
-                auth.get_user(&username)
-                    .map(|u| {
-                        u.status == poker_engine::auth::AccountStatus::PendingEmailVerification
-                    })
-                    .unwrap_or(false)
-            };
-
-            if state.require_email_verification && pending {
-                return Ok(Json(json!({
-                    "email_verification_required": true,
-                    "email": body.email.to_lowercase(),
-                    "username": username,
-                    "message": "Confirme o código enviado ao seu e-mail para ativar a conta.",
-                    "mfa_required": false,
-                })));
-            }
-
-            let expires_in = tokens.expires_at.saturating_sub(now_epoch());
-            Ok(Json(json!({
-                "token": tokens.access_token,
-                "refresh_token": tokens.refresh_token,
-                "expires_in": expires_in,
-                "mfa_required": false,
-                "email_verification_required": false,
-            })))
-        }
-        Err(poker_engine::auth::AuthResult::MfaRequired) => Ok(Json(json!({
+    if user.mfa_enabled {
+        tx.commit().await?;
+        state.auth.write().await.upsert_persisted_user(user.clone());
+        let challenge = create_mfa_challenge(&state, &user.id).await?;
+        return Ok(Json(json!({
             "mfa_required": true,
-            "message": "MFA code required. POST /api/auth/mfa/verify with your code.",
-        }))),
-        Err(poker_engine::auth::AuthResult::InvalidCredentials) => {
-            Err(ApiError::Unauthorized("Invalid credentials".to_string()))
-        }
-        Err(poker_engine::auth::AuthResult::AccountSuspended) => {
-            Err(ApiError::Forbidden("Account suspended".to_string()))
-        }
-        Err(poker_engine::auth::AuthResult::AccountBanned) => {
-            Err(ApiError::Forbidden("Account banned".to_string()))
-        }
-        Err(e) => Err(ApiError::Internal(format!("Login error: {e:?}"))),
+            "mfa_challenge": challenge,
+            "expires_in": MFA_CHALLENGE_TTL_SECS,
+            "message": "MFA code required.",
+        })));
     }
+
+    sqlx::query(
+        "UPDATE users SET failed_login_attempts = 0, locked_until = NULL, last_login = $1 WHERE id = $2::uuid",
+    )
+    .bind(now)
+    .bind(&user.id)
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
+
+    user.failed_login_attempts = 0;
+    user.locked_until = None;
+    user.last_login = Some(now as u64);
+    state.auth.write().await.upsert_persisted_user(user.clone());
+
+    if state.require_email_verification
+        && user.status == poker_engine::auth::AccountStatus::PendingEmailVerification
+    {
+        return Ok(Json(json!({
+            "email_verification_required": true,
+            "email": body.email.to_lowercase(),
+            "username": username,
+            "message": "Confirme o código enviado ao seu e-mail para ativar a conta.",
+            "mfa_required": false,
+        })));
+    }
+
+    let tokens = state
+        .auth
+        .read()
+        .await
+        .issue_tokens_for_user(&user)
+        .map_err(|error| ApiError::Internal(format!("Token issue failed: {error:?}")))?;
+    let expires_in = tokens.expires_at.saturating_sub(now_epoch());
+    Ok(Json(json!({
+        "token": tokens.access_token,
+        "refresh_token": tokens.refresh_token,
+        "expires_in": expires_in,
+        "mfa_required": false,
+        "email_verification_required": false,
+        "username": username,
+    })))
 }
 
 /// POST /api/auth/verify-email
@@ -525,25 +638,23 @@ pub async fn verify_email(
         ));
     }
     if !codes_equal_hash(code, &code_hash) {
-        return Err(ApiError::Unauthorized("Invalid verification code".to_string()));
+        return Err(ApiError::Unauthorized(
+            "Invalid verification code".to_string(),
+        ));
     }
 
     let mut tx = state.db.begin().await?;
-    sqlx::query(
-        "UPDATE email_verification_codes SET consumed_at = $1 WHERE id = $2",
-    )
-    .bind(now)
-    .bind(code_id)
-    .execute(&mut *tx)
-    .await?;
+    sqlx::query("UPDATE email_verification_codes SET consumed_at = $1 WHERE id = $2")
+        .bind(now)
+        .bind(code_id)
+        .execute(&mut *tx)
+        .await?;
 
-    sqlx::query(
-        "UPDATE users SET status = 'active', email_verified_at = $1 WHERE id = $2::uuid",
-    )
-    .bind(now)
-    .bind(&user.id)
-    .execute(&mut *tx)
-    .await?;
+    sqlx::query("UPDATE users SET status = 'active', email_verified_at = $1 WHERE id = $2::uuid")
+        .bind(now)
+        .bind(&user.id)
+        .execute(&mut *tx)
+        .await?;
     tx.commit().await?;
 
     let mut active_user = user;
@@ -611,66 +722,132 @@ pub async fn resend_verification(
     Ok(generic)
 }
 
-#[allow(dead_code)]
-/// POST /api/auth/mfa/verify
-/// Request: `{code}` → Response: `{token}` or 401 Unauthorized
+/// Completes a password-authenticated login with a durable, single-use MFA challenge.
 pub async fn mfa_verify(
-    State(_state): State<AppState>,
-    Json(_body): Json<MfaVerifyBody>,
-) -> Result<Json<serde_json::Value>, ApiError> {
-    // We need the username from the pending MFA state.
-    // In a real system, this would come from a pending-MFA token.
-    // For now, we require the username in the body extension.
-    // This endpoint is typically called right after login returns MfaRequired.
-    //
-    // The AuthManager stores the last attempted login user internally,
-    // but since it doesn't expose that, we use verify_mfa_for_user.
-    // The frontend should send the username alongside the code.
-    //
-    // For the contract test, we accept a `username` field too.
-    tracing::warn!("MFA verify endpoint requires username in body — see contract");
-
-    Err(ApiError::BadRequest(
-        "MFA verify requires username field. Use POST /api/auth/mfa/verify with {username, code}."
-            .to_string(),
-    ))
-}
-
-/// POST /api/auth/mfa/verify (extended with username)
-/// Request: `{username, code}` → Response: `{token}` or 401
-pub async fn mfa_verify_with_username(
     State(state): State<AppState>,
-    Json(body): Json<MfaVerifyBodyWithUsername>,
+    Json(body): Json<MfaVerifyBody>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
-    let user = load_persisted_user(&state, "username", &body.username)
-        .await?
-        .ok_or_else(|| ApiError::Unauthorized("Invalid MFA credentials".to_string()))?;
-    let mut auth = state.auth.write().await;
-    auth.upsert_persisted_user(user);
-
-    let valid = auth
-        .verify_mfa_for_user(&body.username, &body.code)
-        .map_err(|e| match e {
-            poker_engine::auth::AuthResult::MfaFailed => {
-                ApiError::Unauthorized("Invalid MFA code".to_string())
-            }
-            _ => ApiError::Internal(format!("MFA verify error: {e:?}")),
-        })?;
-
-    if !valid {
-        return Err(ApiError::Unauthorized("Invalid MFA code".to_string()));
+    let challenge = body.challenge.trim();
+    let code = body.code.trim();
+    if challenge.len() != 73 || code.len() != 6 || !code.bytes().all(|byte| byte.is_ascii_digit()) {
+        return Err(ApiError::Unauthorized(
+            "Invalid MFA credentials".to_string(),
+        ));
     }
 
-    Ok(Json(json!({
-        "mfa_verified": true,
-        "message": "MFA verified. Please complete login with password.",
-    })))
-}
+    let now = now_epoch() as i64;
+    let token_hash = hash_mfa_challenge(challenge);
+    let mut tx = state.db.begin().await?;
+    let challenge_row: Option<(uuid::Uuid, String, i64, i16)> = sqlx::query_as(
+        "SELECT id, user_id::text, expires_at, attempts \
+         FROM auth_mfa_challenges \
+         WHERE token_hash = $1 AND consumed_at IS NULL \
+         FOR UPDATE",
+    )
+    .bind(token_hash)
+    .fetch_optional(&mut *tx)
+    .await?;
+    let (challenge_id, user_id, expires_at, attempts) = challenge_row
+        .ok_or_else(|| ApiError::Unauthorized("Invalid MFA credentials".to_string()))?;
 
-#[derive(Debug, Deserialize)]
-pub struct MfaVerifyBodyWithUsername {
-    pub username: String,
-    pub code: String,
+    if expires_at <= now || attempts >= MFA_CHALLENGE_MAX_ATTEMPTS {
+        sqlx::query(
+            "UPDATE auth_mfa_challenges SET consumed_at = COALESCE(consumed_at, $1) WHERE id = $2",
+        )
+        .bind(now)
+        .bind(challenge_id)
+        .execute(&mut *tx)
+        .await?;
+        tx.commit().await?;
+        return Err(ApiError::Unauthorized(
+            "Invalid MFA credentials".to_string(),
+        ));
+    }
+
+    let user_row: Option<PersistedUserRow> = sqlx::query_as(
+        "SELECT id::text, username, email, password_hash, role, status, balance, \
+         mfa_enabled, mfa_secret, failed_login_attempts, locked_until, created_at, last_login, token_version \
+         FROM users WHERE id = $1::uuid FOR UPDATE",
+    )
+    .bind(&user_id)
+    .fetch_optional(&mut *tx)
+    .await?;
+    let mut user = user_row
+        .map(persisted_user_from_row)
+        .transpose()?
+        .ok_or_else(|| ApiError::Unauthorized("Invalid MFA credentials".to_string()))?;
+
+    if user.status != poker_engine::auth::AccountStatus::Active || !user.mfa_enabled {
+        sqlx::query("UPDATE auth_mfa_challenges SET consumed_at = $1 WHERE id = $2")
+            .bind(now)
+            .bind(challenge_id)
+            .execute(&mut *tx)
+            .await?;
+        tx.commit().await?;
+        return Err(ApiError::Unauthorized(
+            "Invalid MFA credentials".to_string(),
+        ));
+    }
+
+    let valid = {
+        let mut auth = poker_engine::auth::AuthManager::new(&state.jwt_secret);
+        auth.upsert_persisted_user(user.clone());
+        auth.verify_mfa_for_user(&user.username, code)
+            .unwrap_or(false)
+    };
+    if !valid {
+        let next_attempt = attempts.saturating_add(1);
+        sqlx::query(
+            "UPDATE auth_mfa_challenges \
+             SET attempts = $1, consumed_at = CASE WHEN $1 >= $2 THEN $3 ELSE consumed_at END \
+             WHERE id = $4",
+        )
+        .bind(next_attempt)
+        .bind(MFA_CHALLENGE_MAX_ATTEMPTS)
+        .bind(now)
+        .bind(challenge_id)
+        .execute(&mut *tx)
+        .await?;
+        tx.commit().await?;
+        return Err(ApiError::Unauthorized(
+            "Invalid MFA credentials".to_string(),
+        ));
+    }
+
+    sqlx::query("UPDATE auth_mfa_challenges SET consumed_at = $1 WHERE id = $2")
+        .bind(now)
+        .bind(challenge_id)
+        .execute(&mut *tx)
+        .await?;
+    sqlx::query(
+        "UPDATE users SET failed_login_attempts = 0, locked_until = NULL, last_login = $1 \
+         WHERE id = $2::uuid",
+    )
+    .bind(now)
+    .bind(&user.id)
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
+
+    user.failed_login_attempts = 0;
+    user.locked_until = None;
+    user.last_login = Some(now as u64);
+    state.auth.write().await.upsert_persisted_user(user.clone());
+    let tokens = state
+        .auth
+        .read()
+        .await
+        .issue_tokens_for_user(&user)
+        .map_err(|error| ApiError::Internal(format!("Token issue failed: {error:?}")))?;
+    let expires_in = tokens.expires_at.saturating_sub(now_epoch());
+
+    Ok(Json(json!({
+        "token": tokens.access_token,
+        "refresh_token": tokens.refresh_token,
+        "expires_in": expires_in,
+        "mfa_verified": true,
+        "username": user.username,
+    })))
 }
 
 /// POST /api/auth/refresh

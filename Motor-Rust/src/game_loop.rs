@@ -1155,9 +1155,7 @@ impl GameLoop {
                         continue;
                     }
                     let still_in = self.state.players.iter().any(|candidate| {
-                        candidate.id == *other_id
-                            && candidate.is_in_hand()
-                            && !candidate.has_folded
+                        candidate.id == *other_id && candidate.is_in_hand() && !candidate.has_folded
                     });
                     if still_in {
                         opponent_ids.push(other_id.clone());

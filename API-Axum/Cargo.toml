@@ -20,12 +20,14 @@ tower-http = { version = "0.6", features = ["cors", "trace"] }
 futures-util = "0.3"
 
 # ── Database ──
-sqlx = { version = "0.8", features = [
+sqlx = { version = "0.8", default-features = false, features = [
     "runtime-tokio-rustls",
     "postgres",
     "uuid",
     "chrono",
     "migrate",
+    "derive",
+    "macros",
 ] }
 redis = { version = "0.25", default-features = false, features = ["tokio-comp", "connection-manager", "script"] }
 
@@ -49,6 +51,8 @@ subtle = "2.6"
 tower = { version = "0.5", features = ["util"] }
 # Utilities for reading API response bodies in tests
 http-body-util = "0.1"
+# RFC 6238 contract vectors for the MFA integration test.
+sha1 = "0.10"
 # Property-based fuzz testing
 proptest = "1.5"
 

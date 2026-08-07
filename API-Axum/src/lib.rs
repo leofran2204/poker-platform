@@ -85,19 +85,32 @@ pub fn build_router(state: AppState) -> Router {
                 state.clone(),
             )),
         )
-        .route("/api/auth/mfa/verify", post(auth::mfa_verify_with_username))
-        .route("/api/auth/refresh", post(auth::refresh))
         .route(
-            "/api/auth/verify-email",
-            post(auth::verify_email).route_layer(
+            "/api/auth/mfa/verify",
+            post(auth::mfa_verify)
+                .route_layer(from_extractor_with_state::<EnforceRateLimit, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/auth/refresh",
+            post(auth::refresh).route_layer(
                 from_extractor_with_state::<EnforceRateLimit, AppState>(state.clone()),
             ),
         )
         .route(
+            "/api/auth/verify-email",
+            post(auth::verify_email)
+                .route_layer(from_extractor_with_state::<EnforceRateLimit, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
             "/api/auth/resend-verification",
-            post(auth::resend_verification).route_layer(
-                from_extractor_with_state::<EnforceRateLimit, AppState>(state.clone()),
-            ),
+            post(auth::resend_verification)
+                .route_layer(from_extractor_with_state::<EnforceRateLimit, AppState>(
+                    state.clone(),
+                )),
         )
         // ─── Payment routes (PIX Deposit, Webhook & Withdraw + rate limited) ───
         .route(
@@ -202,21 +215,24 @@ pub fn build_router(state: AppState) -> Router {
         )
         .route(
             "/api/admin/clubs/:id/financials",
-            get(admin_routes::get_club_financials).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            get(admin_routes::get_club_financials)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/clubs/:id/withdraw",
-            post(admin_routes::withdraw_club_balance).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            post(admin_routes::withdraw_club_balance)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/clubs/:id/theme",
-            put(admin_routes::update_club_theme).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            put(admin_routes::update_club_theme)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/clubs/:id/agents",

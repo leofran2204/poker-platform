@@ -11,12 +11,16 @@
 
 use axum::body::Body;
 use axum::http::{Method, Request, StatusCode};
+use hmac::{Hmac, Mac};
 use http_body_util::BodyExt;
 use poker_engine::auth::AuthManager;
 use poker_engine::tournament_engine::TournamentConfig;
 use poker_engine::tournament_engine::TournamentSpeed;
+use sha1::Sha1;
+use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::time::{SystemTime, UNIX_EPOCH};
 use tokio::sync::RwLock;
 use tower::ServiceExt;
 
@@ -727,4 +731,296 @@ async fn test_websocket_upgrade_success() {
     // Em testes oneshot sem socket TCP real, o Axum retorna 426 Upgrade Required,
     // o que comprova que a rota foi correspondida e o extrator de WS foi executado.
     assert_eq!(response.status(), StatusCode::UPGRADE_REQUIRED);
+}
+
+type HmacSha1 = Hmac<Sha1>;
+
+fn test_epoch_now() -> i64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("test clock must be after the Unix epoch")
+        .as_secs() as i64
+}
+
+fn totp_code_for_counter(secret: &[u8], counter: u64) -> String {
+    let mut mac = HmacSha1::new_from_slice(secret).expect("test TOTP key is valid");
+    mac.update(&counter.to_be_bytes());
+    let result = mac.finalize().into_bytes();
+    let offset = usize::from(result[result.len() - 1] & 0x0f);
+    let binary = (u32::from(result[offset] & 0x7f) << 24)
+        | (u32::from(result[offset + 1]) << 16)
+        | (u32::from(result[offset + 2]) << 8)
+        | u32::from(result[offset + 3]);
+    format!("{:06}", binary % 1_000_000)
+}
+
+fn current_totp_code(secret: &[u8]) -> String {
+    totp_code_for_counter(secret, test_epoch_now() as u64 / 30)
+}
+
+fn definitely_invalid_totp_code(secret: &[u8]) -> String {
+    let counter = test_epoch_now() as u64 / 30;
+    let valid_window: Vec<String> = (-2i64..=2)
+        .map(|offset| totp_code_for_counter(secret, (counter as i64 + offset) as u64))
+        .collect();
+    (0..1_000_000)
+        .map(|candidate| format!("{candidate:06}"))
+        .find(|candidate| !valid_window.contains(candidate))
+        .expect("a code outside the five-step TOTP window must exist")
+}
+
+fn mfa_challenge_hash(challenge: &str) -> String {
+    format!("{:x}", Sha256::digest(challenge.as_bytes()))
+}
+
+async fn request_mfa_challenge(app: axum::Router, email: &str, password: &str) -> String {
+    let body = serde_json::json!({ "email": email, "password": password }).to_string();
+    let (status, response) = send_request(app, Method::POST, "/api/auth/login", Some(body)).await;
+    assert_eq!(status, StatusCode::OK, "{response}");
+    let response: serde_json::Value = serde_json::from_str(&response).unwrap();
+    assert_eq!(response["mfa_required"], true);
+    response["mfa_challenge"]
+        .as_str()
+        .expect("MFA login must return a challenge")
+        .to_string()
+}
+
+#[tokio::test]
+#[ignore = "Requires PostgreSQL atomic login state — set DATABASE_URL to run"]
+async fn test_contract_concurrent_login_failures_are_atomic() {
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let uid = uuid::Uuid::new_v4().simple().to_string();
+    let email = format!("atomic_login_{uid}@example.com");
+    let username = format!("atomic_{}", &uid[..12]);
+    let password = "CorrectPass123!";
+    let register = serde_json::json!({
+        "email": email,
+        "password": password,
+        "username": username,
+    })
+    .to_string();
+    let (status, response) = send_request(
+        app.clone(),
+        Method::POST,
+        "/api/auth/register",
+        Some(register),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{response}");
+
+    let wrong_body = serde_json::json!({ "email": email, "password": "WrongPass123!" }).to_string();
+    let attempt = || {
+        send_request(
+            app.clone(),
+            Method::POST,
+            "/api/auth/login",
+            Some(wrong_body.clone()),
+        )
+    };
+    let (one, two, three, four, five) =
+        tokio::join!(attempt(), attempt(), attempt(), attempt(), attempt());
+    for (status, _) in [one, two, three, four, five] {
+        assert_eq!(status, StatusCode::UNAUTHORIZED);
+    }
+
+    let (attempts, locked_until): (i32, Option<i64>) =
+        sqlx::query_as("SELECT failed_login_attempts, locked_until FROM users WHERE username = $1")
+            .bind(&username)
+            .fetch_one(&state.db)
+            .await
+            .unwrap();
+    assert_eq!(attempts, poker_engine::auth::MAX_LOGIN_ATTEMPTS as i32);
+    assert!(locked_until.is_some_and(|until| until > test_epoch_now()));
+
+    let correct_body = serde_json::json!({ "email": email, "password": password }).to_string();
+    let (locked_status, _) = send_request(
+        app.clone(),
+        Method::POST,
+        "/api/auth/login",
+        Some(correct_body.clone()),
+    )
+    .await;
+    assert_eq!(locked_status, StatusCode::UNAUTHORIZED);
+
+    sqlx::query("UPDATE users SET locked_until = $1 WHERE username = $2")
+        .bind(test_epoch_now() - 1)
+        .bind(&username)
+        .execute(&state.db)
+        .await
+        .unwrap();
+    let (unlocked_status, response) =
+        send_request(app, Method::POST, "/api/auth/login", Some(correct_body)).await;
+    assert_eq!(unlocked_status, StatusCode::OK, "{response}");
+    let attempts_after_success: i32 =
+        sqlx::query_scalar("SELECT failed_login_attempts FROM users WHERE username = $1")
+            .bind(&username)
+            .fetch_one(&state.db)
+            .await
+            .unwrap();
+    assert_eq!(attempts_after_success, 0);
+
+    cleanup_contract_user(&state, &username).await;
+}
+
+#[tokio::test]
+#[ignore = "Requires PostgreSQL MFA challenges — set DATABASE_URL to run"]
+async fn test_contract_mfa_challenge_lifecycle_is_durable_and_single_use() {
+    const SECRET_BASE32: &str = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
+    const SECRET_BYTES: &[u8] = b"12345678901234567890";
+
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let uid = uuid::Uuid::new_v4().simple().to_string();
+    let email = format!("mfa_contract_{uid}@example.com");
+    let username = format!("mfa_{}", &uid[..12]);
+    let password = "StrongPass123!";
+    let register = serde_json::json!({
+        "email": email,
+        "password": password,
+        "username": username,
+    })
+    .to_string();
+    let (status, response) = send_request(
+        app.clone(),
+        Method::POST,
+        "/api/auth/register",
+        Some(register),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{response}");
+    let user_id: String = sqlx::query_scalar("SELECT id::text FROM users WHERE username = $1")
+        .bind(&username)
+        .fetch_one(&state.db)
+        .await
+        .unwrap();
+    sqlx::query("UPDATE users SET mfa_enabled = TRUE, mfa_secret = $1 WHERE id = $2::uuid")
+        .bind(SECRET_BASE32)
+        .bind(&user_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+
+    let now = test_epoch_now();
+    let stale_hash = format!("{:x}", Sha256::digest(uuid::Uuid::new_v4().as_bytes()));
+    sqlx::query("INSERT INTO auth_mfa_challenges (user_id, token_hash, created_at, expires_at) VALUES ($1::uuid, $2, $3, $4)")
+        .bind(&user_id)
+        .bind(&stale_hash)
+        .bind(now - 90_000)
+        .bind(now - 89_700)
+        .execute(&state.db)
+        .await
+        .unwrap();
+
+    let challenge = request_mfa_challenge(app.clone(), &email, password).await;
+    let stale_count: i64 =
+        sqlx::query_scalar("SELECT COUNT(*) FROM auth_mfa_challenges WHERE token_hash = $1")
+            .bind(stale_hash)
+            .fetch_one(&state.db)
+            .await
+            .unwrap();
+    assert_eq!(stale_count, 0);
+
+    let valid_code = current_totp_code(SECRET_BYTES);
+    let invalid_code = definitely_invalid_totp_code(SECRET_BYTES);
+    let wrong_body =
+        serde_json::json!({ "challenge": challenge, "code": invalid_code }).to_string();
+    let (wrong_status, _) = send_request(
+        app.clone(),
+        Method::POST,
+        "/api/auth/mfa/verify",
+        Some(wrong_body),
+    )
+    .await;
+    assert_eq!(wrong_status, StatusCode::UNAUTHORIZED);
+    let challenge_hash = mfa_challenge_hash(&challenge);
+    let attempts: i16 =
+        sqlx::query_scalar("SELECT attempts FROM auth_mfa_challenges WHERE token_hash = $1")
+            .bind(&challenge_hash)
+            .fetch_one(&state.db)
+            .await
+            .unwrap();
+    assert_eq!(attempts, 1);
+
+    let valid_body = serde_json::json!({ "challenge": challenge, "code": valid_code }).to_string();
+    let (valid_status, valid_response) = send_request(
+        app.clone(),
+        Method::POST,
+        "/api/auth/mfa/verify",
+        Some(valid_body.clone()),
+    )
+    .await;
+    assert_eq!(valid_status, StatusCode::OK, "{valid_response}");
+    assert!(
+        serde_json::from_str::<serde_json::Value>(&valid_response).unwrap()["token"].is_string()
+    );
+    let (replay_status, _) = send_request(
+        app.clone(),
+        Method::POST,
+        "/api/auth/mfa/verify",
+        Some(valid_body),
+    )
+    .await;
+    assert_eq!(replay_status, StatusCode::UNAUTHORIZED);
+
+    let expired_challenge = request_mfa_challenge(app.clone(), &email, password).await;
+    let expired_hash = mfa_challenge_hash(&expired_challenge);
+    sqlx::query(
+        "UPDATE auth_mfa_challenges SET created_at = $1, expires_at = $2 WHERE token_hash = $3",
+    )
+    .bind(now - 600)
+    .bind(now - 1)
+    .bind(&expired_hash)
+    .execute(&state.db)
+    .await
+    .unwrap();
+    let expired_body =
+        serde_json::json!({ "challenge": expired_challenge, "code": valid_code }).to_string();
+    let (expired_status, _) = send_request(
+        app.clone(),
+        Method::POST,
+        "/api/auth/mfa/verify",
+        Some(expired_body),
+    )
+    .await;
+    assert_eq!(expired_status, StatusCode::UNAUTHORIZED);
+
+    let limited_challenge = request_mfa_challenge(app.clone(), &email, password).await;
+    let limited_hash = mfa_challenge_hash(&limited_challenge);
+    for _ in 0..5 {
+        let body = serde_json::json!({
+            "challenge": limited_challenge,
+            "code": invalid_code
+        })
+        .to_string();
+        let (status, _) = send_request(
+            app.clone(),
+            Method::POST,
+            "/api/auth/mfa/verify",
+            Some(body),
+        )
+        .await;
+        assert_eq!(status, StatusCode::UNAUTHORIZED);
+    }
+    let (attempts, consumed_at): (i16, Option<i64>) = sqlx::query_as(
+        "SELECT attempts, consumed_at FROM auth_mfa_challenges WHERE token_hash = $1",
+    )
+    .bind(&limited_hash)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(attempts, 5);
+    assert!(consumed_at.is_some());
+    let after_limit_body =
+        serde_json::json!({ "challenge": limited_challenge, "code": valid_code }).to_string();
+    let (after_limit_status, _) = send_request(
+        app,
+        Method::POST,
+        "/api/auth/mfa/verify",
+        Some(after_limit_body),
+    )
+    .await;
+    assert_eq!(after_limit_status, StatusCode::UNAUTHORIZED);
+
+    cleanup_contract_user(&state, &username).await;
 }

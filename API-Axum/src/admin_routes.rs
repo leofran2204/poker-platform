@@ -449,15 +449,15 @@ pub async fn get_club_financials(
 ) -> Result<Json<ClubFinancialsResponse>, ApiError> {
     require_admin(&auth_user)?;
 
-    let club: Option<(uuid::Uuid, String, i64)> = sqlx::query_as(
-        "SELECT id, name, balance FROM clubs WHERE id = $1",
-    )
-    .bind(club_id)
-    .fetch_optional(&state.db)
-    .await
-    .map_err(|_| ApiError::Internal("Database error".to_string()))?;
+    let club: Option<(uuid::Uuid, String, i64)> =
+        sqlx::query_as("SELECT id, name, balance FROM clubs WHERE id = $1")
+            .bind(club_id)
+            .fetch_optional(&state.db)
+            .await
+            .map_err(|_| ApiError::Internal("Database error".to_string()))?;
 
-    let (c_id, name, balance) = club.ok_or_else(|| ApiError::NotFound("Club not found".to_string()))?;
+    let (c_id, name, balance) =
+        club.ok_or_else(|| ApiError::NotFound("Club not found".to_string()))?;
 
     let net_club_rake = balance;
     let platform_fee_paid = (balance * 15) / 85;
@@ -483,20 +483,24 @@ pub async fn withdraw_club_balance(
 
     let amount_i64 = as_i64(payload.amount, "amount")?;
 
-    let mut tx = state.db.begin().await.map_err(|_| ApiError::Internal("Transaction error".to_string()))?;
+    let mut tx = state
+        .db
+        .begin()
+        .await
+        .map_err(|_| ApiError::Internal("Transaction error".to_string()))?;
 
-    let club: Option<(i64,)> = sqlx::query_as(
-        "SELECT balance FROM clubs WHERE id = $1 FOR UPDATE",
-    )
-    .bind(club_id)
-    .fetch_optional(&mut *tx)
-    .await
-    .map_err(|_| ApiError::Internal("Database error".to_string()))?;
+    let club: Option<(i64,)> = sqlx::query_as("SELECT balance FROM clubs WHERE id = $1 FOR UPDATE")
+        .bind(club_id)
+        .fetch_optional(&mut *tx)
+        .await
+        .map_err(|_| ApiError::Internal("Database error".to_string()))?;
 
     let (balance,) = club.ok_or_else(|| ApiError::NotFound("Club not found".to_string()))?;
 
     if balance < amount_i64 {
-        return Err(ApiError::BadRequest("Insufficient club balance".to_string()));
+        return Err(ApiError::BadRequest(
+            "Insufficient club balance".to_string(),
+        ));
     }
 
     sqlx::query("UPDATE clubs SET balance = balance - $1 WHERE id = $2")
@@ -506,7 +510,9 @@ pub async fn withdraw_club_balance(
         .await
         .map_err(|_| ApiError::Internal("Failed to update club balance".to_string()))?;
 
-    tx.commit().await.map_err(|_| ApiError::Internal("Commit error".to_string()))?;
+    tx.commit()
+        .await
+        .map_err(|_| ApiError::Internal("Commit error".to_string()))?;
 
     Ok(Json(serde_json::json!({
         "status": "SUCCESS",
@@ -567,16 +573,12 @@ fn club_agent_from_row(
     })
 }
 
-async fn require_club_exists(
-    state: &AppState,
-    club_id: uuid::Uuid,
-) -> Result<(), ApiError> {
-    let exists: Option<(uuid::Uuid,)> =
-        sqlx::query_as("SELECT id FROM clubs WHERE id = $1")
-            .bind(club_id)
-            .fetch_optional(&state.db)
-            .await
-            .map_err(|_| ApiError::Internal("Database error".to_string()))?;
+async fn require_club_exists(state: &AppState, club_id: uuid::Uuid) -> Result<(), ApiError> {
+    let exists: Option<(uuid::Uuid,)> = sqlx::query_as("SELECT id FROM clubs WHERE id = $1")
+        .bind(club_id)
+        .fetch_optional(&state.db)
+        .await
+        .map_err(|_| ApiError::Internal("Database error".to_string()))?;
     if exists.is_none() {
         return Err(ApiError::NotFound("Club not found".to_string()));
     }

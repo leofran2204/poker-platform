@@ -67,6 +67,7 @@ export interface RegisterResult {
 
 export interface LoginResult extends RegisterResult {
   mfa_required?: boolean;
+  mfa_challenge?: string;
 }
 
 export async function register(
@@ -96,6 +97,20 @@ export async function login(email: string, password: string): Promise<LoginResul
     {
       method: "POST",
       body: JSON.stringify({ email, password }),
+    },
+    false,
+  );
+}
+
+export async function verifyMfa(
+  challenge: string,
+  code: string,
+): Promise<TokenResponse & { mfa_verified: boolean; username?: string }> {
+  return request(
+    "/api/auth/mfa/verify",
+    {
+      method: "POST",
+      body: JSON.stringify({ challenge, code }),
     },
     false,
   );

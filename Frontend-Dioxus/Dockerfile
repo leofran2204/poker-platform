@@ -1,16 +1,13 @@
 # Stage 1: Build the frontend static files
-FROM rust:latest AS builder
+FROM rust:1.97.0-bookworm@sha256:8fa55b2f3ddf97471ab6a767bfa3f37e6bad0986ba823e75fea57e2a2a5c3073 AS builder
 
 WORKDIR /app
 
 # Adiciona o target wasm32 para compilação WebAssembly
 RUN rustup target add wasm32-unknown-unknown
 
-# Instala o cargo-binstall para baixar binários pré-compilados e economizar tempo
-RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-
-# Instala o wasm-bindgen-cli na mesma versão do projeto (0.2.126)
-RUN cargo binstall -y wasm-bindgen-cli@0.2.126
+# Instala o wasm-bindgen-cli diretamente do crates.io com o lockfile publicado
+RUN cargo install --locked wasm-bindgen-cli --version 0.2.126
 
 # Copia os arquivos necessários do frontend
 COPY Frontend-Dioxus ./Frontend-Dioxus
@@ -21,7 +18,7 @@ WORKDIR /app/Frontend-Dioxus
 RUN rm -f rust-toolchain.toml rust-toolchain
 
 # Compila o projeto para WebAssembly (feature web = default do Cargo.toml)
-RUN CARGO_BUILD_JOBS=1 cargo build --release --target wasm32-unknown-unknown --features web
+RUN CARGO_BUILD_JOBS=1 cargo build --release --locked --target wasm32-unknown-unknown --features web
 
 # Gera bindings JS/WASM; nomes dependem do crate (hífen vs underscore).
 # boot.js: await init + erro visível (evita tela verde silenciosa).
@@ -52,7 +49,7 @@ RUN mkdir dist && \
     sed -i 's|</body>|<script type="module" src="./boot.js"></script></body>|' dist/index.html
 
 # Stage 2: Servidor estático leve usando Caddy
-FROM caddy:2-alpine
+FROM caddy:2.10.2-alpine@sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d
 
 WORKDIR /usr/share/caddy
 

@@ -632,10 +632,62 @@ async fn handle_game_socket(
 /// all event types as a defence against future JSON events.
 fn filter_table_state(mut state_json: serde_json::Value, for_player_id: &str) -> serde_json::Value {
     redact_global_sensitive_fields(&mut state_json);
+    let is_table_state =
+        state_json.get("type").and_then(|value| value.as_str()) == Some("table_state");
+    let current_bet_to_match = state_json
+        .get("current_bet_to_match")
+        .and_then(|value| value.as_u64())
+        .unwrap_or(0);
+    let min_raise = state_json
+        .get("min_raise")
+        .and_then(|value| value.as_u64())
+        .unwrap_or(0);
+    let mut available_actions = Vec::new();
+    let mut call_amount = 0;
+    let mut minimum_wager = 0;
+    let mut maximum_wager = 0;
+
     if let Some(players) = state_json.get_mut("players").and_then(|v| v.as_array_mut()) {
         for player in players {
             let pid = player.get("id").and_then(|v| v.as_str()).unwrap_or("");
-            if pid != for_player_id {
+            if pid == for_player_id && is_table_state {
+                let is_active = player
+                    .get("is_active")
+                    .and_then(|value| value.as_bool())
+                    .unwrap_or(false);
+                let chips = player
+                    .get("chips")
+                    .and_then(|value| value.as_u64())
+                    .unwrap_or(0);
+                let player_bet = player
+                    .get("bet")
+                    .and_then(|value| value.as_u64())
+                    .unwrap_or(0);
+
+                if is_active && chips > 0 {
+                    let to_call = current_bet_to_match.saturating_sub(player_bet);
+                    available_actions.push("fold");
+                    if to_call == 0 {
+                        available_actions.push("check");
+                        if min_raise > 0 && chips >= min_raise {
+                            available_actions.push("bet");
+                            minimum_wager = min_raise;
+                            maximum_wager = chips;
+                        }
+                    } else {
+                        available_actions.push("call");
+                        call_amount = to_call.min(chips);
+                        let all_in_total = player_bet.saturating_add(chips);
+                        let minimum_raise_total = current_bet_to_match.saturating_add(min_raise);
+                        if all_in_total >= minimum_raise_total {
+                            available_actions.push("raise");
+                            minimum_wager = minimum_raise_total;
+                            maximum_wager = all_in_total;
+                        }
+                    }
+                    available_actions.push("allin");
+                }
+            } else if pid != for_player_id {
                 // A broadcast state is shared by every socket; never leak an
                 // opponent's private cards even when a future state adds an
                 // alternative field name.
@@ -649,6 +701,12 @@ fn filter_table_state(mut state_json: serde_json::Value, for_player_id: &str) ->
                 }
             }
         }
+    }
+    if is_table_state {
+        state_json["available_actions"] = serde_json::json!(available_actions);
+        state_json["call_amount"] = serde_json::json!(call_amount);
+        state_json["minimum_wager"] = serde_json::json!(minimum_wager);
+        state_json["maximum_wager"] = serde_json::json!(maximum_wager);
     }
     state_json
 }
@@ -712,5 +770,50 @@ mod tests {
         assert!(filtered.get("server_seed").is_none());
         assert!(filtered["nested"].get("mfa_secret").is_none());
         assert!(filtered["nested"].get("refresh_token").is_none());
+    }
+
+    #[test]
+    fn adds_recipient_specific_actions_without_exposing_them_to_opponents() {
+        let state = json!({
+            "type": "table_state",
+            "current_bet_to_match": 200,
+            "min_raise": 200,
+            "players": [
+                {"id": "me", "chips": 1800, "bet": 100, "is_active": true, "cards": ["Ah", "Kd"]},
+                {"id": "opponent", "chips": 1800, "bet": 200, "is_active": false, "cards": ["Qs", "Qc"]}
+            ]
+        });
+
+        let filtered = filter_table_state(state, "me");
+
+        assert_eq!(
+            filtered["available_actions"],
+            json!(["fold", "call", "raise", "allin"])
+        );
+        assert_eq!(filtered["call_amount"], json!(100));
+        assert_eq!(filtered["minimum_wager"], json!(400));
+        assert_eq!(filtered["maximum_wager"], json!(1900));
+        assert_eq!(filtered["players"][1]["cards"], json!([]));
+    }
+
+    #[test]
+    fn exposes_check_and_bet_when_there_is_nothing_to_call() {
+        let state = json!({
+            "type": "table_state",
+            "current_bet_to_match": 0,
+            "min_raise": 200,
+            "players": [
+                {"id": "me", "chips": 1500, "bet": 0, "is_active": true, "cards": ["Ah", "Kd"]}
+            ]
+        });
+
+        let filtered = filter_table_state(state, "me");
+
+        assert_eq!(
+            filtered["available_actions"],
+            json!(["fold", "check", "bet", "allin"])
+        );
+        assert_eq!(filtered["minimum_wager"], json!(200));
+        assert_eq!(filtered["maximum_wager"], json!(1500));
     }
 }
