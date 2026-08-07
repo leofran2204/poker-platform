@@ -25,7 +25,8 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::OnceLock;
 use std::time::Instant;
 
-use crate::handlers::{auth, hand_history, lobby, presence, tournament, websocket};
+use crate::handlers::{auth, hand_history, lobby, tournament, websocket};
+use crate::handlers::presence as presence_handlers;
 use crate::middleware::auth::RequireAuth;
 use crate::middleware::rate_limit::EnforceRateLimit;
 use crate::state::AppState;
@@ -131,10 +132,10 @@ pub fn build_router(state: AppState) -> Router {
             ),
         )
         // ─── Presence (online counter) ───
-        .route("/api/presence/online", get(presence::online_count))
+        .route("/api/presence/online", get(presence_handlers::online_count))
         .route(
             "/api/presence/heartbeat",
-            post(presence::heartbeat).route_layer(
+            post(presence_handlers::heartbeat).route_layer(
                 from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
             ),
         )
