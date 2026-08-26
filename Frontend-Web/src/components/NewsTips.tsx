@@ -176,11 +176,16 @@ export function NewsTips({ className }: { className?: string }) {
             const data = await response.json();
             if (data.items) {
               for (const item of data.items.slice(0, 8)) {
+                const rawBody =
+                  (typeof item.content === "string" && item.content) ||
+                  (typeof item.description === "string" && item.description) ||
+                  "";
+                const body = stripHtml(rawBody);
                 allItems.push({
                   title: item.title,
                   link: item.link,
                   pubDate: item.pubDate,
-                  description: item.description ? stripHtml(item.description) : undefined,
+                  description: body.length > 0 ? body : undefined,
                   source: feed.name,
                 });
               }
@@ -331,12 +336,14 @@ export function NewsTips({ className }: { className?: string }) {
 
         <div className="space-y-3" role="feed" aria-label={`${activeTab === "news" ? "Noticias" : "Jogando melhor"} de poker`}>
           {!(activeTab === "news" && loading) && items.map(item => {
-            const itemKey = item.id as string;
+            const itemKey = String(item.id);
             const isExpanded = expandedItems.has(itemKey);
+            const body = (item.description ?? "").trim();
+            const canExpand = body.length > 0;
             return (
               <article
                 key={itemKey}
-                className="group zt-card p-4 hover:border-gold-soft/30 transition-colors"
+                className={`group zt-card p-4 hover:border-gold-soft/30 transition-colors ${isExpanded ? "border-gold-soft/40" : ""}`}
               >
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-felt-700 flex items-center justify-center">
@@ -350,35 +357,62 @@ export function NewsTips({ className }: { className?: string }) {
                       </svg>
                     )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 text-xs text-felt-400 mb-1">
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1 flex items-center gap-2 text-xs text-felt-400">
                       <span className="zt-chip text-[10px]">{item.source}</span>
                       {!item.isLocal && <time dateTime={item.pubDate}>{formatDate(item.pubDate)}</time>}
                     </div>
                     <button
-                      onClick={() => toggleExpand(itemKey)}
-                      className="w-full text-left flex items-center justify-between gap-2 text-cream font-medium leading-snug group-hover:text-gold-bright transition-colors focus:outline-none focus:ring-2 focus:ring-gold-bright focus:ring-offset-2 focus:ring-offset-felt-700 rounded"
+                      type="button"
+                      aria-expanded={isExpanded}
+                      onClick={() => canExpand && toggleExpand(itemKey)}
+                      className="flex w-full items-start justify-between gap-2 rounded text-left font-medium leading-snug text-cream transition-colors hover:text-gold-bright focus:outline-none focus:ring-2 focus:ring-gold-bright focus:ring-offset-2 focus:ring-offset-felt-800"
                     >
                       <h3 className="text-base">{item.title}</h3>
-                      <svg
-                        className={`w-4 h-4 text-felt-400 flex-shrink-0 transition-transform ${isExpanded ? "rotate-180" : ""}`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
+                      {canExpand && (
+                        <svg
+                          className={`mt-1 h-4 w-4 flex-shrink-0 text-felt-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      )}
                     </button>
-                    {item.description && (
-                      <div className="mt-2 text-sm text-felt-300 whitespace-pre-line overflow-hidden transition-all duration-300">
-                        {isExpanded ? (
-                          <span>{item.description}</span>
-                        ) : (
-                          <span className="line-clamp-3">{item.description}</span>
-                        )}
-                      </div>
+
+                    {canExpand && (
+                      <>
+                        <div
+                          className={
+                            isExpanded
+                              ? "mt-3 text-sm leading-relaxed text-felt-200 whitespace-pre-wrap break-words"
+                              : "mt-2 text-sm leading-relaxed text-felt-300"
+                          }
+                          style={
+                            isExpanded
+                              ? undefined
+                              : {
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 3,
+                                  WebkitBoxOrient: "vertical" as const,
+                                  overflow: "hidden",
+                                }
+                          }
+                        >
+                          {body}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => toggleExpand(itemKey)}
+                          className="mt-2 text-xs font-bold uppercase tracking-wide text-gold-soft hover:text-gold-bright"
+                        >
+                          {isExpanded ? "Recolher texto" : "Ver texto completo"}
+                        </button>
+                      </>
                     )}
+
                     {item.link && item.link !== "#" && (
                       <a
                         href={item.link}
@@ -386,10 +420,10 @@ export function NewsTips({ className }: { className?: string }) {
                         rel="noopener noreferrer"
                         className="mt-3 inline-flex items-center gap-1 text-xs text-gold-soft hover:text-gold-bright transition-colors"
                       >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
-                        Ler na fonte
+                        Abrir matéria completa na fonte
                       </a>
                     )}
                   </div>
