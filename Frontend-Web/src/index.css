@@ -232,4 +232,34 @@
   .zt-action-bar {
     @apply mt-6 flex flex-wrap items-center justify-center gap-2 rounded border-2 border-rail bg-felt-950 px-4 py-3;
   }
+
+  .zt-tab {
+    @apply flex-1 rounded border border-transparent px-3 py-2 text-sm font-semibold text-felt-300 transition-all hover:text-cream hover:border-felt-500;
+  }
+
+  .zt-tab-active {
+    @apply border-gold bg-felt-900 text-gold-bright shadow-[0_0_12px_rgba(201,162,39,0.2)];
+  }
+
+  .zt-card {
+    @apply rounded border border-felt-600 bg-felt-800/60;
+  }
+
+  .zt-spinner {
+    @apply h-5 w-5 animate-spin rounded-full border-2 border-felt-500 border-t-gold-bright;
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 }

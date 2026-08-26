@@ -26,6 +26,12 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 - Logado: `POST /api/presence/heartbeat` periódico
 - Visitante: `GET /api/presence/online`
 
+## Notícias e dicas (home)
+
+- Componente `NewsTips` abaixo do painel principal
+- Aba **Notícias**: RSS (Mundo Poker via proxy) + cards locais
+- Aba **Jogando melhor**: tips por street (`src/data/tipsContent.json`)
+
 ## Desenvolvimento local
 
 ```bash

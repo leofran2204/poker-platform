@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { isAuthenticated } from "@/lib/auth";
 import { OnlinePresenceHero } from "@/components/OnlinePresence";
+import { NewsTips } from "@/components/NewsTips";
 
 export function HomePage() {
   const authed = isAuthenticated();
@@ -50,6 +51,8 @@ export function HomePage() {
           />
         </div>
       </div>
+
+      <NewsTips className="mt-6" />
 
       <p className="mt-6 text-center text-xs text-felt-400">
         Demo / staging · play-money · sem certificação de produção · regulação planejada para 2027

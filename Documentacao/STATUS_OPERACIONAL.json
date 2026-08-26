@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "reviewed_on": "2026-08-07",
-  "cycle": "S13 — Contador de presença online (badge + hero); S12 fechada (MFA, supply-chain, settlements 017, smoke 10×100); demo VPS zerotiltpoker.net pronta para amigos (play-money, mín. 2 na mesma mesa).",
+  "reviewed_on": "2026-08-26",
+  "cycle": "S13+ — Presença online + home NewsTips (notícias/dicas); S12 (MFA, settlements 017, smoke 10×100); demo VPS zerotiltpoker.net (play-money, mín. 2 na mesma mesa). Repo canônico: Projetos/Poker_Project (não OneDrive).",
   "stack": {
     "motor_api": "Rust (Motor-Rust + API-Axum)",
     "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",

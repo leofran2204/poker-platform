@@ -7,6 +7,19 @@
 
 ---
 
+## 📌 2026-08-26 — Home: Notícias + Jogando melhor (NewsTips)
+
+| Item | Detalhe |
+|------|---------|
+| **Origem** | WIP do Codex/GPT Sol em `OneDrive\poker-platform` (não commitado) |
+| **Destino** | Portado para `Projetos\Poker_Project` (repo canônico) |
+| **UI** | `Frontend-Web/src/components/NewsTips.tsx` na home — abas Notícias / Jogando melhor |
+| **Dados** | Tips locais em `src/data/tipsContent.json`; notícias locais + RSS Mundo Poker (proxy rss2json) |
+| **CSS** | `.zt-tab`, `.zt-card`, `.zt-spinner`, line-clamp |
+| **Nota** | Trabalho futuro: completar tips flop/turn/river; não depender do clone OneDrive |
+
+---
+
 ## 📌 2026-08-07 — S13: contador de pessoas online + higiene do repositório
 
 | Item | Detalhe |
@@ -606,7 +619,7 @@
 *Próximo passo: Deploy em ambiente de staging / produção ou disponibilização de canal seguro via Ngrok.*
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-08-07):** S13 — Contador de presença online (badge + hero); S12 fechada (MFA, supply-chain, settlements 017, smoke 10×100); demo VPS zerotiltpoker.net pronta para amigos (play-money, mín. 2 na mesma mesa). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017. Presence API no ar: GET /api/presence/online e POST /api/presence/heartbeat (TTL 90s, Redis). Smoke live 10×100 PASS (0833 jornada; 0920 settlementsVerified=2). Frontend badge/hero online deployados. Mock é o padrão. Asaas Sandbox restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção desabilitados. Nenhum depósito com dinheiro real. Mesas com dono único por processo; guarda de recovery entre início e liquidação. Settlement assinado (HMAC) na liquidação; API verifica no replay.
+> **Estado operacional sincronizado (2026-08-26):** S13+ — Presença online + home NewsTips (notícias/dicas); S12 (MFA, settlements 017, smoke 10×100); demo VPS zerotiltpoker.net (play-money, mín. 2 na mesma mesa). Repo canônico: Projetos/Poker_Project (não OneDrive). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017. Presence API no ar: GET /api/presence/online e POST /api/presence/heartbeat (TTL 90s, Redis). Smoke live 10×100 PASS (0833 jornada; 0920 settlementsVerified=2). Frontend badge/hero online deployados. Mock é o padrão. Asaas Sandbox restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção desabilitados. Nenhum depósito com dinheiro real. Mesas com dono único por processo; guarda de recovery entre início e liquidação. Settlement assinado (HMAC) na liquidação; API verifica no replay.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->
