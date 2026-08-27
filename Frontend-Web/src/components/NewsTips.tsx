@@ -239,14 +239,22 @@ function TwinPhotos({
   onClick?: () => void;
 }) {
   const grid = (
-    <div className={`grid grid-cols-1 gap-2 sm:grid-cols-2 ${large ? "gap-3" : "gap-2"}`}>
+    <div
+      className={`grid grid-cols-1 sm:grid-cols-2 ${
+        large ? "gap-3 sm:gap-4" : "gap-2 sm:gap-3"
+      }`}
+    >
       <NewsImage url={images[0]} alt={`${alt} — foto 1`} large={large} fallback={images[1]} />
       <NewsImage url={images[1]} alt={`${alt} — foto 2`} large={large} fallback={images[0]} />
     </div>
   );
   if (!onClick) return grid;
   return (
-    <button type="button" onClick={onClick} className="block w-full p-2 text-left sm:p-3">
+    <button
+      type="button"
+      onClick={onClick}
+      className="block w-full p-2 text-left sm:p-3 lg:p-4"
+    >
       {grid}
     </button>
   );
