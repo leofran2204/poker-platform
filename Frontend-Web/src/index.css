@@ -245,37 +245,36 @@
     @apply rounded border border-felt-600 bg-felt-800/60;
   }
 
-  /* News photo frames — readable on mobile, large and clear on desktop */
+  /* One hero photo per news card — person or event of the story */
   .zt-news-photo-frame {
     @apply relative w-full overflow-hidden rounded-md border border-felt-600 bg-felt-950;
-    aspect-ratio: 4 / 3;
-    min-height: 11rem;
+    aspect-ratio: 16 / 9;
+    min-height: 12rem;
   }
 
   .zt-news-photo-frame-lg {
     @apply relative w-full overflow-hidden rounded-lg border border-felt-600 bg-felt-950;
-    aspect-ratio: 16 / 10;
-    min-height: 14rem;
+    aspect-ratio: 16 / 9;
+    min-height: 16rem;
   }
 
   @media (min-width: 640px) {
-    .zt-news-photo-frame {
-      aspect-ratio: 16 / 10;
-      min-height: 14rem;
-    }
-
-    .zt-news-photo-frame-lg {
-      min-height: 18rem;
-    }
-  }
-
-  @media (min-width: 1024px) {
     .zt-news-photo-frame {
       min-height: 16rem;
     }
 
     .zt-news-photo-frame-lg {
-      min-height: 22rem;
+      min-height: 20rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .zt-news-photo-frame {
+      min-height: 18rem;
+    }
+
+    .zt-news-photo-frame-lg {
+      min-height: 24rem;
     }
   }
 

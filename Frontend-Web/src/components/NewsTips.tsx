@@ -10,8 +10,8 @@ interface FeedItem {
   description?: string;
   source: string;
   isLocal?: boolean;
+  /** Uma foto do evento ou da pessoa da matéria. */
   imageUrl?: string;
-  images?: string[];
   street?: "preflop" | "flop" | "turn" | "river";
 }
 
@@ -31,11 +31,9 @@ interface LocalNews {
   category: string;
   link?: string;
   pubDate: string;
-  imageUrl?: string;
-  images?: string[];
 }
 
-/** Notícias locais com foto relacionada (jogador / evento) para memorização visual. */
+/** Notícias locais — cada uma com 1 foto do jogador ou do evento. */
 const LOCAL_NEWS: LocalNews[] = [
   {
     id: "n0",
@@ -108,26 +106,16 @@ const LOCAL_TIPS: LocalTip[] = tipsData.tips as LocalTip[];
 const CORS_PROXY = "https://api.rss2json.com/v1/api.json?rss_url=";
 const PAGE_PROXY = "https://api.allorigins.win/raw?url=";
 
-const STOCK_PAIRS = newsMedia.stockPairs as [string, string][];
-const LOCAL_NEWS_IMAGES = newsMedia.localNews as Record<string, string[]>;
-const TIP_STREET_IMAGES = newsMedia.tipStreets as Record<LocalTip["street"], [string, string]>;
+const LOCAL_NEWS_IMAGES = newsMedia.localNews as Record<string, string>;
+const TIP_IMAGES = (newsMedia.tipImages ?? {}) as Record<string, string>;
+const TIP_STREET_IMAGES = newsMedia.tipStreets as Record<LocalTip["street"], string>;
 
-/** Sempre devolve exatamente 2 URLs distintas (capa + contexto). */
-function ensureTwoImages(candidates: string[], salt = 0): [string, string] {
-  const clean = candidates.filter((u, i, arr) => !!u && !isAdOrUselessImage(u) && arr.indexOf(u) === i);
-  const stock = STOCK_PAIRS[Math.abs(salt) % STOCK_PAIRS.length];
-  if (clean.length >= 2) return [clean[0], clean[1]];
-  if (clean.length === 1) {
-    const second = stock[0] === clean[0] ? stock[1] : stock[0];
-    return [clean[0], second];
+/** Uma única foto relevante (evento/pessoa). Sem filler genérico em notícias. */
+function pickStoryImage(candidates: Array<string | undefined | null>): string | undefined {
+  for (const url of candidates) {
+    if (url && !isAdOrUselessImage(url)) return url;
   }
-  return stock;
-}
-
-function hashSalt(text: string): number {
-  let h = 0;
-  for (let i = 0; i < text.length; i += 1) h = (h * 31 + text.charCodeAt(i)) | 0;
-  return Math.abs(h);
+  return undefined;
 }
 
 function parseRSSDate(dateStr: string): Date {
@@ -202,60 +190,29 @@ function NewsImage({
   url,
   alt,
   large,
-  fallback,
+  onClick,
 }: {
   url: string;
   alt: string;
   large?: boolean;
-  fallback?: string;
+  onClick?: () => void;
 }) {
-  const [src, setSrc] = useState(url);
-  return (
+  const frame = (
     <div className={large ? "zt-news-photo-frame-lg" : "zt-news-photo-frame"}>
       <img
-        src={src}
+        src={url}
         alt={alt}
         loading="lazy"
         decoding="async"
         referrerPolicy="no-referrer"
-        onError={() => {
-          if (fallback && src !== fallback) setSrc(fallback);
-        }}
         className="zt-news-photo"
       />
     </div>
   );
-}
-
-function TwinPhotos({
-  images,
-  alt,
-  large,
-  onClick,
-}: {
-  images: [string, string];
-  alt: string;
-  large?: boolean;
-  onClick?: () => void;
-}) {
-  const grid = (
-    <div
-      className={`grid grid-cols-1 sm:grid-cols-2 ${
-        large ? "gap-3 sm:gap-4" : "gap-2 sm:gap-3"
-      }`}
-    >
-      <NewsImage url={images[0]} alt={`${alt} — foto 1`} large={large} fallback={images[1]} />
-      <NewsImage url={images[1]} alt={`${alt} — foto 2`} large={large} fallback={images[0]} />
-    </div>
-  );
-  if (!onClick) return grid;
+  if (!onClick) return frame;
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="block w-full p-2 text-left sm:p-3 lg:p-4"
-    >
-      {grid}
+    <button type="button" onClick={onClick} className="block w-full text-left">
+      {frame}
     </button>
   );
 }
@@ -350,11 +307,7 @@ export function NewsTips({ className }: { className?: string }) {
                 typeof item.thumbnail === "string" && item.thumbnail && !isAdOrUselessImage(item.thumbnail)
                   ? item.thumbnail
                   : undefined;
-              const images = [...(thumb ? [thumb] : []), ...fromContent].filter(
-                (url, idx, arr) => arr.indexOf(url) === idx,
-              );
 
-              const pair = ensureTwoImages(images, hashSalt(item.link || item.title));
               allItems.push({
                 id: item.link || item.title,
                 title: item.title,
@@ -362,8 +315,8 @@ export function NewsTips({ className }: { className?: string }) {
                 pubDate: item.pubDate,
                 description: body.length > 0 ? body : undefined,
                 source: feed.name,
-                imageUrl: pair[0],
-                images: pair,
+                // Prefer content photo (pessoa/evento); og:image sobrescreve abaixo.
+                imageUrl: pickStoryImage([fromContent[0], thumb]),
               });
             }
           } catch {
@@ -371,15 +324,13 @@ export function NewsTips({ className }: { className?: string }) {
           }
         }
 
-        // Completa com og:image real (foto do jogador/evento) quando possível.
+        // og:image da matéria = foto real do jogador/evento da reportagem.
         await Promise.all(
           allItems.slice(0, 10).map(async (item) => {
             if (!item.link) return;
             const og = await resolveOgImage(item.link);
             if (!og) return;
-            const pair = ensureTwoImages([og, ...(item.images ?? [])], hashSalt(item.link));
-            item.imageUrl = pair[0];
-            item.images = pair;
+            item.imageUrl = og;
           }),
         );
 
@@ -404,10 +355,11 @@ export function NewsTips({ className }: { className?: string }) {
   }, [activeTab]);
 
   const allTips = LOCAL_TIPS.map((tip, idx) => {
-    const pair = ensureTwoImages(
-      [tip.imageUrl ?? "", ...(TIP_STREET_IMAGES[tip.street] ?? [])],
-      hashSalt(tip.id),
-    );
+    const imageUrl = pickStoryImage([
+      tip.imageUrl,
+      TIP_IMAGES[tip.id],
+      TIP_STREET_IMAGES[tip.street],
+    ]);
     return {
       id: tip.id,
       title: tip.title,
@@ -417,8 +369,7 @@ export function NewsTips({ className }: { className?: string }) {
       source: tip.category,
       street: tip.street,
       isLocal: true as const,
-      imageUrl: pair[0],
-      images: pair,
+      imageUrl,
     };
   });
 
@@ -428,20 +379,16 @@ export function NewsTips({ className }: { className?: string }) {
     activeTab === "news"
       ? [
           ...newsItems,
-          ...LOCAL_NEWS.map((news) => {
-            const pair = ensureTwoImages(LOCAL_NEWS_IMAGES[news.id] ?? [], hashSalt(news.id));
-            return {
-              id: news.id,
-              title: news.title,
-              link: news.link || "",
-              pubDate: news.pubDate,
-              description: news.description,
-              source: news.category,
-              isLocal: true as const,
-              imageUrl: pair[0],
-              images: pair,
-            };
-          }),
+          ...LOCAL_NEWS.map((news) => ({
+            id: news.id,
+            title: news.title,
+            link: news.link || "",
+            pubDate: news.pubDate,
+            description: news.description,
+            source: news.category,
+            isLocal: true as const,
+            imageUrl: LOCAL_NEWS_IMAGES[news.id],
+          })),
         ]
           .sort((a, b) => parseRSSDate(b.pubDate).getTime() - parseRSSDate(a.pubDate).getTime())
           .slice(0, 18)
@@ -559,21 +506,21 @@ export function NewsTips({ className }: { className?: string }) {
               const isExpanded = expandedItems.has(itemKey);
               const body = (item.description ?? "").trim();
               const canExpand = body.length > 0;
-              const pair = ensureTwoImages(
-                item.images ?? (item.imageUrl ? [item.imageUrl] : []),
-                hashSalt(itemKey),
-              );
+              const photo = item.imageUrl;
 
               return (
                 <article
                   key={itemKey}
                   className={`group zt-card overflow-hidden transition-colors hover:border-gold-soft/30 ${isExpanded ? "border-gold-soft/40" : ""}`}
                 >
-                  <TwinPhotos
-                    images={pair}
-                    alt={item.title}
-                    onClick={() => canExpand && toggleExpand(itemKey)}
-                  />
+                  {photo && (
+                    <NewsImage
+                      url={photo}
+                      alt={item.title}
+                      large={isExpanded}
+                      onClick={() => canExpand && toggleExpand(itemKey)}
+                    />
+                  )}
 
                   <div className="p-4">
                     <div className="mb-1 flex items-center gap-2 text-xs text-felt-400">
@@ -621,12 +568,6 @@ export function NewsTips({ className }: { className?: string }) {
                         >
                           {body}
                         </div>
-
-                        {isExpanded && (
-                          <div className="mt-3">
-                            <TwinPhotos images={pair} alt={item.title} large />
-                          </div>
-                        )}
 
                         <button
                           type="button"
