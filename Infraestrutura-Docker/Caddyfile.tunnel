@@ -42,7 +42,7 @@ zerotiltpoker.net, www.zerotiltpoker.net, localhost {
 		X-Content-Type-Options "nosniff"
 		X-XSS-Protection "1; mode=block"
 		Referrer-Policy "strict-origin-when-cross-origin"
-		Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' wss: https:; img-src 'self' data:;"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' wss: https:; img-src 'self' data: blob: https:;"
 		-Server
 	}
 

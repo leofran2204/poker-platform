@@ -42,7 +42,7 @@ http://{$DOMAIN_NAME:localhost} {
 		X-Content-Type-Options "nosniff"
 		X-XSS-Protection "1; mode=block"
 		Referrer-Policy "strict-origin-when-cross-origin"
-		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https: wss: ws:; img-src 'self' data: blob:; font-src 'self' data:;"
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https: wss: ws:; img-src 'self' data: blob: https:; font-src 'self' data:;"
 		-Server
 	}
 
