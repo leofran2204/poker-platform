@@ -211,20 +211,19 @@ function NewsImage({
 }) {
   const [src, setSrc] = useState(url);
   return (
-    <img
-      src={src}
-      alt={alt}
-      loading="lazy"
-      referrerPolicy="no-referrer"
-      onError={() => {
-        if (fallback && src !== fallback) setSrc(fallback);
-      }}
-      className={
-        large
-          ? "h-44 w-full rounded-lg border border-felt-600 object-cover object-center sm:h-56"
-          : "h-24 w-full rounded-md border border-felt-600 object-cover object-center"
-      }
-    />
+    <div className={large ? "zt-news-photo-frame-lg" : "zt-news-photo-frame"}>
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        referrerPolicy="no-referrer"
+        onError={() => {
+          if (fallback && src !== fallback) setSrc(fallback);
+        }}
+        className="zt-news-photo"
+      />
+    </div>
   );
 }
 
@@ -240,14 +239,14 @@ function TwinPhotos({
   onClick?: () => void;
 }) {
   const grid = (
-    <div className="grid grid-cols-2 gap-2">
+    <div className={`grid grid-cols-1 gap-2 sm:grid-cols-2 ${large ? "gap-3" : "gap-2"}`}>
       <NewsImage url={images[0]} alt={`${alt} — foto 1`} large={large} fallback={images[1]} />
       <NewsImage url={images[1]} alt={`${alt} — foto 2`} large={large} fallback={images[0]} />
     </div>
   );
   if (!onClick) return grid;
   return (
-    <button type="button" onClick={onClick} className="w-full text-left">
+    <button type="button" onClick={onClick} className="block w-full p-2 text-left sm:p-3">
       {grid}
     </button>
   );

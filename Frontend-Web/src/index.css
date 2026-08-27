@@ -245,6 +245,37 @@
     @apply rounded border border-felt-600 bg-felt-800/60;
   }
 
+  /* News photo frames — balanced size, fixed crop for faces/tables */
+  .zt-news-photo-frame {
+    @apply relative w-full overflow-hidden rounded-md border border-felt-600 bg-felt-950;
+    aspect-ratio: 16 / 10;
+    min-height: 8.5rem;
+    max-height: 12rem;
+  }
+
+  .zt-news-photo-frame-lg {
+    @apply relative w-full overflow-hidden rounded-lg border border-felt-600 bg-felt-950;
+    aspect-ratio: 16 / 10;
+    min-height: 11rem;
+    max-height: 16rem;
+  }
+
+  @media (min-width: 640px) {
+    .zt-news-photo-frame {
+      min-height: 9.5rem;
+      max-height: 13rem;
+    }
+
+    .zt-news-photo-frame-lg {
+      min-height: 13rem;
+      max-height: 18rem;
+    }
+  }
+
+  .zt-news-photo {
+    @apply absolute inset-0 h-full w-full object-cover object-center;
+  }
+
   .zt-spinner {
     @apply h-5 w-5 animate-spin rounded-full border-2 border-felt-500 border-t-gold-bright;
   }
