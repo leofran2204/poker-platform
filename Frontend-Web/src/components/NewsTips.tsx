@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import tipsData from "@/data/tipsContent.json";
+import newsMedia from "@/data/newsMedia.json";
 
 interface FeedItem {
   id: string;
@@ -44,8 +45,6 @@ const LOCAL_NEWS: LocalNews[] = [
     category: "Homenagem",
     link: "https://mundopoker.com.br/noticias/geral/morre-aos-83-anos-pierre-neuville-lenda-belga-e-finalista-do-main-event-da-wsop-em-2015/",
     pubDate: "2026-08-26T21:09:24Z",
-    imageUrl: "https://mundopoker.com.br/wp-content/uploads/2026/08/40639387142_70a47aa071_k.webp",
-    images: ["https://mundopoker.com.br/wp-content/uploads/2026/08/40639387142_70a47aa071_k.webp"],
   },
   {
     id: "n1",
@@ -55,7 +54,6 @@ const LOCAL_NEWS: LocalNews[] = [
     category: "BSOP",
     link: "https://mundopoker.com.br/noticias/bsop/seis-jogadores-se-classificam-para-o-bsop-floripa-em-satelite-no-pokerstars/",
     pubDate: "2026-08-19T20:18:05Z",
-    imageUrl: "https://mundopoker.com.br/wp-content/uploads/2026/08/BSOP-Foz-Monti-WCOOP-5094.jpg.webp",
   },
   {
     id: "n2",
@@ -65,7 +63,6 @@ const LOCAL_NEWS: LocalNews[] = [
     category: "BSOP",
     link: "https://mundopoker.com.br/noticias/bsop/bsop-e-pokerstars-dobram-garantidos-e-mega-satelites-classificarao-40-jogadores-para-o-bsop-floripa/",
     pubDate: "2026-08-18T15:30:00Z",
-    imageUrl: "https://mundopoker.com.br/wp-content/uploads/2026/08/BSOP-Foz-Monti-WCOOP-5094.jpg.webp",
   },
   {
     id: "n4",
@@ -75,7 +72,6 @@ const LOCAL_NEWS: LocalNews[] = [
     category: "Estrategia",
     link: "https://pokerlife.com.br/noticias/embaixador-888poker-ian-simpson-como-jogar-contra-limp-small-blind",
     pubDate: "2026-04-25T00:00:00Z",
-    imageUrl: "https://u.pokerlife.com.br/media/custom/8306/customimage1.jpg?1777129277000",
   },
   {
     id: "n6",
@@ -85,7 +81,6 @@ const LOCAL_NEWS: LocalNews[] = [
     category: "Highlights",
     link: "https://mundopoker.com.br/noticias/geral/abacateleao-usa-nota-para-identificar-rival-faz-leitura-perfeita-e-fatura-pote-gigantesco-com-mais-de-200-blinds/",
     pubDate: "2026-02-26T00:00:00Z",
-    imageUrl: "https://mundopoker.com.br/wp-content/uploads/2024/09/IMG_1678-scaled.webp",
   },
   {
     id: "n10",
@@ -95,7 +90,6 @@ const LOCAL_NEWS: LocalNews[] = [
     category: "WSOP",
     link: "https://mundopoker.com.br/noticias/wsop/mundo-poker-tera-cobertura-presencial-da-wsop-las-vegas-pelo-sexto-ano-consecutivo-confira-detalhes/",
     pubDate: "2026-05-26T00:00:00Z",
-    imageUrl: "https://mundopoker.com.br/wp-content/uploads/2025/07/WSOP-Branding-B-RollHH231052-42-scaled.webp",
   },
 ];
 
@@ -114,13 +108,27 @@ const LOCAL_TIPS: LocalTip[] = tipsData.tips as LocalTip[];
 const CORS_PROXY = "https://api.rss2json.com/v1/api.json?rss_url=";
 const PAGE_PROXY = "https://api.allorigins.win/raw?url=";
 
-const TIP_STREET_IMAGES: Record<LocalTip["street"], string> = {
-  preflop:
-    "https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&w=900&q=80",
-  flop: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?auto=format&fit=crop&w=900&q=80",
-  turn: "https://images.unsplash.com/photo-1541278107931-e006f21b8e67?auto=format&fit=crop&w=900&q=80",
-  river: "https://images.unsplash.com/photo-1596838132731-3301c3fd4311?auto=format&fit=crop&w=900&q=80",
-};
+const STOCK_PAIRS = newsMedia.stockPairs as [string, string][];
+const LOCAL_NEWS_IMAGES = newsMedia.localNews as Record<string, string[]>;
+const TIP_STREET_IMAGES = newsMedia.tipStreets as Record<LocalTip["street"], [string, string]>;
+
+/** Sempre devolve exatamente 2 URLs distintas (capa + contexto). */
+function ensureTwoImages(candidates: string[], salt = 0): [string, string] {
+  const clean = candidates.filter((u, i, arr) => !!u && !isAdOrUselessImage(u) && arr.indexOf(u) === i);
+  const stock = STOCK_PAIRS[Math.abs(salt) % STOCK_PAIRS.length];
+  if (clean.length >= 2) return [clean[0], clean[1]];
+  if (clean.length === 1) {
+    const second = stock[0] === clean[0] ? stock[1] : stock[0];
+    return [clean[0], second];
+  }
+  return stock;
+}
+
+function hashSalt(text: string): number {
+  let h = 0;
+  for (let i = 0; i < text.length; i += 1) h = (h * 31 + text.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
 
 function parseRSSDate(dateStr: string): Date {
   const date = new Date(dateStr);
@@ -194,25 +202,54 @@ function NewsImage({
   url,
   alt,
   large,
+  fallback,
 }: {
   url: string;
   alt: string;
   large?: boolean;
+  fallback?: string;
 }) {
-  const [failed, setFailed] = useState(false);
-  if (failed) return null;
+  const [src, setSrc] = useState(url);
   return (
     <img
-      src={url}
+      src={src}
       alt={alt}
       loading="lazy"
-      onError={() => setFailed(true)}
+      referrerPolicy="no-referrer"
+      onError={() => {
+        if (fallback && src !== fallback) setSrc(fallback);
+      }}
       className={
         large
-          ? "mt-3 max-h-80 w-full rounded-lg border border-felt-600 object-cover object-center"
-          : "h-20 w-28 flex-shrink-0 rounded-md border border-felt-600 object-cover object-center"
+          ? "h-44 w-full rounded-lg border border-felt-600 object-cover object-center sm:h-56"
+          : "h-24 w-full rounded-md border border-felt-600 object-cover object-center"
       }
     />
+  );
+}
+
+function TwinPhotos({
+  images,
+  alt,
+  large,
+  onClick,
+}: {
+  images: [string, string];
+  alt: string;
+  large?: boolean;
+  onClick?: () => void;
+}) {
+  const grid = (
+    <div className="grid grid-cols-2 gap-2">
+      <NewsImage url={images[0]} alt={`${alt} — foto 1`} large={large} fallback={images[1]} />
+      <NewsImage url={images[1]} alt={`${alt} — foto 2`} large={large} fallback={images[0]} />
+    </div>
+  );
+  if (!onClick) return grid;
+  return (
+    <button type="button" onClick={onClick} className="w-full text-left">
+      {grid}
+    </button>
   );
 }
 
@@ -310,6 +347,7 @@ export function NewsTips({ className }: { className?: string }) {
                 (url, idx, arr) => arr.indexOf(url) === idx,
               );
 
+              const pair = ensureTwoImages(images, hashSalt(item.link || item.title));
               allItems.push({
                 id: item.link || item.title,
                 title: item.title,
@@ -317,8 +355,8 @@ export function NewsTips({ className }: { className?: string }) {
                 pubDate: item.pubDate,
                 description: body.length > 0 ? body : undefined,
                 source: feed.name,
-                imageUrl: images[0],
-                images,
+                imageUrl: pair[0],
+                images: pair,
               });
             }
           } catch {
@@ -326,27 +364,15 @@ export function NewsTips({ className }: { className?: string }) {
           }
         }
 
-        // Completa capa faltante (ex.: foto do jogador) via og:image da matéria.
-        const needCover = allItems.filter((item) => !item.imageUrl && item.link).slice(0, 8);
+        // Completa com og:image real (foto do jogador/evento) quando possível.
         await Promise.all(
-          needCover.map(async (item) => {
+          allItems.slice(0, 10).map(async (item) => {
+            if (!item.link) return;
             const og = await resolveOgImage(item.link);
             if (!og) return;
-            item.imageUrl = og;
-            item.images = [og, ...(item.images ?? [])].filter((u, i, a) => a.indexOf(u) === i);
-          }),
-        );
-
-        // Se o thumb era só banner, tenta og:image de verdade.
-        const maybeAds = allItems
-          .filter((item) => item.imageUrl && isAdOrUselessImage(item.imageUrl) && item.link)
-          .slice(0, 6);
-        await Promise.all(
-          maybeAds.map(async (item) => {
-            const og = await resolveOgImage(item.link);
-            if (!og) return;
-            item.imageUrl = og;
-            item.images = [og, ...(item.images ?? []).filter((u) => !isAdOrUselessImage(u))];
+            const pair = ensureTwoImages([og, ...(item.images ?? [])], hashSalt(item.link));
+            item.imageUrl = pair[0];
+            item.images = pair;
           }),
         );
 
@@ -370,18 +396,24 @@ export function NewsTips({ className }: { className?: string }) {
     };
   }, [activeTab]);
 
-  const allTips = LOCAL_TIPS.map((tip, idx) => ({
-    id: tip.id,
-    title: tip.title,
-    link: tip.link || "",
-    pubDate: new Date(Date.now() - idx * 86400000).toISOString(),
-    description: tip.description,
-    source: tip.category,
-    street: tip.street,
-    isLocal: true as const,
-    imageUrl: tip.imageUrl || TIP_STREET_IMAGES[tip.street],
-    images: [tip.imageUrl || TIP_STREET_IMAGES[tip.street]],
-  }));
+  const allTips = LOCAL_TIPS.map((tip, idx) => {
+    const pair = ensureTwoImages(
+      [tip.imageUrl ?? "", ...(TIP_STREET_IMAGES[tip.street] ?? [])],
+      hashSalt(tip.id),
+    );
+    return {
+      id: tip.id,
+      title: tip.title,
+      link: tip.link || "",
+      pubDate: new Date(Date.now() - idx * 86400000).toISOString(),
+      description: tip.description,
+      source: tip.category,
+      street: tip.street,
+      isLocal: true as const,
+      imageUrl: pair[0],
+      images: pair,
+    };
+  });
 
   const tipsByStreet = allTips.filter((tip) => tip.street === activeStreet);
 
@@ -389,17 +421,20 @@ export function NewsTips({ className }: { className?: string }) {
     activeTab === "news"
       ? [
           ...newsItems,
-          ...LOCAL_NEWS.map((news) => ({
-            id: news.id,
-            title: news.title,
-            link: news.link || "",
-            pubDate: news.pubDate,
-            description: news.description,
-            source: news.category,
-            isLocal: true as const,
-            imageUrl: news.imageUrl,
-            images: news.images ?? (news.imageUrl ? [news.imageUrl] : []),
-          })),
+          ...LOCAL_NEWS.map((news) => {
+            const pair = ensureTwoImages(LOCAL_NEWS_IMAGES[news.id] ?? [], hashSalt(news.id));
+            return {
+              id: news.id,
+              title: news.title,
+              link: news.link || "",
+              pubDate: news.pubDate,
+              description: news.description,
+              source: news.category,
+              isLocal: true as const,
+              imageUrl: pair[0],
+              images: pair,
+            };
+          }),
         ]
           .sort((a, b) => parseRSSDate(b.pubDate).getTime() - parseRSSDate(a.pubDate).getTime())
           .slice(0, 18)
@@ -517,118 +552,103 @@ export function NewsTips({ className }: { className?: string }) {
               const isExpanded = expandedItems.has(itemKey);
               const body = (item.description ?? "").trim();
               const canExpand = body.length > 0;
-              const gallery = (item.images?.length ? item.images : item.imageUrl ? [item.imageUrl] : []).filter(
-                (u) => !isAdOrUselessImage(u),
+              const pair = ensureTwoImages(
+                item.images ?? (item.imageUrl ? [item.imageUrl] : []),
+                hashSalt(itemKey),
               );
-              const cover = gallery[0];
 
               return (
                 <article
                   key={itemKey}
-                  className={`group zt-card p-4 transition-colors hover:border-gold-soft/30 ${isExpanded ? "border-gold-soft/40" : ""}`}
+                  className={`group zt-card overflow-hidden transition-colors hover:border-gold-soft/30 ${isExpanded ? "border-gold-soft/40" : ""}`}
                 >
-                  <div className="flex items-start gap-3">
-                    {cover ? (
-                      <button type="button" className="flex-shrink-0" onClick={() => canExpand && toggleExpand(itemKey)}>
-                        <NewsImage url={cover} alt={item.title} />
-                      </button>
-                    ) : (
-                      <div className="flex h-20 w-28 flex-shrink-0 items-center justify-center rounded-md border border-felt-600 bg-felt-700">
-                        <svg className="h-6 w-6 text-gold-soft" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <TwinPhotos
+                    images={pair}
+                    alt={item.title}
+                    onClick={() => canExpand && toggleExpand(itemKey)}
+                  />
+
+                  <div className="p-4">
+                    <div className="mb-1 flex items-center gap-2 text-xs text-felt-400">
+                      <span className="zt-chip text-[10px]">{item.source}</span>
+                      {!item.isLocal && <time dateTime={item.pubDate}>{formatDate(item.pubDate)}</time>}
+                    </div>
+                    <button
+                      type="button"
+                      aria-expanded={isExpanded}
+                      onClick={() => canExpand && toggleExpand(itemKey)}
+                      className="flex w-full items-start justify-between gap-2 rounded text-left font-medium leading-snug text-cream transition-colors hover:text-gold-bright focus:outline-none focus:ring-2 focus:ring-gold-bright focus:ring-offset-2 focus:ring-offset-felt-800"
+                    >
+                      <h3 className="text-base">{item.title}</h3>
+                      {canExpand && (
+                        <svg
+                          className={`mt-1 h-4 w-4 flex-shrink-0 text-felt-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      )}
+                    </button>
+
+                    {canExpand && (
+                      <>
+                        <div
+                          className={
+                            isExpanded
+                              ? "mt-3 text-sm leading-relaxed text-felt-200 whitespace-pre-wrap break-words"
+                              : "mt-2 text-sm leading-relaxed text-felt-300"
+                          }
+                          style={
+                            isExpanded
+                              ? undefined
+                              : {
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 3,
+                                  WebkitBoxOrient: "vertical" as const,
+                                  overflow: "hidden",
+                                }
+                          }
+                        >
+                          {body}
+                        </div>
+
+                        {isExpanded && (
+                          <div className="mt-3">
+                            <TwinPhotos images={pair} alt={item.title} large />
+                          </div>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => toggleExpand(itemKey)}
+                          className="mt-2 text-xs font-bold uppercase tracking-wide text-gold-soft hover:text-gold-bright"
+                        >
+                          {isExpanded ? "Recolher texto" : "Ver texto completo"}
+                        </button>
+                      </>
+                    )}
+
+                    {item.link && item.link !== "#" && (
+                      <a
+                        href={item.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3 inline-flex items-center gap-1 text-xs text-gold-soft transition-colors hover:text-gold-bright"
+                      >
+                        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                           />
                         </svg>
-                      </div>
+                        Abrir matéria completa na fonte
+                      </a>
                     )}
-
-                    <div className="min-w-0 flex-1">
-                      <div className="mb-1 flex items-center gap-2 text-xs text-felt-400">
-                        <span className="zt-chip text-[10px]">{item.source}</span>
-                        {!item.isLocal && <time dateTime={item.pubDate}>{formatDate(item.pubDate)}</time>}
-                      </div>
-                      <button
-                        type="button"
-                        aria-expanded={isExpanded}
-                        onClick={() => canExpand && toggleExpand(itemKey)}
-                        className="flex w-full items-start justify-between gap-2 rounded text-left font-medium leading-snug text-cream transition-colors hover:text-gold-bright focus:outline-none focus:ring-2 focus:ring-gold-bright focus:ring-offset-2 focus:ring-offset-felt-800"
-                      >
-                        <h3 className="text-base">{item.title}</h3>
-                        {canExpand && (
-                          <svg
-                            className={`mt-1 h-4 w-4 flex-shrink-0 text-felt-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        )}
-                      </button>
-
-                      {canExpand && (
-                        <>
-                          <div
-                            className={
-                              isExpanded
-                                ? "mt-3 text-sm leading-relaxed text-felt-200 whitespace-pre-wrap break-words"
-                                : "mt-2 text-sm leading-relaxed text-felt-300"
-                            }
-                            style={
-                              isExpanded
-                                ? undefined
-                                : {
-                                    display: "-webkit-box",
-                                    WebkitLineClamp: 3,
-                                    WebkitBoxOrient: "vertical" as const,
-                                    overflow: "hidden",
-                                  }
-                            }
-                          >
-                            {body}
-                          </div>
-
-                          {isExpanded && gallery.length > 0 && (
-                            <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                              {gallery.slice(0, 4).map((url) => (
-                                <NewsImage key={url} url={url} alt={`${item.title} — foto`} large />
-                              ))}
-                            </div>
-                          )}
-
-                          <button
-                            type="button"
-                            onClick={() => toggleExpand(itemKey)}
-                            className="mt-2 text-xs font-bold uppercase tracking-wide text-gold-soft hover:text-gold-bright"
-                          >
-                            {isExpanded ? "Recolher texto" : "Ver texto completo"}
-                          </button>
-                        </>
-                      )}
-
-                      {item.link && item.link !== "#" && (
-                        <a
-                          href={item.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-3 inline-flex items-center gap-1 text-xs text-gold-soft transition-colors hover:text-gold-bright"
-                        >
-                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                            />
-                          </svg>
-                          Abrir matéria completa na fonte
-                        </a>
-                      )}
-                    </div>
                   </div>
                 </article>
               );

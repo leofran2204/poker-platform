@@ -1,0 +1,22 @@
+{
+  "stockPairs": [
+    ["/news/table-1.jpg", "/news/chips-1.jpg"],
+    ["/news/finaltable-1.jpg", "/news/room-1.jpg"],
+    ["/news/chips-1.jpg", "/news/table-1.jpg"],
+    ["/news/room-1.jpg", "/news/finaltable-1.jpg"]
+  ],
+  "localNews": {
+    "n0": ["/news/neuville-1.webp", "/news/neuville-2.jpg"],
+    "n1": ["/news/bsop-1.jpg.webp", "/news/room-1.jpg"],
+    "n2": ["/news/bsop-1.jpg.webp", "/news/finaltable-1.jpg"],
+    "n4": ["/news/simpson-1.jpg", "/news/table-1.jpg"],
+    "n6": ["/news/abacate-1.webp", "/news/chips-1.jpg"],
+    "n10": ["/news/wsop-1.webp", "/news/finaltable-1.jpg"]
+  },
+  "tipStreets": {
+    "preflop": ["/news/table-1.jpg", "/news/chips-1.jpg"],
+    "flop": ["/news/chips-1.jpg", "/news/table-1.jpg"],
+    "turn": ["/news/finaltable-1.jpg", "/news/room-1.jpg"],
+    "river": ["/news/room-1.jpg", "/news/finaltable-1.jpg"]
+  }
+}
