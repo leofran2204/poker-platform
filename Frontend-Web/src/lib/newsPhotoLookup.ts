@@ -6,7 +6,7 @@
 
 import newsMedia from "@/data/newsMedia.json";
 
-const CACHE_PREFIX = "zt-news-photo-v4:";
+const CACHE_PREFIX = "zt-news-photo-v5:";
 
 type EventKey = "bsop" | "wsop" | "ept" | "triton" | "pokerstars" | "default";
 
@@ -193,21 +193,25 @@ export function buildPhotoCaption(
   switch (kind) {
     case "article":
       return personOrTopic
-        ? `${personOrTopic} — foto da matéria`
-        : "Foto publicada na matéria";
+        ? `Jogador: ${personOrTopic} (foto da matéria)`
+        : "Foto da matéria";
     case "person":
       return personOrTopic
-        ? `${personOrTopic} — arquivo (evento anterior)`
-        : "Arquivo do jogador (evento anterior)";
+        ? `Jogador: ${personOrTopic}`
+        : "Foto do jogador";
     case "event-web":
-      return `${eventName} — arquivo do evento`;
+      return `Torneio: ${eventName}`;
     case "event-local":
-      return `${eventName} — foto do circuito`;
+      return `Torneio: ${eventName}`;
     case "curated":
-      return personOrTopic || eventName || "Foto relacionada à matéria";
+      return personOrTopic
+        ? `Jogador: ${personOrTopic}`
+        : eventName !== "Poker"
+          ? `Torneio: ${eventName}`
+          : "Foto relacionada à matéria";
     case "tip":
       return personOrTopic
-        ? `${personOrTopic} — guia de estratégia`
+        ? `Jogador: ${personOrTopic} — guia`
         : "Guia de estratégia";
     default:
       return "Foto relacionada";
@@ -270,28 +274,34 @@ function isLikelyRealPhotoTitle(title: string): boolean {
   return photoHints || /\.(jpe?g|png|webp)$/i.test(t);
 }
 
-/** Extrai possíveis nomes de pessoa e consultas de evento a partir do título. */
-export function buildPhotoSearchQueries(title: string, description?: string): string[] {
+function pushUnique(queries: string[], seen: Set<string>, q: string) {
+  const clean = q.replace(/\s+/g, " ").trim();
+  if (clean.length < 3) return;
+  const key = clean.toLowerCase();
+  if (seen.has(key)) return;
+  seen.add(key);
+  queries.push(clean);
+}
+
+/** Só nomes/apelidos de jogador — para buscar FOTO DO JOGADOR. */
+export function extractPlayerSearchQueries(title: string, description?: string): string[] {
   const text = `${title} ${description ?? ""}`;
   const queries: string[] = [];
   const seen = new Set<string>();
 
-  const push = (q: string) => {
-    const clean = q.replace(/\s+/g, " ").trim();
-    if (clean.length < 3) return;
-    const key = clean.toLowerCase();
-    if (seen.has(key)) return;
-    seen.add(key);
-    queries.push(clean);
-  };
-
-  // 1) Pessoa primeiro (nunca logo)
   const nick = title.match(
     /\b([A-ZÁÉÍÓÚ][a-záéíóú]+[A-ZÁÉÍÓÚ][A-Za-zÁÉÍÓÚáéíóúÂÊÔÃÕâêôãõÇç0-9]+)\b/,
   );
   if (nick) {
-    push(`${nick[1]} poker player`);
-    push(`${nick[1]} poker`);
+    pushUnique(queries, seen, `${nick[1]} poker player`);
+    pushUnique(queries, seen, `${nick[1]} poker`);
+    pushUnique(queries, seen, nick[1]);
+  }
+
+  // Aspas / nick online: "Godoy217", 'bnalon'
+  const quoted = text.matchAll(/["“']([A-Za-z][A-Za-z0-9_]{2,24})["”']/g);
+  for (const qm of quoted) {
+    pushUnique(queries, seen, `${qm[1]} poker`);
   }
 
   const nameRe =
@@ -301,19 +311,36 @@ export function buildPhotoSearchQueries(title: string, description?: string): st
     const parts = m[1].split(/\s+/);
     if (parts.every((p) => TITLE_STOP.has(p.toLowerCase()))) continue;
     if (parts.some((p) => TITLE_STOP.has(p.toLowerCase())) && parts.length === 2) continue;
-    push(`${m[1]} poker player`);
-    push(`${m[1]} poker`);
-    push(m[1]);
+    pushUnique(queries, seen, `${m[1]} poker player`);
+    pushUnique(queries, seen, `${m[1]} poker`);
+    pushUnique(queries, seen, m[1]);
   }
 
-  // 2) Evento = fotos de mesa/jogadores (não "BSOP logo")
+  return queries.slice(0, 6);
+}
+
+/** Consultas de torneio/evento — mesa final, salão, jogadores no feltro. */
+export function extractEventTournamentQueries(title: string, description?: string): string[] {
+  const text = `${title} ${description ?? ""}`;
+  const queries: string[] = [];
+  const seen = new Set<string>();
   for (const ev of EVENT_QUERIES) {
-    if (ev.match.test(text)) {
-      for (const q of ev.queries) push(q);
-    }
+    if (!ev.match.test(text)) continue;
+    for (const q of ev.queries) pushUnique(queries, seen, q);
   }
+  if (queries.length === 0) {
+    pushUnique(queries, seen, "poker tournament final table");
+    pushUnique(queries, seen, "poker live tournament players");
+  }
+  return queries.slice(0, 5);
+}
 
-  return queries.slice(0, 8);
+/** @deprecated use extractPlayerSearchQueries + extractEventTournamentQueries */
+export function buildPhotoSearchQueries(title: string, description?: string): string[] {
+  return [
+    ...extractPlayerSearchQueries(title, description),
+    ...extractEventTournamentQueries(title, description),
+  ].slice(0, 8);
 }
 
 async function wikipediaThumbnail(titleQuery: string, lang: "en" | "pt"): Promise<string | undefined> {
@@ -449,64 +476,76 @@ export function randomEventPhoto(title: string, description?: string): StoryPhot
   return makePhoto(url, title, "event-local", description);
 }
 
+async function findPlayerPhoto(title: string, description?: string): Promise<string | undefined> {
+  const playerQueries = extractPlayerSearchQueries(title, description);
+  for (const q of playerQueries) {
+    const bare = q
+      .replace(/\s+poker player$/i, "")
+      .replace(/\s+poker$/i, "")
+      .trim();
+
+    const fromWiki =
+      (await wikipediaThumbnail(bare, "en")) ||
+      (await wikipediaThumbnail(bare, "pt")) ||
+      (await wikipediaSearchThumbnail(`${bare} poker`, "en")) ||
+      (await wikipediaSearchThumbnail(`${bare} poker`, "pt")) ||
+      (await wikipediaSearchThumbnail(q, "en"));
+
+    if (fromWiki) return fromWiki;
+
+    const fromCommons =
+      (await commonsImage(`${bare} poker player`)) ||
+      (await commonsImage(`${bare} poker`)) ||
+      (await commonsImage(`${bare} WSOP`)) ||
+      (await commonsImage(bare));
+
+    if (fromCommons) return fromCommons;
+  }
+  return undefined;
+}
+
+async function findEventTournamentPhoto(
+  title: string,
+  description?: string,
+): Promise<string | undefined> {
+  for (const q of extractEventTournamentQueries(title, description)) {
+    const img = await commonsImage(q);
+    if (img) return img;
+  }
+  return undefined;
+}
+
 /**
- * Busca foto do jogador/evento.
- * Ordem: cache → Wikipedia/Commons (pessoa) → Commons (evento) → foto aleatória do evento.
+ * Prioridade fixa:
+ * 1) Foto do JOGADOR (Wikipedia/Commons)
+ * 2) Se não houver → foto de TORNEIO do evento (mesa final / salão)
+ * 3) Pool local de fotos reais de torneio (nunca logo)
  */
 export async function lookupStoryPhoto(
   title: string,
   description?: string,
 ): Promise<StoryPhoto | undefined> {
-  const queries = buildPhotoSearchQueries(title, description);
-  const cacheKey = (queries[0] ?? title).toLowerCase().slice(0, 120);
+  const cacheKey = title.toLowerCase().slice(0, 120);
   const cached = cacheGet(cacheKey);
   if (cached && typeof cached === "object" && cached.url) return cached;
-  // cached === null → tentamos evento abaixo
 
-  // 1) Pessoa / queries específicas (Wikipedia + Commons)
-  for (const q of queries) {
-    const bare = q.replace(/\s+poker$/i, "").trim();
-
-    const fromWiki =
-      (await wikipediaThumbnail(bare, "en")) ||
-      (await wikipediaThumbnail(bare, "pt")) ||
-      (await wikipediaSearchThumbnail(q, "en")) ||
-      (await wikipediaSearchThumbnail(q, "pt")) ||
-      (await wikipediaSearchThumbnail(bare, "en"));
-
-    if (fromWiki) {
-      const photo = makePhoto(fromWiki, title, "person", description);
-      cacheSet(cacheKey, photo);
-      return photo;
-    }
-
-    const fromCommons =
-      (await commonsImage(q)) ||
-      (await commonsImage(`${bare} poker`)) ||
-      (await commonsImage(bare));
-
-    if (fromCommons) {
-      const photo = makePhoto(fromCommons, title, "person", description);
-      cacheSet(cacheKey, photo);
-      return photo;
-    }
+  // 1) Jogador
+  const playerUrl = await findPlayerPhoto(title, description);
+  if (playerUrl) {
+    const photo = makePhoto(playerUrl, title, "person", description);
+    cacheSet(cacheKey, photo);
+    return photo;
   }
 
-  // 2) Só o evento na Commons (sem a pessoa)
-  const eventKey = detectEventKey(title, description);
-  const eventMeta = EVENT_QUERIES.find((e) => e.key === eventKey);
-  if (eventMeta) {
-    for (const q of eventMeta.queries) {
-      const evImg = await commonsImage(q);
-      if (evImg) {
-        const photo = makePhoto(evImg, title, "event-web", description);
-        cacheSet(cacheKey, photo);
-        return photo;
-      }
-    }
+  // 2) Torneio do evento (foto real, não logo)
+  const eventUrl = await findEventTournamentPhoto(title, description);
+  if (eventUrl) {
+    const photo = makePhoto(eventUrl, title, "event-web", description);
+    cacheSet(cacheKey, photo);
+    return photo;
   }
 
-  // 3) Sem registro público → foto aleatória do evento (pool local)
+  // 3) Pool local de torneio
   const localEvent = randomEventPhoto(title, description);
   if (localEvent) {
     cacheSet(cacheKey, localEvent);

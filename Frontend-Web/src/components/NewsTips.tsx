@@ -360,7 +360,7 @@ export function NewsTips({ className }: { className?: string }) {
           }
         }
 
-        // 1) og/twitter/corpo da matéria
+        // 1) og/twitter/corpo da matéria (já filtra logo)
         await Promise.all(
           allItems.map(async (item) => {
             if (!item.link) return;
@@ -371,8 +371,7 @@ export function NewsTips({ className }: { className?: string }) {
           }),
         );
 
-        // 2) Se a fonte não publicou foto: busca na web (Wikipedia/Commons)
-        //    do jogador ou do evento — com legenda explicando a origem.
+        // 2) Sem foto útil da fonte → 1º jogador, 2º torneio do evento
         await Promise.all(
           allItems.map(async (item) => {
             if (item.imageUrl) return;
