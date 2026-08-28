@@ -245,41 +245,70 @@
     @apply rounded border border-felt-600 bg-felt-800/60;
   }
 
-  /* One hero photo per news card — person or event of the story */
+  /* Foto inteira visível (sem cortar rosto/cena); letterbox no feltro */
   .zt-news-photo-frame {
-    @apply relative w-full overflow-hidden rounded-md border border-felt-600 bg-felt-950;
-    aspect-ratio: 16 / 9;
-    min-height: 12rem;
+    @apply relative flex w-full items-center justify-center overflow-hidden rounded-md border border-felt-600 bg-felt-950;
+    min-height: 11rem;
+    max-height: 20rem;
   }
 
   .zt-news-photo-frame-lg {
-    @apply relative w-full overflow-hidden rounded-lg border border-felt-600 bg-felt-950;
-    aspect-ratio: 16 / 9;
-    min-height: 16rem;
+    @apply relative flex w-full items-center justify-center overflow-hidden rounded-lg border border-felt-600 bg-felt-950;
+    min-height: 14rem;
+    max-height: 26rem;
   }
 
   @media (min-width: 640px) {
     .zt-news-photo-frame {
-      min-height: 16rem;
+      min-height: 13rem;
+      max-height: 22rem;
     }
 
     .zt-news-photo-frame-lg {
-      min-height: 20rem;
+      min-height: 16rem;
+      max-height: 30rem;
     }
   }
 
   @media (min-width: 1024px) {
     .zt-news-photo-frame {
-      min-height: 18rem;
+      min-height: 14rem;
+      max-height: 24rem;
     }
 
     .zt-news-photo-frame-lg {
-      min-height: 24rem;
+      min-height: 18rem;
+      max-height: 32rem;
     }
   }
 
   .zt-news-photo {
-    @apply absolute inset-0 h-full w-full object-cover object-center;
+    @apply relative z-0 h-auto w-full object-contain object-center;
+    max-height: 20rem;
+  }
+
+  .zt-news-photo-frame-lg .zt-news-photo {
+    max-height: 26rem;
+  }
+
+  @media (min-width: 640px) {
+    .zt-news-photo {
+      max-height: 22rem;
+    }
+
+    .zt-news-photo-frame-lg .zt-news-photo {
+      max-height: 30rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .zt-news-photo {
+      max-height: 24rem;
+    }
+
+    .zt-news-photo-frame-lg .zt-news-photo {
+      max-height: 32rem;
+    }
   }
 
   .zt-news-photo-caption {
