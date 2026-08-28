@@ -214,7 +214,7 @@
   }
 
   .zt-playing-card {
-    @apply relative flex h-[72px] w-[50px] flex-col justify-between rounded-md border border-black/20 bg-[#f4f0e6] p-1 shadow-card;
+    @apply relative flex flex-col justify-between rounded-md border border-black/20 bg-[#f4f0e6] p-1 shadow-card;
   }
 
   .zt-playing-card.back {

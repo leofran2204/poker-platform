@@ -32,6 +32,52 @@ export function suitSymbol(suit: Suit): string {
   return SUIT_SYMBOL[suit];
 }
 
+const RANK = "A|K|Q|J|T|10|[2-9]";
+const SUIT = "[shdc]";
+
+/** Uma carta concreta: As, Kd, 10h, T d (sem espaços no código). */
+const ONE_CARD = new RegExp(`^(${RANK})(${SUIT})$`, "i");
+/** Forma legada nos tips: A[s], 10[h]. */
+const BRACKET_CARD = new RegExp(`^(${RANK})\\[(${SUIT})\\]$`, "i");
+/** Duas cartas coladas: AsKd, Ks7h. */
+const TWO_CARDS = new RegExp(`^(${RANK})(${SUIT})(${RANK})(${SUIT})$`, "i");
+
+/**
+ * Extrai códigos de carta concretos de um token.
+ * Não interpreta ranges (A9s, KTo, AJs+) — nesses casos devolve [].
+ */
+export function extractConcreteCardCodes(token: string): string[] {
+  const t = token.replace(/[.,;:!?)]+$/g, "").replace(/^[("]+/g, "");
+  if (!t) return [];
+
+  const bracket = t.match(BRACKET_CARD);
+  if (bracket) {
+    const rank = bracket[1].toUpperCase() === "10" ? "T" : bracket[1].toUpperCase();
+    return [`${rank}${bracket[2].toLowerCase()}`];
+  }
+
+  // Range / shorthand: segundo rank + s/o/+ → não é naipe concreto
+  // Ex: A9s, A9s+, KTo, 98o, AJs+
+  if (/^(A|K|Q|J|T|10|[2-9])(A|K|Q|J|T|10|[2-9])[so]\+?$/i.test(t)) return [];
+  // Pares em range: 77, 77+, AA (não são "sete de espadas")
+  if (/^(AA|KK|QQ|JJ|TT|99|88|77|66|55|44|33|22)\+?$/i.test(t)) return [];
+
+  const two = t.match(TWO_CARDS);
+  if (two) {
+    const r1 = two[1].toUpperCase() === "10" ? "T" : two[1].toUpperCase();
+    const r2 = two[3].toUpperCase() === "10" ? "T" : two[3].toUpperCase();
+    return [`${r1}${two[2].toLowerCase()}`, `${r2}${two[4].toLowerCase()}`];
+  }
+
+  const one = t.match(ONE_CARD);
+  if (one) {
+    const rank = one[1].toUpperCase() === "10" ? "T" : one[1].toUpperCase();
+    return [`${rank}${one[2].toLowerCase()}`];
+  }
+
+  return [];
+}
+
 /** Fixed 9-max seat layout as % of oval table (top/left). */
 export const SEAT_LAYOUT: { top: number; left: number }[] = [
   { top: 88, left: 50 }, // 0 bottom (hero-ish)

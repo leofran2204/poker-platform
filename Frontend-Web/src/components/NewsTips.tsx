@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import tipsData from "@/data/tipsContent.json";
 import newsMedia from "@/data/newsMedia.json";
+import { TipRichText } from "@/components/TipRichText";
 
 interface FeedItem {
   id: string;
@@ -549,25 +550,24 @@ export function NewsTips({ className }: { className?: string }) {
 
                     {canExpand && (
                       <>
-                        <div
-                          className={
-                            isExpanded
-                              ? "mt-3 text-sm leading-relaxed text-felt-200 whitespace-pre-wrap break-words"
-                              : "mt-2 text-sm leading-relaxed text-felt-300"
-                          }
-                          style={
-                            isExpanded
-                              ? undefined
-                              : {
-                                  display: "-webkit-box",
-                                  WebkitLineClamp: 3,
-                                  WebkitBoxOrient: "vertical" as const,
-                                  overflow: "hidden",
-                                }
-                          }
-                        >
-                          {body}
-                        </div>
+                        {isExpanded ? (
+                          <TipRichText
+                            text={body}
+                            className="mt-3 text-sm leading-relaxed text-felt-200 break-words"
+                          />
+                        ) : (
+                          <div
+                            className="mt-2 text-sm leading-relaxed text-felt-300"
+                            style={{
+                              display: "-webkit-box",
+                              WebkitLineClamp: 3,
+                              WebkitBoxOrient: "vertical" as const,
+                              overflow: "hidden",
+                            }}
+                          >
+                            {body}
+                          </div>
+                        )}
 
                         <button
                           type="button"
