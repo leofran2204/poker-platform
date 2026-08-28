@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import tipsData from "@/data/tipsContent.json";
 import { TipRichText } from "@/components/TipRichText";
+import { translateNewsFields } from "@/lib/translatePt";
 
 interface FeedItem {
   id: string;
@@ -13,24 +14,30 @@ interface FeedItem {
   /** Somente foto oficial da fonte (og/corpo). Sem fallback. */
   imageUrl?: string;
   imageCaption?: string;
+  /** Fonte internacional já traduzida para PT. */
+  translated?: boolean;
+  /** Precisa traduzir (fonte EN). */
+  needsTranslation?: boolean;
   street?: "preflop" | "flop" | "turn" | "river";
 }
 
 interface FeedConfig {
   name: string;
   url: string;
+  /** pt = já em português; en = traduzir para PT. */
+  lang: "pt" | "en";
 }
 
 /** Fontes RSS verificadas (Brasil + internacionais). */
 const NEWS_FEEDS: FeedConfig[] = [
-  { name: "Mundo Poker", url: "https://mundopoker.com.br/feed/" },
-  { name: "Poker No Brasil", url: "https://pokernobrasil.com/feed/" },
-  { name: "Lobbyze", url: "https://blog.lobbyze.com/feed/" },
-  { name: "PokerNews", url: "https://www.pokernews.com/rss.php?subject=news" },
-  { name: "CardPlayer", url: "https://www.cardplayer.com/rss" },
-  { name: "CardsChat", url: "https://www.cardschat.com/feed/" },
-  { name: "Upswing Poker", url: "https://upswingpoker.com/feed/" },
-  { name: "FlushDraw", url: "https://www.flushdraw.net/feed/" },
+  { name: "Mundo Poker", url: "https://mundopoker.com.br/feed/", lang: "pt" },
+  { name: "Poker No Brasil", url: "https://pokernobrasil.com/feed/", lang: "pt" },
+  { name: "Lobbyze", url: "https://blog.lobbyze.com/feed/", lang: "pt" },
+  { name: "PokerNews", url: "https://www.pokernews.com/rss.php?subject=news", lang: "en" },
+  { name: "CardPlayer", url: "https://www.cardplayer.com/rss", lang: "en" },
+  { name: "CardsChat", url: "https://www.cardschat.com/feed/", lang: "en" },
+  { name: "Upswing Poker", url: "https://upswingpoker.com/feed/", lang: "en" },
+  { name: "FlushDraw", url: "https://www.flushdraw.net/feed/", lang: "en" },
 ];
 
 const ITEMS_PER_FEED = 6;
@@ -330,6 +337,7 @@ export function NewsTips({ className }: { className?: string }) {
             source: feed.name,
             imageUrl: early,
             imageCaption: early ? "Foto da matéria" : undefined,
+            needsTranslation: feed.lang === "en",
           });
         }
         return out;
@@ -383,8 +391,25 @@ export function NewsTips({ className }: { className?: string }) {
           }),
         );
 
-        if (mounted) {
-          setNewsItems(top);
+        if (mounted) setNewsItems([...top]);
+
+        // Fontes internacionais → título + texto em português (atualiza a lista aos poucos)
+        const toTranslate = top.filter((item) => item.needsTranslation);
+        for (const item of toTranslate) {
+          if (!mounted) return;
+          try {
+            const pt = await translateNewsFields({
+              title: item.title,
+              description: item.description,
+            });
+            item.title = pt.title;
+            item.description = pt.description;
+            item.translated = true;
+            item.needsTranslation = false;
+            if (mounted) setNewsItems([...top]);
+          } catch {
+            /* mantém original se a tradução falhar */
+          }
         }
       } catch {
         if (mounted) setError("Falha ao carregar noticias. Tente novamente mais tarde.");
@@ -551,7 +576,10 @@ export function NewsTips({ className }: { className?: string }) {
 
                   <div className="p-4">
                     <div className="mb-1 flex items-center gap-2 text-xs text-felt-400">
-                      <span className="zt-chip text-[10px]">{item.source}</span>
+                      <span className="zt-chip text-[10px]">
+                        {item.source}
+                        {item.translated ? " · PT" : item.needsTranslation ? " · traduzindo…" : ""}
+                      </span>
                       {!item.isLocal && <time dateTime={item.pubDate}>{formatDate(item.pubDate)}</time>}
                     </div>
                     <button
