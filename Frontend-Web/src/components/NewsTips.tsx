@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import tipsData from "@/data/tipsContent.json";
 import { TipRichText } from "@/components/TipRichText";
 import { translateNewsFields } from "@/lib/translatePt";
+import { parseJinaMarkdown, parseRssXml } from "@/lib/parseRss";
 
 interface FeedItem {
   id: string;
@@ -16,23 +17,27 @@ interface FeedItem {
   imageCaption?: string;
   /** Fonte internacional já traduzida para PT. */
   translated?: boolean;
-  /** Precisa traduzir (fonte EN). */
+  /** Precisa traduzir (fonte EN/ES). */
   needsTranslation?: boolean;
+  fromLang?: "en" | "es" | "auto";
   street?: "preflop" | "flop" | "turn" | "river";
 }
 
 interface FeedConfig {
   name: string;
   url: string;
-  /** pt = já em português; en = traduzir para PT. */
-  lang: "pt" | "en";
+  /** pt = já em português; en/es = traduzir para PT. */
+  lang: "pt" | "en" | "es";
 }
 
-/** Fontes RSS verificadas (Brasil + internacionais). */
+/** Fontes RSS (Brasil + latam + internacionais). */
 const NEWS_FEEDS: FeedConfig[] = [
   { name: "Mundo Poker", url: "https://mundopoker.com.br/feed/", lang: "pt" },
   { name: "Poker No Brasil", url: "https://pokernobrasil.com/feed/", lang: "pt" },
   { name: "Lobbyze", url: "https://blog.lobbyze.com/feed/", lang: "pt" },
+  { name: "PokerNews Brasil", url: "https://br.pokernews.com/rss.php?subject=news", lang: "pt" },
+  { name: "Código Poker", url: "https://codigopoker.com.br/feed/", lang: "pt" },
+  { name: "Código Poker Latam", url: "https://codigopoker.com/feed/", lang: "es" },
   { name: "PokerNews", url: "https://www.pokernews.com/rss.php?subject=news", lang: "en" },
   { name: "CardPlayer", url: "https://www.cardplayer.com/rss", lang: "en" },
   { name: "CardsChat", url: "https://www.cardschat.com/feed/", lang: "en" },
@@ -40,8 +45,8 @@ const NEWS_FEEDS: FeedConfig[] = [
   { name: "FlushDraw", url: "https://www.flushdraw.net/feed/", lang: "en" },
 ];
 
-const ITEMS_PER_FEED = 6;
-const NEWS_FEED_LIMIT = 28;
+const ITEMS_PER_FEED = 5;
+const NEWS_FEED_LIMIT = 32;
 
 interface LocalNews {
   id: string;
@@ -308,39 +313,119 @@ export function NewsTips({ className }: { className?: string }) {
 
     let mounted = true;
 
+    function toFeedItems(
+      feed: FeedConfig,
+      rawItems: Array<{
+        title: string;
+        link: string;
+        pubDate: string;
+        description?: string;
+        content?: string;
+        thumbnail?: string;
+      }>,
+    ): FeedItem[] {
+      const out: FeedItem[] = [];
+      for (const item of rawItems.slice(0, ITEMS_PER_FEED)) {
+        const rawBody =
+          (typeof item.content === "string" && item.content) ||
+          (typeof item.description === "string" && item.description) ||
+          "";
+        const body = stripHtml(rawBody);
+        const fromContent = extractImagesFromHtml(typeof item.content === "string" ? item.content : "");
+        const thumb =
+          typeof item.thumbnail === "string" && item.thumbnail && !isAdBanner(item.thumbnail)
+            ? item.thumbnail
+            : undefined;
+        const early = pickSourceImage([fromContent[0], thumb]);
+        out.push({
+          id: item.link || `${feed.name}:${item.title}`,
+          title: item.title,
+          link: item.link,
+          pubDate: item.pubDate,
+          description: body.length > 0 ? body : undefined,
+          source: feed.name,
+          imageUrl: early,
+          imageCaption: early ? "Foto da matéria" : undefined,
+          needsTranslation: feed.lang !== "pt",
+          fromLang: feed.lang === "pt" ? undefined : feed.lang === "es" ? "es" : "en",
+        });
+      }
+      return out;
+    }
+
     async function fetchOneFeed(feed: FeedConfig): Promise<FeedItem[]> {
+      // 1) rss2json (caminho principal)
       try {
         const response = await fetch(`${CORS_PROXY}${encodeURIComponent(feed.url)}`);
-        if (!response.ok) return [];
-        const data = await response.json();
-        if (!data.items) return [];
-
-        const out: FeedItem[] = [];
-        for (const item of data.items.slice(0, ITEMS_PER_FEED)) {
-          const rawBody =
-            (typeof item.content === "string" && item.content) ||
-            (typeof item.description === "string" && item.description) ||
-            "";
-          const body = stripHtml(rawBody);
-          const fromContent = extractImagesFromHtml(typeof item.content === "string" ? item.content : "");
-          const thumb =
-            typeof item.thumbnail === "string" && item.thumbnail && !isAdBanner(item.thumbnail)
-              ? item.thumbnail
-              : undefined;
-          const early = pickSourceImage([fromContent[0], thumb]);
-          out.push({
-            id: item.link || `${feed.name}:${item.title}`,
-            title: item.title,
-            link: item.link,
-            pubDate: item.pubDate,
-            description: body.length > 0 ? body : undefined,
-            source: feed.name,
-            imageUrl: early,
-            imageCaption: early ? "Foto da matéria" : undefined,
-            needsTranslation: feed.lang === "en",
-          });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.items?.length) return toFeedItems(feed, data.items);
         }
-        return out;
+      } catch {
+        /* tenta fallback */
+      }
+
+      // 2) XML cru via allorigins
+      try {
+        const rawRes = await fetch(`${PAGE_PROXY}${encodeURIComponent(feed.url)}`, {
+          signal: AbortSignal.timeout(15000),
+        });
+        if (rawRes.ok) {
+          const xml = await rawRes.text();
+          const parsed = parseRssXml(xml, feed.url);
+          if (parsed.length > 0) {
+            return toFeedItems(
+              feed,
+              parsed.map((p) => ({
+                title: p.title,
+                link: p.link,
+                pubDate: p.pubDate,
+                description: p.description,
+                content: p.content,
+                thumbnail: p.thumbnail,
+              })),
+            );
+          }
+        }
+      } catch {
+        /* próximo fallback */
+      }
+
+      // 3) Jina (sites que bloqueiam RSS/CORS — ex.: Código Poker)
+      try {
+        const jinaUrl = `https://r.jina.ai/${feed.url}`;
+        const jinaRes = await fetch(jinaUrl, {
+          signal: AbortSignal.timeout(20000),
+          headers: { Accept: "text/plain" },
+        });
+        if (!jinaRes.ok) return [];
+        const body = await jinaRes.text();
+        const fromXml = parseRssXml(body, feed.url);
+        if (fromXml.length > 0) {
+          return toFeedItems(
+            feed,
+            fromXml.map((p) => ({
+              title: p.title,
+              link: p.link,
+              pubDate: p.pubDate,
+              description: p.description,
+              content: p.content,
+              thumbnail: p.thumbnail,
+            })),
+          );
+        }
+        const fromMd = parseJinaMarkdown(body);
+        return toFeedItems(
+          feed,
+          fromMd.map((p) => ({
+            title: p.title,
+            link: p.link,
+            pubDate: p.pubDate,
+            description: p.description,
+            content: p.content,
+            thumbnail: p.thumbnail,
+          })),
+        );
       } catch {
         return [];
       }
@@ -401,6 +486,7 @@ export function NewsTips({ className }: { className?: string }) {
             const pt = await translateNewsFields({
               title: item.title,
               description: item.description,
+              fromLang: item.fromLang ?? "en",
             });
             item.title = pt.title;
             item.description = pt.description;

@@ -45,11 +45,13 @@ function chunkText(text: string, size: number): string[] {
   return chunks.filter(Boolean);
 }
 
-async function translateChunk(chunk: string): Promise<string> {
+async function translateChunk(chunk: string, fromLang: "en" | "es" | "auto"): Promise<string> {
+  const pair = fromLang === "auto" ? "Autodetect|pt" : `${fromLang}|pt`;
   const url =
     "https://api.mymemory.translated.net/get?q=" +
     encodeURIComponent(chunk) +
-    "&langpair=en|pt";
+    "&langpair=" +
+    encodeURIComponent(pair);
   const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
   if (!res.ok) return chunk;
   const data = (await res.json()) as {
@@ -75,20 +77,24 @@ export function looksLikePortuguese(text: string): boolean {
 
 /**
  * Traduz para português. Em falha, devolve o original.
+ * @param fromLang idioma de origem (en/es) ou auto
  */
-export async function translateToPortuguese(text: string): Promise<string> {
+export async function translateToPortuguese(
+  text: string,
+  fromLang: "en" | "es" | "auto" = "en",
+): Promise<string> {
   const trimmed = text.trim();
   if (!trimmed) return text;
   if (looksLikePortuguese(trimmed)) return text;
 
-  const key = hashKey(trimmed);
+  const key = `${fromLang}:${hashKey(trimmed)}`;
   const cached = cacheGet(key);
   if (cached) return cached;
 
   try {
     const parts: string[] = [];
     for (const chunk of chunkText(trimmed, CHUNK)) {
-      parts.push(await translateChunk(chunk));
+      parts.push(await translateChunk(chunk, fromLang));
       // Pequena pausa para não estourar rate limit
       await new Promise((r) => setTimeout(r, 120));
     }
@@ -103,14 +109,16 @@ export async function translateToPortuguese(text: string): Promise<string> {
 export async function translateNewsFields(input: {
   title: string;
   description?: string;
+  fromLang?: "en" | "es" | "auto";
 }): Promise<{ title: string; description?: string }> {
-  const title = await translateToPortuguese(input.title);
+  const from = input.fromLang ?? "en";
+  const title = await translateToPortuguese(input.title, from);
   let description = input.description;
   if (description && description.trim()) {
     // Limita corpo traduzido para caber na UI / API
     const clipped =
       description.length > 2500 ? `${description.slice(0, 2500).trim()}…` : description;
-    description = await translateToPortuguese(clipped);
+    description = await translateToPortuguese(clipped, from);
   }
   return { title, description };
 }
