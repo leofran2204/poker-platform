@@ -21,9 +21,20 @@ interface FeedConfig {
   url: string;
 }
 
+/** Fontes RSS verificadas (Brasil + internacionais). */
 const NEWS_FEEDS: FeedConfig[] = [
   { name: "Mundo Poker", url: "https://mundopoker.com.br/feed/" },
+  { name: "Poker No Brasil", url: "https://pokernobrasil.com/feed/" },
+  { name: "Lobbyze", url: "https://blog.lobbyze.com/feed/" },
+  { name: "PokerNews", url: "https://www.pokernews.com/rss.php?subject=news" },
+  { name: "CardPlayer", url: "https://www.cardplayer.com/rss" },
+  { name: "CardsChat", url: "https://www.cardschat.com/feed/" },
+  { name: "Upswing Poker", url: "https://upswingpoker.com/feed/" },
+  { name: "FlushDraw", url: "https://www.flushdraw.net/feed/" },
 ];
+
+const ITEMS_PER_FEED = 6;
+const NEWS_FEED_LIMIT = 28;
 
 interface LocalNews {
   id: string;
@@ -290,49 +301,52 @@ export function NewsTips({ className }: { className?: string }) {
 
     let mounted = true;
 
+    async function fetchOneFeed(feed: FeedConfig): Promise<FeedItem[]> {
+      try {
+        const response = await fetch(`${CORS_PROXY}${encodeURIComponent(feed.url)}`);
+        if (!response.ok) return [];
+        const data = await response.json();
+        if (!data.items) return [];
+
+        const out: FeedItem[] = [];
+        for (const item of data.items.slice(0, ITEMS_PER_FEED)) {
+          const rawBody =
+            (typeof item.content === "string" && item.content) ||
+            (typeof item.description === "string" && item.description) ||
+            "";
+          const body = stripHtml(rawBody);
+          const fromContent = extractImagesFromHtml(typeof item.content === "string" ? item.content : "");
+          const thumb =
+            typeof item.thumbnail === "string" && item.thumbnail && !isAdBanner(item.thumbnail)
+              ? item.thumbnail
+              : undefined;
+          const early = pickSourceImage([fromContent[0], thumb]);
+          out.push({
+            id: item.link || `${feed.name}:${item.title}`,
+            title: item.title,
+            link: item.link,
+            pubDate: item.pubDate,
+            description: body.length > 0 ? body : undefined,
+            source: feed.name,
+            imageUrl: early,
+            imageCaption: early ? "Foto da matéria" : undefined,
+          });
+        }
+        return out;
+      } catch {
+        return [];
+      }
+    }
+
     async function fetchNews() {
       setLoading(true);
       setError(null);
-      const allItems: FeedItem[] = [];
 
       try {
-        for (const feed of NEWS_FEEDS) {
-          try {
-            const response = await fetch(`${CORS_PROXY}${encodeURIComponent(feed.url)}`);
-            if (!response.ok) continue;
-            const data = await response.json();
-            if (!data.items) continue;
+        const batches = await Promise.all(NEWS_FEEDS.map((feed) => fetchOneFeed(feed)));
+        const allItems: FeedItem[] = batches.flat();
 
-            for (const item of data.items.slice(0, 10)) {
-              const rawBody =
-                (typeof item.content === "string" && item.content) ||
-                (typeof item.description === "string" && item.description) ||
-                "";
-              const body = stripHtml(rawBody);
-              const fromContent = extractImagesFromHtml(typeof item.content === "string" ? item.content : "");
-              const thumb =
-                typeof item.thumbnail === "string" && item.thumbnail && !isAdBanner(item.thumbnail)
-                  ? item.thumbnail
-                  : undefined;
-
-              const early = pickSourceImage([fromContent[0], thumb]);
-              allItems.push({
-                id: item.link || item.title,
-                title: item.title,
-                link: item.link,
-                pubDate: item.pubDate,
-                description: body.length > 0 ? body : undefined,
-                source: feed.name,
-                imageUrl: early,
-                imageCaption: early ? "Foto da matéria" : undefined,
-              });
-            }
-          } catch {
-            continue;
-          }
-        }
-
-        // Inclui notícias locais — foto só da página original
+        // Notícias locais — capa só se a matéria original tiver foto
         for (const news of LOCAL_NEWS) {
           allItems.push({
             id: news.id,
@@ -345,9 +359,22 @@ export function NewsTips({ className }: { className?: string }) {
           });
         }
 
-        // og:image oficial da fonte (única origem de capa)
+        // Dedup por link (ou título normalizado)
+        const seen = new Set<string>();
+        const deduped: FeedItem[] = [];
+        for (const item of allItems) {
+          const key = (item.link || item.title).trim().toLowerCase();
+          if (!key || seen.has(key)) continue;
+          seen.add(key);
+          deduped.push(item);
+        }
+
+        deduped.sort((a, b) => parseRSSDate(b.pubDate).getTime() - parseRSSDate(a.pubDate).getTime());
+        const top = deduped.slice(0, NEWS_FEED_LIMIT);
+
+        // Preferir og:image oficial da matéria quando existir
         await Promise.all(
-          allItems.map(async (item) => {
+          top.map(async (item) => {
             if (!item.link) return;
             const og = await resolveOgImage(item.link);
             if (!og) return;
@@ -356,10 +383,8 @@ export function NewsTips({ className }: { className?: string }) {
           }),
         );
 
-        allItems.sort((a, b) => parseRSSDate(b.pubDate).getTime() - parseRSSDate(a.pubDate).getTime());
-
         if (mounted) {
-          setNewsItems(allItems.slice(0, 18));
+          setNewsItems(top);
         }
       } catch {
         if (mounted) setError("Falha ao carregar noticias. Tente novamente mais tarde.");
