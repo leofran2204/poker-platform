@@ -28,25 +28,30 @@ interface FeedConfig {
   url: string;
   /** pt = já em português; en/es = traduzir para PT. */
   lang: "pt" | "en" | "es";
+  /** news = notícias; tips = estratégia; both = os dois. */
+  kind: "news" | "tips" | "both";
 }
 
-/** Fontes RSS (Brasil + latam + internacionais). */
-const NEWS_FEEDS: FeedConfig[] = [
-  { name: "Mundo Poker", url: "https://mundopoker.com.br/feed/", lang: "pt" },
-  { name: "Poker No Brasil", url: "https://pokernobrasil.com/feed/", lang: "pt" },
-  { name: "Lobbyze", url: "https://blog.lobbyze.com/feed/", lang: "pt" },
-  { name: "PokerNews Brasil", url: "https://br.pokernews.com/rss.php?subject=news", lang: "pt" },
-  { name: "Código Poker", url: "https://codigopoker.com.br/feed/", lang: "pt" },
-  { name: "Código Poker Latam", url: "https://codigopoker.com/feed/", lang: "es" },
-  { name: "PokerNews", url: "https://www.pokernews.com/rss.php?subject=news", lang: "en" },
-  { name: "CardPlayer", url: "https://www.cardplayer.com/rss", lang: "en" },
-  { name: "CardsChat", url: "https://www.cardschat.com/feed/", lang: "en" },
-  { name: "Upswing Poker", url: "https://upswingpoker.com/feed/", lang: "en" },
-  { name: "FlushDraw", url: "https://www.flushdraw.net/feed/", lang: "en" },
+/** Fontes RSS (Brasil + latam + internacionais) — notícias e/ou dicas. */
+const CONTENT_FEEDS: FeedConfig[] = [
+  { name: "Mundo Poker", url: "https://mundopoker.com.br/feed/", lang: "pt", kind: "both" },
+  { name: "Poker No Brasil", url: "https://pokernobrasil.com/feed/", lang: "pt", kind: "both" },
+  { name: "Lobbyze", url: "https://blog.lobbyze.com/feed/", lang: "pt", kind: "both" },
+  { name: "SuperPoker", url: "https://www.superpoker.com.br/feed/", lang: "pt", kind: "news" },
+  { name: "SuperPoker Estratégia", url: "https://www.superpoker.com.br/category/estrategia/feed/", lang: "pt", kind: "tips" },
+  { name: "PokerNews Brasil", url: "https://br.pokernews.com/rss.php?subject=news", lang: "pt", kind: "both" },
+  { name: "Código Poker", url: "https://codigopoker.com.br/feed/", lang: "pt", kind: "both" },
+  { name: "Código Poker Latam", url: "https://codigopoker.com/feed/", lang: "es", kind: "both" },
+  { name: "PokerNews", url: "https://www.pokernews.com/rss.php?subject=news", lang: "en", kind: "news" },
+  { name: "CardPlayer", url: "https://www.cardplayer.com/rss", lang: "en", kind: "news" },
+  { name: "CardsChat", url: "https://www.cardschat.com/feed/", lang: "en", kind: "both" },
+  { name: "Upswing Poker", url: "https://upswingpoker.com/feed/", lang: "en", kind: "tips" },
+  { name: "FlushDraw", url: "https://www.flushdraw.net/feed/", lang: "en", kind: "both" },
 ];
 
 const ITEMS_PER_FEED = 5;
 const NEWS_FEED_LIMIT = 32;
+const TIPS_FEED_LIMIT = 40;
 
 interface LocalNews {
   id: string;
@@ -166,6 +171,55 @@ function isAdBanner(url: string): boolean {
   );
 }
 
+function normalizeText(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+/** Classifica artigo de estratégia na street da aba Jogando melhor. */
+function classifyStreet(title: string, body = ""): FeedItem["street"] | undefined {
+  const t = normalizeText(`${title} ${body}`);
+  if (
+    /pre[\s-]?flop|preflop|open[\s-]?raise|3[\s-]?bet|4[\s-]?bet|\blimp\b|blind|steal|iso[\s-]?raise|range de abertura|versus limp|vs limp/.test(
+      t,
+    )
+  ) {
+    return "preflop";
+  }
+  if (/\bflop\b|c[\s-]?bet|continuation|donk|set mining|\bfloat\b|check[\s-]?raise/.test(t)) {
+    return "flop";
+  }
+  if (/\bturn\b|double barrel|segundo barri|probe bet|scare card/.test(t)) {
+    return "turn";
+  }
+  if (/\briver\b|bluff[\s-]?catch|value bet|overbet|blocking bet|showdown|thin value/.test(t)) {
+    return "river";
+  }
+  return undefined;
+}
+
+function isStrategyContent(title: string, body: string, feedKind: FeedConfig["kind"]): boolean {
+  if (feedKind === "tips") return true;
+  if (feedKind === "news") {
+    // Notícia pura: só vira tip se o texto for claramente de estratégia
+    const t = normalizeText(`${title} ${body}`);
+    return (
+      /estrateg|strategy|dica|como jogar|hand review|gto|icm|bankroll|\brange\b|c-bet|preflop|postflop|quiz|spot de|torneio: como/.test(
+        t,
+      ) || classifyStreet(title, body) !== undefined
+    );
+  }
+  // both
+  const t = normalizeText(`${title} ${body}`);
+  return (
+    /estrateg|strategy|dica|como jogar|hand review|gto|icm|bankroll|\brange\b|c-bet|preflop|postflop|quiz|spot/.test(
+      t,
+    ) || classifyStreet(title, body) !== undefined
+  );
+}
+
 function extractImagesFromHtml(html: string): string[] {
   const found: string[] = [];
   const srcRe = /(?:src|data-src)=["'](https?:\/\/[^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/gi;
@@ -251,6 +305,7 @@ export function NewsTips({ className }: { className?: string }) {
   const [activeTab, setActiveTab] = useState<"news" | "tips">("news");
   const [activeStreet, setActiveStreet] = useState<"preflop" | "flop" | "turn" | "river">("preflop");
   const [newsItems, setNewsItems] = useState<FeedItem[]>([]);
+  const [remoteTips, setRemoteTips] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
@@ -309,8 +364,6 @@ export function NewsTips({ className }: { className?: string }) {
   }
 
   useEffect(() => {
-    if (activeTab !== "news") return;
-
     let mounted = true;
 
     function toFeedItems(
@@ -337,6 +390,7 @@ export function NewsTips({ className }: { className?: string }) {
             ? item.thumbnail
             : undefined;
         const early = pickSourceImage([fromContent[0], thumb]);
+        const street = classifyStreet(item.title, body);
         out.push({
           id: item.link || `${feed.name}:${item.title}`,
           title: item.title,
@@ -348,6 +402,7 @@ export function NewsTips({ className }: { className?: string }) {
           imageCaption: early ? "Foto da matéria" : undefined,
           needsTranslation: feed.lang !== "pt",
           fromLang: feed.lang === "pt" ? undefined : feed.lang === "es" ? "es" : "en",
+          street,
         });
       }
       return out;
@@ -431,17 +486,41 @@ export function NewsTips({ className }: { className?: string }) {
       }
     }
 
-    async function fetchNews() {
+    async function fetchAllContent() {
       setLoading(true);
       setError(null);
 
       try {
-        const batches = await Promise.all(NEWS_FEEDS.map((feed) => fetchOneFeed(feed)));
-        const allItems: FeedItem[] = batches.flat();
+        const batches = await Promise.all(
+          CONTENT_FEEDS.map(async (feed) => ({ feed, items: await fetchOneFeed(feed) })),
+        );
+
+        const newsPool: FeedItem[] = [];
+        const tipsPool: FeedItem[] = [];
+
+        for (const { feed, items: feedItems } of batches) {
+          for (const item of feedItems) {
+            const strategy = isStrategyContent(item.title, item.description ?? "", feed.kind);
+            const asTip =
+              feed.kind === "tips" ||
+              ((feed.kind === "both" || feed.kind === "news") && strategy);
+            if (asTip) {
+              tipsPool.push({
+                ...item,
+                street: item.street ?? classifyStreet(item.title, item.description ?? "") ?? "preflop",
+                id: `tip:${item.id}`,
+              });
+            }
+            // Feed exclusivo de tips não entra na aba Notícias
+            if (feed.kind !== "tips") {
+              newsPool.push(item);
+            }
+          }
+        }
 
         // Notícias locais — capa só se a matéria original tiver foto
         for (const news of LOCAL_NEWS) {
-          allItems.push({
+          newsPool.push({
             id: news.id,
             title: news.title,
             link: news.link || "",
@@ -452,67 +531,84 @@ export function NewsTips({ className }: { className?: string }) {
           });
         }
 
-        // Dedup por link (ou título normalizado)
-        const seen = new Set<string>();
-        const deduped: FeedItem[] = [];
-        for (const item of allItems) {
-          const key = (item.link || item.title).trim().toLowerCase();
-          if (!key || seen.has(key)) continue;
-          seen.add(key);
-          deduped.push(item);
-        }
-
-        deduped.sort((a, b) => parseRSSDate(b.pubDate).getTime() - parseRSSDate(a.pubDate).getTime());
-        const top = deduped.slice(0, NEWS_FEED_LIMIT);
-
-        // Preferir og:image oficial da matéria quando existir
-        await Promise.all(
-          top.map(async (item) => {
-            if (!item.link) return;
-            const og = await resolveOgImage(item.link);
-            if (!og) return;
-            item.imageUrl = og;
-            item.imageCaption = "Foto da matéria";
-          }),
-        );
-
-        if (mounted) setNewsItems([...top]);
-
-        // Fontes internacionais → título + texto em português (atualiza a lista aos poucos)
-        const toTranslate = top.filter((item) => item.needsTranslation);
-        for (const item of toTranslate) {
-          if (!mounted) return;
-          try {
-            const pt = await translateNewsFields({
-              title: item.title,
-              description: item.description,
-              fromLang: item.fromLang ?? "en",
-            });
-            item.title = pt.title;
-            item.description = pt.description;
-            item.translated = true;
-            item.needsTranslation = false;
-            if (mounted) setNewsItems([...top]);
-          } catch {
-            /* mantém original se a tradução falhar */
+        const dedupe = (list: FeedItem[]) => {
+          const seen = new Set<string>();
+          const out: FeedItem[] = [];
+          for (const item of list) {
+            const key = (item.link || item.title).trim().toLowerCase();
+            if (!key || seen.has(key)) continue;
+            seen.add(key);
+            out.push(item);
           }
+          out.sort((a, b) => parseRSSDate(b.pubDate).getTime() - parseRSSDate(a.pubDate).getTime());
+          return out;
+        };
+
+        const topNews = dedupe(newsPool).slice(0, NEWS_FEED_LIMIT);
+        const topTips = dedupe(tipsPool).slice(0, TIPS_FEED_LIMIT);
+
+        const enrichOg = async (list: FeedItem[]) => {
+          await Promise.all(
+            list.map(async (item) => {
+              if (!item.link || item.imageUrl) return;
+              const og = await resolveOgImage(item.link);
+              if (!og) return;
+              item.imageUrl = og;
+              item.imageCaption = "Foto da matéria";
+            }),
+          );
+        };
+
+        await Promise.all([enrichOg(topNews), enrichOg(topTips)]);
+
+        if (mounted) {
+          setNewsItems([...topNews]);
+          setRemoteTips([...topTips]);
         }
+
+        const translateList = async (list: FeedItem[], onUpdate: () => void) => {
+          for (const item of list.filter((i) => i.needsTranslation)) {
+            if (!mounted) return;
+            try {
+              const pt = await translateNewsFields({
+                title: item.title,
+                description: item.description,
+                fromLang: item.fromLang ?? "en",
+              });
+              item.title = pt.title;
+              item.description = pt.description;
+              item.translated = true;
+              item.needsTranslation = false;
+              // Reclassifica street após tradução (melhor match em PT)
+              item.street =
+                classifyStreet(item.title, item.description ?? "") ?? item.street ?? "preflop";
+              onUpdate();
+            } catch {
+              /* mantém original */
+            }
+          }
+        };
+
+        await Promise.all([
+          translateList(topNews, () => mounted && setNewsItems([...topNews])),
+          translateList(topTips, () => mounted && setRemoteTips([...topTips])),
+        ]);
       } catch {
-        if (mounted) setError("Falha ao carregar noticias. Tente novamente mais tarde.");
+        if (mounted) setError("Falha ao carregar conteudo. Tente novamente mais tarde.");
       } finally {
         if (mounted) setLoading(false);
       }
     }
 
-    void fetchNews();
-    const interval = setInterval(() => void fetchNews(), 10 * 60 * 1000);
+    void fetchAllContent();
+    const interval = setInterval(() => void fetchAllContent(), 10 * 60 * 1000);
     return () => {
       mounted = false;
       clearInterval(interval);
     };
-  }, [activeTab]);
+  }, []);
 
-  const allTips = LOCAL_TIPS.map((tip, idx) => ({
+  const localTips: FeedItem[] = LOCAL_TIPS.map((tip, idx) => ({
     id: tip.id,
     title: tip.title,
     link: tip.link || "",
@@ -521,10 +617,10 @@ export function NewsTips({ className }: { className?: string }) {
     source: tip.category,
     street: tip.street,
     isLocal: true as const,
-    // Tips sem foto de fonte jornalística — sem capa inventada
     imageUrl: tip.imageUrl && !isAdBanner(tip.imageUrl) ? tip.imageUrl : undefined,
   }));
 
+  const allTips = [...localTips, ...remoteTips];
   const tipsByStreet = allTips.filter((tip) => tip.street === activeStreet);
 
   const items: FeedItem[] =
@@ -611,14 +707,16 @@ export function NewsTips({ className }: { className?: string }) {
       )}
 
       <div className="p-4">
-        {activeTab === "news" && loading && (
+        {loading && (
           <div className="flex items-center justify-center py-8">
             <div className="zt-spinner" />
-            <span className="ml-3 text-felt-300">Carregando noticias e fotos...</span>
+            <span className="ml-3 text-felt-300">
+              {activeTab === "news" ? "Carregando noticias..." : "Carregando dicas e estrategia..."}
+            </span>
           </div>
         )}
 
-        {activeTab === "news" && error && (
+        {error && (
           <div className="py-8 text-center text-felt-300">
             <p className="mb-2 text-red-400">{error}</p>
             <button type="button" onClick={() => window.location.reload()} className="zt-btn-ghost text-sm">
@@ -627,7 +725,7 @@ export function NewsTips({ className }: { className?: string }) {
           </div>
         )}
 
-        {!(activeTab === "news" && loading) && items.length === 0 && (
+        {!loading && items.length === 0 && (
           <p className="py-8 text-center text-felt-400">Nenhum item encontrado.</p>
         )}
 
@@ -636,7 +734,7 @@ export function NewsTips({ className }: { className?: string }) {
           role="feed"
           aria-label={`${activeTab === "news" ? "Noticias" : "Jogando melhor"} de poker`}
         >
-          {!(activeTab === "news" && loading) &&
+          {!loading &&
             items.map((item) => {
               const itemKey = String(item.id);
               const isExpanded = expandedItems.has(itemKey);
