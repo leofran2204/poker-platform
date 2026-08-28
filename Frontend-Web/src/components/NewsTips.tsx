@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import tipsData from "@/data/tipsContent.json";
-import newsMedia from "@/data/newsMedia.json";
 import { TipRichText } from "@/components/TipRichText";
-import { buildPhotoCaption, lookupStoryPhoto } from "@/lib/newsPhotoLookup";
 
 interface FeedItem {
   id: string;
@@ -12,9 +10,8 @@ interface FeedItem {
   description?: string;
   source: string;
   isLocal?: boolean;
-  /** Uma foto do evento ou da pessoa da matéria. */
+  /** Somente foto oficial da fonte (og/corpo). Sem fallback. */
   imageUrl?: string;
-  /** Legenda: o que a foto mostra (pessoa, evento, arquivo…). */
   imageCaption?: string;
   street?: "preflop" | "flop" | "turn" | "river";
 }
@@ -37,7 +34,7 @@ interface LocalNews {
   pubDate: string;
 }
 
-/** Notícias locais — cada uma com 1 foto do jogador ou do evento. */
+/** Notícias locais — foto só se a matéria original tiver (resolvida no fetch). */
 const LOCAL_NEWS: LocalNews[] = [
   {
     id: "n0",
@@ -110,23 +107,12 @@ const LOCAL_TIPS: LocalTip[] = tipsData.tips as LocalTip[];
 const CORS_PROXY = "https://api.rss2json.com/v1/api.json?rss_url=";
 const PAGE_PROXY = "https://api.allorigins.win/raw?url=";
 
-const LOCAL_NEWS_IMAGES = newsMedia.localNews as Record<string, string>;
-const TIP_IMAGES = (newsMedia.tipImages ?? {}) as Record<string, string>;
-
-/** Primeira URL válida (foto do artigo / pessoa / evento). Nunca inventa mesa genérica. */
-function pickStoryImage(candidates: Array<string | undefined | null>): string | undefined {
+/** Só foto da fonte; rejeita só banner de anúncio óbvio. */
+function pickSourceImage(candidates: Array<string | undefined | null>): string | undefined {
   for (const url of candidates) {
-    if (url && !isAdOrUselessImage(url)) return url;
+    if (url && !isAdBanner(url)) return url;
   }
   return undefined;
-}
-
-/** Descarta só banners/ads; permite a mesma foto se duas matérias forem da mesma pessoa. */
-function sanitizeStoryImages<T extends { imageUrl?: string }>(items: T[]): T[] {
-  return items.map((item) => {
-    const current = item.imageUrl && !isAdOrUselessImage(item.imageUrl) ? item.imageUrl : undefined;
-    return { ...item, imageUrl: current };
-  });
 }
 
 function parseRSSDate(dateStr: string): Date {
@@ -145,26 +131,15 @@ function stripHtml(html: string): string {
     .trim();
 }
 
-function isAdOrUselessImage(url: string): boolean {
+function isAdBanner(url: string): boolean {
   const u = url.toLowerCase();
   return (
     u.includes("820x100") ||
-    u.includes("banner") ||
     u.includes("/ads/") ||
-    u.includes("emoji") ||
     u.includes("favicon") ||
-    u.includes("cropped-512") ||
+    u.includes("emoji") ||
     u.includes("wp-content/uploads/2026/05/820x100") ||
-    u.endsWith(".svg") ||
-    // Logos / branding do evento (não são foto do jogador/mesa)
-    u.includes("logo") ||
-    u.includes("wordmark") ||
-    u.includes("branding") ||
-    u.includes("logotipo") ||
-    u.includes("garantido-do-mega") ||
-    u.includes("bsop-1") ||
-    u.includes("wsop-branding") ||
-    (u.includes("thumb") && u.includes("bsop") && !u.includes("final"))
+    u.endsWith(".svg")
   );
 }
 
@@ -182,7 +157,7 @@ function extractImagesFromHtml(html: string): string[] {
   }
   const unique: string[] = [];
   for (const url of found) {
-    if (isAdOrUselessImage(url)) continue;
+    if (isAdBanner(url)) continue;
     if (!unique.includes(url)) unique.push(url);
   }
   return unique;
@@ -202,7 +177,7 @@ async function resolveOgImage(articleUrl: string): Promise<string | undefined> {
       html.match(/content=["']([^"']+)["'][^>]*name=["']twitter:image["']/i)?.[1],
     ];
     for (const og of metaCandidates) {
-      if (og && !isAdOrUselessImage(og)) return og;
+      if (og && !isAdBanner(og)) return og;
     }
     // Primeira foto do corpo da matéria (pessoa/evento), não banner.
     return extractImagesFromHtml(html)[0];
@@ -336,11 +311,11 @@ export function NewsTips({ className }: { className?: string }) {
               const body = stripHtml(rawBody);
               const fromContent = extractImagesFromHtml(typeof item.content === "string" ? item.content : "");
               const thumb =
-                typeof item.thumbnail === "string" && item.thumbnail && !isAdOrUselessImage(item.thumbnail)
+                typeof item.thumbnail === "string" && item.thumbnail && !isAdBanner(item.thumbnail)
                   ? item.thumbnail
                   : undefined;
 
-              const early = pickStoryImage([fromContent[0], thumb]);
+              const early = pickSourceImage([fromContent[0], thumb]);
               allItems.push({
                 id: item.link || item.title,
                 title: item.title,
@@ -348,11 +323,8 @@ export function NewsTips({ className }: { className?: string }) {
                 pubDate: item.pubDate,
                 description: body.length > 0 ? body : undefined,
                 source: feed.name,
-                // Prefer content photo (pessoa/evento); og:image sobrescreve abaixo.
                 imageUrl: early,
-                imageCaption: early
-                  ? buildPhotoCaption(item.title, "article", body || undefined)
-                  : undefined,
+                imageCaption: early ? "Foto da matéria" : undefined,
               });
             }
           } catch {
@@ -360,32 +332,34 @@ export function NewsTips({ className }: { className?: string }) {
           }
         }
 
-        // 1) og/twitter/corpo da matéria (já filtra logo)
+        // Inclui notícias locais — foto só da página original
+        for (const news of LOCAL_NEWS) {
+          allItems.push({
+            id: news.id,
+            title: news.title,
+            link: news.link || "",
+            pubDate: news.pubDate,
+            description: news.description,
+            source: news.category,
+            isLocal: true,
+          });
+        }
+
+        // og:image oficial da fonte (única origem de capa)
         await Promise.all(
           allItems.map(async (item) => {
             if (!item.link) return;
             const og = await resolveOgImage(item.link);
             if (!og) return;
             item.imageUrl = og;
-            item.imageCaption = buildPhotoCaption(item.title, "article", item.description);
-          }),
-        );
-
-        // 2) Sem foto útil da fonte → 1º jogador, 2º torneio do evento
-        await Promise.all(
-          allItems.map(async (item) => {
-            if (item.imageUrl) return;
-            const found = await lookupStoryPhoto(item.title, item.description);
-            if (!found) return;
-            item.imageUrl = found.url;
-            item.imageCaption = found.caption;
+            item.imageCaption = "Foto da matéria";
           }),
         );
 
         allItems.sort((a, b) => parseRSSDate(b.pubDate).getTime() - parseRSSDate(a.pubDate).getTime());
 
         if (mounted) {
-          setNewsItems(sanitizeStoryImages(allItems.slice(0, 15)));
+          setNewsItems(allItems.slice(0, 18));
         }
       } catch {
         if (mounted) setError("Falha ao carregar noticias. Tente novamente mais tarde.");
@@ -402,52 +376,23 @@ export function NewsTips({ className }: { className?: string }) {
     };
   }, [activeTab]);
 
-  const allTips = LOCAL_TIPS.map((tip, idx) => {
-    const imageUrl = pickStoryImage([tip.imageUrl, TIP_IMAGES[tip.id]]);
-    return {
-      id: tip.id,
-      title: tip.title,
-      link: tip.link || "",
-      pubDate: new Date(Date.now() - idx * 86400000).toISOString(),
-      description: tip.description,
-      source: tip.category,
-      street: tip.street,
-      isLocal: true as const,
-      imageUrl,
-      imageCaption: imageUrl
-        ? buildPhotoCaption(tip.title, tip.id === "1" ? "curated" : "tip", tip.description)
-        : undefined,
-    };
-  });
+  const allTips = LOCAL_TIPS.map((tip, idx) => ({
+    id: tip.id,
+    title: tip.title,
+    link: tip.link || "",
+    pubDate: new Date(Date.now() - idx * 86400000).toISOString(),
+    description: tip.description,
+    source: tip.category,
+    street: tip.street,
+    isLocal: true as const,
+    // Tips sem foto de fonte jornalística — sem capa inventada
+    imageUrl: tip.imageUrl && !isAdBanner(tip.imageUrl) ? tip.imageUrl : undefined,
+  }));
 
   const tipsByStreet = allTips.filter((tip) => tip.street === activeStreet);
 
   const items: FeedItem[] =
-    activeTab === "news"
-      ? sanitizeStoryImages(
-          [
-            ...newsItems,
-            ...LOCAL_NEWS.map((news) => {
-              const imageUrl = LOCAL_NEWS_IMAGES[news.id];
-              return {
-                id: news.id,
-                title: news.title,
-                link: news.link || "",
-                pubDate: news.pubDate,
-                description: news.description,
-                source: news.category,
-                isLocal: true as const,
-                imageUrl,
-                imageCaption: imageUrl
-                  ? buildPhotoCaption(news.title, "curated", news.description)
-                  : undefined,
-              };
-            }),
-          ]
-            .sort((a, b) => parseRSSDate(b.pubDate).getTime() - parseRSSDate(a.pubDate).getTime())
-            .slice(0, 18),
-        )
-      : tipsByStreet.map((tip) => ({ ...tip, id: tip.id }));
+    activeTab === "news" ? newsItems : tipsByStreet.map((tip) => ({ ...tip, id: tip.id }));
 
   function formatDate(dateStr: string): string {
     const date = parseRSSDate(dateStr);
@@ -562,9 +507,7 @@ export function NewsTips({ className }: { className?: string }) {
               const body = (item.description ?? "").trim();
               const canExpand = body.length > 0;
               const photo = item.imageUrl;
-              const caption =
-                item.imageCaption ||
-                (photo ? buildPhotoCaption(item.title, "article", item.description) : undefined);
+              const caption = item.imageCaption || (photo ? "Foto da matéria" : undefined);
 
               return (
                 <article
