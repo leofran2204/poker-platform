@@ -17,7 +17,7 @@
 | **Comunicação**   | **JSON**                                       | Formato universal entre módulos                   |
 
 > 📐 Detalhes completos em `Arquitetura-Motor/ARQUITETURA_MOTOR.md` (v4.0).
-> ✅ **Motor e API em Rust.** Frontend canônico em TypeScript desde 2026-08-04. `Frontend-Dioxus/` é legado.
+> ✅ **Motor e API em Rust.** Frontend canônico em TypeScript desde 2026-08-04 (`Frontend-Web/`). O antigo `Frontend-Dioxus/` foi removido do monorepo (histórico git).
 > 📌 Estado operacional (PIX, ownership, ciclo **S13**): ver `STATUS_OPERACIONAL.json` — **sem** certificação de produção.
 > ⚖️ **Regulação / compliance de jogo e dinheiro real:** planejada para **janeiro de 2027**.
 > ✉️ **Registro:** senha + confirmação; com `REQUIRE_EMAIL_VERIFICATION=true`, conta fica `pending_email_verification` até código de 6 dígitos no e-mail. Deploy demo: **`EMAIL_PROVIDER=resend`** (domínio verified); lab/testes: **log**.

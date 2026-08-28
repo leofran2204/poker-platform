@@ -144,14 +144,8 @@ function Invoke-ApiValidation {
 }
 
 function Invoke-FrontendValidation {
-    Push-Location (Join-Path $ProjectRoot "Frontend-Dioxus")
-    try {
-        Write-Host "==> Frontend: rotina, 10 fuzzes visuais e stress de estado" -ForegroundColor Cyan
-        Invoke-Cargo test --lib --features full-validation -- --nocapture
-    }
-    finally {
-        Pop-Location
-    }
+    Write-Host "==> Frontend Dioxus removido do monorepo (legado no histórico git)." -ForegroundColor Yellow
+    Write-Host "    UI canônica: Frontend-Web/ — npm run lint/build ou job frontend-web do rust-ci.yml." -ForegroundColor DarkGray
 }
 
 function Invoke-GatewayValidation {

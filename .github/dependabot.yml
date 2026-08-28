@@ -24,12 +24,6 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
 
-  - package-ecosystem: cargo
-    directory: /Frontend-Dioxus
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
-
   - package-ecosystem: npm
     directory: /Frontend-Web
     schedule:
@@ -44,12 +38,6 @@ updates:
 
   - package-ecosystem: docker
     directory: /Frontend-Web
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
-
-  - package-ecosystem: docker
-    directory: /Frontend-Dioxus
     schedule:
       interval: weekly
     open-pull-requests-limit: 5

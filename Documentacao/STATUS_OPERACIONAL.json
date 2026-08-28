@@ -5,7 +5,7 @@
   "stack": {
     "motor_api": "Rust (Motor-Rust + API-Axum)",
     "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",
-    "frontend_legacy": "Frontend-Dioxus (WASM) — legado; CI opcional de check; NÃO é deploy canônico",
+    "frontend_legacy": "Frontend-Dioxus removido do monorepo (histórico git apenas)",
     "edge": "Caddy HTTPS same-origin /api /ws (Let's Encrypt em VPS)"
   },
   "production": "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.",

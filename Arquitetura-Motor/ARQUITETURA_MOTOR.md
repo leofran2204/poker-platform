@@ -27,7 +27,7 @@
 > - **Backend crítico (motor, API, antifraude, pagamentos, ledger):** **Rust**  
 > - **Frontend (UI jogador + admin B2B):** **TypeScript + React + Vite + Tailwind CSS** em `Frontend-Web/`  
 > - **Direção visual:** moderno, denso, inspirado no **Full Tilt** clássico (felt, rail dourado, lobby tabular) — sem estética genérica de “site feito por IA”  
-> - `Frontend-Dioxus/` permanece como **legado** (não é o deploy canônico)
+> - O antigo `Frontend-Dioxus/` (WASM) foi **removido** do monorepo; recuperável só pelo histórico git
 
 | Camada | Linguagem | Responsabilidade |
 |--------|-----------|------------------|
@@ -199,7 +199,6 @@ Jogador                    Front-end (TypeScript/React)    Backend (Rust)       
 | `Arquitetura-Motor/` | Este documento | ✅ Ativo |
 | `Motor-Rust/` | Motor de jogo Rust (11 módulos + 4 antifraude, 1816 testes) | ✅ Ativo |
 | `Frontend-Web/` | Front-end TypeScript + React + Vite + Tailwind (Full Tilt skin) | ✅ Ativo (deploy canônico) |
-| `Frontend-Dioxus/` | Legado WASM/Dioxus 0.6 | 📦 Legado (não canônico) |
 | `API-Axum/` | API HTTPS/WSS (Axum + Tokio) | ✅ Ativo |
 
 ---

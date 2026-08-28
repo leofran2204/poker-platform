@@ -69,11 +69,10 @@ O segundo comando é obrigatório na CI. Se ele falhar, a mudança deve atualiza
 | `Motor-Rust/` | Motor de poker em Rust, regras financeiras em inteiros | ✅ Ativo — CI usa testes determinísticos |
 | `API-Axum/` | API REST / WebSocket (Axum + Tokio + PostgreSQL/Redis) | ✅ Ativo — contratos PostgreSQL no CI |
 | `Frontend-Web/` | SPA TypeScript/React (deploy canônico) + contador online | ✅ Ativo |
-| `Frontend-Dioxus/` | WASM legado — **não** deploy | 📦 Legado |
 | `Infraestrutura-Docker/` | Docker, Caddy, deploy (casa/VPS), CI/CD | ✅ Ativo |
 | `Documentacao/` | Regras de negócio, cronograma, dashboard, logs | ✅ Ativo |
 | `Arquitetura-Motor/` | Arquitetura do motor e stack | ✅ Ativo |
-| `scripts/` | Deploy, full-validation, live e2e, coverage; utilitários WASM legados | ✅ Ativo |
+| `scripts/` | Deploy, full-validation, live e2e, coverage | ✅ Ativo |
 | `src/` + `tests/` | Pacote raiz `poker_engine` (`documentation-sync`) e testes massivos | ✅ Tooling |
 
 ### Deploy e domínio

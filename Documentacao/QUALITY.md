@@ -1,7 +1,7 @@
 # 🃏 QUALITY.md — Documento Mestre do Poker Project
 
 **Atualizado:** 2026-08-07 | **Versão:** 5.4 (baseline de qualidade, segurança e operação)
-**Stack Definitiva (v4.0):** Rust no backend/motor/API/antifraude; TypeScript + React + Vite + Tailwind no frontend (`Frontend-Web`). `Frontend-Dioxus/` legado. Regulação planejada jan/2027.
+**Stack Definitiva (v4.0):** Rust no backend/motor/API/antifraude; TypeScript + React + Vite + Tailwind no frontend (`Frontend-Web`). O antigo `Frontend-Dioxus/` foi removido do monorepo. Regulação planejada jan/2027.
 **Decisão de Stack:** Motor/API 100% Rust; UI canônica TypeScript desde 2026-08-04.
 
 > **Estado atual verificável:** este documento contém metas e registros históricos; não deve ser lido como certificado de produção ou como contagem fixa de testes. O gate atual executa lint estrito, testes determinísticos e contratos PostgreSQL. PIX está fora do escopo desta entrega; operação multi-réplica aguarda ownership distribuído de mesas. Fonte canônica de ciclo: `STATUS_OPERACIONAL.json` (**S13** — presença online + demo).
@@ -285,24 +285,18 @@ Na próxima aula, revisão rápida dos conceitos do tópico anterior antes de av
 | **Container**     | Docker (docker-compose)           | Orquestração local                                |
 | **Deploy**        | render.yaml (legado — atualizar)  | Deploy cloud (precisa revisão)                    |
 
-## ⚙️ 2.5.1 REGRA DO TOOLCHAIN — Como Rodar Cargo no Frontend-Dioxus
+## ⚙️ 2.5.1 REGRA DO TOOLCHAIN — Frontend-Dioxus (REMOVIDO)
 
-> **⚠️ REGRA OBRIGATÓRIA — LEIA ANTES DE RODAR CARGO NO FRONTEND**
+> **🗑️ Removido do monorepo (2026-08-28).** O frontend canônico é `Frontend-Web/` (`npm run lint` / `npm run build`).
+> Histórico WASM/Dioxus e o antigo `scripts/cargo-dioxus.ps1` ficam só no git.
 >
-> O toolchain `stable-x86_64-pc-windows-gnu` precisa das bibliotecas GCC do
-> **WinLibs** (instalado via `winget`) para compilar proc-macro crates do Dioxus.
-> Sem configurar as variáveis de ambiente, o linker falha com:
-> `lld: error: unable to find library -lgcc_eh`
+> Conteúdo abaixo é **arquivo histórico** (não executar).
 
-### Script Wrapper (recomendado)
-
-Use o script `scripts/cargo-dioxus.ps1` que configura tudo automaticamente:
+### Script Wrapper (legado — arquivo removido)
 
 ```powershell
+# REMOVIDO — não use
 .\scripts\cargo-dioxus.ps1 check
-.\scripts\cargo-dioxus.ps1 clippy -- -D warnings
-.\scripts\cargo-dioxus.ps1 test
-.\scripts\cargo-dioxus.ps1 build --release
 ```
 
 ### Comando Manual (se o script não estiver disponível)
@@ -4433,12 +4427,12 @@ let players = sqlx::query_as::<_, Player>(
 | Pasta                          | Propósito                          | Conteúdo Principal                                      |
 |--------------------------------|------------------------------------|---------------------------------------------------------|
 | `Motor-Rust/`                  | Motor de poker em Rust             | `src/` (10 módulos + 4 antifraude), `tests/`            |
-| `Frontend-Dioxus/`             | Frontend WebAssembly               | `src/main.rs`, `Dioxus.toml`                            |
+| `Frontend-Web/`                | Frontend canônico (React/Vite)     | `src/`, `Dockerfile`, Tailwind                          |
 | `API-Axum/`                    | API HTTPS/WSS                      | `src/` (handlers, middleware, state), `migrations/`     |
-| `Infraestrutura-Docker/`       | Infraestrutura como código         | `docker-compose.yml`, `render.yaml`, `Caddyfile`        |
+| `Infraestrutura-Docker/`       | Infraestrutura como código         | `docker-compose.yml`, `Caddyfile`                       |
 | `Documentacao/`                | Documentação do projeto            | Todos os `.md` de documentação                          |
 | `Arquitetura-Motor/`           | Arquitetura do motor               | `ARQUITETURA_MOTOR.md`                                  |
-| `scripts/`                     | Scripts de automação               | `cargo-dioxus.ps1`, `coverage.ps1`, `coverage.sh`        |
+| `scripts/`                     | Scripts de automação               | `deploy.*`, `full-validation.*`, `coverage.*`, live e2e |
 
 ## 📖 18.4 COMO USAR ESTE DOCUMENTO — Guia do Poker Project
 

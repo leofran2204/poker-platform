@@ -48,4 +48,4 @@ O serviço `poker_frontend` no compose usa este Dockerfile: build Node → Caddy
 
 ## Legado
 
-`Frontend-Dioxus/` permanece no repositório como **legado** (WASM). O deploy canônico é **Frontend-Web**.
+O antigo `Frontend-Dioxus/` (WASM) foi **removido** do monorepo. O deploy canônico é **Frontend-Web**.

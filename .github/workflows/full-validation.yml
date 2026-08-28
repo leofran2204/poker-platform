@@ -93,31 +93,7 @@ jobs:
           path: artifacts/full-validation
           if-no-files-found: warn
 
-  frontend:
-    name: Frontend — fuzz and state stress
-    if: inputs.approved == 'yes'
-    runs-on: ubuntu-latest
-    timeout-minutes: 180
-    defaults:
-      run:
-        working-directory: ./Frontend-Dioxus
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
-      - name: Run routine and full validation scenarios
-        env:
-          FULL_VALIDATION_APPROVED: "1"
-          FULL_VALIDATION_REPORT_DIR: ${{ github.workspace }}/artifacts/full-validation
-        run: bash ../scripts/full-validation.sh frontend
-      - name: Upload workload metrics
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: full-validation-metrics-frontend
-          path: artifacts/full-validation
-          if-no-files-found: warn
+  # Frontend Dioxus (WASM) removido do monorepo — validação de UI canônica: Frontend-Web via rust-ci.yml
 
   public_gateway:
     name: Gateway público HTTPS/WSS — Caddy E2E

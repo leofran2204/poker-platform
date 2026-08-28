@@ -105,11 +105,9 @@ run_api() {
 }
 
 run_frontend() {
-  echo "==> Frontend: rotina, 10 fuzzes visuais e stress de estado"
-  # O projeto fixa a toolchain GNU do Windows para desenvolvimento local.
-  # No Linux/WSL, selecionamos explicitamente a toolchain nativa e o target
-  # Linux para executar os testes host.
-  (cd "$project_root/Frontend-Dioxus" && cargo +stable test --lib --target x86_64-unknown-linux-gnu --features full-validation -- --nocapture) || return 1
+  echo "==> Frontend Dioxus removido do monorepo (legado arquivado no histórico git)."
+  echo "    UI canônica: Frontend-Web/ — use npm test/lint/build ou o job frontend-web do rust-ci.yml."
+  return 0
 }
 
 run_gateway() {

@@ -22,14 +22,13 @@ Plataforma de poker online **Texas Hold'em**: **motor e API em Rust**, **fronten
 | `Motor-Rust/` | Regras de jogo, rake, loss deflator, antifraude, auth helpers | ✅ Ativo (dependência da API) |
 | `API-Axum/` | REST + WebSocket, PostgreSQL, Redis, presence, payments, admin B2B | ✅ Ativo |
 | `Frontend-Web/` | **UI canônica** — React/Vite/Tailwind (lobby, mesa, auth, admin) | ✅ Ativo (deploy) |
-| `Frontend-Dioxus/` | UI WASM legada | 📦 Legado — **não** deploy |
 | `Infraestrutura-Docker/` | Compose, Caddy HTTPS, deploys casa/VPS | ✅ Ativo |
 | `Documentacao/` | Regras, dashboard, status operacional, demo amigos | ✅ Ativo |
 | `Arquitetura-Motor/` | Spec de arquitetura do motor/stack | ✅ Ativo |
 | `scripts/` | Deploy, full-validation, live e2e, coverage | ✅ Ativo |
 | `src/` + `tests/` + `benches/` | Pacote raiz `poker_engine` (incl. `documentation-sync`) e testes massivos | ✅ Ativo (tooling/CI histórico) |
 
-> **Não usar** `Frontend-Dioxus` em deploy. Scripts `*wasm*` / `cargo-dioxus*` servem só ao legado.
+> O antigo `Frontend-Dioxus/` (WASM) e scripts `*wasm*` / `cargo-dioxus*` foram **removidos** do monorepo (histórico git).
 
 ## Stack (v4.0)
 

@@ -5,7 +5,7 @@
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📌 **Fonte canônica de estado:** [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json) — prevalece sobre qualquer texto datado abaixo.
 > 📅 O cronograma completo está em `Documentacao/CRONOGRAMA.md` — veja prazos, fases e % de conclusão.
-> 🏗️ **Stack v4.0:** Rust no motor/API; TypeScript + React + Vite + Tailwind no frontend (`Frontend-Web/`). `Frontend-Dioxus/` legado (não deploy).
+> 🏗️ **Stack v4.0:** Rust no motor/API; TypeScript + React + Vite + Tailwind no frontend (`Frontend-Web/`). `Frontend-Dioxus/` removido do monorepo.
 > **Domínio do produto:** [`zerotiltpoker.net`](https://zerotiltpoker.net) (demo/staging — VPS Hostinger).
 > **Transporte público:** **HTTPS** (Caddy + **Let's Encrypt**); SPA same-origin.
 > **E-mail:** Resend domínio **verified**; `EMAIL_PROVIDER=resend` na API (ver `EMAIL_RESEND.md`).
