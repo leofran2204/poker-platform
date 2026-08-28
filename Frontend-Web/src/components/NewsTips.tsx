@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import tipsData from "@/data/tipsContent.json";
 import newsMedia from "@/data/newsMedia.json";
 import { TipRichText } from "@/components/TipRichText";
-import { lookupStoryPhoto } from "@/lib/newsPhotoLookup";
+import { buildPhotoCaption, lookupStoryPhoto } from "@/lib/newsPhotoLookup";
 
 interface FeedItem {
   id: string;
@@ -14,6 +14,8 @@ interface FeedItem {
   isLocal?: boolean;
   /** Uma foto do evento ou da pessoa da matéria. */
   imageUrl?: string;
+  /** Legenda: o que a foto mostra (pessoa, evento, arquivo…). */
+  imageCaption?: string;
   street?: "preflop" | "flop" | "turn" | "river";
 }
 
@@ -203,11 +205,13 @@ async function resolveOgImage(articleUrl: string): Promise<string | undefined> {
 function NewsImage({
   url,
   alt,
+  caption,
   large,
   onClick,
 }: {
   url: string;
   alt: string;
+  caption?: string;
   large?: boolean;
   onClick?: () => void;
 }) {
@@ -215,12 +219,17 @@ function NewsImage({
     <div className={large ? "zt-news-photo-frame-lg" : "zt-news-photo-frame"}>
       <img
         src={url}
-        alt={alt}
+        alt={caption ? `${alt} — ${caption}` : alt}
         loading="lazy"
         decoding="async"
         referrerPolicy="no-referrer"
         className="zt-news-photo"
       />
+      {caption && (
+        <div className="zt-news-photo-caption" title={caption}>
+          <span>{caption}</span>
+        </div>
+      )}
     </div>
   );
   if (!onClick) return frame;
@@ -322,6 +331,7 @@ export function NewsTips({ className }: { className?: string }) {
                   ? item.thumbnail
                   : undefined;
 
+              const early = pickStoryImage([fromContent[0], thumb]);
               allItems.push({
                 id: item.link || item.title,
                 title: item.title,
@@ -330,7 +340,10 @@ export function NewsTips({ className }: { className?: string }) {
                 description: body.length > 0 ? body : undefined,
                 source: feed.name,
                 // Prefer content photo (pessoa/evento); og:image sobrescreve abaixo.
-                imageUrl: pickStoryImage([fromContent[0], thumb]),
+                imageUrl: early,
+                imageCaption: early
+                  ? buildPhotoCaption(item.title, "article", body || undefined)
+                  : undefined,
               });
             }
           } catch {
@@ -345,16 +358,19 @@ export function NewsTips({ className }: { className?: string }) {
             const og = await resolveOgImage(item.link);
             if (!og) return;
             item.imageUrl = og;
+            item.imageCaption = buildPhotoCaption(item.title, "article", item.description);
           }),
         );
 
         // 2) Se a fonte não publicou foto: busca na web (Wikipedia/Commons)
-        //    do jogador ou do evento citado (ex.: foto anterior no mesmo circuito).
+        //    do jogador ou do evento — com legenda explicando a origem.
         await Promise.all(
           allItems.map(async (item) => {
             if (item.imageUrl) return;
             const found = await lookupStoryPhoto(item.title, item.description);
-            if (found) item.imageUrl = found;
+            if (!found) return;
+            item.imageUrl = found.url;
+            item.imageCaption = found.caption;
           }),
         );
 
@@ -378,18 +394,23 @@ export function NewsTips({ className }: { className?: string }) {
     };
   }, [activeTab]);
 
-  const allTips = LOCAL_TIPS.map((tip, idx) => ({
-    id: tip.id,
-    title: tip.title,
-    link: tip.link || "",
-    pubDate: new Date(Date.now() - idx * 86400000).toISOString(),
-    description: tip.description,
-    source: tip.category,
-    street: tip.street,
-    isLocal: true as const,
-    // Tip com pessoa (ex. Simpson) ou cena do próprio assunto (flop/turn/river).
-    imageUrl: pickStoryImage([tip.imageUrl, TIP_IMAGES[tip.id]]),
-  }));
+  const allTips = LOCAL_TIPS.map((tip, idx) => {
+    const imageUrl = pickStoryImage([tip.imageUrl, TIP_IMAGES[tip.id]]);
+    return {
+      id: tip.id,
+      title: tip.title,
+      link: tip.link || "",
+      pubDate: new Date(Date.now() - idx * 86400000).toISOString(),
+      description: tip.description,
+      source: tip.category,
+      street: tip.street,
+      isLocal: true as const,
+      imageUrl,
+      imageCaption: imageUrl
+        ? buildPhotoCaption(tip.title, tip.id === "1" ? "curated" : "tip", tip.description)
+        : undefined,
+    };
+  });
 
   const tipsByStreet = allTips.filter((tip) => tip.street === activeStreet);
 
@@ -398,17 +419,22 @@ export function NewsTips({ className }: { className?: string }) {
       ? sanitizeStoryImages(
           [
             ...newsItems,
-            ...LOCAL_NEWS.map((news) => ({
-              id: news.id,
-              title: news.title,
-              link: news.link || "",
-              pubDate: news.pubDate,
-              description: news.description,
-              source: news.category,
-              isLocal: true as const,
-              // Foto curada da pessoa/evento da matéria.
-              imageUrl: LOCAL_NEWS_IMAGES[news.id],
-            })),
+            ...LOCAL_NEWS.map((news) => {
+              const imageUrl = LOCAL_NEWS_IMAGES[news.id];
+              return {
+                id: news.id,
+                title: news.title,
+                link: news.link || "",
+                pubDate: news.pubDate,
+                description: news.description,
+                source: news.category,
+                isLocal: true as const,
+                imageUrl,
+                imageCaption: imageUrl
+                  ? buildPhotoCaption(news.title, "curated", news.description)
+                  : undefined,
+              };
+            }),
           ]
             .sort((a, b) => parseRSSDate(b.pubDate).getTime() - parseRSSDate(a.pubDate).getTime())
             .slice(0, 18),
@@ -528,6 +554,9 @@ export function NewsTips({ className }: { className?: string }) {
               const body = (item.description ?? "").trim();
               const canExpand = body.length > 0;
               const photo = item.imageUrl;
+              const caption =
+                item.imageCaption ||
+                (photo ? buildPhotoCaption(item.title, "article", item.description) : undefined);
 
               return (
                 <article
@@ -538,6 +567,7 @@ export function NewsTips({ className }: { className?: string }) {
                     <NewsImage
                       url={photo}
                       alt={item.title}
+                      caption={caption}
                       large={isExpanded}
                       onClick={() => canExpand && toggleExpand(itemKey)}
                     />

@@ -282,6 +282,16 @@
     @apply absolute inset-0 h-full w-full object-cover object-center;
   }
 
+  .zt-news-photo-caption {
+    @apply absolute inset-x-0 bottom-0 z-10 px-2.5 py-1.5 text-[11px] leading-snug text-cream;
+    background: linear-gradient(to top, rgba(8, 18, 12, 0.92) 0%, rgba(8, 18, 12, 0.72) 55%, transparent 100%);
+  }
+
+  .zt-news-photo-caption span {
+    @apply line-clamp-2 font-medium tracking-wide;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
+  }
+
   .zt-spinner {
     @apply h-5 w-5 animate-spin rounded-full border-2 border-felt-500 border-t-gold-bright;
   }

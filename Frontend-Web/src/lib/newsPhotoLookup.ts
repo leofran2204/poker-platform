@@ -6,9 +6,26 @@
 
 import newsMedia from "@/data/newsMedia.json";
 
-const CACHE_PREFIX = "zt-news-photo-v2:";
+const CACHE_PREFIX = "zt-news-photo-v3:";
 
 type EventKey = "bsop" | "wsop" | "ept" | "triton" | "pokerstars" | "default";
+
+export type PhotoKind = "article" | "person" | "event-web" | "event-local" | "curated" | "tip";
+
+export interface StoryPhoto {
+  url: string;
+  caption: string;
+  kind: PhotoKind;
+}
+
+const EVENT_LABELS: Record<EventKey, string> = {
+  bsop: "BSOP",
+  wsop: "WSOP",
+  ept: "EPT",
+  triton: "Triton",
+  pokerstars: "PokerStars",
+  default: "Poker",
+};
 
 const EVENT_PHOTO_POOLS = (newsMedia.eventPhotoPools ?? {}) as Record<string, string[]>;
 
@@ -81,22 +98,78 @@ const TITLE_STOP = new Set(
   ].map((s) => s.toLowerCase()),
 );
 
-function cacheGet(key: string): string | null | undefined {
+function cacheGet(key: string): StoryPhoto | null | undefined {
   try {
     const raw = sessionStorage.getItem(CACHE_PREFIX + key);
     if (raw === null) return undefined;
-    if (raw === "") return null;
-    return raw;
+    if (raw === "" || raw === "null") return null;
+    return JSON.parse(raw) as StoryPhoto;
   } catch {
     return undefined;
   }
 }
 
-function cacheSet(key: string, value: string | null) {
+function cacheSet(key: string, value: StoryPhoto | null) {
   try {
-    sessionStorage.setItem(CACHE_PREFIX + key, value ?? "");
+    sessionStorage.setItem(CACHE_PREFIX + key, value ? JSON.stringify(value) : "null");
   } catch {
     /* ignore quota */
+  }
+}
+
+/** Nome da pessoa ou do evento para a legenda. */
+export function extractPrimarySubject(title: string, description?: string): string {
+  const nick = title.match(
+    /\b([A-ZÁÉÍÓÚ][a-záéíóú]+[A-ZÁÉÍÓÚ][A-Za-zÁÉÍÓÚáéíóúÂÊÔÃÕâêôãõÇç0-9]+)\b/,
+  );
+  if (nick) return nick[1];
+
+  const nameRe =
+    /\b([A-ZÁÉÍÓÚÂÊÔÃÕ][a-záéíóúâêôãõç]+(?:\s+[A-ZÁÉÍÓÚÂÊÔÃÕ][a-záéíóúâêôãõç]+){1,2})\b/g;
+  let m: RegExpExecArray | null;
+  while ((m = nameRe.exec(title)) !== null) {
+    const parts = m[1].split(/\s+/);
+    if (parts.every((p) => TITLE_STOP.has(p.toLowerCase()))) continue;
+    if (parts.some((p) => TITLE_STOP.has(p.toLowerCase())) && parts.length === 2) continue;
+    return m[1];
+  }
+
+  const eventKey = detectEventKey(title, description);
+  if (eventKey !== "default") return EVENT_LABELS[eventKey];
+  if (/\bFloripa\b/i.test(title)) return "BSOP Floripa";
+  return "";
+}
+
+export function buildPhotoCaption(
+  title: string,
+  kind: PhotoKind,
+  description?: string,
+): string {
+  const personOrTopic = extractPrimarySubject(title, description);
+  const eventKey = detectEventKey(title, description);
+  const eventName = EVENT_LABELS[eventKey];
+
+  switch (kind) {
+    case "article":
+      return personOrTopic
+        ? `${personOrTopic} — foto da matéria`
+        : "Foto publicada na matéria";
+    case "person":
+      return personOrTopic
+        ? `${personOrTopic} — arquivo (evento anterior)`
+        : "Arquivo do jogador (evento anterior)";
+    case "event-web":
+      return `${eventName} — arquivo do evento`;
+    case "event-local":
+      return `${eventName} — foto do circuito`;
+    case "curated":
+      return personOrTopic || eventName || "Foto relacionada à matéria";
+    case "tip":
+      return personOrTopic
+        ? `${personOrTopic} — guia de estratégia`
+        : "Guia de estratégia";
+    default:
+      return "Foto relacionada";
   }
 }
 
@@ -272,24 +345,33 @@ function pickRandom<T>(arr: T[]): T | undefined {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+function makePhoto(url: string, title: string, kind: PhotoKind, description?: string): StoryPhoto {
+  return { url, kind, caption: buildPhotoCaption(title, kind, description) };
+}
+
 /** Foto aleatória do evento (pool local) — último recurso com sentido. */
-export function randomEventPhoto(title: string, description?: string): string | undefined {
+export function randomEventPhoto(title: string, description?: string): StoryPhoto | undefined {
   const key = detectEventKey(title, description);
   const pool = EVENT_PHOTO_POOLS[key] ?? EVENT_PHOTO_POOLS.default ?? [];
   const fallback = EVENT_PHOTO_POOLS.default ?? [];
-  return pickRandom(pool.length ? pool : fallback);
+  const url = pickRandom(pool.length ? pool : fallback);
+  if (!url) return undefined;
+  return makePhoto(url, title, "event-local", description);
 }
 
 /**
  * Busca foto do jogador/evento.
  * Ordem: cache → Wikipedia/Commons (pessoa) → Commons (evento) → foto aleatória do evento.
  */
-export async function lookupStoryPhoto(title: string, description?: string): Promise<string | undefined> {
+export async function lookupStoryPhoto(
+  title: string,
+  description?: string,
+): Promise<StoryPhoto | undefined> {
   const queries = buildPhotoSearchQueries(title, description);
   const cacheKey = (queries[0] ?? title).toLowerCase().slice(0, 120);
   const cached = cacheGet(cacheKey);
-  if (typeof cached === "string") return cached;
-  // cached === null → pessoa sem registro; ainda tentamos evento abaixo
+  if (cached && typeof cached === "object" && cached.url) return cached;
+  // cached === null → tentamos evento abaixo
 
   // 1) Pessoa / queries específicas (Wikipedia + Commons)
   for (const q of queries) {
@@ -303,8 +385,9 @@ export async function lookupStoryPhoto(title: string, description?: string): Pro
       (await wikipediaSearchThumbnail(bare, "en"));
 
     if (fromWiki) {
-      cacheSet(cacheKey, fromWiki);
-      return fromWiki;
+      const photo = makePhoto(fromWiki, title, "person", description);
+      cacheSet(cacheKey, photo);
+      return photo;
     }
 
     const fromCommons =
@@ -313,8 +396,9 @@ export async function lookupStoryPhoto(title: string, description?: string): Pro
       (await commonsImage(bare));
 
     if (fromCommons) {
-      cacheSet(cacheKey, fromCommons);
-      return fromCommons;
+      const photo = makePhoto(fromCommons, title, "person", description);
+      cacheSet(cacheKey, photo);
+      return photo;
     }
   }
 
@@ -325,8 +409,9 @@ export async function lookupStoryPhoto(title: string, description?: string): Pro
     for (const q of eventMeta.queries) {
       const evImg = await commonsImage(q);
       if (evImg) {
-        cacheSet(cacheKey, evImg);
-        return evImg;
+        const photo = makePhoto(evImg, title, "event-web", description);
+        cacheSet(cacheKey, photo);
+        return photo;
       }
     }
   }
