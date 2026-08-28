@@ -1,8 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import tipsData from "@/data/tipsContent.json";
 import { TipRichText } from "@/components/TipRichText";
 import { translateNewsFields } from "@/lib/translatePt";
 import { parseJinaMarkdown, parseRssXml } from "@/lib/parseRss";
+import {
+  extractImagesFromHtml,
+  htmlToPlainText,
+  resolveArticleBody,
+  resolveSourceImage,
+} from "@/lib/articleFetch";
 
 interface FeedItem {
   id: string;
@@ -148,17 +154,6 @@ function parseRSSDate(dateStr: string): Date {
   return isNaN(date.getTime()) ? new Date() : date;
 }
 
-function stripHtml(html: string): string {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&[^;]+;/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 function isAdBanner(url: string): boolean {
   const u = url.toLowerCase();
   return (
@@ -220,48 +215,7 @@ function isStrategyContent(title: string, body: string, feedKind: FeedConfig["ki
   );
 }
 
-function extractImagesFromHtml(html: string): string[] {
-  const found: string[] = [];
-  const srcRe = /(?:src|data-src)=["'](https?:\/\/[^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/gi;
-  const srcsetRe = /srcset=["']([^"']+)["']/gi;
-  let m: RegExpExecArray | null;
-  while ((m = srcRe.exec(html)) !== null) {
-    found.push(m[1]);
-  }
-  while ((m = srcsetRe.exec(html)) !== null) {
-    const first = m[1].split(",")[0]?.trim().split(/\s+/)[0];
-    if (first?.startsWith("http")) found.push(first);
-  }
-  const unique: string[] = [];
-  for (const url of found) {
-    if (isAdBanner(url)) continue;
-    if (!unique.includes(url)) unique.push(url);
-  }
-  return unique;
-}
 
-async function resolveOgImage(articleUrl: string): Promise<string | undefined> {
-  try {
-    const response = await fetch(`${PAGE_PROXY}${encodeURIComponent(articleUrl)}`, {
-      signal: AbortSignal.timeout(10000),
-    });
-    if (!response.ok) return undefined;
-    const html = await response.text();
-    const metaCandidates = [
-      html.match(/property=["']og:image["'][^>]*content=["']([^"']+)["']/i)?.[1],
-      html.match(/content=["']([^"']+)["'][^>]*property=["']og:image["']/i)?.[1],
-      html.match(/name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i)?.[1],
-      html.match(/content=["']([^"']+)["'][^>]*name=["']twitter:image["']/i)?.[1],
-    ];
-    for (const og of metaCandidates) {
-      if (og && !isAdBanner(og)) return og;
-    }
-    // Primeira foto do corpo da matéria (pessoa/evento), não banner.
-    return extractImagesFromHtml(html)[0];
-  } catch {
-    return undefined;
-  }
-}
 
 function NewsImage({
   url,
@@ -309,6 +263,9 @@ export function NewsTips({ className }: { className?: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  /** Texto completo buscado da página da matéria (quando o RSS vem curto/vazio). */
+  const [fullBodies, setFullBodies] = useState<Record<string, string>>({});
+  const [loadingBodies, setLoadingBodies] = useState<Record<string, boolean>>({});
 
   const STREETS: { id: "preflop" | "flop" | "turn" | "river"; label: string; icon: React.ReactNode }[] = [
     {
@@ -354,11 +311,32 @@ export function NewsTips({ className }: { className?: string }) {
     },
   ];
 
-  function toggleExpand(itemKey: string) {
+  const loadFullBody = useCallback(async (item: FeedItem) => {
+    const key = String(item.id);
+    const existing = (item.description ?? "").trim();
+    if (existing.length >= 500 || fullBodies[key] || !item.link) return;
+    if (loadingBodies[key]) return;
+    setLoadingBodies((prev) => ({ ...prev, [key]: true }));
+    try {
+      const text = await resolveArticleBody(item.link);
+      if (text && text.trim().length > existing.length) {
+        setFullBodies((prev) => ({ ...prev, [key]: text.trim() }));
+      }
+    } finally {
+      setLoadingBodies((prev) => ({ ...prev, [key]: false }));
+    }
+  }, [fullBodies, loadingBodies]);
+
+  function toggleExpand(item: FeedItem) {
+    const itemKey = String(item.id);
     setExpandedItems((prev) => {
       const next = new Set(prev);
-      if (next.has(itemKey)) next.delete(itemKey);
-      else next.add(itemKey);
+      if (next.has(itemKey)) {
+        next.delete(itemKey);
+      } else {
+        next.add(itemKey);
+        void loadFullBody(item);
+      }
       return next;
     });
   }
@@ -383,8 +361,12 @@ export function NewsTips({ className }: { className?: string }) {
           (typeof item.content === "string" && item.content) ||
           (typeof item.description === "string" && item.description) ||
           "";
-        const body = stripHtml(rawBody);
-        const fromContent = extractImagesFromHtml(typeof item.content === "string" ? item.content : "");
+        const body = htmlToPlainText(rawBody);
+        const base = item.link || feed.url;
+        const fromContent = extractImagesFromHtml(
+          typeof item.content === "string" ? item.content : rawBody,
+          base,
+        );
         const thumb =
           typeof item.thumbnail === "string" && item.thumbnail && !isAdBanner(item.thumbnail)
             ? item.thumbnail
@@ -550,8 +532,9 @@ export function NewsTips({ className }: { className?: string }) {
         const enrichOg = async (list: FeedItem[]) => {
           await Promise.all(
             list.map(async (item) => {
-              if (!item.link || item.imageUrl) return;
-              const og = await resolveOgImage(item.link);
+              if (!item.link) return;
+              // Sempre tenta a foto oficial da página; se falhar, mantém a do RSS
+              const og = await resolveSourceImage(item.link);
               if (!og) return;
               item.imageUrl = og;
               item.imageCaption = "Foto da matéria";
@@ -738,8 +721,10 @@ export function NewsTips({ className }: { className?: string }) {
             items.map((item) => {
               const itemKey = String(item.id);
               const isExpanded = expandedItems.has(itemKey);
-              const body = (item.description ?? "").trim();
-              const canExpand = body.length > 0;
+              const rssBody = (item.description ?? "").trim();
+              const body = (fullBodies[itemKey] || rssBody).trim();
+              const canExpand = Boolean(item.link) || body.length > 0;
+              const isLoadingBody = Boolean(loadingBodies[itemKey]);
               const photo = item.imageUrl;
               const caption = item.imageCaption || (photo ? "Foto da matéria" : undefined);
 
@@ -754,7 +739,7 @@ export function NewsTips({ className }: { className?: string }) {
                       alt={item.title}
                       caption={caption}
                       large={isExpanded}
-                      onClick={() => canExpand && toggleExpand(itemKey)}
+                      onClick={() => canExpand && toggleExpand(item)}
                     />
                   )}
 
@@ -769,7 +754,7 @@ export function NewsTips({ className }: { className?: string }) {
                     <button
                       type="button"
                       aria-expanded={isExpanded}
-                      onClick={() => canExpand && toggleExpand(itemKey)}
+                      onClick={() => canExpand && toggleExpand(item)}
                       className="flex w-full items-start justify-between gap-2 rounded text-left font-medium leading-snug text-cream transition-colors hover:text-gold-bright focus:outline-none focus:ring-2 focus:ring-gold-bright focus:ring-offset-2 focus:ring-offset-felt-800"
                     >
                       <h3 className="text-base">{item.title}</h3>
@@ -789,11 +774,19 @@ export function NewsTips({ className }: { className?: string }) {
                     {canExpand && (
                       <>
                         {isExpanded ? (
-                          <TipRichText
-                            text={body}
-                            className="mt-3 text-sm leading-relaxed text-felt-200 break-words"
-                          />
-                        ) : (
+                          isLoadingBody && body.length < 80 ? (
+                            <p className="mt-3 text-sm text-felt-400">Carregando texto da matéria…</p>
+                          ) : body ? (
+                            <TipRichText
+                              text={body}
+                              className="mt-3 text-sm leading-relaxed text-felt-200 break-words"
+                            />
+                          ) : (
+                            <p className="mt-3 text-sm text-felt-400">
+                              Não foi possível carregar o texto aqui. Use o link da fonte abaixo.
+                            </p>
+                          )
+                        ) : body ? (
                           <div
                             className="mt-2 text-sm leading-relaxed text-felt-300"
                             style={{
@@ -805,11 +798,15 @@ export function NewsTips({ className }: { className?: string }) {
                           >
                             {body}
                           </div>
+                        ) : (
+                          <p className="mt-2 text-sm text-felt-400">
+                            Clique no título para ler a matéria.
+                          </p>
                         )}
 
                         <button
                           type="button"
-                          onClick={() => toggleExpand(itemKey)}
+                          onClick={() => toggleExpand(item)}
                           className="mt-2 text-xs font-bold uppercase tracking-wide text-gold-soft hover:text-gold-bright"
                         >
                           {isExpanded ? "Recolher texto" : "Ver texto completo"}
