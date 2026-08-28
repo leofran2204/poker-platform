@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import tipsData from "@/data/tipsContent.json";
 import newsMedia from "@/data/newsMedia.json";
 import { TipRichText } from "@/components/TipRichText";
+import { lookupStoryPhoto } from "@/lib/newsPhotoLookup";
 
 interface FeedItem {
   id: string;
@@ -118,17 +119,10 @@ function pickStoryImage(candidates: Array<string | undefined | null>): string | 
   return undefined;
 }
 
-/**
- * Mantém capas do próprio assunto. Se duas matérias caírem na mesma URL,
- * a segunda fica sem foto — melhor do que trocar por mesa aleatória.
- */
-function keepStoryImagesOnly<T extends { imageUrl?: string }>(items: T[]): T[] {
-  const used = new Set<string>();
+/** Descarta só banners/ads; permite a mesma foto se duas matérias forem da mesma pessoa. */
+function sanitizeStoryImages<T extends { imageUrl?: string }>(items: T[]): T[] {
   return items.map((item) => {
     const current = item.imageUrl && !isAdOrUselessImage(item.imageUrl) ? item.imageUrl : undefined;
-    if (!current) return { ...item, imageUrl: undefined };
-    if (used.has(current)) return { ...item, imageUrl: undefined };
-    used.add(current);
     return { ...item, imageUrl: current };
   });
 }
@@ -344,7 +338,7 @@ export function NewsTips({ className }: { className?: string }) {
           }
         }
 
-        // og:image / twitter:image = foto real do jogador ou evento da reportagem.
+        // 1) og/twitter/corpo da matéria
         await Promise.all(
           allItems.map(async (item) => {
             if (!item.link) return;
@@ -354,11 +348,20 @@ export function NewsTips({ className }: { className?: string }) {
           }),
         );
 
+        // 2) Se a fonte não publicou foto: busca na web (Wikipedia/Commons)
+        //    do jogador ou do evento citado (ex.: foto anterior no mesmo circuito).
+        await Promise.all(
+          allItems.map(async (item) => {
+            if (item.imageUrl) return;
+            const found = await lookupStoryPhoto(item.title, item.description);
+            if (found) item.imageUrl = found;
+          }),
+        );
+
         allItems.sort((a, b) => parseRSSDate(b.pubDate).getTime() - parseRSSDate(a.pubDate).getTime());
 
         if (mounted) {
-          // Só capas vindas da matéria (og/content). Sem mesa genérica.
-          setNewsItems(keepStoryImagesOnly(allItems.slice(0, 15)));
+          setNewsItems(sanitizeStoryImages(allItems.slice(0, 15)));
         }
       } catch {
         if (mounted) setError("Falha ao carregar noticias. Tente novamente mais tarde.");
@@ -392,7 +395,7 @@ export function NewsTips({ className }: { className?: string }) {
 
   const items: FeedItem[] =
     activeTab === "news"
-      ? keepStoryImagesOnly(
+      ? sanitizeStoryImages(
           [
             ...newsItems,
             ...LOCAL_NEWS.map((news) => ({
@@ -403,7 +406,7 @@ export function NewsTips({ className }: { className?: string }) {
               description: news.description,
               source: news.category,
               isLocal: true as const,
-              // Foto curada da pessoa/evento da matéria (nunca pool genérico).
+              // Foto curada da pessoa/evento da matéria.
               imageUrl: LOCAL_NEWS_IMAGES[news.id],
             })),
           ]
