@@ -109,9 +109,8 @@ const PAGE_PROXY = "https://api.allorigins.win/raw?url=";
 
 const LOCAL_NEWS_IMAGES = newsMedia.localNews as Record<string, string>;
 const TIP_IMAGES = (newsMedia.tipImages ?? {}) as Record<string, string>;
-const UNIQUE_POOL = (newsMedia.uniquePool ?? []) as string[];
 
-/** Uma única foto relevante (evento/pessoa). Sem filler genérico em notícias. */
+/** Primeira URL válida (foto do artigo / pessoa / evento). Nunca inventa mesa genérica. */
 function pickStoryImage(candidates: Array<string | undefined | null>): string | undefined {
   for (const url of candidates) {
     if (url && !isAdOrUselessImage(url)) return url;
@@ -119,41 +118,19 @@ function pickStoryImage(candidates: Array<string | undefined | null>): string | 
   return undefined;
 }
 
-/** Garante URL de imagem distinta por item (não reutiliza capa já usada na lista). */
-function assignUniqueImages<T extends { imageUrl?: string }>(
-  items: T[],
-  reserved: Set<string> = new Set(),
-): T[] {
-  const used = new Set<string>([...reserved].filter(Boolean));
-  let poolIdx = 0;
-  const nextPool = (): string | undefined => {
-    while (poolIdx < UNIQUE_POOL.length) {
-      const url = UNIQUE_POOL[poolIdx++];
-      if (url && !used.has(url) && !isAdOrUselessImage(url)) {
-        used.add(url);
-        return url;
-      }
-    }
-    return undefined;
-  };
-
+/**
+ * Mantém capas do próprio assunto. Se duas matérias caírem na mesma URL,
+ * a segunda fica sem foto — melhor do que trocar por mesa aleatória.
+ */
+function keepStoryImagesOnly<T extends { imageUrl?: string }>(items: T[]): T[] {
+  const used = new Set<string>();
   return items.map((item) => {
     const current = item.imageUrl && !isAdOrUselessImage(item.imageUrl) ? item.imageUrl : undefined;
-    if (current && !used.has(current)) {
-      used.add(current);
-      return item;
-    }
-    const replacement = nextPool();
-    if (replacement) return { ...item, imageUrl: replacement };
-    // Sem pool: mantém original mesmo se repetida (melhor que sumir a capa)
-    return item;
+    if (!current) return { ...item, imageUrl: undefined };
+    if (used.has(current)) return { ...item, imageUrl: undefined };
+    used.add(current);
+    return { ...item, imageUrl: current };
   });
-}
-
-function reservedLocalImages(): Set<string> {
-  return new Set(
-    [...Object.values(LOCAL_NEWS_IMAGES), ...Object.values(TIP_IMAGES)].filter(Boolean),
-  );
 }
 
 function parseRSSDate(dateStr: string): Date {
@@ -209,16 +186,21 @@ function extractImagesFromHtml(html: string): string[] {
 async function resolveOgImage(articleUrl: string): Promise<string | undefined> {
   try {
     const response = await fetch(`${PAGE_PROXY}${encodeURIComponent(articleUrl)}`, {
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(10000),
     });
     if (!response.ok) return undefined;
     const html = await response.text();
-    const og =
-      html.match(/property=["']og:image["'][^>]*content=["']([^"']+)["']/i)?.[1] ||
-      html.match(/content=["']([^"']+)["'][^>]*property=["']og:image["']/i)?.[1];
-    if (og && !isAdOrUselessImage(og)) return og;
-    const fromBody = extractImagesFromHtml(html);
-    return fromBody[0];
+    const metaCandidates = [
+      html.match(/property=["']og:image["'][^>]*content=["']([^"']+)["']/i)?.[1],
+      html.match(/content=["']([^"']+)["'][^>]*property=["']og:image["']/i)?.[1],
+      html.match(/name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i)?.[1],
+      html.match(/content=["']([^"']+)["'][^>]*name=["']twitter:image["']/i)?.[1],
+    ];
+    for (const og of metaCandidates) {
+      if (og && !isAdOrUselessImage(og)) return og;
+    }
+    // Primeira foto do corpo da matéria (pessoa/evento), não banner.
+    return extractImagesFromHtml(html)[0];
   } catch {
     return undefined;
   }
@@ -362,9 +344,9 @@ export function NewsTips({ className }: { className?: string }) {
           }
         }
 
-        // og:image da matéria = foto real do jogador/evento da reportagem.
+        // og:image / twitter:image = foto real do jogador ou evento da reportagem.
         await Promise.all(
-          allItems.slice(0, 10).map(async (item) => {
+          allItems.map(async (item) => {
             if (!item.link) return;
             const og = await resolveOgImage(item.link);
             if (!og) return;
@@ -375,8 +357,8 @@ export function NewsTips({ className }: { className?: string }) {
         allItems.sort((a, b) => parseRSSDate(b.pubDate).getTime() - parseRSSDate(a.pubDate).getTime());
 
         if (mounted) {
-          // Cada matéria do feed com capa distinta; não invade fotos locais/tips.
-          setNewsItems(assignUniqueImages(allItems.slice(0, 15), reservedLocalImages()));
+          // Só capas vindas da matéria (og/content). Sem mesa genérica.
+          setNewsItems(keepStoryImagesOnly(allItems.slice(0, 15)));
         }
       } catch {
         if (mounted) setError("Falha ao carregar noticias. Tente novamente mais tarde.");
@@ -393,25 +375,24 @@ export function NewsTips({ className }: { className?: string }) {
     };
   }, [activeTab]);
 
-  const allTips = assignUniqueImages(
-    LOCAL_TIPS.map((tip, idx) => ({
-      id: tip.id,
-      title: tip.title,
-      link: tip.link || "",
-      pubDate: new Date(Date.now() - idx * 86400000).toISOString(),
-      description: tip.description,
-      source: tip.category,
-      street: tip.street,
-      isLocal: true as const,
-      imageUrl: pickStoryImage([tip.imageUrl, TIP_IMAGES[tip.id]]),
-    })),
-  );
+  const allTips = LOCAL_TIPS.map((tip, idx) => ({
+    id: tip.id,
+    title: tip.title,
+    link: tip.link || "",
+    pubDate: new Date(Date.now() - idx * 86400000).toISOString(),
+    description: tip.description,
+    source: tip.category,
+    street: tip.street,
+    isLocal: true as const,
+    // Tip com pessoa (ex. Simpson) ou cena do próprio assunto (flop/turn/river).
+    imageUrl: pickStoryImage([tip.imageUrl, TIP_IMAGES[tip.id]]),
+  }));
 
   const tipsByStreet = allTips.filter((tip) => tip.street === activeStreet);
 
   const items: FeedItem[] =
     activeTab === "news"
-      ? assignUniqueImages(
+      ? keepStoryImagesOnly(
           [
             ...newsItems,
             ...LOCAL_NEWS.map((news) => ({
@@ -422,6 +403,7 @@ export function NewsTips({ className }: { className?: string }) {
               description: news.description,
               source: news.category,
               isLocal: true as const,
+              // Foto curada da pessoa/evento da matéria (nunca pool genérico).
               imageUrl: LOCAL_NEWS_IMAGES[news.id],
             })),
           ]

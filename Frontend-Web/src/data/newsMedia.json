@@ -1,14 +1,14 @@
 {
   "localNews": {
     "n0": "/news/neuville-2.jpg",
-    "n1": "/news/bsop-1.jpg.webp",
-    "n2": "/news/bsop-2.jpg",
+    "n1": "/news/bsop-floripa-satelite.jpg.webp",
+    "n2": "/news/bsop-mega-satelite.webp",
     "n4": "/news/simpson-1.jpg",
     "n6": "/news/abacate-1.webp",
-    "n10": "/news/wsop-1.webp"
+    "n10": "/news/wsop-coverage.webp"
   },
   "tipImages": {
-    "1": "/news/tip-01.jpg",
+    "1": "/news/simpson-1.jpg",
     "2": "/news/tip-02.jpg",
     "3": "/news/tip-03.jpg",
     "10": "/news/tip-10.jpg",
@@ -23,12 +23,5 @@
     "31": "/news/tip-31.jpg",
     "32": "/news/tip-32.jpg",
     "33": "/news/tip-33.jpg"
-  },
-  "uniquePool": [
-    "/news/table-1.jpg",
-    "/news/chips-1.jpg",
-    "/news/finaltable-1.jpg",
-    "/news/room-1.jpg",
-    "/news/tip-pool-festival.jpg"
-  ]
+  }
 }
