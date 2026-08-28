@@ -7,6 +7,25 @@ import { formatBrlFromCents } from "@/lib/money";
 
 type StakeFilter = "all" | "micro" | "low" | "mid";
 
+const STAKE_OPTIONS: { id: StakeFilter; label: string }[] = [
+  { id: "all", label: "Todos" },
+  { id: "micro", label: "Micro" },
+  { id: "low", label: "Low" },
+  { id: "mid", label: "Mid" },
+];
+
+function occupancyPct(players: number, max: number): number {
+  if (max <= 0) return 0;
+  return Math.min(100, Math.round((players / max) * 100));
+}
+
+function occupancyBarClass(pct: number, full: boolean): string {
+  if (full || pct >= 100) return "zt-occupancy-bar full";
+  if (pct >= 75) return "zt-occupancy-bar high";
+  if (pct >= 50) return "zt-occupancy-bar mid";
+  return "zt-occupancy-bar";
+}
+
 export function LobbyPage() {
   const navigate = useNavigate();
   const [tables, setTables] = useState<TableResponse[]>([]);
@@ -15,6 +34,7 @@ export function LobbyPage() {
   const [hideFull, setHideFull] = useState(false);
   const [stake, setStake] = useState<StakeFilter>("all");
   const [joiningId, setJoiningId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!isAuthenticated()) {
@@ -51,6 +71,12 @@ export function LobbyPage() {
     });
   }, [tables, hideFull, stake]);
 
+  useEffect(() => {
+    if (selectedId && !filtered.some((t) => t.id === selectedId)) {
+      setSelectedId(null);
+    }
+  }, [filtered, selectedId]);
+
   async function handleJoin(table: TableResponse) {
     if (table.players >= table.max_players) return;
     setJoiningId(table.id);
@@ -78,44 +104,11 @@ export function LobbyPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold text-gold-bright">Lobby</h1>
-          <p className="text-sm text-felt-300">Cash games · atualiza a cada 15s</p>
-        </div>
-        <button type="button" className="zt-btn-secondary" onClick={() => void load()}>
-          Atualizar
-        </button>
-      </div>
-
-      <div className="zt-panel p-4">
-        <div className="flex flex-wrap items-end gap-4">
-          <div>
-            <label className="zt-label" htmlFor="stake">
-              Stakes
-            </label>
-            <select
-              id="stake"
-              className="zt-input w-40"
-              value={stake}
-              onChange={(e) => setStake(e.target.value as StakeFilter)}
-            >
-              <option value="all">Todos</option>
-              <option value="micro">Micro (BB ≤ 0,50)</option>
-              <option value="low">Low (0,50–2)</option>
-              <option value="mid">Mid (BB ≥ 2)</option>
-            </select>
-          </div>
-          <label className="flex items-center gap-2 pb-2 text-sm text-cream">
-            <input
-              type="checkbox"
-              className="accent-gold"
-              checked={hideFull}
-              onChange={(e) => setHideFull(e.target.checked)}
-            />
-            Ocultar mesas cheias
-          </label>
+          <h1 className="text-xl font-bold uppercase tracking-wide text-gold-bright">Lobby</h1>
+          <p className="text-xs text-felt-300">Cash games · estilo Full Tilt</p>
         </div>
       </div>
 
@@ -126,11 +119,57 @@ export function LobbyPage() {
       )}
 
       <div className="zt-panel overflow-hidden">
-        <div className="zt-panel-title">Mesas abertas ({filtered.length})</div>
+        <div className="zt-lobby-toolbar">
+          <div className="min-w-0 flex-1">
+            <div className="text-xs font-bold uppercase tracking-wider text-gold-bright">
+              Cash games
+              <span className="ml-2 font-mono text-felt-300">({filtered.length})</span>
+            </div>
+            <p className="text-[11px] text-felt-400">Atualização automática a cada 15s</p>
+          </div>
+
+          <div className="zt-lobby-stake-tabs" role="tablist" aria-label="Filtro de stakes">
+            {STAKE_OPTIONS.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                role="tab"
+                aria-selected={stake === opt.id}
+                className={stake === opt.id ? "zt-tab zt-tab-active" : "zt-tab"}
+                onClick={() => setStake(opt.id)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          <label className="flex items-center gap-2 text-xs text-cream">
+            <input
+              type="checkbox"
+              className="accent-gold"
+              checked={hideFull}
+              onChange={(e) => setHideFull(e.target.checked)}
+            />
+            Ocultar cheias
+          </label>
+
+          <button
+            type="button"
+            className="zt-btn-secondary !px-3 !py-1 !text-xs"
+            onClick={() => void load()}
+            disabled={loading}
+          >
+            Atualizar
+          </button>
+        </div>
+
         {loading && tables.length === 0 ? (
-          <p className="p-6 text-sm text-felt-300">Carregando mesas…</p>
+          <div className="flex items-center justify-center gap-3 p-8 text-sm text-felt-300">
+            <span className="zt-spinner" aria-hidden />
+            Carregando mesas…
+          </div>
         ) : filtered.length === 0 ? (
-          <p className="p-6 text-sm text-felt-300">Nenhuma mesa com esses filtros.</p>
+          <p className="p-6 text-center text-sm text-felt-300">Nenhuma mesa com esses filtros.</p>
         ) : (
           <div className="zt-table-wrap">
             <table className="zt-lobby-table">
@@ -141,16 +180,32 @@ export function LobbyPage() {
                   <th>Blinds</th>
                   <th>Buy-in</th>
                   <th>Jogadores</th>
-                  <th />
+                  <th className="text-right">Ação</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((t) => {
                   const full = t.players >= t.max_players;
+                  const pct = occupancyPct(t.players, t.max_players);
+                  const selected = selectedId === t.id;
                   return (
-                    <tr key={t.id}>
+                    <tr
+                      key={t.id}
+                      className={[
+                        selected ? "zt-lobby-row-selected" : "",
+                        full ? "zt-lobby-row-full" : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      onClick={() => setSelectedId(t.id)}
+                      onDoubleClick={() => {
+                        if (!full) void handleJoin(t);
+                      }}
+                    >
                       <td className="font-semibold text-cream">{t.name}</td>
-                      <td className="text-felt-200">{t.game_type || "NLHE"}</td>
+                      <td>
+                        <span className="zt-chip">{t.game_type || "NLHE"}</span>
+                      </td>
                       <td className="font-mono text-gold-soft">
                         {formatBrlFromCents(t.small_blind)}/{formatBrlFromCents(t.big_blind)}
                       </td>
@@ -158,16 +213,31 @@ export function LobbyPage() {
                         {formatBrlFromCents(t.min_buy_in)}–{formatBrlFromCents(t.max_buy_in)}
                       </td>
                       <td>
-                        <span className={full ? "text-red-300" : "text-cream"}>
-                          {t.players}/{t.max_players}
-                        </span>
+                        <div className="zt-occupancy">
+                          <span className={full ? "zt-occupancy-label full" : "zt-occupancy-label"}>
+                            {t.players}/{t.max_players}
+                          </span>
+                          <div className="zt-occupancy-track" aria-hidden>
+                            <div
+                              className={occupancyBarClass(pct, full)}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
                       </td>
                       <td className="text-right">
                         <button
                           type="button"
-                          className={full ? "zt-btn-secondary !py-1 !text-xs" : "zt-btn-primary !py-1 !text-xs"}
+                          className={
+                            full
+                              ? "zt-btn-secondary !px-2.5 !py-1 !text-xs"
+                              : "zt-btn-primary !px-2.5 !py-1 !text-xs"
+                          }
                           disabled={full || joiningId === t.id}
-                          onClick={() => void handleJoin(t)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void handleJoin(t);
+                          }}
                         >
                           {full ? "Cheia" : joiningId === t.id ? "…" : "Entrar"}
                         </button>
@@ -180,6 +250,10 @@ export function LobbyPage() {
           </div>
         )}
       </div>
+
+      <p className="text-[11px] text-felt-400">
+        Clique para selecionar · duplo clique para entrar · mín. 2 jogadores na mesma mesa para iniciar mão
+      </p>
     </div>
   );
 }

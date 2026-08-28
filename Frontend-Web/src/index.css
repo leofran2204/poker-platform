@@ -103,24 +103,79 @@
     @apply overflow-x-auto;
   }
 
+  /* ── Lobby Full Tilt dense table ── */
+  .zt-lobby-toolbar {
+    @apply flex flex-wrap items-center gap-3 border-b border-rail/60 bg-felt-850/80 px-3 py-2.5;
+  }
+
+  .zt-lobby-stake-tabs {
+    @apply flex flex-wrap gap-1 rounded border border-felt-600 bg-felt-950/60 p-0.5;
+  }
+
+  .zt-lobby-stake-tabs .zt-tab {
+    @apply flex-none px-2.5 py-1 text-xs uppercase tracking-wide;
+  }
+
   .zt-lobby-table {
-    @apply w-full border-collapse text-left text-sm;
+    @apply w-full border-collapse text-left text-[13px];
   }
 
   .zt-lobby-table thead th {
-    @apply border-b border-rail/50 bg-felt-850 px-3 py-2 text-xs font-bold uppercase tracking-wide text-gold-soft;
+    @apply border-b-2 border-rail bg-felt-950 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gold-bright;
   }
 
   .zt-lobby-table tbody tr {
-    @apply border-b border-felt-600/60 transition-colors hover:bg-felt-600/40;
+    @apply cursor-pointer border-b border-felt-600/50 transition-colors hover:bg-felt-600/50;
+  }
+
+  .zt-lobby-table tbody tr.zt-lobby-row-selected {
+    @apply bg-gold/10 hover:bg-gold/15;
+    box-shadow: inset 3px 0 0 #c9a227;
+  }
+
+  .zt-lobby-table tbody tr.zt-lobby-row-full {
+    @apply opacity-70;
   }
 
   .zt-lobby-table tbody td {
-    @apply px-3 py-2.5 align-middle;
+    @apply px-2.5 py-1.5 align-middle;
   }
 
   .zt-chip {
     @apply inline-flex items-center rounded border border-rail/50 bg-felt-900 px-2 py-0.5 font-mono text-xs text-gold-soft;
+  }
+
+  .zt-occupancy {
+    @apply flex min-w-[5.5rem] flex-col gap-0.5;
+  }
+
+  .zt-occupancy-label {
+    @apply font-mono text-[12px] leading-none text-cream;
+  }
+
+  .zt-occupancy-label.full {
+    @apply text-red-300;
+  }
+
+  .zt-occupancy-track {
+    @apply h-1.5 w-full overflow-hidden rounded-sm border border-felt-600 bg-felt-950;
+  }
+
+  .zt-occupancy-bar {
+    @apply h-full rounded-sm transition-[width] duration-300;
+    background: #3ddc84;
+  }
+
+  .zt-occupancy-bar.mid {
+    background: #c9a227;
+  }
+
+  .zt-occupancy-bar.high {
+    background: #e8a317;
+  }
+
+  .zt-occupancy-bar.full {
+    background: #dc3d3d;
   }
 
   /* ── Online presence (high visibility) ── */
