@@ -6,7 +6,7 @@
 
 import newsMedia from "@/data/newsMedia.json";
 
-const CACHE_PREFIX = "zt-news-photo-v3:";
+const CACHE_PREFIX = "zt-news-photo-v4:";
 
 type EventKey = "bsop" | "wsop" | "ept" | "triton" | "pokerstars" | "default";
 
@@ -29,14 +29,55 @@ const EVENT_LABELS: Record<EventKey, string> = {
 
 const EVENT_PHOTO_POOLS = (newsMedia.eventPhotoPools ?? {}) as Record<string, string[]>;
 
+/** Queries focadas em FOTO real (mesa/jogadores), nunca logo/branding. */
 const EVENT_QUERIES: Array<{ key: EventKey; match: RegExp; queries: string[] }> = [
-  { key: "bsop", match: /\bBSOP\b|\bFloripa\b/i, queries: ["BSOP poker", "Brazilian Series of Poker"] },
-  { key: "wsop", match: /\bWSOP\b/i, queries: ["World Series of Poker", "WSOP Las Vegas poker"] },
-  { key: "ept", match: /\bEPT\b/i, queries: ["European Poker Tour", "EPT poker"] },
-  { key: "triton", match: /\bTriton\b/i, queries: ["Triton Poker", "Triton Super High Roller"] },
-  { key: "wsop", match: /\bWPT\b/i, queries: ["World Poker Tour"] },
-  { key: "pokerstars", match: /\bPokerStars\b/i, queries: ["PokerStars live poker"] },
-  { key: "default", match: /\bGGPoker\b/i, queries: ["GGPoker"] },
+  {
+    key: "bsop",
+    match: /\bBSOP\b|\bFloripa\b/i,
+    queries: [
+      "poker tournament final table players",
+      "poker live tournament room felt",
+      "World Series of Poker final table",
+    ],
+  },
+  {
+    key: "wsop",
+    match: /\bWSOP\b/i,
+    queries: [
+      "WSOP Main Event final table",
+      "World Series of Poker players at table",
+      "WSOP Las Vegas tournament floor",
+    ],
+  },
+  {
+    key: "ept",
+    match: /\bEPT\b/i,
+    queries: [
+      "European Poker Tour player",
+      "EPT poker final table",
+      "poker tournament players felt",
+    ],
+  },
+  {
+    key: "triton",
+    match: /\bTriton\b/i,
+    queries: ["poker high roller final table", "poker tournament players"],
+  },
+  {
+    key: "wsop",
+    match: /\bWPT\b/i,
+    queries: ["World Poker Tour final table", "poker tournament players"],
+  },
+  {
+    key: "pokerstars",
+    match: /\bPokerStars\b/i,
+    queries: ["poker live tournament table", "poker players at final table"],
+  },
+  {
+    key: "default",
+    match: /\bGGPoker\b/i,
+    queries: ["poker tournament final table"],
+  },
 ];
 
 const TITLE_STOP = new Set(
@@ -183,14 +224,50 @@ function cleanPhotoUrl(url: string): string {
   }
 }
 
+/** Rejeita logos, wordmarks, ícones e artes de branding. */
+function isLogoOrBranding(text: string): boolean {
+  const t = text.toLowerCase();
+  return (
+    t.includes("logo") ||
+    t.includes("wordmark") ||
+    t.includes("branding") ||
+    t.includes("brand-") ||
+    t.includes("logotipo") ||
+    t.includes("icon") ||
+    t.includes("favicon") ||
+    t.includes("badge") ||
+    t.includes("seal") ||
+    t.includes("emblem") ||
+    t.includes("svg") ||
+    t.includes("vector") ||
+    t.includes("banner") ||
+    t.includes("820x100") ||
+    t.includes("thumb-3") ||
+    t.includes("garantido-do-mega") ||
+    /\blogs?\b/.test(t)
+  );
+}
+
 function isLikelyPhotoUrl(url: string): boolean {
   const u = url.toLowerCase();
   if (!/^https?:\/\//.test(u)) return false;
-  if (u.includes("banner") || u.includes("/ads/") || u.includes("favicon") || u.endsWith(".svg")) {
-    return false;
-  }
-  if (u.includes("logo") && !u.includes("poker")) return false;
+  if (u.includes("/ads/") || u.endsWith(".svg") || u.endsWith(".pdf")) return false;
+  if (isLogoOrBranding(u)) return false;
   return true;
+}
+
+function isLikelyRealPhotoTitle(title: string): boolean {
+  const t = title.toLowerCase();
+  if (isLogoOrBranding(t)) return false;
+  // Prefer titles that look like photos of people/tables
+  const photoHints =
+    /player|final table|tournament|felt|poker|wsop|ept|wpt|table|event|day \d|main event/i.test(
+      t,
+    );
+  const junk =
+    /\.pdf|\.djvu|stethoscope|diary|tour in palestine|punch on tour|crowsnest|southey/i.test(t);
+  if (junk) return false;
+  return photoHints || /\.(jpe?g|png|webp)$/i.test(t);
 }
 
 /** Extrai possíveis nomes de pessoa e consultas de evento a partir do título. */
@@ -208,36 +285,35 @@ export function buildPhotoSearchQueries(title: string, description?: string): st
     queries.push(clean);
   };
 
-  // Eventos conhecidos (consultas web)
-  for (const ev of EVENT_QUERIES) {
-    if (ev.match.test(text)) {
-      for (const q of ev.queries) push(q);
-    }
+  // 1) Pessoa primeiro (nunca logo)
+  const nick = title.match(
+    /\b([A-ZÁÉÍÓÚ][a-záéíóú]+[A-ZÁÉÍÓÚ][A-Za-zÁÉÍÓÚáéíóúÂÊÔÃÕâêôãõÇç0-9]+)\b/,
+  );
+  if (nick) {
+    push(`${nick[1]} poker player`);
+    push(`${nick[1]} poker`);
   }
 
-  // Apelidos CamelCase / colados (AbacateLeao, bnalon)
-  const nick = title.match(/\b([A-ZÁÉÍÓÚ][a-záéíóú]+[A-ZÁÉÍÓÚ][A-Za-zÁÉÍÓÚáéíóúÂÊÔÃÕâêôãõÇç0-9]+)\b/);
-  if (nick) push(`${nick[1]} poker`);
-
-  // Nomes próprios: 2–3 palavras capitalizadas
   const nameRe =
     /\b([A-ZÁÉÍÓÚÂÊÔÃÕ][a-záéíóúâêôãõç]+(?:\s+[A-ZÁÉÍÓÚÂÊÔÃÕ][a-záéíóúâêôãõç]+){1,2})\b/g;
   let m: RegExpExecArray | null;
   while ((m = nameRe.exec(title)) !== null) {
     const parts = m[1].split(/\s+/);
     if (parts.every((p) => TITLE_STOP.has(p.toLowerCase()))) continue;
-    if (parts.some((p) => TITLE_STOP.has(p.toLowerCase())) && parts.length === 2) {
-      // "Main Event" etc.
-      continue;
-    }
+    if (parts.some((p) => TITLE_STOP.has(p.toLowerCase())) && parts.length === 2) continue;
+    push(`${m[1]} poker player`);
     push(`${m[1]} poker`);
     push(m[1]);
   }
 
-  // Floripa / etapa no título
-  if (/\bFloripa\b/i.test(title)) push("BSOP Floripa poker");
+  // 2) Evento = fotos de mesa/jogadores (não "BSOP logo")
+  for (const ev of EVENT_QUERIES) {
+    if (ev.match.test(text)) {
+      for (const q of ev.queries) push(q);
+    }
+  }
 
-  return queries.slice(0, 6);
+  return queries.slice(0, 8);
 }
 
 async function wikipediaThumbnail(titleQuery: string, lang: "en" | "pt"): Promise<string | undefined> {
@@ -256,7 +332,9 @@ async function wikipediaThumbnail(titleQuery: string, lang: "en" | "pt"): Promis
     };
     if (data.type === "disambiguation") return undefined;
     const src = data.originalimage?.source || data.thumbnail?.source;
-    if (src && isLikelyPhotoUrl(src)) return cleanPhotoUrl(src);
+    if (src && isLikelyPhotoUrl(src) && !isLogoOrBranding(src) && !isLogoOrBranding(titleQuery)) {
+      return cleanPhotoUrl(src);
+    }
   } catch {
     /* ignore */
   }
@@ -285,23 +363,25 @@ async function wikipediaSearchThumbnail(query: string, lang: "en" | "pt"): Promi
 }
 
 async function commonsImage(query: string): Promise<string | undefined> {
+  // Exclui logo/branding já na query do Commons
+  const search = `${query} -logo -wordmark -branding -svg -icon -vector filetype:bitmap`;
   const api =
     "https://commons.wikimedia.org/w/api.php?" +
     new URLSearchParams({
       action: "query",
       generator: "search",
-      gsrsearch: query,
+      gsrsearch: search,
       gsrnamespace: "6",
-      gsrlimit: "8",
+      gsrlimit: "12",
       prop: "imageinfo",
-      iiprop: "url|mime",
-      iiurlwidth: "1200",
+      iiprop: "url|mime|size",
+      iiurlwidth: "1280",
       format: "json",
       origin: "*",
     }).toString();
 
   try {
-    const res = await fetch(api, { signal: AbortSignal.timeout(8000) });
+    const res = await fetch(api, { signal: AbortSignal.timeout(9000) });
     if (!res.ok) return undefined;
     const data = (await res.json()) as {
       query?: {
@@ -309,7 +389,13 @@ async function commonsImage(query: string): Promise<string | undefined> {
           string,
           {
             title?: string;
-            imageinfo?: Array<{ url?: string; thumburl?: string; mime?: string }>;
+            imageinfo?: Array<{
+              url?: string;
+              thumburl?: string;
+              mime?: string;
+              width?: number;
+              height?: number;
+            }>;
           }
         >;
       };
@@ -319,9 +405,13 @@ async function commonsImage(query: string): Promise<string | undefined> {
       const info = page.imageinfo?.[0];
       const mime = info?.mime ?? "";
       if (mime && !mime.startsWith("image/")) continue;
-      const title = (page.title ?? "").toLowerCase();
-      // Evita diagramas / logos genéricos demais
-      if (title.includes("logo") && !/poker|wsop|ept|bsop/.test(query.toLowerCase())) continue;
+      if (mime === "image/svg+xml") continue;
+      const fileTitle = page.title ?? "";
+      if (!isLikelyRealPhotoTitle(fileTitle)) continue;
+      // Logos costumam ser pequenos / quase quadrados art boards
+      const w = info?.width ?? 0;
+      const h = info?.height ?? 0;
+      if (w > 0 && h > 0 && w < 400 && h < 400) continue;
       const src = info?.thumburl || info?.url;
       if (src && isLikelyPhotoUrl(src)) return cleanPhotoUrl(src);
     }

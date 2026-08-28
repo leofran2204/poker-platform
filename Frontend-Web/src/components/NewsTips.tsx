@@ -155,7 +155,16 @@ function isAdOrUselessImage(url: string): boolean {
     u.includes("favicon") ||
     u.includes("cropped-512") ||
     u.includes("wp-content/uploads/2026/05/820x100") ||
-    u.endsWith(".svg")
+    u.endsWith(".svg") ||
+    // Logos / branding do evento (não são foto do jogador/mesa)
+    u.includes("logo") ||
+    u.includes("wordmark") ||
+    u.includes("branding") ||
+    u.includes("logotipo") ||
+    u.includes("garantido-do-mega") ||
+    u.includes("bsop-1") ||
+    u.includes("wsop-branding") ||
+    (u.includes("thumb") && u.includes("bsop") && !u.includes("final"))
   );
 }
 

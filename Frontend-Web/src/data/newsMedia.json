@@ -1,11 +1,11 @@
 {
   "localNews": {
     "n0": "/news/neuville-2.jpg",
-    "n1": "/news/bsop-floripa-satelite.jpg.webp",
-    "n2": "/news/bsop-mega-satelite.webp",
+    "n1": "/news/event-wsop-table.jpg",
+    "n2": "/news/event-wsop-final-2010.jpg",
     "n4": "/news/simpson-1.jpg",
     "n6": "/news/abacate-1.webp",
-    "n10": "/news/wsop-coverage.webp"
+    "n10": "/news/event-wsop-final-2015.jpg"
   },
   "tipImages": {
     "1": "/news/simpson-1.jpg",
@@ -26,44 +26,42 @@
   },
   "eventPhotoPools": {
     "bsop": [
-      "/news/bsop-1.jpg.webp",
-      "/news/bsop-floripa-satelite.jpg.webp",
-      "/news/bsop-mega-satelite.webp",
-      "/news/bsop-2.jpg",
-      "/news/tip-pool-festival.jpg"
-    ],
-    "wsop": [
-      "/news/wsop-1.webp",
-      "/news/wsop-coverage.webp",
-      "/news/finaltable-1.jpg",
-      "/news/tip-30.jpg"
-    ],
-    "ept": [
+      "/news/event-wsop-table.jpg",
+      "/news/event-wsop-final-2010.jpg",
       "/news/finaltable-1.jpg",
       "/news/room-1.jpg",
-      "/news/tip-12.jpg",
-      "/news/tip-pool-festival.jpg"
+      "/news/event-player-cada.jpg"
+    ],
+    "wsop": [
+      "/news/event-wsop-final-2015.jpg",
+      "/news/event-wsop-final-2010.jpg",
+      "/news/event-wsop-table.jpg",
+      "/news/event-player-cada.jpg",
+      "/news/neuville-2.jpg"
+    ],
+    "ept": [
+      "/news/event-player-cada.jpg",
+      "/news/event-wsop-table.jpg",
+      "/news/finaltable-1.jpg",
+      "/news/room-1.jpg"
     ],
     "triton": [
       "/news/finaltable-1.jpg",
-      "/news/tip-32.jpg",
+      "/news/event-wsop-final-2010.jpg",
       "/news/room-1.jpg"
     ],
     "pokerstars": [
-      "/news/bsop-floripa-satelite.jpg.webp",
-      "/news/table-1.jpg",
-      "/news/chips-1.jpg",
-      "/news/tip-03.jpg"
-    ],
-    "default": [
+      "/news/event-wsop-table.jpg",
       "/news/finaltable-1.jpg",
       "/news/room-1.jpg",
-      "/news/table-1.jpg",
-      "/news/chips-1.jpg",
-      "/news/tip-pool-festival.jpg",
-      "/news/tip-12.jpg",
-      "/news/tip-20.jpg",
-      "/news/tip-30.jpg"
+      "/news/chips-1.jpg"
+    ],
+    "default": [
+      "/news/event-wsop-table.jpg",
+      "/news/event-wsop-final-2010.jpg",
+      "/news/finaltable-1.jpg",
+      "/news/room-1.jpg",
+      "/news/event-player-cada.jpg"
     ]
   }
 }
