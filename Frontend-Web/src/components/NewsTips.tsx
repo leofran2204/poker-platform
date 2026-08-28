@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import tipsData from "@/data/tipsContent.json";
 import { TipRichText } from "@/components/TipRichText";
-import { translateNewsFields } from "@/lib/translatePt";
+import { looksLikePortuguese, translateNewsFields, translateToPortuguese } from "@/lib/translatePt";
 import { parseJinaMarkdown, parseRssXml } from "@/lib/parseRss";
 import {
   extractImagesFromHtml,
@@ -327,10 +327,19 @@ export function NewsTips({ className }: { className?: string }) {
     if (loadingBodies[key]) return;
     setLoadingBodies((prev) => ({ ...prev, [key]: true }));
     try {
-      const text = await resolveArticleBody(item.link);
-      if (text && text.trim().length > existing.length) {
-        setFullBodies((prev) => ({ ...prev, [key]: text.trim() }));
+      let text = await resolveArticleBody(item.link);
+      if (!text || text.trim().length <= existing.length) return;
+      text = text.trim();
+      // Sempre PT-BR na aba de dicas / fontes estrangeiras
+      const mustTranslate =
+        item.fromLang === "en" ||
+        item.fromLang === "es" ||
+        item.needsTranslation ||
+        !looksLikePortuguese(text);
+      if (mustTranslate) {
+        text = await translateToPortuguese(text, item.fromLang ?? "auto", true);
       }
+      setFullBodies((prev) => ({ ...prev, [key]: text }));
     } finally {
       setLoadingBodies((prev) => ({ ...prev, [key]: false }));
     }
@@ -555,20 +564,30 @@ export function NewsTips({ className }: { className?: string }) {
           setRemoteTips([...topTips]);
         }
 
-        const translateList = async (list: FeedItem[], onUpdate: () => void) => {
-          for (const item of list.filter((i) => i.needsTranslation)) {
+        const translateList = async (
+          list: FeedItem[],
+          onUpdate: () => void,
+          opts?: { forceAllForeign?: boolean },
+        ) => {
+          const forceAll = Boolean(opts?.forceAllForeign);
+          for (const item of list) {
             if (!mounted) return;
+            const foreign = item.fromLang === "en" || item.fromLang === "es" || item.needsTranslation;
+            const looksForeign =
+              !looksLikePortuguese(item.title) ||
+              (item.description ? !looksLikePortuguese(item.description.slice(0, 280)) : false);
+            if (!foreign && !(forceAll && looksForeign)) continue;
             try {
               const pt = await translateNewsFields({
                 title: item.title,
                 description: item.description,
-                fromLang: item.fromLang ?? "en",
+                fromLang: item.fromLang ?? "auto",
+                force: true,
               });
               item.title = pt.title;
               item.description = pt.description;
               item.translated = true;
               item.needsTranslation = false;
-              // Reclassifica street após tradução (melhor match em PT)
               item.street =
                 classifyStreet(item.title, item.description ?? "") ?? item.street ?? "preflop";
               onUpdate();
@@ -578,10 +597,14 @@ export function NewsTips({ className }: { className?: string }) {
           }
         };
 
-        await Promise.all([
-          translateList(topNews, () => mounted && setNewsItems([...topNews])),
-          translateList(topTips, () => mounted && setRemoteTips([...topTips])),
-        ]);
+        // Dicas: sempre forçar PT-BR em conteúdo estrangeiro
+        await translateList(topTips, () => mounted && setRemoteTips([...topTips]), {
+          forceAllForeign: true,
+        });
+        if (mounted) setRemoteTips([...topTips]);
+
+        await translateList(topNews, () => mounted && setNewsItems([...topNews]));
+        if (mounted) setNewsItems([...topNews]);
       } catch {
         if (mounted) setError("Falha ao carregar conteudo. Tente novamente mais tarde.");
       } finally {
