@@ -215,15 +215,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    let tournament_map = poker_api::tournament_catalog::load_tournaments_from_db(&pool)
+        .await
+        .map_err(|e| {
+            tracing::error!("Failed to load tournament catalog: {e}");
+            e
+        })?;
+    tracing::info!(
+        tournaments = tournament_map.len(),
+        "Tournament catalog loaded"
+    );
+
     // Build app state with high-concurrency RwLock
     let state = AppState {
         db: pool,
         auth: std::sync::Arc::new(tokio::sync::RwLock::new(
             poker_engine::auth::AuthManager::new(&jwt_secret),
         )),
-        tournaments: std::sync::Arc::new(
-            tokio::sync::RwLock::new(std::collections::HashMap::new()),
-        ),
+        tournaments: std::sync::Arc::new(tokio::sync::RwLock::new(tournament_map)),
         active_tables: std::sync::Arc::new(tokio::sync::RwLock::new(
             std::collections::HashMap::new(),
         )),

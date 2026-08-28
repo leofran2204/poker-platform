@@ -6,6 +6,7 @@ import type {
   JoinResponse,
   TableResponse,
   TokenResponse,
+  TournamentInfoResponse,
   WebSocketTicketResponse,
 } from "./types";
 
@@ -140,6 +141,27 @@ export async function resendVerification(email: string): Promise<{ ok: boolean; 
 
 export async function listTables(): Promise<TableResponse[]> {
   return request<TableResponse[]>("/api/lobby/tables");
+}
+
+export async function listTournaments(): Promise<TournamentInfoResponse[]> {
+  return request<TournamentInfoResponse[]>("/api/lobby/tournaments");
+}
+
+export async function getTournament(id: string): Promise<TournamentInfoResponse> {
+  return request<TournamentInfoResponse>(`/api/tournament/${id}`);
+}
+
+export async function registerTournament(tournamentId: string): Promise<{
+  tournament_id: string;
+  player_id: string;
+  stack: number;
+  registered: boolean;
+  gameplay_ready: boolean;
+}> {
+  return request("/api/tournament/register", {
+    method: "POST",
+    body: JSON.stringify({ tournament_id: tournamentId }),
+  });
 }
 
 export async function getTable(id: string): Promise<TableResponse> {

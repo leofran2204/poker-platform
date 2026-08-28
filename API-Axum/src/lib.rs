@@ -16,6 +16,7 @@ pub mod payments_routes;
 pub mod presence;
 pub mod state;
 pub mod telemetry;
+pub mod tournament_catalog;
 pub mod tournament_store;
 
 use axum::extract::State;
@@ -165,6 +166,10 @@ pub fn build_router(state: AppState) -> Router {
         )
         .route("/api/lobby/tables/:id", get(lobby::get_table))
         // ─── Tournament routes ───
+        .route(
+            "/api/lobby/tournaments",
+            get(tournament::list_tournaments),
+        )
         .route(
             "/api/tournament/register",
             post(tournament::register_player)

@@ -20,7 +20,8 @@ Guia curto para convidar dezenas de pessoas a testar e mandar feedback.
 |------|--------|
 | Saldo inicial | **R$ 1.000,00** (100 000 centavos) play-money |
 | PIX real | **Não** — mock only |
-| Mesas | Várias demo NL2 / NL5 / NL10 / NL25 (9 assentos cada) |
+| Mesas cash | **NL 0,50** (0,25/0,50, frente R$25) e **NL 1** (0,50/1,00, frente R$50) |
+| Torneios | Freeroll R$100 GTD + MTT R$200 GTD (buy-in R$20); inscrição no lobby — mãos MTT em breve |
 
 ## Mensagem pronta para WhatsApp / Discord
 
@@ -47,7 +48,7 @@ docker compose -f docker-compose.yml -f docker-compose.tunnel.yml up -d --build
 # + cloudflared tunnel run …
 ```
 
-A migration `013_demo_public_tables.sql` roda no boot da API e cria as mesas se ainda não existirem.
+A migration `018_cash_stakes_and_tournament_catalog.sql` fecha as demos antigas e garante as 2 mesas cash + catálogo de torneios.
 
 2. Confirme o contador online e o health: `https://zerotiltpoker.net/api/health` e `/api/presence/online`.
 3. Peça feedback estruturado: registro, e-mail, contador online, lobby, join, lag, mobile, crashes.
@@ -67,7 +68,7 @@ A migration `013_demo_public_tables.sql` roda no boot da API e cria as mesas se 
 [ ] Badge “N online” visível no header
 [ ] Registrar conta nova no browser
 [ ] Após login, contador sobe (heartbeat)
-[ ] Lobby lista mesas Demo NL*
+[ ] Lobby lista NL 0,50 e NL 1 (+ aba Torneios)
 [ ] Dois perfis entram na MESMA mesa (saldo R$1000)
 [ ] Mão inicia com ≥ 2 assentos
 ```

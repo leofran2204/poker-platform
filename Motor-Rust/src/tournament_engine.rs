@@ -70,6 +70,51 @@ pub struct TournamentConfig {
     pub allow_addon: bool,
     /// Nível máximo para re-buy/add-on
     pub rebuy_max_level: u32,
+    /// Prize pool mínimo garantido (GTD), em centavos
+    #[serde(default)]
+    pub guaranteed_prize: u64,
+    /// Freeroll (buy-in zero)
+    #[serde(default)]
+    pub is_freeroll: bool,
+    /// Custo do rebuy em centavos (0 = usa buy_in)
+    #[serde(default)]
+    pub rebuy_cost: u64,
+    /// Fichas recebidas no rebuy (0 = usa starting_stack)
+    #[serde(default)]
+    pub rebuy_chips: u64,
+    /// Máximo de rebuys por jogador (0 = ilimitado enquanto allow_rebuy)
+    #[serde(default)]
+    pub rebuy_max_count: u32,
+    /// Elegível a rebuy com stack <= threshold (além de eliminados). 0 = só eliminados
+    #[serde(default)]
+    pub rebuy_stack_threshold: u64,
+}
+
+impl Default for TournamentConfig {
+    fn default() -> Self {
+        Self {
+            name: "Tournament".to_string(),
+            game_type: "Holdem".to_string(),
+            buy_in: 0,
+            starting_stack: 10_000,
+            max_players: 100,
+            speed: TournamentSpeed::Normal,
+            blind_levels: Vec::new(),
+            prize_pool_pct: 1.0,
+            prize_distribution: vec![0.50, 0.30, 0.20],
+            late_registration: true,
+            late_registration_max_level: 4,
+            allow_rebuy: false,
+            allow_addon: false,
+            rebuy_max_level: 0,
+            guaranteed_prize: 0,
+            is_freeroll: false,
+            rebuy_cost: 0,
+            rebuy_chips: 0,
+            rebuy_max_count: 0,
+            rebuy_stack_threshold: 0,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -189,6 +234,7 @@ pub struct WinnerEntry {
 pub fn create_tournament(config: TournamentConfig) -> TournamentState {
     let tournament_id = generate_tournament_id(&config.name);
 
+    let guaranteed = config.guaranteed_prize;
     TournamentState {
         tournament_id,
         config,
@@ -199,7 +245,7 @@ pub fn create_tournament(config: TournamentConfig) -> TournamentState {
         total_buyins: 0,
         total_rebuys: 0,
         total_addons: 0,
-        prize_pool: 0,
+        prize_pool: guaranteed,
         players_remaining: 0,
         eliminated_order: Vec::new(),
         started_at: None,
@@ -417,7 +463,10 @@ pub fn cancel_tournament(state: &mut TournamentState) -> Result<(), String> {
     Ok(())
 }
 
-/// Processa um re-buy para um jogador
+/// Processa um re-buy para um jogador.
+///
+/// Elegível se eliminado **ou** (threshold > 0 e stack <= threshold).
+/// Fichas = `rebuy_chips` (ou `starting_stack` se 0). Custo = `rebuy_cost` (ou `buy_in` se 0).
 pub fn process_rebuy(state: &mut TournamentState, player_id: &str) -> Result<(), String> {
     if !state.config.allow_rebuy {
         return Err("Re-buy não permitido neste torneio".to_string());
@@ -434,14 +483,36 @@ pub fn process_rebuy(state: &mut TournamentState, player_id: &str) -> Result<(),
     let entry = state
         .players
         .get_mut(player_id)
-        .ok_or("Jogador não encontrado")?;
+        .ok_or_else(|| "Jogador não encontrado".to_string())?;
 
-    if entry.eliminated_at.is_none() {
-        return Err("Jogador ainda está no torneio (re-buy só para eliminados)".to_string());
+    if state.config.rebuy_max_count > 0 && entry.rebuys >= state.config.rebuy_max_count {
+        return Err("Limite de re-buys atingido".to_string());
     }
 
-    // Restaura o jogador
-    entry.stack = state.config.starting_stack;
+    let eliminated = entry.eliminated_at.is_some();
+    let short_stack = state.config.rebuy_stack_threshold > 0
+        && entry.eliminated_at.is_none()
+        && entry.stack <= state.config.rebuy_stack_threshold;
+
+    if !eliminated && !short_stack {
+        return Err(
+            "Re-buy só para eliminados ou stack no limiar configurado".to_string(),
+        );
+    }
+
+    let chips = if state.config.rebuy_chips > 0 {
+        state.config.rebuy_chips
+    } else {
+        state.config.starting_stack
+    };
+    let cost = if state.config.rebuy_cost > 0 {
+        state.config.rebuy_cost
+    } else {
+        state.config.buy_in
+    };
+
+    let was_eliminated = eliminated;
+    entry.stack = chips;
     entry.eliminated_at = None;
     entry.rebuys += 1;
     entry.table_id = None;
@@ -449,11 +520,11 @@ pub fn process_rebuy(state: &mut TournamentState, player_id: &str) -> Result<(),
     entry.final_position = None;
     entry.prize = None;
 
-    state.total_rebuys += state.config.buy_in;
-    state.players_remaining += 1;
-
-    // Remove da lista de eliminados
-    state.eliminated_order.retain(|id| id != player_id);
+    state.total_rebuys += cost;
+    if was_eliminated {
+        state.players_remaining += 1;
+        state.eliminated_order.retain(|id| id != player_id);
+    }
 
     recalculate_prize_pool(state);
 
@@ -541,7 +612,8 @@ fn current_timestamp() -> u64 {
 /// Recalcula o prize pool baseado nos buy-ins, re-buys e add-ons
 fn recalculate_prize_pool(state: &mut TournamentState) {
     let gross = state.total_buyins + state.total_rebuys + state.total_addons;
-    state.prize_pool = (gross as f64 * state.config.prize_pool_pct) as u64;
+    let collected = (gross as f64 * state.config.prize_pool_pct) as u64;
+    state.prize_pool = collected.max(state.config.guaranteed_prize);
 }
 
 /// Calcula a distribuição de prêmios baseado no prize_distribution
@@ -672,7 +744,42 @@ mod tests {
             allow_rebuy: true,
             allow_addon: true,
             rebuy_max_level: 4,
+            ..Default::default()
         }
+    }
+
+    #[test]
+    fn test_gtd_floor_on_empty_pool() {
+        let mut cfg = default_config();
+        cfg.guaranteed_prize = 20_000;
+        cfg.prize_pool_pct = 1.0;
+        let mut state = create_tournament(cfg);
+        recalculate_prize_pool(&mut state);
+        assert_eq!(state.prize_pool, 20_000);
+    }
+
+    #[test]
+    fn test_short_stack_rebuy_custom_chips() {
+        let mut cfg = default_config();
+        cfg.allow_rebuy = true;
+        cfg.rebuy_max_level = 6;
+        cfg.rebuy_max_count = 1;
+        cfg.rebuy_stack_threshold = 5_000;
+        cfg.rebuy_cost = 3_000;
+        cfg.rebuy_chips = 25_000;
+        cfg.starting_stack = 10_000;
+        let mut state = create_tournament(cfg);
+        register_player(&mut state, "p1", "Alice").unwrap();
+        register_player(&mut state, "p2", "Bob").unwrap();
+        start_tournament(&mut state).unwrap();
+        state.current_level = 3;
+        state.players.get_mut("p1").unwrap().stack = 4_000;
+        process_rebuy(&mut state, "p1").unwrap();
+        let p1 = state.players.get("p1").unwrap();
+        assert_eq!(p1.stack, 25_000);
+        assert_eq!(p1.rebuys, 1);
+        assert_eq!(state.total_rebuys, 3_000);
+        assert!(process_rebuy(&mut state, "p1").is_err());
     }
 
     #[test]

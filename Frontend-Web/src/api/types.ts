@@ -16,6 +16,36 @@ export interface TableResponse {
   game_type: string;
 }
 
+export interface BlindLevelDto {
+  level: number;
+  small_blind: number;
+  big_blind: number;
+  ante: number;
+  duration_minutes: number;
+}
+
+export interface TournamentInfoResponse {
+  id: string;
+  name: string;
+  buy_in: number;
+  starting_stack: number;
+  max_players: number;
+  registered_players: number;
+  status: string;
+  players_remaining: number;
+  prize_pool: number;
+  guaranteed_prize: number;
+  is_freeroll: boolean;
+  allow_rebuy: boolean;
+  rebuy_cost: number;
+  rebuy_chips: number;
+  rebuy_max_count: number;
+  rebuy_stack_threshold: number;
+  rebuy_max_level: number;
+  blind_levels: BlindLevelDto[];
+  gameplay_ready: boolean;
+}
+
 export interface JoinResponse {
   seat: number;
   chips: number;
