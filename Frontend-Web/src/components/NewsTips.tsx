@@ -109,7 +109,7 @@ const PAGE_PROXY = "https://api.allorigins.win/raw?url=";
 
 const LOCAL_NEWS_IMAGES = newsMedia.localNews as Record<string, string>;
 const TIP_IMAGES = (newsMedia.tipImages ?? {}) as Record<string, string>;
-const TIP_STREET_IMAGES = newsMedia.tipStreets as Record<LocalTip["street"], string>;
+const UNIQUE_POOL = (newsMedia.uniquePool ?? []) as string[];
 
 /** Uma única foto relevante (evento/pessoa). Sem filler genérico em notícias. */
 function pickStoryImage(candidates: Array<string | undefined | null>): string | undefined {
@@ -117,6 +117,43 @@ function pickStoryImage(candidates: Array<string | undefined | null>): string | 
     if (url && !isAdOrUselessImage(url)) return url;
   }
   return undefined;
+}
+
+/** Garante URL de imagem distinta por item (não reutiliza capa já usada na lista). */
+function assignUniqueImages<T extends { imageUrl?: string }>(
+  items: T[],
+  reserved: Set<string> = new Set(),
+): T[] {
+  const used = new Set<string>([...reserved].filter(Boolean));
+  let poolIdx = 0;
+  const nextPool = (): string | undefined => {
+    while (poolIdx < UNIQUE_POOL.length) {
+      const url = UNIQUE_POOL[poolIdx++];
+      if (url && !used.has(url) && !isAdOrUselessImage(url)) {
+        used.add(url);
+        return url;
+      }
+    }
+    return undefined;
+  };
+
+  return items.map((item) => {
+    const current = item.imageUrl && !isAdOrUselessImage(item.imageUrl) ? item.imageUrl : undefined;
+    if (current && !used.has(current)) {
+      used.add(current);
+      return item;
+    }
+    const replacement = nextPool();
+    if (replacement) return { ...item, imageUrl: replacement };
+    // Sem pool: mantém original mesmo se repetida (melhor que sumir a capa)
+    return item;
+  });
+}
+
+function reservedLocalImages(): Set<string> {
+  return new Set(
+    [...Object.values(LOCAL_NEWS_IMAGES), ...Object.values(TIP_IMAGES)].filter(Boolean),
+  );
 }
 
 function parseRSSDate(dateStr: string): Date {
@@ -338,7 +375,8 @@ export function NewsTips({ className }: { className?: string }) {
         allItems.sort((a, b) => parseRSSDate(b.pubDate).getTime() - parseRSSDate(a.pubDate).getTime());
 
         if (mounted) {
-          setNewsItems(allItems.slice(0, 15));
+          // Cada matéria do feed com capa distinta; não invade fotos locais/tips.
+          setNewsItems(assignUniqueImages(allItems.slice(0, 15), reservedLocalImages()));
         }
       } catch {
         if (mounted) setError("Falha ao carregar noticias. Tente novamente mais tarde.");
@@ -355,13 +393,8 @@ export function NewsTips({ className }: { className?: string }) {
     };
   }, [activeTab]);
 
-  const allTips = LOCAL_TIPS.map((tip, idx) => {
-    const imageUrl = pickStoryImage([
-      tip.imageUrl,
-      TIP_IMAGES[tip.id],
-      TIP_STREET_IMAGES[tip.street],
-    ]);
-    return {
+  const allTips = assignUniqueImages(
+    LOCAL_TIPS.map((tip, idx) => ({
       id: tip.id,
       title: tip.title,
       link: tip.link || "",
@@ -370,29 +403,31 @@ export function NewsTips({ className }: { className?: string }) {
       source: tip.category,
       street: tip.street,
       isLocal: true as const,
-      imageUrl,
-    };
-  });
+      imageUrl: pickStoryImage([tip.imageUrl, TIP_IMAGES[tip.id]]),
+    })),
+  );
 
   const tipsByStreet = allTips.filter((tip) => tip.street === activeStreet);
 
   const items: FeedItem[] =
     activeTab === "news"
-      ? [
-          ...newsItems,
-          ...LOCAL_NEWS.map((news) => ({
-            id: news.id,
-            title: news.title,
-            link: news.link || "",
-            pubDate: news.pubDate,
-            description: news.description,
-            source: news.category,
-            isLocal: true as const,
-            imageUrl: LOCAL_NEWS_IMAGES[news.id],
-          })),
-        ]
-          .sort((a, b) => parseRSSDate(b.pubDate).getTime() - parseRSSDate(a.pubDate).getTime())
-          .slice(0, 18)
+      ? assignUniqueImages(
+          [
+            ...newsItems,
+            ...LOCAL_NEWS.map((news) => ({
+              id: news.id,
+              title: news.title,
+              link: news.link || "",
+              pubDate: news.pubDate,
+              description: news.description,
+              source: news.category,
+              isLocal: true as const,
+              imageUrl: LOCAL_NEWS_IMAGES[news.id],
+            })),
+          ]
+            .sort((a, b) => parseRSSDate(b.pubDate).getTime() - parseRSSDate(a.pubDate).getTime())
+            .slice(0, 18),
+        )
       : tipsByStreet.map((tip) => ({ ...tip, id: tip.id }));
 
   function formatDate(dateStr: string): string {

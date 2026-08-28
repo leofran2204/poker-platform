@@ -2,18 +2,33 @@
   "localNews": {
     "n0": "/news/neuville-2.jpg",
     "n1": "/news/bsop-1.jpg.webp",
-    "n2": "/news/bsop-1.jpg.webp",
+    "n2": "/news/bsop-2.jpg",
     "n4": "/news/simpson-1.jpg",
     "n6": "/news/abacate-1.webp",
     "n10": "/news/wsop-1.webp"
   },
   "tipImages": {
-    "1": "/news/simpson-1.jpg"
+    "1": "/news/tip-01.jpg",
+    "2": "/news/tip-02.jpg",
+    "3": "/news/tip-03.jpg",
+    "10": "/news/tip-10.jpg",
+    "11": "/news/tip-11.jpg",
+    "12": "/news/tip-12.jpg",
+    "13": "/news/tip-13.jpg",
+    "20": "/news/tip-20.jpg",
+    "21": "/news/tip-21.jpg",
+    "22": "/news/tip-22.jpg",
+    "23": "/news/tip-23.jpg",
+    "30": "/news/tip-30.jpg",
+    "31": "/news/tip-31.jpg",
+    "32": "/news/tip-32.jpg",
+    "33": "/news/tip-33.jpg"
   },
-  "tipStreets": {
-    "preflop": "/news/table-1.jpg",
-    "flop": "/news/chips-1.jpg",
-    "turn": "/news/finaltable-1.jpg",
-    "river": "/news/room-1.jpg"
-  }
+  "uniquePool": [
+    "/news/table-1.jpg",
+    "/news/chips-1.jpg",
+    "/news/finaltable-1.jpg",
+    "/news/room-1.jpg",
+    "/news/tip-pool-festival.jpg"
+  ]
 }
