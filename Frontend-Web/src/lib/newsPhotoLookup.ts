@@ -1,18 +1,25 @@
 /**
  * Quando a fonte não publica foto, busca na web (Wikipedia / Wikimedia Commons)
  * uma imagem do jogador ou do evento citado no título.
+ * Se não houver registro público da pessoa → foto aleatória do evento.
  */
 
-const CACHE_PREFIX = "zt-news-photo-v1:";
+import newsMedia from "@/data/newsMedia.json";
 
-const EVENT_QUERIES: Array<{ match: RegExp; queries: string[] }> = [
-  { match: /\bBSOP\b/i, queries: ["BSOP poker", "Brazilian Series of Poker"] },
-  { match: /\bWSOP\b/i, queries: ["World Series of Poker", "WSOP Las Vegas poker"] },
-  { match: /\bEPT\b/i, queries: ["European Poker Tour", "EPT poker"] },
-  { match: /\bTriton\b/i, queries: ["Triton Poker", "Triton Super High Roller"] },
-  { match: /\bWPT\b/i, queries: ["World Poker Tour"] },
-  { match: /\bPokerStars\b/i, queries: ["PokerStars live poker"] },
-  { match: /\bGGPoker\b/i, queries: ["GGPoker"] },
+const CACHE_PREFIX = "zt-news-photo-v2:";
+
+type EventKey = "bsop" | "wsop" | "ept" | "triton" | "pokerstars" | "default";
+
+const EVENT_PHOTO_POOLS = (newsMedia.eventPhotoPools ?? {}) as Record<string, string[]>;
+
+const EVENT_QUERIES: Array<{ key: EventKey; match: RegExp; queries: string[] }> = [
+  { key: "bsop", match: /\bBSOP\b|\bFloripa\b/i, queries: ["BSOP poker", "Brazilian Series of Poker"] },
+  { key: "wsop", match: /\bWSOP\b/i, queries: ["World Series of Poker", "WSOP Las Vegas poker"] },
+  { key: "ept", match: /\bEPT\b/i, queries: ["European Poker Tour", "EPT poker"] },
+  { key: "triton", match: /\bTriton\b/i, queries: ["Triton Poker", "Triton Super High Roller"] },
+  { key: "wsop", match: /\bWPT\b/i, queries: ["World Poker Tour"] },
+  { key: "pokerstars", match: /\bPokerStars\b/i, queries: ["PokerStars live poker"] },
+  { key: "default", match: /\bGGPoker\b/i, queries: ["GGPoker"] },
 ];
 
 const TITLE_STOP = new Set(
@@ -128,7 +135,7 @@ export function buildPhotoSearchQueries(title: string, description?: string): st
     queries.push(clean);
   };
 
-  // Eventos conhecidos
+  // Eventos conhecidos (consultas web)
   for (const ev of EVENT_QUERIES) {
     if (ev.match.test(text)) {
       for (const q of ev.queries) push(q);
@@ -251,21 +258,41 @@ async function commonsImage(query: string): Promise<string | undefined> {
   return undefined;
 }
 
+/** Detecta qual circuito/evento o título menciona. */
+export function detectEventKey(title: string, description?: string): EventKey {
+  const text = `${title} ${description ?? ""}`;
+  for (const ev of EVENT_QUERIES) {
+    if (ev.match.test(text)) return ev.key;
+  }
+  return "default";
+}
+
+function pickRandom<T>(arr: T[]): T | undefined {
+  if (!arr.length) return undefined;
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/** Foto aleatória do evento (pool local) — último recurso com sentido. */
+export function randomEventPhoto(title: string, description?: string): string | undefined {
+  const key = detectEventKey(title, description);
+  const pool = EVENT_PHOTO_POOLS[key] ?? EVENT_PHOTO_POOLS.default ?? [];
+  const fallback = EVENT_PHOTO_POOLS.default ?? [];
+  return pickRandom(pool.length ? pool : fallback);
+}
+
 /**
- * Busca foto do jogador/evento na internet.
- * Ordem: cache → Wikipedia (EN/PT) → Wikimedia Commons.
+ * Busca foto do jogador/evento.
+ * Ordem: cache → Wikipedia/Commons (pessoa) → Commons (evento) → foto aleatória do evento.
  */
 export async function lookupStoryPhoto(title: string, description?: string): Promise<string | undefined> {
   const queries = buildPhotoSearchQueries(title, description);
-  if (queries.length === 0) return undefined;
-
-  const cacheKey = queries[0].toLowerCase();
+  const cacheKey = (queries[0] ?? title).toLowerCase().slice(0, 120);
   const cached = cacheGet(cacheKey);
-  if (cached === null) return undefined;
   if (typeof cached === "string") return cached;
+  // cached === null → pessoa sem registro; ainda tentamos evento abaixo
 
+  // 1) Pessoa / queries específicas (Wikipedia + Commons)
   for (const q of queries) {
-    // Nome "limpo" sem sufixo poker para summary direto
     const bare = q.replace(/\s+poker$/i, "").trim();
 
     const fromWiki =
@@ -289,6 +316,26 @@ export async function lookupStoryPhoto(title: string, description?: string): Pro
       cacheSet(cacheKey, fromCommons);
       return fromCommons;
     }
+  }
+
+  // 2) Só o evento na Commons (sem a pessoa)
+  const eventKey = detectEventKey(title, description);
+  const eventMeta = EVENT_QUERIES.find((e) => e.key === eventKey);
+  if (eventMeta) {
+    for (const q of eventMeta.queries) {
+      const evImg = await commonsImage(q);
+      if (evImg) {
+        cacheSet(cacheKey, evImg);
+        return evImg;
+      }
+    }
+  }
+
+  // 3) Sem registro público → foto aleatória do evento (pool local)
+  const localEvent = randomEventPhoto(title, description);
+  if (localEvent) {
+    cacheSet(cacheKey, localEvent);
+    return localEvent;
   }
 
   cacheSet(cacheKey, null);
