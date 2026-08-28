@@ -38,21 +38,26 @@ interface FeedConfig {
   kind: "news" | "tips" | "both";
 }
 
-/** Fontes RSS (Brasil + latam + internacionais) — notícias e/ou dicas. */
+/**
+ * Fontes RSS.
+ * - news → só aba Notícias
+ * - tips → só aba Jogando melhor
+ * - both → notícia na aba Notícias; tip só se for claramente estratégia
+ */
 const CONTENT_FEEDS: FeedConfig[] = [
-  { name: "Mundo Poker", url: "https://mundopoker.com.br/feed/", lang: "pt", kind: "both" },
-  { name: "Poker No Brasil", url: "https://pokernobrasil.com/feed/", lang: "pt", kind: "both" },
+  { name: "Mundo Poker", url: "https://mundopoker.com.br/feed/", lang: "pt", kind: "news" },
+  { name: "Poker No Brasil", url: "https://pokernobrasil.com/feed/", lang: "pt", kind: "news" },
   { name: "Lobbyze", url: "https://blog.lobbyze.com/feed/", lang: "pt", kind: "both" },
   { name: "SuperPoker", url: "https://www.superpoker.com.br/feed/", lang: "pt", kind: "news" },
   { name: "SuperPoker Estratégia", url: "https://www.superpoker.com.br/category/estrategia/feed/", lang: "pt", kind: "tips" },
-  { name: "PokerNews Brasil", url: "https://br.pokernews.com/rss.php?subject=news", lang: "pt", kind: "both" },
-  { name: "Código Poker", url: "https://codigopoker.com.br/feed/", lang: "pt", kind: "both" },
-  { name: "Código Poker Latam", url: "https://codigopoker.com/feed/", lang: "es", kind: "both" },
+  { name: "PokerNews Brasil", url: "https://br.pokernews.com/rss.php?subject=news", lang: "pt", kind: "news" },
+  { name: "Código Poker", url: "https://codigopoker.com.br/feed/", lang: "pt", kind: "news" },
+  { name: "Código Poker Latam", url: "https://codigopoker.com/feed/", lang: "es", kind: "news" },
   { name: "PokerNews", url: "https://www.pokernews.com/rss.php?subject=news", lang: "en", kind: "news" },
   { name: "CardPlayer", url: "https://www.cardplayer.com/rss", lang: "en", kind: "news" },
-  { name: "CardsChat", url: "https://www.cardschat.com/feed/", lang: "en", kind: "both" },
+  { name: "CardsChat", url: "https://www.cardschat.com/feed/", lang: "en", kind: "news" },
   { name: "Upswing Poker", url: "https://upswingpoker.com/feed/", lang: "en", kind: "tips" },
-  { name: "FlushDraw", url: "https://www.flushdraw.net/feed/", lang: "en", kind: "both" },
+  { name: "FlushDraw", url: "https://www.flushdraw.net/feed/", lang: "en", kind: "tips" },
 ];
 
 const ITEMS_PER_FEED = 5;
@@ -173,45 +178,49 @@ function normalizeText(s: string): string {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
-/** Classifica artigo de estratégia na street da aba Jogando melhor. */
+/** Classifica street só depois de confirmar que é conteúdo de estratégia. */
 function classifyStreet(title: string, body = ""): FeedItem["street"] | undefined {
   const t = normalizeText(`${title} ${body}`);
   if (
-    /pre[\s-]?flop|preflop|open[\s-]?raise|3[\s-]?bet|4[\s-]?bet|\blimp\b|blind|steal|iso[\s-]?raise|range de abertura|versus limp|vs limp/.test(
+    /pre[\s-]?flop|preflop|open[\s-]?raise|3[\s-]?bet|4[\s-]?bet|\blimp\b|iso[\s-]?raise|range de abertura|versus limp|vs limp|steal blind/.test(
       t,
     )
   ) {
     return "preflop";
   }
-  if (/\bflop\b|c[\s-]?bet|continuation|donk|set mining|\bfloat\b|check[\s-]?raise/.test(t)) {
+  if (/\bflop\b|c[\s-]?bet|continuation bet|donk bet|set mining|float pot/.test(t)) {
     return "flop";
   }
   if (/\bturn\b|double barrel|segundo barri|probe bet|scare card/.test(t)) {
     return "turn";
   }
-  if (/\briver\b|bluff[\s-]?catch|value bet|overbet|blocking bet|showdown|thin value/.test(t)) {
+  if (/\briver\b|bluff[\s-]?catch|value bet|overbet|blocking bet|thin value/.test(t)) {
     return "river";
   }
   return undefined;
 }
 
+/** Manchete tipicamente de notícia (resultado/torneio) — NÃO vai para Jogando melhor. */
+function looksLikeNewsHeadline(title: string): boolean {
+  const t = normalizeText(title);
+  return /venceu|vence |campeao|campea|morre|faleceu|classific|lidera|caiu|eliminad|bracelet|premia|inscric|satelite|cobertura|resultado|final table|mesa final|dia \d|main event|high roller|forra|faturou|leva us\$|leva r\$|conquist/.test(
+    t,
+  );
+}
+
+/**
+ * Só manda para Jogando melhor se for feed de tips OU (both) claramente estratégico.
+ * Feed "news" nunca vaza para a aba de dicas.
+ */
 function isStrategyContent(title: string, body: string, feedKind: FeedConfig["kind"]): boolean {
   if (feedKind === "tips") return true;
-  if (feedKind === "news") {
-    // Notícia pura: só vira tip se o texto for claramente de estratégia
-    const t = normalizeText(`${title} ${body}`);
-    return (
-      /estrateg|strategy|dica|como jogar|hand review|gto|icm|bankroll|\brange\b|c-bet|preflop|postflop|quiz|spot de|torneio: como/.test(
-        t,
-      ) || classifyStreet(title, body) !== undefined
-    );
-  }
-  // both
-  const t = normalizeText(`${title} ${body}`);
-  return (
-    /estrateg|strategy|dica|como jogar|hand review|gto|icm|bankroll|\brange\b|c-bet|preflop|postflop|quiz|spot/.test(
-      t,
-    ) || classifyStreet(title, body) !== undefined
+  if (feedKind === "news") return false;
+
+  // both — exige sinal claro de estratégia e rejeita manchete de resultado
+  if (looksLikeNewsHeadline(title)) return false;
+  const t = normalizeText(`${title} ${body.slice(0, 500)}`);
+  return /estrateg|strategy|dica[s]? de|como jogar|hand review|gto|\bicm\b|bankroll|quiz|guia completo|tutorial|aprenda|melhorar seu jogo|vs limp|c-bet|pre-flop|preflop|postflop|ranges? de|spot:|teoria do|conceito/.test(
+    t,
   );
 }
 
@@ -482,18 +491,15 @@ export function NewsTips({ className }: { className?: string }) {
 
         for (const { feed, items: feedItems } of batches) {
           for (const item of feedItems) {
-            const strategy = isStrategyContent(item.title, item.description ?? "", feed.kind);
-            const asTip =
-              feed.kind === "tips" ||
-              ((feed.kind === "both" || feed.kind === "news") && strategy);
-            if (asTip) {
+            // Jogando melhor: só tips dedicados ou "both" com estratégia clara
+            if (isStrategyContent(item.title, item.description ?? "", feed.kind)) {
               tipsPool.push({
                 ...item,
                 street: item.street ?? classifyStreet(item.title, item.description ?? "") ?? "preflop",
                 id: `tip:${item.id}`,
               });
             }
-            // Feed exclusivo de tips não entra na aba Notícias
+            // Notícias: nunca entra feed exclusivo de tips
             if (feed.kind !== "tips") {
               newsPool.push(item);
             }
