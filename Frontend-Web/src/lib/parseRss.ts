@@ -59,15 +59,12 @@ export function parseRssXml(xml: string, feedUrl?: string): ParsedRssItem[] {
     const description = textOf(first(node, ["description", "summary", "content:encoded", "content"]));
     const content = textOf(first(node, ["content:encoded", "content", "description"])) || description;
 
+    // Só enclosure/media — NÃO a 1ª <img> do HTML (costuma ser sidebar/outra matéria)
     let thumbnail: string | undefined;
     const enclosure = first(node, ["enclosure", "media:content", "media:thumbnail"]);
     if (enclosure) {
       const encUrl = enclosure.getAttribute("url") || enclosure.getAttribute("href");
       if (encUrl && /\.(jpg|jpeg|png|webp)/i.test(encUrl)) thumbnail = absUrl(encUrl, feedUrl);
-    }
-    if (!thumbnail) {
-      const img = content.match(/src=["'](https?:\/\/[^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/i);
-      if (img) thumbnail = img[1];
     }
 
     if (!title) continue;

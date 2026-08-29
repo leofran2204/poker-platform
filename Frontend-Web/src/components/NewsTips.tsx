@@ -4,8 +4,10 @@ import { TipRichText } from "@/components/TipRichText";
 import { looksLikePortuguese, translateNewsFields, translateToPortuguese } from "@/lib/translatePt";
 import { parseJinaMarkdown, parseRssXml } from "@/lib/parseRss";
 import {
-  extractImagesFromHtml,
+  dedupeCoverImages,
   htmlToPlainText,
+  isAcceptableCoverImage,
+  isAdBanner,
   resolveArticleBody,
   resolveSourceImage,
 } from "@/lib/articleFetch";
@@ -18,7 +20,7 @@ interface FeedItem {
   description?: string;
   source: string;
   isLocal?: boolean;
-  /** Somente foto oficial da fonte (og/corpo). Sem fallback. */
+  /** Capa oficial da matéria (og/thumb único). Sem foto → capa temática. */
   imageUrl?: string;
   imageCaption?: string;
   /** Fonte internacional já traduzida para PT. */
@@ -146,10 +148,10 @@ const LOCAL_TIPS: LocalTip[] = tipsData.tips as LocalTip[];
 const CORS_PROXY = "https://api.rss2json.com/v1/api.json?rss_url=";
 const PAGE_PROXY = "https://api.allorigins.win/raw?url=";
 
-/** Só foto da fonte; rejeita só banner de anúncio óbvio. */
+/** Só thumbnail/enclosure oficial — nunca a 1ª img aleatória do HTML do feed. */
 function pickSourceImage(candidates: Array<string | undefined | null>): string | undefined {
   for (const url of candidates) {
-    if (url && !isAdBanner(url)) return url;
+    if (isAcceptableCoverImage(url)) return url;
   }
   return undefined;
 }
@@ -159,17 +161,38 @@ function parseRSSDate(dateStr: string): Date {
   return isNaN(date.getTime()) ? new Date() : date;
 }
 
-function isAdBanner(url: string): boolean {
-  const u = url.toLowerCase();
-  return (
-    u.includes("820x100") ||
-    u.includes("/ads/") ||
-    u.includes("favicon") ||
-    u.includes("emoji") ||
-    u.includes("wp-content/uploads/2026/05/820x100") ||
-    u.endsWith(".svg")
-  );
+type NewsTheme = "wsop" | "torneio" | "online" | "homenagem" | "estrategia" | "geral";
+
+function classifyNewsTheme(title: string, source = ""): NewsTheme {
+  const t = normalizeText(`${title} ${source}`);
+  if (/morre|faleceu|homenagem|obituar|in memoriam/.test(t)) return "homenagem";
+  if (/wsop|world series|bracelet|las vegas/.test(t)) return "wsop";
+  if (
+    /bsop|ept|wpt|satelite|satellite|main event|high roller|torneio|mesa final|final table|freeroll|mtt|cobertura/.test(
+      t,
+    )
+  ) {
+    return "torneio";
+  }
+  if (
+    /pokerstars|ggpoker|888poker|partypoker|cash|blinds?|pote|online|streamer|twitch/.test(t)
+  ) {
+    return "online";
+  }
+  if (/estrateg|strategy|como jogar|gto|ranges?|limp|c-bet|preflop|dica/.test(t)) {
+    return "estrategia";
+  }
+  return "geral";
 }
+
+const THEME_LABEL: Record<NewsTheme, string> = {
+  wsop: "WSOP",
+  torneio: "Torneio",
+  online: "Online",
+  homenagem: "Homenagem",
+  estrategia: "Estratégia",
+  geral: "Poker",
+};
 
 function normalizeText(s: string): string {
   return s
@@ -248,12 +271,47 @@ function NewsImage({
         decoding="async"
         referrerPolicy="no-referrer"
         className="zt-news-photo"
+        onError={(e) => {
+          // Quebra de imagem → esconde; o card fica só com texto (capa tema já é alternativa)
+          (e.currentTarget.closest(".zt-news-photo-frame, .zt-news-photo-frame-lg") as HTMLElement | null)?.style.setProperty(
+            "display",
+            "none",
+          );
+        }}
       />
       {caption && (
         <div className="zt-news-photo-caption" title={caption}>
           <span>{caption}</span>
         </div>
       )}
+    </div>
+  );
+  if (!onClick) return frame;
+  return (
+    <button type="button" onClick={onClick} className="block w-full text-left">
+      {frame}
+    </button>
+  );
+}
+
+/** Capa temática sem rostos — usada quando não há thumbnail confiável/única. */
+function NewsThemeCover({
+  theme,
+  large,
+  onClick,
+}: {
+  theme: NewsTheme;
+  large?: boolean;
+  onClick?: () => void;
+}) {
+  const label = THEME_LABEL[theme];
+  const frame = (
+    <div
+      className={`zt-news-theme-cover zt-news-theme-${theme} ${large ? "zt-news-theme-cover-lg" : ""}`}
+      aria-hidden
+    >
+      <div className="zt-news-theme-icon" />
+      <span className="zt-news-theme-label">{label}</span>
     </div>
   );
   if (!onClick) return frame;
@@ -380,16 +438,12 @@ export function NewsTips({ className }: { className?: string }) {
           (typeof item.description === "string" && item.description) ||
           "";
         const body = htmlToPlainText(rawBody);
-        const base = item.link || feed.url;
-        const fromContent = extractImagesFromHtml(
-          typeof item.content === "string" ? item.content : rawBody,
-          base,
-        );
+        // Só thumbnail oficial do feed — NÃO a 1ª <img> do HTML (causa foto errada)
         const thumb =
-          typeof item.thumbnail === "string" && item.thumbnail && !isAdBanner(item.thumbnail)
+          typeof item.thumbnail === "string" && isAcceptableCoverImage(item.thumbnail)
             ? item.thumbnail
             : undefined;
-        const early = pickSourceImage([fromContent[0], thumb]);
+        const early = pickSourceImage([thumb]);
         const street = classifyStreet(item.title, body);
         out.push({
           id: item.link || `${feed.name}:${item.title}`,
@@ -548,13 +602,18 @@ export function NewsTips({ className }: { className?: string }) {
           await Promise.all(
             list.map(async (item) => {
               if (!item.link) return;
-              // Sempre tenta a foto oficial da página; se falhar, mantém a do RSS
               const og = await resolveSourceImage(item.link);
-              if (!og) return;
-              item.imageUrl = og;
-              item.imageCaption = "Foto da matéria";
+              if (og && isAcceptableCoverImage(og)) {
+                item.imageUrl = og;
+                item.imageCaption = "Foto da matéria";
+              } else if (item.imageUrl && !isAcceptableCoverImage(item.imageUrl)) {
+                item.imageUrl = undefined;
+                item.imageCaption = undefined;
+              }
             }),
           );
+          // Uma URL só pode ilustrar um card — evita a mesma foto em várias matérias
+          dedupeCoverImages(list);
         };
 
         await Promise.all([enrichOg(topNews), enrichOg(topTips)]);
@@ -754,19 +813,27 @@ export function NewsTips({ className }: { className?: string }) {
               const body = (fullBodies[itemKey] || rssBody).trim();
               const canExpand = Boolean(item.link) || body.length > 0;
               const isLoadingBody = Boolean(loadingBodies[itemKey]);
-              const photo = item.imageUrl;
+              const photo =
+                item.imageUrl && isAcceptableCoverImage(item.imageUrl) ? item.imageUrl : undefined;
               const caption = item.imageCaption || (photo ? "Foto da matéria" : undefined);
+              const theme = classifyNewsTheme(item.title, item.source);
 
               return (
                 <article
                   key={itemKey}
                   className={`group zt-card overflow-hidden transition-colors hover:border-gold-soft/30 ${isExpanded ? "border-gold-soft/40" : ""}`}
                 >
-                  {photo && (
+                  {photo ? (
                     <NewsImage
                       url={photo}
                       alt={item.title}
                       caption={caption}
+                      large={isExpanded}
+                      onClick={() => canExpand && toggleExpand(item)}
+                    />
+                  ) : (
+                    <NewsThemeCover
+                      theme={theme}
                       large={isExpanded}
                       onClick={() => canExpand && toggleExpand(item)}
                     />

@@ -380,6 +380,79 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
   }
 
+  /* Capas temáticas (sem rostos) — fallback quando não há thumbnail único da matéria */
+  .zt-news-theme-cover {
+    @apply relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-md border border-felt-600;
+    min-height: 7.5rem;
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(201, 162, 39, 0.18), transparent 55%),
+      linear-gradient(145deg, #0f2418 0%, #163526 45%, #0c1a12 100%);
+  }
+
+  .zt-news-theme-cover-lg {
+    min-height: 10rem;
+    @apply rounded-lg;
+  }
+
+  .zt-news-theme-label {
+    @apply text-xs font-bold uppercase tracking-[0.2em] text-gold-soft;
+  }
+
+  .zt-news-theme-icon {
+    @apply h-8 w-8 opacity-80;
+    background: center / contain no-repeat;
+    /* ícone jornal (SVG data-uri) — tema geral */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%23c9a227' stroke-width='1.5' viewBox='0 0 24 24'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z'/%3E%3C/svg%3E");
+  }
+
+  .zt-news-theme-wsop {
+    background:
+      radial-gradient(ellipse at 70% 10%, rgba(255, 215, 100, 0.22), transparent 50%),
+      linear-gradient(145deg, #1a1408 0%, #3d2e0f 50%, #0f2418 100%);
+  }
+  .zt-news-theme-wsop .zt-news-theme-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%23f0d78c' stroke-width='1.5' viewBox='0 0 24 24'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M5 3l2 7h10l2-7M8 10v4a4 4 0 008 0v-4M9 21h6'/%3E%3C/svg%3E");
+  }
+
+  .zt-news-theme-torneio {
+    background:
+      radial-gradient(ellipse at 20% 80%, rgba(61, 220, 132, 0.15), transparent 50%),
+      linear-gradient(145deg, #0c1f16 0%, #1a3d2a 55%, #0a1610 100%);
+  }
+  .zt-news-theme-torneio .zt-news-theme-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%233ddc84' stroke-width='1.5' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3C/svg%3E");
+  }
+
+  .zt-news-theme-online {
+    background:
+      radial-gradient(ellipse at 80% 30%, rgba(96, 165, 250, 0.18), transparent 55%),
+      linear-gradient(145deg, #0a1624 0%, #16324a 50%, #0c1a12 100%);
+  }
+  .zt-news-theme-online .zt-news-theme-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%2360a5fa' stroke-width='1.5' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='8'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath stroke-linecap='round' d='M12 4v2m0 12v2m8-8h-2M6 12H4'/%3E%3C/svg%3E");
+  }
+
+  .zt-news-theme-homenagem {
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(148, 163, 184, 0.12), transparent 55%),
+      linear-gradient(145deg, #111827 0%, #1f2937 55%, #0c1a12 100%);
+  }
+  .zt-news-theme-homenagem .zt-news-theme-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%2394a3b8' stroke-width='1.5' viewBox='0 0 24 24'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M12 21s-7-4.5-7-10a4 4 0 017-2.5A4 4 0 0119 11c0 5.5-7 10-7 10z'/%3E%3C/svg%3E");
+  }
+  .zt-news-theme-homenagem .zt-news-theme-label {
+    @apply text-slate-300;
+  }
+
+  .zt-news-theme-estrategia {
+    background:
+      radial-gradient(ellipse at 40% 20%, rgba(201, 162, 39, 0.2), transparent 50%),
+      linear-gradient(145deg, #142018 0%, #243828 50%, #0c1a12 100%);
+  }
+  .zt-news-theme-estrategia .zt-news-theme-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%23c9a227' stroke-width='1.5' viewBox='0 0 24 24'%3E%3Crect x='3' y='5' width='10' height='14' rx='1.5'/%3E%3Crect x='11' y='5' width='10' height='14' rx='1.5'/%3E%3C/svg%3E");
+  }
+
   .zt-spinner {
     @apply h-5 w-5 animate-spin rounded-full border-2 border-felt-500 border-t-gold-bright;
   }
