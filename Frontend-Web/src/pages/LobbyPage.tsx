@@ -7,15 +7,14 @@ import { formatBrlFromCents } from "@/lib/money";
 import { getWalletMode } from "@/lib/walletMode";
 
 type LobbyTab = "cash" | "tournaments";
-type StakeFilter = "all" | "nl025" | "nl050" | "sd050" | "sd11" | "sdOmaha";
+type StakeFilter = "all" | "nl025" | "nl050" | "sd050" | "sdOmaha";
 
 const STAKE_OPTIONS: { id: StakeFilter; label: string }[] = [
   { id: "all", label: "Todos" },
   { id: "nl025", label: "NL 0,25/0,25" },
   { id: "nl050", label: "NL 0,25/0,50" },
   { id: "sd050", label: "SD 0,50/0,50" },
-  { id: "sd11", label: "SD 1/1" },
-  { id: "sdOmaha", label: "SD Omaha 1/2" },
+  { id: "sdOmaha", label: "SD Omaha 0,50/1" },
 ];
 
 function variantLabel(t: { poker_variant?: string; game_type?: string }): string {
@@ -98,8 +97,8 @@ export function LobbyPage() {
       if (stake === "nl050")
         return !isSd && !isOmaha && t.small_blind === 25 && t.big_blind === 50;
       if (stake === "sd050") return isSd && t.small_blind === 50 && t.big_blind === 50;
-      if (stake === "sd11") return isSd && t.small_blind === 100 && t.big_blind === 100;
-      if (stake === "sdOmaha") return isOmaha && t.big_blind === 200;
+      if (stake === "sdOmaha")
+        return isOmaha && t.small_blind === 50 && t.big_blind === 100;
       return true;
     });
   }, [tables, hideFull, stake]);
@@ -219,8 +218,8 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({filtered.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                NL 0,25/0,25 (R$25) · NL 0,25/0,50 (R$50) · SD 0,50 (R$75) · SD 1/1 (R$100) · SD Omaha
-                1/2 4-max (R$150) · auto 15s
+                NL 0,25/0,25 (R$25) · NL 0,25/0,50 (R$50) · SD 0,50 (R$75) · SD Omaha 0,50/1 4-max
+                (R$100) · auto 15s
               </p>
             </div>
 
