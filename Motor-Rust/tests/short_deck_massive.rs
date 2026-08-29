@@ -411,8 +411,8 @@ fn auto_play_until_finished(gl: &mut GameLoop, big_blind: u64) {
 fn short_deck_hundred_thousand_hands_six_max_conserves_chips() {
     const HANDS: u32 = 100_000;
     const PLAYERS: usize = 6;
-    const STARTING_STACK: u64 = 10_000; // frente R$100 (centavos) — mesa SD 1/2
-    const BIG_BLIND: u64 = 200; // R$2
+    const STARTING_STACK: u64 = 10_000; // stack de stress (centavos)
+    const BIG_BLIND: u64 = 200;
     const RAKE_BPS: u16 = 500;
     const RAKE_CAP: u64 = 1_000;
 

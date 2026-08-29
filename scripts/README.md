@@ -7,10 +7,35 @@ Automação operacional do monorepo.
 | Script | Uso |
 |--------|-----|
 | `live-e2e-ten-users.mjs` | Smoke demo: 10 users / 100 hands + settlement assinado (`ALLOW_TEMP_MAIL=true`) |
-| `full-validation.ps1` / `.sh` | Lote de validação autorizada (motor/API/gateway; fase frontend = no-op) |
+| `live-e2e-seeded-catalog.mjs` | Smoke mesa a mesa (Real ou Play): login seed → join → ≥1 mão → leave; torneios |
+| `live-e2e-real-catalog.mjs` | Variante com Mail.tm + crédito admin opcional (`ADMIN_TOKEN`) |
+| `full-validation.ps1` / `.sh` | Lote de validação autorizada (motor/API/gateway) |
 | `deploy.ps1` / `deploy.sh` | Deploy assistido |
 | `verify-public-https.sh` | Checagem HTTPS/Caddy público |
-| `vps-redeploy-frontend.sh` | Redeploy rápido do frontend na VPS |
+| `vps-redeploy-frontend.sh` | Redeploy na VPS (`REBUILD_API=1` para API+migration) |
 | `coverage.ps1` / `.sh` | Cobertura (quando autorizado) |
 
-UI canônica: **`Frontend-Web/`** (`npm run build` / Docker). O antigo `Frontend-Dioxus/` e scripts WASM foram removidos do monorepo (permanecem no histórico git).
+## Stress do motor (não são scripts shell)
+
+| Teste | Uso |
+|-------|-----|
+| `Motor-Rust/tests/cash_catalog_10k_hands.rs` | 10k mãos × NLHE / SD / SD Omaha (catálogo oficial) |
+| `Motor-Rust/tests/short_deck_massive.rs` | Regras SD + 1M evals + 100k mãos 6-max |
+| `cargo test --features massive-tests …` | Fuzz/fairness/stress gated |
+
+Exemplo Docker (Windows sem toolchain GNU):
+
+```bash
+docker run --rm -v "$PWD":/app -w /app/Motor-Rust rust:1.97.0-bookworm \
+  cargo test --test cash_catalog_10k_hands -- --nocapture
+```
+
+## Seeded catalog e2e
+
+```bash
+# Contas e2ecat01/02 com saldo Real (criar via SQL na VPS se necessário)
+MODE=real HANDS_PER_TABLE=1 node scripts/live-e2e-seeded-catalog.mjs
+MODE=play HANDS_PER_TABLE=1 node scripts/live-e2e-seeded-catalog.mjs
+```
+
+UI canônica: **`Frontend-Web/`** (`npm run build` / Docker). O antigo `Frontend-Dioxus/` foi removido do monorepo.

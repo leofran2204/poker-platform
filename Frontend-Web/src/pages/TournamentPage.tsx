@@ -82,10 +82,17 @@ export function TournamentPage() {
           <p className="mt-1">
             <span
               className={
-                info.poker_variant === "short_deck" ? "zt-chip zt-chip-accent" : "zt-chip"
+                info.poker_variant === "short_deck" ||
+                info.poker_variant === "short_deck_omaha"
+                  ? "zt-chip zt-chip-accent"
+                  : "zt-chip"
               }
             >
-              {info.poker_variant === "short_deck" ? "Short Deck" : "NLHE"}
+              {info.poker_variant === "short_deck_omaha"
+                ? "SD Omaha"
+                : info.poker_variant === "short_deck"
+                  ? "Short Deck"
+                  : "NLHE"}
             </span>
           </p>
         </div>

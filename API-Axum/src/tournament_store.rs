@@ -12,7 +12,7 @@ pub struct TournamentStore {
     pub state: TournamentState,
     /// `play` | `real` — must match client wallet mode.
     pub money_mode: String,
-    /// `holdem` | `short_deck`
+    /// `holdem` | `short_deck` | `short_deck_omaha`
     pub poker_variant: String,
 }
 
@@ -33,7 +33,10 @@ impl TournamentStore {
     ) -> Self {
         let mut state = poker_engine::tournament_engine::create_tournament(config);
         state.tournament_id = id.clone();
-        let poker_variant = if poker_variant.eq_ignore_ascii_case("short_deck") {
+        let v = poker_variant.to_ascii_lowercase();
+        let poker_variant = if v == "short_deck_omaha" || v == "sd_omaha" {
+            "short_deck_omaha".into()
+        } else if v == "short_deck" || v == "sd" {
             "short_deck".into()
         } else {
             "holdem".into()

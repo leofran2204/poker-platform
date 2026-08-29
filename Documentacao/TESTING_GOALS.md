@@ -5,6 +5,8 @@
 
 > **Nota de execução (2026-08-01):** os totais nesta página são metas e registros históricos, não um gate de release. A CI executa somente testes determinísticos e rápidos. A validação completa autorizada concentra 100 cenários centrais de carga (79 do motor, 10 da API HTTPS, 10 frontend e 1 WSS de 1.000.800 mensagens), além dos testes funcionais de plataforma. Consulte `FULL_VALIDATION.md` e o estado canônico em `STATUS_OPERACIONAL.json`.
 
+> **Atualização 2026-08-29 (S18):** validação do catálogo cash oficial — `Motor-Rust/tests/cash_catalog_10k_hands.rs` (10k mãos × NLHE/SD/SD Omaha); `short_deck_massive`; smoke `scripts/live-e2e-seeded-catalog.mjs` (Real e Play, mesa a mesa). Stress pode usar `GameLoop::with_skip_loss_deflator(true)` para evitar MC multiway lento.
+
 ---
 
 ## 📊 Situação Atual (Fase 1 ✅)
@@ -192,7 +194,7 @@ Saneamento completo de todas as vulnerabilidades e bugs apontados no Parecer Té
 
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-08-26):** S13+ — Presença online + home NewsTips (notícias/dicas); S12 (MFA, settlements 017, smoke 10×100); demo VPS zerotiltpoker.net (play-money, mín. 2 na mesma mesa). Repo canônico: Projetos/Poker_Project (não OneDrive). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017. Presence API no ar: GET /api/presence/online e POST /api/presence/heartbeat (TTL 90s, Redis). Smoke live 10×100 PASS (0833 jornada; 0920 settlementsVerified=2). Frontend badge/hero online deployados. Mock é o padrão. Asaas Sandbox restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção desabilitados. Nenhum depósito com dinheiro real. Mesas com dono único por processo; guarda de recovery entre início e liquidação. Settlement assinado (HMAC) na liquidação; API verifica no replay.
+> **Estado operacional sincronizado (2026-08-29):** S18 — Catálogo cash NLHE+Short Deck+SD Omaha (PM×Real); frentes fixas; motor short_deck_omaha; notícias com capa temática; testes 10k/mesa + e2e seeded Real/PM. Demo VPS zerotiltpoker.net. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–025. Presence API no ar. Motor: cash_catalog_10k_hands PASS (4 configs × 10k); short_deck_massive PASS; tournament_engine 954 ok. Smoke live seeded Real+PM: join+≥1 mão em cada mesa OPEN; inscrição torneios OK. Mock/auto PIX bloqueado para gaming em vários PSPs. Fluxo vigente: Pedir fichas (depósito manual) + comprovante + aprovação admin. Nenhum gateway de saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

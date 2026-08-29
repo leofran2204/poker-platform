@@ -1,80 +1,91 @@
 # Demo com amigos — zerotiltpoker.net
 
-Guia curto para convidar dezenas de pessoas a testar e mandar feedback.
+Guia curto para convidar pessoas a testar e mandar feedback.
 
 ## O que cada amigo precisa fazer
 
-1. Abrir **https://zerotiltpoker.net** (HTTPS público Let's Encrypt)
-2. Ver o contador **“X online”** no topo (e o banner na home) — só conta quem **está logado** com heartbeat recente (~90s)
+1. Abrir **https://zerotiltpoker.net** (HTTPS público)
+2. Ver o contador **“X online”** no topo — só conta quem **está logado** com heartbeat recente (~90s)
 3. **Registrar** (username 3–30 chars, e-mail válido, senha forte + confirmação; ex. `PokerDemo1`)
-4. **Verificar e-mail** — código de 6 dígitos enviado via Resend (inbox + spam); tela `/verify-email`
-5. Ir ao **Lobby** e combinar a **mesma mesa** com pelo menos **2 pessoas**
-6. Clicar **Entrar** (buy-in mínimo automático)
-7. Jogar e anotar bugs / sensações
+4. **Verificar e-mail** — código de 6 dígitos (inbox + spam); tela `/verify-email`
+5. No header, escolher o modo de carteira:
+   - **Play Money** — fichas de diversão (renovam todo dia)
+   - **Jogo Real** — saldo real (precisa depósito aprovado / crédito admin)
+6. Ir ao **Lobby**, filtrar o stake desejado e combinar a **mesma mesa** com pelo menos **2 pessoas**
+7. Clicar **Entrar** (frente fixa da mesa)
+8. Jogar e anotar bugs / sensações
 
-> **Importante:** 1 pessoa sozinha no site **não** inicia mão. Precisa de **≥ 2 assentos ocupados na mesma mesa**.
+> **Importante:** 1 pessoa sozinha **não** inicia mão. Precisa de **≥ 2 assentos** na mesma mesa.
 
-## O que a conta ganha
+## Catálogo cash (Play Money e Jogo Real)
 
-| Item | Valor |
-|------|--------|
-| Saldo inicial | **R$ 1.000,00** (100 000 centavos) play-money |
-| PIX real | **Não** — mock only |
-| Mesas cash | **NL 0,50** (0,25/0,50, frente R$25) e **NL 1** (0,50/1,00, frente R$50) |
-| Torneios | Freeroll R$100 GTD + MTT R$200 GTD (buy-in R$20); inscrição no lobby — mãos MTT em breve |
+| Mesa | Jogo | Blinds | Cap | Frente |
+|------|------|--------|-----|--------|
+| NL 0,25 | Hold’em | 0,25 / 0,25 | 9 | R$25 |
+| NL 0,50 | Hold’em | 0,25 / 0,50 | 9 | R$50 |
+| SD 0,50 | Short Deck | 0,50 / 0,50 | 6 | R$75 |
+| SD Omaha 0,50/1 | Short Deck Omaha | 0,50 / 1,00 | 4 | R$100 |
+
+- **Short Deck:** baralho 36 (sem 2–5); flush > full house; wheel A-6-7-8-9  
+- **SD Omaha:** 4 cartas na mão; no showdown usa exatamente 2 hole + 3 board  
+
+## Carteiras
+
+| Item | Play Money | Jogo Real |
+|------|------------|-----------|
+| Cash | R$ 1.000 / dia (reset SP) | Depósito manual PIX + aprovação |
+| Torneio | R$ 15.000 / dia | Buy-in com saldo real |
+| Mistura | **Não** — PM não entra em mesa Real e vice-versa | idem |
+
+## Torneios
+
+Freeroll R$100 GTD e MTT R$200 GTD em **NLHE e Short Deck**, modos PM e Real. Inscrição no lobby — mãos MTT ao vivo ainda em evolução.
 
 ## Mensagem pronta para WhatsApp / Discord
 
 ```text
-Teste do Zero Tilt Poker (demo HTTPS, fichas virtuais):
+Teste do Zero Tilt Poker (demo HTTPS):
 
 https://zerotiltpoker.net
 
-1) Crie conta (senha tipo PokerDemo1 — maiúscula + minúscula + número; confirme a senha)
-2) Abra o e-mail e digite o código de 6 dígitos (olhe o spam)
-3) Lobby → Entrar numa mesa
-4) Me diga: o que travou, o que gostou, se a mesa abriu ok
+1) Crie conta (senha tipo PokerDemo1 — maiúscula + minúscula + número)
+2) Confirme o e-mail (código 6 dígitos; olhe o spam)
+3) No header: Play Money (fácil) ou Jogo Real
+4) Lobby → escolha mesa (NL / Short Deck / Omaha) → Entrar
+5) Me diga o que travou ou gostou
 
-É play-money, sem dinheiro real. Site no ar só enquanto a demo estiver ligada.
+Play Money = fichas virtuais. Jogo Real = saldo separado.
+Precisa de 2+ pessoas na mesma mesa para começar a mão.
 ```
 
 ## Do seu lado (anfitrião)
 
-1. **Stack demo** — VPS Hostinger já hospeda `zerotiltpoker.net` (API + `Frontend-Web` + Caddy). Em casa (alternativa):
+1. Stack na VPS: `zerotiltpoker.net` (API + Frontend-Web + Caddy). Migrations até **025**.
+2. Health: `https://zerotiltpoker.net/api/health` e `/api/presence/online`
+3. Peça feedback: registro, e-mail, modo carteira, lobby, join, lag, mobile, crashes
 
-```powershell
-cd C:\Users\leofr\Projetos\Poker_Project\Infraestrutura-Docker
-docker compose -f docker-compose.yml -f docker-compose.tunnel.yml up -d --build
-# + cloudflared tunnel run …
-```
+## Limites honestos
 
-A migration `018_cash_stakes_and_tournament_catalog.sql` fecha as demos antigas e garante as 2 mesas cash + catálogo de torneios.
+- Demo/staging: se a VPS cair, o site some
+- Rate limit de auth ~30 req/min por IP
+- MTT: inscrição ok; gameplay de mãos ainda limitado
+- Não alegar certificação de produção
 
-2. Confirme o contador online e o health: `https://zerotiltpoker.net/api/health` e `/api/presence/online`.
-3. Peça feedback estruturado: registro, e-mail, contador online, lobby, join, lag, mobile, crashes.
-
-## Limites honestos (avise os amigos)
-
-- Demo em casa: se o PC ou o tunnel cair, o site some.
-- Até ~9 jogadores por mesa; várias mesas no lobby.
-- Rate limit de auth ~30 req/min por IP (rede compartilhada pode “engasgar” cadastros em massa no mesmo Wi‑Fi).
-- Não é produção nem jogo com dinheiro real.
-
-## Checklist rápido “está pronto?”
+## Checklist rápido
 
 ```text
-[ ] https://zerotiltpoker.net/api/health → OK
-[ ] https://zerotiltpoker.net/api/presence/online → JSON online_count
-[ ] Badge “N online” visível no header
-[ ] Registrar conta nova no browser
-[ ] Após login, contador sobe (heartbeat)
-[ ] Lobby lista NL 0,50 e NL 1 (+ aba Torneios)
-[ ] Dois perfis entram na MESMA mesa (saldo R$1000)
+[ ] /api/health → OK
+[ ] /api/presence/online → JSON online_count
+[ ] Badge “N online” no header
+[ ] Registrar + verificar e-mail
+[ ] Toggle Play Money / Jogo Real no header
+[ ] Lobby lista NL 0,25 · NL 0,50 · SD 0,50 · SD Omaha (+ Torneios)
+[ ] Dois perfis no MESMO modo entram na MESMA mesa
 [ ] Mão inicia com ≥ 2 assentos
 ```
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-08-26):** S13+ — Presença online + home NewsTips (notícias/dicas); S12 (MFA, settlements 017, smoke 10×100); demo VPS zerotiltpoker.net (play-money, mín. 2 na mesma mesa). Repo canônico: Projetos/Poker_Project (não OneDrive). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017. Presence API no ar: GET /api/presence/online e POST /api/presence/heartbeat (TTL 90s, Redis). Smoke live 10×100 PASS (0833 jornada; 0920 settlementsVerified=2). Frontend badge/hero online deployados. Mock é o padrão. Asaas Sandbox restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção desabilitados. Nenhum depósito com dinheiro real. Mesas com dono único por processo; guarda de recovery entre início e liquidação. Settlement assinado (HMAC) na liquidação; API verifica no replay.
+> **Estado operacional sincronizado (2026-08-29):** S18 — Catálogo cash NLHE+Short Deck+SD Omaha (PM×Real); frentes fixas; motor short_deck_omaha; notícias com capa temática; testes 10k/mesa + e2e seeded Real/PM. Demo VPS zerotiltpoker.net. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–025. Presence API no ar. Motor: cash_catalog_10k_hands PASS (4 configs × 10k); short_deck_massive PASS; tournament_engine 954 ok. Smoke live seeded Real+PM: join+≥1 mão em cada mesa OPEN; inscrição torneios OK. Mock/auto PIX bloqueado para gaming em vários PSPs. Fluxo vigente: Pedir fichas (depósito manual) + comprovante + aprovação admin. Nenhum gateway de saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

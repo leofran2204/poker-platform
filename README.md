@@ -1,17 +1,19 @@
 # Zero Tilt Poker — poker-platform
 
-Plataforma de poker online **Texas Hold'em**: **motor e API em Rust**, **frontend em TypeScript** (React + Vite + Tailwind), skin inspirada no **Full Tilt** clássico.
+Plataforma de poker online (**Hold’em**, **Short Deck**, **Short Deck Omaha**): **motor e API em Rust**, **frontend em TypeScript** (React + Vite + Tailwind), skin inspirada no **Full Tilt** clássico.
 
 | | |
 |--|--|
 | **Domínio (demo)** | [https://zerotiltpoker.net](https://zerotiltpoker.net) |
 | **Repositório** | https://github.com/leofran2204/poker-platform |
-| **Estado** | Staging/demo (**S13**) — **sem** certificação de produção; PIX mock; B2B multi-tenant; settlements assinados; contador **online** |
+| **Estado** | Staging/demo (**S18**) — **sem** certificação de produção; wallets Play Money × Jogo Real; depósitos manuais; settlements assinados; contador **online** |
 | **Status canônico** | [`Documentacao/STATUS_OPERACIONAL.json`](Documentacao/STATUS_OPERACIONAL.json) |
+| **Cash (PM + Real)** | NL 0,25/0,25 · NL 0,25/0,50 · SD 0,50/0,50 · SD Omaha 0,50/1 — frentes fixas |
 | **Transporte público** | **HTTPS** (Caddy + Let's Encrypt na VPS); API + SPA same-origin |
 | **E-mail (demo)** | Resend — domínio `zerotiltpoker.net` verified; ver [`EMAIL_RESEND.md`](Infraestrutura-Docker/EMAIL_RESEND.md) |
 | **Presença** | Badge no header + hero na home; `GET /api/presence/online` |
-| **Live smoke** | `scripts/live-e2e-ten-users.mjs` — 10 users / 100 hands + settlement verificado |
+| **Live smoke** | `scripts/live-e2e-ten-users.mjs` (10×100) · `scripts/live-e2e-seeded-catalog.mjs` (mesa a mesa) |
+| **Stress motor** | `Motor-Rust/tests/cash_catalog_10k_hands.rs` — 10k mãos por config |
 | **Demo amigos** | [`Documentacao/DEMO_AMIGOS.md`](Documentacao/DEMO_AMIGOS.md) — mín. **2 na mesma mesa** |
 | **Regulação** | Trilho de compliance planejado para **janeiro de 2027** |
 

@@ -90,7 +90,10 @@ fn row_to_store(row: TournamentRow) -> TournamentStore {
     } else {
         "play".into()
     };
-    let poker_variant = if row.poker_variant.eq_ignore_ascii_case("short_deck") {
+    let pv = row.poker_variant.to_ascii_lowercase();
+    let poker_variant = if pv == "short_deck_omaha" || pv == "sd_omaha" {
+        "short_deck_omaha".into()
+    } else if pv == "short_deck" || pv == "sd" {
         "short_deck".into()
     } else {
         "holdem".into()

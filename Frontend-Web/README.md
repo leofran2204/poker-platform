@@ -29,8 +29,15 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 ## Notícias e dicas (home)
 
 - Componente `NewsTips` abaixo do painel principal
-- Aba **Notícias**: RSS (Mundo Poker via proxy) + cards locais
+- Aba **Notícias**: RSS multi-fonte; capa = thumbnail/og oficial **ou** fallback temático (sem rostos repetidos/errados)
 - Aba **Jogando melhor**: tips por street (`src/data/tipsContent.json`)
+
+## Lobby e carteira
+
+- Header: toggle **Play Money** / **Jogo Real** (`walletMode`)
+- Cash: filtros NL 0,25/0,25 · NL 0,25/0,50 · SD 0,50 · SD Omaha 0,50/1
+- Badges: NLHE / Short Deck / SD Omaha
+- Torneios: lista por modo; badge de variante
 
 ## Desenvolvimento local
 

@@ -30,9 +30,19 @@
 
 ---
 
-## 1. 🎯 Visão Geral — Texas Hold'em Tradicional
+## 1. 🎯 Visão Geral
 
-Plataforma de poker online **Texas Hold'em Tradicional** inspirada no Full Tilt Poker (skin moderna, lobby denso, mesa de feltro). Suporta mesas de **Cash Game** e **Tournament** com até 9 jogadores.
+Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby denso, mesa de feltro). Suporta **Cash Game** e **Tournament** com variantes:
+
+| Variante (`poker_variant`) | Baralho | Hole cards | Cap típico cash |
+|----------------------------|---------|------------|-----------------|
+| `holdem` | 52 | 2 | até 9 |
+| `short_deck` | 36 (sem 2–5) | 2 | até 6 |
+| `short_deck_omaha` | 36 | **4** (usa 2 hole + 3 board) | até 4 |
+
+**Carteiras:** Play Money (cash + MTT, reset diário) e Jogo Real (isolado). `money_mode` da mesa/torneio deve coincidir com o modo do cliente (`play` \| `real`).
+
+**Catálogo cash vigente (PM + Real):** NL 0,25/0,25 (R$25) · NL 0,25/0,50 (R$50) · SD 0,50/0,50 (R$75) · SD Omaha 0,50/1 (R$100). Frentes **fixas** (`min_buy_in = max_buy_in`). Small blind pode **igualar** big blind.
 
 ---
 
@@ -62,6 +72,19 @@ Plataforma de poker online **Texas Hold'em Tradicional** inspirada no Full Tilt 
 - **A-2-3-4-5** é um straight válido (Ás jogando como carta baixa)
 - Straight normal: 5 cartas consecutivas (ex: 8-9-T-J-Q)
 
+### 2.4 🂠 Short Deck (Six Plus) — `short_deck`
+- **36 cartas** (ranks 6–A × 4 naipes); remove 2–5
+- Wheel Short Deck: **A-6-7-8-9**
+- Ranking: **Flush > Full House** (demais ranks como Hold’em relativos a essa troca)
+- Implementação: `create_short_deck` / `evaluate_hand_short_deck`
+
+### 2.5 🂡 Short Deck Omaha — `short_deck_omaha`
+- Mesmo baralho Short Deck (36)
+- Cada jogador recebe **4** hole cards
+- No showdown: exatamente **2** hole + **3** community (melhor combo)
+- Ranking Short Deck (flush > boat; wheel A6789)
+- Implementação: `evaluate_hand_short_deck_omaha`
+
 ---
 
 ## 3. 🪑 Estrutura da Mesa — Configuração e Parâmetros
@@ -71,11 +94,13 @@ Plataforma de poker online **Texas Hold'em Tradicional** inspirada no Full Tilt 
 |---------------|----------|------------------------------------|
 | `name`        | string   | 3-100 caracteres                   |
 | `gameType`    | enum     | `cash` \| `tournament`             |
-| `smallBlind`  | number   | > 0                                |
-| `bigBlind`    | number   | > 0                                |
-| `minBuyIn`    | number   | > 0                                |
+| `smallBlind`  | number   | > 0; pode ser **igual** a `bigBlind` |
+| `bigBlind`    | number   | > 0; `smallBlind ≤ bigBlind`       |
+| `minBuyIn`    | number   | > 0 (cash oficial: = `maxBuyIn`)   |
 | `maxBuyIn`    | number   | > 0                                |
-| `maxPlayers`  | int      | 2-9                                |
+| `maxPlayers`  | int      | 2–9 (Omaha cash oficial: 4)        |
+| `poker_variant` | string | `holdem` \| `short_deck` \| `short_deck_omaha` |
+| `money_mode`  | string   | `play` \| `real`                   |
 | `speed`       | enum     | `normal` \| `turbo` \| `hyper`     |
 | `ante`        | number?  | ≥ 0 (opcional)                     |
 
@@ -370,7 +395,7 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 **Próxima revisão:** Após implementação de side pots e split pot.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-08-26):** S13+ — Presença online + home NewsTips (notícias/dicas); S12 (MFA, settlements 017, smoke 10×100); demo VPS zerotiltpoker.net (play-money, mín. 2 na mesma mesa). Repo canônico: Projetos/Poker_Project (não OneDrive). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–017. Presence API no ar: GET /api/presence/online e POST /api/presence/heartbeat (TTL 90s, Redis). Smoke live 10×100 PASS (0833 jornada; 0920 settlementsVerified=2). Frontend badge/hero online deployados. Mock é o padrão. Asaas Sandbox restrito por PIX_ALLOWED_DEPOSITOR_IDS; Mercado Pago e PIX de produção desabilitados. Nenhum depósito com dinheiro real. Mesas com dono único por processo; guarda de recovery entre início e liquidação. Settlement assinado (HMAC) na liquidação; API verifica no replay.
+> **Estado operacional sincronizado (2026-08-29):** S18 — Catálogo cash NLHE+Short Deck+SD Omaha (PM×Real); frentes fixas; motor short_deck_omaha; notícias com capa temática; testes 10k/mesa + e2e seeded Real/PM. Demo VPS zerotiltpoker.net. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–025. Presence API no ar. Motor: cash_catalog_10k_hands PASS (4 configs × 10k); short_deck_massive PASS; tournament_engine 954 ok. Smoke live seeded Real+PM: join+≥1 mão em cada mesa OPEN; inscrição torneios OK. Mock/auto PIX bloqueado para gaming em vários PSPs. Fluxo vigente: Pedir fichas (depósito manual) + comprovante + aprovação admin. Nenhum gateway de saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->
