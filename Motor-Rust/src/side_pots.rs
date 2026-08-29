@@ -2,8 +2,11 @@
 // Migrado de TypeScript (side-pots.ts) para Rust em 2026-07-02
 // Refatorado em 2026-07-24: Arquitetura u64 centavos inteiros (Zero Float Errors)
 
-use crate::deck::{compare_hands, evaluate_hand, Card, HandResult};
-use crate::types::Pot;
+use crate::deck::{
+    compare_hands, evaluate_hand, evaluate_hand_short_deck, evaluate_hand_short_deck_omaha, Card,
+    HandResult,
+};
+use crate::types::{PokerVariant, Pot};
 use crate::utils::dividir_pote_empatado;
 use std::collections::HashMap;
 
@@ -109,8 +112,24 @@ pub fn distribute_pots_with_seat_order(
     community_cards: &[Card],
     seat_order_from_button: &[String],
 ) -> HashMap<String, u64> {
+    distribute_pots_with_seat_order_for_variant(
+        pots,
+        players,
+        community_cards,
+        seat_order_from_button,
+        PokerVariant::Holdem,
+    )
+}
+
+pub fn distribute_pots_with_seat_order_for_variant(
+    pots: &[Pot],
+    players: &[PlayerForPots],
+    community_cards: &[Card],
+    seat_order_from_button: &[String],
+    variant: PokerVariant,
+) -> HashMap<String, u64> {
     let mut payouts: HashMap<String, u64> = HashMap::new();
-    let player_hands = precompute_hands(players, community_cards);
+    let player_hands = precompute_hands_for_variant(players, community_cards, variant);
 
     for pot in pots {
         let winners = find_winners_for_pot(pot, players, &player_hands);
@@ -138,15 +157,31 @@ pub fn distribute_pots_with_seat_order(
     payouts
 }
 
-/// Pré-computa as mãos de todos os jogadores ativos
+/// Pré-computa as mãos de todos os jogadores ativos (Hold'em).
 pub fn precompute_hands(
     players: &[PlayerForPots],
     community_cards: &[Card],
 ) -> HashMap<String, HandResult> {
+    precompute_hands_for_variant(players, community_cards, PokerVariant::Holdem)
+}
+
+pub fn precompute_hands_for_variant(
+    players: &[PlayerForPots],
+    community_cards: &[Card],
+    variant: PokerVariant,
+) -> HashMap<String, HandResult> {
     let mut hands: HashMap<String, HandResult> = HashMap::new();
     for player in players {
         if !player.has_folded {
-            let hand = evaluate_hand(&player.cards, community_cards);
+            let hand = match variant {
+                PokerVariant::ShortDeckOmaha => {
+                    evaluate_hand_short_deck_omaha(&player.cards, community_cards)
+                }
+                PokerVariant::ShortDeck => {
+                    evaluate_hand_short_deck(&player.cards, community_cards)
+                }
+                PokerVariant::Holdem => evaluate_hand(&player.cards, community_cards),
+            };
             hands.insert(player.id.clone(), hand);
         }
     }

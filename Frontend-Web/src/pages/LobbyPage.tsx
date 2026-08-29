@@ -7,19 +7,22 @@ import { formatBrlFromCents } from "@/lib/money";
 import { getWalletMode } from "@/lib/walletMode";
 
 type LobbyTab = "cash" | "tournaments";
-type StakeFilter = "all" | "nl025" | "nl050" | "nl1" | "sd12";
+type StakeFilter = "all" | "nl025" | "nl050" | "sd050" | "sd11" | "sdOmaha";
 
 const STAKE_OPTIONS: { id: StakeFilter; label: string }[] = [
   { id: "all", label: "Todos" },
   { id: "nl025", label: "NL 0,25/0,25" },
   { id: "nl050", label: "NL 0,25/0,50" },
-  { id: "nl1", label: "NL 0,50/1,00" },
-  { id: "sd12", label: "SD 1/2" },
+  { id: "sd050", label: "SD 0,50/0,50" },
+  { id: "sd11", label: "SD 1/1" },
+  { id: "sdOmaha", label: "SD Omaha 1/2" },
 ];
 
 function variantLabel(t: { poker_variant?: string; game_type?: string }): string {
+  if (t.poker_variant === "short_deck_omaha") return "SD Omaha";
   if (t.poker_variant === "short_deck") return "Short Deck";
   const gt = (t.game_type || "").toLowerCase();
+  if (gt.includes("omaha")) return "SD Omaha";
   if (gt.includes("short")) return "Short Deck";
   return "NLHE";
 }
@@ -88,11 +91,15 @@ export function LobbyPage() {
   const filtered = useMemo(() => {
     return tables.filter((t) => {
       if (hideFull && t.players >= t.max_players) return false;
+      const isOmaha = t.poker_variant === "short_deck_omaha";
       const isSd = t.poker_variant === "short_deck";
-      if (stake === "nl025") return !isSd && t.small_blind === 25 && t.big_blind === 25;
-      if (stake === "nl050") return !isSd && t.small_blind === 25 && t.big_blind === 50;
-      if (stake === "nl1") return !isSd && t.small_blind === 50 && t.big_blind === 100;
-      if (stake === "sd12") return isSd && t.big_blind === 200;
+      if (stake === "nl025")
+        return !isSd && !isOmaha && t.small_blind === 25 && t.big_blind === 25;
+      if (stake === "nl050")
+        return !isSd && !isOmaha && t.small_blind === 25 && t.big_blind === 50;
+      if (stake === "sd050") return isSd && t.small_blind === 50 && t.big_blind === 50;
+      if (stake === "sd11") return isSd && t.small_blind === 100 && t.big_blind === 100;
+      if (stake === "sdOmaha") return isOmaha && t.big_blind === 200;
       return true;
     });
   }, [tables, hideFull, stake]);
@@ -212,8 +219,8 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({filtered.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                NL 0,25/0,25 e 0,25/0,50 (frente R$25) · NL 0,50/1 (frente R$75) · SD 1/2 6-max (frente
-                R$100) · auto 15s
+                NL 0,25/0,25 (R$25) · NL 0,25/0,50 (R$50) · SD 0,50 (R$75) · SD 1/1 (R$100) · SD Omaha
+                1/2 4-max (R$150) · auto 15s
               </p>
             </div>
 
@@ -295,7 +302,8 @@ export function LobbyPage() {
                         <td>
                           <span
                             className={
-                              t.poker_variant === "short_deck"
+                              t.poker_variant === "short_deck" ||
+                              t.poker_variant === "short_deck_omaha"
                                 ? "zt-chip zt-chip-accent"
                                 : "zt-chip"
                             }

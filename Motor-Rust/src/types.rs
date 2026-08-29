@@ -57,6 +57,8 @@ pub enum PokerVariant {
     #[default]
     Holdem,
     ShortDeck,
+    /// Short Deck Omaha (PLO-4 no baralho 36; usa exatamente 2 hole + 3 board).
+    ShortDeckOmaha,
 }
 
 impl PokerVariant {
@@ -64,14 +66,29 @@ impl PokerVariant {
         match self {
             Self::Holdem => "holdem",
             Self::ShortDeck => "short_deck",
+            Self::ShortDeckOmaha => "short_deck_omaha",
         }
     }
 
     pub fn parse(raw: &str) -> Self {
         match raw.trim().to_ascii_lowercase().as_str() {
+            "short_deck_omaha" | "sd_omaha" | "omaha_sd" | "shortdeck_omaha" | "plo_sd" => {
+                Self::ShortDeckOmaha
+            }
             "short_deck" | "shortdeck" | "sd" | "six_plus" => Self::ShortDeck,
             _ => Self::Holdem,
         }
+    }
+
+    pub fn hole_card_count(self) -> usize {
+        match self {
+            Self::ShortDeckOmaha => 4,
+            Self::Holdem | Self::ShortDeck => 2,
+        }
+    }
+
+    pub fn uses_short_deck(self) -> bool {
+        matches!(self, Self::ShortDeck | Self::ShortDeckOmaha)
     }
 }
 

@@ -104,10 +104,15 @@ fn table_response(
         } else {
             "play".into()
         },
-        poker_variant: if poker_variant.eq_ignore_ascii_case("short_deck") {
-            "short_deck".into()
-        } else {
-            "holdem".into()
+        poker_variant: {
+            let v = poker_variant.to_ascii_lowercase();
+            if v == "short_deck_omaha" || v == "sd_omaha" {
+                "short_deck_omaha".into()
+            } else if v == "short_deck" || v == "sd" {
+                "short_deck".into()
+            } else {
+                "holdem".into()
+            }
         },
     })
 }

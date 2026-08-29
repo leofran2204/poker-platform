@@ -451,6 +451,49 @@ pub fn evaluate_hand_short_deck(hole_cards: &[Card], community_cards: &[Card]) -
     unreachable!("get_high_card always returns Some for any non-empty hand");
 }
 
+/// Short Deck Omaha: exatamente 2 hole + 3 board; ranking Short Deck (Flush > Full House).
+pub fn evaluate_hand_short_deck_omaha(hole_cards: &[Card], community_cards: &[Card]) -> HandResult {
+    if hole_cards.len() < 2 || community_cards.len() < 3 {
+        // Sem board/hole suficientes: avalia o que houver sob regras SD (pré-flop etc.)
+        return evaluate_hand_short_deck(hole_cards, community_cards);
+    }
+
+    let hole_n = hole_cards.len().min(4);
+    let board_n = community_cards.len().min(5);
+    let hole = &hole_cards[..hole_n];
+    let board = &community_cards[..board_n];
+
+    let mut best: Option<HandResult> = None;
+
+    // C(hole, 2)
+    for i in 0..hole.len() {
+        for j in (i + 1)..hole.len() {
+            let h2 = [hole[i], hole[j]];
+            // C(board, 3)
+            for a in 0..board.len() {
+                for b in (a + 1)..board.len() {
+                    for c_idx in (b + 1)..board.len() {
+                        let b3 = [board[a], board[b], board[c_idx]];
+                        let cand = evaluate_hand_short_deck(&h2, &b3);
+                        best = Some(match best {
+                            None => cand,
+                            Some(ref cur) => {
+                                if compare_hands(&cand, cur) == Ordering::Greater {
+                                    cand
+                                } else {
+                                    cur.clone()
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    best.unwrap_or_else(|| evaluate_hand_short_deck(hole_cards, community_cards))
+}
+
 /// Verifica se uma carta está no slice
 pub fn contains_card(cards: &[Card], target: &Card) -> bool {
     cards
@@ -1255,6 +1298,86 @@ mod tests {
                 c(Rank::Eight, Suit::Clubs),
             ],
         );
+        assert_eq!(flush.rank, HandRank::Flush);
+        assert_eq!(boat.rank, HandRank::FullHouse);
+        assert_eq!(compare_hands(&flush, &boat), Ordering::Greater);
+    }
+
+    #[test]
+    fn test_short_deck_omaha_uses_exactly_two_hole() {
+        // Hole: Ah Kh Qd Jd — board: 9h 8h 7h 6c Tc
+        // Com 2 hole AhKh + 3 board 9h8h7h = flush A-high
+        // Se usasse 3+ hole não seria Omaha válido; garantimos flush via 2+3
+        let hole = vec![
+            c(Rank::Ace, Suit::Hearts),
+            c(Rank::King, Suit::Hearts),
+            c(Rank::Queen, Suit::Diamonds),
+            c(Rank::Jack, Suit::Diamonds),
+        ];
+        let board = vec![
+            c(Rank::Nine, Suit::Hearts),
+            c(Rank::Eight, Suit::Hearts),
+            c(Rank::Seven, Suit::Hearts),
+            c(Rank::Six, Suit::Clubs),
+            c(Rank::Ten, Suit::Clubs),
+        ];
+        let r = evaluate_hand_short_deck_omaha(&hole, &board);
+        assert_eq!(r.rank, HandRank::Flush);
+    }
+
+    #[test]
+    fn test_short_deck_omaha_cannot_use_three_hole_for_trips() {
+        // Três ases no hole + um ás no board NÃO formam quads via 3 hole —
+        // Omaha só usa 2 hole → no máximo trips (AA + Axx)
+        let hole = vec![
+            c(Rank::Ace, Suit::Hearts),
+            c(Rank::Ace, Suit::Diamonds),
+            c(Rank::Ace, Suit::Clubs),
+            c(Rank::King, Suit::Spades),
+        ];
+        let board = vec![
+            c(Rank::Ace, Suit::Spades),
+            c(Rank::Nine, Suit::Hearts),
+            c(Rank::Eight, Suit::Diamonds),
+            c(Rank::Seven, Suit::Clubs),
+            c(Rank::Six, Suit::Hearts),
+        ];
+        let r = evaluate_hand_short_deck_omaha(&hole, &board);
+        // Omaha: no máximo 2 ases do hole + 1 ás do board → trips (nunca quads com 1 ás no board)
+        assert_eq!(r.rank, HandRank::ThreeOfAKind);
+    }
+
+    #[test]
+    fn test_short_deck_omaha_flush_beats_full_house() {
+        let flush_hole = vec![
+            c(Rank::Ace, Suit::Hearts),
+            c(Rank::King, Suit::Hearts),
+            c(Rank::Six, Suit::Clubs),
+            c(Rank::Seven, Suit::Diamonds),
+        ];
+        let flush_board = vec![
+            c(Rank::Queen, Suit::Hearts),
+            c(Rank::Jack, Suit::Hearts),
+            c(Rank::Nine, Suit::Hearts),
+            c(Rank::Eight, Suit::Clubs),
+            c(Rank::Six, Suit::Spades),
+        ];
+        // Omaha boat: 2 hole KK + board K A A → full house kings full of aces
+        let boat_hole = vec![
+            c(Rank::King, Suit::Clubs),
+            c(Rank::King, Suit::Diamonds),
+            c(Rank::Nine, Suit::Clubs),
+            c(Rank::Eight, Suit::Diamonds),
+        ];
+        let boat_board = vec![
+            c(Rank::King, Suit::Spades),
+            c(Rank::Ace, Suit::Spades),
+            c(Rank::Ace, Suit::Hearts),
+            c(Rank::Seven, Suit::Clubs),
+            c(Rank::Six, Suit::Diamonds),
+        ];
+        let flush = evaluate_hand_short_deck_omaha(&flush_hole, &flush_board);
+        let boat = evaluate_hand_short_deck_omaha(&boat_hole, &boat_board);
         assert_eq!(flush.rank, HandRank::Flush);
         assert_eq!(boat.rank, HandRank::FullHouse);
         assert_eq!(compare_hands(&flush, &boat), Ordering::Greater);

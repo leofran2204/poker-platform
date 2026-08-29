@@ -22,7 +22,7 @@
 
 use crate::deck::{
     compare_hands, create_deck, create_short_deck, deal_cards, evaluate_hand,
-    evaluate_hand_short_deck, shuffle_deck, Card, HandResult,
+    evaluate_hand_short_deck, evaluate_hand_short_deck_omaha, shuffle_deck, Card, HandResult,
 };
 use crate::hand_history::{
     self, Action, EndReason, GameType, HandHistory, PlayerAction, PlayerResult,
@@ -346,9 +346,10 @@ impl GameLoop {
         }
 
         // 1. Criar e embaralhar baralho (Hold'em 52 ou Short Deck 36)
-        let full_deck = match self.config.poker_variant {
-            crate::types::PokerVariant::ShortDeck => create_short_deck(),
-            crate::types::PokerVariant::Holdem => create_deck(),
+        let full_deck = if self.config.poker_variant.uses_short_deck() {
+            create_short_deck()
+        } else {
+            create_deck()
         };
         self.state.deck = shuffle_deck(&full_deck);
 
@@ -392,8 +393,9 @@ impl GameLoop {
             }
         }
 
-        // 4. Distribuir hole cards (2 por jogador)
-        for _ in 0..2 {
+        // 4. Distribuir hole cards (2 Hold'em/SD · 4 Short Deck Omaha)
+        let hole_n = self.config.poker_variant.hole_card_count();
+        for _ in 0..hole_n {
             for player in &mut self.state.players {
                 let (cards, remaining) = deal_cards(&self.state.deck, 1);
                 player.hole_cards.extend(cards);
@@ -997,11 +999,12 @@ impl GameLoop {
                 self.state.players[seat_index].id.clone()
             })
             .collect();
-        let mut payouts = side_pots::distribute_pots_with_seat_order(
+        let mut payouts = side_pots::distribute_pots_with_seat_order_for_variant(
             &pots_after_rake,
             &players_for_pots,
             &self.state.community_cards,
             &seat_order_from_button,
+            self.config.poker_variant,
         );
 
         // 5. Loss deflator (em centavos inteiros)
@@ -1109,8 +1112,19 @@ impl GameLoop {
         players_for_pots: &[PlayerForPots],
     ) -> Vec<loss_deflator::ProgressiveLossDeflatorResult> {
         let mut results = Vec::new();
-        let player_hands =
-            side_pots::precompute_hands(players_for_pots, &self.state.community_cards);
+        // Equity MC do loss deflator assume Hold'em 2-card; pula em Omaha.
+        if matches!(
+            self.config.poker_variant,
+            crate::types::PokerVariant::ShortDeckOmaha
+        ) {
+            return results;
+        }
+
+        let player_hands = side_pots::precompute_hands_for_variant(
+            players_for_pots,
+            &self.state.community_cards,
+            self.config.poker_variant,
+        );
         let seat_order_from_button: Vec<String> = (1..=self.state.players.len())
             .map(|offset| {
                 let seat_index = (self.state.dealer_index + offset) % self.state.players.len();
@@ -1120,11 +1134,12 @@ impl GameLoop {
         let mut pot_payouts_remaining: Vec<HashMap<String, u64>> = pots
             .iter()
             .map(|pot| {
-                side_pots::distribute_pots_with_seat_order(
+                side_pots::distribute_pots_with_seat_order_for_variant(
                     std::slice::from_ref(pot),
                     players_for_pots,
                     &self.state.community_cards,
                     &seat_order_from_button,
+                    self.config.poker_variant,
                 )
             })
             .collect();
@@ -1313,6 +1328,10 @@ impl GameLoop {
         for player in &self.state.players {
             if player.is_in_hand() && !player.hole_cards.is_empty() {
                 let eval = match self.config.poker_variant {
+                    crate::types::PokerVariant::ShortDeckOmaha => evaluate_hand_short_deck_omaha(
+                        &player.hole_cards,
+                        &self.state.community_cards,
+                    ),
                     crate::types::PokerVariant::ShortDeck => {
                         evaluate_hand_short_deck(&player.hole_cards, &self.state.community_cards)
                     }
