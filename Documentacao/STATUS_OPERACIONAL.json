@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "reviewed_on": "2026-08-26",
-  "cycle": "S14 — Cash oficial NL0,50 (frente R$25) + NL1 (frente R$50); Freeroll R$100 GTD + MTT R$200 GTD (inscrição MVP, mãos MTT fase 2); S13 NewsTips/presença. Demo VPS zerotiltpoker.net.",
+  "cycle": "S15 — Painel /admin (stats, users, mesas, torneios, presence, clubs, antifraud stub, audit); S14 cash NL0,50/NL1 + Freeroll/MTT inscrição. Demo VPS zerotiltpoker.net.",
   "stack": {
     "motor_api": "Rust (Motor-Rust + API-Axum)",
     "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",

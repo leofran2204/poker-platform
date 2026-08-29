@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { getUsername, isAuthenticated } from "@/lib/auth";
 import { logout } from "@/api/client";
 import { OnlinePresenceNav } from "@/components/OnlinePresence";
+import { getMe, isAdminRole } from "@/lib/me";
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `zt-nav-link ${isActive ? "zt-nav-link-active" : ""}`;
@@ -10,9 +12,21 @@ export function Layout() {
   const navigate = useNavigate();
   const authed = isAuthenticated();
   const username = getUsername();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!authed) {
+      setIsAdmin(false);
+      return;
+    }
+    void getMe()
+      .then((me) => setIsAdmin(isAdminRole(me?.role)))
+      .catch(() => setIsAdmin(false));
+  }, [authed]);
 
   function handleLogout() {
     logout();
+    setIsAdmin(false);
     navigate("/login");
   }
 
@@ -33,9 +47,11 @@ export function Layout() {
             <NavLink to="/lobby" className={linkClass}>
               Lobby
             </NavLink>
-            <NavLink to="/admin/clubs" className={linkClass}>
-              Clubes
-            </NavLink>
+            {isAdmin && (
+              <NavLink to="/admin" className={linkClass}>
+                Admin
+              </NavLink>
+            )}
             {authed ? (
               <>
                 {username && (

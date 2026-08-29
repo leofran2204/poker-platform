@@ -896,3 +896,39 @@ pub async fn refresh(
         expires_in,
     }))
 }
+
+/// GET /api/auth/me — current authenticated user profile (no secrets).
+#[derive(Debug, Serialize)]
+pub struct MeResponse {
+    pub user_id: String,
+    pub username: String,
+    pub role: String,
+    pub status: String,
+    pub balance: i64,
+    pub email: String,
+}
+
+pub async fn me(
+    crate::middleware::auth::RequireAuth(auth_user): crate::middleware::auth::RequireAuth,
+    State(state): State<AppState>,
+) -> Result<Json<MeResponse>, ApiError> {
+    let row: Option<(String, String, String, String, i64, String)> = sqlx::query_as(
+        "SELECT id::text, username, role, status, balance, email FROM users WHERE id = $1::uuid",
+    )
+    .bind(&auth_user.user_id)
+    .fetch_optional(&state.db)
+    .await?;
+
+    let (user_id, username, role, status, balance, email) = row.ok_or_else(|| {
+        ApiError::NotFound("User not found".to_string())
+    })?;
+
+    Ok(Json(MeResponse {
+        user_id,
+        username,
+        role,
+        status,
+        balance,
+        email,
+    }))
+}

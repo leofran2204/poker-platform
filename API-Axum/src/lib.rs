@@ -4,6 +4,7 @@
 // in `tests/` can access `build_router`, `AppState`, and `TournamentStore`
 // without needing to duplicate the router construction logic.
 
+pub mod admin_panel;
 pub mod admin_routes;
 pub mod binary_codec;
 pub mod email_service;
@@ -115,6 +116,12 @@ pub fn build_router(state: AppState) -> Router {
                     state.clone(),
                 )),
         )
+        .route(
+            "/api/auth/me",
+            get(auth::me).route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                state.clone(),
+            )),
+        )
         // ─── Payment routes (PIX Deposit, Webhook & Withdraw + rate limited) ───
         .route(
             "/api/payments/pix/deposit",
@@ -195,6 +202,60 @@ pub fn build_router(state: AppState) -> Router {
         )
         // ─── Admin & Antifraud routes (protected admin role) ───
         .route(
+            "/api/admin/stats",
+            get(admin_panel::admin_stats).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/users",
+            get(admin_panel::list_users).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/users/:id",
+            patch(admin_panel::patch_user).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/users/:id/adjust-balance",
+            post(admin_panel::adjust_balance).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/tournaments",
+            get(admin_panel::list_admin_tournaments).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/tournaments/:id",
+            patch(admin_panel::patch_tournament).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/tournaments/:id/players",
+            get(admin_panel::list_tournament_players).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/presence",
+            get(admin_panel::admin_presence).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/audit-logs",
+            get(admin_panel::list_audit_logs).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
             "/api/admin/antifraud/alerts",
             get(admin_routes::get_antifraud_alerts_handler).route_layer(
                 from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
@@ -202,7 +263,8 @@ pub fn build_router(state: AppState) -> Router {
         )
         .route(
             "/api/admin/tables",
-            post(admin_routes::create_cash_table_handler)
+            get(admin_panel::list_admin_tables)
+                .post(admin_routes::create_cash_table_handler)
                 .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
                     state.clone(),
                 )),

@@ -4,6 +4,102 @@ export interface TokenResponse {
   expires_in?: number;
 }
 
+export interface MeResponse {
+  user_id: string;
+  username: string;
+  role: string;
+  status: string;
+  balance: number;
+  email: string;
+}
+
+export interface AdminStatsResponse {
+  users_total: number;
+  users_by_status: Record<string, number>;
+  users_verified: number;
+  tables_open: number;
+  tables_paused: number;
+  tables_closed: number;
+  tournaments_open: number;
+  tournament_registrations: number;
+  online_count: number;
+  wallet_balance_sum: number;
+}
+
+export interface AdminUserResponse {
+  id: string;
+  username: string;
+  email: string;
+  role: string;
+  status: string;
+  balance: number;
+  email_verified: boolean;
+  created_at: number;
+  last_login: number | null;
+  mfa_enabled: boolean;
+}
+
+export interface AdminTableListItem {
+  id: string;
+  name: string;
+  status: string;
+  visibility: string;
+  small_blind: number;
+  big_blind: number;
+  min_buy_in: number;
+  max_buy_in: number;
+  max_players: number;
+  current_players: number;
+}
+
+export interface AdminTournamentItem {
+  id: string;
+  name: string;
+  buy_in: number;
+  guaranteed_prize: number;
+  prize_pool: number;
+  status: string;
+  is_freeroll: boolean;
+  registered_players: number;
+  max_players: number;
+}
+
+export interface AdminTournamentPlayer {
+  player_id: string;
+  player_name: string;
+  stack: number;
+  rebuys: number;
+  registered_at: number;
+}
+
+export interface AdminPresenceResponse {
+  online_count: number;
+  users: { user_id: string; username: string; last_seen: number }[];
+}
+
+export interface AuditLogItem {
+  id: string;
+  user_id: string;
+  action: string;
+  metadata: unknown;
+  created_at: string;
+}
+
+export interface AntifraudAlertSummary {
+  bot_suspects_count: number;
+  collusion_alerts_count: number;
+  chip_dumping_alerts_count: number;
+  system_status: string;
+  recent_alerts: {
+    id: string;
+    alert_type: string;
+    player_id: string;
+    risk_score: number;
+    description: string;
+    timestamp: string;
+  }[];
+}
+
 export interface TableResponse {
   id: string;
   name: string;

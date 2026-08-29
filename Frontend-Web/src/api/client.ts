@@ -1,9 +1,18 @@
 import { getToken, saveTokens, clearTokens } from "@/lib/auth";
 import type {
+  AdminPresenceResponse,
+  AdminStatsResponse,
+  AdminTableListItem,
+  AdminTournamentItem,
+  AdminTournamentPlayer,
+  AdminUserResponse,
+  AntifraudAlertSummary,
+  AuditLogItem,
   ClubAgentResponse,
   ClubFinancialsResponse,
   ClubResponse,
   JoinResponse,
+  MeResponse,
   TableResponse,
   TokenResponse,
   TournamentInfoResponse,
@@ -214,12 +223,123 @@ export async function createClubAgent(
   });
 }
 
+export async function fetchMe(): Promise<MeResponse> {
+  return request<MeResponse>("/api/auth/me");
+}
+
+export async function fetchAdminStats(): Promise<AdminStatsResponse> {
+  return request<AdminStatsResponse>("/api/admin/stats");
+}
+
+export async function listAdminUsers(params?: {
+  q?: string;
+  status?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<{ users: AdminUserResponse[]; total: number }> {
+  const sp = new URLSearchParams();
+  if (params?.q) sp.set("q", params.q);
+  if (params?.status) sp.set("status", params.status);
+  if (params?.limit != null) sp.set("limit", String(params.limit));
+  if (params?.offset != null) sp.set("offset", String(params.offset));
+  const qs = sp.toString();
+  return request(`/api/admin/users${qs ? `?${qs}` : ""}`);
+}
+
+export async function patchAdminUser(
+  id: string,
+  body: { status?: string; role?: string },
+): Promise<AdminUserResponse> {
+  return request(`/api/admin/users/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function adjustUserBalance(
+  id: string,
+  deltaCents: number,
+  reason: string,
+): Promise<{ user_id: string; balance: number }> {
+  return request(`/api/admin/users/${id}/adjust-balance`, {
+    method: "POST",
+    body: JSON.stringify({ delta_cents: deltaCents, reason }),
+  });
+}
+
+export async function listAdminTables(): Promise<AdminTableListItem[]> {
+  return request<AdminTableListItem[]>("/api/admin/tables");
+}
+
+export async function createAdminCashTable(body: {
+  name: string;
+  small_blind: number;
+  big_blind: number;
+  min_buy_in: number;
+  max_buy_in: number;
+  max_players: number;
+  rake_basis_points: number;
+  rake_cap: number;
+}): Promise<unknown> {
+  return request("/api/admin/tables", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function patchAdminTableStatus(id: string, status: string): Promise<unknown> {
+  return request(`/api/admin/tables/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function listAdminTournaments(): Promise<AdminTournamentItem[]> {
+  return request<AdminTournamentItem[]>("/api/admin/tournaments");
+}
+
+export async function listAdminTournamentPlayers(
+  id: string,
+): Promise<AdminTournamentPlayer[]> {
+  return request(`/api/admin/tournaments/${id}/players`);
+}
+
+export async function patchAdminTournament(
+  id: string,
+  status: string,
+): Promise<AdminTournamentItem> {
+  return request(`/api/admin/tournaments/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function fetchAdminPresence(): Promise<AdminPresenceResponse> {
+  return request<AdminPresenceResponse>("/api/admin/presence");
+}
+
+export async function listAuditLogs(params?: {
+  limit?: number;
+  action?: string;
+}): Promise<AuditLogItem[]> {
+  const sp = new URLSearchParams();
+  if (params?.limit != null) sp.set("limit", String(params.limit));
+  if (params?.action) sp.set("action", params.action);
+  const qs = sp.toString();
+  return request(`/api/admin/audit-logs${qs ? `?${qs}` : ""}`);
+}
+
+export async function fetchAntifraudAlerts(): Promise<AntifraudAlertSummary> {
+  return request<AntifraudAlertSummary>("/api/admin/antifraud/alerts");
+}
+
 export function applyAuthTokens(tokens: TokenResponse): void {
   saveTokens(tokens.token, tokens.refresh_token ?? "");
 }
 
 export function logout(): void {
   clearTokens();
+  void import("@/lib/me").then((m) => m.clearMeCache());
 }
 
 export interface OnlinePresenceResponse {

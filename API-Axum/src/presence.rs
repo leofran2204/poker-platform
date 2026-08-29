@@ -93,6 +93,37 @@ impl PresenceTracker {
         map.retain(|_, ts| *ts >= cutoff);
         Ok(map.len() as u64)
     }
+
+    /// Lista (user_id, last_seen_epoch) ainda dentro do TTL.
+    pub async fn online_roster(
+        &self,
+        redis: &Option<redis::aio::ConnectionManager>,
+    ) -> Result<Vec<(String, u64)>, String> {
+        let now = Self::now_epoch();
+        let cutoff = now.saturating_sub(PRESENCE_TTL_SECS);
+
+        if let Some(redis) = redis {
+            let mut conn = redis.clone();
+            let _: u64 = conn
+                .zrembyscore(REDIS_ZSET_KEY, "-inf", cutoff as f64)
+                .await
+                .unwrap_or(0);
+            let rows: Vec<(String, f64)> = conn
+                .zrangebyscore_withscores(REDIS_ZSET_KEY, cutoff as f64, "+inf")
+                .await
+                .map_err(|e| format!("redis zrangebyscore presence: {e}"))?;
+            return Ok(rows
+                .into_iter()
+                .map(|(id, score)| (id, score as u64))
+                .collect());
+        }
+
+        let mut map = self.memory.lock().await;
+        map.retain(|_, ts| *ts >= cutoff);
+        let mut out: Vec<_> = map.iter().map(|(k, v)| (k.clone(), *v)).collect();
+        out.sort_by(|a, b| b.1.cmp(&a.1));
+        Ok(out)
+    }
 }
 
 #[cfg(test)]

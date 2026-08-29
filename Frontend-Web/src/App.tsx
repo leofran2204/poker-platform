@@ -1,6 +1,14 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "@/components/Layout";
+import { AdminAntifraudPage } from "@/pages/AdminAntifraudPage";
+import { AdminAuditPage } from "@/pages/AdminAuditPage";
 import { AdminClubsPage } from "@/pages/AdminClubsPage";
+import { AdminLayout } from "@/pages/AdminLayout";
+import { AdminOverviewPage } from "@/pages/AdminOverviewPage";
+import { AdminPresencePage } from "@/pages/AdminPresencePage";
+import { AdminTablesPage } from "@/pages/AdminTablesPage";
+import { AdminTournamentsPage } from "@/pages/AdminTournamentsPage";
+import { AdminUsersPage } from "@/pages/AdminUsersPage";
 import { HomePage } from "@/pages/HomePage";
 import { LobbyPage } from "@/pages/LobbyPage";
 import { LoginPage } from "@/pages/LoginPage";
@@ -21,7 +29,16 @@ export default function App() {
           <Route path="lobby" element={<LobbyPage />} />
           <Route path="tournament/:id" element={<TournamentPage />} />
           <Route path="table/:id" element={<TablePage />} />
-          <Route path="admin/clubs" element={<AdminClubsPage />} />
+          <Route path="admin" element={<AdminLayout />}>
+            <Route index element={<AdminOverviewPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
+            <Route path="tables" element={<AdminTablesPage />} />
+            <Route path="tournaments" element={<AdminTournamentsPage />} />
+            <Route path="presence" element={<AdminPresencePage />} />
+            <Route path="clubs" element={<AdminClubsPage />} />
+            <Route path="antifraud" element={<AdminAntifraudPage />} />
+            <Route path="audit" element={<AdminAuditPage />} />
+          </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
