@@ -541,6 +541,7 @@ impl TableActor {
         let audit_secret = self.audit_secret.clone();
         let table_id = self.table_id.clone();
         let table_big_blind = self.config.big_blind;
+        let table_small_blind = self.config.effective_small_blind();
 
         let game_loop = match &mut self.game_loop {
             Some(gl) => gl,
@@ -728,7 +729,7 @@ impl TableActor {
                                 rake: i64::try_from(history.rake)
                                     .map_err(|_| "Hand rake exceeds database range".to_string())?,
                                 reason: format!("{:?}", history.end_reason),
-                                small_blind: i64::try_from(table_big_blind / 2).map_err(|_| {
+                                small_blind: i64::try_from(table_small_blind).map_err(|_| {
                                     "Small blind exceeds database range".to_string()
                                 })?,
                                 big_blind: i64::try_from(table_big_blind)
@@ -936,7 +937,7 @@ impl TableActor {
             "type": "table_info",
             "table_id": self.table_id,
             "name": self.name,
-            "small_blind": self.config.big_blind / 2,
+            "small_blind": self.config.effective_small_blind(),
             "big_blind": self.config.big_blind,
             "game_type": "cash",
             "players": self.players

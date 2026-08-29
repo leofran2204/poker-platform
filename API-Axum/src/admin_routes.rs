@@ -160,7 +160,8 @@ pub async fn create_cash_table_handler(
         ));
     }
     if body.small_blind == 0
-        || body.small_blind.checked_mul(2) != Some(body.big_blind)
+        || body.big_blind == 0
+        || body.small_blind > body.big_blind
         || body.min_buy_in == 0
         || body.min_buy_in > body.max_buy_in
         || !(2..=9).contains(&body.max_players)
