@@ -143,6 +143,7 @@ export interface TableResponse {
   min_buy_in: number;
   max_buy_in: number;
   game_type: string;
+  money_mode?: string;
 }
 
 export interface BlindLevelDto {
@@ -173,6 +174,7 @@ export interface TournamentInfoResponse {
   rebuy_max_level: number;
   blind_levels: BlindLevelDto[];
   gameplay_ready: boolean;
+  money_mode?: string;
 }
 
 export interface JoinResponse {

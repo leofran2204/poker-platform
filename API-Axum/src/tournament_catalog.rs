@@ -34,6 +34,7 @@ struct TournamentRow {
     allow_rebuy: bool,
     blind_levels: serde_json::Value,
     game_type: String,
+    money_mode: String,
 }
 
 fn parse_speed(raw: &str) -> TournamentSpeed {
@@ -83,7 +84,12 @@ fn row_to_store(row: TournamentRow) -> TournamentStore {
         rebuy_stack_threshold: row.rebuy_stack_threshold.max(0) as u64,
     };
 
-    let mut store = TournamentStore::new(id, config);
+    let money_mode = if row.money_mode.eq_ignore_ascii_case("real") {
+        "real".into()
+    } else {
+        "play".into()
+    };
+    let mut store = TournamentStore::with_money_mode(id, config, money_mode);
     store.state.status = parse_status(&row.status);
     store.state.current_level = row.current_level.max(0) as u32;
     store.state.players_remaining = row.players_remaining.max(0) as u32;
@@ -105,10 +111,11 @@ pub async fn load_tournaments_from_db(
                prize_pool, current_level, players_remaining, total_buyins,
                guaranteed_prize, is_freeroll,
                rebuy_cost, rebuy_chips, rebuy_max_count, rebuy_stack_threshold,
-               rebuy_max_level, allow_rebuy, blind_levels, game_type
+               rebuy_max_level, allow_rebuy, blind_levels, game_type,
+               COALESCE(money_mode, 'play') AS money_mode
         FROM tournaments
         WHERE status IN ('registering', 'running', 'paused')
-        ORDER BY is_freeroll DESC, buy_in, name
+        ORDER BY money_mode, is_freeroll DESC, buy_in, name
         "#,
     )
     .fetch_all(pool)

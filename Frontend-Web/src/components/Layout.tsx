@@ -46,6 +46,7 @@ export function Layout() {
   async function switchMode(next: WalletMode) {
     setMode(next);
     setWalletModeLocal(next);
+    window.dispatchEvent(new CustomEvent("wallet-mode-changed", { detail: next }));
     try {
       await apiSetWalletMode(next);
       clearMeCache();
@@ -94,7 +95,10 @@ export function Layout() {
             )}
             {authed ? (
               <>
-                <div className="flex items-center gap-0.5 rounded border border-felt-600 bg-felt-950/70 p-0.5">
+                <div
+                  className="flex items-center gap-0.5 rounded border border-felt-600 bg-felt-950/70 p-0.5"
+                  title="Play Money e Jogo Real são saldos separados — não se misturam"
+                >
                   <button
                     type="button"
                     className={mode === "play" ? "zt-tab zt-tab-active !px-2 !py-1 !text-[11px]" : "zt-tab !px-2 !py-1 !text-[11px]"}

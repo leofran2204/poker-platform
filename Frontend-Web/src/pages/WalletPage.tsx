@@ -59,6 +59,9 @@ export function WalletPage() {
 
   useEffect(() => {
     void load();
+    const onMode = () => void load();
+    window.addEventListener("wallet-mode-changed", onMode);
+    return () => window.removeEventListener("wallet-mode-changed", onMode);
   }, [load]);
 
   if (!isAuthenticated()) {

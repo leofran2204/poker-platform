@@ -1,6 +1,6 @@
 // Lobby handlers — database-authoritative table discovery and cash-game seating.
 
-use axum::extract::{Path, State};
+use axum::extract::{Path, Query, State};
 use axum::Json;
 use serde::{Deserialize, Serialize};
 
@@ -22,6 +22,8 @@ pub struct TableResponse {
     pub min_buy_in: u64,
     pub max_buy_in: u64,
     pub game_type: String,
+    /// `play` | `real` — fichas PM não servem em mesas real e vice-versa.
+    pub money_mode: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -50,7 +52,18 @@ pub struct CashOutResponse {
     pub chips: u64,
 }
 
-type TableRow = (uuid::Uuid, String, String, i64, i64, i64, i64, i16, i16);
+type TableRow = (
+    uuid::Uuid,
+    String,
+    String,
+    i64,
+    i64,
+    i64,
+    i64,
+    i16,
+    i16,
+    String,
+);
 
 fn table_response(
     (
@@ -63,6 +76,7 @@ fn table_response(
         max_buy_in,
         max_players,
         current_players,
+        money_mode,
     ): TableRow,
 ) -> Result<TableResponse, ApiError> {
     Ok(TableResponse {
@@ -81,22 +95,38 @@ fn table_response(
         max_buy_in: u64::try_from(max_buy_in)
             .map_err(|_| ApiError::Internal("Invalid maximum buy-in".to_string()))?,
         game_type: game_type.to_ascii_lowercase(),
+        money_mode: if money_mode.eq_ignore_ascii_case("real") {
+            "real".into()
+        } else {
+            "play".into()
+        },
     })
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ListTablesQuery {
+    /// `play` | `real` — filtra mesas do modo (padrão: play)
+    pub mode: Option<String>,
 }
 
 // ─── Handlers ───
 
-/// GET /api/lobby/tables
-/// Response: `[{id, name, players, max_players, blinds, type}]`
+/// GET /api/lobby/tables?mode=play|real
 pub async fn list_tables(
     State(state): State<AppState>,
+    Query(query): Query<ListTablesQuery>,
 ) -> Result<Json<Vec<TableResponse>>, ApiError> {
+    let mode = crate::wallet::WalletMode::parse(query.mode.as_deref());
+    let mode_str = mode.as_str();
     let tables: Vec<TableRow> = sqlx::query_as(
-        "SELECT id, name, game_type, small_blind, big_blind, min_buy_in, max_buy_in, max_players, current_players \
+        "SELECT id, name, game_type, small_blind, big_blind, min_buy_in, max_buy_in, max_players, current_players, \
+                COALESCE(money_mode, 'play') AS money_mode \
          FROM tables \
          WHERE visibility = 'public' AND status = 'OPEN' AND current_players < max_players \
+           AND COALESCE(money_mode, 'play') = $1 \
          ORDER BY big_blind, name, id",
     )
+    .bind(mode_str)
     .fetch_all(&state.db)
     .await?;
     let response = tables
@@ -127,19 +157,34 @@ pub async fn join_table(
     // Locking the table row serializes seat allocation and capacity checks. The
     // wallet debit and the escrow record are committed atomically below.
     let mut tx = state.db.begin().await?;
-    let table: Option<(i64, i64, i16, i16, String, String)> = sqlx::query_as(
-        "SELECT min_buy_in, max_buy_in, max_players, current_players, visibility, status \
+    let table: Option<(i64, i64, i16, i16, String, String, String)> = sqlx::query_as(
+        "SELECT min_buy_in, max_buy_in, max_players, current_players, visibility, status, \
+                COALESCE(money_mode, 'play') \
          FROM tables WHERE id = $1 FOR UPDATE",
     )
     .bind(table_id)
     .fetch_optional(&mut *tx)
     .await?;
-    let (min_buy_in, max_buy_in, max_players, current_players, visibility, status) =
+    let (min_buy_in, max_buy_in, max_players, current_players, visibility, status, table_money_mode) =
         table.ok_or_else(|| ApiError::NotFound("Table not found".to_string()))?;
 
     if visibility != "public" || status != "OPEN" {
         return Err(ApiError::Forbidden(
             "This table is not accepting new players".to_string(),
+        ));
+    }
+
+    let mode = crate::wallet::WalletMode::parse(body.wallet_mode.as_deref());
+    let table_is_real = table_money_mode.eq_ignore_ascii_case("real");
+    let mode_is_real = matches!(mode, crate::wallet::WalletMode::Real);
+    if table_is_real != mode_is_real {
+        return Err(ApiError::BadRequest(
+            if table_is_real {
+                "Esta mesa é de Jogo Real. Fichas Play Money não podem ser usadas aqui. Mude o modo no header para Jogo Real."
+            } else {
+                "Esta mesa é de Play Money. Saldo de Jogo Real não entra aqui. Mude o modo no header para Play Money."
+            }
+            .into(),
         ));
     }
     if buy_in < min_buy_in || buy_in > max_buy_in {
@@ -188,7 +233,6 @@ pub async fn join_table(
         .map(|(seat,)| seat)
         .ok_or_else(|| ApiError::BadRequest("Table is full".to_string()))?;
 
-    let mode = crate::wallet::WalletMode::parse(body.wallet_mode.as_deref());
     let kind = crate::wallet::cash_kind_for_mode(mode);
     crate::wallet::ensure_pm_daily_reset(&mut *tx, &auth_user.user_id).await?;
     crate::wallet::debit_wallet(&mut *tx, &auth_user.user_id, buy_in, kind).await?;
@@ -324,7 +368,8 @@ pub async fn get_table(
     let table_id = uuid::Uuid::parse_str(&table_id)
         .map_err(|_| ApiError::NotFound("Table not found".to_string()))?;
     let table: Option<TableRow> = sqlx::query_as(
-        "SELECT id, name, game_type, small_blind, big_blind, min_buy_in, max_buy_in, max_players, current_players \
+        "SELECT id, name, game_type, small_blind, big_blind, min_buy_in, max_buy_in, max_players, current_players, \
+                COALESCE(money_mode, 'play') AS money_mode \
          FROM tables WHERE id = $1 AND visibility = 'public' AND status = 'OPEN'",
     )
     .bind(table_id)

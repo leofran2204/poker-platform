@@ -150,12 +150,14 @@ export async function resendVerification(email: string): Promise<{ ok: boolean; 
   );
 }
 
-export async function listTables(): Promise<TableResponse[]> {
-  return request<TableResponse[]>("/api/lobby/tables");
+export async function listTables(mode: "play" | "real" = "play"): Promise<TableResponse[]> {
+  return request<TableResponse[]>(`/api/lobby/tables?mode=${mode}`);
 }
 
-export async function listTournaments(): Promise<TournamentInfoResponse[]> {
-  return request<TournamentInfoResponse[]>("/api/lobby/tournaments");
+export async function listTournaments(
+  mode: "play" | "real" = "play",
+): Promise<TournamentInfoResponse[]> {
+  return request<TournamentInfoResponse[]>(`/api/lobby/tournaments?mode=${mode}`);
 }
 
 export async function getTournament(id: string): Promise<TournamentInfoResponse> {

@@ -58,6 +58,8 @@ pub struct TournamentInfoResponse {
     pub rebuy_max_level: u32,
     pub blind_levels: Vec<BlindLevelDto>,
     pub gameplay_ready: bool,
+    /// `play` | `real`
+    pub money_mode: String,
 }
 
 fn status_string(status: &poker_engine::tournament_engine::TournamentStatus) -> String {
@@ -111,15 +113,28 @@ fn to_info(store: &crate::tournament_store::TournamentStore) -> TournamentInfoRe
             .collect(),
         // MTT hands not wired to TableActor yet.
         gameplay_ready: false,
+        money_mode: store.money_mode.clone(),
     }
 }
 
-/// GET /api/lobby/tournaments
+#[derive(Debug, Deserialize)]
+pub struct ListTournamentsQuery {
+    pub mode: Option<String>,
+}
+
+/// GET /api/lobby/tournaments?mode=play|real
 pub async fn list_tournaments(
     State(state): State<AppState>,
+    axum::extract::Query(query): axum::extract::Query<ListTournamentsQuery>,
 ) -> Result<Json<Vec<TournamentInfoResponse>>, ApiError> {
+    let mode = crate::wallet::WalletMode::parse(query.mode.as_deref());
+    let want = mode.as_str();
     let tournaments = state.tournaments.read().await;
-    let mut list: Vec<_> = tournaments.values().map(to_info).collect();
+    let mut list: Vec<_> = tournaments
+        .values()
+        .filter(|s| s.money_mode.eq_ignore_ascii_case(want))
+        .map(to_info)
+        .collect();
     list.sort_by(|a, b| {
         b.is_freeroll
             .cmp(&a.is_freeroll)
@@ -164,6 +179,19 @@ pub async fn register_player(
 
     let buy_in = store.state.config.buy_in;
     let starting_stack = store.state.config.starting_stack;
+    let mode = crate::wallet::WalletMode::parse(body.wallet_mode.as_deref());
+    let tourney_is_real = store.money_mode.eq_ignore_ascii_case("real");
+    let mode_is_real = matches!(mode, crate::wallet::WalletMode::Real);
+    if tourney_is_real != mode_is_real {
+        return Err(ApiError::BadRequest(
+            if tourney_is_real {
+                "Este torneio é de Jogo Real. Fichas Play Money não podem ser usadas. Mude o modo no header para Jogo Real."
+            } else {
+                "Este torneio é de Play Money. Saldo de Jogo Real não entra aqui. Mude o modo no header para Play Money."
+            }
+            .into(),
+        ));
+    }
 
     poker_engine::tournament_engine::register_player(
         &mut store.state,
@@ -182,7 +210,6 @@ pub async fn register_player(
             store.state.players.remove(&auth_user.user_id);
             ApiError::BadRequest("Invalid buy-in".into())
         })?;
-        let mode = crate::wallet::WalletMode::parse(body.wallet_mode.as_deref());
         let kind = crate::wallet::mtt_kind_for_mode(mode);
         if let Err(e) = crate::wallet::ensure_pm_daily_reset(&mut *tx, &auth_user.user_id).await {
             store.state.players.remove(&auth_user.user_id);

@@ -49,7 +49,8 @@ export function LobbyPage() {
     setLoading(true);
     setError(null);
     try {
-      const [t, tourneys] = await Promise.all([listTables(), listTournaments()]);
+      const mode = getWalletMode();
+      const [t, tourneys] = await Promise.all([listTables(mode), listTournaments(mode)]);
       setTables(t);
       setTournaments(tourneys);
     } catch (e) {
@@ -62,7 +63,12 @@ export function LobbyPage() {
   useEffect(() => {
     void load();
     const t = window.setInterval(() => void load(), 15_000);
-    return () => window.clearInterval(t);
+    const onMode = () => void load();
+    window.addEventListener("wallet-mode-changed", onMode);
+    return () => {
+      window.clearInterval(t);
+      window.removeEventListener("wallet-mode-changed", onMode);
+    };
   }, [load]);
 
   const filtered = useMemo(() => {
@@ -125,8 +131,11 @@ export function LobbyPage() {
         <div>
           <h1 className="text-xl font-bold uppercase tracking-wide text-gold-bright">Lobby</h1>
           <p className="text-xs text-felt-300">
-            Cash · Freeroll · MTT · modo{" "}
-            <span className="text-gold-soft">{getWalletMode() === "real" ? "Jogo Real" : "Play Money"}</span>
+            Listando apenas{" "}
+            <span className="font-semibold text-gold-soft">
+              {getWalletMode() === "real" ? "Jogo Real" : "Play Money"}
+            </span>
+            {" · "}fichas PM e Real não se misturam
           </p>
         </div>
         <div className="flex gap-1 rounded border border-felt-600 bg-felt-950/60 p-0.5">
@@ -152,6 +161,30 @@ export function LobbyPage() {
           {error}
         </p>
       )}
+
+      <div
+        className={
+          getWalletMode() === "real"
+            ? "rounded border border-amber-600/60 bg-amber-950/40 px-3 py-2 text-xs text-amber-100"
+            : "rounded border border-emerald-700/50 bg-emerald-950/30 px-3 py-2 text-xs text-emerald-100"
+        }
+      >
+        {getWalletMode() === "real" ? (
+          <>
+            <strong>Jogo Real:</strong> só saldo real. Fichas Play Money{" "}
+            <strong>não</strong> servem nestas mesas/torneios. Sem saldo? Vá em{" "}
+            <Link to="/wallet" className="underline text-gold-soft">
+              Carteira → Pedir fichas
+            </Link>
+            .
+          </>
+        ) : (
+          <>
+            <strong>Play Money:</strong> fichas de diversão (renovam todo dia).{" "}
+            <strong>Não têm valor real</strong> e não podem ser usadas no Jogo Real.
+          </>
+        )}
+      </div>
 
       {tab === "cash" ? (
         <div className="zt-panel overflow-hidden">

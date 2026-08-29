@@ -10,13 +10,22 @@ use poker_engine::tournament_engine::{TournamentConfig, TournamentState};
 pub struct TournamentStore {
     pub id: String,
     pub state: TournamentState,
+    /// `play` | `real` — must match client wallet mode.
+    pub money_mode: String,
 }
 
 impl TournamentStore {
     pub fn new(id: String, config: TournamentConfig) -> Self {
+        Self::with_money_mode(id, config, "play".into())
+    }
+
+    pub fn with_money_mode(id: String, config: TournamentConfig, money_mode: String) -> Self {
         let mut state = poker_engine::tournament_engine::create_tournament(config);
-        // Override the generated tournament_id with our explicit ID
         state.tournament_id = id.clone();
-        Self { id, state }
+        Self {
+            id,
+            state,
+            money_mode,
+        }
     }
 }
