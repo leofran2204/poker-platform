@@ -1,6 +1,15 @@
 -- 023: Cash NL 0,25/0,25 (frente R$25) em Play Money e Jogo Real
 -- Mantém NL 0,25/0,50 (R$25), NL 0,50/1 (R$75) e SD 1/2 (R$100).
 -- Valores em CENTAVOS. Idempotente.
+--
+-- A constraint legada exigia big_blind par e small_blind = big_blind/2,
+-- o que impede stakes iguais (0,25/0,25). Relaxamos para SB <= BB.
+
+ALTER TABLE tables DROP CONSTRAINT IF EXISTS chk_tables_blind_structure;
+
+ALTER TABLE tables
+    ADD CONSTRAINT chk_tables_blind_structure
+        CHECK (small_blind > 0 AND big_blind > 0 AND small_blind <= big_blind);
 
 INSERT INTO tables (
     id, name, game_type,
