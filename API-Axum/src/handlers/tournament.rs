@@ -14,6 +14,9 @@ pub struct RegisterBody {
     /// Optional; ignored when it does not match the authenticated user.
     pub player_id: Option<String>,
     pub player_name: Option<String>,
+    /// `play` (default) debits Play Money MTT; `real` debits Jogo Real.
+    #[serde(default)]
+    pub wallet_mode: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -179,24 +182,17 @@ pub async fn register_player(
             store.state.players.remove(&auth_user.user_id);
             ApiError::BadRequest("Invalid buy-in".into())
         })?;
-        let updated: Option<(i64,)> = sqlx::query_as(
-            "UPDATE users SET balance = balance - $1 \
-             WHERE id = $2::uuid AND balance >= $1 \
-             RETURNING balance",
-        )
-        .bind(buy_in_i)
-        .bind(&auth_user.user_id)
-        .fetch_optional(&mut *tx)
-        .await
-        .map_err(|e| {
+        let mode = crate::wallet::WalletMode::parse(body.wallet_mode.as_deref());
+        let kind = crate::wallet::mtt_kind_for_mode(mode);
+        if let Err(e) = crate::wallet::ensure_pm_daily_reset(&mut *tx, &auth_user.user_id).await {
             store.state.players.remove(&auth_user.user_id);
-            e
-        })?;
-        if updated.is_none() {
+            return Err(e);
+        }
+        if let Err(e) =
+            crate::wallet::debit_wallet(&mut *tx, &auth_user.user_id, buy_in_i, kind).await
+        {
             store.state.players.remove(&auth_user.user_id);
-            return Err(ApiError::BadRequest(
-                "Insufficient wallet balance".to_string(),
-            ));
+            return Err(e);
         }
     }
 

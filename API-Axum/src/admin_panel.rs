@@ -367,12 +367,16 @@ pub async fn patch_user(
 pub struct AdjustBalanceBody {
     pub delta_cents: i64,
     pub reason: String,
+    /// `pm_cash` | `pm_mtt` | `real` (default `real`)
+    #[serde(default)]
+    pub wallet: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
 pub struct AdjustBalanceResponse {
     pub user_id: String,
     pub balance: i64,
+    pub wallet: String,
 }
 
 pub async fn adjust_balance(
@@ -391,20 +395,34 @@ pub async fn adjust_balance(
     if body.delta_cents == 0 {
         return Err(ApiError::BadRequest("delta_cents must be non-zero".into()));
     }
-    let uid = uuid::Uuid::parse_str(&user_id)
+    let _uid = uuid::Uuid::parse_str(&user_id)
         .map_err(|_| ApiError::BadRequest("Invalid user id".into()))?;
 
-    let updated: Option<(i64,)> = sqlx::query_as(
-        "UPDATE users SET balance = balance + $1 WHERE id = $2 AND balance + $1 >= 0 RETURNING balance",
-    )
-    .bind(body.delta_cents)
-    .bind(uid)
-    .fetch_optional(&state.db)
-    .await?;
+    let kind = match body
+        .wallet
+        .as_deref()
+        .unwrap_or("real")
+        .trim()
+        .to_ascii_lowercase()
+        .as_str()
+    {
+        "pm_cash" | "cash" | "play_cash" => crate::wallet::WalletKind::PmCash,
+        "pm_mtt" | "mtt" | "tournament" => crate::wallet::WalletKind::PmMtt,
+        _ => crate::wallet::WalletKind::Real,
+    };
 
-    let balance = updated
-        .ok_or_else(|| ApiError::BadRequest("User not found or balance would go negative".into()))?
-        .0;
+    if body.delta_cents > 0 {
+        crate::wallet::credit_wallet(&state.db, &user_id, body.delta_cents, kind).await?;
+    } else {
+        crate::wallet::debit_wallet(&state.db, &user_id, -body.delta_cents, kind).await?;
+    }
+
+    let snap = crate::wallet::load_snapshot(&state.db, &user_id).await?;
+    let balance = match kind {
+        crate::wallet::WalletKind::PmCash => snap.balance_pm_cash,
+        crate::wallet::WalletKind::PmMtt => snap.balance_pm_mtt,
+        crate::wallet::WalletKind::Real => snap.balance_real,
+    };
 
     write_audit(
         &state,
@@ -413,13 +431,18 @@ pub async fn adjust_balance(
         serde_json::json!({
             "target_user_id": user_id,
             "delta_cents": body.delta_cents,
+            "wallet": kind.seat_label(),
             "reason": reason,
             "new_balance": balance
         }),
     )
     .await?;
 
-    Ok(Json(AdjustBalanceResponse { user_id, balance }))
+    Ok(Json(AdjustBalanceResponse {
+        user_id,
+        balance,
+        wallet: kind.seat_label().to_string(),
+    }))
 }
 
 // ─── Tables list ───

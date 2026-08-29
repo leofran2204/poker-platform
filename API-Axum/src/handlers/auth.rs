@@ -391,8 +391,14 @@ pub async fn register(
     // Persist user to PostgreSQL
     let persist_result = sqlx::query(
         r#"
-        INSERT INTO users (id, username, email, password_hash, role, status, balance, mfa_enabled, created_at)
-        VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9)
+        INSERT INTO users (
+            id, username, email, password_hash, role, status, balance, mfa_enabled, created_at,
+            balance_pm_cash, balance_pm_mtt, balance_real, last_pm_reset_date, preferred_wallet_mode
+        )
+        VALUES (
+            $1::uuid, $2, $3, $4, $5, $6, $7, $8, $9,
+            $10, $11, 0, (timezone('America/Sao_Paulo', now()))::date, 'play'
+        )
         "#,
     )
     .bind(&user.id)
@@ -401,9 +407,11 @@ pub async fn register(
     .bind(&user.password_hash)
     .bind(role_db(&user.role))
     .bind(account_status_db(&user.status))
-    .bind(user.balance)
+    .bind(crate::wallet::PM_CASH_DAILY_CENTS)
     .bind(user.mfa_enabled)
     .bind(user.created_at as i64)
+    .bind(crate::wallet::PM_CASH_DAILY_CENTS)
+    .bind(crate::wallet::PM_MTT_DAILY_CENTS)
     .execute(&state.db)
     .await;
     if let Err(error) = persist_result {
@@ -904,7 +912,15 @@ pub struct MeResponse {
     pub username: String,
     pub role: String,
     pub status: String,
+    /// Legacy mirror of Play Money cash (compat).
     pub balance: i64,
+    pub balance_pm_cash: i64,
+    pub balance_pm_mtt: i64,
+    pub balance_real: i64,
+    pub preferred_wallet_mode: String,
+    pub last_pm_reset_date: Option<String>,
+    pub pm_cash_rebuy_available: bool,
+    pub pm_mtt_rebuy_available: bool,
     pub email: String,
 }
 
@@ -912,14 +928,15 @@ pub async fn me(
     crate::middleware::auth::RequireAuth(auth_user): crate::middleware::auth::RequireAuth,
     State(state): State<AppState>,
 ) -> Result<Json<MeResponse>, ApiError> {
-    let row: Option<(String, String, String, String, i64, String)> = sqlx::query_as(
-        "SELECT id::text, username, role, status, balance, email FROM users WHERE id = $1::uuid",
+    let snap = crate::wallet::load_snapshot(&state.db, &auth_user.user_id).await?;
+    let row: Option<(String, String, String, String, String)> = sqlx::query_as(
+        "SELECT id::text, username, role, status, email FROM users WHERE id = $1::uuid",
     )
     .bind(&auth_user.user_id)
     .fetch_optional(&state.db)
     .await?;
 
-    let (user_id, username, role, status, balance, email) = row.ok_or_else(|| {
+    let (user_id, username, role, status, email) = row.ok_or_else(|| {
         ApiError::NotFound("User not found".to_string())
     })?;
 
@@ -928,7 +945,14 @@ pub async fn me(
         username,
         role,
         status,
-        balance,
+        balance: snap.balance_pm_cash,
+        balance_pm_cash: snap.balance_pm_cash,
+        balance_pm_mtt: snap.balance_pm_mtt,
+        balance_real: snap.balance_real,
+        preferred_wallet_mode: snap.preferred_wallet_mode,
+        last_pm_reset_date: snap.last_pm_reset_date,
+        pm_cash_rebuy_available: snap.pm_cash_rebuy_available,
+        pm_mtt_rebuy_available: snap.pm_mtt_rebuy_available,
         email,
     }))
 }

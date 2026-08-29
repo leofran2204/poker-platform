@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "reviewed_on": "2026-08-26",
-  "cycle": "S16 — Pedir fichas: PIX manual + comprovante + aprovação admin (/wallet, /admin/deposits); S15 painel admin; S14 cash/torneios. Demo VPS zerotiltpoker.net.",
+  "cycle": "S17 — Play Money (cash 1k + MTT 15k, reset diário, rebuy) × Jogo Real (saldo 0 + Pedir Fichas); S16 depósitos manuais; S15 admin. Demo VPS zerotiltpoker.net.",
   "stack": {
     "motor_api": "Rust (Motor-Rust + API-Axum)",
     "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",

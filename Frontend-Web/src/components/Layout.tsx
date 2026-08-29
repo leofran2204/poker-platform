@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { getUsername, isAuthenticated } from "@/lib/auth";
-import { logout } from "@/api/client";
+import { logout, setWalletMode as apiSetWalletMode } from "@/api/client";
+import type { MeResponse, WalletMode } from "@/api/types";
 import { OnlinePresenceNav } from "@/components/OnlinePresence";
-import { getMe, isAdminRole } from "@/lib/me";
+import { getUsername, isAuthenticated } from "@/lib/auth";
+import { clearMeCache, getMe, isAdminRole } from "@/lib/me";
+import { formatBrlFromCents } from "@/lib/money";
+import { getWalletMode, setWalletModeLocal } from "@/lib/walletMode";
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `zt-nav-link ${isActive ? "zt-nav-link-active" : ""}`;
@@ -13,22 +16,54 @@ export function Layout() {
   const authed = isAuthenticated();
   const username = getUsername();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [me, setMe] = useState<MeResponse | null>(null);
+  const [mode, setMode] = useState<WalletMode>(getWalletMode());
 
-  useEffect(() => {
+  const refreshMe = useCallback(async () => {
     if (!authed) {
+      setMe(null);
       setIsAdmin(false);
       return;
     }
-    void getMe()
-      .then((me) => setIsAdmin(isAdminRole(me?.role)))
-      .catch(() => setIsAdmin(false));
+    try {
+      const profile = await getMe(true);
+      setMe(profile);
+      setIsAdmin(isAdminRole(profile?.role));
+      if (profile?.preferred_wallet_mode === "real" || profile?.preferred_wallet_mode === "play") {
+        const m = profile.preferred_wallet_mode as WalletMode;
+        setMode(m);
+        setWalletModeLocal(m);
+      }
+    } catch {
+      setIsAdmin(false);
+    }
   }, [authed]);
+
+  useEffect(() => {
+    void refreshMe();
+  }, [refreshMe]);
+
+  async function switchMode(next: WalletMode) {
+    setMode(next);
+    setWalletModeLocal(next);
+    try {
+      await apiSetWalletMode(next);
+      clearMeCache();
+      await refreshMe();
+    } catch {
+      /* keep local preference */
+    }
+  }
 
   function handleLogout() {
     logout();
     setIsAdmin(false);
+    setMe(null);
     navigate("/login");
   }
+
+  const activeBalance =
+    mode === "real" ? (me?.balance_real ?? 0) : (me?.balance_pm_cash ?? me?.balance ?? 0);
 
   return (
     <div className="zt-shell">
@@ -43,7 +78,7 @@ export function Layout() {
             </NavLink>
             <OnlinePresenceNav />
           </div>
-          <nav className="flex flex-wrap items-center gap-4">
+          <nav className="flex flex-wrap items-center gap-3 sm:gap-4">
             <NavLink to="/lobby" className={linkClass}>
               Lobby
             </NavLink>
@@ -59,8 +94,27 @@ export function Layout() {
             )}
             {authed ? (
               <>
+                <div className="flex items-center gap-0.5 rounded border border-felt-600 bg-felt-950/70 p-0.5">
+                  <button
+                    type="button"
+                    className={mode === "play" ? "zt-tab zt-tab-active !px-2 !py-1 !text-[11px]" : "zt-tab !px-2 !py-1 !text-[11px]"}
+                    onClick={() => void switchMode("play")}
+                  >
+                    Play Money
+                  </button>
+                  <button
+                    type="button"
+                    className={mode === "real" ? "zt-tab zt-tab-active !px-2 !py-1 !text-[11px]" : "zt-tab !px-2 !py-1 !text-[11px]"}
+                    onClick={() => void switchMode("real")}
+                  >
+                    Jogo Real
+                  </button>
+                </div>
+                <span className="zt-chip hidden font-mono sm:inline-flex">
+                  {mode === "real" ? "Real" : "PM"} {formatBrlFromCents(activeBalance)}
+                </span>
                 {username && (
-                  <span className="zt-chip hidden sm:inline-flex">{username}</span>
+                  <span className="zt-chip hidden md:inline-flex">{username}</span>
                 )}
                 <button type="button" className="zt-btn-ghost text-sm" onClick={handleLogout}>
                   Sair
@@ -83,7 +137,7 @@ export function Layout() {
         <Outlet />
       </main>
       <footer className="border-t border-felt-700 px-4 py-4 text-center text-xs text-felt-400">
-        Zero Tilt Poker · Texas Hold&apos;em · Demo / staging · Play-money
+        Zero Tilt Poker · Play Money &amp; Jogo Real · Demo / staging
       </footer>
     </div>
   );

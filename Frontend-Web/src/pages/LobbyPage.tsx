@@ -4,6 +4,7 @@ import { joinTable, listTables, listTournaments, registerTournament } from "@/ap
 import type { TableResponse, TournamentInfoResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";
 import { formatBrlFromCents } from "@/lib/money";
+import { getWalletMode } from "@/lib/walletMode";
 
 type LobbyTab = "cash" | "tournaments";
 type StakeFilter = "all" | "nl050" | "nl1";
@@ -84,7 +85,7 @@ export function LobbyPage() {
     setJoiningId(table.id);
     setError(null);
     try {
-      await joinTable(table.id, table.min_buy_in);
+      await joinTable(table.id, table.min_buy_in, getWalletMode());
       navigate(`/table/${table.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Não foi possível entrar na mesa");
@@ -97,7 +98,7 @@ export function LobbyPage() {
     setRegisteringId(t.id);
     setError(null);
     try {
-      await registerTournament(t.id);
+      await registerTournament(t.id, getWalletMode());
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Falha na inscrição");
@@ -123,7 +124,10 @@ export function LobbyPage() {
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
           <h1 className="text-xl font-bold uppercase tracking-wide text-gold-bright">Lobby</h1>
-          <p className="text-xs text-felt-300">Cash · Freeroll · MTT</p>
+          <p className="text-xs text-felt-300">
+            Cash · Freeroll · MTT · modo{" "}
+            <span className="text-gold-soft">{getWalletMode() === "real" ? "Jogo Real" : "Play Money"}</span>
+          </p>
         </div>
         <div className="flex gap-1 rounded border border-felt-600 bg-felt-950/60 p-0.5">
           <button

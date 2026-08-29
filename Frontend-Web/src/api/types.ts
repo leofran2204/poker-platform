@@ -4,12 +4,21 @@ export interface TokenResponse {
   expires_in?: number;
 }
 
+export type WalletMode = "play" | "real";
+
 export interface MeResponse {
   user_id: string;
   username: string;
   role: string;
   status: string;
   balance: number;
+  balance_pm_cash: number;
+  balance_pm_mtt: number;
+  balance_real: number;
+  preferred_wallet_mode: string;
+  last_pm_reset_date?: string | null;
+  pm_cash_rebuy_available: boolean;
+  pm_mtt_rebuy_available: boolean;
   email: string;
 }
 

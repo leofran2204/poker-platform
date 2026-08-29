@@ -9,6 +9,7 @@ pub mod admin_routes;
 pub mod binary_codec;
 pub mod deposit_requests;
 pub mod email_service;
+pub mod wallet;
 pub mod error;
 pub mod game_actor;
 pub mod handlers;
@@ -202,6 +203,18 @@ pub fn build_router(state: AppState) -> Router {
                 )),
         )
         // ─── Admin & Antifraud routes (protected admin role) ───
+        .route(
+            "/api/wallet/mode",
+            post(wallet::set_wallet_mode).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/wallet/pm-rebuy",
+            post(wallet::pm_rebuy_handler).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
         .route(
             "/api/wallet/deposit-info",
             get(deposit_requests::deposit_info).route_layer(

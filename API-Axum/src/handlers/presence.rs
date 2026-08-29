@@ -42,6 +42,7 @@ pub async fn heartbeat(
     State(state): State<AppState>,
     RequireAuth(user): RequireAuth,
 ) -> Result<Json<HeartbeatResponse>, ApiError> {
+    let _ = crate::wallet::ensure_pm_daily_reset_pool(&state.db, &user.user_id).await;
     state
         .presence
         .heartbeat(&state.redis, &user.user_id)

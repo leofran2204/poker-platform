@@ -4,6 +4,7 @@ import { getTournament, registerTournament } from "@/api/client";
 import type { TournamentInfoResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";
 import { formatBrlFromCents } from "@/lib/money";
+import { getWalletMode } from "@/lib/walletMode";
 
 export function TournamentPage() {
   const { id = "" } = useParams();
@@ -35,7 +36,7 @@ export function TournamentPage() {
     setError(null);
     setRegisteredMsg(null);
     try {
-      const res = await registerTournament(id);
+      const res = await registerTournament(id, getWalletMode());
       setRegisteredMsg(
         `Inscrito com ${res.stack.toLocaleString("pt-BR")} fichas. Gameplay MTT em breve.`,
       );

@@ -35,6 +35,9 @@ pub struct JoinBody {
     pub table_id: String,
     /// Amount moved from wallet to the table escrow, in cents.
     pub buy_in: u64,
+    /// `play` (default) uses Play Money cash; `real` uses Jogo Real.
+    #[serde(default)]
+    pub wallet_mode: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -185,29 +188,20 @@ pub async fn join_table(
         .map(|(seat,)| seat)
         .ok_or_else(|| ApiError::BadRequest("Table is full".to_string()))?;
 
-    let debited: Option<(i64,)> = sqlx::query_as(
-        "UPDATE users SET balance = balance - $1 \
-         WHERE id = $2::uuid AND balance >= $1 \
-         RETURNING balance",
-    )
-    .bind(buy_in)
-    .bind(&auth_user.user_id)
-    .fetch_optional(&mut *tx)
-    .await?;
-    if debited.is_none() {
-        return Err(ApiError::BadRequest(
-            "Insufficient wallet balance".to_string(),
-        ));
-    }
+    let mode = crate::wallet::WalletMode::parse(body.wallet_mode.as_deref());
+    let kind = crate::wallet::cash_kind_for_mode(mode);
+    crate::wallet::ensure_pm_daily_reset(&mut *tx, &auth_user.user_id).await?;
+    crate::wallet::debit_wallet(&mut *tx, &auth_user.user_id, buy_in, kind).await?;
 
     let (seat_id,): (uuid::Uuid,) = sqlx::query_as(
-        "INSERT INTO cash_game_seats (table_id, user_id, seat, chips, buy_in) \
-         VALUES ($1, $2::uuid, $3, $4, $4) RETURNING id",
+        "INSERT INTO cash_game_seats (table_id, user_id, seat, chips, buy_in, wallet_kind) \
+         VALUES ($1, $2::uuid, $3, $4, $4, $5) RETURNING id",
     )
     .bind(table_id)
     .bind(&auth_user.user_id)
     .bind(seat)
     .bind(buy_in)
+    .bind(kind.seat_label())
     .fetch_one(&mut *tx)
     .await?;
 
@@ -265,8 +259,8 @@ pub async fn leave_table(
     };
 
     let mut tx = state.db.begin().await?;
-    let seat: Option<(uuid::Uuid, i64)> = sqlx::query_as(
-        "SELECT id, chips FROM cash_game_seats \
+    let seat: Option<(uuid::Uuid, i64, String)> = sqlx::query_as(
+        "SELECT id, chips, wallet_kind FROM cash_game_seats \
          WHERE table_id = $1 AND user_id = $2::uuid AND status = 'ACTIVE' \
          FOR UPDATE",
     )
@@ -274,8 +268,9 @@ pub async fn leave_table(
     .bind(&auth_user.user_id)
     .fetch_optional(&mut *tx)
     .await?;
-    let (seat_id, stored_chips) =
+    let (seat_id, stored_chips, wallet_kind) =
         seat.ok_or_else(|| ApiError::NotFound("No active seat found for this player".to_string()))?;
+    let credit_kind = crate::wallet::WalletKind::from_seat(&wallet_kind);
     // PostgreSQL BIGINT is signed while the game engine represents chips as u64.
     // Refuse an impossible engine value rather than wrapping it into a negative
     // database balance during cash-out.
@@ -300,11 +295,7 @@ pub async fn leave_table(
     // A player who lost the full buy-in must still be able to close the seat.
     // The immutable ledger intentionally records only positive transfers.
     if chips > 0 {
-        sqlx::query("UPDATE users SET balance = balance + $1 WHERE id = $2::uuid")
-            .bind(chips)
-            .bind(&auth_user.user_id)
-            .execute(&mut *tx)
-            .await?;
+        crate::wallet::credit_wallet(&mut *tx, &auth_user.user_id, chips, credit_kind).await?;
         sqlx::query(
             "INSERT INTO cash_game_ledger (user_id, table_id, seat_id, entry_type, amount) \
              VALUES ($1::uuid, $2, $3, 'CASH_OUT', $4)",

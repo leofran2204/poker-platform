@@ -162,7 +162,10 @@ export async function getTournament(id: string): Promise<TournamentInfoResponse>
   return request<TournamentInfoResponse>(`/api/tournament/${id}`);
 }
 
-export async function registerTournament(tournamentId: string): Promise<{
+export async function registerTournament(
+  tournamentId: string,
+  walletMode: "play" | "real" = "play",
+): Promise<{
   tournament_id: string;
   player_id: string;
   stack: number;
@@ -171,7 +174,34 @@ export async function registerTournament(tournamentId: string): Promise<{
 }> {
   return request("/api/tournament/register", {
     method: "POST",
-    body: JSON.stringify({ tournament_id: tournamentId }),
+    body: JSON.stringify({ tournament_id: tournamentId, wallet_mode: walletMode }),
+  });
+}
+
+export async function setWalletMode(mode: "play" | "real"): Promise<{
+  balance_pm_cash: number;
+  balance_pm_mtt: number;
+  balance_real: number;
+  preferred_wallet_mode: string;
+  pm_cash_rebuy_available: boolean;
+  pm_mtt_rebuy_available: boolean;
+}> {
+  return request("/api/wallet/mode", {
+    method: "POST",
+    body: JSON.stringify({ mode }),
+  });
+}
+
+export async function pmRebuy(kind: "cash" | "mtt"): Promise<{
+  balance_pm_cash: number;
+  balance_pm_mtt: number;
+  balance_real: number;
+  pm_cash_rebuy_available: boolean;
+  pm_mtt_rebuy_available: boolean;
+}> {
+  return request("/api/wallet/pm-rebuy", {
+    method: "POST",
+    body: JSON.stringify({ kind }),
   });
 }
 
@@ -179,10 +209,14 @@ export async function getTable(id: string): Promise<TableResponse> {
   return request<TableResponse>(`/api/lobby/tables/${id}`);
 }
 
-export async function joinTable(tableId: string, buyIn: number): Promise<JoinResponse> {
+export async function joinTable(
+  tableId: string,
+  buyIn: number,
+  walletMode: "play" | "real" = "play",
+): Promise<JoinResponse> {
   return request<JoinResponse>("/api/lobby/join", {
     method: "POST",
-    body: JSON.stringify({ table_id: tableId, buy_in: buyIn }),
+    body: JSON.stringify({ table_id: tableId, buy_in: buyIn, wallet_mode: walletMode }),
   });
 }
 

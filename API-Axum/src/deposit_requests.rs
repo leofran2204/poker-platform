@@ -340,11 +340,13 @@ pub async fn approve_deposit_request(
         )));
     }
 
-    sqlx::query("UPDATE users SET balance = balance + $1 WHERE id = $2")
-        .bind(amount)
-        .bind(user_id)
-        .execute(&mut *tx)
-        .await?;
+    crate::wallet::credit_wallet(
+        &mut *tx,
+        &user_id.to_string(),
+        amount,
+        crate::wallet::WalletKind::Real,
+    )
+    .await?;
 
     sqlx::query(
         r#"
