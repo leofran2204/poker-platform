@@ -1,0 +1,14 @@
+# Zero Tilt — áreas autenticadas/ops fora de indexação
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /wallet
+Disallow: /wallet/
+Disallow: /login
+Disallow: /register
+Disallow: /verify-email
+Disallow: /table/
+Disallow: /api/
+
+Sitemap: https://zerotiltpoker.net/

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Navigate, Outlet } from "react-router-dom";
+import { NoIndex } from "@/components/NoIndex";
 import { getMe, isAdminRole } from "@/lib/me";
 import { isAuthenticated } from "@/lib/auth";
 
@@ -58,6 +59,7 @@ export function AdminLayout() {
 
   return (
     <div className="space-y-4">
+      <NoIndex />
       <div>
         <h1 className="text-xl font-bold uppercase tracking-wide text-gold-bright">
           Painel administrativo

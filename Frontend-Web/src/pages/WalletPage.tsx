@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   createDepositRequest,
@@ -7,20 +7,33 @@ import {
   listMyDepositRequests,
 } from "@/api/client";
 import type { DepositInfoResponse, DepositRequestResponse, MeResponse } from "@/api/types";
+import { NoIndex } from "@/components/NoIndex";
 import { isAuthenticated } from "@/lib/auth";
 import { formatBrlFromCents } from "@/lib/money";
+
+function maskPixKey(key: string): string {
+  const k = key.trim();
+  if (k.length <= 10) return "••••••••";
+  return `${k.slice(0, 4)}••••••••${k.slice(-4)}`;
+}
 
 export function WalletPage() {
   const [me, setMe] = useState<MeResponse | null>(null);
   const [info, setInfo] = useState<DepositInfoResponse | null>(null);
   const [requests, setRequests] = useState<DepositRequestResponse[]>([]);
   const [openForm, setOpenForm] = useState(false);
+  const [revealPix, setRevealPix] = useState(false);
   const [amountCents, setAmountCents] = useState(100_000);
   const [proof, setProof] = useState("");
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  const maskedKey = useMemo(
+    () => (info?.pix_key ? maskPixKey(info.pix_key) : ""),
+    [info?.pix_key],
+  );
 
   const load = useCallback(async () => {
     if (!isAuthenticated()) return;
@@ -90,6 +103,7 @@ export function WalletPage() {
 
   return (
     <div className="space-y-4">
+      <NoIndex />
       <div>
         <h1 className="text-xl font-bold uppercase tracking-wide text-gold-bright">Carteira</h1>
         <p className="text-xs text-felt-300">
@@ -123,7 +137,10 @@ export function WalletPage() {
           type="button"
           className="zt-btn-primary"
           disabled={!info}
-          onClick={() => setOpenForm((v) => !v)}
+          onClick={() => {
+            setOpenForm((v) => !v);
+            setRevealPix(false);
+          }}
         >
           {openForm ? "Fechar" : "Pedir fichas"}
         </button>
@@ -135,18 +152,33 @@ export function WalletPage() {
             ) : (
               <>
                 <p className="text-xs text-felt-300">{info.instructions}</p>
+                <p className="text-[11px] text-felt-500">
+                  Não compartilhe print desta tela. Confira o nome do recebedor no app do banco
+                  antes de confirmar o PIX.
+                </p>
                 <div className="rounded border border-rail/60 bg-felt-950 p-3">
                   <div className="text-[10px] uppercase text-felt-400">Recebedor</div>
                   <div className="font-semibold text-cream">{info.receiver_name}</div>
                   <div className="mt-2 text-[10px] uppercase text-felt-400">Chave PIX</div>
-                  <div className="break-all font-mono text-sm text-gold-soft">{info.pix_key}</div>
-                  <button
-                    type="button"
-                    className="zt-btn-secondary mt-2 !py-1 !text-xs"
-                    onClick={() => void copyPix()}
-                  >
-                    Copiar chave
-                  </button>
+                  <div className="break-all font-mono text-sm text-gold-soft">
+                    {revealPix ? info.pix_key : maskedKey}
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    <button
+                      type="button"
+                      className="zt-btn-secondary !py-1 !text-xs"
+                      onClick={() => setRevealPix((v) => !v)}
+                    >
+                      {revealPix ? "Ocultar" : "Mostrar chave"}
+                    </button>
+                    <button
+                      type="button"
+                      className="zt-btn-secondary !py-1 !text-xs"
+                      onClick={() => void copyPix()}
+                    >
+                      Copiar chave
+                    </button>
+                  </div>
                 </div>
 
                 <form className="space-y-3" onSubmit={(e) => void onSubmit(e)}>

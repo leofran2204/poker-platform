@@ -66,6 +66,15 @@ http://{$DOMAIN_NAME:localhost} {
 		reverse_proxy poker_api:3000
 	}
 
+	# Rotas sensíveis: não indexar (WHOIS ≠ crawler, mas reduz vazamento por busca).
+	@private path /admin /admin/* /wallet /wallet/* /login /register /verify-email /table/*
+	handle @private {
+		header X-Robots-Tag "noindex, nofollow, noarchive"
+		root * /usr/share/caddy
+		try_files {path} /index.html
+		file_server
+	}
+
 	# Fallback para index.html (SPA React Router — Frontend-Web).
 	handle {
 		root * /usr/share/caddy
