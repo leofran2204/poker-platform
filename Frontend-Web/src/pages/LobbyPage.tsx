@@ -7,10 +7,11 @@ import { formatBrlFromCents } from "@/lib/money";
 import { getWalletMode } from "@/lib/walletMode";
 
 type LobbyTab = "cash" | "tournaments";
-type StakeFilter = "all" | "nl050" | "nl1" | "sd12";
+type StakeFilter = "all" | "nl025" | "nl050" | "nl1" | "sd12";
 
 const STAKE_OPTIONS: { id: StakeFilter; label: string }[] = [
   { id: "all", label: "Todos" },
+  { id: "nl025", label: "NL 0,25/0,25" },
   { id: "nl050", label: "NL 0,25/0,50" },
   { id: "nl1", label: "NL 0,50/1,00" },
   { id: "sd12", label: "SD 1/2" },
@@ -88,8 +89,9 @@ export function LobbyPage() {
     return tables.filter((t) => {
       if (hideFull && t.players >= t.max_players) return false;
       const isSd = t.poker_variant === "short_deck";
-      if (stake === "nl050") return !isSd && t.big_blind === 50;
-      if (stake === "nl1") return !isSd && t.big_blind === 100;
+      if (stake === "nl025") return !isSd && t.small_blind === 25 && t.big_blind === 25;
+      if (stake === "nl050") return !isSd && t.small_blind === 25 && t.big_blind === 50;
+      if (stake === "nl1") return !isSd && t.small_blind === 50 && t.big_blind === 100;
       if (stake === "sd12") return isSd && t.big_blind === 200;
       return true;
     });
@@ -210,8 +212,8 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({filtered.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                NL 0,25/0,50 (frente R$25) · NL 0,50/1 (frente R$75) · SD 1/2 6-max (frente R$100) · auto
-                15s
+                NL 0,25/0,25 e 0,25/0,50 (frente R$25) · NL 0,50/1 (frente R$75) · SD 1/2 6-max (frente
+                R$100) · auto 15s
               </p>
             </div>
 

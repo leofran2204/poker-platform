@@ -79,6 +79,10 @@ impl PokerVariant {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TableConfig {
     pub big_blind: u64,
+    /// Small blind em centavos. Se omitido/0 no JSON legado, usa `big_blind / 2`.
+    /// Permite stakes iguais (ex.: 0,25/0,25 → sb=25, bb=25).
+    #[serde(default)]
+    pub small_blind: u64,
     /// Commission in basis points. For example, 500 means 5.00%.
     pub rake_basis_points: u16,
     /// Cap legado aplicado quando não há agenda por número de jogadores.
@@ -92,13 +96,29 @@ pub struct TableConfig {
 
 impl TableConfig {
     /// Creates a configuration with blinds/cap in cents and rake in basis points.
+    /// Small blind padrão = big_blind / 2 (Hold'em clássico).
     pub fn new(big_blind: u64, rake_basis_points: u16, rake_cap: u64) -> Self {
         Self {
             big_blind,
+            small_blind: big_blind / 2,
             rake_basis_points,
             rake_cap,
             rake_cap_schedule: None,
             poker_variant: PokerVariant::Holdem,
+        }
+    }
+
+    pub fn with_small_blind(mut self, small_blind: u64) -> Self {
+        self.small_blind = small_blind;
+        self
+    }
+
+    /// Small blind efetivo (fallback BB/2 se small_blind não foi setado).
+    pub fn effective_small_blind(&self) -> u64 {
+        if self.small_blind > 0 {
+            self.small_blind
+        } else {
+            self.big_blind / 2
         }
     }
 

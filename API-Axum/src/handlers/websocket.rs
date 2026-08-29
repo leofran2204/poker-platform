@@ -259,6 +259,7 @@ async fn handle_game_socket(
     type SeatAdmissionRow = (
         String,
         i64,
+        i64,
         i16,
         i64,
         Option<i64>,
@@ -269,7 +270,7 @@ async fn handle_game_socket(
         String,
     );
     let seat: Option<SeatAdmissionRow> = match sqlx::query_as(
-        "SELECT t.name, t.big_blind, t.rake_basis_points, t.rake_cap, t.rake_cap_heads_up, t.rake_cap_three_to_four, t.rake_cap_five_plus, s.chips, s.seat, \
+        "SELECT t.name, t.small_blind, t.big_blind, t.rake_basis_points, t.rake_cap, t.rake_cap_heads_up, t.rake_cap_three_to_four, t.rake_cap_five_plus, s.chips, s.seat, \
                 COALESCE(t.poker_variant, 'holdem') \
          FROM cash_game_seats s \
          JOIN tables t ON t.id = s.table_id \
@@ -298,6 +299,7 @@ async fn handle_game_socket(
     };
     let (
         table_name,
+        small_blind,
         big_blind,
         rake_basis_points,
         rake_cap,
@@ -310,6 +312,7 @@ async fn handle_game_socket(
     ) = match seat {
         Some((
             table_name,
+            small_blind,
             big_blind,
             rake_basis_points,
             rake_cap,
@@ -320,6 +323,7 @@ async fn handle_game_socket(
             seat,
             poker_variant,
         )) if big_blind > 0
+            && small_blind > 0
             && rake_basis_points >= 0
             && rake_cap >= 0
             && chips > 0
@@ -335,6 +339,7 @@ async fn handle_game_socket(
         {
             (
                 table_name,
+                small_blind as u64,
                 big_blind as u64,
                 rake_basis_points as u16,
                 rake_cap as u64,
@@ -381,6 +386,7 @@ async fn handle_game_socket(
 
             let mut table_config =
                 poker_engine::types::TableConfig::new(big_blind, rake_basis_points, rake_cap)
+                    .with_small_blind(small_blind)
                     .with_poker_variant(poker_engine::types::PokerVariant::parse(&poker_variant));
             if let (Some(heads_up), Some(three_to_four), Some(five_plus)) = (
                 rake_cap_heads_up,

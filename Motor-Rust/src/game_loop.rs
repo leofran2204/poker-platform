@@ -296,7 +296,7 @@ impl GameLoop {
                 current_bet_to_match: 0,
                 min_raise: config.big_blind,
                 active_player_index: 0,
-                small_blind: config.big_blind / 2,
+                small_blind: config.effective_small_blind(),
                 big_blind: config.big_blind,
                 is_finished: false,
             },
