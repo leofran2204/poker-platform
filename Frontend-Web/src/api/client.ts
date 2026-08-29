@@ -8,6 +8,8 @@ import type {
   AdminUserResponse,
   AntifraudAlertSummary,
   AuditLogItem,
+  DepositInfoResponse,
+  DepositRequestResponse,
   ClubAgentResponse,
   ClubFinancialsResponse,
   ClubResponse,
@@ -331,6 +333,48 @@ export async function listAuditLogs(params?: {
 
 export async function fetchAntifraudAlerts(): Promise<AntifraudAlertSummary> {
   return request<AntifraudAlertSummary>("/api/admin/antifraud/alerts");
+}
+
+export async function fetchDepositInfo(): Promise<DepositInfoResponse> {
+  return request<DepositInfoResponse>("/api/wallet/deposit-info");
+}
+
+export async function listMyDepositRequests(): Promise<DepositRequestResponse[]> {
+  return request<DepositRequestResponse[]>("/api/wallet/deposit-requests");
+}
+
+export async function createDepositRequest(body: {
+  amount_cents: number;
+  proof_text: string;
+  player_note?: string;
+}): Promise<DepositRequestResponse> {
+  return request("/api/wallet/deposit-requests", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function listAdminDepositRequests(params?: {
+  status?: string;
+}): Promise<DepositRequestResponse[]> {
+  const sp = new URLSearchParams();
+  if (params?.status) sp.set("status", params.status);
+  const qs = sp.toString();
+  return request(`/api/admin/deposit-requests${qs ? `?${qs}` : ""}`);
+}
+
+export async function approveDepositRequest(id: string): Promise<DepositRequestResponse> {
+  return request(`/api/admin/deposit-requests/${id}/approve`, { method: "POST" });
+}
+
+export async function rejectDepositRequest(
+  id: string,
+  adminNote?: string,
+): Promise<DepositRequestResponse> {
+  return request(`/api/admin/deposit-requests/${id}/reject`, {
+    method: "POST",
+    body: JSON.stringify({ admin_note: adminNote ?? "" }),
+  });
 }
 
 export function applyAuthTokens(tokens: TokenResponse): void {

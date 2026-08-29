@@ -85,6 +85,30 @@ export interface AuditLogItem {
   created_at: string;
 }
 
+export interface DepositInfoResponse {
+  available: boolean;
+  pix_key: string;
+  receiver_name: string;
+  max_cents: number;
+  max_pending: number;
+  presets_cents: number[];
+  instructions: string;
+}
+
+export interface DepositRequestResponse {
+  id: string;
+  user_id: string;
+  username?: string | null;
+  amount_cents: number;
+  status: string;
+  player_note?: string | null;
+  proof_text: string;
+  admin_note?: string | null;
+  reviewed_by?: string | null;
+  created_at: string;
+  reviewed_at?: string | null;
+}
+
 export interface AntifraudAlertSummary {
   bot_suspects_count: number;
   collusion_alerts_count: number;

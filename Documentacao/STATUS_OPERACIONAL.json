@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "reviewed_on": "2026-08-26",
-  "cycle": "S15 — Painel /admin (stats, users, mesas, torneios, presence, clubs, antifraud stub, audit); S14 cash NL0,50/NL1 + Freeroll/MTT inscrição. Demo VPS zerotiltpoker.net.",
+  "cycle": "S16 — Pedir fichas: PIX manual + comprovante + aprovação admin (/wallet, /admin/deposits); S15 painel admin; S14 cash/torneios. Demo VPS zerotiltpoker.net.",
   "stack": {
     "motor_api": "Rust (Motor-Rust + API-Axum)",
     "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",

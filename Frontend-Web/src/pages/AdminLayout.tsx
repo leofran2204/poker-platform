@@ -71,6 +71,9 @@ export function AdminLayout() {
         <NavLink to="/admin/users" className={subLink}>
           Users
         </NavLink>
+        <NavLink to="/admin/deposits" className={subLink}>
+          Depósitos
+        </NavLink>
         <NavLink to="/admin/tables" className={subLink}>
           Mesas
         </NavLink>

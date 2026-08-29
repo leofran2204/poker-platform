@@ -7,6 +7,7 @@
 pub mod admin_panel;
 pub mod admin_routes;
 pub mod binary_codec;
+pub mod deposit_requests;
 pub mod email_service;
 pub mod error;
 pub mod game_actor;
@@ -201,6 +202,38 @@ pub fn build_router(state: AppState) -> Router {
                 )),
         )
         // ─── Admin & Antifraud routes (protected admin role) ───
+        .route(
+            "/api/wallet/deposit-info",
+            get(deposit_requests::deposit_info).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/wallet/deposit-requests",
+            get(deposit_requests::list_my_deposit_requests)
+                .post(deposit_requests::create_deposit_request)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/admin/deposit-requests",
+            get(deposit_requests::admin_list_deposit_requests).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/deposit-requests/:id/approve",
+            post(deposit_requests::approve_deposit_request).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/deposit-requests/:id/reject",
+            post(deposit_requests::reject_deposit_request).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
         .route(
             "/api/admin/stats",
             get(admin_panel::admin_stats).route_layer(
