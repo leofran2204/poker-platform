@@ -275,6 +275,8 @@ pub struct GameLoop {
     action_counter: u64,
     /// Arredondamento aplicado às frações de centavo do rake.
     pub rake_rounding: RakeRounding,
+    /// Se true, pula Monte Carlo do loss deflator (stress / bench).
+    pub skip_loss_deflator: bool,
 }
 
 impl GameLoop {
@@ -309,6 +311,7 @@ impl GameLoop {
             start_timestamp: now_timestamp_ms(),
             action_counter: 0,
             rake_rounding: RakeRounding::HalfToEven,
+            skip_loss_deflator: false,
         }
     }
 
@@ -320,6 +323,11 @@ impl GameLoop {
     /// Define explicitamente a política de arredondamento do rake.
     pub fn with_rake_rounding(mut self, rounding: RakeRounding) -> Self {
         self.rake_rounding = rounding;
+        self
+    }
+
+    pub fn with_skip_loss_deflator(mut self, skip: bool) -> Self {
+        self.skip_loss_deflator = skip;
         self
     }
 
@@ -1112,11 +1120,13 @@ impl GameLoop {
         players_for_pots: &[PlayerForPots],
     ) -> Vec<loss_deflator::ProgressiveLossDeflatorResult> {
         let mut results = Vec::new();
-        // Equity MC do loss deflator assume Hold'em 2-card; pula em Omaha.
-        if matches!(
-            self.config.poker_variant,
-            crate::types::PokerVariant::ShortDeckOmaha
-        ) {
+        // Equity MC do loss deflator: pula em Omaha e em stress (skip_loss_deflator).
+        if self.skip_loss_deflator
+            || matches!(
+                self.config.poker_variant,
+                crate::types::PokerVariant::ShortDeckOmaha
+            )
+        {
             return results;
         }
 
