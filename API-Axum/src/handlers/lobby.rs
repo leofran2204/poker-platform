@@ -24,6 +24,8 @@ pub struct TableResponse {
     pub game_type: String,
     /// `play` | `real` — fichas PM não servem em mesas real e vice-versa.
     pub money_mode: String,
+    /// `holdem` | `short_deck`
+    pub poker_variant: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -63,6 +65,7 @@ type TableRow = (
     i16,
     i16,
     String,
+    String,
 );
 
 fn table_response(
@@ -77,6 +80,7 @@ fn table_response(
         max_players,
         current_players,
         money_mode,
+        poker_variant,
     ): TableRow,
 ) -> Result<TableResponse, ApiError> {
     Ok(TableResponse {
@@ -100,6 +104,11 @@ fn table_response(
         } else {
             "play".into()
         },
+        poker_variant: if poker_variant.eq_ignore_ascii_case("short_deck") {
+            "short_deck".into()
+        } else {
+            "holdem".into()
+        },
     })
 }
 
@@ -120,11 +129,12 @@ pub async fn list_tables(
     let mode_str = mode.as_str();
     let tables: Vec<TableRow> = sqlx::query_as(
         "SELECT id, name, game_type, small_blind, big_blind, min_buy_in, max_buy_in, max_players, current_players, \
-                COALESCE(money_mode, 'play') AS money_mode \
+                COALESCE(money_mode, 'play') AS money_mode, \
+                COALESCE(poker_variant, 'holdem') AS poker_variant \
          FROM tables \
          WHERE visibility = 'public' AND status = 'OPEN' AND current_players < max_players \
            AND COALESCE(money_mode, 'play') = $1 \
-         ORDER BY big_blind, name, id",
+         ORDER BY poker_variant, big_blind, name, id",
     )
     .bind(mode_str)
     .fetch_all(&state.db)
@@ -187,7 +197,13 @@ pub async fn join_table(
             .into(),
         ));
     }
-    if buy_in < min_buy_in || buy_in > max_buy_in {
+    if min_buy_in == max_buy_in {
+        if buy_in != min_buy_in {
+            return Err(ApiError::BadRequest(format!(
+                "Esta mesa tem frente fixa de {min_buy_in} centavos"
+            )));
+        }
+    } else if buy_in < min_buy_in || buy_in > max_buy_in {
         return Err(ApiError::BadRequest(format!(
             "Buy-in must be between {min_buy_in} and {max_buy_in} cents"
         )));
@@ -369,7 +385,8 @@ pub async fn get_table(
         .map_err(|_| ApiError::NotFound("Table not found".to_string()))?;
     let table: Option<TableRow> = sqlx::query_as(
         "SELECT id, name, game_type, small_blind, big_blind, min_buy_in, max_buy_in, max_players, current_players, \
-                COALESCE(money_mode, 'play') AS money_mode \
+                COALESCE(money_mode, 'play') AS money_mode, \
+                COALESCE(poker_variant, 'holdem') AS poker_variant \
          FROM tables WHERE id = $1 AND visibility = 'public' AND status = 'OPEN'",
     )
     .bind(table_id)

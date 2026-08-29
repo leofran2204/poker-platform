@@ -21,7 +21,8 @@
 //   - O GameLoop NÃO toma decisões de IA — apenas executa ações solicitadas
 
 use crate::deck::{
-    compare_hands, create_deck, deal_cards, evaluate_hand, shuffle_deck, Card, HandResult,
+    compare_hands, create_deck, create_short_deck, deal_cards, evaluate_hand,
+    evaluate_hand_short_deck, shuffle_deck, Card, HandResult,
 };
 use crate::hand_history::{
     self, Action, EndReason, GameType, HandHistory, PlayerAction, PlayerResult,
@@ -344,8 +345,11 @@ impl GameLoop {
             return Err(GameLoopError::HandAlreadyFinished);
         }
 
-        // 1. Criar e embaralhar baralho
-        let full_deck = create_deck();
+        // 1. Criar e embaralhar baralho (Hold'em 52 ou Short Deck 36)
+        let full_deck = match self.config.poker_variant {
+            crate::types::PokerVariant::ShortDeck => create_short_deck(),
+            crate::types::PokerVariant::Holdem => create_deck(),
+        };
         self.state.deck = shuffle_deck(&full_deck);
 
         // 2. Coletar ante (se configurado)
@@ -1308,7 +1312,14 @@ impl GameLoop {
         let mut hand_evals: HashMap<String, HandResult> = HashMap::new();
         for player in &self.state.players {
             if player.is_in_hand() && !player.hole_cards.is_empty() {
-                let eval = evaluate_hand(&player.hole_cards, &self.state.community_cards);
+                let eval = match self.config.poker_variant {
+                    crate::types::PokerVariant::ShortDeck => {
+                        evaluate_hand_short_deck(&player.hole_cards, &self.state.community_cards)
+                    }
+                    crate::types::PokerVariant::Holdem => {
+                        evaluate_hand(&player.hole_cards, &self.state.community_cards)
+                    }
+                };
                 hand_evals.insert(player.id.clone(), eval);
             }
         }

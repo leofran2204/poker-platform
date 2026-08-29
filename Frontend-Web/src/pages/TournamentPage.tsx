@@ -79,6 +79,15 @@ export function TournamentPage() {
             / Torneio
           </p>
           <h1 className="text-xl font-bold text-gold-bright">{info.name}</h1>
+          <p className="mt-1">
+            <span
+              className={
+                info.poker_variant === "short_deck" ? "zt-chip zt-chip-accent" : "zt-chip"
+              }
+            >
+              {info.poker_variant === "short_deck" ? "Short Deck" : "NLHE"}
+            </span>
+          </p>
         </div>
         <button
           type="button"

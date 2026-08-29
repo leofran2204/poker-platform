@@ -35,6 +35,7 @@ struct TournamentRow {
     blind_levels: serde_json::Value,
     game_type: String,
     money_mode: String,
+    poker_variant: String,
 }
 
 fn parse_speed(raw: &str) -> TournamentSpeed {
@@ -89,7 +90,13 @@ fn row_to_store(row: TournamentRow) -> TournamentStore {
     } else {
         "play".into()
     };
-    let mut store = TournamentStore::with_money_mode(id, config, money_mode);
+    let poker_variant = if row.poker_variant.eq_ignore_ascii_case("short_deck") {
+        "short_deck".into()
+    } else {
+        "holdem".into()
+    };
+    let mut store =
+        TournamentStore::with_mode_and_variant(id, config, money_mode, poker_variant);
     store.state.status = parse_status(&row.status);
     store.state.current_level = row.current_level.max(0) as u32;
     store.state.players_remaining = row.players_remaining.max(0) as u32;
@@ -112,10 +119,11 @@ pub async fn load_tournaments_from_db(
                guaranteed_prize, is_freeroll,
                rebuy_cost, rebuy_chips, rebuy_max_count, rebuy_stack_threshold,
                rebuy_max_level, allow_rebuy, blind_levels, game_type,
-               COALESCE(money_mode, 'play') AS money_mode
+               COALESCE(money_mode, 'play') AS money_mode,
+               COALESCE(poker_variant, 'holdem') AS poker_variant
         FROM tournaments
         WHERE status IN ('registering', 'running', 'paused')
-        ORDER BY money_mode, is_freeroll DESC, buy_in, name
+        ORDER BY money_mode, poker_variant, is_freeroll DESC, buy_in, name
         "#,
     )
     .fetch_all(pool)

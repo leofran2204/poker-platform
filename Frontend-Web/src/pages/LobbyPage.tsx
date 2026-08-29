@@ -7,13 +7,26 @@ import { formatBrlFromCents } from "@/lib/money";
 import { getWalletMode } from "@/lib/walletMode";
 
 type LobbyTab = "cash" | "tournaments";
-type StakeFilter = "all" | "nl050" | "nl1";
+type StakeFilter = "all" | "nl050" | "nl1" | "sd12";
 
 const STAKE_OPTIONS: { id: StakeFilter; label: string }[] = [
   { id: "all", label: "Todos" },
-  { id: "nl050", label: "0,25/0,50" },
-  { id: "nl1", label: "0,50/1,00" },
+  { id: "nl050", label: "NL 0,25/0,50" },
+  { id: "nl1", label: "NL 0,50/1,00" },
+  { id: "sd12", label: "SD 1/2" },
 ];
+
+function variantLabel(t: { poker_variant?: string; game_type?: string }): string {
+  if (t.poker_variant === "short_deck") return "Short Deck";
+  const gt = (t.game_type || "").toLowerCase();
+  if (gt.includes("short")) return "Short Deck";
+  return "NLHE";
+}
+
+function formatBuyInRange(min: number, max: number): string {
+  if (min === max) return formatBrlFromCents(min);
+  return `${formatBrlFromCents(min)}–${formatBrlFromCents(max)}`;
+}
 
 function occupancyPct(players: number, max: number): number {
   if (max <= 0) return 0;
@@ -74,8 +87,10 @@ export function LobbyPage() {
   const filtered = useMemo(() => {
     return tables.filter((t) => {
       if (hideFull && t.players >= t.max_players) return false;
-      if (stake === "nl050" && t.big_blind !== 50) return false;
-      if (stake === "nl1" && t.big_blind !== 100) return false;
+      const isSd = t.poker_variant === "short_deck";
+      if (stake === "nl050") return !isSd && t.big_blind === 50;
+      if (stake === "nl1") return !isSd && t.big_blind === 100;
+      if (stake === "sd12") return isSd && t.big_blind === 200;
       return true;
     });
   }, [tables, hideFull, stake]);
@@ -195,7 +210,8 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({filtered.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                NL 0,50 (frente R$25) · NL 1 (frente R$50) · auto 15s
+                NL 0,25/0,50 (frente R$25) · NL 0,50/1 (frente R$75) · SD 1/2 6-max (frente R$100) · auto
+                15s
               </p>
             </div>
 
@@ -275,13 +291,21 @@ export function LobbyPage() {
                       >
                         <td className="font-semibold text-cream">{t.name}</td>
                         <td>
-                          <span className="zt-chip">{t.game_type || "NLHE"}</span>
+                          <span
+                            className={
+                              t.poker_variant === "short_deck"
+                                ? "zt-chip zt-chip-accent"
+                                : "zt-chip"
+                            }
+                          >
+                            {variantLabel(t)}
+                          </span>
                         </td>
                         <td className="font-mono text-gold-soft">
                           {formatBrlFromCents(t.small_blind)}/{formatBrlFromCents(t.big_blind)}
                         </td>
                         <td className="font-mono text-felt-200">
-                          {formatBrlFromCents(t.min_buy_in)}–{formatBrlFromCents(t.max_buy_in)}
+                          {formatBuyInRange(t.min_buy_in, t.max_buy_in)}
                         </td>
                         <td>
                           <div className="zt-occupancy">
@@ -330,7 +354,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({tournaments.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                Freeroll R$100 GTD · MTT R$200 GTD · inscrição disponível · mãos MTT em breve
+                NLHE + Short Deck · Freeroll R$100 GTD · MTT R$200 GTD · inscrição · mãos MTT em breve
               </p>
             </div>
             <button
@@ -356,6 +380,7 @@ export function LobbyPage() {
                 <thead>
                   <tr>
                     <th>Nome</th>
+                    <th>Tipo</th>
                     <th>Buy-in</th>
                     <th>GTD</th>
                     <th>Inscritos</th>
@@ -374,6 +399,15 @@ export function LobbyPage() {
                         <Link to={`/tournament/${t.id}`} className="hover:text-gold-bright">
                           {t.name}
                         </Link>
+                      </td>
+                      <td>
+                        <span
+                          className={
+                            t.poker_variant === "short_deck" ? "zt-chip zt-chip-accent" : "zt-chip"
+                          }
+                        >
+                          {variantLabel(t)}
+                        </span>
                       </td>
                       <td className="font-mono text-gold-soft">
                         {t.is_freeroll ? "Grátis" : formatBrlFromCents(t.buy_in)}

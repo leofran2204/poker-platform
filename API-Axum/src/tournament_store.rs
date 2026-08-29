@@ -12,6 +12,8 @@ pub struct TournamentStore {
     pub state: TournamentState,
     /// `play` | `real` — must match client wallet mode.
     pub money_mode: String,
+    /// `holdem` | `short_deck`
+    pub poker_variant: String,
 }
 
 impl TournamentStore {
@@ -20,12 +22,27 @@ impl TournamentStore {
     }
 
     pub fn with_money_mode(id: String, config: TournamentConfig, money_mode: String) -> Self {
+        Self::with_mode_and_variant(id, config, money_mode, "holdem".into())
+    }
+
+    pub fn with_mode_and_variant(
+        id: String,
+        config: TournamentConfig,
+        money_mode: String,
+        poker_variant: String,
+    ) -> Self {
         let mut state = poker_engine::tournament_engine::create_tournament(config);
         state.tournament_id = id.clone();
+        let poker_variant = if poker_variant.eq_ignore_ascii_case("short_deck") {
+            "short_deck".into()
+        } else {
+            "holdem".into()
+        };
         Self {
             id,
             state,
             money_mode,
+            poker_variant,
         }
     }
 }

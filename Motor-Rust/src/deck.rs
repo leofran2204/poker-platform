@@ -250,6 +250,207 @@ pub fn create_full_deck() -> Vec<Card> {
     create_deck()
 }
 
+/// Ranks Short Deck (Six Plus): 6–A (36 cartas)
+const SHORT_DECK_RANKS: [Rank; 9] = [
+    Rank::Ace,
+    Rank::King,
+    Rank::Queen,
+    Rank::Jack,
+    Rank::Ten,
+    Rank::Nine,
+    Rank::Eight,
+    Rank::Seven,
+    Rank::Six,
+];
+
+/// Baralho Short Deck (36 cartas: remove 2–5)
+pub fn create_short_deck() -> Vec<Card> {
+    let mut deck = Vec::with_capacity(36);
+    for &suit in &ALL_SUITS {
+        for &rank in &SHORT_DECK_RANKS {
+            deck.push(Card { rank, suit });
+        }
+    }
+    deck
+}
+
+/// Força numérica Short Deck (Flush > Full House)
+fn short_deck_rank_value(rank: HandRank) -> u8 {
+    match rank {
+        HandRank::HighCard => 1,
+        HandRank::OnePair => 2,
+        HandRank::TwoPair => 3,
+        HandRank::ThreeOfAKind => 4,
+        HandRank::Straight => 5,
+        HandRank::FullHouse => 6, // below flush
+        HandRank::Flush => 7,
+        HandRank::FourOfAKind => 8,
+        HandRank::StraightFlush => 9,
+        HandRank::RoyalFlush => 10,
+    }
+}
+
+fn has_straight_short(cards: &[Card]) -> Option<Rank> {
+    let mut values: Vec<u8> = cards.iter().map(|c| c.rank as u8).collect();
+    values.sort_unstable();
+    values.dedup();
+
+    let mut best_high: Option<Rank> = None;
+
+    // Wheel Short Deck: A-6-7-8-9 (high = 9)
+    if values.contains(&14)
+        && values.contains(&6)
+        && values.contains(&7)
+        && values.contains(&8)
+        && values.contains(&9)
+    {
+        best_high = Some(Rank::Nine);
+    }
+
+    for window in values.windows(5) {
+        if window[4] - window[0] == 4 {
+            let high = Rank::try_from(window[4]).ok();
+            match (best_high, high) {
+                (None, h) => best_high = h,
+                (Some(current), Some(h)) if h as u8 > current as u8 => best_high = Some(h),
+                _ => {}
+            }
+        }
+    }
+    best_high
+}
+
+fn build_straight_cards_short(cards: &[Card], high: Rank) -> Vec<Card> {
+    if high == Rank::Nine {
+        // Prefer wheel A-6-7-8-9 when high is Nine and Ace present with 6-9
+        let mut vals: Vec<u8> = cards.iter().map(|c| c.rank as u8).collect();
+        vals.sort_unstable();
+        vals.dedup();
+        if vals.contains(&14) && vals.contains(&6) && vals.contains(&7) && vals.contains(&8) {
+            let needed = [Rank::Ace, Rank::Nine, Rank::Eight, Rank::Seven, Rank::Six];
+            let mut result = Vec::new();
+            for &r in &needed {
+                if let Some(c) = cards.iter().find(|c| c.rank == r) {
+                    result.push(*c);
+                }
+            }
+            if result.len() == 5 {
+                return result;
+            }
+        }
+    }
+    build_straight_cards(cards, high)
+}
+
+fn get_straight_flush_short(cards: &[Card]) -> Option<HandResult> {
+    let suit_counts = get_suit_counts(cards);
+    for (&suit, &count) in &suit_counts {
+        if count >= 5 {
+            let suited: Vec<Card> = cards.iter().filter(|c| c.suit == suit).copied().collect();
+            if let Some(high) = has_straight_short(&suited) {
+                let is_royal = high == Rank::Ace;
+                let rank = if is_royal {
+                    HandRank::RoyalFlush
+                } else {
+                    HandRank::StraightFlush
+                };
+                let straight_cards = build_straight_cards_short(&suited, high);
+                return Some(HandResult {
+                    rank,
+                    cards: straight_cards,
+                    kickers: vec![],
+                    value: short_deck_rank_value(rank),
+                });
+            }
+        }
+    }
+    None
+}
+
+fn get_straight_short(cards: &[Card]) -> Option<HandResult> {
+    let high = has_straight_short(cards)?;
+    let straight_cards = build_straight_cards_short(cards, high);
+    Some(HandResult {
+        rank: HandRank::Straight,
+        cards: straight_cards,
+        kickers: vec![],
+        value: short_deck_rank_value(HandRank::Straight),
+    })
+}
+
+fn with_sd_value(mut result: HandResult) -> HandResult {
+    result.value = short_deck_rank_value(result.rank);
+    result
+}
+
+/// Avalia mão sob regras Short Deck / Six Plus (Flush > Full House; wheel A6789).
+pub fn evaluate_hand_short_deck(hole_cards: &[Card], community_cards: &[Card]) -> HandResult {
+    let mut all_cards = Vec::with_capacity(hole_cards.len() + community_cards.len());
+    all_cards.extend_from_slice(hole_cards);
+    all_cards.extend_from_slice(community_cards);
+
+    if all_cards.is_empty() {
+        return HandResult {
+            rank: HandRank::HighCard,
+            cards: vec![],
+            kickers: vec![],
+            value: 0,
+        };
+    }
+
+    all_cards.sort_by(|a, b| b.rank.cmp(&a.rank).then_with(|| b.suit.cmp(&a.suit)));
+
+    let mut suit_counts = [0; 4];
+    let mut has_flush_suit = false;
+    for card in &all_cards {
+        let idx = match card.suit {
+            Suit::Hearts => 0,
+            Suit::Diamonds => 1,
+            Suit::Clubs => 2,
+            Suit::Spades => 3,
+        };
+        suit_counts[idx] += 1;
+        if suit_counts[idx] >= 5 {
+            has_flush_suit = true;
+        }
+    }
+
+    if has_flush_suit {
+        if let Some(result) = get_straight_flush_short(&all_cards) {
+            return result;
+        }
+    }
+    if let Some(result) = get_four_of_a_kind(&all_cards) {
+        return with_sd_value(result);
+    }
+    // Short Deck: Flush before Full House
+    if has_flush_suit {
+        if let Some(result) = get_flush(&all_cards) {
+            return with_sd_value(result);
+        }
+    }
+    if let Some(result) = get_full_house(&all_cards) {
+        return with_sd_value(result);
+    }
+    if let Some(result) = get_straight_short(&all_cards) {
+        return result;
+    }
+    if let Some(result) = get_three_of_a_kind(&all_cards) {
+        return with_sd_value(result);
+    }
+    if let Some(result) = get_two_pair(&all_cards) {
+        return with_sd_value(result);
+    }
+    if let Some(result) = get_one_pair(&all_cards) {
+        return with_sd_value(result);
+    }
+    if let Some(result) = get_high_card(&all_cards) {
+        return with_sd_value(result);
+    }
+
+    unreachable!("get_high_card always returns Some for any non-empty hand");
+}
+
 /// Verifica se uma carta está no slice
 pub fn contains_card(cards: &[Card], target: &Card) -> bool {
     cards
@@ -1005,5 +1206,57 @@ mod tests {
 
         assert!(contains_card(&cards, &ace_hearts));
         assert!(!contains_card(&cards, &ace_spades));
+    }
+
+    #[test]
+    fn test_short_deck_size_and_ranks() {
+        let deck = create_short_deck();
+        assert_eq!(deck.len(), 36);
+        assert!(deck.iter().all(|c| (c.rank as u8) >= 6));
+        assert!(!deck.iter().any(|c| matches!(
+            c.rank,
+            Rank::Two | Rank::Three | Rank::Four | Rank::Five
+        )));
+    }
+
+    #[test]
+    fn test_short_deck_wheel_a6789() {
+        let hole = vec![c(Rank::Ace, Suit::Hearts), c(Rank::Six, Suit::Diamonds)];
+        let community = vec![
+            c(Rank::Seven, Suit::Clubs),
+            c(Rank::Eight, Suit::Spades),
+            c(Rank::Nine, Suit::Hearts),
+            c(Rank::King, Suit::Diamonds),
+            c(Rank::Jack, Suit::Clubs),
+        ];
+        let result = evaluate_hand_short_deck(&hole, &community);
+        assert_eq!(result.rank, HandRank::Straight);
+    }
+
+    #[test]
+    fn test_short_deck_flush_beats_full_house() {
+        let flush = evaluate_hand_short_deck(
+            &[c(Rank::Ace, Suit::Hearts), c(Rank::King, Suit::Hearts)],
+            &[
+                c(Rank::Nine, Suit::Hearts),
+                c(Rank::Eight, Suit::Hearts),
+                c(Rank::Seven, Suit::Hearts),
+                c(Rank::Six, Suit::Clubs),
+                c(Rank::Jack, Suit::Diamonds),
+            ],
+        );
+        let boat = evaluate_hand_short_deck(
+            &[c(Rank::Ace, Suit::Clubs), c(Rank::Ace, Suit::Diamonds)],
+            &[
+                c(Rank::Ace, Suit::Spades),
+                c(Rank::King, Suit::Clubs),
+                c(Rank::King, Suit::Diamonds),
+                c(Rank::Nine, Suit::Spades),
+                c(Rank::Eight, Suit::Clubs),
+            ],
+        );
+        assert_eq!(flush.rank, HandRank::Flush);
+        assert_eq!(boat.rank, HandRank::FullHouse);
+        assert_eq!(compare_hands(&flush, &boat), Ordering::Greater);
     }
 }

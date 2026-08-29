@@ -60,6 +60,8 @@ pub struct TournamentInfoResponse {
     pub gameplay_ready: bool,
     /// `play` | `real`
     pub money_mode: String,
+    /// `holdem` | `short_deck`
+    pub poker_variant: String,
 }
 
 fn status_string(status: &poker_engine::tournament_engine::TournamentStatus) -> String {
@@ -114,6 +116,7 @@ fn to_info(store: &crate::tournament_store::TournamentStore) -> TournamentInfoRe
         // MTT hands not wired to TableActor yet.
         gameplay_ready: false,
         money_mode: store.money_mode.clone(),
+        poker_variant: store.poker_variant.clone(),
     }
 }
 

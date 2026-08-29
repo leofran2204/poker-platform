@@ -145,6 +145,10 @@
     @apply inline-flex items-center rounded border border-rail/50 bg-felt-900 px-2 py-0.5 font-mono text-xs text-gold-soft;
   }
 
+  .zt-chip-accent {
+    @apply border-amber-500/70 bg-amber-950/50 text-amber-100;
+  }
+
   .zt-occupancy {
     @apply flex min-w-[5.5rem] flex-col gap-0.5;
   }

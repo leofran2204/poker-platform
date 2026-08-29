@@ -50,6 +50,31 @@ impl RakeCapSchedule {
     }
 }
 
+/// Variante de poker da mesa.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum PokerVariant {
+    #[default]
+    Holdem,
+    ShortDeck,
+}
+
+impl PokerVariant {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Holdem => "holdem",
+            Self::ShortDeck => "short_deck",
+        }
+    }
+
+    pub fn parse(raw: &str) -> Self {
+        match raw.trim().to_ascii_lowercase().as_str() {
+            "short_deck" | "shortdeck" | "sd" | "six_plus" => Self::ShortDeck,
+            _ => Self::Holdem,
+        }
+    }
+}
+
 /// Configuração da mesa (parâmetros de rake e blinds em centavos)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TableConfig {
@@ -61,6 +86,8 @@ pub struct TableConfig {
     /// Caps opcionais para heads-up, 3–4 jogadores e 5+ jogadores.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rake_cap_schedule: Option<RakeCapSchedule>,
+    #[serde(default)]
+    pub poker_variant: PokerVariant,
 }
 
 impl TableConfig {
@@ -71,7 +98,13 @@ impl TableConfig {
             rake_basis_points,
             rake_cap,
             rake_cap_schedule: None,
+            poker_variant: PokerVariant::Holdem,
         }
+    }
+
+    pub fn with_poker_variant(mut self, variant: PokerVariant) -> Self {
+        self.poker_variant = variant;
+        self
     }
 
     /// Configura caps distintos para heads-up, 3–4 jogadores e 5+ jogadores.
