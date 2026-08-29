@@ -271,6 +271,7 @@ proptest! {
             rake: 5,
             end_phase: GamePhase::Preflop,
             end_reason: crate::hand_history::EndReason::AllFolded,
+            loss_deflators: vec![],
             signature: None,
         };
         let json = serde_json::to_string(&hh).expect("Falha ao serializar");

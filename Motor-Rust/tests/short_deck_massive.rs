@@ -1,15 +1,18 @@
-//! Suíte massiva Short Deck / Six Plus Hold'em.
+//! Suíte massiva Short Deck / Six Plus Hold'em (sempre on — sem feature gate).
 //!
-//! Cobre:
-//! - Regras: baralho 36, sem 2–5, wheel A6789, Flush > Full House
-//! - Avaliações aleatórias em escala (sem panic + ranking SD)
-//! - Stress 6-max cash (blinds 1/2, frente-style stacks) com conservação de fichas
+//! Escala (iters ≈ 1,2M+ nesta crate de teste):
+//! - Regras determinísticas (wheel, flush>boat, ladder, SF)
+//! - 1.000.000 avaliações aleatórias
+//! - 100.000 shuffles com composição intacta
+//! - 100.000 mãos 6-max GameLoop (conservação de fichas + sem cartas 2–5)
+//! - Smoke 2/3/6 jogadores
 //!
-//! Rodar:
-//!   cargo test -p poker-engine --test short_deck_massive -- --nocapture
-//!   # ou via Docker (recomendado no Windows):
-//!   docker run --rm -v "$PWD":/app -w /app/Motor-Rust rust:1.97.0-bookworm \
-//!     cargo test --test short_deck_massive -- --nocapture
+//! Complementar com a feature do motor:
+//!   cargo test --features massive-tests short_deck_massive -- --nocapture
+//!   → +100k×2 proptest + 500k fairness + 200k pipeline + 50k gameloop
+//!
+//! Rodar só esta suíte:
+//!   cargo test --test short_deck_massive -- --nocapture
 
 use poker_engine::deck::{
     compare_hands, create_short_deck, evaluate_hand_short_deck, shuffle_deck, Card, HandRank, Rank,
