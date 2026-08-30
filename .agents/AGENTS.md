@@ -9,6 +9,17 @@
 
 Esta seção é a memória operacional obrigatória para evitar repetir diagnósticos de sandbox, WSL e Node. Consulte-a antes de trocar ferramentas ou improvisar outro fluxo.
 
+### Regra obrigatória de aprendizado operacional contínuo
+
+Esta regra se aplica a todos os modelos e agentes que trabalharem neste repositório. Sempre que um entrave recorrente de ambiente, sandbox, ferramenta, build, teste, deploy ou integração for resolvido por um caminho comprovadamente funcional, o agente deve, antes de concluir a tarefa:
+
+1. Registrar ou consolidar neste arquivo o sintoma, a causa identificada, o procedimento validado e a forma de verificar o resultado.
+2. Remover instruções antigas que entrem em conflito com o caminho validado, evitando duplicidade ou ambiguidade.
+3. Versionar e enviar a atualização ao repositório, para que os próximos modelos não repitam a investigação.
+4. Registrar somente soluções realmente testadas; nunca gravar senhas, tokens, chaves privadas ou outros segredos.
+
+Se não surgir um novo aprendizado operacional, não é necessário alterar este arquivo. Essa obrigação não autoriza mudanças fora do escopo da tarefa nem substitui as regras de segurança e aprovação.
+
 ### Regra de decisão rápida
 
 1. Rust/Cargo: executar no WSL2 Ubuntu, com `CARGO_TARGET_DIR` no filesystem Linux.
