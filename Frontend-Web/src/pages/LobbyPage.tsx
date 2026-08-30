@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { joinTable, listTables, listTournaments, registerTournament } from "@/api/client";
 import type { TableResponse, TournamentInfoResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";
+import { deckTypeLabel, gameNameLabel } from "@/lib/gameLabels";
 import { formatBrlFromCents } from "@/lib/money";
 import { getWalletMode } from "@/lib/walletMode";
 
@@ -11,20 +12,11 @@ type StakeFilter = "all" | "nl025" | "nl050" | "sd050" | "sdOmaha";
 
 const STAKE_OPTIONS: { id: StakeFilter; label: string }[] = [
   { id: "all", label: "Todos" },
-  { id: "nl025", label: "NL 0,25/0,25" },
-  { id: "nl050", label: "NL 0,25/0,50" },
-  { id: "sd050", label: "SD 0,50/0,50" },
-  { id: "sdOmaha", label: "SD Omaha 0,50/1" },
+  { id: "nl025", label: "Texas Hold’em 0,25/0,25" },
+  { id: "nl050", label: "Texas Hold’em 0,25/0,50" },
+  { id: "sd050", label: "Texas Hold’em Short Deck 0,50/0,50" },
+  { id: "sdOmaha", label: "Omaha 4 Cartas Short Deck 0,50/1,00" },
 ];
-
-function variantLabel(t: { poker_variant?: string; game_type?: string }): string {
-  if (t.poker_variant === "short_deck_omaha") return "SD Omaha";
-  if (t.poker_variant === "short_deck") return "Short Deck";
-  const gt = (t.game_type || "").toLowerCase();
-  if (gt.includes("omaha")) return "SD Omaha";
-  if (gt.includes("short")) return "Short Deck";
-  return "NLHE";
-}
 
 function formatBuyInRange(min: number, max: number): string {
   if (min === max) return formatBrlFromCents(min);
@@ -55,6 +47,8 @@ export function LobbyPage() {
   const [joiningId, setJoiningId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [registeringId, setRegisteringId] = useState<string | null>(null);
+  const walletMode = getWalletMode();
+  const walletModeLabel = walletMode === "real" ? "Jogo Real" : "Play Money";
 
   const load = useCallback(async () => {
     if (!isAuthenticated()) {
@@ -152,13 +146,12 @@ export function LobbyPage() {
     <div className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <h1 className="text-xl font-bold uppercase tracking-wide text-gold-bright">Lobby</h1>
+          <h1 className="text-xl font-bold uppercase tracking-wide text-gold-bright">
+            Lobby — {walletModeLabel}
+          </h1>
           <p className="text-xs text-felt-300">
-            Listando apenas{" "}
-            <span className="font-semibold text-gold-soft">
-              {getWalletMode() === "real" ? "Jogo Real" : "Play Money"}
-            </span>
-            {" · "}fichas PM e Real não se misturam
+            Listando apenas <span className="font-semibold text-gold-soft">{walletModeLabel}</span>
+            {" · "}os saldos de Play Money e Jogo Real não se misturam
           </p>
         </div>
         <div className="flex gap-1 rounded border border-felt-600 bg-felt-950/60 p-0.5">
@@ -167,7 +160,7 @@ export function LobbyPage() {
             className={tab === "cash" ? "zt-tab zt-tab-active" : "zt-tab"}
             onClick={() => setTab("cash")}
           >
-            Cash
+            Cash Game
           </button>
           <button
             type="button"
@@ -187,12 +180,12 @@ export function LobbyPage() {
 
       <div
         className={
-          getWalletMode() === "real"
+          walletMode === "real"
             ? "rounded border border-amber-600/60 bg-amber-950/40 px-3 py-2 text-xs text-amber-100"
             : "rounded border border-emerald-700/50 bg-emerald-950/30 px-3 py-2 text-xs text-emerald-100"
         }
       >
-        {getWalletMode() === "real" ? (
+        {walletMode === "real" ? (
           <>
             <strong>Jogo Real:</strong> só saldo real. Fichas Play Money{" "}
             <strong>não</strong> servem nestas mesas/torneios. Sem saldo? Vá em{" "}
@@ -214,12 +207,13 @@ export function LobbyPage() {
           <div className="zt-lobby-toolbar">
             <div className="min-w-0 flex-1">
               <div className="text-xs font-bold uppercase tracking-wider text-gold-bright">
-                Cash games
+                Mesas de Cash Game
                 <span className="ml-2 font-mono text-felt-300">({filtered.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                NL 0,25/0,25 (R$25) · NL 0,25/0,50 (R$50) · SD 0,50 (R$75) · SD Omaha 0,50/1 4-max
-                (R$100) · auto 15s
+                Texas Hold’em 0,25/0,25 (R$25) · Texas Hold’em 0,25/0,50 (R$50) · Texas Hold’em
+                Short Deck 0,50/0,50 (R$75) · Omaha 4 Cartas Short Deck 0,50/1,00 (R$100) · atualização
+                automática a cada 15 segundos
               </p>
             </div>
 
@@ -297,7 +291,7 @@ export function LobbyPage() {
                           if (!full) void handleJoin(t);
                         }}
                       >
-                        <td className="font-semibold text-cream">{t.name}</td>
+                        <td className="font-semibold text-cream">{gameNameLabel(t, "cash")}</td>
                         <td>
                           <span
                             className={
@@ -307,7 +301,7 @@ export function LobbyPage() {
                                 : "zt-chip"
                             }
                           >
-                            {variantLabel(t)}
+                            {deckTypeLabel(t)}
                           </span>
                         </td>
                         <td className="font-mono text-gold-soft">
@@ -363,7 +357,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({tournaments.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                NLHE, Short Deck e Omaha Short Deck · formatos 9-max, 6-max e 4-max · inscrição · mãos MTT em breve
+                Texas Hold’em, Texas Hold’em Short Deck e Omaha 4 Cartas Short Deck · mesas para 9, 6 ou 4 jogadores
               </p>
             </div>
             <button
@@ -390,10 +384,10 @@ export function LobbyPage() {
                   <tr>
                     <th>Nome</th>
                     <th>Tipo</th>
-                    <th>Buy-in</th>
-                    <th>GTD</th>
+                    <th>Inscrição</th>
+                    <th>Premiação Garantida</th>
                     <th>Inscritos</th>
-                    <th>Rebuy</th>
+                    <th>Reentrada</th>
                     <th className="text-right">Ação</th>
                   </tr>
                 </thead>
@@ -406,7 +400,7 @@ export function LobbyPage() {
                     >
                       <td className="font-semibold text-cream">
                         <Link to={`/tournament/${t.id}`} className="hover:text-gold-bright">
-                          {t.name}
+                          {gameNameLabel(t, "tournament")}
                         </Link>
                       </td>
                       <td>
@@ -418,9 +412,9 @@ export function LobbyPage() {
                               : "zt-chip"
                           }
                         >
-                          {variantLabel(t)}
+                          {deckTypeLabel(t)}
                         </span>
-                        <span className="zt-chip ml-1">{t.table_max_players}-max</span>
+                        <span className="zt-chip ml-1">{t.table_max_players} jogadores</span>
                       </td>
                       <td className="font-mono text-gold-soft">
                         {t.is_freeroll ? "Grátis" : formatBrlFromCents(t.buy_in)}

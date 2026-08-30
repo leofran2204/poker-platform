@@ -7,12 +7,17 @@ use std::collections::HashMap;
 #[test]
 fn test_blind_structure_progression() {
     let regular = BlindStructure::standard_regular();
-    assert_eq!(regular.levels.len(), 10);
-    assert_eq!(regular.levels[0].small_blind, 10.0);
-    assert_eq!(regular.levels[0].big_blind, 20.0);
-    assert_eq!(regular.levels[3].ante, 10.0);
+    assert_eq!(regular.levels.len(), 26);
+    assert_eq!(regular.levels[0].small_blind, 25.0);
+    assert_eq!(regular.levels[0].big_blind, 50.0);
+    assert_eq!(regular.levels[8].ante, 50.0);
+    assert_eq!(regular.levels[25].level_number, 26);
+    assert_eq!(regular.levels[25].small_blind, 25_000.0);
+    assert_eq!(regular.levels[25].big_blind, 50_000.0);
+    assert_eq!(regular.levels[25].ante, 8_000.0);
 
     let turbo = BlindStructure::turbo_fast();
+    assert_eq!(turbo.levels.len(), 26);
     assert_eq!(turbo.levels[0].duration_seconds, 180);
 }
 

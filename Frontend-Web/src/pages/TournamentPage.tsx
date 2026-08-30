@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { getTournament, registerTournament } from "@/api/client";
 import type { TournamentInfoResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";
+import { deckTypeLabel, gameNameLabel } from "@/lib/gameLabels";
 import { formatBrlFromCents } from "@/lib/money";
 import { getWalletMode } from "@/lib/walletMode";
 
@@ -78,7 +79,9 @@ export function TournamentPage() {
             </Link>{" "}
             / Torneio
           </p>
-          <h1 className="text-xl font-bold text-gold-bright">{info.name}</h1>
+          <h1 className="text-xl font-bold text-gold-bright">
+            {gameNameLabel(info, "tournament")}
+          </h1>
           <p className="mt-1">
             <span
               className={
@@ -88,12 +91,9 @@ export function TournamentPage() {
                   : "zt-chip"
               }
             >
-              {info.poker_variant === "short_deck_omaha"
-                ? "SD Omaha"
-                : info.poker_variant === "short_deck"
-                  ? "Short Deck"
-                  : "NLHE"}
+              {deckTypeLabel(info)}
             </span>
+            <span className="zt-chip ml-1">{info.table_max_players} jogadores</span>
           </p>
         </div>
         <button
@@ -136,7 +136,7 @@ export function TournamentPage() {
             </dd>
           </div>
           <div>
-            <dt className="text-xs uppercase text-felt-400">GTD / Prize pool</dt>
+            <dt className="text-xs uppercase text-felt-400">Premiação garantida / premiação atual</dt>
             <dd className="font-mono text-cream">
               {formatBrlFromCents(info.guaranteed_prize)} / {formatBrlFromCents(info.prize_pool)}
             </dd>
@@ -156,7 +156,7 @@ export function TournamentPage() {
             <dd className="font-mono text-cream">{info.table_max_players}-max</dd>
           </div>
           <div>
-            <dt className="text-xs uppercase text-felt-400">Rebuy</dt>
+            <dt className="text-xs uppercase text-felt-400">Reentrada</dt>
             <dd className="text-felt-200">
               {info.allow_rebuy
                 ? `1× até nível ${info.rebuy_max_level}: ${formatBrlFromCents(info.rebuy_cost)} → ${info.rebuy_chips.toLocaleString("pt-BR")} fichas (stack ≤ ${info.rebuy_stack_threshold.toLocaleString("pt-BR")})`

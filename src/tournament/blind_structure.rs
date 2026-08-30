@@ -18,83 +18,50 @@ pub struct BlindStructure {
 impl BlindStructure {
     /// Estrutura padrão de Blinds para Torneio Regular (níveis de 10 minutos).
     pub fn standard_regular() -> Self {
+        const LEVELS: [(f64, f64, f64); 26] = [
+            (25.0, 50.0, 0.0),
+            (50.0, 100.0, 0.0),
+            (75.0, 150.0, 0.0),
+            (100.0, 200.0, 0.0),
+            (150.0, 300.0, 0.0),
+            (200.0, 400.0, 0.0),
+            (300.0, 600.0, 0.0),
+            (400.0, 800.0, 0.0),
+            (500.0, 1_000.0, 50.0),
+            (600.0, 1_200.0, 100.0),
+            (800.0, 1_600.0, 200.0),
+            (1_000.0, 2_000.0, 300.0),
+            (1_200.0, 2_400.0, 400.0),
+            (1_500.0, 3_000.0, 500.0),
+            (2_000.0, 4_000.0, 500.0),
+            (2_500.0, 5_000.0, 700.0),
+            (3_000.0, 6_000.0, 800.0),
+            (4_000.0, 8_000.0, 1_000.0),
+            (5_000.0, 10_000.0, 1_500.0),
+            (6_000.0, 12_000.0, 2_000.0),
+            (8_000.0, 16_000.0, 2_500.0),
+            (10_000.0, 20_000.0, 3_000.0),
+            (12_000.0, 24_000.0, 4_000.0),
+            (15_000.0, 30_000.0, 5_000.0),
+            (20_000.0, 40_000.0, 6_000.0),
+            (25_000.0, 50_000.0, 8_000.0),
+        ];
+
         Self {
             name: "Standard Regular (10m)".into(),
-            levels: vec![
-                BlindLevel {
-                    level_number: 1,
-                    small_blind: 10.0,
-                    big_blind: 20.0,
-                    ante: 0.0,
+            levels: LEVELS
+                .into_iter()
+                .enumerate()
+                .map(|(index, (small_blind, big_blind, ante))| BlindLevel {
+                    level_number: (index + 1) as u32,
+                    small_blind,
+                    big_blind,
+                    ante,
                     duration_seconds: 600,
-                },
-                BlindLevel {
-                    level_number: 2,
-                    small_blind: 15.0,
-                    big_blind: 30.0,
-                    ante: 0.0,
-                    duration_seconds: 600,
-                },
-                BlindLevel {
-                    level_number: 3,
-                    small_blind: 25.0,
-                    big_blind: 50.0,
-                    ante: 0.0,
-                    duration_seconds: 600,
-                },
-                BlindLevel {
-                    level_number: 4,
-                    small_blind: 50.0,
-                    big_blind: 100.0,
-                    ante: 10.0,
-                    duration_seconds: 600,
-                },
-                BlindLevel {
-                    level_number: 5,
-                    small_blind: 75.0,
-                    big_blind: 150.0,
-                    ante: 15.0,
-                    duration_seconds: 600,
-                },
-                BlindLevel {
-                    level_number: 6,
-                    small_blind: 100.0,
-                    big_blind: 200.0,
-                    ante: 25.0,
-                    duration_seconds: 600,
-                },
-                BlindLevel {
-                    level_number: 7,
-                    small_blind: 150.0,
-                    big_blind: 300.0,
-                    ante: 40.0,
-                    duration_seconds: 600,
-                },
-                BlindLevel {
-                    level_number: 8,
-                    small_blind: 200.0,
-                    big_blind: 400.0,
-                    ante: 50.0,
-                    duration_seconds: 600,
-                },
-                BlindLevel {
-                    level_number: 9,
-                    small_blind: 300.0,
-                    big_blind: 600.0,
-                    ante: 75.0,
-                    duration_seconds: 600,
-                },
-                BlindLevel {
-                    level_number: 10,
-                    small_blind: 500.0,
-                    big_blind: 1000.0,
-                    ante: 100.0,
-                    duration_seconds: 600,
-                },
-            ],
+                })
+                .collect(),
         }
     }
-
     /// Estrutura de Blinds Turbo (níveis de 3 minutos).
     pub fn turbo_fast() -> Self {
         let mut structure = Self::standard_regular();
