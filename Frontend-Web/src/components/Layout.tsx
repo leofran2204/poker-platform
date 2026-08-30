@@ -116,7 +116,7 @@ export function Layout() {
                   </button>
                 </div>
                 <span className="zt-chip hidden font-mono sm:inline-flex">
-                  {mode === "real" ? "Jogo Real" : "Play Money"} {formatBrlFromCents(activeBalance)}
+                  {mode === "real" ? "Real" : "PM"} {formatBrlFromCents(activeBalance)}
                 </span>
                 {username && (
                   <span className="zt-chip hidden md:inline-flex">{username}</span>

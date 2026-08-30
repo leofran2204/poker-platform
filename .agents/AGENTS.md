@@ -9,16 +9,16 @@
 
 Esta seção é a memória operacional obrigatória para evitar repetir diagnósticos de sandbox, WSL e Node. Consulte-a antes de trocar ferramentas ou improvisar outro fluxo.
 
-### Regra obrigatória de aprendizado operacional contínuo
+### Regra obrigatória para conflitos entre sistemas e ferramentas
 
-Esta regra se aplica a todos os modelos e agentes que trabalharem neste repositório. Sempre que um entrave recorrente de ambiente, sandbox, ferramenta, build, teste, deploy ou integração for resolvido por um caminho comprovadamente funcional, o agente deve, antes de concluir a tarefa:
+Esta regra se aplica a todos os modelos e agentes que trabalharem neste repositório. Ela deve ser usada somente quando houver um conflito recorrente entre sistemas, ambientes, runtimes, frameworks ou ferramentas — por exemplo Windows × sandbox, Node/npm × permissões, WSL × Cargo, framework × runtime ou CI × deploy — e existir um caminho comprovadamente funcional. Nesses casos, o agente deve, antes de concluir a tarefa:
 
 1. Registrar ou consolidar neste arquivo o sintoma, a causa identificada, o procedimento validado e a forma de verificar o resultado.
 2. Remover instruções antigas que entrem em conflito com o caminho validado, evitando duplicidade ou ambiguidade.
 3. Versionar e enviar a atualização ao repositório, para que os próximos modelos não repitam a investigação.
 4. Registrar somente soluções realmente testadas; nunca gravar senhas, tokens, chaves privadas ou outros segredos.
 
-Se não surgir um novo aprendizado operacional, não é necessário alterar este arquivo. Essa obrigação não autoriza mudanças fora do escopo da tarefa nem substitui as regras de segurança e aprovação.
+Erros comuns de código, sintaxe, regra de negócio ou implementação não devem ser registrados nesta memória. Se não surgir um novo conflito entre sistemas ou ferramentas, não é necessário alterar este arquivo. Essa obrigação não autoriza mudanças fora do escopo da tarefa nem substitui as regras de segurança e aprovação.
 
 ### Regra de decisão rápida
 
@@ -49,7 +49,7 @@ Nunca confiar em `node`, `npm`, `npm.cmd` ou `pnpm` encontrados no `PATH` do Win
 ```powershell
 $node = '<caminho-retornado>\node\bin\node.exe'
 $npmCli = 'C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js'
-& $node $npmCli ci --prefix Frontend-Web
+& $node $npmCli ci --prefix Frontend-Web --cache C:\tmp\poker-npm-cache
 Push-Location Frontend-Web
 & $node node_modules\typescript\bin\tsc -b
 & $node node_modules\vite\bin\vite.js build
@@ -58,7 +58,8 @@ Pop-Location
 
 - O lockfile canônico do frontend é `Frontend-Web/package-lock.json`; não usar `pnpm` nesse diretório.
 - Se uma tentativa anterior com pnpm criar `pnpm-lock.yaml` ou contaminar `node_modules`, remover somente esse arquivo gerado e refazer `npm ci` com o Node empacotado.
-- Para auditoria sem atualização forçada: `& $node $npmCli audit --prefix Frontend-Web`. Não usar `--force` sem revisar mudanças de versão principal.
+- O cache global padrão em `AppData\Local\npm-cache` pode ser bloqueado pela sandbox. Usar sempre `--cache C:\tmp\poker-npm-cache` nos comandos npm. Se o download do registry ainda falhar com `EACCES`, repetir exatamente o comando com elevação estreita; não trocar o Node nem o gerenciador.
+- Para auditoria sem atualização forçada: `& $node $npmCli audit --prefix Frontend-Web --cache C:\tmp\poker-npm-cache`. Não usar `--force` sem revisar mudanças de versão principal.
 
 ### Contorno padronizado do `apply_patch` no Windows
 

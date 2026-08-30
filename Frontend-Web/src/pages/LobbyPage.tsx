@@ -12,10 +12,10 @@ type StakeFilter = "all" | "nl025" | "nl050" | "sd050" | "sdOmaha";
 
 const STAKE_OPTIONS: { id: StakeFilter; label: string }[] = [
   { id: "all", label: "Todos" },
-  { id: "nl025", label: "Texas Hold’em 0,25/0,25" },
-  { id: "nl050", label: "Texas Hold’em 0,25/0,50" },
-  { id: "sd050", label: "Texas Hold’em Short Deck 0,50/0,50" },
-  { id: "sdOmaha", label: "Omaha 4 Cartas Short Deck 0,50/1,00" },
+  { id: "nl025", label: "NL 0,25/0,25" },
+  { id: "nl050", label: "NL 0,25/0,50" },
+  { id: "sd050", label: "SD 0,50/0,50" },
+  { id: "sdOmaha", label: "SD Omaha 0,50/1" },
 ];
 
 function formatBuyInRange(min: number, max: number): string {
@@ -146,12 +146,10 @@ export function LobbyPage() {
     <div className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <h1 className="text-xl font-bold uppercase tracking-wide text-gold-bright">
-            Lobby — {walletModeLabel}
-          </h1>
+          <h1 className="text-xl font-bold uppercase tracking-wide text-gold-bright">Lobby</h1>
           <p className="text-xs text-felt-300">
             Listando apenas <span className="font-semibold text-gold-soft">{walletModeLabel}</span>
-            {" · "}os saldos de Play Money e Jogo Real não se misturam
+            {" · "}fichas Play Money e Jogo Real não se misturam
           </p>
         </div>
         <div className="flex gap-1 rounded border border-felt-600 bg-felt-950/60 p-0.5">
@@ -160,7 +158,7 @@ export function LobbyPage() {
             className={tab === "cash" ? "zt-tab zt-tab-active" : "zt-tab"}
             onClick={() => setTab("cash")}
           >
-            Cash Game
+            Cash
           </button>
           <button
             type="button"
@@ -207,13 +205,12 @@ export function LobbyPage() {
           <div className="zt-lobby-toolbar">
             <div className="min-w-0 flex-1">
               <div className="text-xs font-bold uppercase tracking-wider text-gold-bright">
-                Mesas de Cash Game
+                Cash games
                 <span className="ml-2 font-mono text-felt-300">({filtered.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                Texas Hold’em 0,25/0,25 (R$25) · Texas Hold’em 0,25/0,50 (R$50) · Texas Hold’em
-                Short Deck 0,50/0,50 (R$75) · Omaha 4 Cartas Short Deck 0,50/1,00 (R$100) · atualização
-                automática a cada 15 segundos
+                NL 0,25/0,25 (R$25) · NL 0,25/0,50 (R$50) · SD 0,50 (R$75) · SD Omaha 0,50/1 4-max
+                (R$100) · auto 15s
               </p>
             </div>
 
@@ -261,7 +258,15 @@ export function LobbyPage() {
             <p className="p-6 text-center text-sm text-felt-300">Nenhuma mesa com esses filtros.</p>
           ) : (
             <div className="zt-table-wrap">
-              <table className="zt-lobby-table">
+              <table className="zt-lobby-table min-w-[58rem] table-fixed">
+                <colgroup>
+                  <col className="w-[28%]" />
+                  <col className="w-[16%]" />
+                  <col className="w-[20%]" />
+                  <col className="w-[14%]" />
+                  <col className="w-[13%]" />
+                  <col className="w-[9%]" />
+                </colgroup>
                 <thead>
                   <tr>
                     <th>Nome</th>
@@ -291,7 +296,9 @@ export function LobbyPage() {
                           if (!full) void handleJoin(t);
                         }}
                       >
-                        <td className="font-semibold text-cream">{gameNameLabel(t, "cash")}</td>
+                        <td className="font-semibold text-cream">
+                          {gameNameLabel(t, "cash")}
+                        </td>
                         <td>
                           <span
                             className={
@@ -357,7 +364,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({tournaments.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                Texas Hold’em, Texas Hold’em Short Deck e Omaha 4 Cartas Short Deck · mesas para 9, 6 ou 4 jogadores
+                NLHE, Short Deck e Omaha Short Deck · formatos 9-max, 6-max e 4-max · inscrição · mãos MTT em breve
               </p>
             </div>
             <button
@@ -379,15 +386,24 @@ export function LobbyPage() {
             <p className="p-6 text-center text-sm text-felt-300">Nenhum torneio aberto.</p>
           ) : (
             <div className="zt-table-wrap">
-              <table className="zt-lobby-table">
+              <table className="zt-lobby-table min-w-[68rem] table-fixed">
+                <colgroup>
+                  <col className="w-[22%]" />
+                  <col className="w-[20%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[12%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[15%]" />
+                  <col className="w-[12%]" />
+                </colgroup>
                 <thead>
                   <tr>
                     <th>Nome</th>
                     <th>Tipo</th>
-                    <th>Inscrição</th>
-                    <th>Premiação Garantida</th>
+                    <th>Buy-in</th>
+                    <th>GTD</th>
                     <th>Inscritos</th>
-                    <th>Reentrada</th>
+                    <th>Rebuy</th>
                     <th className="text-right">Ação</th>
                   </tr>
                 </thead>
@@ -414,7 +430,7 @@ export function LobbyPage() {
                         >
                           {deckTypeLabel(t)}
                         </span>
-                        <span className="zt-chip ml-1">{t.table_max_players} jogadores</span>
+                        <span className="zt-chip ml-1">{t.table_max_players}-max</span>
                       </td>
                       <td className="font-mono text-gold-soft">
                         {t.is_freeroll ? "Grátis" : formatBrlFromCents(t.buy_in)}
