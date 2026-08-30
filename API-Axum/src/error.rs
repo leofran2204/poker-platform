@@ -40,7 +40,15 @@ impl IntoResponse for ApiError {
             ),
         };
 
-        tracing::error!(error = ?self, "API error: {} — {}", status, message);
+        if status.is_server_error() {
+            tracing::error!(error = ?self, "API error: {} — {}", status, message);
+        } else if status == StatusCode::TOO_MANY_REQUESTS || status == StatusCode::FORBIDDEN {
+            tracing::warn!(error = ?self, "API request rejected: {} — {}", status, message);
+        } else {
+            // Invalid input, expired credentials and not-found responses are
+            // expected outcomes and must not trigger operational error alerts.
+            tracing::info!(error = ?self, "API request rejected: {} — {}", status, message);
+        }
 
         (status, Json(json!({ "error": message }))).into_response()
     }

@@ -73,6 +73,94 @@ async fn pause_unrecovered_tables(pool: &sqlx::PgPool) -> Result<u64, sqlx::Erro
     .await?;
     Ok(result.rows_affected())
 }
+/// Returns escrow from seats that cannot have a live actor because their table
+/// is CLOSED. Recovery-guarded tables are excluded for manual review. Wallet,
+/// ledger, seat and audit record commit together.
+async fn reconcile_closed_table_seats(pool: &sqlx::PgPool) -> Result<u64, sqlx::Error> {
+    let mut tx = pool.begin().await?;
+    let seats: Vec<(uuid::Uuid, uuid::Uuid, uuid::Uuid, i64, String)> = sqlx::query_as(
+        "SELECT seats.id, seats.user_id, seats.table_id, seats.chips, seats.wallet_kind \
+         FROM cash_game_seats AS seats \
+         JOIN tables ON tables.id = seats.table_id \
+         WHERE seats.status = 'ACTIVE' AND tables.status = 'CLOSED' \
+           AND NOT EXISTS ( \
+               SELECT 1 FROM table_hand_recovery_guards AS guard \
+               WHERE guard.table_id = seats.table_id \
+           ) \
+         FOR UPDATE OF seats",
+    )
+    .fetch_all(&mut *tx)
+    .await?;
+
+    let mut reconciled = 0_u64;
+    for (seat_id, user_id, table_id, chips, wallet_kind) in seats {
+        if chips < 0 || !matches!(wallet_kind.as_str(), "pm_cash" | "real") {
+            return Err(sqlx::Error::Protocol(format!(
+                "invalid closed-table escrow seat {seat_id}"
+            )));
+        }
+
+        let closed = sqlx::query(
+            "UPDATE cash_game_seats \
+             SET status = 'CASHED_OUT', cashed_out_at = NOW() \
+             WHERE id = $1 AND status = 'ACTIVE'",
+        )
+        .bind(seat_id)
+        .execute(&mut *tx)
+        .await?;
+        if closed.rows_affected() != 1 {
+            continue;
+        }
+
+        if chips > 0 {
+            let credited = sqlx::query(
+                "UPDATE users SET \
+                     balance_pm_cash = balance_pm_cash + CASE WHEN $1 = 'pm_cash' THEN $2 ELSE 0 END, \
+                     balance = balance_pm_cash + CASE WHEN $1 = 'pm_cash' THEN $2 ELSE 0 END, \
+                     balance_real = balance_real + CASE WHEN $1 = 'real' THEN $2 ELSE 0 END \
+                 WHERE id = $3",
+            )
+            .bind(&wallet_kind)
+            .bind(chips)
+            .bind(user_id)
+            .execute(&mut *tx)
+            .await?;
+            if credited.rows_affected() != 1 {
+                return Err(sqlx::Error::RowNotFound);
+            }
+            sqlx::query(
+                "INSERT INTO cash_game_ledger \
+                     (user_id, table_id, seat_id, entry_type, amount) \
+                 VALUES ($1, $2, $3, 'CASH_OUT', $4)",
+            )
+            .bind(user_id)
+            .bind(table_id)
+            .bind(seat_id)
+            .bind(chips)
+            .execute(&mut *tx)
+            .await?;
+        }
+
+        sqlx::query(
+            "INSERT INTO audit_logs (user_id, action, metadata) \
+             VALUES ($1, 'CLOSED_TABLE_SEAT_RECONCILED', $2)",
+        )
+        .bind(user_id.to_string())
+        .bind(serde_json::json!({
+            "table_id": table_id,
+            "seat_id": seat_id,
+            "chips_cents": chips,
+            "wallet_kind": wallet_kind,
+            "source": "startup",
+        }))
+        .execute(&mut *tx)
+        .await?;
+        reconciled += 1;
+    }
+
+    tx.commit().await?;
+    Ok(reconciled)
+}
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load .env
@@ -140,6 +228,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
+    let reconciled_seats = reconcile_closed_table_seats(&pool).await?;
+    if reconciled_seats > 0 {
+        tracing::warn!(
+            reconciled_seats,
+            "Cashed out orphaned seats from closed tables"
+        );
+    }
     // Initialize Redis connection if REDIS_URL is provided
     let redis_conn = if let Ok(redis_url) = std::env::var("REDIS_URL") {
         match redis::Client::open(redis_url) {

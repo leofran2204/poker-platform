@@ -80,9 +80,27 @@ where
     let result = sqlx::query(
         r#"
         UPDATE users SET
-            balance_pm_cash = $2,
+            balance_pm_cash = GREATEST(
+                0,
+                $2 - COALESCE((
+                    SELECT SUM(seats.chips)
+                    FROM cash_game_seats AS seats
+                    WHERE seats.user_id = users.id
+                      AND seats.status = 'ACTIVE'
+                      AND seats.wallet_kind = 'pm_cash'
+                ), 0)
+            ),
             balance_pm_mtt = $3,
-            balance = $2,
+            balance = GREATEST(
+                0,
+                $2 - COALESCE((
+                    SELECT SUM(seats.chips)
+                    FROM cash_game_seats AS seats
+                    WHERE seats.user_id = users.id
+                      AND seats.status = 'ACTIVE'
+                      AND seats.wallet_kind = 'pm_cash'
+                ), 0)
+            ),
             last_pm_reset_date = $4,
             pm_cash_rebuy_used_on = CASE
                 WHEN pm_cash_rebuy_used_on IS DISTINCT FROM $4 THEN NULL

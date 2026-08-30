@@ -97,9 +97,12 @@ pub async fn admin_stats(
             .fetch_one(&state.db)
             .await?;
 
-    let wallet_balance_sum: (i64,) = sqlx::query_as("SELECT COALESCE(SUM(balance), 0) FROM users")
-        .fetch_one(&state.db)
-        .await?;
+    // PostgreSQL promotes SUM(BIGINT) to NUMERIC. Cast after aggregation so
+    // sqlx can decode the bounded platform total as i64.
+    let wallet_balance_sum: (i64,) =
+        sqlx::query_as("SELECT COALESCE(SUM(balance), 0)::BIGINT FROM users")
+            .fetch_one(&state.db)
+            .await?;
 
     let online_count = state
         .presence
