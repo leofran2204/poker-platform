@@ -69,7 +69,7 @@ export function AdminTournamentsPage() {
                 </td>
                 <td className="font-mono">{formatBrlFromCents(t.guaranteed_prize)}</td>
                 <td className="font-mono">
-                  {t.registered_players}/{t.max_players}
+                  {t.registered_players}/{t.max_players} · {t.table_max_players}-max
                 </td>
                 <td className="font-mono text-xs">{t.status}</td>
                 <td className="space-x-1">

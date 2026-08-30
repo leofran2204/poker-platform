@@ -363,7 +363,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({tournaments.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                NLHE + Short Deck · Freeroll R$100 GTD · MTT R$200 GTD · inscrição · mãos MTT em breve
+                NLHE, Short Deck e Omaha Short Deck · formatos 9-max, 6-max e 4-max · inscrição · mãos MTT em breve
               </p>
             </div>
             <button
@@ -412,11 +412,15 @@ export function LobbyPage() {
                       <td>
                         <span
                           className={
-                            t.poker_variant === "short_deck" ? "zt-chip zt-chip-accent" : "zt-chip"
+                            t.poker_variant === "short_deck" ||
+                            t.poker_variant === "short_deck_omaha"
+                              ? "zt-chip zt-chip-accent"
+                              : "zt-chip"
                           }
                         >
                           {variantLabel(t)}
                         </span>
+                        <span className="zt-chip ml-1">{t.table_max_players}-max</span>
                       </td>
                       <td className="font-mono text-gold-soft">
                         {t.is_freeroll ? "Grátis" : formatBrlFromCents(t.buy_in)}

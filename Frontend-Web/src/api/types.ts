@@ -71,6 +71,7 @@ export interface AdminTournamentItem {
   is_freeroll: boolean;
   registered_players: number;
   max_players: number;
+  table_max_players: number;
 }
 
 export interface AdminTournamentPlayer {
@@ -144,7 +145,7 @@ export interface TableResponse {
   max_buy_in: number;
   game_type: string;
   money_mode?: string;
-  /** `holdem` | `short_deck` */
+  /** `holdem` | `short_deck` | `short_deck_omaha` */
   poker_variant?: string;
 }
 
@@ -162,6 +163,7 @@ export interface TournamentInfoResponse {
   buy_in: number;
   starting_stack: number;
   max_players: number;
+  table_max_players: number;
   registered_players: number;
   status: string;
   players_remaining: number;
@@ -177,7 +179,7 @@ export interface TournamentInfoResponse {
   blind_levels: BlindLevelDto[];
   gameplay_ready: boolean;
   money_mode?: string;
-  /** `holdem` | `short_deck` */
+  /** `holdem` | `short_deck` | `short_deck_omaha` */
   poker_variant?: string;
 }
 

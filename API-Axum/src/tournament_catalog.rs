@@ -16,6 +16,7 @@ struct TournamentRow {
     buy_in: i64,
     starting_stack: i64,
     max_players: i32,
+    table_max_players: i16,
     late_registration: bool,
     late_reg_max_level: i32,
     speed: String,
@@ -100,6 +101,7 @@ fn row_to_store(row: TournamentRow) -> TournamentStore {
     };
     let mut store =
         TournamentStore::with_mode_and_variant(id, config, money_mode, poker_variant);
+    store.table_max_players = row.table_max_players.clamp(2, 9) as u8;
     store.state.status = parse_status(&row.status);
     store.state.current_level = row.current_level.max(0) as u32;
     store.state.players_remaining = row.players_remaining.max(0) as u32;
@@ -116,7 +118,7 @@ pub async fn load_tournaments_from_db(
 ) -> Result<HashMap<String, TournamentStore>, sqlx::Error> {
     let rows: Vec<TournamentRow> = sqlx::query_as(
         r#"
-        SELECT id, name, buy_in, starting_stack, max_players,
+        SELECT id, name, buy_in, starting_stack, max_players, table_max_players,
                late_registration, late_reg_max_level, speed, status,
                prize_pool, current_level, players_remaining, total_buyins,
                guaranteed_prize, is_freeroll,

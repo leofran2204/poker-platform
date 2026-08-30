@@ -14,6 +14,8 @@ pub struct TournamentStore {
     pub money_mode: String,
     /// `holdem` | `short_deck` | `short_deck_omaha`
     pub poker_variant: String,
+    /// Number of seats at each physical tournament table.
+    pub table_max_players: u8,
 }
 
 impl TournamentStore {
@@ -34,18 +36,56 @@ impl TournamentStore {
         let mut state = poker_engine::tournament_engine::create_tournament(config);
         state.tournament_id = id.clone();
         let v = poker_variant.to_ascii_lowercase();
-        let poker_variant = if v == "short_deck_omaha" || v == "sd_omaha" {
+        let poker_variant: String = if v == "short_deck_omaha" || v == "sd_omaha" {
             "short_deck_omaha".into()
         } else if v == "short_deck" || v == "sd" {
             "short_deck".into()
         } else {
             "holdem".into()
         };
+        let table_max_players = match poker_variant.as_str() {
+            "short_deck_omaha" => 4,
+            "short_deck" => 6,
+            _ => 9,
+        };
         Self {
             id,
             state,
             money_mode,
             poker_variant,
+            table_max_players,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn variant_defaults_use_expected_table_sizes() {
+        let config = TournamentConfig::default();
+        let omaha = TournamentStore::with_mode_and_variant(
+            "omaha".into(),
+            config.clone(),
+            "play".into(),
+            "short_deck_omaha".into(),
+        );
+        let short_deck = TournamentStore::with_mode_and_variant(
+            "short-deck".into(),
+            config.clone(),
+            "play".into(),
+            "short_deck".into(),
+        );
+        let holdem = TournamentStore::with_mode_and_variant(
+            "holdem".into(),
+            config,
+            "play".into(),
+            "holdem".into(),
+        );
+
+        assert_eq!(omaha.table_max_players, 4);
+        assert_eq!(short_deck.table_max_players, 6);
+        assert_eq!(holdem.table_max_players, 9);
     }
 }

@@ -521,6 +521,7 @@ pub struct AdminTournamentItem {
     pub is_freeroll: bool,
     pub registered_players: u32,
     pub max_players: u32,
+    pub table_max_players: u8,
 }
 
 pub async fn list_admin_tournaments(
@@ -541,6 +542,7 @@ pub async fn list_admin_tournaments(
             is_freeroll: store.state.config.is_freeroll,
             registered_players: store.state.players.len() as u32,
             max_players: store.state.config.max_players,
+            table_max_players: store.table_max_players,
         })
         .collect();
     list.sort_by(|a, b| a.name.cmp(&b.name));
@@ -654,6 +656,7 @@ pub async fn patch_tournament(
         is_freeroll: store.state.config.is_freeroll,
         registered_players: store.state.players.len() as u32,
         max_players: store.state.config.max_players,
+        table_max_players: store.table_max_players,
     }))
 }
 

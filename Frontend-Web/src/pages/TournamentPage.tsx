@@ -152,6 +152,10 @@ export function TournamentPage() {
             </dd>
           </div>
           <div>
+            <dt className="text-xs uppercase text-felt-400">Formato das mesas</dt>
+            <dd className="font-mono text-cream">{info.table_max_players}-max</dd>
+          </div>
+          <div>
             <dt className="text-xs uppercase text-felt-400">Rebuy</dt>
             <dd className="text-felt-200">
               {info.allow_rebuy

@@ -44,6 +44,7 @@ pub struct TournamentInfoResponse {
     pub buy_in: u64,
     pub starting_stack: u64,
     pub max_players: u32,
+    pub table_max_players: u8,
     pub registered_players: u32,
     pub status: String,
     pub players_remaining: u32,
@@ -60,7 +61,7 @@ pub struct TournamentInfoResponse {
     pub gameplay_ready: bool,
     /// `play` | `real`
     pub money_mode: String,
-    /// `holdem` | `short_deck`
+    /// `holdem` | `short_deck` | `short_deck_omaha`
     pub poker_variant: String,
 }
 
@@ -82,6 +83,7 @@ fn to_info(store: &crate::tournament_store::TournamentStore) -> TournamentInfoRe
         buy_in: cfg.buy_in,
         starting_stack: cfg.starting_stack,
         max_players: cfg.max_players,
+        table_max_players: store.table_max_players,
         registered_players: store.state.players.len() as u32,
         status: status_string(&store.state.status),
         players_remaining: store.state.players_remaining,
