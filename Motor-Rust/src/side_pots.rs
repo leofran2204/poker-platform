@@ -177,9 +177,7 @@ pub fn precompute_hands_for_variant(
                 PokerVariant::ShortDeckOmaha => {
                     evaluate_hand_short_deck_omaha(&player.cards, community_cards)
                 }
-                PokerVariant::ShortDeck => {
-                    evaluate_hand_short_deck(&player.cards, community_cards)
-                }
+                PokerVariant::ShortDeck => evaluate_hand_short_deck(&player.cards, community_cards),
                 PokerVariant::Holdem => evaluate_hand(&player.cards, community_cards),
             };
             hands.insert(player.id.clone(), hand);

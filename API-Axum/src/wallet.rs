@@ -153,7 +153,7 @@ where
              WHERE id = $2::uuid AND balance_real >= $1 RETURNING balance_real"
         }
     };
-    // Note: for PmCash the SET balance = balance_pm_cash - $1 uses NEW value in PostgreSQL? 
+    // Note: for PmCash the SET balance = balance_pm_cash - $1 uses NEW value in PostgreSQL?
     // In PostgreSQL, UPDATE uses the original row values on the RHS for all columns in the same SET.
     // So `balance = balance_pm_cash - $1` is correct (old pm_cash - amount).
     let updated: Option<(i64,)> = sqlx::query_as(sql)
@@ -248,7 +248,11 @@ pub async fn load_snapshot(pool: &PgPool, user_id: &str) -> Result<WalletSnapsho
     })
 }
 
-pub async fn pm_rebuy(pool: &PgPool, user_id: &str, kind: WalletKind) -> Result<WalletSnapshot, ApiError> {
+pub async fn pm_rebuy(
+    pool: &PgPool,
+    user_id: &str,
+    kind: WalletKind,
+) -> Result<WalletSnapshot, ApiError> {
     ensure_pm_daily_reset_pool(pool, user_id).await?;
     let today = today_sao_paulo();
     let mut tx = pool.begin().await?;
@@ -365,11 +369,7 @@ pub async fn pm_rebuy_handler(
     let kind = match body.kind.trim().to_ascii_lowercase().as_str() {
         "cash" | "pm_cash" => WalletKind::PmCash,
         "mtt" | "pm_mtt" | "tournament" => WalletKind::PmMtt,
-        _ => {
-            return Err(ApiError::BadRequest(
-                "kind must be cash or mtt".into(),
-            ))
-        }
+        _ => return Err(ApiError::BadRequest("kind must be cash or mtt".into())),
     };
     pm_rebuy(&state.db, &auth_user.user_id, kind)
         .await

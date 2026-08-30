@@ -319,12 +319,12 @@ fn test_integration_full_tournament_lifecycle() {
         allow_rebuy: false,
         allow_addon: false,
         rebuy_max_level: 0,
-            guaranteed_prize: 0,
-            is_freeroll: false,
-            rebuy_cost: 0,
-            rebuy_chips: 0,
-            rebuy_max_count: 0,
-            rebuy_stack_threshold: 0,
+        guaranteed_prize: 0,
+        is_freeroll: false,
+        rebuy_cost: 0,
+        rebuy_chips: 0,
+        rebuy_max_count: 0,
+        rebuy_stack_threshold: 0,
     };
 
     let mut state = create_tournament(config);

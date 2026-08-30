@@ -1256,10 +1256,9 @@ mod tests {
         let deck = create_short_deck();
         assert_eq!(deck.len(), 36);
         assert!(deck.iter().all(|c| (c.rank as u8) >= 6));
-        assert!(!deck.iter().any(|c| matches!(
-            c.rank,
-            Rank::Two | Rank::Three | Rank::Four | Rank::Five
-        )));
+        assert!(!deck
+            .iter()
+            .any(|c| matches!(c.rank, Rank::Two | Rank::Three | Rank::Four | Rank::Five)));
     }
 
     #[test]

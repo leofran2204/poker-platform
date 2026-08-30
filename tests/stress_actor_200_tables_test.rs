@@ -42,7 +42,7 @@ async fn test_stress_k8s_actor_200_tables_50k_messages() {
                     };
                     tx.send(state_msg).await.unwrap();
                     let state = state_rx.await.unwrap();
-                    assert!(state.players.len() >= 1);
+                    assert!(!state.players.is_empty());
                 }
             }
         });

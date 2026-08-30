@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { logout, setWalletMode as apiSetWalletMode } from "@/api/client";
+import { setWalletMode as apiSetWalletMode } from "@/api/client";
 import type { MeResponse, WalletMode } from "@/api/types";
 import { OnlinePresenceNav } from "@/components/OnlinePresence";
-import { getUsername, isAuthenticated } from "@/lib/auth";
+import { clearTokens, getUsername, isAuthenticated } from "@/lib/auth";
 import { clearMeCache, getMe, isAdminRole } from "@/lib/me";
 import { formatBrlFromCents } from "@/lib/money";
 import { getWalletMode, setWalletModeLocal } from "@/lib/walletMode";
@@ -57,7 +57,8 @@ export function Layout() {
   }
 
   function handleLogout() {
-    logout();
+    clearTokens();
+    clearMeCache();
     setIsAdmin(false);
     setMe(null);
     navigate("/login");

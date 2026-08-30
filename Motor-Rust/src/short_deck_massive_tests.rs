@@ -347,9 +347,7 @@ fn short_deck_stress_gameloop_50k_six_max_chip_conservation() {
     const BB: u64 = 200;
     let t0 = Instant::now();
     let config = TableConfig::new(BB, 500, 1000).with_poker_variant(PokerVariant::ShortDeck);
-    let mut stacks: Vec<(String, u64)> = (0..PLAYERS)
-        .map(|i| (format!("p{i}"), START))
-        .collect();
+    let mut stacks: Vec<(String, u64)> = (0..PLAYERS).map(|i| (format!("p{i}"), START)).collect();
     let mut total_rake = 0u64;
     let mut low_violations = 0u64;
 
@@ -391,11 +389,7 @@ fn short_deck_stress_gameloop_50k_six_max_chip_conservation() {
             }
         }
         let after: u64 = stacks.iter().map(|(_, s)| *s).sum();
-        assert_eq!(
-            after + res.rake,
-            before,
-            "chip leak mão {hand_idx}"
-        );
+        assert_eq!(after + res.rake, before, "chip leak mão {hand_idx}");
         if hand_idx > 0 && hand_idx % 10_000 == 0 {
             eprintln!(
                 "SD gameloop progress {hand_idx}/{STRESS_GAMELOOP_HANDS} elapsed={:.1}s",

@@ -99,8 +99,7 @@ fn row_to_store(row: TournamentRow) -> TournamentStore {
     } else {
         "holdem".into()
     };
-    let mut store =
-        TournamentStore::with_mode_and_variant(id, config, money_mode, poker_variant);
+    let mut store = TournamentStore::with_mode_and_variant(id, config, money_mode, poker_variant);
     store.table_max_players = row.table_max_players.clamp(2, 9) as u8;
     store.state.status = parse_status(&row.status);
     store.state.current_level = row.current_level.max(0) as u32;
@@ -108,7 +107,8 @@ fn row_to_store(row: TournamentRow) -> TournamentStore {
     // DB `total_buyins` is entry count; engine tracks money collected.
     let entries = row.total_buyins.max(0) as u64;
     store.state.total_buyins = entries.saturating_mul(store.state.config.buy_in);
-    store.state.prize_pool = (row.prize_pool.max(0) as u64).max(store.state.config.guaranteed_prize);
+    store.state.prize_pool =
+        (row.prize_pool.max(0) as u64).max(store.state.config.guaranteed_prize);
     store
 }
 

@@ -35,6 +35,12 @@ pub struct AdminDashboard {
     metrics: Arc<Mutex<SystemMetrics>>,
 }
 
+impl Default for AdminDashboard {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AdminDashboard {
     pub fn new() -> Self {
         Self {

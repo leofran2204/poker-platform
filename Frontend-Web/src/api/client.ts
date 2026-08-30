@@ -1,4 +1,4 @@
-import { getToken, saveTokens, clearTokens } from "@/lib/auth";
+import { getToken, saveTokens } from "@/lib/auth";
 import type {
   AdminPresenceResponse,
   AdminStatsResponse,
@@ -415,11 +415,6 @@ export async function rejectDepositRequest(
 
 export function applyAuthTokens(tokens: TokenResponse): void {
   saveTokens(tokens.token, tokens.refresh_token ?? "");
-}
-
-export function logout(): void {
-  clearTokens();
-  void import("@/lib/me").then((m) => m.clearMeCache());
 }
 
 export interface OnlinePresenceResponse {

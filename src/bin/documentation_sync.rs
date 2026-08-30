@@ -55,7 +55,7 @@ fn synchronize(mode: Mode) -> Result<(), String> {
 
     let mut stale_documents = Vec::new();
     for path in &documents {
-        let original = fs::read_to_string(&path)
+        let original = fs::read_to_string(path)
             .map_err(|error| format!("não foi possível ler {}: {error}", path.display()))?;
         let updated = synchronize_document(&original, &status)?;
         let relative_path = path
@@ -67,7 +67,7 @@ fn synchronize(mode: Mode) -> Result<(), String> {
         if updated != original {
             match mode {
                 Mode::Check => stale_documents.push(relative_path),
-                Mode::Write => fs::write(&path, updated).map_err(|error| {
+                Mode::Write => fs::write(path, updated).map_err(|error| {
                     format!("não foi possível atualizar {}: {error}", path.display())
                 })?,
             }

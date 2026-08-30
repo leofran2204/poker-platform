@@ -30,7 +30,7 @@ pub async fn online_count(
         .presence
         .online_count(&state.redis)
         .await
-        .map_err(|e| ApiError::Internal(e))?;
+        .map_err(ApiError::Internal)?;
     Ok(Json(OnlinePresenceResponse {
         online_count,
         ttl_seconds: PRESENCE_TTL_SECS,
@@ -47,12 +47,12 @@ pub async fn heartbeat(
         .presence
         .heartbeat(&state.redis, &user.user_id)
         .await
-        .map_err(|e| ApiError::Internal(e))?;
+        .map_err(ApiError::Internal)?;
     let online_count = state
         .presence
         .online_count(&state.redis)
         .await
-        .map_err(|e| ApiError::Internal(e))?;
+        .map_err(ApiError::Internal)?;
     Ok(Json(HeartbeatResponse {
         ok: true,
         online_count,

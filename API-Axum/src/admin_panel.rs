@@ -25,14 +25,12 @@ async fn write_audit(
     action: &str,
     metadata: serde_json::Value,
 ) -> Result<(), ApiError> {
-    sqlx::query(
-        "INSERT INTO audit_logs (user_id, action, metadata) VALUES ($1, $2, $3)",
-    )
-    .bind(user_id)
-    .bind(action)
-    .bind(metadata)
-    .execute(&state.db)
-    .await?;
+    sqlx::query("INSERT INTO audit_logs (user_id, action, metadata) VALUES ($1, $2, $3)")
+        .bind(user_id)
+        .bind(action)
+        .bind(metadata)
+        .execute(&state.db)
+        .await?;
     Ok(())
 }
 
@@ -73,10 +71,9 @@ pub async fn admin_stats(
             .fetch_one(&state.db)
             .await?;
 
-    let tables_open: (i64,) =
-        sqlx::query_as("SELECT COUNT(*) FROM tables WHERE status = 'OPEN'")
-            .fetch_one(&state.db)
-            .await?;
+    let tables_open: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM tables WHERE status = 'OPEN'")
+        .fetch_one(&state.db)
+        .await?;
     let tables_paused: (i64,) =
         sqlx::query_as("SELECT COUNT(*) FROM tables WHERE status = 'PAUSED'")
             .fetch_one(&state.db)
@@ -104,11 +101,7 @@ pub async fn admin_stats(
             .fetch_one(&state.db)
             .await?;
 
-    let online_count = state
-        .presence
-        .online_count(&state.redis)
-        .await
-        .unwrap_or(0);
+    let online_count = state.presence.online_count(&state.redis).await.unwrap_or(0);
 
     Ok(Json(AdminStatsResponse {
         users_total: users_total.0,
@@ -318,10 +311,11 @@ pub async fn patch_user(
             return Err(ApiError::BadRequest("Invalid role".into()));
         }
         if user_id == auth_user.user_id && role != "admin" {
-            let admins: (i64,) =
-                sqlx::query_as("SELECT COUNT(*) FROM users WHERE role = 'admin' AND status = 'active'")
-                    .fetch_one(&state.db)
-                    .await?;
+            let admins: (i64,) = sqlx::query_as(
+                "SELECT COUNT(*) FROM users WHERE role = 'admin' AND status = 'active'",
+            )
+            .fetch_one(&state.db)
+            .await?;
             if admins.0 <= 1 {
                 return Err(ApiError::BadRequest(
                     "Cannot demote the last active admin".into(),
@@ -332,11 +326,13 @@ pub async fn patch_user(
 
     let mut tx = state.db.begin().await?;
     if let Some(ref status) = body.status {
-        sqlx::query("UPDATE users SET status = $1, token_version = token_version + 1 WHERE id = $2")
-            .bind(status)
-            .bind(uid)
-            .execute(&mut *tx)
-            .await?;
+        sqlx::query(
+            "UPDATE users SET status = $1, token_version = token_version + 1 WHERE id = $2",
+        )
+        .bind(status)
+        .bind(uid)
+        .execute(&mut *tx)
+        .await?;
     }
     if let Some(ref role) = body.role {
         sqlx::query("UPDATE users SET role = $1, token_version = token_version + 1 WHERE id = $2")
@@ -537,7 +533,10 @@ pub async fn list_admin_tournaments(
             name: store.state.config.name.clone(),
             buy_in: store.state.config.buy_in,
             guaranteed_prize: store.state.config.guaranteed_prize,
-            prize_pool: store.state.prize_pool.max(store.state.config.guaranteed_prize),
+            prize_pool: store
+                .state
+                .prize_pool
+                .max(store.state.config.guaranteed_prize),
             status: format!("{:?}", store.state.status).to_lowercase(),
             is_freeroll: store.state.config.is_freeroll,
             registered_players: store.state.players.len() as u32,
@@ -651,7 +650,10 @@ pub async fn patch_tournament(
         name: store.state.config.name.clone(),
         buy_in: store.state.config.buy_in,
         guaranteed_prize: store.state.config.guaranteed_prize,
-        prize_pool: store.state.prize_pool.max(store.state.config.guaranteed_prize),
+        prize_pool: store
+            .state
+            .prize_pool
+            .max(store.state.config.guaranteed_prize),
         status: format!("{:?}", store.state.status).to_lowercase(),
         is_freeroll: store.state.config.is_freeroll,
         registered_players: store.state.players.len() as u32,

@@ -83,7 +83,7 @@ async fn test_final_quality_gate_all_modules_integration() {
         Card::new(Rank::Two, Suit::Clubs),
     ];
     let rank = evaluate_hand(&cards);
-    assert_eq!(format!("{:?}", rank).contains("FullHouse"), true);
+    assert!(format!("{:?}", rank).contains("FullHouse"));
     println!("   ✔ 6. Avaliador de 7 Cartas Texas Hold'em: OK");
 
     // 7. Torneios & Table Balancer

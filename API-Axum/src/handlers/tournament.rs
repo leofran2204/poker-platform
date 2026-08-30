@@ -205,9 +205,8 @@ pub async fn register_player(
     )
     .map_err(ApiError::BadRequest)?;
 
-    let mut tx = state.db.begin().await.map_err(|e| {
+    let mut tx = state.db.begin().await.inspect_err(|_| {
         store.state.players.remove(&auth_user.user_id);
-        e
     })?;
 
     if buy_in > 0 {
@@ -242,9 +241,8 @@ pub async fn register_player(
     .bind(starting_stack as i64)
     .execute(&mut *tx)
     .await
-    .map_err(|e| {
+    .inspect_err(|_| {
         store.state.players.remove(&auth_user.user_id);
-        e
     })?;
 
     sqlx::query(
@@ -262,14 +260,12 @@ pub async fn register_player(
     .bind(store.state.players.len() as i32)
     .execute(&mut *tx)
     .await
-    .map_err(|e| {
+    .inspect_err(|_| {
         store.state.players.remove(&auth_user.user_id);
-        e
     })?;
 
-    tx.commit().await.map_err(|e| {
+    tx.commit().await.inspect_err(|_| {
         store.state.players.remove(&auth_user.user_id);
-        e
     })?;
 
     Ok(Json(RegisterResponse {

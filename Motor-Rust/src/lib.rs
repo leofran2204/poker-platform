@@ -37,8 +37,6 @@ mod card_fairness_tests;
 mod extreme_fuzz_tests;
 #[cfg(all(test, feature = "massive-tests"))]
 mod fuzz_tests;
-#[cfg(all(test, feature = "massive-tests"))]
-mod short_deck_massive_tests;
 #[cfg(test)]
 mod game_loop_tests;
 #[cfg(test)]
@@ -53,6 +51,8 @@ mod loss_deflator_tests;
 mod motor_tests;
 #[cfg(test)]
 mod property_tests;
+#[cfg(all(test, feature = "massive-tests"))]
+mod short_deck_massive_tests;
 #[cfg(test)]
 mod side_pots_tests;
 #[cfg(all(test, feature = "massive-tests"))]

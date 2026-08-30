@@ -9,7 +9,6 @@ pub mod admin_routes;
 pub mod binary_codec;
 pub mod deposit_requests;
 pub mod email_service;
-pub mod wallet;
 pub mod error;
 pub mod game_actor;
 pub mod handlers;
@@ -21,6 +20,7 @@ pub mod state;
 pub mod telemetry;
 pub mod tournament_catalog;
 pub mod tournament_store;
+pub mod wallet;
 
 use axum::extract::State;
 use axum::routing::{get, patch, post, put};
@@ -29,8 +29,8 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::OnceLock;
 use std::time::Instant;
 
-use crate::handlers::{auth, hand_history, lobby, tournament, websocket};
 use crate::handlers::presence as presence_handlers;
+use crate::handlers::{auth, hand_history, lobby, tournament, websocket};
 use crate::middleware::auth::RequireAuth;
 use crate::middleware::rate_limit::EnforceRateLimit;
 use crate::state::AppState;
@@ -145,9 +145,10 @@ pub fn build_router(state: AppState) -> Router {
         .route("/api/presence/online", get(presence_handlers::online_count))
         .route(
             "/api/presence/heartbeat",
-            post(presence_handlers::heartbeat).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            post(presence_handlers::heartbeat)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         // ─── Lobby routes ───
         .route("/api/lobby/tables", get(lobby::list_tables))
@@ -175,10 +176,7 @@ pub fn build_router(state: AppState) -> Router {
         )
         .route("/api/lobby/tables/:id", get(lobby::get_table))
         // ─── Tournament routes ───
-        .route(
-            "/api/lobby/tournaments",
-            get(tournament::list_tournaments),
-        )
+        .route("/api/lobby/tournaments", get(tournament::list_tournaments))
         .route(
             "/api/tournament/register",
             post(tournament::register_player)
@@ -205,21 +203,24 @@ pub fn build_router(state: AppState) -> Router {
         // ─── Admin & Antifraud routes (protected admin role) ───
         .route(
             "/api/wallet/mode",
-            post(wallet::set_wallet_mode).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            post(wallet::set_wallet_mode)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/wallet/pm-rebuy",
-            post(wallet::pm_rebuy_handler).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            post(wallet::pm_rebuy_handler)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/wallet/deposit-info",
-            get(deposit_requests::deposit_info).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            get(deposit_requests::deposit_info)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/wallet/deposit-requests",
@@ -249,57 +250,66 @@ pub fn build_router(state: AppState) -> Router {
         )
         .route(
             "/api/admin/stats",
-            get(admin_panel::admin_stats).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            get(admin_panel::admin_stats)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/users",
-            get(admin_panel::list_users).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            get(admin_panel::list_users)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/users/:id",
-            patch(admin_panel::patch_user).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            patch(admin_panel::patch_user)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/users/:id/adjust-balance",
-            post(admin_panel::adjust_balance).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            post(admin_panel::adjust_balance)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/tournaments",
-            get(admin_panel::list_admin_tournaments).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            get(admin_panel::list_admin_tournaments)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/tournaments/:id",
-            patch(admin_panel::patch_tournament).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            patch(admin_panel::patch_tournament)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/tournaments/:id/players",
-            get(admin_panel::list_tournament_players).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            get(admin_panel::list_tournament_players)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/presence",
-            get(admin_panel::admin_presence).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            get(admin_panel::admin_presence)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/audit-logs",
-            get(admin_panel::list_audit_logs).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            get(admin_panel::list_audit_logs)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/antifraud/alerts",

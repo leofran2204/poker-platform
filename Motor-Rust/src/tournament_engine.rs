@@ -495,9 +495,7 @@ pub fn process_rebuy(state: &mut TournamentState, player_id: &str) -> Result<(),
         && entry.stack <= state.config.rebuy_stack_threshold;
 
     if !eliminated && !short_stack {
-        return Err(
-            "Re-buy só para eliminados ou stack no limiar configurado".to_string(),
-        );
+        return Err("Re-buy só para eliminados ou stack no limiar configurado".to_string());
     }
 
     let chips = if state.config.rebuy_chips > 0 {

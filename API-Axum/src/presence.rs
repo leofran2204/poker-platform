@@ -121,7 +121,7 @@ impl PresenceTracker {
         let mut map = self.memory.lock().await;
         map.retain(|_, ts| *ts >= cutoff);
         let mut out: Vec<_> = map.iter().map(|(k, v)| (k.clone(), *v)).collect();
-        out.sort_by(|a, b| b.1.cmp(&a.1));
+        out.sort_by_key(|entry| std::cmp::Reverse(entry.1));
         Ok(out)
     }
 }

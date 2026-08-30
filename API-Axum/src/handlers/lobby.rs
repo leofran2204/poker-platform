@@ -180,8 +180,15 @@ pub async fn join_table(
     .bind(table_id)
     .fetch_optional(&mut *tx)
     .await?;
-    let (min_buy_in, max_buy_in, max_players, current_players, visibility, status, table_money_mode) =
-        table.ok_or_else(|| ApiError::NotFound("Table not found".to_string()))?;
+    let (
+        min_buy_in,
+        max_buy_in,
+        max_players,
+        current_players,
+        visibility,
+        status,
+        table_money_mode,
+    ) = table.ok_or_else(|| ApiError::NotFound("Table not found".to_string()))?;
 
     if visibility != "public" || status != "OPEN" {
         return Err(ApiError::Forbidden(

@@ -738,33 +738,33 @@ fn test_simulate_5000_simultaneous_players() {
     println!("   ├───────────────────────────────────────────┼──────────────────────┼──────────────────────┤");
 
     let mut total_ops: u64 = 0;
-    let mut rows: Vec<(&str, u64, f64)> = Vec::new();
-
-    rows.push((
-        "Ledger (transações)",
-        total_ledger,
-        ledger_elapsed.as_secs_f64(),
-    ));
-    rows.push((
-        "Ledger (integridade SHA-256)",
-        integrity_ok,
-        integrity_elapsed.as_secs_f64(),
-    ));
-    rows.push(("GameLoop (mãos)", total_hands, game_elapsed.as_secs_f64()));
-    rows.push((
-        "GameLoop (ações)",
-        total_actions,
-        game_elapsed.as_secs_f64(),
-    ));
-    rows.push(("Side Pots", total_side_pots, game_elapsed.as_secs_f64()));
-    rows.push(("Loss Deflator", total_deflators, game_elapsed.as_secs_f64()));
-    rows.push(("Rate Limiter", rl_checks, rl_elapsed.as_secs_f64()));
-    rows.push(("Antifraude", total_fraud, fraud_elapsed.as_secs_f64()));
-    rows.push((
-        "Device Security",
-        total_device,
-        device_elapsed.as_secs_f64(),
-    ));
+    let rows: Vec<(&str, u64, f64)> = vec![
+        (
+            "Ledger (transações)",
+            total_ledger,
+            ledger_elapsed.as_secs_f64(),
+        ),
+        (
+            "Ledger (integridade SHA-256)",
+            integrity_ok,
+            integrity_elapsed.as_secs_f64(),
+        ),
+        ("GameLoop (mãos)", total_hands, game_elapsed.as_secs_f64()),
+        (
+            "GameLoop (ações)",
+            total_actions,
+            game_elapsed.as_secs_f64(),
+        ),
+        ("Side Pots", total_side_pots, game_elapsed.as_secs_f64()),
+        ("Loss Deflator", total_deflators, game_elapsed.as_secs_f64()),
+        ("Rate Limiter", rl_checks, rl_elapsed.as_secs_f64()),
+        ("Antifraude", total_fraud, fraud_elapsed.as_secs_f64()),
+        (
+            "Device Security",
+            total_device,
+            device_elapsed.as_secs_f64(),
+        ),
+    ];
 
     for (name, count, elapsed) in &rows {
         let throughput = if *elapsed > 0.0 {

@@ -163,12 +163,7 @@ fn run_catalog_table(cfg: &CatalogTable) {
         assert_eq!(gl.state.big_blind, cfg.big_blind, "{} BB", cfg.name);
 
         for p in &gl.state.players {
-            assert_eq!(
-                p.hole_cards.len(),
-                hole_expected,
-                "{} hole cards",
-                cfg.name
-            );
+            assert_eq!(p.hole_cards.len(), hole_expected, "{} hole cards", cfg.name);
             if short {
                 for c in &p.hole_cards {
                     assert!(

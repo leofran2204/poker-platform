@@ -81,11 +81,7 @@ pub async fn deposit_info(
     let available = !pix_key.is_empty();
     Ok(Json(DepositInfoResponse {
         available,
-        pix_key: if available {
-            pix_key
-        } else {
-            String::new()
-        },
+        pix_key: if available { pix_key } else { String::new() },
         receiver_name: env_receiver_name(),
         max_cents: env_max_cents(),
         max_pending: env_max_pending(),
@@ -249,7 +245,9 @@ pub async fn list_my_deposit_requests(
     .bind(uid)
     .fetch_all(&state.db)
     .await?;
-    Ok(Json(rows.into_iter().map(DepositRequestResponse::from).collect()))
+    Ok(Json(
+        rows.into_iter().map(DepositRequestResponse::from).collect(),
+    ))
 }
 
 #[derive(Debug, Deserialize)]
@@ -303,7 +301,9 @@ pub async fn admin_list_deposit_requests(
         .await?
     };
 
-    Ok(Json(rows.into_iter().map(DepositRequestResponse::from).collect()))
+    Ok(Json(
+        rows.into_iter().map(DepositRequestResponse::from).collect(),
+    ))
 }
 
 #[derive(Debug, Deserialize)]
@@ -335,9 +335,7 @@ pub async fn approve_deposit_request(
     let (user_id, amount, status) =
         row.ok_or_else(|| ApiError::NotFound("Deposit request not found".into()))?;
     if status != "pending" {
-        return Err(ApiError::Conflict(format!(
-            "Request already {status}"
-        )));
+        return Err(ApiError::Conflict(format!("Request already {status}")));
     }
 
     crate::wallet::credit_wallet(

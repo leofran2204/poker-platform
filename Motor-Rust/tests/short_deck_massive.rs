@@ -416,8 +416,8 @@ fn short_deck_hundred_thousand_hands_six_max_conserves_chips() {
     const RAKE_BPS: u16 = 500;
     const RAKE_CAP: u64 = 1_000;
 
-    let config = TableConfig::new(BIG_BLIND, RAKE_BPS, RAKE_CAP)
-        .with_poker_variant(PokerVariant::ShortDeck);
+    let config =
+        TableConfig::new(BIG_BLIND, RAKE_BPS, RAKE_CAP).with_poker_variant(PokerVariant::ShortDeck);
     assert_eq!(config.poker_variant, PokerVariant::ShortDeck);
 
     let mut stacks: Vec<(String, u64)> = (0..PLAYERS)
@@ -533,8 +533,7 @@ fn short_deck_hundred_thousand_hands_six_max_conserves_chips() {
 fn short_deck_heads_up_and_full_ring_smoke() {
     // Smoke: 2 e 6 jogadores com variante SD concluem mãos sem panic
     for players in [2usize, 3, 6] {
-        let config =
-            TableConfig::new(200, 500, 1000).with_poker_variant(PokerVariant::ShortDeck);
+        let config = TableConfig::new(200, 500, 1000).with_poker_variant(PokerVariant::ShortDeck);
         let mut gl = GameLoop::new(
             config,
             format!("smoke-{players}"),

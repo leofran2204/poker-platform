@@ -1,3 +1,3 @@
-pub mod ledger;
+mod account;
 
-pub use ledger::{EntryType, LedgerAccount, LedgerEntry, LedgerError};
+pub use account::{EntryType, LedgerAccount, LedgerEntry, LedgerError};

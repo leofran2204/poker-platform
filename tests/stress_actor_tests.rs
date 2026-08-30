@@ -42,7 +42,7 @@ async fn test_massive_concurrent_k8s_table_actors_50_tables_10k_messages() {
                     };
                     tx.send(state_msg).await.unwrap();
                     let state = state_rx.await.unwrap();
-                    assert!(state.players.len() >= 1);
+                    assert!(!state.players.is_empty());
                 }
             }
         });

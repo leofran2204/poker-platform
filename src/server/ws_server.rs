@@ -56,6 +56,12 @@ pub struct WebSocketServer {
     rate_limiter: Arc<RateLimiter>,
 }
 
+impl Default for WebSocketServer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl WebSocketServer {
     pub fn new() -> Self {
         Self {

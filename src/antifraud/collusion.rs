@@ -122,7 +122,7 @@ impl CollusionDetector {
         let pfr = stats.pfr_percentage();
 
         // Alerta de bot ou chip-dumping: PFR > VPIP (impossível matematicamente) ou VPIP < 2% / > 98%
-        if pfr > vpip || vpip < 2.0 || vpip > 98.0 {
+        if pfr > vpip || !(2.0..=98.0).contains(&vpip) {
             Some(CollusionViolation::SuspiciousBehaviorPattern(
                 stats.user_id.clone(),
                 vpip,

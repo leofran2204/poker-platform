@@ -936,9 +936,8 @@ pub async fn me(
     .fetch_optional(&state.db)
     .await?;
 
-    let (user_id, username, role, status, email) = row.ok_or_else(|| {
-        ApiError::NotFound("User not found".to_string())
-    })?;
+    let (user_id, username, role, status, email) =
+        row.ok_or_else(|| ApiError::NotFound("User not found".to_string()))?;
 
     Ok(Json(MeResponse {
         user_id,
