@@ -63,6 +63,9 @@ pub struct TournamentInfoResponse {
     pub money_mode: String,
     /// `holdem` | `short_deck` | `short_deck_omaha`
     pub poker_variant: String,
+    /// Variant activated when the final-table player threshold is reached.
+    pub final_table_variant: Option<String>,
+    pub final_table_max_players: Option<u8>,
 }
 
 fn status_string(status: &poker_engine::tournament_engine::TournamentStatus) -> String {
@@ -119,6 +122,8 @@ fn to_info(store: &crate::tournament_store::TournamentStore) -> TournamentInfoRe
         gameplay_ready: false,
         money_mode: store.money_mode.clone(),
         poker_variant: store.poker_variant.clone(),
+        final_table_variant: store.final_table_variant.clone(),
+        final_table_max_players: store.final_table_max_players,
     }
 }
 

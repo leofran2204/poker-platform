@@ -37,6 +37,8 @@ struct TournamentRow {
     game_type: String,
     money_mode: String,
     poker_variant: String,
+    final_table_variant: Option<String>,
+    final_table_max_players: Option<i16>,
 }
 
 fn parse_speed(raw: &str) -> TournamentSpeed {
@@ -101,6 +103,13 @@ fn row_to_store(row: TournamentRow) -> TournamentStore {
     };
     let mut store = TournamentStore::with_mode_and_variant(id, config, money_mode, poker_variant);
     store.table_max_players = row.table_max_players.clamp(2, 9) as u8;
+    store.final_table_variant = row
+        .final_table_variant
+        .map(|variant| variant.to_ascii_lowercase())
+        .filter(|variant| variant == "short_deck");
+    store.final_table_max_players = row
+        .final_table_max_players
+        .map(|players| players.clamp(2, 6) as u8);
     store.state.status = parse_status(&row.status);
     store.state.current_level = row.current_level.max(0) as u32;
     store.state.players_remaining = row.players_remaining.max(0) as u32;
@@ -125,7 +134,8 @@ pub async fn load_tournaments_from_db(
                rebuy_cost, rebuy_chips, rebuy_max_count, rebuy_stack_threshold,
                rebuy_max_level, allow_rebuy, blind_levels, game_type,
                COALESCE(money_mode, 'play') AS money_mode,
-               COALESCE(poker_variant, 'holdem') AS poker_variant
+               COALESCE(poker_variant, 'holdem') AS poker_variant,
+               final_table_variant, final_table_max_players
         FROM tournaments
         WHERE status IN ('registering', 'running', 'paused')
         ORDER BY money_mode, poker_variant, is_freeroll DESC, buy_in, name

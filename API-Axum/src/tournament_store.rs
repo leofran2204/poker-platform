@@ -14,8 +14,12 @@ pub struct TournamentStore {
     pub money_mode: String,
     /// `holdem` | `short_deck` | `short_deck_omaha`
     pub poker_variant: String,
-    /// Number of seats at each physical tournament table.
+    /// Number of seats at each physical tournament table before the final table.
     pub table_max_players: u8,
+    /// Optional variant activated when the final table threshold is reached.
+    pub final_table_variant: Option<String>,
+    /// Remaining-player threshold that activates `final_table_variant`.
+    pub final_table_max_players: Option<u8>,
 }
 
 impl TournamentStore {
@@ -54,6 +58,28 @@ impl TournamentStore {
             money_mode,
             poker_variant,
             table_max_players,
+            final_table_variant: None,
+            final_table_max_players: None,
+        }
+    }
+
+    /// Returns the dealing/evaluation variant for the current tournament phase.
+    pub fn active_poker_variant(&self) -> &str {
+        let final_table_started = matches!(
+            self.state.status,
+            poker_engine::tournament_engine::TournamentStatus::Running
+                | poker_engine::tournament_engine::TournamentStatus::Paused
+        ) && self.state.players_remaining > 0
+            && self
+                .final_table_max_players
+                .is_some_and(|limit| self.state.players_remaining <= u32::from(limit));
+
+        if final_table_started {
+            self.final_table_variant
+                .as_deref()
+                .unwrap_or(&self.poker_variant)
+        } else {
+            &self.poker_variant
         }
     }
 }
@@ -87,5 +113,27 @@ mod tests {
         assert_eq!(omaha.table_max_players, 4);
         assert_eq!(short_deck.table_max_players, 6);
         assert_eq!(holdem.table_max_players, 9);
+    }
+
+    #[test]
+    fn long_short_switches_only_when_final_table_starts() {
+        let mut tournament = TournamentStore::with_mode_and_variant(
+            "long-short".into(),
+            TournamentConfig::default(),
+            "play".into(),
+            "holdem".into(),
+        );
+        tournament.final_table_variant = Some("short_deck".into());
+        tournament.final_table_max_players = Some(6);
+
+        tournament.state.status = poker_engine::tournament_engine::TournamentStatus::Running;
+        tournament.state.players_remaining = 7;
+        assert_eq!(tournament.active_poker_variant(), "holdem");
+
+        tournament.state.players_remaining = 6;
+        assert_eq!(tournament.active_poker_variant(), "short_deck");
+
+        tournament.state.status = poker_engine::tournament_engine::TournamentStatus::Registering;
+        assert_eq!(tournament.active_poker_variant(), "holdem");
     }
 }

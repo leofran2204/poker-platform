@@ -361,7 +361,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({tournaments.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                NLHE, Short Deck e Omaha Short Deck · formatos 9-max, 6-max e 4-max · inscrição · mãos MTT em breve
+                Hold’em tradicional, freeroll Long/Short e Omaha 4 cartas Short Deck · 26 níveis · mãos MTT em breve
               </p>
             </div>
             <button
@@ -420,7 +420,8 @@ export function LobbyPage() {
                         <span
                           className={
                             t.poker_variant === "short_deck" ||
-                            t.poker_variant === "short_deck_omaha"
+                            t.poker_variant === "short_deck_omaha" ||
+                            t.final_table_variant === "short_deck"
                               ? "zt-chip zt-chip-accent"
                               : "zt-chip"
                           }

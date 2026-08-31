@@ -162,6 +162,13 @@ pub fn build_router(state: AppState) -> Router {
                     state.clone(),
                 )),
         )
+        .route(
+            "/api/presence/offline",
+            post(presence_handlers::offline)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
         // ─── Lobby routes ───
         .route("/api/lobby/tables", get(lobby::list_tables))
         .route(

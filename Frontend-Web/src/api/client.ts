@@ -539,3 +539,11 @@ export async function sendPresenceHeartbeat(): Promise<PresenceHeartbeatResponse
     method: "POST",
   });
 }
+
+/** Encerra a presença no servidor antes que o TTL natural expire. */
+export async function sendPresenceOffline(): Promise<PresenceHeartbeatResponse> {
+  return request<PresenceHeartbeatResponse>("/api/presence/offline", {
+    method: "POST",
+    keepalive: true,
+  });
+}

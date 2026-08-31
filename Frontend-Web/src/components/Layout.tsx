@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { setWalletMode as apiSetWalletMode } from "@/api/client";
+import { sendPresenceOffline, setWalletMode as apiSetWalletMode } from "@/api/client";
 import type { MeResponse, WalletMode } from "@/api/types";
-import { OnlinePresenceNav } from "@/components/OnlinePresence";
+import {
+  OnlinePresenceNav,
+  reflectPresenceCount,
+  reflectPresenceLogout,
+} from "@/components/OnlinePresence";
 import { SessionConnectivity } from "@/components/SessionConnectivity";
 import { clearTokens, getUsername, isAuthenticated } from "@/lib/auth";
 import { clearMeCache, getMe, isAdminRole } from "@/lib/me";
@@ -58,6 +62,12 @@ export function Layout() {
   }
 
   function handleLogout() {
+    reflectPresenceLogout();
+    void sendPresenceOffline()
+      .then((presence) => reflectPresenceCount(presence.online_count))
+      .catch(() => {
+        /* O contador já foi reduzido localmente; o TTL cobre falhas de rede. */
+      });
     clearTokens();
     clearMeCache();
     setIsAdmin(false);

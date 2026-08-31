@@ -59,3 +59,25 @@ pub async fn heartbeat(
         ttl_seconds: PRESENCE_TTL_SECS,
     }))
 }
+
+/// POST /api/presence/offline — remove imediatamente o usuário no logout.
+pub async fn offline(
+    State(state): State<AppState>,
+    RequireAuth(user): RequireAuth,
+) -> Result<Json<HeartbeatResponse>, ApiError> {
+    state
+        .presence
+        .remove(&state.redis, &user.user_id)
+        .await
+        .map_err(ApiError::Internal)?;
+    let online_count = state
+        .presence
+        .online_count(&state.redis)
+        .await
+        .map_err(ApiError::Internal)?;
+    Ok(Json(HeartbeatResponse {
+        ok: true,
+        online_count,
+        ttl_seconds: PRESENCE_TTL_SECS,
+    }))
+}

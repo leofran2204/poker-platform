@@ -200,6 +200,9 @@ export interface TournamentInfoResponse {
   money_mode?: string;
   /** `holdem` | `short_deck` | `short_deck_omaha` */
   poker_variant?: string;
+  /** Variante aplicada quando começa a mesa final (ex.: `short_deck`). */
+  final_table_variant?: string | null;
+  final_table_max_players?: number | null;
 }
 
 export interface JoinResponse {

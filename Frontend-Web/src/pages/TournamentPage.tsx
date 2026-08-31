@@ -86,7 +86,8 @@ export function TournamentPage() {
             <span
               className={
                 info.poker_variant === "short_deck" ||
-                info.poker_variant === "short_deck_omaha"
+                info.poker_variant === "short_deck_omaha" ||
+                info.final_table_variant === "short_deck"
                   ? "zt-chip zt-chip-accent"
                   : "zt-chip"
               }
@@ -153,13 +154,22 @@ export function TournamentPage() {
           </div>
           <div>
             <dt className="text-xs uppercase text-felt-400">Formato das mesas</dt>
-            <dd className="font-mono text-cream">{info.table_max_players}-max</dd>
+            <dd className="font-mono text-cream">
+              {info.table_max_players}-max
+              {info.final_table_variant === "short_deck" && info.final_table_max_players
+                ? ` · Short Deck quando restarem ${info.final_table_max_players}`
+                : ""}
+            </dd>
           </div>
           <div>
             <dt className="text-xs uppercase text-felt-400">Reentrada</dt>
             <dd className="text-felt-200">
               {info.allow_rebuy
-                ? `1× até nível ${info.rebuy_max_level}: ${formatBrlFromCents(info.rebuy_cost)} → ${info.rebuy_chips.toLocaleString("pt-BR")} fichas (stack ≤ ${info.rebuy_stack_threshold.toLocaleString("pt-BR")})`
+                ? `1× até nível ${info.rebuy_max_level}: ${formatBrlFromCents(info.rebuy_cost)} → ${info.rebuy_chips.toLocaleString("pt-BR")} fichas${
+                    info.rebuy_stack_threshold > 0
+                      ? ` (stack ≤ ${info.rebuy_stack_threshold.toLocaleString("pt-BR")})`
+                      : " após eliminação"
+                  }`
                 : "Não"}
             </dd>
           </div>

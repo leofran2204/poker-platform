@@ -4,6 +4,27 @@ import { isAuthenticated } from "@/lib/auth";
 
 const POLL_MS = 12_000;
 const HEARTBEAT_MS = 25_000;
+const PRESENCE_COUNT_EVENT = "poker-presence-count";
+
+type PresenceCountEventDetail =
+  | { kind: "logout" }
+  | { kind: "server"; onlineCount: number };
+
+export function reflectPresenceLogout(): void {
+  window.dispatchEvent(
+    new CustomEvent<PresenceCountEventDetail>(PRESENCE_COUNT_EVENT, {
+      detail: { kind: "logout" },
+    }),
+  );
+}
+
+export function reflectPresenceCount(onlineCount: number): void {
+  window.dispatchEvent(
+    new CustomEvent<PresenceCountEventDetail>(PRESENCE_COUNT_EVENT, {
+      detail: { kind: "server", onlineCount },
+    }),
+  );
+}
 
 type PresenceState = {
   count: number | null;
@@ -102,13 +123,24 @@ function usePresenceLoop(): PresenceState {
     const onVis = () => {
       if (document.visibilityState === "visible") void refresh();
     };
+    const onPresenceCount = (event: Event) => {
+      const detail = (event as CustomEvent<PresenceCountEventDetail>).detail;
+      if (detail.kind === "logout") {
+        setCount((current) => Math.max(0, (current ?? 1) - 1));
+      } else {
+        setCount(detail.onlineCount);
+      }
+      setError(false);
+    };
     window.addEventListener("focus", onFocus);
+    window.addEventListener(PRESENCE_COUNT_EVENT, onPresenceCount);
     document.addEventListener("visibilitychange", onVis);
 
     return () => {
       window.clearInterval(poll);
       window.clearInterval(hb);
       window.removeEventListener("focus", onFocus);
+      window.removeEventListener(PRESENCE_COUNT_EVENT, onPresenceCount);
       document.removeEventListener("visibilitychange", onVis);
     };
   }, [refresh]);

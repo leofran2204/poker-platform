@@ -1,6 +1,8 @@
 type GameDescriptor = {
   poker_variant?: string;
   game_type?: string;
+  final_table_variant?: string | null;
+  final_table_max_players?: number | null;
 };
 
 function isOmahaFourCards(game: GameDescriptor): boolean {
@@ -18,6 +20,9 @@ export function gameNameLabel(
 }
 
 export function deckTypeLabel(game: GameDescriptor): string {
+  if (game.final_table_variant === "short_deck") {
+    return "Long/Short (mesa final)";
+  }
   const variant = game.poker_variant ?? "";
   const gameType = (game.game_type ?? "").toLowerCase();
   return variant === "short_deck" ||

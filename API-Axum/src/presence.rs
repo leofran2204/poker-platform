@@ -68,6 +68,29 @@ impl PresenceTracker {
         Ok(())
     }
 
+    /// Remove imediatamente a presença do usuário (logout explícito).
+    pub async fn remove(
+        &self,
+        redis: &Option<redis::aio::ConnectionManager>,
+        user_id: &str,
+    ) -> Result<(), String> {
+        if user_id.trim().is_empty() {
+            return Err("user_id vazio".into());
+        }
+
+        if let Some(redis) = redis {
+            let mut conn = redis.clone();
+            let _: u64 = conn
+                .zrem(REDIS_ZSET_KEY, user_id)
+                .await
+                .map_err(|e| format!("redis zrem presence: {e}"))?;
+            return Ok(());
+        }
+
+        self.memory.lock().await.remove(user_id);
+        Ok(())
+    }
+
     /// Conta usuários com heartbeat dentro do TTL.
     pub async fn online_count(
         &self,
@@ -153,5 +176,17 @@ mod tests {
         tracker.heartbeat(&None, "same").await.unwrap();
         tracker.heartbeat(&None, "same").await.unwrap();
         assert_eq!(tracker.online_count(&None).await.unwrap(), 1);
+    }
+
+    #[tokio::test]
+    async fn explicit_logout_removes_presence_immediately() {
+        let tracker = PresenceTracker::new();
+        tracker.heartbeat(&None, "leaving").await.unwrap();
+        tracker.heartbeat(&None, "staying").await.unwrap();
+
+        tracker.remove(&None, "leaving").await.unwrap();
+
+        assert_eq!(tracker.online_count(&None).await.unwrap(), 1);
+        assert_eq!(tracker.online_roster(&None).await.unwrap()[0].0, "staying");
     }
 }
