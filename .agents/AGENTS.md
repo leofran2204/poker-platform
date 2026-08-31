@@ -85,6 +85,7 @@ Esse contorno preserva a exigência de iniciar alterações por `apply_patch`, e
 - Falha ao criar `.git/index.lock`, acessar a chave SSH ou iniciar o WSL normalmente é restrição da sandbox, não defeito do código.
 - Repetir o comando necessário com elevação estreita e justificativa específica; nunca solicitar uma regra ampla para PowerShell/Python e nunca apagar locks ou chaves sem verificar o alvo.
 - Para operações remotas, usar a chave já configurada e manter `StrictHostKeyChecking=accept-new`; não imprimir tokens, senhas ou chaves nos logs.
+- **PowerShell → Bash remoto:** não enviar *here-string* PowerShell diretamente por pipe para `ssh ... "bash -s"` em operações críticas. O fluxo pode introduzir BOM UTF-8 e CRLF, causando `set: command not found` e `\r` no nome de arquivos. O caminho validado para backup e verificações curtas é executar um comando SSH direto em uma única linha, com caminhos absolutos, e confirmar `test -s`, `gzip -t`, `sha256sum` e `stat` antes do deploy.
 - Antes de migration/deploy de banco, criar backup verificável; depois conferir versão da migration, saúde dos containers, logs recentes e invariantes de dados.
 
 ### Sequência mínima antes de concluir uma entrega
