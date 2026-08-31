@@ -90,35 +90,37 @@ pub async fn deposit_info(
         .unwrap_or_else(|_| "mock".to_string())
         .trim()
         .to_ascii_lowercase();
-    let environment = std::env::var("ENVIRONMENT")
-        .unwrap_or_else(|_| "development".to_string())
-        .trim()
-        .to_ascii_lowercase();
-    let allowlisted = std::env::var("PIX_ALLOWED_DEPOSITOR_IDS")
-        .unwrap_or_default()
-        .split(',')
-        .map(str::trim)
-        .any(|user_id| user_id == auth.user_id);
-    let automated_available = automated_provider == "depix"
-        && automated_mode == "sandbox"
-        && environment != "production"
-        && allowlisted
-        && std::env::var("DEPIX_API_KEY")
-            .map(|key| key.starts_with("sk_test_") && !key.contains(char::is_whitespace))
-            .unwrap_or(false)
-        && std::env::var("DEPIX_WEBHOOK_SECRET")
-            .map(|secret| secret.len() >= 24 && !secret.contains(char::is_whitespace))
-            .unwrap_or(false);
+    let automated_runtime_ready = automated_provider == "depix"
+        && matches!(automated_mode.as_str(), "sandbox" | "production")
+        && crate::payment_gateway::depix_runtime_ready(&automated_mode);
+    let automated_available =
+        automated_runtime_ready && crate::payments_routes::pix_depositor_is_allowed(&auth.user_id);
+    let manual_available = available && !automated_runtime_ready;
+    let automated_max_cents =
+        i64::try_from(crate::payments_routes::depix_deposit_max_cents()).unwrap_or(600_000);
     Ok(Json(DepositInfoResponse {
-        available,
-        pix_key: if available { pix_key } else { String::new() },
+        available: manual_available,
+        pix_key: if manual_available {
+            pix_key
+        } else {
+            String::new()
+        },
         receiver_name: env_receiver_name(),
-        max_cents: env_max_cents(),
+        max_cents: if automated_available {
+            automated_max_cents
+        } else {
+            env_max_cents()
+        },
         max_pending: env_max_pending(),
-        presets_cents: vec![10_000, 50_000, 100_000],
-        instructions: if automated_available {
+        presets_cents: [10_000, 50_000, 100_000]
+            .into_iter()
+            .filter(|value| !automated_available || *value <= automated_max_cents)
+            .collect(),
+        instructions: if automated_available && automated_mode == "production" {
+            "DePix em produção: gere a cobrança PIX. O saldo só é creditado depois que a DePix confirmar checkout.completed; processing e approved não liberam fichas.".into()
+        } else if automated_available {
             "Sandbox DePix ativo: gere uma cobrança de teste. Nenhum PIX real é criado e somente a confirmação completed credita o saldo.".into()
-        } else if available {
+        } else if manual_available {
             "1) Copie a chave PIX e pague no app do seu banco. 2) Cole o comprovante (protocolo/E2E ou texto) e envie o pedido. 3) Após verificação manual, as fichas são creditadas.".into()
         } else {
             "Depósito temporariamente indisponível: integração PIX ainda não configurada para esta conta.".into()
@@ -190,6 +192,22 @@ pub async fn create_deposit_request(
     State(state): State<AppState>,
     Json(body): Json<CreateDepositBody>,
 ) -> Result<Json<DepositRequestResponse>, ApiError> {
+    let provider = std::env::var("PIX_PROVIDER")
+        .unwrap_or_else(|_| "mock".to_string())
+        .trim()
+        .to_ascii_lowercase();
+    let mode = std::env::var("PIX_MODE")
+        .unwrap_or_else(|_| "mock".to_string())
+        .trim()
+        .to_ascii_lowercase();
+    if provider == "depix"
+        && mode == "production"
+        && crate::payment_gateway::depix_runtime_ready(&mode)
+    {
+        return Err(ApiError::Forbidden(
+            "Manual deposit requests are disabled while DePix live is active".into(),
+        ));
+    }
     if env_pix_key().is_empty() {
         return Err(ApiError::BadRequest(
             "Depósito indisponível: chave PIX não configurada".into(),

@@ -43,3 +43,4 @@ UI canônica: **`Frontend-Web/`** (`npm run build` / Docker). O antigo `Frontend
 ## DePix Sandbox local
 
 `install-depix-local-secrets.ps1` solicita a chave `sk_test_` e o webhook secret sem ecoá-los, valida a chave em `https://api.depixapp.com/api/me` e grava somente em `Infraestrutura-Docker/.env`, ignorado pelo Git. Use `-AllowedDepositorId <UUID>` para limitar quem pode criar/simular cobranças. Não use esse instalador na VPS pública.
+`install-depix-vps-live-secrets.ps1` valida uma chave `sk_live_` em `/api/me`, exige conta verificada, escopos confirmados `merchant_read`/`merchant_write`, allow-list de UUIDs e limite por depósito. Ele baixa o `.env` remoto por `scp`, cria backup datado, instala a nova versão com permissão `600` e nunca envia segredo por pipe ou argumento de shell. Use primeiro sem `-Apply` para validar; a instalação efetiva exige `-Apply`.

@@ -272,11 +272,11 @@ impl PixGateway for AsaasPixGateway {
     }
 }
 
-// ─── Provedor 3: DePix Checkout Sandbox ───
+// ─── Provedor 3: DePix Checkout ───
 //
-// The sandbox adapter uses the same checkout contract as live DePix but is
-// intentionally restricted to sk_test_ keys. Values are always integer cents
-// and the internal ledger id is also the provider idempotency key.
+// Sandbox and live use the same checkout contract. Values are always integer
+// cents and the internal ledger id is also the provider idempotency key. Live
+// mode is enabled only by the strict runtime gate in `depix_config` below.
 
 #[derive(Debug, Deserialize)]
 struct DepixCheckoutPix {
@@ -292,6 +292,8 @@ struct DepixCheckout {
     payment_url: Option<String>,
     pix: Option<DepixCheckoutPix>,
     pix_payload: Option<String>,
+    #[serde(default)]
+    is_live: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -317,15 +319,17 @@ pub struct DepixPixGateway {
     api_url: String,
     callback_url: Option<String>,
     redirect_url: Option<String>,
+    is_live: bool,
 }
 
 impl DepixPixGateway {
-    pub fn sandbox(
+    fn new(
         api_key: &str,
         webhook_secret: &str,
         api_url: &str,
         callback_url: Option<String>,
         redirect_url: Option<String>,
+        is_live: bool,
     ) -> Self {
         Self {
             api_key: api_key.to_string(),
@@ -333,6 +337,40 @@ impl DepixPixGateway {
             api_url: api_url.trim_end_matches('/').to_string(),
             callback_url,
             redirect_url,
+            is_live,
+        }
+    }
+
+    pub fn sandbox(
+        api_key: &str,
+        webhook_secret: &str,
+        api_url: &str,
+        callback_url: Option<String>,
+        redirect_url: Option<String>,
+    ) -> Self {
+        Self::new(
+            api_key,
+            webhook_secret,
+            api_url,
+            callback_url,
+            redirect_url,
+            false,
+        )
+    }
+
+    fn checkout_is_live(checkout: &DepixCheckout) -> Option<bool> {
+        match checkout.is_live.as_ref()? {
+            serde_json::Value::Bool(value) => Some(*value),
+            serde_json::Value::Number(value) => value.as_u64().map(|value| value == 1),
+            _ => None,
+        }
+    }
+
+    fn validate_checkout_mode(&self, checkout: &DepixCheckout) -> Result<(), String> {
+        if Self::checkout_is_live(checkout) == Some(self.is_live) {
+            Ok(())
+        } else {
+            Err("DePix checkout environment does not match the configured API key mode".into())
         }
     }
 
@@ -416,6 +454,7 @@ impl PixGateway for DepixPixGateway {
             .send()
             .map_err(|error| format!("DePix checkout request failed: {error}"))?;
         let checkout: DepixCheckout = Self::parse_response(response)?;
+        self.validate_checkout_mode(&checkout)?;
         if !checkout.id.starts_with("chk_")
             || checkout.status != "pending"
             || checkout.amount != amount_centavos
@@ -451,10 +490,14 @@ impl PixGateway for DepixPixGateway {
             .send()
             .map_err(|error| format!("DePix checkout status request failed: {error}"))?;
         let envelope: DepixCheckoutEnvelope = Self::parse_response(response)?;
+        self.validate_checkout_mode(&envelope.checkout)?;
         Ok(Self::checkout_to_status(envelope.checkout))
     }
 
     fn simulate_deposit_payment(&self, external_tx_id: &str) -> Result<(), String> {
+        if self.is_live {
+            return Err("DePix payment simulation is disabled for live credentials".into());
+        }
         let response = Self::client()?
             .post(format!(
                 "{}/api/checkouts/{external_tx_id}/simulate-payment",
@@ -594,9 +637,143 @@ fn verify_depix_hmac(body: &[u8], signature_header: Option<&str>, secret: &str) 
 }
 // ─── Factory ───
 //
-// Mock is the safe default for unit tests. The only non-mock adapter is the
-// documented Asaas Sandbox integration. Production is hard-disabled until the
-// operator is approved by a PSP compatible with the intended regulated activity.
+// Mock is the safe default for unit tests. DePix live is fail-closed and needs
+// all explicit gates: production environment, a live key, a public HTTPS
+// callback, the official API origin, and the operator kill switch.
+
+#[derive(Debug)]
+struct DepixRuntimeConfig {
+    api_key: String,
+    webhook_secret: String,
+    api_url: String,
+    callback_url: Option<String>,
+    redirect_url: Option<String>,
+    is_live: bool,
+}
+
+fn public_https_url(value: &str, required_path: Option<&str>) -> bool {
+    let Ok(url) = reqwest::Url::parse(value) else {
+        return false;
+    };
+    if url.scheme() != "https"
+        || !url.username().is_empty()
+        || url.password().is_some()
+        || url.query().is_some()
+        || url.fragment().is_some()
+        || !matches!(url.port(), None | Some(443))
+    {
+        return false;
+    }
+    let Some(host) = url.host_str() else {
+        return false;
+    };
+    if host.eq_ignore_ascii_case("localhost")
+        || host.parse::<std::net::IpAddr>().is_ok_and(|ip| match ip {
+            std::net::IpAddr::V4(ip) => {
+                ip.is_private() || ip.is_loopback() || ip.is_link_local() || ip.is_unspecified()
+            }
+            std::net::IpAddr::V6(ip) => {
+                ip.is_loopback() || ip.is_unspecified() || ip.is_unique_local()
+            }
+        })
+    {
+        return false;
+    }
+    required_path.is_none_or(|required| url.path() == required)
+}
+
+fn depix_config(mode: &str) -> Result<DepixRuntimeConfig, String> {
+    let environment = env::var("ENVIRONMENT")
+        .unwrap_or_else(|_| "development".to_string())
+        .trim()
+        .to_ascii_lowercase();
+    let api_key = env::var("DEPIX_API_KEY").unwrap_or_default();
+    let webhook_secret = env::var("DEPIX_WEBHOOK_SECRET").unwrap_or_default();
+    let api_url = env::var("DEPIX_API_BASE_URL")
+        .unwrap_or_else(|_| "https://api.depixapp.com".to_string())
+        .trim_end_matches('/')
+        .to_string();
+    let callback_url = env::var("DEPIX_CALLBACK_URL")
+        .ok()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty());
+    let redirect_url = env::var("DEPIX_REDIRECT_URL")
+        .ok()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty());
+
+    if webhook_secret.len() < 24 || webhook_secret.contains(char::is_whitespace) {
+        return Err(
+            "DePix requires a non-whitespace webhook secret of at least 24 characters".into(),
+        );
+    }
+    if api_url != "https://api.depixapp.com" {
+        return Err("DePix requires the official https://api.depixapp.com origin".into());
+    }
+    if callback_url
+        .as_deref()
+        .is_some_and(|url| !public_https_url(url, Some("/api/webhooks/pix")))
+        || redirect_url
+            .as_deref()
+            .is_some_and(|url| !public_https_url(url, None))
+    {
+        return Err("DePix callback or redirect URL is not a trusted public HTTPS URL".into());
+    }
+
+    let is_live = match mode {
+        "sandbox" => {
+            if environment == "production"
+                || !api_key.starts_with("sk_test_")
+                || api_key.contains(char::is_whitespace)
+            {
+                return Err(
+                    "DePix Sandbox requires development/staging and an sk_test_ key".into(),
+                );
+            }
+            false
+        }
+        "production" => {
+            let enabled = env::var("PIX_LIVE_ENABLED")
+                .map(|value| value.trim().eq_ignore_ascii_case("true"))
+                .unwrap_or(false);
+            let allowed_depositors = env::var("PIX_LIVE_ALLOWED_DEPOSITOR_IDS")
+                .unwrap_or_default()
+                .split(',')
+                .map(str::trim)
+                .filter(|value| !value.is_empty())
+                .all(|value| uuid::Uuid::parse_str(value).is_ok());
+            let has_allowed_depositor = env::var("PIX_LIVE_ALLOWED_DEPOSITOR_IDS")
+                .unwrap_or_default()
+                .split(',')
+                .any(|value| !value.trim().is_empty());
+            if environment != "production"
+                || !enabled
+                || !api_key.starts_with("sk_live_")
+                || api_key.contains(char::is_whitespace)
+                || callback_url.is_none()
+                || !has_allowed_depositor
+                || !allowed_depositors
+            {
+                return Err("DePix live requires production, the kill switch, an sk_live_ key, a public callback, and a valid depositor allow-list".into());
+            }
+            true
+        }
+        _ => return Err("Unsupported DePix mode".into()),
+    };
+
+    Ok(DepixRuntimeConfig {
+        api_key,
+        webhook_secret,
+        api_url,
+        callback_url,
+        redirect_url,
+        is_live,
+    })
+}
+
+pub fn depix_runtime_ready(mode: &str) -> bool {
+    depix_config(mode).is_ok()
+}
 
 pub fn get_payment_gateway() -> Box<dyn PixGateway> {
     let provider = env::var("PIX_PROVIDER")
@@ -639,62 +816,32 @@ pub fn get_payment_gateway() -> Box<dyn PixGateway> {
         ("asaas", "production") => Box::new(DisabledPixGateway::new(
             "Asaas production PIX is intentionally disabled pending PSP approval and real-money compliance controls",
         )),
-        ("depix", "sandbox") => {
-            let api_key = env::var("DEPIX_API_KEY").ok();
-            let webhook_secret = env::var("DEPIX_WEBHOOK_SECRET").ok();
-            let api_url = env::var("DEPIX_API_BASE_URL")
-                .unwrap_or_else(|_| "https://api.depixapp.com".to_string())
-                .trim_end_matches('/')
-                .to_string();
-            let environment = env::var("ENVIRONMENT")
-                .unwrap_or_else(|_| "development".to_string())
-                .trim()
-                .to_ascii_lowercase();
-            let callback_url = env::var("DEPIX_CALLBACK_URL")
-                .ok()
-                .map(|value| value.trim().to_string())
-                .filter(|value| value.starts_with("https://"));
-            let redirect_url = env::var("DEPIX_REDIRECT_URL")
-                .ok()
-                .map(|value| value.trim().to_string())
-                .filter(|value| value.starts_with("https://"));
-            match (api_key, webhook_secret) {
-                (Some(api_key), Some(webhook_secret))
-                    if api_key.starts_with("sk_test_")
-                        && !api_key.contains(char::is_whitespace)
-                        && webhook_secret.len() >= 24
-                        && !webhook_secret.contains(char::is_whitespace)
-                        && api_url == "https://api.depixapp.com"
-                        && environment != "production" =>
-                {
-                    Box::new(DepixPixGateway::sandbox(
-                        &api_key,
-                        &webhook_secret,
-                        &api_url,
-                        callback_url,
-                        redirect_url,
-                    ))
-                }
-                _ => Box::new(DisabledPixGateway::new(
-                    "DePix Sandbox requires DEPIX_API_KEY with sk_test_ prefix and DEPIX_WEBHOOK_SECRET",
-                )),
-            }
-        }
-        ("depix", "production") => Box::new(DisabledPixGateway::new(
-            "DePix production PIX is intentionally disabled until the live financial controls are activated",
-        )),
+        ("depix", "sandbox" | "production") => match depix_config(&mode) {
+            Ok(config) => Box::new(DepixPixGateway::new(
+                &config.api_key,
+                &config.webhook_secret,
+                &config.api_url,
+                config.callback_url,
+                config.redirect_url,
+                config.is_live,
+            )),
+            Err(reason) => Box::new(DisabledPixGateway::new(reason)),
+        },
         ("mercadopago" | "mp", _) => Box::new(DisabledPixGateway::new(
             "Mercado Pago PIX has no verified adapter in this project",
         )),
         _ => Box::new(DisabledPixGateway::new(
-            "PIX is disabled; use mock/mock or configure the verified Asaas or DePix sandbox adapter",
+            "PIX is disabled; configure mock/mock, an approved sandbox, or the gated DePix live adapter",
         )),
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{AsaasPixGateway, DepixPixGateway, MockPixGateway, PixGateway};
+    use super::{
+        public_https_url, AsaasPixGateway, DepixCheckout, DepixPixGateway, MockPixGateway,
+        PixGateway,
+    };
     use hmac::{Hmac, Mac};
     use sha2::Sha256;
 
@@ -729,6 +876,70 @@ mod tests {
 
         assert!(gateway.verify_webhook_hmac(b"ignored", Some(token)));
         assert!(!gateway.verify_webhook_hmac(b"ignored", Some("different-token")));
+    }
+
+    #[test]
+    fn depix_live_callback_must_be_public_https_and_use_the_webhook_path() {
+        assert!(public_https_url(
+            "https://zerotiltpoker.net/api/webhooks/pix",
+            Some("/api/webhooks/pix")
+        ));
+        assert!(!public_https_url(
+            "http://zerotiltpoker.net/api/webhooks/pix",
+            Some("/api/webhooks/pix")
+        ));
+        assert!(!public_https_url(
+            "https://127.0.0.1/api/webhooks/pix",
+            Some("/api/webhooks/pix")
+        ));
+        assert!(!public_https_url(
+            "https://zerotiltpoker.net/other",
+            Some("/api/webhooks/pix")
+        ));
+    }
+
+    #[test]
+    fn depix_checkout_cannot_cross_test_and_live_modes() {
+        let live: DepixCheckout = serde_json::from_value(serde_json::json!({
+            "id": "chk_live",
+            "status": "pending",
+            "amount": 500,
+            "expires_at": "2026-08-31T12:00:00.000Z",
+            "payment_url": "https://pay.depixapp.com/chk_live",
+            "pix": { "qr_code": "pix" },
+            "is_live": true
+        }))
+        .unwrap();
+        let sandbox: DepixCheckout = serde_json::from_value(serde_json::json!({
+            "id": "chk_test",
+            "status": "pending",
+            "amount": 500,
+            "expires_at": "2026-08-31T12:00:00.000Z",
+            "payment_url": "https://pay.depixapp.com/chk_test",
+            "pix": { "qr_code": "pix" },
+            "is_live": 0
+        }))
+        .unwrap();
+        let live_gateway = DepixPixGateway::new(
+            "sk_live_test",
+            "webhook-secret-at-least-24-bytes",
+            "https://api.depixapp.com",
+            Some("https://zerotiltpoker.net/api/webhooks/pix".into()),
+            None,
+            true,
+        );
+        let sandbox_gateway = DepixPixGateway::sandbox(
+            "sk_test_test",
+            "webhook-secret-at-least-24-bytes",
+            "https://api.depixapp.com",
+            None,
+            None,
+        );
+
+        assert!(live_gateway.validate_checkout_mode(&live).is_ok());
+        assert!(live_gateway.validate_checkout_mode(&sandbox).is_err());
+        assert!(sandbox_gateway.validate_checkout_mode(&sandbox).is_ok());
+        assert!(sandbox_gateway.validate_checkout_mode(&live).is_err());
     }
 
     #[test]

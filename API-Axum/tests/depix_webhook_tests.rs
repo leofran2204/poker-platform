@@ -75,14 +75,23 @@ async fn deliver(
 
 #[tokio::test]
 #[ignore = "Requires PostgreSQL; run as an isolated test binary"]
-async fn depix_webhook_credits_completed_once_and_never_credits_processing() {
+async fn depix_live_webhook_credits_completed_once_and_never_credits_processing() {
     const SECRET: &str = "depix-integration-webhook-secret-32-bytes";
     std::env::set_var("PIX_PROVIDER", "depix");
-    std::env::set_var("PIX_MODE", "sandbox");
-    std::env::set_var("ENVIRONMENT", "development");
-    std::env::set_var("DEPIX_API_KEY", "sk_test_integration_placeholder");
+    std::env::set_var("PIX_MODE", "production");
+    std::env::set_var("ENVIRONMENT", "production");
+    std::env::set_var("PIX_LIVE_ENABLED", "true");
+    std::env::set_var(
+        "PIX_LIVE_ALLOWED_DEPOSITOR_IDS",
+        "00000000-0000-0000-0000-000000000001",
+    );
+    std::env::set_var("DEPIX_API_KEY", "sk_live_integration_placeholder");
     std::env::set_var("DEPIX_WEBHOOK_SECRET", SECRET);
     std::env::set_var("DEPIX_API_BASE_URL", "https://api.depixapp.com");
+    std::env::set_var(
+        "DEPIX_CALLBACK_URL",
+        "https://zerotiltpoker.net/api/webhooks/pix",
+    );
 
     let state = state().await;
     let user_id = uuid::Uuid::new_v4();

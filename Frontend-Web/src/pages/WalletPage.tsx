@@ -77,6 +77,33 @@ export function WalletPage() {
     return () => window.removeEventListener("wallet-mode-changed", onMode);
   }, [load]);
 
+  useEffect(() => {
+    if (!pixCharge || pixStatus?.status === "COMPLETED" || !info?.automated_available) return;
+    let stopped = false;
+    const poll = async () => {
+      try {
+        const status = await getPixDepositStatus(pixCharge.tx_id);
+        if (stopped) return;
+        setPixStatus(status);
+        if (status.status === "COMPLETED") {
+          setMsg(
+            info.automated_mode === "production"
+              ? "Pagamento liquidado pela DePix e saldo de Jogo Real creditado uma única vez."
+              : "Pagamento de teste concluído e saldo de Jogo Real creditado uma única vez.",
+          );
+          await load();
+        }
+      } catch {
+        // Falhas transitórias de polling não apagam a cobrança nem duplicam crédito.
+      }
+    };
+    const timer = window.setInterval(() => void poll(), 10_000);
+    return () => {
+      stopped = true;
+      window.clearInterval(timer);
+    };
+  }, [info?.automated_available, info?.automated_mode, load, pixCharge, pixStatus?.status]);
+
   if (!isAuthenticated()) {
     return (
       <div className="zt-panel p-8 text-center">
@@ -108,7 +135,11 @@ export function WalletPage() {
           provider_status: "PENDING",
         });
         setTaxNumber("");
-        setMsg("Cobrança de teste criada. Use o link ou simule o pagamento no sandbox.");
+        setMsg(
+          info.automated_mode === "production"
+            ? "Cobrança PIX criada. O saldo será liberado somente após a liquidação final da DePix."
+            : "Cobrança de teste criada. Use o link ou simule o pagamento no sandbox.",
+        );
       } else {
         await createDepositRequest({
           amount_cents: amountCents,
@@ -159,7 +190,11 @@ export function WalletPage() {
         : await getPixDepositStatus(pixCharge.tx_id);
       setPixStatus(status);
       if (status.status === "COMPLETED") {
-        setMsg("Pagamento de teste concluído e saldo de Jogo Real creditado uma única vez.");
+        setMsg(
+          info?.automated_mode === "production"
+            ? "Pagamento liquidado pela DePix e saldo de Jogo Real creditado uma única vez."
+            : "Pagamento de teste concluído e saldo de Jogo Real creditado uma única vez.",
+        );
         await load();
       } else {
         setMsg(`Status atualizado: ${status.provider_status}.`);
@@ -273,7 +308,9 @@ export function WalletPage() {
               ) : info.automated_available ? (
                 <>
                   <div className="rounded border border-sky-800 bg-sky-950/30 p-3">
-                    <div className="text-xs font-semibold uppercase text-sky-200">DePix Sandbox</div>
+                    <div className="text-xs font-semibold uppercase text-sky-200">
+                      {info.automated_mode === "production" ? "DePix · Pagamento real" : "DePix Sandbox"}
+                    </div>
                     <p className="mt-1 text-xs text-felt-300">{info.instructions}</p>
                     <p className="mt-1 text-[11px] text-felt-400">
                       O CPF/CNPJ é enviado somente à DePix para gerar a cobrança e não é salvo pela plataforma.
@@ -299,7 +336,7 @@ export function WalletPage() {
                         <input
                           type="number"
                           min={5}
-                          max={6000}
+                          max={info.max_cents / 100}
                           step={0.01}
                           className="zt-input max-w-xs"
                           value={(amountCents / 100).toFixed(2)}
@@ -314,7 +351,7 @@ export function WalletPage() {
                           value={taxNumber}
                           onChange={(e) => setTaxNumber(e.target.value)}
                           autoComplete="off"
-                          inputMode="numeric"
+                          inputMode="text"
                           minLength={11}
                           maxLength={18}
                           required
@@ -322,7 +359,11 @@ export function WalletPage() {
                         />
                       </div>
                       <button type="submit" className="zt-btn-primary" disabled={busy}>
-                        {busy ? "Gerando…" : "Gerar cobrança PIX de teste"}
+                        {busy
+                          ? "Gerando…"
+                          : info.automated_mode === "production"
+                            ? "Gerar cobrança PIX"
+                            : "Gerar cobrança PIX de teste"}
                       </button>
                     </form>
                   ) : (
@@ -354,14 +395,17 @@ export function WalletPage() {
                         <button type="button" className="zt-btn-secondary !py-1 !text-xs" disabled={busy} onClick={() => void refreshChargeStatus(false)}>
                           Atualizar status
                         </button>
-                        {pixStatus?.status !== "COMPLETED" && (
+                        {info.automated_mode === "sandbox" && pixStatus?.status !== "COMPLETED" && (
                           <button type="button" className="zt-btn-primary !py-1 !text-xs" disabled={busy} onClick={() => void refreshChargeStatus(true)}>
                             Simular pagamento
                           </button>
                         )}
                       </div>
                       <p className="text-[11px] text-felt-400">
-                        Expira em {new Date(pixCharge.expires_at).toLocaleString("pt-BR")}. A simulação não movimenta dinheiro real.
+                        Expira em {new Date(pixCharge.expires_at).toLocaleString("pt-BR")}.
+                        {info.automated_mode === "production"
+                          ? " Fichas são liberadas apenas após a liquidação final."
+                          : " A simulação não movimenta dinheiro real."}
                       </p>
                       <button type="button" className="text-xs text-gold-soft underline" onClick={resetPixCharge}>
                         Criar nova cobrança

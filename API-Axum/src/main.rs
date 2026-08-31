@@ -176,6 +176,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let is_production =
         std::env::var("ENVIRONMENT").is_ok_and(|value| value.eq_ignore_ascii_case("production"));
+    let pix_provider = std::env::var("PIX_PROVIDER")
+        .unwrap_or_else(|_| "mock".to_string())
+        .trim()
+        .to_ascii_lowercase();
+    let pix_mode = std::env::var("PIX_MODE")
+        .unwrap_or_else(|_| "mock".to_string())
+        .trim()
+        .to_ascii_lowercase();
+    let pix_live_enabled = std::env::var("PIX_LIVE_ENABLED")
+        .map(|value| value.trim().eq_ignore_ascii_case("true"))
+        .unwrap_or(false);
+    if pix_live_enabled && !(pix_provider == "depix" && pix_mode == "production") {
+        return Err(
+            "PIX_LIVE_ENABLED=true requires PIX_PROVIDER=depix and PIX_MODE=production".into(),
+        );
+    }
+    if pix_provider == "depix"
+        && pix_mode == "production"
+        && !poker_api::payment_gateway::depix_runtime_ready(&pix_mode)
+    {
+        return Err("Refusing to boot with an incomplete DePix live configuration".into());
+    }
 
     // Never run production with a documented sample credential. Length alone
     // does not prove entropy, but it prevents common accidental deployments.

@@ -252,36 +252,56 @@ fn normalized_tax_number(value: Option<&str>) -> Result<Option<String>, ApiError
     }
     Ok(Some(normalized))
 }
-fn ensure_pix_depositor_is_allowlisted(user_id: &str) -> Result<(), ApiError> {
+fn configured_user_list_contains(variable: &str, user_id: &str) -> bool {
+    std::env::var(variable)
+        .unwrap_or_default()
+        .split(',')
+        .map(str::trim)
+        .any(|configured_user_id| configured_user_id == user_id)
+}
+
+pub(crate) fn pix_depositor_is_allowed(user_id: &str) -> bool {
     let provider = pix_provider();
     let mode = pix_mode();
-    if mode != "sandbox" || !matches!(provider.as_str(), "asaas" | "depix") {
-        return Ok(());
-    }
     let environment = std::env::var("ENVIRONMENT")
         .unwrap_or_else(|_| "development".to_string())
         .trim()
         .to_ascii_lowercase();
-    if environment == "production" {
-        return Err(ApiError::Forbidden(
-            "PIX Sandbox is disabled in production".to_string(),
-        ));
+    match (provider.as_str(), mode.as_str()) {
+        ("asaas" | "depix", "sandbox") => {
+            environment != "production"
+                && configured_user_list_contains("PIX_ALLOWED_DEPOSITOR_IDS", user_id)
+        }
+        ("depix", "production") => {
+            environment == "production"
+                && std::env::var("PIX_LIVE_ENABLED")
+                    .map(|value| value.trim().eq_ignore_ascii_case("true"))
+                    .unwrap_or(false)
+                && configured_user_list_contains("PIX_LIVE_ALLOWED_DEPOSITOR_IDS", user_id)
+        }
+        _ => true,
     }
+}
 
-    let allowed = std::env::var("PIX_ALLOWED_DEPOSITOR_IDS").map_err(|_| {
-        ApiError::Forbidden("PIX Sandbox requires PIX_ALLOWED_DEPOSITOR_IDS".to_string())
-    })?;
-    if allowed
-        .split(',')
-        .map(str::trim)
-        .any(|configured_user_id| configured_user_id == user_id)
-    {
+fn ensure_pix_depositor_is_allowed(user_id: &str) -> Result<(), ApiError> {
+    if pix_depositor_is_allowed(user_id) {
         Ok(())
     } else {
         Err(ApiError::Forbidden(
-            "This account is not authorized for PIX Sandbox deposits".to_string(),
+            "This account is not authorized for the configured PIX rollout".to_string(),
         ))
     }
+}
+
+pub(crate) fn depix_deposit_max_cents() -> u64 {
+    if pix_mode() != "production" {
+        return 600_000;
+    }
+    std::env::var("DEPIX_LIVE_MAX_DEPOSIT_CENTS")
+        .ok()
+        .and_then(|value| value.trim().parse::<u64>().ok())
+        .filter(|value| (500..=600_000).contains(value))
+        .unwrap_or(100_000)
 }
 
 fn deposit_tx_id(headers: &HeaderMap, user_id: &str, provider: &str) -> Result<String, ApiError> {
@@ -320,10 +340,11 @@ pub async fn create_pix_deposit_handler(
     let provider = pix_provider();
     let payer_tax_number = normalized_tax_number(payload.payer_tax_number.as_deref())?;
     if provider == "depix" {
-        if !(500..=600_000).contains(&payload.amount) {
-            return Err(ApiError::BadRequest(
-                "DePix deposit amount must be between 500 and 600000 cents".to_string(),
-            ));
+        let max_cents = depix_deposit_max_cents();
+        if !(500..=max_cents).contains(&payload.amount) {
+            return Err(ApiError::BadRequest(format!(
+                "DePix deposit amount must be between 500 and {max_cents} cents"
+            )));
         }
         if payer_tax_number.is_none() {
             return Err(ApiError::BadRequest(
@@ -331,7 +352,7 @@ pub async fn create_pix_deposit_handler(
             ));
         }
     }
-    ensure_pix_depositor_is_allowlisted(&auth_user.user_id)?;
+    ensure_pix_depositor_is_allowed(&auth_user.user_id)?;
     let tx_id = deposit_tx_id(&headers, &auth_user.user_id, &provider)?;
     let _audit = crate::audit_span!(&auth_user.user_id, "PIX_DEPOSIT_CREATED");
 
@@ -877,7 +898,7 @@ pub async fn simulate_pix_deposit_handler(
             "PIX payment simulation is available only in DePix Sandbox".into(),
         ));
     }
-    ensure_pix_depositor_is_allowlisted(&auth_user.user_id)?;
+    ensure_pix_depositor_is_allowed(&auth_user.user_id)?;
     let external_tx_id = owned_external_deposit_id(&state, &auth_user.user_id, &tx_id).await?;
     let fetch_external_id = external_tx_id.clone();
     let gateway = get_payment_gateway();
