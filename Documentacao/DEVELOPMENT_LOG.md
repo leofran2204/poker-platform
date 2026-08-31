@@ -633,8 +633,16 @@
 ---
 *Próximo passo: Deploy em ambiente de staging / produção ou disponibilização de canal seguro via Ngrok.*
 
+## 2026-08-31 — S19: sessão resiliente e DePix Sandbox protegida
+
+- Frontend detecta sessão expirada/desconexão, tenta reconexão controlada e direciona o jogador ao login quando a autenticação não pode ser restaurada.
+- DePix Sandbox integrada a depósito PIX com idempotência, allowlist, CPF/CNPJ efêmero, polling, simulação apenas em desenvolvimento, webhook HMAC com proteção contra replay e crédito exclusivo em `checkout.completed`.
+- Migration 030 adiciona metadados de checkout e deduplicação persistente de webhooks sem armazenar payload bruto.
+- Correção financeira: depósitos e saques operam em `balance_real`, preservando a separação de Play Money.
+- Gate local: Rust fmt + Clippy estrito; 51 testes ativos selecionados; 4 contratos PostgreSQL isolados; TypeScript e Vite build. Zero falhas.
+- Operação pública conserva `PIX_PROVIDER=mock`/`PIX_MODE=mock`; DePix produtiva e saque automático continuam bloqueados.
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-08-29):** S18 — Catálogo cash NLHE+Short Deck+SD Omaha (PM×Real); frentes fixas; motor short_deck_omaha; notícias com capa temática; testes 10k/mesa + e2e seeded Real/PM. Demo VPS zerotiltpoker.net. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–025. Presence API no ar. Motor: cash_catalog_10k_hands PASS (4 configs × 10k); short_deck_massive PASS; tournament_engine 954 ok. Smoke live seeded Real+PM: join+≥1 mão em cada mesa OPEN; inscrição torneios OK. Mock/auto PIX bloqueado para gaming em vários PSPs. Fluxo vigente: Pedir fichas (depósito manual) + comprovante + aprovação admin. Nenhum gateway de saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
+> **Estado operacional sincronizado (2026-08-31):** S19 — Sessão resiliente no frontend e integração DePix Sandbox protegida; catálogo cash canônico NLHE 0,25/0,25, Hold'em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local healthy e migrations 001–030 aplicadas. Gate S19: cargo fmt, Clippy estrito e 51 testes ativos selecionados da API; 4 contratos financeiros PostgreSQL isolados; TypeScript e build Vite — todos sem falhas. Mantidas as evidências anteriores de stress do motor Short Deck e do catálogo cash. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

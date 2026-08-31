@@ -1,13 +1,22 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   createDepositRequest,
+  createPixDeposit,
   fetchDepositInfo,
   fetchMe,
+  getPixDepositStatus,
   listMyDepositRequests,
   pmRebuy,
+  simulatePixDeposit,
 } from "@/api/client";
-import type { DepositInfoResponse, DepositRequestResponse, MeResponse } from "@/api/types";
+import type {
+  DepositInfoResponse,
+  DepositRequestResponse,
+  MeResponse,
+  PixDepositResponse,
+  PixDepositStatusResponse,
+} from "@/api/types";
 import { NoIndex } from "@/components/NoIndex";
 import { isAuthenticated } from "@/lib/auth";
 import { clearMeCache } from "@/lib/me";
@@ -29,6 +38,10 @@ export function WalletPage() {
   const [amountCents, setAmountCents] = useState(100_000);
   const [proof, setProof] = useState("");
   const [note, setNote] = useState("");
+  const [taxNumber, setTaxNumber] = useState("");
+  const [pixCharge, setPixCharge] = useState<PixDepositResponse | null>(null);
+  const [pixStatus, setPixStatus] = useState<PixDepositStatusResponse | null>(null);
+  const idempotencyKey = useRef(crypto.randomUUID());
   const [error, setError] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -82,16 +95,32 @@ export function WalletPage() {
     setError(null);
     setMsg(null);
     try {
-      await createDepositRequest({
-        amount_cents: amountCents,
-        proof_text: proof,
-        player_note: note || undefined,
-      });
-      setMsg("Pedido enviado. Aguarde a verificação do comprovante.");
-      setProof("");
-      setNote("");
-      setOpenForm(false);
-      await load();
+      if (info?.automated_available) {
+        const charge = await createPixDeposit(
+          { amount: amountCents, payer_tax_number: taxNumber },
+          idempotencyKey.current,
+        );
+        setPixCharge(charge);
+        setPixStatus({
+          tx_id: charge.tx_id,
+          amount: charge.amount,
+          status: "PENDING",
+          provider_status: "PENDING",
+        });
+        setTaxNumber("");
+        setMsg("Cobrança de teste criada. Use o link ou simule o pagamento no sandbox.");
+      } else {
+        await createDepositRequest({
+          amount_cents: amountCents,
+          proof_text: proof,
+          player_note: note || undefined,
+        });
+        setMsg("Pedido enviado. Aguarde a verificação do comprovante.");
+        setProof("");
+        setNote("");
+        setOpenForm(false);
+        await load();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha ao enviar pedido");
     } finally {
@@ -112,6 +141,42 @@ export function WalletPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function copyChargePix() {
+    if (!pixCharge?.pix_copy_paste) return;
+    await navigator.clipboard.writeText(pixCharge.pix_copy_paste);
+    setMsg("PIX copia e cola copiado.");
+  }
+
+  async function refreshChargeStatus(simulate = false) {
+    if (!pixCharge) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const status = simulate
+        ? await simulatePixDeposit(pixCharge.tx_id)
+        : await getPixDepositStatus(pixCharge.tx_id);
+      setPixStatus(status);
+      if (status.status === "COMPLETED") {
+        setMsg("Pagamento de teste concluído e saldo de Jogo Real creditado uma única vez.");
+        await load();
+      } else {
+        setMsg(`Status atualizado: ${status.provider_status}.`);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Falha ao consultar cobrança");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function resetPixCharge() {
+    setPixCharge(null);
+    setPixStatus(null);
+    idempotencyKey.current = crypto.randomUUID();
+    setMsg(null);
+    setError(null);
   }
 
   async function copyPix() {
@@ -203,8 +268,107 @@ export function WalletPage() {
 
           {openForm && info && (
             <div className="space-y-3 border-t border-felt-600 pt-3">
-              {!info.available ? (
+              {!info.available && !info.automated_available ? (
                 <p className="text-sm text-amber-100">{info.instructions}</p>
+              ) : info.automated_available ? (
+                <>
+                  <div className="rounded border border-sky-800 bg-sky-950/30 p-3">
+                    <div className="text-xs font-semibold uppercase text-sky-200">DePix Sandbox</div>
+                    <p className="mt-1 text-xs text-felt-300">{info.instructions}</p>
+                    <p className="mt-1 text-[11px] text-felt-400">
+                      O CPF/CNPJ é enviado somente à DePix para gerar a cobrança e não é salvo pela plataforma.
+                    </p>
+                  </div>
+
+                  {!pixCharge ? (
+                    <form className="space-y-3" onSubmit={(e) => void onSubmit(e)}>
+                      <div>
+                        <div className="zt-label">Valor</div>
+                        <div className="mb-2 flex flex-wrap gap-1">
+                          {info.presets_cents.map((preset) => (
+                            <button
+                              key={preset}
+                              type="button"
+                              className={amountCents === preset ? "zt-tab zt-tab-active !flex-none" : "zt-tab !flex-none"}
+                              onClick={() => setAmountCents(preset)}
+                            >
+                              {formatBrlFromCents(preset)}
+                            </button>
+                          ))}
+                        </div>
+                        <input
+                          type="number"
+                          min={5}
+                          max={6000}
+                          step={0.01}
+                          className="zt-input max-w-xs"
+                          value={(amountCents / 100).toFixed(2)}
+                          onChange={(e) => setAmountCents(Math.round(Number(e.target.value || 0) * 100))}
+                        />
+                      </div>
+                      <div>
+                        <label className="zt-label" htmlFor="payer-tax-number">CPF ou CNPJ do pagador</label>
+                        <input
+                          id="payer-tax-number"
+                          className="zt-input max-w-sm"
+                          value={taxNumber}
+                          onChange={(e) => setTaxNumber(e.target.value)}
+                          autoComplete="off"
+                          inputMode="numeric"
+                          minLength={11}
+                          maxLength={18}
+                          required
+                          placeholder="Somente para gerar a cobrança PIX"
+                        />
+                      </div>
+                      <button type="submit" className="zt-btn-primary" disabled={busy}>
+                        {busy ? "Gerando…" : "Gerar cobrança PIX de teste"}
+                      </button>
+                    </form>
+                  ) : (
+                    <div className="space-y-3 rounded border border-rail/60 bg-felt-950 p-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <div className="text-[10px] uppercase text-felt-400">Cobrança</div>
+                          <div className="font-mono text-sm text-gold-soft">{formatBrlFromCents(pixCharge.amount)}</div>
+                        </div>
+                        <div className="font-mono text-xs text-sky-200">
+                          {pixStatus?.provider_status ?? "PENDING"}
+                        </div>
+                      </div>
+                      <textarea
+                        className="zt-input min-h-[90px] break-all font-mono text-xs"
+                        value={pixCharge.pix_copy_paste}
+                        readOnly
+                        aria-label="PIX copia e cola"
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        <button type="button" className="zt-btn-secondary !py-1 !text-xs" onClick={() => void copyChargePix()}>
+                          Copiar PIX
+                        </button>
+                        {pixCharge.payment_url && (
+                          <a className="zt-btn-secondary !py-1 !text-xs" href={pixCharge.payment_url} target="_blank" rel="noreferrer">
+                            Abrir pagamento
+                          </a>
+                        )}
+                        <button type="button" className="zt-btn-secondary !py-1 !text-xs" disabled={busy} onClick={() => void refreshChargeStatus(false)}>
+                          Atualizar status
+                        </button>
+                        {pixStatus?.status !== "COMPLETED" && (
+                          <button type="button" className="zt-btn-primary !py-1 !text-xs" disabled={busy} onClick={() => void refreshChargeStatus(true)}>
+                            Simular pagamento
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-felt-400">
+                        Expira em {new Date(pixCharge.expires_at).toLocaleString("pt-BR")}. A simulação não movimenta dinheiro real.
+                      </p>
+                      <button type="button" className="text-xs text-gold-soft underline" onClick={resetPixCharge}>
+                        Criar nova cobrança
+                      </button>
+                    </div>
+                  )}
+                </>
               ) : (
                 <>
                   <p className="text-xs text-felt-300">{info.instructions}</p>
@@ -216,7 +380,7 @@ export function WalletPage() {
                       {revealPix ? info.pix_key : maskedKey}
                     </div>
                     <div className="mt-2 flex flex-wrap gap-1">
-                      <button type="button" className="zt-btn-secondary !py-1 !text-xs" onClick={() => setRevealPix((v) => !v)}>
+                      <button type="button" className="zt-btn-secondary !py-1 !text-xs" onClick={() => setRevealPix((value) => !value)}>
                         {revealPix ? "Ocultar" : "Mostrar chave"}
                       </button>
                       <button type="button" className="zt-btn-secondary !py-1 !text-xs" onClick={() => void copyPix()}>
@@ -227,18 +391,6 @@ export function WalletPage() {
                   <form className="space-y-3" onSubmit={(e) => void onSubmit(e)}>
                     <div>
                       <div className="zt-label">Valor</div>
-                      <div className="mb-2 flex flex-wrap gap-1">
-                        {info.presets_cents.map((p) => (
-                          <button
-                            key={p}
-                            type="button"
-                            className={amountCents === p ? "zt-tab zt-tab-active !flex-none" : "zt-tab !flex-none"}
-                            onClick={() => setAmountCents(p)}
-                          >
-                            {formatBrlFromCents(p)}
-                          </button>
-                        ))}
-                      </div>
                       <input
                         type="number"
                         min={1}
@@ -273,7 +425,6 @@ export function WalletPage() {
               )}
             </div>
           )}
-
           <div className="zt-panel overflow-hidden !border-0 !shadow-none">
             <div className="zt-panel-title">Meus pedidos (Jogo Real)</div>
             <div className="zt-table-wrap">

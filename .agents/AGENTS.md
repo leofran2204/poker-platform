@@ -5,6 +5,14 @@
 - **Ordem Financeira: Rake antes do Loss Deflator**: O Loss Deflator deve ser calculado e aplicado **somente após** a retirada do rake do main pot e de todos os side pots. A base do Loss Deflator é sempre o valor líquido dos potes pós-rake; ele nunca pode ser calculado sobre o valor bruto pré-rake. A ordem obrigatória é: calcular potes → retirar rake → aplicar Loss Deflator sobre os potes líquidos → concluir os pagamentos.
 - **Sincronização Obrigatória de Documentação**: Sempre que qualquer arquivo da pasta `Documentacao/` ou de acompanhamento for modificado/atualizado, é **OBRIGATÓRIO** atualizar e sincronizar **TODOS** os demais arquivos da pasta (`DASHBOARD.md`, `QUALITY.md`, `CRONOGRAMA.md`, `DEVELOPMENT_LOG.md`, `TESTING_GOALS.md`, `README.md`, `BUSINESS_RULES.md`, `ARQUITETURA_E_APIS.md`, `guia_aprendizado.md`, etc.) simultaneamente, garantindo zero divergências de datas, métricas de testes, versões ou status.
 
+## Autorização obrigatória para Git e publicação
+
+- Alterar, corrigir, implementar, testar, validar ou receber a ordem para “prosseguir” autoriza somente trabalho local no workspace.
+- `git commit`, `git push` e qualquer deploy/publicação são ações independentes e só podem ser executadas quando o usuário pedir explicitamente a ação correspondente.
+- Pedir `commit` não autoriza `push`; pedir `push` não autoriza deploy. Execute somente as etapas expressamente solicitadas.
+- Não presuma autorização com base em pedidos anteriores. Quando o trabalho local estiver pronto, informe as alterações e validações e aguarde uma ordem explícita.
+- Esta regra é obrigatória para todos os modelos e agentes que trabalharem neste repositório.
+
 ## Caminho operacional validado no Codex Desktop (Windows)
 
 Esta seção é a memória operacional obrigatória para evitar repetir diagnósticos de sandbox, WSL e Node. Consulte-a antes de trocar ferramentas ou improvisar outro fluxo.

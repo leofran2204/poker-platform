@@ -39,3 +39,7 @@ MODE=play HANDS_PER_TABLE=1 node scripts/live-e2e-seeded-catalog.mjs
 ```
 
 UI canônica: **`Frontend-Web/`** (`npm run build` / Docker). O antigo `Frontend-Dioxus/` foi removido do monorepo.
+
+## DePix Sandbox local
+
+`install-depix-local-secrets.ps1` solicita a chave `sk_test_` e o webhook secret sem ecoá-los, valida a chave em `https://api.depixapp.com/api/me` e grava somente em `Infraestrutura-Docker/.env`, ignorado pelo Git. Use `-AllowedDepositorId <UUID>` para limitar quem pode criar/simular cobranças. Não use esse instalador na VPS pública.

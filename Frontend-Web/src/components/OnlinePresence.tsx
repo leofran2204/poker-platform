@@ -13,11 +13,10 @@ type PresenceState = {
 /** Badge compacto e bem visível no header (sempre). */
 export function OnlinePresenceNav() {
   const { count, error } = usePresenceLoop();
-  const label =
-    count === null
-      ? error
-        ? "— online"
-        : "… online"
+  const label = error
+    ? "offline"
+    : count === null
+      ? "… online"
       : count === 1
         ? "1 online"
         : `${count} online`;
@@ -29,7 +28,10 @@ export function OnlinePresenceNav() {
       role="status"
       aria-live="polite"
     >
-      <span className={`zt-online-dot ${count && count > 0 ? "live" : ""}`} aria-hidden />
+      <span
+        className={`zt-online-dot ${!error && count && count > 0 ? "live" : ""}`}
+        aria-hidden
+      />
       <span className="zt-online-count">{label}</span>
     </div>
   );
@@ -39,16 +41,19 @@ export function OnlinePresenceNav() {
 export function OnlinePresenceHero() {
   const { count, error } = usePresenceLoop();
   const n = count ?? 0;
-  const ready = n >= 2;
+  const ready = !error && n >= 2;
 
   return (
     <div className={`zt-online-hero ${ready ? "ready" : "waiting"}`}>
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <span className={`zt-online-dot large ${n > 0 ? "live" : ""}`} aria-hidden />
+        <span
+          className={`zt-online-dot large ${!error && n > 0 ? "live" : ""}`}
+          aria-hidden
+        />
         <p className="text-lg font-bold tracking-wide text-cream sm:text-xl">
           {count === null && !error && "Checando quem está online…"}
           {error && "Não foi possível ler presença agora"}
-          {count !== null && (
+          {count !== null && !error && (
             <>
               <span className="text-gold-bright">{n}</span>
               {n === 1 ? " pessoa online" : " pessoas online"}
@@ -81,6 +86,7 @@ function usePresenceLoop(): PresenceState {
       }
       setError(false);
     } catch {
+      setCount(null);
       setError(true);
     }
   }, []);

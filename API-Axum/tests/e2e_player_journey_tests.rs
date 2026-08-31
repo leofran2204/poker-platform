@@ -94,11 +94,12 @@ async fn test_e2e_full_player_journey_deposit_lobby_splitpot_withdraw() {
         .fetch_one(&state.db)
         .await
         .expect("registered E2E user must be persisted");
-    let initial_balance: i64 = sqlx::query_scalar("SELECT balance FROM users WHERE id = $1::uuid")
-        .bind(&user_id)
-        .fetch_one(&state.db)
-        .await
-        .expect("registered E2E user must have a balance");
+    let initial_balance: i64 =
+        sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1::uuid")
+            .bind(&user_id)
+            .fetch_one(&state.db)
+            .await
+            .expect("registered E2E user must have a balance");
 
     // 2. Login e Emissão de Token JWT
     let login_payload = serde_json::json!({
@@ -163,7 +164,7 @@ async fn test_e2e_full_player_journey_deposit_lobby_splitpot_withdraw() {
     let res = app.clone().oneshot(req).await.unwrap();
     assert_eq!(res.status(), StatusCode::OK);
 
-    let balance: i64 = sqlx::query_scalar("SELECT balance FROM users WHERE id = $1::uuid")
+    let balance: i64 = sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1::uuid")
         .bind(&user_id)
         .fetch_one(&state.db)
         .await

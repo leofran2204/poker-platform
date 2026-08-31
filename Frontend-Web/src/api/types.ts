@@ -103,6 +103,25 @@ export interface DepositInfoResponse {
   max_pending: number;
   presets_cents: number[];
   instructions: string;
+  automated_available: boolean;
+  automated_provider?: string | null;
+  automated_mode?: string | null;
+}
+
+export interface PixDepositResponse {
+  tx_id: string;
+  amount: number;
+  pix_copy_paste: string;
+  qr_code_base64: string;
+  expires_at: string;
+  payment_url?: string | null;
+}
+
+export interface PixDepositStatusResponse {
+  tx_id: string;
+  amount: number;
+  status: string;
+  provider_status: string;
 }
 
 export interface DepositRequestResponse {

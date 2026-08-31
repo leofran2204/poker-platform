@@ -243,7 +243,7 @@ async fn wallet_deposit_webhook_is_atomic_and_idempotent() {
             expected_status
         );
     }
-    let balance: i64 = sqlx::query_scalar("SELECT balance FROM users WHERE id = $1::uuid")
+    let balance: i64 = sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1::uuid")
         .bind(&user_id)
         .fetch_one(&state.db)
         .await
@@ -257,7 +257,7 @@ async fn wallet_deposit_webhook_is_atomic_and_idempotent() {
 async fn concurrent_withdrawals_cannot_reserve_the_same_balance_twice() {
     let username = unique_username("wallet_wdr");
     let (state, user_id, token) = make_persistent_state(&username).await;
-    sqlx::query("UPDATE users SET balance = 10000 WHERE id = $1::uuid")
+    sqlx::query("UPDATE users SET balance_real = 10000 WHERE id = $1::uuid")
         .bind(&user_id)
         .execute(&state.db)
         .await
@@ -280,7 +280,7 @@ async fn concurrent_withdrawals_cannot_reserve_the_same_balance_twice() {
     let statuses = [first.unwrap().status(), second.unwrap().status()];
     assert!(statuses.contains(&StatusCode::ACCEPTED));
     assert!(statuses.contains(&StatusCode::BAD_REQUEST));
-    let balance: i64 = sqlx::query_scalar("SELECT balance FROM users WHERE id = $1::uuid")
+    let balance: i64 = sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1::uuid")
         .bind(&user_id)
         .fetch_one(&state.db)
         .await

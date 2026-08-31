@@ -15,6 +15,14 @@ pub struct PixChargeResult {
     pub pix_copy_paste: String,
     pub qr_code_base64: String,
     pub expires_at: String,
+    pub payment_url: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PixChargeStatus {
+    pub external_tx_id: String,
+    pub amount: u64,
+    pub status: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -30,7 +38,16 @@ pub trait PixGateway: Send + Sync {
         tx_id: &str,
         user_id: &str,
         amount_centavos: u64,
+        payer_tax_number: Option<&str>,
     ) -> Result<PixChargeResult, String>;
+
+    fn fetch_deposit_status(&self, _external_tx_id: &str) -> Result<PixChargeStatus, String> {
+        Err("PIX deposit polling is unavailable for this provider".to_string())
+    }
+
+    fn simulate_deposit_payment(&self, _external_tx_id: &str) -> Result<(), String> {
+        Err("PIX payment simulation is unavailable for this provider".to_string())
+    }
 
     fn execute_withdraw_payout(
         &self,
@@ -65,6 +82,7 @@ impl PixGateway for MockPixGateway {
         tx_id: &str,
         _user_id: &str,
         amount_centavos: u64,
+        _payer_tax_number: Option<&str>,
     ) -> Result<PixChargeResult, String> {
         let external_id = format!("asaas_pay_{}", tx_id);
         let amount_brl = format_brl_cents(amount_centavos);
@@ -82,6 +100,7 @@ impl PixGateway for MockPixGateway {
             pix_copy_paste: pix_copy,
             qr_code_base64: qr_code,
             expires_at: "2026-12-31T23:59:59Z".to_string(),
+            payment_url: None,
         })
     }
 
@@ -188,6 +207,7 @@ impl PixGateway for AsaasPixGateway {
         tx_id: &str,
         _user_id: &str,
         amount_centavos: u64,
+        _payer_tax_number: Option<&str>,
     ) -> Result<PixChargeResult, String> {
         let client = Self::client()?;
         let payment_request = serde_json::json!({
@@ -224,6 +244,7 @@ impl PixGateway for AsaasPixGateway {
             pix_copy_paste: qr_code.payload,
             qr_code_base64: format!("data:image/png;base64,{}", qr_code.encoded_image),
             expires_at: qr_code.expiration_date,
+            payment_url: None,
         })
     }
 
@@ -251,6 +272,216 @@ impl PixGateway for AsaasPixGateway {
     }
 }
 
+// ─── Provedor 3: DePix Checkout Sandbox ───
+//
+// The sandbox adapter uses the same checkout contract as live DePix but is
+// intentionally restricted to sk_test_ keys. Values are always integer cents
+// and the internal ledger id is also the provider idempotency key.
+
+#[derive(Debug, Deserialize)]
+struct DepixCheckoutPix {
+    qr_code: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct DepixCheckout {
+    id: String,
+    status: String,
+    amount: u64,
+    expires_at: String,
+    payment_url: Option<String>,
+    pix: Option<DepixCheckoutPix>,
+    pix_payload: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct DepixCheckoutEnvelope {
+    checkout: DepixCheckout,
+}
+
+#[derive(Debug, Deserialize)]
+struct DepixApiErrorEnvelope {
+    error: Option<DepixApiError>,
+}
+
+#[derive(Debug, Deserialize)]
+struct DepixApiError {
+    code: Option<String>,
+    request_id: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct DepixPixGateway {
+    api_key: String,
+    webhook_secret: String,
+    api_url: String,
+    callback_url: Option<String>,
+    redirect_url: Option<String>,
+}
+
+impl DepixPixGateway {
+    pub fn sandbox(
+        api_key: &str,
+        webhook_secret: &str,
+        api_url: &str,
+        callback_url: Option<String>,
+        redirect_url: Option<String>,
+    ) -> Self {
+        Self {
+            api_key: api_key.to_string(),
+            webhook_secret: webhook_secret.to_string(),
+            api_url: api_url.trim_end_matches('/').to_string(),
+            callback_url,
+            redirect_url,
+        }
+    }
+
+    fn client() -> Result<reqwest::blocking::Client, String> {
+        reqwest::blocking::Client::builder()
+            .connect_timeout(Duration::from_secs(5))
+            .timeout(Duration::from_secs(15))
+            .build()
+            .map_err(|error| format!("Could not initialize DePix HTTPS client: {error}"))
+    }
+
+    fn parse_response<T: serde::de::DeserializeOwned>(
+        response: reqwest::blocking::Response,
+    ) -> Result<T, String> {
+        let status = response.status();
+        let body = response
+            .text()
+            .map_err(|error| format!("Could not read DePix response: {error}"))?;
+        if status.is_success() {
+            serde_json::from_str(&body)
+                .map_err(|error| format!("DePix response was invalid: {error}"))
+        } else {
+            let parsed = serde_json::from_str::<DepixApiErrorEnvelope>(&body).ok();
+            let code = parsed
+                .as_ref()
+                .and_then(|envelope| envelope.error.as_ref())
+                .and_then(|error| error.code.as_deref())
+                .unwrap_or("unknown_error");
+            let request_id = parsed
+                .as_ref()
+                .and_then(|envelope| envelope.error.as_ref())
+                .and_then(|error| error.request_id.as_deref())
+                .unwrap_or("unavailable");
+            Err(format!(
+                "DePix request failed with status {status}, code {code}, request_id {request_id}"
+            ))
+        }
+    }
+
+    fn checkout_to_status(checkout: DepixCheckout) -> PixChargeStatus {
+        PixChargeStatus {
+            external_tx_id: checkout.id,
+            amount: checkout.amount,
+            status: checkout.status,
+        }
+    }
+}
+
+impl PixGateway for DepixPixGateway {
+    fn create_deposit_charge(
+        &self,
+        tx_id: &str,
+        _user_id: &str,
+        amount_centavos: u64,
+        payer_tax_number: Option<&str>,
+    ) -> Result<PixChargeResult, String> {
+        let payer_tax_number = payer_tax_number
+            .map(str::trim)
+            .filter(|value| !value.is_empty())
+            .ok_or_else(|| "DePix checkout requires payer_tax_number".to_string())?;
+        let mut payload = serde_json::json!({
+            "amount": amount_centavos,
+            "payer_tax_number": payer_tax_number,
+            "payment_method": "pix",
+            "description": "Crédito de carteira Zero Tilt Poker",
+            "expires_in": 1200,
+            "metadata": { "order_id": tx_id }
+        });
+        if let Some(callback_url) = &self.callback_url {
+            payload["callback_url"] = serde_json::Value::String(callback_url.clone());
+        }
+        if let Some(redirect_url) = &self.redirect_url {
+            payload["redirect_url"] = serde_json::Value::String(redirect_url.clone());
+        }
+
+        let response = Self::client()?
+            .post(format!("{}/api/checkouts", self.api_url))
+            .bearer_auth(&self.api_key)
+            .header("Idempotency-Key", tx_id)
+            .json(&payload)
+            .send()
+            .map_err(|error| format!("DePix checkout request failed: {error}"))?;
+        let checkout: DepixCheckout = Self::parse_response(response)?;
+        if !checkout.id.starts_with("chk_")
+            || checkout.status != "pending"
+            || checkout.amount != amount_centavos
+        {
+            return Err("DePix checkout response violated id, status, or amount invariants".into());
+        }
+        let payment_url = checkout
+            .payment_url
+            .filter(|url| url.starts_with("https://pay.depixapp.com/"))
+            .ok_or_else(|| {
+                "DePix checkout response did not include a trusted payment URL".to_string()
+            })?;
+        let pix_copy_paste = checkout
+            .pix
+            .map(|pix| pix.qr_code)
+            .or(checkout.pix_payload)
+            .filter(|payload| !payload.trim().is_empty())
+            .ok_or_else(|| "DePix checkout response did not include a PIX payload".to_string())?;
+
+        Ok(PixChargeResult {
+            external_tx_id: checkout.id,
+            pix_copy_paste,
+            qr_code_base64: String::new(),
+            expires_at: checkout.expires_at,
+            payment_url: Some(payment_url),
+        })
+    }
+
+    fn fetch_deposit_status(&self, external_tx_id: &str) -> Result<PixChargeStatus, String> {
+        let response = Self::client()?
+            .get(format!("{}/api/checkouts/{external_tx_id}", self.api_url))
+            .bearer_auth(&self.api_key)
+            .send()
+            .map_err(|error| format!("DePix checkout status request failed: {error}"))?;
+        let envelope: DepixCheckoutEnvelope = Self::parse_response(response)?;
+        Ok(Self::checkout_to_status(envelope.checkout))
+    }
+
+    fn simulate_deposit_payment(&self, external_tx_id: &str) -> Result<(), String> {
+        let response = Self::client()?
+            .post(format!(
+                "{}/api/checkouts/{external_tx_id}/simulate-payment",
+                self.api_url
+            ))
+            .bearer_auth(&self.api_key)
+            .send()
+            .map_err(|error| format!("DePix payment simulation failed: {error}"))?;
+        let _: serde_json::Value = Self::parse_response(response)?;
+        Ok(())
+    }
+
+    fn execute_withdraw_payout(
+        &self,
+        _tx_id: &str,
+        _user_id: &str,
+        _amount_centavos: u64,
+        _pix_key_type: &str,
+        _pix_key: &str,
+    ) -> Result<PixPayoutResult, String> {
+        Err("DePix payouts are unavailable until the reconciled payout worker is enabled".into())
+    }
+
+    fn verify_webhook_hmac(&self, body: &[u8], signature_header: Option<&str>) -> bool {
+        verify_depix_hmac(body, signature_header, &self.webhook_secret)
+    }
+}
 #[derive(Debug, Clone)]
 pub struct DisabledPixGateway {
     reason: String,
@@ -270,6 +501,7 @@ impl PixGateway for DisabledPixGateway {
         _tx_id: &str,
         _user_id: &str,
         _amount_centavos: u64,
+        _payer_tax_number: Option<&str>,
     ) -> Result<PixChargeResult, String> {
         Err(self.reason.clone())
     }
@@ -319,6 +551,47 @@ fn verify_hmac_helper(body: &[u8], signature_header: Option<&str>, secret: &str)
         == 1
 }
 
+fn verify_depix_hmac(body: &[u8], signature_header: Option<&str>, secret: &str) -> bool {
+    let mut timestamp = None;
+    let mut received = None;
+    for part in signature_header.unwrap_or_default().split(',') {
+        if let Some((key, value)) = part.trim().split_once('=') {
+            match key {
+                "t" => timestamp = Some(value),
+                "v1" => received = Some(value),
+                _ => {}
+            }
+        }
+    }
+    let (timestamp, received) = match (timestamp, received) {
+        (Some(timestamp), Some(received)) if received.len() == 64 => (timestamp, received),
+        _ => return false,
+    };
+    let sent_at = match timestamp.parse::<i64>() {
+        Ok(sent_at) => sent_at,
+        Err(_) => return false,
+    };
+    if (chrono::Utc::now().timestamp() - sent_at).unsigned_abs() > 300 {
+        return false;
+    }
+
+    use hmac::{Hmac, Mac};
+    use sha2::Sha256;
+    let mut mac = match Hmac::<Sha256>::new_from_slice(secret.as_bytes()) {
+        Ok(mac) => mac,
+        Err(_) => return false,
+    };
+    mac.update(timestamp.as_bytes());
+    mac.update(b".");
+    mac.update(body);
+    let expected = mac
+        .finalize()
+        .into_bytes()
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect::<String>();
+    expected.as_bytes().ct_eq(received.as_bytes()).unwrap_u8() == 1
+}
 // ─── Factory ───
 //
 // Mock is the safe default for unit tests. The only non-mock adapter is the
@@ -366,18 +639,62 @@ pub fn get_payment_gateway() -> Box<dyn PixGateway> {
         ("asaas", "production") => Box::new(DisabledPixGateway::new(
             "Asaas production PIX is intentionally disabled pending PSP approval and real-money compliance controls",
         )),
+        ("depix", "sandbox") => {
+            let api_key = env::var("DEPIX_API_KEY").ok();
+            let webhook_secret = env::var("DEPIX_WEBHOOK_SECRET").ok();
+            let api_url = env::var("DEPIX_API_BASE_URL")
+                .unwrap_or_else(|_| "https://api.depixapp.com".to_string())
+                .trim_end_matches('/')
+                .to_string();
+            let environment = env::var("ENVIRONMENT")
+                .unwrap_or_else(|_| "development".to_string())
+                .trim()
+                .to_ascii_lowercase();
+            let callback_url = env::var("DEPIX_CALLBACK_URL")
+                .ok()
+                .map(|value| value.trim().to_string())
+                .filter(|value| value.starts_with("https://"));
+            let redirect_url = env::var("DEPIX_REDIRECT_URL")
+                .ok()
+                .map(|value| value.trim().to_string())
+                .filter(|value| value.starts_with("https://"));
+            match (api_key, webhook_secret) {
+                (Some(api_key), Some(webhook_secret))
+                    if api_key.starts_with("sk_test_")
+                        && !api_key.contains(char::is_whitespace)
+                        && webhook_secret.len() >= 24
+                        && !webhook_secret.contains(char::is_whitespace)
+                        && api_url == "https://api.depixapp.com"
+                        && environment != "production" =>
+                {
+                    Box::new(DepixPixGateway::sandbox(
+                        &api_key,
+                        &webhook_secret,
+                        &api_url,
+                        callback_url,
+                        redirect_url,
+                    ))
+                }
+                _ => Box::new(DisabledPixGateway::new(
+                    "DePix Sandbox requires DEPIX_API_KEY with sk_test_ prefix and DEPIX_WEBHOOK_SECRET",
+                )),
+            }
+        }
+        ("depix", "production") => Box::new(DisabledPixGateway::new(
+            "DePix production PIX is intentionally disabled until the live financial controls are activated",
+        )),
         ("mercadopago" | "mp", _) => Box::new(DisabledPixGateway::new(
             "Mercado Pago PIX has no verified adapter in this project",
         )),
         _ => Box::new(DisabledPixGateway::new(
-            "PIX is disabled; use PIX_PROVIDER=mock with PIX_MODE=mock or configure the verified Asaas Sandbox adapter",
+            "PIX is disabled; use mock/mock or configure the verified Asaas or DePix sandbox adapter",
         )),
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{AsaasPixGateway, MockPixGateway, PixGateway};
+    use super::{AsaasPixGateway, DepixPixGateway, MockPixGateway, PixGateway};
     use hmac::{Hmac, Mac};
     use sha2::Sha256;
 
@@ -412,5 +729,61 @@ mod tests {
 
         assert!(gateway.verify_webhook_hmac(b"ignored", Some(token)));
         assert!(!gateway.verify_webhook_hmac(b"ignored", Some("different-token")));
+    }
+
+    #[test]
+    fn depix_webhook_requires_timestamped_raw_body_hmac() {
+        let secret = "depix-test-webhook-secret-32-bytes";
+        let body = br#"{"event":"checkout.completed","data":{"id":"chk_1"}}"#;
+        let timestamp = chrono::Utc::now().timestamp().to_string();
+        let mut mac = Hmac::<Sha256>::new_from_slice(secret.as_bytes()).unwrap();
+        mac.update(timestamp.as_bytes());
+        mac.update(b".");
+        mac.update(body);
+        let signature = mac
+            .finalize()
+            .into_bytes()
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>();
+        let gateway = DepixPixGateway::sandbox(
+            "sk_test_example",
+            secret,
+            "https://api.depixapp.com",
+            None,
+            None,
+        );
+
+        assert!(gateway.verify_webhook_hmac(body, Some(&format!("t={timestamp},v1={signature}"))));
+        assert!(!gateway.verify_webhook_hmac(
+            br#"{"event":"checkout.cancelled"}"#,
+            Some(&format!("t={timestamp},v1={signature}"))
+        ));
+        assert!(!gateway.verify_webhook_hmac(body, Some("v1=00")));
+    }
+    #[test]
+    fn depix_webhook_rejects_a_stale_signed_delivery() {
+        let secret = "depix-test-webhook-secret-32-bytes";
+        let body = br#"{"event":"checkout.completed","data":{"id":"chk_1"}}"#;
+        let timestamp = (chrono::Utc::now().timestamp() - 301).to_string();
+        let mut mac = Hmac::<Sha256>::new_from_slice(secret.as_bytes()).unwrap();
+        mac.update(timestamp.as_bytes());
+        mac.update(b".");
+        mac.update(body);
+        let signature = mac
+            .finalize()
+            .into_bytes()
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>();
+        let gateway = DepixPixGateway::sandbox(
+            "sk_test_example",
+            secret,
+            "https://api.depixapp.com",
+            None,
+            None,
+        );
+
+        assert!(!gateway.verify_webhook_hmac(body, Some(&format!("t={timestamp},v1={signature}"))));
     }
 }

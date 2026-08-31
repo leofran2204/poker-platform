@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { setWalletMode as apiSetWalletMode } from "@/api/client";
 import type { MeResponse, WalletMode } from "@/api/types";
 import { OnlinePresenceNav } from "@/components/OnlinePresence";
+import { SessionConnectivity } from "@/components/SessionConnectivity";
 import { clearTokens, getUsername, isAuthenticated } from "@/lib/auth";
 import { clearMeCache, getMe, isAdminRole } from "@/lib/me";
 import { formatBrlFromCents } from "@/lib/money";
@@ -69,6 +70,7 @@ export function Layout() {
 
   return (
     <div className="zt-shell">
+      <SessionConnectivity />
       <header className="zt-nav">
         <div className="zt-nav-inner">
           <div className="flex flex-wrap items-center gap-3">

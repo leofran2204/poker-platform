@@ -132,6 +132,18 @@ pub fn build_router(state: AppState) -> Router {
             ),
         )
         .route(
+            "/api/payments/pix/deposit/:tx_id",
+            get(payments_routes::get_pix_deposit_status_handler).route_layer(
+                from_extractor_with_state::<EnforceRateLimit, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/payments/pix/deposit/:tx_id/simulate",
+            post(payments_routes::simulate_pix_deposit_handler).route_layer(
+                from_extractor_with_state::<EnforceRateLimit, AppState>(state.clone()),
+            ),
+        )
+        .route(
             "/api/webhooks/pix",
             post(payments_routes::pix_webhook_handler),
         )

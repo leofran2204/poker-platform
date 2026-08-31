@@ -1,39 +1,63 @@
 {
-  "schema_version": 1,
-  "reviewed_on": "2026-08-29",
-  "cycle": "S18 — Catálogo cash NLHE+Short Deck+SD Omaha (PM×Real); frentes fixas; motor short_deck_omaha; notícias com capa temática; testes 10k/mesa + e2e seeded Real/PM. Demo VPS zerotiltpoker.net.",
-  "stack": {
-    "motor_api": "Rust (Motor-Rust + API-Axum)",
-    "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",
-    "frontend_legacy": "Frontend-Dioxus removido do monorepo (histórico git apenas)",
-    "edge": "Caddy HTTPS same-origin /api /ws (Let's Encrypt em VPS)"
-  },
-  "production": "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.",
-  "regulation": "Trilho de regulação, KYC/AML e compliance de jogo/dinheiro real: planejado para janeiro de 2027. Até lá: Play Money + Jogo Real com depósito manual; freios de PIX automático em production.",
-  "validation": "VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–025. Presence API no ar. Motor: cash_catalog_10k_hands PASS (4 configs × 10k); short_deck_massive PASS; tournament_engine 954 ok. Smoke live seeded Real+PM: join+≥1 mão em cada mesa OPEN; inscrição torneios OK.",
-  "cash_catalog": {
-    "modes": ["play", "real"],
-    "tables": [
-      { "name": "NL 0,25", "variant": "holdem", "blinds": "25/25", "max": 9, "buy_in_cents": 2500 },
-      { "name": "NL 0,50", "variant": "holdem", "blinds": "25/50", "max": 9, "buy_in_cents": 5000 },
-      { "name": "SD 0,50", "variant": "short_deck", "blinds": "50/50", "max": 6, "buy_in_cents": 7500 },
-      { "name": "SD Omaha 0,50/1", "variant": "short_deck_omaha", "blinds": "50/100", "max": 4, "buy_in_cents": 10000 }
-    ],
-    "notes": "Frentes fixas (min=max). Sem NLHE 0,50/1 e sem SD 1/1. SB pode igualar BB (constraint chk_tables_blind_structure)."
-  },
-  "poker_variants": ["holdem", "short_deck", "short_deck_omaha"],
-  "wallets": {
-    "play_money_cash_cents": 100000,
-    "play_money_mtt_cents": 1500000,
-    "play_money_reset": "daily America/Sao_Paulo",
-    "real": "isolated; manual PIX deposit requests + admin approve/adjust"
-  },
-  "email": "Resend: domínio zerotiltpoker.net verified. REQUIRE_EMAIL_VERIFICATION=true. MFA challenges (016).",
-  "tls_notes": "Caddyfile canônico sem tls internal + volume caddy_data persistido. Não apagar caddy_data em cada recreate (rate limit LE).",
-  "pix": "Mock/auto PIX bloqueado para gaming em vários PSPs. Fluxo vigente: Pedir fichas (depósito manual) + comprovante + aprovação admin. Nenhum gateway de saque automático.",
-  "table_ownership": "Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.",
-  "ui_direction": "Full Tilt moderno. Header: modo Play Money | Jogo Real. Lobby filtros por stake/variante. Notícias: thumbnail oficial ou capa temática (sem rostos errados).",
-  "presence": "Usuários autenticados com heartbeat recente (ZSET Redis ou fallback memória). TTL 90s.",
-  "live_e2e": "scripts/live-e2e-ten-users.mjs (10×100); scripts/live-e2e-seeded-catalog.mjs (mesa a mesa Real/PM); Motor-Rust/tests/cash_catalog_10k_hands.rs (10k/config).",
-  "friends_demo": "Guia Documentacao/DEMO_AMIGOS.md. Combinar modo de carteira e a mesma mesa (≥2 jogadores)."
+    "schema_version":  1,
+    "reviewed_on":  "2026-08-31",
+    "cycle":  "S19 — Sessão resiliente no frontend e integração DePix Sandbox protegida; catálogo cash canônico NLHE 0,25/0,25, Hold\u0027em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real).",
+    "stack":  {
+                  "motor_api":  "Rust (Motor-Rust + API-Axum)",
+                  "frontend_canonical":  "Frontend-Web (TypeScript + React + Vite + Tailwind)",
+                  "frontend_legacy":  "Frontend-Dioxus removido do monorepo (histórico git apenas)",
+                  "edge":  "Caddy HTTPS same-origin /api /ws (Let\u0027s Encrypt em VPS)"
+              },
+    "production":  "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.",
+    "regulation":  "Trilho de regulação, KYC/AML e compliance de jogo/dinheiro real: planejado para janeiro de 2027. Até lá: Play Money + Jogo Real com depósito manual; freios de PIX automático em production.",
+    "validation":  "Stack Docker local healthy e migrations 001–030 aplicadas. Gate S19: cargo fmt, Clippy estrito e 51 testes ativos selecionados da API; 4 contratos financeiros PostgreSQL isolados; TypeScript e build Vite — todos sem falhas. Mantidas as evidências anteriores de stress do motor Short Deck e do catálogo cash.",
+    "cash_catalog":  {
+                         "modes":  [
+                                       "play",
+                                       "real"
+                                   ],
+                         "tables":  [
+                                        {
+                                            "name":  "Hold\u0027em",
+                                            "variant":  "holdem",
+                                            "blinds":  "25/25",
+                                            "max":  9,
+                                            "buy_in_cents":  2500
+                                        },
+                                        {
+                                            "name":  "Hold\u0027em",
+                                            "variant":  "short_deck",
+                                            "blinds":  "25/50",
+                                            "max":  6,
+                                            "buy_in_cents":  7500
+                                        },
+                                        {
+                                            "name":  "Omaha 4 Cartas",
+                                            "variant":  "short_deck_omaha",
+                                            "blinds":  "50/50",
+                                            "max":  4,
+                                            "buy_in_cents":  10000
+                                        }
+                                    ],
+                         "notes":  "Frentes fixas (min=max). Hold\u0027em tradicional 0,25/0,50 foi retirado; Short Deck usa 0,25/0,50 e Omaha Short Deck usa 0,50/0,50. SB pode igualar BB (constraint chk_tables_blind_structure)."
+                     },
+    "poker_variants":  [
+                           "holdem",
+                           "short_deck",
+                           "short_deck_omaha"
+                       ],
+    "wallets":  {
+                    "play_money_cash_cents":  100000,
+                    "play_money_mtt_cents":  1500000,
+                    "play_money_reset":  "daily America/Sao_Paulo",
+                    "real":  "isolated; manual PIX deposit requests + admin approve/adjust; DePix Sandbox opcional e allowlisted em ambiente não produtivo"
+                },
+    "email":  "Resend: domínio zerotiltpoker.net verified. REQUIRE_EMAIL_VERIFICATION=true. MFA challenges (016).",
+    "tls_notes":  "Caddyfile canônico sem tls internal + volume caddy_data persistido. Não apagar caddy_data em cada recreate (rate limit LE).",
+    "pix":  "A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático.",
+    "table_ownership":  "Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.",
+    "ui_direction":  "Full Tilt moderno. Header: modo Play Money | Jogo Real. Lobby filtros por stake/variante. Notícias: thumbnail oficial ou capa temática (sem rostos errados).",
+    "presence":  "Usuários autenticados com heartbeat recente (ZSET Redis ou fallback memória). TTL 90s.",
+    "live_e2e":  "scripts/live-e2e-ten-users.mjs (10×100); scripts/live-e2e-seeded-catalog.mjs (mesa a mesa Real/PM); Motor-Rust/tests/cash_catalog_10k_hands.rs (10k/config); API-Axum/tests/depix_webhook_tests.rs (crédito único e status processing).",
+    "friends_demo":  "Guia Documentacao/DEMO_AMIGOS.md. Combinar modo de carteira e a mesma mesa (≥2 jogadores)."
 }

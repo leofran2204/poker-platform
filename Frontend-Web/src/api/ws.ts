@@ -1,4 +1,4 @@
-import { createWsTicket } from "./client";
+import { ApiError, createWsTicket } from "./client";
 import type { ClientMessage, ServerMessage } from "./types";
 
 export type WsStatus = "disconnected" | "connecting" | "connected" | "error";
@@ -17,23 +17,50 @@ function wsUrl(tableId: string, ticket: string): string {
 export class TableSocket {
   private ws: WebSocket | null = null;
   private pingTimer: number | null = null;
+  private reconnectTimer: number | null = null;
+  private reconnectAttempt = 0;
+  private connecting = false;
   private closedByUser = false;
+
+  private readonly handleOnline = () => {
+    if (this.closedByUser) return;
+    this.clearReconnect();
+    void this.connect();
+  };
 
   constructor(
     private tableId: string,
     private handlers: TableWsHandlers,
-  ) {}
+  ) {
+    window.addEventListener("online", this.handleOnline);
+  }
 
   async connect(): Promise<void> {
+    if (
+      this.connecting ||
+      this.ws?.readyState === WebSocket.CONNECTING ||
+      this.ws?.readyState === WebSocket.OPEN
+    ) {
+      return;
+    }
+
     this.closedByUser = false;
-    this.handlers.onStatus?.("connecting");
+    this.connecting = true;
+    this.clearReconnect();
+    this.handlers.onStatus?.("connecting", "Conectando à mesa…");
+
     try {
       const { ticket } = await createWsTicket(this.tableId);
+      if (this.closedByUser) return;
+
       const url = wsUrl(this.tableId, ticket);
       const ws = new WebSocket(url);
       this.ws = ws;
 
       ws.onopen = () => {
+        this.connecting = false;
+        this.reconnectAttempt = 0;
+        this.clearPing();
         this.handlers.onStatus?.("connected");
         this.send({ type: "get_table_info" });
         this.pingTimer = window.setInterval(() => {
@@ -55,14 +82,21 @@ export class TableSocket {
       };
 
       ws.onclose = () => {
+        this.ws = null;
+        this.connecting = false;
         this.clearPing();
         if (!this.closedByUser) {
-          this.handlers.onStatus?.("disconnected");
+          this.handlers.onStatus?.("disconnected", "Conexão com a mesa interrompida");
+          this.scheduleReconnect();
         }
       };
-    } catch (e) {
-      const message = e instanceof Error ? e.message : "Erro ao conectar";
+    } catch (error) {
+      this.connecting = false;
+      const message = error instanceof Error ? error.message : "Erro ao conectar";
       this.handlers.onStatus?.("error", message);
+      if (!(error instanceof ApiError && error.status === 401)) {
+        this.scheduleReconnect();
+      }
     }
   }
 
@@ -78,16 +112,45 @@ export class TableSocket {
 
   disconnect(): void {
     this.closedByUser = true;
+    this.connecting = false;
     this.clearPing();
+    this.clearReconnect();
+    window.removeEventListener("online", this.handleOnline);
     this.ws?.close();
     this.ws = null;
     this.handlers.onStatus?.("disconnected");
+  }
+
+  private scheduleReconnect(): void {
+    if (this.closedByUser || this.reconnectTimer != null) return;
+    if (!navigator.onLine) {
+      this.handlers.onStatus?.("disconnected", "Sem internet — aguardando reconexão");
+      return;
+    }
+
+    const delay = Math.min(1_000 * 2 ** this.reconnectAttempt, 15_000);
+    this.reconnectAttempt += 1;
+    this.handlers.onStatus?.(
+      "connecting",
+      `Reconectando automaticamente em ${Math.ceil(delay / 1_000)}s…`,
+    );
+    this.reconnectTimer = window.setTimeout(() => {
+      this.reconnectTimer = null;
+      void this.connect();
+    }, delay);
   }
 
   private clearPing(): void {
     if (this.pingTimer != null) {
       window.clearInterval(this.pingTimer);
       this.pingTimer = null;
+    }
+  }
+
+  private clearReconnect(): void {
+    if (this.reconnectTimer != null) {
+      window.clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
     }
   }
 }

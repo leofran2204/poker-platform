@@ -1,7 +1,7 @@
 # Deploy Hetzner Cloud — Poker Platform
 
 **Objetivo:** subir a stack Docker (Postgres + Redis + API Axum + Frontend/Caddy) em VPS **robusto e barato**.  
-**Status do produto:** staging / demo. **Sem certificação de produção.** PIX continua mock/sandbox; mesas com dono único por processo.
+**Status do produto:** staging / demo. **Sem certificação de produção.** A VPS mantém PIX mock; DePix existe somente em Sandbox não produtiva e allowlisted; mesas com dono único por processo.
 
 **Domínio do produto:** [`zerotiltpoker.net`](https://zerotiltpoker.net)  
 **Host público (staging/demo):** `zerotiltpoker.net` (apex) — Caddy + Let's Encrypt + reverse_proxy da API no mesmo host.
@@ -65,7 +65,8 @@ Env de referência: `.env.staging.example` ou `../.env.production.example` (nunc
 - [ ] Segredos gerados (nunca commitar `.env`):
   - `JWT_SECRET` ≥ 32 bytes aleatórios
   - `POSTGRES_PASSWORD` forte
-  - `PIX_PROVIDER=mock` / `PIX_MODE=mock` (padrão seguro)
+  - `PIX_PROVIDER=mock` / `PIX_MODE=mock` (padrão seguro da VPS)
+  - Nunca instalar `sk_test_` ou habilitar DePix no ambiente público; a integração DePix é exclusiva de laboratório local não produtivo
 - [ ] `CORS_ORIGINS=https://zerotiltpoker.net` (só HTTPS; a API **rejeita** origem sem HTTPS)
 
 ---

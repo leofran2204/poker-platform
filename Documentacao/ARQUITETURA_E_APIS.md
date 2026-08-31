@@ -1,6 +1,6 @@
 # Arquitetura Técnica & Especificação de APIs - Plataforma de Poker Online em Rust
 
-**Atualizado:** 2026-08-29 | **Status:** Em revisão contínua — S18 catálogo NLHE/SD/SD Omaha, wallets PM×Real, migrations 025; presence; settlements; Frontend-Web canônico; sem certificação de produção.
+**Atualizado:** 2026-08-31 | **Status:** Em revisão contínua — S19, catálogo canônico, sessão resiliente, DePix Sandbox protegida, migrations 030; sem certificação de produção.
 
 Este documento consolida a arquitetura técnica, esquemas de comunicação, contratos de API e modelos de segurança da **Plataforma de Poker Online em Rust**.
 
@@ -100,6 +100,17 @@ Motor interno usa equity em **0.0..=1.0**; o wire expõe percentuais **0–100**
 
 O módulo financeiro usa `wallet_transactions`, `audit_logs` e `outbox_events` no PostgreSQL. Ele ainda não é um livro de partidas dobradas nem uma cadeia de hashes: essas propriedades não são alegadas até existirem no esquema e em uma auditoria independente.
 
+#### DePix Sandbox (somente ambiente não produtivo)
+
+- `POST /api/payments/pix/deposit` cria checkout com `Idempotency-Key` UUID, valor em centavos e CPF/CNPJ encaminhado à DePix sem persistência ou log local.
+- `GET /api/payments/pix/deposit/:tx_id` reconcilia o status do checkout; `POST .../:tx_id/simulate` existe apenas em `ENVIRONMENT=development` e para usuário allowlisted.
+- O adaptador aceita exclusivamente `PIX_PROVIDER=depix`, `PIX_MODE=sandbox`, chave `sk_test_` e origem `https://api.depixapp.com`; produção DePix é rejeitada pelo código.
+- O webhook valida HMAC sobre `timestamp.raw_body`, aplica janela de 5 minutos, confere cabeçalhos/evento/cobrança/valor e deduplica `event_id` em `payment_webhook_events` sem guardar o payload bruto.
+- Somente `checkout.completed` credita `balance_real`. Estados `pending`, `processing` e `approved` nunca liberam saldo; cancelamento e expiração encerram apenas intenções ainda pendentes.
+- O instalador local `scripts/install-depix-local-secrets.ps1` valida a chave em `/api/me` e grava os segredos somente no `.env` ignorado pelo Git.
+
+Referências técnicas: [Documentação DePix](https://depixapp.com/docs/) e [OpenAPI DePix](https://depixapp.com/openapi.json).
+
 ### Invariantes Financeiras & Arquitetura Monetária:
 1. **Arquitetura Estrita `u64` Centavos Inteiros:**
    - **Interface Pública, Axum & Frontend-Web:** A comunicação WebSocket, payloads JSON Serde, banco de dados PostgreSQL e estruturas de mesa trafegam e armazenam valores numéricos estritamente em **centavos inteiros (`u64`)** (`R$ 150,00` = `15000` centavos). Erros de arredondamento IEEE-754 flutuantes são totalmente eliminados na raiz.
@@ -180,7 +191,7 @@ Contador de usuários **logados** com heartbeat recente — distinto dos assento
 - Não há benchmark de release certificado neste repositório. Throughput, latência e capacidade devem ser obtidos exclusivamente em uma execução autorizada da validação completa, com o TSV de evidência gerado pelos scripts.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-08-29):** S18 — Catálogo cash NLHE+Short Deck+SD Omaha (PM×Real); frentes fixas; motor short_deck_omaha; notícias com capa temática; testes 10k/mesa + e2e seeded Real/PM. Demo VPS zerotiltpoker.net. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** VPS stack healthy (postgres, redis, api, frontend/Caddy). Migrations 001–025. Presence API no ar. Motor: cash_catalog_10k_hands PASS (4 configs × 10k); short_deck_massive PASS; tournament_engine 954 ok. Smoke live seeded Real+PM: join+≥1 mão em cada mesa OPEN; inscrição torneios OK. Mock/auto PIX bloqueado para gaming em vários PSPs. Fluxo vigente: Pedir fichas (depósito manual) + comprovante + aprovação admin. Nenhum gateway de saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
+> **Estado operacional sincronizado (2026-08-31):** S19 — Sessão resiliente no frontend e integração DePix Sandbox protegida; catálogo cash canônico NLHE 0,25/0,25, Hold'em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local healthy e migrations 001–030 aplicadas. Gate S19: cargo fmt, Clippy estrito e 51 testes ativos selecionados da API; 4 contratos financeiros PostgreSQL isolados; TypeScript e build Vite — todos sem falhas. Mantidas as evidências anteriores de stress do motor Short Deck e do catálogo cash. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

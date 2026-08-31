@@ -1,10 +1,17 @@
 import { FormEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { applyAuthTokens, login, verifyMfa } from "@/api/client";
 import { saveUsername } from "@/lib/auth";
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const requestedReturnTo = searchParams.get("returnTo");
+  const returnTo =
+    requestedReturnTo?.startsWith("/") && !requestedReturnTo.startsWith("//")
+      ? requestedReturnTo
+      : "/lobby";
+  const sessionExpired = searchParams.get("reason") === "session-expired";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +28,7 @@ export function LoginPage() {
         const tokens = await verifyMfa(mfaChallenge, mfaCode.trim());
         applyAuthTokens(tokens);
         saveUsername(tokens.username ?? (email.trim().split("@")[0] || "jogador"));
-        navigate("/lobby");
+        navigate(returnTo, { replace: true });
         return;
       }
 
@@ -51,7 +58,7 @@ export function LoginPage() {
         expires_in: res.expires_in,
       });
       saveUsername(res.username ?? (email.trim().split("@")[0] || "jogador"));
-      navigate("/lobby");
+      navigate(returnTo, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha no login");
     } finally {
@@ -64,6 +71,14 @@ export function LoginPage() {
       <div className="zt-panel">
         <div className="zt-panel-title">Entrar</div>
         <form className="space-y-4 p-5" onSubmit={onSubmit}>
+          {sessionExpired && (
+            <p
+              className="rounded border border-amber-600 bg-amber-950/60 px-3 py-2 text-sm text-amber-100"
+              role="alert"
+            >
+              Sua sessão expirou ou foi encerrada. Entre novamente para continuar com segurança.
+            </p>
+          )}
           {mfaChallenge ? (
             <div>
               <label className="zt-label" htmlFor="mfa-code">

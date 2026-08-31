@@ -1,4 +1,9 @@
-import { getToken, saveTokens } from "@/lib/auth";
+import { clearTokens, getRefreshToken, getToken, saveTokens } from "@/lib/auth";
+import {
+  emitConnectionStatus,
+  emitSessionExpired,
+  emitSessionRestored,
+} from "@/lib/sessionEvents";
 import type {
   AdminPresenceResponse,
   AdminStatsResponse,
@@ -10,6 +15,8 @@ import type {
   AuditLogItem,
   DepositInfoResponse,
   DepositRequestResponse,
+  PixDepositResponse,
+  PixDepositStatusResponse,
   ClubAgentResponse,
   ClubFinancialsResponse,
   ClubResponse,
@@ -39,10 +46,72 @@ async function parseError(res: Response): Promise<string> {
   }
 }
 
+type RefreshResult = "refreshed" | "invalid";
+
+let refreshInFlight: Promise<RefreshResult> | null = null;
+let sessionExpiredNotified = false;
+
+function connectionError(): ApiError {
+  return new ApiError(
+    "Sem conexão com a plataforma. Tentaremos reconectar automaticamente.",
+    0,
+  );
+}
+
+async function refreshAccessToken(): Promise<RefreshResult> {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) return "invalid";
+
+  let res: Response;
+  try {
+    res = await fetch("/api/auth/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+  } catch {
+    emitConnectionStatus("offline");
+    throw connectionError();
+  }
+
+  emitConnectionStatus("online");
+  if (res.status === 400 || res.status === 401 || res.status === 403) {
+    return "invalid";
+  }
+  if (!res.ok) {
+    throw new ApiError(await parseError(res), res.status);
+  }
+
+  const tokens = (await res.json()) as TokenResponse;
+  if (!tokens.token) return "invalid";
+
+  saveTokens(tokens.token, tokens.refresh_token ?? refreshToken);
+  sessionExpiredNotified = false;
+  emitSessionRestored();
+  return "refreshed";
+}
+
+function tryRefreshAccessToken(): Promise<RefreshResult> {
+  if (!refreshInFlight) {
+    refreshInFlight = refreshAccessToken().finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
+}
+
+function expireSession(): void {
+  clearTokens();
+  if (sessionExpiredNotified) return;
+  sessionExpiredNotified = true;
+  emitSessionExpired();
+}
+
 async function request<T>(
   path: string,
   init: RequestInit = {},
   auth = true,
+  allowRefresh = true,
 ): Promise<T> {
   const headers = new Headers(init.headers);
   if (!headers.has("Content-Type") && init.body) {
@@ -53,12 +122,23 @@ async function request<T>(
     if (token) headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const res = await fetch(path, { ...init, headers });
+  let res: Response;
+  try {
+    res = await fetch(path, { ...init, headers });
+  } catch {
+    emitConnectionStatus("offline");
+    throw connectionError();
+  }
+
+  emitConnectionStatus("online");
   if (res.status === 401 && auth) {
-    // keep local state honest on hard auth failures
-    if (!path.includes("/auth/")) {
-      /* caller may redirect */
+    if (allowRefresh) {
+      const refreshed = await tryRefreshAccessToken();
+      if (refreshed === "refreshed") {
+        return request<T>(path, init, auth, false);
+      }
     }
+    expireSession();
   }
   if (!res.ok) {
     throw new ApiError(await parseError(res), res.status);
@@ -375,6 +455,26 @@ export async function fetchDepositInfo(): Promise<DepositInfoResponse> {
   return request<DepositInfoResponse>("/api/wallet/deposit-info");
 }
 
+export async function createPixDeposit(
+  body: { amount: number; payer_tax_number: string },
+  idempotencyKey: string,
+): Promise<PixDepositResponse> {
+  return request("/api/payments/pix/deposit", {
+    method: "POST",
+    headers: { "Idempotency-Key": idempotencyKey },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function getPixDepositStatus(txId: string): Promise<PixDepositStatusResponse> {
+  return request(`/api/payments/pix/deposit/${encodeURIComponent(txId)}`);
+}
+
+export async function simulatePixDeposit(txId: string): Promise<PixDepositStatusResponse> {
+  return request(`/api/payments/pix/deposit/${encodeURIComponent(txId)}/simulate`, {
+    method: "POST",
+  });
+}
 export async function listMyDepositRequests(): Promise<DepositRequestResponse[]> {
   return request<DepositRequestResponse[]>("/api/wallet/deposit-requests");
 }
@@ -415,6 +515,8 @@ export async function rejectDepositRequest(
 
 export function applyAuthTokens(tokens: TokenResponse): void {
   saveTokens(tokens.token, tokens.refresh_token ?? "");
+  sessionExpiredNotified = false;
+  emitSessionRestored();
 }
 
 export interface OnlinePresenceResponse {
