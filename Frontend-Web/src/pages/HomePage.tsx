@@ -11,30 +11,10 @@ export function HomePage() {
     <div className="mx-auto w-full max-w-6xl">
       <OnlinePresenceHero />
 
-      {/* Top: preenche os vazios laterais do login/criar conta — 3 colunas no desktop */}
-      <div className="mt-4 grid gap-4 lg:grid-cols-[300px_1fr_300px] lg:items-stretch">
-        {/* Esquerda: acesso rápido Entrar */}
-        <div className="zt-panel flex flex-col p-5">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-gold-bright">
-            Já tem conta?
-          </h2>
-          <p className="mt-2 text-sm leading-relaxed text-felt-200">
-            Entre para ver o lobby, escolher a mesa e jogar. Leva 10 segundos.
-          </p>
-          <ul className="mt-3 list-disc space-y-1 pl-5 text-xs leading-relaxed text-felt-300">
-            <li>Lobby com filtros por stake e variante</li>
-            <li>Mínimo 2 na mesa para iniciar a mão</li>
-            <li>Play Money + Jogo Real separados</li>
-          </ul>
-          <Link to="/login" className="zt-btn-secondary mt-4 w-full justify-center py-2.5">
-            Entrar
-          </Link>
-          <Link to="/verify-email" className="mt-2 text-center text-xs text-felt-400 hover:text-gold-soft hover:underline">
-            Verificar e-mail
-          </Link>
-        </div>
+      {/* Top: histórias nas laterais preenchem os vazios do login/criar conta */}
+      <div className="mt-4 grid gap-4 lg:grid-cols-[360px_1fr_360px] lg:items-start">
+        <PokerHistory variant="world" />
 
-        {/* Centro: hero */}
         <div className="zt-panel overflow-hidden">
           <div className="border-b-2 border-rail bg-felt-850 px-6 py-8 text-center">
             <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-gold-soft">
@@ -76,28 +56,6 @@ export function HomePage() {
           </div>
         </div>
 
-        {/* Direita: acesso rápido Criar conta */}
-        <div className="zt-panel flex flex-col p-5">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-gold-bright">
-            Novo por aqui?
-          </h2>
-          <p className="mt-2 text-sm leading-relaxed text-felt-200">
-            Crie sua conta e ganhe fichas Play Money para treinar sem risco.
-          </p>
-          <ul className="mt-3 list-disc space-y-1 pl-5 text-xs leading-relaxed text-felt-300">
-            <li>R$ 1.000 Play Money por dia</li>
-            <li>Verificação por e-mail em 6 dígitos</li>
-            <li>Mesas para iniciantes e avançados</li>
-          </ul>
-          <Link to="/register" className="zt-btn-primary mt-4 w-full justify-center py-2.5">
-            Criar conta
-          </Link>
-          <p className="mt-2 text-center text-xs text-felt-400">Leva 30 segundos</p>
-        </div>
-      </div>
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <PokerHistory variant="world" />
         <PokerHistory variant="brazil" />
       </div>
 
