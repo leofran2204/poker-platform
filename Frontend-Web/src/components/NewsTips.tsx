@@ -6,6 +6,7 @@ import { parseJinaMarkdown, parseRssXml } from "@/lib/parseRss";
 import {
   dedupeCoverImages,
   htmlToPlainText,
+  htmlToStructuredMarkdown,
   isAcceptableCoverImage,
   isAdBanner,
   resolveArticleBody,
@@ -43,7 +44,7 @@ interface FeedConfig {
 /**
  * Fontes RSS.
  * - news → só aba Notícias
- * - tips → só aba Jogando melhor
+ * - tips → só aba Dica do Pró
  * - both → notícia na aba Notícias; tip só se for claramente estratégia
  */
 const CONTENT_FEEDS: FeedConfig[] = [
@@ -83,52 +84,52 @@ const LOCAL_NEWS: LocalNews[] = [
     description:
       "O belga Pierre Neuville faleceu aos 83 anos. Conhecido como “The Serial Qualifier” (23 satélites EPT seguidos), foi 7º no Main Event da WSOP 2015 (US$ 1,2 mi) e acumulou mais de US$ 5 mi em torneios ao vivo. Homenagem da comunidade ao recreativo que virou lenda nas mesas.",
     category: "Homenagem",
-    link: "https://mundopoker.com.br/noticias/geral/morre-aos-83-anos-pierre-neuville-lenda-belga-e-finalista-do-main-event-da-wsop-em-2015/",
+    link: "https://mundopoker.com.br/Notícias/geral/morre-aos-83-anos-pierre-neuville-lenda-belga-e-finalista-do-main-event-da-wsop-em-2015/",
     pubDate: "2026-08-26T21:09:24Z",
   },
   {
     id: "n1",
-    title: "BSOP Floripa: 6 jogadores classificados via satelite PokerStars",
+    title: "BSOP Floripa: 6 jogadores classificados via satélite PokerStars",
     description:
-      "Terceiro satelite garantiu buy-in de US$ 109 para o Main Event (R$ 4.000 direto). Bruno Godoy, Joao Gilvani Jr, Mauricio Nalin, Paulo Henrique Monteiro, Robson Mafra e Vitor Balthazar estao garantidos. Total de 45+ brasileiros classificados.",
+      "Terceiro satélite garantiu buy-in de US$ 109 para o Main Event (R$ 4.000 direto). Bruno Godoy, João Gilvani Jr., Maurício Nalin, Paulo Henrique Monteiro, Robson Mafra e Vitor Balthazar estão garantidos. Total de 45+ brasileiros classificados.",
     category: "BSOP",
-    link: "https://mundopoker.com.br/noticias/bsop/seis-jogadores-se-classificam-para-o-bsop-floripa-em-satelite-no-pokerstars/",
+    link: "https://mundopoker.com.br/Notícias/bsop/seis-jogadores-se-classificam-para-o-bsop-floripa-em-satelite-no-pokerstars/",
     pubDate: "2026-08-19T20:18:05Z",
   },
   {
     id: "n2",
-    title: "BSOP e PokerStars dobram garantidos: Mega Satelites classificam 40 para Floripa",
+    title: "BSOP e PokerStars dobram garantidos: Mega Satélites classificam 40 para Floripa",
     description:
-      "Parceria ampliou garantidos e mega satelites agora colocam 40 jogadores no Main Event do BSOP Floripa. Buy-in satelite permanece acessivel em US$ 109.",
+      "Parceria ampliou garantidos e mega satélites agora colocam 40 jogadores no Main Event do BSOP Floripa. Buy-in do satélite permanece acessível em US$ 109.",
     category: "BSOP",
-    link: "https://mundopoker.com.br/noticias/bsop/bsop-e-pokerstars-dobram-garantidos-e-mega-satelites-classificarao-40-jogadores-para-o-bsop-floripa/",
+    link: "https://mundopoker.com.br/Notícias/bsop/bsop-e-pokerstars-dobram-garantidos-e-mega-satelites-classificarao-40-jogadores-para-o-bsop-floripa/",
     pubDate: "2026-08-18T15:30:00Z",
   },
   {
     id: "n4",
     title: "Ian Simpson (888poker): Como explorar limp do Small Blind",
     description:
-      "Embaixador ensina: BB deve aumentar raises para isolar SB que limpa. Vantagem posicional pos-flop e chave. Dica de randomizacao com segunda carta do naipe do board para balancear range de raise.",
-    category: "Estrategia",
-    link: "https://pokerlife.com.br/noticias/embaixador-888poker-ian-simpson-como-jogar-contra-limp-small-blind",
+      "Embaixador ensina: o big blind deve aumentar para isolar o small blind que limpa. Vantagem posicional pós-flop é a chave. Dica de randomização com a segunda carta do naipe do board para balancear o range.",
+    category: "Estratégia",
+    link: "https://pokerlife.com.br/Notícias/embaixador-888poker-ian-simpson-como-jogar-contra-limp-small-blind",
     pubDate: "2026-04-25T00:00:00Z",
   },
   {
     id: "n6",
-    title: "AbacateLeao usa nota, acerta read e leva pote de 200+ blinds",
+    title: "AbacateLeão usa nota, acerta leitura e leva pote de 200+ blinds",
     description:
-      "Streamer brasileiro registrou fraqueza do vilao em nota, identificou shove de 109.5 BB como blefe, fez hero call com Q-high e ganhou pote gigante. Prova do valor de note-taking consistente.",
+      "Streamer brasileiro registrou fraqueza do vilão em nota, identificou shove de 109,5 BB como blefe, fez hero call com Q-high e ganhou pote gigante. Prova do valor de anotações consistentes.",
     category: "Highlights",
-    link: "https://mundopoker.com.br/noticias/geral/abacateleao-usa-nota-para-identificar-rival-faz-leitura-perfeita-e-fatura-pote-gigantesco-com-mais-de-200-blinds/",
+    link: "https://mundopoker.com.br/Notícias/geral/abacateleao-usa-nota-para-identificar-rival-faz-leitura-perfeita-e-fatura-pote-gigantesco-com-mais-de-200-blinds/",
     pubDate: "2026-02-26T00:00:00Z",
   },
   {
     id: "n10",
-    title: "Mundo Poker fara cobertura presencial da WSOP Las Vegas pelo 6o ano",
+    title: "Mundo Poker fará cobertura presencial da WSOP Las Vegas pelo 6º ano",
     description:
-      "Equipe (Augusto Cesar e Guilherme Schiff) cobrira in loco com materias, Instagram, stories ao vivo. Sexto ano consecutivo. Cobertura multimidia do principal evento de poker do mundo.",
+      "Equipe (Augusto Cesar e Guilherme Schiff) cobrirá in loco com matérias, Instagram e stories ao vivo. Sexto ano consecutivo. Cobertura multimídia do principal evento de pôquer do mundo.",
     category: "WSOP",
-    link: "https://mundopoker.com.br/noticias/wsop/mundo-poker-tera-cobertura-presencial-da-wsop-las-vegas-pelo-sexto-ano-consecutivo-confira-detalhes/",
+    link: "https://mundopoker.com.br/Notícias/wsop/mundo-poker-tera-cobertura-presencial-da-wsop-las-vegas-pelo-sexto-ano-consecutivo-confira-detalhes/",
     pubDate: "2026-05-26T00:00:00Z",
   },
 ];
@@ -223,7 +224,7 @@ function classifyStreet(title: string, body = ""): FeedItem["street"] | undefine
   return undefined;
 }
 
-/** Manchete tipicamente de notícia (resultado/torneio) — NÃO vai para Jogando melhor. */
+/** Manchete tipicamente de notícia (resultado/torneio) — NÃO vai para Dica do Pró. */
 function looksLikeNewsHeadline(title: string): boolean {
   const t = normalizeText(title);
   return /venceu|vence |campeao|campea|morre|faleceu|classific|lidera|caiu|eliminad|bracelet|premia|inscric|satelite|cobertura|resultado|final table|mesa final|dia \d|main event|high roller|forra|faturou|leva us\$|leva r\$|conquist/.test(
@@ -232,7 +233,7 @@ function looksLikeNewsHeadline(title: string): boolean {
 }
 
 /**
- * Só manda para Jogando melhor se for feed de tips OU (both) claramente estratégico.
+ * Só manda para Dica do Pró se for feed de tips OU (both) claramente estratégico.
  * Feed "news" nunca vaza para a aba de dicas.
  */
 function isStrategyContent(title: string, body: string, feedKind: FeedConfig["kind"]): boolean {
@@ -437,7 +438,9 @@ export function NewsTips({ className }: { className?: string }) {
           (typeof item.content === "string" && item.content) ||
           (typeof item.description === "string" && item.description) ||
           "";
-        const body = htmlToPlainText(rawBody);
+        // Dica do Pró preserva headings/listas/tabelas para iniciante
+        const useStructured = feed.kind === "tips" || feed.kind === "both";
+        const body = useStructured ? htmlToStructuredMarkdown(rawBody) : htmlToPlainText(rawBody);
         // Só thumbnail oficial do feed — NÃO a 1ª <img> do HTML (causa foto errada)
         const thumb =
           typeof item.thumbnail === "string" && isAcceptableCoverImage(item.thumbnail)
@@ -554,7 +557,7 @@ export function NewsTips({ className }: { className?: string }) {
 
         for (const { feed, items: feedItems } of batches) {
           for (const item of feedItems) {
-            // Jogando melhor: só tips dedicados ou "both" com estratégia clara
+            // Dica do Pró: só tips dedicados ou "both" com estratégia clara
             if (isStrategyContent(item.title, item.description ?? "", feed.kind)) {
               tipsPool.push({
                 ...item,
@@ -730,7 +733,7 @@ export function NewsTips({ className }: { className?: string }) {
                   d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
                 />
               </svg>
-              Noticias
+              Notícias
             </span>
           </button>
           <button
@@ -749,7 +752,7 @@ export function NewsTips({ className }: { className?: string }) {
                   d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.734-.988-2.386l-.548-.547z"
                 />
               </svg>
-              Jogando melhor
+              Dica do Pró
             </span>
           </button>
         </nav>
@@ -782,7 +785,7 @@ export function NewsTips({ className }: { className?: string }) {
           <div className="flex items-center justify-center py-8">
             <div className="zt-spinner" />
             <span className="ml-3 text-felt-300">
-              {activeTab === "news" ? "Carregando noticias..." : "Carregando dicas e estrategia..."}
+              {activeTab === "news" ? "Carregando Notícias..." : "Carregando dicas e estrategia..."}
             </span>
           </div>
         )}
@@ -803,7 +806,7 @@ export function NewsTips({ className }: { className?: string }) {
         <div
           className="space-y-3"
           role="feed"
-          aria-label={`${activeTab === "news" ? "Noticias" : "Jogando melhor"} de poker`}
+          aria-label={`${activeTab === "news" ? "Notícias" : "Dica do Pró"} de poker`}
         >
           {!loading &&
             items.map((item) => {

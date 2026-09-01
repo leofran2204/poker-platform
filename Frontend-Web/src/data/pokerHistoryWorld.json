@@ -1,0 +1,30 @@
+{
+  "title": "De onde veio o pôquer",
+  "subtitle": "3 minutos para entender o jogo — sem jargão",
+  "blocks": [
+    {
+      "year": "1829",
+      "title": "Rio Mississippi — 20 cartas e muita blefada",
+      "text": "O pôquer nasceu nos barcos a vapor do Mississippi, nos EUA. Com um baralho de apenas 20 cartas (Ás a 10), colonos e marinheiros apostavam em quem tinha a melhor mão. **O que isso te ensina:** blefe já era a alma do jogo — ter coragem vale tanto quanto ter carta boa.",
+      "takeaway": "Blefe não é trapaça, é parte do jogo desde o início."
+    },
+    {
+      "year": "1970",
+      "title": "Binion's Horseshoe — nasce a WSOP",
+      "text": "Benny Binion juntou 7 jogadores em Las Vegas para eleger o campeão mundial. Nasceu a World Series of Poker. O troféu virou um bracelete de ouro e o Main Event, o campeonato mais famoso do mundo. **O que isso te ensina:** torneio tem níveis que sobem — igual ao nosso Big Blind Ante.",
+      "takeaway": "Torneio = paciência nos níveis iniciais, pressão nos finais."
+    },
+    {
+      "year": "2003",
+      "title": "Efeito Moneymaker — o contador que virou campeão",
+      "text": "Chris Moneymaker pagou US$ 86 num satélite online e ganhou US$ 2,5 milhões no Main Event. Milhões viram que qualquer um podia ganhar e o pôquer online explodiu. **O que isso te ensina:** satélites baratos são a porta de entrada — igual aos nossos satélites de R$ 5 a R$ 109 para o BSOP.",
+      "takeaway": "Comece barato: satélite é a melhor escola."
+    },
+    {
+      "year": "Hoje",
+      "title": "Esporte da mente",
+      "text": "Reconhecido como esporte da mente, o pôquer combina matemática, leitura e controle emocional. Online, você joga centenas de mãos por hora e aprende 10x mais rápido que ao vivo. **O que isso te ensina:** volume + estudo = evolução. Jogue focado, revise suas mãos.",
+      "takeaway": "Estude 1 hora para cada 2 horas de jogo."
+    }
+  ]
+}

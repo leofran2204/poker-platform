@@ -110,6 +110,40 @@ export function htmlToPlainText(html: string): string {
   return clean;
 }
 
+/** Preserva headings, listas e tabelas em Markdown para leitura de iniciante. */
+export function htmlToStructuredMarkdown(html: string): string {
+  let s = stripNoiseHtml(html);
+  // headings → ##
+  s = s.replace(/<h[1-6][^>]*>\s*/gi, "\n## ");
+  s = s.replace(/<\/h[1-6]>/gi, "\n");
+  // listas
+  s = s.replace(/<li[^>]*>\s*/gi, "\n- ");
+  s = s.replace(/<\/li>/gi, "");
+  s = s.replace(/<\/(p|div|br|tr)>/gi, "\n");
+  s = s.replace(/<br\s*\/?>/gi, "\n");
+  // tabelas: mantém pipes
+  s = s.replace(/<\/tr>/gi, "\n");
+  s = s.replace(/<\/td>/gi, " | ");
+  s = s.replace(/<\/th>/gi, " | ");
+  s = s.replace(/<tr[^>]*>/gi, "\n| ");
+  // remove tags restantes
+  s = s.replace(/<[^>]+>/g, " ");
+  s = s
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+  // limpa pipes duplicados
+  s = s.replace(/\|\s+\|/g, "| |");
+  return s;
+}
+
 function extractArticleHtml(html: string): string {
   const candidates = [
     html.match(/<article[^>]*>([\s\S]*?)<\/article>/i)?.[1],

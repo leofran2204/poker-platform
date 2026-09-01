@@ -1,0 +1,30 @@
+{
+  "title": "O pôquer no Brasil",
+  "subtitle": "Do clube de bairro ao maior torneio da América Latina",
+  "blocks": [
+    {
+      "year": "1998",
+      "title": "Clubes de São Paulo",
+      "text": "O pôquer chegou aos clubes de bridge e xadrez de São Paulo como diversão entre amigos. Sem dinheiro alto, valia a resenha e o aprendizado. **O que isso te ensina:** pôquer é social — aprende-se conversando sobre mãos.",
+      "takeaway": "Converse sobre mãos com amigos, acelera o aprendizado."
+    },
+    {
+      "year": "2006",
+      "title": "Nasce o BSOP",
+      "text": "Igor Trafane criou o Brazilian Series of Poker. De 100 jogadores no início para milhares hoje, o BSOP virou o maior torneio da América Latina e porta para a WSOP. **O que isso te ensina:** circuito com níveis e garantidos — igual aos nossos torneios de R$ 100 e R$ 200 GTD.",
+      "takeaway": "BSOP é a escada: comece nos freerolls."
+    },
+    {
+      "year": "2010s",
+      "title": "Streamers e a escola aberta",
+      "text": "Nomes como André Akkari, Felipe Mojave e streamers como AbacateLeão levaram estratégia grátis para Twitch e YouTube. Anotações, lives e reviews viraram estudo diário. **O que isso te ensina:** absorva conteúdo gratuito, mas filtre — nem todo blefe de stream serve para iniciante.",
+      "takeaway": "Veja 1 vídeo e aplique 1 conceito por sessão."
+    },
+    {
+      "year": "2027",
+      "title": "Regulação e jogo responsável",
+      "text": "O Brasil caminha para a regulação do jogo com verificação de identidade e proteção ao jogador. Nossa plataforma já nasce nesse padrão: verificação de e-mail, jogo limpo e sem promessa de dinheiro fácil. **O que isso te ensina:** jogue com banca separada e limite de tempo.",
+      "takeaway": "Banca é ferramenta, não dinheiro do mês."
+    }
+  ]
+}

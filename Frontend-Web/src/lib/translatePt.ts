@@ -45,6 +45,59 @@ function chunkText(text: string, size: number): string[] {
   return chunks.filter(Boolean);
 }
 
+/** Correção ortográfica pós-tradução para PT-BR (garante futuro). */
+export function correctPtOrthography(text: string): string {
+  let out = text;
+  const reps: Array<[RegExp, string]> = [
+    [/\bO que e\b/g, "O que é"],
+    [/\bE uma\b/g, "É uma"],
+    [/\bE um\b/g, "É um"],
+    [/\bnao e\b/g, "não é"],
+    [/\bvoce\b/gi, "você"],
+    [/\bVoce\b/g, "Você"],
+    [/\bMao\b/g, "Mão"],
+    [/\bmao\b/g, "mão"],
+    [/\bMaos\b/g, "Mãos"],
+    [/\bmaos\b/g, "mãos"],
+    [/\bAcao\b/g, "Ação"],
+    [/\bacao\b/g, "ação"],
+    [/\bPosicao\b/g, "Posição"],
+    [/\bposicao\b/g, "posição"],
+    [/\bInformacao\b/g, "Informação"],
+    [/\binformacao\b/g, "informação"],
+    [/\bnao\b/g, "não"],
+    [/\bNao\b/g, "Não"],
+    [/\btambem\b/g, "também"],
+    [/\bTambem\b/g, "Também"],
+    [/\bestao\b/g, "estão"],
+    [/\bEstao\b/g, "Estão"],
+    [/\bmaximo\b/g, "máximo"],
+    [/\bmedio\b/g, "médio"],
+    [/\bMEDIA\b/g, "MÉDIA"],
+    [/\bMAOS\b/g, "MÃOS"],
+    [/\bESPECIFICAS\b/g, "ESPECÍFICAS"],
+    [/\bVILAO\b/g, "VILÃO"],
+    [/\bvilao\b/g, "vilão"],
+    [/\bsatelite\b/g, "satélite"],
+    [/\bSatelite\b/g, "Satélite"],
+    [/\bSatelites\b/g, "Satélites"],
+    [/\bacessivel\b/g, "acessível"],
+    [/\bnumero\b/g, "número"],
+    [/\bestrategia\b/g, "estratégia"],
+    [/\bEstrategia\b/g, "Estratégia"],
+    [/\bnoticia\b/g, "notícia"],
+    [/\bNoticia\b/g, "Notícia"],
+    [/\bmateria\b/g, "matéria"],
+    [/\bMateria\b/g, "Matéria"],
+    [/\b6o ano\b/g, "6º ano"],
+    [/\b(\d+)o ano\b/g, "$1º ano"],
+  ];
+  for (const [re, rep] of reps) out = out.replace(re, rep);
+  // normaliza travessão em títulos: " -- " → " — "
+  out = out.replace(/ -- /g, " — ");
+  return out;
+}
+
 /** Heurística: texto já parece português BR? */
 export function looksLikePortuguese(text: string): boolean {
   const t = text.toLowerCase();
@@ -140,10 +193,11 @@ export async function translateToPortuguese(
   try {
     const parts: string[] = [];
     for (const chunk of chunkText(trimmed, CHUNK)) {
-      parts.push(await translateChunk(chunk, fromLang));
+      const raw = await translateChunk(chunk, fromLang);
+      parts.push(correctPtOrthography(raw));
       await new Promise((r) => setTimeout(r, 80));
     }
-    const result = parts.join(" ").replace(/\s+/g, " ").trim();
+    const result = correctPtOrthography(parts.join(" ").replace(/\s+/g, " ").trim());
     if (result) cacheSet(key, result);
     return result || text;
   } catch {
@@ -160,12 +214,12 @@ export async function translateNewsFields(input: {
 }): Promise<{ title: string; description?: string }> {
   const from = input.fromLang ?? "auto";
   const force = Boolean(input.force);
-  const title = await translateToPortuguese(input.title, from, force);
+  const title = correctPtOrthography(await translateToPortuguese(input.title, from, force));
   let description = input.description;
   if (description && description.trim()) {
     const clipped =
       description.length > 3000 ? `${description.slice(0, 3000).trim()}…` : description;
-    description = await translateToPortuguese(clipped, from, force);
+    description = correctPtOrthography(await translateToPortuguese(clipped, from, force));
   }
   return { title, description };
 }

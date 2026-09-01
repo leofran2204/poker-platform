@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { isAuthenticated } from "@/lib/auth";
 import { OnlinePresenceHero } from "@/components/OnlinePresence";
 import { NewsTips } from "@/components/NewsTips";
+import { PokerHistory } from "@/components/PokerHistory";
 
 export function HomePage() {
   const authed = isAuthenticated();
@@ -52,6 +53,11 @@ export function HomePage() {
             />
           </div>
         </div>
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <PokerHistory variant="world" />
+        <PokerHistory variant="brazil" />
       </div>
 
       <NewsTips className="mt-6" />
