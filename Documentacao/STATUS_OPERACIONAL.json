@@ -1,7 +1,7 @@
 {
     "schema_version":  1,
-    "reviewed_on":  "2026-08-31",
-    "cycle":  "S19 — Sessão resiliente no frontend e integração DePix Sandbox protegida; catálogo cash canônico NLHE 0,25/0,25, Hold\u0027em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real).",
+    "reviewed_on":  "2026-09-01",
+    "cycle":  "S20 — Big Blind Ante 26 níveis nos torneios + potes laterais com ante morto; cash permanece sem ante; catálogo cash canônico NLHE 0,25/0,25, Hold\u0027em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real).",
     "stack":  {
                   "motor_api":  "Rust (Motor-Rust + API-Axum)",
                   "frontend_canonical":  "Frontend-Web (TypeScript + React + Vite + Tailwind)",
@@ -10,7 +10,7 @@
               },
     "production":  "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.",
     "regulation":  "Trilho de regulação, KYC/AML e compliance de jogo/dinheiro real: planejado para janeiro de 2027. Até lá: Play Money + Jogo Real com depósito manual; freios de PIX automático em production.",
-    "validation":  "Stack Docker local healthy e migrations 001–030 aplicadas. Gate S19: cargo fmt, Clippy estrito e 51 testes ativos selecionados da API; 4 contratos financeiros PostgreSQL isolados; TypeScript e build Vite — todos sem falhas. Mantidas as evidências anteriores de stress do motor Short Deck e do catálogo cash.",
+    "validation":  "Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy (poker_api/poker_frontend/poker_postgres/poker_redis); migrations 001–032 aplicadas (BBA). Gate S20: cargo fmt, Clippy estrito (Motor + API), 1828 testes Motor-Rust (incl. 3 BBA) + 35 testes API-Axum + TypeScript tsc + Vite build — todos sem falhas; VPS validado com 6 torneios 26 níveis ante=big_blind (invalid_BBA=0), backup verificável, rebuild 4m13s e health público OK. Mantidas evidências de stress Short Deck e catálogo cash.",
     "cash_catalog":  {
                          "modes":  [
                                        "play",

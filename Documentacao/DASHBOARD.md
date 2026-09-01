@@ -1,6 +1,6 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-08-31 | **Status:** **S19** — sessão resiliente + DePix Sandbox protegida + migration 030; demo/staging; sem certificação de produção.
+**Atualizado:** 2026-09-01 | **Status:** **S20** — Big Blind Ante 26 níveis (032) + potes laterais com ante morto; demo/staging; sem certificação de produção.
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📌 **Fonte canônica de estado:** [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json) — prevalece sobre qualquer texto datado abaixo.
@@ -66,6 +66,8 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S14–S16 | 2026-08 | Admin, depósitos manuais, privacidade | Painel admin; Pedir fichas PIX; WHOIS/noindex | 🟢 Fechado |
 | S17 | 2026-08 | Play Money × Jogo Real | Wallets PM cash/MTT + Real; mesas/torneios isolados por `money_mode` | 🟢 Fechado |
 | S18 | 2026-08-29 | Variantes + catálogo + validação | Short Deck + SD Omaha; frentes/blinds oficiais; 10k mãos/config PASS; e2e Real/PM mesa a mesa PASS; migrations 025 | 🟢 Fechado (demo) |
+| S19 | 2026-08-31 | Sessão resiliente + DePix Sandbox protegida | Heartbeat + presence TTL 90s; DePix sk_test + allowlist + HMAC + dedup; migrations 030 | 🟢 Fechado (demo) |
+| S20 | 2026-09-01 | Big Blind Ante 26 níveis + potes laterais | Ante = big_blind 26/26 (BBA); ante morto só no main pot; cash sem ante; `HoldemFTShortDeck` (VARCHAR 30); 1828 Motor + 35 API PASS; VPS 4/4 healthy | 🟢 Fechado (demo) |
 
 **Catálogo cash vigente:** NL 0,25/0,25 · NL 0,25/0,50 · SD 0,50/0,50 · SD Omaha 0,50/1 (cada um em PM e Real).
 
@@ -205,7 +207,7 @@ cd Infraestrutura-Docker && docker-compose up -d
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-08-31):** S19 — Sessão resiliente no frontend e integração DePix Sandbox protegida; catálogo cash canônico NLHE 0,25/0,25, Hold'em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local healthy e migrations 001–030 aplicadas. Gate S19: cargo fmt, Clippy estrito e 51 testes ativos selecionados da API; 4 contratos financeiros PostgreSQL isolados; TypeScript e build Vite — todos sem falhas. Mantidas as evidências anteriores de stress do motor Short Deck e do catálogo cash. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
+> **Estado operacional sincronizado (2026-09-01):** S20 — Big Blind Ante 26 níveis nos torneios + potes laterais com ante morto; cash permanece sem ante; catálogo cash canônico NLHE 0,25/0,25, Hold'em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy (poker_api/poker_frontend/poker_postgres/poker_redis); migrations 001–032 aplicadas (BBA). Gate S20: cargo fmt, Clippy estrito (Motor + API), 1828 testes Motor-Rust (incl. 3 BBA) + 35 testes API-Axum + TypeScript tsc + Vite build — todos sem falhas; VPS validado com 6 torneios 26 níveis ante=big_blind (invalid_BBA=0), backup verificável, rebuild 4m13s e health público OK. Mantidas evidências de stress Short Deck e catálogo cash. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

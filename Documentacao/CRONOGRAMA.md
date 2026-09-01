@@ -1,8 +1,8 @@
 # 📅 Cronograma — Plataforma de Poker Online
 
-> **Marco S19 (2026-08-31):** sessão resiliente no navegador, migration 030 e integração DePix Sandbox protegida concluídas localmente; produção DePix e saque automático permanecem bloqueados.
+> **Marco S20 (2026-09-01):** Big Blind Ante 26 níveis (032) com ante morto no main pot + cash sem ante; 1828 Motor + 35 API PASS; VPS Hostinger 4/4 healthy (ante=big_blind 26/26 validado).
 
-**Atualizado:** 2026-08-07 | **Status:** Roadmap; ciclo **S13** — presença online + demo amigos; base S12 (MFA/settlements/smoke); demo VPS **zerotiltpoker.net**.
+**Atualizado:** 2026-09-01 | **Status:** Roadmap; ciclo **S20** — BBA 26 níveis + potes laterais; demo VPS **zerotiltpoker.net**.
 **Stack:** Rust (motor + API + antifraude) + TypeScript/React (frontend canônico). Regulação: **jan/2027**.
 
 > ⚠️ **Regra de Ouro:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
@@ -179,14 +179,16 @@ FASE 7 ████████████████████████�
 2026-07-23 ██  Deep Audit Fixes + Odd Cent Rule (WSOP 68) + snapshots multi-all-in
 2026-07-30 ██  Loss Deflator por equity 56/66/76/86, sempre após o rake
 2026-08-01 ██  B2B SaaS Multi-Tenant (014: clubs, agents), Rake Split 15/85, dashboard HTTPS, lobby MTT
+2026-08-31 ██  S19 — Sessão resiliente + DePix Sandbox (030) + presence TTL 90s
+2026-09-01 ██  S20 — Big Blind Ante 26 níveis (032) ante morto + 1828 Motor + 35 API + VPS 4/4 healthy
 ```
 
 ---
 
-> 💡 **Nota (2026-08-01):** a suíte histórica reporta ~2.051 testes e 0 clippy warnings no perfil de rotina. Isso **não** equivale a certificação de produção: PIX real desabilitado, ownership de mesa single-process, smoke em `https://zerotiltpoker.net` ainda pendente. Ver `STATUS_OPERACIONAL.json`.
+> 💡 **Nota (2026-09-01):** S20 validado com 1828 Motor + 35 API + 3 BBA, clippy estrito e Vite — 0 falhas. VPS Hostinger 4/4 healthy (migrations 032, ante=big_blind 26/26). Isso **não** equivale a certificação de produção: PIX real desabilitado, ownership de mesa single-process. Ver `STATUS_OPERACIONAL.json`.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-08-31):** S19 — Sessão resiliente no frontend e integração DePix Sandbox protegida; catálogo cash canônico NLHE 0,25/0,25, Hold'em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local healthy e migrations 001–030 aplicadas. Gate S19: cargo fmt, Clippy estrito e 51 testes ativos selecionados da API; 4 contratos financeiros PostgreSQL isolados; TypeScript e build Vite — todos sem falhas. Mantidas as evidências anteriores de stress do motor Short Deck e do catálogo cash. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
+> **Estado operacional sincronizado (2026-09-01):** S20 — Big Blind Ante 26 níveis nos torneios + potes laterais com ante morto; cash permanece sem ante; catálogo cash canônico NLHE 0,25/0,25, Hold'em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy (poker_api/poker_frontend/poker_postgres/poker_redis); migrations 001–032 aplicadas (BBA). Gate S20: cargo fmt, Clippy estrito (Motor + API), 1828 testes Motor-Rust (incl. 3 BBA) + 35 testes API-Axum + TypeScript tsc + Vite build — todos sem falhas; VPS validado com 6 torneios 26 níveis ante=big_blind (invalid_BBA=0), backup verificável, rebuild 4m13s e health público OK. Mantidas evidências de stress Short Deck e catálogo cash. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->
