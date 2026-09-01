@@ -1,54 +1,82 @@
 {
   "title": "De onde veio o pôquer",
   "subtitle": "Das 20 cartas do Mississippi ao Triton — para iniciantes",
+  "disclaimer": "Datas aproximadas com base em fontes públicas citadas. O pôquer tem origens debatidas; usamos a linhagem mais aceita.",
   "blocks": [
     {
       "year": "1829",
       "title": "Mississippi — 20 cartas e o blefe",
-      "text": "Nos barcos a vapor do rio Mississippi, colonos jogavam com apenas 20 cartas (Ás a 10) e 4 jogadores. Vencia quem tinha a melhor mão ou fazia o outro desistir. **Modalidade:** era o embrião do 5-Card Draw. **Lição para você:** blefe já nasceu com o jogo — coragem vale tanto quanto carta boa.",
-      "takeaway": "Blefe não é trapaça, é a alma do pôquer desde o início."
+      "text": "Nos barcos a vapor do Mississippi, jogava-se com 20 cartas (Ás a 10) entre 4 pessoas. Vencia quem tinha a melhor mão ou fazia o outro desistir. **Modalidade:** embrião do 5-Card Draw. **Lição:** blefe nasceu com o jogo — coragem vale tanto quanto carta boa.",
+      "takeaway": "Blefe não é trapaça, é a alma do pôquer.",
+      "sources": [
+        { "label": "History of Poker — Wikipedia", "url": "https://en.wikipedia.org/wiki/History_of_poker" }
+      ]
     },
     {
-      "year": "1845–1865",
+      "year": "1860–1900",
       "title": "52 cartas, Guerra Civil e o Stud",
-      "text": "Na Guerra Civil Americana, o baralho virou de 52 cartas e surgiram o Draw (trocar cartas) e o Stud (cartas abertas/fechadas). Saloons do Velho Oeste espalharam o jogo com o baralho francês que usamos hoje. **Modalidades:** 5-Card Draw (trocar) e 5-Card Stud (expostas). **Lição:** cada variante muda a informação visível — igual ao nosso Short Deck.",
-      "takeaway": "Quanto mais cartas expostas, mais informação você tem."
+      "text": "Com a Guerra Civil o baralho virou de 52 cartas e surgiram Draw (trocar cartas) e Stud (cartas expostas/fechadas). O baralho francês que usamos hoje se espalhou nos saloons. **Modalidades:** 5-Card Draw e 5-Card Stud.",
+      "takeaway": "Quanto mais cartas expostas, mais informação você tem.",
+      "sources": [
+        { "label": "History of Poker — Wikipedia", "url": "https://en.wikipedia.org/wiki/History_of_poker" }
+      ]
     },
     {
       "year": "1925",
-      "title": "Robstown, Texas — nasce o Texas Hold'em",
-      "text": "No interior do Texas, criaram um jogo com 2 cartas fechadas + 5 comunitárias. Você forma a melhor mão de 5 cartas. Era mais rápido e mais estratégico que o Stud. **Modalidade:** Texas Hold'em (a que você joga hoje no Zero Tilt). **Lição:** Hold'em premia posição e leitura, não só carta alta.",
-      "takeaway": "Hold'em = 2 na mão + 5 na mesa, use as 5 comunitárias."
+      "title": "Robstown, Texas — nasce o Hold'em",
+      "text": "No Texas, criaram 2 cartas fechadas + 5 comunitárias. Você forma a melhor mão de 5. Mais rápido e estratégico que o Stud. **Modalidade:** Texas Hold'em (a que você joga aqui).",
+      "takeaway": "Hold'em = 2 na mão + 5 na mesa.",
+      "sources": [
+        { "label": "WSOP History", "url": "https://www.wsop.com/history/" }
+      ]
     },
     {
       "year": "1967–1970",
-      "title": "Vegas chama e Binion cria a WSOP",
-      "text": "Crandell Addington e Doyle Brunson levaram o Hold'em para Las Vegas. Em 1970, Benny Binion juntou 7 lendas no Horseshoe para eleger o campeão mundial e deu o primeiro bracelete de ouro. **Evento:** World Series of Poker (WSOP). **Lenda:** Johnny Moss venceu os dois primeiros. **Lição:** torneio tem níveis que sobem — igual ao nosso Big Blind Ante de 26 níveis.",
-      "takeaway": "Torneio = paciência no início, pressão no fim."
+      "title": "Vegas e a WSOP de Binion",
+      "text": "O Hold'em foi para Las Vegas (Golden Nugget, Dunes). Em 1970, Benny Binion juntou 7 lendas no Horseshoe e deu o primeiro bracelete. **Evento:** World Series of Poker. Johnny Moss venceu os dois primeiros.",
+      "takeaway": "Torneio = paciência no início, pressão no fim.",
+      "sources": [
+        { "label": "WSOP History", "url": "https://www.wsop.com/history/" },
+        { "label": "Binion's WSOP — Wikipedia", "url": "https://en.wikipedia.org/wiki/World_Series_of_Poker" }
+      ]
     },
     {
       "year": "1970–1990",
-      "title": "As modalidades se espalham",
-      "text": "**Hold'em** virou rei, mas surgiram: **7-Card Stud** (sem comunitárias, 3 fechadas + 4 abertas), **Omaha** (4 cartas na mão, usa exatamente 2 + 3 da mesa — mais ação), e nos anos 2010 o **Short Deck** (tira 2 a 5, flush vale mais que full house, mais coolers). **Lenda da era:** Doyle Brunson (2 títulos seguidos com 10-2, o “Doyle Brunson”), Stu Ungar (gênio trágico, 3 Main Events), Chip Reese (rei do cash). **Lição:** Omaha e Short Deck dão mais jogo — por isso temos Omaha Short Deck 4-max aqui.",
-      "takeaway": "Hold'em para aprender, Omaha/Short Deck para ação."
+      "title": "Modalidades e lendas",
+      "text": "**Hold'em** virou rei, mas cresceram **7-Card Stud**, **Omaha** (4 cartas, usa exatamente 2 + 3 da mesa) e, nos 2010s, **Short Deck** (sem 2 a 5, flush vale mais que full house). **Lendas:** Doyle Brunson (10-2), Stu Ungar (3 Main Events), Chip Reese.",
+      "takeaway": "Hold'em para aprender, Omaha/Short Deck para ação.",
+      "sources": [
+        { "label": "Poker Variants — Wikipedia", "url": "https://en.wikipedia.org/wiki/List_of_poker_variants" }
+      ]
     },
     {
       "year": "2002–2003",
-      "title": "WPT, EPT e o Efeito Moneymaker",
-      "text": "Em 2002 nasce o World Poker Tour (WPT) com câmeras que mostravam as cartas. Em 2003, o contador Chris Moneymaker pagou US$ 86 num satélite online e ganhou US$ 2,5 milhões no Main Event. O mundo viu que qualquer um podia ganhar. **Eventos:** EPT na Europa (2004) e depois Triton Super High Roller (2016) com pots de US$ 10 milhões. **Lição:** satélite barato é a escada — igual aos nossos de R$ 5 a R$ 109 para o BSOP.",
-      "takeaway": "Comece por satélites, não direto no Main Event."
+      "title": "WPT, EPT e Moneymaker",
+      "text": "WPT (2002) mostrou as cartas na TV. Chris Moneymaker pagou US$ 86 num satélite e ganhou US$ 2,5 mi no Main Event 2003 — qualquer um podia ganhar. Vieram EPT (2004) e Triton (2016).",
+      "takeaway": "Comece por satélites baratos.",
+      "sources": [
+        { "label": "Moneymaker effect — Wikipedia", "url": "https://en.wikipedia.org/wiki/Chris_Moneymaker" },
+        { "label": "WPT History", "url": "https://www.worldpokertour.com/about/" }
+      ]
     },
     {
       "year": "2011–2019",
-      "title": "Black Friday, Twitch e o pôquer como show",
-      "text": "Em 2011 o governo americano fechou os maiores sites (Black Friday) e o jogo migrou para Europa e para o live. O Twitch transformou pôquer em espetáculo: Lex Veldhuis, Spraggy e brasileiros narravam mãos ao vivo. **Lendas modernas:** Phil Ivey (10 braceletes, o Tiger Woods do pôquer), Phil Hellmuth (17 braceletes, rei do trash-talk), Daniel Negreanu (leitor de almas), Fedor Holz e Stephen Chidwick (rei do Triton). **Lição:** pôquer ao vivo e online se alimentam.",
-      "takeaway": "Assista streams para ver como os melhores pensam em voz alta."
+      "title": "Black Friday e o show no Twitch",
+      "text": "Em 2011 o governo dos EUA fechou os maiores sites e o live cresceu. Twitch virou palco: Lex Veldhuis e brasileiros passaram a narrar ao vivo. **Lendas modernas:** Phil Ivey (10 braceletes), Phil Hellmuth (17), Daniel Negreanu, Fedor Holz (Triton).",
+      "takeaway": "Assista streams para ver o raciocínio em voz alta.",
+      "sources": [
+        { "label": "Black Friday (poker) — Wikipedia", "url": "https://en.wikipedia.org/wiki/United_States_v._Scheinberg" }
+      ]
     },
     {
       "year": "Hoje",
       "title": "Triton, GGPoker e esporte da mente",
-      "text": "Hoje o topo é o Triton (buy-ins de US$ 100 mil a US$ 1 milhão) e a WSOP com 10 mil jogadores. O pôquer é reconhecido como esporte da mente e o online dá 200 mãos por hora para evoluir 10x mais rápido. **Grandes eventos que expandiram o jogo:** WSOP Las Vegas (10 mil entries), WPT, EPT, BSOP (maior da América Latina), Triton Montenegro/Jeju. **Lição para você:** volume + estudo = evolução. Jogue focado, revise mãos e use as 4 ruas (pré-flop, flop, turn, river) com intenção.",
-      "takeaway": "Estude 1 hora para cada 2 horas de jogo."
+      "text": "Topo hoje: Triton (buy-ins US$ 100 mil a US$ 1 mi) e WSOP com 10 mil entries. **Eventos que expandiram o jogo:** WSOP Las Vegas, WPT, EPT, BSOP (maior fora de Vegas), Triton Montenegro/Jeju. Reconhecido como esporte da mente.",
+      "takeaway": "Estude 1h para cada 2h de jogo.",
+      "sources": [
+        { "label": "Triton Poker Series", "url": "https://triton-series.com/" },
+        { "label": "WSOP 2024 Results", "url": "https://www.wsop.com/tournaments/" }
+      ]
     }
   ]
 }

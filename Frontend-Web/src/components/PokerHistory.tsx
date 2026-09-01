@@ -18,6 +18,11 @@ export function PokerHistory({ variant }: { variant: Variant }) {
       <div className={`border-b border-felt-600 bg-gradient-to-r ${theme} px-4 py-3`}>
         <h2 className="text-sm font-bold uppercase tracking-wide text-gold-bright">{data.title}</h2>
         <p className="text-xs text-felt-300">{data.subtitle}</p>
+        {(data as { disclaimer?: string }).disclaimer && (
+          <p className="mt-1.5 text-[11px] leading-relaxed text-felt-400">
+            {(data as { disclaimer?: string }).disclaimer}
+          </p>
+        )}
       </div>
       <div className="max-h-[520px] space-y-0 overflow-y-auto px-4 py-3 scrollbar-thin">
         <div className="relative border-l-2 border-gold/20 pl-6">
@@ -34,12 +39,28 @@ export function PokerHistory({ variant }: { variant: Variant }) {
               <div className="mt-2 rounded border border-gold/20 bg-gold/10 px-2.5 py-1.5 text-xs leading-relaxed text-gold-soft">
                 <span className="font-bold">Para você:</span> {block.takeaway}
               </div>
+              {(block as { sources?: Array<{ label: string; url: string }> }).sources?.length ? (
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {(block as { sources: Array<{ label: string; url: string }> }).sources.map((s) => (
+                    <a
+                      key={s.url}
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded border border-felt-600 bg-felt-800 px-1.5 py-0.5 text-[10px] leading-none text-felt-400 hover:border-gold/40 hover:text-gold-soft"
+                      title={s.url}
+                    >
+                      Fonte: {s.label}
+                    </a>
+                  ))}
+                </div>
+              ) : null}
             </div>
           ))}
         </div>
       </div>
       <div className="border-t border-felt-600 bg-felt-900/40 px-4 py-2 text-center">
-        <p className="text-[11px] text-felt-400">História curta — o essencial para começar com contexto</p>
+        <p className="text-[11px] text-felt-400">História curta — o essencial para começar com contexto · Fontes ao final de cada bloco</p>
       </div>
     </div>
   );

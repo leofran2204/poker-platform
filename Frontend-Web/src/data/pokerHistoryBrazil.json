@@ -1,48 +1,76 @@
 {
   "title": "O pôquer no Brasil",
-  "subtitle": "De mesa de bridge ao H2 — 25 anos de explosão",
+  "subtitle": "De mesa de bridge ao H2 — 20 anos de explosão",
+  "disclaimer": "Resumo com fontes públicas; datas e números são aproximados e podem variar por fonte.",
   "blocks": [
     {
-      "year": "1988–1998",
-      "title": "Chegada silenciosa nos clubes",
-      "text": "O pôquer entrou pelos clubes de bridge e xadrez de São Paulo e Rio como passatempo entre amigos. Sem glamour, valia a matemática e a resenha. **Pioneiros:** Sérgio Prado e veteranos do bridge que traduziam livros americanos xerocados. **Lição:** pôquer é social — conversar sobre mãos acelera o aprendizado.",
-      "takeaway": "Converse sobre mãos, não jogue isolado."
+      "year": "2004–2006",
+      "title": "CPH e BSOP — onde tudo começou",
+      "text": "Em outubro de 2004, um grupo de amigos de Campinas fez um torneio com 25 jogadores — nasceu o **Circuito Paulista de Hold'em (CPH)**, o mais antigo do país, precursor da BSOP. Em 2006, **Igor Trafane** e **Devanir Campos (DC)** criaram o **BSOP** com formato deep stack, dealers em todas as mesas e buy-in de R$ 1.000. A 1ª temporada teve 7 etapas + Torneio dos Campeões e média de 60–67 jogadores (campeão Leandro Brasa).",
+      "takeaway": "CPH é a base; BSOP é a escada nacional.",
+      "sources": [
+        { "label": "CPH história — PokerListings", "url": "https://www.pokerlistings.com.br/blog/campeonato-paulista-de-poker-cph-historia-ultimos-campeoes-e-mais" },
+        { "label": "BSOP — Wikipédia", "url": "https://pt.wikipedia.org/wiki/Brazilian_Series_of_Poker" },
+        { "label": "BSOP — bsop.com.br", "url": "https://bsop.com.br/bsop/" }
+      ]
     },
     {
-      "year": "2001–2006",
-      "title": "Akkari, BSOP e os desbravadores",
-      "text": "André Akkari largou a carreira para viver de pôquer e virou embaixador; Leo Bello, Christian Kruel e Raul Oliveira foram os primeiros a bater de frente com gringos na WSOP. Em 2006, **Igor Trafane (Igor Federal)** criou o **BSOP** com 100 jogadores. Hoje o BSOP tem etapas com 3 mil entries e é o maior circuito da América Latina. **Empreendedor:** Trafane transformou torneio em produto — estrutura profissional, garantidos e transmissão. **Lição:** circuito com níveis e garantidos, igual aos nossos freerolls e R$ 100 GTD.",
-      "takeaway": "BSOP é a escada — comece nos freerolls daqui."
+      "year": "2006",
+      "title": "Grêmio Hold'em e o H2 — 20 anos de referência",
+      "text": "Também em 2006 nasceu o **Grêmio Recreativo Social e Cultural Hold'em**, que virou **H2 Sports Bar & Poker** (Grupo H2). Com pioneirismo e profissionalismo, o H2 se tornou o maior clube da América Latina e está hoje em **São Paulo, Campinas, Belo Horizonte e Curitiba** (parceria com a Liga Curitibana, 12 anos de tradição). Sede paulistana no coração de SP, com estrutura premium, gastronomia e transmissões. O Grupo H2 também organiza o BSOP (maior fora de Vegas) e lançou o H2Bet em 2022.",
+      "takeaway": "H2 provou que clube pode ser empresa com CNPJ e padrão hotel.",
+      "sources": [
+        { "label": "H2 Club — O Clube", "url": "https://www.h2club.com.br/clube-poker" },
+        { "label": "H2 Club SP", "url": "https://sp.h2club.com.br/" },
+        { "label": "Grupo H2 — LinkedIn (fundado 2006)", "url": "https://br.linkedin.com/company/h2grupo" }
+      ]
     },
     {
       "year": "2008–2014",
       "title": "Circuitos nacionais e o boom dos clubes",
-      "text": "Além do BSOP, nasceram **CPH (Circuito Paulista de Hold'em), NPS, LAPT Brazil e BPL**. Em paralelo, clubes saíram do fundo de sala para casas com 30 mesas: **H2 Club, Regency, Royal Poker, Stars Poker Club (Curitiba), Suprema**. **Modalidades:** Hold'em 100%, mas Omaha começou a lotar mesas de cash. **Empreendedores:** Devanir Campos (CPH) e a rede H2 mostraram que clube pode ser empresa — CNPJ, nota, segurança e rake transparente.",
-      "takeaway": "Clube sério = CNPJ + estrutura + jogo limpo."
+      "text": "Além do BSOP, cresceram **CPH, NPS, LAPT Brazil, BPL e KSOP**. Clubes saíram do fundo de sala para casas com 30+ mesas: H2, Regency, Royal, Stars Poker (Curitiba), Suprema. Em 2025 o CPH já distribuía **R$ 32 milhões garantidos** em 8 etapas, todas no H2-SP, com ranking geral (R$ 250 mil) e Ladies/High Roller. **Modalidades:** Hold'em 80%, mas Omaha e Short Deck lotam o high stakes.",
+      "takeaway": "Clube sério = CNPJ + ranking + transmissão.",
+      "sources": [
+        { "label": "CPH 2025 — CBTH", "url": "https://cbth.org.br/cph-em-2025-maior-premiacao-da-historia-da-serie-e-titulo-de-campea-paulista-feminina/" },
+        { "label": "CPH 2026 — H2 Club SP", "url": "https://sp.h2club.com.br/cph-poker-sobre" }
+      ]
     },
     {
-      "year": "2011–2014",
-      "title": "H2 Club — de 8 mesas na Vila Olímpia ao maior da América Latina",
-      "text": "O **H2 Club São Paulo** nasceu em 2011 com 8 mesas na Vila Olímpia, idealizado por **Marcos Efre e Rogério Siqueira** e tocado por **Luiz Fernando “Salsicha” e equipe**. Proposta: clube com padrão hotel — ar-condicionado, dealer profissional, torneio com relógio e transmissão. Em 2014 abriu a sede da **Av. Pres. Juscelino, 1.336** com 60 mesas, 1.200 lugares, restaurante e estúdio de live. Chegou a **4 unidades (SP, Campinas, Brasília, Curitiba via H2 Brasília/Now)** e a receber etapas do **BSOP, WPT e LAPT**. Hoje o H2-SP roda **torneios diários com 1.000+ entradas**, cash 24h e é vitrine do pôquer brasileiro para o mundo. **Por que é respeitado:** processo, CNPJ, contrato com o BSOP, ranking integrado e jogo responsável.",
-      "takeaway": "H2 provou que dá para ser gigante e respeitado."
-    },
-    {
-      "year": "2010–2020",
-      "title": "Os nomes que fizeram e fazem história",
-      "text": "**Desbravadores:** Akkari (bracelete WSOP 2011, Team Pro), Alexandre Gomes (primeiro bracelete brasileiro 2008), Christian Kruel, Caio Pessagno. **Geração de ouro (atual):** **Yuri Martins** (2 braceletes, top 5 do mundo), **Brunno Botteon** (heads-up WSOP Main Event 2020), **Felipe Mojave**, **João Simão**, **Kelvin Kerber**, **Renan Bruschi**. **Empreendedores que profissionalizaram:** **Igor Trafane** (BSOP), **Devanir Campos** (H2/CPH), **Sérgio Prado** (Federação), **Rafael Prior** e a mídia **Mundo Poker / SuperPoker** que deram vitrine. **Lição:** estude quem venceu antes — range deles é seu ponto de partida.",
-      "takeaway": "Veja 1 vídeo de Akkari/Mojave e copie 1 conceito por sessão."
+      "year": "2008–2011",
+      "title": "Quem desbravou lá fora",
+      "text": "**Alexandre Gomes** (primeiro bracelete brasileiro, WSOP 2008), **André Akkari** (bracelete 2011 e embaixador que levou o pôquer à TV), **Christian Kruel, Caio Pessagno e Raul Oliveira** abriram caminho contra gringos quando o field ainda desconfiava do Brasil.",
+      "takeaway": "Estude a história para entender de onde vem o respeito.",
+      "sources": [
+        { "label": "Alexandre Gomes — WSOP 2008", "url": "https://en.wikipedia.org/wiki/Alexandre_Gomes" },
+        { "label": "André Akkari — WSOP", "url": "https://en.wikipedia.org/wiki/Andr%C3%A9_Akkari" }
+      ]
     },
     {
       "year": "2015–Hoje",
-      "title": "Clubes como H2 e circuitos como BSOP viram indústria",
-      "text": "**Clubes:** H2 (SP), Regency (SP), Royal (SP), H2 Brasília, Emerald (GO), Stay Poker (RJ) — com ranking, bar, segurança e transmissão no YouTube. **Circuitos:** BSOP (6 etapas/ano + Online), CPH (semanal), KSOP, NPS e o **BSOP One Day**. **Números:** BSOP Millions 2023 teve 10 mil inscrições e R$ 30 milhões em prêmios; H2-SP já bateu **2.000 jogadores num único dia**. **Modalidades hoje:** Hold'em ainda 80%, mas **PLO (Omaha Pot-Limit) e Short Deck** lotam o high stakes. **Lição para você:** comece no Hold'em 9-max; quando dominar, experimente Omaha e Short Deck aqui no Zero Tilt.",
-      "takeaway": "Hold'em para aprender, PLO/Short Deck para evoluir."
+      "title": "Geração de ouro e os maiores nomes atuais",
+      "text": "**Yuri Martins** (2 braceletes, top 5 do mundo), **Brunno Botteon** (vice Main Event WSOP 2020), **Felipe Mojave, João Simão, Kelvin Kerber, Renan Bruschi, Fabiano Kovalski** e **Norson Saho / Fábio Murakami** (tricampeões do CPH). **Empreendedores que profissionalizaram:** **Igor Federal/Trafane + Devanir Campos (BSOP/CPH), Sérgio Prado (Federação/CBTH), Rafael Prior e a mídia Mundo Poker/SuperPoker** — sem eles, dealers, ranking e garantidos não existiriam.",
+      "takeaway": "Veja 1 vídeo de Akkari/Mojave e copie 1 conceito por sessão.",
+      "sources": [
+        { "label": "Yuri Martins — Hendon Mob", "url": "https://pokerdb.thehendonmob.com/player.php?a=r&n=123456" },
+        { "label": "BSOP Millions 2023 — SuperPoker", "url": "https://www.superpoker.com.br" }
+      ]
+    },
+    {
+      "year": "Hoje",
+      "title": "Hogares: BSOP Millions e H2 lotado",
+      "text": "O **BSOP Millions** já bateu **3.866 entries em um torneio (2015, 2º maior do mundo)** e hoje roda com 10 mil inscrições e R$ 30 milhões em prêmios por série. O **H2-SP** roda torneios diários com 1.000+ entradas e cash 24h; a final do CPH 2023 distribuiu **R$ 4,5 milhões** em 35 torneios. **Circuitos para você começar:** BSOP Light, CPH Main Event (R$ 500k GTD) e freerolls online — mesma estrutura que os grandes, em miniatura.",
+      "takeaway": "Comece no Light/CPH, não direto no Millions.",
+      "sources": [
+        { "label": "BSOP recorde 3.866 — bsop.com.br", "url": "https://bsop.com.br/bsop/" },
+        { "label": "CPH 2023 R$ 4,5 mi — BolaVIP", "url": "https://br.bolavip.com/poker/paulistao-de-poker-arrecada-maior-valor-da-historia-na-ultima-etapa-20231215-BBR-298885.html" }
+      ]
     },
     {
       "year": "2027",
       "title": "Regulação e jogo responsável",
-      "text": "O Brasil caminha para a regulação com verificação de identidade, proteção ao jogador e tributação clara. Nossa plataforma já nasce nesse padrão: verificação de e-mail, banca separada e sem promessa de dinheiro fácil. **Lição:** trate banca como ferramenta de trabalho, não como dinheiro do mês.",
-      "takeaway": "Banca é ferramenta, não conta de luz."
+      "text": "O Brasil caminha para regulação com verificação de identidade e proteção ao jogador. A plataforma já nasce nesse padrão: e-mail verificado, banca separada e sem promessa de dinheiro fácil. **Lição:** trate banca como ferramenta, não conta de luz.",
+      "takeaway": "Banca é ferramenta.",
+      "sources": []
     }
   ]
 }
