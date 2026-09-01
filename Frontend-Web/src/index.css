@@ -20,6 +20,33 @@
       radial-gradient(ellipse 120% 80% at 50% -20%, #1e4a1e 0%, transparent 55%),
       linear-gradient(180deg, #0f2a0f 0%, #0a1f0a 100%);
     color: #e8e0d0;
+    scrollbar-width: thin;
+    scrollbar-color: #5a4a1a #0a1f0a;
+  }
+
+  /* Scrollbar no tom felt/gold — WebKit (Chrome/Edge/Safari) */
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #0a1f0a;
+    border-left: 1px solid rgba(201, 162, 39, 0.12);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #8b6914 0%, #6b5010 100%);
+    border: 1px solid #0a1f0a;
+    border-radius: 6px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #9a7618 0%, #7a5c12 100%);
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: #0a1f0a;
   }
 
   ::selection {
@@ -482,5 +509,24 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  /* Scroll fino nas histórias — no mesmo tom */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #5a4a1a #0f2418;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #5a4a1a;
+    border-radius: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: #0f2418;
   }
 }
