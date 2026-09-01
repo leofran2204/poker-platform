@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { isAuthenticated } from "@/lib/auth";
-import { OnlinePresenceHero } from "@/components/OnlinePresence";
 import { NewsTips } from "@/components/NewsTips";
 import { PokerHistory } from "@/components/PokerHistory";
 
@@ -9,7 +8,6 @@ export function HomePage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl">
-      <OnlinePresenceHero />
 
       {/* Top: histórias nas laterais preenchem os vazios do login/criar conta */}
       <div className="mt-4 grid gap-4 lg:grid-cols-[360px_1fr_360px] lg:items-start">
