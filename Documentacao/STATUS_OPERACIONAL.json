@@ -1,7 +1,7 @@
 {
     "schema_version":  1,
     "reviewed_on":  "2026-09-01",
-    "cycle":  "S20c — UI para iniciantes: vazios laterais com história (360px|1fr|360px), Dica do Pró, correção PT-BR futura, sem painel duplicado e sem A♠ fantasma; catálogo cash canônico NLHE 0,25/0,25, Hold\u0027em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real).",
+    "cycle":  "S20d — Polimento total: barra felt/gold, bloco Zero Tilt sem Full Tilt, H2 fontes e sem A♠; catálogo cash canônico NLHE 0,25/0,25, Hold\u0027em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real).",
     "stack":  {
                   "motor_api":  "Rust (Motor-Rust + API-Axum)",
                   "frontend_canonical":  "Frontend-Web (TypeScript + React + Vite + Tailwind)",
@@ -10,7 +10,7 @@
               },
     "production":  "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.",
     "regulation":  "Trilho de regulação, KYC/AML e compliance de jogo/dinheiro real: planejado para janeiro de 2027. Até lá: Play Money + Jogo Real com depósito manual; freios de PIX automático em production.",
-    "validation":  "Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy; migrations 001–032 aplicadas. Gate S20c: cargo fmt, Clippy estrito, tsc -b + Vite 60 módulos 324KB — todos sem falhas; VPS 4/4 healthy, 26 níveis ante=big_blind (invalid_BBA=0), backup verificável, rebuilds 4m13s + 18s e health público OK. Frontend: PT-BR normalizado (correctPtOrthography + htmlToStructuredMarkdown + ProseRichText), Dica do Pró, história 8+7 com fontes e H2 2006 fidedigno (disclaimer), sem A♠ fantasma (case-sensitive cards), vazios laterais preenchidos com história e sem painel duplicado.",
+    "validation":  "Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy; migrations 001–032 aplicadas. Gate S20d: cargo fmt, Clippy estrito, tsc -b + Vite 60 módulos — todos sem falhas; VPS 4/4 healthy, 26 níveis ante=big_blind (invalid_BBA=0), backup verificável, rebuilds e health público OK. Frontend: PT-BR + Dica do Pró + história 8+7 com fontes H2 2006 + vazios com história + sem painel duplicado + sem A♠ (case-sensitive) + scrollbar felt/gold + bloco Zero Tilt sem Full Tilt + notícias com foto oficial (sem placeholder).",
     "cash_catalog":  {
                          "modes":  [
                                        "play",
@@ -56,7 +56,7 @@
     "tls_notes":  "Caddyfile canônico sem tls internal + volume caddy_data persistido. Não apagar caddy_data em cada recreate (rate limit LE).",
     "pix":  "A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático.",
     "table_ownership":  "Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.",
-    "ui_direction":  "Full Tilt moderno. Header: modo Play Money | Jogo Real. Lobby filtros por stake/variante. Notícias: thumbnail oficial ou capa temática (sem rostos errados).",
+    "ui_direction":  "Zero Tilt — sem tilt: mente fria, feltro e ouro. Header: modo Play Money | Jogo Real. Lobby filtros por stake/variante. Notícias: thumbnail oficial ou capa temática (sem rostos errados).",
     "presence":  "Usuários autenticados com heartbeat recente (ZSET Redis ou fallback memória). TTL 90s.",
     "live_e2e":  "scripts/live-e2e-ten-users.mjs (10×100); scripts/live-e2e-seeded-catalog.mjs (mesa a mesa Real/PM); Motor-Rust/tests/cash_catalog_10k_hands.rs (10k/config); API-Axum/tests/depix_webhook_tests.rs (crédito único e status processing).",
     "friends_demo":  "Guia Documentacao/DEMO_AMIGOS.md. Combinar modo de carteira e a mesma mesa (≥2 jogadores)."
