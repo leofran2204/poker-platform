@@ -7,7 +7,9 @@ export function isAdBanner(url: string): boolean {
   const u = url.toLowerCase();
   return (
     u.includes("820x100") ||
+    u.includes("728x90") ||
     u.includes("/ads/") ||
+    u.includes("placeholder") ||
     u.includes("favicon") ||
     u.includes("emoji") ||
     u.includes("gravatar") ||
@@ -159,16 +161,21 @@ function extractArticleHtml(html: string): string {
 }
 
 async function fetchHtml(articleUrl: string): Promise<string | undefined> {
-  try {
-    const res = await fetch(`${PAGE_PROXY}${encodeURIComponent(articleUrl)}`, {
-      signal: AbortSignal.timeout(12000),
-    });
-    if (res.ok) {
-      const html = await res.text();
-      if (html.length > 500 && !html.includes("error code: 522")) return html;
+  const proxies = [
+    `${PAGE_PROXY}${encodeURIComponent(articleUrl)}`,
+    `https://corsproxy.io/?${encodeURIComponent(articleUrl)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(articleUrl)}`,
+  ];
+  for (const proxyUrl of proxies) {
+    try {
+      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
+      if (res.ok) {
+        const html = await res.text();
+        if (html.length > 500 && !html.includes("error code: 522") && !html.includes("502 Bad Gateway")) return html;
+      }
+    } catch {
+      /* try next proxy */
     }
-  } catch {
-    /* fallback */
   }
 
   try {
@@ -217,8 +224,11 @@ export async function resolveSourceImage(articleUrl: string): Promise<string | u
   const metaCandidates = [
     html.match(/property=["']og:image["'][^>]*content=["']([^"']+)["']/i)?.[1],
     html.match(/content=["']([^"']+)["'][^>]*property=["']og:image["']/i)?.[1],
+    html.match(/property=["']og:image:secure_url["'][^>]*content=["']([^"']+)["']/i)?.[1],
+    html.match(/property=["']og:image:url["'][^>]*content=["']([^"']+)["']/i)?.[1],
     html.match(/name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i)?.[1],
     html.match(/content=["']([^"']+)["'][^>]*name=["']twitter:image["']/i)?.[1],
+    html.match(/name=["']twitter:image:src["'][^>]*content=["']([^"']+)["']/i)?.[1],
   ];
   for (const og of metaCandidates) {
     if (!og) continue;

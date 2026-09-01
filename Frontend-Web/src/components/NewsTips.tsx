@@ -430,6 +430,7 @@ export function NewsTips({ className }: { className?: string }) {
         description?: string;
         content?: string;
         thumbnail?: string;
+        enclosure?: { link?: string; url?: string };
       }>,
     ): FeedItem[] {
       const out: FeedItem[] = [];
@@ -442,9 +443,17 @@ export function NewsTips({ className }: { className?: string }) {
         const useStructured = feed.kind === "tips" || feed.kind === "both";
         const body = useStructured ? htmlToStructuredMarkdown(rawBody) : htmlToPlainText(rawBody);
         // Só thumbnail oficial do feed — NÃO a 1ª <img> do HTML (causa foto errada)
+        // rss2json pode entregar em thumbnail ou enclosure.link
+        const enclosureUrl =
+          typeof (item as { enclosure?: { link?: string; url?: string } }).enclosure?.link === "string"
+            ? (item as { enclosure?: { link?: string } }).enclosure!.link
+            : typeof (item as { enclosure?: { url?: string } }).enclosure?.url === "string"
+              ? (item as { enclosure?: { url?: string } }).enclosure!.url
+              : undefined;
+        const thumbCandidate = (item.thumbnail as string | undefined) ?? enclosureUrl;
         const thumb =
-          typeof item.thumbnail === "string" && isAcceptableCoverImage(item.thumbnail)
-            ? item.thumbnail
+          typeof thumbCandidate === "string" && isAcceptableCoverImage(thumbCandidate)
+            ? thumbCandidate
             : undefined;
         const early = pickSourceImage([thumb]);
         const street = classifyStreet(item.title, body);
