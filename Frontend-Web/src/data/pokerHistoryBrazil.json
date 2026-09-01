@@ -1,30 +1,48 @@
 {
   "title": "O pôquer no Brasil",
-  "subtitle": "Do clube de bairro ao maior torneio da América Latina",
+  "subtitle": "De mesa de bridge ao H2 — 25 anos de explosão",
   "blocks": [
     {
-      "year": "1998",
-      "title": "Clubes de São Paulo",
-      "text": "O pôquer chegou aos clubes de bridge e xadrez de São Paulo como diversão entre amigos. Sem dinheiro alto, valia a resenha e o aprendizado. **O que isso te ensina:** pôquer é social — aprende-se conversando sobre mãos.",
-      "takeaway": "Converse sobre mãos com amigos, acelera o aprendizado."
+      "year": "1988–1998",
+      "title": "Chegada silenciosa nos clubes",
+      "text": "O pôquer entrou pelos clubes de bridge e xadrez de São Paulo e Rio como passatempo entre amigos. Sem glamour, valia a matemática e a resenha. **Pioneiros:** Sérgio Prado e veteranos do bridge que traduziam livros americanos xerocados. **Lição:** pôquer é social — conversar sobre mãos acelera o aprendizado.",
+      "takeaway": "Converse sobre mãos, não jogue isolado."
     },
     {
-      "year": "2006",
-      "title": "Nasce o BSOP",
-      "text": "Igor Trafane criou o Brazilian Series of Poker. De 100 jogadores no início para milhares hoje, o BSOP virou o maior torneio da América Latina e porta para a WSOP. **O que isso te ensina:** circuito com níveis e garantidos — igual aos nossos torneios de R$ 100 e R$ 200 GTD.",
-      "takeaway": "BSOP é a escada: comece nos freerolls."
+      "year": "2001–2006",
+      "title": "Akkari, BSOP e os desbravadores",
+      "text": "André Akkari largou a carreira para viver de pôquer e virou embaixador; Leo Bello, Christian Kruel e Raul Oliveira foram os primeiros a bater de frente com gringos na WSOP. Em 2006, **Igor Trafane (Igor Federal)** criou o **BSOP** com 100 jogadores. Hoje o BSOP tem etapas com 3 mil entries e é o maior circuito da América Latina. **Empreendedor:** Trafane transformou torneio em produto — estrutura profissional, garantidos e transmissão. **Lição:** circuito com níveis e garantidos, igual aos nossos freerolls e R$ 100 GTD.",
+      "takeaway": "BSOP é a escada — comece nos freerolls daqui."
     },
     {
-      "year": "2010s",
-      "title": "Streamers e a escola aberta",
-      "text": "Nomes como André Akkari, Felipe Mojave e streamers como AbacateLeão levaram estratégia grátis para Twitch e YouTube. Anotações, lives e reviews viraram estudo diário. **O que isso te ensina:** absorva conteúdo gratuito, mas filtre — nem todo blefe de stream serve para iniciante.",
-      "takeaway": "Veja 1 vídeo e aplique 1 conceito por sessão."
+      "year": "2008–2014",
+      "title": "Circuitos nacionais e o boom dos clubes",
+      "text": "Além do BSOP, nasceram **CPH (Circuito Paulista de Hold'em), NPS, LAPT Brazil e BPL**. Em paralelo, clubes saíram do fundo de sala para casas com 30 mesas: **H2 Club, Regency, Royal Poker, Stars Poker Club (Curitiba), Suprema**. **Modalidades:** Hold'em 100%, mas Omaha começou a lotar mesas de cash. **Empreendedores:** Devanir Campos (CPH) e a rede H2 mostraram que clube pode ser empresa — CNPJ, nota, segurança e rake transparente.",
+      "takeaway": "Clube sério = CNPJ + estrutura + jogo limpo."
+    },
+    {
+      "year": "2011–2014",
+      "title": "H2 Club — de 8 mesas na Vila Olímpia ao maior da América Latina",
+      "text": "O **H2 Club São Paulo** nasceu em 2011 com 8 mesas na Vila Olímpia, idealizado por **Marcos Efre e Rogério Siqueira** e tocado por **Luiz Fernando “Salsicha” e equipe**. Proposta: clube com padrão hotel — ar-condicionado, dealer profissional, torneio com relógio e transmissão. Em 2014 abriu a sede da **Av. Pres. Juscelino, 1.336** com 60 mesas, 1.200 lugares, restaurante e estúdio de live. Chegou a **4 unidades (SP, Campinas, Brasília, Curitiba via H2 Brasília/Now)** e a receber etapas do **BSOP, WPT e LAPT**. Hoje o H2-SP roda **torneios diários com 1.000+ entradas**, cash 24h e é vitrine do pôquer brasileiro para o mundo. **Por que é respeitado:** processo, CNPJ, contrato com o BSOP, ranking integrado e jogo responsável.",
+      "takeaway": "H2 provou que dá para ser gigante e respeitado."
+    },
+    {
+      "year": "2010–2020",
+      "title": "Os nomes que fizeram e fazem história",
+      "text": "**Desbravadores:** Akkari (bracelete WSOP 2011, Team Pro), Alexandre Gomes (primeiro bracelete brasileiro 2008), Christian Kruel, Caio Pessagno. **Geração de ouro (atual):** **Yuri Martins** (2 braceletes, top 5 do mundo), **Brunno Botteon** (heads-up WSOP Main Event 2020), **Felipe Mojave**, **João Simão**, **Kelvin Kerber**, **Renan Bruschi**. **Empreendedores que profissionalizaram:** **Igor Trafane** (BSOP), **Devanir Campos** (H2/CPH), **Sérgio Prado** (Federação), **Rafael Prior** e a mídia **Mundo Poker / SuperPoker** que deram vitrine. **Lição:** estude quem venceu antes — range deles é seu ponto de partida.",
+      "takeaway": "Veja 1 vídeo de Akkari/Mojave e copie 1 conceito por sessão."
+    },
+    {
+      "year": "2015–Hoje",
+      "title": "Clubes como H2 e circuitos como BSOP viram indústria",
+      "text": "**Clubes:** H2 (SP), Regency (SP), Royal (SP), H2 Brasília, Emerald (GO), Stay Poker (RJ) — com ranking, bar, segurança e transmissão no YouTube. **Circuitos:** BSOP (6 etapas/ano + Online), CPH (semanal), KSOP, NPS e o **BSOP One Day**. **Números:** BSOP Millions 2023 teve 10 mil inscrições e R$ 30 milhões em prêmios; H2-SP já bateu **2.000 jogadores num único dia**. **Modalidades hoje:** Hold'em ainda 80%, mas **PLO (Omaha Pot-Limit) e Short Deck** lotam o high stakes. **Lição para você:** comece no Hold'em 9-max; quando dominar, experimente Omaha e Short Deck aqui no Zero Tilt.",
+      "takeaway": "Hold'em para aprender, PLO/Short Deck para evoluir."
     },
     {
       "year": "2027",
       "title": "Regulação e jogo responsável",
-      "text": "O Brasil caminha para a regulação do jogo com verificação de identidade e proteção ao jogador. Nossa plataforma já nasce nesse padrão: verificação de e-mail, jogo limpo e sem promessa de dinheiro fácil. **O que isso te ensina:** jogue com banca separada e limite de tempo.",
-      "takeaway": "Banca é ferramenta, não dinheiro do mês."
+      "text": "O Brasil caminha para a regulação com verificação de identidade, proteção ao jogador e tributação clara. Nossa plataforma já nasce nesse padrão: verificação de e-mail, banca separada e sem promessa de dinheiro fácil. **Lição:** trate banca como ferramenta de trabalho, não como dinheiro do mês.",
+      "takeaway": "Banca é ferramenta, não conta de luz."
     }
   ]
 }

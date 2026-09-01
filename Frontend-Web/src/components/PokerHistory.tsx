@@ -19,7 +19,7 @@ export function PokerHistory({ variant }: { variant: Variant }) {
         <h2 className="text-sm font-bold uppercase tracking-wide text-gold-bright">{data.title}</h2>
         <p className="text-xs text-felt-300">{data.subtitle}</p>
       </div>
-      <div className="max-h-[380px] space-y-0 overflow-y-auto px-4 py-3 scrollbar-thin">
+      <div className="max-h-[520px] space-y-0 overflow-y-auto px-4 py-3 scrollbar-thin">
         <div className="relative border-l-2 border-gold/20 pl-6">
           {data.blocks.map((block, idx) => (
             <div key={idx} className="relative pb-5 last:pb-0">
