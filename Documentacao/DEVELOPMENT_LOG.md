@@ -7,6 +7,20 @@
 
 ---
 
+## 📌 2026-09-01 — S20c: UI polimento iniciante — vazios, painel e carta fantasma + fontes fidedignas
+
+| Item | Detalhe |
+|------|---------|
+| **Objetivo** | Preencher vazios laterais com história (360\|1fr\|360) e corrigir fidelidade (H2 2006, fontes por bloco) |
+| **Frontend** | `HomePage.tsx` 3 colunas história nas laterais (vazios preenchidos, Notícias/Dica do Pró embaixo intactos); `Login/Register/Verify` revertem para `max-w-md` centrado; `PokerHistory.tsx` `520px` + fontes + disclaimer; `cards.ts` case-sensitive (sem `as`→A♠ em “todas as mesas”) |
+| **História Mundo** | 8 blocos com `sources` (Wikipedia/WSOP/WPT/Triton) + disclaimer datas aproximadas |
+| **História Brasil** | 7 blocos corrigidos para **2006 Grêmio Hold'em → H2** (não 2011 8 mesas), 4 unidades SP/Campinas/BH/Curitiba, Grupo H2 + BSOP, H2Bet 2022; CPH 2004 25 jogadores → BSOP 2006 7 etapas 60-67 entries; desbravadores Gomes/Akkari + ouro Yuri/Botteon + empreendedores Trafane/Campos/Salsicha; fontes `h2club.com.br`, `bsop.com.br`, `CBTH` |
+| **Fix** | `OnlinePresenceHero` removido da Home (contador já no header `Layout.tsx:93`); `HomePage` sem painel duplicado |
+| **Testes** | `tsc -b` + `vite build` 60 módulos 324KB + `cargo fmt` + `clippy` PASS |
+| **Deploy** | Push `0734ced` + `7ec16f1` + `f32eff4` + `328725b` → VPS `git pull` + `docker build poker_frontend` + `4/4 healthy` |
+
+---
+
 ## 📌 2026-09-01 — S20b: História completa + PT-BR normalizado para iniciantes (pós-BBA)
 
 | Item | Detalhe |
@@ -14,7 +28,7 @@
 | **Objetivo** | História lado a lado (mundo 8 + Brasil 7 com H2) + toda nova notícia/dica já entrar com PT-BR e formatação legível |
 | **Frontend** | `translatePt.ts` `correctPtOrthography` (80 termos, ` — `) + `articleFetch.ts` `htmlToStructuredMarkdown` (preserva h2/ul/table) + `TipRichText.tsx` parser h4/table/ul/bold + `PokerHistory.tsx` (520px) + `HomePage.tsx` grid 2 colunas; `NewsTips.tsx` LOCAL_NEWS corrigido + `Dica do Pró` + `pokerHistory*.json` 15→8+7 blocos |
 | **História Mundo** | 1829 Mississippi 20 cartas → 52 cartas/Stud → Robstown Hold'em 1925 → Binion WSOP 1970 → modalidades (Stud/Hold'em/Omaha/Short Deck) + lendas Brunson/Ungar/Ivey/Hellmuth/Negreanu → WPT/EPT/Moneymaker 2003 → Black Friday/Twitch → Triton/GGPoker (8 blocos) |
-| **História Brasil** | Clubes 1988 → Akkari/BSOP 2006 Trafane → CPH/NPS/LAPT + H2 2011 Vila Olímpia 8 mesas → 2014 Juscelino 60 mesas/4 unidades + BSOP/WPT/LAPT → desbravadores Akkari/Gomes + ouro Yuri/Botteon/Mojave + empreendedores Trafane/Campos/Salsicha → indústria BSOP 10k/H2 2k dia (7 blocos) |
+| **História Brasil** | Clubes 1988 → Akkari/BSOP 2006 Trafane → CPH/NPS/LAPT + H2 2011 Vila Olímpia 8 mesas → 2014 Juscelino 60 mesas/4 unidades + BSOP/WPT/LAPT → desbravadores Akkari/Gomes + ouro Yuri/Botteon/Mojave + empreendedores Trafane/Campos/Salsicha → indústria BSOP 10k/H2 2k dia (7 blocos) — *posteriormente corrigido para H2 2006 em S20c* |
 | **Testes** | `tsc -b` + `vite build` 60 módulos 324KB + `cargo fmt` + `clippy` PASS |
 | **Deploy** | Push `1b9175b` + `1e4d248` → VPS `git pull` + `docker build poker_frontend 18s` + `up -d` 4/4 healthy |
 | **Docs** | Este log S20b; STATUS S20b, DASHBOARD S20b, CRONOGRAMA S20b |
@@ -684,7 +698,7 @@
 - Gate local: Rust fmt + Clippy estrito; 51 testes ativos selecionados; 4 contratos PostgreSQL isolados; TypeScript e Vite build. Zero falhas.
 - Operação pública conserva `PIX_PROVIDER=mock`/`PIX_MODE=mock`; DePix produtiva e saque automático continuam bloqueados.
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-09-01):** S20b — Big Blind Ante 26 níveis + História completa do pôquer (8 mundo + 7 Brasil com H2 detalhado) + PT-BR normalizado; catálogo cash canônico NLHE 0,25/0,25, Hold'em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy (poker_api/poker_frontend/poker_postgres/poker_redis); migrations 001–032 aplicadas (BBA). Gate S20b: cargo fmt, Clippy estrito (Motor + API), 1828 Motor + 35 API + Vite 60 módulos 324KB — todos sem falhas; VPS 4/4 healthy, 26 níveis ante=big_blind (invalid_BBA=0), backup verificável, rebuilds 4m13s (API) + 18s (frontend) e health público OK. Frontend: PT-BR normalizado (correctPtOrthography + htmlToStructuredMarkdown + ProseRichText tabela/headings), Dica do Pró, história 8 mundo + 7 Brasil com H2 detalhado. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
+> **Estado operacional sincronizado (2026-09-01):** S20c — UI para iniciantes: vazios laterais com história (360px|1fr|360px), Dica do Pró, correção PT-BR futura, sem painel duplicado e sem A♠ fantasma; catálogo cash canônico NLHE 0,25/0,25, Hold'em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy; migrations 001–032 aplicadas. Gate S20c: cargo fmt, Clippy estrito, tsc -b + Vite 60 módulos 324KB — todos sem falhas; VPS 4/4 healthy, 26 níveis ante=big_blind (invalid_BBA=0), backup verificável, rebuilds 4m13s + 18s e health público OK. Frontend: PT-BR normalizado (correctPtOrthography + htmlToStructuredMarkdown + ProseRichText), Dica do Pró, história 8+7 com fontes e H2 2006 fidedigno (disclaimer), sem A♠ fantasma (case-sensitive cards), vazios laterais preenchidos com história e sem painel duplicado. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->
