@@ -277,6 +277,10 @@ pub struct GameLoop {
     pub rake_rounding: RakeRounding,
     /// Se true, pula Monte Carlo do loss deflator (stress / bench).
     pub skip_loss_deflator: bool,
+    /// Jogador que pagou o Big Blind Ante (dinheiro morto no pote principal).
+    big_blind_ante_player_id: Option<String>,
+    /// Valor efetivamente pago como Big Blind Ante nesta mão.
+    big_blind_ante_amount: u64,
 }
 
 impl GameLoop {
@@ -312,10 +316,12 @@ impl GameLoop {
             action_counter: 0,
             rake_rounding: RakeRounding::HalfToEven,
             skip_loss_deflator: false,
+            big_blind_ante_player_id: None,
+            big_blind_ante_amount: 0,
         }
     }
 
-    /// Define o ante para a mão em centavos
+    /// Define o ante em centavos. Em torneios, é Big Blind Ante; em cash, ante individual legado.
     pub fn with_ante(mut self, ante: u64) -> Self {
         self.ante = Some(ante);
         self
@@ -329,6 +335,52 @@ impl GameLoop {
     pub fn with_skip_loss_deflator(mut self, skip: bool) -> Self {
         self.skip_loss_deflator = skip;
         self
+    }
+
+    /// Contribuições vivas usadas para definir elegibilidade nos potes.
+    /// O Big Blind Ante é dinheiro morto: entra no pote principal, mas não
+    /// aumenta a faixa de side pots à qual o pagador tem direito.
+    fn players_for_pots(&self) -> Vec<PlayerForPots> {
+        self.state
+            .players
+            .iter()
+            .map(|player| {
+                let dead_ante = self
+                    .big_blind_ante_player_id
+                    .as_deref()
+                    .filter(|player_id| *player_id == player.id)
+                    .map(|_| self.big_blind_ante_amount)
+                    .unwrap_or(0);
+                PlayerForPots {
+                    id: player.id.clone(),
+                    total_bet: player.total_bet.saturating_sub(dead_ante),
+                    has_folded: player.has_folded,
+                    cards: player.hole_cards.clone(),
+                }
+            })
+            .collect()
+    }
+
+    fn pots_with_big_blind_ante(&self, players: &[PlayerForPots]) -> Vec<Pot> {
+        let mut pots = side_pots::calculate_side_pots(players);
+        if self.big_blind_ante_amount == 0 {
+            return pots;
+        }
+
+        if let Some(main_pot) = pots.first_mut() {
+            main_pot.amount = main_pot.amount.saturating_add(self.big_blind_ante_amount);
+        } else {
+            let eligible_players = players
+                .iter()
+                .filter(|player| !player.has_folded)
+                .map(|player| player.id.clone())
+                .collect();
+            pots.push(Pot {
+                amount: self.big_blind_ante_amount,
+                eligible_players,
+            });
+        }
+        pots
     }
 
     /// Adiciona um jogador à mão (antes de iniciar) com stack em centavos
@@ -361,22 +413,27 @@ impl GameLoop {
         };
         self.state.deck = shuffle_deck(&full_deck);
 
-        // 2. Coletar ante (se configurado)
-        if let Some(ante) = self.ante {
-            if ante > 0 {
-                for player in &mut self.state.players {
-                    let ante_amount = ante.min(player.stack);
-                    player.stack -= ante_amount;
-                    player.total_bet += ante_amount;
+        let sb_index = self.small_blind_index();
+        let bb_index = self.big_blind_index();
+        let uses_big_blind_ante = self.game_type == GameType::Tournament;
+
+        self.big_blind_ante_player_id = None;
+        self.big_blind_ante_amount = 0;
+
+        // 2. Cash game mantém o ante individual legado. Torneios usam Big Blind Ante.
+        if !uses_big_blind_ante {
+            if let Some(ante) = self.ante {
+                if ante > 0 {
+                    for player in &mut self.state.players {
+                        let ante_amount = ante.min(player.stack);
+                        player.stack -= ante_amount;
+                        player.total_bet += ante_amount;
+                    }
                 }
             }
         }
 
-        // 3. Coletar blinds
-        let sb_index = self.small_blind_index();
-        let bb_index = self.big_blind_index();
-
-        // Small blind
+        // 3. Coletar blinds. No torneio, o Big Blind sempre tem prioridade sobre o ante.
         let sb_amount = self
             .state
             .small_blind
@@ -385,11 +442,27 @@ impl GameLoop {
         self.state.players[sb_index].current_bet = sb_amount;
         self.state.players[sb_index].total_bet += sb_amount;
 
-        // Big blind
         let bb_amount = self.state.big_blind.min(self.state.players[bb_index].stack);
         self.state.players[bb_index].stack -= bb_amount;
         self.state.players[bb_index].current_bet = bb_amount;
         self.state.players[bb_index].total_bet += bb_amount;
+
+        // 4. Big Blind Ante: só é cobrado se o Big Blind foi pago por inteiro.
+        // O saldo restante pode pagar o ante total ou parcialmente. Esse valor é
+        // dinheiro morto no pote principal e não aumenta o limite de elegibilidade
+        // do jogador nos side pots.
+        if uses_big_blind_ante && bb_amount == self.state.big_blind {
+            if let Some(ante) = self.ante.filter(|ante| *ante > 0) {
+                let ante_amount = ante.min(self.state.players[bb_index].stack);
+                if ante_amount > 0 {
+                    let bb_player = &mut self.state.players[bb_index];
+                    bb_player.stack -= ante_amount;
+                    bb_player.total_bet += ante_amount;
+                    self.big_blind_ante_player_id = Some(bb_player.id.clone());
+                    self.big_blind_ante_amount = ante_amount;
+                }
+            }
+        }
 
         // Verificar all-in por ante, blinds ou stack inicial zerado.
         for player in &mut self.state.players {
@@ -912,18 +985,8 @@ impl GameLoop {
             ))?;
 
         let winner_id = self.state.players[winner_idx].id.clone();
-        let players_for_pots: Vec<PlayerForPots> = self
-            .state
-            .players
-            .iter()
-            .map(|player| PlayerForPots {
-                id: player.id.clone(),
-                total_bet: player.total_bet,
-                has_folded: player.has_folded,
-                cards: player.hole_cards.clone(),
-            })
-            .collect();
-        let pots = side_pots::calculate_side_pots(&players_for_pots);
+        let players_for_pots = self.players_for_pots();
+        let pots = self.pots_with_big_blind_ante(&players_for_pots);
         let rake_result = rake::deduct_rake_for_hand_with_player_count(
             &pots,
             &self.config,
@@ -973,20 +1036,10 @@ impl GameLoop {
     /// Resolve showdown: calcula side pots, rake, loss deflator, distribui em centavos
     fn resolve_showdown(&mut self) -> Result<HandResolution, GameLoopError> {
         // 1. Construir PlayerForPots para side_pots em centavos
-        let players_for_pots: Vec<PlayerForPots> = self
-            .state
-            .players
-            .iter()
-            .map(|p| PlayerForPots {
-                id: p.id.clone(),
-                total_bet: p.total_bet,
-                has_folded: p.has_folded,
-                cards: p.hole_cards.clone(),
-            })
-            .collect();
+        let players_for_pots = self.players_for_pots();
 
-        // 2. Calcular os potes (main e side pots)
-        let pots = side_pots::calculate_side_pots(&players_for_pots);
+        // 2. Calcular os potes (main e side pots), adicionando o BBA ao pote principal.
+        let pots = self.pots_with_big_blind_ante(&players_for_pots);
 
         // 3. Deduzir rake do main pot e side pots, sob um único cap.
         let rake_result: RakeResult = rake::deduct_rake_for_hand_with_player_count(

@@ -361,7 +361,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({tournaments.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                Hold’em tradicional, freeroll Long/Short e Omaha 4 cartas Short Deck · 26 níveis · mãos MTT em breve
+                Hold’em tradicional, freeroll tradicional (Mesa Final Short Deck) e Omaha 4 cartas Short Deck · Big Blind Ante desde o nível 1 · 26 níveis · mãos MTT em breve
               </p>
             </div>
             <button

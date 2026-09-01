@@ -1430,6 +1430,88 @@ mod game_loop_init_tests {
         }
     }
 
+    fn make_tournament_with_bb_stack(bb_stack: u64) -> GameLoop {
+        let mut gl = GameLoop::new(
+            make_config(),
+            "tournament-bba".to_string(),
+            "Tournament BBA".to_string(),
+            GameType::Tournament,
+        )
+        .with_ante(10)
+        .with_skip_loss_deflator(true);
+        gl.add_player("dealer".to_string(), 1000);
+        gl.add_player("small-blind".to_string(), 1000);
+        gl.add_player("big-blind".to_string(), bb_stack);
+        gl.set_dealer(0);
+        gl
+    }
+
+    fn finish_checking_hand(gl: &mut GameLoop) {
+        for _ in 0..20 {
+            if gl.state.is_finished {
+                return;
+            }
+            let player = &gl.state.players[gl.state.active_player_index];
+            let player_id = player.id.clone();
+            let action = if player.current_bet < gl.state.current_bet_to_match {
+                PlayerMove::Call
+            } else {
+                PlayerMove::Check
+            };
+            gl.player_action(&player_id, action).unwrap();
+        }
+        panic!("a mão de teste não terminou");
+    }
+
+    #[test]
+    fn tournament_big_blind_ante_is_paid_only_by_big_blind_after_blinds() {
+        let mut gl = make_tournament_with_bb_stack(1000);
+        gl.start_hand().unwrap();
+
+        assert_eq!(gl.state.players[0].total_bet, 0);
+        assert_eq!(gl.state.players[0].stack, 1000);
+        assert_eq!(gl.state.players[1].total_bet, 5);
+        assert_eq!(gl.state.players[1].stack, 995);
+        assert_eq!(gl.state.players[2].total_bet, 20);
+        assert_eq!(gl.state.players[2].stack, 980);
+    }
+
+    #[test]
+    fn tournament_short_big_blind_pays_no_ante_and_gets_proportional_main_pot() {
+        let mut gl = make_tournament_with_bb_stack(7);
+        gl.start_hand().unwrap();
+
+        assert_eq!(gl.state.players[2].total_bet, 7);
+        assert_eq!(gl.state.players[2].stack, 0);
+        assert!(gl.state.players[2].is_all_in);
+        assert_eq!(gl.state.players[0].total_bet, 0);
+        assert_eq!(gl.state.players[1].total_bet, 5);
+
+        finish_checking_hand(&mut gl);
+        let resolution = gl.resolve_hand().unwrap();
+        assert_eq!(resolution.pots.len(), 2);
+        assert_eq!(resolution.pots[0].amount, 21);
+        assert_eq!(resolution.pots[0].eligible_players.len(), 3);
+        assert_eq!(resolution.pots[1].amount, 6);
+        assert_eq!(resolution.pots[1].eligible_players.len(), 2);
+    }
+
+    #[test]
+    fn tournament_partial_big_blind_ante_stays_dead_in_main_pot() {
+        let mut gl = make_tournament_with_bb_stack(15);
+        gl.start_hand().unwrap();
+
+        assert_eq!(gl.state.players[2].total_bet, 15);
+        assert_eq!(gl.state.players[2].stack, 0);
+        assert!(gl.state.players[2].is_all_in);
+
+        finish_checking_hand(&mut gl);
+        let resolution = gl.resolve_hand().unwrap();
+        assert_eq!(resolution.pots.len(), 1);
+        assert_eq!(resolution.pots[0].amount, 35);
+        assert_eq!(resolution.pots[0].eligible_players.len(), 3);
+    }
+
     // ─── start_hand() — errors ───
 
     #[test]

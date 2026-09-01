@@ -21,7 +21,7 @@ export function gameNameLabel(
 
 export function deckTypeLabel(game: GameDescriptor): string {
   if (game.final_table_variant === "short_deck") {
-    return "Long/Short (mesa final)";
+    return "Tradicional (Mesa Final Short Deck)";
   }
   const variant = game.poker_variant ?? "";
   const gameType = (game.game_type ?? "").toLowerCase();

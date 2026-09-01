@@ -34,7 +34,7 @@ pub struct BlindLevel {
     pub small_blind: u64,
     /// Big blind
     pub big_blind: u64,
-    /// Ante (opcional, 0 = sem ante)
+    /// Big Blind Ante pago pelo jogador no Big (igual ao big_blind; 0 = sem ante)
     pub ante: u64,
     /// Duração em minutos
     pub duration_minutes: u32,

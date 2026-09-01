@@ -177,14 +177,14 @@ export function TournamentPage() {
       </div>
 
       <div className="zt-panel overflow-hidden">
-        <div className="zt-panel-title">Estrutura de blinds (5 min)</div>
+        <div className="zt-panel-title">Estrutura de blinds com Big Blind Ante (5 min)</div>
         <div className="zt-table-wrap">
           <table className="zt-lobby-table">
             <thead>
               <tr>
                 <th>Nível</th>
                 <th>Blinds</th>
-                <th>Ante</th>
+                <th>Big Blind Ante</th>
                 <th>Min</th>
               </tr>
             </thead>
