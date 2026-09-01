@@ -35,12 +35,12 @@ export function suitSymbol(suit: Suit): string {
 const RANK = "A|K|Q|J|T|10|[2-9]";
 const SUIT = "[shdc]";
 
-/** Uma carta concreta: As, Kd, 10h, T d (sem espaços no código). */
-const ONE_CARD = new RegExp(`^(${RANK})(${SUIT})$`, "i");
+/** Uma carta concreta: As, Kd, 10h — case-sensitive para não confundir com artigo “as”. */
+const ONE_CARD = new RegExp(`^(${RANK})(${SUIT})$`);
 /** Forma legada nos tips: A[s], 10[h]. */
-const BRACKET_CARD = new RegExp(`^(${RANK})\\[(${SUIT})\\]$`, "i");
+const BRACKET_CARD = new RegExp(`^(${RANK})\\[(${SUIT})\\]$`);
 /** Duas cartas coladas: AsKd, Ks7h. */
-const TWO_CARDS = new RegExp(`^(${RANK})(${SUIT})(${RANK})(${SUIT})$`, "i");
+const TWO_CARDS = new RegExp(`^(${RANK})(${SUIT})(${RANK})(${SUIT})$`);
 
 /**
  * Extrai códigos de carta concretos de um token.
