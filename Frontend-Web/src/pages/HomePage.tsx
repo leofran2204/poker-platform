@@ -16,16 +16,18 @@ export function HomePage() {
         <div className="zt-panel overflow-hidden">
           <div className="border-b-2 border-rail bg-felt-850 px-6 py-8 text-center">
             <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-gold-soft">
-              Texas Hold&apos;em · Cash &amp; Torneios
+              Sem tilt. Só pôquer. Só decisão.
             </p>
             <h1 className="text-4xl font-bold tracking-tight text-gold-bright sm:text-5xl">
               Zero Tilt Poker
             </h1>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-cream-muted">
-              Full Tilt clássico, mesa de feltro e jogo limpo. Motor em Rust, interface em TypeScript.
+              Jogue com a cabeça fria. Aqui não há truque, só estrutura justa, rake transparente e
+              tecnologia em Rust para você focar na próxima decisão. Do primeiro flop ao deep run,
+              evolua no seu ritmo.
             </p>
             <p className="mx-auto mt-2 max-w-lg text-xs font-semibold text-gold-soft">
-              Mínimo 2 pessoas na mesma mesa para iniciar uma mão.
+              Mesa abre com 2. O resto é com você.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link to={authed ? "/lobby" : "/register"} className="zt-btn-primary px-6 py-2.5 text-sm">
@@ -39,17 +41,11 @@ export function HomePage() {
             </div>
           </div>
           <div className="grid gap-0 sm:grid-cols-3">
+            <Feature title="Mente fria" body="Sem relógio que tilta. Estrutura justa para decidir com calma." />
+            <Feature title="Jogo limpo" body="Rake em centavos, split 15/85 transparente. Sem letra miúda." />
             <Feature
-              title="Cash 9-max"
-              body="Mesas NL com blinds claros, buy-in e seats até 9 jogadores."
-            />
-            <Feature
-              title="Rake honesto"
-              body="Centavos inteiros no backend. Split B2B 15/85 para clubes."
-            />
-            <Feature
-              title="Loss Deflator"
-              body="Cashback em bad beats extremos — a marca Zero Tilt."
+              title="Feito para evoluir"
+              body="Do freeroll ao deep run, com cashback que protege do tilt."
             />
           </div>
         </div>

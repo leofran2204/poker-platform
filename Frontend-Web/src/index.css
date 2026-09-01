@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────────────────────
-   Zero Tilt — Full Tilt inspired skin
-   Felt, gold rail, dense lobby. Modern polish, classic bones.
-   No glassmorphism spam, no neon SaaS gradients.
+   Zero Tilt — identidade própria: sem tilt
+   Feltro, trilho dourado, lobby denso. Polimento moderno, sem tilt.
+   Sem glassmorphism, sem neon SaaS.
    ───────────────────────────────────────────────────────────── */
 
 @layer base {
@@ -130,7 +130,7 @@
     @apply overflow-x-auto;
   }
 
-  /* ── Lobby Full Tilt dense table ── */
+  /* ── Lobby Zero Tilt dense table ── */
   .zt-lobby-toolbar {
     @apply flex flex-wrap items-center gap-3 border-b border-rail/60 bg-felt-850/80 px-3 py-2.5;
   }
