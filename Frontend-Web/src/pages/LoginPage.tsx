@@ -67,10 +67,11 @@ export function LoginPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md">
-      <div className="zt-panel">
-        <div className="zt-panel-title">Entrar</div>
-        <form className="space-y-4 p-5" onSubmit={onSubmit}>
+    <div className="mx-auto max-w-5xl">
+      <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
+        <div className="zt-panel h-fit">
+          <div className="zt-panel-title">Entrar</div>
+          <form className="space-y-4 p-5" onSubmit={onSubmit}>
           {sessionExpired && (
             <p
               className="rounded border border-amber-600 bg-amber-950/60 px-3 py-2 text-sm text-amber-100"
@@ -162,7 +163,39 @@ export function LoginPage() {
               Verificar e-mail
             </Link>
           </p>
-        </form>
+          </form>
+        </div>
+
+        <div className="space-y-4">
+          <div className="zt-panel p-5">
+            <h3 className="text-sm font-bold uppercase tracking-wide text-gold-bright">
+              Por que entrar agora?
+            </h3>
+            <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-felt-200">
+              <li>Lobby ao vivo com mesas por stake e variante</li>
+              <li>Mínimo 2 na mesma mesa para a mão começar — chame um amigo</li>
+              <li>Play Money e Jogo Real separados, sem misturar saldos</li>
+            </ul>
+            <Link to="/register" className="zt-btn-primary mt-4 w-full justify-center">
+              Criar minha conta
+            </Link>
+          </div>
+
+          <div className="zt-panel p-5">
+            <h3 className="text-sm font-bold text-gold-bright">Dica para iniciantes</h3>
+            <p className="mt-2 text-sm leading-relaxed text-felt-300">
+              Comece no <span className="font-semibold text-cream">Botão</span> com mãos largas e no{" "}
+              <span className="font-semibold text-cream">UTG</span> só com 12% das mãos. Posição é tudo.
+            </p>
+            <Link to="/" className="mt-3 inline-flex text-xs font-semibold text-gold-soft hover:text-gold-bright hover:underline">
+              Ver história e dicas →
+            </Link>
+          </div>
+
+          <div className="rounded border border-felt-600 bg-felt-850 px-4 py-3 text-xs leading-relaxed text-felt-400">
+            Demo · Sem dinheiro real obrigatório · Verificação por e-mail em 6 dígitos
+          </div>
+        </div>
       </div>
     </div>
   );

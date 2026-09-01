@@ -57,16 +57,17 @@ export function VerifyEmailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md">
-      <div className="zt-panel">
-        <div className="zt-panel-title">Confirmar e-mail</div>
-        <form className="space-y-4 p-5" onSubmit={onSubmit}>
-          <p className="text-sm leading-relaxed text-felt-200">
-            Enviamos um código de 6 dígitos para o seu e-mail — é o dealer
-            pedindo para confirmar que a cadeira é sua. Confira a caixa de
-            entrada e o spam. Se o envio real não estiver configurado no
-            servidor, o código ainda aparece nos logs da API.
-          </p>
+    <div className="mx-auto max-w-5xl">
+      <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
+        <div className="zt-panel h-fit">
+          <div className="zt-panel-title">Confirmar e-mail</div>
+          <form className="space-y-4 p-5" onSubmit={onSubmit}>
+            <p className="text-sm leading-relaxed text-felt-200">
+              Enviamos um código de 6 dígitos para o seu e-mail — é o dealer
+              pedindo para confirmar que a cadeira é sua. Confira a caixa de
+              entrada e o spam. Se o envio real não estiver configurado no
+              servidor, o código ainda aparece nos logs da API.
+            </p>
           <div>
             <label className="zt-label" htmlFor="email">
               E-mail
@@ -122,7 +123,29 @@ export function VerifyEmailPage() {
               Voltar ao login
             </Link>
           </p>
-        </form>
+          </form>
+        </div>
+
+        <div className="space-y-4">
+          <div className="zt-panel p-5">
+            <h3 className="text-sm font-bold uppercase tracking-wide text-gold-bright">Não recebeu?</h3>
+            <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-felt-200">
+              <li>Espere 1–2 minutos e verifique o spam/lixo eletrônico</li>
+              <li>Confirme se digitou o e-mail correto acima</li>
+              <li>Clique em Reenviar código — novo código invalida o anterior</li>
+            </ul>
+          </div>
+          <div className="zt-panel p-5">
+            <h3 className="text-sm font-bold text-gold-bright">Próximo passo</h3>
+            <p className="mt-2 text-sm leading-relaxed text-felt-300">
+              Após ativar, você vai direto para o lobby. Escolha <span className="font-semibold text-cream">Play Money</span> para treinar ou{" "}
+              <span className="font-semibold text-cream">Jogo Real</span> se já tiver saldo.
+            </p>
+            <Link to="/lobby" className="mt-3 inline-flex text-xs font-semibold text-gold-soft hover:text-gold-bright hover:underline">
+              Ir para o lobby →
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
