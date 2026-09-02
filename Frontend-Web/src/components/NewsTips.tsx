@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import tipsData from "@/data/tipsContent.json";
 import { TipRichText } from "@/components/TipRichText";
 import { looksLikePortuguese, translateNewsFields, translateToPortuguese } from "@/lib/translatePt";
@@ -12,6 +12,7 @@ import {
   resolveArticleBody,
   resolveSourceImage,
 } from "@/lib/articleFetch";
+import xHandles from "@/data/xHandles.json";
 
 interface FeedItem {
   id: string;
@@ -61,11 +62,32 @@ const CONTENT_FEEDS: FeedConfig[] = [
   { name: "CardsChat", url: "https://www.cardschat.com/feed/", lang: "en", kind: "news" },
   { name: "Upswing Poker", url: "https://upswingpoker.com/feed/", lang: "en", kind: "tips" },
   { name: "FlushDraw", url: "https://www.flushdraw.net/feed/", lang: "en", kind: "tips" },
+  // Novos portais internacionais para diversificar (grátis)
+  { name: "PokerStrategy", url: "https://www.pokerstrategy.com/feed/", lang: "en", kind: "tips" },
+  { name: "888poker Blog", url: "https://www.888poker.com/blog/feed/", lang: "en", kind: "both" },
+  { name: "GGPoker Blog", url: "https://ggpoker.com/blog/feed/", lang: "en", kind: "news" },
+  { name: "PokerStars Blog", url: "https://www.pokerstars.com/blog/feed/", lang: "en", kind: "news" },
+];
+
+const NITTER_BASE = "https://nitter.net";
+const X_FEEDS: FeedConfig[] = [
+  ...xHandles.brazilian.map((h) => ({
+    name: `X:${h.name}`,
+    url: `${NITTER_BASE}/${h.handle}/rss`,
+    lang: h.lang as "pt" | "en",
+    kind: "both" as const,
+  })),
+  ...xHandles.international.map((h) => ({
+    name: `X:${h.name}`,
+    url: `${NITTER_BASE}/${h.handle}/rss`,
+    lang: h.lang as "pt" | "en",
+    kind: "both" as const,
+  })),
 ];
 
 const ITEMS_PER_FEED = 5;
-const NEWS_FEED_LIMIT = 32;
-const TIPS_FEED_LIMIT = 40;
+const NEWS_FEED_LIMIT = 48;
+const TIPS_FEED_LIMIT = 48;
 
 interface LocalNews {
   id: string;
@@ -334,6 +356,8 @@ export function NewsTips({ className }: { className?: string }) {
   /** Texto completo buscado da página da matéria (quando o RSS vem curto/vazio). */
   const [fullBodies, setFullBodies] = useState<Record<string, string>>({});
   const [loadingBodies, setLoadingBodies] = useState<Record<string, boolean>>({});
+  const [visibleCount, setVisibleCount] = useState(8);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   const STREETS: { id: "preflop" | "flop" | "turn" | "river"; label: string; icon: React.ReactNode }[] = [
     {
@@ -557,8 +581,15 @@ export function NewsTips({ className }: { className?: string }) {
       setError(null);
 
       try {
+        // 60/40 BR/intl com X grátis (Nitter) — limita para não sobrecarregar
+        const shuffledX = [...X_FEEDS].sort(() => Math.random() - 0.5);
+        const limitedX = [
+          ...shuffledX.filter((f) => f.lang === "pt").slice(0, 18),
+          ...shuffledX.filter((f) => f.lang === "en").slice(0, 9),
+        ];
+        const feedsToFetch = [...CONTENT_FEEDS, ...limitedX];
         const batches = await Promise.all(
-          CONTENT_FEEDS.map(async (feed) => ({ feed, items: await fetchOneFeed(feed) })),
+          feedsToFetch.map(async (feed) => ({ feed, items: await fetchOneFeed(feed) })),
         );
 
         const newsPool: FeedItem[] = [];
@@ -607,8 +638,33 @@ export function NewsTips({ className }: { className?: string }) {
           return out;
         };
 
-        const topNews = dedupe(newsPool).slice(0, NEWS_FEED_LIMIT);
-        const topTips = dedupe(tipsPool).slice(0, TIPS_FEED_LIMIT);
+        // 60/40 BR/intl + leve shuffle nos 12 primeiros para rotatividade
+        const enforce60_40 = (list: FeedItem[]) => {
+          const br = list.filter((i) => i.fromLang !== "en" && i.fromLang !== "es");
+          const intl = list.filter((i) => i.fromLang === "en" || i.fromLang === "es");
+          const out: FeedItem[] = [];
+          let bi = 0,
+            ii = 0;
+          // intercala 3 BR para 2 intl = 60/40
+          while (out.length < list.length && (bi < br.length || ii < intl.length)) {
+            for (let k = 0; k < 3 && bi < br.length && out.length < list.length; k++) out.push(br[bi++]);
+            for (let k = 0; k < 2 && ii < intl.length && out.length < list.length; k++) out.push(intl[ii++]);
+          }
+          // se sobrou só um lado, completa
+          while (bi < br.length && out.length < list.length) out.push(br[bi++]);
+          while (ii < intl.length && out.length < list.length) out.push(intl[ii++]);
+          return out;
+        };
+        const shuffleHead = (list: FeedItem[]) => {
+          if (list.length <= 12) return list;
+          const head = [...list.slice(0, 12)].sort(() => Math.random() - 0.5);
+          return [...head, ...list.slice(12)];
+        };
+
+        const topNewsRaw = enforce60_40(dedupe(newsPool)).slice(0, NEWS_FEED_LIMIT);
+        const topTipsRaw = enforce60_40(dedupe(tipsPool)).slice(0, TIPS_FEED_LIMIT);
+        const topNews = shuffleHead(topNewsRaw);
+        const topTips = shuffleHead(topTipsRaw);
 
         const enrichOg = async (list: FeedItem[]) => {
           await Promise.all(
@@ -684,12 +740,34 @@ export function NewsTips({ className }: { className?: string }) {
     }
 
     void fetchAllContent();
-    const interval = setInterval(() => void fetchAllContent(), 10 * 60 * 1000);
+    const interval = setInterval(() => void fetchAllContent(), 5 * 60 * 1000);
     return () => {
       mounted = false;
       clearInterval(interval);
     };
   }, []);
+
+  useEffect(() => {
+    setVisibleCount(8);
+    carouselRef.current?.scrollTo({ left: 0, behavior: "smooth" });
+  }, [activeTab, activeStreet]);
+
+  useEffect(() => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const id = setInterval(() => {
+      if (!el || expandedItems.size > 0) return;
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      if (maxScroll <= 10) return;
+      const next = el.scrollLeft + 380;
+      if (next >= maxScroll - 10) {
+        el.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        el.scrollBy({ left: 380, behavior: "smooth" });
+      }
+    }, 8000);
+    return () => clearInterval(id);
+  }, [expandedItems.size, newsItems.length, remoteTips.length]);
 
   const localTips: FeedItem[] = LOCAL_TIPS.map((tip, idx) => ({
     id: tip.id,
@@ -812,13 +890,15 @@ export function NewsTips({ className }: { className?: string }) {
           <p className="py-8 text-center text-felt-400">Nenhum item encontrado.</p>
         )}
 
+        {/* Carrossel para desktop e mobile — auto 8s, 60/40 BR/intl já embaralhado */}
         <div
-          className="space-y-3"
+          ref={carouselRef}
+          className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 scrollbar-thin"
           role="feed"
           aria-label={`${activeTab === "news" ? "Notícias" : "Dica do Pró"} de poker`}
         >
           {!loading &&
-            items.map((item) => {
+            items.slice(0, visibleCount).map((item) => {
               const itemKey = String(item.id);
               const isExpanded = expandedItems.has(itemKey);
               const rssBody = (item.description ?? "").trim();
@@ -833,7 +913,7 @@ export function NewsTips({ className }: { className?: string }) {
               return (
                 <article
                   key={itemKey}
-                  className={`group zt-card overflow-hidden transition-colors hover:border-gold-soft/30 ${isExpanded ? "border-gold-soft/40" : ""}`}
+                  className={`group zt-card min-w-[300px] max-w-[380px] flex-shrink-0 snap-start overflow-hidden transition-colors hover:border-gold-soft/30 ${isExpanded ? "border-gold-soft/40" : ""}`}
                 >
                   {photo ? (
                     <NewsImage
@@ -945,6 +1025,42 @@ export function NewsTips({ className }: { className?: string }) {
               );
             })}
         </div>
+        {/* Navegação carrossel + Ver mais — desktop e mobile */}
+        {!loading && items.length > 0 && (
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <div className="flex gap-1">
+              <button
+                type="button"
+                aria-label="Anterior"
+                onClick={() => carouselRef.current?.scrollBy({ left: -380, behavior: "smooth" })}
+                className="rounded border border-felt-600 bg-felt-800 px-2 py-1 text-sm text-felt-300 hover:border-gold/40 hover:text-gold-soft"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                aria-label="Próximo"
+                onClick={() => carouselRef.current?.scrollBy({ left: 380, behavior: "smooth" })}
+                className="rounded border border-felt-600 bg-felt-800 px-2 py-1 text-sm text-felt-300 hover:border-gold/40 hover:text-gold-soft"
+              >
+                ›
+              </button>
+            </div>
+            {visibleCount < items.length ? (
+              <button
+                type="button"
+                onClick={() => setVisibleCount((v) => Math.min(v + 8, items.length))}
+                className="text-xs font-bold uppercase tracking-wide text-gold-soft hover:text-gold-bright"
+              >
+                Ver mais 8 ({items.length - visibleCount} restantes)
+              </button>
+            ) : (
+              <span className="text-xs text-felt-400">
+                {items.length} {activeTab === "news" ? "notícias" : "dicas"} • atualiza a cada 5 min
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
