@@ -24,10 +24,11 @@ export function HomePage() {
             <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-cream-muted">
               Jogue com a cabeça fria. Aqui não há truque, só estrutura justa, rake transparente e
               tecnologia em Rust para você focar na próxima decisão. Do primeiro flop ao deep run,
+              <span className="font-semibold text-gold-soft"> com Loss Deflator que tira o tilt do bad beat</span>,
               evolua no seu ritmo.
             </p>
             <p className="mx-auto mt-2 max-w-lg text-xs font-semibold text-gold-soft">
-              Mesa abre com 2. O resto é com você.
+              Mesa abre com 2. O resto é com você. <span className="text-cream">Loss Deflator</span> protege do tilt.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link to={authed ? "/lobby" : "/register"} className="zt-btn-primary px-6 py-2.5 text-sm">
@@ -42,11 +43,8 @@ export function HomePage() {
           </div>
           <div className="grid gap-0 sm:grid-cols-3">
             <Feature title="Mente fria" body="Sem relógio que tilta. Estrutura justa para decidir com calma." />
+            <Feature title="Loss Deflator" body="Cashback em bad beat extremo que tira o tilt. A marca Zero Tilt." />
             <Feature title="Jogo limpo" body="Rake em centavos, split 15/85 transparente. Sem letra miúda." />
-            <Feature
-              title="Feito para evoluir"
-              body="Do freeroll ao deep run, com cashback que protege do tilt."
-            />
           </div>
         </div>
 
