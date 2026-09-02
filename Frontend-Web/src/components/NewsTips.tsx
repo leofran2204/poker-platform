@@ -458,7 +458,8 @@ export function NewsTips({ className }: { className?: string }) {
       }>,
     ): FeedItem[] {
       const out: FeedItem[] = [];
-      for (const item of rawItems.slice(0, ITEMS_PER_FEED)) {
+      const perFeedLimit = feed.name.startsWith("X:") ? 2 : ITEMS_PER_FEED;
+      for (const item of rawItems.slice(0, perFeedLimit)) {
         const rawBody =
           (typeof item.content === "string" && item.content) ||
           (typeof item.description === "string" && item.description) ||
@@ -638,7 +639,16 @@ export function NewsTips({ className }: { className?: string }) {
           return out;
         };
 
-        // 60/40 BR/intl + leve shuffle nos 12 primeiros para rotatividade
+        // 60/40 BR/intl + leve shuffle nos 12 primeiros para rotatividade + cap por fonte para diversidade
+        const capPerSource = (list: FeedItem[], maxPerSource = 3) => {
+          const count = new Map<string, number>();
+          return list.filter((item) => {
+            const c = count.get(item.source) ?? 0;
+            if (c >= maxPerSource) return false;
+            count.set(item.source, c + 1);
+            return true;
+          });
+        };
         const enforce60_40 = (list: FeedItem[]) => {
           const br = list.filter((i) => i.fromLang !== "en" && i.fromLang !== "es");
           const intl = list.filter((i) => i.fromLang === "en" || i.fromLang === "es");
@@ -661,8 +671,8 @@ export function NewsTips({ className }: { className?: string }) {
           return [...head, ...list.slice(12)];
         };
 
-        const topNewsRaw = enforce60_40(dedupe(newsPool)).slice(0, NEWS_FEED_LIMIT);
-        const topTipsRaw = enforce60_40(dedupe(tipsPool)).slice(0, TIPS_FEED_LIMIT);
+        const topNewsRaw = enforce60_40(capPerSource(dedupe(newsPool), 3)).slice(0, NEWS_FEED_LIMIT);
+        const topTipsRaw = enforce60_40(capPerSource(dedupe(tipsPool), 3)).slice(0, TIPS_FEED_LIMIT);
         const topNews = shuffleHead(topNewsRaw);
         const topTips = shuffleHead(topTipsRaw);
 
