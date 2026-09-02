@@ -71,7 +71,7 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S20b | 2026-09-01 | História completa + PT-BR normalizado | Mundo 8 blocos (1829→Triton, modalidades, lendas, eventos) + Brasil 7 blocos (BSOP/CPH/H2 2011‑2014, Akkari/Yuri, Trafane/H2); correctPtOrthography + ProseRichText + Dica do Pró; Vite 60 módulos | 🟢 Fechado (demo) |
 | S20c | 2026-09-01 | UI polimento iniciante | Vazios laterais com história (360|1fr|360), login volta ao centro, sem painel duplicado (OnlinePresenceHero), sem A♠ fantasma (case-sensitive cards), fontes por bloco + disclaimer H2 2006; Vite 324KB | 🟢 Fechado (demo) |
 | S20d | 2026-09-01 | Polimento total | Barra felt/gold, bloco Zero Tilt sem Full Tilt, H2 fontes e sem A♠ revisado, notícias com foto oficial (sem placeholder-728x90); Vite 324KB | 🟢 Fechado (demo) |
-| S20e | 2026-09-02 | Ultimate Pineapple cash | Variante `ultimate_pineapple` (3 hole, 2+3, sem descarte, ranking SD); mesas PM+Real 0,50/0,50 6-max frente R$75; migration 033 na VPS; lobby não remapeia para holdem | 🟢 Fechado (demo) |
+| S20e | 2026-09-02 | Ultimate Pineapple cash + MTT | Variante `ultimate_pineapple` (3 hole, 2+3); cash PM+Real 0,50/0,50 6-max; MTT R$10 GTD R$100 6-max (034) | 🟡 033 na VPS; 034 após rebuild API |
 
 **Catálogo cash vigente:** NL 0,25/0,25 · SD 0,25/0,50 · SD Omaha 0,50/0,50 · Ultimate Pineapple 0,50/0,50 (cada um em PM e Real).
 

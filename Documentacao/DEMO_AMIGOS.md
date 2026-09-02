@@ -40,7 +40,7 @@ Guia curto para convidar pessoas a testar e mandar feedback.
 
 ## Torneios
 
-Freeroll R$100 GTD e MTT R$200 GTD em **NLHE e Short Deck**, modos PM e Real. Inscrição no lobby — mãos MTT ao vivo ainda em evolução.
+Catálogo MTT (PM e Real): Hold’em R$15 GTD R$150 · Freeroll Hold’em (mesa final Short Deck) · Omaha 4 cartas R$10 GTD R$100 · **Ultimate Pineapple** R$10 GTD R$100 (6-max). Inscrição no lobby — mãos MTT ao vivo ainda em evolução.
 
 ## Mensagem pronta para WhatsApp / Discord
 

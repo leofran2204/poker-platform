@@ -15,7 +15,17 @@
 | **API** | Migration **033**: `poker_variant` VARCHAR(32); mesas PM+Real 0,50/0,50 frente R$75; lobby/`TournamentStore` passam a emitir `ultimate_pineapple` (antes caía em holdem) |
 | **Frontend** | Filtro lobby Pineapple 0,50/0,50 + labels |
 | **Docs** | STATUS S20e; BUSINESS_RULES §2.6; DASHBOARD/DEMO/ARQUITETURA |
-| **Fora** | MTT Pineapple não existe; VPS só após `REBUILD_API=1` |
+| **Fora** | MTT Pineapple na 034 |
+
+---
+
+## 📌 2026-09-02 — S20e: Ultimate Pineapple nos torneios
+
+| Item | Detalhe |
+|------|---------|
+| **API** | Migration **034**: MTT `Ultimate Pineapple — Torneio` PM+Real, 6-max, buy-in R$10, GTD R$100, BBA 26, nível 1 0,50/0,50 |
+| **Frontend** | Badge Short Deck no lobby/página de torneio; copy do catálogo MTT |
+| **Motor** | Já trata `ultimate_pineapple` no `TournamentStore` (6-max) |
 
 ---
 

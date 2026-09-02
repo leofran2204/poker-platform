@@ -304,7 +304,8 @@ export function LobbyPage() {
                           <span
                             className={
                               t.poker_variant === "short_deck" ||
-                              t.poker_variant === "short_deck_omaha"
+                              t.poker_variant === "short_deck_omaha" ||
+                              t.poker_variant === "ultimate_pineapple"
                                 ? "zt-chip zt-chip-accent"
                                 : "zt-chip"
                             }
@@ -365,7 +366,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({tournaments.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                Hold’em tradicional, freeroll tradicional (Mesa Final Short Deck) e Omaha 4 cartas Short Deck · Big Blind Ante desde o nível 1 · 26 níveis · mãos MTT em breve
+                Hold’em, freeroll (mesa final Short Deck), Omaha 4 cartas e Ultimate Pineapple · Big Blind Ante desde o nível 1 · 26 níveis · mãos MTT em breve
               </p>
             </div>
             <button
@@ -425,6 +426,7 @@ export function LobbyPage() {
                           className={
                             t.poker_variant === "short_deck" ||
                             t.poker_variant === "short_deck_omaha" ||
+                            t.poker_variant === "ultimate_pineapple" ||
                             t.final_table_variant === "short_deck"
                               ? "zt-chip zt-chip-accent"
                               : "zt-chip"

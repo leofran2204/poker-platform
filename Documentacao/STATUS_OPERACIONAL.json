@@ -1,7 +1,7 @@
 {
     "schema_version":  1,
     "reviewed_on":  "2026-09-02",
-    "cycle":  "S20e — Ultimate Pineapple cash 6-max (3 hole, usa 2+3, sem descarte, ranking Short Deck); catálogo cash canônico NLHE 0,25/0,25, Hold\u0027em Short Deck 0,25/0,50, Omaha Short Deck 0,50/0,50 e Ultimate Pineapple 0,50/0,50 (Play Money e Jogo Real).",
+    "cycle":  "S20e — Ultimate Pineapple cash 6-max e MTT (3 hole, 2+3, ranking Short Deck); catálogo cash NLHE 0,25/0,25, SD 0,25/0,50, Omaha SD 0,50/0,50, Pineapple 0,50/0,50; torneio Pineapple R$10 GTD R$100 (PM+Real).",
     "stack":  {
                   "motor_api":  "Rust (Motor-Rust + API-Axum)",
                   "frontend_canonical":  "Frontend-Web (TypeScript + React + Vite + Tailwind)",
@@ -10,7 +10,7 @@
               },
     "production":  "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.",
     "regulation":  "Trilho de regulação, KYC/AML e compliance de jogo/dinheiro real: planejado para janeiro de 2027. Até lá: Play Money + Jogo Real com depósito manual; freios de PIX automático em production.",
-    "validation":  "Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–033 aplicadas na VPS (033 VARCHAR(32) + mesas Ultimate Pineapple PM/Real 0,50/0,50 6-max). Gate S20e: 4 testes evaluate_hand_ultimate_pineapple PASS na VPS; rebuild API 4m13s; health público OK. Frontend: filtro Pineapple 0,50/0,50 + labels 3 hole.",
+    "validation":  "Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–033 na VPS (cash Pineapple). 034 (MTT Pineapple PM+Real 6-max) no repo — aplicar com rebuild API. Gate S20e: 4 testes evaluate_hand_ultimate_pineapple PASS; health público OK.",
     "cash_catalog":  {
                          "modes":  [
                                        "play",

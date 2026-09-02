@@ -87,6 +87,7 @@ export function TournamentPage() {
               className={
                 info.poker_variant === "short_deck" ||
                 info.poker_variant === "short_deck_omaha" ||
+                info.poker_variant === "ultimate_pineapple" ||
                 info.final_table_variant === "short_deck"
                   ? "zt-chip zt-chip-accent"
                   : "zt-chip"
