@@ -38,14 +38,14 @@ export function HomePage() {
               )}
             </div>
           </div>
-          <div className="grid gap-0 sm:grid-cols-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 sm:items-stretch">
             <Feature
               title="Loss Deflator"
               body="Você foi all-in com a melhor mão (mais de 56% de chance de ganhar) e mesmo assim perdeu. Na hora, de 7% a 35% daquele pote volta para você — sai do próprio pote da mão, não do caixa da casa. Quanto mais favorito você era, maior a fatia. O bad beat dói menos e a sessão continua."
             />
             <Feature
               title="Short Deck"
-              body="Baralho de 36 cartas (sem 2 a 5). Mais ação, mais all-ins. No Hold'em Short Deck flush vale mais que full house; no Omaha Short Deck são 4 cartas na mão."
+              body="Baralho de 36 cartas (sem 2 a 5). Mais ação, mais all-ins. No Hold'em Short Deck flush vale mais que full house; no Omaha Short Deck são 4 cartas na mão. Ultimate Pineapple: 3 cartas na mão, sem descarte, mesmo ranking Short Deck."
             />
           </div>
         </div>
@@ -64,9 +64,9 @@ export function HomePage() {
 
 function Feature({ title, body }: { title: string; body: string }) {
   return (
-    <div className="border-t border-felt-600 px-5 py-5 sm:border-t-0 sm:border-l sm:first:border-l-0">
+    <div className="flex h-full min-h-[11.5rem] flex-col border-t border-felt-600 px-5 py-5 sm:border-t-0 sm:border-l sm:first:border-l-0">
       <h2 className="text-sm font-bold text-gold-bright">{title}</h2>
-      <p className="mt-2 text-sm leading-relaxed text-felt-200">{body}</p>
+      <p className="mt-2 flex-1 text-justify text-sm leading-relaxed text-felt-200">{body}</p>
     </div>
   );
 }
