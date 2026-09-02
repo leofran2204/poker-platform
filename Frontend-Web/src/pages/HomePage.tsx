@@ -38,10 +38,15 @@ export function HomePage() {
               )}
             </div>
           </div>
-          <div className="grid gap-0 sm:grid-cols-3">
-            <Feature title="Mente fria" body="Sem relógio que tilta. Estrutura justa para decidir com calma." />
-            <Feature title="Loss Deflator" body="Cashback em bad beat extremo que tira o tilt. A marca Zero Tilt." />
-            <Feature title="Jogo limpo" body="Rake em centavos, split 15/85 transparente. Sem letra miúda." />
+          <div className="grid gap-0 sm:grid-cols-2">
+            <Feature
+              title="Loss Deflator"
+              body="Cashback automático quando você tem muita vantagem (56%+ equity) e leva bad beat. De 7% a 35% de volta, pago na hora para seguir sem tilt. A marca Zero Tilt."
+            />
+            <Feature
+              title="Short Deck"
+              body="Baralho de 36 cartas (sem 2 a 5). Mais ação, mais all-ins. No Hold'em Short Deck flush vale mais que full house; no Omaha Short Deck são 4 cartas na mão."
+            />
           </div>
         </div>
 
