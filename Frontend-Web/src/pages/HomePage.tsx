@@ -41,7 +41,7 @@ export function HomePage() {
           <div className="grid gap-0 sm:grid-cols-2">
             <Feature
               title="Loss Deflator"
-              body="Cashback automático quando você tem muita vantagem (56%+ equity) e leva bad beat. De 7% a 35% de volta, pago na hora para seguir sem tilt. A marca Zero Tilt."
+              body="Você foi all-in com a melhor mão (mais de 56% de chance de ganhar) e mesmo assim perdeu. Na hora, a mesa devolve de 7% a 35% do pote: quanto mais você era favorito, maior a devolução. O bad beat dói menos e a sessão continua."
             />
             <Feature
               title="Short Deck"
