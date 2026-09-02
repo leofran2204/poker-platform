@@ -6,7 +6,8 @@
       "description": "CONCEITO FUNDAMENTAL: O que é \"limp\"?\nLimp = apenas pagar o big blind (1 BB) em vez de aumentar (raise). É uma ação passiva que quase sempre indica fraqueza.\n\nPOR QUE O SB LIMPA?\n- Mão especulativa (pares baixos, conectores suited, Ax suited) que não quer enfrentar 3-bet\n- Mão marginal (KTo, QJo, JTo) que não é forte pra raise mas \"bonita\" pra ver flop\n- Trap occasionais (AA, KK) — RARO em micro/low stakes\n- Jogador recreativo que não entende posição\n\nVANTAGEM DO BB CONTRA LIMP:\n1. POSIÇÃO: Você age por último em TODAS as streets pos-flop\n2. RANGE CAPPED DO VILÃO: Ele não tem AA-KK-AK (teria raiseado). Máximo: AQ, AJ, KQ, pares médios\n3. INICIATIVA: Você pode roubar o pote pre-flop ou dominar pos-flop\n\nRANGE DE ISOLATION RAISE (ISO-RAISE) DO BB:\nTamanho: 3.5x a 4x (ex: SB limpou 1 BB, você sobe para 3.5-4 BB)\n- VALUE: 77+, A9s+, KTs+, QTs+, JTs, AJo+, KQo (~12% — mãos que dominam range de limp)\n- BLUFFS COM BLOCKERS: A5s-A2s (bloqueiam AA/AK/AQ), K9s-Q9s-J9s-T9s (bloqueiam straights)\n- TOTAL: ~22-25% das mãos\n\nMÃOS PARA APENAS PAGAR (CHECK):\n- Pares baixos 22-66 (set mining — odds implicitas boas vs range fraco)\n- Conectores suited 98s-54s (jogabilidade pos-flop)\n- Ax offsuit fraco (A8o-A2o) — dominado por Ax suited do vilao\n\nRANDOMIZACAO (ESSENCIAL PARA NAO SER EXPLORADO):\nCom mãos marginais (J8s, T8s, 97s, A5o, KTo, QTo):\n- Use a 2a carta do naipe do board como \"randomizador\"\n- Ex: Board Kh 7c 2d — você tem Jh 8c -> tem [h] (backdoor flush) -> raise\n- Ex: Board Ks 7c 2d — você tem Jh 8c -> sem [s] -> check\n- Ou: some o rank das cartas (J=11, 8=8 -> 19 = impar = raise; par = check)\n\nPOS-FLOP VS LIMP-CALLER:\n- C-bet 33% pote em QUALQUER flop (range dele = fraco, folda muito)\n- Double barrel em turn scare cards (A, K, Q, flush complete)\n- Triple barrel SO com value real ou blockers de nuts\n- Check-back turn com showdown value (2o par, top pair fraco)\n\nERROS COMUNS DE INICIANTES:\n- Raise pequeno (2.5x) — da odds pro SB pagar com tudo\n- Não c-betar flop seco — deixa equity na mesa\n- Triple barrel bluff sem blockers — vilao paga com qualquer par\n- Jogar fit-or-fold pos-flop — não aproveita posição\n\nEXEMPLO PRATICO:\nSB limpa (1 BB). Você no BB com As 5s.\n-> Raise 4 BB (3.5x). SB paga.\nFlop: Ks 7d 2c (board seco, você tem backdoor flush + overcard)\n-> C-bet 33% pote (1.3 BB num pote de 4 BB). SB folda 70%+.\nTurn: 9s (você faz flush draw + overcard)\n-> Double barrel 66% pote. SB folda quase tudo exceto Kx.\nRiver: 3s (você faz nut flush)\n-> Value bet 50-75% pote. Extrai de Kx, dois pares, sets.",
       "street": "preflop",
       "category": "Vs Limp",
-      "link": "https://pokerlife.com.br/noticias/embaixador-888poker-ian-simpson-como-jogar-contra-limp-small-blind"
+      "link": "https://pokerlife.com.br/noticias/embaixador-888poker-ian-simpson-como-jogar-contra-limp-small-blind",
+      "imageUrl": "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&q=80&auto=format&fit=crop"
     },
     {
       "id": "2",
@@ -14,7 +15,8 @@
       "description": "CONCEITO FUNDAMENTAL: Por que a posição muda tudo?\nNo poker, INFORMAÇÃO = DINHEIRO. Quem age por último (em posição) ve o que os outros fazem antes de decidir. Por isso:\n- POSIÇÃO INICIAL (UTG, UTG+1): Você fala primeiro pos-flop -> range FORTE (só mãos que jogam bem fora de posição)\n- POSIÇÃO MÉDIA (HJ, CO): Alguma info -> range MÉDIO\n- POSIÇÃO TARDIA (BTN, SB): Fala por último -> range LARGO (aproveita folds, rouba blinds)\n\nTABELA DETALHADA MESA 9-MAX (PORCENTAGEM + MÃOS ESPECÍFICAS):\n\n+---------------+----------+----------------------------------------------------------------------------------+\n| POSIÇÃO       | % MÃOS   | RANGE DE ABERTURA (RAISE FIRST IN)                                              |\n+---------------+----------+----------------------------------------------------------------------------------+\n| UTG           | ~12%     | 77+, A9s+, KTs+, QTs+, JTs, T9s, 98s, 87s, 76s, 65s, 54s, AJo+, KQo           |\n| (Under Gun)   |          |                                                                                  |\n+---------------+----------+----------------------------------------------------------------------------------+\n| UTG+1         | ~14%     | UTG + 66, A8s+, K9s+, Q9s+, J9s, T8s, 97s, 86s, 75s, ATo+, KJo               |\n+---------------+----------+----------------------------------------------------------------------------------+\n| HJ            | ~18%     | UTG+1 + 55, A7s+, K8s+, Q8s+, J8s, T7s, 96s, 85s, 74s, 64s, A9o+, KTo+, QTo+  |\n| (Hijack)      |          | JTo                                                                              |\n+---------------+----------+----------------------------------------------------------------------------------+\n| CO            | ~26%     | HJ + 44, A6s+, K7s+, Q7s+, J7s, T6s, 95s, 84s, 73s, 63s, 53s, A8o+, K9o+      |\n| (Cutoff)      |          | Q9o+, J9o, T9o, 98o                                                             |\n+---------------+----------+----------------------------------------------------------------------------------+\n| BTN           | ~45-50%  | CO + 33, 22, A5s+, A4s+, A3s+, A2s+, K6s+, K5s+, K4s+, K3s+, K2s+, Q6s+        |\n| (Button)      |          | Q5s+, Q4s+, Q3s+, Q2s+, J6s+, J5s+, T5s+, 94s+, 83s+, 72s+, A7o+, A6o+          |\n|               |          | A5o+, A4o+, A3o+, A2o+, K8o+, K7o+, K6o+, Q8o+, Q7o+, J8o+, T8o+              |\n|               |          | 97o+, 86o+, 75o+, 64o+                                                          |\n+---------------+----------+----------------------------------------------------------------------------------+\n| SB vs BB      | ~35-40%  | BTN range - piores offsuit + raise ou fold (NUNCA limp)                         |\n| (Small B.)    |          | Raise 3x-4x, ou fold. Completar (limp) só vs BB muito passivo                 |\n+---------------+----------+----------------------------------------------------------------------------------+\n\nNOTACAO EXPLICADA:\n- 77+ = 77, 88, 99, TT, JJ, QQ, KK, AA (todos os pares de 77 pra cima)\n- A9s+ = A9s, ATs, AJs, AQs, AKs (As suited de 9 pra cima)\n- KTs+ = KTs, KJs, KQs, AKs (Rei suited de T pra cima)\n- AJo+ = AJo, AQo, AKo (As offsuit de J pra cima)\n- T9s = Ten-Nine suited (conector suited)\n- 98o = Nine-Eight offsuit (conector offsuit)\n\nAJUSTES DINAMICOS (O SEGREDO DOS VENCEDORES):\n\nvs MESA PASSIVA (muitos folds pre-flop, poucas 3-bets):\n- ABRA MAIS: +5-10% em TODAS posições\n- BTN: 55%+ (roube blinds a vontade)\n- CO: 35% (pressure HJ/BTN)\n- EXPLORACAO: Se SB/BB foldam 70%+ vs steal, abra QUALQUER DUAS CARTAS no BTN\n\nvs MESA AGRESSIVA (muitas 3-bets, squeezes):\n- APERTE: -5-8% em posições iniciais\n- UTG: 8-9% (só 99+, AQs+, AK)\n- HJ: 12% (77+, ATs+, KQs, AQo+)\n- EVITE: Ax suited fraco (A5s-A2s) fora de posição — vira bluffcatcher ruim vs 3-bet\n\nvs 3-BETTER ESPECIFICO A SUA ESQUERDA:\n- Se BTN 3-beta muito vs seu CO open: aperte CO range, 4-beta mais (polarizado)\n- Se SB 3-beta muito vs seu BTN: abra menos offsuit, mais suited (melhor vs 3-bet)\n\nTAMANHO DO RAISE (SIZING):\n- Posições iniciais (UTG-HJ): 2.5x BB (padrao) ou 3x vs recreativos\n- CO: 2.5x\n- BTN: 2.5x vs blinds tight, 2x vs blinds que defendem muito\n- SB: 3x-4x (fora de posição, quer acabar o pote ou isolar)\n\nCONCEITO AVANCADO: RANGE ADVANTAGE\nQuando você abre UTG (12%) e BTN paga (15%):\n- FLOP As Kd 7c: VOCE tem advantage (AA, KK, AK, AQ no seu range; ele não tem AA/KK/AK)\n- FLOP 7s 6s 5d: ELE tem advantage (straights, 2-pairs, sets com 76s, 65s, 55, 77, 66)\n- AJUSTE: C-bete MAIS em flops que favorecem SEU range, MENOS nos dele.\n\nEXEMPLO PRATICO — DECISAO UTG:\nVocê tem Ks Qs no UTG (mesa 9-max, 100 BB efetivos).\n-> FOLDE. KQs NAO esta no range UTG (só 12%). Jogar KQs UTG = bleed money.\n- Fora de posição vs 8 jogadores\n- Dominado por AQ, AK, pares\n- Flop K-high = top pair kicker fraco = decisao difícil\n- Flop Q-high = 2o par = check-fold vs pressão\n\nMesma mão Ks Qs no BTN:\n-> RAISE 2.5x. Esta no range (45%+).\n- Em posição vs 2 blinds\n- Pode roubar pre-flop\n- Se pagarem, domina range de call deles (KJ, QT, JT, pares baixos)",
       "street": "preflop",
       "category": "Ranges Abertura",
-      "link": ""
+      "link": "",
+      "imageUrl": "https://images.unsplash.com/photo-1609743522653-52354461eb27?w=800&q=80&auto=format&fit=crop"
     },
     {
       "id": "3",
@@ -22,7 +24,8 @@
       "description": "CONCEITO: 3-bet = re-raise contra um open. 4-bet = raise contra o 3-bet.\n\nQUANDO 3-BETAR POR VALOR\n- Mãos fortes: QQ+, AK (e JJ/AQs conforme posição)\n- Você quer stack in / pot grande contra ranges mais fracos\n\nQUANDO 3-BETAR LIGHT (BLEFE / SEMI-BLEFE)\n- Em posição (BTN vs CO, CO vs HJ): use blockers\n- Exemplo: você no BTN, CO abre. Você tem As 4s (blocker de AA/AK + jogabilidade)\n- 3-bet ~3x o open (ou 2.5x in position). Se foldar, otimo. Se pagar, jogue flop com iniciativa\n\nDEFESA VS 3-BET\n- Continuar com mãos que jogam bem pos-flop: QQ+, AK, suited broadway, alguns pares médios\n- Foldar lixo offsuit que só abriu pra roubar\n\n4-BET\n- Value: KK+/AK (QQ depende do vilao)\n- Blefe: As5s, As4s (blockers) — tamanho polarizado (~2.2x o 3-bet)\n- Não 4-bete KTo ou QJo — sem equity quando chamado\n\nEXEMPLO\nVilao UTG abre 2.5 BB. Você no BTN com Ah Kh.\n-> 3-bet 8 BB. UTG paga.\nFlop: Kd 8c 3h\n-> Você tem top pair top kicker. C-bet pequeno (25-33%). Extrai de Kx fraco e guarda stack pra turn/river.",
       "street": "preflop",
       "category": "3-bet / 4-bet",
-      "link": ""
+      "link": "",
+      "imageUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c149b?w=800&q=80&auto=format&fit=crop"
     },
     {
       "id": "10",
@@ -30,7 +33,8 @@
       "description": "CONCEITO: C-bet = continuation bet. Você abriu pre-flop e aposta o flop com ou sem a mão.\n\nBOARD SECO (poucos draws)\nExemplos: Kh 7d 2c , As 8c 3d , Qd 9s 2h\n- Range do caller costuma errar o flop\n- C-bet frequente, sizing pequeno: 25-33% do pote\n- Funciona como blefe e como value thin\n\nBOARD MOLHADO (draws e conectividade)\nExemplos: 9h 8h 7c , Js Ts 5h , 6d 5c 4s\n- Caller acerta mais (pares, draws, two-pair)\n- C-bete MENOS frequentemente\n- Quando c-betar: sizing maior (50-70%) com value forte ou blefes com bons blockers/backdoors\n\nRANGE ADVANTAGE\n- Você abriu UTG e board veio As Kd 2c: seu range tem AA/KK/AK; dele quase não. C-bete muito.\n- Você abriu BTN e board veio 8s 7s 6d: o caller (blinds) tem muitas combinacoes de straight/pair. Cheque mais.\n\nEXEMPLO PRATICO\nVocê abre BTN com Qc Jc. BB paga.\nFlop: Ah 7c 2d (seco, alto)\n-> C-bet 33%. BB folda a maior parte do range (sem As / par).\nMesma mão no flop 9h 8h 6c:\n-> Cheque com frequencia. Seu Qc Jc e só overcards + backdoor. Sem equity suficiente pra barrilar sempre.",
       "street": "flop",
       "category": "C-bet",
-      "link": ""
+      "link": "",
+      "imageUrl": "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?w=800&q=80&auto=format&fit=crop"
     },
     {
       "id": "11",
@@ -38,7 +42,8 @@
       "description": "CHECK-RAISE NO FLOP\nQuando você c-beta e o vilao sobe, o range dele costuma ser:\n- Value forte: sets, two-pair, top pair forte\n- Draws fortes: nut flush draw, oesd + pair\n- Poucos blefes puros em micro stakes (ajuste se o vilao for manic)\n\nCOMO RESPONDER\n- Continue com mãos que batem o range dele ou tem boa equity: top pair top kicker, overpairs, draws fortes\n- Fold top pair fraco (ex.: K9o no board Kc 8d 3h) vs jogadores tight\n- Com float (mão fraca + posição): chame as vezes se o vilao c-beta 100% e desiste no turn\n\nFLOAT (chamar flop pra tomar o pote depois)\n- Precisa de POSIÇÃO\n- Precisa de plan: se ele checa turn, você aposta; se ele aposta turn forte, desista sem equity\n- Exemplo: BTN vs BB. Você tem 6s 5s. Flop As 9d 2c. BB c-beta 33%.\n  Você pode float as vezes. Turn 4h (ele checa) -> aposte. Turn Kh (ele aposta grande) -> fold.\n\nERRO COMUM\n- Pagar check-raise \"pra ver\" com middle pair sem outs claros = hemorragia de fichas.",
       "street": "flop",
       "category": "Vs agressao",
-      "link": ""
+      "link": "",
+      "imageUrl": "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=800&q=80&auto=format&fit=crop"
     },
     {
       "id": "12",
@@ -46,7 +51,8 @@
       "description": "MULTIWAY = 3+ jogadores no flop. Equity de blefe despenca.\n\nREGRAS DE OURO\n1. Blefe muito menos. Alguem sempre acerta alguma coisa.\n2. Value bet mais forte e com sizing que cobra draws.\n3. Pares médios / top pair fraco: pot control (cheque ou bet pequeno).\n\nSET MINING\n- Com 77-22 você quer flop barato e multiway (odds implicitas)\n- Flop: 7h 7d 2c com seu 7c 7s = full house / set — aposte por valor, cobre draws\n- Se flop alto seco (As Kd Qc) e você tem 5h 5d: cheque-fold vs pressão\n\nEXEMPLO\nPre: UTG abre, HJ e BTN pagam. Você no BB com 8c 8d completa.\nFlop: 8h 4s 2d (você fez set)\n-> Não slowplay sempre. Em multiway, bet 50-70% pra cobrar gutshots e overs.\nFlop: Ah Kh 9c\n-> Cheque. Seu 8c 8d esta atrás de qualquer As/Kx e de draws. Pot pequeno.",
       "street": "flop",
       "category": "Multiway",
-      "link": ""
+      "link": "",
+      "imageUrl": "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&q=80&auto=format&fit=crop"
     },
     {
       "id": "13",
@@ -54,7 +60,8 @@
       "description": "DONK BET = você (não foi o agressor pre) aposta dry no flop.\nPROBE = no turn, quando o agressor checou o flop, você aposta.\n\nDONK BET — USE COM MODERACAO\n- Bom: boards que favorecem o range do BB (baixo, conectado), mão definida (two-pair, set) ou draw+pair\n- Exemplo: BB com 9h 8h. Flop 9s 8c 2d vs BTN. Donk pequeno-médio extrai de overs e trava sizing\n- Ruim: donkar todo flop com qualquer par — fica previsivel\n\nPROBE NO TURN\n- Agressor checou flop (range capped / deu up). Turn chega.\n- Você pode probe com value e blefes selecionados\n- Exemplo: BB defendeu com Kd Jd. Flop 7c 6c 2h (agressor checa). Turn As.\n  Probe ~50-66%. Representa o As e tem showdown (K-high / pair se veio K).\n\nNAO DONKE\n- Em boards altos (As Kc 4d) vs UTG open — o range dele e mais forte. Cheque e decida vs c-bet.",
       "street": "flop",
       "category": "Linhas especiais",
-      "link": ""
+      "link": "",
+      "imageUrl": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80&auto=format&fit=crop"
     },
     {
       "id": "20",
@@ -62,7 +69,8 @@
       "description": "DOUBLE BARREL = c-bet flop + bet turn.\n\nQUANDO BARRILAR DE NOVO\n1. Scare card: As, Ks, Qh, flush complete, overcard que favorece seu range\n2. Você melhorou: flush draw, straight draw, pair\n3. Vilao e fit-or-fold (folda turn sem par)\n\nQUANDO DESISTIR (CHECK BACK)\n- Board pairing baixo que ajuda o caller (ex.: flop Kh 9d 4c, turn 4s)\n- Você não tem equity e o vilao paga leve\n- Showdown value médio (2o par): cheque e chegue barato no showdown\n\nSIZING\n- Turn value / polarizado: 60-75% do pote\n- Turn blefe com blockers: tamanho parecido com value (não telegraphe)\n\nEXEMPLO\nVocê (BTN) tem As Qd. BB paga. Flop Qs 8c 3h — c-bet 33%, BB paga.\nTurn Kd (scare + você ainda tem top pair)\n-> Bet 66%. BB folda muitos 8x e draws fracos. Se pagar, river selecione value ou cheque.\n\nEXEMPLO BLEFE\nVocê tem 5h 4h. Flop Ah 9c 2d — c-bet, BB paga.\nTurn 7h (flush draw)\n-> Barrel 66% com equity. River se miss: as vezes blefe se veio brick e você bloqueia nuts.",
       "street": "turn",
       "category": "Barrels",
-      "link": ""
+      "link": "",
+      "imageUrl": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80&auto=format&fit=crop"
     },
     {
       "id": "21",
@@ -70,7 +78,8 @@
       "description": "DUAS FILOSOFIAS NO TURN\n\nPOT CONTROL (tamanho pequeno ou cheque)\n- Mãos medias: top pair kicker médio, 2o par, overpair em board molhado\n- Objetivo: chegar no showdown barato e não stackear errado\n- Exemplo: você tem Jh Td. Flop Jc 8d 4c (c-bet pago). Turn 9c (flush e straight entram).\n  Cheque e comum. Se o vilao aposta grande, avalie fold vs manic.\n\nPOLARIZACAO (bet grande)\n- Value: sets, two-pair+, nuts\n- Blefe: air com blockers / draws que falharam parcialmente\n- Sem \"meio-termo\" no sizing — médio demais vira bluff-catcher do vilao\n\nREGRA PRATICA\n- Se a mão quer folds de melhor e calls de pior: polarize\n- Se a mão só quer um call de pior e odiaria raise: pot control\n\nEXEMPLO\nBoard: Kd 7s 2h 2c. Você tem Ad As (overpair / traps full).\n-> Pode bet médio-grande por valor. Quase nunca cheque-call passivo vs recreativo que paga leve.",
       "street": "turn",
       "category": "Pot control",
-      "link": ""
+      "link": "",
+      "imageUrl": "https://images.unsplash.com/photo-1554068865-24cecd4e34b8b?w=800&q=80&auto=format&fit=crop"
     },
     {
       "id": "22",
@@ -78,7 +87,8 @@
       "description": "CHECK-RAISE NO TURN e linha forte. Use com ranges claros.\n\nVALUE\n- Sets, two-pair, straights, flush\n- Você quer stack do vilao que barrel demais\n- Exemplo: você no BB com 7c 7d. Flop 7h 5s 2c (cheque, vilao c-beta, você só chama).\n  Turn As (ele bet de novo) -> agora check-raise / raise por valor. Ele barrela muitos blefes e Ax.\n\nBLEFE / SEMI-BLEFE\n- Draws fortes (nut flush draw + gutter) que querem fold equity\n- Blockers: As Xx no board de flush (você bloqueia nuts)\n- Não check-raise blefe com lixo total sem outs vs jogadores calling stations\n\nVS CHECK-RAISE\n- Continue com topo do range e draws fortes\n- Fold middle pair / fraco Ax sem extras\n- Não hero-call \"porque já investi\" — pot odds importam, mas range dele e polarizado",
       "street": "turn",
       "category": "Check-raise",
-      "link": ""
+      "link": "",
+      "imageUrl": "https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=800&q=80&auto=format&fit=crop"
     },
     {
       "id": "23",
@@ -86,7 +96,8 @@
       "description": "EQUITY NO TURN\n\nFLUSH DRAW / OESD\n- Com nut draw, geralmente continue vs bets (odds + fold equity se raise)\n- Exemplo: você tem Ah Kh. Flop Qh 9h 3c. Turn 2d.\n  Vs bet, call (14 outs). Raise as vezes (semi-blefe) vs c-bettor agressivo.\n\nOVERCARDS PURAS\n- As Kd no board 9c 8c 4d turn 2s: só 6 outs (A/K) e board molhado — cuidado\n- Prefira cheque-fold ou call barato; não meta stack sem plan\n\nQUANDO COBRAR O DRAW DO VILÃO\n- Você tem value (top pair+) e turn completa draw (4o naipe / connector)\n- Bet sizing que torna odds ruins pro call do draw\n- Exemplo: você tem Qc Qd. Flop Qh 7c 2s. Turn 6c (flush draw surge).\n  Bet 66-75%. Não deixe free card.\n\nERRO\n- \"Pot odds 4:1 entao sempre pago\" sem contar implied odds e posição — calcure outs reais.",
       "street": "turn",
       "category": "Draws",
-      "link": ""
+      "link": "",
+      "imageUrl": "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?w=800&q=80&auto=format&fit=crop"
     },
     {
       "id": "30",
@@ -94,7 +105,8 @@
       "description": "NO RIVER A EQUITY ACABA. Só restam: value, blefe ou cheque.\n\nTHIN VALUE\n- Aposte mãos que batem o call do vilao com frequencia suficiente\n- Exemplo: board As 9c 4d 2h 7s. Você tem Ad Jd (top pair).\n  Vs calling station: value bet 50-60%. Ele paga 9x, Ax fraco, as vezes bluff-catcher.\n  Vs nits: cheque e mostre.\n\nBLEFE\n- Precisa de historia coerente (c-bet + barrel + scare)\n- Blockers ajudam: As no board de flush bloqueia nuts\n- Exemplo: você chegou com 6h 5h sem acertar. Board Kd Qc 8h 3h 2c (flush miss).\n  Se barrejou representando Kx/flush, river blefe selecionado. Se a linha foi passiva, cheque-fold.\n\nNAO FACA\n- Value bet com 2o par vs raise-happy\n- Blefe em linha que nunca representou forca",
       "street": "river",
       "category": "Value / Blefe",
-      "link": ""
+      "link": "",
+      "imageUrl": "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&q=80&auto=format&fit=crop"
     },
     {
       "id": "31",
@@ -102,7 +114,8 @@
       "description": "BLUFF-CATCHER = mão que só ganha se o vilao estiver blefando (ex.: top pair fraco vs overbet).\n\nQUANDO PAGAR\n1. Vilao tem muitas blefes na linha (barrelou boards secos demais)\n2. Você bloqueia o value dele (ex.: As no river de flush)\n3. Pot odds boas e sizing não é max pressure\n\nQUANDO FOLDA\n- Linha polarizada clara (check-raise turn + overbet river)\n- Você não bloqueia value e o sizing e brutal\n- Jogador quase nunca blefa\n\nBLOCKERS\n- Ter As no board Ah Kh 9c 4d 2h reduz combinacoes de nut flush do vilao\n- Ter a carta que completa straight também importa\n\nEXEMPLO\nBoard: Js Ts 5c 2d 9h. Você tem Ad Ac (overpair, sem straight).\nVilao overbet river.\n- Se a linha foi passiva no flop/turn e explode no river: muitas vezes e value (Q9/K9/straight). Fold as vezes.\n- Se ele barrejou tudo e você bloqueia Qs/Qs combos: hero call com mais frequencia.",
       "street": "river",
       "category": "Bluff-catch",
-      "link": ""
+      "link": "",
+      "imageUrl": "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&q=80&auto=format&fit=crop"
     },
     {
       "id": "32",
@@ -110,7 +123,8 @@
       "description": "OVERBET (> pote)\n- Value: nuts / near-nuts quando o range do vilao tem muitos bluff-catchers\n- Blefe: com blockers, representando nuts (cara)\n- Exemplo: board 9h 8h 7c 2d Ah. Você tem Jh Th (straight). Overbet vs ranges com Ax/pares.\n- Não overbete medium strength — vira pior dos mundos\n\nBLOCKING BET (aposta pequena, 20-35%)\n- Objetivo: pagar barato pra ver showdown OU induzir raise de blefe\n- Bom com mãos medias que perdem pra value forte mas batem blefes\n- Exemplo: board Kd 8c 4s 4h 2d. Você tem Ks Qd.\n  Blocking bet 25%. Calling stations pagam 8x. Maniacs as vezes sobem light — você avalia.\n\nCUIDADO\n- Blocking bet vs jogadores que elevam polarizado: você fica em spot difícil\n- Ajuste: vs raise, continue só com topo; fold o meio",
       "street": "river",
       "category": "Sizing",
-      "link": ""
+      "link": "",
+      "imageUrl": "https://images.unsplash.com/photo-1609743522653-52354461eb27?w=800&q=80&auto=format&fit=crop"
     },
     {
       "id": "33",
@@ -118,7 +132,8 @@
       "description": "INDUCAO DE BLEFE\n- Você tem value forte e CHECA, esperando que o vilao blefe\n- Funciona vs jogadores agressivos que odeiam \"free showdown\"\n- Exemplo: board Qc 9d 3h 3c 2s. Você tem Qh Js (top pair bom).\n  Vs barrelador: cheque. Se ele aposta, raise/call conforme sizing.\n  Vs passivo: value bet você mesmo — ele não blefa\n\nCHECK-RAISE RIVER\n- Linha mais forte do poker. Quase só value (e blefe raro com nuts blockers)\n- Value: sets, straight, flush, full\n- Exemplo: você slowplay set. Board 5c 5d Kh 9s 2h. Vilao bet river.\n  Raise grande. Extrai de Kx e bluff-catchers.\n\nQUANDO NAO INDUZIR\n- Vilao nunca blefa — você deixa valor na mesa\n- Board muito assustador (4-flush) e sua mão e só one-pair: prefira value bet fino ou cheque-call\n\nRESUMO MENTAL NO RIVER\n1. Que historia eu contei?\n2. Que mãos do vilao pagam / foldam / elevam?\n3. Minha mão e value, blefe ou bluff-catcher?\nResponda isso antes de clicar.",
       "street": "river",
       "category": "Linhas avancadas",
-      "link": ""
+      "link": "",
+      "imageUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c149b?w=800&q=80&auto=format&fit=crop"
     }
   ]
 }

@@ -480,7 +480,15 @@ export function NewsTips({ className }: { className?: string }) {
           typeof thumbCandidate === "string" && isAcceptableCoverImage(thumbCandidate)
             ? thumbCandidate
             : undefined;
-        const early = pickSourceImage([thumb]);
+        // X: usa avatar como foto para identificar o pró
+        let xAvatar: string | undefined;
+        if (!thumb && feed.name.startsWith("X:")) {
+          const parts = feed.url.split("/").filter(Boolean);
+          // https://nitter.net/{handle}/rss -> handle é penúltimo
+          const handle = parts.length >= 2 ? parts[parts.length - 2] : "";
+          if (handle && handle !== "nitter.net") xAvatar = `https://unavatar.io/twitter/${handle}`;
+        }
+        const early = pickSourceImage([thumb, xAvatar]);
         const street = classifyStreet(item.title, body);
         out.push({
           id: item.link || `${feed.name}:${item.title}`,
