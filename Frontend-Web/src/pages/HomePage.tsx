@@ -41,7 +41,7 @@ export function HomePage() {
           <div className="grid gap-0 sm:grid-cols-2">
             <Feature
               title="Loss Deflator"
-              body="Você foi all-in com a melhor mão (mais de 56% de chance de ganhar) e mesmo assim perdeu. Na hora, a mesa devolve de 7% a 35% do pote: quanto mais você era favorito, maior a devolução. O bad beat dói menos e a sessão continua."
+              body="Você foi all-in com a melhor mão (mais de 56% de chance de ganhar) e mesmo assim perdeu. Na hora, de 7% a 35% daquele pote volta para você — sai do próprio pote da mão, não do caixa da casa. Quanto mais favorito você era, maior a fatia. O bad beat dói menos e a sessão continua."
             />
             <Feature
               title="Short Deck"
