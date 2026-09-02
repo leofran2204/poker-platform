@@ -27,9 +27,6 @@ export function HomePage() {
               <span className="font-semibold text-gold-soft"> com Loss Deflator que tira o tilt do bad beat</span>,
               evolua no seu ritmo.
             </p>
-            <p className="mx-auto mt-2 max-w-lg text-xs font-semibold text-gold-soft">
-              Mesa abre com 2. O resto é com você. <span className="text-cream">Loss Deflator</span> protege do tilt.
-            </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link to={authed ? "/lobby" : "/register"} className="zt-btn-primary px-6 py-2.5 text-sm">
                 {authed ? "Entrar no lobby" : "Criar conta e jogar"}
