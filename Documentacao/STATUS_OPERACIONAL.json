@@ -10,7 +10,7 @@
               },
     "production":  "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.",
     "regulation":  "Trilho de regulação, KYC/AML e compliance de jogo/dinheiro real: planejado para janeiro de 2027. Até lá: Play Money + Jogo Real com depósito manual; freios de PIX automático em production.",
-    "validation":  "Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations no repo: 001–033 (033 alarga poker_variant VARCHAR(32) e semeia Ultimate Pineapple). Gate S20e local: testes de avaliação Pineapple (2+3, flush>boat) + parse lobby/torneio; 10k mãos inclui Pineapple 0,50/0,50 6-max. VPS ainda no ciclo anterior até rebuild API/migration 033 — não alegar Pineapple no ar público antes disso. Frontend: filtro Pineapple 0,50/0,50 + labels 3 hole.",
+    "validation":  "Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–033 aplicadas na VPS (033 VARCHAR(32) + mesas Ultimate Pineapple PM/Real 0,50/0,50 6-max). Gate S20e: 4 testes evaluate_hand_ultimate_pineapple PASS na VPS; rebuild API 4m13s; health público OK. Frontend: filtro Pineapple 0,50/0,50 + labels 3 hole.",
     "cash_catalog":  {
                          "modes":  [
                                        "play",
