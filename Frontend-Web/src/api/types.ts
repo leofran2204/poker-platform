@@ -48,6 +48,14 @@ export interface AdminUserResponse {
   mfa_enabled: boolean;
 }
 
+export interface AdminTableSeat {
+  seat: number;
+  user_id: string;
+  username: string;
+  email: string;
+  chips: number;
+}
+
 export interface AdminTableListItem {
   id: string;
   name: string;
@@ -59,6 +67,7 @@ export interface AdminTableListItem {
   max_buy_in: number;
   max_players: number;
   current_players: number;
+  seats?: AdminTableSeat[];
 }
 
 export interface AdminTournamentItem {
@@ -80,6 +89,7 @@ export interface AdminTournamentPlayer {
   stack: number;
   rebuys: number;
   registered_at: number;
+  email?: string | null;
 }
 
 export interface AdminPresenceResponse {

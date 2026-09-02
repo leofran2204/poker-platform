@@ -100,6 +100,7 @@ export function AdminTournamentsPage() {
               <thead>
                 <tr>
                   <th>Nome</th>
+                  <th>E-mail</th>
                   <th>Stack</th>
                   <th>Rebuys</th>
                   <th>Registrado</th>
@@ -108,7 +109,7 @@ export function AdminTournamentsPage() {
               <tbody>
                 {players.length === 0 ? (
                   <tr className="!cursor-default">
-                    <td colSpan={4} className="text-felt-400">
+                    <td colSpan={5} className="text-felt-400">
                       Ninguém inscrito
                     </td>
                   </tr>
@@ -116,6 +117,7 @@ export function AdminTournamentsPage() {
                   players.map((p) => (
                     <tr key={p.player_id} className="!cursor-default">
                       <td className="text-cream">{p.player_name}</td>
+                      <td className="text-[11px] text-felt-300">{p.email ?? "—"}</td>
                       <td className="font-mono">{p.stack.toLocaleString("pt-BR")}</td>
                       <td className="font-mono">{p.rebuys}</td>
                       <td className="text-xs text-felt-400">

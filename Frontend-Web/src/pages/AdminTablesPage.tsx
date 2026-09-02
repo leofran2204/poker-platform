@@ -1,10 +1,10 @@
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, Fragment, useCallback, useEffect, useState } from "react";
 import {
   createAdminCashTable,
   listAdminTables,
   patchAdminTableStatus,
 } from "@/api/client";
-import type { AdminTableListItem } from "@/api/types";
+import type { AdminTableListItem, AdminTableSeat } from "@/api/types";
 import { formatBrlFromCents } from "@/lib/money";
 
 export function AdminTablesPage() {
@@ -23,6 +23,8 @@ export function AdminTablesPage() {
 
   useEffect(() => {
     void load();
+    const t = window.setInterval(() => void load(), 8_000);
+    return () => window.clearInterval(t);
   }, [load]);
 
   async function setStatus(id: string, status: string) {
@@ -115,33 +117,52 @@ export function AdminTablesPage() {
           </thead>
           <tbody>
             {tables.map((t) => (
-              <tr key={t.id} className="!cursor-default">
-                <td className="font-semibold text-cream">
-                  {t.name}
-                  <div className="text-[10px] text-felt-400">{t.visibility}</div>
-                </td>
-                <td className="font-mono text-xs text-gold-soft">{t.status}</td>
-                <td className="font-mono text-felt-200">
-                  {formatBrlFromCents(t.small_blind)}/{formatBrlFromCents(t.big_blind)}
-                </td>
-                <td className="font-mono text-felt-200">
-                  {formatBrlFromCents(t.min_buy_in)}–{formatBrlFromCents(t.max_buy_in)}
-                </td>
-                <td className="font-mono">
-                  {t.current_players}/{t.max_players}
-                </td>
-                <td className="space-x-1">
-                  <button type="button" className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]" onClick={() => void setStatus(t.id, "OPEN")}>
-                    OPEN
-                  </button>
-                  <button type="button" className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]" onClick={() => void setStatus(t.id, "PAUSED")}>
-                    PAUSE
-                  </button>
-                  <button type="button" className="zt-btn-danger !px-2 !py-0.5 !text-[10px]" onClick={() => void setStatus(t.id, "CLOSED")}>
-                    CLOSE
-                  </button>
-                </td>
-              </tr>
+              <Fragment key={t.id}>
+                <tr className="!cursor-default">
+                  <td className="font-semibold text-cream">
+                    {t.name}
+                    <div className="text-[10px] text-felt-400">{t.visibility}</div>
+                  </td>
+                  <td className="font-mono text-xs text-gold-soft">{t.status}</td>
+                  <td className="font-mono text-felt-200">
+                    {formatBrlFromCents(t.small_blind)}/{formatBrlFromCents(t.big_blind)}
+                  </td>
+                  <td className="font-mono text-felt-200">
+                    {formatBrlFromCents(t.min_buy_in)}–{formatBrlFromCents(t.max_buy_in)}
+                  </td>
+                  <td className="font-mono">
+                    {t.current_players}/{t.max_players}
+                  </td>
+                  <td className="space-x-1">
+                    <button type="button" className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]" onClick={() => void setStatus(t.id, "OPEN")}>
+                      OPEN
+                    </button>
+                    <button type="button" className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]" onClick={() => void setStatus(t.id, "PAUSED")}>
+                      PAUSE
+                    </button>
+                    <button type="button" className="zt-btn-danger !px-2 !py-0.5 !text-[10px]" onClick={() => void setStatus(t.id, "CLOSED")}>
+                      CLOSE
+                    </button>
+                  </td>
+                </tr>
+                <tr className="!cursor-default">
+                  <td colSpan={6} className="bg-felt-950/70 py-2">
+                    {!(t.seats ?? []).length ? (
+                      <p className="text-[11px] text-felt-400">Nenhum assento ocupado</p>
+                    ) : (
+                      <ul className="grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
+                        {(t.seats as AdminTableSeat[]).map((s) => (
+                          <li key={`${t.id}-${s.seat}`} className="rounded border border-felt-700 px-2 py-1 text-[11px]">
+                            <span className="font-mono text-gold-soft">#{s.seat}</span>{" "}
+                            <span className="font-semibold text-cream">{s.username}</span>
+                            <div className="truncate text-felt-300">{s.email}</div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </td>
+                </tr>
+              </Fragment>
             ))}
           </tbody>
         </table>

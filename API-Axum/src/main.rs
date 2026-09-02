@@ -73,16 +73,16 @@ async fn pause_unrecovered_tables(pool: &sqlx::PgPool) -> Result<u64, sqlx::Erro
     .await?;
     Ok(result.rows_affected())
 }
-/// Returns escrow from seats that cannot have a live actor because their table
-/// is CLOSED. Recovery-guarded tables are excluded for manual review. Wallet,
-/// ledger, seat and audit record commit together.
+/// Returns escrow from seats that cannot belong to a live hand: no recovery
+/// guard (between hands or table already CLOSED). Called at API boot after
+/// every WebSocket died. Recovery-guarded tables stay paused for review.
 async fn reconcile_closed_table_seats(pool: &sqlx::PgPool) -> Result<u64, sqlx::Error> {
     let mut tx = pool.begin().await?;
     let seats: Vec<(uuid::Uuid, uuid::Uuid, uuid::Uuid, i64, String)> = sqlx::query_as(
         "SELECT seats.id, seats.user_id, seats.table_id, seats.chips, seats.wallet_kind \
          FROM cash_game_seats AS seats \
          JOIN tables ON tables.id = seats.table_id \
-         WHERE seats.status = 'ACTIVE' AND tables.status = 'CLOSED' \
+         WHERE seats.status = 'ACTIVE' \
            AND NOT EXISTS ( \
                SELECT 1 FROM table_hand_recovery_guards AS guard \
                WHERE guard.table_id = seats.table_id \
@@ -143,7 +143,7 @@ async fn reconcile_closed_table_seats(pool: &sqlx::PgPool) -> Result<u64, sqlx::
 
         sqlx::query(
             "INSERT INTO audit_logs (user_id, action, metadata) \
-             VALUES ($1, 'CLOSED_TABLE_SEAT_RECONCILED', $2)",
+             VALUES ($1, 'ORPHAN_SEAT_RECONCILED', $2)",
         )
         .bind(user_id.to_string())
         .bind(serde_json::json!({
@@ -254,7 +254,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if reconciled_seats > 0 {
         tracing::warn!(
             reconciled_seats,
-            "Cashed out orphaned seats from closed tables"
+            "Cashed out orphaned seats with no live hand (API boot)"
         );
     }
     // Initialize Redis connection if REDIS_URL is provided

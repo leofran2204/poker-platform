@@ -1,6 +1,6 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-09-02 | **Status:** **S20e** — Ultimate Pineapple cash 6-max (3 hole, 2+3, ranking Short Deck); demo/staging; sem certificação de produção.
+**Atualizado:** 2026-09-02 | **Status:** **S20f** — cash-out 45s na desconexão; lobby lista mesas cheias; admin e-mail/assento; demo/staging; sem certificação de produção.
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📌 **Fonte canônica de estado:** [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json) — prevalece sobre qualquer texto datado abaixo.
@@ -10,7 +10,7 @@
 > **Transporte público:** **HTTPS** (Caddy + **Let's Encrypt**); SPA same-origin.
 > **E-mail:** Resend domínio **verified**; `EMAIL_PROVIDER=resend` na API (ver `EMAIL_RESEND.md`).
 > **Presença online:** badge no header + hero na home; `GET /api/presence/online`; heartbeat JWT ~25s; TTL 90s.
-> **Live E2E:** `scripts/live-e2e-ten-users.mjs` — 10 users / 100 hands + settlement assinado.
+> **Live E2E:** `scripts/live-e2e-ten-users.mjs` (10×100); `scripts/live-sim-full-ritual.mjs` (Play Money, 1 e-mail/assento). Motor MTT: `cargo test --test tournament_to_champion`.
 > **Demo amigos:** [`DEMO_AMIGOS.md`](DEMO_AMIGOS.md) — mín. **2 na mesma mesa**.
 > **Limites conhecidos:** PIX mock/sandbox; mesas com dono único por processo; VPS Hostinger KVM 2 ok para ~40 concurrent; LE rate limit 5 certs/168h se recriar `caddy_data`.
 > ⚖️ **Regulação / KYC / real-money compliance:** planejado para **janeiro de 2027**.
@@ -211,7 +211,7 @@ cd Infraestrutura-Docker && docker-compose up -d
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-09-02):** S20e — Ultimate Pineapple cash 6-max (3 hole, usa 2+3, sem descarte, ranking Short Deck); catálogo cash canônico NLHE 0,25/0,25, Hold'em Short Deck 0,25/0,50, Omaha Short Deck 0,50/0,50 e Ultimate Pineapple 0,50/0,50 (Play Money e Jogo Real). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–033 aplicadas na VPS (033 VARCHAR(32) + mesas Ultimate Pineapple PM/Real 0,50/0,50 6-max). Gate S20e: 4 testes evaluate_hand_ultimate_pineapple PASS na VPS; rebuild API 4m13s; health público OK. Frontend: filtro Pineapple 0,50/0,50 + labels 3 hole. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
+> **Estado operacional sincronizado (2026-09-02):** S20f — cash-out automático 45s após disconnect (WS) e no boot da API (assentos órfãos); lobby lista mesas cheias; admin mostra e-mail por assento/inscrito MTT; simulação ritual Play Money + motor MTT até o campeão. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–034 na VPS (cash+MTT Ultimate Pineapple). Disconnect cash-out 45s + reconciliação de assentos órfãos no boot (deploy S20f). Motor `tournament_to_champion` PASS (HE/Freeroll/Omaha/Pineapple até 1 campeão). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas. MTT site: gameplay_ready=false (sem WS de torneio). Health público OK. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

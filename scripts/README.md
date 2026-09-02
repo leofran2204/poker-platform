@@ -9,6 +9,8 @@ Automação operacional do monorepo.
 | `live-e2e-ten-users.mjs` | Smoke demo: 10 users / 100 hands + settlement assinado (`ALLOW_TEMP_MAIL=true`) |
 | `live-e2e-seeded-catalog.mjs` | Smoke mesa a mesa (Real ou Play): login seed → join → ≥1 mão → leave; torneios |
 | `live-e2e-real-catalog.mjs` | Variante com Mail.tm + crédito admin opcional (`ADMIN_TOKEN`) |
+| `live-sim-full-ritual.mjs` | Ritual Play Money: 1 jogador/e-mail por assento + 2 reservas/mesa; `HANDS_PER_TABLE` (default 2000); Mail.tm (`ALLOW_TEMP_MAIL=true`) |
+| `clear-zombie-play-seats.sql` | Ops: cash-out de assentos Play Money `ACTIVE` órfãos (fallback; o actor S20f faz isso sozinho) |
 | `full-validation.ps1` / `.sh` | Lote de validação autorizada (motor/API/gateway) |
 | `deploy.ps1` / `deploy.sh` | Deploy assistido |
 | `verify-public-https.sh` | Checagem HTTPS/Caddy público |
@@ -20,6 +22,7 @@ Automação operacional do monorepo.
 | Teste | Uso |
 |-------|-----|
 | `Motor-Rust/tests/cash_catalog_10k_hands.rs` | 10k mãos × NLHE / SD / SD Omaha / Ultimate Pineapple |
+| `Motor-Rust/tests/tournament_to_champion.rs` | MTT Play Money até 1 campeão (HE, Freeroll Long→SD, Omaha, Pineapple); 1 rebuy; reservas após nível 6 |
 | `Motor-Rust/tests/short_deck_massive.rs` | Regras SD + 1M evals + 100k mãos 6-max |
 | `cargo test --features massive-tests …` | Fuzz/fairness/stress gated |
 

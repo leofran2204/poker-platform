@@ -119,6 +119,7 @@ pub struct ListTablesQuery {
 // ─── Handlers ───
 
 /// GET /api/lobby/tables?mode=play|real
+/// Full tables stay listed so the catalog cannot vanish when every seat is taken.
 pub async fn list_tables(
     State(state): State<AppState>,
     Query(query): Query<ListTablesQuery>,
@@ -130,7 +131,7 @@ pub async fn list_tables(
                 COALESCE(money_mode, 'play') AS money_mode, \
                 COALESCE(poker_variant, 'holdem') AS poker_variant \
          FROM tables \
-         WHERE visibility = 'public' AND status = 'OPEN' AND current_players < max_players \
+         WHERE visibility = 'public' AND status = 'OPEN' \
            AND COALESCE(money_mode, 'play') = $1 \
          ORDER BY poker_variant, big_blind, name, id",
     )
@@ -323,56 +324,15 @@ pub async fn leave_table(
         None
     };
 
-    let mut tx = state.db.begin().await?;
-    let seat: Option<(uuid::Uuid, i64, String)> = sqlx::query_as(
-        "SELECT id, chips, wallet_kind FROM cash_game_seats \
-         WHERE table_id = $1 AND user_id = $2::uuid AND status = 'ACTIVE' \
-         FOR UPDATE",
+    let chips = crate::cash_seats::persist_cash_out_seat(
+        &state.db,
+        table_id,
+        &auth_user.user_id,
+        actor_chips,
     )
-    .bind(table_id)
-    .bind(&auth_user.user_id)
-    .fetch_optional(&mut *tx)
-    .await?;
-    let (seat_id, stored_chips, wallet_kind) =
-        seat.ok_or_else(|| ApiError::NotFound("No active seat found for this player".to_string()))?;
-    let credit_kind = crate::wallet::WalletKind::from_seat(&wallet_kind);
-    // PostgreSQL BIGINT is signed while the game engine represents chips as u64.
-    // Refuse an impossible engine value rather than wrapping it into a negative
-    // database balance during cash-out.
-    let chips = match actor_chips {
-        Some(actor_chips) => i64::try_from(actor_chips).map_err(|_| {
-            ApiError::Internal("Actor chip stack exceeds database range".to_string())
-        })?,
-        None => stored_chips,
-    };
-    if chips < 0 {
-        return Err(ApiError::Internal("Invalid stored chips".to_string()));
-    }
-
-    sqlx::query(
-        "UPDATE cash_game_seats \
-         SET chips = $1, status = 'CASHED_OUT', cashed_out_at = NOW() WHERE id = $2",
-    )
-    .bind(chips)
-    .bind(seat_id)
-    .execute(&mut *tx)
-    .await?;
-    // A player who lost the full buy-in must still be able to close the seat.
-    // The immutable ledger intentionally records only positive transfers.
-    if chips > 0 {
-        crate::wallet::credit_wallet(&mut *tx, &auth_user.user_id, chips, credit_kind).await?;
-        sqlx::query(
-            "INSERT INTO cash_game_ledger (user_id, table_id, seat_id, entry_type, amount) \
-             VALUES ($1::uuid, $2, $3, 'CASH_OUT', $4)",
-        )
-        .bind(&auth_user.user_id)
-        .bind(table_id)
-        .bind(seat_id)
-        .bind(chips)
-        .execute(&mut *tx)
-        .await?;
-    }
-    tx.commit().await?;
+    .await
+    .map_err(ApiError::Internal)?
+    .ok_or_else(|| ApiError::NotFound("No active seat found for this player".to_string()))?;
 
     Ok(Json(CashOutResponse {
         chips: u64::try_from(chips)

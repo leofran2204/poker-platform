@@ -7,6 +7,20 @@
 
 ---
 
+## 📌 2026-09-02 — S20f: cash-out na desconexão + lobby visível + simulação ritual
+
+| Item | Detalhe |
+|------|---------|
+| **Problema** | Simulação lotou as 4 mesas Play Money; ao matar os bots os assentos `ACTIVE` ficaram zumbis. O lobby filtrava `current_players < max_players` e o catálogo **sumia**. |
+| **API** | `TableActor`: WS drop → sit-out + fold na vez; **45 s** para reconectar; depois `cash_seats::persist_cash_out_seat` (ledger + carteira). Leave HTTP continua imediato entre mãos. Boot: reconcilia assentos `ACTIVE` sem recovery guard (`ORPHAN_SEAT_RECONCILED`). `GET /api/lobby/tables` lista mesas `OPEN` mesmo lotadas. Admin: `GET /api/admin/tables` inclui `seats[]` (seat, username, email, chips); inscritos MTT com e-mail. |
+| **Frontend** | Admin Mesas: roster por cadeira (e-mail); Admin Torneios: coluna e-mail. Lobby já tinha botão «Cheia». |
+| **Motor** | `tests/tournament_to_champion.rs` — HE 9 / Freeroll Long→SD / Omaha 4 / Pineapple 6; campo `table_max×3` + 2 reservas/mesa; 1 rebuy até nível 6; addon recusado; até 1 campeão. Relógio ~55–105 min (20 órbitas/nível). |
+| **Scripts** | `scripts/live-sim-full-ritual.mjs` (Mail.tm, 1 e-mail/assento, reservas, wallet smoke). `scripts/clear-zombie-play-seats.sql` (ops pontual). |
+| **Simulação live** | 25 assentos distintos ocupados; JWT ~15 min (relogin no join); 625 timeouts de 30 s (bots); 6 s entre mãos. MTT site `gameplay_ready=false`. Relatório: `Documentacao/SIMULACAO_RITUAL.md`. |
+| **Deploy** | VPS: rebuild `poker_api` S20f healthy; lobby play 4 mesas 0/max. |
+
+---
+
 ## 📌 2026-09-02 — S20e: Ultimate Pineapple cash 6-max
 
 | Item | Detalhe |
@@ -732,7 +746,7 @@
 - Gate local: Rust fmt + Clippy estrito; 51 testes ativos selecionados; 4 contratos PostgreSQL isolados; TypeScript e Vite build. Zero falhas.
 - Operação pública conserva `PIX_PROVIDER=mock`/`PIX_MODE=mock`; DePix produtiva e saque automático continuam bloqueados.
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-09-02):** S20e — Ultimate Pineapple cash 6-max (3 hole, usa 2+3, sem descarte, ranking Short Deck); catálogo cash canônico NLHE 0,25/0,25, Hold'em Short Deck 0,25/0,50, Omaha Short Deck 0,50/0,50 e Ultimate Pineapple 0,50/0,50 (Play Money e Jogo Real). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–033 aplicadas na VPS (033 VARCHAR(32) + mesas Ultimate Pineapple PM/Real 0,50/0,50 6-max). Gate S20e: 4 testes evaluate_hand_ultimate_pineapple PASS na VPS; rebuild API 4m13s; health público OK. Frontend: filtro Pineapple 0,50/0,50 + labels 3 hole. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
+> **Estado operacional sincronizado (2026-09-02):** S20f — cash-out automático 45s após disconnect (WS) e no boot da API (assentos órfãos); lobby lista mesas cheias; admin mostra e-mail por assento/inscrito MTT; simulação ritual Play Money + motor MTT até o campeão. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–034 na VPS (cash+MTT Ultimate Pineapple). Disconnect cash-out 45s + reconciliação de assentos órfãos no boot (deploy S20f). Motor `tournament_to_champion` PASS (HE/Freeroll/Omaha/Pineapple até 1 campeão). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas. MTT site: gameplay_ready=false (sem WS de torneio). Health público OK. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

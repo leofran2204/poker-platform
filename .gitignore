@@ -54,6 +54,8 @@ proptest-regressions/
 
 # Relatórios e artefatos locais (nunca versionar)
 artifacts/
+backups/
+Documentacao/SIMULACAO_RITUAL*.json
 .codex-tmp/
 .agents/
 coverage-run.log

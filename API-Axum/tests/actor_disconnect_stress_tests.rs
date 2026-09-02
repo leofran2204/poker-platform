@@ -58,11 +58,13 @@ async fn test_disconnect_inactive_turn_player_stress() {
     let info = info_rx.recv().await.unwrap();
     let players = info["players"].as_array().unwrap();
 
-    // player_2 deve ter sido removido da lista de atores da mesa
-    assert!(
-        !players.iter().any(|p| p["id"] == "player_2"),
-        "player_2 deveria ter sido removido dos jogadores da mesa"
-    );
+    // player_2 sits out immediately; the seat is cashed out after the grace period.
+    if let Some(player) = players.iter().find(|p| p["id"] == "player_2") {
+        assert_eq!(
+            player["is_sitting"], false,
+            "player_2 should be sitting out after disconnect"
+        );
+    }
 }
 
 #[tokio::test]
@@ -122,10 +124,9 @@ async fn test_disconnect_all_players_successive_stress() {
 
         let info = info_rx.recv().await.unwrap();
         let players = info["players"].as_array().unwrap();
-        assert_eq!(
-            players.len(),
-            0,
-            "Todos os jogadores deveriam ter sido removidos com sucesso"
+        assert!(
+            players.iter().all(|player| player["is_sitting"] == false),
+            "Todos os jogadores deveriam estar sitting out após disconnect"
         );
     }
 }

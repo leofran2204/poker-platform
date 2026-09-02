@@ -461,6 +461,15 @@ struct AdminTableListRow {
 }
 
 #[derive(Debug, Serialize)]
+pub struct AdminTableSeat {
+    pub seat: i16,
+    pub user_id: String,
+    pub username: String,
+    pub email: String,
+    pub chips: i64,
+}
+
+#[derive(Debug, Serialize)]
 pub struct AdminTableListItem {
     pub id: String,
     pub name: String,
@@ -472,6 +481,17 @@ pub struct AdminTableListItem {
     pub max_buy_in: i64,
     pub max_players: i16,
     pub current_players: i16,
+    pub seats: Vec<AdminTableSeat>,
+}
+
+#[derive(Debug, sqlx::FromRow)]
+struct SeatOccRow {
+    table_id: uuid::Uuid,
+    seat: i16,
+    chips: i64,
+    user_id: uuid::Uuid,
+    username: String,
+    email: String,
 }
 
 pub async fn list_admin_tables(
@@ -486,6 +506,27 @@ pub async fn list_admin_tables(
     .fetch_all(&state.db)
     .await?;
 
+    let occupied: Vec<SeatOccRow> = sqlx::query_as(
+        "SELECT s.table_id, s.seat, s.chips, u.id AS user_id, u.username, u.email \
+         FROM cash_game_seats s \
+         JOIN users u ON u.id = s.user_id \
+         WHERE s.status = 'ACTIVE' \
+         ORDER BY s.table_id, s.seat",
+    )
+    .fetch_all(&state.db)
+    .await?;
+
+    let mut by_table: HashMap<uuid::Uuid, Vec<AdminTableSeat>> = HashMap::new();
+    for row in occupied {
+        by_table.entry(row.table_id).or_default().push(AdminTableSeat {
+            seat: row.seat,
+            user_id: row.user_id.to_string(),
+            username: row.username,
+            email: row.email,
+            chips: row.chips,
+        });
+    }
+
     Ok(Json(
         rows.into_iter()
             .map(|r| AdminTableListItem {
@@ -499,6 +540,7 @@ pub async fn list_admin_tables(
                 max_buy_in: r.max_buy_in,
                 max_players: r.max_players,
                 current_players: r.current_players,
+                seats: by_table.remove(&r.id).unwrap_or_default(),
             })
             .collect(),
     ))
@@ -555,6 +597,7 @@ struct TourneyPlayerRow {
     stack: i64,
     rebuys: i32,
     registered_at: i64,
+    email: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -564,6 +607,7 @@ pub struct AdminTournamentPlayer {
     pub stack: i64,
     pub rebuys: i32,
     pub registered_at: i64,
+    pub email: Option<String>,
 }
 
 pub async fn list_tournament_players(
@@ -575,8 +619,11 @@ pub async fn list_tournament_players(
     let tid = uuid::Uuid::parse_str(&tournament_id)
         .map_err(|_| ApiError::BadRequest("Invalid tournament id".into()))?;
     let rows: Vec<TourneyPlayerRow> = sqlx::query_as(
-        "SELECT player_id, player_name, stack, rebuys, registered_at \
-         FROM tournament_players WHERE tournament_id = $1 ORDER BY registered_at",
+        "SELECT tp.player_id, tp.player_name, tp.stack, tp.rebuys, tp.registered_at, u.email \
+         FROM tournament_players tp \
+         LEFT JOIN users u ON u.id::text = tp.player_id \
+         WHERE tp.tournament_id = $1 \
+         ORDER BY tp.registered_at",
     )
     .bind(tid)
     .fetch_all(&state.db)
@@ -589,6 +636,7 @@ pub async fn list_tournament_players(
                 stack: r.stack,
                 rebuys: r.rebuys,
                 registered_at: r.registered_at,
+                email: r.email,
             })
             .collect(),
     ))

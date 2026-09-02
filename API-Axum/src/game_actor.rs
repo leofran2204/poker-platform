@@ -15,6 +15,10 @@ use poker_engine::hand_history::GameType;
 use poker_engine::types::TableConfig;
 
 const DEFAULT_TURN_TIMEOUT: tokio::time::Duration = tokio::time::Duration::from_secs(30);
+/// After the socket drops, keep the seat briefly so a refresh can reconnect.
+/// Then cash out so the lobby cannot stay full of ghost players.
+const DEFAULT_DISCONNECT_CASH_OUT_AFTER: tokio::time::Duration =
+    tokio::time::Duration::from_secs(45);
 
 /// Ações que podem ser solicitadas pelos jogadores.
 #[derive(Debug)]
@@ -53,6 +57,8 @@ pub struct TablePlayer {
     pub chips: u64,
     pub seat: usize,
     pub is_sitting: bool,
+    #[serde(skip)]
+    pub disconnected_since: Option<tokio::time::Instant>,
 }
 
 pub struct TableActor {
@@ -72,6 +78,7 @@ pub struct TableActor {
     pub antifraud: poker_engine::antifraud::AntiFraudSuite,
     pub last_turn_start: Option<tokio::time::Instant>,
     pub turn_timeout: tokio::time::Duration,
+    pub disconnect_cash_out_after: tokio::time::Duration,
     pub db: Option<sqlx::PgPool>,
     pub redis: Option<redis::aio::ConnectionManager>,
     pub audit_secret: Option<String>,
@@ -245,6 +252,7 @@ impl TableActor {
             antifraud: poker_engine::antifraud::AntiFraudSuite::new(),
             last_turn_start: Some(tokio::time::Instant::now()),
             turn_timeout: DEFAULT_TURN_TIMEOUT,
+            disconnect_cash_out_after: DEFAULT_DISCONNECT_CASH_OUT_AFTER,
             db: None,
             redis: None,
             persistence_halted: false,
@@ -265,6 +273,12 @@ impl TableActor {
     #[cfg(test)]
     pub fn with_turn_timeout(mut self, turn_timeout: tokio::time::Duration) -> Self {
         self.turn_timeout = turn_timeout;
+        self
+    }
+
+    #[cfg(test)]
+    pub fn with_disconnect_cash_out_after(mut self, after: tokio::time::Duration) -> Self {
+        self.disconnect_cash_out_after = after;
         self
     }
 
@@ -426,6 +440,8 @@ impl TableActor {
             // Auto-start hand if we have enough players
             self.start_new_hand().await;
         }
+
+        self.cash_out_expired_disconnects().await;
     }
 
     fn handle_sit(
@@ -435,13 +451,27 @@ impl TableActor {
         seat: Option<usize>,
         chips: u64,
     ) -> usize {
-        // Remover se já estiver na mesa (para evitar duplicatas)
-        self.players.retain(|p| p.id != player_id);
+        if let Some(existing) = self.players.iter_mut().find(|player| player.id == player_id)
+        {
+            existing.name = username;
+            existing.chips = chips;
+            if let Some(seat) = seat {
+                existing.seat = seat;
+            }
+            existing.is_sitting = true;
+            existing.disconnected_since = None;
+            let assigned_seat = existing.seat;
+            info!(
+                "Player reconnected at table {} in seat {}",
+                self.table_id, assigned_seat
+            );
+            self.broadcast_state();
+            return assigned_seat;
+        }
 
         let assigned_seat = match seat {
             Some(s) => s,
             None => {
-                // Encontrar o próximo assento livre
                 let mut found_seat = 0;
                 for s in 0..9 {
                     if !self.players.iter().any(|p| p.seat == s) {
@@ -459,6 +489,7 @@ impl TableActor {
             chips,
             seat: assigned_seat,
             is_sitting: true,
+            disconnected_since: None,
         });
 
         info!(
@@ -478,24 +509,94 @@ impl TableActor {
                     .iter()
                     .any(|player| player.id == player_id)
         });
-        if player_is_in_active_hand {
-            if let Some(player) = self
-                .players
-                .iter_mut()
-                .find(|player| player.id == player_id)
-            {
-                player.is_sitting = false;
+        if let Some(player) = self
+            .players
+            .iter_mut()
+            .find(|player| player.id == player_id)
+        {
+            player.is_sitting = false;
+            if player.disconnected_since.is_none() {
+                player.disconnected_since = Some(tokio::time::Instant::now());
             }
+        }
+        if player_is_in_active_hand {
             info!(
                 "Player {} disconnected from active hand at table {}; automatic fold scheduled",
                 player_id, self.table_id
             );
         } else {
-            self.players.retain(|player| player.id != player_id);
-            info!("Player {} left table {}", player_id, self.table_id);
+            info!(
+                "Player {} disconnected from table {}; seat reserved until cash-out grace",
+                player_id, self.table_id
+            );
         }
 
         self.broadcast_state();
+    }
+
+    async fn cash_out_expired_disconnects(&mut self) {
+        if self.persistence_halted {
+            return;
+        }
+        let in_unfinished_hand: std::collections::HashSet<String> = self
+            .game_loop
+            .as_ref()
+            .filter(|game_loop| !game_loop.state.is_finished)
+            .map(|game_loop| {
+                game_loop
+                    .state
+                    .players
+                    .iter()
+                    .map(|player| player.id.clone())
+                    .collect()
+            })
+            .unwrap_or_default();
+        let now = tokio::time::Instant::now();
+        let due: Vec<(String, u64)> = self
+            .players
+            .iter()
+            .filter(|player| {
+                !in_unfinished_hand.contains(&player.id)
+                    && player.disconnected_since.is_some_and(|since| {
+                        now.saturating_duration_since(since) >= self.disconnect_cash_out_after
+                    })
+            })
+            .map(|player| (player.id.clone(), player.chips))
+            .collect();
+        if due.is_empty() {
+            return;
+        }
+
+        let table_uuid = uuid::Uuid::parse_str(&self.table_id).ok();
+        for (player_id, chips) in due {
+            if let (Some(db), Some(table_id)) = (self.db.as_ref(), table_uuid) {
+                match crate::cash_seats::persist_cash_out_seat(
+                    db,
+                    table_id,
+                    &player_id,
+                    Some(chips),
+                )
+                .await
+                {
+                    Ok(_) => {}
+                    Err(error) => {
+                        error!(
+                            ?error,
+                            table_id = %self.table_id,
+                            player_id = %player_id,
+                            "Failed to persist disconnect cash-out"
+                        );
+                        continue;
+                    }
+                }
+            }
+            let _ = self.handle_cash_out(&player_id);
+            info!(
+                table_id = %self.table_id,
+                player_id = %player_id,
+                "Cashed out disconnected player after grace period"
+            );
+        }
     }
 
     fn handle_cash_out(&mut self, player_id: &str) -> Result<Option<u64>, String> {
@@ -1076,6 +1177,7 @@ mod tests {
             chips: 10_000,
             seat,
             is_sitting: true,
+            disconnected_since: None,
         }
     }
 
@@ -1240,5 +1342,58 @@ mod tests {
             .id
             .clone();
         assert_ne!(active_after, active_before);
+    }
+
+    #[tokio::test]
+    async fn reconnect_before_grace_keeps_the_seat() {
+        let (_tx_cmd, rx_cmd) = mpsc::channel(1);
+        let (tx_broadcast, _) = broadcast::channel(1);
+        let mut actor = TableActor::new(
+            "table".to_string(),
+            "Test".to_string(),
+            rx_cmd,
+            tx_broadcast,
+        )
+        .with_disconnect_cash_out_after(tokio::time::Duration::from_secs(30));
+        actor.players = vec![player("a", 0), player("b", 1)];
+        actor.handle_leave("a".to_string());
+        assert!(!actor.players.iter().find(|p| p.id == "a").unwrap().is_sitting);
+        assert!(actor
+            .players
+            .iter()
+            .find(|p| p.id == "a")
+            .unwrap()
+            .disconnected_since
+            .is_some());
+
+        let seat = actor.handle_sit("a".to_string(), "a".to_string(), Some(0), 10_000);
+        assert_eq!(seat, 0);
+        let again = actor.players.iter().find(|p| p.id == "a").unwrap();
+        assert!(again.is_sitting);
+        assert!(again.disconnected_since.is_none());
+        actor.tick().await;
+        assert_eq!(actor.players.iter().filter(|p| p.id == "a").count(), 1);
+    }
+
+    #[tokio::test]
+    async fn disconnect_between_hands_cashes_out_after_grace() {
+        let (_tx_cmd, rx_cmd) = mpsc::channel(1);
+        let (tx_broadcast, _) = broadcast::channel(1);
+        let mut actor = TableActor::new(
+            "table".to_string(),
+            "Test".to_string(),
+            rx_cmd,
+            tx_broadcast,
+        )
+        .with_disconnect_cash_out_after(tokio::time::Duration::from_millis(1));
+        actor.players = vec![player("a", 0), player("b", 1)];
+        actor.handle_leave("a".to_string());
+        tokio::time::sleep(tokio::time::Duration::from_millis(5)).await;
+        actor.tick().await;
+        assert!(
+            !actor.players.iter().any(|p| p.id == "a"),
+            "disconnected player should cash out after grace"
+        );
+        assert_eq!(actor.players.len(), 1);
     }
 }

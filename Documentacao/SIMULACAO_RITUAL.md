@@ -1,0 +1,56 @@
+# Simulação ritual Play Money (2026-09-02)
+
+Ritual “como se fosse real” contra `https://zerotiltpoker.net` (Play Money) + motor MTT até o campeão. **Não é certificação de produção.**
+
+## O que o site faz e o que não faz
+
+| Pedido | Resultado |
+|--------|-----------|
+| Registro + verificação de e-mail | Mail.tm; ~15 s/conta; DNS `api.mail.tm` falhou em alguns lotes |
+| 1 pessoa / 1 e-mail por assento cash | **25/25** nas 4 mesas play (NL 9, SD 6, Omaha 4, Pineapple 6) |
+| 2 reservas por mesa | Provisionadas; sentam no cash quando alguém zera |
+| 2.000 mãos cash ao vivo no WS | **Não é o gate do motor.** Ritmo real: timeout de turno 30 s + pausa 6 s entre mãos. Hold'em 9-max ~79 mãos no run; Omaha ~305. 10k mãos já existem em `cash_catalog_10k_hands`. |
+| MTT até o campeão no site | **Não.** `gameplay_ready: false` sempre; sem `/ws` de torneio. Inscrição/rebuy/addon na API: rebuy/addon **405**. |
+| MTT até o campeão no motor | **PASS** `tournament_to_champion` (Docker Linux na VPS) |
+| Pedido de fichas / saque | `deposit-request` 200 pending (Play). PIX withdraw 400 (saldo Real zerado). `pm-rebuy` 400 se o saldo não está zerado |
+| Addon | Catálogo `allow_addon=false`; motor recusa |
+
+## Motor MTT até o campeão
+
+Campo = `table_max × 3` + 2 reservas **por mesa**. 1 rebuy até o nível 6; reservas entram depois. Addon tentado e recusado. 20 órbitas ≈ 5 min de relógio.
+
+| Torneio | Campeão | Mãos | Relógio | Observação |
+|---------|---------|------|---------|------------|
+| Hold'em 9-max | p4 | 765 | ~90 min (nv. 18) | 6 rebuys; 6 reservas |
+| Freeroll Long→SD | p13 | 563 | ~55 min (nv. 11) | 15 rebuys |
+| Omaha 4 | w3 (reserva) | 842 | ~105 min (nv. 21) | 0 rebuys |
+| Ultimate Pineapple 6 | p14 | 804 | ~95 min (nv. 19) | 2 rebuys |
+
+`finish_tournament` paga só quem ainda está vivo: com 1 campeão, só o 1º (50% do poço). 2º/3º da ordem de eliminação não recebem no motor.
+
+Late-reg do catálogo fecha no nível 4; o teste de simulação sobe para 26 para as reservas entrarem após o rebuy (nível 6), como pedido da simulação.
+
+## Ritmo ao vivo vs plataformas
+
+A VPS **não saturou** (API ~0,2% CPU com 25 WS). A lentidão das 2.000 mãos veio de **625 timeouts de 30 s** (bots sem agir) + **6 s entre mãos**. Com humanos que agem em 3–8 s, 9-max fica na média online (~55–75 mãos/h), um pouco mais calmo que Stars/GG.
+
+## Assentos fantasma (corrigido em S20f)
+
+Matar o script deixou 25 `ACTIVE`. O lobby escondia mesa cheia. Ops: `scripts/clear-zombie-play-seats.sql`. Código: cash-out 45 s após disconnect + reconciliação no boot + lobby lista mesas lotadas.
+
+## Como repetir
+
+```bash
+# Motor (VPS Linux / Docker)
+docker run --rm -v "$PWD":/app -w /app/Motor-Rust rust:bookworm \
+  cargo test --test tournament_to_champion -- --nocapture
+
+# Site (não usar 2000 mãos como gate)
+ALLOW_TEMP_MAIL=true HANDS_PER_TABLE=2 node scripts/live-sim-full-ritual.mjs
+```
+
+<!-- DOCUMENTATION_SYNC:START -->
+> **Estado operacional sincronizado (2026-09-02):** S20f — cash-out automático 45s após disconnect (WS) e no boot da API (assentos órfãos); lobby lista mesas cheias; admin mostra e-mail por assento/inscrito MTT; simulação ritual Play Money + motor MTT até o campeão. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–034 na VPS (cash+MTT Ultimate Pineapple). Disconnect cash-out 45s + reconciliação de assentos órfãos no boot (deploy S20f). Motor `tournament_to_champion` PASS (HE/Freeroll/Omaha/Pineapple até 1 campeão). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas. MTT site: gameplay_ready=false (sem WS de torneio). Health público OK. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
+>
+> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
+<!-- DOCUMENTATION_SYNC:END -->
