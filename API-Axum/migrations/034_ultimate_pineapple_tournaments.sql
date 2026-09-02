@@ -9,7 +9,7 @@ INSERT INTO tournaments (
     prize_pool, current_level, players_remaining, total_buyins,
     guaranteed_prize, is_freeroll,
     rebuy_cost, rebuy_chips, rebuy_max_count, rebuy_stack_threshold,
-    rebuy_max_level, allow_rebuy, blind_levels, game_type, money_mode,
+    rebuy_max_level, allow_rebuy, game_type, money_mode,
     poker_variant, final_table_variant, final_table_max_players
 )
 SELECT
@@ -20,7 +20,7 @@ SELECT
     10000, 0, 0, 0,
     10000, FALSE,
     2000, 20000, 1, 0,
-    6, TRUE, DEFAULT, 'UltimatePineapple', 'play',
+    6, TRUE, 'UltimatePineapple', 'play',
     'ultimate_pineapple', NULL, NULL
 WHERE NOT EXISTS (
     SELECT 1 FROM tournaments
@@ -34,7 +34,7 @@ INSERT INTO tournaments (
     prize_pool, current_level, players_remaining, total_buyins,
     guaranteed_prize, is_freeroll,
     rebuy_cost, rebuy_chips, rebuy_max_count, rebuy_stack_threshold,
-    rebuy_max_level, allow_rebuy, blind_levels, game_type, money_mode,
+    rebuy_max_level, allow_rebuy, game_type, money_mode,
     poker_variant, final_table_variant, final_table_max_players
 )
 SELECT
@@ -45,7 +45,7 @@ SELECT
     10000, 0, 0, 0,
     10000, FALSE,
     2000, 20000, 1, 0,
-    6, TRUE, DEFAULT, 'UltimatePineapple', 'real',
+    6, TRUE, 'UltimatePineapple', 'real',
     'ultimate_pineapple', NULL, NULL
 WHERE NOT EXISTS (
     SELECT 1 FROM tournaments
