@@ -1,6 +1,6 @@
 # Zero Tilt Poker — poker-platform
 
-Plataforma de poker online (**Hold’em**, **Short Deck**, **Short Deck Omaha**): **motor e API em Rust**, **frontend em TypeScript** (React + Vite + Tailwind), skin inspirada no **Full Tilt** clássico.
+Plataforma de poker online (**Hold’em**, **Short Deck**, **Short Deck Omaha**, **Ultimate Pineapple**): **motor e API em Rust**, **frontend em TypeScript** (React + Vite + Tailwind), skin inspirada no **Full Tilt** clássico.
 
 | | |
 |--|--|
@@ -8,7 +8,7 @@ Plataforma de poker online (**Hold’em**, **Short Deck**, **Short Deck Omaha**)
 | **Repositório** | https://github.com/leofran2204/poker-platform |
 | **Estado** | Staging/demo (**S20**) — **sem** certificação de produção; Big Blind Ante 26 níveis (torneios) + potes laterais com ante morto; cash sem ante; wallets PM × Real; settlements assinados; contador **online** |
 | **Status canônico** | [`Documentacao/STATUS_OPERACIONAL.json`](Documentacao/STATUS_OPERACIONAL.json) |
-| **Cash (PM + Real)** | NL 0,25/0,25 · NL 0,25/0,50 · SD 0,50/0,50 · SD Omaha 0,50/1 — frentes fixas |
+| **Cash (PM + Real)** | NL 0,25/0,25 · SD 0,25/0,50 · SD Omaha 0,50/0,50 · Ultimate Pineapple 0,50/0,50 — frentes fixas |
 | **Transporte público** | **HTTPS** (Caddy + Let's Encrypt na VPS); API + SPA same-origin |
 | **E-mail (demo)** | Resend — domínio `zerotiltpoker.net` verified; ver [`EMAIL_RESEND.md`](Infraestrutura-Docker/EMAIL_RESEND.md) |
 | **Presença** | Badge no header + hero na home; `GET /api/presence/online` |

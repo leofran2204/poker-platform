@@ -93,15 +93,8 @@ fn row_to_store(row: TournamentRow) -> TournamentStore {
     } else {
         "play".into()
     };
-    let pv = row.poker_variant.to_ascii_lowercase();
-    let poker_variant = if pv == "short_deck_omaha" || pv == "sd_omaha" {
-        "short_deck_omaha".into()
-    } else if pv == "short_deck" || pv == "sd" {
-        "short_deck".into()
-    } else {
-        "holdem".into()
-    };
-    let mut store = TournamentStore::with_mode_and_variant(id, config, money_mode, poker_variant);
+    let mut store =
+        TournamentStore::with_mode_and_variant(id, config, money_mode, row.poker_variant);
     store.table_max_players = row.table_max_players.clamp(2, 9) as u8;
     store.final_table_variant = row
         .final_table_variant

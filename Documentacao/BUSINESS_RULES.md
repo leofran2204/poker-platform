@@ -42,10 +42,11 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 | `holdem` | 52 | 2 | até 9 |
 | `short_deck` | 36 (sem 2–5) | 2 | até 6 |
 | `short_deck_omaha` | 36 | **4** (usa 2 hole + 3 board) | até 4 |
+| `ultimate_pineapple` | 36 | **3** (usa 2 hole + 3 board, **sem descarte**) | até 6 |
 
 **Carteiras:** Play Money (cash + MTT, reset diário) e Jogo Real (isolado). `money_mode` da mesa/torneio deve coincidir com o modo do cliente (`play` \| `real`).
 
-**Catálogo cash vigente (PM + Real):** NL 0,25/0,25 (R$25) · NL 0,25/0,50 (R$50) · SD 0,50/0,50 (R$75) · SD Omaha 0,50/1 (R$100). Frentes **fixas** (`min_buy_in = max_buy_in`). Small blind pode **igualar** big blind.
+**Catálogo cash vigente (PM + Real):** NL 0,25/0,25 (R$25) · SD 0,25/0,50 (R$75) · SD Omaha 0,50/0,50 (R$100) · Ultimate Pineapple 0,50/0,50 (R$75, 6-max). Frentes **fixas** (`min_buy_in = max_buy_in`). Small blind pode **igualar** big blind.
 
 ---
 
@@ -88,6 +89,13 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 - Ranking Short Deck (flush > boat; wheel A6789)
 - Implementação: `evaluate_hand_short_deck_omaha`
 
+### 2.6 🍍 Ultimate Pineapple Short Deck — `ultimate_pineapple`
+- Mesmo baralho Short Deck (36)
+- Cada jogador recebe **3** hole cards e **não descarta** (não é Crazy Pineapple)
+- No showdown: exatamente **2** hole + **3** community (melhor combo)
+- Ranking Short Deck (flush > boat; wheel A6789)
+- Implementação: `evaluate_hand_ultimate_pineapple`
+
 ---
 
 ## 3. 🪑 Estrutura da Mesa — Configuração e Parâmetros
@@ -101,8 +109,8 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 | `bigBlind`    | number   | > 0; `smallBlind ≤ bigBlind`       |
 | `minBuyIn`    | number   | > 0 (cash oficial: = `maxBuyIn`)   |
 | `maxBuyIn`    | number   | > 0                                |
-| `maxPlayers`  | int      | 2–9 (Omaha cash oficial: 4)        |
-| `poker_variant` | string | `holdem` \| `short_deck` \| `short_deck_omaha` |
+| `maxPlayers`  | int      | 2–9 (Omaha cash oficial: 4; Pineapple: 6) |
+| `poker_variant` | string | `holdem` \| `short_deck` \| `short_deck_omaha` \| `ultimate_pineapple` |
 | `money_mode`  | string   | `play` \| `real`                   |
 | `speed`       | enum     | `normal` \| `turbo` \| `hyper`     |
 | `ante`        | number?  | ≥ 0 (opcional)                     |
@@ -333,7 +341,7 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 | Regra               | Arquivo                          | Função/Local                    |
 |---------------------|----------------------------------|---------------------------------|
 | Baralho 52 cartas   | `Motor-Rust/src/deck.rs`         | `create_deck()`, `shuffle()`    |
-| Ranking de mãos     | `Motor-Rust/src/deck.rs`         | `evaluate_hand()`               |
+| Ranking de mãos     | `Motor-Rust/src/deck.rs`         | `evaluate_hand()` / `evaluate_hand_ultimate_pineapple()` |
 | Straight A-2-3-4-5  | `Motor-Rust/src/deck.rs`         | `is_straight()`                 |
 | Side pots           | `Motor-Rust/src/side_pots.rs`    | `calculate_side_pots()`         |
 | Loss Deflator       | `Motor-Rust/src/loss_deflator.rs`| `calculate_progressive_loss_deflator()` |
@@ -398,7 +406,7 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 **Próxima revisão:** Após implementação de side pots e split pot.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-09-01):** S20d — Polimento total: barra felt/gold, bloco Zero Tilt sem Full Tilt, H2 fontes e sem A♠; catálogo cash canônico NLHE 0,25/0,25, Hold'em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy; migrations 001–032 aplicadas. Gate S20d: cargo fmt, Clippy estrito, tsc -b + Vite 60 módulos — todos sem falhas; VPS 4/4 healthy, 26 níveis ante=big_blind (invalid_BBA=0), backup verificável, rebuilds e health público OK. Frontend: PT-BR + Dica do Pró + história 8+7 com fontes H2 2006 + vazios com história + sem painel duplicado + sem A♠ (case-sensitive) + scrollbar felt/gold + bloco Zero Tilt sem Full Tilt + notícias com foto oficial (sem placeholder). A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
+> **Estado operacional sincronizado (2026-09-02):** S20e — Ultimate Pineapple cash 6-max (3 hole, usa 2+3, sem descarte, ranking Short Deck); catálogo cash canônico NLHE 0,25/0,25, Hold'em Short Deck 0,25/0,50, Omaha Short Deck 0,50/0,50 e Ultimate Pineapple 0,50/0,50 (Play Money e Jogo Real). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations no repo: 001–033 (033 alarga poker_variant VARCHAR(32) e semeia Ultimate Pineapple). Gate S20e local: testes de avaliação Pineapple (2+3, flush>boat) + parse lobby/torneio; 10k mãos inclui Pineapple 0,50/0,50 6-max. VPS ainda no ciclo anterior até rebuild API/migration 033 — não alegar Pineapple no ar público antes disso. Frontend: filtro Pineapple 0,50/0,50 + labels 3 hole. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

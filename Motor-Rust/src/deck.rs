@@ -494,6 +494,49 @@ pub fn evaluate_hand_short_deck_omaha(hole_cards: &[Card], community_cards: &[Ca
     best.unwrap_or_else(|| evaluate_hand_short_deck(hole_cards, community_cards))
 }
 
+/// Ultimate Pineapple Short Deck: 3 hole, usa exatamente 2 + 3, sem descarte, ranking Short Deck (flush > full house).
+pub fn evaluate_hand_ultimate_pineapple(
+    hole_cards: &[Card],
+    community_cards: &[Card],
+) -> HandResult {
+    if hole_cards.len() < 2 || community_cards.len() < 3 {
+        return evaluate_hand_short_deck(hole_cards, community_cards);
+    }
+
+    let hole_n = hole_cards.len().min(3);
+    let board_n = community_cards.len().min(5);
+    let hole = &hole_cards[..hole_n];
+    let board = &community_cards[..board_n];
+
+    let mut best: Option<HandResult> = None;
+
+    for i in 0..hole.len() {
+        for j in (i + 1)..hole.len() {
+            let h2 = [hole[i], hole[j]];
+            for a in 0..board.len() {
+                for b in (a + 1)..board.len() {
+                    for c_idx in (b + 1)..board.len() {
+                        let b3 = [board[a], board[b], board[c_idx]];
+                        let cand = evaluate_hand_short_deck(&h2, &b3);
+                        best = Some(match best {
+                            None => cand,
+                            Some(ref cur) => {
+                                if compare_hands(&cand, cur) == Ordering::Greater {
+                                    cand
+                                } else {
+                                    cur.clone()
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    best.unwrap_or_else(|| evaluate_hand_short_deck(hole_cards, community_cards))
+}
+
 /// Verifica se uma carta está no slice
 pub fn contains_card(cards: &[Card], target: &Card) -> bool {
     cards
@@ -1377,6 +1420,98 @@ mod tests {
         ];
         let flush = evaluate_hand_short_deck_omaha(&flush_hole, &flush_board);
         let boat = evaluate_hand_short_deck_omaha(&boat_hole, &boat_board);
+        assert_eq!(flush.rank, HandRank::Flush);
+        assert_eq!(boat.rank, HandRank::FullHouse);
+        assert_eq!(compare_hands(&flush, &boat), Ordering::Greater);
+    }
+
+    #[test]
+    fn test_ultimate_pineapple_parse_and_hole_count() {
+        use crate::types::PokerVariant;
+        assert_eq!(
+            PokerVariant::parse("ultimate_pineapple"),
+            PokerVariant::UltimatePineapple
+        );
+        assert_eq!(
+            PokerVariant::parse("pineapple"),
+            PokerVariant::UltimatePineapple
+        );
+        assert_eq!(PokerVariant::parse("up_sd"), PokerVariant::UltimatePineapple);
+        assert_eq!(PokerVariant::UltimatePineapple.hole_card_count(), 3);
+        assert!(PokerVariant::UltimatePineapple.uses_short_deck());
+        assert_eq!(
+            PokerVariant::UltimatePineapple.as_str(),
+            "ultimate_pineapple"
+        );
+    }
+
+    #[test]
+    fn test_ultimate_pineapple_uses_exactly_two_hole() {
+        // 3 hole: Ah Kh Qd — board 9h 8h 7h 6c Tc
+        // Melhor 2+3: AhKh + 9h8h7h = flush. A Qd extra não entra sozinha.
+        let hole = vec![
+            c(Rank::Ace, Suit::Hearts),
+            c(Rank::King, Suit::Hearts),
+            c(Rank::Queen, Suit::Diamonds),
+        ];
+        let board = vec![
+            c(Rank::Nine, Suit::Hearts),
+            c(Rank::Eight, Suit::Hearts),
+            c(Rank::Seven, Suit::Hearts),
+            c(Rank::Six, Suit::Clubs),
+            c(Rank::Ten, Suit::Clubs),
+        ];
+        let r = evaluate_hand_ultimate_pineapple(&hole, &board);
+        assert_eq!(r.rank, HandRank::Flush);
+    }
+
+    #[test]
+    fn test_ultimate_pineapple_cannot_use_three_hole_for_trips() {
+        // Três ases no hole + um ás no board: só 2 hole → trips, nunca quads.
+        let hole = vec![
+            c(Rank::Ace, Suit::Hearts),
+            c(Rank::Ace, Suit::Diamonds),
+            c(Rank::Ace, Suit::Clubs),
+        ];
+        let board = vec![
+            c(Rank::Ace, Suit::Spades),
+            c(Rank::Nine, Suit::Hearts),
+            c(Rank::Eight, Suit::Diamonds),
+            c(Rank::Seven, Suit::Clubs),
+            c(Rank::Six, Suit::Hearts),
+        ];
+        let r = evaluate_hand_ultimate_pineapple(&hole, &board);
+        assert_eq!(r.rank, HandRank::ThreeOfAKind);
+    }
+
+    #[test]
+    fn test_ultimate_pineapple_flush_beats_full_house() {
+        let flush_hole = vec![
+            c(Rank::Ace, Suit::Hearts),
+            c(Rank::King, Suit::Hearts),
+            c(Rank::Six, Suit::Clubs),
+        ];
+        let flush_board = vec![
+            c(Rank::Queen, Suit::Hearts),
+            c(Rank::Jack, Suit::Hearts),
+            c(Rank::Nine, Suit::Hearts),
+            c(Rank::Eight, Suit::Clubs),
+            c(Rank::Six, Suit::Spades),
+        ];
+        let boat_hole = vec![
+            c(Rank::King, Suit::Clubs),
+            c(Rank::King, Suit::Diamonds),
+            c(Rank::Nine, Suit::Clubs),
+        ];
+        let boat_board = vec![
+            c(Rank::King, Suit::Spades),
+            c(Rank::Ace, Suit::Spades),
+            c(Rank::Ace, Suit::Hearts),
+            c(Rank::Seven, Suit::Clubs),
+            c(Rank::Six, Suit::Diamonds),
+        ];
+        let flush = evaluate_hand_ultimate_pineapple(&flush_hole, &flush_board);
+        let boat = evaluate_hand_ultimate_pineapple(&boat_hole, &boat_board);
         assert_eq!(flush.rank, HandRank::Flush);
         assert_eq!(boat.rank, HandRank::FullHouse);
         assert_eq!(compare_hands(&flush, &boat), Ordering::Greater);

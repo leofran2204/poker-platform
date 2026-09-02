@@ -1,6 +1,6 @@
 # 🎯 Painel de Controle — Plataforma de Poker Online
 
-**Atualizado:** 2026-09-01 | **Status:** **S20d** — Polimento total: história fidedigna, fotos reais, barra felt/gold, Zero Tilt sem Full Tilt; demo/staging; sem certificação de produção.
+**Atualizado:** 2026-09-02 | **Status:** **S20e** — Ultimate Pineapple cash 6-max (3 hole, 2+3, ranking Short Deck); demo/staging; sem certificação de produção.
 
 > ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📌 **Fonte canônica de estado:** [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json) — prevalece sobre qualquer texto datado abaixo.
@@ -71,8 +71,9 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S20b | 2026-09-01 | História completa + PT-BR normalizado | Mundo 8 blocos (1829→Triton, modalidades, lendas, eventos) + Brasil 7 blocos (BSOP/CPH/H2 2011‑2014, Akkari/Yuri, Trafane/H2); correctPtOrthography + ProseRichText + Dica do Pró; Vite 60 módulos | 🟢 Fechado (demo) |
 | S20c | 2026-09-01 | UI polimento iniciante | Vazios laterais com história (360|1fr|360), login volta ao centro, sem painel duplicado (OnlinePresenceHero), sem A♠ fantasma (case-sensitive cards), fontes por bloco + disclaimer H2 2006; Vite 324KB | 🟢 Fechado (demo) |
 | S20d | 2026-09-01 | Polimento total | Barra felt/gold, bloco Zero Tilt sem Full Tilt, H2 fontes e sem A♠ revisado, notícias com foto oficial (sem placeholder-728x90); Vite 324KB | 🟢 Fechado (demo) |
+| S20e | 2026-09-02 | Ultimate Pineapple cash | Variante `ultimate_pineapple` (3 hole, 2+3, sem descarte, ranking SD); mesas PM+Real 0,50/0,50 6-max frente R$75; migration 033 (VARCHAR 32); lobby deixa de remapear para holdem | 🟡 Código+docs locais — VPS após rebuild API |
 
-**Catálogo cash vigente:** NL 0,25/0,25 · NL 0,25/0,50 · SD 0,50/0,50 · SD Omaha 0,50/1 (cada um em PM e Real).
+**Catálogo cash vigente:** NL 0,25/0,25 · SD 0,25/0,50 · SD Omaha 0,50/0,50 · Ultimate Pineapple 0,50/0,50 (cada um em PM e Real).
 
 ---
 
@@ -210,7 +211,7 @@ cd Infraestrutura-Docker && docker-compose up -d
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-09-01):** S20d — Polimento total: barra felt/gold, bloco Zero Tilt sem Full Tilt, H2 fontes e sem A♠; catálogo cash canônico NLHE 0,25/0,25, Hold'em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy; migrations 001–032 aplicadas. Gate S20d: cargo fmt, Clippy estrito, tsc -b + Vite 60 módulos — todos sem falhas; VPS 4/4 healthy, 26 níveis ante=big_blind (invalid_BBA=0), backup verificável, rebuilds e health público OK. Frontend: PT-BR + Dica do Pró + história 8+7 com fontes H2 2006 + vazios com história + sem painel duplicado + sem A♠ (case-sensitive) + scrollbar felt/gold + bloco Zero Tilt sem Full Tilt + notícias com foto oficial (sem placeholder). A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
+> **Estado operacional sincronizado (2026-09-02):** S20e — Ultimate Pineapple cash 6-max (3 hole, usa 2+3, sem descarte, ranking Short Deck); catálogo cash canônico NLHE 0,25/0,25, Hold'em Short Deck 0,25/0,50, Omaha Short Deck 0,50/0,50 e Ultimate Pineapple 0,50/0,50 (Play Money e Jogo Real). **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations no repo: 001–033 (033 alarga poker_variant VARCHAR(32) e semeia Ultimate Pineapple). Gate S20e local: testes de avaliação Pineapple (2+3, flush>boat) + parse lobby/torneio; 10k mãos inclui Pineapple 0,50/0,50 6-max. VPS ainda no ciclo anterior até rebuild API/migration 033 — não alegar Pineapple no ar público antes disso. Frontend: filtro Pineapple 0,50/0,50 + labels 3 hole. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

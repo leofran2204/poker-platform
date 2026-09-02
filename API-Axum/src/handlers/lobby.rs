@@ -24,7 +24,7 @@ pub struct TableResponse {
     pub game_type: String,
     /// `play` | `real` — fichas PM não servem em mesas real e vice-versa.
     pub money_mode: String,
-    /// `holdem` | `short_deck`
+    /// `holdem` | `short_deck` | `short_deck_omaha` | `ultimate_pineapple`
     pub poker_variant: String,
 }
 
@@ -104,16 +104,9 @@ fn table_response(
         } else {
             "play".into()
         },
-        poker_variant: {
-            let v = poker_variant.to_ascii_lowercase();
-            if v == "short_deck_omaha" || v == "sd_omaha" {
-                "short_deck_omaha".into()
-            } else if v == "short_deck" || v == "sd" {
-                "short_deck".into()
-            } else {
-                "holdem".into()
-            }
-        },
+        poker_variant: poker_engine::types::PokerVariant::parse(&poker_variant)
+            .as_str()
+            .to_string(),
     })
 }
 

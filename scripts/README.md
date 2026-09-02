@@ -19,7 +19,7 @@ Automação operacional do monorepo.
 
 | Teste | Uso |
 |-------|-----|
-| `Motor-Rust/tests/cash_catalog_10k_hands.rs` | 10k mãos × NLHE / SD / SD Omaha (catálogo oficial) |
+| `Motor-Rust/tests/cash_catalog_10k_hands.rs` | 10k mãos × NLHE / SD / SD Omaha / Ultimate Pineapple |
 | `Motor-Rust/tests/short_deck_massive.rs` | Regras SD + 1M evals + 100k mãos 6-max |
 | `cargo test --features massive-tests …` | Fuzz/fairness/stress gated |
 

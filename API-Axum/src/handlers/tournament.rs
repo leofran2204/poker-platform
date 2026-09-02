@@ -61,7 +61,7 @@ pub struct TournamentInfoResponse {
     pub gameplay_ready: bool,
     /// `play` | `real`
     pub money_mode: String,
-    /// `holdem` | `short_deck` | `short_deck_omaha`
+    /// `holdem` | `short_deck` | `short_deck_omaha` | `ultimate_pineapple`
     pub poker_variant: String,
     /// Variant activated when the final-table player threshold is reached.
     pub final_table_variant: Option<String>,

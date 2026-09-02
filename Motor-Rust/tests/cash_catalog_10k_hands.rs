@@ -5,6 +5,7 @@
 //! - NLHE 0,25/0,50 · 9-max · frente R$50
 //! - Short Deck 0,50/0,50 · 6-max · frente R$75
 //! - SD Omaha 0,50/1 · 4-max · frente R$100
+//! - Ultimate Pineapple 0,50/0,50 · 6-max · frente R$75
 //!
 //! Rodar:
 //!   cargo test --test cash_catalog_10k_hands -- --nocapture
@@ -67,6 +68,16 @@ const CATALOG: &[CatalogTable] = &[
         rake_bps: 500,
         rake_cap: 1_000,
         variant: PokerVariant::ShortDeckOmaha,
+    },
+    CatalogTable {
+        name: "Ultimate Pineapple 0,50/0,50",
+        small_blind: 50,
+        big_blind: 50,
+        max_players: 6,
+        starting_stack: 7_500,
+        rake_bps: 500,
+        rake_cap: 500,
+        variant: PokerVariant::UltimatePineapple,
     },
 ];
 

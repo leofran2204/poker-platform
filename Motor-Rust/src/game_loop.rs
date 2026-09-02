@@ -22,7 +22,8 @@
 
 use crate::deck::{
     compare_hands, create_deck, create_short_deck, deal_cards, evaluate_hand,
-    evaluate_hand_short_deck, evaluate_hand_short_deck_omaha, shuffle_deck, Card, HandResult,
+    evaluate_hand_short_deck, evaluate_hand_short_deck_omaha, evaluate_hand_ultimate_pineapple,
+    shuffle_deck, Card, HandResult,
 };
 use crate::hand_history::{
     self, Action, EndReason, GameType, HandHistory, PlayerAction, PlayerResult,
@@ -1173,11 +1174,12 @@ impl GameLoop {
         players_for_pots: &[PlayerForPots],
     ) -> Vec<loss_deflator::ProgressiveLossDeflatorResult> {
         let mut results = Vec::new();
-        // Equity MC do loss deflator: pula em Omaha e em stress (skip_loss_deflator).
+        // Equity MC do loss deflator: pula em Omaha/Pineapple e em stress (skip_loss_deflator).
         if self.skip_loss_deflator
             || matches!(
                 self.config.poker_variant,
                 crate::types::PokerVariant::ShortDeckOmaha
+                    | crate::types::PokerVariant::UltimatePineapple
             )
         {
             return results;
@@ -1395,6 +1397,12 @@ impl GameLoop {
                         &player.hole_cards,
                         &self.state.community_cards,
                     ),
+                    crate::types::PokerVariant::UltimatePineapple => {
+                        evaluate_hand_ultimate_pineapple(
+                            &player.hole_cards,
+                            &self.state.community_cards,
+                        )
+                    }
                     crate::types::PokerVariant::ShortDeck => {
                         evaluate_hand_short_deck(&player.hole_cards, &self.state.community_cards)
                     }

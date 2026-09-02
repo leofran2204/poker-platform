@@ -8,13 +8,14 @@ import { formatBrlFromCents } from "@/lib/money";
 import { getWalletMode } from "@/lib/walletMode";
 
 type LobbyTab = "cash" | "tournaments";
-type StakeFilter = "all" | "nl025" | "sd025050" | "sdOmaha050";
+type StakeFilter = "all" | "nl025" | "sd025050" | "sdOmaha050" | "pineapple050";
 
 const STAKE_OPTIONS: { id: StakeFilter; label: string }[] = [
   { id: "all", label: "Todos" },
   { id: "nl025", label: "NL 0,25/0,25" },
   { id: "sd025050", label: "SD 0,25/0,50" },
   { id: "sdOmaha050", label: "SD Omaha 0,50/0,50" },
+  { id: "pineapple050", label: "Pineapple 0,50/0,50" },
 ];
 
 function formatBuyInRange(min: number, max: number): string {
@@ -85,12 +86,15 @@ export function LobbyPage() {
       if (hideFull && t.players >= t.max_players) return false;
       const isOmaha = t.poker_variant === "short_deck_omaha";
       const isSd = t.poker_variant === "short_deck";
+      const isPineapple = t.poker_variant === "ultimate_pineapple";
       if (stake === "nl025")
-        return !isSd && !isOmaha && t.small_blind === 25 && t.big_blind === 25;
+        return !isSd && !isOmaha && !isPineapple && t.small_blind === 25 && t.big_blind === 25;
       if (stake === "sd025050")
         return isSd && t.small_blind === 25 && t.big_blind === 50;
       if (stake === "sdOmaha050")
         return isOmaha && t.small_blind === 50 && t.big_blind === 50;
+      if (stake === "pineapple050")
+        return isPineapple && t.small_blind === 50 && t.big_blind === 50;
       return true;
     });
   }, [tables, hideFull, stake]);
@@ -207,7 +211,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({filtered.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                NL 0,25/0,25 (R$25) · SD 0,25/0,50 (R$75) · SD Omaha 0,50/0,50 4-max (R$100) · auto 15s
+                NL 0,25/0,25 (R$25) · SD 0,25/0,50 (R$75) · Pineapple 0,50/0,50 6-max (R$75) · SD Omaha 0,50/0,50 4-max (R$100) · auto 15s
               </p>
             </div>
 

@@ -3,8 +3,8 @@
 // Refatorado em 2026-07-24: Arquitetura u64 centavos inteiros (Zero Float Errors)
 
 use crate::deck::{
-    compare_hands, evaluate_hand, evaluate_hand_short_deck, evaluate_hand_short_deck_omaha, Card,
-    HandResult,
+    compare_hands, evaluate_hand, evaluate_hand_short_deck, evaluate_hand_short_deck_omaha,
+    evaluate_hand_ultimate_pineapple, Card, HandResult,
 };
 use crate::types::{PokerVariant, Pot};
 use crate::utils::dividir_pote_empatado;
@@ -176,6 +176,9 @@ pub fn precompute_hands_for_variant(
             let hand = match variant {
                 PokerVariant::ShortDeckOmaha => {
                     evaluate_hand_short_deck_omaha(&player.cards, community_cards)
+                }
+                PokerVariant::UltimatePineapple => {
+                    evaluate_hand_ultimate_pineapple(&player.cards, community_cards)
                 }
                 PokerVariant::ShortDeck => evaluate_hand_short_deck(&player.cards, community_cards),
                 PokerVariant::Holdem => evaluate_hand(&player.cards, community_cards),

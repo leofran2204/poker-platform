@@ -1,7 +1,7 @@
 {
     "schema_version":  1,
-    "reviewed_on":  "2026-09-01",
-    "cycle":  "S20d — Polimento total: barra felt/gold, bloco Zero Tilt sem Full Tilt, H2 fontes e sem A♠; catálogo cash canônico NLHE 0,25/0,25, Hold\u0027em Short Deck 0,25/0,50 e Omaha Short Deck 0,50/0,50 (Play Money e Jogo Real).",
+    "reviewed_on":  "2026-09-02",
+    "cycle":  "S20e — Ultimate Pineapple cash 6-max (3 hole, usa 2+3, sem descarte, ranking Short Deck); catálogo cash canônico NLHE 0,25/0,25, Hold\u0027em Short Deck 0,25/0,50, Omaha Short Deck 0,50/0,50 e Ultimate Pineapple 0,50/0,50 (Play Money e Jogo Real).",
     "stack":  {
                   "motor_api":  "Rust (Motor-Rust + API-Axum)",
                   "frontend_canonical":  "Frontend-Web (TypeScript + React + Vite + Tailwind)",
@@ -10,7 +10,7 @@
               },
     "production":  "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.",
     "regulation":  "Trilho de regulação, KYC/AML e compliance de jogo/dinheiro real: planejado para janeiro de 2027. Até lá: Play Money + Jogo Real com depósito manual; freios de PIX automático em production.",
-    "validation":  "Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy; migrations 001–032 aplicadas. Gate S20d: cargo fmt, Clippy estrito, tsc -b + Vite 60 módulos — todos sem falhas; VPS 4/4 healthy, 26 níveis ante=big_blind (invalid_BBA=0), backup verificável, rebuilds e health público OK. Frontend: PT-BR + Dica do Pró + história 8+7 com fontes H2 2006 + vazios com história + sem painel duplicado + sem A♠ (case-sensitive) + scrollbar felt/gold + bloco Zero Tilt sem Full Tilt + notícias com foto oficial (sem placeholder).",
+    "validation":  "Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations no repo: 001–033 (033 alarga poker_variant VARCHAR(32) e semeia Ultimate Pineapple). Gate S20e local: testes de avaliação Pineapple (2+3, flush>boat) + parse lobby/torneio; 10k mãos inclui Pineapple 0,50/0,50 6-max. VPS ainda no ciclo anterior até rebuild API/migration 033 — não alegar Pineapple no ar público antes disso. Frontend: filtro Pineapple 0,50/0,50 + labels 3 hole.",
     "cash_catalog":  {
                          "modes":  [
                                        "play",
@@ -37,14 +37,22 @@
                                             "blinds":  "50/50",
                                             "max":  4,
                                             "buy_in_cents":  10000
+                                        },
+                                        {
+                                            "name":  "Ultimate Pineapple",
+                                            "variant":  "ultimate_pineapple",
+                                            "blinds":  "50/50",
+                                            "max":  6,
+                                            "buy_in_cents":  7500
                                         }
                                     ],
-                         "notes":  "Frentes fixas (min=max). Hold\u0027em tradicional 0,25/0,50 foi retirado; Short Deck usa 0,25/0,50 e Omaha Short Deck usa 0,50/0,50. SB pode igualar BB (constraint chk_tables_blind_structure)."
+                         "notes":  "Frentes fixas (min=max). Hold\u0027em tradicional 0,25/0,50 foi retirado; Short Deck usa 0,25/0,50; Omaha Short Deck 0,50/0,50; Ultimate Pineapple 0,50/0,50 6-max (3 hole, 2+3, sem descarte). SB pode igualar BB (constraint chk_tables_blind_structure)."
                      },
     "poker_variants":  [
                            "holdem",
                            "short_deck",
-                           "short_deck_omaha"
+                           "short_deck_omaha",
+                           "ultimate_pineapple"
                        ],
     "wallets":  {
                     "play_money_cash_cents":  100000,
@@ -58,6 +66,6 @@
     "table_ownership":  "Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.",
     "ui_direction":  "Zero Tilt — sem tilt: mente fria, feltro e ouro. Header: modo Play Money | Jogo Real. Lobby filtros por stake/variante. Notícias: thumbnail oficial ou capa temática (sem rostos errados).",
     "presence":  "Usuários autenticados com heartbeat recente (ZSET Redis ou fallback memória). TTL 90s.",
-    "live_e2e":  "scripts/live-e2e-ten-users.mjs (10×100); scripts/live-e2e-seeded-catalog.mjs (mesa a mesa Real/PM); Motor-Rust/tests/cash_catalog_10k_hands.rs (10k/config); API-Axum/tests/depix_webhook_tests.rs (crédito único e status processing).",
+    "live_e2e":  "scripts/live-e2e-ten-users.mjs (10×100); scripts/live-e2e-seeded-catalog.mjs (mesa a mesa Real/PM); Motor-Rust/tests/cash_catalog_10k_hands.rs (10k/config, incl. Ultimate Pineapple); API-Axum/tests/depix_webhook_tests.rs (crédito único e status processing).",
     "friends_demo":  "Guia Documentacao/DEMO_AMIGOS.md. Combinar modo de carteira e a mesma mesa (≥2 jogadores)."
 }

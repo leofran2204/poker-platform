@@ -12,7 +12,7 @@ pub struct TournamentStore {
     pub state: TournamentState,
     /// `play` | `real` — must match client wallet mode.
     pub money_mode: String,
-    /// `holdem` | `short_deck` | `short_deck_omaha`
+    /// `holdem` | `short_deck` | `short_deck_omaha` | `ultimate_pineapple`
     pub poker_variant: String,
     /// Number of seats at each physical tournament table before the final table.
     pub table_max_players: u8,
@@ -39,17 +39,12 @@ impl TournamentStore {
     ) -> Self {
         let mut state = poker_engine::tournament_engine::create_tournament(config);
         state.tournament_id = id.clone();
-        let v = poker_variant.to_ascii_lowercase();
-        let poker_variant: String = if v == "short_deck_omaha" || v == "sd_omaha" {
-            "short_deck_omaha".into()
-        } else if v == "short_deck" || v == "sd" {
-            "short_deck".into()
-        } else {
-            "holdem".into()
-        };
+        let poker_variant = poker_engine::types::PokerVariant::parse(&poker_variant)
+            .as_str()
+            .to_string();
         let table_max_players = match poker_variant.as_str() {
             "short_deck_omaha" => 4,
-            "short_deck" => 6,
+            "short_deck" | "ultimate_pineapple" => 6,
             _ => 9,
         };
         Self {
@@ -135,5 +130,17 @@ mod tests {
 
         tournament.state.status = poker_engine::tournament_engine::TournamentStatus::Registering;
         assert_eq!(tournament.active_poker_variant(), "holdem");
+    }
+
+    #[test]
+    fn pineapple_alias_normalizes_to_six_max_ultimate_pineapple() {
+        let tournament = TournamentStore::with_mode_and_variant(
+            "up".into(),
+            TournamentConfig::default(),
+            "play".into(),
+            "pineapple".into(),
+        );
+        assert_eq!(tournament.poker_variant, "ultimate_pineapple");
+        assert_eq!(tournament.table_max_players, 6);
     }
 }

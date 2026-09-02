@@ -10,10 +10,16 @@ function isOmahaFourCards(game: GameDescriptor): boolean {
   return (game.game_type ?? "").toLowerCase().includes("omaha");
 }
 
+function isUltimatePineapple(game: GameDescriptor): boolean {
+  if (game.poker_variant === "ultimate_pineapple") return true;
+  return (game.game_type ?? "").toLowerCase().includes("pineapple");
+}
+
 export function gameNameLabel(
   game: GameDescriptor,
   format: "cash" | "tournament",
 ): string {
+  if (isUltimatePineapple(game)) return `Ultimate Pineapple — ${format === "cash" ? "Cash Game" : "Torneio"}`;
   const gameName = isOmahaFourCards(game) ? "Omaha 4 Cartas" : "Hold’em";
   const formatName = format === "cash" ? "Cash Game" : "Torneio";
   return `${gameName} — ${formatName}`;
@@ -27,7 +33,9 @@ export function deckTypeLabel(game: GameDescriptor): string {
   const gameType = (game.game_type ?? "").toLowerCase();
   return variant === "short_deck" ||
     variant === "short_deck_omaha" ||
-    gameType.includes("short")
+    variant === "ultimate_pineapple" ||
+    gameType.includes("short") ||
+    gameType.includes("pineapple")
     ? "Short Deck"
     : "Tradicional";
 }
