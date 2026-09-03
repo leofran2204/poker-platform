@@ -475,6 +475,17 @@ export async function simulatePixDeposit(txId: string): Promise<PixDepositStatus
     method: "POST",
   });
 }
+
+export async function createPixWithdraw(body: {
+  amount: number;
+  pix_key: string;
+  pix_key_type: string;
+}): Promise<{ tx_id: string; amount: number; status: string; message: string }> {
+  return request("/api/payments/pix/withdraw", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
 export async function listMyDepositRequests(): Promise<DepositRequestResponse[]> {
   return request<DepositRequestResponse[]>("/api/wallet/deposit-requests");
 }

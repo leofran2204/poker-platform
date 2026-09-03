@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import {
   createDepositRequest,
   createPixDeposit,
+  createPixWithdraw,
   fetchDepositInfo,
   fetchMe,
   getPixDepositStatus,
@@ -41,6 +42,9 @@ export function WalletPage() {
   const [taxNumber, setTaxNumber] = useState("");
   const [pixCharge, setPixCharge] = useState<PixDepositResponse | null>(null);
   const [pixStatus, setPixStatus] = useState<PixDepositStatusResponse | null>(null);
+  const [withdrawAmount, setWithdrawAmount] = useState(100_000);
+  const [withdrawPixKey, setWithdrawPixKey] = useState("");
+  const [withdrawPixKeyType, setWithdrawPixKeyType] = useState("evp");
   const idempotencyKey = useRef(crypto.randomUUID());
   const [error, setError] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -212,6 +216,27 @@ export function WalletPage() {
     idempotencyKey.current = crypto.randomUUID();
     setMsg(null);
     setError(null);
+  }
+
+  async function onWithdraw(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    setMsg(null);
+    try {
+      const res = await createPixWithdraw({
+        amount: withdrawAmount,
+        pix_key: withdrawPixKey,
+        pix_key_type: withdrawPixKeyType,
+      });
+      setMsg(`Saque solicitado: ${formatBrlFromCents(res.amount)} para ${withdrawPixKeyType} ${withdrawPixKey}. Prazo: até 24h para recebimento. Tx ${res.tx_id}`);
+      setWithdrawPixKey("");
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Falha no saque");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function copyPix() {
@@ -469,6 +494,59 @@ export function WalletPage() {
               )}
             </div>
           )}
+          {mode === "real" && (
+            <div className="zt-panel p-4 space-y-3">
+              <h3 className="text-sm font-bold uppercase tracking-wide text-gold-bright">Saque Pix</h3>
+              <p className="text-xs text-amber-100 rounded border border-amber-700/60 bg-amber-950/30 px-3 py-2">
+                Saque em até <strong>24h</strong> para recebimento. Informe sua chave Pix para receber.
+              </p>
+              <form className="space-y-3" onSubmit={(e) => void onWithdraw(e)}>
+                <div>
+                  <label className="zt-label" htmlFor="withdraw-amount">Valor do saque</label>
+                  <input
+                    id="withdraw-amount"
+                    type="number"
+                    min={1}
+                    step={1}
+                    className="zt-input max-w-xs"
+                    value={(withdrawAmount / 100).toFixed(2)}
+                    onChange={(e) => setWithdrawAmount(Math.round(Number(e.target.value || 0) * 100))}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="zt-label" htmlFor="withdraw-pix-type">Tipo da chave Pix</label>
+                  <select
+                    id="withdraw-pix-type"
+                    className="zt-input max-w-xs"
+                    value={withdrawPixKeyType}
+                    onChange={(e) => setWithdrawPixKeyType(e.target.value)}
+                  >
+                    <option value="evp">Aleatória (EVP)</option>
+                    <option value="cpf">CPF</option>
+                    <option value="email">E-mail</option>
+                    <option value="phone">Telefone</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="zt-label" htmlFor="withdraw-pix-key">Sua chave Pix (para receber)</label>
+                  <input
+                    id="withdraw-pix-key"
+                    className="zt-input max-w-sm"
+                    value={withdrawPixKey}
+                    onChange={(e) => setWithdrawPixKey(e.target.value)}
+                    placeholder="Cole sua chave Pix"
+                    required
+                    minLength={5}
+                  />
+                </div>
+                <button type="submit" className="zt-btn-primary" disabled={busy}>
+                  {busy ? "Enviando…" : "Solicitar saque"}
+                </button>
+              </form>
+            </div>
+          )}
+
           <div className="zt-panel overflow-hidden !border-0 !shadow-none">
             <div className="zt-panel-title">Meus pedidos (Jogo Real)</div>
             <div className="zt-table-wrap">
