@@ -20,14 +20,14 @@ export function gameNameLabel(
   format: "cash" | "tournament",
 ): string {
   if (isUltimatePineapple(game)) return `Ultimate Pineapple — ${format === "cash" ? "Cash Game" : "Torneio"}`;
-  const gameName = isOmahaFourCards(game) ? "Omaha 4 Cartas" : "Hold’em";
+  const gameName = isOmahaFourCards(game) ? "Omaha 4 Cartas" : "Texas Hold’em";
   const formatName = format === "cash" ? "Cash Game" : "Torneio";
   return `${gameName} — ${formatName}`;
 }
 
 export function deckTypeLabel(game: GameDescriptor): string {
   if (game.final_table_variant === "short_deck") {
-    return "Tradicional (Mesa Final Short Deck)";
+    return "Tradicional/Short Deck na FT";
   }
   const variant = game.poker_variant ?? "";
   const gameType = (game.game_type ?? "").toLowerCase();
