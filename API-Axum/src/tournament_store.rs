@@ -43,7 +43,7 @@ impl TournamentStore {
             .as_str()
             .to_string();
         let table_max_players = match poker_variant.as_str() {
-            "short_deck_omaha" => 4,
+            "short_deck_omaha" => 5,
             "short_deck" | "ultimate_pineapple" => 6,
             _ => 9,
         };
@@ -105,7 +105,7 @@ mod tests {
             "holdem".into(),
         );
 
-        assert_eq!(omaha.table_max_players, 4);
+        assert_eq!(omaha.table_max_players, 5);
         assert_eq!(short_deck.table_max_players, 6);
         assert_eq!(holdem.table_max_players, 9);
     }
@@ -119,13 +119,13 @@ mod tests {
             "holdem".into(),
         );
         tournament.final_table_variant = Some("short_deck".into());
-        tournament.final_table_max_players = Some(6);
+        tournament.final_table_max_players = Some(8);
 
         tournament.state.status = poker_engine::tournament_engine::TournamentStatus::Running;
-        tournament.state.players_remaining = 7;
+        tournament.state.players_remaining = 9;
         assert_eq!(tournament.active_poker_variant(), "holdem");
 
-        tournament.state.players_remaining = 6;
+        tournament.state.players_remaining = 8;
         assert_eq!(tournament.active_poker_variant(), "short_deck");
 
         tournament.state.status = poker_engine::tournament_engine::TournamentStatus::Registering;

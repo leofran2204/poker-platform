@@ -102,7 +102,7 @@ fn row_to_store(row: TournamentRow) -> TournamentStore {
         .filter(|variant| variant == "short_deck");
     store.final_table_max_players = row
         .final_table_max_players
-        .map(|players| players.clamp(2, 6) as u8);
+        .map(|players| players.clamp(2, 8) as u8);
     store.state.status = parse_status(&row.status);
     store.state.current_level = row.current_level.max(0) as u32;
     store.state.players_remaining = row.players_remaining.max(0) as u32;

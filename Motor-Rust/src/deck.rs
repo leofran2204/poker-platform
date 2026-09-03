@@ -274,15 +274,15 @@ pub fn create_short_deck() -> Vec<Card> {
     deck
 }
 
-/// Força numérica Short Deck (Flush > Full House)
+/// Força numérica Short Deck (Trips > Straight, Flush > Full House)
 fn short_deck_rank_value(rank: HandRank) -> u8 {
     match rank {
         HandRank::HighCard => 1,
         HandRank::OnePair => 2,
         HandRank::TwoPair => 3,
-        HandRank::ThreeOfAKind => 4,
-        HandRank::Straight => 5,
-        HandRank::FullHouse => 6, // below flush
+        HandRank::Straight => 4,
+        HandRank::ThreeOfAKind => 5, // trips beats straight
+        HandRank::FullHouse => 6,    // below flush
         HandRank::Flush => 7,
         HandRank::FourOfAKind => 8,
         HandRank::StraightFlush => 9,
@@ -432,11 +432,11 @@ pub fn evaluate_hand_short_deck(hole_cards: &[Card], community_cards: &[Card]) -
     if let Some(result) = get_full_house(&all_cards) {
         return with_sd_value(result);
     }
-    if let Some(result) = get_straight_short(&all_cards) {
-        return result;
-    }
     if let Some(result) = get_three_of_a_kind(&all_cards) {
         return with_sd_value(result);
+    }
+    if let Some(result) = get_straight_short(&all_cards) {
+        return result;
     }
     if let Some(result) = get_two_pair(&all_cards) {
         return with_sd_value(result);
