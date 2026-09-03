@@ -27,9 +27,7 @@ export function gameNameLabel(
 
 export function deckTypeLabel(game: GameDescriptor): string {
   if (game.final_table_variant === "short_deck") {
-    const ftMax = game.final_table_max_players;
-    if (ftMax === 8) return "Tradicional/Short Deck na FT (8-max)";
-    return "Tradicional/Short Deck na FT";
+    return "Tradicional / FT Short Deck";
   }
   const variant = game.poker_variant ?? "";
   const gameType = (game.game_type ?? "").toLowerCase();

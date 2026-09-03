@@ -401,7 +401,7 @@ export function LobbyPage() {
                 <thead>
                   <tr>
                     <th>Nome</th>
-                    <th>Tipo</th>
+                    <th className="text-center">Tipo</th>
                     <th>Buy-in</th>
                     <th>GTD</th>
                     <th>Inscritos</th>
@@ -422,19 +422,28 @@ export function LobbyPage() {
                         </Link>
                       </td>
                       <td>
-                        <span
-                          className={
-                            t.poker_variant === "short_deck" ||
-                            t.poker_variant === "short_deck_omaha" ||
-                            t.poker_variant === "ultimate_pineapple" ||
-                            t.final_table_variant === "short_deck"
-                              ? "zt-chip zt-chip-accent"
-                              : "zt-chip"
-                          }
-                        >
-                          {deckTypeLabel(t)}
-                        </span>
-                        <span className="zt-chip ml-1">{t.table_max_players}-max</span>
+                        <div className="flex flex-col items-center gap-1 text-center">
+                          <span
+                            className={
+                              t.poker_variant === "short_deck" ||
+                              t.poker_variant === "short_deck_omaha" ||
+                              t.poker_variant === "ultimate_pineapple" ||
+                              t.final_table_variant === "short_deck"
+                                ? "zt-chip zt-chip-accent"
+                                : "zt-chip"
+                            }
+                          >
+                            {deckTypeLabel(t)}
+                          </span>
+                          <div className="flex flex-wrap justify-center gap-1">
+                            <span className="zt-chip">{t.table_max_players}-max</span>
+                            {t.final_table_variant === "short_deck" && t.final_table_max_players ? (
+                              <span className="zt-chip zt-chip-accent">
+                                {t.final_table_max_players}-max na FT
+                              </span>
+                            ) : null}
+                          </div>
+                        </div>
                       </td>
                       <td className="font-mono text-gold-soft">
                         {t.is_freeroll ? "Grátis" : formatBrlFromCents(t.buy_in)}
