@@ -20,6 +20,10 @@ pub struct TournamentStore {
     pub final_table_variant: Option<String>,
     /// Remaining-player threshold that activates `final_table_variant`.
     pub final_table_max_players: Option<u8>,
+    /// Horário agendado de início (epoch seconds, America/Sao_Paulo)
+    pub scheduled_start_at: Option<i64>,
+    /// Mínimo de jogadores para auto-start (fixo 5 para todos)
+    pub auto_start_min_players: Option<i32>,
 }
 
 impl TournamentStore {
@@ -55,6 +59,8 @@ impl TournamentStore {
             table_max_players,
             final_table_variant: None,
             final_table_max_players: None,
+            scheduled_start_at: None,
+            auto_start_min_players: Some(5),
         }
     }
 

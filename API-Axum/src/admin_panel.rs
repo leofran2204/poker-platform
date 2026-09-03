@@ -644,7 +644,8 @@ pub async fn list_tournament_players(
 
 #[derive(Debug, Deserialize)]
 pub struct PatchTournamentBody {
-    pub status: String,
+    pub status: Option<String>,
+    pub scheduled_start_at: Option<i64>,
 }
 
 pub async fn patch_tournament(
@@ -654,40 +655,64 @@ pub async fn patch_tournament(
     Json(body): Json<PatchTournamentBody>,
 ) -> Result<Json<AdminTournamentItem>, ApiError> {
     require_admin(&auth_user)?;
-    let status = body.status.trim().to_ascii_lowercase();
-    if !matches!(status.as_str(), "registering" | "paused" | "cancelled") {
-        return Err(ApiError::BadRequest(
-            "status must be registering, paused, or cancelled".into(),
-        ));
+    if body.status.is_none() && body.scheduled_start_at.is_none() {
+        return Err(ApiError::BadRequest("Provide status and/or scheduled_start_at".into()));
     }
 
     let tid = uuid::Uuid::parse_str(&tournament_id)
         .map_err(|_| ApiError::BadRequest("Invalid tournament id".into()))?;
 
-    sqlx::query("UPDATE tournaments SET status = $1 WHERE id = $2")
-        .bind(&status)
-        .bind(tid)
-        .execute(&state.db)
-        .await?;
-
-    {
-        let mut tournaments = state.tournaments.write().await;
-        if let Some(store) = tournaments.get_mut(&tournament_id) {
-            store.state.status = match status.as_str() {
-                "paused" => poker_engine::tournament_engine::TournamentStatus::Paused,
-                "cancelled" => poker_engine::tournament_engine::TournamentStatus::Cancelled,
-                _ => poker_engine::tournament_engine::TournamentStatus::Registering,
-            };
+    if let Some(ref status_raw) = body.status {
+        let status = status_raw.trim().to_ascii_lowercase();
+        if !matches!(status.as_str(), "registering" | "paused" | "cancelled") {
+            return Err(ApiError::BadRequest(
+                "status must be registering, paused, or cancelled".into(),
+            ));
         }
+        sqlx::query("UPDATE tournaments SET status = $1 WHERE id = $2")
+            .bind(&status)
+            .bind(tid)
+            .execute(&state.db)
+            .await?;
+        {
+            let mut tournaments = state.tournaments.write().await;
+            if let Some(store) = tournaments.get_mut(&tournament_id) {
+                store.state.status = match status.as_str() {
+                    "paused" => poker_engine::tournament_engine::TournamentStatus::Paused,
+                    "cancelled" => poker_engine::tournament_engine::TournamentStatus::Cancelled,
+                    _ => poker_engine::tournament_engine::TournamentStatus::Registering,
+                };
+            }
+        }
+        write_audit(
+            &state,
+            &auth_user.user_id,
+            "TOURNAMENT_STATUS",
+            serde_json::json!({ "tournament_id": tournament_id, "status": status }),
+        )
+        .await?;
     }
 
-    write_audit(
-        &state,
-        &auth_user.user_id,
-        "TOURNAMENT_STATUS",
-        serde_json::json!({ "tournament_id": tournament_id, "status": status }),
-    )
-    .await?;
+    if let Some(sched) = body.scheduled_start_at {
+        sqlx::query("UPDATE tournaments SET scheduled_start_at = $1 WHERE id = $2")
+            .bind(sched)
+            .bind(tid)
+            .execute(&state.db)
+            .await?;
+        {
+            let mut tournaments = state.tournaments.write().await;
+            if let Some(store) = tournaments.get_mut(&tournament_id) {
+                store.scheduled_start_at = Some(sched);
+            }
+        }
+        write_audit(
+            &state,
+            &auth_user.user_id,
+            "TOURNAMENT_SCHEDULE",
+            serde_json::json!({ "tournament_id": tournament_id, "scheduled_start_at": sched }),
+        )
+        .await?;
+    }
 
     let tournaments = state.tournaments.read().await;
     let store = tournaments

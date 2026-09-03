@@ -20,6 +20,7 @@ pub mod presence;
 pub mod state;
 pub mod telemetry;
 pub mod tournament_catalog;
+pub mod tournament_coordinator;
 pub mod tournament_store;
 pub mod wallet;
 

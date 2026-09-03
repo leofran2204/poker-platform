@@ -213,6 +213,8 @@ export interface TournamentInfoResponse {
   /** Variante aplicada quando começa a mesa final (ex.: `short_deck`). */
   final_table_variant?: string | null;
   final_table_max_players?: number | null;
+  scheduled_start_at?: number | null;
+  auto_start_min_players?: number | null;
 }
 
 export interface JoinResponse {

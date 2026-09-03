@@ -66,6 +66,8 @@ pub struct TournamentInfoResponse {
     /// Variant activated when the final-table player threshold is reached.
     pub final_table_variant: Option<String>,
     pub final_table_max_players: Option<u8>,
+    pub scheduled_start_at: Option<i64>,
+    pub auto_start_min_players: Option<i32>,
 }
 
 fn status_string(status: &poker_engine::tournament_engine::TournamentStatus) -> String {
@@ -124,6 +126,8 @@ fn to_info(store: &crate::tournament_store::TournamentStore) -> TournamentInfoRe
         poker_variant: store.poker_variant.clone(),
         final_table_variant: store.final_table_variant.clone(),
         final_table_max_players: store.final_table_max_players,
+        scheduled_start_at: store.scheduled_start_at,
+        auto_start_min_players: store.auto_start_min_players,
     }
 }
 

@@ -39,6 +39,8 @@ struct TournamentRow {
     poker_variant: String,
     final_table_variant: Option<String>,
     final_table_max_players: Option<i16>,
+    scheduled_start_at: Option<i64>,
+    auto_start_min_players: Option<i32>,
 }
 
 fn parse_speed(raw: &str) -> TournamentSpeed {
@@ -103,6 +105,8 @@ fn row_to_store(row: TournamentRow) -> TournamentStore {
     store.final_table_max_players = row
         .final_table_max_players
         .map(|players| players.clamp(2, 8) as u8);
+    store.scheduled_start_at = row.scheduled_start_at;
+    store.auto_start_min_players = row.auto_start_min_players;
     store.state.status = parse_status(&row.status);
     store.state.current_level = row.current_level.max(0) as u32;
     store.state.players_remaining = row.players_remaining.max(0) as u32;
@@ -127,9 +131,10 @@ pub async fn load_tournaments_from_db(
                rebuy_cost, rebuy_chips, rebuy_max_count, rebuy_stack_threshold,
                rebuy_max_level, allow_rebuy, blind_levels, game_type,
                COALESCE(money_mode, 'play') AS money_mode,
-               COALESCE(poker_variant, 'holdem') AS poker_variant,
-               final_table_variant, final_table_max_players
-        FROM tournaments
+                COALESCE(poker_variant, 'holdem') AS poker_variant,
+                final_table_variant, final_table_max_players,
+                scheduled_start_at, auto_start_min_players
+         FROM tournaments
         WHERE status IN ('registering', 'running', 'paused')
         ORDER BY money_mode, poker_variant, is_freeroll DESC, buy_in, name
         "#,

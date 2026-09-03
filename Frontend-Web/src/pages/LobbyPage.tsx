@@ -301,17 +301,20 @@ export function LobbyPage() {
                           {gameNameLabel(t, "cash")}
                         </td>
                         <td>
-                          <span
-                            className={
-                              t.poker_variant === "short_deck" ||
-                              t.poker_variant === "short_deck_omaha" ||
-                              t.poker_variant === "ultimate_pineapple"
-                                ? "zt-chip zt-chip-accent"
-                                : "zt-chip"
-                            }
-                          >
-                            {deckTypeLabel(t)}
-                          </span>
+                          <div className="flex flex-col items-center gap-1 text-center">
+                            <span
+                              className={
+                                t.poker_variant === "short_deck" ||
+                                t.poker_variant === "short_deck_omaha" ||
+                                t.poker_variant === "ultimate_pineapple"
+                                  ? "zt-chip zt-chip-accent"
+                                  : "zt-chip"
+                              }
+                            >
+                              {deckTypeLabel(t)}
+                            </span>
+                            <span className="zt-chip">{t.max_players}-max</span>
+                          </div>
                         </td>
                         <td className="font-mono text-gold-soft">
                           {formatBrlFromCents(t.small_blind)}/{formatBrlFromCents(t.big_blind)}

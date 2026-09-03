@@ -366,6 +366,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "Auth policy loaded"
     );
 
+    // Coordenador MTT: auto-start 5 no horário agendado (America/Sao_Paulo) + FT popup no próximo blind
+    {
+        let coordinator_state = state.clone();
+        tokio::spawn(async move {
+            poker_api::tournament_coordinator::run_coordinator(coordinator_state).await;
+        });
+    }
+
     // CORS is explicit and restricted to HTTPS origins in every environment.
     let cors = CorsLayer::new()
         .allow_origin(parse_https_cors_origins(&cors_origins)?)

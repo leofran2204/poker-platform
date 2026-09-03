@@ -108,6 +108,28 @@ export function TournamentPage() {
         </button>
       </div>
 
+      {info.scheduled_start_at ? (
+        <div className="rounded border border-sky-700/60 bg-sky-950/30 px-3 py-2 text-xs text-sky-100">
+          Início agendado:{" "}
+          {new Date(info.scheduled_start_at * 1000).toLocaleString("pt-BR", {
+            timeZone: "America/Sao_Paulo",
+          })}{" "}
+          (America/Sao_Paulo) — inicia automático com ≥{info.auto_start_min_players ?? 5} jogadores
+          {info.status === "registering" && info.registered_players < (info.auto_start_min_players ?? 5)
+            ? ` — faltam ${(info.auto_start_min_players ?? 5) - info.registered_players} para iniciar`
+            : ""}
+        </div>
+      ) : null}
+
+      {info.final_table_variant === "short_deck" &&
+      info.final_table_max_players === 8 &&
+      info.players_remaining === 8 &&
+      info.status === "running" ? (
+        <div className="rounded border border-amber-500 bg-amber-500/20 px-3 py-2 text-center text-sm font-bold text-amber-100">
+          Mesa final Short Deck 8-max na FT — a troca para Short Deck será no próximo nível de blind!
+        </div>
+      ) : null}
+
       <div className="rounded border border-amber-700/60 bg-amber-950/30 px-3 py-2 text-xs text-amber-100">
         Gameplay de torneio ainda não está ligado à mesa ao vivo — inscrição e configuração já
         disponíveis. Em breve você joga as mãos MTT aqui.
