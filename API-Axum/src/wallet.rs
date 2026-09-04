@@ -6,8 +6,8 @@ use sqlx::{PgExecutor, PgPool};
 
 use crate::error::ApiError;
 
-pub const PM_CASH_DAILY_CENTS: i64 = 15_000; // R$ 150 — único grant de cadastro (cash games)
-pub const PM_MTT_DAILY_CENTS: i64 = 0; // R$ 0 — carteira de torneio zerada (freerolls são grátis)
+pub const PM_CASH_DAILY_CENTS: i64 = 15_000; // R$ 150 — grant de cadastro/reset (cash games, play money)
+pub const PM_MTT_DAILY_CENTS: i64 = 15_000; // R$ 150 — grant de cadastro/reset (torneios, play money)
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -217,7 +217,6 @@ pub struct WalletSnapshot {
 
 pub async fn load_snapshot(pool: &PgPool, user_id: &str) -> Result<WalletSnapshot, ApiError> {
     let _: bool = ensure_pm_daily_reset_pool(pool, user_id).await?;
-    let today = today_sao_paulo();
     let row: (
         i64,
         i64,
@@ -243,88 +242,32 @@ pub async fn load_snapshot(pool: &PgPool, user_id: &str) -> Result<WalletSnapsho
         balance_real: row.2,
         preferred_wallet_mode: row.3,
         last_pm_reset_date: row.4.map(|d| d.to_string()),
-        pm_cash_rebuy_available: row.0 == 0 && row.5.map(|d| d < today).unwrap_or(true),
-        // Carteira de torneio zerada por regra (freerolls são grátis): nunca há rebuy MTT.
+        // Sem rebuy grátis (play money): zerou, espera a renovação diária à 00:00 (Brasília).
+        pm_cash_rebuy_available: false,
         pm_mtt_rebuy_available: false,
     })
 }
 
 pub async fn pm_rebuy(
-    pool: &PgPool,
-    user_id: &str,
+    _pool: &PgPool,
+    _user_id: &str,
     kind: WalletKind,
 ) -> Result<WalletSnapshot, ApiError> {
-    if kind == WalletKind::PmMtt {
-        return Err(ApiError::BadRequest(
-            "Sem rebuy de torneio: freerolls são grátis e a carteira de torneio fica zerada".into(),
-        ));
-    }
-    ensure_pm_daily_reset_pool(pool, user_id).await?;
-    let today = today_sao_paulo();
-    let mut tx = pool.begin().await?;
-
-    let row: (i64, Option<chrono::NaiveDate>) = match kind {
-        WalletKind::PmCash => {
-            sqlx::query_as(
-                "SELECT balance_pm_cash, pm_cash_rebuy_used_on FROM users WHERE id = $1::uuid FOR UPDATE",
-            )
-            .bind(user_id)
-            .fetch_one(&mut *tx)
-            .await?
-        }
-        WalletKind::PmMtt => {
-            sqlx::query_as(
-                "SELECT balance_pm_mtt, pm_mtt_rebuy_used_on FROM users WHERE id = $1::uuid FOR UPDATE",
-            )
-            .bind(user_id)
-            .fetch_one(&mut *tx)
-            .await?
+    // Sem rebuy grátis (play money, cash e torneio): zerou, espera a renovação
+    // diária à 00:00 (Brasília). Reentradas em mesa/torneio continuam ilimitadas
+    // enquanto houver saldo (cada join/register debita o buy-in).
+    match kind {
+        WalletKind::PmCash | WalletKind::PmMtt => {
+            return Err(ApiError::BadRequest(
+                "Sem rebuy: saldo Play Money zerado — aguarde a renovação diária à 00:00 (Brasília)".into(),
+            ));
         }
         WalletKind::Real => {
             return Err(ApiError::BadRequest(
                 "Rebuy diário só existe em Play Money".into(),
             ));
         }
-    };
-
-    if row.0 != 0 {
-        return Err(ApiError::BadRequest(
-            "Rebuy só quando o saldo Play Money estiver zerado".into(),
-        ));
     }
-    if row.1 == Some(today) {
-        return Err(ApiError::BadRequest(
-            "Rebuy diário já utilizado hoje".into(),
-        ));
-    }
-
-    match kind {
-        WalletKind::PmCash => {
-            sqlx::query(
-                "UPDATE users SET balance_pm_cash = $2, balance = $2, pm_cash_rebuy_used_on = $3 \
-                 WHERE id = $1::uuid",
-            )
-            .bind(user_id)
-            .bind(PM_CASH_DAILY_CENTS)
-            .bind(today)
-            .execute(&mut *tx)
-            .await?;
-        }
-        WalletKind::PmMtt => {
-            sqlx::query(
-                "UPDATE users SET balance_pm_mtt = $2, pm_mtt_rebuy_used_on = $3 WHERE id = $1::uuid",
-            )
-            .bind(user_id)
-            .bind(PM_MTT_DAILY_CENTS)
-            .bind(today)
-            .execute(&mut *tx)
-            .await?;
-        }
-        WalletKind::Real => unreachable!(),
-    }
-
-    tx.commit().await?;
-    load_snapshot(pool, user_id).await
 }
 
 pub fn cash_kind_for_mode(mode: WalletMode) -> WalletKind {

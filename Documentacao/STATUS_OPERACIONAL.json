@@ -1,7 +1,7 @@
 {
     "schema_version": 1,
     "reviewed_on": "2026-09-04",
-    "cycle": "S21 — Texas Hold’em rename + FT Short Deck 8-max + Omaha 5-max + Pineapple 6-max + Short Deck ranking trips>straight + torneio agendado 21:30 SP auto-start 5 + Pix Leofran + saque 24h + lobby max sempre + sim 100k/mesa",
+    "cycle":  "S21 — Texas Hold’em rename + FT Short Deck 8-max + Omaha 5-max + Pineapple 6-max + Short Deck ranking trips>straight + torneio agendado 21:30 SP auto-start 5 + Pix Leofran + saque 24h + lobby max sempre + sim 100k/mesa + PM 150+150 sem rebuy (ilimitado com saldo, play money)",
     "stack": {
                   "motor_api": "Rust (Motor-Rust + API-Axum)",
                   "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",
@@ -64,8 +64,8 @@
                        ],
     "wallets":  {
                     "play_money_cash_cents":  15000,
-                    "play_money_mtt_cents":  0,
-                    "play_money_reset":  "daily America/Sao_Paulo (cash R$ 150; torneio zerado — freerolls grátis, sem rebuy MTT)",
+                    "play_money_mtt_cents":  15000,
+                    "play_money_reset":  "daily America/Sao_Paulo (R$ 150 cash + R$ 150 torneio; sem rebuy — zerou espera 00:00; entradas/rebuys ilimitados com saldo, rebuy MTT até nível 6)",
                     "real":  "isolated; manual PIX deposit requests + admin approve/adjust; DePix Sandbox opcional e allowlisted em ambiente não produtivo"
                 },
     "email": "Resend: domínio zerotiltpoker.net verified. REQUIRE_EMAIL_VERIFICATION=true. MFA challenges (016).",

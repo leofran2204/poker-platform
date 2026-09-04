@@ -8,7 +8,6 @@ import {
   fetchMe,
   getPixDepositStatus,
   listMyDepositRequests,
-  pmRebuy,
   simulatePixDeposit,
 } from "@/api/client";
 import type {
@@ -163,21 +162,6 @@ export function WalletPage() {
     }
   }
 
-  async function onRebuy(kind: "cash" | "mtt") {
-    setBusy(true);
-    setError(null);
-    setMsg(null);
-    try {
-      await pmRebuy(kind);
-      setMsg("Rebuy cash PM creditado (R$ 150).");
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Falha no rebuy");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   async function copyChargePix() {
     if (!pixCharge?.pix_copy_paste) return;
     await navigator.clipboard.writeText(pixCharge.pix_copy_paste);
@@ -272,15 +256,10 @@ export function WalletPage() {
           <div className="mt-1 font-mono text-xl text-gold-bright">
             {me ? formatBrlFromCents(me.balance_pm_cash ?? me.balance) : "…"}
           </div>
-          {me?.pm_cash_rebuy_available && (
-            <button
-              type="button"
-              className="zt-btn-secondary mt-2 !py-1 !text-xs"
-              disabled={busy}
-              onClick={() => void onRebuy("cash")}
-            >
-              Rebuy R$ 150 (1×/dia)
-            </button>
+          {me && (me.balance_pm_cash ?? 0) === 0 && (
+            <p className="mt-1 text-[11px] text-felt-400">
+              Zerou — aguarde a renovação diária à 00:00 (Brasília) para R$ 150.
+            </p>
           )}
         </div>
         <div className="zt-card p-4">
@@ -288,7 +267,14 @@ export function WalletPage() {
           <div className="mt-1 font-mono text-xl text-gold-bright">
             {me ? formatBrlFromCents(me.balance_pm_mtt ?? 0) : "…"}
           </div>
-          <p className="mt-1 text-[11px] text-felt-400">Freerolls são grátis — sem recarga.</p>
+          <p className="mt-1 text-[11px] text-felt-400">
+            Freerolls são grátis. Reentradas ilimitadas com saldo até o nível 6.
+          </p>
+          {me && (me.balance_pm_mtt ?? 0) === 0 && (
+            <p className="mt-1 text-[11px] text-felt-400">
+              Zerou — aguarde a renovação diária à 00:00 (Brasília) para R$ 150.
+            </p>
+          )}
         </div>
         <div className="zt-card p-4">
           <div className="text-[10px] uppercase text-felt-400">Jogo Real</div>
@@ -299,8 +285,9 @@ export function WalletPage() {
       </div>
 
       <p className="text-[11px] text-felt-500">
-        Play Money renova todo dia à meia-noite (Brasília) para R$ 150 (cash). A carteira de torneio
-        fica zerada porque os freerolls são grátis. Se zerar o cash, pode fazer 1 rebuy por dia.
+        Play Money renova todo dia à meia-noite (Brasília): R$ 150 para cash e R$ 150 para torneio.
+        Sem rebuy — zerou, espera virar o dia. Entradas e reentradas são ilimitadas enquanto houver
+        saldo (freerolls grátis; rebuy de torneio até o nível 6).
       </p>
 
       {mode === "real" ? (

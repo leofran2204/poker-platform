@@ -29,7 +29,7 @@ async function ensureUsers(n){
   console.log(`[1/4] Criando ${n} contas ${USER_PREFIX}@${DOMAIN} via DB...`);
   const users=[];
   for(let i=0;i<n;i++){ const username=`${USER_PREFIX}_${String(i).padStart(3,"0")}_${randomBytes(2).toString("hex")}`; users.push({username,email:`${username}@${DOMAIN}`,password:PASSWORD});}
-  const batch=users.map(u=>`INSERT INTO users (id, username, email, password_hash, role, status, balance, mfa_enabled, created_at, email_verified_at, balance_pm_cash, balance_pm_mtt, balance_real, last_pm_reset_date, preferred_wallet_mode) VALUES (gen_random_uuid(), '${u.username}', '${u.email}', '${BCRYPT_HASH}', 'player', 'active', 0, false, EXTRACT(EPOCH FROM NOW())::BIGINT, EXTRACT(EPOCH FROM NOW())::BIGINT, 15000, 0, 0, (timezone('America/Sao_Paulo', now()))::date, 'play') ON CONFLICT (username) DO NOTHING;`).join("\n");
+  const batch=users.map(u=>`INSERT INTO users (id, username, email, password_hash, role, status, balance, mfa_enabled, created_at, email_verified_at, balance_pm_cash, balance_pm_mtt, balance_real, last_pm_reset_date, preferred_wallet_mode) VALUES (gen_random_uuid(), '${u.username}', '${u.email}', '${BCRYPT_HASH}', 'player', 'active', 0, false, EXTRACT(EPOCH FROM NOW())::BIGINT, EXTRACT(EPOCH FROM NOW())::BIGINT, 15000, 15000, 0, (timezone('America/Sao_Paulo', now()))::date, 'play') ON CONFLICT (username) DO NOTHING;`).join("\n");
   fs.writeFileSync("/tmp/batch_users.sql", batch);
   execSync(`docker exec -i poker_postgres psql -U poker_user -d poker_db < /tmp/batch_users.sql`,{stdio:"ignore"});
   execSync(`docker exec poker_postgres psql -U poker_user -d poker_db -c "UPDATE users SET status='active', email_verified_at=EXTRACT(EPOCH FROM NOW())::BIGINT WHERE email LIKE '%@${DOMAIN}';"`,{stdio:"ignore"});
