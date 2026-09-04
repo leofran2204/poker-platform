@@ -1,8 +1,26 @@
-# Stage 1: Build the binary
+# Stage 1: Build the binary (com cache de dependências)
 FROM rust:1.97.0-bookworm@sha256:8fa55b2f3ddf97471ab6a767bfa3f37e6bad0986ba823e75fea57e2a2a5c3073 AS builder
 
 WORKDIR /app
 
+# ─── Camada de dependências (efeito cargo-chef, sem imagem nova) ───
+# Copia SÓ manifests + lockfile e compila as dependências uma vez.
+# Essa camada só invalida quando Cargo.toml/lock mudam; edição em .rs
+# recompila apenas poker-engine + poker-api (~1min em vez de ~10min).
+COPY Motor-Rust/Cargo.toml ./Motor-Rust/Cargo.toml
+COPY API-Axum/Cargo.toml ./API-Axum/Cargo.toml
+COPY API-Axum/Cargo.lock ./API-Axum/Cargo.lock
+
+# Esqueleto mínimo com os mesmos targets dos crates reais
+# (API: lib + bin poker-api; Motor: lib como dependência).
+RUN mkdir -p Motor-Rust/src API-Axum/src \
+    && touch Motor-Rust/src/lib.rs \
+    && touch API-Axum/src/lib.rs \
+    && printf 'fn main() {}\n' > API-Axum/src/main.rs \
+    && find /app -name "rust-toolchain*" -delete \
+    && cd /app/API-Axum && cargo build --release --locked
+
+# ─── Código real (invalida só esta camada em diante) ───
 # Copia os diretórios necessários do workspace
 COPY Motor-Rust ./Motor-Rust
 COPY API-Axum ./API-Axum
