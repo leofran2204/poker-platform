@@ -1,10 +1,9 @@
 //! 10.000 mãos por configuração do catálogo cash oficial.
 //!
-//! Configs (blinds/frente/max alinhados à produção):
-//! - NLHE 0,25/0,25 · 9-max · frente R$25
-//! - NLHE 0,25/0,50 · 9-max · frente R$50
-//! - Short Deck 0,50/0,50 · 6-max · frente R$75
-//! - SD Omaha 0,50/1 · 4-max · frente R$100
+//! Configs (blinds/frente/max alinhados à produção — migrations 037/039):
+//! - NL 0,25/0,25 · 9-max · frente R$25
+//! - SD Texas 0,25/0,50 · 8-max · frente R$75
+//! - SD Omaha 0,50/0,50 · 5-max · frente R$100
 //! - Ultimate Pineapple 0,50/0,50 · 6-max · frente R$75
 //!
 //! Rodar:
@@ -40,30 +39,20 @@ const CATALOG: &[CatalogTable] = &[
         variant: PokerVariant::Holdem,
     },
     CatalogTable {
-        name: "NLHE 0,25/0,50",
+        name: "SD Texas 0,25/0,50",
         small_blind: 25,
         big_blind: 50,
-        max_players: 9,
-        starting_stack: 5_000,
-        rake_bps: 500,
-        rake_cap: 250,
-        variant: PokerVariant::Holdem,
-    },
-    CatalogTable {
-        name: "SD 0,50/0,50",
-        small_blind: 50,
-        big_blind: 50,
-        max_players: 6,
+        max_players: 8,
         starting_stack: 7_500,
         rake_bps: 500,
         rake_cap: 500,
         variant: PokerVariant::ShortDeck,
     },
     CatalogTable {
-        name: "SD Omaha 0,50/1",
+        name: "SD Omaha 0,50/0,50",
         small_blind: 50,
-        big_blind: 100,
-        max_players: 4,
+        big_blind: 50,
+        max_players: 5,
         starting_stack: 10_000,
         rake_bps: 500,
         rake_cap: 1_000,

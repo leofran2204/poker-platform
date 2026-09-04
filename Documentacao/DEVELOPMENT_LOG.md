@@ -1,9 +1,24 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-09-02
+**Atualizado:** 2026-09-04
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 > Painel tático em `DASHBOARD.md`. Cronograma em `CRONOGRAMA.md`. Estado canônico em `STATUS_OPERACIONAL.json` (prevalece sobre retrospectivas históricas que digam “Launch Ready”).
+
+---
+
+## 📌 2026-09-04 — S21: Texas rename + FT 8 + Omaha 5 + ranking + agendado 21:30 + Pix Leofran + sim 100k
+
+| Item | Detalhe |
+|------|---------|
+| **Nomes** | Migration **035**: `Hold’em — Torneio` → `Texas Hold’em — Torneio` (play/real + freeroll); frontend `gameNameLabel` Texas Hold’em, `deckTypeLabel` Tradicional / FT Short Deck |
+| **FT** | Migration **036**: Texas Freeroll FT `6→8` (`chk 2–8`); `tournament_catalog` clamp 2–8; lobby centralizado com `9-max` + `8-max na FT` |
+| **Mesas** | Migration **037**: Omaha SD `4→5` (cash+torneio), Pineapple garante 6; **039**: SD Texas cash `6→8`; `tournament_store` Omaha 5 |
+| **Ranking SD** | `deck.rs` `short_deck_rank_value`: Straight 4, Trips 5, FH 6, Flush 7; ordem Trips antes de Straight; `sd_value` alinhado; cash `NL 9/SD 8/Omaha 5/Pineapple 6` |
+| **Agendado** | Migration **038**: `scheduled_start_at` + `auto_start_min 5` + `tournament_seats` separado; **040**: fixo `1788481800` (21:30 SP 03/09); `tournament_coordinator` tick 30s auto-start 5; FT só no próximo blind + popup; `TournamentPage` horário + popup; admin `PATCH` scheduled |
+| **Pix** | Recebedor **Leofran** `6eefcd53-686e-42d4-a062-03751336251c` (`.env.example` + `.env` + VPS); saque exige chave própria, **recebimento em até 24h** (`WalletPage` + `client.createPixWithdraw`) |
+| **Testes** | `scripts/full-catalog-100.mjs` (100 contas 72+28 play, 4 mesas, 2 espera/mesa); `full-catalog-100-vps.mjs` (VPS 2h real: 980 mãos R$135,11, 4 campeões); `Motor-Rust/src/bin/simulated_100.rs` (100k/mesa, 400k total + MTT); `cash_catalog_10k_hands` e `tournament_to_champion` atualizados (Texas/Omaha 5/FT 8) |
+| **Deploy** | Local + VPS `git pull` + `docker build` api/frontend + `up -d` healthy |
 
 ---
 
@@ -746,7 +761,7 @@
 - Gate local: Rust fmt + Clippy estrito; 51 testes ativos selecionados; 4 contratos PostgreSQL isolados; TypeScript e Vite build. Zero falhas.
 - Operação pública conserva `PIX_PROVIDER=mock`/`PIX_MODE=mock`; DePix produtiva e saque automático continuam bloqueados.
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-09-02):** S20f — cash-out automático 45s após disconnect (WS) e no boot da API (assentos órfãos); lobby lista mesas cheias; admin mostra e-mail por assento/inscrito MTT; simulação ritual Play Money + motor MTT até o campeão. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–034 na VPS (cash+MTT Ultimate Pineapple). Disconnect cash-out 45s + reconciliação de assentos órfãos no boot (deploy S20f). Motor `tournament_to_champion` PASS (HE/Freeroll/Omaha/Pineapple até 1 campeão). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas. MTT site: gameplay_ready=false (sem WS de torneio). Health público OK. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
+> **Estado operacional sincronizado (2026-09-04):** S21 — Texas Hold’em rename + FT Short Deck 8-max + Omaha 5-max + Pineapple 6-max + Short Deck ranking trips>straight + torneio agendado 21:30 SP auto-start 5 + Pix Leofran + saque 24h + lobby max sempre + sim 100k/mesa **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–040 na VPS (cash Texas SD 8-max + Omaha 5-max + Pineapple 6-max + Texas rename + FT 8 + scheduled 21:30). Motor short_deck_massive + tournament_to_champion PASS (Texas/Omaha 5/Pineapple 6 até 1 campeão; flush>FH e trips>straight). VPS 2h real 100 contas: 980 mãos R$135,11 rake, 4 campeões MTT. Simulado Motor-Rust/src/bin/simulated_100.rs 100k/mesa (400k total). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas com X-max sempre. MTT site: inscrição + horário agendado + popup FT; gameplay_ready=false (sem WS de torneio). Health público OK. Recebedor manual: Leofran, chave 6eefcd53-686e-42d4-a062-03751336251c (PLAY_MONEY_PIX_KEY). Saque: informar chave Pix própria, recebimento em até 24h. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

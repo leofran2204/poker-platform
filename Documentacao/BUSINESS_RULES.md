@@ -39,14 +39,18 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 
 | Variante (`poker_variant`) | Baralho | Hole cards | Cap típico cash |
 |----------------------------|---------|------------|-----------------|
-| `holdem` | 52 | 2 | até 9 |
-| `short_deck` | 36 (sem 2–5) | 2 | até 6 |
-| `short_deck_omaha` | 36 | **4** (usa 2 hole + 3 board) | até 4 |
+| `holdem` (Texas Hold’em) | 52 | 2 | até 9 |
+| `short_deck` (Texas Short Deck) | 36 (sem 2–5) | 2 | até 8 |
+| `short_deck_omaha` | 36 | **4** (usa 2 hole + 3 board) | até 5 |
 | `ultimate_pineapple` | 36 | **3** (usa 2 hole + 3 board, **sem descarte**) | até 6 |
 
 **Carteiras:** Play Money (cash + MTT, reset diário) e Jogo Real (isolado). `money_mode` da mesa/torneio deve coincidir com o modo do cliente (`play` \| `real`).
 
-**Catálogo cash vigente (PM + Real):** NL 0,25/0,25 (R$25) · SD 0,25/0,50 (R$75) · SD Omaha 0,50/0,50 (R$100) · Ultimate Pineapple 0,50/0,50 (R$75, 6-max). Frentes **fixas** (`min_buy_in = max_buy_in`). Small blind pode **igualar** big blind.
+**Catálogo cash vigente (PM + Real):** NL 0,25/0,25 9-max (R$25) · SD Texas 0,25/0,50 8-max (R$75) · SD Omaha 0,50/0,50 5-max (R$100) · Ultimate Pineapple 0,50/0,50 6-max (R$75). Frentes **fixas** (`min_buy_in = max_buy_in`). Small blind pode **igualar** big blind.
+
+**Catálogo MTT vigente (PM + Real):** Texas Hold’em R$15 GTD R$150 (9-max) · Texas Freeroll (FT Short Deck 8-max, 9-max) · Omaha 4 Cartas 5-max R$10 GTD R$100 · Ultimate Pineapple 6-max R$10 GTD R$100. Início agendado **21:30 America/Sao_Paulo** (`scheduled_start_at` 1788481800), auto-start automático com **≥5** jogadores (`auto_start_min_players` fixo p/ todos). FT Short Deck troca só no próximo blind + popup.
+
+**Pix manual:** recebedor **Leofran**, chave `6eefcd53-686e-42d4-a062-03751336251c` (`PLAY_MONEY_PIX_KEY`). Saque: informar chave Pix própria; **recebimento em até 24h**.
 
 ---
 
@@ -76,24 +80,24 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 - **A-2-3-4-5** é um straight válido (Ás jogando como carta baixa)
 - Straight normal: 5 cartas consecutivas (ex: 8-9-T-J-Q)
 
-### 2.4 🂠 Short Deck (Six Plus) — `short_deck`
+### 2.4 🂠 Short Deck (Six Plus) — `short_deck` (Texas Short Deck, cash 8-max)
 - **36 cartas** (ranks 6–A × 4 naipes); remove 2–5
 - Wheel Short Deck: **A-6-7-8-9**
-- Ranking: **Flush > Full House** (demais ranks como Hold’em relativos a essa troca)
+- Ranking Short Deck: **Trinca (5) > Sequência (4)** e **Flush (7) > Full House (6)** (`short_deck_rank_value`: Straight 4, Trips 5, FH 6, Flush 7; ordem `Trips` antes de `Straight` em `evaluate_hand_short_deck`; demais ranks como Hold’em)
 - Implementação: `create_short_deck` / `evaluate_hand_short_deck`
 
-### 2.5 🂡 Short Deck Omaha — `short_deck_omaha`
+### 2.5 🂡 Short Deck Omaha — `short_deck_omaha` (5-max cash + torneio)
 - Mesmo baralho Short Deck (36)
 - Cada jogador recebe **4** hole cards
 - No showdown: exatamente **2** hole + **3** community (melhor combo)
-- Ranking Short Deck (flush > boat; wheel A6789)
+- Ranking Short Deck (trinca > sequência, flush > boat; wheel A6789)
 - Implementação: `evaluate_hand_short_deck_omaha`
 
-### 2.6 🍍 Ultimate Pineapple Short Deck — `ultimate_pineapple`
+### 2.6 🍍 Ultimate Pineapple Short Deck — `ultimate_pineapple` (6-max cash + torneio)
 - Mesmo baralho Short Deck (36)
 - Cada jogador recebe **3** hole cards e **não descarta** (não é Crazy Pineapple)
 - No showdown: exatamente **2** hole + **3** community (melhor combo)
-- Ranking Short Deck (flush > boat; wheel A6789)
+- Ranking Short Deck (trinca > sequência, flush > boat; wheel A6789)
 - Implementação: `evaluate_hand_ultimate_pineapple`
 
 ---
@@ -109,7 +113,7 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 | `bigBlind`    | number   | > 0; `smallBlind ≤ bigBlind`       |
 | `minBuyIn`    | number   | > 0 (cash oficial: = `maxBuyIn`)   |
 | `maxBuyIn`    | number   | > 0                                |
-| `maxPlayers`  | int      | 2–9 (Omaha cash oficial: 4; Pineapple: 6) |
+| `maxPlayers`  | int      | 2–9 (Texas SD cash oficial: 8; Omaha cash oficial: 5; Pineapple: 6; NL: 9) |
 | `poker_variant` | string | `holdem` \| `short_deck` \| `short_deck_omaha` \| `ultimate_pineapple` |
 | `money_mode`  | string   | `play` \| `real`                   |
 | `speed`       | enum     | `normal` \| `turbo` \| `hyper`     |
@@ -210,12 +214,12 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
 
 ### 6.1 🏦 Estrutura do Pot — Pot Principal e Side Pots
 - **Pot principal:** soma de todas as apostas
-- **Side pots:** ⚠️ **NÃO IMPLEMENTADO** (ver auditoria)
+- **Side pots:** implementado (`Motor-Rust/src/side_pots.rs` `calculate_side_pots()`; all-ins multiway; conservação `payouts + rake == before` validada em `cash_catalog_10k_hands` e `simulated_100` 100k/mesa)
 
 ### 6.2 🤝 Distribuição — Vencedor e Split Pot
 - Vencedor recebe o pot inteiro
-- Em caso de empate (tie), pot dividido (split)
-- ⚠️ **Split pot NÃO implementado** (ver auditoria)
+- Em caso de empate (tie), pot dividido (split) pela Regra do Centavo Ímpar (§4.4)
+- Split pot implementado (`utils::dividir_pote_empatado`, WSOP/TDA Regra 68)
 
 ---
 
@@ -407,7 +411,7 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 **Próxima revisão:** Após implementação de side pots e split pot.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-09-02):** S20f — cash-out automático 45s após disconnect (WS) e no boot da API (assentos órfãos); lobby lista mesas cheias; admin mostra e-mail por assento/inscrito MTT; simulação ritual Play Money + motor MTT até o campeão. **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–034 na VPS (cash+MTT Ultimate Pineapple). Disconnect cash-out 45s + reconciliação de assentos órfãos no boot (deploy S20f). Motor `tournament_to_champion` PASS (HE/Freeroll/Omaha/Pineapple até 1 campeão). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas. MTT site: gameplay_ready=false (sem WS de torneio). Health público OK. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
+> **Estado operacional sincronizado (2026-09-04):** S21 — Texas Hold’em rename + FT Short Deck 8-max + Omaha 5-max + Pineapple 6-max + Short Deck ranking trips>straight + torneio agendado 21:30 SP auto-start 5 + Pix Leofran + saque 24h + lobby max sempre + sim 100k/mesa **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–040 na VPS (cash Texas SD 8-max + Omaha 5-max + Pineapple 6-max + Texas rename + FT 8 + scheduled 21:30). Motor short_deck_massive + tournament_to_champion PASS (Texas/Omaha 5/Pineapple 6 até 1 campeão; flush>FH e trips>straight). VPS 2h real 100 contas: 980 mãos R$135,11 rake, 4 campeões MTT. Simulado Motor-Rust/src/bin/simulated_100.rs 100k/mesa (400k total). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas com X-max sempre. MTT site: inscrição + horário agendado + popup FT; gameplay_ready=false (sem WS de torneio). Health público OK. Recebedor manual: Leofran, chave 6eefcd53-686e-42d4-a062-03751336251c (PLAY_MONEY_PIX_KEY). Saque: informar chave Pix própria, recebimento em até 24h. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.
 >
 > Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 <!-- DOCUMENTATION_SYNC:END -->

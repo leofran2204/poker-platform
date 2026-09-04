@@ -1,20 +1,22 @@
 # Zero Tilt Poker — poker-platform
 
-Plataforma de poker online (**Hold’em**, **Short Deck**, **Short Deck Omaha**, **Ultimate Pineapple**): **motor e API em Rust**, **frontend em TypeScript** (React + Vite + Tailwind), skin inspirada no **Full Tilt** clássico.
+Plataforma de poker online (**Texas Hold’em**, **Texas Short Deck**, **Short Deck Omaha 5-max**, **Ultimate Pineapple 6-max**): **motor e API em Rust**, **frontend em TypeScript** (React + Vite + Tailwind), skin inspirada no **Full Tilt** clássico.
 
 | | |
 |--|--|
 | **Domínio (demo)** | [https://zerotiltpoker.net](https://zerotiltpoker.net) |
 | **Repositório** | https://github.com/leofran2204/poker-platform |
-| **Estado** | Staging/demo (**S20**) — **sem** certificação de produção; Big Blind Ante 26 níveis (torneios) + potes laterais com ante morto; cash sem ante; wallets PM × Real; settlements assinados; contador **online** |
+| **Estado** | Staging/demo (**S21**) — **sem** certificação de produção; Big Blind Ante 26 níveis (torneios) + potes laterais com ante morto; cash sem ante; wallets PM × Real; settlements assinados; contador **online**; FT Short Deck **8-max**; torneio agendado **21:30 SP** (auto com 5+) |
 | **Status canônico** | [`Documentacao/STATUS_OPERACIONAL.json`](Documentacao/STATUS_OPERACIONAL.json) |
-| **Cash (PM + Real)** | NL 0,25/0,25 · SD 0,25/0,50 · SD Omaha 0,50/0,50 · Ultimate Pineapple 0,50/0,50 — frentes fixas |
+| **Cash (PM + Real)** | NL 0,25/0,25 9-max · SD Texas 0,25/0,50 8-max · SD Omaha 0,50/0,50 5-max · Pineapple 0,50/0,50 6-max — frentes fixas |
+| **Torneios (PM + Real)** | Texas Hold’em · Texas Freeroll (FT Short Deck 8-max) · Omaha 4 Cartas 5-max · Ultimate Pineapple 6-max — início agendado, BBA 26 níveis |
+| **Pix / Saque** | Recebedor **Leofran** (`6eefcd53-686e-42d4-a062-03751336251c`); saque com chave própria, **recebimento em até 24h** |
 | **Transporte público** | **HTTPS** (Caddy + Let's Encrypt na VPS); API + SPA same-origin |
 | **E-mail (demo)** | Resend — domínio `zerotiltpoker.net` verified; ver [`EMAIL_RESEND.md`](Infraestrutura-Docker/EMAIL_RESEND.md) |
 | **Presença** | Badge no header + hero na home; `GET /api/presence/online` |
-| **Live smoke** | `scripts/live-e2e-ten-users.mjs` (10×100) · `scripts/live-e2e-seeded-catalog.mjs` (mesa a mesa) |
-| **Stress motor** | `Motor-Rust/tests/cash_catalog_10k_hands.rs` — 10k mãos por config |
-| **Demo amigos** | [`Documentacao/DEMO_AMIGOS.md`](Documentacao/DEMO_AMIGOS.md) — mín. **2 na mesma mesa** |
+| **Live smoke** | `scripts/live-e2e-ten-users.mjs` (10×100) · `scripts/full-catalog-100.mjs` (100 contas 72 cash + 28 MTT) · `scripts/full-catalog-100-vps.mjs` (VPS 2h real) |
+| **Stress motor** | `Motor-Rust/tests/cash_catalog_10k_hands.rs` — 10k mãos por config (catálogo atual) · `Motor-Rust/src/bin/simulated_100.rs` — 100k/mesa (400k total) |
+| **Demo amigos** | [`Documentacao/DEMO_AMIGOS.md`](Documentacao/DEMO_AMIGOS.md) — mín. **2 na mesma mesa**; torneios **21:30 SP** auto com **5+** |
 | **Regulação** | Trilho de compliance planejado para **janeiro de 2027** |
 
 ## Mapa de pastas (canônico)
@@ -86,8 +88,11 @@ Ver **[`Documentacao/DEMO_AMIGOS.md`](Documentacao/DEMO_AMIGOS.md)**.
 
 - Registro público com **R$ 1.000** play-money
 - Contador **online** no topo e na home
-- Mesas demo NL2–NL25 (seed migration `013`)
+- Mesas cash PM+Real: NL 9-max · SD Texas 8-max · SD Omaha 5-max · Pineapple 6-max (migrations `037`/`039`)
+- Torneios agendados **21:30 SP**, auto-start com **5+**; FT Texas Freeroll Short Deck **8-max**
+- Ranking Short Deck: **trinca > sequência** e **flush > full house**
 - **Mínimo 2 pessoas na mesma mesa** para iniciar mão
+- Pix manual: recebedor **Leofran**; saque com chave própria, **recebimento em até 24h**
 - Frontend same-origin (API + WSS)
 
 ## Limites honestos

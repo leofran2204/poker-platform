@@ -56,7 +56,7 @@ struct MttSpec {
 
 const SPECS: &[MttSpec] = &[
     MttSpec {
-        name: "Hold'em — Torneio",
+        name: "Texas Hold’em — Torneio",
         variant: PokerVariant::Holdem,
         table_max: 9,
         buy_in: 1500,
@@ -69,7 +69,7 @@ const SPECS: &[MttSpec] = &[
         final_table_max: 9,
     },
     MttSpec {
-        name: "Hold'em — Torneio Freeroll",
+        name: "Texas Hold’em — Torneio Freeroll",
         variant: PokerVariant::Holdem,
         table_max: 9,
         buy_in: 0,
@@ -79,12 +79,12 @@ const SPECS: &[MttSpec] = &[
         rebuy_chips: 10_000,
         is_freeroll: true,
         final_table_variant: Some(PokerVariant::ShortDeck),
-        final_table_max: 6,
+        final_table_max: 8,
     },
     MttSpec {
         name: "Omaha 4 Cartas — Torneio",
         variant: PokerVariant::ShortDeckOmaha,
-        table_max: 4,
+        table_max: 5,
         buy_in: 1000,
         starting_stack: 10_000,
         gtd: 10_000,
@@ -92,7 +92,7 @@ const SPECS: &[MttSpec] = &[
         rebuy_chips: 20_000,
         is_freeroll: false,
         final_table_variant: None,
-        final_table_max: 4,
+        final_table_max: 5,
     },
     MttSpec {
         name: "Ultimate Pineapple — Torneio",

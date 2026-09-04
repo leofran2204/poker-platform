@@ -1,71 +1,79 @@
 {
-    "schema_version":  1,
-    "reviewed_on":  "2026-09-02",
-    "cycle":  "S20f — cash-out automático 45s após disconnect (WS) e no boot da API (assentos órfãos); lobby lista mesas cheias; admin mostra e-mail por assento/inscrito MTT; simulação ritual Play Money + motor MTT até o campeão.",
-    "stack":  {
-                  "motor_api":  "Rust (Motor-Rust + API-Axum)",
-                  "frontend_canonical":  "Frontend-Web (TypeScript + React + Vite + Tailwind)",
-                  "frontend_legacy":  "Frontend-Dioxus removido do monorepo (histórico git apenas)",
-                  "edge":  "Caddy HTTPS same-origin /api /ws (Let\u0027s Encrypt em VPS)"
+    "schema_version": 1,
+    "reviewed_on": "2026-09-04",
+    "cycle": "S21 — Texas Hold’em rename + FT Short Deck 8-max + Omaha 5-max + Pineapple 6-max + Short Deck ranking trips>straight + torneio agendado 21:30 SP auto-start 5 + Pix Leofran + saque 24h + lobby max sempre + sim 100k/mesa",
+    "stack": {
+                  "motor_api": "Rust (Motor-Rust + API-Axum)",
+                  "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",
+                  "frontend_legacy": "Frontend-Dioxus removido do monorepo (histórico git apenas)",
+                  "edge": "Caddy HTTPS same-origin /api /ws (Let's Encrypt em VPS)"
               },
-    "production":  "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.",
-    "regulation":  "Trilho de regulação, KYC/AML e compliance de jogo/dinheiro real: planejado para janeiro de 2027. Até lá: Play Money + Jogo Real com depósito manual; freios de PIX automático em production.",
-    "validation":  "Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–034 na VPS (cash+MTT Ultimate Pineapple). Disconnect cash-out 45s + reconciliação de assentos órfãos no boot (deploy S20f). Motor `tournament_to_champion` PASS (HE/Freeroll/Omaha/Pineapple até 1 campeão). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas. MTT site: gameplay_ready=false (sem WS de torneio). Health público OK.",
-    "cash_catalog":  {
-                         "modes":  [
+    "production": "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.",
+    "regulation": "Trilho de regulação, KYC/AML e compliance de jogo/dinheiro real: planejado para janeiro de 2027. Até lá: Play Money + Jogo Real com depósito manual; freios de PIX automático em production.",
+    "validation": "Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–040 na VPS (cash Texas SD 8-max + Omaha 5-max + Pineapple 6-max + Texas rename + FT 8 + scheduled 21:30). Motor short_deck_massive + tournament_to_champion PASS (Texas/Omaha 5/Pineapple 6 até 1 campeão; flush>FH e trips>straight). VPS 2h real 100 contas: 980 mãos R$135,11 rake, 4 campeões MTT. Simulado Motor-Rust/src/bin/simulated_100.rs 100k/mesa (400k total). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas com X-max sempre. MTT site: inscrição + horário agendado + popup FT; gameplay_ready=false (sem WS de torneio). Health público OK.",
+    "cash_catalog": {
+                         "modes": [
                                        "play",
                                        "real"
                                    ],
-                         "tables":  [
+                         "tables": [
                                         {
-                                            "name":  "Hold\u0027em",
-                                            "variant":  "holdem",
-                                            "blinds":  "25/25",
-                                            "max":  9,
-                                            "buy_in_cents":  2500
+                                            "name": "Texas Hold’em NL",
+                                            "variant": "holdem",
+                                            "blinds": "25/25",
+                                            "max": 9,
+                                            "buy_in_cents": 2500
                                         },
                                         {
-                                            "name":  "Hold\u0027em",
-                                            "variant":  "short_deck",
-                                            "blinds":  "25/50",
-                                            "max":  6,
-                                            "buy_in_cents":  7500
+                                            "name": "Texas Hold’em Short Deck",
+                                            "variant": "short_deck",
+                                            "blinds": "25/50",
+                                            "max": 8,
+                                            "buy_in_cents": 7500
                                         },
                                         {
-                                            "name":  "Omaha 4 Cartas",
-                                            "variant":  "short_deck_omaha",
-                                            "blinds":  "50/50",
-                                            "max":  4,
-                                            "buy_in_cents":  10000
+                                            "name": "Omaha 4 Cartas",
+                                            "variant": "short_deck_omaha",
+                                            "blinds": "50/50",
+                                            "max": 5,
+                                            "buy_in_cents": 10000
                                         },
                                         {
-                                            "name":  "Ultimate Pineapple",
-                                            "variant":  "ultimate_pineapple",
-                                            "blinds":  "50/50",
-                                            "max":  6,
-                                            "buy_in_cents":  7500
+                                            "name": "Ultimate Pineapple",
+                                            "variant": "ultimate_pineapple",
+                                            "blinds": "50/50",
+                                            "max": 6,
+                                            "buy_in_cents": 7500
                                         }
                                     ],
-                         "notes":  "Frentes fixas (min=max). Hold\u0027em tradicional 0,25/0,50 foi retirado; Short Deck usa 0,25/0,50; Omaha Short Deck 0,50/0,50; Ultimate Pineapple 0,50/0,50 6-max (3 hole, 2+3, sem descarte). SB pode igualar BB (constraint chk_tables_blind_structure)."
+                         "notes": "Frentes fixas (min=max). Texas Hold’em Short Deck cash 8-max (039); Omaha Short Deck 5-max (037); Ultimate Pineapple 6-max (033, 3 hole 2+3 sem descarte). Ranking Short Deck: trips>straight e flush>full house (deck.rs short_deck_rank_value). SB pode igualar BB (constraint chk_tables_blind_structure)."
                      },
-    "poker_variants":  [
+    "tournament_catalog": {
+        "scheduled_start_at": 1788481800,
+        "scheduled_sp": "2026-09-03 21:30:00 America/Sao_Paulo",
+        "auto_start_min_players": 5,
+        "final_table": "Texas Freeroll FT Short Deck 8-max (036); troca só no próximo blind + popup",
+        "modes": ["play", "real"],
+        "tables": "Omaha 5-max, Pineapple 6-max, Texas 9-max; FT 8-max"
+    },
+    "poker_variants": [
                            "holdem",
                            "short_deck",
                            "short_deck_omaha",
                            "ultimate_pineapple"
                        ],
-    "wallets":  {
-                    "play_money_cash_cents":  100000,
-                    "play_money_mtt_cents":  1500000,
-                    "play_money_reset":  "daily America/Sao_Paulo",
-                    "real":  "isolated; manual PIX deposit requests + admin approve/adjust; DePix Sandbox opcional e allowlisted em ambiente não produtivo"
+    "wallets": {
+                    "play_money_cash_cents": 100000,
+                    "play_money_mtt_cents": 1500000,
+                    "play_money_reset": "daily America/Sao_Paulo",
+                    "real": "isolated; manual PIX deposit requests + admin approve/adjust; DePix Sandbox opcional e allowlisted em ambiente não produtivo"
                 },
-    "email":  "Resend: domínio zerotiltpoker.net verified. REQUIRE_EMAIL_VERIFICATION=true. MFA challenges (016).",
-    "tls_notes":  "Caddyfile canônico sem tls internal + volume caddy_data persistido. Não apagar caddy_data em cada recreate (rate limit LE).",
-    "pix":  "A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático.",
-    "table_ownership":  "Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.",
-    "ui_direction":  "Zero Tilt — sem tilt: mente fria, feltro e ouro. Header: modo Play Money | Jogo Real. Lobby filtros por stake/variante. Notícias: thumbnail oficial ou capa temática (sem rostos errados).",
-    "presence":  "Usuários autenticados com heartbeat recente (ZSET Redis ou fallback memória). TTL 90s.",
-    "live_e2e":  "scripts/live-e2e-ten-users.mjs (10×100); scripts/live-e2e-seeded-catalog.mjs (mesa a mesa Real/PM); scripts/live-sim-full-ritual.mjs (Play Money: 1 e-mail por assento + 2 reservas/mesa; HANDS_PER_TABLE parametrizável; Mail.tm). Motor-Rust/tests/cash_catalog_10k_hands.rs (10k/config); Motor-Rust/tests/tournament_to_champion.rs (MTT até campeão, 1 rebuy, reservas após nível 6). API-Axum/tests/depix_webhook_tests.rs.",
-    "friends_demo":  "Guia Documentacao/DEMO_AMIGOS.md. Combinar modo de carteira e a mesma mesa (≥2 jogadores)."
+    "email": "Resend: domínio zerotiltpoker.net verified. REQUIRE_EMAIL_VERIFICATION=true. MFA challenges (016).",
+    "tls_notes": "Caddyfile canônico sem tls internal + volume caddy_data persistido. Não apagar caddy_data em cada recreate (rate limit LE).",
+    "pix": "Recebedor manual: Leofran, chave 6eefcd53-686e-42d4-a062-03751336251c (PLAY_MONEY_PIX_KEY). Saque: informar chave Pix própria, recebimento em até 24h. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático.",
+    "table_ownership": "Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.",
+    "ui_direction": "Zero Tilt — sem tilt: mente fria, feltro e ouro. Header: modo Play Money | Jogo Real. Lobby filtros por stake/variante com X-max sempre visível + FT 8-max na FT centralizado. TournamentPage: horário agendado 21:30 SP + popup FT Short Deck. Wallet: Pix Leofran + saque 24h. Notícias: thumbnail oficial ou capa temática (sem rostos errados).",
+    "presence": "Usuários autenticados com heartbeat recente (ZSET Redis ou fallback memória). TTL 90s.",
+    "live_e2e": "scripts/live-e2e-ten-users.mjs (10×100); scripts/full-catalog-100.mjs (100 contas 72 cash + 28 MTT play, 4 mesas, 2 espera/mesa); scripts/full-catalog-100-vps.mjs (VPS 2h real 980 mãos R$135); Motor-Rust/src/bin/simulated_100.rs (100k/mesa, 400k total + MTT até campeão); Motor-Rust/tests/cash_catalog_10k_hands.rs (10k/config catálogo atual); Motor-Rust/tests/tournament_to_champion.rs (Texas/Omaha 5/Pineapple 6 até 1 campeão, FT 8). API-Axum/tests/depix_webhook_tests.rs.",
+    "friends_demo": "Guia Documentacao/DEMO_AMIGOS.md. Combinar modo de carteira e a mesma mesa (≥2 jogadores). Torneios agendados 21:30 SP, auto-start com 5+."
 }

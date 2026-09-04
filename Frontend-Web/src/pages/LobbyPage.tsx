@@ -211,7 +211,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({filtered.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                NL 0,25/0,25 (R$25) · SD 0,25/0,50 (R$75) · Pineapple 0,50/0,50 6-max (R$75) · SD Omaha 0,50/0,50 4-max (R$100) · auto 15s
+                NL 0,25/0,25 9-max (R$25) · SD 0,25/0,50 8-max (R$75) · Pineapple 0,50/0,50 6-max (R$75) · SD Omaha 0,50/0,50 5-max (R$100) · auto 15s
               </p>
             </div>
 
@@ -369,7 +369,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({tournaments.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                Hold’em, freeroll (mesa final Short Deck), Omaha 4 cartas e Ultimate Pineapple · Big Blind Ante desde o nível 1 · 26 níveis · mãos MTT em breve
+                Texas Hold’em, freeroll (FT Short Deck 8-max), Omaha 4 cartas 5-max e Ultimate Pineapple 6-max · Big Blind Ante desde o nível 1 · 26 níveis · início agendado 21:30 SP (auto com 5+)
               </p>
             </div>
             <button
