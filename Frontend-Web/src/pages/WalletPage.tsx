@@ -224,12 +224,12 @@ export function WalletPage() {
     setError(null);
     setMsg(null);
     try {
-      const res = await createPixWithdraw({
+      await createPixWithdraw({
         amount: withdrawAmount,
         pix_key: withdrawPixKey,
         pix_key_type: withdrawPixKeyType,
       });
-      setMsg(`Saque solicitado: ${formatBrlFromCents(res.amount)} para ${withdrawPixKeyType} ${withdrawPixKey}. Prazo: até 24h para recebimento. Tx ${res.tx_id}`);
+      setMsg(`Recebimento em até 24h.`);
       setWithdrawPixKey("");
       await load();
     } catch (err) {
@@ -498,7 +498,7 @@ export function WalletPage() {
             <div className="zt-panel p-4 space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-wide text-gold-bright">Saque Pix</h3>
               <p className="text-xs text-amber-100 rounded border border-amber-700/60 bg-amber-950/30 px-3 py-2">
-                Saque em até <strong>24h</strong> para recebimento. Informe sua chave Pix para receber.
+                Recebimento em até 24h.
               </p>
               <form className="space-y-3" onSubmit={(e) => void onWithdraw(e)}>
                 <div>
