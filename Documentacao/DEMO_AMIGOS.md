@@ -34,8 +34,8 @@ Guia curto para convidar pessoas a testar e mandar feedback.
 
 | Item | Play Money | Jogo Real |
 |------|------------|-----------|
-| Cash | R$ 1.000 / dia (reset SP) | Depósito manual PIX + aprovação |
-| Torneio | R$ 15.000 / dia | Buy-in com saldo real |
+| Cash | R$ 150 / dia (reset SP) | Depósito manual PIX + aprovação |
+| Torneio | Zerada (freerolls grátis, sem recarga) | Buy-in com saldo real |
 | Mistura | **Não** — PM não entra em mesa Real e vice-versa | idem |
 
 ## Torneios

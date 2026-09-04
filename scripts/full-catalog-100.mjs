@@ -57,7 +57,7 @@ async function ensureUsers(n) {
   // Inserção em lote (1 exec) para evitar 200 docker exec sequenciais
   const { execSync } = await import("node:child_process");
   const fs = await import("node:fs");
-  const batchSql = users.map(u => `INSERT INTO users (id, username, email, password_hash, role, status, balance, mfa_enabled, created_at, email_verified_at, balance_pm_cash, balance_pm_mtt, balance_real, last_pm_reset_date, preferred_wallet_mode) VALUES (gen_random_uuid(), '${u.username}', '${u.email}', '${BCRYPT_HASH}', 'player', 'active', 0, false, EXTRACT(EPOCH FROM NOW())::BIGINT, EXTRACT(EPOCH FROM NOW())::BIGINT, 100000, 1500000, 0, (timezone('America/Sao_Paulo', now()))::date, 'play') ON CONFLICT (username) DO NOTHING;`).join("\n");
+  const batchSql = users.map(u => `INSERT INTO users (id, username, email, password_hash, role, status, balance, mfa_enabled, created_at, email_verified_at, balance_pm_cash, balance_pm_mtt, balance_real, last_pm_reset_date, preferred_wallet_mode) VALUES (gen_random_uuid(), '${u.username}', '${u.email}', '${BCRYPT_HASH}', 'player', 'active', 0, false, EXTRACT(EPOCH FROM NOW())::BIGINT, EXTRACT(EPOCH FROM NOW())::BIGINT, 15000, 0, 0, (timezone('America/Sao_Paulo', now()))::date, 'play') ON CONFLICT (username) DO NOTHING;`).join("\n");
   const tmpSql = "C:\\Users\\leofr\\AppData\\Local\\Temp\\batch_users.sql";
   fs.writeFileSync(tmpSql, batchSql);
   try { execSync(`docker --context desktop-linux exec -i poker_postgres psql -U user -d poker_db < "${tmpSql}"`, { stdio: "ignore" }); } catch (e) { console.warn("batch insert falhou, tentando individual"); }

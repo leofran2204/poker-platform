@@ -66,7 +66,7 @@ Isso já cabe no banco:
 
 **1 ZT Point = 1 centavo de rake Play Money** gerado no motor (o mesmo `u64` que já usa a casa). Não mistura com o stack da mesa. Não converte para carteira Real. Não sai em PIX.
 
-O reset diário de fichas continua: cash **R$ 1.000** e MTT **R$ 15.000** (fuso `America/Sao_Paulo`). Pontos de rede vivem num **ledger separado** — é o ensaio do `total_commission_earned` de verdade.
+O reset diário de fichas continua: cash **R$ 150** e torneio **zerado** (freerolls grátis, sem recarga MTT; fuso `America/Sao_Paulo`). Pontos de rede vivem num **ledger separado** — é o ensaio do `total_commission_earned` de verdade.
 
 ### 4.2 Dois volumes
 
@@ -98,7 +98,7 @@ Quem só indica e não senta **zera a linha naquela semana**. Os pontos não acu
 
 ### 4.5 Liquidação semanal (sexta 18h BRT)
 
-ZT Points **não** viram fichas de cash que se misturam com os R$ 1.000 do reset. Isso bagunçaria a economia da sala. Viram:
+ZT Points **não** viram fichas de cash que se misturam com os R$ 150 do reset. Isso bagunçaria a economia da sala. Viram:
 
 1. **Seats de freeroll da rede** (prêmio principal — gente sentada = liquidez)
 2. **Tickets de MTT Play Money** com overlay simbólico

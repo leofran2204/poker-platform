@@ -62,11 +62,11 @@
                            "short_deck_omaha",
                            "ultimate_pineapple"
                        ],
-    "wallets": {
-                    "play_money_cash_cents": 100000,
-                    "play_money_mtt_cents": 1500000,
-                    "play_money_reset": "daily America/Sao_Paulo",
-                    "real": "isolated; manual PIX deposit requests + admin approve/adjust; DePix Sandbox opcional e allowlisted em ambiente não produtivo"
+    "wallets":  {
+                    "play_money_cash_cents":  15000,
+                    "play_money_mtt_cents":  0,
+                    "play_money_reset":  "daily America/Sao_Paulo (cash R$ 150; torneio zerado — freerolls grátis, sem rebuy MTT)",
+                    "real":  "isolated; manual PIX deposit requests + admin approve/adjust; DePix Sandbox opcional e allowlisted em ambiente não produtivo"
                 },
     "email": "Resend: domínio zerotiltpoker.net verified. REQUIRE_EMAIL_VERIFICATION=true. MFA challenges (016).",
     "tls_notes": "Caddyfile canônico sem tls internal + volume caddy_data persistido. Não apagar caddy_data em cada recreate (rate limit LE).",

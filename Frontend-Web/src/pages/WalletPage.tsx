@@ -169,7 +169,7 @@ export function WalletPage() {
     setMsg(null);
     try {
       await pmRebuy(kind);
-      setMsg(kind === "cash" ? "Rebuy cash PM creditado (R$ 1.000)." : "Rebuy torneio PM creditado (R$ 15.000).");
+      setMsg("Rebuy cash PM creditado (R$ 150).");
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha no rebuy");
@@ -279,7 +279,7 @@ export function WalletPage() {
               disabled={busy}
               onClick={() => void onRebuy("cash")}
             >
-              Rebuy R$ 1.000 (1×/dia)
+              Rebuy R$ 150 (1×/dia)
             </button>
           )}
         </div>
@@ -288,16 +288,7 @@ export function WalletPage() {
           <div className="mt-1 font-mono text-xl text-gold-bright">
             {me ? formatBrlFromCents(me.balance_pm_mtt ?? 0) : "…"}
           </div>
-          {me?.pm_mtt_rebuy_available && (
-            <button
-              type="button"
-              className="zt-btn-secondary mt-2 !py-1 !text-xs"
-              disabled={busy}
-              onClick={() => void onRebuy("mtt")}
-            >
-              Rebuy R$ 15.000 (1×/dia)
-            </button>
-          )}
+          <p className="mt-1 text-[11px] text-felt-400">Freerolls são grátis — sem recarga.</p>
         </div>
         <div className="zt-card p-4">
           <div className="text-[10px] uppercase text-felt-400">Jogo Real</div>
@@ -308,8 +299,8 @@ export function WalletPage() {
       </div>
 
       <p className="text-[11px] text-felt-500">
-        Play Money renova todo dia à meia-noite (Brasília) para R$ 1.000 (cash) e R$ 15.000 (torneio).
-        Se zerar, pode fazer 1 rebuy por carteira por dia.
+        Play Money renova todo dia à meia-noite (Brasília) para R$ 150 (cash). A carteira de torneio
+        fica zerada porque os freerolls são grátis. Se zerar o cash, pode fazer 1 rebuy por dia.
       </p>
 
       {mode === "real" ? (

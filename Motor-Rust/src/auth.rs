@@ -49,8 +49,8 @@ pub const MAX_LOGIN_ATTEMPTS: u32 = 5;
 pub const LOCKOUT_DURATION_SECS: u64 = 900;
 
 /// Saldo inicial em centavos ao registrar (play-money / demo).
-/// 100_000 = R$ 1.000,00 — suficiente para várias mesas NL sem PIX real.
-pub const DEMO_STARTING_BALANCE_CENTS: i64 = 100_000;
+/// 15_000 = R$ 150,00 — apenas para cash games (carteira de torneio fica zerada; freerolls são grátis).
+pub const DEMO_STARTING_BALANCE_CENTS: i64 = 15_000;
 
 /// Verifica uma credencial bcrypt sem expor detalhes do hash ao chamador.
 pub fn verify_password_hash(password: &str, password_hash: &str) -> bool {

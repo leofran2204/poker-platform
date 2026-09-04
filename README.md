@@ -86,7 +86,7 @@ Documentação: [`Documentacao/README.md`](Documentacao/README.md) · Painel: [`
 
 Ver **[`Documentacao/DEMO_AMIGOS.md`](Documentacao/DEMO_AMIGOS.md)**.
 
-- Registro público com **R$ 1.000** play-money
+- Registro público com **R$ 150** play-money (cash; torneio zerado, freerolls grátis)
 - Contador **online** no topo e na home
 - Mesas cash PM+Real: NL 9-max · SD Texas 8-max · SD Omaha 5-max · Pineapple 6-max (migrations `037`/`039`)
 - Torneios agendados **21:30 SP**, auto-start com **5+**; FT Texas Freeroll Short Deck **8-max**

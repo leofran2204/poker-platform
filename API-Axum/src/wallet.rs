@@ -6,8 +6,8 @@ use sqlx::{PgExecutor, PgPool};
 
 use crate::error::ApiError;
 
-pub const PM_CASH_DAILY_CENTS: i64 = 100_000; // R$ 1.000
-pub const PM_MTT_DAILY_CENTS: i64 = 1_500_000; // R$ 15.000
+pub const PM_CASH_DAILY_CENTS: i64 = 15_000; // R$ 150 — único grant de cadastro (cash games)
+pub const PM_MTT_DAILY_CENTS: i64 = 0; // R$ 0 — carteira de torneio zerada (freerolls são grátis)
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -244,7 +244,8 @@ pub async fn load_snapshot(pool: &PgPool, user_id: &str) -> Result<WalletSnapsho
         preferred_wallet_mode: row.3,
         last_pm_reset_date: row.4.map(|d| d.to_string()),
         pm_cash_rebuy_available: row.0 == 0 && row.5.map(|d| d < today).unwrap_or(true),
-        pm_mtt_rebuy_available: row.1 == 0 && row.6.map(|d| d < today).unwrap_or(true),
+        // Carteira de torneio zerada por regra (freerolls são grátis): nunca há rebuy MTT.
+        pm_mtt_rebuy_available: false,
     })
 }
 
@@ -253,6 +254,11 @@ pub async fn pm_rebuy(
     user_id: &str,
     kind: WalletKind,
 ) -> Result<WalletSnapshot, ApiError> {
+    if kind == WalletKind::PmMtt {
+        return Err(ApiError::BadRequest(
+            "Sem rebuy de torneio: freerolls são grátis e a carteira de torneio fica zerada".into(),
+        ));
+    }
     ensure_pm_daily_reset_pool(pool, user_id).await?;
     let today = today_sao_paulo();
     let mut tx = pool.begin().await?;

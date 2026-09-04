@@ -145,7 +145,7 @@ Não é “bônus da casa”. Não é “rakeback escondido”. É matemática d
 
 ### 5.2 Na sessão
 
-- Play Money **renova todo dia** (R$ 1.000 cash / R$ 15.000 MTT). Perdeu a noite, não perdeu o mês.
+- Play Money **renova todo dia** (R$ 150 cash; torneio zerado, freerolls grátis). Perdeu a noite, não perdeu o mês.
 - Frentes **fixas** (min = max). Não existe “entrar com R$ 25 e rebuy até o aluguel”.
 - Isolamento Real / PM: treinar não vira depósito por acidente.
 - Precisa de **≥ 2 pessoas** na mesa para iniciar mão — a casa não simula oponente fantasma para o jogador se iludir.
