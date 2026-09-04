@@ -29,9 +29,14 @@ COPY API-Axum ./API-Axum
 WORKDIR /app/API-Axum
 
 # Remove qualquer arquivo de toolchain que possa estar nos subdiretórios copiados
-RUN find /app -name "rust-toolchain*" -delete
-
-RUN cargo build --release --locked
+# ATENÇÃO: o COPY preserva o mtime original dos fontes (mais antigo que os
+# artefatos do esqueleto), então o `touch` abaixo é obrigatório — sem ele o
+# cargo considera tudo "fresco" e a imagem sai com o binário dummy do esqueleto.
+# O `test` no final falha o build em vez de publicar imagem quebrada em silêncio.
+RUN find /app -name "rust-toolchain*" -delete \
+    && find /app/Motor-Rust/src /app/API-Axum/src -name "*.rs" -exec touch {} + \
+    && cargo build --release --locked \
+    && test $(stat -c%s /app/API-Axum/target/release/poker-api) -gt 1000000
 
 # Stage 2: Imagem final leve e blindada (Hardened Non-Root Container)
 FROM debian:bookworm-slim@sha256:abd67ffcfa541b485a3dff59865ab629aa048a6c613e639d36e7456b0b229241

@@ -27,7 +27,7 @@
 | Item | Detalhe |
 |------|---------|
 | **Problema** | Cada `1` linha em `Rust` invalidava `COPY Motor-Rust/API-Axum` e recompilava `169` crates (`~10min` no `VPS 2 vCPU`). |
-| **API** | `API-Axum/Dockerfile`: manifests + `Cargo.lock` primeiro + esqueleto `lib.rs`/`main.rs` compilam deps uma vez; código real depois recompila só `poker-engine`/`poker-api`. Medido local: sem alteração `11s`, 1 linha `17s` (antes `~10min`). Sem imagem nova, `--locked` determinístico. |
+| **API** | `API-Axum/Dockerfile`: manifests + `Cargo.lock` primeiro + esqueleto `lib.rs`/`main.rs` compilam deps uma vez; código real depois recompila só `poker-engine`/`poker-api`. Medido local: sem alteração `11s`, 1 linha `17s` (antes `~10min`). Sem imagem nova, `--locked` determinístico. Fix: `touch` nos `.rs` antes do build final (COPY preserva mtime antigo e o cargo pulava o rebuild, publicando o binário dummy) + `test` que falha o build se o binário sair <1MB. |
 | **Docs** | Blocos `DOCUMENTATION_SYNC` realinhados ao ciclo S21 (`STATUS_OPERACIONAL.json`). |
 
 ---
