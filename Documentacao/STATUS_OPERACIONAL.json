@@ -1,73 +1,76 @@
 {
     "schema_version": 1,
     "reviewed_on": "2026-09-04",
-    "cycle":  "S21 — Texas Hold’em rename + FT Short Deck 8-max + Omaha 5-max + Pineapple 6-max + Short Deck ranking trips>straight + torneio agendado 21:30 SP auto-start 5 + Pix Leofran + saque 24h + lobby max sempre + sim 100k/mesa + PM 150+150 sem rebuy (ilimitado com saldo, play money)",
+    "cycle": "S21 — Texas Hold’em rename + FT Short Deck 8-max + Omaha 5-max + Pineapple 6-max + Short Deck ranking trips>straight + torneio agendado 21:30 SP auto-start 5 + Pix Leofran + saque 24h + lobby max sempre + sim 100k/mesa + PM 150+150 sem rebuy (ilimitado com saldo, play money)",
     "stack": {
-                  "motor_api": "Rust (Motor-Rust + API-Axum)",
-                  "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",
-                  "frontend_legacy": "Frontend-Dioxus removido do monorepo (histórico git apenas)",
-                  "edge": "Caddy HTTPS same-origin /api /ws (Let's Encrypt em VPS)"
-              },
+        "motor_api": "Rust (Motor-Rust + API-Axum)",
+        "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",
+        "frontend_legacy": "Frontend-Dioxus removido do monorepo (histórico git apenas)",
+        "edge": "Caddy HTTPS same-origin /api /ws (Let's Encrypt em VPS)"
+    },
     "production": "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.",
     "regulation": "Trilho de regulação, KYC/AML e compliance de jogo/dinheiro real: planejado para janeiro de 2027. Até lá: Play Money + Jogo Real com depósito manual; freios de PIX automático em production.",
-    "validation": "Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–040 na VPS (cash Texas SD 8-max + Omaha 5-max + Pineapple 6-max + Texas rename + FT 8 + scheduled 21:30). Motor short_deck_massive + tournament_to_champion PASS (Texas/Omaha 5/Pineapple 6 até 1 campeão; flush>FH e trips>straight). VPS 2h real 100 contas: 980 mãos R$135,11 rake, 4 campeões MTT. Simulado Motor-Rust/src/bin/simulated_100.rs 100k/mesa (400k total). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas com X-max sempre. MTT site: inscrição + horário agendado + popup FT; gameplay_ready=false (sem WS de torneio). Health público OK.",
+    "validation": "Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–044 na VPS (cash Texas SD 8-max + Omaha 5-max + Pineapple 6-max + Texas rename + FT 8 + scheduled 21:30 + PM 150+150 + restore catálogo + Dockerfile cache). PM duas carteiras R$150 sem rebuy (ilimitado com saldo). Motor short_deck_massive + tournament_to_champion PASS (Texas/Omaha 5/Pineapple 6 até 1 campeão; flush>FH e trips>straight). VPS 2h real 100 contas: 980 mãos R$135,11 rake, 4 campeões MTT. Simulado Motor-Rust/src/bin/simulated_100.rs 100k/mesa (400k total). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas com X-max sempre. MTT site: inscrição + horário agendado + popup FT; gameplay_ready=false (sem WS de torneio). Health público OK.",
     "cash_catalog": {
-                         "modes": [
-                                       "play",
-                                       "real"
-                                   ],
-                         "tables": [
-                                        {
-                                            "name": "Texas Hold’em NL",
-                                            "variant": "holdem",
-                                            "blinds": "25/25",
-                                            "max": 9,
-                                            "buy_in_cents": 2500
-                                        },
-                                        {
-                                            "name": "Texas Hold’em Short Deck",
-                                            "variant": "short_deck",
-                                            "blinds": "25/50",
-                                            "max": 8,
-                                            "buy_in_cents": 7500
-                                        },
-                                        {
-                                            "name": "Omaha 4 Cartas",
-                                            "variant": "short_deck_omaha",
-                                            "blinds": "50/50",
-                                            "max": 5,
-                                            "buy_in_cents": 10000
-                                        },
-                                        {
-                                            "name": "Ultimate Pineapple",
-                                            "variant": "ultimate_pineapple",
-                                            "blinds": "50/50",
-                                            "max": 6,
-                                            "buy_in_cents": 7500
-                                        }
-                                    ],
-                         "notes": "Frentes fixas (min=max). Texas Hold’em Short Deck cash 8-max (039); Omaha Short Deck 5-max (037); Ultimate Pineapple 6-max (033, 3 hole 2+3 sem descarte). Ranking Short Deck: trips>straight e flush>full house (deck.rs short_deck_rank_value). SB pode igualar BB (constraint chk_tables_blind_structure)."
-                     },
+        "modes": [
+            "play",
+            "real"
+        ],
+        "tables": [
+            {
+                "name": "Texas Hold’em NL",
+                "variant": "holdem",
+                "blinds": "25/25",
+                "max": 9,
+                "buy_in_cents": 2500
+            },
+            {
+                "name": "Texas Hold’em Short Deck",
+                "variant": "short_deck",
+                "blinds": "25/50",
+                "max": 8,
+                "buy_in_cents": 7500
+            },
+            {
+                "name": "Omaha 4 Cartas",
+                "variant": "short_deck_omaha",
+                "blinds": "50/50",
+                "max": 5,
+                "buy_in_cents": 10000
+            },
+            {
+                "name": "Ultimate Pineapple",
+                "variant": "ultimate_pineapple",
+                "blinds": "50/50",
+                "max": 6,
+                "buy_in_cents": 7500
+            }
+        ],
+        "notes": "Frentes fixas (min=max). Texas Hold’em Short Deck cash 8-max (039); Omaha Short Deck 5-max (037); Ultimate Pineapple 6-max (033, 3 hole 2+3 sem descarte). Ranking Short Deck: trips>straight e flush>full house (deck.rs short_deck_rank_value). SB pode igualar BB (constraint chk_tables_blind_structure)."
+    },
     "tournament_catalog": {
         "scheduled_start_at": 1788481800,
         "scheduled_sp": "2026-09-03 21:30:00 America/Sao_Paulo",
         "auto_start_min_players": 5,
         "final_table": "Texas Freeroll FT Short Deck 8-max (036); troca só no próximo blind + popup",
-        "modes": ["play", "real"],
+        "modes": [
+            "play",
+            "real"
+        ],
         "tables": "Omaha 5-max, Pineapple 6-max, Texas 9-max; FT 8-max"
     },
     "poker_variants": [
-                           "holdem",
-                           "short_deck",
-                           "short_deck_omaha",
-                           "ultimate_pineapple"
-                       ],
-    "wallets":  {
-                    "play_money_cash_cents":  15000,
-                    "play_money_mtt_cents":  15000,
-                    "play_money_reset":  "daily America/Sao_Paulo (R$ 150 cash + R$ 150 torneio; sem rebuy — zerou espera 00:00; entradas/rebuys ilimitados com saldo, rebuy MTT até nível 6)",
-                    "real":  "isolated; manual PIX deposit requests + admin approve/adjust; DePix Sandbox opcional e allowlisted em ambiente não produtivo"
-                },
+        "holdem",
+        "short_deck",
+        "short_deck_omaha",
+        "ultimate_pineapple"
+    ],
+    "wallets": {
+        "play_money_cash_cents": 15000,
+        "play_money_mtt_cents": 15000,
+        "play_money_reset": "daily America/Sao_Paulo (R$ 150 cash + R$ 150 torneio; sem rebuy — zerou espera 00:00; entradas/rebuys ilimitados com saldo, rebuy MTT até nível 6)",
+        "real": "isolated; manual PIX deposit requests + admin approve/adjust; DePix Sandbox opcional e allowlisted em ambiente não produtivo"
+    },
     "email": "Resend: domínio zerotiltpoker.net verified. REQUIRE_EMAIL_VERIFICATION=true. MFA challenges (016).",
     "tls_notes": "Caddyfile canônico sem tls internal + volume caddy_data persistido. Não apagar caddy_data em cada recreate (rate limit LE).",
     "pix": "Recebedor manual: Leofran, chave 6eefcd53-686e-42d4-a062-03751336251c (PLAY_MONEY_PIX_KEY). Saque: informar chave Pix própria, recebimento em até 24h. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático.",
