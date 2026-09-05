@@ -133,6 +133,19 @@ export function Layout() {
                 {username && (
                   <span className="zt-chip hidden md:inline-flex">{username}</span>
                 )}
+                {me?.referral_code && (
+                  <button
+                    type="button"
+                    className="zt-chip hidden font-mono lg:inline-flex"
+                    title="Copiar link de convite"
+                    onClick={() => {
+                      const url = `${window.location.origin}/register?ref=${me.referral_code}`;
+                      void navigator.clipboard.writeText(url);
+                    }}
+                  >
+                    convite {me.referral_code}
+                  </button>
+                )}
                 <button type="button" className="zt-btn-ghost text-sm" onClick={handleLogout}>
                   Sair
                 </button>

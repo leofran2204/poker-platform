@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { leaveTable } from "@/api/client";
+import { getTable, leaveTable } from "@/api/client";
 import type { PlayerWsData, PotWsData, ServerMessage } from "@/api/types";
 import { TableSocket, type WsStatus } from "@/api/ws";
 import { PokerTable } from "@/components/PokerTable";
@@ -25,6 +25,8 @@ export function TablePage() {
   const [maximumWager, setMaximumWager] = useState(0);
   const [deflatorMsg, setDeflatorMsg] = useState<string | null>(null);
   const [tableName, setTableName] = useState(id);
+  const [moneyMode, setMoneyMode] = useState<string | null>(null);
+  const [sittingOut, setSittingOut] = useState(false);
 
   useEffect(() => {
     if (!id || !isAuthenticated()) return;
@@ -56,6 +58,12 @@ export function TablePage() {
                   )
                 : current,
             );
+            if (localPlayerId) {
+              const me = (msg.players ?? []).find((p) => p.id === localPlayerId);
+              if (me && typeof me.is_sitting === "boolean") {
+                setSittingOut(!me.is_sitting);
+              }
+            }
             break;
           case "your_turn":
             setActions(msg.actions ?? []);
@@ -83,6 +91,13 @@ export function TablePage() {
       sock.disconnect();
       socketRef.current = null;
     };
+  }, [id]);
+
+  useEffect(() => {
+    if (!id || !isAuthenticated()) return;
+    void getTable(id)
+      .then((table) => setMoneyMode(table.money_mode ?? null))
+      .catch(() => setMoneyMode(null));
   }, [id]);
 
   function onAction(action: string, amount = 0) {
@@ -114,6 +129,11 @@ export function TablePage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-gold-bright">{tableName}</h1>
+          {moneyMode === "play" ? (
+            <span className="zt-chip mt-1 inline-flex">Play Money</span>
+          ) : moneyMode === "real" ? (
+            <span className="zt-chip mt-1 inline-flex">Jogo Real</span>
+          ) : null}
           <p className="text-xs text-felt-400">
             WS:{" "}
             <span
@@ -131,6 +151,21 @@ export function TablePage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <button
+            type="button"
+            className="zt-btn-secondary"
+            onClick={() => {
+              if (sittingOut) {
+                socketRef.current?.sendSitIn();
+                setSittingOut(false);
+              } else {
+                socketRef.current?.sendSitOut();
+                setSittingOut(true);
+              }
+            }}
+          >
+            {sittingOut ? "Voltar a jogar" : "Sit-out"}
+          </button>
           <Link to="/lobby" className="zt-btn-secondary" onClick={() => void handleLeave()}>
             Sair da mesa
           </Link>

@@ -19,13 +19,13 @@ Zero Tilt não é um clone de sala gigante. É uma plataforma de pôquer **recre
 
 1. **A mesa tem que ser honesta e rápida** — regras em Rust, dinheiro em centavos inteiros, baralho auditável, liquidação de mão assinada.
 2. **O jogador não pode sair destroçado da sessão** — Loss Deflator (cashback de bad beat por matemática, não por “bônus de cassino”), frentes fixas, Play Money que renova, ensino no próprio lobby.
-3. **O crescimento é de clube, não de anúncio** — rede de **dois níveis** (clube → agente), receita de **rake**, hoje ensaiada em Play Money; dinheiro real só com licença.
+3. **O crescimento é de convite, não de anúncio** — rede de **dois níveis** (18% do rake individual do 1º nível, 12% do 2º, resto à casa; clube sem fatia), hoje ensaiada em Play Money; dinheiro real só com licença.
 
 O que já está no ar: demo HTTPS, e-mail verificado, MFA, mesas Play Money e Jogo Real **isoladas**, quatro variantes (Hold’em, Short Deck, Omaha Short Deck, Ultimate Pineapple), torneios com Big Blind Ante em 26 níveis (inscrição no site; mãos MTT ao vivo ainda não ligadas), admin de clubes, stack Docker **4/4 healthy** na VPS.
 
 O que **não** está: certificação de produção, PIX automático em produção, saque automático, autoexclusão de produto, multi-servidor de mesas. Isso não se esconde. O parceiro que entra agora compra **produto + liquidez Play Money + o trilho até 2027**, não um cassino “já legalizado”.
 
-**Pedido:** capital e liquidez de um **clube âncora**. Em troca: até **85% do rake** da rede que esse clube trouxer, no mesmo grafo que já existe no banco. Enquanto a papelada não fecha, a operação pública da rede é **Play Money**.
+**Pedido:** liquidez (gente na mesa) e, no futuro, capital de compliance. A rede é 2 níveis: **18%** do rake de quem você trouxe, **12%** do rake de quem eles trouxeram, resto à casa. Clube não leva dinheiro. Enquanto a papelada não fecha, a operação pública é **Play Money**.
 
 ---
 
@@ -187,24 +187,26 @@ Quem apresentar Zero Tilt como “já é jogo responsável certificado” está 
 
 ## 7. Como o parceiro entra — rede de 2 níveis, rake, não pirâmide
 
-O código já tem B2B: clube, agentes, split **15% casa / 85% clube**, rakeback do agente **0–50% da fatia do clube**. Detalhe do plano operacional: [`PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md`](PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md).
+O motor continua com B2B **15% casa / 85% clube**. A rede de gente é outra camada: o cadastro grava o **ID do patrocinador**, e o jogador pode sentar em qualquer clube sem mudar de pai. Detalhe: [`PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md`](PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md).
 
 ```
-Casa (15%)
- └── Clube parceiro (até 85%)          ← nível 1
-        └── Agente (0–50% da fatia)    ← nível 2
-               └── Jogadores
+Raiz (1º cadastro da plataforma)
+ └── 1º nível (entrou pelo convite da raiz, ou já estava na sala)
+        └── 2º nível (entrou pelo convite do 1º nível)
+               └── (nível 3: a raiz não vê e não ganha)
 ```
+
+Cada afiliado, no **próprio** admin, vê só os seus dois andares.
 
 Regras que o relatório **pode** assinar em reunião:
 
-1. Profundidade máxima **2**. Não existe “neto”.
+1. Profundidade máxima **2** na tela de cada um. Não existe “neto” visível nem pago para mim.
 2. Sem taxa de adesão, kit ou bônus por cadastrar gente.
-3. Comissão só sobre **rake de mão jogada**.
+3. Comissão só sobre **rake individual de mão jogada**: **18%** (1º nível) e **12%** (2º nível); o resto fica com a casa. Clube não recebe rake nesta rede.
 4. Hoje a liquidação da rede é **Play Money** (pontos, tickets, ranking). BRL só com SPA + PSP + KYC.
 5. Quem não joga na semana **não** leva volume de linha.
 
-Isso é o modelo de **skins/clubes** que o pôquer mundial já entende. Não é marketing de porta em porta. O parceiro âncora não “compra uma vaga”: ele **traz liquidez** e fica com a maior fatia do rake dessa liquidez.
+O parceiro âncora não “compra uma vaga”: ele **traz liquidez**, indica com o próprio código e acompanha só a rede dele.
 
 Saque de comissão de clube (`POST /api/admin/clubs/:id/withdraw`) existe no desenho da API — **não se usa** para a rede Play Money. É o interruptor do dia em que a papelada estiver correta.
 
@@ -219,7 +221,7 @@ Saque de comissão de clube (`POST /api/admin/clubs/:id/withdraw`) existe no des
 | Lobby | Filtros stake/variante, Play \| Real, online | Header + `/lobby` |
 | Motor | Hold’em, Short Deck, Omaha Short Deck, BBA 26 | Sentar e jogar; docs de variante |
 | Dinheiro | PM diário; Real isolado; PIX prod **off** | Carteira; código rejeita PIX production |
-| B2B | Clubes, agentes, 15/85, tema | `/admin/clubs` (papel admin) |
+| B2B + rede | Convite `?ref=`; 18/12 modelo; 15/85 no motor é legado | Plano de rede 2 níveis |
 | Qualidade | Gate S20c verde; VPS 4/4 | `STATUS_OPERACIONAL.json` |
 | Conteúdo | Dica do Pró, história 8+7, PT-BR | Home / laterais da mesa |
 
@@ -236,7 +238,7 @@ Saque de comissão de clube (`POST /api/admin/clubs/:id/withdraw`) existe no des
 | KYC/AML | Exigência SPA | Parceiro de compliance + fluxo de documentos |
 | MTT ao vivo ainda em evolução | Torneio não é o carro-chefe | Acabar o ciclo de mãos MTT com a mesma disciplina do cash |
 | UI de Provably Fair no cliente TS | O motor prova; o jogador leigo não clica “auditar” | Modal de auditoria no histórico (o codec 0x30/0x31 já existe) |
-| Link de indicação no registro | Rede ainda é admin-manual | Campo `sponsor` no signup + dashboard do agente |
+| Painel **Minha Estrutura** + ledger 18/12 | Convite `?ref=` no disco; comissão por mão ainda modelo | Admin do afiliado (2 níveis) + pontos sobre rake individual |
 | Catálogo curto | Bom para liquidez; pouco para high roller | Só crescer stake **depois** de encher as três mesas |
 
 Nenhum desses gaps é vergonha de staging. São a lista de compras do sócio.
@@ -253,8 +255,8 @@ Três coisas, nesta ordem:
 
 Em troca:
 
-- Até **85% do rake** da liquidez do clube (agentes saem dessa fatia, 0–50%).
-- Árvore comercial **pronta** para virar BRL no mesmo split, sem redesenhar MMN.
+- **18%** do rake individual de quem o afiliado trouxe e **12%** do segundo nível; resto à casa. Clube não leva fatia.
+- Árvore de **2 níveis** com os mesmos % em ponto e em real.
 - Produto que o jogador recreacional consegue **explicar para a família**: treina, aprende, não mistura salário, e o bad beat tem regra.
 
 ---

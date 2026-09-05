@@ -20,6 +20,7 @@ export interface MeResponse {
   pm_cash_rebuy_available: boolean;
   pm_mtt_rebuy_available: boolean;
   email: string;
+  referral_code?: string | null;
 }
 
 export interface AdminStatsResponse {
@@ -215,6 +216,7 @@ export interface TournamentInfoResponse {
   final_table_max_players?: number | null;
   scheduled_start_at?: number | null;
   auto_start_min_players?: number | null;
+  live_table_id?: string | null;
 }
 
 export interface JoinResponse {
@@ -261,6 +263,7 @@ export interface PlayerWsData {
   is_active: boolean;
   is_dealer: boolean;
   seat: number;
+  is_sitting?: boolean;
 }
 
 export interface PotWsData {
@@ -308,4 +311,6 @@ export type ServerMessage =
 export type ClientMessage =
   | { type: "action"; action: string; amount?: number }
   | { type: "ping" }
-  | { type: "get_table_info" };
+  | { type: "get_table_info" }
+  | { type: "sit_out" }
+  | { type: "sit_in" };

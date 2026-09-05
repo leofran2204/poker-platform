@@ -32,6 +32,7 @@ fn make_test_state() -> AppState {
         redis: None,
         ws_tickets: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
         require_email_verification: false,
+        require_invite: false,
         presence: poker_api::presence::PresenceTracker::new(),
     }
 }
@@ -93,6 +94,7 @@ async fn make_persistent_state(username: &str) -> (AppState, String, String) {
         redis: None,
         ws_tickets: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
         require_email_verification: false,
+        require_invite: false,
         presence: poker_api::presence::PresenceTracker::new(),
     };
     let token = get_valid_access_token(&state, username).await;

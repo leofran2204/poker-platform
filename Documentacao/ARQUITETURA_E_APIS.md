@@ -154,8 +154,8 @@ Contador de usuários **logados** com heartbeat recente — distinto dos assento
 - `GET /api/admin/clubs/:id/financials`: Retorna o extrato financeiro do clube: saldo acumulado (`balance`), Rake Líquido do Clube (85%), Fee da Plataforma (15%) e Rake Bruto.
 - `POST /api/admin/clubs/:id/withdraw`: Solicita o saque das comissões do saldo acumulado do clube via chave PIX.
 - `PUT /api/admin/clubs/:id/theme`: Atualiza o JSON de personalização visual (`custom_theme_json`) para a injeção do tema White-Label no Frontend.
-- `GET /api/admin/clubs/:id/agents`: Lista agentes ativos do clube (rakeback %, indicados, comissão em centavos).
-- `POST /api/admin/clubs/:id/agents`: Cadastra agente com nome e rakeback 0–50%; persiste em `club_agents` e registra audit log.
+- `GET /api/admin/clubs/:id/agents`: Lista agentes B2B do clube locatário (legado white-label).
+- `POST /api/admin/clubs/:id/agents`: legado B2B. A **rede de afiliados** (2 níveis, 18%/12% sobre rake individual, resto à casa, vínculo = `users.sponsored_by`, clube sem fatia) — ver `PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md`.
 - **Cliente canônico:** o dashboard `/admin/clubs` em `Frontend-Web` consome esses endpoints via **HTTPS** same-origin (`api/client.ts` + JWT admin).
 
 ### Autorização revogável e distribuída

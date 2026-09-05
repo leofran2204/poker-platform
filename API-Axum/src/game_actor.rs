@@ -47,6 +47,11 @@ pub enum PlayerCommand {
     GetTableInfo {
         respond_to: mpsc::Sender<serde_json::Value>,
     },
+    /// Mantém o assento; não joga a próxima mão. Sem timer de cash-out.
+    SetSitting {
+        player_id: String,
+        sitting: bool,
+    },
 }
 
 /// Estado do jogador persistente na mesa.
@@ -365,6 +370,10 @@ impl TableActor {
                 let info = self.get_table_info_json();
                 let _ = respond_to.send(info).await;
             }
+            PlayerCommand::SetSitting { player_id, sitting } => {
+                self.handle_set_sitting(player_id, sitting);
+                self.save_snapshot().await;
+            }
         }
     }
 
@@ -531,6 +540,20 @@ impl TableActor {
             );
         }
 
+        self.broadcast_state();
+    }
+
+    fn handle_set_sitting(&mut self, player_id: String, sitting: bool) {
+        if let Some(player) = self
+            .players
+            .iter_mut()
+            .find(|player| player.id == player_id)
+        {
+            player.is_sitting = sitting;
+            if sitting {
+                player.disconnected_since = None;
+            }
+        }
         self.broadcast_state();
     }
 
@@ -921,7 +944,8 @@ impl TableActor {
 
                     let _ = self.tx_broadcast.send(event_payload);
                 }
-                self.players.retain(|player| player.is_sitting);
+                self.players
+                    .retain(|player| player.is_sitting || player.disconnected_since.is_none());
             }
             self.broadcast_state();
             // Iniciar próxima mão depois de 6 segundos

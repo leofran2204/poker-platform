@@ -196,6 +196,14 @@ pub fn build_router(state: AppState) -> Router {
                 )),
         )
         .route("/api/lobby/tables/:id", get(lobby::get_table))
+        .route(
+            "/api/lobby/waitlist",
+            post(lobby::join_waitlist)
+                .delete(lobby::leave_waitlist)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
         // ─── Tournament routes ───
         .route("/api/lobby/tournaments", get(tournament::list_tournaments))
         .route(

@@ -141,10 +141,17 @@ pub async fn create_ws_ticket(
              JOIN tables t ON t.id = s.table_id \
              WHERE s.table_id = $1::uuid AND s.user_id = $2 \
                AND s.status = 'ACTIVE' AND s.chips > 0 AND t.status = 'OPEN' \
+             UNION ALL \
+             SELECT 1 FROM tournament_seats ts \
+             JOIN tables t ON t.id = ts.table_id \
+             WHERE ts.table_id = $1::uuid AND ts.player_id = $3 \
+               AND ts.status = 'ACTIVE' AND ts.stack > 0 AND t.status = 'OPEN' \
+               AND t.game_type = 'tournament' \
          )",
     )
     .bind(&table_id)
     .bind(user_id)
+    .bind(&auth_user.user_id)
     .fetch_one(&state.db)
     .await?;
     if !has_active_seat {
@@ -295,6 +302,40 @@ async fn handle_game_socket(
                 ))
                 .await;
             return;
+        }
+    };
+    let seat: Option<SeatAdmissionRow> = if seat.is_some() {
+        seat
+    } else {
+        match sqlx::query_as(
+            "SELECT t.name, t.small_blind, t.big_blind, 0::bigint, 0::bigint, \
+                    NULL::bigint, NULL::bigint, NULL::bigint, s.stack, s.seat, \
+                    COALESCE(t.poker_variant, 'holdem') \
+             FROM tournament_seats s \
+             JOIN tables t ON t.id = s.table_id \
+             WHERE s.table_id = $1::uuid AND s.player_id = $2 \
+               AND s.status = 'ACTIVE' AND t.status = 'OPEN' \
+               AND t.game_type = 'tournament'",
+        )
+        .bind(&table_id)
+        .bind(&user_id)
+        .fetch_optional(&state.db)
+        .await
+        {
+            Ok(seat) => seat,
+            Err(database_error) => {
+                error!(?database_error, "WebSocket tournament seat query failed");
+                let _ = ws_sender
+                    .send(Message::Text(
+                        serde_json::json!({
+                            "type": "error",
+                            "message": "Não foi possível validar o assento do torneio"
+                        })
+                        .to_string(),
+                    ))
+                    .await;
+                return;
+            }
         }
     };
     let (
@@ -546,6 +587,22 @@ async fn handle_game_socket(
                                             .await;
                                     }
                                 }
+                            }
+                            "sit_out" => {
+                                let _ = tx_cmd
+                                    .send(PlayerCommand::SetSitting {
+                                        player_id: user_id_for_recv.clone(),
+                                        sitting: false,
+                                    })
+                                    .await;
+                            }
+                            "sit_in" => {
+                                let _ = tx_cmd
+                                    .send(PlayerCommand::SetSitting {
+                                        player_id: user_id_for_recv.clone(),
+                                        sitting: true,
+                                    })
+                                    .await;
                             }
                             _ => {}
                         }

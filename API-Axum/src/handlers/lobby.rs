@@ -284,6 +284,12 @@ pub async fn join_table(
 
     tx.commit().await?;
 
+    let _ = sqlx::query("DELETE FROM table_waitlist WHERE table_id = $1 AND user_id = $2::uuid")
+        .bind(table_id)
+        .bind(&auth_user.user_id)
+        .execute(&state.db)
+        .await;
+
     Ok(Json(JoinResponse {
         seat: u8::try_from(seat)
             .map_err(|_| ApiError::Internal("Allocated seat is invalid".to_string()))?,
@@ -360,4 +366,100 @@ pub async fn get_table(
     let table = table.ok_or_else(|| ApiError::NotFound("Table not found".to_string()))?;
 
     Ok(Json(table_response(table)?))
+}
+
+#[derive(Debug, Deserialize)]
+pub struct WaitlistBody {
+    pub table_id: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct WaitlistResponse {
+    pub table_id: String,
+    pub position: i64,
+    pub length: i64,
+}
+
+async fn waitlist_snapshot(
+    state: &AppState,
+    table_id: uuid::Uuid,
+    user_id: &str,
+) -> Result<WaitlistResponse, ApiError> {
+    let length: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM table_waitlist WHERE table_id = $1",
+    )
+    .bind(table_id)
+    .fetch_one(&state.db)
+    .await?;
+    let position: Option<i64> = sqlx::query_scalar(
+        "SELECT position FROM ( \
+            SELECT user_id::text AS uid, \
+                   ROW_NUMBER() OVER (ORDER BY created_at) AS position \
+            FROM table_waitlist WHERE table_id = $1 \
+         ) q WHERE uid = $2",
+    )
+    .bind(table_id)
+    .bind(user_id)
+    .fetch_optional(&state.db)
+    .await?;
+    Ok(WaitlistResponse {
+        table_id: table_id.to_string(),
+        position: position.unwrap_or(0),
+        length,
+    })
+}
+
+/// POST /api/lobby/waitlist — entra na fila quando a mesa cash está cheia.
+pub async fn join_waitlist(
+    State(state): State<AppState>,
+    RequireAuth(auth_user): RequireAuth,
+    Json(body): Json<WaitlistBody>,
+) -> Result<Json<WaitlistResponse>, ApiError> {
+    let table_id = uuid::Uuid::parse_str(&body.table_id)
+        .map_err(|_| ApiError::BadRequest("Invalid table id".to_string()))?;
+    let row: Option<(i16, i16, String, String)> = sqlx::query_as(
+        "SELECT max_players, current_players, visibility, status FROM tables WHERE id = $1",
+    )
+    .bind(table_id)
+    .fetch_optional(&state.db)
+    .await?;
+    let (max_players, current_players, visibility, status) =
+        row.ok_or_else(|| ApiError::NotFound("Table not found".to_string()))?;
+    if visibility != "public" || status != "OPEN" {
+        return Err(ApiError::BadRequest("Table is not open".to_string()));
+    }
+    if current_players < max_players {
+        return Err(ApiError::BadRequest(
+            "Mesa tem vaga — entre direto, sem fila.".to_string(),
+        ));
+    }
+    sqlx::query(
+        "INSERT INTO table_waitlist (table_id, user_id) VALUES ($1, $2::uuid) \
+         ON CONFLICT DO NOTHING",
+    )
+    .bind(table_id)
+    .bind(&auth_user.user_id)
+    .execute(&state.db)
+    .await?;
+    Ok(Json(
+        waitlist_snapshot(&state, table_id, &auth_user.user_id).await?,
+    ))
+}
+
+/// DELETE /api/lobby/waitlist
+pub async fn leave_waitlist(
+    State(state): State<AppState>,
+    RequireAuth(auth_user): RequireAuth,
+    Json(body): Json<WaitlistBody>,
+) -> Result<Json<WaitlistResponse>, ApiError> {
+    let table_id = uuid::Uuid::parse_str(&body.table_id)
+        .map_err(|_| ApiError::BadRequest("Invalid table id".to_string()))?;
+    sqlx::query("DELETE FROM table_waitlist WHERE table_id = $1 AND user_id = $2::uuid")
+        .bind(table_id)
+        .bind(&auth_user.user_id)
+        .execute(&state.db)
+        .await?;
+    Ok(Json(
+        waitlist_snapshot(&state, table_id, &auth_user.user_id).await?,
+    ))
 }

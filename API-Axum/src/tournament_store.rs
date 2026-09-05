@@ -24,6 +24,8 @@ pub struct TournamentStore {
     pub scheduled_start_at: Option<i64>,
     /// Mínimo de jogadores para auto-start (fixo 5 para todos)
     pub auto_start_min_players: Option<i32>,
+    /// Mesa cash-compatível onde as mãos MTT rodam (None = ainda não iniciado).
+    pub live_table_id: Option<String>,
 }
 
 impl TournamentStore {
@@ -61,6 +63,7 @@ impl TournamentStore {
             final_table_max_players: None,
             scheduled_start_at: None,
             auto_start_min_players: Some(5),
+            live_table_id: None,
         }
     }
 

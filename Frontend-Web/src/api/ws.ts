@@ -110,6 +110,14 @@ export class TableSocket {
     this.send({ type: "action", action, amount });
   }
 
+  sendSitOut(): void {
+    this.send({ type: "sit_out" });
+  }
+
+  sendSitIn(): void {
+    this.send({ type: "sit_in" });
+  }
+
   disconnect(): void {
     this.closedByUser = true;
     this.connecting = false;

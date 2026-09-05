@@ -1,309 +1,285 @@
 # Plano de mercado — Rede Zero Tilt em 2 níveis (Play Money)
 
-**Público:** fundador, clubes âncora e agentes  
-**Data:** 2026-09-01  
+**Público:** fundador e cada afiliado com painel da própria rede
+**Data:** 2026-09-05
 **Premissa:** o jogo público **hoje é Play Money**. Nenhum real circula na rede. Este documento é o **molde** para ligar o mesmo grafo em dinheiro real **somente** quando SPA, PSP, KYC e a documentação de compliance estiverem corretos.
 
-> Fonte operacional: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json) (ciclo **S20c**). Demo: [https://zerotiltpoker.net](https://zerotiltpoker.net).
+> Fonte operacional: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json) (ciclo **S21**). Demo: [https://zerotiltpoker.net](https://zerotiltpoker.net).
 
 ---
 
 ## 1. Em uma frase
 
-Encher a sala **agora** com um marketing de rede de **exatamente 2 níveis**, pago só em **pontos Zero Tilt, tickets de freeroll e ranking**, medido por **rake de mãos jogadas** — e guardar essa árvore para o dia em que a unidade de liquidação passar de ponto para centavo real.
+A sala cresce por **convite de quem já joga**. O cadastro amarra **só o ID do patrocinador** (`sponsored_by`). Clube é feltro (onde a pessoa escolhe jogar), **sem fatia de rake**. A árvore tem **exatamente 2 níveis**. A bonificação — já no desenho de dinheiro real — é **18% do rake individual** de cada um do 1º nível e **12% do rake individual** de cada um do 2º nível. O resto fica com a **casa**. Sempre rake de **mão jogada daquele jogador**, nunca cadastro.
 
-Não é “pôquer informal”. Não é pirâmide. É o modelo de **clube + agente** que o código já tem (`clubs` / `club_agents`, split 15/85), ensaiado em fichas virtuais.
-
----
-
-## 2. Por que 2 níveis (e por que isso convence)
-
-As redes clássicas (Amway, Hinode) crescem porque cada pessoa tem **um patrocinador**, um **volume pessoal** e um **volume de grupo**. O que destrói reputação — e o que a lei trata como pirâmide — é pagar por **recrutar**, vender **kit de adesão** e deixar a árvore **sem fundo**.
-
-O Zero Tilt copia só o que é saudável:
-
-| Mecânica de rede | No Play Money (agora) | No real (depois da licença) |
-|------------------|----------------------|-----------------------------|
-| Patrocinador indica alguém | Link do clube ou do agente | O mesmo link, conta com KYC |
-| Volume pessoal (VP) | Rake PM + mãos do próprio jogador | Rake real do próprio jogador |
-| Volume de linha (VL) | Rake PM dos indicados (1 linha) | Rake real da mesma árvore |
-| Profundidade | **Teto = 2** (Clube → Agente → jogadores) | Igual — contrato e código iguais |
-| Taxa de entrada / kit | **Proibido** | **Proibido** |
-| Bônus por cadastrar gente | **Proibido** | **Proibido** |
-| Comissão | Sobre **rake da mão jogada** | Sobre rake real |
-| Pagamento | Pontos, seats de MTT, badge | BRL no ledger do clube/agente |
-| Discurso | “Mesa cheia, status, tickets” | Rakeback — nunca “ficar rico indicando” |
-
-**Regra de ouro:** quem não **joga** não pontua na linha. Rede parada não gera “renda” virtual. Isso é o equivalente ao volume pessoal das empresas sérias.
+Não é pirâmide. Não há taxa de adesão. Quem não senta não pontua.
 
 ---
 
-## 3. O grafo (igual hoje e no futuro)
+## 2. Quem é quem
+
+O **primeiro cadastro** da plataforma é a raiz (fundador). Cada pessoa que entra pelo convite dele (`/register?ref=CODIGO`) é **1º nível** dele. Cada pessoa que entra pelo convite de alguém do 1º nível é **2º nível** dele. A partir daí a raiz **não vê** e **não recebe**.
+
+A regra é a mesma para todo mundo: no admin da própria conta, o afiliado vê só **os seus** 1º e 2º níveis. Não vê neto do neto. Não vê a árvore inteira da casa.
+
+**Contas que já existiam** antes do convite fechado entram como **1º nível da raiz** (patrocinador = primeiro usuário). Elas passam a ter código de convite e montam o próprio 2º nível da raiz (e o 1º nível delas).
 
 ```
-Zero Tilt (casa) — 15% do rake contabilizado
-   └── Nível 1 — Clube / líder de rede — até 85% do rake da sua liquidez
-          └── Nível 2 — Agente do clube — 0 a 50% da fatia do clube, só da própria linha
-                 └── Jogadores indicados pelo agente
-                        └── Se um jogador passar a indicar, ele vira Agente
-                            do MESMO clube (continua nível 2). Não existe nível 3.
+Raiz (1º cadastro)
+ ├── 1º nível — entrou pelo convite da raiz  (ou já estava na sala)
+ │      └── 2º nível da raiz — entrou pelo convite desse 1º nível
+ │             └── (nível 3: existe no banco como filho do 2º, mas a raiz não vê e não ganha)
+ └── 1º nível
+        └── 2º nível
 ```
 
-Isso já cabe no banco:
+Cada afiliado, olhando o **próprio** painel:
 
-- `clubs` — saldo, rake 85%, fee 15%
-- `club_agents` — `rakeback_percentage` 0–50, `total_players_referred`, `total_commission_earned`
-- `club_memberships` — quem joga em qual clube
-- Mesas e torneios com `club_id` e `money_mode` (`play` | `real`)
-
-**Cap de profundidade no discurso e no contrato:** agente não patrocina agente. Jogador que indica bem **sobe para agente do mesmo clube**, não abre um terceiro andar.
+```
+Eu
+ ├── meu 1º nível  → eu levo 18% do rake individual deles
+ └── meu 2º nível  → eu levo 12% do rake individual deles
+```
 
 ---
 
-## 4. Plano de compensação Play Money
+## 3. Por que 2 níveis (e o que isso não é)
+
+As redes que quebram reputação pagam por **recrutar**, vendem **kit** e deixam a árvore **sem fundo**. Aqui:
+
+| Mecânica | Agora (Play Money) | Depois da licença |
+|----------|--------------------|-------------------|
+| Entrada | Convite `?ref=` de quem já tem conta | O mesmo link, com KYC |
+| 1º nível | Entrou pelo **meu** código | Igual |
+| 2º nível | Entrou pelo código do **meu** 1º nível | Igual |
+| Além do 2º | **Invisível** no meu admin; **zero** comissão minha | Igual |
+| Taxa / kit | **Proibido** | **Proibido** |
+| Bônus por cadastrar | **Proibido** | **Proibido** |
+| Base da comissão | Rake da mão no motor (`u64` centavos) | Rake real da mesma árvore |
+| Liquidação | Pontos, tickets de freeroll, ranking | Centavos no ledger + saque legal |
+| Discurso | Mesa cheia, status, tickets | Rakeback — nunca “renda indicando” |
+
+**Regra de ouro:** quem não **joga** não pontua na linha. Rede parada não gera “renda” virtual.
+
+---
+
+## 4. Plano de compensação
 
 ### 4.1 Unidade
 
-**1 ZT Point = 1 centavo de rake Play Money** gerado no motor (o mesmo `u64` que já usa a casa). Não mistura com o stack da mesa. Não converte para carteira Real. Não sai em PIX.
+**1 ZT Point = 1 centavo de rake Play Money** que o motor tirou do pote. Não mistura com o stack da mesa. Não converte para carteira Real. Não sai em PIX.
 
-O reset diário de fichas continua: cash **R$ 150** e torneio **R$ 150** (fuso `America/Sao_Paulo`, sem rebuy — zerou espera 00:00). Pontos de rede vivem num **ledger separado** — é o ensaio do `total_commission_earned` de verdade.
+O reset diário de fichas continua: cash **R$ 150** e torneio **R$ 150** (fuso `America/Sao_Paulo`). Pontos de rede vivem num **ledger separado**.
 
-### 4.2 Dois volumes
+### 4.2 Dois volumes (o que cada um vê)
 
 | Sigla | O que conta | Quem vê |
 |-------|-------------|---------|
-| **VP** (volume pessoal) | Rake PM das mãos em que **você** sentou | Todo mundo que quer se qualificar |
-| **VL** (volume de linha) | Rake PM dos jogadores que **você** patrocinou | Clube vê agentes; agente vê jogadores |
+| **VP** (volume pessoal) | Rake das mãos em que **você** sentou (qualquer clube) | Você, para se qualificar |
+| **VL1** | Soma do rake **individual** de cada pessoa do seu 1º nível | Você, em **Minha Estrutura** |
+| **VL2** | Soma do rake **individual** de cada pessoa do seu 2º nível | Você, em **Minha Estrutura** |
 
-### 4.3 Split (espelha o 15/85 que o motor já calcula)
+Ninguém vê VL3. O banco pode ter `sponsored_by` encadeado; a API do painel **corta em 2**.
 
-Exemplo: uma mão gera **1.000 centavos** de rake PM (R$ 10 virtuais).
+### 4.3 Percentuais (canônicos — iguais em ponto e em real)
 
-| Destino | Conta | ZT Points |
-|---------|------:|----------:|
-| Casa | 15% | 150 (só dashboard; não “paga” pessoa) |
-| Clube | 85% | 850 |
-| Se o agente dessa linha tem 30% da fatia do clube | 30% × 850 | 255 para o agente, 595 ficam no clube |
+Sobre o **rake da mão** daquele jogador (não buy-in, não stack, não “rake do clube”):
 
-O percentual do agente **nunca** come a fatia da casa. Sai só dos 85% do clube. É a regra já escrita em `BUSINESS_RULES.md` §9.3.
+| Destino | % do rake gerado por aquele jogador |
+|---------|-------------------------------------|
+| Patrocinador direto (1º nível) | **18%** |
+| Avô da indicação (2º nível), se existir | **12%** |
+| Soma máxima de rede nessa mão | **30%** |
+| Casa | **resto** (70% com os dois andares; 82% só com 1º nível; 100% sem patrocinador) |
+
+Clube **não recebe**. Não há overlay 15/85 nesta rede. Conta de uma mão com 1.000 centavos de rake e os dois andares:
+
+| Destino | Centavos |
+|---------|----------:|
+| Patrocinador direto (18%) | 180 |
+| Avô (12%) | 120 |
+| Casa | 700 |
+
+Sem avô: 180 ao pai, 820 à casa. Sem patrocinador (a raiz jogando): 1.000 à casa. A raiz nas mãos do **próprio** 1º nível leva 18%; nas do 2º nível, 12%. Não leva 18%+12% da mesma mão.
+
+Play Money hoje só muda a **unidade** (ZT Point = 1 centavo de rake PM). Os % não mudam quando (e se) virar real.
 
 ### 4.4 Qualificação (anti-pirâmide)
 
 Para receber pontos de **linha** na semana:
 
-1. Ter jogado **pelo menos 50 mãos** naquela semana (VP mínimo), **ou**
+1. Ter jogado **pelo menos 50 mãos** naquela semana, **ou**
 2. Ter gerado **R$ 20** de rake PM pessoal (2.000 centavos)
 
-Quem só indica e não senta **zera a linha naquela semana**. Os pontos não acumulam “de graça”. Os jogadores da ponta continuam jogando; o patrocinador inativo simplesmente não leva VL.
+Quem só indica e não senta **zera a linha naquela semana**. Os jogadores da ponta continuam jogando; o patrocinador inativo simplesmente não leva VL.
 
 ### 4.5 Liquidação semanal (sexta 18h BRT)
 
-ZT Points **não** viram fichas de cash que se misturam com os R$ 150 do reset. Isso bagunçaria a economia da sala. Viram:
+ZT Points **não** viram fichas de cash misturadas com os R$ 150 do reset. Viram:
 
-1. **Seats de freeroll da rede** (prêmio principal — gente sentada = liquidez)
-2. **Tickets de MTT Play Money** com overlay simbólico
-3. **Ranking / badge** (Recreacional → Agente → Clube), visível no lobby
+1. **Seats de freeroll da rede**
+2. **Tickets de MTT Play Money**
+3. **Ranking / badge** visível no lobby
 
-Teto semanal sugerido: o equivalente a **2 seats** de freeroll por agente qualificado, para não inflar prize pool. O restante dos pontos vira posição no ranking do mês.
+Teto semanal sugerido: o equivalente a **2 seats** de freeroll por afiliado qualificado. O restante vira posição no ranking do mês.
 
 **Nunca:** PIX, saque, conversão para `balance_real`, “vender pontos”, transferência entre contas.
 
 ### 4.6 Cadastro
 
-- Grátis. Sem kit. Sem “taxa de ativação”.
-- Um patrocinador só. Se chegar sem link, cai no **clube casa** (Zero Tilt) até alguém adotá-lo pelo admin.
-- E-mail verificado (já é regra da demo: Resend + código de 6 dígitos).
+- Grátis. Sem kit. Sem taxa de ativação.
+- Um patrocinador só (`users.sponsored_by` = ID de quem convidou). Não se troca de pai. Clube é outra coisa: o jogador joga onde quiser; a rede não muda porque ele trocou de mesa ou de clube.
+- Com `REQUIRE_INVITE=true`, cadastro exige código (exceto o **primeiro** usuário da base).
+- Contas antigas: `sponsored_by` = id do primeiro usuário; cada uma recebe `referral_code`.
+- E-mail verificado (Resend + código de 6 dígitos).
 
 ---
 
-## 5. Fases (o que fazer na prática)
+## 5. Painel Minha Estrutura (o que o admin mostra)
 
-### Fase A — 0 a 30 dias: mesa viva
+Cada conta autenticada tem **a sua** estrutura, não a da casa:
 
-Objetivo único: **≥ 2 pessoas na mesma mesa, no mesmo modo, no horário nobre**.
+- Lista do 1º nível: apelido, mãos da semana, rake gerado, % 18
+- Lista do 2º nível: apelido, quem é o pai (1º nível), rake gerado, % 12
+- Totais VL1 / VL2 / pontos da semana / se está qualificado
+- Botão de copiar `https://zerotiltpoker.net/register?ref=MEUCODIGO`
 
-- Convite só Play Money. Texto pronto na seção 7.
-- 10 a 20 embaixadores (amigos que **jogam**, não “vendedores”).
-- Janela âncora: **20h–24h BRT**, quatro noites por semana.
-- Combinar **mesa e variante** no grupo (Hold’em 0,25/0,25 é a porta de entrada).
-- Proibido no grupo: pedir PIX, “fichas combinadas”, “depois a gente acerta”, discurso de renda.
+A raiz vê o mesmo recorte: só os **seus** dois andares (incluindo quem já estava na sala, agora 1º nível). Não é um organograma mundial.
 
-KPI da fase: mãos/semana na demo e picos de `GET /api/presence/online`. Sem isso, rede nenhuma pega.
+**Ainda é modelo (não código completo):** o convite `?ref=` e `referral_code` / `sponsored_by` estão no disco (migration `045`); o painel **Minha Estrutura** e o ledger 18/12 **ainda não** fecham mão a mão. Não vender isso como “já paga”.
 
-### Fase B — 30 a 90 dias: MMN no papel + admin que já existe
+---
 
-- Abrir **1 clube âncora** pelo admin HTTPS (`POST /api/admin/clubs`).
-- Cadastrar agentes (`POST /api/admin/clubs/:id/agents`) com rakeback **20–35%** no começo (não 50% — reserva para quem realmente enche mesa).
-- Planilha semanal de VP/VL (mesmo que o motor de pontos ainda não esteja no código: este documento é o modelo; a implementação vem depois).
-- Freeroll de domingo só para quem bateu VP.
+## 6. Fases
 
-KPI da fase: árvore com profundidade real 2, **zero** nível 3 “no zap”, e 70%+ dos agentes qualificados jogando.
+### Fase A — mesa viva
+
+Objetivo: **≥ 2 pessoas na mesma mesa, no mesmo modo, no horário nobre**. Convite só Play Money. Janela âncora **20h–24h BRT**. Proibido no grupo: PIX, “renda”, fichas combinadas.
+
+### Fase B — painel e pontos
+
+- Backfill: contas existentes → 1º nível da raiz
+- Painel 2 níveis por usuário
+- Planilha ou ledger de VP / VL1 / VL2
+- Freeroll de domingo só para quem bateu VP
+
+KPI: profundidade observada **≤ 2 no painel**; 70%+ dos afiliados que recebem VL também jogaram.
 
 ### Fase C — parceiro vê o molde
 
-O relatório de parceiros mostra a árvore, os %, o ledger e os KPIs. O pedido é **capital de compliance + liquidez**, não “entrar no informal”. Até a porteira: **zero real na rede**.
+O relatório de parceiros mostra 18/12, clube sem fatia, o corte em 2 níveis e os gaps. Pedido: **liquidez + compliance**, não cheque para ligar PIX.
 
-### Fase D — interruptor (só com documentação correta)
+### Fase D — interruptor (papelada completa)
 
-Checklist mínimo, todos juntos:
-
-- Autorização SPA **ou** white-label em operador já autorizado
-- PSP com **aceite formal** de iGaming (o código sozinho não basta)
-- KYC/AML, autoexclusão, limites de depósito
-- Saque auditável; PIX production destravado **só então**
-- Carteira Real continua **isolada** do Play Money
-
-Aí: `1 ZT Point` → `1 centavo real` no mesmo split 15/85. Agentes **não mudam de lugar**. Contrato de profundidade 2 **não muda**.
-
----
-
-## 6. Economia da rede (para o clube entender a conta)
-
-Rake no pôquer recreacional costuma ficar na casa de **2,5% a 5% do pote**, com teto por mão. O número exato é o do motor; o que o clube precisa gravar é a **ordem**:
-
-`potes → rake → split 15/85 → Loss Deflator no pote líquido → pagamentos`
-
-O Loss Deflator **não** sai do bolso da casa nem do clube: sai do pote em que o perdedor estava. Não negociar “desligar o deflator para aumentar rake” — isso mata a marca Zero Tilt.
-
-Régua de conversa com clube âncora (Play Money, portanto **pontos**, não BRL):
-
-- 10 jogadores ativos × 30 mãos/noite × 4 noites × ~R$ 0,50 de rake médio/mão ≈ **R$ 600** de rake PM/semana
-- 85% clube ≈ **510 ZT Points × 100** se o rake médio for outro — o importante é a **proporção**, não o valor de marketing
-- Agente a 30% leva ~153 desses 510 **só da linha dele**
-
-Quando virar real, a mesma conta vira centavos no `clubs.balance`. Por isso o ensaio precisa ser honesto agora: inflar VP com bots ou multi-conta **queima o molde** e o antifraude (IP /24, multi-account) existe para isso.
+SPA ou white-label, PSP com aceite de iGaming, KYC/AML, autoexclusão, saque auditável. Aí `1 ZT Point` → `1 centavo real`. **Os % 18/12, o teto de 2 níveis e “clube sem fatia” não mudam.**
 
 ---
 
 ## 7. Como convidar (sem parecer MMN de renda)
 
-### 7.1 Mensagem para jogador (WhatsApp / Discord)
+### 7.1 Mensagem para jogador
 
 ```text
 Zero Tilt — pôquer online de verdade, fichas virtuais, HTTPS:
 
-https://zerotiltpoker.net
+https://zerotiltpoker.net/register?ref=SEUCODIGO
 
-1) Cria a conta (senha forte, tipo PokerDemo1)
-2) Confirma o e-mail (código de 6 dígitos; olha o spam)
-3) No topo: Play Money
-4) Lobby → Hold’em 0,25/0,25 → me avisa que sentou
-5) Precisa de 2 pessoas na mesma mesa pra começar
+1) Cria a conta e confirma o e-mail (código de 6 dígitos; olha o spam)
+2) No topo: Play Money
+3) Lobby → Hold’em 0,25/0,25 → me avisa que sentou
+4) Precisa de 2 pessoas na mesma mesa pra começar
 
 Não é dinheiro real. É pra jogar, aprender e encher a sala.
 Hoje 20h, mesa combinada.
 ```
 
-### 7.2 Mensagem para futuro agente (amigo que traz gente)
+### 7.2 Mensagem para quem vai indicar
 
 ```text
-Quero que você seja agente do clube — 2 níveis só, sem taxa.
+Você indica com o seu código. Quem entra por você é o seu 1º nível.
+Quem entra pelo código deles é o seu 2º nível. Acabou.
 
-O que você faz: traz gente pra jogar Play Money e senta junto.
-O que você ganha agora: pontos, seats de freeroll, ranking.
-O que você NÃO ganha agora: dinheiro.
-
-Se a plataforma regular, a mesma árvore vira rakeback de verdade.
-Até lá, o jogo é o produto. Quem não joga não pontua.
+Agora: pontos e tickets, se você também jogar.
+Não é dinheiro. Sem taxa. Sem nível 3 na sua tela.
 ```
 
-### 7.3 Frases proibidas (queimam o parceiro depois)
+### 7.3 Frases proibidas
 
 - “Renda extra”, “primeiro a entrar ganha mais”, “taxa pra ativar”
 - “Joga valendo no PIX do grupo”
 - “Indica 10 e fica rico”
-- Qualquer analogia pública com Amway/Herbalife **para o jogador final**
+- Analogia pública com Amway/Herbalife **para o jogador final**
 
 ---
 
-## 8. Papéis e rotina
+## 8. Papéis
 
 | Papel | Faz | Não faz |
 |-------|-----|---------|
-| **Casa (você)** | Sobe a demo, health, admin de clubes, regras, freeroll semanal, corte de discurso ruim | Prometer BRL, ligar PIX de rede |
-| **Clube (nível 1)** | Horário âncora, cultura da mesa, escolhe agentes, teto 50% | Vender vaga, abrir “subclube” |
-| **Agente (nível 2)** | Indica, senta, tira dúvida de cadastro/e-mail | Recrutar “patrocinado do patrocinado” |
-| **Jogador** | Joga, manda bug, indica no máximo virando agente | Depositar real “por fora” |
+| **Raiz (1º cadastro)** | Sobe a demo, regras, freeroll, corta discurso ruim; vê só os **seus** 2 níveis | Prometer BRL; ver a árvore infinita |
+| **Afiliado** | Joga, copia o link, acompanha o **próprio** 1º e 2º nível no admin | Cobrar cadastro; inventar nível 3 |
+| **Jogador na ponta** | Senta, manda bug | Depositar real “por fora” |
 
-Rotina semanal da casa:
-
-1. Segunda: olhar presença e mãos da semana
-2. Quarta: ver quem não bateu VP (avisar: sem ticket no domingo)
-3. Sexta 18h: fechar ranking e seats
-4. Domingo: freeroll da rede, **mesmo feltro**, mesma regra Zero Tilt
+Rotina semanal da casa: segunda presença/mãos; quarta quem não bateu VP; sexta 18h ranking e seats; domingo freeroll no mesmo feltro.
 
 ---
 
-## 9. KPIs (o que medir, senão é conversa)
+## 9. KPIs
 
-| KPI | Meta Fase A (30d) | Meta Fase B (90d) | Por que importa |
-|-----|-------------------|-------------------|-----------------|
+| KPI | Meta 30d | Meta 90d | Por que importa |
+|-----|----------|----------|-----------------|
 | Jogadores que sentaram ≥1 mão | 20 | 80 | Ativação |
-| Mãos/semana (todas as mesas PM) | 200 | 1.500 | Liquidez |
-| Pico `online` 20h–24h | 4 | 12 | Sala percebida como viva |
-| Agentes com VP na semana | — | ≥70% | Anti-pirâmide |
-| Profundidade máxima observada | 1 | 2 | Nunca 3 |
-| Tickets de freeroll realmente jogados | — | ≥80% dos emitidos | Ponto que vira gente na mesa |
-| Bugs bloqueantes abertos >7 dias | 0 | 0 | Confiança |
+| Mãos/semana (PM) | 200 | 1.500 | Liquidez |
+| Pico `online` 20h–24h | 4 | 12 | Sala viva |
+| Afiliados com VP na semana | — | ≥70% | Anti-pirâmide |
+| Profundidade no **painel** | 1 | 2 | Nunca 3 visível |
+| Tickets de freeroll jogados | — | ≥80% dos emitidos | Ponto vira gente na mesa |
 
-Se VP cresce e mãos não crescem, alguém está “pontuando” sem jogar: **cortar**.
-
----
-
-## 10. O que já existe no produto para este plano
-
-Não precisa esperar um app de MMN para começar a Fase A.
-
-- Demo pública HTTPS, e-mail verificado, MFA
-- Carteiras **Play Money ≠ Jogo Real** (PM não senta em mesa Real)
-- Admin de clubes, agentes, financials, tema white-label
-- Split de rake 15/85 no motor, crédito de `club_rake` na liquidação
-- Contador online, lobby com filtros, catálogo curto (Hold’em, Short Deck, Omaha Short Deck)
-- Loss Deflator, Dica do Pró, história do pôquer — material de cultura, não de “venda”
-
-O que **ainda é modelo** (não código, nesta entrega): ledger de ZT Points, link público de indicação no registro, dashboard do agente para o próprio agente, ranking de rede no lobby. Ver o relatório de parceiros, seção de melhorias.
+Se VL cresce e mãos não crescem: **cortar**.
 
 ---
 
-## 11. Interruptor para dinheiro real (quando a papelada estiver correta)
+## 10. O que já existe vs o que ainda é modelo
 
-Não se “liga o MMN em real”. Se **substitui a unidade** e se **abre a porteira**:
+Já no produto ou no disco desta entrega: demo HTTPS, e-mail, MFA, Play Money ≠ Real, convite `?ref=` / `REQUIRE_INVITE`, `users.referral_code` e `sponsored_by` (migration `045`). O motor ainda calcula split 15/85 em mesa com `club_id` — **esta rede não usa isso como pagamento de clube**.
 
-1. Mesma árvore `clube → agente → jogadores`
-2. Mesmos % (15 / 85 / 0–50 da fatia do clube)
-3. Mesmo teto de 2 níveis
-4. Mesma qualificação por jogo (agora em rake real)
-5. Liquidação deixa de ser ticket e passa a ser **centavos no ledger** + saque do clube já previsto em `POST /api/admin/clubs/:id/withdraw` — **somente** com PSP e licença
+Ainda modelo: ledger 18/12 por mão, resto para a casa, painel **Minha Estrutura**, backfill das contas antigas como 1º nível da raiz.
 
-Até lá, o endpoint de saque do clube **não se usa** para esta rede. Play Money não saca.
+---
+
+## 11. Interruptor para dinheiro real
+
+Não se “liga o MMN em real”. Substitui-se a **unidade** (ponto → centavo) com a **mesma** árvore, os **mesmos** 18/12, clube sem fatia, o **mesmo** teto de 2 níveis. Saque só com PSP e licença. Play Money não saca.
 
 ---
 
 ## 12. Não faça
 
 - Operar pôquer real “enquanto o registro não vem”
-- Terceiro nível “só no WhatsApp”
-- Taxa de adesão, kit, meta de cadastro com prêmio em dinheiro
+- Terceiro nível “só no WhatsApp” ou no admin da raiz
+- Taxa de adesão, kit, prêmio em dinheiro por cadastro
 - Misturar pontos de rede com carteira Real
-- Desligar Loss Deflator, antifraude de IP ou verificação de e-mail para “crescer mais rápido”
-- Prometer ao parceiro que o MMN Play Money **já é** receita em BRL
+- Desligar Loss Deflator, antifraude ou verificação de e-mail para crescer mais rápido
+- Prometer que 18/12 Play Money **já é** receita em BRL
+- Pagar clube **e** afiliado na mesma mão; clube nesta rede não leva rake
+- Somar 18/12 em cima do split 15/85 do motor
 
 ---
 
-## 13. Checklist do dono (imprimir)
+## 13. Checklist do dono
 
-- [ ] Grupos e convites falam só **Play Money**
-- [ ] Horário âncora combinado (20h–24h, mesa nomeada)
-- [ ] Um clube âncora no admin; agentes com % ≤ 35% no início
-- [ ] Qualificação 50 mãos ou R$ 20 de rake PM / semana
+- [ ] Convites falam só **Play Money**
+- [ ] Horário âncora combinado
+- [ ] Backfill: contas antigas = 1º nível da raiz
+- [ ] Cada afiliado vê só 2 níveis no admin
+- [ ] 18% VL1 e 12% VL2 sobre rake individual; resto à casa; clube sem fatia
+- [ ] Qualificação 50 mãos ou R$ 20 rake PM / semana
 - [ ] Liquidação = tickets + ranking, nunca PIX
-- [ ] Profundidade auditada: se aparecer nível 3, achatar para agente do mesmo clube
-- [ ] Relatório de parceiros na pasta, com gaps honestos
-- [ ] Interruptor (SPA + PSP + KYC + saque) **desligado** até a lista da Fase D estar completa
+- [ ] Interruptor SPA + PSP + KYC **desligado** até a Fase D
 
 ---
 
-*Este plano não altera split, PIX, saque nem o motor. Ele descreve como crescer a sala com o que já existe e como a mesma rede vira negócio regulado depois.*
+*Este plano descreve a árvore comercial: 18/12 sobre rake individual, clube só como lugar, casa com o resto. Os % são os de dinheiro real; Play Money só troca a unidade.*
 
 <!-- DOCUMENTATION_SYNC:START -->
 > **Estado operacional sincronizado (2026-09-04):** S21 — Texas Hold’em rename + FT Short Deck 8-max + Omaha 5-max + Pineapple 6-max + Short Deck ranking trips>straight + torneio agendado 21:30 SP auto-start 5 + Pix Leofran + saque 24h + lobby max sempre + sim 100k/mesa + PM 150+150 sem rebuy (ilimitado com saldo, play money) **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–044 na VPS (cash Texas SD 8-max + Omaha 5-max + Pineapple 6-max + Texas rename + FT 8 + scheduled 21:30 + PM 150+150 + restore catálogo + Dockerfile cache). PM duas carteiras R$150 sem rebuy (ilimitado com saldo). Motor short_deck_massive + tournament_to_champion PASS (Texas/Omaha 5/Pineapple 6 até 1 campeão; flush>FH e trips>straight). VPS 2h real 100 contas: 980 mãos R$135,11 rake, 4 campeões MTT. Simulado Motor-Rust/src/bin/simulated_100.rs 100k/mesa (400k total). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas com X-max sempre. MTT site: inscrição + horário agendado + popup FT; gameplay_ready=false (sem WS de torneio). Health público OK. Recebedor manual: Leofran, chave 6eefcd53-686e-42d4-a062-03751336251c (PLAY_MONEY_PIX_KEY). Saque: informar chave Pix própria, recebimento em até 24h. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.

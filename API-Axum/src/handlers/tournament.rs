@@ -68,6 +68,7 @@ pub struct TournamentInfoResponse {
     pub final_table_max_players: Option<u8>,
     pub scheduled_start_at: Option<i64>,
     pub auto_start_min_players: Option<i32>,
+    pub live_table_id: Option<String>,
 }
 
 fn status_string(status: &poker_engine::tournament_engine::TournamentStatus) -> String {
@@ -120,14 +121,14 @@ fn to_info(store: &crate::tournament_store::TournamentStore) -> TournamentInfoRe
                 duration_minutes: b.duration_minutes,
             })
             .collect(),
-        // MTT hands not wired to TableActor yet.
-        gameplay_ready: false,
+        gameplay_ready: store.live_table_id.is_some(),
         money_mode: store.money_mode.clone(),
         poker_variant: store.poker_variant.clone(),
         final_table_variant: store.final_table_variant.clone(),
         final_table_max_players: store.final_table_max_players,
         scheduled_start_at: store.scheduled_start_at,
         auto_start_min_players: store.auto_start_min_players,
+        live_table_id: store.live_table_id.clone(),
     }
 }
 
@@ -282,6 +283,6 @@ pub async fn register_player(
         player_id: auth_user.user_id,
         stack: starting_stack,
         registered: true,
-        gameplay_ready: false,
+        gameplay_ready: store.live_table_id.is_some(),
     }))
 }

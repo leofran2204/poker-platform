@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { joinTable, listTables, listTournaments, registerTournament } from "@/api/client";
+import { joinTable, joinWaitlist, listTables, listTournaments, registerTournament } from "@/api/client";
 import type { TableResponse, TournamentInfoResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";
 import { deckTypeLabel, gameNameLabel } from "@/lib/gameLabels";
@@ -104,6 +104,21 @@ export function LobbyPage() {
       setSelectedId(null);
     }
   }, [filtered, selectedId]);
+
+  async function handleWaitlist(table: TableResponse) {
+    setJoiningId(table.id);
+    setError(null);
+    try {
+      const wait = await joinWaitlist(table.id);
+      setError(
+        `Fila da mesa: você é o ${wait.position}º de ${wait.length}. Quando abrir vaga, clique em Entrar.`,
+      );
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Não foi possível entrar na fila");
+    } finally {
+      setJoiningId(null);
+    }
+  }
 
   async function handleJoin(table: TableResponse) {
     if (table.players >= table.max_players) return;
@@ -343,13 +358,17 @@ export function LobbyPage() {
                                 ? "zt-btn-secondary !px-2.5 !py-1 !text-xs"
                                 : "zt-btn-primary !px-2.5 !py-1 !text-xs"
                             }
-                            disabled={full || joiningId === t.id}
+                            disabled={joiningId === t.id}
                             onClick={(e) => {
                               e.stopPropagation();
-                              void handleJoin(t);
+                              if (full) {
+                                void handleWaitlist(t);
+                              } else {
+                                void handleJoin(t);
+                              }
                             }}
                           >
-                            {full ? "Cheia" : joiningId === t.id ? "…" : "Entrar"}
+                            {joiningId === t.id ? "…" : full ? "Fila" : "Entrar"}
                           </button>
                         </td>
                       </tr>

@@ -265,7 +265,8 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
 ### 9.3 🏢 Divisão Financeira B2B SaaS (Rake Split 15% / 85%)
 - **Ordem de Execução Inviolável**: Potes brutos → Cálculo de Rake → **Split B2B (15% Plataforma Zerotilt / 85% Clube Locatário)** → Aplicação do Loss Deflator sobre o pote líquido pós-rake → Distribuição dos prêmios.
 - **Roteamento de Ledger**: O valor do Rake do Clube (`club_rake`) é injetado diretamente no saldo administrativo da tabela `clubs` (`balance`) ao final de cada mão (apenas mesas com `club_id`). O fee da plataforma (`platform_fee`) é contabilizado para a Zerotilt.
-- **Agentes / rakeback**: percentuais 0–50% cadastrados em `club_agents` (admin HTTPS); comissões acumuladas em centavos. Não altera o split 15/85 plataforma/clube — o rakeback do agente é subconjunto da fatia do clube.
+- **Split 15/85 no motor:** ainda existe para mesa com `club_id` (código legado). **Não é** a regra comercial desta rede.
+- **Rede de afiliados (canônico):** cadastro grava só o **ID do patrocinador** (`users.sponsored_by`). Clube é lugar, **sem rake**. Dois níveis no admin de cada um. Comissão sobre o **rake individual** da mão em que o afiliado sentou: **18%** ao patrocinador direto, **12%** ao avô (se houver), **resto à casa**. Sem avô: 18% + 82% casa. Sem patrocinador: 100% casa. Sem bônus por cadastro. Mesmos % em ponto e em real. Detalhe: `PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md`.
 - **Play-money**: operação atual permanece sem dinheiro real; saques de clube via admin são intenções mock/sandbox.
 
 ---

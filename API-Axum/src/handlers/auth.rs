@@ -44,6 +44,9 @@ pub struct RegisterBody {
     #[serde(default)]
     pub password_confirm: Option<String>,
     pub username: String,
+    /// Código de convite (`?ref=`). Obrigatório quando REQUIRE_INVITE=true (exceto 1º usuário).
+    #[serde(default)]
+    pub invite_code: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -327,6 +330,87 @@ async fn create_mfa_challenge(state: &AppState, user_id: &str) -> Result<String,
     tx.commit().await?;
     Ok(challenge)
 }
+
+fn normalize_invite(raw: Option<&str>) -> Option<String> {
+    raw.map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(|s| s.to_ascii_uppercase())
+}
+
+fn referral_code_from_id(id: &str) -> String {
+    id.chars()
+        .filter(|c| c.is_ascii_hexdigit())
+        .take(8)
+        .collect::<String>()
+        .to_ascii_uppercase()
+}
+
+async fn resolve_sponsor(
+    state: &AppState,
+    code: Option<&str>,
+) -> Result<Option<String>, ApiError> {
+    let Some(code) = normalize_invite(code) else {
+        if !state.require_invite {
+            return Ok(None);
+        }
+        let (count,): (i64,) = sqlx::query_as("SELECT COUNT(*) FROM users")
+            .fetch_one(&state.db)
+            .await?;
+        if count == 0 {
+            return Ok(None);
+        }
+        return Err(ApiError::Forbidden(
+            "Cadastro só com convite de quem já tem conta.".to_string(),
+        ));
+    };
+    let row: Option<(String,)> =
+        sqlx::query_as("SELECT id::text FROM users WHERE referral_code = $1")
+            .bind(&code)
+            .fetch_optional(&state.db)
+            .await?;
+    match row {
+        Some((id,)) => Ok(Some(id)),
+        None => Err(ApiError::BadRequest("Convite inválido.".to_string())),
+    }
+}
+
+async fn finish_network_link(
+    state: &AppState,
+    new_user_id: &str,
+    sponsor_id: Option<&str>,
+) -> Result<(), ApiError> {
+    let code = referral_code_from_id(new_user_id);
+    let sponsor_uuid = sponsor_id.and_then(|s| uuid::Uuid::parse_str(s).ok());
+    sqlx::query("UPDATE users SET referral_code = $2, sponsored_by = $3 WHERE id = $1::uuid")
+        .bind(new_user_id)
+        .bind(&code)
+        .bind(sponsor_uuid)
+        .execute(&state.db)
+        .await?;
+    if let Some(sid) = sponsor_id {
+        let _ = sqlx::query(
+            "UPDATE club_agents SET total_players_referred = total_players_referred + 1 \
+             WHERE status = 'active' AND club_id IN ( \
+               SELECT club_id FROM club_memberships WHERE user_id = $1::uuid AND status = 'active' \
+             )",
+        )
+        .bind(sid)
+        .execute(&state.db)
+        .await;
+        let _ = sqlx::query(
+            "INSERT INTO club_memberships (user_id, club_id, role, status) \
+             SELECT $1::uuid, club_id, 'player', 'active' \
+             FROM club_memberships WHERE user_id = $2::uuid AND status = 'active' \
+             ON CONFLICT DO NOTHING",
+        )
+        .bind(new_user_id)
+        .bind(sid)
+        .execute(&state.db)
+        .await;
+    }
+    Ok(())
+}
+
 // ─── Handlers ───
 
 /// POST /api/auth/register
@@ -359,6 +443,8 @@ pub async fn register(
             "password and password_confirm do not match".to_string(),
         ));
     }
+
+    let sponsor_id = resolve_sponsor(&state, body.invite_code.as_deref()).await?;
 
     let request = poker_engine::auth::RegisterRequest {
         username: body.username.clone(),
@@ -417,6 +503,8 @@ pub async fn register(
     if let Err(error) = persist_result {
         return Err(error.into());
     }
+
+    finish_network_link(&state, &user.id, sponsor_id.as_deref()).await?;
 
     state.auth.write().await.upsert_persisted_user(user.clone());
 
@@ -922,6 +1010,7 @@ pub struct MeResponse {
     pub pm_cash_rebuy_available: bool,
     pub pm_mtt_rebuy_available: bool,
     pub email: String,
+    pub referral_code: Option<String>,
 }
 
 pub async fn me(
@@ -929,14 +1018,14 @@ pub async fn me(
     State(state): State<AppState>,
 ) -> Result<Json<MeResponse>, ApiError> {
     let snap = crate::wallet::load_snapshot(&state.db, &auth_user.user_id).await?;
-    let row: Option<(String, String, String, String, String)> = sqlx::query_as(
-        "SELECT id::text, username, role, status, email FROM users WHERE id = $1::uuid",
+    let row: Option<(String, String, String, String, String, Option<String>)> = sqlx::query_as(
+        "SELECT id::text, username, role, status, email, referral_code FROM users WHERE id = $1::uuid",
     )
     .bind(&auth_user.user_id)
     .fetch_optional(&state.db)
     .await?;
 
-    let (user_id, username, role, status, email) =
+    let (user_id, username, role, status, email, referral_code) =
         row.ok_or_else(|| ApiError::NotFound("User not found".to_string()))?;
 
     Ok(Json(MeResponse {
@@ -953,5 +1042,6 @@ pub async fn me(
         pm_cash_rebuy_available: snap.pm_cash_rebuy_available,
         pm_mtt_rebuy_available: snap.pm_mtt_rebuy_available,
         email,
+        referral_code,
     }))
 }

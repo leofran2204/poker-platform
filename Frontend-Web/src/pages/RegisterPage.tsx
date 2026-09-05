@@ -1,14 +1,16 @@
 import { FormEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { applyAuthTokens, register } from "@/api/client";
 import { saveUsername } from "@/lib/auth";
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [inviteCode, setInviteCode] = useState((params.get("ref") ?? "").toUpperCase());
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -31,7 +33,13 @@ export function RegisterPage() {
 
     setLoading(true);
     try {
-      const res = await register(username.trim(), email.trim(), password, passwordConfirm);
+      const res = await register(
+        username.trim(),
+        email.trim(),
+        password,
+        passwordConfirm,
+        inviteCode.trim() || undefined,
+      );
       if (res.email_verification_required) {
         navigate(`/verify-email?email=${encodeURIComponent(res.email ?? email.trim())}`);
         return;
@@ -61,8 +69,22 @@ export function RegisterPage() {
         <form className="space-y-4 p-5" onSubmit={onSubmit}>
           <p className="text-sm text-felt-300">
             Contas de demo recebem play-money. Após o cadastro, confirme o e-mail
-            com o código de 6 dígitos para liberar o lobby.
+            com o código de 6 dígitos para liberar o lobby. Com convite fechado,
+            use o código de quem já joga.
           </p>
+          <div>
+            <label className="zt-label" htmlFor="invite">
+              Código de convite
+            </label>
+            <input
+              id="invite"
+              className="zt-input uppercase"
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+              placeholder="Cole o código de um jogador"
+              autoComplete="off"
+            />
+          </div>
           <div>
             <label className="zt-label" htmlFor="username">
               Usuário

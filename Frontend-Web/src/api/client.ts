@@ -167,6 +167,7 @@ export async function register(
   email: string,
   password: string,
   passwordConfirm: string,
+  inviteCode?: string,
 ): Promise<RegisterResult> {
   return request<RegisterResult>(
     "/api/auth/register",
@@ -177,6 +178,7 @@ export async function register(
         email,
         password,
         password_confirm: passwordConfirm,
+        invite_code: inviteCode || undefined,
       }),
     },
     false,
@@ -304,6 +306,17 @@ export async function joinTable(
 
 export async function leaveTable(tableId: string): Promise<void> {
   await request<unknown>("/api/lobby/leave", {
+    method: "POST",
+    body: JSON.stringify({ table_id: tableId }),
+  });
+}
+
+export async function joinWaitlist(tableId: string): Promise<{
+  table_id: string;
+  position: number;
+  length: number;
+}> {
+  return request("/api/lobby/waitlist", {
     method: "POST",
     body: JSON.stringify({ table_id: tableId }),
   });

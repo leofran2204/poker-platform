@@ -133,9 +133,22 @@ export function TournamentPage() {
       {!info.gameplay_ready ? (
         <div className="rounded border border-amber-700/60 bg-amber-950/30 px-3 py-2 text-xs text-amber-100">
           Gameplay de torneio ainda não está ligado à mesa ao vivo — inscrição e configuração já
-          disponíveis. Em breve você joga as mãos MTT aqui.
+          disponíveis.
         </div>
-      ) : null}
+      ) : (
+        <div className="rounded border border-emerald-800/60 bg-emerald-950/30 px-3 py-2 text-xs text-emerald-100">
+          Mãos do torneio passam na mesa ao vivo (mesmo WebSocket do cash). Relógio de blinds e
+          eliminação ainda são do coordenador — não é MTT completo.
+          {info.live_table_id ? (
+            <>
+              {" "}
+              <Link to={`/table/${info.live_table_id}`} className="font-semibold underline">
+                Ir para a mesa
+              </Link>
+            </>
+          ) : null}
+        </div>
+      )}
 
       {error && (
         <p className="rounded border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200">

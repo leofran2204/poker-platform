@@ -76,7 +76,17 @@ pub async fn run_coordinator(state: AppState) {
                     .bind(now)
                     .execute(&state.db)
                     .await;
-                    let _ = assign_tournament_tables(&state, store, &tid).await;
+                    if let Ok(table_uuid) = assign_tournament_tables(&state, store, &tid).await {
+                        let table_s = table_uuid.to_string();
+                        store.live_table_id = Some(table_s.clone());
+                        let _ = sqlx::query(
+                            "UPDATE tournaments SET live_table_id=$2::uuid WHERE id=$1::uuid",
+                        )
+                        .bind(&tid)
+                        .bind(&table_s)
+                        .execute(&state.db)
+                        .await;
+                    }
                     tracing::info!(tournament_id=%tid, "torneio iniciado auto com 5+ players no horário agendado");
                 }
             }
@@ -90,7 +100,7 @@ async fn assign_tournament_tables(
     state: &AppState,
     store: &crate::tournament_store::TournamentStore,
     tid: &str,
-) -> Result<(), sqlx::Error> {
+) -> Result<uuid::Uuid, sqlx::Error> {
     let table_max = store.table_max_players as i32;
     let table_id: Option<(uuid::Uuid,)> = sqlx::query_as(
         "SELECT id FROM tables WHERE club_id IS NULL AND game_type='tournament' AND poker_variant=$1 AND max_players=$2 AND status='OPEN' LIMIT 1",
@@ -131,7 +141,7 @@ async fn assign_tournament_tables(
         seat = (seat + 1) % (table_max as i16);
         if seat < 0 { seat = 0; }
     }
-    Ok(())
+    Ok(table_uuid)
 }
 
 async fn check_ft_pending(state: &AppState) {

@@ -299,6 +299,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             )
         })
         .unwrap_or(true);
+
+    let require_invite = std::env::var("REQUIRE_INVITE")
+        .map(|v| {
+            !matches!(
+                v.to_ascii_lowercase().as_str(),
+                "0" | "false" | "no" | "off"
+            )
+        })
+        .unwrap_or(false);
     if is_production && require_email_verification {
         let email_provider = std::env::var("EMAIL_PROVIDER").unwrap_or_default();
         if !email_provider.eq_ignore_ascii_case("resend") {
@@ -358,10 +367,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         redis: redis_conn,
         ws_tickets: std::sync::Arc::new(tokio::sync::Mutex::new(std::collections::HashMap::new())),
         require_email_verification,
+        require_invite,
         presence: poker_api::presence::PresenceTracker::new(),
     };
     tracing::info!(
         require_email_verification,
+        require_invite,
         email_provider = %std::env::var("EMAIL_PROVIDER").unwrap_or_else(|_| "log".into()),
         "Auth policy loaded"
     );

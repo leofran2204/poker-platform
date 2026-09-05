@@ -81,8 +81,8 @@ Operação informal **entre cadastrados**, Play Money:
 
 1. Uma mesa âncora: Texas Hold’em 0,25/0,25, 20h–24h, quatro noites.
 2. Quem já tem conta chama quem **joga**, não quem “quer renda”.
-3. Bonificação: ranking + no máximo 2 tickets de freeroll por semana para quem jogou e para quem trouxe gente que **sentou** (≥ 20 mãos). Cadastrou e sumiu = zero.
-4. Dois andares só (clube → agente → jogador). Sem nível 3 no Zap. Sem Pix no grupo.
+3. Bonificação: **18% do rake individual** de cada um do seu 1º nível e **12%** de cada um do 2º (mão jogada, qualquer clube). Resto à casa. Clube não recebe. Cadastrou e sumiu = zero. O vínculo é o **ID do patrocinador**.
+4. Dois andares só na **sua** tela. Sem nível 3. Sem Pix no grupo.
 
 Isso é o máximo que dá para fazer com zero real e um servidor. Se a mesa das 21h não encher, nenhum organograma salva.
 

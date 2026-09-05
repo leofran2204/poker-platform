@@ -44,6 +44,8 @@ pub struct AppState {
     /// Quando true: registro exige confirmação de senha + código por e-mail
     /// antes de liberar tokens e join em mesa.
     pub require_email_verification: bool,
+    /// Quando true, registro exige código de convite (exceto o primeiro usuário).
+    pub require_invite: bool,
     /// Contador de usuários autenticados com heartbeat recente (Redis ou memória).
     pub presence: PresenceTracker,
 }
