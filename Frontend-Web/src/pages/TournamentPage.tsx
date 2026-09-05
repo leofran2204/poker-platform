@@ -130,10 +130,12 @@ export function TournamentPage() {
         </div>
       ) : null}
 
-      <div className="rounded border border-amber-700/60 bg-amber-950/30 px-3 py-2 text-xs text-amber-100">
-        Gameplay de torneio ainda não está ligado à mesa ao vivo — inscrição e configuração já
-        disponíveis. Em breve você joga as mãos MTT aqui.
-      </div>
+      {!info.gameplay_ready ? (
+        <div className="rounded border border-amber-700/60 bg-amber-950/30 px-3 py-2 text-xs text-amber-100">
+          Gameplay de torneio ainda não está ligado à mesa ao vivo — inscrição e configuração já
+          disponíveis. Em breve você joga as mãos MTT aqui.
+        </div>
+      ) : null}
 
       {error && (
         <p className="rounded border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200">

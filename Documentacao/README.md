@@ -4,7 +4,7 @@ Plataforma de poker online (**Hold’em**, **Short Deck**, **Short Deck Omaha**,
 
 **Domínio do produto (demo/staging):** [zerotiltpoker.net](https://zerotiltpoker.net)
 
-> **Estado (ver `STATUS_OPERACIONAL.json`):** **S18** — catálogo cash NLHE+SD+SD Omaha (PM×Real); frentes fixas; wallets isoladas; depósitos manuais; notícias com capa temática; testes 10k/mesa + e2e seeded. Isto **não** equivale a certificação de produção.
+> **Estado (ver `STATUS_OPERACIONAL.json`):** **S21** — catálogo cash NLHE 9-max + SD 8-max + SD Omaha 5-max + Pineapple 6-max (PM×Real); frentes fixas; wallets isoladas; MTT com inscrição (mãos ao vivo ainda não ligadas); depósitos manuais; sem certificação de produção.
 
 ## Estado operacional e sincronização
 
@@ -36,6 +36,8 @@ O segundo comando é obrigatório na CI. Se ele falhar, a mudança deve atualiza
 | **`DASHBOARD.md`** | Painel de controle tático — progresso, métricas, backlog | Gestão + Dev |
 | **`CRONOGRAMA.md`** | Roadmap, fases, prazos e marcos (não certifica produção) | Gestão + Dev |
 | **`DEVELOPMENT_LOG.md`** | Histórico cronológico de desenvolvimento | Dev |
+| **`RELATORIO_AMIGOS_SOCIO.md`** | Texto para amigos / sócio de suor — honesto, zero caixa além da nuvem | Fundador + convidados |
+| **`RELATORIO_PARCEIROS_ZEROTILT.md`** | Relatório técnico-comercial (due diligence) | Parceiro cético |
 | **`DEMO_AMIGOS.md`** | Convite amigos: cadastro, e-mail, contador online, mín. 2 na mesa | Dev + ops + anfitrião |
 | **`guia_aprendizado.md`** | Guia consolidado de aprendizado (histórico; stack UI atual é TypeScript) | Dev |
 | **`TESTING_GOALS.md`** | Metas e registros históricos; perfil atual de validação | Dev + QA |

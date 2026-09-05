@@ -174,7 +174,7 @@ export interface TableResponse {
   max_buy_in: number;
   game_type: string;
   money_mode?: string;
-  /** `holdem` | `short_deck` | `short_deck_omaha` */
+  /** `holdem` | `short_deck` | `short_deck_omaha` | `ultimate_pineapple` */
   poker_variant?: string;
 }
 
@@ -208,7 +208,7 @@ export interface TournamentInfoResponse {
   blind_levels: BlindLevelDto[];
   gameplay_ready: boolean;
   money_mode?: string;
-  /** `holdem` | `short_deck` | `short_deck_omaha` */
+  /** `holdem` | `short_deck` | `short_deck_omaha` | `ultimate_pineapple` */
   poker_variant?: string;
   /** Variante aplicada quando começa a mesa final (ex.: `short_deck`). */
   final_table_variant?: string | null;

@@ -6,7 +6,7 @@
 |--|--|
 | **Produto** | Zero Tilt Poker |
 | **Demo** | [https://zerotiltpoker.net](https://zerotiltpoker.net) |
-| **Ciclo** | S20c (2026-09-01) — staging/demo, **sem** certificação de produção |
+| **Ciclo** | S21 (2026-09-04) — staging/demo, **sem** certificação de produção |
 | **Stack** | Motor e API em **Rust**; UI em **TypeScript** (React + Vite + Tailwind); PostgreSQL 15; Redis 7; Caddy + HTTPS Let's Encrypt |
 | **Repositório** | https://github.com/leofran2204/poker-platform |
 | **Fonte dos números** | `Documentacao/STATUS_OPERACIONAL.json` |
@@ -21,7 +21,7 @@ Zero Tilt não é um clone de sala gigante. É uma plataforma de pôquer **recre
 2. **O jogador não pode sair destroçado da sessão** — Loss Deflator (cashback de bad beat por matemática, não por “bônus de cassino”), frentes fixas, Play Money que renova, ensino no próprio lobby.
 3. **O crescimento é de clube, não de anúncio** — rede de **dois níveis** (clube → agente), receita de **rake**, hoje ensaiada em Play Money; dinheiro real só com licença.
 
-O que já está no ar: demo HTTPS, e-mail verificado, MFA, mesas Play Money e Jogo Real **isoladas**, três variantes (Hold’em, Short Deck, Omaha Short Deck), torneios com Big Blind Ante em 26 níveis, admin de clubes, stack Docker **4/4 healthy** na VPS.
+O que já está no ar: demo HTTPS, e-mail verificado, MFA, mesas Play Money e Jogo Real **isoladas**, quatro variantes (Hold’em, Short Deck, Omaha Short Deck, Ultimate Pineapple), torneios com Big Blind Ante em 26 níveis (inscrição no site; mãos MTT ao vivo ainda não ligadas), admin de clubes, stack Docker **4/4 healthy** na VPS.
 
 O que **não** está: certificação de produção, PIX automático em produção, saque automático, autoexclusão de produto, multi-servidor de mesas. Isso não se esconde. O parceiro que entra agora compra **produto + liquidez Play Money + o trilho até 2027**, não um cassino “já legalizado”.
 
@@ -49,8 +49,9 @@ Catálogo cash vigente (Play Money e Jogo Real, mesas espelhadas, **não** mistu
 | Mesa | Variante | Blinds | Cap | Frente |
 |------|----------|--------|-----|--------|
 | Hold’em | 52 cartas, 2 hole | 0,25 / 0,25 | 9 | R$ 25 |
-| Hold’em Short Deck | 36 cartas (sem 2–5); flush > full house; wheel A-6-7-8-9 | 0,25 / 0,50 | 6 | R$ 75 |
-| Omaha Short Deck | 4 hole; showdown = 2 hole + 3 board | 0,50 / 0,50 | 4 | R$ 100 |
+| Hold’em Short Deck | 36 cartas (sem 2–5); trinca > sequência; flush > full house; wheel A-6-7-8-9 | 0,25 / 0,50 | 8 | R$ 75 |
+| Omaha Short Deck | 4 hole; showdown = 2 hole + 3 board | 0,50 / 0,50 | 5 | R$ 100 |
+| Ultimate Pineapple | 3 hole, sem descarte; showdown 2 hole + 3 board | 0,50 / 0,50 | 6 | R$ 75 |
 
 Short Deck no Zero Tilt **não é um rótulo no lobby**: o motor troca baralho e avaliador (`create_short_deck`, `evaluate_hand_short_deck`, `evaluate_hand_short_deck_omaha`). Isso é o tipo de detalhe que um parceiro técnico testa em cinco minutos — e que uma operação “de fachada” não tem.
 
