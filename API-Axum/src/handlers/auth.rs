@@ -755,6 +755,12 @@ pub async fn verify_email(
 
     let mut active_user = user;
     active_user.status = poker_engine::auth::AccountStatus::Active;
+    // O UPDATE de status acima dispara o trigger que incrementa token_version.
+    // Recarrega para o JWT não nascer com versão antiga (e já revogado).
+    active_user.token_version = sqlx::query_scalar("SELECT token_version FROM users WHERE id = $1::uuid")
+        .bind(&active_user.id)
+        .fetch_one(&state.db)
+        .await?;
     {
         let mut auth = state.auth.write().await;
         auth.upsert_persisted_user(active_user.clone());
