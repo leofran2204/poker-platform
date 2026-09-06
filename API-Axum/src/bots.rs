@@ -3,8 +3,9 @@
 //! 72 contas `bot_001..072` (is_bot) gerenciadas pelo servidor: o admin liga N
 //! bots numa mesa play pelo painel, eles sentam via assento normal (buy-in em
 //! PM debitado da carteira do bot) e jogam pelos comandos internos do
-//! TableActor, sem WebSocket. A estrategia v1 e um LAG simples com avaliacao
-//! de mao real — potes crescem, quebras acontecem, sobra 1 vencedor.
+//! TableActor, sem WebSocket. A estrategia unica e LAG com avaliacao de mao
+//! real pelo proprio motor (as 4 variantes) — potes crescem, quebras
+//! acontecem, sobra 1 vencedor.
 //!
 //! Bots nao tem convite nem senha valida: nunca logam, nunca pontuam na
 //! Minha Estrutura como beneficiarios com VP (sponsored_by NULL).
@@ -25,9 +26,8 @@ pub const BOT_EMAIL_DOMAIN: &str = "@bots.local";
 /// Banca PM de cada bot (suficiente p/ dezenas de recompras de teste).
 pub const BOT_PM_BALANCE: i64 = 1_000_000;
 
-pub const STRATEGY_LAG_V1: &str = "lag_v1";
-/// lag_v2: mesma base LAG, mas avalia a mao com o proprio motor por variante
-/// (Hold'em, Short Deck, Omaha SD e Pineapple Ultimate).
+/// Estrategia unica da frota: base LAG com avaliacao da mao pelo proprio
+/// motor por variante (Hold'em, Short Deck, Omaha SD e Pineapple Ultimate).
 pub const STRATEGY_LAG_V2: &str = "lag_v2";
 
 pub const SUPPORTED_VARIANTS: &[&str] = &[
@@ -38,7 +38,7 @@ pub const SUPPORTED_VARIANTS: &[&str] = &[
 ];
 
 pub fn all_strategies() -> Vec<String> {
-    vec![STRATEGY_LAG_V1.to_string(), STRATEGY_LAG_V2.to_string()]
+    vec![STRATEGY_LAG_V2.to_string()]
 }
 
 /// Erro de negocio da frota (vira 4xx/500 no handler admin).
@@ -180,7 +180,7 @@ impl BotFleet {
         count: usize,
         strategy: &str,
     ) -> Result<BotDeployment, BotError> {
-        if strategy != STRATEGY_LAG_V1 && strategy != STRATEGY_LAG_V2 {
+        if strategy != STRATEGY_LAG_V2 {
             return Err(BotError(format!("estrategia desconhecida: {strategy}")));
         }
         if count == 0 || count > 9 {
@@ -210,11 +210,6 @@ impl BotFleet {
             return Err(BotError(format!(
                 "variante sem suporte na frota: {variant}"
             )));
-        }
-        if strategy == STRATEGY_LAG_V1 && variant != "holdem" {
-            return Err(BotError(
-                "lag_v1 so joga Texas Hold'em (use lag_v2 p/ outras variantes)".to_string(),
-            ));
         }
         if bb <= 0 || min_buy_in <= 0 {
             return Err(BotError("config de blinds/buy-in invalida".to_string()));
@@ -267,7 +262,6 @@ impl BotFleet {
                 handle.clone(),
                 bot_id.clone(),
                 table_id.to_string(),
-                strategy.to_string(),
                 variant.clone(),
             ));
             self.tasks
@@ -562,13 +556,7 @@ impl BotFleet {
 // ─── Loop do bot ───
 
 /// Ouve o broadcast da mesa e age quando tem a vez.
-async fn bot_loop(
-    handle: TableActorHandle,
-    bot_id: String,
-    table_id: String,
-    strategy: String,
-    variant: String,
-) {
+async fn bot_loop(handle: TableActorHandle, bot_id: String, table_id: String, variant: String) {
     let mut rx = handle.tx_broadcast.subscribe();
     // Anti-loop: nao repete decisao no mesmo snapshot.
     let mut last_sig: Option<(String, u64, u64, u64)> = None;
@@ -598,9 +586,7 @@ async fn bot_loop(
         if msg.get("type").and_then(|v| v.as_str()) != Some("table_state") {
             continue;
         }
-        let Some((action, amount)) =
-            decide_for(&msg, &bot_id, &strategy, &variant, &mut rnd)
-        else {
+        let Some((action, amount)) = decide_for(&msg, &bot_id, &variant, &mut rnd) else {
             continue;
         };
         let players = msg.get("players").and_then(|v| v.as_array()).cloned().unwrap_or_default();
@@ -641,7 +627,7 @@ async fn bot_loop(
     }
 }
 
-// ─── Estrategia lag_v1 ───
+// ─── Base compartilhada: tiers pre-flop/pos-flop (usados pela lag_v2) ───
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 struct Card {
@@ -677,14 +663,6 @@ fn parse_card(s: &str) -> Option<Card> {
         _ => return None,
     };
     Some(Card { rank, suit })
-}
-
-/// Forca da mao: 0 fraca, 1 media, 2 forte.
-fn hand_tier(hole: &[Card], community: &[Card]) -> u8 {
-    if community.is_empty() {
-        return preflop_tier(hole);
-    }
-    postflop_tier(hole, community)
 }
 
 fn preflop_tier(hole: &[Card]) -> u8 {
@@ -989,14 +967,9 @@ fn hand_tier_v2(variant: &str, hole: &[Card], community: &[Card]) -> u8 {
 fn decide_for(
     state: &serde_json::Value,
     bot_id: &str,
-    strategy: &str,
     variant: &str,
     rnd: &mut dyn FnMut() -> u64,
 ) -> Option<(String, u64)> {
-    if strategy != STRATEGY_LAG_V1 && strategy != STRATEGY_LAG_V2 {
-        return None;
-    }
-    let v2 = strategy == STRATEGY_LAG_V2;
     let players = state.get("players")?.as_array()?;
     let me = players
         .iter()
@@ -1034,11 +1007,7 @@ fn decide_for(
         .unwrap_or(0);
     let to_call = to_match.saturating_sub(my_bet).min(stack);
     let bb = min_raise.max(1);
-    let tier = if v2 {
-        hand_tier_v2(variant, &cards, &community)
-    } else {
-        hand_tier(&cards, &community)
-    };
+    let tier = hand_tier_v2(variant, &cards, &community);
     let roll = rnd() % 100;
 
     // Short stack com algo na mao: shove.

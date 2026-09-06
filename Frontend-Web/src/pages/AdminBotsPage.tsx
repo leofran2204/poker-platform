@@ -52,7 +52,7 @@ export function AdminBotsPage() {
     const fd = new FormData(e.currentTarget);
     const tableId = String(fd.get("table") || "");
     const count = Number(fd.get("count") || 6);
-    const strategy = String(fd.get("strategy") || "lag_v1");
+    const strategy = String(fd.get("strategy") || "lag_v2");
     if (!tableId) return;
     setBusy(true);
     setError(null);
@@ -127,7 +127,7 @@ export function AdminBotsPage() {
           <label className="flex flex-col gap-1 text-sm">
             Estratégia
             <select name="strategy" className="zt-input" defaultValue="lag_v2">
-              {(status?.strategies ?? ["lag_v2", "lag_v1"]).map((s) => (
+              {(status?.strategies ?? ["lag_v2"]).map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
