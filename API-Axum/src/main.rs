@@ -353,15 +353,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // Build app state with high-concurrency RwLock
+    let active_tables = std::sync::Arc::new(tokio::sync::RwLock::new(
+        std::collections::HashMap::new(),
+    ));
+    let bots = poker_api::bots::BotFleet::new(poker_api::bots::BotEnv {
+        db: pool.clone(),
+        active_tables: active_tables.clone(),
+        jwt_secret: jwt_secret.clone(),
+        redis: redis_conn.clone(),
+    });
     let state = AppState {
         db: pool,
         auth: std::sync::Arc::new(tokio::sync::RwLock::new(
             poker_engine::auth::AuthManager::new(&jwt_secret),
         )),
         tournaments: std::sync::Arc::new(tokio::sync::RwLock::new(tournament_map)),
-        active_tables: std::sync::Arc::new(tokio::sync::RwLock::new(
-            std::collections::HashMap::new(),
-        )),
+        active_tables,
         jwt_secret,
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
         redis: redis_conn,
@@ -369,6 +376,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         require_email_verification,
         require_invite,
         presence: poker_api::presence::PresenceTracker::new(),
+        bots,
     };
     tracing::info!(
         require_email_verification,

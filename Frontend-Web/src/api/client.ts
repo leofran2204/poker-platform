@@ -430,6 +430,65 @@ export async function patchAdminTableStatus(id: string, status: string): Promise
   });
 }
 
+export interface BotsPoolResponse {
+  created: number;
+  total: number;
+  pool_size: number;
+}
+
+export interface BotsStartResponse {
+  table_id: string;
+  table_name: string;
+  strategy: string;
+  bots: string[];
+}
+
+export interface BotSeatStatus {
+  username: string;
+  chips: number;
+}
+
+export interface BotTableStatus {
+  table_id: string;
+  table_name: string;
+  strategy: string;
+  started_at: number;
+  bots_total: number;
+  bots_alive: number;
+  hands_played: number;
+  leader: BotSeatStatus | null;
+  seats: BotSeatStatus[];
+}
+
+export interface BotsStatusResponse {
+  pool_total: number;
+  pool_free: number;
+  strategies: string[];
+  tables: BotTableStatus[];
+}
+
+export async function ensureBotsPool(): Promise<BotsPoolResponse> {
+  return request<BotsPoolResponse>("/api/admin/bots/ensure-pool", { method: "POST" });
+}
+
+export async function startBots(tableId: string, count: number, strategy: string): Promise<BotsStartResponse> {
+  return request<BotsStartResponse>("/api/admin/bots/start", {
+    method: "POST",
+    body: JSON.stringify({ table_id: tableId, count, strategy }),
+  });
+}
+
+export async function stopBots(tableId: string): Promise<{ table_id: string; refunded_chips: number }> {
+  return request("/api/admin/bots/stop", {
+    method: "POST",
+    body: JSON.stringify({ table_id: tableId }),
+  });
+}
+
+export async function fetchBotsStatus(): Promise<BotsStatusResponse> {
+  return request<BotsStatusResponse>("/api/admin/bots/status");
+}
+
 export async function listAdminTournaments(): Promise<AdminTournamentItem[]> {
   return request<AdminTournamentItem[]>("/api/admin/tournaments");
 }

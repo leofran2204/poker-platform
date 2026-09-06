@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { AdminAntifraudPage } from "@/pages/AdminAntifraudPage";
 import { AdminAuditPage } from "@/pages/AdminAuditPage";
+import { AdminBotsPage } from "@/pages/AdminBotsPage";
 import { AdminClubsPage } from "@/pages/AdminClubsPage";
 import { AdminDepositsPage } from "@/pages/AdminDepositsPage";
 import { AdminLayout } from "@/pages/AdminLayout";
@@ -44,6 +45,7 @@ export default function App() {
             <Route path="clubs" element={<AdminClubsPage />} />
             <Route path="antifraud" element={<AdminAntifraudPage />} />
             <Route path="audit" element={<AdminAuditPage />} />
+            <Route path="bots" element={<AdminBotsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

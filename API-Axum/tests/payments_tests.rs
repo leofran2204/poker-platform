@@ -34,6 +34,7 @@ fn make_test_state() -> AppState {
         require_email_verification: false,
         require_invite: false,
         presence: poker_api::presence::PresenceTracker::new(),
+        bots: poker_api::bots::BotFleet::for_test(),
     }
 }
 
@@ -96,6 +97,7 @@ async fn make_persistent_state(username: &str) -> (AppState, String, String) {
         require_email_verification: false,
         require_invite: false,
         presence: poker_api::presence::PresenceTracker::new(),
+        bots: poker_api::bots::BotFleet::for_test(),
     };
     let token = get_valid_access_token(&state, username).await;
     (state, user.id, token)

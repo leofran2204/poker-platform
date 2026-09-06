@@ -7,6 +7,7 @@
 pub mod admin_panel;
 pub mod admin_routes;
 pub mod binary_codec;
+pub mod bots;
 pub mod cash_seats;
 pub mod deposit_requests;
 pub mod email_service;
@@ -34,7 +35,7 @@ use std::time::Instant;
 
 use crate::handlers::presence as presence_handlers;
 use crate::handlers::estrutura as estrutura_api;
-use crate::handlers::{auth, hand_history, lobby, tournament, websocket};
+use crate::handlers::{auth, bots as bots_handlers, hand_history, lobby, tournament, websocket};
 use crate::middleware::auth::RequireAuth;
 use crate::middleware::rate_limit::EnforceRateLimit;
 use crate::state::AppState;
@@ -411,6 +412,31 @@ pub fn build_router(state: AppState) -> Router {
                 .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
                     state.clone(),
                 )),
+        )
+        // ─── Frota de bots (coach/testes) ───
+        .route(
+            "/api/admin/bots/ensure-pool",
+            post(bots_handlers::ensure_pool).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/bots/start",
+            post(bots_handlers::start_bots).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/bots/stop",
+            post(bots_handlers::stop_bots).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/bots/status",
+            get(bots_handlers::bots_status).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
         )
         // ─── WebSocket route ───
         .route("/ws/game/:table_id", get(websocket::game_websocket))

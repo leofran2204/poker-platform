@@ -1,6 +1,7 @@
 // Handler modules for all API endpoints
 
 pub mod auth;
+pub mod bots;
 pub mod estrutura;
 pub mod hand_history;
 pub mod lobby;

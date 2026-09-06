@@ -9,7 +9,7 @@ use crate::error::ApiError;
 use crate::middleware::auth::RequireAuth;
 use crate::state::AppState;
 
-fn require_admin(auth_user: &crate::middleware::auth::AuthUser) -> Result<(), ApiError> {
+pub(crate) fn require_admin(auth_user: &crate::middleware::auth::AuthUser) -> Result<(), ApiError> {
     if auth_user.role == "admin" {
         Ok(())
     } else {

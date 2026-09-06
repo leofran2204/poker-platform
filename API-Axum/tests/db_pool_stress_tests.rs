@@ -31,6 +31,7 @@ async fn make_real_db_state(pool: sqlx::PgPool) -> AppState {
         require_email_verification: false,
         require_invite: false,
         presence: poker_api::presence::PresenceTracker::new(),
+        bots: poker_api::bots::BotFleet::for_test(),
     }
 }
 

@@ -48,4 +48,6 @@ pub struct AppState {
     pub require_invite: bool,
     /// Contador de usuários autenticados com heartbeat recente (Redis ou memória).
     pub presence: PresenceTracker,
+    /// Frota de bots da casa (coach/testes) — deploys por mesa.
+    pub bots: std::sync::Arc<crate::bots::BotFleet>,
 }
