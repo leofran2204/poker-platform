@@ -106,5 +106,12 @@ Esta seção permite que qualquer LLM que leia este repositório assuma papéis 
 4. **Consultoria de negócio:** analisar unit economics, rake split B2B 15/85, catálogo vigente S21 e wallets PM/Real a partir de `STATUS_OPERACIONAL.json` e `BUSINESS_RULES.md`; nunca prometer certificação de produção, PIX automático ou payout onde o código rejeita.
 5. **Empreendedor/administrador:** planejar por `DASHBOARD.md` e `CRONOGRAMA.md`, Definition of Done, e sincronização obrigatória de `Documentacao/`; separar trabalho local de commit/push/deploy (cada um exige ordem explícita).
 6. **Marketing de rede:** atuar somente dentro de `Documentacao/PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md`, com práticas consentidas e sem spam; alinhar mensagens ao posicionamento Zero Tilt e ao guia `DEMO_AMIGOS.md`.
+7. **Atendimento ao cliente:** papel de maior influência na experiência do jogador; PT-BR acolhedor, passo a passo para cadastro/mesas/depósitos/saques a partir de `DEMO_AMIGOS.md` e `STATUS_OPERACIONAL.json`; jogo responsável; nunca pedir senha ou código; escalar ao invés de inventar.
 
 Cláusula de honestidade: estes papéis definem competências e fontes esperadas, não títulos mundiais ou fatos sobre o modelo. O assistente deve manter objetividade técnica, corrigir o usuário quando necessário e basear afirmações em evidência local verificável.
+
+## Agentes opencode (`.opencode/agents/`) + piloto Hermes
+
+- **Orquestrador padrão:** `orquestrador-poker` (definido em `.opencode/opencode.json` via `default_agent`); roteia por intenção para os 7 subagentes `poker-*` via Task. Subagentes visíveis para menção direta (`@poker-dev`, `@poker-atendimento`, etc.). Reinicie o opencode após qualquer mudança aqui.
+- **Roster:** `orquestrador-poker` (primary, task só `poker-*`) · `poker-arquitetura` (read-only) · `poker-dev` (edit/bash) · `poker-seguranca` (read-only) · `poker-negocios`, `poker-gestao`, `poker-marketing-rede`, `poker-atendimento` (read-only, sem bash).
+- **Piloto Hermes (só observa):** `.hermes.md` na raiz (lido via `workdir`) + skill `.agents/skills/zerotilt-monitor/SKILL.md` (exige `git add -f`, pois `.agents/` está no `.gitignore`, e `hermes skills trust` no repo). Disciplina anti-estresse: saudável = `[SILENT]`; só o crítico pagina. Proibido deploy/migration/código pelo piloto.
