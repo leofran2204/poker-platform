@@ -452,6 +452,7 @@ export interface BotTableStatus {
   table_id: string;
   table_name: string;
   strategy: string;
+  variant: string;
   started_at: number;
   bots_total: number;
   bots_alive: number;

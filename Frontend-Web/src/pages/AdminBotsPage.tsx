@@ -126,8 +126,8 @@ export function AdminBotsPage() {
           </label>
           <label className="flex flex-col gap-1 text-sm">
             Estratégia
-            <select name="strategy" className="zt-input" defaultValue="lag_v1">
-              {(status?.strategies ?? ["lag_v1"]).map((s) => (
+            <select name="strategy" className="zt-input" defaultValue="lag_v2">
+              {(status?.strategies ?? ["lag_v2", "lag_v1"]).map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
@@ -142,7 +142,7 @@ export function AdminBotsPage() {
         <div key={t.table_id} className="zt-panel overflow-hidden">
           <div className="zt-panel-title flex flex-wrap items-center justify-between gap-2">
             <span>
-              {t.table_name} · {t.bots_alive}/{t.bots_total} vivos · {t.hands_played} mãos
+              {t.table_name} · {t.variant} · {t.bots_alive}/{t.bots_total} vivos · {t.hands_played} mãos
               {t.leader ? ` · líder ${t.leader.username} (${formatBrlFromCents(t.leader.chips)})` : ""}
             </span>
             <button className="zt-btn-secondary !text-xs" disabled={busy} onClick={() => onStop(t.table_id, t.table_name)}>

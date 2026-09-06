@@ -26,6 +26,20 @@ pub const BOT_EMAIL_DOMAIN: &str = "@bots.local";
 pub const BOT_PM_BALANCE: i64 = 1_000_000;
 
 pub const STRATEGY_LAG_V1: &str = "lag_v1";
+/// lag_v2: mesma base LAG, mas avalia a mao com o proprio motor por variante
+/// (Hold'em, Short Deck, Omaha SD e Pineapple Ultimate).
+pub const STRATEGY_LAG_V2: &str = "lag_v2";
+
+pub const SUPPORTED_VARIANTS: &[&str] = &[
+    "holdem",
+    "short_deck",
+    "short_deck_omaha",
+    "ultimate_pineapple",
+];
+
+pub fn all_strategies() -> Vec<String> {
+    vec![STRATEGY_LAG_V1.to_string(), STRATEGY_LAG_V2.to_string()]
+}
 
 /// Erro de negocio da frota (vira 4xx/500 no handler admin).
 #[derive(Debug)]
@@ -52,6 +66,7 @@ pub struct BotDeployment {
     pub table_id: String,
     pub table_name: String,
     pub strategy: String,
+    pub variant: String,
     pub started_at: i64,
     pub hands_at_start: i64,
     pub bot_ids: Vec<String>,
@@ -165,7 +180,7 @@ impl BotFleet {
         count: usize,
         strategy: &str,
     ) -> Result<BotDeployment, BotError> {
-        if strategy != STRATEGY_LAG_V1 {
+        if strategy != STRATEGY_LAG_V1 && strategy != STRATEGY_LAG_V2 {
             return Err(BotError(format!("estrategia desconhecida: {strategy}")));
         }
         if count == 0 || count > 9 {
@@ -191,9 +206,14 @@ impl BotFleet {
         let Some((table_name, _sb, bb, min_buy_in, _max_buy_in, max_players, variant)) = row else {
             return Err(BotError("mesa play indisponivel".to_string()));
         };
-        if variant != "holdem" {
+        if !SUPPORTED_VARIANTS.contains(&variant.as_str()) {
+            return Err(BotError(format!(
+                "variante sem suporte na frota: {variant}"
+            )));
+        }
+        if strategy == STRATEGY_LAG_V1 && variant != "holdem" {
             return Err(BotError(
-                "frota v1 so joga Texas Hold'em (estrategia usa 2 cartas)".to_string(),
+                "lag_v1 so joga Texas Hold'em (use lag_v2 p/ outras variantes)".to_string(),
             ));
         }
         if bb <= 0 || min_buy_in <= 0 {
@@ -248,6 +268,7 @@ impl BotFleet {
                 bot_id.clone(),
                 table_id.to_string(),
                 strategy.to_string(),
+                variant.clone(),
             ));
             self.tasks
                 .write()
@@ -267,6 +288,7 @@ impl BotFleet {
             table_id: table_id.to_string(),
             table_name,
             strategy: strategy.to_string(),
+            variant: variant.clone(),
             started_at: Self::now_epoch(),
             hands_at_start,
             bot_ids: seated,
@@ -545,6 +567,7 @@ async fn bot_loop(
     bot_id: String,
     table_id: String,
     strategy: String,
+    variant: String,
 ) {
     let mut rx = handle.tx_broadcast.subscribe();
     // Anti-loop: nao repete decisao no mesmo snapshot.
@@ -575,7 +598,9 @@ async fn bot_loop(
         if msg.get("type").and_then(|v| v.as_str()) != Some("table_state") {
             continue;
         }
-        let Some((action, amount)) = decide_for(&msg, &bot_id, &strategy, &mut rnd) else {
+        let Some((action, amount)) =
+            decide_for(&msg, &bot_id, &strategy, &variant, &mut rnd)
+        else {
             continue;
         };
         let players = msg.get("players").and_then(|v| v.as_array()).cloned().unwrap_or_default();
@@ -760,16 +785,218 @@ fn postflop_tier(hole: &[Card], community: &[Card]) -> u8 {
     0
 }
 
+// ─── lag_v2: avaliacao com o proprio motor, por variante ───
+
+use poker_engine::deck::{
+    evaluate_hand, evaluate_hand_short_deck, evaluate_hand_short_deck_omaha,
+    evaluate_hand_ultimate_pineapple, HandRank, Rank as EngineRank, Suit as EngineSuit,
+};
+
+fn to_engine_card(c: Card) -> Option<poker_engine::deck::Card> {
+    let rank = match c.rank {
+        2 => EngineRank::Two,
+        3 => EngineRank::Three,
+        4 => EngineRank::Four,
+        5 => EngineRank::Five,
+        6 => EngineRank::Six,
+        7 => EngineRank::Seven,
+        8 => EngineRank::Eight,
+        9 => EngineRank::Nine,
+        10 => EngineRank::Ten,
+        11 => EngineRank::Jack,
+        12 => EngineRank::Queen,
+        13 => EngineRank::King,
+        14 => EngineRank::Ace,
+        _ => return None,
+    };
+    let suit = match c.suit {
+        0 => EngineSuit::Hearts,
+        1 => EngineSuit::Diamonds,
+        2 => EngineSuit::Clubs,
+        3 => EngineSuit::Spades,
+        _ => return None,
+    };
+    Some(poker_engine::deck::Card { rank, suit })
+}
+
+/// Categoria da melhor mao de 5 cartas, com as regras exatas da variante
+/// (Omaha/Pineapple: 2 da mao + 3 do bordo; Short Deck: flush>FH, trips>straight).
+fn evaluate_rank_for_variant(
+    variant: &str,
+    hole: &[Card],
+    community: &[Card],
+) -> Option<HandRank> {
+    let eh: Vec<poker_engine::deck::Card> = hole.iter().filter_map(|c| to_engine_card(*c)).collect();
+    let ec: Vec<poker_engine::deck::Card> = community
+        .iter()
+        .filter_map(|c| to_engine_card(*c))
+        .collect();
+    if eh.len() != hole.len() || ec.len() != community.len() || community.len() < 3 {
+        return None;
+    }
+    let res = match variant {
+        "short_deck" => evaluate_hand_short_deck(&eh, &ec),
+        "short_deck_omaha" => evaluate_hand_short_deck_omaha(&eh, &ec),
+        "ultimate_pineapple" => evaluate_hand_ultimate_pineapple(&eh, &ec),
+        _ => evaluate_hand(&eh, &ec),
+    };
+    Some(res.rank)
+}
+
+/// Pre-flop por quantidade de cartas: 2 = Hold'em/SD, 3 = Pineapple (melhor
+/// par de 2), 4+ = Omaha (melhor par de 2 + bonus por coordenacao).
+fn preflop_tier_v2(hole: &[Card]) -> u8 {
+    match hole.len() {
+        0 | 1 => 0,
+        2 => preflop_tier(hole),
+        3 => {
+            let mut best = 0;
+            for i in 0..3 {
+                for j in (i + 1)..3 {
+                    best = best.max(preflop_tier(&[hole[i], hole[j]]));
+                }
+            }
+            best
+        }
+        _ => {
+            let n = hole.len().min(4);
+            let mut best = 0;
+            let mut good = 0;
+            for i in 0..n {
+                for j in (i + 1)..n {
+                    let t = preflop_tier(&[hole[i], hole[j]]);
+                    if t >= 1 {
+                        good += 1;
+                    }
+                    best = best.max(t);
+                }
+            }
+            // Mao coordenada (2+ combos jogaveis, ex. double-suited): sobe p/ media.
+            if best == 0 && good >= 2 {
+                return 1;
+            }
+            best
+        }
+    }
+}
+
+/// Draws simples, valendo p/ qualquer baralho. Com short_deck=true conta
+/// tambem a roda A-6-7-8-9 (flush draw e OESD).
+fn has_bot_draw(hole: &[Card], community: &[Card], short_deck: bool) -> bool {
+    let mut suits = [0u8; 4];
+    let mut present = [false; 15];
+    for c in hole.iter().chain(community.iter()) {
+        suits[c.suit as usize] += 1;
+        present[c.rank as usize] = true;
+    }
+    if suits.iter().any(|&n| n == 4) {
+        return true;
+    }
+    if short_deck {
+        let wheel: [usize; 5] = [14, 9, 8, 7, 6];
+        let have = wheel.iter().filter(|&&r| present[r]).count();
+        if have >= 4 {
+            return true;
+        }
+    } else {
+        present[1] = present[14]; // A joga baixo
+    }
+    let mut best_run = 0;
+    let mut run = 0;
+    for r in 1..=14 {
+        if present[r] {
+            run += 1;
+            best_run = best_run.max(run);
+        } else {
+            run = 0;
+        }
+    }
+    best_run >= 4
+}
+
+/// Par simples (top pair/overpair/par medio): vale p/ Hold'em e Short Deck.
+/// Em Omaha/Pineapple um par isolado quase nao vale: retorna 0.
+fn pair_tier_v2(variant: &str, hole: &[Card], community: &[Card]) -> u8 {
+    if community.is_empty() {
+        return 0;
+    }
+    let board_hi = community.iter().map(|c| c.rank).max().unwrap_or(0);
+    let hole_hi = hole.iter().map(|c| c.rank).max().unwrap_or(0);
+    let paired = hole
+        .iter()
+        .any(|c| community.iter().any(|b| b.rank == c.rank));
+    let pocket = hole.len() == 2 && hole[0].rank == hole[1].rank;
+    match variant {
+        "short_deck_omaha" | "ultimate_pineapple" => 0,
+        _ => {
+            if paired && (hole_hi >= board_hi || (pocket && hole_hi > board_hi)) {
+                1
+            } else if paired || pocket {
+                1
+            } else {
+                0
+            }
+        }
+    }
+}
+
+fn postflop_tier_v2(variant: &str, hole: &[Card], community: &[Card]) -> u8 {
+    use HandRank::*;
+    let short = variant != "holdem";
+    let rank = evaluate_rank_for_variant(variant, hole, community);
+    match rank {
+        Some(FourOfAKind | StraightFlush | RoyalFlush) => return 2,
+        Some(FullHouse | Flush) => return 2,
+        Some(ThreeOfAKind) => {
+            // Em Omaha trips sem full e vulneravel; nas outras e forte.
+            if variant == "short_deck_omaha" || variant == "ultimate_pineapple" {
+                return 1;
+            }
+            return 2;
+        }
+        Some(Straight) => {
+            // Straight raramente e nuts em Omaha/Pineapple.
+            if variant == "short_deck_omaha" || variant == "ultimate_pineapple" {
+                return 1;
+            }
+            return if variant == "holdem" { 2 } else { 1 };
+        }
+        Some(TwoPair) => return 1,
+        _ => {}
+    }
+    let pair = pair_tier_v2(variant, hole, community);
+    if pair > 0 {
+        return pair;
+    }
+    if has_bot_draw(hole, community, short) {
+        return 1;
+    }
+    0
+}
+
+fn hand_tier_v2(variant: &str, hole: &[Card], community: &[Card]) -> u8 {
+    if community.is_empty() {
+        return preflop_tier_v2(hole);
+    }
+    // Hold'em mantem o comportamento v1 (paridade total).
+    if variant == "holdem" {
+        return postflop_tier(hole, community);
+    }
+    postflop_tier_v2(variant, hole, community)
+}
+
 /// Decide (acao, valor). None = nao e minha vez / sem fichas.
 fn decide_for(
     state: &serde_json::Value,
     bot_id: &str,
     strategy: &str,
+    variant: &str,
     rnd: &mut dyn FnMut() -> u64,
 ) -> Option<(String, u64)> {
-    if strategy != STRATEGY_LAG_V1 {
+    if strategy != STRATEGY_LAG_V1 && strategy != STRATEGY_LAG_V2 {
         return None;
     }
+    let v2 = strategy == STRATEGY_LAG_V2;
     let players = state.get("players")?.as_array()?;
     let me = players
         .iter()
@@ -807,7 +1034,11 @@ fn decide_for(
         .unwrap_or(0);
     let to_call = to_match.saturating_sub(my_bet).min(stack);
     let bb = min_raise.max(1);
-    let tier = hand_tier(&cards, &community);
+    let tier = if v2 {
+        hand_tier_v2(variant, &cards, &community)
+    } else {
+        hand_tier(&cards, &community)
+    };
     let roll = rnd() % 100;
 
     // Short stack com algo na mao: shove.
@@ -885,9 +1116,9 @@ mod tests {
             postflop_tier(&[c("Ah"), c("7c")], &[c("As"), c("9d"), c("4h")]),
             1
         );
-        // Flush
+        // Flush (5 do mesmo naipe)
         assert_eq!(
-            postflop_tier(&[c("Ah"), c("2h")], &[c("5h"), c("9h"), c("Kd")]),
+            postflop_tier(&[c("Ah"), c("2h")], &[c("5h"), c("9h"), c("Qh")]),
             2
         );
         // Nada
@@ -895,5 +1126,61 @@ mod tests {
             postflop_tier(&[c("7c"), c("2d")], &[c("As"), c("Kd"), c("Qh")]),
             0
         );
+    }
+
+    #[test]
+    fn v2_engine_ranks_short_deck() {
+        use poker_engine::deck::HandRank;
+        // Flush vale mais que full house no Short Deck.
+        assert_eq!(
+            evaluate_rank_for_variant(
+                "short_deck",
+                &[c("Ah"), c("Kh")],
+                &[c("Qh"), c("Jh"), c("9h")]
+            ),
+            Some(HandRank::Flush)
+        );
+        // Roda A-6-7-8-9 vale straight.
+        assert_eq!(
+            evaluate_rank_for_variant(
+                "short_deck",
+                &[c("Ah"), c("Kd")],
+                &[c("9c"), c("8d"), c("7h"), c("6s"), c("2c")]
+            ),
+            Some(HandRank::Straight)
+        );
+    }
+
+    #[test]
+    fn v2_omaha_needs_two_plus_three() {
+        use poker_engine::deck::HandRank;
+        // 4 do mesmo naipe na mao + 1 no bordo NAO e flush (precisa 2+3).
+        assert_ne!(
+            evaluate_rank_for_variant(
+                "short_deck_omaha",
+                &[c("Ah"), c("Kh"), c("Qh"), c("Jh")],
+                &[c("9h"), c("7c"), c("6d")]
+            ),
+            Some(HandRank::Flush)
+        );
+        // Com 2 do naipe na mao + 3 no bordo, flush existe.
+        assert_eq!(
+            evaluate_rank_for_variant(
+                "short_deck_omaha",
+                &[c("Ah"), c("Kh"), c("7c"), c("6d")],
+                &[c("Qh"), c("Jh"), c("9h")]
+            ),
+            Some(HandRank::Flush)
+        );
+    }
+
+    #[test]
+    fn v2_preflop_hole_counts() {
+        // Pineapple: melhor par de 2 (AAx = forte).
+        assert_eq!(preflop_tier_v2(&[c("Ah"), c("Ad"), c("7c")]), 2);
+        // Omaha: AA + coordenacao = forte.
+        assert_eq!(preflop_tier_v2(&[c("Ah"), c("Ad"), c("Kh"), c("Qd")]), 2);
+        // Lixo continua lixo mesmo com 4 cartas.
+        assert_eq!(preflop_tier_v2(&[c("7c"), c("2d"), c("8h"), c("3s")]), 0);
     }
 }

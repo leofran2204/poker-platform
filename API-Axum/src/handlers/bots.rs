@@ -9,7 +9,7 @@ use axum::extract::State;
 use axum::Json;
 use serde::{Deserialize, Serialize};
 
-use crate::bots::{BotError, BOT_POOL_SIZE, STRATEGY_LAG_V1};
+use crate::bots::{all_strategies, BotError, BOT_POOL_SIZE};
 use crate::error::ApiError;
 use crate::middleware::auth::RequireAuth;
 use crate::state::AppState;
@@ -61,7 +61,9 @@ pub async fn start_bots(
     Json(body): Json<StartBotsBody>,
 ) -> Result<Json<StartBotsResponse>, ApiError> {
     crate::admin_panel::require_admin(&auth_user)?;
-    let strategy = body.strategy.unwrap_or_else(|| STRATEGY_LAG_V1.to_string());
+    let strategy = body
+        .strategy
+        .unwrap_or_else(|| crate::bots::STRATEGY_LAG_V2.to_string());
     let dep = state
         .bots
         .start(&body.table_id, body.count, &strategy)
@@ -105,6 +107,7 @@ pub struct BotTableStatus {
     pub table_id: String,
     pub table_name: String,
     pub strategy: String,
+    pub variant: String,
     pub started_at: i64,
     pub bots_total: i64,
     pub bots_alive: i64,
@@ -168,6 +171,7 @@ pub async fn bots_status(
             table_id: dep.table_id,
             table_name: dep.table_name,
             strategy: dep.strategy,
+            variant: dep.variant,
             started_at: dep.started_at,
             bots_total: dep.bot_ids.len() as i64,
             bots_alive: alive,
@@ -179,7 +183,7 @@ pub async fn bots_status(
     Ok(Json(BotsStatusResponse {
         pool_total,
         pool_free: pool_total - busy,
-        strategies: vec![STRATEGY_LAG_V1.to_string()],
+        strategies: all_strategies(),
         tables,
     }))
 }
