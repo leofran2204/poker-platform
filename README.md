@@ -30,7 +30,8 @@ Plataforma de poker online (**Texas Hold’em**, **Texas Short Deck**, **Short D
 | `Documentacao/` | Regras, dashboard, status operacional, demo amigos | ✅ Ativo |
 | `Arquitetura-Motor/` | Spec de arquitetura do motor/stack | ✅ Ativo |
 | `scripts/` | Deploy, full-validation, live e2e, coverage | ✅ Ativo |
-| `src/` + `tests/` + `benches/` | Pacote raiz `poker_engine` (incl. `documentation-sync`) e testes massivos | ✅ Ativo (tooling/CI histórico) |
+| `src/` + `tools` (crate `poker-tooling`) | `src/bin/documentation-sync` (CI `--check`) | ✅ Ativo (tooling) |
+| `legacy/engine-v1/` | Motor original `f64` arquivado (histórico git; fora do build/CI) | 📦 Arquivo |
 
 > O antigo `Frontend-Dioxus/` (WASM) e scripts `*wasm*` / `cargo-dioxus*` foram **removidos** do monorepo (histórico git).
 

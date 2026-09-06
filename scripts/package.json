@@ -1,0 +1,9 @@
+{
+  "name": "poker-scripts",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Scripts operacionais E2E do monorepo Zero Tilt Poker (uso: node scripts/<nome>.mjs a partir da raiz)",
+  "dependencies": {
+    "ws": "8.21.3"
+  }
+}

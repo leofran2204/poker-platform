@@ -16,6 +16,13 @@ Automação operacional do monorepo.
 | `verify-public-https.sh` | Checagem HTTPS/Caddy público |
 | `vps-redeploy-frontend.sh` | Redeploy na VPS (`REBUILD_API=1` para API+migration) |
 | `coverage.ps1` / `.sh` | Cobertura (quando autorizado) |
+| `ws-probe.mjs` | Sonda WS local pontual (`node scripts/ws-probe.mjs <email>`) |
+| `full-catalog-100.mjs` | Catálogo completo local: 100 contas (72 cash + 28 MTT) |
+| `full-catalog-100-vps.mjs` | Catálogo completo contra a VPS (sessão longa real) |
+| `estrutura-rede-e2e.mjs` / `.py` | E2E Minha Estrutura (convite, mesa, mãos, 18/12 no painel) |
+| `estrutura-bots-jogar.mjs` | Bots WS da Estrutura (fase VP + allin-fest) |
+| `wipe-*.sql` / `wipe-emalupe-users.ps1` | Limpeza pontual de contas sintéticas/teste (ops, com backup antes) |
+| `wipe-all-test-accounts.sql` | Limpeza geral de contas de teste (ops, com backup antes) |
 
 ## Stress do motor (não são scripts shell)
 
@@ -42,6 +49,11 @@ MODE=play HANDS_PER_TABLE=1 node scripts/live-e2e-seeded-catalog.mjs
 ```
 
 UI canônica: **`Frontend-Web/`** (`npm run build` / Docker). O antigo `Frontend-Dioxus/` foi removido do monorepo.
+
+## Dependência `ws`
+
+Os scripts `.mjs` que usam WebSocket resolvem `ws` em `scripts/node_modules/` (declarado em
+`scripts/package.json`). Rode sempre a partir da raiz: `node scripts/<nome>.mjs`.
 
 ## DePix Sandbox local
 

@@ -1,18 +1,9 @@
 [package]
-name = "poker_engine"
+name = "poker-tooling"
 version = "0.1.0"
 edition = "2021"
-autobenches = false
 authors = ["Poker Platform Team"]
-description = "High-performance Rust Poker Engine with zero-deadlock game loop, side pots, TOTP, and immutable ledger."
-
-[[bin]]
-name = "poker_engine"
-path = "src/main.rs"
-
-[[bin]]
-name = "poker_engine_benchmarks"
-path = "benches/poker_engine_benchmarks.rs"
+description = "Ferramentas do monorepo Zero Tilt Poker (sincronização de documentação). O motor canônico vive em Motor-Rust; o engine legado foi arquivado em legacy/engine-v1."
 
 [[bin]]
 name = "documentation-sync"
@@ -21,13 +12,3 @@ path = "src/bin/documentation_sync.rs"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-sha1 = "0.10"
-sha2 = "0.10"
-hmac = "0.12"
-rand = "0.8"
-rand_chacha = "0.3"
-hex = "0.4"
-chrono = { version = "=0.4.34", default-features = false, features = ["clock", "serde"] }
-uuid = { version = "=1.6.0", features = ["v4", "serde"] }
-thiserror = "1.0"
-tokio = { version = "1.35", features = ["rt-multi-thread", "sync", "macros"] }
