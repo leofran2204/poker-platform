@@ -10,6 +10,7 @@ import { AdminPresencePage } from "@/pages/AdminPresencePage";
 import { AdminTablesPage } from "@/pages/AdminTablesPage";
 import { AdminTournamentsPage } from "@/pages/AdminTournamentsPage";
 import { AdminUsersPage } from "@/pages/AdminUsersPage";
+import { EstruturaPage } from "@/pages/EstruturaPage";
 import { HomePage } from "@/pages/HomePage";
 import { LobbyPage } from "@/pages/LobbyPage";
 import { LoginPage } from "@/pages/LoginPage";
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="verify-email" element={<VerifyEmailPage />} />
           <Route path="lobby" element={<LobbyPage />} />
           <Route path="wallet" element={<WalletPage />} />
+          <Route path="estrutura" element={<EstruturaPage />} />
           <Route path="tournament/:id" element={<TournamentPage />} />
           <Route path="table/:id" element={<TablePage />} />
           <Route path="admin" element={<AdminLayout />}>

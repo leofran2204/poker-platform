@@ -97,6 +97,11 @@ export function Layout() {
               Lobby
             </NavLink>
             {authed && (
+              <NavLink to="/estrutura" className={linkClass}>
+                Minha Estrutura
+              </NavLink>
+            )}
+            {authed && (
               <NavLink to="/wallet" className={linkClass}>
                 Carteira
               </NavLink>

@@ -11,6 +11,7 @@ pub mod cash_seats;
 pub mod deposit_requests;
 pub mod email_service;
 pub mod error;
+pub mod estrutura;
 pub mod game_actor;
 pub mod handlers;
 pub mod middleware;
@@ -32,6 +33,7 @@ use std::sync::OnceLock;
 use std::time::Instant;
 
 use crate::handlers::presence as presence_handlers;
+use crate::handlers::estrutura as estrutura_api;
 use crate::handlers::{auth, hand_history, lobby, tournament, websocket};
 use crate::middleware::auth::RequireAuth;
 use crate::middleware::rate_limit::EnforceRateLimit;
@@ -196,6 +198,12 @@ pub fn build_router(state: AppState) -> Router {
                 )),
         )
         .route("/api/lobby/tables/:id", get(lobby::get_table))
+        .route(
+            "/api/estrutura",
+            get(estrutura_api::get_estrutura).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
         .route(
             "/api/lobby/waitlist",
             post(lobby::join_waitlist)

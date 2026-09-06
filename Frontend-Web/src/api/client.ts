@@ -15,6 +15,7 @@ import type {
   AuditLogItem,
   DepositInfoResponse,
   DepositRequestResponse,
+  EstruturaResponse,
   PixDepositResponse,
   PixDepositStatusResponse,
   ClubAgentResponse,
@@ -356,6 +357,10 @@ export async function createClubAgent(
 
 export async function fetchMe(): Promise<MeResponse> {
   return request<MeResponse>("/api/auth/me");
+}
+
+export async function fetchEstrutura(): Promise<EstruturaResponse> {
+  return request<EstruturaResponse>("/api/estrutura");
 }
 
 export async function fetchAdminStats(): Promise<AdminStatsResponse> {

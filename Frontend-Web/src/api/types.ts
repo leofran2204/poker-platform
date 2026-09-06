@@ -23,6 +23,29 @@ export interface MeResponse {
   referral_code?: string | null;
 }
 
+export interface EstruturaMember {
+  username: string;
+  level: number;
+  sponsor_username?: string | null;
+  rake_generated_week: number;
+  commission_paid_week: number;
+}
+
+export interface EstruturaResponse {
+  referral_code?: string | null;
+  eligible: boolean;
+  hands_this_week: number;
+  personal_rake_cents_week: number;
+  vp_hands_needed: number;
+  vp_rake_cents_needed: number;
+  estrutura_points: number;
+  points_week_l1: number;
+  points_week_l2: number;
+  withheld_week: number;
+  level1: EstruturaMember[];
+  level2: EstruturaMember[];
+}
+
 export interface AdminStatsResponse {
   users_total: number;
   users_by_status: Record<string, number>;

@@ -201,6 +201,9 @@ async fn persist_completed_hand(
         }
     }
 
+    let participants = record.participants.clone();
+    let hand_id = record.hand_id;
+    let rake = record.rake;
     for user_id in record.participants {
         sqlx::query(
             "INSERT INTO hand_participants (hand_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
@@ -209,6 +212,9 @@ async fn persist_completed_hand(
         .bind(user_id)
         .execute(&mut *tx)
         .await?;
+    }
+    if rake > 0 && !participants.is_empty() {
+        crate::estrutura::distribute_hand_rake(&mut tx, hand_id, &participants, rake).await?;
     }
     for (user_id, chips) in settled_stacks {
         let updated = sqlx::query(
