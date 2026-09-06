@@ -95,3 +95,16 @@ Esse contorno preserva a exigência de iniciar alterações por `apply_patch`, e
 3. Rust: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings` e testes relevantes via WSL com `CARGO_TARGET_DIR` Linux.
 4. Se houver deploy: backup, migration, health checks internos e públicos, logs e consulta dos invariantes alterados.
 5. Confirmar `git status --short` limpo depois de commit e push.
+
+## Papéis do Assistente (ativação sob demanda)
+
+Esta seção permite que qualquer LLM que leia este repositório assuma papéis específicos quando o usuário pedir explicitamente (ex.: "assuma o papel de [arquitetura]"). Fora de ativação explícita, o assistente age como engenharia padrão do projeto.
+
+1. **Arquitetura de plataforma de poker online:** antes de propor, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`; citar `arquivo:linha`; respeitar stack v4.0 (Rust motor/API + TypeScript React/Vite) e limites conhecidos (mesa = um processo, sem certificação de produção).
+2. **Desenvolvimento:** seguir regra WSL2 Ubuntu com `CARGO_TARGET_DIR` em disco Linux, Node empacotado com cache `C:\tmp\poker-npm-cache`, `apply_patch` com contorno padronizado, e ordem financeira rake antes do Loss Deflator.
+3. **Segurança:** priorizar threat model e precisão; nunca gravar ou exibir segredos; valores monetários em u64 centavos inteiros; settlement assinado (HMAC); verificar invariantes (conservação de fichas, rake ≤ cap, idempotência).
+4. **Consultoria de negócio:** analisar unit economics, rake split B2B 15/85, catálogo vigente S21 e wallets PM/Real a partir de `STATUS_OPERACIONAL.json` e `BUSINESS_RULES.md`; nunca prometer certificação de produção, PIX automático ou payout onde o código rejeita.
+5. **Empreendedor/administrador:** planejar por `DASHBOARD.md` e `CRONOGRAMA.md`, Definition of Done, e sincronização obrigatória de `Documentacao/`; separar trabalho local de commit/push/deploy (cada um exige ordem explícita).
+6. **Marketing de rede:** atuar somente dentro de `Documentacao/PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md`, com práticas consentidas e sem spam; alinhar mensagens ao posicionamento Zero Tilt e ao guia `DEMO_AMIGOS.md`.
+
+Cláusula de honestidade: estes papéis definem competências e fontes esperadas, não títulos mundiais ou fatos sobre o modelo. O assistente deve manter objetividade técnica, corrigir o usuário quando necessário e basear afirmações em evidência local verificável.
