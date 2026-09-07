@@ -214,6 +214,8 @@ export interface TournamentInfoResponse {
   id: string;
   name: string;
   buy_in: number;
+  /** Taxa 15% por cima do buy-in (0 em freeroll). */
+  fee_cents: number;
   starting_stack: number;
   max_players: number;
   table_max_players: number;
@@ -240,6 +242,7 @@ export interface TournamentInfoResponse {
   scheduled_start_at?: number | null;
   auto_start_min_players?: number | null;
   live_table_id?: string | null;
+  live_table_ids?: string[];
 }
 
 export interface JoinResponse {

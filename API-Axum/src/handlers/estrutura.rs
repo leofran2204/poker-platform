@@ -64,7 +64,7 @@ pub async fn get_estrutura(
 
     let personal_rake_cents_week: i64 = sqlx::query_scalar(
         "SELECT COALESCE(SUM(source_rake_cents)::BIGINT, 0) FROM ( \
-            SELECT DISTINCT hand_id, source_rake_cents \
+            SELECT DISTINCT COALESCE(hand_id::text, id::text), source_rake_cents \
             FROM estrutura_ledger \
             WHERE source_user_id = $1 AND created_at >= to_timestamp($2) \
          ) q",
@@ -93,7 +93,7 @@ pub async fn get_estrutura(
     let l1_rows: Vec<(String, i64, i64)> = sqlx::query_as(
         "SELECT u.username, \
                 COALESCE((SELECT SUM(x.source_rake_cents)::BIGINT FROM ( \
-                    SELECT DISTINCT el.hand_id, el.source_rake_cents \
+                    SELECT DISTINCT COALESCE(el.hand_id::text, el.id::text), el.source_rake_cents \
                     FROM estrutura_ledger el \
                     WHERE el.source_user_id = u.id AND el.created_at >= to_timestamp($2) \
                 ) x), 0), \
@@ -123,7 +123,7 @@ pub async fn get_estrutura(
     let l2_rows: Vec<(String, String, i64, i64)> = sqlx::query_as(
         "SELECT u.username, p.username, \
                 COALESCE((SELECT SUM(x.source_rake_cents)::BIGINT FROM ( \
-                    SELECT DISTINCT el.hand_id, el.source_rake_cents \
+                    SELECT DISTINCT COALESCE(el.hand_id::text, el.id::text), el.source_rake_cents \
                     FROM estrutura_ledger el \
                     WHERE el.source_user_id = u.id AND el.created_at >= to_timestamp($2) \
                 ) x), 0), \

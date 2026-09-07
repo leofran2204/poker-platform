@@ -63,3 +63,5 @@ mod stress_tests;
 mod tournament_engine_tests;
 #[cfg(all(test, feature = "massive-tests"))]
 mod tournament_fuzz_tests;
+#[cfg(test)]
+mod tournament_multitable_tests;

@@ -42,6 +42,7 @@ struct TournamentRow {
     scheduled_start_at: Option<i64>,
     auto_start_min_players: Option<i32>,
     live_table_id: Option<uuid::Uuid>,
+    live_table_ids: Option<Vec<uuid::Uuid>>,
 }
 
 fn parse_speed(raw: &str) -> TournamentSpeed {
@@ -109,6 +110,20 @@ fn row_to_store(row: TournamentRow) -> TournamentStore {
     store.scheduled_start_at = row.scheduled_start_at;
     store.auto_start_min_players = row.auto_start_min_players;
     store.live_table_id = row.live_table_id.map(|id| id.to_string());
+    let mut live_ids: Vec<String> = row
+        .live_table_ids
+        .unwrap_or_default()
+        .into_iter()
+        .map(|id| id.to_string())
+        .collect();
+    if live_ids.is_empty() {
+        if let Some(ref legacy) = store.live_table_id {
+            live_ids.push(legacy.clone());
+        }
+    } else if store.live_table_id.is_none() {
+        store.live_table_id = live_ids.first().cloned();
+    }
+    store.live_table_ids = live_ids;
     store.state.status = parse_status(&row.status);
     store.state.current_level = row.current_level.max(0) as u32;
     store.state.players_remaining = row.players_remaining.max(0) as u32;
@@ -134,9 +149,10 @@ pub async fn load_tournaments_from_db(
                rebuy_max_level, allow_rebuy, blind_levels, game_type,
                COALESCE(money_mode, 'play') AS money_mode,
                 COALESCE(poker_variant, 'holdem') AS poker_variant,
-                final_table_variant, final_table_max_players,
-                scheduled_start_at, auto_start_min_players, live_table_id
-         FROM tournaments
+                 final_table_variant, final_table_max_players,
+                 scheduled_start_at, auto_start_min_players, live_table_id,
+                 live_table_ids
+          FROM tournaments
         WHERE status IN ('registering', 'running', 'paused')
         ORDER BY money_mode, poker_variant, is_freeroll DESC, buy_in, name
         "#,

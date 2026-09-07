@@ -25,7 +25,10 @@ pub struct TournamentStore {
     /// Mínimo de jogadores para auto-start (fixo 5 para todos)
     pub auto_start_min_players: Option<i32>,
     /// Mesa cash-compatível onde as mãos MTT rodam (None = ainda não iniciado).
+    /// Mantida como primeira de `live_table_ids` por compatibilidade.
     pub live_table_id: Option<String>,
+    /// As 3 mesas físicas do torneio, na ordem dos índices do motor (0, 1, 2).
+    pub live_table_ids: Vec<String>,
 }
 
 impl TournamentStore {
@@ -64,6 +67,7 @@ impl TournamentStore {
             scheduled_start_at: None,
             auto_start_min_players: Some(5),
             live_table_id: None,
+            live_table_ids: Vec::new(),
         }
     }
 

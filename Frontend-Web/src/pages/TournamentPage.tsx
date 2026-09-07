@@ -104,7 +104,7 @@ export function TournamentPage() {
           disabled={busy || info.status === "finished"}
           onClick={() => void handleRegister()}
         >
-          {busy ? "…" : info.is_freeroll ? "Inscrever (grátis)" : `Inscrever (${formatBrlFromCents(info.buy_in)})`}
+          {busy ? "…" : info.is_freeroll ? "Inscrever (grátis)" : `Inscrever (${formatBrlFromCents(info.buy_in + (info.fee_cents ?? 0))})`}
         </button>
       </div>
 
@@ -174,6 +174,12 @@ export function TournamentPage() {
               {info.is_freeroll ? "Freeroll" : formatBrlFromCents(info.buy_in)}
             </dd>
           </div>
+          {!info.is_freeroll && (info.fee_cents ?? 0) > 0 ? (
+            <div>
+              <dt className="text-xs uppercase text-felt-400">Taxa (15% p/ a rede)</dt>
+              <dd className="font-mono text-cream">{formatBrlFromCents(info.fee_cents ?? 0)}</dd>
+            </div>
+          ) : null}
           <div>
             <dt className="text-xs uppercase text-felt-400">Premiação garantida / premiação atual</dt>
             <dd className="font-mono text-cream">

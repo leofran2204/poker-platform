@@ -26,6 +26,10 @@ pub struct RegisterResponse {
     pub stack: u64,
     pub registered: bool,
     pub gameplay_ready: bool,
+    /// Taxa 15% cobrada por cima do buy-in (0 em freeroll).
+    pub fee_cents: i64,
+    /// Total debitado da carteira (buy-in + fee).
+    pub total_debited_cents: i64,
 }
 
 #[derive(Debug, Serialize)]
@@ -42,6 +46,8 @@ pub struct TournamentInfoResponse {
     pub id: String,
     pub name: String,
     pub buy_in: u64,
+    /// Taxa 15% por cima do buy-in (0 em freeroll).
+    pub fee_cents: u64,
     pub starting_stack: u64,
     pub max_players: u32,
     pub table_max_players: u8,
@@ -69,6 +75,8 @@ pub struct TournamentInfoResponse {
     pub scheduled_start_at: Option<i64>,
     pub auto_start_min_players: Option<i32>,
     pub live_table_id: Option<String>,
+    /// As 3 mesas físicas do torneio (ordem dos índices do motor).
+    pub live_table_ids: Vec<String>,
 }
 
 fn status_string(status: &poker_engine::tournament_engine::TournamentStatus) -> String {
@@ -87,6 +95,7 @@ fn to_info(store: &crate::tournament_store::TournamentStore) -> TournamentInfoRe
         id: store.id.clone(),
         name: cfg.name.clone(),
         buy_in: cfg.buy_in,
+        fee_cents: poker_engine::tournament_engine::entry_fee_cents(cfg.buy_in),
         starting_stack: cfg.starting_stack,
         max_players: cfg.max_players,
         table_max_players: store.table_max_players,
@@ -129,6 +138,7 @@ fn to_info(store: &crate::tournament_store::TournamentStore) -> TournamentInfoRe
         scheduled_start_at: store.scheduled_start_at,
         auto_start_min_players: store.auto_start_min_players,
         live_table_id: store.live_table_id.clone(),
+        live_table_ids: store.live_table_ids.clone(),
     }
 }
 
@@ -237,6 +247,39 @@ pub async fn register_player(
         }
     }
 
+    // Taxa 15% por cima do buy-in: debita junto e reparte 18/12/70 na rede.
+    // Freeroll (buy-in zero) não tem fee.
+    let fee_cents =
+        i64::try_from(poker_engine::tournament_engine::entry_fee_cents(buy_in)).unwrap_or(0);
+    if fee_cents > 0 {
+        let kind = crate::wallet::mtt_kind_for_mode(mode);
+        if let Err(e) =
+            crate::wallet::debit_wallet(&mut *tx, &auth_user.user_id, fee_cents, kind).await
+        {
+            store.state.players.remove(&auth_user.user_id);
+            return Err(e);
+        }
+        let payer = uuid::Uuid::parse_str(&auth_user.user_id).map_err(|_| {
+            store.state.players.remove(&auth_user.user_id);
+            ApiError::BadRequest("Invalid player id".into())
+        })?;
+        let week_start: i64 = sqlx::query_scalar(
+            "SELECT EXTRACT(EPOCH FROM date_trunc('week', timezone('America/Sao_Paulo', now())))::BIGINT",
+        )
+        .fetch_one(&mut *tx)
+        .await
+        .map_err(|_| {
+            store.state.players.remove(&auth_user.user_id);
+            ApiError::Internal("week clock unavailable".into())
+        })?;
+        if let Err(e) =
+            crate::estrutura::distribute_fee(&mut tx, payer, fee_cents, week_start).await
+        {
+            store.state.players.remove(&auth_user.user_id);
+            return Err(ApiError::Internal(format!("fee split failed: {e}")));
+        }
+    }
+
     sqlx::query(
         r#"
         INSERT INTO tournament_players
@@ -284,5 +327,7 @@ pub async fn register_player(
         stack: starting_stack,
         registered: true,
         gameplay_ready: store.live_table_id.is_some(),
+        fee_cents,
+        total_debited_cents: buy_in as i64 + fee_cents,
     }))
 }

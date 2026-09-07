@@ -186,6 +186,9 @@ pub struct TournamentState {
     pub players: HashMap<String, PlayerTournamentEntry>,
     /// Total de buy-ins coletados
     pub total_buyins: u64,
+    /// Total de taxas de inscrição (fee) coletadas — fora do prize pool
+    #[serde(default)]
+    pub total_fees: u64,
     /// Total de re-buys coletados
     pub total_rebuys: u64,
     /// Total de add-ons coletados
@@ -243,6 +246,7 @@ pub fn create_tournament(config: TournamentConfig) -> TournamentState {
         level_started_at: 0,
         players: HashMap::new(),
         total_buyins: 0,
+        total_fees: 0,
         total_rebuys: 0,
         total_addons: 0,
         prize_pool: guaranteed,
@@ -303,6 +307,7 @@ pub fn register_player(
 
     state.players.insert(player_id.to_string(), entry);
     state.total_buyins += state.config.buy_in;
+    state.total_fees += entry_fee_cents(state.config.buy_in);
     state.players_remaining += 1;
 
     // Recalcula prize pool
@@ -597,6 +602,66 @@ fn generate_tournament_id(name: &str) -> String {
     let timestamp = current_timestamp();
     let sanitized = name.to_lowercase().replace(' ', "_");
     format!("{}_{}", sanitized, timestamp)
+}
+
+// -----------------------------------------------------------
+// Taxa de inscrição (fee) e seating multi-mesa
+// -----------------------------------------------------------
+
+/// Fee de 15% cobrado POR CIMA do buy-in. O buy-in integral compõe o prize
+/// pool; só o fee alimenta a rede Minha Estrutura (18% L1 + 12% L2 + 70% casa).
+pub const TOURNAMENT_FEE_BASIS_POINTS: u64 = 1500;
+
+/// Fee em centavos para um buy-in (freeroll: zero).
+pub fn entry_fee_cents(buy_in: u64) -> u64 {
+    (buy_in * TOURNAMENT_FEE_BASIS_POINTS) / 10_000
+}
+
+/// Mesas físicas por torneio (decisão de produto: sempre 3).
+pub const TOURNAMENT_TABLE_COUNT: u32 = 3;
+
+/// Capacidade do torneio = 3 mesas × assentos por mesa.
+pub fn tournament_capacity(table_max_players: u32) -> u32 {
+    TOURNAMENT_TABLE_COUNT * table_max_players
+}
+
+/// Distribuição inicial balanceada: round-robin de jogadores nas 3 mesas.
+/// Retorna (player_idx, mesa_idx 0-based, assento).
+pub fn assign_initial_tables(
+    player_count: usize,
+    table_max_players: u32,
+) -> Vec<(usize, u32, u32)> {
+    let mut seats_per_table = vec![0u32; TOURNAMENT_TABLE_COUNT as usize];
+    (0..player_count)
+        .map(|i| {
+            let table = (i % TOURNAMENT_TABLE_COUNT as usize) as u32;
+            let seat = seats_per_table[table as usize];
+            seats_per_table[table as usize] += 1;
+            debug_assert!(seat < table_max_players);
+            (i, table, seat)
+        })
+        .collect()
+}
+
+/// Balanceamento: se o desnível entre a mesa mais cheia e a mais vazia passa
+/// de 1 jogador, move um da mais cheia para a mais vazia.
+/// Retorna (mesa_origem, mesa_destino) ou None quando equilibrado.
+pub fn rebalance_move(table_counts: &[u32]) -> Option<(usize, usize)> {
+    if table_counts.len() != TOURNAMENT_TABLE_COUNT as usize {
+        return None;
+    }
+    let (from, &max) = table_counts.iter().enumerate().max_by_key(|(_, &c)| c)?;
+    let (to, &min) = table_counts.iter().enumerate().min_by_key(|(_, &c)| c)?;
+    if from != to && max.saturating_sub(min) > 1 {
+        Some((from, to))
+    } else {
+        None
+    }
+}
+
+/// Consolidação para a mesa final: restantes cabem no limite da FT.
+pub fn should_consolidate(players_remaining: u32, final_table_max: u32) -> bool {
+    players_remaining > 0 && players_remaining <= final_table_max
 }
 
 /// Retorna o timestamp atual em segundos desde epoch
