@@ -135,6 +135,69 @@ fn row_to_store(row: TournamentRow) -> TournamentStore {
     store
 }
 
+/// Reidrata `state.players` do banco (inscrições + assentos vivos).
+/// Sem isso, um restart esvazia o motor: eliminações falham com
+/// "Jogador não encontrado" e `players_remaining` congela.
+async fn hydrate_players(pool: &PgPool, store: &mut TournamentStore) -> Result<(), sqlx::Error> {
+    use poker_engine::tournament_engine::PlayerTournamentEntry;
+    let entries: Vec<(String, String, i64)> = sqlx::query_as(
+        "SELECT player_id, player_name, registered_at FROM tournament_players WHERE tournament_id = $1::uuid",
+    )
+    .bind(&store.id)
+    .fetch_all(pool)
+    .await?;
+    if entries.is_empty() {
+        return Ok(());
+    }
+    let seats: Vec<(String, String, i16, i64, String)> = sqlx::query_as(
+        "SELECT player_id, table_id::text, seat, stack, status FROM tournament_seats WHERE tournament_id = $1::uuid",
+    )
+    .bind(&store.id)
+    .fetch_all(pool)
+    .await?;
+    let mut seat_of = std::collections::HashMap::new();
+    for (pid, table_id, seat, stack, status) in seats {
+        seat_of.insert(pid, (table_id, seat, stack, status));
+    }
+    let mut remaining = 0u32;
+    for (pid, pname, registered_at) in entries {
+        let (table_idx, seat, stack, eliminated) = match seat_of.get(&pid) {
+            Some((table_id, seat, stack, status)) => (
+                store
+                    .live_table_ids
+                    .iter()
+                    .position(|t| t == table_id)
+                    .map(|i| i as u32),
+                Some((*seat).max(0) as u32),
+                (*stack).max(0) as u64,
+                status == "ELIMINATED",
+            ),
+            None => (None, None, store.state.config.starting_stack, false),
+        };
+        if !eliminated {
+            remaining += 1;
+        }
+        store.state.players.insert(
+            pid.clone(),
+            PlayerTournamentEntry {
+                player_id: pid,
+                player_name: pname,
+                stack,
+                table_id: table_idx,
+                seat,
+                rebuys: 0,
+                addon_done: false,
+                final_position: None,
+                prize: None,
+                registered_at: registered_at.max(0) as u64,
+                eliminated_at: eliminated.then_some(0),
+            },
+        );
+    }
+    store.state.players_remaining = remaining;
+    Ok(())
+}
+
 /// Load all non-finished catalog tournaments into memory.
 pub async fn load_tournaments_from_db(
     pool: &PgPool,
@@ -162,7 +225,10 @@ pub async fn load_tournaments_from_db(
 
     let mut map = HashMap::new();
     for row in rows {
-        let store = row_to_store(row);
+        let mut store = row_to_store(row);
+        if let Err(error) = hydrate_players(pool, &mut store).await {
+            tracing::warn!(tournament_id = %store.id, ?error, "players do torneio não reidratados");
+        }
         map.insert(store.id.clone(), store);
     }
     Ok(map)

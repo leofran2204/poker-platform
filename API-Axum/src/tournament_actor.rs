@@ -317,6 +317,29 @@ impl TournamentActor {
         }
     }
 
+    /// Pausa auditável: log + trilha em audit_logs + mesa PAUSED + flag.
+    /// Toda parada do ator MTT passa por aqui — nunca silenciosa.
+    async fn halt(&mut self, reason: &str) {
+        error!(table_id = %self.table_id, reason, "mesa MTT pausada");
+        let _ = sqlx::query(
+            "INSERT INTO audit_logs (user_id, action, metadata) VALUES ('system','MTT_TABLE_HALTED', $1)",
+        )
+        .bind(serde_json::json!({
+            "table_id": self.table_id,
+            "tournament_id": self.tournament_id,
+            "reason": reason,
+        }))
+        .execute(&self.db)
+        .await;
+        if let Ok(table_uuid) = uuid::Uuid::parse_str(&self.table_id) {
+            let _ = sqlx::query("UPDATE tables SET status='PAUSED' WHERE id=$1")
+                .bind(table_uuid)
+                .execute(&self.db)
+                .await;
+        }
+        self.persistence_halted = true;
+    }
+
     async fn start_new_hand(&mut self) {
         if self.persistence_halted {
             return;
@@ -349,7 +372,7 @@ impl TournamentActor {
                 ?error,
                 "Falha no guard da mão MTT; pausando mesa {}", self.table_id
             );
-            self.persistence_halted = true;
+            self.halt("falha irrecuperável (ver error! anterior)").await;
             return;
         }
         let config = TableConfig::new(spec.big_blind, 0, 0)
@@ -375,7 +398,7 @@ impl TournamentActor {
         self.dealer_seat = Some(active[self.dealer_index].2);
         gl.set_dealer(self.dealer_index);
         if gl.start_hand().is_err() {
-            self.persistence_halted = true;
+            self.halt("start_hand do motor falhou").await;
             return;
         }
         self.game_loop = Some(gl);
@@ -406,7 +429,7 @@ impl TournamentActor {
             Ok(Some(uuids)) => uuids,
             _ => {
                 error!(table_id = %self.table_id, "settle MTT sem jogadores válidos; pausando");
-                self.persistence_halted = true;
+                self.halt("falha irrecuperável (ver error! anterior)").await;
                 return;
             }
         };
@@ -440,7 +463,7 @@ impl TournamentActor {
             .unwrap_or(0);
         if payout_total != pot_total || final_total != starting_total || res.rake != 0 {
             error!(table_id = %self.table_id, "Conservação de fichas MTT violada; pausando");
-            self.persistence_halted = true;
+            self.halt("falha irrecuperável (ver error! anterior)").await;
             return;
         }
         let gl = match self.game_loop.as_mut() {
@@ -450,7 +473,7 @@ impl TournamentActor {
         let history = match gl.history.as_mut() {
             Some(h) => h,
             None => {
-                self.persistence_halted = true;
+                self.halt("falha irrecuperável (ver error! anterior)").await;
                 return;
             }
         };
@@ -458,7 +481,7 @@ impl TournamentActor {
         let history_json = match serde_json::to_value(&*history) {
             Ok(v) => v,
             Err(_) => {
-                self.persistence_halted = true;
+                self.halt("falha irrecuperável (ver error! anterior)").await;
                 return;
             }
         };
@@ -481,7 +504,7 @@ impl TournamentActor {
         let signature = match sign_settlement(&settlement, self.audit_secret.as_bytes()) {
             Ok(s) => s,
             Err(_) => {
-                self.persistence_halted = true;
+                self.halt("falha irrecuperável (ver error! anterior)").await;
                 return;
             }
         };
@@ -499,7 +522,7 @@ impl TournamentActor {
         let mut tx = match self.db.begin().await {
             Ok(tx) => tx,
             Err(_) => {
-                self.persistence_halted = true;
+                self.halt("falha irrecuperável (ver error! anterior)").await;
                 return;
             }
         };
@@ -532,7 +555,7 @@ impl TournamentActor {
         {
             error!(?error, table_id = %self.table_id, "settle MTT: hand_history falhou; pausando");
             let _ = tx.rollback().await;
-            self.persistence_halted = true;
+            self.halt("falha irrecuperável (ver error! anterior)").await;
             return;
         }
         // Participantes p/ VP + stacks/eliminações. Erro aqui propaga e pausa
@@ -550,7 +573,7 @@ impl TournamentActor {
             {
                 error!(?error, table_id = %self.table_id, "settle MTT: participantes falhou; pausando");
                 let _ = tx.rollback().await;
-                self.persistence_halted = true;
+                self.halt("falha irrecuperável (ver error! anterior)").await;
                 return;
             }
             if *chips == 0 {
@@ -569,7 +592,7 @@ impl TournamentActor {
             {
                 error!(?error, table_id = %self.table_id, "settle MTT: stacks falhou; pausando");
                 let _ = tx.rollback().await;
-                self.persistence_halted = true;
+                self.halt("falha irrecuperável (ver error! anterior)").await;
                 return;
             }
         }
@@ -583,12 +606,12 @@ impl TournamentActor {
         {
             error!(?error, table_id = %self.table_id, "settle MTT: limpeza do guard falhou; pausando");
             let _ = tx.rollback().await;
-            self.persistence_halted = true;
+            self.halt("falha irrecuperável (ver error! anterior)").await;
             return;
         }
         if tx.commit().await.is_err() {
             error!(table_id = %self.table_id, "settle MTT: commit falhou; pausando");
-            self.persistence_halted = true;
+            self.halt("falha irrecuperável (ver error! anterior)").await;
             return;
         }
         // Espelha no motor do torneio (eliminações) e na memória.
