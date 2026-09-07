@@ -39,6 +39,8 @@ pub struct TournamentActor {
     pub turn_timeout: tokio::time::Duration,
     pub db: sqlx::PgPool,
     pub audit_secret: String,
+    /// Ticks ociosos seguidos (encerra após ~60s sem jogo possível).
+    pub idle_ticks: u32,
     pub tournaments: Arc<RwLock<HashMap<String, TournamentStore>>>,
     pub active_tables: Arc<RwLock<HashMap<String, TableActorHandle>>>,
     pub persistence_halted: bool,
@@ -163,6 +165,22 @@ impl TournamentActor {
             self.handle_action(pid, "fold".to_string(), 0).await;
             return true;
         }
+        // Mão travada: o da vez não pode agir (all-in geral, comum quando os
+        // blinds superam os stacks) — corre o board em vez de foldar p/ sempre.
+        let stalled = self.game_loop.as_ref().is_some_and(|gl| {
+            !gl.state.is_finished && gl.state.active_player().is_some_and(|p| !p.can_act())
+        });
+        if stalled {
+            let progressed = self
+                .game_loop
+                .as_mut()
+                .is_some_and(|gl| gl.run_out_stalled_hand());
+            if progressed {
+                self.last_turn_start = None;
+                self.resolve_and_schedule().await;
+            }
+            return true;
+        }
         // Timeout de turno = fold.
         let timed_out = self.game_loop.as_ref().and_then(|gl| {
             (!gl.state.is_finished)
@@ -201,17 +219,15 @@ impl TournamentActor {
                 .count()
                 < 2
         {
-            // Espera um ciclo antes de sair (rebalance pode trazer gente).
-            static mut IDLE_TICKS: u32 = 0;
-            unsafe {
-                IDLE_TICKS += 1;
-                if IDLE_TICKS > 240 {
-                    // ~60s sem jogo
-                    IDLE_TICKS = 0;
-                    info!("Mesa {} sem jogo; ator encerrando", self.table_id);
-                    return false;
-                }
+            // Espera ~60s (rebalance pode trazer gente) antes de sair.
+            self.idle_ticks += 1;
+            if self.idle_ticks > 240 {
+                self.idle_ticks = 0;
+                info!("Mesa {} sem jogo; ator encerrando", self.table_id);
+                return false;
             }
+        } else {
+            self.idle_ticks = 0;
         }
         true
     }
@@ -305,16 +321,27 @@ impl TournamentActor {
         }
         self.last_turn_start = (!gl.state.is_finished).then_some(tokio::time::Instant::now());
         if gl.state.is_finished {
-            if let Ok(res) = gl.resolve_hand() {
-                gl.finalize_history(&res);
-                self.settle_hand(res).await;
-            }
-            self.broadcast_state();
-            self.next_hand_at =
-                Some(tokio::time::Instant::now() + tokio::time::Duration::from_secs(6));
+            self.resolve_and_schedule().await;
         } else {
             self.broadcast_state();
         }
+    }
+
+    /// Resolve a mão atual, liquida e agenda a próxima. Fluxo único de término,
+    /// usado após ação válida e após run-out de mão travada.
+    async fn resolve_and_schedule(&mut self) {
+        let res = match self.game_loop.as_mut() {
+            Some(gl) if gl.state.is_finished => gl.resolve_hand(),
+            _ => return,
+        };
+        if let Ok(res) = res {
+            if let Some(gl) = self.game_loop.as_mut() {
+                gl.finalize_history(&res);
+            }
+            self.settle_hand(res).await;
+        }
+        self.broadcast_state();
+        self.next_hand_at = Some(tokio::time::Instant::now() + tokio::time::Duration::from_secs(6));
     }
 
     /// Pausa auditável: log + trilha em audit_logs + mesa PAUSED + flag.
@@ -754,6 +781,7 @@ pub async fn ensure_tournament_actor(
         turn_timeout: TURN_TIMEOUT,
         db: state.db.clone(),
         audit_secret: state.jwt_secret.clone(),
+        idle_ticks: 0,
         tournaments: state.tournaments.clone(),
         active_tables: state.active_tables.clone(),
         persistence_halted: false,

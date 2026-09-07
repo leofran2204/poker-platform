@@ -974,6 +974,24 @@ impl GameLoop {
         Ok(())
     }
 
+    /// Emergência anti-travamento: ninguém pode agir (todos all-in) mas a mão
+    /// não terminou — corre o board até o showdown e encerra. Essencial em
+    /// torneios, onde os blinds superam os stacks por desenho; sem isso o ator
+    /// tenta foldar quem não pode agir para sempre. Retorna true se progrediu.
+    pub fn run_out_stalled_hand(&mut self) -> bool {
+        if self.state.is_finished {
+            return false;
+        }
+        if self.state.active_players_count() != 0 {
+            return false;
+        }
+        if self.state.players_in_hand_count() < 2 {
+            self.state.is_finished = true;
+            return true;
+        }
+        self.run_out_board().is_ok()
+    }
+
     /// Resolve vitória por fold (todos foldaram exceto um) em centavos
     fn resolve_fold_win(&mut self) -> Result<HandResolution, GameLoopError> {
         let winner_idx = self

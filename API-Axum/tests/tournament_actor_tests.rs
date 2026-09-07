@@ -43,50 +43,37 @@ fn test_state(db: sqlx::PgPool) -> AppState {
     }
 }
 
-#[tokio::test]
-#[ignore = "Requires scratch PostgreSQL (migrated) via DATABASE_URL"]
-async fn mtt_actor_completes_hand_with_signed_settlement() {
-    let _ = tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::INFO)
-        .with_test_writer()
-        .try_init();
-    let db = scratch_pool();
-    // Limpa restos de rodadas anteriores (asserts podem pular o cleanup final).
-    sqlx::query("DELETE FROM hand_participants WHERE user_id IN (SELECT id FROM users WHERE username LIKE 'tact%')")
-        .execute(&db).await.unwrap();
-    sqlx::query("DELETE FROM hand_history WHERE table_id IN (SELECT id FROM tables WHERE name = 'MTT teste')")
-        .execute(&db).await.unwrap();
-    sqlx::query("DELETE FROM table_hand_recovery_guards WHERE table_id IN (SELECT id FROM tables WHERE name = 'MTT teste')")
-        .execute(&db).await.unwrap();
-    sqlx::query("DELETE FROM tournament_seats WHERE player_id IN (SELECT id::text FROM users WHERE username LIKE 'tact%')")
-        .execute(&db).await.unwrap();
-    sqlx::query("DELETE FROM tables WHERE name = 'MTT teste'")
-        .execute(&db)
-        .await
-        .unwrap();
-    sqlx::query("DELETE FROM tournaments WHERE name = 'MTT teste'")
-        .execute(&db)
-        .await
-        .unwrap();
-    sqlx::query("DELETE FROM users WHERE username LIKE 'tact%'")
-        .execute(&db)
-        .await
-        .unwrap();
+struct MttTable {
+    tid: uuid::Uuid,
+    table_id: uuid::Uuid,
+    u1: uuid::Uuid,
+    u2: uuid::Uuid,
+    total_chips: i64,
+}
+
+/// Sobe mesa de torneio no scratch com 2 jogadores e devolve o ator rodando.
+async fn setup_mtt_table(
+    db: &sqlx::PgPool,
+    tag: &str,
+    stack_each: i64,
+) -> (AppState, tokio::sync::mpsc::Sender<PlayerCommand>, MttTable) {
     let tid = uuid::Uuid::new_v4();
     let table_id = uuid::Uuid::new_v4();
     let u1 = uuid::Uuid::new_v4();
     let u2 = uuid::Uuid::new_v4();
+    let table_name = format!("MTT teste {tag}");
+    let (n1, n2) = (format!("tact-{tag}-1"), format!("tact-{tag}-2"));
 
-    sqlx::query("INSERT INTO users (id, username, email, password_hash, role, status) VALUES ($1, 'tact1', 'tact1@t.local', 'x', 'player', 'active'), ($2, 'tact2', 'tact2@t.local', 'x', 'player', 'active') ON CONFLICT DO NOTHING")
-        .bind(u1).bind(u2).execute(&db).await.unwrap();
-    sqlx::query("INSERT INTO tables (id, name, game_type, small_blind, big_blind, min_buy_in, max_buy_in, max_players, visibility, status, poker_variant, money_mode) VALUES ($1, 'MTT teste', 'tournament', 25, 50, 5000, 5000, 9, 'private', 'OPEN', 'holdem', 'play') ON CONFLICT DO NOTHING")
-        .bind(table_id).execute(&db).await.unwrap();
-    sqlx::query("INSERT INTO tournaments (id, name, buy_in, starting_stack, max_players) VALUES ($1, 'MTT teste', 0, 5000, 27) ON CONFLICT DO NOTHING")
-        .bind(tid).execute(&db).await.unwrap();
-    for (uid, name, seat) in [(u1, "tact1", 0i16), (u2, "tact2", 1i16)] {
-        sqlx::query("INSERT INTO tournament_seats (tournament_id, table_id, seat, player_id, player_name, stack) VALUES ($1, $2, $3, $4, $5, 5000) ON CONFLICT DO NOTHING")
-            .bind(tid).bind(table_id).bind(seat).bind(uid.to_string()).bind(name)
-            .execute(&db).await.unwrap();
+    sqlx::query("INSERT INTO users (id, username, email, password_hash, role, status) VALUES ($1, $2, $2, 'x', 'player', 'active'), ($3, $4, $4, 'x', 'player', 'active') ON CONFLICT DO NOTHING")
+        .bind(u1).bind(&n1).bind(u2).bind(&n2).execute(db).await.unwrap();
+    sqlx::query("INSERT INTO tables (id, name, game_type, small_blind, big_blind, min_buy_in, max_buy_in, max_players, visibility, status, poker_variant, money_mode) VALUES ($1, $2, 'tournament', 25, 50, 5000, 5000, 9, 'private', 'OPEN', 'holdem', 'play') ON CONFLICT DO NOTHING")
+        .bind(table_id).bind(&table_name).execute(db).await.unwrap();
+    sqlx::query("INSERT INTO tournaments (id, name, buy_in, starting_stack, max_players) VALUES ($1, $2, 0, 5000, 27) ON CONFLICT DO NOTHING")
+        .bind(tid).bind(&table_name).execute(db).await.unwrap();
+    for (uid, name, seat) in [(&u1, &n1, 0i16), (&u2, &n2, 1i16)] {
+        sqlx::query("INSERT INTO tournament_seats (tournament_id, table_id, seat, player_id, player_name, stack) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING")
+            .bind(tid).bind(table_id).bind(seat).bind(uid.to_string()).bind(name).bind(stack_each)
+            .execute(db).await.unwrap();
     }
 
     let state = test_state(db.clone());
@@ -121,7 +108,7 @@ async fn mtt_actor_completes_hand_with_signed_settlement() {
         table_id: table_id.to_string(),
         tournament_id: tkey.clone(),
         table_index: 0,
-        name: "MTT teste mesa 1".to_string(),
+        name: format!("{table_name} mesa 1"),
         players: Vec::new(),
         game_loop: None,
         rx: rx_cmd,
@@ -137,17 +124,18 @@ async fn mtt_actor_completes_hand_with_signed_settlement() {
         tournaments: state.tournaments.clone(),
         active_tables: state.active_tables.clone(),
         persistence_halted: false,
+        idle_ticks: 0,
     };
     tokio::spawn(actor.run());
 
-    for (uid, name, seat) in [(u1, "tact1", 0usize), (u2, "tact2", 1usize)] {
+    for (uid, name, seat) in [(u1, n1, 0usize), (u2, n2, 1usize)] {
         let (tx_resp, rx_resp) = tokio::sync::oneshot::channel();
         tx_cmd
             .send(PlayerCommand::Sit {
                 player_id: uid.to_string(),
-                username: name.to_string(),
+                username: name,
                 seat: Some(seat),
-                chips: 5000,
+                chips: stack_each as u64,
                 respond_to: tx_resp,
             })
             .await
@@ -155,13 +143,100 @@ async fn mtt_actor_completes_hand_with_signed_settlement() {
         rx_resp.await.unwrap();
     }
 
+    (
+        state,
+        tx_cmd,
+        MttTable {
+            tid,
+            table_id,
+            u1,
+            u2,
+            total_chips: 2 * stack_each,
+        },
+    )
+}
+
+async fn cleanup_mtt_table(db: &sqlx::PgPool, t: &MttTable) {
+    sqlx::query("DELETE FROM hand_participants WHERE user_id IN ($1, $2)")
+        .bind(t.u1)
+        .bind(t.u2)
+        .execute(db)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM hand_history WHERE table_id = $1")
+        .bind(t.table_id)
+        .execute(db)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM table_hand_recovery_guards WHERE table_id = $1")
+        .bind(t.table_id)
+        .execute(db)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM tournament_seats WHERE tournament_id = $1")
+        .bind(t.tid)
+        .execute(db)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM tables WHERE id = $1")
+        .bind(t.table_id)
+        .execute(db)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM tournaments WHERE id = $1")
+        .bind(t.tid)
+        .execute(db)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM users WHERE id IN ($1, $2)")
+        .bind(t.u1)
+        .bind(t.u2)
+        .execute(db)
+        .await
+        .unwrap();
+}
+
+async fn wipe_tact_leftovers(db: &sqlx::PgPool) {
+    sqlx::query("DELETE FROM hand_participants WHERE user_id IN (SELECT id FROM users WHERE username LIKE 'tact%')")
+        .execute(db).await.unwrap();
+    sqlx::query("DELETE FROM hand_history WHERE table_id IN (SELECT id FROM tables WHERE name LIKE 'MTT teste%')")
+        .execute(db).await.unwrap();
+    sqlx::query("DELETE FROM table_hand_recovery_guards WHERE table_id IN (SELECT id FROM tables WHERE name LIKE 'MTT teste%')")
+        .execute(db).await.unwrap();
+    sqlx::query("DELETE FROM tournament_seats WHERE player_id IN (SELECT id::text FROM users WHERE username LIKE 'tact%')")
+        .execute(db).await.unwrap();
+    sqlx::query("DELETE FROM tables WHERE name LIKE 'MTT teste%'")
+        .execute(db)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM tournaments WHERE name LIKE 'MTT teste%'")
+        .execute(db)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM users WHERE username LIKE 'tact%'")
+        .execute(db)
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
+#[ignore = "Requires scratch PostgreSQL (migrated) via DATABASE_URL"]
+async fn mtt_actor_completes_hand_with_signed_settlement() {
+    let _ = tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::INFO)
+        .with_test_writer()
+        .try_init();
+    let db = scratch_pool();
+    wipe_tact_leftovers(&db).await;
+    let (_state, _tx, t) = setup_mtt_table(&db, "base", 5000).await;
+
     tokio::time::sleep(std::time::Duration::from_secs(8)).await;
 
     let (hands, signed, rake): (i64, i64, i64) = sqlx::query_as(
         "SELECT COUNT(*), COUNT(*) FILTER (WHERE settlement_signature <> ''), COALESCE(SUM(rake_collected),0)::BIGINT \
          FROM hand_history WHERE table_id = $1 AND game_type = 'tournament'",
     )
-    .bind(table_id)
+    .bind(t.table_id)
     .fetch_one(&db)
     .await
     .unwrap();
@@ -171,7 +246,7 @@ async fn mtt_actor_completes_hand_with_signed_settlement() {
 
     let parts: i64 =
         sqlx::query_scalar("SELECT COUNT(*) FROM hand_participants WHERE user_id = $1")
-            .bind(u1)
+            .bind(t.u1)
             .fetch_one(&db)
             .await
             .unwrap();
@@ -180,43 +255,51 @@ async fn mtt_actor_completes_hand_with_signed_settlement() {
     let stacks: i64 = sqlx::query_scalar(
         "SELECT COALESCE(SUM(stack),0)::BIGINT FROM tournament_seats WHERE tournament_id = $1",
     )
-    .bind(tid)
+    .bind(t.tid)
     .fetch_one(&db)
     .await
     .unwrap();
-    assert_eq!(stacks, 10000, "fichas de torneio se conservam");
+    assert_eq!(stacks, t.total_chips, "fichas de torneio se conservam");
 
-    // Limpeza do scratch.
-    sqlx::query("DELETE FROM hand_participants WHERE user_id IN ($1, $2)")
-        .bind(u1)
-        .bind(u2)
-        .execute(&db)
-        .await
-        .unwrap();
-    sqlx::query("DELETE FROM hand_history WHERE table_id = $1")
-        .bind(table_id)
-        .execute(&db)
-        .await
-        .unwrap();
-    sqlx::query("DELETE FROM tournament_seats WHERE tournament_id = $1")
-        .bind(tid)
-        .execute(&db)
-        .await
-        .unwrap();
-    sqlx::query("DELETE FROM tables WHERE id = $1")
-        .bind(table_id)
-        .execute(&db)
-        .await
-        .unwrap();
-    sqlx::query("DELETE FROM tournaments WHERE id = $1")
-        .bind(tid)
-        .execute(&db)
-        .await
-        .unwrap();
-    sqlx::query("DELETE FROM users WHERE id IN ($1, $2)")
-        .bind(u1)
-        .bind(u2)
-        .execute(&db)
-        .await
-        .unwrap();
+    cleanup_mtt_table(&db, &t).await;
+}
+
+#[tokio::test]
+#[ignore = "Requires scratch PostgreSQL (migrated) via DATABASE_URL"]
+async fn mtt_actor_runs_out_allin_stall() {
+    let db = scratch_pool();
+    wipe_tact_leftovers(&db).await;
+    // Stacks menores que os blinds: todos all-in na largada — sem run-out,
+    // a mão travaria para sempre (fold inválido p/ quem não pode agir).
+    let (_state, _tx, t) = setup_mtt_table(&db, "allin", 30).await;
+
+    tokio::time::sleep(std::time::Duration::from_secs(8)).await;
+
+    let (hands, signed): (i64, i64) = sqlx::query_as(
+        "SELECT COUNT(*), COUNT(*) FILTER (WHERE settlement_signature <> '') \
+         FROM hand_history WHERE table_id = $1 AND game_type = 'tournament'",
+    )
+    .bind(t.table_id)
+    .fetch_one(&db)
+    .await
+    .unwrap();
+    assert!(hands >= 1, "mão all-in travada não correu até o fim");
+    assert_eq!(
+        signed, hands,
+        "showdown all-in precisa de settlement assinado"
+    );
+
+    let stacks: i64 = sqlx::query_scalar(
+        "SELECT COALESCE(SUM(stack),0)::BIGINT FROM tournament_seats WHERE tournament_id = $1",
+    )
+    .bind(t.tid)
+    .fetch_one(&db)
+    .await
+    .unwrap();
+    assert_eq!(
+        stacks, t.total_chips,
+        "fichas de torneio se conservam no all-in"
+    );
+
+    cleanup_mtt_table(&db, &t).await;
 }
