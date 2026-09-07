@@ -60,15 +60,23 @@ function holdOne(name, tableKey, deadline) {
   const stats = { name, acted: 0, states: 0, reconnects: 0 };
   let stop = false;
   (async () => {
-    const login = await api("/api/auth/login", {
-      method: "POST",
-      body: { email: `${name}@test.local`, password: PASS },
-    });
-    if (login.status !== 200 || !login.json?.token) {
-      console.error(`[${name}] login ${login.status}`);
+    let token = null;
+    for (let attempt = 0; attempt < 30 && !token; attempt++) {
+      try {
+        const login = await api("/api/auth/login", {
+          method: "POST",
+          body: { email: `${name}@test.local`, password: PASS },
+        });
+        if (login.status === 200 && login.json?.token) token = login.json.token;
+        else await sleep(10000);
+      } catch {
+        await sleep(10000);
+      }
+    }
+    if (!token) {
+      console.error(`[${name}] login falhou após retries`);
       return;
     }
-    const token = login.json.token;
     await api("/api/lobby/join", {
       method: "POST",
       token,
