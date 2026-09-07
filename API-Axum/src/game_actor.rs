@@ -10,7 +10,7 @@ use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use subtle::ConstantTimeEq;
 
-use poker_engine::game_loop::{GameLoop, PlayerMove};
+use poker_engine::game_loop::{GameLoop, GameLoopError, PlayerMove};
 use poker_engine::hand_history::GameType;
 use poker_engine::types::TableConfig;
 
@@ -699,8 +699,15 @@ impl TableActor {
         };
 
         if let Err(e) = game_loop.player_action(&player_id, player_move) {
-            error!("Error processing action for player {}: {}", player_id, e);
-            return;
+            // Mão travada all-in (comum quando blinds superam stacks): quem não
+            // pode agir nunca completa fold — corre o board e cai no fluxo de
+            // liquidação abaixo em vez de girar em erro para sempre.
+            let stalled = matches!(&e, GameLoopError::PlayerCannotAct(_))
+                && game_loop.run_out_stalled_hand();
+            if !stalled {
+                error!("Error processing action for player {}: {}", player_id, e);
+                return;
+            }
         }
 
         self.last_turn_start =
