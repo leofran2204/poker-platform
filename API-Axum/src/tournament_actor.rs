@@ -698,6 +698,8 @@ pub async fn ensure_tournament_actor(
         .write()
         .await
         .insert(table_id.to_string(), handle.clone());
+    // Spawna ANTES de sentar: os Sit aguardam resposta do loop do ator.
+    tokio::spawn(actor.run());
     // Senta os inscritos ativos (stacks do torneio).
     let seats: Vec<(String, String, i64, i16)> = sqlx::query_as(
         "SELECT player_id, player_name, stack, seat FROM tournament_seats \
@@ -722,6 +724,5 @@ pub async fn ensure_tournament_actor(
             .await;
         let _ = rx_resp.await;
     }
-    tokio::spawn(actor.run());
     handle
 }

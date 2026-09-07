@@ -114,6 +114,7 @@ pub async fn run_coordinator(state: AppState) {
         rebalance_tournament_tables(&state).await;
         consolidate_final_tables(&state).await;
         finish_decided_tournaments(&state).await;
+        ensure_live_actors(&state).await;
     }
 }
 
@@ -421,6 +422,39 @@ async fn finish_decided_tournaments(state: &AppState) {
         .execute(&state.db)
         .await;
         tracing::info!(tournament_id=%tid, winners=result.winners.len(), "torneio finalizado com prêmios");
+    }
+}
+
+/// Cura pós-restart: garante um ator vivo para cada mesa viva de torneio
+/// running. `ensure_tournament_actor` é idempotente (retorna o existente).
+async fn ensure_live_actors(state: &AppState) {
+    use poker_engine::tournament_engine as engine;
+    let ids: Vec<String> = { state.tournaments.read().await.keys().cloned().collect() };
+    for tid in ids {
+        let (tables, running, tname) = {
+            let t = state.tournaments.read().await;
+            match t.get(&tid) {
+                Some(s) => (
+                    s.live_table_ids.clone(),
+                    s.state.status == engine::TournamentStatus::Running,
+                    s.state.config.name.clone(),
+                ),
+                None => continue,
+            }
+        };
+        if !running {
+            continue;
+        }
+        for (idx, table_id) in tables.iter().enumerate() {
+            crate::tournament_actor::ensure_tournament_actor(
+                state,
+                &tid,
+                table_id,
+                idx as u32,
+                format!("{tname} mesa {}", idx + 1),
+            )
+            .await;
+        }
     }
 }
 
