@@ -416,47 +416,97 @@ async fn handle_game_socket(
     );
     let _connection_guard = crate::track_websocket_connection();
 
-    // 2. Get or spawn the TableActor
-    let handle = {
-        let mut active_tables = state.active_tables.write().await;
-        if let Some(h) = active_tables.get(&table_id) {
-            h.clone()
-        } else {
-            let (tx_cmd, rx_cmd) = mpsc::channel(100);
-            let (tx_broadcast, _) = tokio::sync::broadcast::channel(100);
-
-            let mut table_config =
-                poker_engine::types::TableConfig::new(big_blind, rake_basis_points, rake_cap)
-                    .with_small_blind(small_blind)
-                    .with_poker_variant(poker_engine::types::PokerVariant::parse(&poker_variant));
-            if let (Some(heads_up), Some(three_to_four), Some(five_plus)) = (
-                rake_cap_heads_up,
-                rake_cap_three_to_four,
-                rake_cap_five_plus,
-            ) {
-                table_config =
-                    table_config.with_rake_cap_schedule(poker_engine::types::RakeCapSchedule {
-                        heads_up,
-                        three_to_four,
-                        five_plus,
-                    });
+    // 2. Get or spawn the table actor (torneio usa TournamentActor).
+    let is_tournament_table: bool =
+        sqlx::query_as::<_, (String,)>("SELECT game_type FROM tables WHERE id = $1::uuid")
+            .bind(&table_id)
+            .fetch_optional(&state.db)
+            .await
+            .map(|row| row.is_some_and(|(game_type,)| game_type == "tournament"))
+            .unwrap_or(false);
+    let tournament_handle: Option<TableActorHandle> = if is_tournament_table {
+        let tournament_id: Option<(String,)> = sqlx::query_as(
+            "SELECT tournament_id::text FROM tournament_seats WHERE table_id = $1::uuid LIMIT 1",
+        )
+        .bind(&table_id)
+        .fetch_optional(&state.db)
+        .await
+        .unwrap_or(None);
+        match tournament_id {
+            Some((tournament_id,)) => {
+                let table_index = {
+                    let tournaments = state.tournaments.read().await;
+                    tournaments
+                        .get(&tournament_id)
+                        .and_then(|s| {
+                            s.live_table_ids
+                                .iter()
+                                .position(|id| id == &table_id)
+                                .map(|idx| idx as u32)
+                        })
+                        .unwrap_or(0)
+                };
+                Some(
+                    crate::tournament_actor::ensure_tournament_actor(
+                        &state,
+                        &tournament_id,
+                        &table_id,
+                        table_index,
+                        table_name.clone(),
+                    )
+                    .await,
+                )
             }
-            let mut actor =
-                TableActor::new(table_id.clone(), table_name, rx_cmd, tx_broadcast.clone())
-                    .with_db(state.db.clone())
-                    .with_audit_secret(state.jwt_secret.clone())
-                    .with_config(table_config);
-            if let Some(ref redis) = state.redis {
-                actor = actor.with_redis(redis.clone());
-            }
-            tokio::spawn(actor.run());
+            None => None,
+        }
+    } else {
+        None
+    };
+    let handle = match tournament_handle {
+        Some(h) => h,
+        None => {
+            let mut active_tables = state.active_tables.write().await;
+            if let Some(h) = active_tables.get(&table_id) {
+                h.clone()
+            } else {
+                let (tx_cmd, rx_cmd) = mpsc::channel(100);
+                let (tx_broadcast, _) = tokio::sync::broadcast::channel(100);
 
-            let h = TableActorHandle {
-                tx_cmd,
-                tx_broadcast,
-            };
-            active_tables.insert(table_id.clone(), h.clone());
-            h
+                let mut table_config =
+                    poker_engine::types::TableConfig::new(big_blind, rake_basis_points, rake_cap)
+                        .with_small_blind(small_blind)
+                        .with_poker_variant(poker_engine::types::PokerVariant::parse(
+                            &poker_variant,
+                        ));
+                if let (Some(heads_up), Some(three_to_four), Some(five_plus)) = (
+                    rake_cap_heads_up,
+                    rake_cap_three_to_four,
+                    rake_cap_five_plus,
+                ) {
+                    table_config =
+                        table_config.with_rake_cap_schedule(poker_engine::types::RakeCapSchedule {
+                            heads_up,
+                            three_to_four,
+                            five_plus,
+                        });
+                }
+                let mut actor =
+                    TableActor::new(table_id.clone(), table_name, rx_cmd, tx_broadcast.clone())
+                        .with_db(state.db.clone())
+                        .with_audit_secret(state.jwt_secret.clone())
+                        .with_config(table_config);
+                if let Some(ref redis) = state.redis {
+                    actor = actor.with_redis(redis.clone());
+                }
+                tokio::spawn(actor.run());
+
+                let h = TableActorHandle {
+                    tx_cmd,
+                    tx_broadcast,
+                };
+                active_tables.insert(table_id.clone(), h.clone());
+                h
+            }
         }
     };
 

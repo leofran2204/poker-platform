@@ -107,7 +107,7 @@ struct HandHistoryRecord {
     big_blind: i64,
 }
 
-fn sign_settlement(settlement: &serde_json::Value, secret: &[u8]) -> Result<String, String> {
+pub(crate) fn sign_settlement(settlement: &serde_json::Value, secret: &[u8]) -> Result<String, String> {
     let payload = serde_json::to_vec(settlement)
         .map_err(|error| format!("Could not serialize settlement: {error}"))?;
     let mut mac = Hmac::<Sha256>::new_from_slice(secret)
@@ -1167,7 +1167,7 @@ impl TableActor {
     }
 }
 
-fn card_to_string(card: &poker_engine::deck::Card) -> String {
+pub(crate) fn card_to_string(card: &poker_engine::deck::Card) -> String {
     let rank_str = match card.rank {
         poker_engine::deck::Rank::Ace => "A",
         poker_engine::deck::Rank::King => "K",

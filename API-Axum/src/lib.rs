@@ -21,6 +21,7 @@ pub mod payments_routes;
 pub mod presence;
 pub mod state;
 pub mod telemetry;
+pub mod tournament_actor;
 pub mod tournament_catalog;
 pub mod tournament_coordinator;
 pub mod tournament_store;

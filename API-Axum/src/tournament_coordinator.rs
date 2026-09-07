@@ -92,6 +92,18 @@ pub async fn run_coordinator(state: AppState) {
                         .bind(&live_uuids)
                         .execute(&state.db)
                         .await;
+                        // Sobe um ator de torneio por mesa (mãos começam sozinhas).
+                        let tname = store.state.config.name.clone();
+                        for (idx, table_id) in table_ids.iter().enumerate() {
+                            crate::tournament_actor::ensure_tournament_actor(
+                                &state,
+                                &tid,
+                                table_id,
+                                idx as u32,
+                                format!("{tname} mesa {}", idx + 1),
+                            )
+                            .await;
+                        }
                     }
                     tracing::info!(tournament_id=%tid, "torneio iniciado auto com 5+ players no horário agendado");
                 }
@@ -101,6 +113,7 @@ pub async fn run_coordinator(state: AppState) {
         advance_expired_blinds(&state).await;
         rebalance_tournament_tables(&state).await;
         consolidate_final_tables(&state).await;
+        finish_decided_tournaments(&state).await;
     }
 }
 
@@ -347,6 +360,67 @@ async fn consolidate_final_tables(state: &AppState) {
         .execute(&state.db)
         .await;
         tracing::info!(tournament_id=%tid, remaining, "mesa final consolidada");
+    }
+}
+
+/// Finalização: resta 1 jogador — encerra no motor, credita prêmios nas
+/// carteiras MTT (play/real conforme o torneio) e marca finished.
+async fn finish_decided_tournaments(state: &AppState) {
+    use poker_engine::tournament_engine as engine;
+    let ids: Vec<String> = { state.tournaments.read().await.keys().cloned().collect() };
+    for tid in ids {
+        let (decided, money_mode) = {
+            let t = state.tournaments.read().await;
+            match t.get(&tid) {
+                Some(s) => (
+                    s.state.status == engine::TournamentStatus::Running
+                        && s.state.players_remaining <= 1,
+                    s.money_mode.clone(),
+                ),
+                None => continue,
+            }
+        };
+        if !decided {
+            continue;
+        }
+        let result = {
+            let mut tournaments = state.tournaments.write().await;
+            match tournaments.get_mut(&tid) {
+                Some(store) => engine::finish_tournament(&mut store.state),
+                None => continue,
+            }
+        };
+        let result = match result {
+            Ok(r) => r,
+            Err(_) => continue,
+        };
+        let kind = if money_mode.eq_ignore_ascii_case("real") {
+            crate::wallet::WalletKind::Real
+        } else {
+            crate::wallet::WalletKind::PmMtt
+        };
+        for w in &result.winners {
+            if w.prize == 0 {
+                continue;
+            }
+            let _ =
+                crate::wallet::credit_wallet(&state.db, &w.player_id, w.prize as i64, kind).await;
+        }
+        let _ = sqlx::query(
+            "UPDATE tournaments SET status='finished', finished_at=$2, prize_pool=$3 WHERE id=$1::uuid",
+        )
+        .bind(&tid)
+        .bind(result.finished_at as i64)
+        .bind(result.total_prize_pool as i64)
+        .execute(&state.db)
+        .await;
+        let _ = sqlx::query(
+            "INSERT INTO audit_logs (user_id, action, metadata) VALUES ('system','MTT_FINISHED', $1)",
+        )
+        .bind(serde_json::json!({"tournament_id":tid,"winners":result.winners.len()}))
+        .execute(&state.db)
+        .await;
+        tracing::info!(tournament_id=%tid, winners=result.winners.len(), "torneio finalizado com prêmios");
     }
 }
 
