@@ -56,6 +56,7 @@ impl std::fmt::Display for BotError {
 pub struct BotEnv {
     pub db: sqlx::PgPool,
     pub active_tables: Arc<RwLock<HashMap<String, TableActorHandle>>>,
+    pub tournaments: Arc<RwLock<HashMap<String, crate::tournament_store::TournamentStore>>>,
     pub jwt_secret: String,
     pub redis: Option<redis::aio::ConnectionManager>,
 }
@@ -72,11 +73,26 @@ pub struct BotDeployment {
     pub bot_ids: Vec<String>,
 }
 
+/// Um deploy ativo num torneio: N bots inscritos que jogam nas 3 mesas.
+/// Bots têm `sponsored_by` NULL: nunca pontuam nem geram rede — o fee deles
+/// é 100% da casa. Só torneios play money (banca PM dos bots).
+#[derive(Debug, Clone)]
+pub struct BotTournamentDeployment {
+    pub tournament_id: String,
+    pub tournament_name: String,
+    pub strategy: String,
+    pub money_mode: String,
+    pub started_at: i64,
+    pub bot_ids: Vec<String>,
+}
+
 /// Estado da frota: deploys por mesa + tasks por (mesa, bot).
 pub struct BotFleet {
     env: BotEnv,
     deployments: RwLock<HashMap<String, BotDeployment>>,
     tasks: RwLock<HashMap<(String, String), JoinHandle<()>>>,
+    tournament_deployments: RwLock<HashMap<String, BotTournamentDeployment>>,
+    tournament_tasks: RwLock<HashMap<(String, String), JoinHandle<()>>>,
 }
 
 impl BotFleet {
@@ -85,6 +101,8 @@ impl BotFleet {
             env,
             deployments: RwLock::new(HashMap::new()),
             tasks: RwLock::new(HashMap::new()),
+            tournament_deployments: RwLock::new(HashMap::new()),
+            tournament_tasks: RwLock::new(HashMap::new()),
         })
     }
 
@@ -97,6 +115,7 @@ impl BotFleet {
         Self::new(BotEnv {
             db,
             active_tables: Arc::new(RwLock::new(HashMap::new())),
+            tournaments: Arc::new(RwLock::new(HashMap::new())),
             jwt_secret: "test-secret".to_string(),
             redis: None,
         })
@@ -149,11 +168,15 @@ impl BotFleet {
         Ok((created, total))
     }
 
-    /// Bots livres (não destacados em nenhuma mesa).
+    /// Bots livres (não destacados em nenhuma mesa nem torneio).
     pub async fn free_bots(&self, limit: i64) -> Result<Vec<(String, String)>, BotError> {
         let busy: Vec<String> = {
             let deps = self.deployments.read().await;
-            deps.values().flat_map(|d| d.bot_ids.clone()).collect()
+            let tdeps = self.tournament_deployments.read().await;
+            deps.values()
+                .flat_map(|d| d.bot_ids.clone())
+                .chain(tdeps.values().flat_map(|d| d.bot_ids.clone()))
+                .collect()
         };
         let rows: Vec<(String, String)> = sqlx::query_as(
             "SELECT id::TEXT, username FROM users WHERE is_bot AND status = 'active' \
@@ -187,10 +210,12 @@ impl BotFleet {
             return Err(BotError("count deve ser 1..9".to_string()));
         }
         if self.deployments.read().await.contains_key(table_id) {
-            return Err(BotError("mesa ja tem deploy de bots (pare antes)".to_string()));
+            return Err(BotError(
+                "mesa ja tem deploy de bots (pare antes)".to_string(),
+            ));
         }
-        let table_id_uuid =
-            uuid::Uuid::parse_str(table_id).map_err(|_| BotError("table_id invalido".to_string()))?;
+        let table_id_uuid = uuid::Uuid::parse_str(table_id)
+            .map_err(|_| BotError("table_id invalido".to_string()))?;
 
         // Mesa precisa estar aberta, publica e play money.
         let row: Option<(String, i64, i64, i64, i64, i16, String)> = sqlx::query_as(
@@ -271,13 +296,12 @@ impl BotFleet {
             seated.push(bot_id);
         }
 
-        let hands_at_start: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM hand_history WHERE table_id = $1",
-        )
-        .bind(table_id_uuid)
-        .fetch_one(&self.env.db)
-        .await
-        .unwrap_or(0);
+        let hands_at_start: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM hand_history WHERE table_id = $1")
+                .bind(table_id_uuid)
+                .fetch_one(&self.env.db)
+                .await
+                .unwrap_or(0);
         let dep = BotDeployment {
             table_id: table_id.to_string(),
             table_name,
@@ -303,8 +327,8 @@ impl BotFleet {
             .await
             .remove(table_id)
             .ok_or_else(|| BotError("mesa sem deploy de bots".to_string()))?;
-        let table_uuid =
-            uuid::Uuid::parse_str(table_id).map_err(|_| BotError("table_id invalido".to_string()))?;
+        let table_uuid = uuid::Uuid::parse_str(table_id)
+            .map_err(|_| BotError("table_id invalido".to_string()))?;
 
         // 1. Aborta tasks + tira do jogo (fold imediato na proxima vez).
         {
@@ -375,10 +399,493 @@ impl BotFleet {
         self.deployments.read().await.values().cloned().collect()
     }
 
+    pub async fn tournament_status(&self) -> Vec<BotTournamentDeployment> {
+        self.tournament_deployments
+            .read()
+            .await
+            .values()
+            .cloned()
+            .collect()
+    }
+
+    // ─── Torneios ───
+
+    /// Inscreve `count` bots no torneio (play money) e liga o supervisor que
+    /// os coloca para jogar nas 3 mesas quando houver ator vivo.
+    pub async fn start_tournament(
+        self: &Arc<Self>,
+        tournament_id: &str,
+        count: usize,
+        strategy: &str,
+    ) -> Result<BotTournamentDeployment, BotError> {
+        if strategy != STRATEGY_LAG_V2 {
+            return Err(BotError(format!("estrategia desconhecida: {strategy}")));
+        }
+        if count == 0 || count > BOT_POOL_SIZE as usize {
+            return Err(BotError("count deve ser 1..72".to_string()));
+        }
+        if self
+            .tournament_deployments
+            .read()
+            .await
+            .contains_key(tournament_id)
+        {
+            return Err(BotError(
+                "torneio ja tem deploy de bots (pare antes)".to_string(),
+            ));
+        }
+        let (tname, mode) = {
+            let t = self.env.tournaments.read().await;
+            let store = t
+                .get(tournament_id)
+                .ok_or_else(|| BotError("torneio nao encontrado".to_string()))?;
+            (store.state.config.name.clone(), store.money_mode.clone())
+        };
+        if !mode.eq_ignore_ascii_case("play") {
+            return Err(BotError("bots so jogam torneios play money".to_string()));
+        }
+        let free = {
+            let deps = self.deployments.read().await;
+            let tdeps = self.tournament_deployments.read().await;
+            let mut busy = std::collections::HashSet::new();
+            for d in deps.values() {
+                busy.extend(d.bot_ids.iter().cloned());
+            }
+            for d in tdeps.values() {
+                busy.extend(d.bot_ids.iter().cloned());
+            }
+            let rows: Vec<(String, String)> = sqlx::query_as(
+                "SELECT id::TEXT, username FROM users WHERE is_bot AND status = 'active' \
+                 ORDER BY username LIMIT $1",
+            )
+            .bind(count as i64 + busy.len() as i64 + 8)
+            .fetch_all(&self.env.db)
+            .await
+            .map_err(|e| BotError(format!("free bots: {e}")))?;
+            rows.into_iter()
+                .filter(|(id, _)| !busy.contains(id))
+                .take(count)
+                .collect::<Vec<_>>()
+        };
+        if free.len() < count {
+            return Err(BotError(format!(
+                "so ha {} bots livres no elenco de {BOT_POOL_SIZE}",
+                free.len()
+            )));
+        }
+        let mut seated = Vec::new();
+        for (bot_id, bot_name) in free {
+            match self
+                .register_bot_in_tournament(tournament_id, &bot_id, &bot_name)
+                .await
+            {
+                Ok(()) => seated.push(bot_id),
+                Err(e) => {
+                    tracing::warn!(bot = %bot_name, "bot pulado no MTT: {e}");
+                    continue;
+                }
+            }
+            if seated.len() >= count {
+                break;
+            }
+        }
+        if seated.is_empty() {
+            return Err(BotError("nenhum bot conseguiu se inscrever".to_string()));
+        }
+        let dep = BotTournamentDeployment {
+            tournament_id: tournament_id.to_string(),
+            tournament_name: tname,
+            strategy: strategy.to_string(),
+            money_mode: mode,
+            started_at: Self::now_epoch(),
+            bot_ids: seated,
+        };
+        self.tournament_deployments
+            .write()
+            .await
+            .insert(tournament_id.to_string(), dep.clone());
+        // Supervisor: mantém um loop de jogo por bot sentado.
+        let fleet = Arc::clone(self);
+        let tid = tournament_id.to_string();
+        let strat = strategy.to_string();
+        tokio::spawn(async move {
+            fleet.supervise_tournament(tid, strat).await;
+        });
+        Ok(dep)
+    }
+
+    /// Para o deploy do torneio: aborta tasks e coloca os bots em sit-out
+    /// (fichas seguem no torneio até blindar/eliminar — MTT não tem cash-out).
+    /// Retorna quantos bots foram desligados.
+    pub async fn stop_tournament(&self, tournament_id: &str) -> Result<usize, BotError> {
+        let dep = self
+            .tournament_deployments
+            .write()
+            .await
+            .remove(tournament_id)
+            .ok_or_else(|| BotError("torneio sem deploy de bots".to_string()))?;
+        {
+            let mut tasks = self.tournament_tasks.write().await;
+            for bot_id in &dep.bot_ids {
+                if let Some(h) = tasks.remove(&(tournament_id.to_string(), bot_id.clone())) {
+                    h.abort();
+                }
+            }
+        }
+        // Sit-out nas mesas vivas (best effort).
+        let tables: Vec<String> = {
+            let t = self.env.tournaments.read().await;
+            t.get(tournament_id)
+                .map(|s| s.live_table_ids.clone())
+                .unwrap_or_default()
+        };
+        let active = self.env.active_tables.read().await;
+        for table_id in tables {
+            if let Some(handle) = active.get(&table_id) {
+                for bot_id in &dep.bot_ids {
+                    let _ = handle
+                        .tx_cmd
+                        .send(PlayerCommand::SetSitting {
+                            player_id: bot_id.clone(),
+                            sitting: false,
+                        })
+                        .await;
+                }
+            }
+        }
+        Ok(dep.bot_ids.len())
+    }
+
+    /// Inscreve um bot via fluxo interno (sem JWT): engine + débito buy-in e
+    /// fee na banca PM + ledger de fee + linha em tournament_players.
+    async fn register_bot_in_tournament(
+        &self,
+        tournament_id: &str,
+        bot_id: &str,
+        bot_name: &str,
+    ) -> Result<(), BotError> {
+        use poker_engine::tournament_engine as engine;
+        // Snapshot p/ desfazer no motor se o banco falhar.
+        let (buy_in, starting_stack, snapshot) = {
+            let mut t = self.env.tournaments.write().await;
+            let store = t
+                .get_mut(tournament_id)
+                .ok_or_else(|| BotError("torneio sumiu".to_string()))?;
+            let snapshot = (
+                store.state.total_buyins,
+                store.state.total_fees,
+                store.state.prize_pool,
+                store.state.players_remaining,
+            );
+            engine::register_player(&mut store.state, bot_id, bot_name)
+                .map_err(|e| BotError(format!("inscricao: {e}")))?;
+            (
+                store.state.config.buy_in,
+                store.state.config.starting_stack,
+                snapshot,
+            )
+        };
+        let fee = engine::entry_fee_cents(buy_in);
+        let mut tx = self
+            .env
+            .db
+            .begin()
+            .await
+            .map_err(|e| BotError(format!("tx: {e}")))?;
+        if buy_in > 0 {
+            let buy_in_i =
+                i64::try_from(buy_in).map_err(|_| BotError("buy-in invalido".to_string()))?;
+            if let Err(e) = crate::wallet::debit_wallet(
+                &mut *tx,
+                bot_id,
+                buy_in_i,
+                crate::wallet::WalletKind::PmMtt,
+            )
+            .await
+            {
+                rollback_bot_registration(&self.env.tournaments, tournament_id, bot_id, snapshot)
+                    .await;
+                return Err(BotError(format!("debito buy-in: {e:?}")));
+            }
+        }
+        if fee > 0 {
+            let fee_i = i64::try_from(fee).map_err(|_| BotError("fee invalido".to_string()))?;
+            if let Err(e) = crate::wallet::debit_wallet(
+                &mut *tx,
+                bot_id,
+                fee_i,
+                crate::wallet::WalletKind::PmMtt,
+            )
+            .await
+            {
+                rollback_bot_registration(&self.env.tournaments, tournament_id, bot_id, snapshot)
+                    .await;
+                return Err(BotError(format!("debito fee: {e:?}")));
+            }
+            let payer = uuid::Uuid::parse_str(bot_id)
+                .map_err(|_| BotError("bot id invalido".to_string()))?;
+            let week_start: i64 = sqlx::query_scalar(
+                "SELECT EXTRACT(EPOCH FROM date_trunc('week', timezone('America/Sao_Paulo', now())))::BIGINT",
+            )
+            .fetch_one(&mut *tx)
+            .await
+            .map_err(|e| BotError(format!("relogio semanal: {e}")))?;
+            if let Err(e) =
+                crate::estrutura::distribute_fee(&mut tx, payer, fee_i, week_start).await
+            {
+                rollback_bot_registration(&self.env.tournaments, tournament_id, bot_id, snapshot)
+                    .await;
+                return Err(BotError(format!("split fee: {e}")));
+            }
+        }
+        if let Err(e) = sqlx::query(
+            "INSERT INTO tournament_players (tournament_id, player_id, player_name, stack, registered_at) \
+             VALUES ($1::uuid, $2, $3, $4, EXTRACT(EPOCH FROM NOW())::BIGINT) \
+             ON CONFLICT (tournament_id, player_id) DO NOTHING",
+        )
+        .bind(tournament_id)
+        .bind(bot_id)
+        .bind(bot_name)
+        .bind(starting_stack as i64)
+        .execute(&mut *tx)
+        .await
+        {
+            rollback_bot_registration(&self.env.tournaments, tournament_id, bot_id, snapshot).await;
+            return Err(BotError(format!("tournament_players: {e}")));
+        }
+        // Espelha contadores do motor na linha do torneio.
+        {
+            let t = self.env.tournaments.read().await;
+            if let Some(store) = t.get(tournament_id) {
+                if let Err(e) = sqlx::query(
+                    "UPDATE tournaments SET prize_pool = $2, players_remaining = $3, total_buyins = $4, total_fees = $5 WHERE id = $1::uuid",
+                )
+                .bind(tournament_id)
+                .bind(store.state.prize_pool as i64)
+                .bind(store.state.players_remaining as i32)
+                .bind(store.state.players.len() as i32)
+                .bind(store.state.total_fees as i64)
+                .execute(&mut *tx)
+                .await
+                {
+                    rollback_bot_registration(&self.env.tournaments, tournament_id, bot_id, snapshot).await;
+                    return Err(BotError(format!("contadores: {e}")));
+                }
+            }
+        }
+        tx.commit()
+            .await
+            .map_err(|e| BotError(format!("commit: {e}")))?;
+        Ok(())
+    }
+
+    async fn supervise_tournament(self: Arc<Self>, tournament_id: String, strategy: String) {
+        let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(5));
+        loop {
+            interval.tick().await;
+            let bots = match self.tournament_deployments.read().await.get(&tournament_id) {
+                Some(dep) => dep.bot_ids.clone(),
+                None => return, // deploy removido: encerra.
+            };
+            // Torneio fora do ar: encerra o supervisor (assentos viram blind-out).
+            let alive = {
+                let t = self.env.tournaments.read().await;
+                t.get(&tournament_id).is_some_and(|s| {
+                    matches!(
+                        s.state.status,
+                        poker_engine::tournament_engine::TournamentStatus::Registering
+                            | poker_engine::tournament_engine::TournamentStatus::Running
+                            | poker_engine::tournament_engine::TournamentStatus::Paused
+                    )
+                })
+            };
+            if !alive {
+                let mut tasks = self.tournament_tasks.write().await;
+                for bot_id in &bots {
+                    if let Some(h) = tasks.remove(&(tournament_id.clone(), bot_id.clone())) {
+                        h.abort();
+                    }
+                }
+                return;
+            }
+            for bot_id in bots {
+                let key = (tournament_id.clone(), bot_id.clone());
+                if self.tournament_tasks.read().await.contains_key(&key) {
+                    continue;
+                }
+                // Só liga loop p/ bot com assento ACTIVE.
+                let seated: bool = sqlx::query_scalar(
+                    "SELECT EXISTS(SELECT 1 FROM tournament_seats WHERE tournament_id = $1::uuid AND player_id = $2 AND status = 'ACTIVE')",
+                )
+                .bind(&tournament_id)
+                .bind(&bot_id)
+                .fetch_one(&self.env.db)
+                .await
+                .unwrap_or(false);
+                if !seated {
+                    continue;
+                }
+                let fleet = Arc::clone(&self);
+                let tid = tournament_id.clone();
+                let strat = strategy.clone();
+                let handle = tokio::spawn(async move {
+                    fleet.bot_tournament_loop(tid, bot_id, strat).await;
+                });
+                self.tournament_tasks.write().await.insert(key, handle);
+            }
+        }
+    }
+
+    /// Loop de jogo do bot no torneio: resolve a mesa viva atual a cada
+    /// iteração (sobrevive a rebalance/consolidação) e joga lag_v2.
+    /// Sai quando o deploy acaba, o bot elimina ou o torneio fecha.
+    async fn bot_tournament_loop(
+        self: Arc<Self>,
+        tournament_id: String,
+        bot_id: String,
+        _strategy: String,
+    ) {
+        let mut rng = (std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_nanos() as u64)
+            .unwrap_or(0x9E3779B9)
+            ^ bot_id.len() as u64
+            ^ 0x85EBCA6B)
+            .max(1);
+        let mut rnd = move || {
+            rng ^= rng << 13;
+            rng ^= rng >> 7;
+            rng ^= rng << 17;
+            rng
+        };
+        let mut last_table = String::new();
+        let mut rx_opt: Option<tokio::sync::broadcast::Receiver<serde_json::Value>> = None;
+        let mut last_sig: Option<(String, u64, u64, u64)> = None;
+        loop {
+            // Deploy removido? Sai.
+            let deployed = self
+                .tournament_deployments
+                .read()
+                .await
+                .get(&tournament_id)
+                .is_some_and(|d| d.bot_ids.iter().any(|b| b == &bot_id));
+            if !deployed {
+                return;
+            }
+            // Mesa viva atual do bot + variante vigente.
+            let table_id: Option<String> = sqlx::query_as(
+                "SELECT s.table_id::text FROM tournament_seats s \
+                 WHERE s.tournament_id = $1::uuid AND s.player_id = $2 AND s.status = 'ACTIVE'",
+            )
+            .bind(&tournament_id)
+            .bind(&bot_id)
+            .fetch_optional(&self.env.db)
+            .await
+            .unwrap_or(None)
+            .map(|(table_id,)| table_id);
+            let variant = {
+                let t = self.env.tournaments.read().await;
+                t.get(&tournament_id)
+                    .map(|s| s.active_poker_variant().to_string())
+                    .unwrap_or_else(|| "holdem".to_string())
+            };
+            let Some(table_id) = table_id else {
+                // Sem assento: eliminado ou torneio fechado.
+                return;
+            };
+            if table_id != last_table {
+                let handle = self.env.active_tables.read().await.get(&table_id).cloned();
+                match handle {
+                    Some(h) => {
+                        rx_opt = Some(h.tx_broadcast.subscribe());
+                        last_table = table_id.clone();
+                        last_sig = None;
+                    }
+                    None => {
+                        tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+                        continue;
+                    }
+                }
+            }
+            let rx = match rx_opt.as_mut() {
+                Some(rx) => rx,
+                None => {
+                    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+                    continue;
+                }
+            };
+            let msg = match rx.recv().await {
+                Ok(m) => m,
+                Err(_) => {
+                    last_table.clear();
+                    rx_opt = None;
+                    continue;
+                }
+            };
+            if msg.get("type").and_then(|v| v.as_str()) != Some("table_state") {
+                continue;
+            }
+            let Some((action, amount)) = decide_for(&msg, &bot_id, &variant, &mut rnd) else {
+                continue;
+            };
+            let players = msg
+                .get("players")
+                .and_then(|v| v.as_array())
+                .cloned()
+                .unwrap_or_default();
+            let me = players
+                .iter()
+                .find(|p| p.get("id").and_then(|v| v.as_str()).unwrap_or("") == bot_id);
+            let sig_src = me.map(|p| {
+                (
+                    msg.get("stage")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("")
+                        .to_string(),
+                    msg.get("pots")
+                        .and_then(|v| v.as_array())
+                        .and_then(|a| a.first())
+                        .and_then(|p| p.get("amount"))
+                        .and_then(|v| v.as_u64())
+                        .unwrap_or(0),
+                    p.get("bet").and_then(|v| v.as_u64()).unwrap_or(0),
+                    p.get("chips").and_then(|v| v.as_u64()).unwrap_or(0),
+                )
+            });
+            if sig_src.is_some() && sig_src == last_sig {
+                continue;
+            }
+            tokio::time::sleep(tokio::time::Duration::from_millis(400 + rnd() % 1100)).await;
+            // Re-resolve o ator (pode ter mudado de mesa no intervalo).
+            let goes: Option<tokio::sync::mpsc::Sender<PlayerCommand>> = self
+                .env
+                .active_tables
+                .read()
+                .await
+                .get(&table_id)
+                .map(|h| h.tx_cmd.clone());
+            if let Some(tx) = goes {
+                let _ = tx
+                    .send(PlayerCommand::Action {
+                        player_id: bot_id.clone(),
+                        action,
+                        amount,
+                    })
+                    .await;
+            }
+            last_sig = sig_src;
+        }
+    }
+
     // ─── Internos ───
 
     /// Replica o essencial do join (bots tem banca propria, sem reset diario).
-    async fn seat_bot(&self, table_id: uuid::Uuid, bot_id: &str, buy_in: u64) -> Result<(), BotError> {
+    async fn seat_bot(
+        &self,
+        table_id: uuid::Uuid,
+        bot_id: &str,
+        buy_in: u64,
+    ) -> Result<(), BotError> {
         let mut tx = self
             .env
             .db
@@ -492,10 +999,18 @@ impl BotFleet {
         if let Some(h) = self.env.active_tables.read().await.get(table_id).cloned() {
             return Ok(h);
         }
-        let table_uuid =
-            uuid::Uuid::parse_str(table_id).map_err(|_| BotError("table_id invalido".to_string()))?;
+        let table_uuid = uuid::Uuid::parse_str(table_id)
+            .map_err(|_| BotError("table_id invalido".to_string()))?;
         let row: Option<(
-            String, i64, i64, i16, i64, Option<i64>, Option<i64>, Option<i64>, String,
+            String,
+            i64,
+            i64,
+            i16,
+            i64,
+            Option<i64>,
+            Option<i64>,
+            Option<i64>,
+            String,
         )> = sqlx::query_as(
             "SELECT name, small_blind, big_blind, rake_basis_points, rake_cap, \
              rake_cap_heads_up, rake_cap_three_to_four, rake_cap_five_plus, \
@@ -506,8 +1021,17 @@ impl BotFleet {
         .fetch_optional(&self.env.db)
         .await
         .map_err(|e| BotError(format!("config mesa: {e}")))?;
-        let Some((table_name, small_blind, big_blind, rake_bp, rake_cap, cap_hu, cap_34, cap_5p, variant)) =
-            row
+        let Some((
+            table_name,
+            small_blind,
+            big_blind,
+            rake_bp,
+            rake_cap,
+            cap_hu,
+            cap_34,
+            cap_5p,
+            variant,
+        )) = row
         else {
             return Err(BotError("mesa nao encontrada".to_string()));
         };
@@ -589,13 +1113,20 @@ async fn bot_loop(handle: TableActorHandle, bot_id: String, table_id: String, va
         let Some((action, amount)) = decide_for(&msg, &bot_id, &variant, &mut rnd) else {
             continue;
         };
-        let players = msg.get("players").and_then(|v| v.as_array()).cloned().unwrap_or_default();
-        let me = players.iter().find(|p| {
-            p.get("id").and_then(|v| v.as_str()).unwrap_or("") == bot_id
-        });
+        let players = msg
+            .get("players")
+            .and_then(|v| v.as_array())
+            .cloned()
+            .unwrap_or_default();
+        let me = players
+            .iter()
+            .find(|p| p.get("id").and_then(|v| v.as_str()).unwrap_or("") == bot_id);
         let sig_src = me.map(|p| {
             (
-                msg.get("stage").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+                msg.get("stage")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string(),
                 msg.get("pots")
                     .and_then(|v| v.as_array())
                     .and_then(|a| a.first())
@@ -742,7 +1273,9 @@ fn postflop_tier(hole: &[Card], community: &[Card]) -> u8 {
     let board_hi = community.iter().map(|c| c.rank).max().unwrap_or(0);
     let hole_hi = hole.iter().map(|c| c.rank).max().unwrap_or(0);
     let hole_lo = hole.iter().map(|c| c.rank).min().unwrap_or(0);
-    let pair_on_board = hole.iter().any(|c| community.iter().any(|b| b.rank == c.rank));
+    let pair_on_board = hole
+        .iter()
+        .any(|c| community.iter().any(|b| b.rank == c.rank));
     let pocket_pair = hole.len() == 2 && hole[0].rank == hole[1].rank;
     if pairs >= 2 {
         return 2; // dois pares
@@ -799,12 +1332,9 @@ fn to_engine_card(c: Card) -> Option<poker_engine::deck::Card> {
 
 /// Categoria da melhor mao de 5 cartas, com as regras exatas da variante
 /// (Omaha/Pineapple: 2 da mao + 3 do bordo; Short Deck: flush>FH, trips>straight).
-fn evaluate_rank_for_variant(
-    variant: &str,
-    hole: &[Card],
-    community: &[Card],
-) -> Option<HandRank> {
-    let eh: Vec<poker_engine::deck::Card> = hole.iter().filter_map(|c| to_engine_card(*c)).collect();
+fn evaluate_rank_for_variant(variant: &str, hole: &[Card], community: &[Card]) -> Option<HandRank> {
+    let eh: Vec<poker_engine::deck::Card> =
+        hole.iter().filter_map(|c| to_engine_card(*c)).collect();
     let ec: Vec<poker_engine::deck::Card> = community
         .iter()
         .filter_map(|c| to_engine_card(*c))
@@ -985,7 +1515,12 @@ fn decide_for(
     let cards: Vec<Card> = me
         .get("cards")
         .and_then(|v| v.as_array())
-        .map(|a| a.iter().filter_map(|c| c.as_str()).filter_map(parse_card).collect())
+        .map(|a| {
+            a.iter()
+                .filter_map(|c| c.as_str())
+                .filter_map(parse_card)
+                .collect()
+        })
         .unwrap_or_default();
     if cards.len() < 2 {
         return None; // cartas ainda nao distribuidas
@@ -993,17 +1528,31 @@ fn decide_for(
     let community: Vec<Card> = state
         .get("community_cards")
         .and_then(|v| v.as_array())
-        .map(|a| a.iter().filter_map(|c| c.as_str()).filter_map(parse_card).collect())
+        .map(|a| {
+            a.iter()
+                .filter_map(|c| c.as_str())
+                .filter_map(parse_card)
+                .collect()
+        })
         .unwrap_or_default();
     let to_match = state
         .get("current_bet_to_match")
         .and_then(|v| v.as_u64())
         .unwrap_or(0);
-    let min_raise = state.get("min_raise").and_then(|v| v.as_u64()).unwrap_or(0).max(1);
+    let min_raise = state
+        .get("min_raise")
+        .and_then(|v| v.as_u64())
+        .unwrap_or(0)
+        .max(1);
     let pot: u64 = state
         .get("pots")
         .and_then(|v| v.as_array())
-        .map(|a| a.iter().filter_map(|p| p.get("amount")).filter_map(|v| v.as_u64()).sum())
+        .map(|a| {
+            a.iter()
+                .filter_map(|p| p.get("amount"))
+                .filter_map(|v| v.as_u64())
+                .sum()
+        })
         .unwrap_or(0);
     let to_call = to_match.saturating_sub(my_bet).min(stack);
     let bb = min_raise.max(1);
@@ -1021,7 +1570,10 @@ fn decide_for(
             2 => {
                 // Forte: aposta 2/3 do pote (70%) ou mesa traiçoeira (30%).
                 if roll < 70 {
-                    let amt = (pot * 2 / 3).clamp(min_raise, stack).max(min_raise).min(stack);
+                    let amt = (pot * 2 / 3)
+                        .clamp(min_raise, stack)
+                        .max(min_raise)
+                        .min(stack);
                     return Some(("bet".to_string(), amt));
                 }
                 return Some(("check".to_string(), 0));
@@ -1151,5 +1703,22 @@ mod tests {
         assert_eq!(preflop_tier_v2(&[c("Ah"), c("Ad"), c("Kh"), c("Qd")]), 2);
         // Lixo continua lixo mesmo com 4 cartas.
         assert_eq!(preflop_tier_v2(&[c("7c"), c("2d"), c("8h"), c("3s")]), 0);
+    }
+}
+
+/// Desfaz a inscrição do bot no motor (o banco já deu rollback sozinho).
+async fn rollback_bot_registration(
+    tournaments: &Arc<RwLock<HashMap<String, crate::tournament_store::TournamentStore>>>,
+    tournament_id: &str,
+    bot_id: &str,
+    snapshot: (u64, u64, u64, u32),
+) {
+    let mut m = tournaments.write().await;
+    if let Some(store) = m.get_mut(tournament_id) {
+        store.state.players.remove(bot_id);
+        store.state.total_buyins = snapshot.0;
+        store.state.total_fees = snapshot.1;
+        store.state.prize_pool = snapshot.2;
+        store.state.players_remaining = snapshot.3;
     }
 }

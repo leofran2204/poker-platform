@@ -3,7 +3,9 @@
 //! POST /api/admin/bots/ensure-pool — cria as 72 contas bot_*
 //! POST /api/admin/bots/start — liga N bots numa mesa play
 //! POST /api/admin/bots/stop — desliga os bots da mesa (cashout)
-//! GET  /api/admin/bots/status — elenco + deploys ativos
+//! POST /api/admin/bots/start-tournament — inscreve N bots num torneio play
+//! POST /api/admin/bots/stop-tournament — desliga os bots do torneio (sit-out)
+//! GET  /api/admin/bots/status — elenco + deploys ativos (mesas e torneios)
 
 use axum::extract::State;
 use axum::Json;
@@ -123,11 +125,20 @@ pub struct BotSeatInfo {
 }
 
 #[derive(Debug, Serialize)]
+pub struct BotTournamentStatus {
+    pub tournament_id: String,
+    pub tournament_name: String,
+    pub strategy: String,
+    pub bots_total: usize,
+}
+
+#[derive(Debug, Serialize)]
 pub struct BotsStatusResponse {
     pub pool_total: i64,
     pub pool_free: i64,
     pub strategies: Vec<String>,
     pub tables: Vec<BotTableStatus>,
+    pub tournaments: Vec<BotTournamentStatus>,
 }
 
 /// GET /api/admin/bots/status
@@ -185,5 +196,84 @@ pub async fn bots_status(
         pool_free: pool_total - busy,
         strategies: all_strategies(),
         tables,
+        tournaments: state
+            .bots
+            .tournament_status()
+            .await
+            .into_iter()
+            .map(|d| BotTournamentStatus {
+                tournament_id: d.tournament_id,
+                tournament_name: d.tournament_name,
+                strategy: d.strategy,
+                bots_total: d.bot_ids.len(),
+            })
+            .collect(),
     }))
+}
+
+/// POST /api/admin/bots/start-tournament — inscreve N bots (lag_v2) no torneio play.
+pub async fn start_tournament_bots(
+    State(state): State<AppState>,
+    RequireAuth(auth_user): RequireAuth,
+    Json(body): Json<StartTournamentBotsBody>,
+) -> Result<Json<StartTournamentBotsResponse>, ApiError> {
+    crate::admin_panel::require_admin(&auth_user)?;
+    let strategy = body
+        .strategy
+        .unwrap_or_else(|| crate::bots::STRATEGY_LAG_V2.to_string());
+    let dep = state
+        .bots
+        .start_tournament(&body.tournament_id, body.count, &strategy)
+        .await
+        .map_err(bot_err)?;
+    Ok(Json(StartTournamentBotsResponse {
+        tournament_id: dep.tournament_id,
+        tournament_name: dep.tournament_name,
+        strategy: dep.strategy,
+        bots: dep.bot_ids,
+    }))
+}
+
+/// POST /api/admin/bots/stop-tournament — desliga os bots do torneio (sit-out).
+pub async fn stop_tournament_bots(
+    State(state): State<AppState>,
+    RequireAuth(auth_user): RequireAuth,
+    Json(body): Json<StopTournamentBotsBody>,
+) -> Result<Json<StopTournamentBotsResponse>, ApiError> {
+    crate::admin_panel::require_admin(&auth_user)?;
+    let stopped = state
+        .bots
+        .stop_tournament(&body.tournament_id)
+        .await
+        .map_err(bot_err)?;
+    Ok(Json(StopTournamentBotsResponse {
+        tournament_id: body.tournament_id,
+        bots_stopped: stopped,
+    }))
+}
+
+#[derive(Debug, Deserialize)]
+pub struct StartTournamentBotsBody {
+    pub tournament_id: String,
+    pub count: usize,
+    pub strategy: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct StartTournamentBotsResponse {
+    pub tournament_id: String,
+    pub tournament_name: String,
+    pub strategy: String,
+    pub bots: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct StopTournamentBotsBody {
+    pub tournament_id: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct StopTournamentBotsResponse {
+    pub tournament_id: String,
+    pub bots_stopped: usize,
 }

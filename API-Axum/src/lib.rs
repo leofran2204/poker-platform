@@ -439,6 +439,18 @@ pub fn build_router(state: AppState) -> Router {
                 from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
             ),
         )
+        .route(
+            "/api/admin/bots/start-tournament",
+            post(bots_handlers::start_tournament_bots).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/bots/stop-tournament",
+            post(bots_handlers::stop_tournament_bots).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
         // ─── WebSocket route ───
         .route("/ws/game/:table_id", get(websocket::game_websocket))
         // ─── Health & Security Metrics check ───

@@ -3,24 +3,29 @@ import {
   ensureBotsPool,
   fetchBotsStatus,
   listTables,
+  listTournaments,
   startBots,
+  startTournamentBots,
   stopBots,
+  stopTournamentBots,
 } from "@/api/client";
-import type { BotTableStatus } from "@/api/client";
-import type { TableResponse } from "@/api/types";
+import type { BotTableStatus, BotTournamentDeploy } from "@/api/client";
+import type { TableResponse, TournamentInfoResponse } from "@/api/types";
 import { formatBrlFromCents } from "@/lib/money";
 
 export function AdminBotsPage() {
   const [tables, setTables] = useState<TableResponse[]>([]);
-  const [status, setStatus] = useState<{ pool_total: number; pool_free: number; strategies: string[]; tables: BotTableStatus[] } | null>(null);
+  const [tournaments, setTournaments] = useState<TournamentInfoResponse[]>([]);
+  const [status, setStatus] = useState<{ pool_total: number; pool_free: number; strategies: string[]; tables: BotTableStatus[]; tournaments: BotTournamentDeploy[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const [lobby, st] = await Promise.all([listTables("play"), fetchBotsStatus()]);
+      const [lobby, mtts, st] = await Promise.all([listTables("play"), listTournaments("play"), fetchBotsStatus()]);
       setTables(lobby.filter((t) => t.game_type === "cash"));
+      setTournaments(mtts);
       setStatus(st);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erro");
@@ -74,6 +79,40 @@ export function AdminBotsPage() {
     try {
       const r = await stopBots(tableId);
       setMsg(`Bots desligados (${formatBrlFromCents(r.refunded_chips)} devolvidos)`);
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erro");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onStartTournament(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const tournamentId = String(fd.get("tournament") || "");
+    const count = Number(fd.get("count") || 6);
+    if (!tournamentId) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const r = await startTournamentBots(tournamentId, count, "lag_v2");
+      setMsg(`${r.bots.length} bots inscritos em ${r.tournament_name}`);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao ligar no torneio");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onStopTournament(tournamentId: string, tournamentName: string) {
+    if (!window.confirm(`Desligar bots de ${tournamentName}? (fichas seguem no torneio)`)) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const r = await stopTournamentBots(tournamentId);
+      setMsg(`${r.bots_stopped} bots desligados (sit-out; sem cash-out em MTT)`);
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erro");
@@ -172,6 +211,43 @@ export function AdminBotsPage() {
       {(status?.tables.length ?? 0) === 0 ? (
         <p className="text-sm text-felt-400">Nenhum deploy ativo.</p>
       ) : null}
+
+      <form onSubmit={onStartTournament} className="zt-panel space-y-3 p-4">
+        <div className="zt-panel-title">Ligar bots em torneio (lag_v2, play money)</div>
+        <div className="flex flex-wrap gap-3">
+          <label className="flex flex-col gap-1 text-sm">
+            Torneio
+            <select name="tournament" className="zt-input" defaultValue="">
+              <option value="" disabled>Escolha…</option>
+              {tournaments.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name} ({t.registered_players}/{t.max_players})
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            Quantos
+            <input name="count" type="number" min={1} max={72} defaultValue={6} className="zt-input w-20" />
+          </label>
+        </div>
+        <button type="submit" className="zt-btn-primary" disabled={busy}>
+          Inscrever bots
+        </button>
+      </form>
+
+      {(status?.tournaments ?? []).map((t) => (
+        <div key={t.tournament_id} className="zt-panel overflow-hidden">
+          <div className="zt-panel-title flex flex-wrap items-center justify-between gap-2">
+            <span>
+              {t.tournament_name} · {t.strategy} · {t.bots_total} bots
+            </span>
+            <button className="zt-btn-secondary !text-xs" disabled={busy} onClick={() => onStopTournament(t.tournament_id, t.tournament_name)}>
+              Desligar (sit-out)
+            </button>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

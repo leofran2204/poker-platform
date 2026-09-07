@@ -461,11 +461,19 @@ export interface BotTableStatus {
   seats: BotSeatStatus[];
 }
 
+export interface BotTournamentDeploy {
+  tournament_id: string;
+  tournament_name: string;
+  strategy: string;
+  bots_total: number;
+}
+
 export interface BotsStatusResponse {
   pool_total: number;
   pool_free: number;
   strategies: string[];
   tables: BotTableStatus[];
+  tournaments: BotTournamentDeploy[];
 }
 
 export async function ensureBotsPool(): Promise<BotsPoolResponse> {
@@ -488,6 +496,33 @@ export async function stopBots(tableId: string): Promise<{ table_id: string; ref
 
 export async function fetchBotsStatus(): Promise<BotsStatusResponse> {
   return request<BotsStatusResponse>("/api/admin/bots/status");
+}
+
+export interface BotsTournamentStartResponse {
+  tournament_id: string;
+  tournament_name: string;
+  strategy: string;
+  bots: string[];
+}
+
+export async function startTournamentBots(
+  tournamentId: string,
+  count: number,
+  strategy: string,
+): Promise<BotsTournamentStartResponse> {
+  return request<BotsTournamentStartResponse>("/api/admin/bots/start-tournament", {
+    method: "POST",
+    body: JSON.stringify({ tournament_id: tournamentId, count, strategy }),
+  });
+}
+
+export async function stopTournamentBots(
+  tournamentId: string,
+): Promise<{ tournament_id: string; bots_stopped: number }> {
+  return request("/api/admin/bots/stop-tournament", {
+    method: "POST",
+    body: JSON.stringify({ tournament_id: tournamentId }),
+  });
 }
 
 export async function listAdminTournaments(): Promise<AdminTournamentItem[]> {

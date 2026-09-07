@@ -356,9 +356,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let active_tables = std::sync::Arc::new(tokio::sync::RwLock::new(
         std::collections::HashMap::new(),
     ));
+    let tournaments = std::sync::Arc::new(tokio::sync::RwLock::new(tournament_map));
     let bots = poker_api::bots::BotFleet::new(poker_api::bots::BotEnv {
         db: pool.clone(),
         active_tables: active_tables.clone(),
+        tournaments: tournaments.clone(),
         jwt_secret: jwt_secret.clone(),
         redis: redis_conn.clone(),
     });
@@ -367,7 +369,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         auth: std::sync::Arc::new(tokio::sync::RwLock::new(
             poker_engine::auth::AuthManager::new(&jwt_secret),
         )),
-        tournaments: std::sync::Arc::new(tokio::sync::RwLock::new(tournament_map)),
+        tournaments,
         active_tables,
         jwt_secret,
         rate_limiter: poker_api::middleware::rate_limit::RateLimiter::default(),
