@@ -1,7 +1,7 @@
 {
     "schema_version": 1,
-    "reviewed_on": "2026-09-04",
-    "cycle": "S21 — Texas Hold’em rename + FT Short Deck 8-max + Omaha 5-max + Pineapple 6-max + Short Deck ranking trips>straight + torneio agendado 21:30 SP auto-start 5 + Pix Leofran + saque 24h + lobby max sempre + sim 100k/mesa + PM 150+150 sem rebuy (ilimitado com saldo, play money)",
+    "reviewed_on": "2026-09-07",
+    "cycle": "S22 — gameplay MTT ao vivo (3 mesas, ator, eliminações, payouts, 1º campeão) + fee 15% por cima com split 18/12 + bots lag_v2 em MTT + run-out anti-travamento",
     "stack": {
         "motor_api": "Rust (Motor-Rust + API-Axum)",
         "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",
@@ -10,7 +10,7 @@
     },
     "production": "Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.",
     "regulation": "Trilho de regulação, KYC/AML e compliance de jogo/dinheiro real: planejado para janeiro de 2027. Até lá: Play Money + Jogo Real com depósito manual; freios de PIX automático em production.",
-    "validation": "Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–044 na VPS (cash Texas SD 8-max + Omaha 5-max + Pineapple 6-max + Texas rename + FT 8 + scheduled 21:30 + PM 150+150 + restore catálogo + Dockerfile cache). PM duas carteiras R$150 sem rebuy (ilimitado com saldo). Motor short_deck_massive + tournament_to_champion PASS (Texas/Omaha 5/Pineapple 6 até 1 campeão; flush>FH e trips>straight). VPS 2h real 100 contas: 980 mãos R$135,11 rake, 4 campeões MTT. Simulado Motor-Rust/src/bin/simulated_100.rs 100k/mesa (400k total). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas com X-max sempre. MTT site: inscrição + horário agendado + popup FT; gameplay_ready=false (sem WS de torneio). Health público OK.",
+    "validation": "Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–049 na VPS (045 convite/fila, 046 ledger estrutura, 047 bots, 048 3 mesas + fee ledger, 049 total_fees). PM duas carteiras R$150 sem rebuy (ilimitado com saldo). Motor 1848 lib (fee 15%, seating 3 mesas, run-out all-in) + API 43 lib + ator MTT 2 testes integração PASS. VPS: 1º MTT fim a fim (freeroll 6 inscritos, 3 mesas, 5 mãos assinadas, campeão + payout GTD). Bots lag_v2 em MTT (12 inscritos, 43 mãos assinadas, zero erros). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas com X-max sempre. MTT: inscrição + 3 mesas + gameplay WS ao vivo (mesmo protocolo do cash) + rebalance/consolidação FT + payouts; gameplay_ready=true. Health público OK.",
     "cash_catalog": {
         "modes": [
             "play",
@@ -53,6 +53,10 @@
         "scheduled_sp": "2026-09-03 21:30:00 America/Sao_Paulo",
         "auto_start_min_players": 5,
         "final_table": "Texas Freeroll FT Short Deck 8-max (036); troca só no próximo blind + popup",
+        "tables_per_tournament": 3,
+        "max_players": "Texas 27 · SD 24 · Omaha 15 · Pineapple 18 (3x table_max, 048)",
+        "entry_fee": "15% por cima do buy-in (ex.: R$ 10+1,50); freeroll sem fee; fee reparte 18% L1 + 12% L2 + 70% casa",
+        "gameplay": "Ator MTT por mesa (mesmo protocolo WS do cash): mãos, eliminações, rebalance, consolidação FT, payouts, settlement HMAC; run-out automático em all-in geral; bots lag_v2 jogam MTT",
         "modes": [
             "play",
             "real"
@@ -74,9 +78,9 @@
     "email": "Resend: domínio zerotiltpoker.net verified. REQUIRE_EMAIL_VERIFICATION=true. MFA challenges (016).",
     "tls_notes": "Caddyfile canônico sem tls internal + volume caddy_data persistido. Não apagar caddy_data em cada recreate (rate limit LE).",
     "pix": "Recebedor manual: Leofran, chave 6eefcd53-686e-42d4-a062-03751336251c (PLAY_MONEY_PIX_KEY). Saque: informar chave Pix própria, recebimento em até 24h. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático.",
-    "table_ownership": "Mesas com dono único por processo; settlement assinado (HMAC) na liquidação.",
+    "table_ownership": "Mesas com dono único por processo (cash TableActor + torneio TournamentActor, mesmo protocolo); settlement assinado (HMAC) na liquidação; halt de mesa MTT auditável (MTT_TABLE_HALTED).",
     "ui_direction": "Zero Tilt — sem tilt: mente fria, feltro e ouro. Header: modo Play Money | Jogo Real. Lobby filtros por stake/variante com X-max sempre visível + FT 8-max na FT centralizado. TournamentPage: horário agendado 21:30 SP + popup FT Short Deck. Wallet: Pix Leofran + saque 24h. Notícias: thumbnail oficial ou capa temática (sem rostos errados).",
     "presence": "Usuários autenticados com heartbeat recente (ZSET Redis ou fallback memória). TTL 90s.",
-    "live_e2e": "scripts/live-e2e-ten-users.mjs (10×100); scripts/full-catalog-100.mjs (100 contas 72 cash + 28 MTT play, 4 mesas, 2 espera/mesa); scripts/full-catalog-100-vps.mjs (VPS 2h real 980 mãos R$135); Motor-Rust/src/bin/simulated_100.rs (100k/mesa, 400k total + MTT até campeão); Motor-Rust/tests/cash_catalog_10k_hands.rs (10k/config catálogo atual); Motor-Rust/tests/tournament_to_champion.rs (Texas/Omaha 5/Pineapple 6 até 1 campeão, FT 8). API-Axum/tests/depix_webhook_tests.rs.",
+    "live_e2e": "scripts/live-e2e-ten-users.mjs (10×100); scripts/full-catalog-100.mjs (100 contas 72 cash + 28 MTT play, 4 mesas, 2 espera/mesa); scripts/full-catalog-100-vps.mjs (VPS 2h real 980 mãos R$135); Motor-Rust/src/bin/simulated_100.rs (100k/mesa, 400k total + MTT até campeão); Motor-Rust/tests/cash_catalog_10k_hands.rs (10k/config catálogo atual); Motor-Rust/tests/tournament_to_champion.rs (Texas/Omaha 5/Pineapple 6 até 1 campeão, FT 8); Motor-Rust/src/game_loop_runout_tests.rs (all-in geral corre até showdown); Motor-Rust/src/tournament_multitable_tests.rs (fee 15%, 3 mesas, rebalance, FT); API-Axum/tests/tournament_actor_tests.rs (ator MTT fim a fim em scratch: mão assinada + all-in). API-Axum/tests/depix_webhook_tests.rs.",
     "friends_demo": "Guia Documentacao/DEMO_AMIGOS.md. Combinar modo de carteira e a mesma mesa (≥2 jogadores). Torneios agendados 21:30 SP, auto-start com 5+."
 }

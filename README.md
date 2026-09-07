@@ -6,7 +6,7 @@ Plataforma de poker online (**Texas Hold’em**, **Texas Short Deck**, **Short D
 |--|--|
 | **Domínio (demo)** | [https://zerotiltpoker.net](https://zerotiltpoker.net) |
 | **Repositório** | https://github.com/leofran2204/poker-platform |
-| **Estado** | Staging/demo (**S21**) — **sem** certificação de produção; Big Blind Ante 26 níveis (torneios) + potes laterais com ante morto; cash sem ante; wallets PM × Real; settlements assinados; contador **online**; FT Short Deck **8-max**; torneio agendado **21:30 SP** (auto com 5+) |
+| **Estado** | Staging/demo (**S22**) — **gameplay MTT ao vivo** em 3 mesas + fee 15% com split 18/12 + bots em MTT; **sem** certificação de produção; wallets PM × Real; settlements assinados; contador **online**; torneio agendado **21:30 SP** (auto com 5+) |
 | **Status canônico** | [`Documentacao/STATUS_OPERACIONAL.json`](Documentacao/STATUS_OPERACIONAL.json) |
 | **Cash (PM + Real)** | NL 0,25/0,25 9-max · SD Texas 0,25/0,50 8-max · SD Omaha 0,50/0,50 5-max · Pineapple 0,50/0,50 6-max — frentes fixas |
 | **Torneios (PM + Real)** | Texas Hold’em · Texas Freeroll (FT Short Deck 8-max) · Omaha 4 Cartas 5-max · Ultimate Pineapple 6-max — início agendado, BBA 26 níveis |
