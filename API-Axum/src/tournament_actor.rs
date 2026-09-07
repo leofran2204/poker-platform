@@ -385,6 +385,31 @@ impl TournamentActor {
     }
 
     async fn settle_hand(&mut self, res: poker_engine::game_loop::HandResolution) {
+        // UUIDs.parseados ANTES da transação: qualquer id inválido trava a
+        // mesa com erro visível em vez de envenenar o tx em silêncio.
+        let parse_uuid = |pid: &str| {
+            uuid::Uuid::parse_str(pid)
+                .map_err(|_| format!("player id inválido no settle MTT: {pid}"))
+        };
+        let participant_uuids: Vec<uuid::Uuid> = match self
+            .game_loop
+            .as_ref()
+            .map(|gl| {
+                gl.state
+                    .players
+                    .iter()
+                    .map(|p| parse_uuid(&p.id))
+                    .collect::<Result<Vec<_>, _>>()
+            })
+            .transpose()
+        {
+            Ok(Some(uuids)) => uuids,
+            _ => {
+                error!(table_id = %self.table_id, "settle MTT sem jogadores válidos; pausando");
+                self.persistence_halted = true;
+                return;
+            }
+        };
         // Conservação de fichas com rake zero.
         let memory_stacks: Vec<(String, u64)> = self
             .game_loop
@@ -485,7 +510,7 @@ impl TournamentActor {
         .fetch_one(&mut *tx)
         .await
         .unwrap_or(0);
-        if sqlx::query(
+        if let Err(error) = sqlx::query(
             "INSERT INTO hand_history (id, table_id, hand_number, game_type, small_blind, big_blind, actions_json, community_cards_json, loss_deflators_json, settlement_json, settlement_signature, winner_player_id, pot_total, rake_collected, end_reason) \
              VALUES ($1, $2, $3, 'tournament', $4, $5, $6, $7, '[]', $8, $9, $10, $11, 0, $12) \
              ON CONFLICT (id) DO NOTHING",
@@ -504,26 +529,34 @@ impl TournamentActor {
         .bind(format!("{:?}", history.end_reason))
         .execute(&mut *tx)
         .await
-        .is_err()
         {
+            error!(?error, table_id = %self.table_id, "settle MTT: hand_history falhou; pausando");
+            let _ = tx.rollback().await;
             self.persistence_halted = true;
             return;
         }
-        // Participantes p/ VP + stacks/eliminações.
+        // Participantes p/ VP + stacks/eliminações. Erro aqui propaga e pausa
+        // a mesa com log — nunca `let _` dentro da transação.
         let mut eliminated: Vec<String> = Vec::new();
-        for (pid, chips) in &memory_stacks {
+        for ((pid, chips), user_id) in memory_stacks.iter().zip(participant_uuids.iter()) {
             let chips_i = i64::try_from(*chips).unwrap_or(i64::MAX);
-            let _ = sqlx::query(
+            if let Err(error) = sqlx::query(
                 "INSERT INTO hand_participants (hand_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
             )
             .bind(hand_uuid)
-            .bind(pid)
+            .bind(user_id)
             .execute(&mut *tx)
-            .await;
+            .await
+            {
+                error!(?error, table_id = %self.table_id, "settle MTT: participantes falhou; pausando");
+                let _ = tx.rollback().await;
+                self.persistence_halted = true;
+                return;
+            }
             if *chips == 0 {
                 eliminated.push(pid.clone());
             }
-            let _ = sqlx::query(
+            if let Err(error) = sqlx::query(
                 "UPDATE tournament_seats SET stack = $1, status = CASE WHEN $1 = 0 THEN 'ELIMINATED' ELSE status END \
                  WHERE tournament_id = $2::uuid AND table_id = $3 AND player_id = $4",
             )
@@ -532,16 +565,29 @@ impl TournamentActor {
             .bind(table_uuid)
             .bind(pid)
             .execute(&mut *tx)
-            .await;
+            .await
+            {
+                error!(?error, table_id = %self.table_id, "settle MTT: stacks falhou; pausando");
+                let _ = tx.rollback().await;
+                self.persistence_halted = true;
+                return;
+            }
         }
-        let _ = sqlx::query(
+        if let Err(error) = sqlx::query(
             "DELETE FROM table_hand_recovery_guards WHERE table_id = $1 AND hand_id = $2",
         )
         .bind(table_uuid)
         .bind(hand_uuid)
         .execute(&mut *tx)
-        .await;
+        .await
+        {
+            error!(?error, table_id = %self.table_id, "settle MTT: limpeza do guard falhou; pausando");
+            let _ = tx.rollback().await;
+            self.persistence_halted = true;
+            return;
+        }
         if tx.commit().await.is_err() {
+            error!(table_id = %self.table_id, "settle MTT: commit falhou; pausando");
             self.persistence_halted = true;
             return;
         }
@@ -722,7 +768,8 @@ pub async fn ensure_tournament_actor(
                 respond_to: tx_resp,
             })
             .await;
-        let _ = rx_resp.await;
+        // Timeout: um ator travado nunca pode paralisar o coordenador.
+        let _ = tokio::time::timeout(std::time::Duration::from_secs(5), rx_resp).await;
     }
     handle
 }

@@ -304,35 +304,40 @@ async fn consolidate_final_tables(state: &AppState) {
             continue;
         }
         let first = tables[0].clone();
-        let mut seat: i16 = 0;
-        let actives: Vec<String> = sqlx::query_as(
-            "SELECT player_id FROM tournament_seats \
+        // DELETE + re-INSERT evita colisão de PK (tournament, table, seat)
+        // ao trazer assentos ocupados para a mesa 0.
+        let actives: Vec<(String, String, i64)> = sqlx::query_as(
+            "SELECT player_id, player_name, stack FROM tournament_seats \
              WHERE tournament_id=$1::uuid AND status='ACTIVE' ORDER BY seat",
         )
         .bind(&tid)
         .fetch_all(&state.db)
         .await
-        .unwrap_or_default()
-        .into_iter()
-        .map(|(p,)| p)
-        .collect();
-        for pid in &actives {
+        .unwrap_or_default();
+        let _ = sqlx::query(
+            "DELETE FROM tournament_seats WHERE tournament_id=$1::uuid AND status='ACTIVE'",
+        )
+        .bind(&tid)
+        .execute(&state.db)
+        .await;
+        for (idx, (pid, pname, stack)) in actives.iter().enumerate() {
             let _ = sqlx::query(
-                "UPDATE tournament_seats SET table_id=$3::uuid, seat=$4 \
-                 WHERE tournament_id=$1::uuid AND player_id=$2 AND status='ACTIVE'",
+                "INSERT INTO tournament_seats (tournament_id, table_id, seat, player_id, player_name, stack) \
+                 VALUES ($1::uuid,$2::uuid,$3,$4,$5,$6) ON CONFLICT DO NOTHING",
             )
             .bind(&tid)
-            .bind(pid)
             .bind(&first)
-            .bind(seat)
+            .bind(idx as i16)
+            .bind(pid)
+            .bind(pname)
+            .bind(stack)
             .execute(&state.db)
             .await;
-            seat += 1;
         }
         {
             let mut tournaments = state.tournaments.write().await;
             if let Some(store) = tournaments.get_mut(&tid) {
-                for (idx, pid) in actives.iter().enumerate() {
+                for (idx, (pid, _, _)) in actives.iter().enumerate() {
                     if let Some(entry) = store.state.players.get_mut(pid) {
                         entry.table_id = Some(0);
                         entry.seat = Some(idx as u32);
