@@ -223,7 +223,11 @@ impl TournamentActor {
             self.idle_ticks += 1;
             if self.idle_ticks > 240 {
                 self.idle_ticks = 0;
-                info!("Mesa {} sem jogo; ator encerrando", self.table_id);
+                info!(
+                    "Mesa {} sem jogo ({} sentados); ator encerrando",
+                    self.table_id,
+                    self.players.len()
+                );
                 return false;
             }
         } else {
@@ -798,7 +802,7 @@ pub async fn ensure_tournament_actor(
     // Spawna ANTES de sentar: os Sit aguardam resposta do loop do ator.
     tokio::spawn(actor.run());
     // Senta os inscritos ativos (stacks do torneio).
-    let seats: Vec<(String, String, i64, i16)> = sqlx::query_as(
+    let seats: Vec<(String, String, i64, i16)> = match sqlx::query_as(
         "SELECT player_id, player_name, stack, seat FROM tournament_seats \
          WHERE tournament_id=$1::uuid AND table_id=$2::uuid AND status='ACTIVE'",
     )
@@ -806,7 +810,19 @@ pub async fn ensure_tournament_actor(
     .bind(table_id)
     .fetch_all(&state.db)
     .await
-    .unwrap_or_default();
+    {
+        Ok(rows) => rows,
+        Err(error) => {
+            tracing::error!(?error, table_id, "ensure MTT: busca de assentos falhou");
+            Vec::new()
+        }
+    };
+    tracing::info!(
+        table_id,
+        tournament_id,
+        seated = seats.len(),
+        "ensure MTT: ator garantido"
+    );
     for (pid, pname, stack, seat) in seats {
         let (tx_resp, rx_resp) = oneshot::channel();
         let _ = handle
