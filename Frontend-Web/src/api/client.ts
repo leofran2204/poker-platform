@@ -263,6 +263,22 @@ export async function registerTournament(
   });
 }
 
+export async function unregisterTournament(tournamentId: string): Promise<{
+  tournament_id: string;
+  player_id: string;
+  refunded_buy_in_cents: number;
+  refunded_fee_cents: number;
+}> {
+  return request("/api/tournament/unregister", {
+    method: "POST",
+    body: JSON.stringify({ tournament_id: tournamentId }),
+  });
+}
+
+export async function fetchTournamentRegistration(tournamentId: string): Promise<{ registered: boolean }> {
+  return request<{ registered: boolean }>(`/api/tournament/${tournamentId}/registration`);
+}
+
 export async function setWalletMode(mode: "play" | "real"): Promise<{
   balance_pm_cash: number;
   balance_pm_mtt: number;
@@ -542,6 +558,36 @@ export async function patchAdminTournament(
   return request(`/api/admin/tournaments/${id}`, {
     method: "PATCH",
     body: JSON.stringify({ status }),
+  });
+}
+
+export async function rescheduleAdminTournament(
+  id: string,
+  scheduledStartAt: number,
+): Promise<AdminTournamentItem> {
+  return request(`/api/admin/tournaments/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ scheduled_start_at: scheduledStartAt }),
+  });
+}
+
+export interface CreateTournamentInput {
+  name: string;
+  buy_in_cents: number;
+  starting_stack: number;
+  table_max_players: number;
+  poker_variant: string;
+  money_mode: string;
+  guaranteed_prize_cents: number;
+  scheduled_start_at?: number | null;
+}
+
+export async function createAdminTournament(
+  input: CreateTournamentInput,
+): Promise<AdminTournamentItem> {
+  return request<AdminTournamentItem>("/api/admin/tournaments", {
+    method: "POST",
+    body: JSON.stringify(input),
   });
 }
 

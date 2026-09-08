@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getTournament, registerTournament } from "@/api/client";
+import { getTournament, registerTournament, unregisterTournament, fetchTournamentRegistration } from "@/api/client";
 import type { TournamentInfoResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";
 import { deckTypeLabel, gameNameLabel } from "@/lib/gameLabels";
@@ -13,12 +13,20 @@ export function TournamentPage() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [registeredMsg, setRegisteredMsg] = useState<string | null>(null);
+  const [registered, setRegistered] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) return;
     setError(null);
     try {
       setInfo(await getTournament(id));
+      if (isAuthenticated()) {
+        try {
+          setRegistered((await fetchTournamentRegistration(id)).registered);
+        } catch {
+          setRegistered(false);
+        }
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erro ao carregar torneio");
     }
@@ -39,11 +47,31 @@ export function TournamentPage() {
     try {
       const res = await registerTournament(id, getWalletMode());
       setRegisteredMsg(
-        `Inscrito com ${res.stack.toLocaleString("pt-BR")} fichas. Gameplay MTT em breve.`,
+        `Inscrito com ${res.stack.toLocaleString("pt-BR")} fichas. As 3 mesas ligam sozinhas com ≥5 inscritos — boa sorte!`,
       );
+      setRegistered(true);
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Falha na inscrição");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleUnregister() {
+    if (!window.confirm("Cancelar inscrição? Devolve buy-in + taxa de 15%. Só vale antes de começar.")) return;
+    setBusy(true);
+    setError(null);
+    setRegisteredMsg(null);
+    try {
+      const res = await unregisterTournament(id);
+      setRegisteredMsg(
+        `Inscrição cancelada. Devolvidos ${formatBrlFromCents(res.refunded_buy_in_cents + res.refunded_fee_cents)}.`,
+      );
+      setRegistered(false);
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Falha ao cancelar");
     } finally {
       setBusy(false);
     }
@@ -106,6 +134,16 @@ export function TournamentPage() {
         >
           {busy ? "…" : info.is_freeroll ? "Inscrever (grátis)" : `Inscrever (${formatBrlFromCents(info.buy_in + (info.fee_cents ?? 0))})`}
         </button>
+        {registered && info.status === "registering" ? (
+          <button
+            type="button"
+            className="zt-btn-secondary !px-3 !py-1.5 !text-xs"
+            disabled={busy}
+            onClick={() => void handleUnregister()}
+          >
+            Cancelar inscrição
+          </button>
+        ) : null}
       </div>
 
       {info.scheduled_start_at ? (
@@ -132,8 +170,9 @@ export function TournamentPage() {
 
       {!info.gameplay_ready ? (
         <div className="rounded border border-amber-700/60 bg-amber-950/30 px-3 py-2 text-xs text-amber-100">
-          Gameplay de torneio ainda não está ligado à mesa ao vivo — inscrição e configuração já
-          disponíveis.
+          {info.status === "registering"
+            ? "Aguardando início — as 3 mesas ligam sozinhas com ≥5 inscritos."
+            : "Mesa ao vivo indisponível no momento — tente recarregar."}
         </div>
       ) : (
         <div className="rounded border border-emerald-800/60 bg-emerald-950/30 px-3 py-2 text-xs text-emerald-100">

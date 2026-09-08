@@ -10,7 +10,7 @@ use sqlx::PgPool;
 use crate::tournament_store::TournamentStore;
 
 #[derive(Debug, sqlx::FromRow)]
-struct TournamentRow {
+pub(crate) struct TournamentRow {
     id: uuid::Uuid,
     name: String,
     buy_in: i64,
@@ -67,7 +67,7 @@ fn parse_blinds(value: &serde_json::Value) -> Vec<BlindLevel> {
     serde_json::from_value::<Vec<BlindLevel>>(value.clone()).unwrap_or_default()
 }
 
-fn row_to_store(row: TournamentRow) -> TournamentStore {
+pub(crate) fn row_to_store(row: TournamentRow) -> TournamentStore {
     let id = row.id.to_string();
     let config = TournamentConfig {
         name: row.name,

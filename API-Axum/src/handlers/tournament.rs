@@ -169,6 +169,21 @@ pub async fn list_tournaments(
     Ok(Json(list))
 }
 
+/// GET /api/tournament/:id/registration — diz se o autenticado está inscrito.
+pub async fn my_registration(
+    State(state): State<AppState>,
+    RequireAuth(auth_user): RequireAuth,
+    Path(tournament_id): Path<String>,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    let tournaments = state.tournaments.read().await;
+    let store = tournaments
+        .get(&tournament_id)
+        .ok_or_else(|| ApiError::NotFound(format!("Tournament {tournament_id} not found")))?;
+    Ok(Json(
+        serde_json::json!({"registered": store.state.players.contains_key(&auth_user.user_id)}),
+    ))
+}
+
 /// GET /api/tournament/{id}
 pub async fn get_tournament(
     State(state): State<AppState>,
@@ -329,5 +344,131 @@ pub async fn register_player(
         gameplay_ready: store.live_table_id.is_some(),
         fee_cents,
         total_debited_cents: buy_in as i64 + fee_cents,
+    }))
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UnregisterBody {
+    pub tournament_id: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct UnregisterResponse {
+    pub tournament_id: String,
+    pub player_id: String,
+    pub refunded_buy_in_cents: i64,
+    pub refunded_fee_cents: i64,
+}
+
+/// POST /api/tournament/unregister — cancela a inscrição PRÉ-START com
+/// reembolso total (buy-in + fee 15%) e anulação das linhas de fee do pagador
+/// (estorna pontos onde houve crédito). Pós-start: 403.
+pub async fn unregister_player(
+    State(state): State<AppState>,
+    RequireAuth(auth_user): RequireAuth,
+    Json(body): Json<UnregisterBody>,
+) -> Result<Json<UnregisterResponse>, ApiError> {
+    let tournament_id = body.tournament_id.clone();
+
+    let mut tournaments = state.tournaments.write().await;
+    let store = tournaments
+        .get_mut(&tournament_id)
+        .ok_or_else(|| ApiError::NotFound(format!("Tournament {tournament_id} not found")))?;
+
+    let buy_in = store.state.config.buy_in;
+    let fee_cents =
+        u64::try_from(poker_engine::tournament_engine::entry_fee_cents(buy_in)).unwrap_or(0);
+    let mode = if store.money_mode.eq_ignore_ascii_case("real") {
+        crate::wallet::WalletMode::Real
+    } else {
+        crate::wallet::WalletMode::Play
+    };
+    let kind = crate::wallet::mtt_kind_for_mode(mode);
+
+    // Snapshot (entrada + contadores) p/ desfazer no motor se o banco falhar.
+    let engine_entry = store.state.players.get(&auth_user.user_id).cloned();
+    let engine_snapshot = (
+        store.state.total_buyins,
+        store.state.total_fees,
+        store.state.prize_pool,
+        store.state.players_remaining,
+    );
+    let buy_in_i =
+        i64::try_from(buy_in).map_err(|_| ApiError::BadRequest("Invalid buy-in".into()))?;
+    let fee_i = i64::try_from(fee_cents).map_err(|_| ApiError::BadRequest("Invalid fee".into()))?;
+
+    if let Err(e) =
+        poker_engine::tournament_engine::unregister_player(&mut store.state, &auth_user.user_id)
+    {
+        return Err(ApiError::BadRequest(e));
+    }
+
+    let db_result: Result<(), ApiError> = async {
+        let mut tx = state.db.begin().await?;
+        if buy_in_i > 0 {
+            crate::wallet::credit_wallet(&mut *tx, &auth_user.user_id, buy_in_i, kind).await?;
+        }
+        if fee_i > 0 {
+            crate::wallet::credit_wallet(&mut *tx, &auth_user.user_id, fee_i, kind).await?;
+            // Anula o fee: estorna pontos creditados e apaga as linhas do pagador.
+            sqlx::query(
+                "UPDATE users SET estrutura_points = GREATEST(estrutura_points - el.commission_cents, 0) \
+                 FROM estrutura_ledger el \
+                 WHERE el.source_type = 'fee' AND el.source_user_id = $1 AND el.eligible \
+                   AND users.id = el.beneficiary_user_id",
+            )
+            .bind(&auth_user.user_id)
+            .execute(&mut *tx)
+            .await?;
+            sqlx::query(
+                "DELETE FROM estrutura_ledger WHERE source_type = 'fee' AND source_user_id = $1",
+            )
+            .bind(&auth_user.user_id)
+            .execute(&mut *tx)
+            .await?;
+        }
+        sqlx::query("DELETE FROM tournament_players WHERE tournament_id = $1::uuid AND player_id = $2")
+            .bind(&tournament_id)
+            .bind(&auth_user.user_id)
+            .execute(&mut *tx)
+            .await?;
+        sqlx::query(
+            "UPDATE tournaments SET prize_pool = $2, players_remaining = $3, total_buyins = $4, total_fees = $5 WHERE id = $1::uuid",
+        )
+        .bind(&tournament_id)
+        .bind(store.state.prize_pool as i64)
+        .bind(store.state.players_remaining as i32)
+        .bind(store.state.players.len() as i32)
+        .bind(store.state.total_fees as i64)
+        .execute(&mut *tx)
+        .await?;
+        sqlx::query(
+            "INSERT INTO audit_logs (user_id, action, metadata) VALUES ($1, 'MTT_UNREGISTER', $2)",
+        )
+        .bind(&auth_user.user_id)
+        .bind(serde_json::json!({"tournament_id": tournament_id, "buy_in": buy_in_i, "fee": fee_i}))
+        .execute(&mut *tx)
+        .await?;
+        tx.commit().await?;
+        Ok(())
+    }
+    .await;
+    if let Err(e) = db_result {
+        // Desfaz no motor (o banco deu rollback sozinho).
+        if let Some(entry) = engine_entry {
+            store.state.players.insert(auth_user.user_id.clone(), entry);
+        }
+        store.state.total_buyins = engine_snapshot.0;
+        store.state.total_fees = engine_snapshot.1;
+        store.state.prize_pool = engine_snapshot.2;
+        store.state.players_remaining = engine_snapshot.3;
+        return Err(e);
+    }
+
+    Ok(Json(UnregisterResponse {
+        tournament_id,
+        player_id: auth_user.user_id,
+        refunded_buy_in_cents: buy_in_i,
+        refunded_fee_cents: fee_i,
     }))
 }

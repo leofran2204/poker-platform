@@ -224,6 +224,20 @@ pub fn build_router(state: AppState) -> Router {
                 )),
         )
         .route("/api/tournament/:id", get(tournament::get_tournament))
+        .route(
+            "/api/tournament/unregister",
+            post(tournament::unregister_player)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/tournament/:id/registration",
+            get(tournament::my_registration)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
         // ─── Hand history routes (protected) ───
         .route(
             "/api/hand-history/:hand_id",
@@ -318,6 +332,13 @@ pub fn build_router(state: AppState) -> Router {
         .route(
             "/api/admin/tournaments",
             get(admin_panel::list_admin_tournaments)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/admin/tournaments",
+            post(admin_panel::create_tournament)
                 .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
                     state.clone(),
                 )),

@@ -316,6 +316,30 @@ pub fn register_player(
     Ok(())
 }
 
+/// Cancela a inscrição de um jogador antes do início (ou em late registration).
+/// Devolve buy-in e fee ao prize/total mas NÃO reabre vaga além do teto:
+/// apenas remove a entrada e recalcula. Erro se não registrado ou se o
+/// torneio já passou da fase de registro tardio.
+pub fn unregister_player(state: &mut TournamentState, player_id: &str) -> Result<u64, String> {
+    if state.status != TournamentStatus::Registering {
+        return Err("Cancelamento só antes do início do torneio".to_string());
+    }
+    state
+        .players
+        .remove(player_id)
+        .ok_or_else(|| "Jogador não registrado".to_string())?;
+    state.total_buyins = state.total_buyins.saturating_sub(state.config.buy_in);
+    state.total_fees = state
+        .total_fees
+        .saturating_sub(entry_fee_cents(state.config.buy_in));
+    state.players_remaining = state.players_remaining.saturating_sub(1);
+
+    // Recalcula prize pool
+    recalculate_prize_pool(state);
+
+    Ok(state.config.buy_in + entry_fee_cents(state.config.buy_in))
+}
+
 /// Inicia o torneio (muda status para Running)
 pub fn start_tournament(state: &mut TournamentState) -> Result<(), String> {
     if state.status != TournamentStatus::Registering {

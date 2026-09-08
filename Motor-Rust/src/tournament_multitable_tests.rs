@@ -3,8 +3,8 @@
 
 use crate::tournament_engine::{
     assign_initial_tables, entry_fee_cents, rebalance_move, register_player, should_consolidate,
-    start_tournament, tournament_capacity, BlindLevel, TournamentConfig, TournamentSpeed,
-    TournamentStatus, TOURNAMENT_FEE_BASIS_POINTS, TOURNAMENT_TABLE_COUNT,
+    start_tournament, tournament_capacity, unregister_player, BlindLevel, TournamentConfig,
+    TournamentSpeed, TournamentStatus, TOURNAMENT_FEE_BASIS_POINTS, TOURNAMENT_TABLE_COUNT,
 };
 
 fn config_10_plus() -> TournamentConfig {
@@ -140,4 +140,33 @@ fn start_still_needs_two_players() {
     register_player(&mut state, "p2", "P2").unwrap();
     assert!(start_tournament(&mut state).is_ok());
     assert_eq!(state.status, TournamentStatus::Running);
+}
+
+// ─── Cancelamento (reembolso total) ───
+
+#[test]
+fn unregister_refunds_buyin_plus_fee_and_restores_counters() {
+    let mut state = crate::tournament_engine::create_tournament(config_10_plus());
+    register_player(&mut state, "p1", "P1").unwrap();
+    register_player(&mut state, "p2", "P2").unwrap();
+    assert_eq!(state.total_buyins, 2000);
+    assert_eq!(state.total_fees, 300);
+    assert_eq!(state.prize_pool, 2000);
+    let refunded = unregister_player(&mut state, "p1").unwrap();
+    assert_eq!(refunded, 1150); // buy-in 1000 + fee 150
+    assert_eq!(state.total_buyins, 1000);
+    assert_eq!(state.total_fees, 150);
+    assert_eq!(state.prize_pool, 1000);
+    assert_eq!(state.players_remaining, 1);
+    assert!(!state.players.contains_key("p1"));
+}
+
+#[test]
+fn unregister_rejects_unknown_and_running() {
+    let mut state = crate::tournament_engine::create_tournament(config_10_plus());
+    assert!(unregister_player(&mut state, "ghost").is_err());
+    register_player(&mut state, "p1", "P1").unwrap();
+    register_player(&mut state, "p2", "P2").unwrap();
+    assert!(start_tournament(&mut state).is_ok());
+    assert!(unregister_player(&mut state, "p1").is_err());
 }

@@ -735,6 +735,166 @@ pub async fn patch_tournament(
     }))
 }
 
+#[derive(Debug, Deserialize)]
+pub struct CreateTournamentBody {
+    pub name: String,
+    pub buy_in_cents: i64,
+    pub starting_stack: i64,
+    pub table_max_players: i16,
+    pub max_players: Option<i32>,
+    pub poker_variant: String,
+    pub money_mode: String,
+    pub guaranteed_prize_cents: i64,
+    pub scheduled_start_at: Option<i64>,
+    pub auto_start_min_players: Option<i32>,
+    pub speed: Option<String>,
+    pub late_registration: Option<bool>,
+    pub late_reg_max_level: Option<i32>,
+    pub allow_rebuy: Option<bool>,
+    pub rebuy_cost_cents: Option<i64>,
+    pub rebuy_max_count: Option<i32>,
+    pub rebuy_max_level: Option<i32>,
+    pub final_table_variant: Option<String>,
+    pub final_table_max_players: Option<i16>,
+}
+
+/// POST /api/admin/tournaments — cria torneio em `registering` com blinds
+/// padrão de 26 níveis (BBA). `max_players` padrão/validado = 3× table_max.
+pub async fn create_tournament(
+    RequireAuth(auth_user): RequireAuth,
+    State(state): State<AppState>,
+    Json(body): Json<CreateTournamentBody>,
+) -> Result<Json<AdminTournamentItem>, ApiError> {
+    require_admin(&auth_user)?;
+    let name = body.name.trim().to_string();
+    if name.is_empty() || name.len() > 100 {
+        return Err(ApiError::BadRequest("nome inválido (1..100)".into()));
+    }
+    if !(2..=9).contains(&body.table_max_players) {
+        return Err(ApiError::BadRequest(
+            "table_max_players deve ser 2..9".into(),
+        ));
+    }
+    let max_players = body
+        .max_players
+        .unwrap_or(i32::from(body.table_max_players) * 3);
+    if max_players != i32::from(body.table_max_players) * 3 {
+        return Err(ApiError::BadRequest(
+            "max_players deve ser 3x table_max_players (3 mesas)".into(),
+        ));
+    }
+    if body.buy_in_cents < 0 || body.starting_stack <= 0 || body.guaranteed_prize_cents < 0 {
+        return Err(ApiError::BadRequest("valores monetários inválidos".into()));
+    }
+    let variant = body.poker_variant.trim().to_ascii_lowercase();
+    if !matches!(
+        variant.as_str(),
+        "holdem" | "short_deck" | "short_deck_omaha" | "ultimate_pineapple"
+    ) {
+        return Err(ApiError::BadRequest("poker_variant inválida".into()));
+    }
+    let money_mode = if body.money_mode.eq_ignore_ascii_case("real") {
+        "real"
+    } else {
+        "play"
+    };
+    let speed = body
+        .speed
+        .unwrap_or_else(|| "normal".into())
+        .to_ascii_lowercase();
+    if !matches!(speed.as_str(), "turbo" | "normal" | "slow") {
+        return Err(ApiError::BadRequest("speed inválida".into()));
+    }
+    let is_freeroll = body.buy_in_cents == 0;
+    let id = uuid::Uuid::new_v4();
+    sqlx::query(
+        r#"INSERT INTO tournaments
+            (id, name, buy_in, starting_stack, max_players, table_max_players,
+             late_registration, late_reg_max_level, speed, status,
+             guaranteed_prize, is_freeroll,
+             rebuy_cost, rebuy_chips, rebuy_max_count, rebuy_stack_threshold,
+             rebuy_max_level, allow_rebuy, game_type, money_mode,
+             poker_variant, final_table_variant, final_table_max_players,
+             scheduled_start_at, auto_start_min_players,
+             prize_pool, current_level, players_remaining, total_buyins, total_fees)
+         VALUES
+            ($1, $2, $3, $4, $5, $6,
+             $7, $8, $9, 'registering',
+             $10, $11,
+             $12, $13, $14, 0,
+             $15, $16, 'Holdem', $17,
+             $18, $19, $20,
+             $21, $22,
+             0, 0, 0, 0, 0)"#,
+    )
+    .bind(id)
+    .bind(&name)
+    .bind(body.buy_in_cents)
+    .bind(body.starting_stack)
+    .bind(max_players)
+    .bind(body.table_max_players)
+    .bind(body.late_registration.unwrap_or(true))
+    .bind(body.late_reg_max_level.unwrap_or(4))
+    .bind(&speed)
+    .bind(body.guaranteed_prize_cents)
+    .bind(is_freeroll)
+    .bind(body.rebuy_cost_cents.unwrap_or(body.buy_in_cents))
+    .bind(body.starting_stack)
+    .bind(body.rebuy_max_count.unwrap_or(1))
+    .bind(body.rebuy_max_level.unwrap_or(6))
+    .bind(body.allow_rebuy.unwrap_or(false))
+    .bind(money_mode)
+    .bind(&variant)
+    .bind(body.final_table_variant.clone())
+    .bind(body.final_table_max_players)
+    .bind(body.scheduled_start_at)
+    .bind(body.auto_start_min_players.unwrap_or(5))
+    .execute(&state.db)
+    .await
+    .map_err(|e| ApiError::BadRequest(format!("create tournament: {e}")))?;
+    // Recarrega a linha (defaults do banco aplicados) e publica no mapa.
+    let created: crate::tournament_catalog::TournamentRow = sqlx::query_as(
+        "SELECT id, name, buy_in, starting_stack, max_players, table_max_players, \
+                late_registration, late_reg_max_level, speed, status, \
+                prize_pool, current_level, players_remaining, total_buyins, \
+                guaranteed_prize, is_freeroll, \
+                rebuy_cost, rebuy_chips, rebuy_max_count, rebuy_stack_threshold, \
+                rebuy_max_level, allow_rebuy, blind_levels, game_type, money_mode, \
+                poker_variant, final_table_variant, final_table_max_players, \
+                scheduled_start_at, auto_start_min_players, live_table_id, live_table_ids \
+         FROM tournaments WHERE id = $1",
+    )
+    .bind(id)
+    .fetch_one(&state.db)
+    .await?;
+    let store = crate::tournament_catalog::row_to_store(created);
+    let item = AdminTournamentItem {
+        id: store.id.clone(),
+        name: store.state.config.name.clone(),
+        buy_in: store.state.config.buy_in,
+        guaranteed_prize: store.state.config.guaranteed_prize,
+        prize_pool: store.state.config.guaranteed_prize,
+        status: "registering".to_string(),
+        is_freeroll: store.state.config.is_freeroll,
+        registered_players: 0,
+        max_players: store.state.config.max_players,
+        table_max_players: store.table_max_players,
+    };
+    state
+        .tournaments
+        .write()
+        .await
+        .insert(store.id.clone(), store);
+    write_audit(
+        &state,
+        &auth_user.user_id,
+        "TOURNAMENT_CREATED",
+        serde_json::json!({"tournament_id": item.id, "name": item.name}),
+    )
+    .await?;
+    Ok(Json(item))
+}
+
 // ─── Presence ───
 
 #[derive(Debug, Serialize)]
