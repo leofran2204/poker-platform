@@ -411,19 +411,21 @@ pub async fn unregister_player(
         if fee_i > 0 {
             crate::wallet::credit_wallet(&mut *tx, &auth_user.user_id, fee_i, kind).await?;
             // Anula o fee: estorna pontos creditados e apaga as linhas do pagador.
+            let payer = uuid::Uuid::parse_str(&auth_user.user_id)
+                .map_err(|_| ApiError::BadRequest("Invalid player id".into()))?;
             sqlx::query(
                 "UPDATE users SET estrutura_points = GREATEST(estrutura_points - el.commission_cents, 0) \
                  FROM estrutura_ledger el \
                  WHERE el.source_type = 'fee' AND el.source_user_id = $1 AND el.eligible \
                    AND users.id = el.beneficiary_user_id",
             )
-            .bind(&auth_user.user_id)
+            .bind(payer)
             .execute(&mut *tx)
             .await?;
             sqlx::query(
                 "DELETE FROM estrutura_ledger WHERE source_type = 'fee' AND source_user_id = $1",
             )
-            .bind(&auth_user.user_id)
+            .bind(payer)
             .execute(&mut *tx)
             .await?;
         }
