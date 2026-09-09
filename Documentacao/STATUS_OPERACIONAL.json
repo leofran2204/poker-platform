@@ -1,7 +1,7 @@
 {
     "schema_version": 1,
-    "reviewed_on": "2026-09-07",
-    "cycle": "S22 — gameplay MTT ao vivo (3 mesas, ator, eliminações, payouts, 1º campeão) + fee 15% por cima com split 18/12 + bots lag_v2 em MTT + run-out anti-travamento",
+    "reviewed_on": "2026-09-08",
+    "cycle": "S23 — cancela inscrição com reembolso total + admin agenda e cria torneios + textos da TournamentPage",
     "stack": {
         "motor_api": "Rust (Motor-Rust + API-Axum)",
         "frontend_canonical": "Frontend-Web (TypeScript + React + Vite + Tailwind)",
