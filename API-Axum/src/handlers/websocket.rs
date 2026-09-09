@@ -766,9 +766,20 @@ fn filter_table_state(mut state_json: serde_json::Value, for_player_id: &str) ->
     let mut minimum_wager = 0;
     let mut maximum_wager = 0;
 
+    // Showdown: mão terminada revela as cartas de quem pagou até o fim
+    // (não foldou) — regra do poker real. Fora disso, cartas alheias
+    // nunca vazam.
+    let showdown_reveal = state_json
+        .get("is_finished")
+        .and_then(|value| value.as_bool())
+        .unwrap_or(false);
     if let Some(players) = state_json.get_mut("players").and_then(|v| v.as_array_mut()) {
         for player in players {
             let pid = player.get("id").and_then(|v| v.as_str()).unwrap_or("");
+            let folded = player
+                .get("folded")
+                .and_then(|value| value.as_bool())
+                .unwrap_or(false);
             if pid == for_player_id && is_table_state {
                 let is_active = player
                     .get("is_active")
@@ -809,13 +820,16 @@ fn filter_table_state(mut state_json: serde_json::Value, for_player_id: &str) ->
             } else if pid != for_player_id {
                 // A broadcast state is shared by every socket; never leak an
                 // opponent's private cards even when a future state adds an
-                // alternative field name.
-                for private_cards_key in ["cards", "hole_cards", "private_cards"] {
-                    if let Some(cards) = player
-                        .get_mut(private_cards_key)
-                        .and_then(|value| value.as_array_mut())
-                    {
-                        cards.clear();
+                // alternative field name — EXCETO no showdown p/ quem não foldou.
+                let reveal = showdown_reveal && !folded;
+                if !reveal {
+                    for private_cards_key in ["cards", "hole_cards", "private_cards"] {
+                        if let Some(cards) = player
+                            .get_mut(private_cards_key)
+                            .and_then(|value| value.as_array_mut())
+                        {
+                            cards.clear();
+                        }
                     }
                 }
             }
@@ -861,9 +875,9 @@ mod tests {
     use serde_json::json;
 
     #[test]
-    fn hides_opponent_cards_after_showdown() {
+    fn hides_opponent_cards_while_hand_runs() {
         let state = json!({
-            "is_finished": true,
+            "is_finished": false,
             "players": [
                 {"id": "me", "cards": ["Ah", "Kd"]},
                 {"id": "opponent", "cards": ["Qs", "Qc"]}
@@ -875,6 +889,25 @@ mod tests {
 
         assert_eq!(players[0]["cards"], json!(["Ah", "Kd"]));
         assert_eq!(players[1]["cards"], json!([]));
+    }
+
+    #[test]
+    fn reveals_non_folders_at_showdown() {
+        let state = json!({
+            "is_finished": true,
+            "players": [
+                {"id": "me", "cards": ["Ah", "Kd"], "folded": false},
+                {"id": "caller", "cards": ["Qs", "Qc"], "folded": false},
+                {"id": "folder", "cards": ["7c", "2d"], "folded": true}
+            ]
+        });
+
+        let filtered = filter_table_state(state, "me");
+        let players = filtered["players"].as_array().expect("players array");
+
+        assert_eq!(players[0]["cards"], json!(["Ah", "Kd"]));
+        assert_eq!(players[1]["cards"], json!(["Qs", "Qc"]));
+        assert_eq!(players[2]["cards"], json!([]));
     }
 
     #[test]

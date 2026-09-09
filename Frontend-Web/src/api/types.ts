@@ -286,6 +286,8 @@ export interface PlayerWsData {
   chips: number;
   bet: number;
   cards: string[];
+  /** true quando foldou (visível p/ marcar showdown). Ausente = mesa antiga. */
+  folded?: boolean;
   is_active: boolean;
   is_dealer: boolean;
   seat: number;
@@ -310,6 +312,9 @@ export type ServerMessage =
       call_amount: number;
       minimum_wager: number;
       maximum_wager: number;
+      /** ids dos vencedores quando a mão termina (showdown). */
+      winners?: string[];
+      is_finished?: boolean;
     }
   | { type: "your_turn"; actions: string[]; time_bank: number }
   | { type: "action_result"; success: boolean; message: string }

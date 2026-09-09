@@ -312,6 +312,19 @@
     @apply opacity-50;
   }
 
+  .zt-seat-card.winner {
+    @apply border-gold-bright shadow-[0_0_12px_#c9a227];
+  }
+
+  /* Cartas maiores no desktop; mobile preserva o tamanho compacto. */
+  @media (max-width: 639px) {
+    .zt-felt-table .zt-playing-card {
+      max-height: 52px;
+      max-width: 36px;
+      font-size: 11px;
+    }
+  }
+
   .zt-playing-card {
     @apply relative flex flex-col justify-between rounded-md border border-black/20 bg-[#f4f0e6] p-1 shadow-card;
   }

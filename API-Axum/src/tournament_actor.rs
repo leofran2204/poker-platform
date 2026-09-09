@@ -41,6 +41,8 @@ pub struct TournamentActor {
     pub audit_secret: String,
     /// Ticks ociosos seguidos (encerra após ~60s sem jogo possível).
     pub idle_ticks: u32,
+    /// Vencedores da última mão liquidada (ids, p/ revelar no showdown).
+    pub last_winners: Vec<String>,
     pub tournaments: Arc<RwLock<HashMap<String, TournamentStore>>>,
     pub active_tables: Arc<RwLock<HashMap<String, TableActorHandle>>>,
     pub persistence_halted: bool,
@@ -433,6 +435,7 @@ impl TournamentActor {
             return;
         }
         self.game_loop = Some(gl);
+        self.last_winners.clear();
         self.last_turn_start = Some(tokio::time::Instant::now());
         info!(table_id = %self.table_id, hand_id = %hand_id, "Mão MTT iniciada");
         self.broadcast_state();
@@ -479,6 +482,7 @@ impl TournamentActor {
                     .collect()
             })
             .unwrap_or_default();
+        self.last_winners = res.payouts.keys().cloned().collect::<Vec<_>>();
         let starting_total: u128 = self
             .game_loop
             .as_ref()
@@ -716,6 +720,7 @@ impl TournamentActor {
                         "chips": gp.stack,
                         "bet": gp.current_bet,
                         "cards": gp.hole_cards.iter().map(crate::game_actor::card_to_string).collect::<Vec<String>>(),
+                        "folded": gp.has_folded,
                         "is_active": gl.state.active_player().map(|ap| ap.id == gp.id).unwrap_or(false),
                         "is_dealer": gl.state.dealer_index == gp.seat_index,
                         "seat": tp.seat
@@ -744,6 +749,7 @@ impl TournamentActor {
             "community_cards": community_cards,
             "pots": pots,
             "players": players_json,
+            "winners": if is_finished { self.last_winners.clone() } else { Vec::<String>::new() },
             "current_bet_to_match": self.game_loop.as_ref().map(|g| g.state.current_bet_to_match).unwrap_or(0),
             "min_raise": self.game_loop.as_ref().map(|g| g.state.min_raise).unwrap_or(0),
             "is_finished": is_finished
@@ -786,6 +792,7 @@ pub async fn ensure_tournament_actor(
         db: state.db.clone(),
         audit_secret: state.jwt_secret.clone(),
         idle_ticks: 0,
+        last_winners: Vec::new(),
         tournaments: state.tournaments.clone(),
         active_tables: state.active_tables.clone(),
         persistence_halted: false,

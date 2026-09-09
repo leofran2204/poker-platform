@@ -125,6 +125,7 @@ async fn setup_mtt_table(
         active_tables: state.active_tables.clone(),
         persistence_halted: false,
         idle_ticks: 0,
+        last_winners: Vec::new(),
     };
     tokio::spawn(actor.run());
 

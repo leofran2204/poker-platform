@@ -92,11 +92,20 @@ export class TableSocket {
       };
     } catch (error) {
       this.connecting = false;
+      // 401 (sessão) e 403 (sem assento ativo na mesa aberta) são finais:
+      // repetir não adianta — informa e para em vez de girar para sempre.
+      if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+        this.handlers.onStatus?.(
+          "error",
+          error.status === 403
+            ? "Você não está mais nesta mesa (sem assento ativo) — volte ao lobby para entrar de novo."
+            : error.message,
+        );
+        return;
+      }
       const message = error instanceof Error ? error.message : "Erro ao conectar";
       this.handlers.onStatus?.("error", message);
-      if (!(error instanceof ApiError && error.status === 401)) {
-        this.scheduleReconnect();
-      }
+      this.scheduleReconnect();
     }
   }
 

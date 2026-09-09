@@ -27,6 +27,10 @@ export function TablePage() {
   const [tableName, setTableName] = useState(id);
   const [moneyMode, setMoneyMode] = useState<string | null>(null);
   const [sittingOut, setSittingOut] = useState(false);
+  const [winners, setWinners] = useState<string[]>([]);
+  const [turnLeft, setTurnLeft] = useState<number | null>(null);
+  const turnActiveRef = useRef(false);
+  const TURN_SECONDS = 30;
 
   useEffect(() => {
     if (!id || !isAuthenticated()) return;
@@ -47,9 +51,18 @@ export function TablePage() {
             setStage(msg.stage ?? "waiting");
             setPots(msg.pots ?? []);
             setActions(msg.available_actions ?? []);
+            setWinners(msg.winners ?? []);
             setCallAmount(msg.call_amount ?? 0);
             setMinimumWager(msg.minimum_wager ?? 0);
             setMaximumWager(msg.maximum_wager ?? 0);
+            // Countdown do turno: arma ao chegar sua vez, desarma ao agir.
+            if ((msg.available_actions ?? []).length > 0 && !turnActiveRef.current) {
+              turnActiveRef.current = true;
+              setTurnLeft(TURN_SECONDS);
+            } else if ((msg.available_actions ?? []).length === 0 && turnActiveRef.current) {
+              turnActiveRef.current = false;
+              setTurnLeft(null);
+            }
             setRaiseAmount((current) =>
               (msg.minimum_wager ?? 0) > 0
                 ? Math.min(
@@ -99,6 +112,13 @@ export function TablePage() {
       .then((table) => setMoneyMode(table.money_mode ?? null))
       .catch(() => setMoneyMode(null));
   }, [id]);
+
+  // Regressiva de 1s do turno (servidor folda aos 30s).
+  useEffect(() => {
+    if (turnLeft === null || turnLeft <= 0) return;
+    const t = window.setTimeout(() => setTurnLeft((v) => (v === null ? v : v - 1)), 1000);
+    return () => window.clearTimeout(t);
+  }, [turnLeft]);
 
   function onAction(action: string, amount = 0) {
     socketRef.current?.sendAction(action, amount);
@@ -198,6 +218,8 @@ export function TablePage() {
         callAmount={callAmount}
         minimumWager={minimumWager}
         maximumWager={maximumWager}
+        winners={winners}
+        turnLeft={turnLeft}
       />
     </div>
   );

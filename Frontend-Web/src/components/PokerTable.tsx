@@ -16,6 +16,8 @@ interface Props {
   callAmount: number;
   minimumWager: number;
   maximumWager: number;
+  winners?: string[];
+  turnLeft?: number | null;
 }
 
 export function PokerTable({
@@ -31,6 +33,8 @@ export function PokerTable({
   callAmount,
   minimumWager,
   maximumWager,
+  winners = [],
+  turnLeft = null,
 }: Props) {
   const potTotal = pots.reduce((s, p) => s + p.amount, 0);
   const normalizedActions = availableActions.map((action) => action.toLowerCase());
@@ -50,6 +54,14 @@ export function PokerTable({
         <span className="text-felt-300">
           Street: <strong className="text-cream">{stage || "—"}</strong>
         </span>
+        {turnLeft !== null && (
+          <span
+            className={`font-mono font-bold ${turnLeft <= 10 ? "text-red-300" : "text-gold-soft"}`}
+            aria-label={`Tempo para agir: ${turnLeft} segundos`}
+          >
+            {turnLeft <= 0 ? "Fold automático…" : `Sua vez: ${turnLeft}s`}
+          </span>
+        )}
       </div>
 
       <div className="zt-felt-table">
@@ -63,7 +75,7 @@ export function PokerTable({
             {communityCards.length === 0 ? (
               <span className="text-xs italic text-felt-200/60">Aguardando flop…</span>
             ) : (
-              communityCards.map((c, i) => <PlayingCard key={`${c}-${i}`} code={c} size="sm" />)
+              communityCards.map((c, i) => <PlayingCard key={`${c}-${i}`} code={c} size="md" />)
             )}
           </div>
         </div>
@@ -72,10 +84,12 @@ export function PokerTable({
         {players.map((p) => {
           const layout = SEAT_LAYOUT[p.seat % SEAT_LAYOUT.length] ?? SEAT_LAYOUT[0];
           const isLocal = p.id === localPlayerId;
+          const isWinner = winners.includes(p.id);
           const classes = [
             "zt-seat-card",
             p.is_active ? "active" : "",
             !p.is_active && p.cards.length === 0 ? "folded" : "",
+            isWinner ? "winner" : "",
           ]
             .filter(Boolean)
             .join(" ");
@@ -92,6 +106,7 @@ export function PokerTable({
                   {isLocal && <span className="text-gold-bright">você</span>}
                 </div>
                 <div className="truncate text-xs font-semibold text-cream">{p.name}</div>
+                {isWinner && <div className="text-[10px] font-bold text-gold-bright">VENCEDOR</div>}
                 <div className="font-mono text-[11px] text-gold-soft">{formatChips(p.chips)}</div>
                 {p.bet > 0 && (
                   <div className="mt-0.5 text-[10px] text-felt-200">Aposta {formatChips(p.bet)}</div>
@@ -99,7 +114,7 @@ export function PokerTable({
                 {p.cards.length > 0 && (
                   <div className="mt-1 flex justify-center gap-0.5">
                     {p.cards.map((c, i) => (
-                      <PlayingCard key={`${p.id}-${i}`} code={c} size="sm" />
+                      <PlayingCard key={`${p.id}-${i}`} code={c} size="md" />
                     ))}
                   </div>
                 )}

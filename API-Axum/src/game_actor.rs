@@ -88,6 +88,8 @@ pub struct TableActor {
     pub redis: Option<redis::aio::ConnectionManager>,
     pub audit_secret: Option<String>,
     pub persistence_halted: bool,
+    /// Vencedores da última mão liquidada (ids, p/ revelar no showdown).
+    pub last_winners: Vec<String>,
 }
 
 struct HandHistoryRecord {
@@ -107,7 +109,10 @@ struct HandHistoryRecord {
     big_blind: i64,
 }
 
-pub(crate) fn sign_settlement(settlement: &serde_json::Value, secret: &[u8]) -> Result<String, String> {
+pub(crate) fn sign_settlement(
+    settlement: &serde_json::Value,
+    secret: &[u8],
+) -> Result<String, String> {
     let payload = serde_json::to_vec(settlement)
         .map_err(|error| format!("Could not serialize settlement: {error}"))?;
     let mut mac = Hmac::<Sha256>::new_from_slice(secret)
@@ -268,6 +273,7 @@ impl TableActor {
             redis: None,
             persistence_halted: false,
             audit_secret: None,
+            last_winners: Vec::new(),
         }
     }
 
@@ -702,8 +708,8 @@ impl TableActor {
             // Mão travada all-in (comum quando blinds superam stacks): quem não
             // pode agir nunca completa fold — corre o board e cai no fluxo de
             // liquidação abaixo em vez de girar em erro para sempre.
-            let stalled = matches!(&e, GameLoopError::PlayerCannotAct(_))
-                && game_loop.run_out_stalled_hand();
+            let stalled =
+                matches!(&e, GameLoopError::PlayerCannotAct(_)) && game_loop.run_out_stalled_hand();
             if !stalled {
                 error!("Error processing action for player {}: {}", player_id, e);
                 return;
@@ -730,6 +736,7 @@ impl TableActor {
                         (player.id.clone(), player.stack + payout)
                     })
                     .collect();
+                self.last_winners = res.payouts.keys().cloned().collect::<Vec<_>>();
                 let starting_total = game_loop
                     .history
                     .as_ref()
@@ -1049,6 +1056,7 @@ impl TableActor {
         }
 
         self.game_loop = Some(gl);
+        self.last_winners.clear();
         self.last_turn_start = Some(tokio::time::Instant::now());
         info!(table_id = %self.table_id, hand_id = %hand_id, "Started guarded hand");
         self.broadcast_state();
@@ -1116,6 +1124,7 @@ impl TableActor {
                         "chips": gp.stack,
                         "bet": gp.current_bet,
                         "cards": gp.hole_cards.iter().map(card_to_string).collect::<Vec<String>>(),
+                        "folded": gp.has_folded,
                         "is_active": gl.state.active_player().map(|ap| ap.id == gp.id).unwrap_or(false),
                         "is_dealer": gl.state.dealer_index == gp.seat_index,
                         "seat": tp.seat
@@ -1145,6 +1154,7 @@ impl TableActor {
             "community_cards": community_cards,
             "pots": pots,
             "players": players_json,
+            "winners": if is_finished { self.last_winners.clone() } else { Vec::<String>::new() },
             "current_bet_to_match": self.game_loop.as_ref().map(|g| g.state.current_bet_to_match).unwrap_or(0),
             "min_raise": self.game_loop.as_ref().map(|g| g.state.min_raise).unwrap_or(self.config.big_blind),
             "is_finished": is_finished
