@@ -41,6 +41,250 @@ pub fn all_strategies() -> Vec<String> {
     vec![STRATEGY_LAG_V2.to_string()]
 }
 
+/// Expande grupos [(personalidade, qtd)] na ordem dos bots sentados.
+/// Soma ≠ count → erro. Vazio → todos Lag (compatível com deploys antigos).
+pub fn expand_groups(
+    groups: &[(Personality, usize)],
+    count: usize,
+) -> Result<Vec<Personality>, BotError> {
+    if groups.is_empty() {
+        return Ok(vec![Personality::Lag; count]);
+    }
+    let total: usize = groups.iter().map(|(_, n)| n).sum();
+    if total != count {
+        return Err(BotError(format!("grupos somam {total}, esperado {count}")));
+    }
+    let mut out = Vec::with_capacity(count);
+    for (personality, n) in groups {
+        out.extend(std::iter::repeat_n(*personality, *n));
+    }
+    Ok(out)
+}
+
+/// Parse "tag:2,lag:4,nit:1,station:1" (caixa de opção do painel).
+pub fn parse_groups(spec: &str) -> Result<Vec<(Personality, usize)>, BotError> {
+    let spec = spec.trim();
+    if spec.is_empty() {
+        return Ok(Vec::new());
+    }
+    spec.split(',')
+        .map(|part| {
+            let (name, n) = part
+                .split_once(':')
+                .ok_or_else(|| BotError(format!("grupo inválido (use nome:qtd): {part}")))?;
+            let personality = Personality::parse(name)
+                .ok_or_else(|| BotError(format!("personalidade desconhecida: {name}")))?;
+            let n: usize = n
+                .trim()
+                .parse()
+                .map_err(|_| BotError(format!("qtd inválida em: {part}")))?;
+            if n == 0 {
+                return Err(BotError(format!("qtd zerada em: {part}")));
+            }
+            Ok((personality, n))
+        })
+        .collect()
+}
+
+/// Personalidades jogáveis (meio-termo): tendências sobrepostas, nunca
+/// caricaturas. Nenhuma frequência em 0% ou 100%: todo bot blefa e folda
+/// às vezes; a diferença aparece na média de centenas de mãos.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Personality {
+    Nit,
+    Tag,
+    Lag,
+    Station,
+}
+
+impl Personality {
+    pub fn parse(s: &str) -> Option<Self> {
+        match s.trim().to_ascii_lowercase().as_str() {
+            "nit" | "rock" => Some(Self::Nit),
+            "tag" => Some(Self::Tag),
+            "lag" => Some(Self::Lag),
+            "station" | "calling-station" | "calling_station" => Some(Self::Station),
+            _ => None,
+        }
+    }
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Nit => "nit",
+            Self::Tag => "tag",
+            Self::Lag => "lag",
+            Self::Station => "station",
+        }
+    }
+
+    pub fn all() -> Vec<String> {
+        ["nit", "tag", "lag", "station"]
+            .into_iter()
+            .map(str::to_string)
+            .collect()
+    }
+}
+
+/// Faixa base (min..=max, em %) de cada botão de decisão por personalidade.
+/// Meio-termo deliberado: bandas sobrepostas, pisos ≥5%, tetos ≤95%.
+#[derive(Debug, Clone, Copy)]
+struct ProfileBands {
+    bet_strong: (u8, u8),
+    bet_medium: (u8, u8),
+    raise_strong: (u8, u8),
+    /// Multiplicador de pot-odds ×100 a partir do qual paga (110 = 1,1x).
+    call_odds_bp: (u16, u16),
+    /// Paga sem pensar até este múltiplo do BB.
+    call_free_bb: u64,
+    /// Shove com algo na mão até este stack (em BB). 0 = nunca shoveia.
+    shove_bb: u64,
+    /// % de fold com lixo pré-flop sem aposta (pedir mesa é grátis).
+    trash_fold: (u8, u8),
+}
+
+fn bands_of(personality: Personality) -> ProfileBands {
+    match personality {
+        Personality::Nit => ProfileBands {
+            bet_strong: (75, 95),
+            bet_medium: (5, 15),
+            raise_strong: (70, 90),
+            call_odds_bp: (140, 170),
+            call_free_bb: 1,
+            shove_bb: 6,
+            trash_fold: (75, 95),
+        },
+        Personality::Tag => ProfileBands {
+            bet_strong: (65, 85),
+            bet_medium: (10, 25),
+            raise_strong: (60, 80),
+            call_odds_bp: (120, 140),
+            call_free_bb: 2,
+            shove_bb: 10,
+            trash_fold: (60, 80),
+        },
+        Personality::Lag => ProfileBands {
+            bet_strong: (55, 75),
+            bet_medium: (25, 40),
+            raise_strong: (45, 65),
+            call_odds_bp: (95, 115),
+            call_free_bb: 3,
+            shove_bb: 8,
+            trash_fold: (20, 40),
+        },
+        Personality::Station => ProfileBands {
+            bet_strong: (15, 30),
+            bet_medium: (5, 15),
+            raise_strong: (5, 15),
+            call_odds_bp: (60, 80),
+            call_free_bb: 6,
+            shove_bb: 0,
+            trash_fold: (10, 30),
+        },
+    }
+}
+
+/// Parâmetros efetivos de UMA decisão (sorteados da faixa + jitter + humor).
+#[derive(Debug, Clone)]
+pub struct BotParams {
+    pub bet_strong: u8,
+    pub bet_medium: u8,
+    pub raise_strong: u8,
+    pub call_odds_bp: u16,
+    pub call_free_bb: u64,
+    pub shove_bb: u64,
+    pub trash_fold: u8,
+}
+
+/// Perfil vivo de um bot: preset + jitter individual + humor da sessão.
+/// O jitter (±15, fixo por seed) separa bots iguais; o humor (±10, deriva
+/// lenta com reversão à média) impede jogo engessado. Tudo limitado a
+/// [5, 95] para percentuais — nunca 0% nem 100%.
+#[derive(Debug, Clone)]
+pub struct BotProfile {
+    pub personality: Personality,
+    jitter: i8,
+    mood: i8,
+}
+
+impl BotProfile {
+    pub fn new(personality: Personality, seed: u64) -> Self {
+        let mut rng = seed.max(1);
+        let mut xorshift = move || {
+            rng ^= rng << 13;
+            rng ^= rng >> 7;
+            rng ^= rng << 17;
+            rng
+        };
+        let jitter = (xorshift() % 31) as i8 - 15;
+        Self {
+            personality,
+            jitter,
+            mood: 0,
+        }
+    }
+
+    /// Deriva lenta do humor: ±1 por chamada com reversão à média.
+    pub fn tick_mood(&mut self, rnd: &mut dyn FnMut() -> u64) {
+        let roll = rnd() % 100;
+        if roll < 8 {
+            if self.mood > 0 {
+                self.mood -= 1;
+            } else if self.mood < 0 {
+                self.mood += 1;
+            } else if rnd().is_multiple_of(2) {
+                self.mood = 1;
+            } else {
+                self.mood = -1;
+            }
+        }
+        self.mood = self.mood.clamp(-10, 10);
+    }
+
+    fn shift(&self, rnd: &mut dyn FnMut() -> u64, lo: u8, hi: u8) -> u8 {
+        let span = u64::from(hi.saturating_sub(lo));
+        let sampled = u64::from(lo) + if span > 0 { rnd() % (span + 1) } else { 0 };
+        (sampled as i16 + self.jitter as i16 + self.mood as i16).clamp(5, 95) as u8
+    }
+
+    /// Sorteia os parâmetros efetivos: faixa da personalidade + jitter + humor.
+    pub fn params(&self, rnd: &mut dyn FnMut() -> u64) -> BotParams {
+        let bands = bands_of(self.personality);
+        let bet_strong = self.shift(rnd, bands.bet_strong.0, bands.bet_strong.1);
+        let bet_medium = self.shift(rnd, bands.bet_medium.0, bands.bet_medium.1);
+        let raise_strong = self.shift(rnd, bands.raise_strong.0, bands.raise_strong.1);
+        let trash_fold = self.shift(rnd, bands.trash_fold.0, bands.trash_fold.1);
+        BotParams {
+            bet_strong,
+            bet_medium,
+            raise_strong,
+            call_odds_bp: {
+                let span = bands.call_odds_bp.1.saturating_sub(bands.call_odds_bp.0) as u64;
+                let sampled =
+                    u64::from(bands.call_odds_bp.0) + if span > 0 { rnd() % (span + 1) } else { 0 };
+                (sampled as i16 + self.jitter as i16 + self.mood as i16).clamp(50, 200) as u16
+            },
+            call_free_bb: bands.call_free_bb,
+            shove_bb: bands.shove_bb,
+            trash_fold,
+        }
+    }
+
+    /// Rótulo p/ painel: `tag·loose`, `nit·steady`, ...
+    pub fn mood_label(&self) -> &'static str {
+        if self.mood > 3 {
+            "loose"
+        } else if self.mood < -3 {
+            "tight"
+        } else {
+            "steady"
+        }
+    }
+
+    pub fn label(&self) -> String {
+        format!("{}·{}", self.personality.as_str(), self.mood_label())
+    }
+}
+
 /// Erro de negocio da frota (vira 4xx/500 no handler admin).
 #[derive(Debug)]
 pub struct BotError(pub String);
@@ -71,6 +315,8 @@ pub struct BotDeployment {
     pub started_at: i64,
     pub hands_at_start: i64,
     pub bot_ids: Vec<String>,
+    /// Personalidade por bot (padrão: lag). Ex.: "tag·loose" no painel.
+    pub personalities: HashMap<String, String>,
 }
 
 /// Um deploy ativo num torneio: N bots inscritos que jogam nas 3 mesas.
@@ -84,6 +330,8 @@ pub struct BotTournamentDeployment {
     pub money_mode: String,
     pub started_at: i64,
     pub bot_ids: Vec<String>,
+    /// Personalidade por bot (padrão: lag).
+    pub personalities: HashMap<String, String>,
 }
 
 /// Estado da frota: deploys por mesa + tasks por (mesa, bot).
@@ -197,11 +445,13 @@ impl BotFleet {
     // ─── Deploy ───
 
     /// Liga `count` bots na mesa (buy-in = min da mesa, play money).
+    /// `groups` distribui personalidades na ordem dos sentados; vazio = tudo Lag.
     pub async fn start(
         self: &Arc<Self>,
         table_id: &str,
         count: usize,
         strategy: &str,
+        groups: &[(Personality, usize)],
     ) -> Result<BotDeployment, BotError> {
         if strategy != STRATEGY_LAG_V2 {
             return Err(BotError(format!("estrategia desconhecida: {strategy}")));
@@ -261,11 +511,14 @@ impl BotFleet {
                 bots.len()
             )));
         }
+        let profiles = expand_groups(groups, count)?;
 
         let handle = self.ensure_actor(table_id).await?;
         let buy_in = min_buy_in as u64;
         let mut seated = Vec::new();
-        for (bot_id, bot_name) in bots {
+        let mut personalities = HashMap::new();
+        for (index, (bot_id, bot_name)) in bots.into_iter().enumerate() {
+            let personality = profiles.get(index).copied().unwrap_or(Personality::Lag);
             self.seat_bot(table_id_uuid, &bot_id, buy_in).await?;
             // Registra no ator (assento auto).
             let (tx, rx) = tokio::sync::oneshot::channel();
@@ -282,17 +535,19 @@ impl BotFleet {
                 .map_err(|_| BotError("ator indisponivel (Sit)".to_string()))?;
             rx.await
                 .map_err(|_| BotError("ator nao respondeu ao Sit".to_string()))?;
-            // Task jogadora.
+            // Task jogadora (perfil próprio por bot).
             let task = tokio::spawn(bot_loop(
                 handle.clone(),
                 bot_id.clone(),
                 table_id.to_string(),
                 variant.clone(),
+                personality,
             ));
             self.tasks
                 .write()
                 .await
                 .insert((table_id.to_string(), bot_id.clone()), task);
+            personalities.insert(bot_id.clone(), personality.as_str().to_string());
             seated.push(bot_id);
         }
 
@@ -310,6 +565,7 @@ impl BotFleet {
             started_at: Self::now_epoch(),
             hands_at_start,
             bot_ids: seated,
+            personalities,
         };
         self.deployments
             .write()
@@ -417,7 +673,14 @@ impl BotFleet {
         tournament_id: &str,
         count: usize,
         strategy: &str,
+        groups: &[(Personality, usize)],
     ) -> Result<BotTournamentDeployment, BotError> {
+        if strategy != STRATEGY_LAG_V2 {
+            return Err(BotError(format!("estrategia desconhecida: {strategy}")));
+        }
+        if count == 0 || count > BOT_POOL_SIZE as usize {
+            return Err(BotError("count deve ser 1..72".to_string()));
+        }
         if strategy != STRATEGY_LAG_V2 {
             return Err(BotError(format!("estrategia desconhecida: {strategy}")));
         }
@@ -473,13 +736,22 @@ impl BotFleet {
                 free.len()
             )));
         }
+        let profiles = expand_groups(groups, count)?;
         let mut seated = Vec::new();
+        let mut personalities = HashMap::new();
+        let mut profile_iter = profiles.into_iter();
         for (bot_id, bot_name) in free {
+            let Some(personality) = profile_iter.next() else {
+                break;
+            };
             match self
                 .register_bot_in_tournament(tournament_id, &bot_id, &bot_name)
                 .await
             {
-                Ok(()) => seated.push(bot_id),
+                Ok(()) => {
+                    personalities.insert(bot_id.clone(), personality.as_str().to_string());
+                    seated.push(bot_id);
+                }
                 Err(e) => {
                     tracing::warn!(bot = %bot_name, "bot pulado no MTT: {e}");
                     continue;
@@ -499,6 +771,7 @@ impl BotFleet {
             money_mode: mode,
             started_at: Self::now_epoch(),
             bot_ids: seated,
+            personalities,
         };
         self.tournament_deployments
             .write()
@@ -507,9 +780,8 @@ impl BotFleet {
         // Supervisor: mantém um loop de jogo por bot sentado.
         let fleet = Arc::clone(self);
         let tid = tournament_id.to_string();
-        let strat = strategy.to_string();
         tokio::spawn(async move {
-            fleet.supervise_tournament(tid, strat).await;
+            fleet.supervise_tournament(tid).await;
         });
         Ok(dep)
     }
@@ -679,12 +951,23 @@ impl BotFleet {
         Ok(())
     }
 
-    async fn supervise_tournament(self: Arc<Self>, tournament_id: String, strategy: String) {
+    async fn supervise_tournament(self: Arc<Self>, tournament_id: String) {
         let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(5));
         loop {
             interval.tick().await;
             let bots = match self.tournament_deployments.read().await.get(&tournament_id) {
-                Some(dep) => dep.bot_ids.clone(),
+                Some(dep) => dep
+                    .bot_ids
+                    .iter()
+                    .map(|bot_id| {
+                        let personality = dep
+                            .personalities
+                            .get(bot_id)
+                            .and_then(|s| Personality::parse(s))
+                            .unwrap_or(Personality::Lag);
+                        (bot_id.clone(), personality)
+                    })
+                    .collect::<Vec<_>>(),
                 None => return, // deploy removido: encerra.
             };
             // Torneio fora do ar: encerra o supervisor (assentos viram blind-out).
@@ -701,14 +984,14 @@ impl BotFleet {
             };
             if !alive {
                 let mut tasks = self.tournament_tasks.write().await;
-                for bot_id in &bots {
+                for (bot_id, _) in &bots {
                     if let Some(h) = tasks.remove(&(tournament_id.clone(), bot_id.clone())) {
                         h.abort();
                     }
                 }
                 return;
             }
-            for bot_id in bots {
+            for (bot_id, personality) in bots {
                 let key = (tournament_id.clone(), bot_id.clone());
                 if self.tournament_tasks.read().await.contains_key(&key) {
                     continue;
@@ -727,9 +1010,8 @@ impl BotFleet {
                 }
                 let fleet = Arc::clone(&self);
                 let tid = tournament_id.clone();
-                let strat = strategy.clone();
                 let handle = tokio::spawn(async move {
-                    fleet.bot_tournament_loop(tid, bot_id, strat).await;
+                    fleet.bot_tournament_loop(tid, bot_id, personality).await;
                 });
                 self.tournament_tasks.write().await.insert(key, handle);
             }
@@ -737,21 +1019,24 @@ impl BotFleet {
     }
 
     /// Loop de jogo do bot no torneio: resolve a mesa viva atual a cada
-    /// iteração (sobrevive a rebalance/consolidação) e joga lag_v2.
-    /// Sai quando o deploy acaba, o bot elimina ou o torneio fecha.
+    /// iteração (sobrevive a rebalance/consolidação) e joga lag_v2 com o
+    /// perfil vivo da personalidade. Sai quando o deploy acaba, o bot
+    /// elimina ou o torneio fecha.
     async fn bot_tournament_loop(
         self: Arc<Self>,
         tournament_id: String,
         bot_id: String,
-        _strategy: String,
+        personality: Personality,
     ) {
-        let mut rng = (std::time::SystemTime::now()
+        let seed = (std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_nanos() as u64)
             .unwrap_or(0x9E3779B9)
             ^ bot_id.len() as u64
             ^ 0x85EBCA6B)
             .max(1);
+        let mut profile = BotProfile::new(personality, seed);
+        let mut rng = seed;
         let mut rnd = move || {
             rng ^= rng << 13;
             rng ^= rng >> 7;
@@ -825,9 +1110,41 @@ impl BotFleet {
             if msg.get("type").and_then(|v| v.as_str()) != Some("table_state") {
                 continue;
             }
-            let Some((action, amount)) = decide_for(&msg, &bot_id, &variant, &mut rnd) else {
+            profile.tick_mood(&mut rnd);
+            let params = profile.params(&mut rnd);
+            let Some((action, amount)) = decide_for(&msg, &bot_id, &variant, &params, &mut rnd)
+            else {
                 continue;
             };
+            let players = msg
+                .get("players")
+                .and_then(|v| v.as_array())
+                .cloned()
+                .unwrap_or_default();
+            let me = players
+                .iter()
+                .find(|p| p.get("id").and_then(|v| v.as_str()).unwrap_or("") == bot_id);
+            let sig_src = me.map(|p| {
+                (
+                    msg.get("stage")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("")
+                        .to_string(),
+                    msg.get("pots")
+                        .and_then(|v| v.as_array())
+                        .and_then(|a| a.first())
+                        .and_then(|p| p.get("amount"))
+                        .and_then(|v| v.as_u64())
+                        .unwrap_or(0),
+                    p.get("bet").and_then(|v| v.as_u64()).unwrap_or(0),
+                    p.get("chips").and_then(|v| v.as_u64()).unwrap_or(0),
+                )
+            });
+            if sig_src.is_some() && sig_src == last_sig {
+                continue;
+            }
+            tokio::time::sleep(tokio::time::Duration::from_millis(400 + rnd() % 1100)).await;
+            // Re-resolve o ator (pode ter mudado de mesa no intervalo).
             let players = msg
                 .get("players")
                 .and_then(|v| v.as_array())
@@ -1080,18 +1397,26 @@ impl BotFleet {
 // ─── Loop do bot ───
 
 /// Ouve o broadcast da mesa e age quando tem a vez.
-async fn bot_loop(handle: TableActorHandle, bot_id: String, table_id: String, variant: String) {
+async fn bot_loop(
+    handle: TableActorHandle,
+    bot_id: String,
+    table_id: String,
+    variant: String,
+    personality: Personality,
+) {
     let mut rx = handle.tx_broadcast.subscribe();
     // Anti-loop: nao repete decisao no mesmo snapshot.
     let mut last_sig: Option<(String, u64, u64, u64)> = None;
     // RNG proprio (xorshift, sem deps): pensa como gente, 0.4–1.5s.
-    let mut rng = (std::time::SystemTime::now()
+    let seed = (std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_nanos() as u64)
         .unwrap_or(0x9E3779B9)
         ^ bot_id.len() as u64
         ^ 0x85EBCA6B)
         .max(1);
+    let mut profile = BotProfile::new(personality, seed);
+    let mut rng = seed;
     let mut rnd = move || {
         rng ^= rng << 13;
         rng ^= rng >> 7;
@@ -1110,7 +1435,9 @@ async fn bot_loop(handle: TableActorHandle, bot_id: String, table_id: String, va
         if msg.get("type").and_then(|v| v.as_str()) != Some("table_state") {
             continue;
         }
-        let Some((action, amount)) = decide_for(&msg, &bot_id, &variant, &mut rnd) else {
+        profile.tick_mood(&mut rnd);
+        let params = profile.params(&mut rnd);
+        let Some((action, amount)) = decide_for(&msg, &bot_id, &variant, &params, &mut rnd) else {
             continue;
         };
         let players = msg
@@ -1494,10 +1821,13 @@ fn hand_tier_v2(variant: &str, hole: &[Card], community: &[Card]) -> u8 {
 }
 
 /// Decide (acao, valor). None = nao e minha vez / sem fichas.
+/// Os 6 botões de agressividade vêm do `params` (perfil vivo); a avaliação
+/// da mão (tier) continua no motor por variante.
 fn decide_for(
     state: &serde_json::Value,
     bot_id: &str,
     variant: &str,
+    params: &BotParams,
     rnd: &mut dyn FnMut() -> u64,
 ) -> Option<(String, u64)> {
     let players = state.get("players")?.as_array()?;
@@ -1559,17 +1889,20 @@ fn decide_for(
     let tier = hand_tier_v2(variant, &cards, &community);
     let roll = rnd() % 100;
 
-    // Short stack com algo na mao: shove.
-    if stack <= 8 * bb && tier >= 1 && to_call > 0 {
+    // Short stack com algo na mao: shove (station nunca: shove_bb 0).
+    if params.shove_bb > 0 && stack <= params.shove_bb * bb && tier >= 1 && to_call > 0 {
         return Some(("allin".to_string(), 0));
     }
 
     if to_call == 0 {
-        // Posso pedir mesa gratis.
+        // Posso pedir mesa gratis — mas nit folda lixo mesmo de graça.
+        if community.is_empty() && tier == 0 && (rnd() % 100) < params.trash_fold as u64 {
+            return Some(("fold".to_string(), 0));
+        }
         match tier {
             2 => {
-                // Forte: aposta 2/3 do pote (70%) ou mesa traiçoeira (30%).
-                if roll < 70 {
+                // Forte: aposta 2/3 do pote (bet_strong%) ou mesa traiçoeira.
+                if roll < params.bet_strong as u64 {
                     let amt = (pot * 2 / 3)
                         .clamp(min_raise, stack)
                         .max(min_raise)
@@ -1579,7 +1912,7 @@ fn decide_for(
                 return Some(("check".to_string(), 0));
             }
             1 => {
-                if roll < 30 {
+                if roll < params.bet_medium as u64 {
                     let amt = (pot / 2).clamp(min_raise, stack).max(min_raise).min(stack);
                     return Some(("bet".to_string(), amt));
                 }
@@ -1589,14 +1922,15 @@ fn decide_for(
         }
     }
 
-    // Tem aposta: matematica de pote simples (LAG paga leve).
+    // Tem aposta: matematica de pote com o tempero do perfil.
     let pot_odds = to_call as f64 / (pot + to_call).max(1) as f64;
     let equity = match tier {
         2 => 0.65,
         1 => 0.35,
         _ => 0.08,
     };
-    if tier == 2 && roll < 55 {
+    let odds_mult = params.call_odds_bp as f64 / 100.0;
+    if tier == 2 && roll < params.raise_strong as u64 {
         // Forte: sobe (total = mesa + min_raise ou pote).
         let total = (to_match + min_raise.max(pot / 2)).max(to_match + min_raise);
         let affordable = my_bet + stack;
@@ -1608,7 +1942,7 @@ fn decide_for(
         }
         return Some(("allin".to_string(), 0));
     }
-    if equity > pot_odds * 1.1 || to_call <= 3 * bb {
+    if equity > pot_odds * odds_mult || to_call <= params.call_free_bb * bb {
         return Some(("call".to_string(), 0));
     }
     Some(("fold".to_string(), 0))
@@ -1703,6 +2037,141 @@ mod tests {
         assert_eq!(preflop_tier_v2(&[c("Ah"), c("Ad"), c("Kh"), c("Qd")]), 2);
         // Lixo continua lixo mesmo com 4 cartas.
         assert_eq!(preflop_tier_v2(&[c("7c"), c("2d"), c("8h"), c("3s")]), 0);
+    }
+
+    // ─── Motor de personalidades ───
+
+    fn seeded_rng(seed: u64) -> impl FnMut() -> u64 {
+        let mut rng = seed.max(1);
+        move || {
+            rng ^= rng << 13;
+            rng ^= rng >> 7;
+            rng ^= rng << 17;
+            rng
+        }
+    }
+
+    #[test]
+    fn personalities_parse_and_list() {
+        assert_eq!(Personality::parse("TAG"), Some(Personality::Tag));
+        assert_eq!(
+            Personality::parse("calling-station"),
+            Some(Personality::Station)
+        );
+        assert_eq!(Personality::parse("rock"), Some(Personality::Nit));
+        assert!(Personality::parse("maniac").is_none());
+        assert_eq!(Personality::all().len(), 4);
+    }
+
+    #[test]
+    fn params_stay_in_human_bands() {
+        // 200 seeds × 4 perfis: nunca 0% nem 100%, call_odds com sanidade.
+        for personality in [
+            Personality::Nit,
+            Personality::Tag,
+            Personality::Lag,
+            Personality::Station,
+        ] {
+            for seed in 1..=200u64 {
+                let profile = BotProfile::new(personality, seed);
+                let mut rnd = seeded_rng(seed * 7919 + 13);
+                for _ in 0..5 {
+                    let p = profile.params(&mut rnd);
+                    for v in [p.bet_strong, p.bet_medium, p.raise_strong, p.trash_fold] {
+                        assert!((5..=95).contains(&v), "{personality:?} fora da banda: {v}");
+                    }
+                    assert!((50..=200).contains(&p.call_odds_bp));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn same_personality_differs_by_seed() {
+        // Jitter individual: dois TAGs não são clones.
+        let mut seen = std::collections::HashSet::new();
+        for seed in 1..=30u64 {
+            let profile = BotProfile::new(Personality::Tag, seed);
+            let mut rnd = seeded_rng(seed);
+            let p = profile.params(&mut rnd);
+            seen.insert((p.bet_strong, p.bet_medium, p.raise_strong));
+        }
+        assert!(seen.len() > 1, "jitter não diferencia bots iguais");
+    }
+
+    #[test]
+    fn ordering_holds_on_average_with_overlap() {
+        // Meio-termo: Nit folda lixo MAIS que LAG na média, mas as
+        // distribuições se sobrepõem (nenhum robô 100%).
+        let mut nit_folds = 0u32;
+        let mut lag_folds = 0u32;
+        let mut station_folds = 0u32;
+        const N: u32 = 400;
+        for i in 0..N {
+            let mut rnd = seeded_rng(i as u64 * 131 + 7);
+            let nit = BotProfile::new(Personality::Nit, i as u64 + 1).params(&mut rnd);
+            let lag = BotProfile::new(Personality::Lag, i as u64 + 10001).params(&mut rnd);
+            let station = BotProfile::new(Personality::Station, i as u64 + 20001).params(&mut rnd);
+            let mut r2 = seeded_rng(i as u64 * 17 + 3);
+            if r2() % 100 < nit.trash_fold as u64 {
+                nit_folds += 1;
+            }
+            if r2() % 100 < lag.trash_fold as u64 {
+                lag_folds += 1;
+            }
+            if r2() % 100 < station.trash_fold as u64 {
+                station_folds += 1;
+            }
+        }
+        assert!(
+            nit_folds > lag_folds,
+            "nit {nit_folds} deveria foldar mais que lag {lag_folds}"
+        );
+        assert!(lag_folds > station_folds);
+        assert!(station_folds > 0, "station também folda às vezes");
+        assert!(nit_folds < N, "nit também joga às vezes");
+    }
+
+    #[test]
+    fn mood_stays_bounded_and_labeled() {
+        let mut profile = BotProfile::new(Personality::Tag, 42);
+        let mut rnd = seeded_rng(9);
+        for _ in 0..500 {
+            profile.tick_mood(&mut rnd);
+            assert!((-10..=10).contains(&profile.mood));
+        }
+        assert_eq!(BotProfile::new(Personality::Lag, 1).mood_label(), "steady");
+    }
+
+    #[test]
+    fn groups_expand_and_validate() {
+        let g = expand_groups(&[], 6).unwrap();
+        assert!(g.iter().all(|p| *p == Personality::Lag));
+        let g = expand_groups(&[(Personality::Tag, 2), (Personality::Nit, 1)], 3).unwrap();
+        assert_eq!(
+            g,
+            vec![Personality::Tag, Personality::Tag, Personality::Nit]
+        );
+        assert!(expand_groups(&[(Personality::Tag, 2)], 3).is_err());
+        assert_eq!(
+            parse_groups("tag:2,lag:4").unwrap(),
+            vec![(Personality::Tag, 2), (Personality::Lag, 4)]
+        );
+        assert!(parse_groups("maniac:2").is_err());
+        assert!(parse_groups("tag:0").is_err());
+        assert!(parse_groups("").unwrap().is_empty());
+    }
+
+    #[test]
+    fn station_never_shoves_and_nit_folds_trash() {
+        let station = BotProfile::new(Personality::Station, 5);
+        let mut rnd = seeded_rng(5);
+        assert_eq!(station.params(&mut rnd).shove_bb, 0);
+        // Nit com lixo pré-flop sem aposta: alta chance de fold.
+        let nit = BotProfile::new(Personality::Nit, 7);
+        let mut rnd = seeded_rng(7);
+        let p = nit.params(&mut rnd);
+        assert!((75..=95).contains(&p.trash_fold));
     }
 }
 

@@ -15,7 +15,7 @@ Guia curto para convidar pessoas a testar e mandar feedback.
 7. Clicar **Entrar** (frente fixa da mesa)
 8. Jogar e anotar bugs / sensações
 
-> **Importante:** 1 pessoa sozinha **não** inicia mão. Precisa de **≥ 2 assentos** na mesma mesa.
+> **Importante:** 1 pessoa sozinha **não** inicia mão. Precisa de **≥ 2 assentos** na mesma mesa. Chame os amigos para o mesmo horário.
 
 ## Catálogo cash (Play Money e Jogo Real)
 

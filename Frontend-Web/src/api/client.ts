@@ -459,9 +459,15 @@ export interface BotsStartResponse {
   bots: string[];
 }
 
+export interface BotGroup {
+  personality: string;
+  count: number;
+}
+
 export interface BotSeatStatus {
   username: string;
   chips: number;
+  personality?: string | null;
 }
 
 export interface BotTableStatus {
@@ -475,6 +481,12 @@ export interface BotTableStatus {
   hands_played: number;
   leader: BotSeatStatus | null;
   seats: BotSeatStatus[];
+  personalities: Record<string, string>;
+}
+
+export interface BotTournamentPlayer {
+  username: string;
+  personality?: string | null;
 }
 
 export interface BotTournamentDeploy {
@@ -482,6 +494,8 @@ export interface BotTournamentDeploy {
   tournament_name: string;
   strategy: string;
   bots_total: number;
+  personalities: Record<string, string>;
+  players: BotTournamentPlayer[];
 }
 
 export interface BotsStatusResponse {
@@ -496,10 +510,15 @@ export async function ensureBotsPool(): Promise<BotsPoolResponse> {
   return request<BotsPoolResponse>("/api/admin/bots/ensure-pool", { method: "POST" });
 }
 
-export async function startBots(tableId: string, count: number, strategy: string): Promise<BotsStartResponse> {
+export async function startBots(
+  tableId: string,
+  count: number,
+  strategy: string,
+  groups?: BotGroup[],
+): Promise<BotsStartResponse> {
   return request<BotsStartResponse>("/api/admin/bots/start", {
     method: "POST",
-    body: JSON.stringify({ table_id: tableId, count, strategy }),
+    body: JSON.stringify({ table_id: tableId, count, strategy, groups }),
   });
 }
 
@@ -525,10 +544,11 @@ export async function startTournamentBots(
   tournamentId: string,
   count: number,
   strategy: string,
+  groups?: BotGroup[],
 ): Promise<BotsTournamentStartResponse> {
   return request<BotsTournamentStartResponse>("/api/admin/bots/start-tournament", {
     method: "POST",
-    body: JSON.stringify({ tournament_id: tournamentId, count, strategy }),
+    body: JSON.stringify({ tournament_id: tournamentId, count, strategy, groups }),
   });
 }
 

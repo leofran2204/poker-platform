@@ -52,6 +52,25 @@ export function AdminBotsPage() {
     }
   }
 
+  function readMix(fd: FormData, total: number): { personality: string; count: number }[] | undefined {
+    const parts = (["nit", "tag", "lag", "station"] as const).map((p) => ({
+      personality: p,
+      count: Number(fd.get(`mix_${p}`) || 0),
+    }));
+    const sum = parts.reduce((s, g) => s + g.count, 0);
+    if (sum === 0) return undefined; // tudo Lag (compatível)
+    if (sum !== total) throw new Error(`Mix soma ${sum}, esperado ${total}`);
+    return parts.filter((g) => g.count > 0);
+  }
+
+  function fillMix(form: HTMLFormElement | null, values: Record<string, number>) {
+    if (!form) return;
+    for (const [k, v] of Object.entries(values)) {
+      const input = form.querySelector(`input[name="mix_${k}"]`) as HTMLInputElement | null;
+      if (input) input.value = String(v);
+    }
+  }
+
   async function onStart(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
@@ -59,10 +78,17 @@ export function AdminBotsPage() {
     const count = Number(fd.get("count") || 6);
     const strategy = String(fd.get("strategy") || "lag_v2");
     if (!tableId) return;
+    let groups: { personality: string; count: number }[] | undefined;
+    try {
+      groups = readMix(fd, count);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Mix inválido");
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
-      const r = await startBots(tableId, count, strategy);
+      const r = await startBots(tableId, count, strategy, groups);
       setMsg(`${r.bots.length} bots ligados em ${r.table_name}`);
       await load();
     } catch (err) {
@@ -93,10 +119,17 @@ export function AdminBotsPage() {
     const tournamentId = String(fd.get("tournament") || "");
     const count = Number(fd.get("count") || 6);
     if (!tournamentId) return;
+    let groups: { personality: string; count: number }[] | undefined;
+    try {
+      groups = readMix(fd, count);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Mix inválido");
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
-      const r = await startTournamentBots(tournamentId, count, "lag_v2");
+      const r = await startTournamentBots(tournamentId, count, "lag_v2", groups);
       setMsg(`${r.bots.length} bots inscritos em ${r.tournament_name}`);
       await load();
     } catch (err) {
@@ -172,6 +205,29 @@ export function AdminBotsPage() {
             </select>
           </label>
         </div>
+        <div className="flex flex-wrap items-end gap-2 text-sm">
+          <span className="text-felt-300">Mix (vazio = tudo LAG):</span>
+          {(["nit", "tag", "lag", "station"] as const).map((p) => (
+            <label key={p} className="flex flex-col gap-1 text-xs capitalize">
+              {p}
+              <input name={`mix_${p}`} type="number" min={0} max={9} defaultValue={0} className="zt-input w-14" />
+            </label>
+          ))}
+          <button
+            type="button"
+            className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]"
+            onClick={(e) => fillMix(e.currentTarget.closest("form"), { nit: 2, tag: 2, lag: 2, station: 2 })}
+          >
+            Mesa 2-2-2-2
+          </button>
+          <button
+            type="button"
+            className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]"
+            onClick={(e) => fillMix(e.currentTarget.closest("form"), { nit: 0, tag: 0, lag: 0, station: 0 })}
+          >
+            Limpar
+          </button>
+        </div>
         <button type="submit" className="zt-btn-primary" disabled={busy}>
           Ligar bots
         </button>
@@ -194,14 +250,16 @@ export function AdminBotsPage() {
                 <th className="px-3 py-2">Bot</th>
                 <th className="px-3 py-2">Fichas</th>
                 <th className="px-3 py-2">Estado</th>
+                <th className="px-3 py-2">Perfil</th>
               </tr>
             </thead>
             <tbody>
               {t.seats.map((s) => (
                 <tr key={s.username} className="border-t border-felt-700">
-                  <td className="px-3 py-2 font-mono">{s.username}</td>
+                  <td className="px-3 py-2 font-mono" title="Bot da casa">🤖 {s.username}</td>
                   <td className="px-3 py-2 font-mono">{formatBrlFromCents(s.chips)}</td>
                   <td className="px-3 py-2">{s.chips > 0 ? "vivo" : "quebrado"}</td>
+                  <td className="px-3 py-2 font-mono text-xs text-gold-soft">{s.personality ?? "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -231,6 +289,15 @@ export function AdminBotsPage() {
             <input name="count" type="number" min={1} max={72} defaultValue={6} className="zt-input w-20" />
           </label>
         </div>
+        <div className="flex flex-wrap items-end gap-2 text-sm">
+          <span className="text-felt-300">Mix (vazio = tudo LAG):</span>
+          {(["nit", "tag", "lag", "station"] as const).map((p) => (
+            <label key={p} className="flex flex-col gap-1 text-xs capitalize">
+              {p}
+              <input name={`mix_${p}`} type="number" min={0} max={72} defaultValue={0} className="zt-input w-14" />
+            </label>
+          ))}
+        </div>
         <button type="submit" className="zt-btn-primary" disabled={busy}>
           Inscrever bots
         </button>
@@ -245,6 +312,17 @@ export function AdminBotsPage() {
             <button className="zt-btn-secondary !text-xs" disabled={busy} onClick={() => onStopTournament(t.tournament_id, t.tournament_name)}>
               Desligar (sit-out)
             </button>
+          </div>
+          <div className="flex flex-wrap gap-1.5 p-3">
+            {t.players.map((p) => (
+              <span
+                key={p.username}
+                className="rounded border border-felt-600 bg-felt-900 px-2 py-0.5 font-mono text-[11px] text-cream"
+                title={`Bot da casa${p.personality ? ` · perfil ${p.personality}` : ""}`}
+              >
+                🤖 {p.username}{p.personality ? ` · ${p.personality}` : ""}
+              </span>
+            ))}
           </div>
         </div>
       ))}

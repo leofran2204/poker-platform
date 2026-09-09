@@ -130,6 +130,7 @@ export function PokerTable({
         {players.map((p) => {
           const layout = SEAT_LAYOUT[p.seat % SEAT_LAYOUT.length] ?? SEAT_LAYOUT[0];
           const isLocal = p.id === localPlayerId;
+          const isHouseBot = /^bot_\d{3}$/.test(p.name);
           const isWinner = winners.includes(p.id);
           const classes = [
             "zt-seat-card",
@@ -151,7 +152,13 @@ export function PokerTable({
                   <span>{p.is_dealer ? "D" : `S${p.seat}`}</span>
                   {isLocal && <span className="text-gold-bright">você</span>}
                 </div>
-                <div className="truncate text-xs font-semibold text-cream">{p.name}</div>
+                <div className="truncate text-xs font-semibold text-cream">
+                  {isHouseBot ? (
+                    <span title="Bot da casa — garante ação na mesa">🤖 {p.name}</span>
+                  ) : (
+                    p.name
+                  )}
+                </div>
                 {isWinner && <div className="text-[10px] font-bold text-gold-bright">VENCEDOR</div>}
                 <div className="font-mono text-[11px] text-gold-soft">{formatChips(p.chips)}</div>
                 {p.bet > 0 && (

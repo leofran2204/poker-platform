@@ -11,6 +11,10 @@ export function AdminTablesPage() {
   const [tables, setTables] = useState<AdminTableListItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  // Mesas CLOSED (ex.: Demo #1/#2 antigas) ficam ocultas por padrão para
+  // não poluir a visão do admin; o toggle abaixo reexibe quando preciso.
+  const [showClosed, setShowClosed] = useState(false);
+  const visibleTables = showClosed ? tables : tables.filter((t) => t.status !== "CLOSED");
 
   const load = useCallback(async () => {
     setError(null);
@@ -104,6 +108,19 @@ export function AdminTablesPage() {
       </form>
 
       <div className="zt-table-wrap zt-panel overflow-hidden">
+        <div className="flex items-center justify-between px-4 pt-3 text-[11px] text-felt-300">
+          <span>
+            {visibleTables.length} de {tables.length} mesas
+          </span>
+          <label className="flex cursor-pointer items-center gap-1">
+            <input
+              type="checkbox"
+              checked={showClosed}
+              onChange={(e) => setShowClosed(e.target.checked)}
+            />
+            Mostrar encerradas (CLOSED)
+          </label>
+        </div>
         <table className="zt-lobby-table">
           <thead>
             <tr>
@@ -116,7 +133,7 @@ export function AdminTablesPage() {
             </tr>
           </thead>
           <tbody>
-            {tables.map((t) => (
+            {visibleTables.map((t) => (
               <Fragment key={t.id}>
                 <tr className="!cursor-default">
                   <td className="font-semibold text-cream">

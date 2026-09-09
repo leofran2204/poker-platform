@@ -376,8 +376,7 @@ pub async fn unregister_player(
         .ok_or_else(|| ApiError::NotFound(format!("Tournament {tournament_id} not found")))?;
 
     let buy_in = store.state.config.buy_in;
-    let fee_cents =
-        u64::try_from(poker_engine::tournament_engine::entry_fee_cents(buy_in)).unwrap_or(0);
+    let fee_cents = poker_engine::tournament_engine::entry_fee_cents(buy_in);
     let mode = if store.money_mode.eq_ignore_ascii_case("real") {
         crate::wallet::WalletMode::Real
     } else {
