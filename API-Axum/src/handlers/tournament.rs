@@ -158,6 +158,15 @@ pub async fn list_tournaments(
     let mut list: Vec<_> = tournaments
         .values()
         .filter(|s| s.money_mode.eq_ignore_ascii_case(want))
+        // Cancelados/finalizados nunca aparecem como opção (lobby e dropdown de bots).
+        .filter(|s| {
+            matches!(
+                s.state.status,
+                poker_engine::tournament_engine::TournamentStatus::Registering
+                    | poker_engine::tournament_engine::TournamentStatus::Paused
+                    | poker_engine::tournament_engine::TournamentStatus::Running
+            )
+        })
         .map(to_info)
         .collect();
     list.sort_by(|a, b| {
