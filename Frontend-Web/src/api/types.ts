@@ -300,6 +300,13 @@ export interface PotWsData {
   eligible_players: string[];
 }
 
+export interface ShowdownEntry {
+  player_id: string;
+  player_name: string;
+  hand_name: string | null;
+  cards: string[];
+}
+
 export type ServerMessage =
   | { type: "welcome"; player_id: string; seat: number }
   | {
@@ -314,6 +321,8 @@ export type ServerMessage =
       maximum_wager: number;
       /** ids dos vencedores quando a mão termina (showdown). */
       winners?: string[];
+      /** jogos revelados no showdown (vazio fora dele). */
+      showdown?: ShowdownEntry[];
       is_finished?: boolean;
     }
   | { type: "your_turn"; actions: string[]; time_bank: number }

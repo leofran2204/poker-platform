@@ -314,6 +314,22 @@
 
   .zt-seat-card.winner {
     @apply border-gold-bright shadow-[0_0_12px_#c9a227];
+    animation: zt-winner-flash 1.1s ease-in-out infinite;
+  }
+
+  @keyframes zt-winner-flash {
+    0%, 100% { box-shadow: 0 0 6px #c9a227; }
+    50% { box-shadow: 0 0 18px #ffe27a; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .zt-seat-card.winner {
+      animation: none;
+    }
+  }
+
+  .zt-card-winner {
+    box-shadow: 0 0 0 2px #c9a227, 0 0 10px #ffe27a;
   }
 
   /* Cartas maiores no desktop; mobile preserva o tamanho compacto. */

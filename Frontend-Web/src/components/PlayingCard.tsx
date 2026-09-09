@@ -6,6 +6,8 @@ interface Props {
   size?: "xs" | "sm" | "md";
   /** Inline no texto de tips — mesmo visual da mesa, menor. */
   inline?: boolean;
+  /** Realce dourado (carta usada no jogo vencedor do showdown). */
+  highlight?: boolean;
 }
 
 const SIZE_CLASS: Record<NonNullable<Props["size"]>, string> = {
@@ -14,9 +16,10 @@ const SIZE_CLASS: Record<NonNullable<Props["size"]>, string> = {
   md: "h-[72px] w-[50px] text-sm",
 };
 
-export function PlayingCard({ code, faceDown, size = "md", inline = false }: Props) {
+export function PlayingCard({ code, faceDown, size = "md", inline = false, highlight = false }: Props) {
   const dim = SIZE_CLASS[size];
   const wrap = inline ? "inline-flex align-middle mx-0.5 shrink-0" : "";
+  const glow = highlight ? "zt-card-winner" : "";
 
   if (faceDown || !code) {
     return (
@@ -38,7 +41,7 @@ export function PlayingCard({ code, faceDown, size = "md", inline = false }: Pro
 
   return (
     <div
-      className={`zt-playing-card ${dim} ${wrap} ${color}`}
+      className={`zt-playing-card ${dim} ${wrap} ${glow} ${color}`}
       title={`${card.rank}${suitSymbol(card.suit)}`}
       aria-label={`${card.rank} de ${card.suit}`}
     >

@@ -126,6 +126,31 @@ pub(crate) fn sign_settlement(
         .collect())
 }
 
+/// Monta o bloco `showdown` do broadcast a partir do hand history finalizado:
+/// só quem não foldou e tem melhor mão avaliada, com as cartas do jogo.
+/// Nada vaza: o filtro do WS já revela esses mesmos jogadores.
+pub(crate) fn showdown_reveal(
+    history: &poker_engine::hand_history::HandHistory,
+    name_of: &dyn Fn(&str) -> String,
+) -> Vec<serde_json::Value> {
+    history
+        .results
+        .iter()
+        .filter(|result| !result.folded)
+        .filter_map(|result| {
+            let best = result.best_hand.as_ref()?;
+            let mut cards: Vec<String> = best.cards.iter().map(card_to_string).collect();
+            cards.extend(best.kickers.iter().map(card_to_string));
+            Some(serde_json::json!({
+                "player_id": result.player_id,
+                "player_name": name_of(&result.player_id),
+                "hand_name": result.best_hand_name,
+                "cards": cards,
+            }))
+        })
+        .collect()
+}
+
 pub(crate) fn settlement_signature_valid(
     settlement: &serde_json::Value,
     signature: &str,
@@ -1155,6 +1180,20 @@ impl TableActor {
             "pots": pots,
             "players": players_json,
             "winners": if is_finished { self.last_winners.clone() } else { Vec::<String>::new() },
+            "showdown": self.game_loop.as_ref().and_then(|gl| {
+                if !is_finished {
+                    return None;
+                }
+                gl.history.as_ref().map(|history| {
+                    showdown_reveal(history, &|player_id| {
+                        self.players
+                            .iter()
+                            .find(|player| player.id == player_id)
+                            .map(|player| player.name.clone())
+                            .unwrap_or_else(|| player_id.to_string())
+                    })
+                })
+            }).unwrap_or_default(),
             "current_bet_to_match": self.game_loop.as_ref().map(|g| g.state.current_bet_to_match).unwrap_or(0),
             "min_raise": self.game_loop.as_ref().map(|g| g.state.min_raise).unwrap_or(self.config.big_blind),
             "is_finished": is_finished

@@ -1,7 +1,26 @@
-import type { PlayerWsData, PotWsData } from "@/api/types";
+import type { PlayerWsData, PotWsData, ShowdownEntry } from "@/api/types";
 import { SEAT_LAYOUT } from "@/lib/cards";
 import { formatChips } from "@/lib/money";
 import { PlayingCard } from "./PlayingCard";
+
+/** Nomes de mão EN (motor) → PT-BR exibido. */
+export const HAND_NAME_PT: Record<string, string> = {
+  "High Card": "Carta Alta",
+  "One Pair": "Um Par",
+  "Two Pair": "Dois Pares",
+  "Three of a Kind": "Trinca",
+  Straight: "Sequência",
+  Flush: "Flush",
+  "Full House": "Full House",
+  "Four of a Kind": "Quadra",
+  "Straight Flush": "Straight Flush",
+  "Royal Flush": "Royal Flush",
+};
+
+export function handNamePt(name: string | null | undefined): string {
+  if (!name) return "a melhor mão";
+  return HAND_NAME_PT[name] ?? name;
+}
 
 interface Props {
   players: PlayerWsData[];
@@ -18,6 +37,7 @@ interface Props {
   maximumWager: number;
   winners?: string[];
   turnLeft?: number | null;
+  showdown?: ShowdownEntry[];
 }
 
 export function PokerTable({
@@ -35,8 +55,19 @@ export function PokerTable({
   maximumWager,
   winners = [],
   turnLeft = null,
+  showdown = [],
 }: Props) {
   const potTotal = pots.reduce((s, p) => s + p.amount, 0);
+  const showdownCards = new Set(showdown.flatMap((entry) => entry.cards));
+  const winnerNames = winners.map(
+    (id) =>
+      showdown.find((entry) => entry.player_id === id)?.player_name ??
+      players.find((p) => p.id === id)?.name ??
+      id,
+  );
+  const winningHand = showdown.find((entry) => winners.includes(entry.player_id))?.hand_name
+    ?? showdown[0]?.hand_name
+    ?? null;
   const normalizedActions = availableActions.map((action) => action.toLowerCase());
   const wagerAction = normalizedActions.includes("bet")
     ? "bet"
@@ -49,6 +80,19 @@ export function PokerTable({
 
   return (
     <div>
+      {winners.length > 0 && (
+        <div
+          className="zt-winner-banner mb-3 rounded border-2 border-gold-bright bg-gold/15 px-4 py-2 text-center text-sm font-bold text-gold-bright"
+          role="status"
+        >
+          🏆 {winnerNames.join(" + ")} venceu{winners.length > 1 ? "ram" : ""}{" "}
+          {showdown.length > 0 ? (
+            <>com {handNamePt(winningHand)}</>
+          ) : (
+            <>(todos foldaram)</>
+          )}
+        </div>
+      )}
       <div className="mb-3 flex items-center justify-between text-sm">
         <span className="font-semibold text-gold-bright">Mesa ao vivo</span>
         <span className="text-felt-300">
@@ -75,7 +119,9 @@ export function PokerTable({
             {communityCards.length === 0 ? (
               <span className="text-xs italic text-felt-200/60">Aguardando flop…</span>
             ) : (
-              communityCards.map((c, i) => <PlayingCard key={`${c}-${i}`} code={c} size="md" />)
+              communityCards.map((c, i) => (
+                <PlayingCard key={`${c}-${i}`} code={c} size="md" highlight={showdownCards.has(c)} />
+              ))
             )}
           </div>
         </div>
@@ -114,7 +160,7 @@ export function PokerTable({
                 {p.cards.length > 0 && (
                   <div className="mt-1 flex justify-center gap-0.5">
                     {p.cards.map((c, i) => (
-                      <PlayingCard key={`${p.id}-${i}`} code={c} size="md" />
+                      <PlayingCard key={`${p.id}-${i}`} code={c} size="md" highlight={showdownCards.has(c)} />
                     ))}
                   </div>
                 )}

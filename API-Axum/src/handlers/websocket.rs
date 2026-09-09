@@ -911,6 +911,24 @@ mod tests {
     }
 
     #[test]
+    fn showdown_block_passes_through_untouched() {
+        let state = json!({
+            "type": "table_state",
+            "is_finished": true,
+            "players": [
+                {"id": "me", "cards": ["Ah", "Kd"], "folded": false}
+            ],
+            "showdown": [
+                {"player_id": "me", "player_name": "Eu", "hand_name": "Straight", "cards": ["5h", "6c", "7d", "8s", "9h"]}
+            ]
+        });
+
+        let filtered = filter_table_state(state, "me");
+        assert_eq!(filtered["showdown"][0]["hand_name"], json!("Straight"));
+        assert_eq!(filtered["showdown"][0]["cards"].as_array().unwrap().len(), 5);
+    }
+
+    #[test]
     fn removes_sensitive_fields_from_any_outbound_event() {
         let event = json!({
             "type": "future_event",

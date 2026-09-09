@@ -750,6 +750,20 @@ impl TournamentActor {
             "pots": pots,
             "players": players_json,
             "winners": if is_finished { self.last_winners.clone() } else { Vec::<String>::new() },
+            "showdown": self.game_loop.as_ref().and_then(|gl| {
+                if !is_finished {
+                    return None;
+                }
+                gl.history.as_ref().map(|history| {
+                    crate::game_actor::showdown_reveal(history, &|player_id| {
+                        self.players
+                            .iter()
+                            .find(|player| player.id == player_id)
+                            .map(|player| player.name.clone())
+                            .unwrap_or_else(|| player_id.to_string())
+                    })
+                })
+            }).unwrap_or_default(),
             "current_bet_to_match": self.game_loop.as_ref().map(|g| g.state.current_bet_to_match).unwrap_or(0),
             "min_raise": self.game_loop.as_ref().map(|g| g.state.min_raise).unwrap_or(0),
             "is_finished": is_finished

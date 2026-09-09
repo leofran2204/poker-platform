@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getTable, leaveTable } from "@/api/client";
-import type { PlayerWsData, PotWsData, ServerMessage } from "@/api/types";
+import type { PlayerWsData, PotWsData, ServerMessage, ShowdownEntry } from "@/api/types";
 import { TableSocket, type WsStatus } from "@/api/ws";
 import { PokerTable } from "@/components/PokerTable";
 import { isAuthenticated } from "@/lib/auth";
@@ -28,6 +28,7 @@ export function TablePage() {
   const [moneyMode, setMoneyMode] = useState<string | null>(null);
   const [sittingOut, setSittingOut] = useState(false);
   const [winners, setWinners] = useState<string[]>([]);
+  const [showdown, setShowdown] = useState<ShowdownEntry[]>([]);
   const [turnLeft, setTurnLeft] = useState<number | null>(null);
   const turnActiveRef = useRef(false);
   const TURN_SECONDS = 30;
@@ -52,6 +53,7 @@ export function TablePage() {
             setPots(msg.pots ?? []);
             setActions(msg.available_actions ?? []);
             setWinners(msg.winners ?? []);
+            setShowdown(msg.showdown ?? []);
             setCallAmount(msg.call_amount ?? 0);
             setMinimumWager(msg.minimum_wager ?? 0);
             setMaximumWager(msg.maximum_wager ?? 0);
@@ -219,6 +221,7 @@ export function TablePage() {
         minimumWager={minimumWager}
         maximumWager={maximumWager}
         winners={winners}
+        showdown={showdown}
         turnLeft={turnLeft}
       />
     </div>
