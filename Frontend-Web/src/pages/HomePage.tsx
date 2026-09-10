@@ -21,10 +21,17 @@ export function HomePage() {
           </p>
           <h1 className="text-4xl font-bold tracking-tight text-gold-bright sm:text-5xl lg:text-6xl">
             R$ 150 para jogar agora
+            <abbr
+              title="Play Money: fichas de treino, não dinheiro real"
+              className="ml-0.5 no-underline"
+            >
+              *
+            </abbr>
           </h1>
           <p className="mt-4 max-w-lg text-base leading-relaxed text-cream-muted">
-            Play Money no cadastro. Torneio hoje às 21:30 (Brasília). Mesa só começa com
-            pelo menos duas pessoas — chame quem joga com a cabeça fria.
+            <span aria-hidden="true">*</span> Play Money no cadastro — fichas de treino, não
+            dinheiro real. Mesa cash só começa com pelo menos duas pessoas — chame quem joga
+            com a cabeça fria.
           </p>
           <ul className="mt-5 grid gap-2 text-sm text-felt-200 sm:grid-cols-3">
             <li className="rounded border border-felt-600 bg-felt-950/50 px-3 py-2">
@@ -32,8 +39,8 @@ export function HomePage() {
               R$ 150 cash + R$ 150 torneio, todo dia
             </li>
             <li className="rounded border border-felt-600 bg-felt-950/50 px-3 py-2">
-              <strong className="block text-gold-soft">21:30 SP</strong>
-              MTT com 5+ jogadores, auto-start
+              <strong className="block text-gold-soft">Torneios</strong>
+              No lobby, com data e hora do evento — o inaugural inclusive
             </li>
             <li className="rounded border border-felt-600 bg-felt-950/50 px-3 py-2">
               <strong className="block text-gold-soft">Loss Deflator</strong>

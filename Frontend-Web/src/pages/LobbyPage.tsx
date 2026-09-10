@@ -451,7 +451,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({tournaments.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                Texas Hold’em (inclui R$25), freeroll (FT Short Deck 8-max), Omaha 4 cartas 5-max e Ultimate Pineapple 6-max · taxa 15% por cima · início 21:30 SP (auto com 5+)
+                Texas Hold’em (inclui R$25), freeroll (FT Short Deck 8-max), Omaha 4 cartas 5-max e Ultimate Pineapple 6-max · taxa 15% por cima · horário e auto-start no evento
               </p>
             </div>
             <button
