@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { sendPresenceHeartbeat, sendPresenceOffline } from "@/api/client";
+import { getOnlinePresence, sendPresenceHeartbeat, sendPresenceOffline } from "@/api/client";
 import { isAuthenticated } from "@/lib/auth";
 
 const POLL_MS = 12_000;
@@ -51,11 +51,10 @@ function useAuthed(): boolean {
   return isAuthenticated();
 }
 
-/** Badge compacto no header — somente para logados. */
+/** Badge compacto no header — visitante (GET público) e logado (heartbeat). */
 export function OnlinePresenceNav() {
   const authed = useAuthed();
   const { count, error } = usePresenceLoop(authed);
-  if (!authed) return null;
   const label = error
     ? "offline"
     : count === null
@@ -80,11 +79,10 @@ export function OnlinePresenceNav() {
   );
 }
 
-/** Faixa grande na home — combina mesa + online. Somente para logados. */
+/** Faixa na home — GET público para visitante, heartbeat se logado. */
 export function OnlinePresenceHero() {
   const authed = useAuthed();
   const { count, error } = usePresenceLoop(authed);
-  if (!authed) return null;
   const n = count ?? 0;
   const ready = !error && n >= 2;
 
@@ -116,63 +114,107 @@ export function OnlinePresenceHero() {
   );
 }
 
-function usePresenceLoop(authed: boolean): PresenceState {
-  const [count, setCount] = useState<number | null>(null);
-  const [error, setError] = useState(false);
+type PresenceListener = (state: PresenceState) => void;
 
-  const refresh = useCallback(async () => {
-    if (!authed) {
-      setCount(null);
-      setError(false);
-      return;
-    }
-    try {
+let shared: PresenceState = { count: null, error: false };
+const listeners = new Set<PresenceListener>();
+let subscribers = 0;
+let pollTimer: number | null = null;
+let hbTimer: number | null = null;
+let lastAuthed = false;
+
+function emitPresence(next: PresenceState): void {
+  shared = next;
+  listeners.forEach((fn) => fn(next));
+}
+
+async function refreshPresence(authed: boolean): Promise<void> {
+  try {
+    if (authed) {
       const hb = await sendPresenceHeartbeat();
-      setCount(hb.online_count);
-      setError(false);
-    } catch {
-      setCount(null);
-      setError(true);
+      emitPresence({ count: hb.online_count, error: false });
+    } else {
+      const pub = await getOnlinePresence();
+      emitPresence({ count: pub.online_count, error: false });
     }
-  }, [authed]);
+  } catch {
+    emitPresence({ count: null, error: true });
+  }
+}
 
-  useEffect(() => {
-    if (!authed) return;
-    void refresh();
-    const poll = window.setInterval(() => void refresh(), POLL_MS);
-    const hb = window.setInterval(() => void refresh(), HEARTBEAT_MS);
+function onFocus(): void {
+  void refreshPresence(lastAuthed);
+}
+function onVis(): void {
+  if (document.visibilityState === "visible") void refreshPresence(lastAuthed);
+}
+function onPageHide(): void {
+  if (isAuthenticated()) void sendPresenceOffline().catch(() => {});
+}
+function onPresenceCount(event: Event): void {
+  const detail = (event as CustomEvent<PresenceCountEventDetail>).detail;
+  if (detail.kind === "logout") {
+    emitPresence({
+      count: Math.max(0, (shared.count ?? 1) - 1),
+      error: false,
+    });
+  } else {
+    emitPresence({ count: detail.onlineCount, error: false });
+  }
+}
 
-    const onFocus = () => void refresh();
-    const onVis = () => {
-      if (document.visibilityState === "visible") void refresh();
-    };
-    // Fecha a aba sem "Sair": sai da conta na hora em vez de lingerar ~90s de TTL.
-    const onPageHide = () => {
-      if (isAuthenticated()) void sendPresenceOffline().catch(() => {});
-    };
-    const onPresenceCount = (event: Event) => {
-      const detail = (event as CustomEvent<PresenceCountEventDetail>).detail;
-      if (detail.kind === "logout") {
-        setCount((current) => Math.max(0, (current ?? 1) - 1));
-      } else {
-        setCount(detail.onlineCount);
-      }
-      setError(false);
-    };
+function startPresenceEngine(authed: boolean): void {
+  lastAuthed = authed;
+  void refreshPresence(authed);
+  if (pollTimer == null) {
+    pollTimer = window.setInterval(() => void refreshPresence(lastAuthed), POLL_MS);
     window.addEventListener("focus", onFocus);
     window.addEventListener(PRESENCE_COUNT_EVENT, onPresenceCount);
     document.addEventListener("visibilitychange", onVis);
     window.addEventListener("pagehide", onPageHide);
+  }
+  if (authed && hbTimer == null) {
+    hbTimer = window.setInterval(() => void refreshPresence(true), HEARTBEAT_MS);
+  }
+  if (!authed && hbTimer != null) {
+    window.clearInterval(hbTimer);
+    hbTimer = null;
+  }
+}
+
+function stopPresenceEngine(): void {
+  if (pollTimer != null) {
+    window.clearInterval(pollTimer);
+    pollTimer = null;
+    window.removeEventListener("focus", onFocus);
+    window.removeEventListener(PRESENCE_COUNT_EVENT, onPresenceCount);
+    document.removeEventListener("visibilitychange", onVis);
+    window.removeEventListener("pagehide", onPageHide);
+  }
+  if (hbTimer != null) {
+    window.clearInterval(hbTimer);
+    hbTimer = null;
+  }
+}
+
+function usePresenceLoop(authed: boolean): PresenceState {
+  const [state, setState] = useState<PresenceState>(shared);
+
+  useEffect(() => {
+    const onState: PresenceListener = (next) => setState(next);
+    listeners.add(onState);
+    subscribers += 1;
+    startPresenceEngine(authed);
 
     return () => {
-      window.clearInterval(poll);
-      window.clearInterval(hb);
-      window.removeEventListener("focus", onFocus);
-      window.removeEventListener(PRESENCE_COUNT_EVENT, onPresenceCount);
-      document.removeEventListener("visibilitychange", onVis);
-      window.removeEventListener("pagehide", onPageHide);
+      listeners.delete(onState);
+      subscribers -= 1;
+      if (subscribers <= 0) {
+        subscribers = 0;
+        stopPresenceEngine();
+      }
     };
-  }, [refresh, authed]);
+  }, [authed]);
 
-  return { count, error };
+  return state;
 }

@@ -6,7 +6,7 @@
 
 > Este documento é a **fonte da verdade** sobre a arquitetura da plataforma (motor, API, frontend e camadas). Qualquer decisão de design, escolha de tecnologia ou nova pasta deve ser consultada aqui **antes** de iniciar a codificação.
 >
-> **Estado operacional** (ciclo S10+, PIX, ownership, certificação, frontend TS): prevalece [`Documentacao/STATUS_OPERACIONAL.json`](../Documentacao/STATUS_OPERACIONAL.json). Transporte público: **HTTPS**.
+> **Estado operacional** (ciclo, PIX, ownership, certificação, frontend TS): prevalece [`Documentacao/STATUS_OPERACIONAL.md`](../Documentacao/STATUS_OPERACIONAL.md). Transporte público: **HTTPS**.
 >
 > **Regulação / compliance de jogo e dinheiro real:** trilho planejado para **janeiro de 2027** (não bloqueia demo play-money).
 
@@ -203,9 +203,9 @@ Jogador                    Front-end (TypeScript/React)    Backend (Rust)       
 
 ---
 
-## 9. 🥇 Regra de Ouro — Consultar Antes de Codar
+## 9. Consultar antes de mudar a stack
 
-> **Antes de criar nova pasta, codar nova feature ou tomar decisão arquitetural, sempre consultar este documento, `QUALITY.md` (documento mestre) e a pasta `Documentacao/` (BUSINESS_RULES.md, DASHBOARD.md).**
+Antes de nova pasta ou decisão de arquitetura: este arquivo + `Documentacao/BUSINESS_RULES.md`. Fatos do dia: `STATUS_OPERACIONAL.md`. Contrato de agentes: `AGENTS.md` na raiz (não criar arquivo/pasta nova se já existe dono). Gates: `QUALITY.md` (não é enciclopédia).
 
 ---
 

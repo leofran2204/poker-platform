@@ -9,6 +9,7 @@ on:
       - 'API-Axum/**'
       - 'Infraestrutura-Docker/**'
       - 'Documentacao/**'
+      - 'AGENTS.md'
       - 'Cargo.toml'
       - 'Cargo.lock'
       - 'src/bin/documentation_sync.rs'
@@ -22,6 +23,7 @@ on:
       - 'API-Axum/**'
       - 'Infraestrutura-Docker/**'
       - 'Documentacao/**'
+      - 'AGENTS.md'
       - 'Cargo.toml'
       - 'Cargo.lock'
       - 'src/bin/documentation_sync.rs'
@@ -52,7 +54,7 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
 
-      - name: Verify canonical operational status in every document
+      - name: Verify STATUS JSON generates Markdown and short sync blocks
         run: cargo run --locked --bin documentation-sync -- --check
 
   check:

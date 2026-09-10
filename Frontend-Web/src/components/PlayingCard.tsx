@@ -10,6 +10,13 @@ interface Props {
   highlight?: boolean;
 }
 
+const SUIT_PT: Record<"s" | "h" | "d" | "c", string> = {
+  s: "espadas",
+  h: "copas",
+  d: "ouros",
+  c: "paus",
+};
+
 const SIZE_CLASS: Record<NonNullable<Props["size"]>, string> = {
   xs: "h-7 w-5 text-[9px] p-0.5",
   sm: "h-[52px] w-[36px] text-[11px]",
@@ -43,7 +50,7 @@ export function PlayingCard({ code, faceDown, size = "md", inline = false, highl
     <div
       className={`zt-playing-card ${dim} ${wrap} ${glow} ${color}`}
       title={`${card.rank}${suitSymbol(card.suit)}`}
-      aria-label={`${card.rank} de ${card.suit}`}
+      aria-label={`${card.rank} de ${SUIT_PT[card.suit]}`}
     >
       <span className="font-bold leading-none">{card.rank}</span>
       <span className={suitSize}>{suitSymbol(card.suit)}</span>

@@ -739,8 +739,8 @@ async fn handle_game_socket(
 
     // 7. Cleanup on disconnect: notify actor and cancel sender task
     ws_sender_task.abort();
-    let leave_cmd = PlayerCommand::Leave { player_id: user_id };
-    let _ = handle.tx_cmd.send(leave_cmd).await;
+    let disconnect_cmd = PlayerCommand::Disconnect { player_id: user_id };
+    let _ = handle.tx_cmd.send(disconnect_cmd).await;
     info!("WebSocket disconnected for user {}", username_clone);
 }
 

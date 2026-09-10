@@ -1,72 +1,97 @@
+import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { isAuthenticated } from "@/lib/auth";
-import { NewsTips } from "@/components/NewsTips";
+import { OnlinePresenceHero } from "@/components/OnlinePresence";
 import { PokerHistory } from "@/components/PokerHistory";
+import { ShowcaseTable } from "@/components/ShowcaseTable";
+
+const NewsTips = lazy(() =>
+  import("@/components/NewsTips").then((m) => ({ default: m.NewsTips })),
+);
 
 export function HomePage() {
   const authed = isAuthenticated();
 
   return (
-    <div className="mx-auto w-full max-w-6xl">
-
-      {/* Top: histórias nas laterais preenchem os vazios do login/criar conta */}
-      <div className="mt-4 grid gap-4 lg:grid-cols-[360px_1fr_360px] lg:items-start">
-        <PokerHistory variant="world" />
-
-        <div className="zt-panel overflow-hidden">
-          <div className="border-b-2 border-rail bg-felt-850 px-6 py-8 text-center">
-            <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-gold-soft">
-              Sem tilt. Só pôquer. Só decisão.
-            </p>
-            <h1 className="text-4xl font-bold tracking-tight text-gold-bright sm:text-5xl">
-              Zero Tilt Poker
-            </h1>
-            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-cream-muted">
-              Jogue com a cabeça fria. Aqui não há truque, só estrutura justa, rake transparente e
-              tecnologia em Rust para você focar na próxima decisão. Do primeiro flop ao deep run,
-              <span className="font-semibold text-gold-soft"> com Loss Deflator que tira o tilt do bad beat</span>,
-              evolua no seu ritmo.
-            </p>
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <Link to={authed ? "/lobby" : "/register"} className="zt-btn-primary px-6 py-2.5 text-sm">
-                {authed ? "Entrar no lobby" : "Criar conta e jogar"}
+    <div className="w-full">
+      <section className="zt-hero">
+        <div className="zt-hero-copy">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-gold-soft">
+            Sem tilt. Só pôquer.
+          </p>
+          <h1 className="text-4xl font-bold tracking-tight text-gold-bright sm:text-5xl lg:text-6xl">
+            R$ 150 para jogar agora
+          </h1>
+          <p className="mt-4 max-w-lg text-base leading-relaxed text-cream-muted">
+            Play Money no cadastro. Torneio hoje às 21:30 (Brasília). Mesa só começa com
+            pelo menos duas pessoas — chame quem joga com a cabeça fria.
+          </p>
+          <ul className="mt-5 grid gap-2 text-sm text-felt-200 sm:grid-cols-3">
+            <li className="rounded border border-felt-600 bg-felt-950/50 px-3 py-2">
+              <strong className="block text-gold-soft">Play Money</strong>
+              R$ 150 cash + R$ 150 torneio, todo dia
+            </li>
+            <li className="rounded border border-felt-600 bg-felt-950/50 px-3 py-2">
+              <strong className="block text-gold-soft">21:30 SP</strong>
+              MTT com 5+ jogadores, auto-start
+            </li>
+            <li className="rounded border border-felt-600 bg-felt-950/50 px-3 py-2">
+              <strong className="block text-gold-soft">Loss Deflator</strong>
+              Bad beat devolve parte do pote
+            </li>
+          </ul>
+          <div className="mt-6 flex flex-wrap items-center gap-4">
+            <Link
+              to={authed ? "/lobby" : "/register"}
+              className="zt-btn-primary px-8 py-3 text-base"
+            >
+              {authed ? "Entrar no lobby" : "Criar conta e jogar"}
+            </Link>
+            {!authed && (
+              <Link to="/login" className="text-sm font-semibold text-cream hover:text-gold-bright">
+                Já tenho conta
               </Link>
-              {!authed && (
-                <Link to="/login" className="zt-btn-secondary px-6 py-2.5 text-sm">
-                  Já tenho conta
-                </Link>
-              )}
-            </div>
+            )}
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 sm:items-stretch">
-            <Feature
-              title="Loss Deflator"
-              body="Você foi all-in com a melhor mão (mais de 56% de chance de ganhar) e mesmo assim perdeu. Na hora, de 7% a 35% daquele pote volta para você — sai do próprio pote da mão, não do caixa da casa. Quanto mais favorito você era, maior a fatia. O bad beat dói menos e a sessão continua."
-            />
-            <Feature
-              title="Short Deck"
-              body="Baralho de 36 cartas (sem 2 a 5). Mais ação, mais all-ins. No Hold'em Short Deck flush vale mais que full house; no Omaha Short Deck são 4 cartas na mão. Ultimate Pineapple: 3 cartas na mão, sem descarte, mesmo ranking Short Deck."
-            />
+          <div className="mt-6 max-w-xl">
+            <OnlinePresenceHero />
           </div>
         </div>
+        <div className="zt-hero-table">
+          <ShowcaseTable />
+        </div>
+      </section>
 
-        <PokerHistory variant="brazil" />
+      <div className="mx-auto w-full max-w-6xl px-4 py-10">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Feature
+            title="Loss Deflator"
+            body="All-in com a melhor mão (mais de 56%) e mesmo assim perdeu: de 7% a 35% daquele pote volta na hora, sai do próprio pote, não do caixa da casa. O bad beat dói menos e a sessão continua."
+          />
+          <Feature
+            title="Hold’em, Short Deck, Omaha, Pineapple"
+            body="Baralho curto de 36 cartas (sem 2 a 5). No Short Deck flush vale mais que full house. Omaha 4 cartas e Ultimate Pineapple (3 cartas, sem descarte) usam 2 hole + 3 board."
+          />
+        </div>
+
+        <div className="mt-8 grid gap-4 lg:grid-cols-2">
+          <PokerHistory variant="world" />
+          <PokerHistory variant="brazil" />
+        </div>
+
+        <Suspense fallback={<p className="mt-8 text-center text-sm text-felt-400">Carregando notícias…</p>}>
+          <NewsTips className="mt-8" />
+        </Suspense>
       </div>
-
-      <NewsTips className="mt-6" />
-
-      <p className="mt-6 text-center text-xs text-felt-400">
-        Demo / staging · play-money · sem certificação de produção · regulação planejada para 2027
-      </p>
     </div>
   );
 }
 
 function Feature({ title, body }: { title: string; body: string }) {
   return (
-    <div className="flex h-full min-h-[11.5rem] flex-col border-t border-felt-600 px-5 py-5 sm:border-t-0 sm:border-l sm:first:border-l-0">
+    <div className="zt-panel px-5 py-5">
       <h2 className="text-sm font-bold text-gold-bright">{title}</h2>
-      <p className="mt-2 flex-1 text-justify text-sm leading-relaxed text-felt-200">{body}</p>
+      <p className="mt-2 text-sm leading-relaxed text-felt-200">{body}</p>
     </div>
   );
 }

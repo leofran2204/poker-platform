@@ -1,8 +1,8 @@
-# 📚 Guia de Aprendizado — Plataforma de Poker (Rust)
+# Guia de Aprendizado — Plataforma de Poker (Rust)
 
-> **Data:** 2026-07-27
-> **Versão:** 5.1 (material didático consolidado)
-> **Status:** Em manutenção; não representa certificação de produção.
+> **Dono** do protocolo de aprendizado. QUALITY não substitui este arquivo. Contrato de agentes: [`../AGENTS.md`](../AGENTS.md). UI vigente: TypeScript (`Frontend-Web/`); Dioxus é histórico.
+
+> **Data:** 2026-07-27 · **Status:** material didático; não certifica produção.
 
 
 Este documento consolida toda a estratégia de aprendizado do projeto em um único lugar:
@@ -118,10 +118,10 @@ Formar Leofran como Desenvolvedor Full Cycle e Engenheiro de IA, tendo o **Rust 
 
 ### 🎰 Projeto Central — Plataforma de Poker Online (PokerStars/GGPoker-like)
 
-Construção de uma ÚNICA plataforma de poker online (similar ao PokerStars/GGPoker) altamente integrada, **100% em Rust**:
+Construção de uma ÚNICA plataforma de poker online (similar ao PokerStars/GGPoker) altamente integrada, **motor e API em Rust**, **UI em TypeScript**:
 *   **Rust (Motor de jogo):** Cálculo de mãos, RNG, side pots, rake, loss deflator, validação de regras, gerenciamento de estado e processamento em tempo real com segurança absoluta de memória.
 *   **Rust (Backend/APIs):** Axum + Tokio — Auth, lobby, salas, hand history, WebSockets.
-*   **Rust (Frontend):** Dioxus 0.6 (WebAssembly) — UI no navegador via WASM.
+*   **TypeScript (Frontend canônico):** React + Vite + Tailwind em `Frontend-Web/`. O antigo Dioxus/WASM foi removido do monorepo (histórico git).
 *   **Rust (Antifraude):** Colusão, chip dumping, bot detection, multi-account.
 
 ### 📋 Ordem dos Tópicos — Roteiro de Aprendizado da Plataforma
@@ -131,7 +131,7 @@ Construção de uma ÚNICA plataforma de poker online (similar ao PokerStars/GGP
 3.  **Planejamento e Tarefas (Fases 2 e 3 do SDD)** — quebrar o problema em pedaços lógicos e pseudocódigo.
 4.  **Harness Engineering** — como criar "pistas de teste" para validar o código com segurança.
 5.  **Rust & O Motor do Jogo (Imersão Principal)** — sintaxe, ownership, borrowing, alta concorrência e construção de APIs ultrarrápidas.
-6.  **Rust & Frontend (Dioxus/WebAssembly)** — gerar e revisar componentes visuais e painéis no navegador via WASM.
+6.  **Frontend (`Frontend-Web`, TypeScript/React)** — gerar e revisar a UI no navegador. Dioxus/WASM é legado.
 7.  **Programação Agêntica & Rust** — orquestração com Hermes Agent, WebMCP, UCP e automações.
 8.  **Banco de Dados e Persistência** — salvar históricos e saldos integrados ao Rust (PostgreSQL + Redis).
 9.  **Git/GitHub e CI/CD** — versionamento e automação de entregas.
@@ -466,7 +466,6 @@ Uma mão de Texas Hold'em segue um fluxo muito rígido (Preflop → Flop → Tur
 *   Ele monitora de quem é a vez (`current_turn`) e impede que um jogador aposte fora de hora ou realize ações impossíveis (como dar Check quando há uma aposta pendente).
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-09-10):** S23 — cancela inscrição com reembolso total + admin agenda e cria torneios + textos da TournamentPage **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–049 na VPS (045 convite/fila, 046 ledger estrutura, 047 bots, 048 3 mesas + fee ledger, 049 total_fees). PM duas carteiras R$150 sem rebuy (ilimitado com saldo). Motor 1848 lib (fee 15%, seating 3 mesas, run-out all-in) + API 43 lib + ator MTT 2 testes integração PASS. VPS: 1º MTT fim a fim (freeroll 6 inscritos, 3 mesas, 5 mãos assinadas, campeão + payout GTD). Bots lag_v2 em MTT (12 inscritos, 43 mãos assinadas, zero erros). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas com X-max sempre. MTT: inscrição + 3 mesas + gameplay WS ao vivo (mesmo protocolo do cash) + rebalance/consolidação FT + payouts; gameplay_ready=true. Health público OK. Diário de mãos + replay no frontend (2026-09-10): grava suas mãos no navegador (suas cartas, board, pote, resultado), replay passo a passo, download TXT/JSON, painel do vencedor sem botão (só as 5 cartas saltam, some sozinho em 7s). Ritmo de digestão no frontend (2026-09-10): board com stagger de 220ms por carta + painel de resultado fixo do showdown (vencedor, mão e cartas reveladas, sem auto-fechar, sobrevive à mão seguinte). Bots da casa desligados na VPS (stop oficial, reembolso) a pedido. Ritual do crupiê no frontend (2026-09-10): banner de embaralhamento + cartas distribuídas por assento a partir do dealer, versos para os oponentes, stagger no board. Migration 053 (2026-09-10): cash Texas 9-max NL 0,75/1,50 frente 15000 em PM e Real + torneios Texas R$25 em PM e Real (buy-in 2500, stack 15000, 1 reentrada 2500/25000, agenda 21:30 SP, auto-start 5). Bots externos de estratégia validados no local em 2026-09-10: bot/strategy (ranges cash 6-max/9-max, MTT ChipEV/ICM/PKO, avaliador próprio 5-7 cartas, push/fold FT, pot odds) com tsc limpo + 13/13 selftest offline; scripts/strategy-bots.mjs jogou mesa real PM NL 0,25 (3 bots, 5-6 mãos cada, 5 mãos no hand_history, decisões por ranges/odds). Tabelas ICM versionadas em bot/strategy/icm/tables (geradas de final_table.ts/bubble.ts via generate.mjs). Recebedor manual: Leofran, chave 6eefcd53-686e-42d4-a062-03751336251c (PLAY_MONEY_PIX_KEY). Saque: informar chave Pix própria, recebimento em até 24h. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo (cash TableActor + torneio TournamentActor, mesmo protocolo); settlement assinado (HMAC) na liquidação; halt de mesa MTT auditável (MTT_TABLE_HALTED).
->
-> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
+> **S24** (2026-09-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático desligado.
+> Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

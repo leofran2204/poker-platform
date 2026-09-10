@@ -59,12 +59,17 @@ export function AdminUsersPage() {
     const fd = new FormData(e.currentTarget);
     const reais = Number(fd.get("reais"));
     const reason = String(fd.get("reason") || "");
+    const wallet = String(fd.get("wallet") || "") as "pm_cash" | "pm_mtt" | "real";
     if (!Number.isFinite(reais) || reais === 0) return;
-    if (!window.confirm(`Ajustar saldo em R$ ${reais.toFixed(2)}?`)) return;
+    if (wallet !== "pm_cash" && wallet !== "pm_mtt" && wallet !== "real") {
+      setError("Escolha a carteira (PM cash, PM torneio ou Real).");
+      return;
+    }
+    if (!window.confirm(`Ajustar ${wallet} em R$ ${reais.toFixed(2)}?`)) return;
     setMsg(null);
     try {
-      const res = await adjustUserBalance(id, Math.round(reais * 100), reason);
-      setMsg(`Novo saldo: ${formatBrlFromCents(res.balance)}`);
+      const res = await adjustUserBalance(id, Math.round(reais * 100), reason, wallet);
+      setMsg(`Novo saldo (${res.wallet}): ${formatBrlFromCents(res.balance)}`);
       e.currentTarget.reset();
       await load();
     } catch (err) {
@@ -142,6 +147,11 @@ export function AdminUsersPage() {
                 <td className="text-xs text-felt-300">{u.email_verified ? "ok" : "não"}</td>
                 <td>
                   <form className="flex flex-wrap items-end gap-1" onSubmit={(e) => void onAdjust(e, u.id)}>
+                    <select name="wallet" className="zt-input !w-28 !py-1 text-xs" defaultValue="pm_cash" required>
+                      <option value="pm_cash">PM cash</option>
+                      <option value="pm_mtt">PM torneio</option>
+                      <option value="real">Jogo Real</option>
+                    </select>
                     <input name="reais" type="number" step="0.01" placeholder="± R$" className="zt-input !w-20 !py-1 text-xs" required />
                     <input name="reason" placeholder="motivo" className="zt-input !w-28 !py-1 text-xs" required maxLength={200} />
                     <button type="submit" className="zt-btn-primary !px-2 !py-1 !text-[10px]">

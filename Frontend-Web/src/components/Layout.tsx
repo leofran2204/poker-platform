@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { sendPresenceOffline, setWalletMode as apiSetWalletMode } from "@/api/client";
 import type { MeResponse, WalletMode } from "@/api/types";
 import {
@@ -11,18 +11,28 @@ import { SessionConnectivity } from "@/components/SessionConnectivity";
 import { clearTokens, getUsername, isAuthenticated } from "@/lib/auth";
 import { clearMeCache, getMe, isAdminRole } from "@/lib/me";
 import { formatBrlFromCents } from "@/lib/money";
+import { SESSION_EXPIRED_EVENT, SESSION_RESTORED_EVENT } from "@/lib/sessionEvents";
 import { getWalletMode, setWalletModeLocal } from "@/lib/walletMode";
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `zt-nav-link ${isActive ? "zt-nav-link-active" : ""}`;
 
+const MARKETING_PATHS = new Set(["/", "/login", "/register", "/verify-email"]);
+
 export function Layout() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [authTick, setAuthTick] = useState(0);
   const authed = isAuthenticated();
   const username = getUsername();
+  const marketingShell = !authed && MARKETING_PATHS.has(location.pathname);
+  const homeBleed = location.pathname === "/" || MARKETING_PATHS.has(location.pathname);
+  const wideMain =
+    location.pathname.startsWith("/admin") || location.pathname.startsWith("/table");
   const [isAdmin, setIsAdmin] = useState(false);
   const [me, setMe] = useState<MeResponse | null>(null);
   const [mode, setMode] = useState<WalletMode>(getWalletMode());
+  void authTick;
 
   const refreshMe = useCallback(async () => {
     if (!authed) {
@@ -48,7 +58,26 @@ export function Layout() {
     void refreshMe();
   }, [refreshMe]);
 
+  useEffect(() => {
+    const bump = () => setAuthTick((n) => n + 1);
+    const onWallet = (e: Event) => {
+      const next = (e as CustomEvent<WalletMode>).detail;
+      if (next === "play" || next === "real") setMode(next);
+    };
+    window.addEventListener("storage", bump);
+    window.addEventListener(SESSION_EXPIRED_EVENT, bump);
+    window.addEventListener(SESSION_RESTORED_EVENT, bump);
+    window.addEventListener("wallet-mode-changed", onWallet);
+    return () => {
+      window.removeEventListener("storage", bump);
+      window.removeEventListener(SESSION_EXPIRED_EVENT, bump);
+      window.removeEventListener(SESSION_RESTORED_EVENT, bump);
+      window.removeEventListener("wallet-mode-changed", onWallet);
+    };
+  }, []);
+
   async function switchMode(next: WalletMode) {
+    const previous = mode;
     setMode(next);
     setWalletModeLocal(next);
     window.dispatchEvent(new CustomEvent("wallet-mode-changed", { detail: next }));
@@ -57,7 +86,9 @@ export function Layout() {
       clearMeCache();
       await refreshMe();
     } catch {
-      /* keep local preference */
+      setMode(previous);
+      setWalletModeLocal(previous);
+      window.dispatchEvent(new CustomEvent("wallet-mode-changed", { detail: previous }));
     }
   }
 
@@ -75,9 +106,6 @@ export function Layout() {
     navigate("/login");
   }
 
-  const activeBalance =
-    mode === "real" ? (me?.balance_real ?? 0) : (me?.balance_pm_cash ?? me?.balance ?? 0);
-
   return (
     <div className="zt-shell">
       <SessionConnectivity />
@@ -93,9 +121,11 @@ export function Layout() {
             <OnlinePresenceNav />
           </div>
           <nav className="flex flex-wrap items-center gap-3 sm:gap-4">
+            {!marketingShell && (
             <NavLink to="/lobby" className={linkClass}>
               Lobby
             </NavLink>
+            )}
             {authed && (
               <NavLink to="/estrutura" className={linkClass}>
                 Minha Estrutura
@@ -120,6 +150,7 @@ export function Layout() {
                   <button
                     type="button"
                     className={mode === "play" ? "zt-tab zt-tab-active !px-2 !py-1 !text-[11px]" : "zt-tab !px-2 !py-1 !text-[11px]"}
+                    aria-pressed={mode === "play"}
                     onClick={() => void switchMode("play")}
                   >
                     Play Money
@@ -127,14 +158,26 @@ export function Layout() {
                   <button
                     type="button"
                     className={mode === "real" ? "zt-tab zt-tab-active !px-2 !py-1 !text-[11px]" : "zt-tab !px-2 !py-1 !text-[11px]"}
+                    aria-pressed={mode === "real"}
                     onClick={() => void switchMode("real")}
                   >
                     Jogo Real
                   </button>
                 </div>
-                <span className="zt-chip hidden font-mono sm:inline-flex">
-                  {mode === "real" ? "Real" : "PM"} {formatBrlFromCents(activeBalance)}
-                </span>
+                {mode === "real" ? (
+                  <span className="zt-chip hidden font-mono sm:inline-flex">
+                    Real {formatBrlFromCents(me?.balance_real ?? 0)}
+                  </span>
+                ) : (
+                  <span className="hidden items-center gap-1 sm:inline-flex">
+                    <span className="zt-chip font-mono">
+                      Cash {formatBrlFromCents(me?.balance_pm_cash ?? me?.balance ?? 0)}
+                    </span>
+                    <span className="zt-chip font-mono">
+                      MTT {formatBrlFromCents(me?.balance_pm_mtt ?? 0)}
+                    </span>
+                  </span>
+                )}
                 {username && (
                   <span className="zt-chip hidden md:inline-flex">{username}</span>
                 )}
@@ -168,11 +211,20 @@ export function Layout() {
           </nav>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+      <main
+        className={
+          homeBleed
+            ? "w-full flex-1"
+            : wideMain
+              ? "w-full flex-1 px-4 py-4"
+              : "mx-auto w-full max-w-6xl flex-1 px-4 py-4 sm:py-8"
+        }
+      >
         <Outlet />
       </main>
       <footer className="border-t border-felt-700 px-4 py-4 text-center text-xs text-felt-400">
-        Zero Tilt Poker · Play Money &amp; Jogo Real · Demo / staging
+        Zero Tilt Poker · Play Money e Jogo Real
+        {marketingShell ? " · mesa ao vivo, rake transparente" : " · Demo / staging"}
       </footer>
     </div>
   );

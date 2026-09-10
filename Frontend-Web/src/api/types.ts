@@ -197,9 +197,9 @@ export interface TableResponse {
   min_buy_in: number;
   max_buy_in: number;
   game_type: string;
-  money_mode?: string;
+  money_mode: string;
   /** `holdem` | `short_deck` | `short_deck_omaha` | `ultimate_pineapple` */
-  poker_variant?: string;
+  poker_variant: string;
 }
 
 export interface BlindLevelDto {
@@ -233,9 +233,9 @@ export interface TournamentInfoResponse {
   rebuy_max_level: number;
   blind_levels: BlindLevelDto[];
   gameplay_ready: boolean;
-  money_mode?: string;
+  money_mode: string;
   /** `holdem` | `short_deck` | `short_deck_omaha` | `ultimate_pineapple` */
-  poker_variant?: string;
+  poker_variant: string;
   /** Variante aplicada quando começa a mesa final (ex.: `short_deck`). */
   final_table_variant?: string | null;
   final_table_max_players?: number | null;
@@ -324,9 +324,12 @@ export type ServerMessage =
       /** jogos revelados no showdown (vazio fora dele). */
       showdown?: ShowdownEntry[];
       is_finished?: boolean;
+      /** Segundos restantes do turno (servidor). */
+      time_bank?: number;
+      table_id?: string;
+      current_bet_to_match?: number;
+      min_raise?: number;
     }
-  | { type: "your_turn"; actions: string[]; time_bank: number }
-  | { type: "action_result"; success: boolean; message: string }
   | { type: "pong" }
   | {
       type: "table_info";

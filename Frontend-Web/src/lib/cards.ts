@@ -78,15 +78,68 @@ export function extractConcreteCardCodes(token: string): string[] {
   return [];
 }
 
-/** Fixed 9-max seat layout as % of oval table (top/left). */
-export const SEAT_LAYOUT: { top: number; left: number }[] = [
-  { top: 88, left: 50 }, // 0 bottom (hero-ish)
-  { top: 78, left: 18 },
-  { top: 50, left: 6 },
-  { top: 22, left: 18 },
-  { top: 12, left: 50 },
-  { top: 22, left: 82 },
-  { top: 50, left: 94 },
-  { top: 78, left: 82 },
-  { top: 88, left: 72 },
+export type SeatPos = { top: number; left: number };
+
+/** Layouts por cap: índice 0 = base (herói). Coordenadas em % do oval. */
+const LAYOUT_5: SeatPos[] = [
+  { top: 88, left: 50 },
+  { top: 58, left: 10 },
+  { top: 16, left: 22 },
+  { top: 16, left: 78 },
+  { top: 58, left: 90 },
 ];
+
+const LAYOUT_6: SeatPos[] = [
+  { top: 88, left: 50 },
+  { top: 68, left: 12 },
+  { top: 28, left: 12 },
+  { top: 10, left: 50 },
+  { top: 28, left: 88 },
+  { top: 68, left: 88 },
+];
+
+const LAYOUT_8: SeatPos[] = [
+  { top: 88, left: 50 },
+  { top: 74, left: 16 },
+  { top: 50, left: 6 },
+  { top: 24, left: 16 },
+  { top: 10, left: 50 },
+  { top: 24, left: 84 },
+  { top: 50, left: 94 },
+  { top: 74, left: 84 },
+];
+
+const LAYOUT_9: SeatPos[] = [
+  { top: 90, left: 50 },
+  { top: 76, left: 16 },
+  { top: 50, left: 6 },
+  { top: 24, left: 16 },
+  { top: 8, left: 38 },
+  { top: 8, left: 62 },
+  { top: 24, left: 84 },
+  { top: 50, left: 94 },
+  { top: 76, left: 84 },
+];
+
+export function layoutForCap(maxPlayers: number): SeatPos[] {
+  if (maxPlayers <= 5) return LAYOUT_5;
+  if (maxPlayers <= 6) return LAYOUT_6;
+  if (maxPlayers <= 8) return LAYOUT_8;
+  return LAYOUT_9;
+}
+
+/** Compat: 9-max antigo. Preferir `seatPosition`. */
+export const SEAT_LAYOUT: SeatPos[] = LAYOUT_9;
+
+/** Herói sempre no índice 0 (base). `heroSeat` = assento físico do jogador local. */
+export function seatPosition(
+  seat: number,
+  heroSeat: number | null | undefined,
+  maxPlayers: number,
+): SeatPos {
+  const layout = layoutForCap(maxPlayers);
+  const n = layout.length;
+  const hero = heroSeat ?? 0;
+  const visual = ((seat - hero) % n + n) % n;
+  return layout[visual] ?? layout[0];
+}

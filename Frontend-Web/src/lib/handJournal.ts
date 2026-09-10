@@ -2,6 +2,8 @@
  * estudo posterior. O servidor guarda o histórico sem as cartas fechadas,
  * então o registro acontece ao vivo, na sua máquina — nada sai daqui. */
 
+import { handNamePt } from "@/lib/gameLabels";
+
 export interface JournalBet {
   name: string;
   bet: number;
@@ -123,7 +125,9 @@ export function handToText(h: JournalHand): string {
   const lines: string[] = [];
   lines.push(`Zero Tilt — mão de ${h.heroName}`);
   lines.push(`Mesa: ${h.tableName} — ${new Date(h.endedAt).toLocaleString("pt-BR")}`);
-  lines.push(`Vencedor: ${h.winners.join(" + ")}${h.winningHand ? ` com ${h.winningHand}` : ""}`);
+  lines.push(
+    `Vencedor: ${h.winners.join(" + ")}${h.winningHand ? ` com ${handNamePt(h.winningHand)}` : ""}`,
+  );
   lines.push("");
   h.snapshots.forEach((s, i) => {
     lines.push(`[${i + 1}] ${streetPt(s.street)} — board: ${s.board.join(" ") || "—"} — pote: ${fmtCents(s.pot)}`);
@@ -136,7 +140,7 @@ export function handToText(h: JournalHand): string {
     lines.push("");
     lines.push("Showdown:");
     for (const e of h.showdown) {
-      lines.push(`  ${e.name}${e.hand ? ` (${e.hand})` : ""}: ${e.cards.join(" ")}`);
+      lines.push(`  ${e.name}${e.hand ? ` (${handNamePt(e.hand)})` : ""}: ${e.cards.join(" ")}`);
     }
   }
   return lines.join("\n");

@@ -117,6 +117,9 @@ impl TournamentActor {
                 // Em torneio não há cash-out: sair = ficar sit-out até blindar.
                 self.handle_set_sitting(player_id, false);
             }
+            PlayerCommand::Disconnect { player_id } => {
+                self.handle_disconnect(player_id);
+            }
             PlayerCommand::CashOut {
                 player_id: _,
                 respond_to,
@@ -160,7 +163,7 @@ impl TournamentActor {
                     self.players
                         .iter()
                         .find(|p| &p.id == pid)
-                        .is_none_or(|p| !p.is_sitting)
+                        .is_none_or(|p| !p.is_sitting && p.disconnected_since.is_none())
                 })
         });
         if let Some(pid) = away_active {
@@ -287,6 +290,16 @@ impl TournamentActor {
             p.is_sitting = sitting;
             if sitting {
                 p.disconnected_since = None;
+            }
+        }
+        self.broadcast_state();
+    }
+
+    fn handle_disconnect(&mut self, player_id: String) {
+        if let Some(p) = self.players.iter_mut().find(|p| p.id == player_id) {
+            p.is_sitting = false;
+            if p.disconnected_since.is_none() {
+                p.disconnected_since = Some(tokio::time::Instant::now());
             }
         }
         self.broadcast_state();
@@ -723,7 +736,8 @@ impl TournamentActor {
                         "folded": gp.has_folded,
                         "is_active": gl.state.active_player().map(|ap| ap.id == gp.id).unwrap_or(false),
                         "is_dealer": gl.state.dealer_index == gp.seat_index,
-                        "seat": tp.seat
+                        "seat": tp.seat,
+                        "is_sitting": tp.is_sitting
                     }));
                 }
             }
@@ -737,7 +751,8 @@ impl TournamentActor {
                     "cards": Vec::<String>::new(),
                     "is_active": false,
                     "is_dealer": false,
-                    "seat": p.seat
+                    "seat": p.seat,
+                    "is_sitting": p.is_sitting
                 }));
             }
         }
@@ -766,7 +781,10 @@ impl TournamentActor {
             }).unwrap_or_default(),
             "current_bet_to_match": self.game_loop.as_ref().map(|g| g.state.current_bet_to_match).unwrap_or(0),
             "min_raise": self.game_loop.as_ref().map(|g| g.state.min_raise).unwrap_or(0),
-            "is_finished": is_finished
+            "is_finished": is_finished,
+            "time_bank": self.last_turn_start.map(|started| {
+                self.turn_timeout.saturating_sub(started.elapsed()).as_secs()
+            }).unwrap_or(0)
         }));
     }
 }

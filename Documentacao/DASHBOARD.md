@@ -1,19 +1,8 @@
-# 🎯 Painel de Controle — Plataforma de Poker Online
+# Painel de Controle — Zero Tilt Poker
 
-**Atualizado:** 2026-09-10 | **Status:** **S23** + bots externos de estratégia validados (bot/strategy: ranges cash 6-max/9-max, MTT ChipEV/ICM/PKO, avaliador próprio, push/fold FT; strategy-bots.mjs jogou mesa real PM NL 0,25 — 3 bots, 5 mãos no hand_history); + migration 053 (cash NL 0,75/1,50 PM+Real, torneios Texas R$25 PM+Real); + ritual do crupiê (embaralhamento visível); + bots VPS desligados e showdown fixo com board lento; + diário de mãos com replay e download; demo/staging; sem certificação de produção.
+**Dono** de sprint, backlog, DoD e fases. Fatos (catálogo, PIX, ciclo): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md). Contrato de agentes: [`../AGENTS.md`](../AGENTS.md). Gates: [`QUALITY.md`](QUALITY.md). História: [`DEVELOPMENT_LOG.md`](DEVELOPMENT_LOG.md).
 
-> ⚠️ **REGRA DE OURO:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
-> 📌 **Fonte canônica de estado:** [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json) — prevalece sobre qualquer texto datado abaixo.
-> 📅 O cronograma completo está em `Documentacao/CRONOGRAMA.md` — veja prazos, fases e % de conclusão.
-> 🏗️ **Stack v4.0:** Rust no motor/API; TypeScript + React + Vite + Tailwind no frontend (`Frontend-Web/`). `Frontend-Dioxus/` removido do monorepo.
-> **Domínio do produto:** [`zerotiltpoker.net`](https://zerotiltpoker.net) (demo/staging — VPS Hostinger).
-> **Transporte público:** **HTTPS** (Caddy + **Let's Encrypt**); SPA same-origin.
-> **E-mail:** Resend domínio **verified**; `EMAIL_PROVIDER=resend` na API (ver `EMAIL_RESEND.md`).
-> **Presença online:** badge no header + hero na home; `GET /api/presence/online`; heartbeat JWT ~25s; TTL 90s.
-> **Live E2E:** `scripts/live-e2e-ten-users.mjs` (10×100); `scripts/live-sim-full-ritual.mjs` (Play Money, 1 e-mail/assento). Motor MTT: `cargo test --test tournament_to_champion`.
-> **Demo amigos:** [`DEMO_AMIGOS.md`](DEMO_AMIGOS.md) — mín. **2 na mesma mesa**.
-> **Limites conhecidos:** PIX mock/sandbox; mesas com dono único por processo; VPS Hostinger KVM 2 ok para ~40 concurrent; LE rate limit 5 certs/168h se recriar `caddy_data`.
-> ⚖️ **Regulação / KYC / real-money compliance:** planejado para **janeiro de 2027**.
+Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certificação de produção.
 
 ---
 
@@ -22,8 +11,8 @@
 | # | Parâmetro | Valor |
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
-| 2 | **Sprint atual** | S13 — presença online + demo amigos |
-| 3 | **Status** | 🟢 Contador online no ar; convites play-money liberados |
+| 2 | **Sprint atual** | S24 — frontend de vitrine + lobby 053 + mesa jogável |
+| 3 | **Status** | 🟢 Código local (ondas 0–4); demo/staging; sem cert. produção |
 | 4 | **Cerimônias** | Planning + Review + Retrospectiva |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
 
@@ -37,10 +26,10 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | 2 | **Zero warnings** | `cargo check` — 0 warnings |
 | 3 | **Testes de rotina passam** | `cargo test` — apenas a suíte determinística e rápida, sem carga probabilística implícita |
 | 4 | **Cargas de validação** | `scripts/full-validation.*` — 100 cenários centrais, somente após autorização explícita e com relatório de duração/carga/status; gateway Caddy validado por `verify-public-https.sh` |
-| 5 | **Documentação atualizada** | `DASHBOARD.md` + `README.md` + `DEVELOPMENT_LOG.md` |
-| 6 | **Regras de negócio respeitadas** | Conforme `BUSINESS_RULES.md` |
-| 7 | **Padrões de qualidade** | Conforme `QUALITY.md` |
-| 8 | **Sem regressões** | Sincronizado no GitHub |
+| 5 | **Documentação** | Fatos → JSON + `documentation-sync`. Prosa só no arquivo dono (`AGENTS.md`). |
+| 6 | **Regras de negócio** | `BUSINESS_RULES.md` |
+| 7 | **Gates** | `QUALITY.md` |
+| 8 | **Git** | Commit/push **não** entram no DoD local — ordem explícita |
 
 ### 📊 Histórico de Sprints
 
@@ -76,12 +65,31 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S21b | 2026-09-04 | PM 150+150 sem rebuy + restore MTT + Dockerfile cache | PM zera torneio (041); cash existente →150 (042); restore 031–038 registering (043, órfãos limpos); PM 150+150 + rebuy MTT ilimitado nv.6 (044); Dockerfile cache deps (build ~20s) + trava anti-dummy | 🟢 Fechado (demo); validado fim a fim |
 | S22 | 2026-09-07 | Gameplay MTT + fee 15% + bots em MTT | 3 mesas/torneio + caps 27/18/15 (048); fee 15% por cima com split 18/12 + total_fees (049); ator MTT (mãos, eliminações, payouts, run-out all-in, halt auditável); bots lag_v2 em MTT + painel; 1º campeão ao vivo (freeroll, payout GTD); Motor 1848 + API 43 + 2 integração MTT | 🟢 Fechado (demo); validado ao vivo |
 | S23 | 2026-09-08 | Cancela inscrição + admin agenda/cria + textos | Unregister pré-start com reembolso total + anulação de fee; estado inscrito + botão Cancelar; datetime-local por linha; POST admin cria (max 3×, BBA 26); fallback por status; validado ao vivo fim a fim | 🟢 Fechado (demo) |
+| S24 | 2026-09-10 | Frontend jogável e convidativo | Home de vitrine + presença pública; lobby NL 0,75/1,50 + taxa MTT; mesa: herói embaixo, fold real, raise em R$, is_sitting/time_bank, Disconnect ≠ Leave; lazy admin/NewsTips; Vitest 16 + ESLint; ajuste admin exige wallet; STATUS schema v2 (JSON fatos + MD gerado) | 🟡 Local (sem commit) |
 
-**Catálogo cash vigente:** NL 0,25/0,25 9-max · SD Texas 0,25/0,50 8-max · SD Omaha 0,50/0,50 5-max · Ultimate Pineapple 0,50/0,50 6-max (cada um em PM e Real). **Catálogo MTT:** Texas 9-max · Texas Freeroll FT 8-max · Omaha 5-max · Pineapple 6-max; início **21:30 SP** auto com **5+**.
+Catálogo vigente: [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 
 ---
 
-## 🌐 Deploy da demo (escolha um caminho)
+## Roadmap de fases
+
+Marcos de **código/demo**, não certificação de produção. Detalhe antigo (Dioxus, módulos F2): [`historico/CRONOGRAMA.md`](historico/CRONOGRAMA.md).
+
+```
+F1 Fundação          100%
+F2 Motor + API       100%  (suíte determinística; carga = FULL_VALIDATION)
+F3 Frontend-Web      100%  (Dioxus = histórico git)
+F4 Docker + Caddy CI 100%
+F5 Auth/TLS/PIX mock 100%  (PIX real fora)
+F6 Antifraude        100%
+F7 B2B + demo HTTPS   ~90%  falta: cert. produção / PIX automático / multi-pod
+```
+
+Pendências conscientes: PIX automático, ownership distribuído de mesa, KYC 2027. Deploy: [`../Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md`](../Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md).
+
+---
+
+## Deploy da demo
 
 | Caminho | Quando usar | Guia |
 |---------|-------------|------|
@@ -169,53 +177,26 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | #   | Pasta                 | O que contém                                                                                                              | Status                    |
 |-----|----------------------|---------------------------------------------------------------------------------------------------------------------------|---------------------------|
 | —   | `Infraestrutura-Docker` | Docker, Caddy HTTPS, deploy casa/VPS, CI/CD                                                                              | ✅ Ativo                  |
-| —   | `Documentacao`       | Regras, STATUS_OPERACIONAL, dashboard, cronograma, logs                                                                   | ✅ Ativo                  |
+| —   | `Documentacao`       | Regras, STATUS, dashboard, logs; `historico/` = snapshots                                                                 | ✅ Ativo                  |
 | —   | `Arquitetura-Motor`  | Arquitetura alvo (Rust puro)                                                                                              | ✅ Ativo                  |
 | —   | **`Motor-Rust`**     | **Motor (deck, side_pots, loss_deflator, rake+B2B 15/85, rng, hand_history, tournament, auth, lobby, antifraude)**      | **✅ Ativo — suíte histórica ~1.904 (`--lib`)** |
-| —   | **`Frontend-Dioxus`** | **WASM: rotas Home/Login/Register/Lobby/Table + `/admin/clubs` + `/tournament/:id`; WSS; PIX modals**                   | **✅ Ativo — ~115 suítes reportadas** |
-| —   | **`API-Axum`**       | **API HTTPS/WSS Axum; TableActor; admin B2B; migrations até 014**                                                         | **✅ Ativo — ~32–34 suítes reportadas** |
+| —   | **`Frontend-Web`**   | **SPA React/Vite/Tailwind (canônico): home, lobby, mesa, admin lazy, Vitest 16 + ESLint**                                 | **✅ Ativo** |
+| —   | `Frontend-Dioxus`    | WASM legado (rotas/mesa/lobby) — **removido do monorepo**; só histórico git                                              | 📦 Histórico |
+| —   | **`API-Axum`**       | **API HTTPS/WSS Axum; TableActor + TournamentActor; admin B2B; migrations até 053**                                      | **✅ Ativo** |
 
 > Contagens de testes: valores **históricos reportados** em logs/CI; revalidar com `cargo test` no ambiente atual (toolchain GNU no Windows).
 
 ---
 
-## 🔄 Comandos Rápidos — Build, Testes e Deploy
+## Comandos
 
-```bash
-# Testar motor Rust (suíte lib; contagem histórica ~1.904)
-cd Motor-Rust && cargo +stable-x86_64-pc-windows-gnu test --lib
-
-# Build motor Rust (0 warnings)
-cd Motor-Rust && cargo +stable-x86_64-pc-windows-gnu build
-
-# Testar API Axum (suíte reportada ~32–34)
-cd API-Axum && cargo +stable-x86_64-pc-windows-gnu test
-
-# Build API Axum (0 warnings)
-cd API-Axum && cargo +stable-x86_64-pc-windows-gnu build
-
-# Clippy API Axum (-D warnings)
-cd API-Axum && cargo +stable-x86_64-pc-windows-gnu clippy --all-targets -- -D warnings
-
-# Verificar front-end Dioxus (compilando ✅, requer LIBRARY_PATH)
-$gccLibPath = "C:\Users\leofr\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\lib\gcc\x86_64-w64-mingw32\16.1.0"
-$env:LIBRARY_PATH = $gccLibPath
-$env:C_INCLUDE_PATH = "C:\Users\leofr\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\include"
-cd Frontend-Dioxus && cargo +stable-x86_64-pc-windows-gnu check
-
-# Testar front-end Dioxus (115 testes)
-cd Frontend-Dioxus && cargo +stable-x86_64-pc-windows-gnu test
-
-# Subir infra (Docker)
-cd Infraestrutura-Docker && docker-compose up -d
-```
+Ambiente (WSL, Node, clippy): [`../AGENTS.md`](../AGENTS.md). Gates: [`QUALITY.md`](QUALITY.md). Carga: [`FULL_VALIDATION.md`](FULL_VALIDATION.md).
 
 ---
 
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **Estado operacional sincronizado (2026-09-10):** S23 — cancela inscrição com reembolso total + admin agenda e cria torneios + textos da TournamentPage **Sem certificação de produção; o código rejeita PIX em modo production. Deploy público: VPS Hostinger (demo/staging) com domínio zerotiltpoker.net. Staging/demo apenas; não alegar Launch Ready de produção.** Stack Docker local 4/4 healthy e VPS Hostinger 4/4 healthy. Migrations 001–049 na VPS (045 convite/fila, 046 ledger estrutura, 047 bots, 048 3 mesas + fee ledger, 049 total_fees). PM duas carteiras R$150 sem rebuy (ilimitado com saldo). Motor 1848 lib (fee 15%, seating 3 mesas, run-out all-in) + API 43 lib + ator MTT 2 testes integração PASS. VPS: 1º MTT fim a fim (freeroll 6 inscritos, 3 mesas, 5 mãos assinadas, campeão + payout GTD). Bots lag_v2 em MTT (12 inscritos, 43 mãos assinadas, zero erros). Lobby GET /api/lobby/tables lista mesas OPEN mesmo lotadas com X-max sempre. MTT: inscrição + 3 mesas + gameplay WS ao vivo (mesmo protocolo do cash) + rebalance/consolidação FT + payouts; gameplay_ready=true. Health público OK. Diário de mãos + replay no frontend (2026-09-10): grava suas mãos no navegador (suas cartas, board, pote, resultado), replay passo a passo, download TXT/JSON, painel do vencedor sem botão (só as 5 cartas saltam, some sozinho em 7s). Ritmo de digestão no frontend (2026-09-10): board com stagger de 220ms por carta + painel de resultado fixo do showdown (vencedor, mão e cartas reveladas, sem auto-fechar, sobrevive à mão seguinte). Bots da casa desligados na VPS (stop oficial, reembolso) a pedido. Ritual do crupiê no frontend (2026-09-10): banner de embaralhamento + cartas distribuídas por assento a partir do dealer, versos para os oponentes, stagger no board. Migration 053 (2026-09-10): cash Texas 9-max NL 0,75/1,50 frente 15000 em PM e Real + torneios Texas R$25 em PM e Real (buy-in 2500, stack 15000, 1 reentrada 2500/25000, agenda 21:30 SP, auto-start 5). Bots externos de estratégia validados no local em 2026-09-10: bot/strategy (ranges cash 6-max/9-max, MTT ChipEV/ICM/PKO, avaliador próprio 5-7 cartas, push/fold FT, pot odds) com tsc limpo + 13/13 selftest offline; scripts/strategy-bots.mjs jogou mesa real PM NL 0,25 (3 bots, 5-6 mãos cada, 5 mãos no hand_history, decisões por ranges/odds). Tabelas ICM versionadas em bot/strategy/icm/tables (geradas de final_table.ts/bubble.ts via generate.mjs). Recebedor manual: Leofran, chave 6eefcd53-686e-42d4-a062-03751336251c (PLAY_MONEY_PIX_KEY). Saque: informar chave Pix própria, recebimento em até 24h. A VPS permanece no padrão seguro PIX mock. DePix existe somente em Sandbox não produtivo, com chave sk_test_, allowlist de depositante, idempotência, HMAC com janela temporal, deduplicação de eventos e crédito apenas em checkout.completed. O CPF/CNPJ é encaminhado ao provedor sem persistência local. Depósito manual continua como fallback; não há saque automático. Mesas com dono único por processo (cash TableActor + torneio TournamentActor, mesmo protocolo); settlement assinado (HMAC) na liquidação; halt de mesa MTT auditável (MTT_TABLE_HALTED).
->
-> Fonte canônica: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
+> **S24** (2026-09-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático desligado.
+> Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

@@ -1,6 +1,7 @@
 import historyWorld from "@/data/pokerHistoryWorld.json";
 import historyBrazil from "@/data/pokerHistoryBrazil.json";
 import { TipRichText } from "@/components/TipRichText";
+import { safeHttpUrl } from "@/lib/safeUrl";
 
 type Variant = "world" | "brazil";
 
@@ -41,10 +42,13 @@ export function PokerHistory({ variant }: { variant: Variant }) {
               </div>
               {(block as { sources?: Array<{ label: string; url: string }> }).sources?.length ? (
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  {(block as { sources: Array<{ label: string; url: string }> }).sources.map((s) => (
+                  {(block as { sources: Array<{ label: string; url: string }> }).sources.map((s) => {
+                    const href = safeHttpUrl(s.url);
+                    if (!href) return null;
+                    return (
                     <a
                       key={s.url}
-                      href={s.url}
+                      href={href}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="rounded border border-felt-600 bg-felt-800 px-1.5 py-0.5 text-[10px] leading-none text-felt-400 hover:border-gold/40 hover:text-gold-soft"
@@ -52,7 +56,8 @@ export function PokerHistory({ variant }: { variant: Variant }) {
                     >
                       Fonte: {s.label}
                     </a>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : null}
             </div>

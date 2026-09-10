@@ -93,7 +93,7 @@ export function parseJinaMarkdown(md: string): ParsedRssItem[] {
     out.push({
       title,
       link,
-      pubDate: new Date().toISOString(),
+      pubDate: "",
       description: "",
       content: "",
     });

@@ -11,23 +11,15 @@ Procedimento de verificação somente-leitura da demo em `https://zerotiltpoker.
 
 `GET /api/health` → esperado: API + frontend/Caddy + PostgreSQL + Redis **4/4 healthy**.
 
-## 2. Catálogo do lobby (S21)
+## 2. Catálogo do lobby
 
-`GET /api/lobby/tables` → esperado, cada um em Play Money e Jogo Real:
-
-| Mesa | Blinds | Max |
-|---|---|---|
-| Texas Hold'em NL | 25/25 | 9 |
-| Texas Hold'em Short Deck | 25/50 | 8 |
-| Omaha 4 Cartas (SD) | 50/50 | 5 |
-| Ultimate Pineapple | 50/50 | 6 |
+`GET /api/lobby/tables` → esperado, cada um em Play Money e Jogo Real. Conferir blinds/cap contra `Documentacao/STATUS_OPERACIONAL.md` (não memorizar stakes).
 
 Mesas `OPEN` listam mesmo lotadas, sempre com o max visível.
 
 ## 3. Torneios
 
-MTT Texas 9-max · Freeroll FT Short Deck 8-max · Omaha 5-max · Pineapple 6-max.
-Início agendado **21:30 America/Sao_Paulo**, auto-start com **5+** inscritos.
+Eventos, horário e auto-start: iguais a `Documentacao/STATUS_OPERACIONAL.md`.
 
 ## 4. Presença
 
@@ -39,4 +31,4 @@ Início agendado **21:30 America/Sao_Paulo**, auto-start com **5+** inscritos.
 - **Ruído (não reportar fora do digest):** flutuação momentânea de presença, mesa cheia, latência isolada.
 - **Saudável:** responda apenas `[SILENT]`.
 
-Fonte da verdade em caso de dúvida: `Documentacao/STATUS_OPERACIONAL.json` no repo.
+Fonte da verdade em caso de dúvida: `Documentacao/STATUS_OPERACIONAL.md` (humanos) / `STATUS_OPERACIONAL.json` (números).

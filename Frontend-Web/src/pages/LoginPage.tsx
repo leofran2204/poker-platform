@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { applyAuthTokens, login, verifyMfa } from "@/api/client";
+import { ShowcaseTable } from "@/components/ShowcaseTable";
 import { saveUsername } from "@/lib/auth";
 
 export function LoginPage() {
@@ -67,7 +68,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md">
+    <div className="zt-auth-split">
       <div className="zt-panel">
         <div className="zt-panel-title">Entrar</div>
         <form className="space-y-4 p-5" onSubmit={onSubmit}>
@@ -163,6 +164,9 @@ export function LoginPage() {
             </Link>
           </p>
         </form>
+      </div>
+      <div className="hidden lg:flex lg:justify-center">
+        <ShowcaseTable />
       </div>
     </div>
   );

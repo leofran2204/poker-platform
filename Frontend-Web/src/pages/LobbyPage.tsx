@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { joinTable, joinWaitlist, listTables, listTournaments, registerTournament } from "@/api/client";
+import {
+  fetchTournamentRegistration,
+  joinTable,
+  joinWaitlist,
+  listTables,
+  listTournaments,
+  registerTournament,
+  unregisterTournament,
+} from "@/api/client";
 import type { TableResponse, TournamentInfoResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";
 import { deckTypeLabel, gameNameLabel } from "@/lib/gameLabels";
@@ -8,11 +16,12 @@ import { formatBrlFromCents } from "@/lib/money";
 import { getWalletMode } from "@/lib/walletMode";
 
 type LobbyTab = "cash" | "tournaments";
-type StakeFilter = "all" | "nl025" | "sd025050" | "sdOmaha050" | "pineapple050";
+type StakeFilter = "all" | "nl025" | "nl075150" | "sd025050" | "sdOmaha050" | "pineapple050";
 
 const STAKE_OPTIONS: { id: StakeFilter; label: string }[] = [
   { id: "all", label: "Todos" },
   { id: "nl025", label: "NL 0,25/0,25" },
+  { id: "nl075150", label: "NL 0,75/1,50" },
   { id: "sd025050", label: "SD 0,25/0,50" },
   { id: "sdOmaha050", label: "SD Omaha 0,50/0,50" },
   { id: "pineapple050", label: "Pineapple 0,50/0,50" },
@@ -42,6 +51,8 @@ export function LobbyPage() {
   const [tournaments, setTournaments] = useState<TournamentInfoResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
+  const [registeredIds, setRegisteredIds] = useState<Set<string>>(new Set());
   const [hideFull, setHideFull] = useState(false);
   const [stake, setStake] = useState<StakeFilter>("all");
   const [joiningId, setJoiningId] = useState<string | null>(null);
@@ -63,6 +74,17 @@ export function LobbyPage() {
       const [t, tourneys] = await Promise.all([listTables(mode), listTournaments(mode)]);
       setTables(t);
       setTournaments(tourneys);
+      const flags = await Promise.all(
+        tourneys.map(async (tourney) => {
+          try {
+            const r = await fetchTournamentRegistration(tourney.id);
+            return r.registered ? tourney.id : null;
+          } catch {
+            return null;
+          }
+        }),
+      );
+      setRegisteredIds(new Set(flags.filter((id): id is string => id != null)));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erro ao carregar lobby");
     } finally {
@@ -89,6 +111,8 @@ export function LobbyPage() {
       const isPineapple = t.poker_variant === "ultimate_pineapple";
       if (stake === "nl025")
         return !isSd && !isOmaha && !isPineapple && t.small_blind === 25 && t.big_blind === 25;
+      if (stake === "nl075150")
+        return !isSd && !isOmaha && !isPineapple && t.small_blind === 75 && t.big_blind === 150;
       if (stake === "sd025050")
         return isSd && t.small_blind === 25 && t.big_blind === 50;
       if (stake === "sdOmaha050")
@@ -108,9 +132,10 @@ export function LobbyPage() {
   async function handleWaitlist(table: TableResponse) {
     setJoiningId(table.id);
     setError(null);
+    setInfo(null);
     try {
       const wait = await joinWaitlist(table.id);
-      setError(
+      setInfo(
         `Fila da mesa: você é o ${wait.position}º de ${wait.length}. Quando abrir vaga, clique em Entrar.`,
       );
     } catch (e) {
@@ -124,6 +149,7 @@ export function LobbyPage() {
     if (table.players >= table.max_players) return;
     setJoiningId(table.id);
     setError(null);
+    setInfo(null);
     try {
       await joinTable(table.id, table.min_buy_in, getWalletMode());
       navigate(`/table/${table.id}`);
@@ -137,11 +163,31 @@ export function LobbyPage() {
   async function handleRegister(t: TournamentInfoResponse) {
     setRegisteringId(t.id);
     setError(null);
+    setInfo(null);
     try {
       await registerTournament(t.id, getWalletMode());
+      setInfo("Inscrição confirmada. Abra o torneio para ver a mesa quando começar.");
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Falha na inscrição");
+    } finally {
+      setRegisteringId(null);
+    }
+  }
+
+  async function handleUnregister(t: TournamentInfoResponse) {
+    if (!window.confirm("Cancelar inscrição? Devolve buy-in + taxa, só antes de começar.")) return;
+    setRegisteringId(t.id);
+    setError(null);
+    setInfo(null);
+    try {
+      const res = await unregisterTournament(t.id);
+      setInfo(
+        `Inscrição cancelada. Devolvidos ${formatBrlFromCents(res.refunded_buy_in_cents + res.refunded_fee_cents)}.`,
+      );
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Falha ao cancelar");
     } finally {
       setRegisteringId(null);
     }
@@ -172,6 +218,8 @@ export function LobbyPage() {
         <div className="flex gap-1 rounded border border-felt-600 bg-felt-950/60 p-0.5">
           <button
             type="button"
+            role="tab"
+            aria-selected={tab === "cash"}
             className={tab === "cash" ? "zt-tab zt-tab-active" : "zt-tab"}
             onClick={() => setTab("cash")}
           >
@@ -179,6 +227,8 @@ export function LobbyPage() {
           </button>
           <button
             type="button"
+            role="tab"
+            aria-selected={tab === "tournaments"}
             className={tab === "tournaments" ? "zt-tab zt-tab-active" : "zt-tab"}
             onClick={() => setTab("tournaments")}
           >
@@ -188,8 +238,13 @@ export function LobbyPage() {
       </div>
 
       {error && (
-        <p className="rounded border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200">
+        <p className="rounded border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200" role="alert">
           {error}
+        </p>
+      )}
+      {info && (
+        <p className="rounded border border-emerald-800 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-100" role="status">
+          {info}
         </p>
       )}
 
@@ -226,7 +281,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({filtered.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                NL 0,25/0,25 9-max (R$25) · SD 0,25/0,50 8-max (R$75) · Pineapple 0,50/0,50 6-max (R$75) · SD Omaha 0,50/0,50 5-max (R$100) · auto 15s
+                NL 0,25/0,25 9-max (R$25) · NL 0,75/1,50 9-max (R$150) · SD 0,25/0,50 8-max (R$75) · Pineapple 0,50/0,50 6-max (R$75) · SD Omaha 0,50/0,50 5-max (R$100) · auto 15s
               </p>
             </div>
 
@@ -301,6 +356,7 @@ export function LobbyPage() {
                     return (
                       <tr
                         key={t.id}
+                        tabIndex={0}
                         className={[
                           selected ? "zt-lobby-row-selected" : "",
                           full ? "zt-lobby-row-full" : "",
@@ -310,6 +366,13 @@ export function LobbyPage() {
                         onClick={() => setSelectedId(t.id)}
                         onDoubleClick={() => {
                           if (!full) void handleJoin(t);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            setSelectedId(t.id);
+                            if (e.key === "Enter" && !full) void handleJoin(t);
+                          }
                         }}
                       >
                         <td className="font-semibold text-cream">
@@ -388,7 +451,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({tournaments.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                Texas Hold’em, freeroll (FT Short Deck 8-max), Omaha 4 cartas 5-max e Ultimate Pineapple 6-max · Big Blind Ante desde o nível 1 · 26 níveis · início agendado 21:30 SP (auto com 5+)
+                Texas Hold’em (inclui R$25), freeroll (FT Short Deck 8-max), Omaha 4 cartas 5-max e Ultimate Pineapple 6-max · taxa 15% por cima · início 21:30 SP (auto com 5+)
               </p>
             </div>
             <button
@@ -468,7 +531,11 @@ export function LobbyPage() {
                         </div>
                       </td>
                       <td className="font-mono text-gold-soft">
-                        {t.is_freeroll ? "Grátis" : formatBrlFromCents(t.buy_in)}
+                        {t.is_freeroll
+                          ? "Grátis"
+                          : (t.fee_cents ?? 0) > 0
+                            ? `${formatBrlFromCents(t.buy_in)}+${formatBrlFromCents(t.fee_cents).replace(/^R\$\s/, "")}`
+                            : formatBrlFromCents(t.buy_in)}
                       </td>
                       <td className="font-mono text-felt-200">
                         {formatBrlFromCents(t.guaranteed_prize)}
@@ -489,17 +556,40 @@ export function LobbyPage() {
                         >
                           Ver
                         </Link>
-                        <button
-                          type="button"
-                          className="zt-btn-primary !px-2.5 !py-1 !text-xs"
-                          disabled={registeringId === t.id}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            void handleRegister(t);
-                          }}
-                        >
-                          {registeringId === t.id ? "…" : "Inscrever"}
-                        </button>
+                        {registeredIds.has(t.id) && t.status === "registering" ? (
+                          <button
+                            type="button"
+                            className="zt-btn-secondary !px-2.5 !py-1 !text-xs"
+                            disabled={registeringId === t.id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              void handleUnregister(t);
+                            }}
+                          >
+                            {registeringId === t.id ? "…" : "Cancelar"}
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className="zt-btn-primary !px-2.5 !py-1 !text-xs"
+                            disabled={
+                              registeringId === t.id ||
+                              registeredIds.has(t.id) ||
+                              t.status === "finished" ||
+                              t.status === "cancelled"
+                            }
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              void handleRegister(t);
+                            }}
+                          >
+                            {registeringId === t.id
+                              ? "…"
+                              : registeredIds.has(t.id)
+                                ? "Inscrito"
+                                : "Inscrever"}
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}

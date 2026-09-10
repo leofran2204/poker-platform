@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PlayingCard } from "./PlayingCard";
 import { handNamePt } from "./PokerTable";
 import {
@@ -32,10 +32,43 @@ export function HandJournal({ tableId, tableName, initialHand = null, onClose }:
   const [hands, setHands] = useState<JournalHand[]>(() => loadHands(tableId));
   const [view, setView] = useState<JournalHand | null>(initialHand);
   const [step, setStep] = useState(0);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const root = panelRef.current;
+    const focusables = () =>
+      root
+        ? Array.from(
+            root.querySelectorAll<HTMLElement>(
+              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+            ),
+          )
+        : [];
+    focusables()[0]?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const list = focusables();
+      if (list.length === 0) return;
+      const i = list.indexOf(document.activeElement as HTMLElement);
+      if (e.shiftKey && i <= 0) {
+        e.preventDefault();
+        list[list.length - 1]?.focus();
+      } else if (!e.shiftKey && (i === list.length - 1 || i < 0)) {
+        e.preventDefault();
+        list[0]?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose, view]);
 
   function openReplay(h: JournalHand) {
     setView(h);
-    setStep(h.snapshots.length > 0 ? h.snapshots.length - 1 : 0);
+    setStep(0);
   }
 
   function downloadAllJson() {
@@ -56,10 +89,12 @@ export function HandJournal({ tableId, tableName, initialHand = null, onClose }:
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
       role="dialog"
+      aria-modal="true"
       aria-label="Minhas mãos"
       onClick={onClose}
     >
       <div
+        ref={panelRef}
         className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded border-2 border-gold bg-felt-950 p-4"
         onClick={(e) => e.stopPropagation()}
       >
@@ -157,10 +192,34 @@ export function HandJournal({ tableId, tableName, initialHand = null, onClose }:
               ))}
             </ul>
             {step === view.snapshots.length - 1 && (
-              <p className="mb-3 text-sm font-bold text-gold-bright">
-                🏆 {view.winners.join(" + ")}
-                {view.winningHand ? ` com ${handNamePt(view.winningHand)}` : ""}
-              </p>
+              <div className="mb-3">
+                <p className="text-sm font-bold text-gold-bright">
+                  {view.winners.join(" + ")}
+                  {view.winningHand ? ` com ${handNamePt(view.winningHand)}` : ""}
+                </p>
+                {view.showdown.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-3">
+                    {view.showdown.map((entry) => (
+                      <div key={entry.name} className="flex items-center gap-1.5">
+                        <span className="text-xs text-cream">
+                          {entry.name}
+                          {entry.hand ? ` (${handNamePt(entry.hand)})` : ""}
+                        </span>
+                        <span className="flex gap-0.5">
+                          {entry.cards.slice(0, 5).map((c, i) => (
+                            <PlayingCard
+                              key={`${entry.name}-${i}`}
+                              code={c}
+                              size="sm"
+                              highlight={view.winners.includes(entry.name)}
+                            />
+                          ))}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
             <div className="flex flex-wrap gap-2">
               <button

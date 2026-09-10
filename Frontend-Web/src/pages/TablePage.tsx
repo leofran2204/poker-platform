@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { getTable, leaveTable } from "@/api/client";
-import type { PlayerWsData, PotWsData, ServerMessage, ShowdownEntry } from "@/api/types";
+import type { PlayerWsData, PotWsData, ServerMessage, ShowdownEntry, TableResponse } from "@/api/types";
 import { TableSocket, type WsStatus } from "@/api/ws";
 import { PokerTable, handNamePt } from "@/components/PokerTable";
 import { PlayingCard } from "@/components/PlayingCard";
@@ -15,9 +15,11 @@ import {
 } from "@/lib/handJournal";
 import { isAuthenticated } from "@/lib/auth";
 import { formatBrlFromCents } from "@/lib/money";
+import { variantHint } from "@/lib/gameLabels";
 
 export function TablePage() {
   const { id = "" } = useParams();
+  const navigate = useNavigate();
   const socketRef = useRef<TableSocket | null>(null);
 
   const [status, setStatus] = useState<WsStatus>("disconnected");
@@ -35,11 +37,11 @@ export function TablePage() {
   const [deflatorMsg, setDeflatorMsg] = useState<string | null>(null);
   const [tableName, setTableName] = useState(id);
   const [moneyMode, setMoneyMode] = useState<string | null>(null);
+  const [tableMeta, setTableMeta] = useState<TableResponse | null>(null);
   const [sittingOut, setSittingOut] = useState(false);
   const [winners, setWinners] = useState<string[]>([]);
   const [showdown, setShowdown] = useState<ShowdownEntry[]>([]);
-  // Resultado fixo: ao chegar o showdown, fixa o painel até dispensar.
-  // Sobrevive à mão seguinte para dar tempo de ler quem ganhou e com o quê.
+  // Resultado fixo até o jogador dispensar ou chegar o próximo showdown.
   const [lastResult, setLastResult] = useState<{
     key: number;
     names: string[];
@@ -48,9 +50,6 @@ export function TablePage() {
   } | null>(null);
   const [resultOpen, setResultOpen] = useState(false);
   const winnersRef = useRef<string[]>([]);
-  // O painel do vencedor some sozinho em 7s: tempo de identificar o jogo,
-  // sem botão e sem tarefa extra para o jogador.
-  const resultHideTimer = useRef<number | null>(null);
   // Diário de mãos: snapshots da mão atual + modal de replay/download.
   const localIdRef = useRef<string | null>(null);
   const tableNameRef = useRef<string>(id);
@@ -61,8 +60,10 @@ export function TablePage() {
   const [lastJournal, setLastJournal] = useState<JournalHand | null>(null);
   const [journalCount, setJournalCount] = useState(0);
   const [turnLeft, setTurnLeft] = useState<number | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [boardStaggerFrom, setBoardStaggerFrom] = useState(0);
+  const prevBoardLen = useRef(0);
   const turnActiveRef = useRef(false);
-  const TURN_SECONDS = 30;
   // Ritual do crupiê: detecta mão nova (era finished, agora preflop sem board)
   // e mostra "embaralhando + distribuindo" com as cartas entrando por assento.
   const [dealing, setDealing] = useState(false);
@@ -82,11 +83,24 @@ export function TablePage() {
           case "welcome":
             setLocalPlayerId(msg.player_id);
             localIdRef.current = msg.player_id;
-            setJournalCount(loadHands(id).length);
+            {
+              const stored = loadHands(id);
+              setJournalCount(stored.length);
+              if (stored[0]) setLastJournal(stored[0]);
+            }
             break;
           case "table_state":
             setPlayers(msg.players ?? []);
-            setCommunity(msg.community_cards ?? []);
+            {
+              const board = msg.community_cards ?? [];
+              const prev = prevBoardLen.current;
+              if (board.length === 3 && prev < 3) setBoardStaggerFrom(0);
+              else if (board.length === 4 && prev === 3) setBoardStaggerFrom(3);
+              else if (board.length === 5 && prev === 4) setBoardStaggerFrom(4);
+              else if (board.length === 0) setBoardStaggerFrom(0);
+              prevBoardLen.current = board.length;
+              setCommunity(board);
+            }
             setStage(msg.stage ?? "waiting");
             // Mão nova = estava finished e agora voltou ao preflop sem board.
             {
@@ -137,10 +151,7 @@ export function TablePage() {
                   hand: winningHand,
                   entries,
                 });
-                // Sem botão: o painel some sozinho em 7s, tempo de ler o jogo.
                 setResultOpen(true);
-                if (resultHideTimer.current !== null) window.clearTimeout(resultHideTimer.current);
-                resultHideTimer.current = window.setTimeout(() => setResultOpen(false), 7000);
                 // Grava a mão no diário com os snapshots acumulados.
                 if (snapsRef.current.length > 0) {
                   const me = (msg.players ?? []).find((p) => p.id === localIdRef.current);
@@ -187,11 +198,12 @@ export function TablePage() {
                 });
               }
             }
-            // Countdown do turno: arma ao chegar sua vez, desarma ao agir.
-            if ((msg.available_actions ?? []).length > 0 && !turnActiveRef.current) {
+            // Relógio do servidor: reconectar não ganha 30s novos.
+            if ((msg.available_actions ?? []).length > 0) {
               turnActiveRef.current = true;
-              setTurnLeft(TURN_SECONDS);
-            } else if ((msg.available_actions ?? []).length === 0 && turnActiveRef.current) {
+              const bank = typeof msg.time_bank === "number" ? msg.time_bank : 30;
+              setTurnLeft(bank);
+            } else if (turnActiveRef.current) {
               turnActiveRef.current = false;
               setTurnLeft(null);
             }
@@ -203,15 +215,15 @@ export function TablePage() {
                   )
                 : current,
             );
-            if (localPlayerId) {
-              const me = (msg.players ?? []).find((p) => p.id === localPlayerId);
-              if (me && typeof me.is_sitting === "boolean") {
-                setSittingOut(!me.is_sitting);
+            {
+              const meId = localIdRef.current;
+              if (meId) {
+                const me = (msg.players ?? []).find((p) => p.id === meId);
+                if (me && typeof me.is_sitting === "boolean") {
+                  setSittingOut(!me.is_sitting);
+                }
               }
             }
-            break;
-          case "your_turn":
-            setActions(msg.actions ?? []);
             break;
           case "table_info":
             setTableName(msg.name || id);
@@ -223,6 +235,7 @@ export function TablePage() {
             );
             break;
           case "error":
+            setActionError(msg.message);
             setStatusDetail(msg.message);
             break;
           default:
@@ -237,14 +250,16 @@ export function TablePage() {
       sock.disconnect();
       socketRef.current = null;
       if (dealTimer.current !== null) window.clearTimeout(dealTimer.current);
-      if (resultHideTimer.current !== null) window.clearTimeout(resultHideTimer.current);
     };
   }, [id]);
 
   useEffect(() => {
     if (!id || !isAuthenticated()) return;
     void getTable(id)
-      .then((table) => setMoneyMode(table.money_mode ?? null))
+      .then((table) => {
+        setMoneyMode(table.money_mode ?? null);
+        setTableMeta(table);
+      })
       .catch(() => setMoneyMode(null));
   }, [id]);
 
@@ -256,16 +271,20 @@ export function TablePage() {
   }, [turnLeft]);
 
   function onAction(action: string, amount = 0) {
+    setActionError(null);
     socketRef.current?.sendAction(action, amount);
   }
 
   async function handleLeave() {
+    const inHand = stage !== "waiting" && stage !== "finished";
+    if (inHand && !window.confirm("Sair no meio da mão? Você pode ser foldado.")) return;
     try {
       await leaveTable(id);
     } catch {
       /* still leave UI */
     }
     socketRef.current?.disconnect();
+    navigate("/lobby");
   }
 
   if (!isAuthenticated()) {
@@ -284,10 +303,23 @@ export function TablePage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-gold-bright">{tableName}</h1>
-          {moneyMode === "play" ? (
-            <span className="zt-chip mt-1 inline-flex">Play Money</span>
-          ) : moneyMode === "real" ? (
-            <span className="zt-chip mt-1 inline-flex">Jogo Real</span>
+          <div className="mt-1 flex flex-wrap gap-1">
+            {moneyMode === "play" ? (
+              <span className="zt-chip">Play Money</span>
+            ) : moneyMode === "real" ? (
+              <span className="zt-chip">Jogo Real</span>
+            ) : null}
+            {tableMeta?.max_players ? (
+              <span className="zt-chip">{tableMeta.max_players}-max</span>
+            ) : null}
+            {tableMeta?.small_blind != null && tableMeta?.big_blind != null ? (
+              <span className="zt-chip font-mono">
+                {formatBrlFromCents(tableMeta.small_blind)}/{formatBrlFromCents(tableMeta.big_blind)}
+              </span>
+            ) : null}
+          </div>
+          {variantHint(tableMeta?.poker_variant) ? (
+            <p className="mt-1 text-[11px] text-felt-300">{variantHint(tableMeta?.poker_variant)}</p>
           ) : null}
           <p className="text-xs text-felt-400">
             WS:{" "}
@@ -343,11 +375,20 @@ export function TablePage() {
           >
             {sittingOut ? "Voltar a jogar" : "Sit-out"}
           </button>
-          <Link to="/lobby" className="zt-btn-secondary" onClick={() => void handleLeave()}>
+          <button type="button" className="zt-btn-secondary" onClick={() => void handleLeave()}>
             Sair da mesa
-          </Link>
+          </button>
         </div>
       </div>
+
+      {actionError && (
+        <div className="rounded border-2 border-red-800 bg-red-950/40 px-4 py-3 text-sm text-red-200" role="alert">
+          {actionError}
+          <button type="button" className="ml-3 text-xs underline" onClick={() => setActionError(null)}>
+            fechar
+          </button>
+        </div>
+      )}
 
       {deflatorMsg && (
         <div className="rounded border-2 border-gold bg-felt-850 px-4 py-3 text-sm text-gold-soft">
@@ -370,9 +411,16 @@ export function TablePage() {
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="font-bold text-gold-bright">
-              🏆 {lastResult.names.join(" + ")} venceu
+              {lastResult.names.join(" + ")} {lastResult.names.length > 1 ? "venceram" : "venceu"}
               {lastResult.hand ? <> com {handNamePt(lastResult.hand)}</> : null}
             </span>
+            <button
+              type="button"
+              className="text-xs underline text-gold-soft"
+              onClick={() => setResultOpen(false)}
+            >
+              fechar
+            </button>
           </div>
           {lastResult.entries.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-3">
@@ -413,6 +461,8 @@ export function TablePage() {
         showdown={showdown}
         turnLeft={turnLeft}
         dealing={dealing}
+        maxPlayers={tableMeta?.max_players ?? 9}
+        boardStaggerFrom={boardStaggerFrom}
       />
       {journalOpen && (
         <HandJournal

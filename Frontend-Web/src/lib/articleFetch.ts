@@ -54,7 +54,7 @@ export function normalizeImageUrl(url: string): string {
     u.hash = "";
     u.search = "";
     // host lowercase; path as-is except trailing slash
-    let path = u.pathname.replace(/\/+$/, "") || "/";
+    const path = u.pathname.replace(/\/+$/, "") || "/";
     return `${u.protocol}//${u.host.toLowerCase()}${path}`;
   } catch {
     return url.split(/[?#]/)[0].toLowerCase();

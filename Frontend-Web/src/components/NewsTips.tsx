@@ -12,6 +12,7 @@ import {
   resolveArticleBody,
   resolveSourceImage,
 } from "@/lib/articleFetch";
+import { safeHttpUrl } from "@/lib/safeUrl";
 import xHandles from "@/data/xHandles.json";
 
 interface FeedItem {
@@ -179,9 +180,10 @@ function pickSourceImage(candidates: Array<string | undefined | null>): string |
   return undefined;
 }
 
-function parseRSSDate(dateStr: string): Date {
+function parseRSSDate(dateStr: string): Date | null {
+  if (!dateStr) return null;
   const date = new Date(dateStr);
-  return isNaN(date.getTime()) ? new Date() : date;
+  return Number.isNaN(date.getTime()) ? null : date;
 }
 
 type NewsTheme = "wsop" | "torneio" | "online" | "homenagem" | "estrategia" | "geral";
@@ -362,7 +364,7 @@ export function NewsTips({ className }: { className?: string }) {
   const STREETS: { id: "preflop" | "flop" | "turn" | "river"; label: string; icon: React.ReactNode }[] = [
     {
       id: "preflop",
-      label: "Pre-flop",
+      label: "Pré-flop",
       icon: (
         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -643,7 +645,10 @@ export function NewsTips({ className }: { className?: string }) {
             seen.add(key);
             out.push(item);
           }
-          out.sort((a, b) => parseRSSDate(b.pubDate).getTime() - parseRSSDate(a.pubDate).getTime());
+          out.sort(
+            (a, b) =>
+              (parseRSSDate(b.pubDate)?.getTime() ?? 0) - (parseRSSDate(a.pubDate)?.getTime() ?? 0),
+          );
           return out;
         };
 
@@ -751,7 +756,7 @@ export function NewsTips({ className }: { className?: string }) {
         await translateList(topNews, () => mounted && setNewsItems([...topNews]));
         if (mounted) setNewsItems([...topNews]);
       } catch {
-        if (mounted) setError("Falha ao carregar conteudo. Tente novamente mais tarde.");
+        if (mounted) setError("Falha ao carregar conteúdo. Tente novamente mais tarde.");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -807,21 +812,21 @@ export function NewsTips({ className }: { className?: string }) {
 
   function formatDate(dateStr: string): string {
     const date = parseRSSDate(dateStr);
+    if (!date) return "";
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffHours / 24);
-
     if (diffHours < 1) return "agora mesmo";
-    if (diffHours < 24) return `ha ${diffHours}h`;
-    if (diffDays < 7) return `ha ${diffDays}d`;
+    if (diffHours < 24) return `há ${diffHours}h`;
+    if (diffDays < 7) return `há ${diffDays}d`;
     return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
   }
 
   return (
     <div className={`zt-panel ${className ?? ""}`}>
       <div className="border-b border-felt-600">
-        <nav className="flex gap-1 p-1" role="tablist" aria-label="Categorias de conteudo">
+        <nav className="flex gap-1 p-1" role="tablist" aria-label="Categorias de conteúdo">
           <button
             type="button"
             role="tab"
@@ -890,7 +895,7 @@ export function NewsTips({ className }: { className?: string }) {
           <div className="flex items-center justify-center py-8">
             <div className="zt-spinner" />
             <span className="ml-3 text-felt-300">
-              {activeTab === "news" ? "Carregando Notícias..." : "Carregando dicas e estrategia..."}
+              {activeTab === "news" ? "Carregando Notícias..." : "Carregando dicas e estratégia..."}
             </span>
           </div>
         )}
@@ -1020,9 +1025,9 @@ export function NewsTips({ className }: { className?: string }) {
                       </>
                     )}
 
-                    {item.link && item.link !== "#" && (
+                    {safeHttpUrl(item.link) && (
                       <a
-                        href={item.link}
+                        href={safeHttpUrl(item.link)!}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="mt-3 inline-flex items-center gap-1 text-xs text-gold-soft transition-colors hover:text-gold-bright"

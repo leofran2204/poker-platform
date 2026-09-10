@@ -14,8 +14,13 @@ export function formatChips(cents: number): string {
 }
 
 export function parseBrlToCents(input: string): number | null {
-  const cleaned = input.replace(/\s/g, "").replace("R$", "").replace(/\./g, "").replace(",", ".");
-  const value = Number(cleaned);
+  const cleaned = input.replace(/\s/g, "").replace(/R\$/gi, "").trim();
+  if (!cleaned) return null;
+  const hasComma = cleaned.includes(",");
+  const normalized = hasComma
+    ? cleaned.replace(/\./g, "").replace(",", ".")
+    : cleaned;
+  const value = Number(normalized);
   if (!Number.isFinite(value) || value < 0) return null;
   return Math.round(value * 100);
 }

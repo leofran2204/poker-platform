@@ -1,16 +1,6 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "@/components/Layout";
-import { AdminAntifraudPage } from "@/pages/AdminAntifraudPage";
-import { AdminAuditPage } from "@/pages/AdminAuditPage";
-import { AdminBotsPage } from "@/pages/AdminBotsPage";
-import { AdminClubsPage } from "@/pages/AdminClubsPage";
-import { AdminDepositsPage } from "@/pages/AdminDepositsPage";
-import { AdminLayout } from "@/pages/AdminLayout";
-import { AdminOverviewPage } from "@/pages/AdminOverviewPage";
-import { AdminPresencePage } from "@/pages/AdminPresencePage";
-import { AdminTablesPage } from "@/pages/AdminTablesPage";
-import { AdminTournamentsPage } from "@/pages/AdminTournamentsPage";
-import { AdminUsersPage } from "@/pages/AdminUsersPage";
 import { EstruturaPage } from "@/pages/EstruturaPage";
 import { HomePage } from "@/pages/HomePage";
 import { LobbyPage } from "@/pages/LobbyPage";
@@ -20,6 +10,49 @@ import { TablePage } from "@/pages/TablePage";
 import { TournamentPage } from "@/pages/TournamentPage";
 import { VerifyEmailPage } from "@/pages/VerifyEmailPage";
 import { WalletPage } from "@/pages/WalletPage";
+
+const AdminLayout = lazy(() =>
+  import("@/pages/AdminLayout").then((m) => ({ default: m.AdminLayout })),
+);
+const AdminOverviewPage = lazy(() =>
+  import("@/pages/AdminOverviewPage").then((m) => ({ default: m.AdminOverviewPage })),
+);
+const AdminUsersPage = lazy(() =>
+  import("@/pages/AdminUsersPage").then((m) => ({ default: m.AdminUsersPage })),
+);
+const AdminDepositsPage = lazy(() =>
+  import("@/pages/AdminDepositsPage").then((m) => ({ default: m.AdminDepositsPage })),
+);
+const AdminTablesPage = lazy(() =>
+  import("@/pages/AdminTablesPage").then((m) => ({ default: m.AdminTablesPage })),
+);
+const AdminTournamentsPage = lazy(() =>
+  import("@/pages/AdminTournamentsPage").then((m) => ({ default: m.AdminTournamentsPage })),
+);
+const AdminPresencePage = lazy(() =>
+  import("@/pages/AdminPresencePage").then((m) => ({ default: m.AdminPresencePage })),
+);
+const AdminClubsPage = lazy(() =>
+  import("@/pages/AdminClubsPage").then((m) => ({ default: m.AdminClubsPage })),
+);
+const AdminAntifraudPage = lazy(() =>
+  import("@/pages/AdminAntifraudPage").then((m) => ({ default: m.AdminAntifraudPage })),
+);
+const AdminAuditPage = lazy(() =>
+  import("@/pages/AdminAuditPage").then((m) => ({ default: m.AdminAuditPage })),
+);
+const AdminBotsPage = lazy(() =>
+  import("@/pages/AdminBotsPage").then((m) => ({ default: m.AdminBotsPage })),
+);
+
+function AdminFallback() {
+  return (
+    <div className="flex items-center gap-3 p-8 text-sm text-felt-300">
+      <span className="zt-spinner" aria-hidden />
+      Carregando painel…
+    </div>
+  );
+}
 
 export default function App() {
   return (
@@ -35,7 +68,14 @@ export default function App() {
           <Route path="estrutura" element={<EstruturaPage />} />
           <Route path="tournament/:id" element={<TournamentPage />} />
           <Route path="table/:id" element={<TablePage />} />
-          <Route path="admin" element={<AdminLayout />}>
+          <Route
+            path="admin"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <AdminLayout />
+              </Suspense>
+            }
+          >
             <Route index element={<AdminOverviewPage />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="deposits" element={<AdminDepositsPage />} />

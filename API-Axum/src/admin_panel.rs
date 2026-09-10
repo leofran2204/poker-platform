@@ -366,9 +366,8 @@ pub async fn patch_user(
 pub struct AdjustBalanceBody {
     pub delta_cents: i64,
     pub reason: String,
-    /// `pm_cash` | `pm_mtt` | `real` (default `real`)
-    #[serde(default)]
-    pub wallet: Option<String>,
+    /// `pm_cash` | `pm_mtt` | `real` — obrigatório; sem default para Real.
+    pub wallet: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -397,17 +396,15 @@ pub async fn adjust_balance(
     let _uid = uuid::Uuid::parse_str(&user_id)
         .map_err(|_| ApiError::BadRequest("Invalid user id".into()))?;
 
-    let kind = match body
-        .wallet
-        .as_deref()
-        .unwrap_or("real")
-        .trim()
-        .to_ascii_lowercase()
-        .as_str()
-    {
+    let kind = match body.wallet.trim().to_ascii_lowercase().as_str() {
         "pm_cash" | "cash" | "play_cash" => crate::wallet::WalletKind::PmCash,
         "pm_mtt" | "mtt" | "tournament" => crate::wallet::WalletKind::PmMtt,
-        _ => crate::wallet::WalletKind::Real,
+        "real" => crate::wallet::WalletKind::Real,
+        _ => {
+            return Err(ApiError::BadRequest(
+                "wallet is required: pm_cash | pm_mtt | real".into(),
+            ))
+        }
     };
 
     if body.delta_cents > 0 {

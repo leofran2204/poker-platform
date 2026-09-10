@@ -1,26 +1,10 @@
 import type { PlayerWsData, PotWsData, ShowdownEntry } from "@/api/types";
-import { SEAT_LAYOUT } from "@/lib/cards";
+import { seatPosition } from "@/lib/cards";
+import { handNamePt, streetLabel } from "@/lib/gameLabels";
 import { formatChips } from "@/lib/money";
 import { PlayingCard } from "./PlayingCard";
 
-/** Nomes de mão EN (motor) → PT-BR exibido. */
-export const HAND_NAME_PT: Record<string, string> = {
-  "High Card": "Carta Alta",
-  "One Pair": "Um Par",
-  "Two Pair": "Dois Pares",
-  "Three of a Kind": "Trinca",
-  Straight: "Sequência",
-  Flush: "Flush",
-  "Full House": "Full House",
-  "Four of a Kind": "Quadra",
-  "Straight Flush": "Straight Flush",
-  "Royal Flush": "Royal Flush",
-};
-
-export function handNamePt(name: string | null | undefined): string {
-  if (!name) return "a melhor mão";
-  return HAND_NAME_PT[name] ?? name;
-}
+export { HAND_NAME_PT, handNamePt } from "@/lib/gameLabels";
 
 interface Props {
   players: PlayerWsData[];
@@ -40,6 +24,9 @@ interface Props {
   showdown?: ShowdownEntry[];
   /** Ritual do crupiê: embaralhando + distribuindo carta por carta. */
   dealing?: boolean;
+  maxPlayers?: number;
+  /** Índice a partir do qual o board anima (flop 0; turn/river só a carta nova). */
+  boardStaggerFrom?: number;
 }
 
 export function PokerTable({
@@ -59,6 +46,8 @@ export function PokerTable({
   turnLeft = null,
   showdown = [],
   dealing = false,
+  maxPlayers = 9,
+  boardStaggerFrom = 0,
 }: Props) {
   const potTotal = pots.reduce((s, p) => s + p.amount, 0);
   const showdownCards = new Set(showdown.flatMap((entry) => entry.cards));
@@ -103,6 +92,28 @@ export function PokerTable({
   const holeCount =
     players.find((p) => p.id === localPlayerId)?.cards.length ??
     Math.max(0, ...players.map((p) => p.cards.length));
+  const heroSeat = players.find((p) => p.id === localPlayerId)?.seat ?? null;
+  const cap = Math.max(maxPlayers, ...players.map((p) => p.seat + 1), 2);
+  const dealerPos = (() => {
+    const dealer = players.find((p) => p.is_dealer);
+    if (!dealer) return { top: 12, left: 50 };
+    return seatPosition(dealer.seat, heroSeat, cap);
+  })();
+  const blindIds = (() => {
+    const seated = [...players].sort((a, b) => a.seat - b.seat);
+    const dealerIdx = seated.findIndex((p) => p.is_dealer);
+    if (dealerIdx < 0 || seated.length < 2) return { sb: null as string | null, bb: null as string | null };
+    if (seated.length === 2) {
+      return { sb: seated[dealerIdx].id, bb: seated[(dealerIdx + 1) % 2].id };
+    }
+    return {
+      sb: seated[(dealerIdx + 1) % seated.length].id,
+      bb: seated[(dealerIdx + 2) % seated.length].id,
+    };
+  })();
+  const holeSize = holeCount >= 3 ? "sm" : "md";
+  const holeClass =
+    holeCount >= 4 ? "zt-hole-grid" : "mt-1 flex flex-wrap justify-center gap-0.5";
 
   return (
     <div>
@@ -111,7 +122,7 @@ export function PokerTable({
           className="zt-deal-banner mb-3 rounded border-2 border-gold-bright bg-gold/15 px-4 py-2 text-center text-sm font-bold text-gold-bright"
           role="status"
         >
-          🃏 Embaralhando o baralho e distribuindo as cartas…
+          Embaralhando o baralho e distribuindo as cartas…
         </div>
       )}
       {winners.length > 0 && (
@@ -119,7 +130,7 @@ export function PokerTable({
           className="zt-winner-banner mb-3 rounded border-2 border-gold-bright bg-gold/15 px-4 py-2 text-center text-sm font-bold text-gold-bright"
           role="status"
         >
-          🏆 {winnerNames.join(" + ")} venceu{winners.length > 1 ? "ram" : ""}{" "}
+          {winnerNames.join(" + ")} {winners.length > 1 ? "venceram" : "venceu"}{" "}
           {showdown.length > 0 ? (
             <>com {handNamePt(winningHand)}</>
           ) : (
@@ -130,7 +141,7 @@ export function PokerTable({
       <div className="mb-3 flex items-center justify-between text-sm">
         <span className="font-semibold text-gold-bright">Mesa ao vivo</span>
         <span className="text-felt-300">
-          Street: <strong className="text-cream">{stage || "—"}</strong>
+          Street: <strong className="text-cream">{streetLabel(stage)}</strong>
         </span>
         {turnLeft !== null && (
           <span
@@ -151,10 +162,24 @@ export function PokerTable({
           </div>
           <div className="flex gap-1.5">
             {communityCards.length === 0 ? (
-              <span className="text-xs italic text-felt-200/60">Aguardando flop…</span>
+              <span className="text-xs italic text-felt-200/60">
+                {players.filter((p) => p.is_sitting !== false).length < 2
+                  ? "Precisa de 2 na mesa"
+                  : stage === "preflop"
+                    ? "Pré-flop"
+                    : "Sem board"}
+              </span>
             ) : (
               communityCards.map((c, i) => (
-                <span key={`${c}-${i}`} className="zt-deal" style={{ animationDelay: `${i * 220}ms` }}>
+                <span
+                  key={`${c}-${i}`}
+                  className="zt-deal"
+                  style={{
+                    animationDelay: `${Math.max(0, i - boardStaggerFrom) * 220}ms`,
+                    ["--deal-dx" as string]: "0px",
+                    ["--deal-dy" as string]: "-18px",
+                  }}
+                >
                   <span className={glowCards.has(c) ? "zt-win-pop" : undefined}>
                     <PlayingCard code={c} size="md" highlight={glowCards.has(c)} />
                   </span>
@@ -166,28 +191,42 @@ export function PokerTable({
 
         {/* Seats */}
         {players.map((p) => {
-          const layout = SEAT_LAYOUT[p.seat % SEAT_LAYOUT.length] ?? SEAT_LAYOUT[0];
+          const layout = seatPosition(p.seat, heroSeat, cap);
           const isLocal = p.id === localPlayerId;
           const isHouseBot = /^bot_\d{3}$/.test(p.name);
           const isWinner = winners.includes(p.id);
+          const sittingOut = p.is_sitting === false;
           const classes = [
             "zt-seat-card",
             p.is_active ? "active" : "",
-            !p.is_active && p.cards.length === 0 ? "folded" : "",
+            p.folded === true ? "folded" : "",
+            sittingOut ? "folded" : "",
             isWinner ? "winner" : "",
           ]
             .filter(Boolean)
             .join(" ");
+          const dealDx = `${((dealerPos.left - layout.left) * 6).toFixed(0)}px`;
+          const dealDy = `${((dealerPos.top - layout.top) * 4).toFixed(0)}px`;
+          const blindTag =
+            p.is_dealer && blindIds.sb === p.id
+              ? "D/SB"
+              : p.is_dealer
+                ? "D"
+                : blindIds.sb === p.id
+                  ? "SB"
+                  : blindIds.bb === p.id
+                    ? "BB"
+                    : `S${p.seat}`;
 
           return (
             <div
               key={p.id}
-              className="zt-seat"
+              className={`zt-seat ${holeCount >= 4 ? "wide" : ""}`}
               style={{ top: `${layout.top}%`, left: `${layout.left}%` }}
             >
               <div className={classes}>
                 <div className="flex items-center justify-between gap-1 text-[10px] text-felt-300">
-                  <span>{p.is_dealer ? "D" : `S${p.seat}`}</span>
+                  <span>{blindTag}</span>
                   {isLocal && <span className="text-gold-bright">você</span>}
                 </div>
                 <div className="truncate text-xs font-semibold text-cream">
@@ -197,35 +236,48 @@ export function PokerTable({
                     p.name
                   )}
                 </div>
+                {sittingOut && (
+                  <div className="text-[10px] font-bold uppercase tracking-wide text-felt-400">
+                    Sit-out
+                  </div>
+                )}
                 {isWinner && <div className="text-[10px] font-bold text-gold-bright">VENCEDOR</div>}
                 <div className="font-mono text-[11px] text-gold-soft">{formatChips(p.chips)}</div>
                 {p.bet > 0 && (
                   <div className="mt-0.5 text-[10px] text-felt-200">Aposta {formatChips(p.bet)}</div>
                 )}
                 {p.cards.length > 0 && (
-                  <div className="mt-1 flex justify-center gap-0.5">
+                  <div className={holeClass}>
                     {p.cards.map((c, i) => (
                       <span
                         key={`${p.id}-${i}`}
                         className="zt-deal"
-                        style={{ animationDelay: `${(orderFromDealer.get(p.id) ?? 0) * 140 + i * 90}ms` }}
+                        style={{
+                          animationDelay: `${(orderFromDealer.get(p.id) ?? 0) * 140 + i * 90}ms`,
+                          ["--deal-dx" as string]: dealDx,
+                          ["--deal-dy" as string]: dealDy,
+                        }}
                       >
                         <span className={glowCards.has(c) ? "zt-win-pop" : undefined}>
-                          <PlayingCard code={c} size="md" highlight={glowCards.has(c)} />
+                          <PlayingCard code={c} size={holeSize} highlight={glowCards.has(c)} />
                         </span>
                       </span>
                     ))}
                   </div>
                 )}
                 {dealing && p.cards.length === 0 && !p.folded && p.is_sitting !== false && holeCount > 0 && (
-                  <div className="mt-1 flex justify-center gap-0.5" aria-label="Cartas sendo distribuídas">
+                  <div className={holeClass} aria-label="Cartas sendo distribuídas">
                     {Array.from({ length: holeCount }).map((_, i) => (
                       <span
                         key={`${p.id}-back-${i}`}
                         className="zt-deal"
-                        style={{ animationDelay: `${(orderFromDealer.get(p.id) ?? 0) * 140 + i * 90}ms` }}
+                        style={{
+                          animationDelay: `${(orderFromDealer.get(p.id) ?? 0) * 140 + i * 90}ms`,
+                          ["--deal-dx" as string]: dealDx,
+                          ["--deal-dy" as string]: dealDy,
+                        }}
                       >
-                        <PlayingCard faceDown size="md" />
+                        <PlayingCard faceDown size={holeSize} />
                       </span>
                     ))}
                   </div>
@@ -238,7 +290,17 @@ export function PokerTable({
 
       <div className="zt-action-bar">
         {availableActions.length === 0 ? (
-          <span className="text-sm text-felt-400">Aguardando sua vez…</span>
+          <span className="text-sm text-felt-400">
+            {players.filter((p) => p.is_sitting !== false).length < 2
+              ? "Aguardando ≥2 jogadores na mesa para começar a mão."
+              : stage === "waiting" || stage === "finished"
+                ? "Entre mãos."
+                : players.find((p) => p.is_active)
+                  ? `Vez de ${players.find((p) => p.is_active)?.name ?? "outro jogador"}.`
+                  : communityCards.length === 0 && stage === "preflop"
+                    ? "Distribuindo…"
+                    : "Aguardando sua vez…"}
+          </span>
         ) : (
           <>
             {availableActions.map((raw) => {
@@ -268,20 +330,23 @@ export function PokerTable({
               <div className="flex items-center gap-2">
                 <input
                   type="number"
-                  min={minimumWager}
-                  max={maximumWager || undefined}
-                  step={100}
+                  min={(minimumWager || 0) / 100}
+                  max={maximumWager ? maximumWager / 100 : undefined}
+                  step={Math.max(0.01, (minimumWager || 25) / 100)}
                   className="zt-input w-28"
-                  value={raiseAmount}
-                  onChange={(e) => onRaiseChange(Number(e.target.value) || 0)}
-                  aria-label="Valor da aposta em centavos"
+                  value={(raiseAmount / 100).toFixed(2)}
+                  onChange={(e) => {
+                    const reais = Number(e.target.value);
+                    onRaiseChange(Number.isFinite(reais) ? Math.round(reais * 100) : 0);
+                  }}
+                  aria-label="Valor da aposta em reais"
                 />
                 <button
                   type="button"
                   className="zt-btn-primary"
                   onClick={() => onAction(wagerAction, raiseAmount)}
                 >
-                  {wagerAction === "bet" ? "Bet" : "Raise"}
+                  {wagerAction === "bet" ? `Bet ${formatChips(raiseAmount)}` : `Raise ${formatChips(raiseAmount)}`}
                 </button>
               </div>
             )}

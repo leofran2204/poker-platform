@@ -1,4 +1,5 @@
 import { clearTokens, getRefreshToken, getToken, saveTokens } from "@/lib/auth";
+import { ApiError } from "./errors";
 import {
   emitConnectionStatus,
   emitSessionExpired,
@@ -29,13 +30,7 @@ import type {
   WebSocketTicketResponse,
 } from "./types";
 
-export class ApiError extends Error {
-  status: number;
-  constructor(message: string, status: number) {
-    super(message);
-    this.status = status;
-  }
-}
+export { ApiError } from "./errors";
 
 async function parseError(res: Response): Promise<string> {
   const body = await res.text();
@@ -412,10 +407,11 @@ export async function adjustUserBalance(
   id: string,
   deltaCents: number,
   reason: string,
-): Promise<{ user_id: string; balance: number }> {
+  wallet: "pm_cash" | "pm_mtt" | "real",
+): Promise<{ user_id: string; balance: number; wallet: string }> {
   return request(`/api/admin/users/${id}/adjust-balance`, {
     method: "POST",
-    body: JSON.stringify({ delta_cents: deltaCents, reason }),
+    body: JSON.stringify({ delta_cents: deltaCents, reason, wallet }),
   });
 }
 

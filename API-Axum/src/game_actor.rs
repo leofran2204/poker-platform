@@ -33,6 +33,10 @@ pub enum PlayerCommand {
     Leave {
         player_id: String,
     },
+    /// Socket caiu: reserva o assento (cash-out em 45s) sem fold imediato.
+    Disconnect {
+        player_id: String,
+    },
     /// Cash-out is accepted only between hands. `Some(chips)` means the actor
     /// had the current stack in memory; `None` lets the API use persisted escrow.
     CashOut {
@@ -387,6 +391,10 @@ impl TableActor {
                 self.handle_leave(player_id);
                 self.save_snapshot().await;
             }
+            PlayerCommand::Disconnect { player_id } => {
+                self.handle_disconnect(player_id);
+                self.save_snapshot().await;
+            }
             PlayerCommand::CashOut {
                 player_id,
                 respond_to,
@@ -432,7 +440,9 @@ impl TableActor {
                     self.players
                         .iter()
                         .find(|player| player.id == *player_id)
-                        .is_none_or(|player| !player.is_sitting)
+                        .is_none_or(|player| {
+                            !player.is_sitting && player.disconnected_since.is_none()
+                        })
                 })
         });
         if let Some(player_id) = disconnected_active_player {
@@ -577,6 +587,24 @@ impl TableActor {
             );
         }
 
+        self.broadcast_state();
+    }
+
+    fn handle_disconnect(&mut self, player_id: String) {
+        if let Some(player) = self
+            .players
+            .iter_mut()
+            .find(|player| player.id == player_id)
+        {
+            player.is_sitting = false;
+            if player.disconnected_since.is_none() {
+                player.disconnected_since = Some(tokio::time::Instant::now());
+            }
+        }
+        info!(
+            "Player {} socket dropped at table {}; seat reserved until cash-out grace",
+            player_id, self.table_id
+        );
         self.broadcast_state();
     }
 
@@ -1152,7 +1180,8 @@ impl TableActor {
                         "folded": gp.has_folded,
                         "is_active": gl.state.active_player().map(|ap| ap.id == gp.id).unwrap_or(false),
                         "is_dealer": gl.state.dealer_index == gp.seat_index,
-                        "seat": tp.seat
+                        "seat": tp.seat,
+                        "is_sitting": tp.is_sitting
                     }));
                 }
             }
@@ -1167,7 +1196,8 @@ impl TableActor {
                     "cards": Vec::<String>::new(),
                     "is_active": false,
                     "is_dealer": false,
-                    "seat": p.seat
+                    "seat": p.seat,
+                    "is_sitting": p.is_sitting
                 }));
             }
         }
@@ -1196,7 +1226,10 @@ impl TableActor {
             }).unwrap_or_default(),
             "current_bet_to_match": self.game_loop.as_ref().map(|g| g.state.current_bet_to_match).unwrap_or(0),
             "min_raise": self.game_loop.as_ref().map(|g| g.state.min_raise).unwrap_or(self.config.big_blind),
-            "is_finished": is_finished
+            "is_finished": is_finished,
+            "time_bank": self.last_turn_start.map(|started| {
+                self.turn_timeout.saturating_sub(started.elapsed()).as_secs()
+            }).unwrap_or(0)
         });
 
         let _ = self.tx_broadcast.send(state_payload);

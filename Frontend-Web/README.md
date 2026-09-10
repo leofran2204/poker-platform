@@ -14,15 +14,15 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 |------|------------|
 | UI | React 18 |
 | Linguagem | TypeScript |
-| Build | Vite 5 |
+| Build | Vite 8 |
 | Estilo | Tailwind 3 + CSS de componentes `.zt-*` |
 | Rotas | react-router-dom 6 |
 | Presença | `components/OnlinePresence.tsx` → `/api/presence/*` |
 
 ## Presença online
 
-- **Header:** badge `N online` (todas as rotas via `Layout`)
-- **Home:** faixa hero com contagem e aviso de mín. 2 na mesa
+- **Header:** badge `N online` (visitante via GET público; logado via heartbeat)
+- **Home:** mesa de vitrine + faixa com contagem e aviso de mín. 2 na mesa
 - Logado: `POST /api/presence/heartbeat` periódico
 - Visitante: `GET /api/presence/online`
 
@@ -34,10 +34,11 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 
 ## Lobby e carteira
 
-- Header: toggle **Play Money** / **Jogo Real** (`walletMode`)
-- Cash: filtros NL 0,25/0,25 · NL 0,25/0,50 · SD 0,50 · SD Omaha 0,50/1
-- Badges: NLHE / Short Deck / SD Omaha
-- Torneios: lista por modo; badge de variante
+- Header: toggle **Play Money** / **Jogo Real** (`walletMode`); no PM mostra cash e MTT
+- Cash: filtros alinhados ao catálogo em [`../Documentacao/STATUS_OPERACIONAL.md`](../Documentacao/STATUS_OPERACIONAL.md)
+- Badges: Tradicional / Short Deck + X-max
+- Torneios: lista por modo; buy-in + taxa 15%; cancelar inscrição
+- Home pública: hero da mesa + presença online (GET público)
 
 ## Desenvolvimento local
 
@@ -45,7 +46,11 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 cd Frontend-Web
 npm install
 npm run dev
+npm test
+npm run lint
 ```
+
+Admin e `NewsTips` entram via `React.lazy`. Links de notícia/história só `http(s)`.
 
 Proxy Vite encaminha `/api` e `/ws` para `http://127.0.0.1:3000` (API Axum).
 

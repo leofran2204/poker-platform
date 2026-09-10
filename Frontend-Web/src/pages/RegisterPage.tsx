@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { applyAuthTokens, register } from "@/api/client";
+import { ShowcaseTable } from "@/components/ShowcaseTable";
 import { saveUsername } from "@/lib/auth";
 
 export function RegisterPage() {
@@ -28,6 +29,10 @@ export function RegisterPage() {
     }
     if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
       setError("Use ao menos 1 maiúscula, 1 minúscula e 1 dígito.");
+      return;
+    }
+    if (!/^[A-Za-z0-9_]{3,30}$/.test(username.trim())) {
+      setError("Usuário: 3 a 30 caracteres, só letras, números ou _.");
       return;
     }
 
@@ -63,28 +68,15 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md">
+    <div className="zt-auth-split">
       <div className="zt-panel">
         <div className="zt-panel-title">Criar conta</div>
         <form className="space-y-4 p-5" onSubmit={onSubmit}>
-          <p className="text-sm text-felt-300">
-            Contas de demo recebem play-money. Após o cadastro, confirme o e-mail
-            com o código de 6 dígitos para liberar o lobby. Com convite fechado,
-            use o código de quem já joga.
+          <p className="text-sm text-felt-200">
+            Dois minutos. Você entra com <strong className="text-gold-soft">R$ 150</strong> de
+            Play Money para cash e <strong className="text-gold-soft">R$ 150</strong> para
+            torneio. O código de e-mail vem depois.
           </p>
-          <div>
-            <label className="zt-label" htmlFor="invite">
-              Código de convite
-            </label>
-            <input
-              id="invite"
-              className="zt-input uppercase"
-              value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-              placeholder="Cole o código de um jogador"
-              autoComplete="off"
-            />
-          </div>
           <div>
             <label className="zt-label" htmlFor="username">
               Usuário
@@ -94,7 +86,9 @@ export function RegisterPage() {
               className="zt-input"
               required
               minLength={3}
-              maxLength={32}
+              maxLength={30}
+              pattern="[A-Za-z0-9_]+"
+              title="3 a 30 caracteres: letras, números ou _"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
@@ -145,6 +139,19 @@ export function RegisterPage() {
               onChange={(e) => setPasswordConfirm(e.target.value)}
             />
           </div>
+          <div>
+            <label className="zt-label" htmlFor="invite">
+              Código de convite <span className="font-normal normal-case tracking-normal text-felt-400">(opcional)</span>
+            </label>
+            <input
+              id="invite"
+              className="zt-input uppercase"
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+              placeholder="Se alguém te chamou, cola aqui"
+              autoComplete="off"
+            />
+          </div>
           {error && (
             <p className="rounded border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-200">
               {error}
@@ -164,6 +171,9 @@ export function RegisterPage() {
             </Link>
           </p>
         </form>
+      </div>
+      <div className="hidden lg:flex lg:justify-center">
+        <ShowcaseTable />
       </div>
     </div>
   );

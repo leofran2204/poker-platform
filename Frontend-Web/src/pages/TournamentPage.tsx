@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { getTournament, registerTournament, unregisterTournament, fetchTournamentRegistration } from "@/api/client";
 import type { TournamentInfoResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";
-import { deckTypeLabel, gameNameLabel } from "@/lib/gameLabels";
+import { deckTypeLabel, gameNameLabel, tournamentStatusLabel } from "@/lib/gameLabels";
 import { formatBrlFromCents } from "@/lib/money";
 import { getWalletMode } from "@/lib/walletMode";
 
@@ -123,16 +123,22 @@ export function TournamentPage() {
             >
               {deckTypeLabel(info)}
             </span>
-            <span className="zt-chip ml-1">{info.table_max_players} jogadores</span>
+            <span className="zt-chip ml-1">{info.table_max_players}-max</span>
           </p>
         </div>
         <button
           type="button"
           className="zt-btn-primary !px-3 !py-1.5 !text-xs"
-          disabled={busy || info.status === "finished"}
+          disabled={busy || info.status === "finished" || info.status === "cancelled" || registered}
           onClick={() => void handleRegister()}
         >
-          {busy ? "…" : info.is_freeroll ? "Inscrever (grátis)" : `Inscrever (${formatBrlFromCents(info.buy_in + (info.fee_cents ?? 0))})`}
+          {busy
+            ? "…"
+            : registered
+              ? "Inscrito"
+              : info.is_freeroll
+                ? "Inscrever (grátis)"
+                : `Inscrever (${formatBrlFromCents(info.buy_in + (info.fee_cents ?? 0))})`}
         </button>
         {registered && info.status === "registering" ? (
           <button
@@ -176,15 +182,22 @@ export function TournamentPage() {
         </div>
       ) : (
         <div className="rounded border border-emerald-800/60 bg-emerald-950/30 px-3 py-2 text-xs text-emerald-100">
-          Mãos do torneio passam na mesa ao vivo (mesmo WebSocket do cash). Relógio de blinds e
-          eliminação ainda são do coordenador — não é MTT completo.
-          {info.live_table_id ? (
-            <>
-              {" "}
-              <Link to={`/table/${info.live_table_id}`} className="font-semibold underline">
-                Ir para a mesa
-              </Link>
-            </>
+          Mãos ao vivo nas mesas do torneio (mesmo WebSocket do cash). Rebalance, mesa final e
+          premiação seguem o coordenador.
+          {(info.live_table_ids?.length ? info.live_table_ids : info.live_table_id ? [info.live_table_id] : []).length >
+          0 ? (
+            <span className="mt-1 block space-x-2">
+              {(info.live_table_ids?.length
+                ? info.live_table_ids
+                : info.live_table_id
+                  ? [info.live_table_id]
+                  : []
+              ).map((tableId, index, all) => (
+                <Link key={tableId} to={`/table/${tableId}`} className="font-semibold underline">
+                  {all.length > 1 ? `Mesa ${index + 1}` : "Ir para a mesa"}
+                </Link>
+              ))}
+            </span>
           ) : null}
         </div>
       )}
@@ -205,7 +218,7 @@ export function TournamentPage() {
         <dl className="grid gap-2 p-4 text-sm sm:grid-cols-2">
           <div>
             <dt className="text-xs uppercase text-felt-400">Status</dt>
-            <dd className="text-cream">{info.status}</dd>
+            <dd className="text-cream">{tournamentStatusLabel(info.status)}</dd>
           </div>
           <div>
             <dt className="text-xs uppercase text-felt-400">Buy-in</dt>
