@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { getOnlinePresence, sendPresenceHeartbeat } from "@/api/client";
+import { useLocation } from "react-router-dom";
+import { sendPresenceHeartbeat, sendPresenceOffline } from "@/api/client";
 import { isAuthenticated } from "@/lib/auth";
 
 const POLL_MS = 12_000;
@@ -31,9 +32,30 @@ type PresenceState = {
   error: boolean;
 };
 
-/** Badge compacto e bem visível no header (sempre). */
+/**
+ * true somente com sessão. Lê o token a cada render e força re-render
+ * a cada navegação (ex.: pós-login/logout), foco ou mudança em outra aba.
+ */
+function useAuthed(): boolean {
+  useLocation();
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const sync = () => setTick((t) => t + 1);
+    window.addEventListener("focus", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("focus", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+  return isAuthenticated();
+}
+
+/** Badge compacto no header — somente para logados. */
 export function OnlinePresenceNav() {
-  const { count, error } = usePresenceLoop();
+  const authed = useAuthed();
+  const { count, error } = usePresenceLoop(authed);
+  if (!authed) return null;
   const label = error
     ? "offline"
     : count === null
@@ -58,9 +80,11 @@ export function OnlinePresenceNav() {
   );
 }
 
-/** Faixa grande na home — combina mesa + online. */
+/** Faixa grande na home — combina mesa + online. Somente para logados. */
 export function OnlinePresenceHero() {
-  const { count, error } = usePresenceLoop();
+  const authed = useAuthed();
+  const { count, error } = usePresenceLoop(authed);
+  if (!authed) return null;
   const n = count ?? 0;
   const ready = !error && n >= 2;
 
@@ -92,36 +116,39 @@ export function OnlinePresenceHero() {
   );
 }
 
-function usePresenceLoop(): PresenceState {
+function usePresenceLoop(authed: boolean): PresenceState {
   const [count, setCount] = useState<number | null>(null);
   const [error, setError] = useState(false);
 
   const refresh = useCallback(async () => {
+    if (!authed) {
+      setCount(null);
+      setError(false);
+      return;
+    }
     try {
-      if (isAuthenticated()) {
-        const hb = await sendPresenceHeartbeat();
-        setCount(hb.online_count);
-      } else {
-        const data = await getOnlinePresence();
-        setCount(data.online_count);
-      }
+      const hb = await sendPresenceHeartbeat();
+      setCount(hb.online_count);
       setError(false);
     } catch {
       setCount(null);
       setError(true);
     }
-  }, []);
+  }, [authed]);
 
   useEffect(() => {
+    if (!authed) return;
     void refresh();
     const poll = window.setInterval(() => void refresh(), POLL_MS);
-    const hb = window.setInterval(() => {
-      if (isAuthenticated()) void refresh();
-    }, HEARTBEAT_MS);
+    const hb = window.setInterval(() => void refresh(), HEARTBEAT_MS);
 
     const onFocus = () => void refresh();
     const onVis = () => {
       if (document.visibilityState === "visible") void refresh();
+    };
+    // Fecha a aba sem "Sair": sai da conta na hora em vez de lingerar ~90s de TTL.
+    const onPageHide = () => {
+      if (isAuthenticated()) void sendPresenceOffline().catch(() => {});
     };
     const onPresenceCount = (event: Event) => {
       const detail = (event as CustomEvent<PresenceCountEventDetail>).detail;
@@ -135,6 +162,7 @@ function usePresenceLoop(): PresenceState {
     window.addEventListener("focus", onFocus);
     window.addEventListener(PRESENCE_COUNT_EVENT, onPresenceCount);
     document.addEventListener("visibilitychange", onVis);
+    window.addEventListener("pagehide", onPageHide);
 
     return () => {
       window.clearInterval(poll);
@@ -142,8 +170,9 @@ function usePresenceLoop(): PresenceState {
       window.removeEventListener("focus", onFocus);
       window.removeEventListener(PRESENCE_COUNT_EVENT, onPresenceCount);
       document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener("pagehide", onPageHide);
     };
-  }, [refresh]);
+  }, [refresh, authed]);
 
   return { count, error };
 }
