@@ -357,6 +357,29 @@
     border-color: #c9a227;
   }
 
+  /* Ritual do crupiê: carta entra voando do centro com stagger por assento. */
+  @keyframes zt-deal-in {
+    from {
+      opacity: 0;
+      transform: translateY(-14px) scale(0.7);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .zt-deal {
+    display: inline-block;
+    animation: zt-deal-in 0.35s ease-out both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .zt-deal {
+      animation: none;
+    }
+  }
+
   .zt-action-bar {
     @apply mt-6 flex flex-wrap items-center justify-center gap-2 rounded border-2 border-rail bg-felt-950 px-4 py-3;
   }

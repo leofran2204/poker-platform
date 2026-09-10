@@ -32,6 +32,11 @@ export function TablePage() {
   const [turnLeft, setTurnLeft] = useState<number | null>(null);
   const turnActiveRef = useRef(false);
   const TURN_SECONDS = 30;
+  // Ritual do crupiê: detecta mão nova (era finished, agora preflop sem board)
+  // e mostra "embaralhando + distribuindo" com as cartas entrando por assento.
+  const [dealing, setDealing] = useState(false);
+  const finishedRef = useRef(false);
+  const dealTimer = useRef<number | null>(null);
 
   useEffect(() => {
     if (!id || !isAuthenticated()) return;
@@ -50,6 +55,21 @@ export function TablePage() {
             setPlayers(msg.players ?? []);
             setCommunity(msg.community_cards ?? []);
             setStage(msg.stage ?? "waiting");
+            // Mão nova = estava finished e agora voltou ao preflop sem board.
+            {
+              const fin = msg.is_finished ?? false;
+              const freshDeal =
+                finishedRef.current &&
+                !fin &&
+                (msg.community_cards ?? []).length === 0 &&
+                (msg.stage ?? "") === "preflop";
+              finishedRef.current = fin;
+              if (freshDeal) {
+                setDealing(true);
+                if (dealTimer.current !== null) window.clearTimeout(dealTimer.current);
+                dealTimer.current = window.setTimeout(() => setDealing(false), 2200);
+              }
+            }
             setPots(msg.pots ?? []);
             setActions(msg.available_actions ?? []);
             setWinners(msg.winners ?? []);
@@ -105,6 +125,7 @@ export function TablePage() {
     return () => {
       sock.disconnect();
       socketRef.current = null;
+      if (dealTimer.current !== null) window.clearTimeout(dealTimer.current);
     };
   }, [id]);
 
@@ -223,6 +244,7 @@ export function TablePage() {
         winners={winners}
         showdown={showdown}
         turnLeft={turnLeft}
+        dealing={dealing}
       />
     </div>
   );

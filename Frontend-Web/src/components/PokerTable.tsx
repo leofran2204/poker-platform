@@ -38,6 +38,8 @@ interface Props {
   winners?: string[];
   turnLeft?: number | null;
   showdown?: ShowdownEntry[];
+  /** Ritual do crupiê: embaralhando + distribuindo carta por carta. */
+  dealing?: boolean;
 }
 
 export function PokerTable({
@@ -56,6 +58,7 @@ export function PokerTable({
   winners = [],
   turnLeft = null,
   showdown = [],
+  dealing = false,
 }: Props) {
   const potTotal = pots.reduce((s, p) => s + p.amount, 0);
   const showdownCards = new Set(showdown.flatMap((entry) => entry.cards));
@@ -77,9 +80,35 @@ export function PokerTable({
   const canAllIn = normalizedActions.some(
     (action) => action === "allin" || action === "all-in",
   );
+  // Ordem de distribuição a partir do dealer (SB primeiro, como no ao vivo).
+  const orderFromDealer = (() => {
+    const seated = [...players].sort((a, b) => a.seat - b.seat);
+    const dealerIdx = Math.max(
+      0,
+      seated.findIndex((p) => p.is_dealer),
+    );
+    const order = new Map<string, number>();
+    seated.forEach((p, i) => {
+      // SB recebe primeiro: distância à frente do dealer (dealer = último).
+      order.set(p.id, (i - dealerIdx - 1 + seated.length * 2) % seated.length);
+    });
+    return order;
+  })();
+  // Quantidade de cartas por jogador (espelha a minha mão p/ os versos).
+  const holeCount =
+    players.find((p) => p.id === localPlayerId)?.cards.length ??
+    Math.max(0, ...players.map((p) => p.cards.length));
 
   return (
     <div>
+      {dealing && (
+        <div
+          className="zt-deal-banner mb-3 rounded border-2 border-gold-bright bg-gold/15 px-4 py-2 text-center text-sm font-bold text-gold-bright"
+          role="status"
+        >
+          🃏 Embaralhando o baralho e distribuindo as cartas…
+        </div>
+      )}
       {winners.length > 0 && (
         <div
           className="zt-winner-banner mb-3 rounded border-2 border-gold-bright bg-gold/15 px-4 py-2 text-center text-sm font-bold text-gold-bright"
@@ -120,7 +149,9 @@ export function PokerTable({
               <span className="text-xs italic text-felt-200/60">Aguardando flop…</span>
             ) : (
               communityCards.map((c, i) => (
-                <PlayingCard key={`${c}-${i}`} code={c} size="md" highlight={showdownCards.has(c)} />
+                <span key={`${c}-${i}`} className="zt-deal" style={{ animationDelay: `${i * 120}ms` }}>
+                  <PlayingCard code={c} size="md" highlight={showdownCards.has(c)} />
+                </span>
               ))
             )}
           </div>
@@ -167,7 +198,26 @@ export function PokerTable({
                 {p.cards.length > 0 && (
                   <div className="mt-1 flex justify-center gap-0.5">
                     {p.cards.map((c, i) => (
-                      <PlayingCard key={`${p.id}-${i}`} code={c} size="md" highlight={showdownCards.has(c)} />
+                      <span
+                        key={`${p.id}-${i}`}
+                        className="zt-deal"
+                        style={{ animationDelay: `${(orderFromDealer.get(p.id) ?? 0) * 140 + i * 90}ms` }}
+                      >
+                        <PlayingCard code={c} size="md" highlight={showdownCards.has(c)} />
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {dealing && p.cards.length === 0 && !p.folded && p.is_sitting !== false && holeCount > 0 && (
+                  <div className="mt-1 flex justify-center gap-0.5" aria-label="Cartas sendo distribuídas">
+                    {Array.from({ length: holeCount }).map((_, i) => (
+                      <span
+                        key={`${p.id}-back-${i}`}
+                        className="zt-deal"
+                        style={{ animationDelay: `${(orderFromDealer.get(p.id) ?? 0) * 140 + i * 90}ms` }}
+                      >
+                        <PlayingCard faceDown size="md" />
+                      </span>
                     ))}
                   </div>
                 )}
