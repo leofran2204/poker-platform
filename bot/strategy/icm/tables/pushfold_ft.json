@@ -2,7 +2,7 @@
   "_meta": {
     "description": "push/fold mesa final 9-handed, baseline ICM medio",
     "source": "bot/strategy/icm/final_table.ts + bubble.ts (baselines simplificados, nao solver)",
-    "generated_at": "2026-09-10T02:22:18.138Z",
+    "generated_at": "2026-09-10T02:49:36.937Z",
     "solver_replacement": "Substitua os .ts de origem por lookups ICMIZER/HRC/GTO Wizard e rode generate.mjs de novo."
   },
   "5bb": {

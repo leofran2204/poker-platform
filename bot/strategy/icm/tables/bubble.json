@@ -2,7 +2,7 @@
   "_meta": {
     "description": "bolha: encolhimento do range de open por pressao ICM",
     "source": "bot/strategy/icm/final_table.ts + bubble.ts (baselines simplificados, nao solver)",
-    "generated_at": "2026-09-10T02:22:18.140Z",
+    "generated_at": "2026-09-10T02:49:36.944Z",
     "solver_replacement": "Substitua os .ts de origem por lookups ICMIZER/HRC/GTO Wizard e rode generate.mjs de novo."
   },
   "tightening": {
