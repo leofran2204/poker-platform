@@ -5,6 +5,14 @@ import type { PlayerWsData, PotWsData, ServerMessage, ShowdownEntry } from "@/ap
 import { TableSocket, type WsStatus } from "@/api/ws";
 import { PokerTable, handNamePt } from "@/components/PokerTable";
 import { PlayingCard } from "@/components/PlayingCard";
+import { HandJournal } from "@/components/HandJournal";
+import {
+  appendHand,
+  loadHands,
+  pushSnapshot,
+  type HandSnapshot,
+  type JournalHand,
+} from "@/lib/handJournal";
 import { isAuthenticated } from "@/lib/auth";
 import { formatBrlFromCents } from "@/lib/money";
 
@@ -40,7 +48,15 @@ export function TablePage() {
   } | null>(null);
   const [resultOpen, setResultOpen] = useState(false);
   const winnersRef = useRef<string[]>([]);
-  const resultTimer = useRef<number | null>(null);
+  // Diário de mãos: snapshots da mão atual + modal de replay/download.
+  const localIdRef = useRef<string | null>(null);
+  const tableNameRef = useRef<string>(id);
+  const snapsRef = useRef<HandSnapshot[]>([]);
+  const handStartRef = useRef<number>(Date.now());
+  const [journalOpen, setJournalOpen] = useState(false);
+  const [replayHand, setReplayHand] = useState<JournalHand | null>(null);
+  const [lastJournal, setLastJournal] = useState<JournalHand | null>(null);
+  const [journalCount, setJournalCount] = useState(0);
   const [turnLeft, setTurnLeft] = useState<number | null>(null);
   const turnActiveRef = useRef(false);
   const TURN_SECONDS = 30;
@@ -62,6 +78,8 @@ export function TablePage() {
         switch (msg.type) {
           case "welcome":
             setLocalPlayerId(msg.player_id);
+            localIdRef.current = msg.player_id;
+            setJournalCount(loadHands(id).length);
             break;
           case "table_state":
             setPlayers(msg.players ?? []);
@@ -80,6 +98,9 @@ export function TablePage() {
                 setDealing(true);
                 if (dealTimer.current !== null) window.clearTimeout(dealTimer.current);
                 dealTimer.current = window.setTimeout(() => setDealing(false), 2200);
+                // Nova mão no diário: zera snapshots e marca o início.
+                snapsRef.current = [];
+                handStartRef.current = Date.now();
               }
             }
             setPots(msg.pots ?? []);
@@ -97,27 +118,70 @@ export function TablePage() {
                   sd.find((e) => e.player_id === pid)?.player_name ??
                   (msg.players ?? []).find((p) => p.id === pid)?.name ??
                   pid;
+                const winnerNames = w.map(nameOf);
+                const winningHand =
+                  sd.find((e) => w.includes(e.player_id))?.hand_name ??
+                  sd[0]?.hand_name ??
+                  null;
+                const entries = sd.map((e) => ({
+                  name: e.player_name ?? nameOf(e.player_id),
+                  hand: e.hand_name ?? null,
+                  cards: e.cards ?? [],
+                }));
                 setLastResult({
                   key: Date.now(),
-                  names: w.map(nameOf),
-                  hand:
-                    sd.find((e) => w.includes(e.player_id))?.hand_name ??
-                    sd[0]?.hand_name ??
-                    null,
-                  entries: sd.map((e) => ({
-                    name: e.player_name ?? nameOf(e.player_id),
-                    hand: e.hand_name ?? null,
-                    cards: e.cards ?? [],
-                  })),
+                  names: winnerNames,
+                  hand: winningHand,
+                  entries,
                 });
+                // Sem auto-fechar: o painel fica até dispensar (com replay).
                 setResultOpen(true);
-                if (resultTimer.current !== null) window.clearTimeout(resultTimer.current);
-                resultTimer.current = window.setTimeout(() => setResultOpen(false), 15000);
+                // Grava a mão no diário com os snapshots acumulados.
+                if (snapsRef.current.length > 0) {
+                  const me = (msg.players ?? []).find((p) => p.id === localIdRef.current);
+                  const journal: JournalHand = {
+                    key: Date.now(),
+                    tableId: id,
+                    tableName: tableNameRef.current,
+                    startedAt: handStartRef.current,
+                    endedAt: Date.now(),
+                    heroName: me?.name ?? "você",
+                    winners: winnerNames,
+                    winningHand,
+                    snapshots: snapsRef.current,
+                    showdown: entries,
+                  };
+                  appendHand(journal);
+                  setLastJournal(journal);
+                  setJournalCount(loadHands(id).length);
+                }
               }
             }
             setCallAmount(msg.call_amount ?? 0);
             setMinimumWager(msg.minimum_wager ?? 0);
             setMaximumWager(msg.maximum_wager ?? 0);
+            // Snapshot para o diário/replay (só com minhas cartas na mesa).
+            {
+              const me = (msg.players ?? []).find((p) => p.id === localIdRef.current);
+              const heroCards = me?.cards ?? [];
+              const board = msg.community_cards ?? [];
+              if (me && (heroCards.length > 0 || board.length > 0)) {
+                const pot = (msg.pots ?? []).reduce((s, p) => s + (p.amount ?? 0), 0);
+                snapsRef.current = pushSnapshot(snapsRef.current, {
+                  street: msg.stage ?? "waiting",
+                  board,
+                  heroCards,
+                  pot,
+                  bets: (msg.players ?? []).map((p) => ({
+                    name: p.name,
+                    bet: p.bet ?? 0,
+                    folded: p.folded ?? false,
+                    chips: p.chips ?? 0,
+                  })),
+                  winners: msg.winners ?? [],
+                });
+              }
+            }
             // Countdown do turno: arma ao chegar sua vez, desarma ao agir.
             if ((msg.available_actions ?? []).length > 0 && !turnActiveRef.current) {
               turnActiveRef.current = true;
@@ -146,6 +210,7 @@ export function TablePage() {
             break;
           case "table_info":
             setTableName(msg.name || id);
+            tableNameRef.current = msg.name || id;
             break;
           case "deflator_triggered":
             setDeflatorMsg(
@@ -167,7 +232,6 @@ export function TablePage() {
       sock.disconnect();
       socketRef.current = null;
       if (dealTimer.current !== null) window.clearTimeout(dealTimer.current);
-      if (resultTimer.current !== null) window.clearTimeout(resultTimer.current);
     };
   }, [id]);
 
@@ -240,6 +304,28 @@ export function TablePage() {
             type="button"
             className="zt-btn-secondary"
             onClick={() => {
+              setReplayHand(lastJournal);
+              setJournalOpen(true);
+            }}
+            disabled={!lastJournal}
+            title={lastJournal ? "Rever a última mão" : "Jogue uma mão até o fim"}
+          >
+            ↺ Replay
+          </button>
+          <button
+            type="button"
+            className="zt-btn-secondary"
+            onClick={() => {
+              setReplayHand(null);
+              setJournalOpen(true);
+            }}
+          >
+            📥 Mãos{journalCount > 0 ? ` (${journalCount})` : ""}
+          </button>
+          <button
+            type="button"
+            className="zt-btn-secondary"
+            onClick={() => {
               if (sittingOut) {
                 socketRef.current?.sendSitIn();
                 setSittingOut(false);
@@ -288,6 +374,18 @@ export function TablePage() {
             >
               Entendi, fechar
             </button>
+            {lastJournal && (
+              <button
+                type="button"
+                className="text-xs font-bold underline"
+                onClick={() => {
+                  setReplayHand(lastJournal);
+                  setJournalOpen(true);
+                }}
+              >
+                ↺ Ver replay
+              </button>
+            )}
           </div>
           {lastResult.entries.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-3">
@@ -327,6 +425,18 @@ export function TablePage() {
         turnLeft={turnLeft}
         dealing={dealing}
       />
+      {journalOpen && (
+        <HandJournal
+          tableId={id}
+          tableName={tableName}
+          initialHand={replayHand}
+          onClose={() => {
+            setJournalOpen(false);
+            setReplayHand(null);
+            setJournalCount(loadHands(id).length);
+          }}
+        />
+      )}
     </div>
   );
 }
