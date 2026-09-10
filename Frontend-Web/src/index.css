@@ -374,8 +374,29 @@
     animation: zt-deal-in 0.35s ease-out both;
   }
 
+  /* Jogo vencedor: as 5 cartas saltam uma vez para o olho achar na hora. */
+  @keyframes zt-win-pop {
+    0% {
+      transform: scale(1);
+    }
+    35% {
+      transform: scale(1.18);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .zt-win-pop {
+    display: inline-block;
+    animation: zt-win-pop 0.6s ease-out both;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .zt-deal {
+      animation: none;
+    }
+    .zt-win-pop {
       animation: none;
     }
   }

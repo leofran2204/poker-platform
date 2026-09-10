@@ -48,6 +48,9 @@ export function TablePage() {
   } | null>(null);
   const [resultOpen, setResultOpen] = useState(false);
   const winnersRef = useRef<string[]>([]);
+  // O painel do vencedor some sozinho em 7s: tempo de identificar o jogo,
+  // sem botão e sem tarefa extra para o jogador.
+  const resultHideTimer = useRef<number | null>(null);
   // Diário de mãos: snapshots da mão atual + modal de replay/download.
   const localIdRef = useRef<string | null>(null);
   const tableNameRef = useRef<string>(id);
@@ -134,8 +137,10 @@ export function TablePage() {
                   hand: winningHand,
                   entries,
                 });
-                // Sem auto-fechar: o painel fica até dispensar (com replay).
+                // Sem botão: o painel some sozinho em 7s, tempo de ler o jogo.
                 setResultOpen(true);
+                if (resultHideTimer.current !== null) window.clearTimeout(resultHideTimer.current);
+                resultHideTimer.current = window.setTimeout(() => setResultOpen(false), 7000);
                 // Grava a mão no diário com os snapshots acumulados.
                 if (snapsRef.current.length > 0) {
                   const me = (msg.players ?? []).find((p) => p.id === localIdRef.current);
@@ -232,6 +237,7 @@ export function TablePage() {
       sock.disconnect();
       socketRef.current = null;
       if (dealTimer.current !== null) window.clearTimeout(dealTimer.current);
+      if (resultHideTimer.current !== null) window.clearTimeout(resultHideTimer.current);
     };
   }, [id]);
 
@@ -367,25 +373,6 @@ export function TablePage() {
               🏆 {lastResult.names.join(" + ")} venceu
               {lastResult.hand ? <> com {handNamePt(lastResult.hand)}</> : null}
             </span>
-            <button
-              type="button"
-              className="text-xs underline"
-              onClick={() => setResultOpen(false)}
-            >
-              Entendi, fechar
-            </button>
-            {lastJournal && (
-              <button
-                type="button"
-                className="text-xs font-bold underline"
-                onClick={() => {
-                  setReplayHand(lastJournal);
-                  setJournalOpen(true);
-                }}
-              >
-                ↺ Ver replay
-              </button>
-            )}
           </div>
           {lastResult.entries.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-3">
@@ -397,7 +384,9 @@ export function TablePage() {
                   </span>
                   <span className="flex gap-0.5">
                     {entry.cards.map((c, i) => (
-                      <PlayingCard key={`${entry.name}-${i}`} code={c} size="sm" />
+                      <span key={`${entry.name}-${i}`} className={lastResult.names.includes(entry.name) ? "zt-win-pop" : undefined}>
+                        <PlayingCard key={`${entry.name}-${i}`} code={c} size="sm" highlight={lastResult.names.includes(entry.name)} />
+                      </span>
                     ))}
                   </span>
                 </div>

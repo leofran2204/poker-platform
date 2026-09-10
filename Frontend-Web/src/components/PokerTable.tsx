@@ -62,6 +62,11 @@ export function PokerTable({
 }: Props) {
   const potTotal = pots.reduce((s, p) => s + p.amount, 0);
   const showdownCards = new Set(showdown.flatMap((entry) => entry.cards));
+  // Só as cartas do jogo vencedor saltam: cartas dos entries de quem ganhou.
+  // (Antes brilhava toda carta revelada, o que diluía o vencedor.)
+  const winnerEntries = showdown.filter((entry) => winners.includes(entry.player_id));
+  const winningCards = new Set(winnerEntries.flatMap((entry) => entry.cards));
+  const glowCards = winningCards.size > 0 ? winningCards : showdownCards;
   const winnerNames = winners.map(
     (id) =>
       showdown.find((entry) => entry.player_id === id)?.player_name ??
@@ -150,7 +155,9 @@ export function PokerTable({
             ) : (
               communityCards.map((c, i) => (
                 <span key={`${c}-${i}`} className="zt-deal" style={{ animationDelay: `${i * 220}ms` }}>
-                  <PlayingCard code={c} size="md" highlight={showdownCards.has(c)} />
+                  <span className={glowCards.has(c) ? "zt-win-pop" : undefined}>
+                    <PlayingCard code={c} size="md" highlight={glowCards.has(c)} />
+                  </span>
                 </span>
               ))
             )}
@@ -203,7 +210,9 @@ export function PokerTable({
                         className="zt-deal"
                         style={{ animationDelay: `${(orderFromDealer.get(p.id) ?? 0) * 140 + i * 90}ms` }}
                       >
-                        <PlayingCard code={c} size="md" highlight={showdownCards.has(c)} />
+                        <span className={glowCards.has(c) ? "zt-win-pop" : undefined}>
+                          <PlayingCard code={c} size="md" highlight={glowCards.has(c)} />
+                        </span>
                       </span>
                     ))}
                   </div>
