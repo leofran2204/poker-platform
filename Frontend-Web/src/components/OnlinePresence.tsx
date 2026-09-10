@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { getOnlinePresence, sendPresenceHeartbeat, sendPresenceOffline } from "@/api/client";
+import { sendPresenceHeartbeat, sendPresenceOffline } from "@/api/client";
 import { isAuthenticated } from "@/lib/auth";
 
 const POLL_MS = 12_000;
@@ -51,10 +51,11 @@ function useAuthed(): boolean {
   return isAuthenticated();
 }
 
-/** Badge compacto no header — visitante (GET público) e logado (heartbeat). */
+/** Badge compacto no header — só com sessão. */
 export function OnlinePresenceNav() {
   const authed = useAuthed();
   const { count, error } = usePresenceLoop(authed);
+  if (!authed) return null;
   const label = error
     ? "offline"
     : count === null
@@ -79,10 +80,11 @@ export function OnlinePresenceNav() {
   );
 }
 
-/** Faixa na home — GET público para visitante, heartbeat se logado. */
+/** Faixa na home — só com sessão. */
 export function OnlinePresenceHero() {
   const authed = useAuthed();
   const { count, error } = usePresenceLoop(authed);
+  if (!authed) return null;
   const n = count ?? 0;
   const ready = !error && n >= 2;
 
@@ -129,14 +131,13 @@ function emitPresence(next: PresenceState): void {
 }
 
 async function refreshPresence(authed: boolean): Promise<void> {
+  if (!authed) {
+    emitPresence({ count: null, error: false });
+    return;
+  }
   try {
-    if (authed) {
-      const hb = await sendPresenceHeartbeat();
-      emitPresence({ count: hb.online_count, error: false });
-    } else {
-      const pub = await getOnlinePresence();
-      emitPresence({ count: pub.online_count, error: false });
-    }
+    const hb = await sendPresenceHeartbeat();
+    emitPresence({ count: hb.online_count, error: false });
   } catch {
     emitPresence({ count: null, error: true });
   }
@@ -165,7 +166,12 @@ function onPresenceCount(event: Event): void {
 
 function startPresenceEngine(authed: boolean): void {
   lastAuthed = authed;
-  void refreshPresence(authed);
+  if (!authed) {
+    stopPresenceEngine();
+    emitPresence({ count: null, error: false });
+    return;
+  }
+  void refreshPresence(true);
   if (pollTimer == null) {
     pollTimer = window.setInterval(() => void refreshPresence(lastAuthed), POLL_MS);
     window.addEventListener("focus", onFocus);

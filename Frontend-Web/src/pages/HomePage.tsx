@@ -77,7 +77,7 @@ export function HomePage() {
           />
           <Feature
             title="Hold’em, Short Deck, Omaha, Pineapple"
-            body="Baralho curto de 36 cartas (sem 2 a 5). No Short Deck flush vale mais que full house. Omaha 4 cartas e Ultimate Pineapple (3 cartas, sem descarte) usam 2 hole + 3 board."
+            body="Baralho curto de 36 cartas (sem 2 a 5). No Short Deck flush vale mais que full house. Omaha 4 cartas e Ultimate Pineapple (3 cartas, sem descarte): o jogador usa 2 da mão e 3 do board para formar o jogo."
           />
         </div>
 
