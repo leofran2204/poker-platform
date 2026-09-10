@@ -1,0 +1,20 @@
+{
+  "_meta": {
+    "description": "bolha: encolhimento do range de open por pressao ICM",
+    "source": "bot/strategy/icm/final_table.ts + bubble.ts (baselines simplificados, nao solver)",
+    "generated_at": "2026-09-10T02:22:18.140Z",
+    "solver_replacement": "Substitua os .ts de origem por lookups ICMIZER/HRC/GTO Wizard e rode generate.mjs de novo."
+  },
+  "tightening": {
+    "midStack": 0.55,
+    "chipLeader": 1.15,
+    "shortStack": 0.9,
+    "other": 0.8,
+    "outOfBubble_gt10_from_money": 1
+  },
+  "example_MP": {
+    "standard_MP_pct": 19,
+    "bubble_MP_pct": 9.5,
+    "note": "MP ChipEV ~19% (22+, ATs+, KTs+, QTs+, J9s+, T9s, 98s, 87s, 76s, AJo+, KQo) -> bolha ~9.5% (77+, ATs+, KJs+, QJs, AJo+, KQo)"
+  }
+}

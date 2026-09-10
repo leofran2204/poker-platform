@@ -1,0 +1,1 @@
+{"name":"zerotilt-bot-strategy","private":true,"version":"0.1.0","description":"Estrategia do bot Zero Tilt: ranges cash/MTT, pos-flop heuristico, ICM. Baselines simplificados implementaveis, nao saidas exatas de solver.","type":"module","scripts":{"check":"tsc --noEmit","build":"tsc"},"devDependencies":{"typescript":"^5.5.0"}}
