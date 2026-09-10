@@ -3,7 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import { getTable, leaveTable } from "@/api/client";
 import type { PlayerWsData, PotWsData, ServerMessage, ShowdownEntry } from "@/api/types";
 import { TableSocket, type WsStatus } from "@/api/ws";
-import { PokerTable } from "@/components/PokerTable";
+import { PokerTable, handNamePt } from "@/components/PokerTable";
+import { PlayingCard } from "@/components/PlayingCard";
 import { isAuthenticated } from "@/lib/auth";
 import { formatBrlFromCents } from "@/lib/money";
 
@@ -29,6 +30,17 @@ export function TablePage() {
   const [sittingOut, setSittingOut] = useState(false);
   const [winners, setWinners] = useState<string[]>([]);
   const [showdown, setShowdown] = useState<ShowdownEntry[]>([]);
+  // Resultado fixo: ao chegar o showdown, fixa o painel até dispensar.
+  // Sobrevive à mão seguinte para dar tempo de ler quem ganhou e com o quê.
+  const [lastResult, setLastResult] = useState<{
+    key: number;
+    names: string[];
+    hand: string | null;
+    entries: { name: string; hand: string | null; cards: string[] }[];
+  } | null>(null);
+  const [resultOpen, setResultOpen] = useState(false);
+  const winnersRef = useRef<string[]>([]);
+  const resultTimer = useRef<number | null>(null);
   const [turnLeft, setTurnLeft] = useState<number | null>(null);
   const turnActiveRef = useRef(false);
   const TURN_SECONDS = 30;
@@ -74,6 +86,35 @@ export function TablePage() {
             setActions(msg.available_actions ?? []);
             setWinners(msg.winners ?? []);
             setShowdown(msg.showdown ?? []);
+            // Fixou o resultado: chegou vencedor novo, abre o painel de leitura.
+            {
+              const w = msg.winners ?? [];
+              const prev = winnersRef.current;
+              winnersRef.current = w;
+              if (w.length > 0 && prev.length === 0) {
+                const sd = msg.showdown ?? [];
+                const nameOf = (pid: string) =>
+                  sd.find((e) => e.player_id === pid)?.player_name ??
+                  (msg.players ?? []).find((p) => p.id === pid)?.name ??
+                  pid;
+                setLastResult({
+                  key: Date.now(),
+                  names: w.map(nameOf),
+                  hand:
+                    sd.find((e) => w.includes(e.player_id))?.hand_name ??
+                    sd[0]?.hand_name ??
+                    null,
+                  entries: sd.map((e) => ({
+                    name: e.player_name ?? nameOf(e.player_id),
+                    hand: e.hand_name ?? null,
+                    cards: e.cards ?? [],
+                  })),
+                });
+                setResultOpen(true);
+                if (resultTimer.current !== null) window.clearTimeout(resultTimer.current);
+                resultTimer.current = window.setTimeout(() => setResultOpen(false), 15000);
+              }
+            }
             setCallAmount(msg.call_amount ?? 0);
             setMinimumWager(msg.minimum_wager ?? 0);
             setMaximumWager(msg.maximum_wager ?? 0);
@@ -126,6 +167,7 @@ export function TablePage() {
       sock.disconnect();
       socketRef.current = null;
       if (dealTimer.current !== null) window.clearTimeout(dealTimer.current);
+      if (resultTimer.current !== null) window.clearTimeout(resultTimer.current);
     };
   }, [id]);
 
@@ -225,6 +267,45 @@ export function TablePage() {
           >
             fechar
           </button>
+        </div>
+      )}
+
+      {lastResult && resultOpen && (
+        <div
+          key={lastResult.key}
+          className="rounded border-2 border-gold-bright bg-gold/15 px-4 py-3 text-sm"
+          role="status"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="font-bold text-gold-bright">
+              🏆 {lastResult.names.join(" + ")} venceu
+              {lastResult.hand ? <> com {handNamePt(lastResult.hand)}</> : null}
+            </span>
+            <button
+              type="button"
+              className="text-xs underline"
+              onClick={() => setResultOpen(false)}
+            >
+              Entendi, fechar
+            </button>
+          </div>
+          {lastResult.entries.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-3">
+              {lastResult.entries.map((entry) => (
+                <div key={entry.name} className="flex items-center gap-1.5">
+                  <span className="text-xs text-cream">
+                    {entry.name}
+                    {entry.hand ? ` (${handNamePt(entry.hand)})` : ""}
+                  </span>
+                  <span className="flex gap-0.5">
+                    {entry.cards.map((c, i) => (
+                      <PlayingCard key={`${entry.name}-${i}`} code={c} size="sm" />
+                    ))}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

@@ -149,7 +149,7 @@ export function PokerTable({
               <span className="text-xs italic text-felt-200/60">Aguardando flop…</span>
             ) : (
               communityCards.map((c, i) => (
-                <span key={`${c}-${i}`} className="zt-deal" style={{ animationDelay: `${i * 120}ms` }}>
+                <span key={`${c}-${i}`} className="zt-deal" style={{ animationDelay: `${i * 220}ms` }}>
                   <PlayingCard code={c} size="md" highlight={showdownCards.has(c)} />
                 </span>
               ))
