@@ -1,8 +1,10 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "@/components/Layout";
+import { CoursePage } from "@/pages/CoursePage";
 import { EstruturaPage } from "@/pages/EstruturaPage";
 import { HomePage } from "@/pages/HomePage";
+import { LessonPage } from "@/pages/LessonPage";
 import { LobbyPage } from "@/pages/LobbyPage";
 import { LoginPage } from "@/pages/LoginPage";
 import { RegisterPage } from "@/pages/RegisterPage";
@@ -64,6 +66,8 @@ export default function App() {
           <Route path="register" element={<RegisterPage />} />
           <Route path="verify-email" element={<VerifyEmailPage />} />
           <Route path="lobby" element={<LobbyPage />} />
+          <Route path="curso" element={<CoursePage />} />
+          <Route path="curso/:lessonId" element={<LessonPage />} />
           <Route path="wallet" element={<WalletPage />} />
           <Route path="estrutura" element={<EstruturaPage />} />
           <Route path="tournament/:id" element={<TournamentPage />} />

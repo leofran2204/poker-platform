@@ -1,6 +1,35 @@
 # Curso de Estratégia de Poker — Zero Tilt (conteúdo exclusivo da plataforma)
 
 > Base teórica do `bot/strategy/`: posição, ranges pré-flop, matemática (pot odds, EV, outs), 3-bets, ferramentas e gestão de banca. Redação própria a partir de estudo de fontes públicas.
+> Versão interativa (com quiz avaliado pelo motor): `Frontend-Web/src/data/courseContent.json`, rota `/curso`.
+
+## Módulo 0 — Do zero absoluto (trilha do iniciante)
+
+Para quem nunca jogou. Seis aulas curtas com quiz; gabaritos práticos gerados pelo próprio motor `bot/strategy/decide.ts`.
+
+### M0L1 — De onde vêm as cartas
+
+Cartas na China Tang (~séc. IX) → baralhos mamelucos com 4 naipes (séc. XII–XIV) → Europa no séc. XIV → baralho francês de 52 (13 valores × 4 naipes). Apostar é precificar o que você não vê.
+
+### M0L2 — Do Mississippi ao mundo
+
+1829: 20 cartas e o blefe nos barcos a vapor → 52 cartas, Draw e Stud → 1925: nasce o Texas Hold'em em Robstown → 1970: WSOP de Binion → 2002–03: WPT na TV e o efeito Moneymaker → hoje: Triton, WSOP e esporte da mente.
+
+### M0L3 — Nomes que fizeram história
+
+Mundo: Johnny Moss, Doyle Brunson, Stu Ungar, Ivey, Hellmuth, Negreanu, Holz. Brasil: CPH (2004), BSOP de Trafane e DC (2006), Alexandre Gomes (bracelete 2008), Akkari (2011), Yuri Martins, Botteon, H2 Club.
+
+### M0L4 — Regras: sua primeira mão
+
+Objetivo (melhor mão de 5 ou fazer todos desistirem) → hierarquia completa → blinds → fluxo pré-flop/flop/turn/river/showdown → ações (fold, check, call, bet/raise, all-in).
+
+### M0L5 — Suas primeiras decisões
+
+Regra de ouro (aumento ou descarte), posição em 30 segundos e 5 situações avaliadas pelo motor: As Ah no botão (raise), 7c 2d no UTG (fold), Ks Qs vs raise (call), top pair vs ½ pote (call por pot odds), nada vs ¾ pote (fold).
+
+### M0L6 — Primeiros passos aqui
+
+Conta com convite (`?ref=`), Play Money primeiro, mesma mesa com 2+ pessoas, uma ideia por sessão.
 
 ---
 Leofran, transformar esse rascunho em um manual prático exige sair da teoria abstrata e colocar as cartas na mesa com exemplos reais, números exatos e lógica matemática clara.

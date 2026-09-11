@@ -733,3 +733,28 @@ export async function sendPresenceOffline(): Promise<PresenceHeartbeatResponse> 
     keepalive: true,
   });
 }
+
+export interface CourseProgressItem {
+  lesson_id: string;
+  status: string;
+  best_score: number;
+  attempts: number;
+  updated_at: string;
+}
+
+/** Progresso do curso do usuário logado. */
+export async function fetchCourseProgress(): Promise<CourseProgressItem[]> {
+  return request<CourseProgressItem[]>("/api/course/progress");
+}
+
+/** Registra conclusão e nota de uma aula (score 0–100). */
+export async function saveCourseProgress(
+  lessonId: string,
+  completed: boolean,
+  score: number,
+): Promise<CourseProgressItem> {
+  return request<CourseProgressItem>("/api/course/progress", {
+    method: "POST",
+    body: JSON.stringify({ lesson_id: lessonId, completed, score }),
+  });
+}

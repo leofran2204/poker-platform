@@ -122,9 +122,14 @@ export function Layout() {
           </div>
           <nav className="flex flex-wrap items-center gap-3 sm:gap-4">
             {!marketingShell && (
+            <>
             <NavLink to="/lobby" className={linkClass}>
               Lobby
             </NavLink>
+            <NavLink to="/curso" className={linkClass}>
+              Curso
+            </NavLink>
+            </>
             )}
             {authed && (
               <NavLink to="/estrutura" className={linkClass}>

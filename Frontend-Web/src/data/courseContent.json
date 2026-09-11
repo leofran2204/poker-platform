@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "modules": [
+    {
+      "id": "m0",
+      "title": "Módulo 0 — Do zero absoluto",
+      "subtitle": "Para quem nunca jogou: história, regras e as primeiras decisões. ~35 min.",
+      "lessons": [
+        {
+          "id": "m0l1",
+          "title": "De onde vêm as cartas",
+          "minutes": 6,
+          "body": "## Uma história de mil anos\n\nAs cartas nasceram na **China, por volta do século IX**, na época da dinastia Tang — tiras de papel com símbolos, um passatempo da corte que viajou pela Rota da Seda.\n\n## Do Oriente ao baralho francês\n\n- **Mamelucos (Egito/Síria, séc. XII–XIV):** baralhos com 4 naipes (espadas, bastões, copas e moedas) e figuras de rei e vice-rei — o avô direto do nosso baralho.\n- **Europa (séc. XIV):** italianos e espanhóis adotam o jogo; os **franceses** simplificam os desenhos e criam os 4 naipes que usamos hoje: espadas, copas, ouros e paus.\n- **52 cartas:** 13 valores × 4 naipes. Esse padrão atravessa o Atlântico com colonos e marinheiros e vira a base de centenas de jogos — incluindo o poker.\n\n## Por que isso importa\n\nO baralho é uma máquina de informação incompleta: você vê suas cartas, não as dos outros. Todo o poker nasce daí — apostar é precificar o que você **não** vê.\n\n| Era | Acontecimento |\n|---|---|\n| ~800 | Cartas na China Tang |\n| 1100–1300 | Baralhos mamelucos com 4 naipes |\n| 1300–1400 | Cartas chegam à Europa; nasce o baralho francês |\n| 1800+ | 52 cartas viram padrão nos saloons |",
+          "quiz": [
+            {
+              "id": "m0l1q1",
+              "kind": "theory",
+              "prompt": "De onde vieram os 4 naipes do baralho que usamos hoje?",
+              "options": [
+                "Dos baralhos mamelucos, simplificados pelos franceses",
+                "Dos cassinos de Las Vegas, em 1970",
+                "Do xadrez chinês"
+              ],
+              "expectedIndex": 0,
+              "explanation": "Mamelucos tinham 4 naipes com figuras; os franceses simplificaram para espadas, copas, ouros e paus."
+            },
+            {
+              "id": "m0l1q2",
+              "kind": "theory",
+              "prompt": "Quantas cartas tem o baralho padrão do poker e por quê?",
+              "options": [
+                "20 cartas, como no Mississippi em 1829",
+                "52 cartas: 13 valores × 4 naipes",
+                "36 cartas, sem as baixas"
+              ],
+              "expectedIndex": 1,
+              "explanation": "13 valores × 4 naipes = 52. (Short Deck usa 36, mas isso é exceção — você verá no Módulo 1.)"
+            }
+          ]
+        },
+        {
+          "id": "m0l2",
+          "title": "Do Mississippi ao mundo",
+          "minutes": 5,
+          "body": "## 1829: 20 cartas e o blefe\n\nNos barcos do rio Mississippi, 4 pessoas jogavam com 20 cartas (do Ás ao 10). Vencia a melhor mão — ou quem fizesse os outros **desistirem**. O blefe nasceu junto com o jogo.\n\n## 52 cartas, Stud e Draw\n\nNa época da Guerra Civil Americana o baralho foi a 52 cartas e surgiram o Draw (trocar cartas) e o Stud (cartas abertas e fechadas).\n\n## 1925: nasce o Texas Hold'em\n\nEm Robstown, no Texas: 2 cartas fechadas + 5 comunitárias. Mais rápido e estratégico — é o jogo desta plataforma.\n\n## Vegas, TV e o boom\n\n- **1970:** Benny Binion junta 7 lendas e cria a World Series of Poker (WSOP).\n- **2002–2003:** o WPT mostra as cartas na TV e Chris Moneymaker transforma US$ 86 em US$ 2,5 milhões — o mundo descobre que qualquer um pode ganhar.\n- **Hoje:** Triton, WSOP com 10 mil inscritos e poker reconhecido como esporte da mente.",
+          "quiz": [
+            {
+              "id": "m0l2q1",
+              "kind": "theory",
+              "prompt": "No poker do Mississippi em 1829, como se vencia?",
+              "options": [
+                "Só com a melhor mão",
+                "Com a melhor mão ou fazendo os outros desistirem",
+                "Com mais fichas no bolso"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Blefar — vencer sem a melhor mão — existe desde a origem do jogo."
+            },
+            {
+              "id": "m0l2q2",
+              "kind": "theory",
+              "prompt": "Qual a fórmula do Texas Hold'em?",
+              "options": [
+                "4 cartas na mão, usa 2 + 3 da mesa",
+                "2 cartas fechadas + 5 comunitárias, melhor mão de 5",
+                "5 cartas fechadas, pode trocar 3"
+              ],
+              "expectedIndex": 1,
+              "explanation": "2 na mão + 5 na mesa, valendo a melhor combinação de 5 cartas."
+            }
+          ]
+        },
+        {
+          "id": "m0l3",
+          "title": "Nomes que fizeram história",
+          "minutes": 5,
+          "body": "## Lendas mundiais\n\n- **Johnny Moss:** venceu as duas primeiras WSOP (1970–71).\n- **Doyle Brunson:** 10 braceletes; o 10-2 leva seu nome.\n- **Stu Ungar:** 3 títulos do Main Event, gênio trágico.\n- **Phil Ivey (10 braceletes), Phil Hellmuth (17), Daniel Negreanu, Fedor Holz:** a era moderna.\n\n## O Brasil no mapa\n\n- **2004–2006:** amigos de Campinas criam o CPH; **Igor Trafane** e **Devanir Campos (DC)** fundam a **BSOP** — hoje a maior série fora de Vegas.\n- **Alexandre Gomes (2008):** primeiro bracelete brasileiro. **André Akkari (2011):** bracelete e o rosto do poker na TV.\n- **Geração de ouro:** Yuri Martins (2 braceletes), Brunno Botteon (vice do Main Event 2020), Felipe Mojave, João Simão, Kelvin Kerber.\n- **Estrutura:** H2 Club (maior clube da América Latina), federação e mídia especializada profissionalizaram tudo.\n\n## A lição\n\nNinguém nasceu sabendo: Moss era trapaceiro de rua, Moneymaker era contador. Estude uma ideia por sessão — como eles fizeram.",
+          "quiz": [
+            {
+              "id": "m0l3q1",
+              "kind": "theory",
+              "prompt": "Quem ganhou o primeiro bracelete brasileiro na WSOP?",
+              "options": ["André Akkari, em 2011", "Alexandre Gomes, em 2008", "Yuri Martins, em 2015"],
+              "expectedIndex": 1,
+              "explanation": "Alexandre Gomes abriu o caminho em 2008; Akkari veio em 2011."
+            },
+            {
+              "id": "m0l3q2",
+              "kind": "theory",
+              "prompt": "O que foi o 'efeito Moneymaker'?",
+              "options": [
+                "A prova de que um amador de satélite barato pode vencer o Main Event",
+                "Uma regra nova da WSOP",
+                "Um golpe famoso nos saloons"
+              ],
+              "expectedIndex": 0,
+              "explanation": "Moneymaker (2003) mostrou que satélites baratos levam ao topo — comece pequeno."
+            }
+          ]
+        },
+        {
+          "id": "m0l4",
+          "title": "Regras: sua primeira mão",
+          "minutes": 8,
+          "body": "## O objetivo\n\nGanhar fichas: ou com a **melhor mão de 5 cartas** no showdown, ou fazendo **todo mundo desistir** antes.\n\n## Hierarquia (da mais fraca à mais forte)\n\n| Mão | Exemplo |\n|---|---|\n| Carta alta | As Kd |\n| Um par | 8s 8c |\n| Dois pares | Ks Kd 4h 4c |\n| Trinca | Qs Qd Qh |\n| Straight (sequência) | 9c Td Jh Qs Kd |\n| Flush (mesmo naipe) | 2h 5h 9h Jh Ah |\n| Full house | Ts Td Th 3c 3s |\n| Quadra | 7s 7d 7h 7c |\n| Straight flush | 5s 6s 7s 8s 9s |\n| Royal flush | Ts Js Qs Ks As |\n\n## Blinds: o motor do jogo\n\nDuas apostas obrigatórias giram a cada mão: **small blind** e **big blind**. É por elas que sempre há algo a disputar.\n\n## O fluxo de uma mão de Hold'em\n\n1. **Pré-flop:** você recebe 2 cartas. Pague o big blind, aumente ou desista.\n2. **Flop:** 3 cartas comunitárias. Nova rodada de apostas.\n3. **Turn:** 4ª carta comunitária. Apostas.\n4. **River:** 5ª carta. Últimas apostas.\n5. **Showdown:** quem sobrou mostra; a melhor mão de 5 (suas 2 + mesa) leva.\n\n## As ações\n\n- **Fold:** desistir. **Check:** passar sem apostar. **Call:** pagar. **Bet/Raise:** apostar/aumentar. **All-in:** tudo no meio.",
+          "quiz": [
+            {
+              "id": "m0l4q1",
+              "kind": "theory",
+              "prompt": "No showdown, quem leva o pote?",
+              "options": [
+                "Quem apostou por último",
+                "Quem tem a melhor mão de 5 cartas",
+                "Quem está no botão"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Showdown = melhor mão de 5 cartas (suas 2 + comunitárias)."
+            },
+            {
+              "id": "m0l4q2",
+              "kind": "theory",
+              "prompt": "O que é o flop?",
+              "options": [
+                "As 2 cartas que você recebe",
+                "As 3 primeiras cartas comunitárias",
+                "A última carta do board"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Flop = 3 primeiras comunitárias. Depois vêm turn (4ª) e river (5ª)."
+            }
+          ]
+        },
+        {
+          "id": "m0l5",
+          "title": "Suas primeiras decisões",
+          "minutes": 8,
+          "body": "## A regra de ouro do iniciante: aumento ou descarte\n\nMãos fracas fora de posição perdem dinheiro. Com As Ah no botão, aumente. Com 7c 2d no UTG, desista. Simples assim — o resto é refinamento.\n\n## Posição em 30 segundos\n\nQuem fala por último vê o que os outros fizeram antes de decidir. **Botão e cutoff** jogam muitas mãos; **posições iniciais** só as premiums.\n\n## O motor avalia com você\n\nAbaixo, 5 situações reais. Escolha fold, call ou raise — o motor de estratégia da plataforma (`lag_v2`, o mesmo dos bots da casa) dá a resposta e o porquê, com a matemática (equidade vs. pot odds).",
+          "quiz": [
+            {
+              "id": "m0l5q1",
+              "kind": "engine",
+              "prompt": "Cash 9-max. Você está no BOTÃO com As Ah e ninguém entrou. Ação?",
+              "hole": ["As", "Ah"],
+              "board": [],
+              "options": ["fold", "call", "raise"],
+              "expected": "raise",
+              "engine": "RFI BTN 9-max (2.5 BB)",
+              "why": "Par de Ases no botão: aumente sempre para construir o pote com a melhor mão e cobrar quem quiser ver o flop."
+            },
+            {
+              "id": "m0l5q2",
+              "kind": "engine",
+              "prompt": "Cash 9-max. Você é o PRIMEIRO a falar (UTG) com 7c 2d. Ação?",
+              "hole": ["7c", "2d"],
+              "board": [],
+              "options": ["fold", "call", "raise"],
+              "expected": "fold",
+              "engine": "Fora do RFI UTG 9-max",
+              "why": "7-2 off é a pior mão do jogo e há 8 pessoas atrás. Desistir custa zero — a disciplina mais lucrativa do iniciante."
+            },
+            {
+              "id": "m0l5q3",
+              "kind": "engine",
+              "prompt": "Cash 9-max. Um adversário aumentou 3 BB do MP e você tem Ks Qs no CO. Ação?",
+              "hole": ["Ks", "Qs"],
+              "board": [],
+              "options": ["fold", "call", "raise"],
+              "expected": "call",
+              "engine": "Flat vs MP 9-max",
+              "why": "KQs em posição joga muito bem pós-flop: pagar mantém o pote controlado com mão forte e posição."
+            },
+            {
+              "id": "m0l5q4",
+              "kind": "engine",
+              "prompt": "Flop Ks 7c 2d, pote 10 BB. Você tem Kh Qh e o rival apostou 5 BB. Ação?",
+              "hole": ["Kh", "Qh"],
+              "board": ["Ks", "7c", "2d"],
+              "options": ["fold", "call", "raise"],
+              "expected": "call",
+              "engine": "top_pair call (equidade ~50% vs 33% necessária)",
+              "why": "Top pair com bom kicker: sua equidade (~50%) supera o preço (33%). Pagar é lucrativo no longo prazo."
+            },
+            {
+              "id": "m0l5q5",
+              "kind": "engine",
+              "prompt": "Flop Ks Qd 2h, pote 8 BB. Você tem 9c 8c (nada) e o rival apostou 6 BB. Ação?",
+              "hole": ["9c", "8c"],
+              "board": ["Ks", "Qd", "2h"],
+              "options": ["fold", "call", "raise"],
+              "expected": "fold",
+              "engine": "high fold (equidade ~15% vs 43% necessária)",
+              "why": "Sem par, sem draw: 15% de chance contra um preço de 43%. Pagar aqui é doar fichas."
+            }
+          ]
+        },
+        {
+          "id": "m0l6",
+          "title": "Primeiros passos aqui",
+          "minutes": 4,
+          "body": "## 1. Conta com convite\n\nCadastro exige o **código de quem te indicou** (link `?ref=` ou digitado na tela). É a lei da casa: rede de confiança.\n\n## 2. Play Money primeiro\n\nFichas de diversão que renovam todo dia. Aprenda sem risco antes do Jogo Real.\n\n## 3. Entre na mesa com amigos\n\nLobby → mesma mesa → Entrar. **SoZinho a mão não começa: precisa de 2+ assentos** — chame a galera pro mesmo horário.\n\n## 4. Jogue o que estudou\n\nVolte ao quiz do M0L5 antes de cada sessão. Uma ideia por sessão, como as lendas fizeram.",
+          "quiz": [
+            {
+              "id": "m0l6q1",
+              "kind": "theory",
+              "prompt": "Para a mão começar, o que é preciso?",
+              "options": [
+                "Só entrar na mesa",
+                "2+ pessoas na MESMA mesa",
+                "Ser VIP"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Poker precisa de 2+ assentos na mesma mesa — combine o horário com os amigos."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

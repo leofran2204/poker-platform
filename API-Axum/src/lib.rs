@@ -34,6 +34,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::OnceLock;
 use std::time::Instant;
 
+use crate::handlers::course as course_handlers;
 use crate::handlers::presence as presence_handlers;
 use crate::handlers::estrutura as estrutura_api;
 use crate::handlers::{auth, bots as bots_handlers, hand_history, lobby, tournament, websocket};
@@ -171,6 +172,15 @@ pub fn build_router(state: AppState) -> Router {
         .route(
             "/api/presence/offline",
             post(presence_handlers::offline)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        // ─── Course (progresso do aluno) ───
+        .route(
+            "/api/course/progress",
+            get(course_handlers::get_progress)
+                .post(course_handlers::save_progress)
                 .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
                     state.clone(),
                 )),
