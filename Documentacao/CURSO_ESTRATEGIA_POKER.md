@@ -3,7 +3,7 @@
 > Base teórica do `bot/strategy/`: posição, ranges pré-flop, matemática (pot odds, EV, outs), 3-bets, ferramentas e gestão de banca. Redação própria a partir de estudo de fontes públicas.
 > Versão interativa (com quiz avaliado pelo motor): `Frontend-Web/src/data/courseContent.json`, rota `/curso`.
 
-## Módulo 0 — Do zero absoluto (trilha do iniciante)
+## Módulo 0 (iniciante)
 
 Para quem nunca jogou. Seis aulas curtas com quiz; gabaritos práticos gerados pelo próprio motor `bot/strategy/decide.ts`.
 
