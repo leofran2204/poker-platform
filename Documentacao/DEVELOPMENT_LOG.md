@@ -857,6 +857,7 @@
 - Novo `lib/handJournal.ts`: grava cada mão sua no navegador (suas cartas, board por street, pote, apostas, vencedores, showdown; até 100 mãos/mesa, tudo local e privado).
 - Novo `components/HandJournal.tsx`: modal com lista das mãos, replay passo a passo (Anterior/Próximo por street), download TXT por mão e JSON de tudo, mais botão de apagar o diário.
 - Botões no topo da mesa: "Replay" (última mão) e "Mãos (N)" (abre o diário).
+- Curso em vídeo: pasta `ZeroTiltCurso/` (ep01 do zero, Manim + narração PT-BR).
 - Sem botão no resultado: só as 5 cartas do jogo vencedor saltam com brilho dourado (board + mão do vencedor + painel), e o painel some sozinho em 7s.
 <!-- DOCUMENTATION_SYNC:START -->
 > **S24** (2026-09-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático desligado.

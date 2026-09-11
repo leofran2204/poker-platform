@@ -77,7 +77,7 @@ async fn deliver(
 
 #[tokio::test]
 #[ignore = "Requires PostgreSQL; run as an isolated test binary"]
-async fn depix_live_webhook_credits_completed_once_and_never_credits_processing() {
+async fn depix_live_webhook_credits_once_and_flags_post_settlement_cancellation() {
     const SECRET: &str = "depix-integration-webhook-secret-32-bytes";
     std::env::set_var("PIX_PROVIDER", "depix");
     std::env::set_var("PIX_MODE", "production");
@@ -162,6 +162,39 @@ async fn depix_live_webhook_credits_completed_once_and_never_credits_processing(
     assert_eq!(duplicate.0, StatusCode::OK);
     assert_eq!(duplicate.1["status"], "IGNORED");
 
+    let cancelled_event_id = format!("evt_{}", uuid::Uuid::new_v4().simple());
+    let cancelled_body = serde_json::json!({
+        "event": "checkout.cancelled",
+        "data": {
+            "event_id": cancelled_event_id,
+            "id": "chk_completed_test",
+            "status": "cancelled",
+            "amount": 5000,
+            "metadata": { "order_id": completed_tx }
+        }
+    })
+    .to_string();
+    let cancelled = deliver(
+        &state,
+        cancelled_body.clone(),
+        "checkout.cancelled",
+        &cancelled_event_id,
+        SECRET,
+    )
+    .await;
+    let cancelled_duplicate = deliver(
+        &state,
+        cancelled_body,
+        "checkout.cancelled",
+        &cancelled_event_id,
+        SECRET,
+    )
+    .await;
+    assert_eq!(cancelled.0, StatusCode::OK);
+    assert_eq!(cancelled.1["status"], "REVIEW_REQUIRED");
+    assert_eq!(cancelled_duplicate.0, StatusCode::OK);
+    assert_eq!(cancelled_duplicate.1["status"], "IGNORED");
+
     let processing_event_id = format!("evt_{}", uuid::Uuid::new_v4().simple());
     let processing_body = serde_json::json!({
         "event": "checkout.processing",
@@ -201,8 +234,54 @@ async fn depix_live_webhook_credits_completed_once_and_never_credits_processing(
     assert_eq!(processing_status.0, "PENDING");
     assert_eq!(processing_status.1.as_deref(), Some("PROCESSING"));
 
+    let completed_status: (String, Option<String>) = sqlx::query_as(
+        "SELECT status, provider_status FROM wallet_transactions WHERE idempotency_key = $1",
+    )
+    .bind(&completed_tx)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(completed_status.0, "COMPLETED");
+    assert_eq!(
+        completed_status.1.as_deref(),
+        Some("CANCELLED_REVIEW_REQUIRED")
+    );
+
+    let review_outbox_count: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM outbox_events \
+         WHERE aggregate_id = $1 AND event_type = 'PIX_DEPOSIT_REVIEW_REQUIRED'",
+    )
+    .bind(&completed_tx)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(review_outbox_count, 1);
+    let review_audit_count: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM audit_logs \
+         WHERE user_id = $1 AND action = 'PIX_DEPOSIT_REVIEW_REQUIRED'",
+    )
+    .bind(user_id.to_string())
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(review_audit_count, 1);
+
     sqlx::query("DELETE FROM payment_webhook_events WHERE event_id = ANY($1)")
-        .bind(vec![completed_event_id, processing_event_id])
+        .bind(vec![
+            completed_event_id,
+            processing_event_id,
+            cancelled_event_id,
+        ])
+        .execute(&state.db)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM outbox_events WHERE aggregate_id = $1")
+        .bind(&completed_tx)
+        .execute(&state.db)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM audit_logs WHERE user_id = $1")
+        .bind(user_id.to_string())
         .execute(&state.db)
         .await
         .unwrap();

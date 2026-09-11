@@ -736,25 +736,15 @@ fn depix_config(mode: &str) -> Result<DepixRuntimeConfig, String> {
             let enabled = env::var("PIX_LIVE_ENABLED")
                 .map(|value| value.trim().eq_ignore_ascii_case("true"))
                 .unwrap_or(false);
-            let allowed_depositors = env::var("PIX_LIVE_ALLOWED_DEPOSITOR_IDS")
-                .unwrap_or_default()
-                .split(',')
-                .map(str::trim)
-                .filter(|value| !value.is_empty())
-                .all(|value| uuid::Uuid::parse_str(value).is_ok());
-            let has_allowed_depositor = env::var("PIX_LIVE_ALLOWED_DEPOSITOR_IDS")
-                .unwrap_or_default()
-                .split(',')
-                .any(|value| !value.trim().is_empty());
+            let allowlist_raw = env::var("PIX_LIVE_ALLOWED_DEPOSITOR_IDS").unwrap_or_default();
             if environment != "production"
                 || !enabled
                 || !api_key.starts_with("sk_live_")
                 || api_key.contains(char::is_whitespace)
                 || callback_url.is_none()
-                || !has_allowed_depositor
-                || !allowed_depositors
+                || !live_allowlist_entries_are_valid(&allowlist_raw)
             {
-                return Err("DePix live requires production, the kill switch, an sk_live_ key, a public callback, and a valid depositor allow-list".into());
+                return Err("DePix live requires production, PIX_LIVE_ENABLED, an sk_live_ key, and a public callback (optional UUID allow-list)".into());
             }
             true
         }
@@ -773,6 +763,28 @@ fn depix_config(mode: &str) -> Result<DepixRuntimeConfig, String> {
 
 pub fn depix_runtime_ready(mode: &str) -> bool {
     depix_config(mode).is_ok()
+}
+
+/// Empty allow-list = every authenticated user. Non-empty = only those UUIDs.
+pub(crate) fn live_allowlist_entries_are_valid(raw: &str) -> bool {
+    raw.split(',')
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .all(|value| uuid::Uuid::parse_str(value).is_ok())
+}
+
+pub(crate) fn live_allowlist_permits(raw: &str, user_id: &str) -> bool {
+    let ids: Vec<&str> = raw
+        .split(',')
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .collect();
+    ids.is_empty() || ids.iter().any(|id| *id == user_id)
+}
+
+pub(crate) fn pix_live_depositor_is_permitted(user_id: &str) -> bool {
+    let raw = env::var("PIX_LIVE_ALLOWED_DEPOSITOR_IDS").unwrap_or_default();
+    live_allowlist_permits(&raw, user_id)
 }
 
 pub fn get_payment_gateway() -> Box<dyn PixGateway> {
@@ -839,8 +851,8 @@ pub fn get_payment_gateway() -> Box<dyn PixGateway> {
 #[cfg(test)]
 mod tests {
     use super::{
-        public_https_url, AsaasPixGateway, DepixCheckout, DepixPixGateway, MockPixGateway,
-        PixGateway,
+        live_allowlist_entries_are_valid, live_allowlist_permits, public_https_url,
+        AsaasPixGateway, DepixCheckout, DepixPixGateway, MockPixGateway, PixGateway,
     };
     use hmac::{Hmac, Mac};
     use sha2::Sha256;
@@ -876,6 +888,22 @@ mod tests {
 
         assert!(gateway.verify_webhook_hmac(b"ignored", Some(token)));
         assert!(!gateway.verify_webhook_hmac(b"ignored", Some("different-token")));
+    }
+
+    #[test]
+    fn empty_live_allowlist_permits_any_authenticated_user() {
+        assert!(live_allowlist_entries_are_valid(""));
+        assert!(live_allowlist_entries_are_valid("  "));
+        assert!(live_allowlist_permits("", "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
+        assert!(live_allowlist_permits(
+            "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+        ));
+        assert!(!live_allowlist_permits(
+            "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+        ));
+        assert!(!live_allowlist_entries_are_valid("not-a-uuid"));
     }
 
     #[test]

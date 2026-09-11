@@ -12,8 +12,7 @@ param(
     [ValidatePattern('^/[A-Za-z0-9._/-]+$')]
     [string]$RemoteEnvPath = '/opt/poker-platform/Infraestrutura-Docker/.env',
 
-    [Parameter(Mandatory = $true)]
-    [string[]]$AllowedDepositorIds,
+    [string[]]$AllowedDepositorIds = @(),
 
     [ValidateRange(500, 600000)]
     [int]$MaxDepositCents = 100000,
@@ -23,6 +22,11 @@ param(
 
     [Parameter(Mandatory = $true)]
     [switch]$ConfirmMerchantOnlyScopes,
+
+    [Parameter(Mandatory = $true)]
+    [switch]$ConfirmProviderApproval,
+
+    [switch]$ConfirmRegulatoryAuthorization,
 
     [switch]$Apply
 )
@@ -57,10 +61,14 @@ function Set-EnvValue([string]$Content, [string]$Name, [string]$Value) {
 if (-not $ConfirmMerchantOnlyScopes) {
     throw 'Confirme que a chave possui somente merchant_read e merchant_write usando -ConfirmMerchantOnlyScopes.'
 }
-if ($AllowedDepositorIds.Count -eq 0) {
-    throw 'Informe ao menos um UUID em -AllowedDepositorIds para o rollout inicial.'
+if (-not $ConfirmProviderApproval) {
+    throw 'Confirme a aprovação da API pela DePix usando -ConfirmProviderApproval.'
+}
+if ($Apply -and -not $ConfirmRegulatoryAuthorization) {
+    throw 'A instalação live exige autorização operacional/regulatória explícita: use -ConfirmRegulatoryAuthorization somente depois dessa liberação.'
 }
 foreach ($id in $AllowedDepositorIds) {
+    if ([string]::IsNullOrWhiteSpace($id)) { continue }
     $parsed = [Guid]::Empty
     if (-not [Guid]::TryParse($id, [ref]$parsed)) {
         throw "UUID de depositante inválido: $id"
@@ -121,7 +129,7 @@ try {
     $content = Set-EnvValue $content 'PIX_PROVIDER' 'depix'
     $content = Set-EnvValue $content 'PIX_MODE' 'production'
     $content = Set-EnvValue $content 'PIX_LIVE_ENABLED' 'true'
-    $content = Set-EnvValue $content 'PIX_LIVE_ALLOWED_DEPOSITOR_IDS' (($AllowedDepositorIds | ForEach-Object { $_.Trim() }) -join ',')
+    $content = Set-EnvValue $content 'PIX_LIVE_ALLOWED_DEPOSITOR_IDS' (($AllowedDepositorIds | ForEach-Object { $_.Trim() } | Where-Object { $_ }) -join ',')
     $content = Set-EnvValue $content 'DEPIX_LIVE_MAX_DEPOSIT_CENTS' $MaxDepositCents.ToString()
     $content = Set-EnvValue $content 'DEPIX_API_BASE_URL' 'https://api.depixapp.com'
     $content = Set-EnvValue $content 'DEPIX_API_KEY' $apiKey

@@ -277,7 +277,7 @@ pub(crate) fn pix_depositor_is_allowed(user_id: &str) -> bool {
                 && std::env::var("PIX_LIVE_ENABLED")
                     .map(|value| value.trim().eq_ignore_ascii_case("true"))
                     .unwrap_or(false)
-                && configured_user_list_contains("PIX_LIVE_ALLOWED_DEPOSITOR_IDS", user_id)
+                && crate::payment_gateway::pix_live_depositor_is_permitted(user_id)
         }
         _ => true,
     }
@@ -629,17 +629,83 @@ pub async fn pix_webhook_handler(
 
     if !settling {
         if provider == "depix" {
-            let terminal_failure = matches!(
-                payload.event_type.as_deref(),
-                Some("checkout.cancelled" | "checkout.expired")
-            );
+            let terminal_status = match payload.event_type.as_deref() {
+                Some("checkout.cancelled") => Some("CANCELLED"),
+                Some("checkout.expired") => Some("EXPIRED"),
+                _ => None,
+            };
+
+            // A terminal event after settlement is a reconciliation incident,
+            // never an instruction to reverse the player's balance. The
+            // provider event was inserted above in this same transaction, so a
+            // repeated delivery cannot duplicate the review audit/outbox work.
+            if let Some(terminal_status) = terminal_status {
+                let review_status = format!("{terminal_status}_REVIEW_REQUIRED");
+                let reviewed: Option<(uuid::Uuid, uuid::Uuid, i64)> = sqlx::query_as(
+                    "UPDATE wallet_transactions \
+                     SET provider_status = $1, updated_at = NOW() \
+                     WHERE idempotency_key = $2 AND external_tx_id = $3 \
+                       AND transaction_type = 'DEPOSIT' AND provider = 'depix' \
+                       AND status = 'COMPLETED' AND provider_status IS DISTINCT FROM $1 \
+                     RETURNING id, user_id, amount",
+                )
+                .bind(&review_status)
+                .bind(&payload.tx_id)
+                .bind(payload.external_tx_id.as_deref())
+                .fetch_optional(&mut *transaction)
+                .await?;
+
+                if let Some((wallet_id, user_id, settled_amount)) = reviewed {
+                    let review_metadata = serde_json::json!({
+                        "tx_id": &payload.tx_id,
+                        "wallet_transaction_id": wallet_id,
+                        "external_tx_id": payload.external_tx_id.as_deref(),
+                        "amount_cents": settled_amount,
+                        "provider_reported_amount_cents": payload.amount,
+                        "provider": "depix",
+                        "provider_status": &review_status,
+                        "event_id": payload.event_id.as_deref(),
+                        "event_type": payload.event_type.as_deref(),
+                    });
+                    sqlx::query(
+                        "INSERT INTO audit_logs (user_id, action, metadata) \
+                         VALUES ($1, 'PIX_DEPOSIT_REVIEW_REQUIRED', $2)",
+                    )
+                    .bind(user_id.to_string())
+                    .bind(&review_metadata)
+                    .execute(&mut *transaction)
+                    .await?;
+                    sqlx::query(
+                        "INSERT INTO outbox_events \
+                         (aggregate_type, aggregate_id, event_type, payload) \
+                         VALUES ('wallet_transaction', $1, 'PIX_DEPOSIT_REVIEW_REQUIRED', $2)",
+                    )
+                    .bind(&payload.tx_id)
+                    .bind(review_metadata)
+                    .execute(&mut *transaction)
+                    .await?;
+                    transaction.commit().await?;
+                    return Ok((
+                        StatusCode::OK,
+                        Json(WebhookResponse {
+                            status: "REVIEW_REQUIRED".to_string(),
+                            message: "Settled PIX deposit received a terminal provider event"
+                                .to_string(),
+                        }),
+                    ));
+                }
+            }
+
+            let provider_status = terminal_status
+                .unwrap_or(payload.status.as_str())
+                .to_ascii_uppercase();
             sqlx::query(
                 "UPDATE wallet_transactions \
                  SET provider_status = $1, status = CASE WHEN $2 THEN 'CANCELLED' ELSE status END, updated_at = NOW() \
                  WHERE idempotency_key = $3 AND external_tx_id = $4 AND status = 'PENDING'",
             )
-            .bind(payload.status.to_ascii_uppercase())
-            .bind(terminal_failure)
+            .bind(provider_status)
+            .bind(terminal_status.is_some())
             .bind(&payload.tx_id)
             .bind(payload.external_tx_id.as_deref())
             .execute(&mut *transaction)

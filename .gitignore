@@ -60,6 +60,15 @@ Documentacao/SIMULACAO_RITUAL*.json
 .agents/
 coverage-run.log
 
+# Vídeos do curso (intermediários de render; fontes + finais versionados)
+ZeroTiltCurso/**/media/
+ZeroTiltCurso/**/silent.mp4
+ZeroTiltCurso/**/concat.txt
+ZeroTiltCurso/**/frame_*.png
+ZeroTiltCurso/**/__pycache__/
+
 # Pastas de trabalho temporárias / lixo de shell
 tmp/
 temp/
+*.tmp.ps1
+codex-*.tmp.ps1
