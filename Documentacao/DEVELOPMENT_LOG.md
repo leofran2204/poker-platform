@@ -867,3 +867,15 @@
 > **S24** (2026-09-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático desligado.
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
+
+## 2026-09-11 — S23/S24: operação (contas, rede, convite), torneios play e curso M0
+
+- **Mesas demo fora do admin:** lobby público já listava só `OPEN`/`public`; migration `050` fecha+privatiza `Demo%` (idempotente, padrão 018); `AdminTablesPage.tsx` oculta `CLOSED` por padrão com toggle (ed19a5e).
+- **Teste Cancelamento apagado + dropdown honesto:** `DELETE` na VPS (0 inscritos, backup prévio); `list_tournaments` (`handlers/tournament.rs`) filtra só `registering/paused/running` — cancelado some do lobby e do dropdown de bots sem restart (f5b6ad7).
+- **Play 4x4 igual ao Real:** `051` reativou espelhos play; wipe cancelou Freeroll/Pineapple play; `052` reativou; 4x4 `registering` verificados (e154377, 7f48ef3).
+- **Contador só para logados:** selo do header e Hero ocultos para visitantes; loop de presença só opera autenticado; `pagehide` envia `/offline` (sem lingerar 90s de TTL). Contagem já era só JWT (5023fdd).
+- **Contas e rede (VPS 26→5):** wipe de 21 artificiais (`smoke_mtt_*`, `t18_*`) + 8.446 comissões de teste; rede via `sponsored_by` (DLF777←leofran, alexandre←DLF777, arturmnt←leofran, Hiroshi←arturmnt); `REQUIRE_INVITE=true` (cadastro sem código dá 403, verificado); 2 MTTs play running cancelados (só tinham artificiais). Backups `/tmp/poker-*.sql.gz` verificados.
+- **Local zerado:** 118 contas apagadas + 6 mesas de teste (`Deflator*`, `Smoke Equity`, `UI Deflator`, com trava de recovery resolvida); admin 26→20 mesas; primeiro cadastro isento de convite (conta nº 1); elenco de bots recriável em "Preparar elenco".
+- **Curso M0 (c32cacb, ef5869b, 637a4f8):** `courseContent.json` (6 aulas, 14 questões; 5 práticas com gabarito gerado pelo `bot/strategy/decide.ts`); rotas `/curso` e `/curso/:lessonId` (`CoursePage`, `LessonPage`, `CourseQuiz` com cartas inline); migration `054 course_progress` + `GET/POST /api/course/progress` (auth; 401 sem token verificado); título "Módulo 0 (iniciante)".
+- **Incidentes e lições:** deploy quebrou com `VersionMismatch(53)` — sessão paralela ocupou a 053 (NL 0,75); renumeração para 054 resolveu. Regra anti-colisão de migrations registrada no `AGENTS.md` (39b31e0). 9 arquivos DePix da sessão paralela deixados intactos; 5 linhas do `marketingShell` absorvidas em `Layout.tsx` para não quebrar o build validado.
+- **Verificação final:** health OK; lobby 5+5 (inclui NL 0,75/1,50 da 053 alheia); torneios 5+5; presence operacional; curso no bundle.
