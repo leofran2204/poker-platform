@@ -23,6 +23,7 @@ Caminho do repositório: `c:/Users/leofr/Projetos/Poker_Project` (nunca OneDrive
 | Pitch amigos / due diligence | `RELATORIO_AMIGOS_SOCIO.md` / `RELATORIO_PARCEIROS_ZEROTILT.md` | Números = STATUS, não copiar stakes. |
 | GTM rede 2 níveis | `Documentacao/PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md` | |
 | Curso de estratégia (produto) | `Documentacao/CURSO_ESTRATEGIA_POKER.md` | |
+| Curso em vídeo (produto) | `ZeroTiltCurso/epNN-*/` (plan.md + script.py + narracao.mp3 + final) | Intermediários de render ignorados no `.gitignore`. |
 | Exemplos Loss Deflator / JWT | `LOSS_DEFLATOR_EXEMPLOS.md` / `SECURITY_UPGRADES_EXEMPLOS.md` | |
 | Deploy | `Infraestrutura-Docker/DEPLOY_HETZNER.md`, `DEPLOY_HOME_CLOUDFLARE.md`, índice `DEPLOYMENT_VALIDATION.md` | |
 | UI Full Tilt | `Frontend-Web/README.md` | Catálogo = STATUS. |
@@ -57,6 +58,15 @@ CI: `cargo run --locked --bin documentation-sync -- --check`.
 - Dinheiro em `u64` centavos inteiros. Ordem: potes → rake → Loss Deflator **só** sobre o líquido → pagamentos.
 - Uma mesa = um processo (`TableActor` / `TournamentActor`). Settlement HMAC.
 - Stack v4.0: Rust (motor + API) + TypeScript/React/Vite/Tailwind (`Frontend-Web/`). Dioxus é histórico git.
+
+## Lei do repositório único (vale para qualquer LLM e qualquer harness)
+
+Todo entregável mora dentro de `c:/Users/leofr/Projetos/Poker_Project`. Nada de
+arquivo final em `Videos/`, `Desktop/`, `/tmp`, OneDrive ou pasta alheia: o que
+nasce fora, move-se para dentro antes de concluir, e o original fora é apagado
+após conferência (`diff` limpo). Intermediários de render/geração entram no
+`.gitignore`; fontes + finais entram no git. Vale para vídeos (`ZeroTiltCurso/`),
+scripts, relatórios e qualquer artefato pedido pelo dono.
 
 ## Git e publicação
 
