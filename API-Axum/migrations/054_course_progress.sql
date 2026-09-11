@@ -1,4 +1,4 @@
--- 053: progresso do curso por usuário (Módulo 0 em diante).
+-- 054: progresso do curso por usuário (Módulo 0 em diante).
 -- Uma linha por (usuário, aula): status, melhor nota de quiz (0–100) e tentativas.
 
 CREATE TABLE IF NOT EXISTS course_progress (
