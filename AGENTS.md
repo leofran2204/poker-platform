@@ -62,6 +62,13 @@ CI: `cargo run --locked --bin documentation-sync -- --check`.
 
 Trabalho local (editar, testar, “prosseguir”) **não** autoriza `git commit`, `git push` nem deploy. Cada um exige ordem explícita e independente. Pedir commit não autoriza push.
 
+## Migrations (disciplina anti-colisão, sessões paralelas)
+
+- Antes de criar `API-Axum/migrations/NNN_*.sql`: `git pull` e conferir o maior NNN nos arquivos **e** em `_sqlx_migrations` (local + VPS). Número reutilizado ou migration aplicada e depois editada = boot travado com `VersionMismatch` (o sqlx confere checksum).
+- Novas migrations: idempotentes (`IF NOT EXISTS`, `UPDATE` sem pré-condição destrutiva); mudança de catálogo com `INSERT` em `audit_logs`.
+- Nunca commitar migration de outra sessão junto; conferir `git status` antes de `git add`.
+- Pós-deploy: `SELECT version FROM _sqlx_migrations` + `docker logs poker_api` (“Migrations applied”).
+
 ## Ambiente Windows (esta máquina)
 
 1. **Rust/Cargo:** WSL2 Ubuntu, projeto em `/mnt/c/Users/leofr/Projetos/Poker_Project`, `CARGO_TARGET_DIR` no disco Linux (ex. `$HOME/poker-build/root-target`, `api-target`, `motor-target`). Não gerar `target` em `/mnt/c`. Windows nativo só se o WSL estiver indisponível.
