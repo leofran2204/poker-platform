@@ -887,3 +887,4 @@
 - **Notícias/Dicas:** `NewsTips` com props `tab`/`compact`/`previewLimit` (compact = só local, sem fetch); rotas lazy `/noticias` e `/dicas` + links no nav (visitante incluso); home com 2 prévias de 2 cards.
 - **Validado:** tsc limpo, ESLint limpo, Vitest 23/23, `vite build` OK (via bun; Node 18 do PATH não roda Vite 8), `git diff --check` limpo.
 - **Escopo do commit:** só arquivos/hunks da home (`App.tsx`/`Layout.tsx` com stage parcial — hunks de Termos da outra sessão ficaram fora).
+- **Deploy (5bda5ef):** push `55fd4cf..5bda5ef` + `vps-redeploy-frontend.sh` na VPS (só `poker_frontend`, sem rebuild da API, sem migrations novas) → `DEPLOY_OK`, caddy-health OK; público verificado: `/api/health` OK, lobby 5 mesas, presence TTL 90s, bundle novo `index-CTQrFcA1.js` com rotas `/noticias` e `/dicas`.
