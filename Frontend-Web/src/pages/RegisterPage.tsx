@@ -12,12 +12,18 @@ export function RegisterPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [inviteCode, setInviteCode] = useState((params.get("ref") ?? "").toUpperCase());
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (!termsAccepted) {
+      setError("Você precisa ler e aceitar os Termos de Uso e a Política de Privacidade para continuar.");
+      return;
+    }
 
     if (password !== passwordConfirm) {
       setError("As senhas não coincidem.");
@@ -152,6 +158,26 @@ export function RegisterPage() {
               autoComplete="off"
             />
           </div>
+
+          <div className="rounded border border-felt-700/80 bg-felt-950/60 p-3">
+            <label className="flex items-start gap-2.5 text-xs text-felt-200 cursor-pointer">
+              <input
+                type="checkbox"
+                required
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-felt-600 bg-felt-900 text-gold-bright focus:ring-gold-soft cursor-pointer shrink-0"
+              />
+              <span>
+                Li, compreendi e concordo integralmente com os{" "}
+                <Link to="/termos" target="_blank" className="font-semibold text-gold-bright underline">
+                  Termos de Uso, Política de Privacidade (LGPD) e Regulamento da Rede
+                </Link>
+                . Declaro ter mais de 18 anos de idade.
+              </span>
+            </label>
+          </div>
+
           {error && (
             <p className="rounded border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-200">
               {error}

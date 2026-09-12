@@ -1,24 +1,26 @@
-import { useMemo, useState } from "react";
-import { isQuestionCorrect, type CourseQuizQuestion } from "@/lib/course";
+import { useState } from "react";
+import {
+  calculateQuizScores,
+  isQuestionCorrect,
+  PASS_SCORE,
+  type CourseQuizQuestion,
+} from "@/lib/course";
 import { PlayingCard } from "./PlayingCard";
-
-const PASS_SCORE = 60;
 
 export function CourseQuiz({
   questions,
   onFinish,
 }: {
   questions: CourseQuizQuestion[];
-  onFinish: (score: number) => void;
+  onFinish: (score: number, passed: boolean) => void;
 }) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
 
-  const score = useMemo(() => {
-    if (questions.length === 0) return 100;
-    const hits = questions.filter((q) => answers[q.id] !== undefined && isQuestionCorrect(q, answers[q.id])).length;
-    return Math.round((hits / questions.length) * 100);
-  }, [answers, questions]);
+  const { totalScore, engineScore, hasEngineQuestions, passed } = calculateQuizScores(
+    questions,
+    answers,
+  );
 
   if (questions.length === 0) return null;
   const allAnswered = questions.every((q) => answers[q.id] !== undefined);
@@ -26,7 +28,14 @@ export function CourseQuiz({
   function submit() {
     if (!allAnswered || submitted) return;
     setSubmitted(true);
-    onFinish(score);
+    // Para persistência e nota do aluno: prioriza nota prática se houver, ou total
+    const effectiveScore = hasEngineQuestions ? engineScore : totalScore;
+    onFinish(effectiveScore, passed);
+  }
+
+  function retry() {
+    setAnswers({});
+    setSubmitted(false);
   }
 
   return (
@@ -96,12 +105,43 @@ export function CourseQuiz({
       })}
       {!submitted ? (
         <button type="button" className="zt-btn-primary" disabled={!allAnswered} onClick={submit}>
-          Ver resultado
+          Ver resultado do teste
         </button>
       ) : (
-        <p className="text-sm text-gold-bright">
-          Nota: {score}% {score >= PASS_SCORE ? "— aula concluída!" : `— precisa de ${PASS_SCORE}% para concluir.`}
-        </p>
+        <div className="space-y-2 rounded-lg border border-felt-700 bg-felt-950 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-sm font-bold text-cream">
+                {hasEngineQuestions ? (
+                  <>
+                    Nota Situações Práticas:{" "}
+                    <span className={engineScore >= PASS_SCORE ? "text-emerald-400" : "text-amber-400"}>
+                      {engineScore}%
+                    </span>{" "}
+                    <span className="text-xs text-felt-400">({totalScore}% geral)</span>
+                  </>
+                ) : (
+                  <>
+                    Nota do Teste:{" "}
+                    <span className={totalScore >= PASS_SCORE ? "text-emerald-400" : "text-amber-400"}>
+                      {totalScore}%
+                    </span>
+                  </>
+                )}
+              </p>
+              <p className="text-xs text-felt-300">
+                {passed
+                  ? `🎉 Parabéns! Você atingiu a nota mínima (${PASS_SCORE}%) e desbloqueou a próxima aula!`
+                  : `⚠️ Você obteve nota abaixo da nota de corte (${PASS_SCORE}%). Revise o vídeo e tente novamente para avançar.`}
+              </p>
+            </div>
+            {!passed && (
+              <button type="button" onClick={retry} className="zt-btn-secondary !text-xs">
+                🔄 Tentar novamente
+              </button>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
@@ -111,5 +151,3 @@ function isCorrectOption(q: CourseQuizQuestion, opt: string): boolean {
   if (q.kind === "theory") return q.options.indexOf(opt) === q.expectedIndex;
   return opt === q.expected;
 }
-
-export { PASS_SCORE };

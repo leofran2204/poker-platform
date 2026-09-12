@@ -888,3 +888,10 @@
 - **Validado:** tsc limpo, ESLint limpo, Vitest 23/23, `vite build` OK (via bun; Node 18 do PATH não roda Vite 8), `git diff --check` limpo.
 - **Escopo do commit:** só arquivos/hunks da home (`App.tsx`/`Layout.tsx` com stage parcial — hunks de Termos da outra sessão ficaram fora).
 - **Deploy (5bda5ef):** push `55fd4cf..5bda5ef` + `vps-redeploy-frontend.sh` na VPS (só `poker_frontend`, sem rebuild da API, sem migrations novas) → `DEPLOY_OK`, caddy-health OK; público verificado: `/api/health` OK, lobby 5 mesas, presence TTL 90s, bundle novo `index-CTQrFcA1.js` com rotas `/noticias` e `/dicas`.
+
+## 2026-09-12 — S24: Termos/LGPD + Academy em vídeo + rede VP 100 (commit do WIP)
+
+- **Termos:** `TERMOS_DE_USO_E_SERVICO.md` reescrito (9 cláusulas, poker como esporte da mente, Academy isenta de ganhos, afiliados 2 níveis anti-pirâmide, LGPD, foro SP) + `TermsPage.tsx` com resumo leigo + rota `/termos` + checkbox obrigatório no `RegisterPage` + link no rodapé.
+- **Academy em vídeo:** `courseContent.json` com `video`/`handExample` por aula, `CourseVideoPlayer` (abas Vídeo IA/Mão na Mesa + roteiro), trava de fixação 70% nas práticas do motor (`course.ts` + `CourseQuiz` + `CoursePage`/`LessonPage`), formato audiovisual documentado no `CURSO_ESTRATEGIA_POKER.md`.
+- **Rede:** `VP_HANDS_WEEK` 50→100 (`estrutura.rs`), pagamento mensal dia 25, ciclo seg–dom (`PLANO_GO_TO_MARKET`, Termos, `TermsPage`, `EstruturaPage`); `/termos` entra no `MARKETING_PATHS`.
+- **Validado:** tsc, ESLint, Vitest 23/23, `vite build`, `cargo fmt --check` no arquivo (2 diffs pré-existentes no HEAD, fora do escopo — const alterada é neutra).

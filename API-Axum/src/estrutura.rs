@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 pub const L1_PERCENT: i64 = 18;
 pub const L2_PERCENT: i64 = 12;
-pub const VP_HANDS_WEEK: i64 = 50;
+pub const VP_HANDS_WEEK: i64 = 100;
 pub const VP_RAKE_CENTS_WEEK: i64 = 2000;
 
 pub async fn distribute_hand_rake(

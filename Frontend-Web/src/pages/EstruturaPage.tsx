@@ -56,23 +56,55 @@ export function EstruturaPage() {
         Você vê só dois níveis. 18% do rake de quem entrou pelo seu convite, 12% de quem
         entrou pelo convite deles. Sem cadastro, só mão jogada. Clube não leva fatia.
       </p>
-      <div className="zt-panel p-4 text-sm">
-        <p>
-          Pontos: <span className="font-mono text-gold-bright">{data.estrutura_points}</span>{" "}
-          ({formatBrlFromCents(data.estrutura_points)} em rake)
-        </p>
-        <p>
-          Semana: L1 {data.points_week_l1} · L2 {data.points_week_l2}
-          {data.withheld_week > 0 ? ` · retido (sem VP) ${data.withheld_week}` : ""}
-        </p>
-        <p>
-          VP: {data.hands_this_week}/{data.vp_hands_needed} mãos ou{" "}
-          {formatBrlFromCents(data.personal_rake_cents_week)} /{" "}
-          {formatBrlFromCents(data.vp_rake_cents_needed)} de rake próprio.{" "}
-          {data.eligible ? "Elegível nesta semana." : "Ainda não elegível — a linha não pontua."}
-        </p>
+      <div className="zt-panel p-4 text-sm space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-felt-800 pb-2">
+          <div>
+            <span className="text-xs text-felt-400 block">Pontos Acumulados</span>
+            <span className="font-mono text-lg font-bold text-gold-bright">{data.estrutura_points}</span>{" "}
+            <span className="text-xs text-felt-400">({formatBrlFromCents(data.estrutura_points)} em rake)</span>
+          </div>
+          <div className="text-right">
+            <span className="text-xs text-felt-400 block">Ciclo de Pagamento</span>
+            <span className="text-xs font-semibold text-felt-200">Todo dia 25 de cada mês</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+          <div>
+            <span className="text-felt-400">Comissões da Semana:</span>{" "}
+            <span className="font-semibold text-felt-200">L1: {data.points_week_l1} · L2: {data.points_week_l2}</span>
+            {data.withheld_week > 0 && (
+              <span className="text-amber-400 block">⚠️ Retido (sem qualificação): {data.withheld_week} pts</span>
+            )}
+          </div>
+          <div>
+            <span className="text-felt-400">Status da Semana:</span>{" "}
+            {data.eligible ? (
+              <span className="text-emerald-400 font-semibold">✅ Qualificado (ativo)</span>
+            ) : (
+              <span className="text-amber-300 font-semibold">⏳ Pendente meta semanal</span>
+            )}
+          </div>
+        </div>
+
+        <div className="rounded border border-felt-800 bg-felt-950/60 p-3 text-xs space-y-1">
+          <p className="font-semibold text-gold-bright">Critério de Ativação Semanal (Segunda a Domingo):</p>
+          <ul className="list-disc pl-4 space-y-0.5 text-felt-300">
+            <li>
+              <strong>Volume de jogo:</strong> {data.hands_this_week}/{data.vp_hands_needed} mãos concluídas na semana{" "}
+              {data.hands_this_week >= data.vp_hands_needed ? "✅" : `(faltam ${Math.max(0, data.vp_hands_needed - data.hands_this_week)})`}
+            </li>
+          </ul>
+          <p className="text-[11px] text-felt-400 pt-1">
+            Conforme a Cláusula 4 dos <Link to="/termos" className="text-gold underline hover:text-gold-bright">Termos de Uso</Link>, afiliados inativos não acumulam bonificação de rede retroativa.
+          </p>
+        </div>
+
         {invite && (
-          <p className="mt-2 break-all font-mono text-xs text-felt-200">{invite}</p>
+          <div className="pt-2">
+            <span className="text-xs text-felt-400 block">Seu link de indicação direta:</span>
+            <p className="break-all font-mono text-xs text-felt-200 bg-felt-900/80 p-2 rounded border border-felt-800">{invite}</p>
+          </div>
         )}
       </div>
       <div className="zt-panel overflow-hidden">

@@ -1,16 +1,40 @@
 {
-  "version": 1,
+  "version": 2,
   "modules": [
     {
       "id": "m0",
       "title": "Módulo 0 (iniciante)",
-      "subtitle": "Para quem nunca jogou: história, regras e as primeiras decisões. ~35 min.",
+      "subtitle": "História, regras básicas, hierarquia de mãos e primeiras decisões. ~35 min.",
       "lessons": [
         {
           "id": "m0l1",
           "title": "De onde vêm as cartas",
-          "minutes": 6,
-          "body": "## Uma história de mil anos\n\nAs cartas nasceram na **China, por volta do século IX**, na época da dinastia Tang — tiras de papel com símbolos, um passatempo da corte que viajou pela Rota da Seda.\n\n## Do Oriente ao baralho francês\n\n- **Mamelucos (Egito/Síria, séc. XII–XIV):** baralhos com 4 naipes (espadas, bastões, copas e moedas) e figuras de rei e vice-rei — o avô direto do nosso baralho.\n- **Europa (séc. XIV):** italianos e espanhóis adotam o jogo; os **franceses** simplificam os desenhos e criam os 4 naipes que usamos hoje: espadas, copas, ouros e paus.\n- **52 cartas:** 13 valores × 4 naipes. Esse padrão atravessa o Atlântico com colonos e marinheiros e vira a base de centenas de jogos — incluindo o poker.\n\n## Por que isso importa\n\nO baralho é uma máquina de informação incompleta: você vê suas cartas, não as dos outros. Todo o poker nasce daí — apostar é precificar o que você **não** vê.\n\n| Era | Acontecimento |\n|---|---|\n| ~800 | Cartas na China Tang |\n| 1100–1300 | Baralhos mamelucos com 4 naipes |\n| 1300–1400 | Cartas chegam à Europa; nasce o baralho francês |\n| 1800+ | 52 cartas viram padrão nos saloons |",
+          "minutes": 2,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "Fala, jogador! Seja muito bem-vindo à Zero Tilt Academy. Você sabia que o baralho com que jogamos poker tem mais de mil anos de história? Nascido na China da dinastia Tang e transformado no baralho de 52 cartas que conhecemos pelos franceses, ele é a máquina de informação incompleta perfeita. O poker não é sorte: é a arte de precificar e tomar decisões sob incerteza. Ao longo deste curso, eu e a nossa equipe de IA vamos te ensinar a pensar como um profissional. Assista à aula, veja o exemplo de mão e responda ao teste para desbloquear o próximo nível!"
+          },
+          "handExample": {
+            "title": "Informação Incompleta na Prática",
+            "heroPosition": "BTN",
+            "villainPosition": "BB",
+            "heroCards": [
+              "As",
+              "Kh"
+            ],
+            "boardCards": [
+              "Ah",
+              "7c",
+              "2d"
+            ],
+            "potBb": "5.5",
+            "actionText": "Você abre raise do BTN com As Kh. O BB paga. No flop Ah 7c 2d, o BB dá check.",
+            "heroDecision": "C-bet pequena de 1.8 BB (33% do pote) por puro valor e proteção.",
+            "keyTakeaway": "Você vê suas 2 cartas e as comunitárias; apostar é cobrar do vilão pelo que ele não vê."
+          },
+          "body": "## Uma história de mil anos\n\nAs cartas nasceram na **China, por volta do século IX**, na época da dinastia Tang — tiras de papel com símbolos, um passatempo da corte que viajou pela Rota da Seda.\n\n## Do Oriente ao baralho francês\n\n- **Mamelucos (Egito/Síria, séc. XII–XIV):** baralhos com 4 naipes (espadas, bastões, copas e moedas) e figuras de rei e vice-rei — o avô direto do nosso baralho.\n- **Europa (séc. XIV):** italianos e espanhóis adotam o jogo; os **franceses** simplificam os desenhos e criam os 4 naipes que usamos hoje: espadas, copas, ouros e paus.\n- **52 cartas:** 13 valores × 4 naipes. Esse padrão atravessa o Atlântico com colonos e marinheiros e vira a base de centenas de jogos — incluindo o poker.\n\n## Por que isso importa\n\nO baralho é uma máquina de informação incompleta: você vê suas cartas, não as dos outros. Todo o poker nasce daí — apostar é precificar o que você **não** vê.",
           "quiz": [
             {
               "id": "m0l1q1",
@@ -34,7 +58,7 @@
                 "36 cartas, sem as baixas"
               ],
               "expectedIndex": 1,
-              "explanation": "13 valores × 4 naipes = 52. (Short Deck usa 36, mas isso é exceção — você verá no Módulo 1.)"
+              "explanation": "13 valores × 4 naipes = 52. (Short Deck usa 36, mas isso é exceção do Módulo 5)."
             }
           ]
         },
@@ -80,7 +104,11 @@
               "id": "m0l3q1",
               "kind": "theory",
               "prompt": "Quem ganhou o primeiro bracelete brasileiro na WSOP?",
-              "options": ["André Akkari, em 2011", "Alexandre Gomes, em 2008", "Yuri Martins, em 2015"],
+              "options": [
+                "André Akkari, em 2011",
+                "Alexandre Gomes, em 2008",
+                "Yuri Martins, em 2015"
+              ],
               "expectedIndex": 1,
               "explanation": "Alexandre Gomes abriu o caminho em 2008; Akkari veio em 2011."
             },
@@ -100,60 +128,120 @@
         },
         {
           "id": "m0l4",
-          "title": "Regras: sua primeira mão",
-          "minutes": 8,
-          "body": "## O objetivo\n\nGanhar fichas: ou com a **melhor mão de 5 cartas** no showdown, ou fazendo **todo mundo desistir** antes.\n\n## Hierarquia (da mais fraca à mais forte)\n\n| Mão | Exemplo |\n|---|---|\n| Carta alta | As Kd |\n| Um par | 8s 8c |\n| Dois pares | Ks Kd 4h 4c |\n| Trinca | Qs Qd Qh |\n| Straight (sequência) | 9c Td Jh Qs Kd |\n| Flush (mesmo naipe) | 2h 5h 9h Jh Ah |\n| Full house | Ts Td Th 3c 3s |\n| Quadra | 7s 7d 7h 7c |\n| Straight flush | 5s 6s 7s 8s 9s |\n| Royal flush | Ts Js Qs Ks As |\n\n## Blinds: o motor do jogo\n\nDuas apostas obrigatórias giram a cada mão: **small blind** e **big blind**. É por elas que sempre há algo a disputar.\n\n## O fluxo de uma mão de Hold'em\n\n1. **Pré-flop:** você recebe 2 cartas. Pague o big blind, aumente ou desista.\n2. **Flop:** 3 cartas comunitárias. Nova rodada de apostas.\n3. **Turn:** 4ª carta comunitária. Apostas.\n4. **River:** 5ª carta. Últimas apostas.\n5. **Showdown:** quem sobrou mostra; a melhor mão de 5 (suas 2 + mesa) leva.\n\n## As ações\n\n- **Fold:** desistir. **Check:** passar sem apostar. **Call:** pagar. **Bet/Raise:** apostar/aumentar. **All-in:** tudo no meio.",
+          "title": "Regras e Hierarquia de Mãos",
+          "minutes": 2,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "No Texas Hold'em, cada jogador recebe duas cartas fechadas e compartilha cinco cartas comunitárias na mesa. O objetivo? Formar a melhor mão de cinco cartas ou fazer todos os oponentes desistirem antes do showdown. A hierarquia clássica vai de Carta Alta até Royal Flush. O segredo de quem vence de verdade é a disciplina: foldar mãos fracas cedo e extrair o valor máximo das mãos fortes nas quatro rodadas: Pré-flop, Flop, Turn e River. Vamos ver na prática como funciona uma mão completa!"
+          },
+          "handExample": {
+            "title": "Showdown — Melhor Combinação de 5 Cartas",
+            "heroPosition": "CO",
+            "villainPosition": "BTN",
+            "heroCards": [
+              "Kh",
+              "Kd"
+            ],
+            "boardCards": [
+              "Ks",
+              "7c",
+              "2d",
+              "4h",
+              "Jc"
+            ],
+            "potBb": "24",
+            "actionText": "Você tem Trinca de Reis (Kh Kd Ks 7c Jc). O adversário aposta no river.",
+            "heroDecision": "Raise por valor para 18 BB. Trinca de Reis bate dois pares e pares únicos.",
+            "keyTakeaway": "Sua mão final é sempre a melhor combinação de 5 cartas combinando as suas 2 com as 5 da mesa."
+          },
+          "body": "## O objetivo\n\nGanhar fichas: ou com a **melhor mão de 5 cartas** no showdown, ou fazendo **todo mundo desistir** antes.\n\n## Hierarquia Oficial (do mais fraco ao mais forte)\n\n1. Carta Alta (`As Kd`)\n2. Um Par (`8s 8c`)\n3. Dois Pares (`Ks Kd 4h 4c`)\n4. Trinca (`Qs Qd Qh`)\n5. Straight / Sequência (`9c Td Jh Qs Kd`)\n6. Flush (`2h 5h 9h Jh Ah`)\n7. Full House (`Ts Td Th 3c 3s`)\n8. Quadra (`7s 7d 7h 7c`)\n9. Straight Flush (`5s 6s 7s 8s 9s`)\n10. Royal Flush (`Ts Js Qs Ks As`)",
           "quiz": [
             {
               "id": "m0l4q1",
               "kind": "theory",
-              "prompt": "No showdown, quem leva o pote?",
+              "prompt": "No showdown do Texas Hold'em, como é determinada a mão vencedora?",
               "options": [
-                "Quem apostou por último",
-                "Quem tem a melhor mão de 5 cartas",
-                "Quem está no botão"
+                "Quem apostou mais fichas",
+                "A melhor combinação de 5 cartas entre as 2 da mão e as 5 da mesa",
+                "Quem tiver o maior par na mão fechada obrigatoriamente"
               ],
               "expectedIndex": 1,
-              "explanation": "Showdown = melhor mão de 5 cartas (suas 2 + comunitárias)."
+              "explanation": "No Texas Hold'em, a mão é sempre a melhor combinação de 5 cartas possíveis."
             },
             {
               "id": "m0l4q2",
               "kind": "theory",
-              "prompt": "O que é o flop?",
+              "prompt": "Qual mão é mais forte na hierarquia tradicional do Hold'em?",
               "options": [
-                "As 2 cartas que você recebe",
-                "As 3 primeiras cartas comunitárias",
-                "A última carta do board"
+                "Flush (5 cartas do mesmo naipe)",
+                "Sequência / Straight",
+                "Dois Pares"
               ],
-              "expectedIndex": 1,
-              "explanation": "Flop = 3 primeiras comunitárias. Depois vêm turn (4ª) e river (5ª)."
+              "expectedIndex": 0,
+              "explanation": "Flush vence Sequência e Dois Pares no poker tradicional."
             }
           ]
         },
         {
           "id": "m0l5",
-          "title": "Suas primeiras decisões",
-          "minutes": 8,
-          "body": "## A regra de ouro do iniciante: aumento ou descarte\n\nMãos fracas fora de posição perdem dinheiro. Com As Ah no botão, aumente. Com 7c 2d no UTG, desista. Simples assim — o resto é refinamento.\n\n## Posição em 30 segundos\n\nQuem fala por último vê o que os outros fizeram antes de decidir. **Botão e cutoff** jogam muitas mãos; **posições iniciais** só as premiums.\n\n## O motor avalia com você\n\nAbaixo, 5 situações reais. Escolha fold, call ou raise — o motor de estratégia da plataforma (`lag_v2`, o mesmo dos bots da casa) dá a resposta e o porquê, com a matemática (equidade vs. pot odds).",
+          "title": "Suas primeiras decisões e posições",
+          "minutes": 2,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "Posição é a maior vantagem do poker. Quem fala por último vê o que todos os outros fizeram antes de colocar uma única ficha no pote. Do Botão e do Cutoff, você pode jogar muito mais mãos e roubar os blinds. Já das primeiras posições, como UTG, você só deve abrir mãos extremamente fortes. Veja estas decisões práticas no nosso motor: responder corretamente a estes spots é o primeiro passo para parar de perder fichas à toa."
+          },
+          "handExample": {
+            "title": "Abertura por Posição",
+            "heroPosition": "BTN",
+            "villainPosition": "SB & BB",
+            "heroCards": [
+              "As",
+              "Ah"
+            ],
+            "boardCards": [],
+            "potBb": "1.5",
+            "actionText": "Todos deram fold até você no Botão com Par de Áses.",
+            "heroDecision": "Raise para 2.5 BB. Nunca dê limp com a melhor mão pré-flop!",
+            "keyTakeaway": "Aumentar constrói o pote imediatamente e cobra de quem quiser ver o flop."
+          },
+          "body": "## A regra de ouro do iniciante: aumento ou descarte\n\nMãos fracas fora de posição perdem dinheiro. Com As Ah no botão, aumente. Com 7c 2d no UTG, desista. Simples assim — o resto é refinamento.\n\n## Posição em 30 segundos\n\nQuem fala por último vê o que os outros fizeram antes de decidir. **Botão e cutoff** jogam muitas mãos; **posições iniciais** só as premiums.",
           "quiz": [
             {
               "id": "m0l5q1",
               "kind": "engine",
               "prompt": "Cash 9-max. Você está no BOTÃO com As Ah e ninguém entrou. Ação?",
-              "hole": ["As", "Ah"],
+              "hole": [
+                "As",
+                "Ah"
+              ],
               "board": [],
-              "options": ["fold", "call", "raise"],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
               "expected": "raise",
               "engine": "RFI BTN 9-max (2.5 BB)",
-              "why": "Par de Ases no botão: aumente sempre para construir o pote com a melhor mão e cobrar quem quiser ver o flop."
+              "why": "Par de Áses no botão: aumente sempre para construir o pote com a melhor mão e cobrar quem quiser ver o flop."
             },
             {
               "id": "m0l5q2",
               "kind": "engine",
               "prompt": "Cash 9-max. Você é o PRIMEIRO a falar (UTG) com 7c 2d. Ação?",
-              "hole": ["7c", "2d"],
+              "hole": [
+                "7c",
+                "2d"
+              ],
               "board": [],
-              "options": ["fold", "call", "raise"],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
               "expected": "fold",
               "engine": "Fora do RFI UTG 9-max",
               "why": "7-2 off é a pior mão do jogo e há 8 pessoas atrás. Desistir custa zero — a disciplina mais lucrativa do iniciante."
@@ -161,21 +249,43 @@
             {
               "id": "m0l5q3",
               "kind": "engine",
-              "prompt": "Cash 9-max. Um adversário aumentou 3 BB do MP e você tem Ks Qs no CO. Ação?",
-              "hole": ["Ks", "Qs"],
-              "board": [],
-              "options": ["fold", "call", "raise"],
+              "prompt": "Flop Ks 7c 2d, pote 10 BB. Você tem Kh Qh e o rival apostou 5 BB. Ação?",
+              "hole": [
+                "Kh",
+                "Qh"
+              ],
+              "board": [
+                "Ks",
+                "7c",
+                "2d"
+              ],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
               "expected": "call",
-              "engine": "Flat vs MP 9-max",
-              "why": "KQs em posição joga muito bem pós-flop: pagar mantém o pote controlado com mão forte e posição."
+              "engine": "top_pair call (equidade ~50% vs 33% necessária)",
+              "why": "Top pair com bom kicker: sua equidade (~50%) supera o preço (33%). Pagar é lucrativo no longo prazo."
             },
             {
               "id": "m0l5q4",
               "kind": "engine",
               "prompt": "Flop Ks 7c 2d, pote 10 BB. Você tem Kh Qh e o rival apostou 5 BB. Ação?",
-              "hole": ["Kh", "Qh"],
-              "board": ["Ks", "7c", "2d"],
-              "options": ["fold", "call", "raise"],
+              "hole": [
+                "Kh",
+                "Qh"
+              ],
+              "board": [
+                "Ks",
+                "7c",
+                "2d"
+              ],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
               "expected": "call",
               "engine": "top_pair call (equidade ~50% vs 33% necessária)",
               "why": "Top pair com bom kicker: sua equidade (~50%) supera o preço (33%). Pagar é lucrativo no longo prazo."
@@ -184,9 +294,20 @@
               "id": "m0l5q5",
               "kind": "engine",
               "prompt": "Flop Ks Qd 2h, pote 8 BB. Você tem 9c 8c (nada) e o rival apostou 6 BB. Ação?",
-              "hole": ["9c", "8c"],
-              "board": ["Ks", "Qd", "2h"],
-              "options": ["fold", "call", "raise"],
+              "hole": [
+                "9c",
+                "8c"
+              ],
+              "board": [
+                "Ks",
+                "Qd",
+                "2h"
+              ],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
               "expected": "fold",
               "engine": "high fold (equidade ~15% vs 43% necessária)",
               "why": "Sem par, sem draw: 15% de chance contra um preço de 43%. Pagar aqui é doar fichas."
@@ -210,6 +331,1032 @@
               ],
               "expectedIndex": 1,
               "explanation": "Poker precisa de 2+ assentos na mesma mesa — combine o horário com os amigos."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m1",
+      "title": "Módulo 1: Pré-Flop & Estrutura de Ranges",
+      "subtitle": "Ranges de abertura 9-max, punição a limpers e a matemática de 3-bet e 4-bet. ~20 min.",
+      "lessons": [
+        {
+          "id": "m1l1",
+          "title": "Ranges de Abertura por Posição (9-max)",
+          "minutes": 2,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "No poker, informação é dinheiro. Quando você está no UTG, fala primeiro pós-flop para 8 adversários — seu range deve ser rígido, apenas 12% das melhores mãos. Mas quando a ação chega em fold até o Botão, você fala por último em todas as rodadas e pode abrir quase 50% das mãos para roubar os blinds! Veja na mesa como uma mão como K-Q suited muda completamente de valor dependendo de onde você está sentado."
+          },
+          "handExample": {
+            "title": "KQs no UTG vs. BTN",
+            "heroPosition": "BTN",
+            "villainPosition": "SB & BB",
+            "heroCards": [
+              "Ks",
+              "Qs"
+            ],
+            "boardCards": [],
+            "potBb": "1.5",
+            "actionText": "Todos foldaram até você no Botão. Mão: Ks Qs.",
+            "heroDecision": "Raise para 2.5 BB. No BTN, KQs domina o range de call dos blinds.",
+            "keyTakeaway": "A mesma mão que é marginal no UTG vira uma máquina de imprimir fichas no Botão."
+          },
+          "body": "## Por que a posição muda tudo?\n\n- **UTG (Under the Gun):** ~12% das mãos (77+, A9s+, KTs+, QTs+, JTs, AJo+, KQo).\n- **HJ (Hijack):** ~18% das mãos.\n- **CO (Cutoff):** ~26% das mãos.\n- **BTN (Button):** ~45-50% das mãos (rouba blinds com alta frequência).\n- **SB:** ~35-40% — aumente ou desista; evite dar limp.",
+          "quiz": [
+            {
+              "id": "m1l1q1",
+              "kind": "theory",
+              "prompt": "Por que o range de abertura do UTG é muito mais fechado do que o do Botão?",
+              "options": [
+                "Porque o UTG é obrigado a apostar mais fichas",
+                "Porque o UTG falará fora de posição pós-flop contra até 8 jogadores",
+                "Porque o dealer não permite blefes no UTG"
+              ],
+              "expectedIndex": 1,
+              "explanation": "No UTG você tem 8 oponentes que podem ter mãos melhores e jogará fora de posição."
+            },
+            {
+              "id": "m1l1q2",
+              "kind": "engine",
+              "prompt": "Cash 9-max. Você está no Botão com K♣ Q♣ após todos darem fold. Ação?",
+              "hole": [
+                "Kc",
+                "Qc"
+              ],
+              "board": [],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
+              "expected": "raise",
+              "engine": "Open raise BTN 2.5 BB",
+              "why": "KQs no Botão é uma excelente mão para abrir, roubar blinds ou jogar em posição com vantagem."
+            }
+          ]
+        },
+        {
+          "id": "m1l2",
+          "title": "Como punir o Limp do Small Blind",
+          "minutes": 2,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "Quando o Small Blind apenas completa um blind, ele está te dando um presente. O limp é passivo e indica um range limitado (capped). Ele não tem AA ou KK. No Big Blind, você terá posição em todas as streets. A resposta matemática ideal é o Isolation Raise de 3.5x a 4x com mãos de valor e blefes com bloqueadores como Ás e Cinco de espadas. Veja como forçamos o fold no flop com uma c-bet de apenas um terço do pote!"
+          },
+          "handExample": {
+            "title": "Isolation Raise no BB vs. Limp do SB",
+            "heroPosition": "BB",
+            "villainPosition": "SB",
+            "heroCards": [
+              "As",
+              "5s"
+            ],
+            "boardCards": [
+              "Ks",
+              "7d",
+              "2c"
+            ],
+            "potBb": "8",
+            "actionText": "SB deu limp de 1 BB. Você no BB aumentou para 4 BB. SB pagou. Flop: Ks 7d 2c.",
+            "heroDecision": "C-bet de 2.6 BB (33% do pote). SB dá check-fold em 70%+ das vezes.",
+            "keyTakeaway": "Iniciativa + Posição contra range fraco garante o pote barato sem suar."
+          },
+          "body": "## Vantagens do BB contra o Limp do SB\n\n1. **Posição Absoluta:** você fala por último no flop, turn e river.\n2. **Range Capped do Vilão:** ele não tem AA, KK, QQ ou AK (teria aumentado pré-flop).\n3. **Iniciativa:** você comanda o tamanho do pote.\n\n## Tamanho do Iso-Raise\n\n3.5x a 4x o big blind (ex: aumente para 3.5 a 4 BB).",
+          "quiz": [
+            {
+              "id": "m1l2q1",
+              "kind": "theory",
+              "prompt": "Qual o tamanho recomendado para um raise de isolamento (iso-raise) contra limp no cash game?",
+              "options": [
+                "2.0 BB",
+                "3.5x a 4x o big blind",
+                "All-in direto"
+              ],
+              "expectedIndex": 1,
+              "explanation": "3.5x a 4x cobra caro do limper e nega probabilidades vantajosas (pot odds)."
+            },
+            {
+              "id": "m1l2q2",
+              "kind": "engine",
+              "prompt": "SB dá limp de 1 BB. Você está no BB com A♠ 5♠. Ação recomendada?",
+              "hole": [
+                "As",
+                "5s"
+              ],
+              "board": [],
+              "options": [
+                "fold",
+                "check",
+                "raise"
+              ],
+              "expected": "raise",
+              "engine": "Iso-raise BB vs SB limp",
+              "why": "A5s tem excelente jogabilidade, bloqueador de Ás e posição para isolar o Small Blind."
+            }
+          ]
+        },
+        {
+          "id": "m1l3",
+          "title": "3-bet por Valor e 3-bet Light com Blockers",
+          "minutes": 2,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "3-betar não é loucura: é a chave para jogar potes grandes em posição. Nós dividimos a 3-bet em duas frentes: por valor, com monstros como QQ e AK, e 3-bet light com bloqueadores, usando mãos como A4s e KTs. Se o adversário foldar pré-flop, você puxa o pote limpo; se ele pagar, você joga o flop em posição com iniciativa e cartas vivas. Olhe este spot com A♠ 4♠ no Botão contra um open do Cutoff!"
+          },
+          "handExample": {
+            "title": "3-Bet Light com Blocker de Ás",
+            "heroPosition": "BTN",
+            "villainPosition": "CO",
+            "heroCards": [
+              "As",
+              "4s"
+            ],
+            "boardCards": [],
+            "potBb": "4",
+            "actionText": "CO abriu 2.5 BB. Você está no BTN com As 4s.",
+            "heroDecision": "3-bet para 7.5 BB. Bloqueia AA e AK do adversário e gera alto fold equity.",
+            "keyTakeaway": "Mãos com Ás suited têm equidade pós-flop e bloqueiam as mãos topo do oponente."
+          },
+          "body": "## 3-bet por Valor vs. 3-bet Light\n\n- **Valor (QQ+, AKs, AKo):** construir um pote gigante contra mãos piores.\n- **Light / Semi-blefe (A5s-A2s, KJs, QJs):** mãos com bloqueadores que fazem o oponente foldar mãos médias como KTo ou 66.\n- **Tamanho padrão em posição:** ~3x o open do adversário.",
+          "quiz": [
+            {
+              "id": "m1l3q1",
+              "kind": "theory",
+              "prompt": "O que significa dizer que A5 suited é uma excelente mão para 3-bet light por ter 'blocker'?",
+              "options": [
+                "Que você bloqueia o dealer de distribuir cartas",
+                "Que ter um Ás na sua mão reduz matematicamente as chances do rival ter AA ou AK",
+                "Que você não pode tomar raise"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Ter um Ás na mão reduz em 50% os combos de AA e em 25% os combos de AK do vilão."
+            },
+            {
+              "id": "m1l3q2",
+              "kind": "engine",
+              "prompt": "Vilão abre 2.5 BB do CO. Você está no BTN com A♥ K♥. Ação?",
+              "hole": [
+                "Ah",
+                "Kh"
+              ],
+              "board": [],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
+              "expected": "raise",
+              "engine": "3-bet por valor BTN vs CO (7.5-8 BB)",
+              "why": "AKs é uma mão de valor premium: 3-bete para construir o pote em posição."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m2",
+      "title": "Módulo 2: O Flop — Leitura de Textura e Agressão",
+      "subtitle": "C-bet em boards secos vs molhados, resposta a check-raise e potes multiway. ~20 min.",
+      "lessons": [
+        {
+          "id": "m2l1",
+          "title": "C-bet no Flop: Boards Secos vs Molhados",
+          "minutes": 2,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "A continuation bet é a aposta mais comum do poker, mas você não deve apostar em todo flop sem pensar. Em boards secos — como Ás, Sete e Dois — o adversário erra mais de 60% das vezes e seu range contém os Áses fortes; aí apostamos pequeno, 25% a 33% do pote. Mas em boards conectados e molhados, como 9, 8 e 7 com flush draw, o oponente acerta dezenas de combos. Nesses boards molhados, pedimos mesa com mãos médias para controlar o pote. Veja a diferença!"
+          },
+          "handExample": {
+            "title": "C-bet 33% em Flop Seco",
+            "heroPosition": "BTN",
+            "villainPosition": "BB",
+            "heroCards": [
+              "Qc",
+              "Jc"
+            ],
+            "boardCards": [
+              "Ah",
+              "7c",
+              "2d"
+            ],
+            "potBb": "5.5",
+            "actionText": "Você abriu BTN, BB pagou. Flop abre Ah 7c 2d. BB passa (check).",
+            "heroDecision": "C-bet de 1.8 BB (33%). O BB desiste sem Ás ou par.",
+            "keyTakeaway": "Boards altos e desconexos favorecem o agressor pré-flop: aposte barato e leve o pote."
+          },
+          "body": "## Boards Secos vs. Molhados\n\n- **Board Seco (Kh 7d 2c, As 8c 3d):** Poucos draws possíveis. C-bet frequente e barata (25% a 33% do pote).\n- **Board Molhado (9h 8h 7c, Js Ts 5h):** O oponente acerta pares e sequências. C-bete menos frequentemente; quando apostar por valor, use 60% a 75% do pote para cobrar os draws.",
+          "quiz": [
+            {
+              "id": "m2l1q1",
+              "kind": "theory",
+              "prompt": "Por que apostamos apenas 25-33% do pote em um flop seco como A♠ 8♦ 2♣?",
+              "options": [
+                "Porque o vilão raramente tem jogo e folda muito sem precisarmos arriscar fichas",
+                "Porque queremos que o vilão aumente",
+                "Porque as regras do cash game obrigam esse valor"
+              ],
+              "expectedIndex": 0,
+              "explanation": "No board seco, o vilão ou tem algo ou não tem nada. Uma aposta pequena cumpre o mesmo papel de uma grande."
+            },
+            {
+              "id": "m2l1q2",
+              "kind": "engine",
+              "prompt": "Você abriu BTN com Q♠ J♠. Flop: 9♥ 8♥ 7♣ (muito molhado). BB deu check. Ação?",
+              "hole": [
+                "Qs",
+                "Js"
+              ],
+              "board": [
+                "9h",
+                "8h",
+                "7c"
+              ],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
+              "expected": "call",
+              "engine": "Check-back (controlar pote)",
+              "why": "Sem par e sem draw forte em board perigoso: pedir mesa (check-back) evita tomar check-raise."
+            }
+          ]
+        },
+        {
+          "id": "m2l2",
+          "title": "Como responder a Check-Raise e a Arte do Float",
+          "minutes": 2,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "Você fez a sua c-bet e, de repente, o Big Blind aumentou em check-raise. O que fazer? Em micro e low stakes, o check-raise raramente é blefe puro; costuma ser dois pares, trincas ou draws fortíssimos. Pagar com par médio sem cartas extras é doar fichas. No entanto, em posição e com mãos que possuem cartas de backdoor e posição, você pode usar a técnica do 'Float': pagar no flop para tomar o pote no turn caso ele mostre fraqueza."
+          },
+          "handExample": {
+            "title": "Foldando vs. Check-Raise sem Outs",
+            "heroPosition": "CO",
+            "villainPosition": "BB",
+            "heroCards": [
+              "Kd",
+              "Jd"
+            ],
+            "boardCards": [
+              "Kc",
+              "8s",
+              "3h"
+            ],
+            "potBb": "16",
+            "actionText": "Você c-betou no flop Kc 8s 3h. O BB aplicou um check-raise de 4x o seu bet.",
+            "heroDecision": "Fold disciplinado. Contra jogadores normais, KJ perde para KQ, AK, 88 e 33.",
+            "keyTakeaway": "Disciplina no fold contra aumento pós-flop preserva seu bankroll no longo prazo."
+          },
+          "body": "## O que significa um Check-Raise?\n\n- **Valor Forte:** Trincas, dois pares, top pair top kicker.\n- **Semi-blefes:** Nut flush draw, straight draws abertos.\n- **Resposta:** Continue apenas com topo do seu range ou draws com alta equidade; folde pares médios sem remorso.",
+          "quiz": [
+            {
+              "id": "m2l2q1",
+              "kind": "theory",
+              "prompt": "O que é a jogada conhecida como 'Float' no poker?",
+              "options": [
+                "Dar fold imediatamente no pré-flop",
+                "Pagar uma aposta no flop em posição com intenção de tomar o pote no turn quando o rival checar",
+                "Pedir tempo extra para pensar"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Float é um call planejado em posição para explorar o check do agressor no turn."
+            },
+            {
+              "id": "m2l2q2",
+              "kind": "engine",
+              "prompt": "Flop Kc 8s 3h. Você tem K♦ 9♦. Vilão dá check-raise pesado. Ação?",
+              "hole": [
+                "Kd",
+                "9d"
+              ],
+              "board": [
+                "Kc",
+                "8s",
+                "3h"
+              ],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
+              "expected": "fold",
+              "engine": "Fold vs check-raise de valor",
+              "why": "Top pair com kicker fraco (K9) está dominado por AK, KQ, KJ e trincas. Pagar é sangrar stack."
+            }
+          ]
+        },
+        {
+          "id": "m2l3",
+          "title": "Potes Multiway & Set Mining",
+          "minutes": 2,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "Quando três ou mais jogadores chegam ao flop, a matemática do poker muda totalmente: a eficácia dos blefes desaba. Alguém sempre acerta alguma coisa. Com pares baixos e médios de 22 a 88, nosso plano antes do flop é fazer 'Set Mining': pagar barato torcendo para acertar a trinca. Se você acertar o set, aposte forte para cobrar draws; se errar, passe ou desista barato."
+          },
+          "handExample": {
+            "title": "Set Mining em Pote Multiway",
+            "heroPosition": "BB",
+            "villainPosition": "UTG & BTN",
+            "heroCards": [
+              "8c",
+              "8d"
+            ],
+            "boardCards": [
+              "8h",
+              "7s",
+              "2c"
+            ],
+            "potBb": "12",
+            "actionText": "Você pagou pré-flop no BB. Flop abre 8h 7s 2c e você acerta trinca (set de 8).",
+            "heroDecision": "Bet por valor de 60% do pote. Em multiway não dê slowplay; cobre de 98, T8 e draws.",
+            "keyTakeaway": "Em potes multiway, mãos de valor devem ser apostadas para construir potes grandes."
+          },
+          "body": "## Regras de Ouro em Potes Multiway\n\n1. **Blefe muito menos:** com 3+ jogadores, a chance de alguém pagar é enorme.\n2. **Aposte por valor real:** quando acertar set ou dois pares, cobre dos draws.\n3. **Set Mining:** Pagar com pares 22-88 só vale a pena se os stacks forem profundos (20x o valor do call).",
+          "quiz": [
+            {
+              "id": "m2l3q1",
+              "kind": "theory",
+              "prompt": "Por que devemos evitar blefar em potes multiway (com 3 ou mais jogadores no flop)?",
+              "options": [
+                "Porque o rake é mais caro em potes multiway",
+                "Porque a probabilidade de pelo menos um oponente ter acertado um jogo forte aumenta drasticamente",
+                "Porque os potes multiway são proibidos em torneios"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Com mais jogadores disputando o pote, o fold equity coletivo é extremamente baixo."
+            },
+            {
+              "id": "m2l3q2",
+              "kind": "engine",
+              "prompt": "Flop 8h 7s 2c multiway com 3 jogadores. Você tem 8♣ 8♦ (Trinca). Ação?",
+              "hole": [
+                "8c",
+                "8d"
+              ],
+              "board": [
+                "8h",
+                "7s",
+                "2c"
+              ],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
+              "expected": "raise",
+              "engine": "Value bet multiway (60-70% pot)",
+              "why": "Com trinca no flop molhado em multiway, aposte para extrair valor e proteger contra draws."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m3",
+      "title": "Módulo 3: O Turn — Pot Control e Polarização",
+      "subtitle": "Double barrel em scare cards, pot control e cálculo exato de draws. ~20 min.",
+      "lessons": [
+        {
+          "id": "m3l1",
+          "title": "Double Barrel: Scare Cards e Sizing de Turn",
+          "minutes": 2,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "Você apostou no flop e tomou call. Agora cai o Turn: a rua onde os potes crescem exponencialmente. O double barrel — apostar de novo no turn — deve ser feito principalmente em 'Scare Cards': cartas altas como Ás ou Rei que favorecem seu range, ou cartas que aumentam sua equidade com flush e straight draws. O sizing correto aqui é mais pesado: 66% a 75% do pote para polarizar sua linha!"
+          },
+          "handExample": {
+            "title": "Double Barrel no Turn com Scare Card",
+            "heroPosition": "BTN",
+            "villainPosition": "BB",
+            "heroCards": [
+              "As",
+              "Qd"
+            ],
+            "boardCards": [
+              "Qs",
+              "8c",
+              "3h",
+              "Kd"
+            ],
+            "potBb": "12",
+            "actionText": "Você c-betou no flop Q 8 3. O turn traz um Kd (scare card). O BB dá check.",
+            "heroDecision": "Segundo barril de 8 BB (66% pote). Força o fold de 8x fracos e draws do vilão.",
+            "keyTakeaway": "Cartas que assustam o range passivo do oponente devem ser atacadas com convicção."
+          },
+          "body": "## Quando dar o Segundo Barril (Double Barrel)?\n\n1. **Scare Cards:** Ás, Rei ou cartas que completam sequências do seu range.\n2. **Equity Acrescentada:** Você ganhou flush draw ou broca de sequência.\n3. **Sizing ideal:** 60% a 75% do pote para não telegrafar se é valor ou semi-blefe.",
+          "quiz": [
+            {
+              "id": "m3l1q1",
+              "kind": "theory",
+              "prompt": "O que caracteriza uma 'scare card' no turn a favor do agressor pré-flop?",
+              "options": [
+                "Uma carta que fecha pares no board",
+                "Uma carta alta (como A ou K) que está fortemente presente no range de quem abriu o pote",
+                "Uma carta de naipe diferente"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Cartas altas favorecem o agressor pré-flop, assustando o caller que tem apenas pares médios."
+            },
+            {
+              "id": "m3l1q2",
+              "kind": "engine",
+              "prompt": "Flop Qs 8c 3h, turn Kd. Você tem A♠ Q♦ no BTN. BB deu check. Ação?",
+              "hole": [
+                "As",
+                "Qd"
+              ],
+              "board": [
+                "Qs",
+                "8c",
+                "3h",
+                "Kd"
+              ],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
+              "expected": "raise",
+              "engine": "Double barrel polarizado 66%",
+              "why": "Apostar no turn cobra de draws, mantém a iniciativa e pressiona os pares médios do adversário."
+            }
+          ]
+        },
+        {
+          "id": "m3l2",
+          "title": "Pot Control vs. Apostas Polarizadas",
+          "minutes": 2,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "No turn você precisa escolher entre duas filosofias: controlar o pote ou polarizar. Se sua mão tem valor intermediário — como segundo par ou top pair com kicker modesto — você quer 'Pot Control': pedir mesa para chegar ao river sem inflar o pote. Já com mãos monstras ou blefes selecionados, você polariza apostando pesado. Não caia na armadilha de apostar meio pote com jogo médio e tomar raise!"
+          },
+          "handExample": {
+            "title": "Pot Control com Segundo Par",
+            "heroPosition": "BTN",
+            "villainPosition": "BB",
+            "heroCards": [
+              "Jh",
+              "Td"
+            ],
+            "boardCards": [
+              "Jc",
+              "8d",
+              "4c",
+              "9c"
+            ],
+            "potBb": "10",
+            "actionText": "Você tem top pair J10. O turn traz um 9c (completa flush e straight). Vilão checa.",
+            "heroDecision": "Check-back (pot control). Mantenha o pote pequeno em board perigoso.",
+            "keyTakeaway": "Com mãos que não suportam raise, pedir mesa garante ver o river com segurança."
+          },
+          "body": "## Pot Control vs. Polarização\n\n- **Pot Control (Check / Aposta pequena):** Mãos médias que ganham no showdown mas não querem ser colocadas em all-in.\n- **Polarização (Aposta de 75%+ do pote):** Linha que diz: 'Eu tenho os nuts absolutos ou estou blefando'.",
+          "quiz": [
+            {
+              "id": "m3l2q1",
+              "kind": "theory",
+              "prompt": "Qual o principal objetivo do 'Pot Control' no turn?",
+              "options": [
+                "Fazer o vilão desistir na hora",
+                "Evitar inflar o pote com mãos de força intermediária e chegar barato ao showdown",
+                "Aumentar o valor do rake"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Mãos de força média jogam melhor em potes controlados, evitando decisões difíceis contra raises."
+            },
+            {
+              "id": "m3l2q2",
+              "kind": "engine",
+              "prompt": "Board Jc 8d 4c 9c. Você tem J♥ 10♦ no BTN. Vilão no BB checa no turn. Ação?",
+              "hole": [
+                "Jh",
+                "Td"
+              ],
+              "board": [
+                "Jc",
+                "8d",
+                "4c",
+                "9c"
+              ],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
+              "expected": "call",
+              "engine": "Check-back pot control",
+              "why": "O board conectou flush e sequências; pedir mesa mantém o pote controlado e garante ver o river."
+            }
+          ]
+        },
+        {
+          "id": "m3l3",
+          "title": "Draws, Outs e Matemática de Pot Odds no Turn",
+          "minutes": 2,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "Chega de adivinhar: poker lucrativo é matemática simples. No turn, para saber se vale a pena pagar uma aposta com flush draw ou sequência, usamos a Regra do 2: multiplique o número de outs por dois para achar sua porcentagem de acertar a carta no river. Um flush draw tem 9 outs, logo tem aproximadamente 18% de chance. Se o pote te oferecer um preço menor do que 18%, pagar é lucro garantido no longo prazo!"
+          },
+          "handExample": {
+            "title": "Calculando Pot Odds no Turn",
+            "heroPosition": "BTN",
+            "villainPosition": "SB",
+            "heroCards": [
+              "Ah",
+              "Kh"
+            ],
+            "boardCards": [
+              "Qh",
+              "9h",
+              "3c",
+              "2d"
+            ],
+            "potBb": "15",
+            "actionText": "Você tem nut flush draw (9 outs de copas). Vilão aposta 3 BB em pote de 12 BB.",
+            "heroDecision": "Call fácil! Você precisa de 20% e tem ~18% + implied odds gigantes.",
+            "keyTakeaway": "Pot odds favoráveis combinadas com posição tornam o call de draws matematicamente lucrativo."
+          },
+          "body": "## A Regra do 2 no Turn\n\n$$\\text{Probabilidade no River} \\approx \\text{Número de Outs} \\times 2$$\n\n- **Flush Draw:** 9 outs $\\times 2 \\approx 18\\%$\n- **Open-Ended Straight Draw:** 8 outs $\\times 2 \\approx 16\\%$\n- **Broca (Gutshot):** 4 outs $\\times 2 \\approx 8\\%$",
+          "quiz": [
+            {
+              "id": "m3l3q1",
+              "kind": "theory",
+              "prompt": "Quantos outs tem um Flush Draw (4 cartas do mesmo naipe) entre o turn e o river?",
+              "options": [
+                "4 outs",
+                "9 outs (aproximadamente 18% de chance)",
+                "15 outs"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Existem 13 cartas de cada naipe. Se você tem 2 e a mesa tem 2, sobram 9 cartas no baralho."
+            },
+            {
+              "id": "m3l3q2",
+              "kind": "engine",
+              "prompt": "Turn com pote 15 BB. Vilão aposta 3 BB. Você tem Nut Flush Draw com A♥ K♥. Ação?",
+              "hole": [
+                "Ah",
+                "Kh"
+              ],
+              "board": [
+                "Qh",
+                "9h",
+                "3c",
+                "2d"
+              ],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
+              "expected": "call",
+              "engine": "Call por pot odds com nut draw",
+              "why": "O preço oferecido é minúsculo (3 BB para disputar 18 BB) e você tem 9 outs limpos para o nut flush."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m4",
+      "title": "Módulo 4: O River — Decisões de Showdown & Valor Máximo",
+      "subtitle": "Thin value, bluff-catchers, bloqueadores e overbets no river. ~20 min.",
+      "lessons": [
+        {
+          "id": "m4l1",
+          "title": "Thin Value Bet vs. Blefe Puro",
+          "minutes": 2,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "No river a equidade acaba: não existem mais cartas a vir. Suas fichas só podem ser colocadas no meio por dois motivos: por valor, para ser pago por mãos piores, ou por blefe, para fazer mãos melhores desistirem. O thin value bet — apostar uma mão marginal que ainda bate o range de call do vilão — é o divisor de águas entre um amador e um profissional. Veja este exemplo com top pair fraco no river!"
+          },
+          "handExample": {
+            "title": "Thin Value Bet no River",
+            "heroPosition": "BTN",
+            "villainPosition": "BB",
+            "heroCards": [
+              "Ad",
+              "Jd"
+            ],
+            "boardCards": [
+              "As",
+              "9c",
+              "4d",
+              "2h",
+              "7s"
+            ],
+            "potBb": "16",
+            "actionText": "Board final As 9c 4d 2h 7s. Vilão passivo checa no river.",
+            "heroDecision": "Thin value bet de 8 BB (50% do pote). Ele paga com A8, A5 ou 9x.",
+            "keyTakeaway": "Contra jogadores passivos que odeiam foldar pares, aposte por valor fino e não dê check."
+          },
+          "body": "## As Únicas Ações do River\n\n1. **Value Bet:** Você quer que o oponente pague com mão pior.\n2. **Blefe:** Você quer que o oponente folde uma mão melhor que a sua.\n3. **Check:** Sua mão não toma call de pior e não faz ninguém melhor foldar.",
+          "quiz": [
+            {
+              "id": "m4l1q1",
+              "kind": "theory",
+              "prompt": "Qual a definição correta de um 'Thin Value Bet' no river?",
+              "options": [
+                "Apostar com os nuts absolutos esperando tomar call de all-in",
+                "Apostar uma mão de força média esperando ser pago por mãos marginalmente piores do adversário",
+                "Blefar quando você tem certeza de que vai perder"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Thin value é a aposta precisa para extrair fichas de mãos inferiores que pagam por curiosidade."
+            },
+            {
+              "id": "m4l1q2",
+              "kind": "engine",
+              "prompt": "River As 9c 4d 2h 7s. Você tem A♦ J♦ no BTN. Vilão passivo dá check. Ação?",
+              "hole": [
+                "Ad",
+                "Jd"
+              ],
+              "board": [
+                "As",
+                "9c",
+                "4d",
+                "2h",
+                "7s"
+              ],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
+              "expected": "raise",
+              "engine": "Thin value bet 50%",
+              "why": "Apostar meio pote extrai valor de Áses menores (A8, A6, A5) e pares de 9 que o vilão não larga."
+            }
+          ]
+        },
+        {
+          "id": "m4l2",
+          "title": "Bluff-Catchers e a Força dos Blockers",
+          "minutes": 2,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "Quando o oponente aposta pesado no river, sua mão muitas vezes vira um 'bluff-catcher': ela só vence se ele estiver blefando. Como decidir entre o herocall ou o fold? Olhe para os seus bloqueadores! Se você tem o Ás do naipe do flush que não bateu, você bloqueia os combos de valor do adversário, tornando o blefe muito mais provável. Veja na mesa como usar bloqueadores para desmontar overbets."
+          },
+          "handExample": {
+            "title": "Hero Call com Blocker de Flush",
+            "heroPosition": "BTN",
+            "villainPosition": "BB",
+            "heroCards": [
+              "Ad",
+              "Ac"
+            ],
+            "boardCards": [
+              "Kh",
+              "9h",
+              "4h",
+              "2c",
+              "7s"
+            ],
+            "potBb": "28",
+            "actionText": "Board tem 3 cartas de copas. Você tem Ad Ac (overpair). Vilão barrela forte no river.",
+            "heroDecision": "Avalie o vilão: sem ter Ah na mão, ele tem mais combos de flush real; fold disciplinado.",
+            "keyTakeaway": "Ter ou não ter a carta bloqueadora do naipe define se o seu par é um call lucrativo ou doação."
+          },
+          "body": "## O que considerar num Bluff-Catcher?\n\n1. **A linha do oponente conta uma história lógica?**\n2. **Blockers:** Minhas cartas diminuem a chance de ele ter o jogo que ele está representando?\n3. **Pot Odds:** Qual a frequência que ele precisa estar blefando para o meu call empatar no zero a zero?",
+          "quiz": [
+            {
+              "id": "m4l2q1",
+              "kind": "theory",
+              "prompt": "O que é um 'Bluff-Catcher' no poker?",
+              "options": [
+                "Um jogador que só aposta quando blefa",
+                "Uma mão que não bate nenhuma mão de valor do rival, mas vence todos os blefes dele",
+                "Um software para detectar trapaças"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Bluff-catcher é a mão que ganha exclusivamente das apostas de blefe do oponente."
+            },
+            {
+              "id": "m4l2q2",
+              "kind": "engine",
+              "prompt": "River com aposta tripla do vilão agressivo. Você tem Overpair A♦ A♣ bloqueando nuts. Ação?",
+              "hole": [
+                "Ad",
+                "Ac"
+              ],
+              "board": [
+                "Js",
+                "Ts",
+                "5c",
+                "2d",
+                "9h"
+              ],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
+              "expected": "call",
+              "engine": "Hero call com overpair",
+              "why": "Contra adversário que dispara múltiplos barris de blefe, o overpair é um excelente bluff-catcher."
+            }
+          ]
+        },
+        {
+          "id": "m4l3",
+          "title": "Overbet Polarizada vs. Blocking Bet",
+          "minutes": 2,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "No river os tamanhos de aposta não precisam ser tímidos. A overbet — apostar mais do que o tamanho do pote — é a ferramenta máxima para extrair o stack inteiro quando você tem os nuts absolutos ou para pressionar o adversário quando você bloqueia as melhores mãos. Por outro lado, a 'blocking bet' é uma aposta pequena de 20% do pote para ditar o preço do showdown e não tomar uma aposta gigante do vilão."
+          },
+          "handExample": {
+            "title": "Overbet de 125% com o Nut Straight",
+            "heroPosition": "BTN",
+            "villainPosition": "BB",
+            "heroCards": [
+              "Jh",
+              "Th"
+            ],
+            "boardCards": [
+              "9h",
+              "8h",
+              "7c",
+              "2d",
+              "Ah"
+            ],
+            "potBb": "20",
+            "actionText": "Você tem Straight Nut J-10. O river traz um Ás que não completa flush. Vilão checa.",
+            "heroDecision": "Overbet de 25 BB (125% do pote). Ele pagará com dois pares e Áses altos.",
+            "keyTakeaway": "Quando o range do vilão está cheio de bluff-catchers teimosos, a overbet dobra seus ganhos."
+          },
+          "body": "## Overbet vs. Blocking Bet\n\n- **Overbet (>100% do pote):** Usada de forma polarizada (nuts ou blefes calculados). Maximiza retorno contra bluff-catchers.\n- **Blocking Bet (20-30% do pote):** Feita fora de posição para fixar um preço barato para ver o showdown sem ser empurrado em all-in.",
+          "quiz": [
+            {
+              "id": "m4l3q1",
+              "kind": "theory",
+              "prompt": "Quando é matematicamente correto aplicar uma Overbet (>100% do pote) no river?",
+              "options": [
+                "Quando você tem uma mão média e quer assustar o adversário",
+                "Com uma linha polarizada: tendo mãos absolutas (nuts) ou blefes bem selecionados contra um range com muitos bluff-catchers",
+                "Sempre que você estiver no botão"
+              ],
+              "expectedIndex": 1,
+              "explanation": "A overbet é polarizada: extrai valor máximo das mãos fortes ou aplica máxima pressão de blefe."
+            },
+            {
+              "id": "m4l3q2",
+              "kind": "engine",
+              "prompt": "River com pote de 20 BB. Você tem Nut Straight J♥ 10♥ no board 9h 8h 7c 2d Ah. Ação?",
+              "hole": [
+                "Jh",
+                "Th"
+              ],
+              "board": [
+                "9h",
+                "8h",
+                "7c",
+                "2d",
+                "Ah"
+              ],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
+              "expected": "raise",
+              "engine": "Overbet por valor máximo",
+              "why": "Com o nut straight absoluto em board com Ás, uma aposta pesada de valor extrai o máximo do adversário."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m5",
+      "title": "Módulo 5: As Variantes Zero Tilt",
+      "subtitle": "Texas Short Deck (Trinca > Sequência), Short Deck Omaha e Ultimate Pineapple. ~20 min.",
+      "lessons": [
+        {
+          "id": "m5l1",
+          "title": "Texas Short Deck: Trinca > Sequência e Flush > Full House",
+          "minutes": 2,
+          "video": {
+            "hostName": "Sofia 'Cold Felt' Alencar",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "Bem-vindo ao Short Deck, a modalidade mais eletrizante do poker moderno! Mas preste muita atenção: se você jogar aqui com as regras do Hold'em comum, você vai perder suas fichas na primeira rodada. No Short Deck, removemos todas as cartas do 2 ao 5, deixando apenas 36 cartas no baralho. Por isso a matemática muda: acertar uma sequência fica muito mais fácil do que acertar uma trinca. Grave bem a regra oficial do Zero Tilt: Trinca vence Sequência, e Flush vence Full House! E lembre-se: o Ás conecta com o 6 para formar a sequência baixa A-6-7-8-9."
+          },
+          "handExample": {
+            "title": "Trinca vence Sequência no Short Deck",
+            "heroPosition": "BTN",
+            "villainPosition": "CO",
+            "heroCards": [
+              "Qh",
+              "Qd"
+            ],
+            "boardCards": [
+              "Qs",
+              "8s",
+              "7d",
+              "Jc",
+              "6h"
+            ],
+            "potBb": "40",
+            "actionText": "Você tem Trinca de Damas (Q-Q-Q). O vilão mostra 10s 9s (Sequência 7-8-9-10-J).",
+            "heroDecision": "Showdown ganho! No Short Deck, Trinca é superior a Sequência.",
+            "keyTakeaway": "Hierarquia Short Deck no Zero Tilt: Trinca > Straight e Flush > Full House."
+          },
+          "body": "## A Matemática do Baralho de 36 Cartas\n\n- **Cartas Removidas:** Todos os 2s, 3s, 4s e 5s (16 cartas eliminadas).\n- **Hierarquia Invertida:**\n  - **Trinca (Three of a Kind) > Sequência (Straight)**\n  - **Flush > Full House**\n- **Wheel Short Deck:** O Ás pode ser usado como a carta mais baixa para formar a sequência `A-6-7-8-9` (com o 9 como carta alta).",
+          "quiz": [
+            {
+              "id": "m5l1q1",
+              "kind": "theory",
+              "prompt": "No Texas Short Deck do Zero Tilt Poker, qual é a hierarquia correta entre Trinca e Sequência?",
+              "options": [
+                "Sequência vence Trinca, como no Hold'em clássico",
+                "Trinca vence Sequência, porque é matematicamente mais rara com 36 cartas",
+                "Dá empate e o pote é dividido"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Com 36 cartas, acertar sequências é comum e trincas são raras; logo, Trinca vence Sequência."
+            },
+            {
+              "id": "m5l1q2",
+              "kind": "engine",
+              "prompt": "Showdown Short Deck. Jogador 1 tem Trinca de 9s (9♣ 9♦). Jogador 2 tem Sequência (10♠ 6♦ no board 9s 8h 7d Jc 6s). Quem vence?",
+              "hole": [
+                "9c",
+                "9d"
+              ],
+              "board": [
+                "9s",
+                "8h",
+                "7d",
+                "Jc",
+                "6s"
+              ],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
+              "expected": "raise",
+              "engine": "Trinca > Sequência no deck.rs",
+              "why": "No Short Deck oficial, a Trinca de 9 vence a Sequência do adversário."
+            }
+          ]
+        },
+        {
+          "id": "m5l2",
+          "title": "Short Deck Omaha (4 Cartas)",
+          "minutes": 2,
+          "video": {
+            "hostName": "Sofia 'Cold Felt' Alencar",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "Se o Short Deck já é cheio de ação, junte quatro cartas na mão e você terá o Short Deck Omaha 5-max. A regra de ouro do Omaha se mantém: você DEVE obrigatoriamente usar duas cartas da sua mão e três cartas da mesa comunitária. Com baralho de 36 cartas e quatro cartas na mão, praticamente todo showdown atinge sequências, flushes e full houses. Mãos fracas sem conectividade e naipes duplos perdem tudo. Veja como escolher suas mãos pré-flop!"
+          },
+          "handExample": {
+            "title": "Regra Obrigatória: 2 da Mão + 3 da Mesa",
+            "heroPosition": "BTN",
+            "villainPosition": "BB",
+            "heroCards": [
+              "Ah",
+              "Kh",
+              "Qc",
+              "Jc"
+            ],
+            "boardCards": [
+              "Th",
+              "9h",
+              "8c"
+            ],
+            "potBb": "18",
+            "actionText": "Você tem quatro cartas broadway com dois naipes (double-suited). Flop monstro!",
+            "heroDecision": "Aposta forte por valor. Mão conectada no Omaha Short Deck gera equidade absurda.",
+            "keyTakeaway": "Lembre-se sempre: é obrigatório usar exatamente 2 cartas da sua mão e 3 da mesa."
+          },
+          "body": "## Regras do Short Deck Omaha (5-max)\n\n1. **4 Cartas Fechadas:** Cada jogador recebe 4 hole cards.\n2. **Regra de 2 + 3:** Obrigatoriamente utiliza 2 da mão e 3 do board.\n3. **Baralho de 36 cartas:** Flushes são muito valiosos e difíceis de fazer (apenas 5 cartas de cada naipe sobram no baralho).",
+          "quiz": [
+            {
+              "id": "m5l2q1",
+              "kind": "theory",
+              "prompt": "Se você tem 4 cartas de Copas na mão no Omaha e o board tem 1 carta de Copas, você tem um Flush?",
+              "options": [
+                "Sim, porque você tem 5 cartas de copas no total",
+                "Não, pois a regra do Omaha exige usar obrigatoriamente 2 cartas da mão e 3 da mesa",
+                "Depende do valor do Ás"
+              ],
+              "expectedIndex": 1,
+              "explanation": "No Omaha é mandatório usar exatamente 2 da mão e 3 da mesa. Com apenas 1 copa no board, é impossível fazer flush."
+            },
+            {
+              "id": "m5l2q2",
+              "kind": "engine",
+              "prompt": "Omaha Short Deck. Você recebe A♠ K♠ Q♦ J♦ (mão double suited conectada no BTN). Ação?",
+              "hole": [
+                "As",
+                "Ks"
+              ],
+              "board": [],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
+              "expected": "raise",
+              "engine": "Premium Omaha Short Deck Open",
+              "why": "Quatro cartas broadway com dois naipes é o topo absoluto dos ranges de Omaha Short Deck."
+            }
+          ]
+        },
+        {
+          "id": "m5l3",
+          "title": "Ultimate Pineapple (3 Hole Cards sem descarte)",
+          "minutes": 2,
+          "video": {
+            "hostName": "Sofia 'Cold Felt' Alencar",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 120,
+            "placeholderScript": "No Ultimate Pineapple do Zero Tilt, você recebe 3 cartas fechadas e — atenção para o diferencial — não há fase de descarte! Você mantém as 3 cartas na mão até o final, e o motor avalia automaticamente a melhor combinação de duas cartas suas com três da mesa comunitária. Essa carta extra aumenta a frequência de trincas e draws monstruosos. Jogue de forma agressiva em posição e explore as apostas de valor!"
+          },
+          "handExample": {
+            "title": "Equidade com 3 Cartas Fechadas",
+            "heroPosition": "BTN",
+            "villainPosition": "SB",
+            "heroCards": [
+              "Ad",
+              "Ac",
+              "Kd"
+            ],
+            "boardCards": [
+              "Ah",
+              "Qc",
+              "2s"
+            ],
+            "potBb": "14",
+            "actionText": "Você recebe A-A-K no Ultimate Pineapple. Flop abre com mais um Ás!",
+            "heroDecision": "Aposte por valor. Você tem trinca de Áses com K kicker imbatível.",
+            "keyTakeaway": "Com 3 cartas na mão sem descarte, o valor médio das mãos vencedoras é muito mais alto."
+          },
+          "body": "## O que é o Ultimate Pineapple 6-max?\n\n- **3 Cartas na Mão:** Cada jogador recebe 3 hole cards.\n- **Sem Descarte:** Ao contrário do Crazy Pineapple, você segura as 3 cartas até o showdown.\n- **Avaliação:** Melhor mão de 5 cartas combinando 2 da sua mão com 3 da mesa comunitária.\n- **Ação Rápida:** Variada e dinâmica, ideal para cash games e MTTs.",
+          "quiz": [
+            {
+              "id": "m5l3q1",
+              "kind": "theory",
+              "prompt": "Como funciona o descarte no Ultimate Pineapple do Zero Tilt Poker?",
+              "options": [
+                "Você descarta uma carta antes do flop",
+                "Você descarta uma carta após o flop",
+                "Não há descarte: você segura as 3 cartas e o motor combina as melhores 2 da mão com 3 da mesa"
+              ],
+              "expectedIndex": 2,
+              "explanation": "No Ultimate Pineapple do Zero Tilt Poker não há descarte; o jogador mantém as 3 cartas."
+            },
+            {
+              "id": "m5l3q2",
+              "kind": "engine",
+              "prompt": "Ultimate Pineapple. Você tem A♠ A♥ K♠ no Botão com flop A♦ Q♣ 2♠. Ação?",
+              "hole": [
+                "As",
+                "Ah"
+              ],
+              "board": [
+                "Ad",
+                "Qc",
+                "2s"
+              ],
+              "options": [
+                "fold",
+                "call",
+                "raise"
+              ],
+              "expected": "raise",
+              "engine": "Top Set Ultimate Pineapple Value Bet",
+              "why": "Trinca de Áses com K kicker é o monstro do board: aposte por valor para construir o pote."
             }
           ]
         }

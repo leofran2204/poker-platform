@@ -104,26 +104,26 @@ Sem avô: 180 ao pai, 820 à casa. Sem patrocinador (a raiz jogando): 1.000 à c
 
 Play Money hoje só muda a **unidade** (ZT Point = 1 centavo de rake PM). Os % não mudam quando (e se) virar real.
 
-### 4.4 Qualificação (anti-pirâmide)
+### 4.4 Qualificação e Ativação (anti-pirâmide)
 
-Para receber pontos de **linha** na semana:
+Para ter direito e receber bonificação de sua rede de afiliados:
 
-1. Ter jogado **pelo menos 50 mãos** naquela semana, **ou**
-2. Ter gerado **R$ 20** de rake PM pessoal (2.000 centavos)
+1. **Ter jogado pelo menos 100 mãos na semana**, considerando o ciclo semanal canônico de **segunda-feira (00:00:00 BRT) até domingo (23:59:59 BRT)**.
 
-Quem só indica e não senta **zera a linha naquela semana**. Os jogadores da ponta continuam jogando; o patrocinador inativo simplesmente não leva VL.
+Quem não atinge o critério **zera a linha naquela semana** (a pontuação é retida pela casa e não pontua). Quem só indica e não joga ativamente não recebe comissão. (Assinatura da Academy como critério: só quando o produto de assinatura existir.)
 
-### 4.5 Liquidação semanal (sexta 18h BRT)
+### 4.5 Pagamento e Apuração Mensal (todo dia 25)
 
-ZT Points **não** viram fichas de cash misturadas com os R$ 150 do reset. Viram:
+As comissões e bonificações apuradas nas semanas em que o afiliado esteve ativo e qualificado são consolidadas e pagas **todo dia 25 de cada mês**.
 
+No estágio Play Money:
 1. **Seats de freeroll da rede**
 2. **Tickets de MTT Play Money**
 3. **Ranking / badge** visível no lobby
 
 Teto semanal sugerido: o equivalente a **2 seats** de freeroll por afiliado qualificado. O restante vira posição no ranking do mês.
 
-**Nunca:** PIX, saque, conversão para `balance_real`, “vender pontos”, transferência entre contas.
+**Nunca:** PIX informal, “vender pontos”, transferência direta entre contas não autorizadas.
 
 ### 4.6 Cadastro
 
@@ -146,7 +146,7 @@ Cada conta autenticada tem **a sua** estrutura, não a da casa:
 
 A raiz vê o mesmo recorte: só os **seus** dois andares (incluindo quem já estava na sala, agora 1º nível). Não é um organograma mundial.
 
-**Implementado (S22, antes modelo):** convite `?ref=`, `referral_code` / `sponsored_by` (045), painel **Minha Estrutura**, ledger 18/12 mão a mão **e** sobre o fee 15% de torneio (`source_type='fee'`, 048). VP 50 mãos ou R$ 20 de rake próprio; sem VP a linha não pontua (retido visível).
+**Implementado:** convite `?ref=`, `referral_code` / `sponsored_by`, painel **Minha Estrutura**, ledger 18/12 mão a mão **e** sobre o fee 15% de torneio (`source_type='fee'`). VP 100 mãos por semana (segunda a domingo); sem VP a linha não pontua (retido visível). Pagamento mensal dia 25.
 
 ---
 

@@ -17,7 +17,7 @@ import { getWalletMode, setWalletModeLocal } from "@/lib/walletMode";
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `zt-nav-link ${isActive ? "zt-nav-link-active" : ""}`;
 
-const MARKETING_PATHS = new Set(["/", "/login", "/register", "/verify-email", "/noticias", "/dicas"]);
+const MARKETING_PATHS = new Set(["/", "/login", "/register", "/verify-email", "/noticias", "/dicas", "/termos"]);
 
 export function Layout() {
   const navigate = useNavigate();
@@ -236,6 +236,10 @@ export function Layout() {
       <footer className="border-t border-felt-700 px-4 py-4 text-center text-xs text-felt-400">
         Zero Tilt Poker · Play Money e Jogo Real
         {marketingShell ? " · mesa ao vivo, rake transparente" : " · Demo / staging"}
+        {" · "}
+        <NavLink to="/termos" className="text-gold-soft hover:underline">
+          Termos de Uso, Privacidade & LGPD
+        </NavLink>
       </footer>
     </div>
   );

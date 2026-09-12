@@ -482,6 +482,10 @@ As tabelas de *range* são matrizes matemáticas que dizem exatamente quais cart
 
 
 
+## Formato audiovisual (Academy)
+
+Aulas com vídeo de 2 minutos (120s): gancho (0–20s), lógica (20–50s), mão na mesa (50–105s), regra de ouro + desafio (105–120s). Coaches virtuais: Vitor "Zero Tilt" Brandão e Sofia "Cold Felt" Alencar. Trava de fixação: 70% nas situações práticas do motor para desbloquear a próxima aula. Pipeline: roteiro em `courseContent.json` (`placeholderScript`) → áudio IA → avatar com lip-sync → mesa gravada do `handExample` → MP4/WebM no CDN com `video.url` preenchida. Grade interativa vigente em `Frontend-Web/src/data/courseContent.json`.
+
 <!-- DOCUMENTATION_SYNC:START -->
 > **S24** (2026-09-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático desligado.
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
