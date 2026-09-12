@@ -68,7 +68,9 @@ if command -v curl >/dev/null 2>&1; then
   else
     echo "${LOG_TAG} caddy-health FAIL (curl)"
   fi
-  curl -fsS -o /dev/null -w "api-via-proxy /health %{http_code}\n" http://127.0.0.1/health || true
+  # /health só existe no vhost HTTPS do domínio (Caddyfile): sonda com
+  # SNI/Host corretos via --resolve. http://127.0.0.1/health dá 404 by design.
+  curl -fsS -o /dev/null -w "api-via-proxy /health %{http_code}\n" --resolve zerotiltpoker.net:443:127.0.0.1 https://zerotiltpoker.net/health || true
 else
   if wget -qO- http://127.0.0.1/caddy-health 2>/dev/null | grep -q OK; then
     echo "${LOG_TAG} caddy-health OK"
