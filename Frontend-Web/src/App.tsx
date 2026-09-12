@@ -46,6 +46,12 @@ const AdminAuditPage = lazy(() =>
 const AdminBotsPage = lazy(() =>
   import("@/pages/AdminBotsPage").then((m) => ({ default: m.AdminBotsPage })),
 );
+const NewsPage = lazy(() =>
+  import("@/pages/NewsPage").then((m) => ({ default: m.NewsPage })),
+);
+const TipsPage = lazy(() =>
+  import("@/pages/TipsPage").then((m) => ({ default: m.TipsPage })),
+);
 
 function AdminFallback() {
   return (
@@ -68,6 +74,22 @@ export default function App() {
           <Route path="lobby" element={<LobbyPage />} />
           <Route path="curso" element={<CoursePage />} />
           <Route path="curso/:lessonId" element={<LessonPage />} />
+          <Route
+            path="noticias"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <NewsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="dicas"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <TipsPage />
+              </Suspense>
+            }
+          />
           <Route path="wallet" element={<WalletPage />} />
           <Route path="estrutura" element={<EstruturaPage />} />
           <Route path="tournament/:id" element={<TournamentPage />} />

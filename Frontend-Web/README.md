@@ -26,11 +26,20 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 - Logado: `POST /api/presence/heartbeat` periódico
 - Visitante: `GET /api/presence/online`
 
-## Notícias e dicas (home)
+## Home
 
-- Componente `NewsTips` abaixo do painel principal
+- Hero + `ShowcaseTable` animada (flop→river em loop, 2 cenários, sem WebSocket)
+- `home/LossDeflatorSection` — explicação leiga em 3 passos + tabela de faixas + `DeflatorSimulator` (equity×pote) + replays `AnimatedHand`; copy em `src/data/homeContent.json`
+- `home/GamesSection` — abas Hold'em/Short Deck/Omaha/Pineapple + replay por variante
+- Prévias compactas de Notícias/Dica do Pró (só conteúdo local, sem fetch) + CTA da Academy
+- História do poker mora no curso, não na home
+
+## Notícias e dicas
+
+- Componente `NewsTips` com props `tab` (trava aba), `compact` (prévia local sem rede) e `previewLimit`
+- Páginas dedicadas `/noticias` e `/dicas` (lazy no `App.tsx`, links no nav)
 - Aba **Notícias**: RSS multi-fonte; capa = thumbnail/og oficial **ou** fallback temático (sem rostos repetidos/errados)
-- Aba **Jogando melhor**: tips por street (`src/data/tipsContent.json`)
+- Aba **Dica do Pró**: tips por street (`src/data/tipsContent.json`)
 
 ## Lobby e carteira
 

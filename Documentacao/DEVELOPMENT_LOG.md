@@ -879,3 +879,11 @@
 - **Curso M0 (c32cacb, ef5869b, 637a4f8):** `courseContent.json` (6 aulas, 14 questões; 5 práticas com gabarito gerado pelo `bot/strategy/decide.ts`); rotas `/curso` e `/curso/:lessonId` (`CoursePage`, `LessonPage`, `CourseQuiz` com cartas inline); migration `054 course_progress` + `GET/POST /api/course/progress` (auth; 401 sem token verificado); título "Módulo 0 (iniciante)".
 - **Incidentes e lições:** deploy quebrou com `VersionMismatch(53)` — sessão paralela ocupou a 053 (NL 0,75); renumeração para 054 resolveu. Regra anti-colisão de migrations registrada no `AGENTS.md` (39b31e0). 9 arquivos DePix da sessão paralela deixados intactos; 5 linhas do `marketingShell` absorvidas em `Layout.tsx` para não quebrar o build validado.
 - **Verificação final:** health OK; lobby 5+5 (inclui NL 0,75/1,50 da 053 alheia); torneios 5+5; presence operacional; curso no bundle.
+
+## 2026-09-12 — S24: home dinâmica (deflator + jogos) e páginas notícias/dicas
+
+- **Home:** saiu `PokerHistory` (história mora no curso + CTA Academy); entraram `LossDeflatorSection` (3 passos leigos, tabela de faixas, FAQ) e `GamesSection` (abas Hold'em/SD/Omaha/Pineapple); `ShowcaseTable` anima flop→river em loop (2 cenários, respeita reduced-motion).
+- **Simulador + replays:** `DeflatorSimulator` (slider equity + pote → tier/valor, `lib/deflator.ts` com `deflator.test.ts` 7 testes); `AnimatedHand` (replay passo a passo AA×KK e AQ×KJ + 1 por variante, sem MP4); copy em `data/homeContent.json`.
+- **Notícias/Dicas:** `NewsTips` com props `tab`/`compact`/`previewLimit` (compact = só local, sem fetch); rotas lazy `/noticias` e `/dicas` + links no nav (visitante incluso); home com 2 prévias de 2 cards.
+- **Validado:** tsc limpo, ESLint limpo, Vitest 23/23, `vite build` OK (via bun; Node 18 do PATH não roda Vite 8), `git diff --check` limpo.
+- **Escopo do commit:** só arquivos/hunks da home (`App.tsx`/`Layout.tsx` com stage parcial — hunks de Termos da outra sessão ficaram fora).

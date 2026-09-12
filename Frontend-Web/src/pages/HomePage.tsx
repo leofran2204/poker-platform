@@ -2,7 +2,8 @@ import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { isAuthenticated } from "@/lib/auth";
 import { OnlinePresenceHero } from "@/components/OnlinePresence";
-import { PokerHistory } from "@/components/PokerHistory";
+import { GamesSection } from "@/components/home/GamesSection";
+import { LossDeflatorSection } from "@/components/home/LossDeflatorSection";
 import { ShowcaseTable } from "@/components/ShowcaseTable";
 
 const NewsTips = lazy(() =>
@@ -69,36 +70,59 @@ export function HomePage() {
         </div>
       </section>
 
-      <div className="mx-auto w-full max-w-6xl px-4 py-10">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Feature
-            title="Loss Deflator"
-            body="All-in com a melhor mão (mais de 56%) e mesmo assim perdeu: de 7% a 35% daquele pote volta na hora, sai do próprio pote, não do caixa da casa. O bad beat dói menos e a sessão continua."
-          />
-          <Feature
-            title="Hold’em, Short Deck, Omaha, Pineapple"
-            body="Baralho curto de 36 cartas (sem 2 a 5). No Short Deck flush vale mais que full house. Omaha 4 cartas e Ultimate Pineapple (3 cartas, sem descarte): o jogador usa 2 da mão e 3 do board para formar o jogo."
-          />
+      <div className="mx-auto w-full max-w-6xl space-y-12 px-4 py-10">
+        <div className="zt-reveal">
+          <LossDeflatorSection />
         </div>
 
-        <div className="mt-8 grid gap-4 lg:grid-cols-2">
-          <PokerHistory variant="world" />
-          <PokerHistory variant="brazil" />
+        <div className="zt-reveal">
+          <GamesSection />
         </div>
 
-        <Suspense fallback={<p className="mt-8 text-center text-sm text-felt-400">Carregando notícias…</p>}>
-          <NewsTips className="mt-8" />
-        </Suspense>
+        <div className="zt-reveal zt-panel flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-base font-bold text-gold-bright">
+              Do zero absoluto ao jogo pensante
+            </h2>
+            <p className="mt-1 max-w-xl text-sm text-felt-200">
+              História do poker, posição, ranges e equidade — com vídeos de 2 minutos, quiz
+              avaliado pelo motor e progresso salvo na conta.
+            </p>
+          </div>
+          <Link to="/curso" className="zt-btn-primary shrink-0 px-6 py-2.5">
+            Abrir a Academy →
+          </Link>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="zt-reveal space-y-2">
+            <div className="flex items-baseline justify-between px-1">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-gold-bright">
+                Notícias
+              </h2>
+              <Link to="/noticias" className="text-xs font-semibold text-gold-soft hover:underline">
+                Ver todas →
+              </Link>
+            </div>
+            <Suspense fallback={<p className="text-center text-sm text-felt-400">Carregando…</p>}>
+              <NewsTips tab="news" compact previewLimit={2} />
+            </Suspense>
+          </div>
+          <div className="zt-reveal space-y-2">
+            <div className="flex items-baseline justify-between px-1">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-gold-bright">
+                Dica do Pró
+              </h2>
+              <Link to="/dicas" className="text-xs font-semibold text-gold-soft hover:underline">
+                Ver todas →
+              </Link>
+            </div>
+            <Suspense fallback={<p className="text-center text-sm text-felt-400">Carregando…</p>}>
+              <NewsTips tab="tips" compact previewLimit={2} />
+            </Suspense>
+          </div>
+        </div>
       </div>
-    </div>
-  );
-}
-
-function Feature({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="zt-panel px-5 py-5">
-      <h2 className="text-sm font-bold text-gold-bright">{title}</h2>
-      <p className="mt-2 text-sm leading-relaxed text-felt-200">{body}</p>
     </div>
   );
 }

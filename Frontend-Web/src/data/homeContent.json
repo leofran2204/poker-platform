@@ -1,0 +1,178 @@
+{
+  "deflator": {
+    "intro": "No poker, às vezes você joga perfeito e perde mesmo assim — o famoso bad beat. O Loss Deflator é o amortecedor da Zero Tilt: quando você vai all-in com a melhor mão e o azar bate, parte do pote volta na hora.",
+    "steps": [
+      {
+        "title": "1. All-in pago",
+        "body": "Você aposta todas as fichas com a melhor mão e o adversário paga. A partir daí não há mais decisão — só o baralho."
+      },
+      {
+        "title": "2. Foto da sua chance",
+        "body": "O motor registra a sua probabilidade de vencer naquele instante (equity). Se era 56% ou mais, você está elegível. A fase da mão não escolhe nada — só diz quais cartas já estavam abertas."
+      },
+      {
+        "title": "3. Volta parte do pote",
+        "body": "Se o azar vencer, de 7% a 35% do pote líquido volta para você na liquidação. O dinheiro sai do pote do vencedor — ninguém cria ficha, a conta fecha exata."
+      }
+    ],
+    "tiers": [
+      { "range": "56% – 65,9%", "percent": 7, "label": "Favorito leve", "example": "AQ vs KJ: 62% e perde para um J no flop" },
+      { "range": "66% – 75,9%", "percent": 15, "label": "Favorito moderado", "example": "JJ vs AT: 71% e o Ás aparece" },
+      { "range": "76% – 85,9%", "percent": 25, "label": "Grande favorito", "example": "AA vs KK: 82% e o K bate no river" },
+      { "range": "86% ou mais", "percent": 35, "label": "Bad beat extrema", "example": "Trinca de Ases com 97% perde para sequência runner-runner" }
+    ],
+    "faq": [
+      {
+        "q": "De onde sai o dinheiro?",
+        "a": "Do próprio pote da mão, descontado da fatia do vencedor. Primeiro sai o rake da casa, depois o cashback — sempre sobre o valor líquido."
+      },
+      {
+        "q": "E se eu tinha menos de 56%?",
+        "a": "Aí não volta nada: com menos de 56% você não era favorito, era coin flip ou azarão. O benefício protege quem jogou na frente."
+      },
+      {
+        "q": "Vale para side pot?",
+        "a": "Só dos potes em que você participou. Se um side pot foi disputado só entre outros dois jogadores, ele fica 100% intocado."
+      }
+    ],
+    "demoHands": [
+      {
+        "id": "aa-vs-kk",
+        "title": "AA vs KK — o clássico de 82%",
+        "heroLabel": "Você (AA)",
+        "heroCards": ["As", "Ac"],
+        "villainLabel": "Vilão (KK)",
+        "villainCards": ["Ks", "Kd"],
+        "streets": [
+          { "label": "Pré-flop: all-in — você tem 82%", "board": [] },
+          { "label": "Flop: A 7 2 — você segue na frente", "board": ["Ah", "7c", "2d"] },
+          { "label": "Turn: 9 — ainda na frente", "board": ["Ah", "7c", "2d", "9s"] },
+          { "label": "River: K — o azar bateu", "board": ["Ah", "7c", "2d", "9s", "Kh"] }
+        ],
+        "equity": 82,
+        "potCents": 20000,
+        "result": "Trinca de Reis vence. Como sua equity era 82% (faixa de 25%), R$ 50,00 dos R$ 200,00 voltam para você na hora."
+      },
+      {
+        "id": "aq-vs-kj",
+        "title": "AQ vs KJ — favorito leve de 62%",
+        "heroLabel": "Você (AQ)",
+        "heroCards": ["As", "Qd"],
+        "villainLabel": "Vilão (KJ)",
+        "villainCards": ["Kh", "Jh"],
+        "streets": [
+          { "label": "Pré-flop: all-in — você tem 62%", "board": [] },
+          { "label": "Flop: J 5 2 — o vilão passou à frente", "board": ["Jc", "5d", "2s"] },
+          { "label": "Turn: 7 — segue atrás", "board": ["Jc", "5d", "2s", "7h"] },
+          { "label": "River: 9 — não salvou", "board": ["Jc", "5d", "2s", "7h", "9c"] }
+        ],
+        "equity": 62,
+        "potCents": 40000,
+        "result": "O par de Valetes vence. Como sua equity era 62% (faixa de 7%), R$ 28,00 dos R$ 400,00 voltam para você."
+      }
+    ]
+  },
+  "variants": [
+    {
+      "id": "holdem",
+      "name": "Texas Hold'em",
+      "deck": "52 cartas",
+      "hole": "2 cartas só suas",
+      "make": "Combine as suas 2 com as 5 da mesa e forme o melhor jogo de 5 cartas.",
+      "twist": "Ranking clássico: sequência, flush e full house na ordem que todo mundo conhece.",
+      "cap": "Mesas até 9 jogadores",
+      "demoHand": {
+        "id": "holdem-demo",
+        "title": "Royal flush: o jogo imbatível",
+        "heroLabel": "Você",
+        "heroCards": ["As", "Ks"],
+        "villainLabel": "Mesa",
+        "villainCards": [],
+        "streets": [
+          { "label": "Suas cartas: A K de espadas", "board": [] },
+          { "label": "Flop abre Q J T — sequência real à vista", "board": ["Qs", "Js", "Th"] },
+          { "label": "Turn e river completam a mesa", "board": ["Qs", "Js", "Th", "3d", "2c"] }
+        ],
+        "equity": 100,
+        "potCents": 15000,
+        "result": "A K Q J T de espadas: royal flush. Suas 2 + 3 da mesa formam o melhor jogo possível."
+      }
+    },
+    {
+      "id": "short_deck",
+      "name": "Texas Short Deck",
+      "deck": "36 cartas (sem 2, 3, 4 e 5)",
+      "hole": "2 cartas só suas",
+      "make": "Igual ao Hold'em: melhor jogo de 5 com as suas 2 + as 5 da mesa.",
+      "twist": "Com menos cartas, o jogo muda: flush vale mais que full house e trinca vale mais que sequência.",
+      "cap": "Mesas até 8 jogadores",
+      "demoHand": {
+        "id": "shortdeck-demo",
+        "title": "Flush bate full house no Short Deck",
+        "heroLabel": "Você (flush)",
+        "heroCards": ["As", "Ks"],
+        "villainLabel": "Vilão (full house)",
+        "villainCards": ["Qh", "Qd"],
+        "streets": [
+          { "label": "Pré-flop no baralho curto", "board": [] },
+          { "label": "Flop: Q Q J — vilão com trinca", "board": ["Qc", "Qs", "Jh"] },
+          { "label": "Turn: 9 de espadas — seu flush desenha", "board": ["Qc", "Qs", "Jh", "9s"] },
+          { "label": "River: 8 de espadas — flush pronto", "board": ["Qc", "Qs", "Jh", "9s", "8s"] }
+        ],
+        "equity": 76,
+        "potCents": 15000,
+        "result": "No Short Deck, flush supera full house. Aqui quem ri é você — no Hold'em tradicional seria o contrário."
+      }
+    },
+    {
+      "id": "omaha",
+      "name": "Omaha 4 Cartas",
+      "deck": "36 cartas (baralho curto)",
+      "hole": "4 cartas só suas",
+      "make": "Obrigatório usar exatamente 2 da sua mão + 3 da mesa. Nem 1+4, nem 3+2.",
+      "twist": "Com 4 cartas, todo mundo tem mais jogo — os potes crescem e o bad beat aparece mais.",
+      "cap": "Mesas até 5 jogadores",
+      "demoHand": {
+        "id": "omaha-demo",
+        "title": "Exatamente 2 da mão + 3 da mesa",
+        "heroLabel": "Você",
+        "heroCards": ["As", "Ks", "Qd", "Jd"],
+        "villainLabel": "Mesa",
+        "villainCards": [],
+        "streets": [
+          { "label": "4 cartas na mão — mais combinações", "board": [] },
+          { "label": "Flop: T 9 2 com duas de espadas", "board": ["Ts", "9s", "2h"] },
+          { "label": "Turn e river definem", "board": ["Ts", "9s", "2h", "3c", "8s"] }
+        ],
+        "equity": 68,
+        "potCents": 20000,
+        "result": "Você usa A K de espadas + 3 da mesa para o nut flush. As outras 2 cartas ficam de fora — a regra do 2+3 é inegociável."
+      }
+    },
+    {
+      "id": "pineapple",
+      "name": "Ultimate Pineapple",
+      "deck": "36 cartas (baralho curto)",
+      "hole": "3 cartas só suas, sem descartar",
+      "make": "No showdown, escolha as melhores 2 das suas 3 + 3 da mesa.",
+      "twist": "Três cartas parecem pouco a mais, mas dobram as combinações — e a confusão dos iniciantes.",
+      "cap": "Mesas até 6 jogadores",
+      "demoHand": {
+        "id": "pineapple-demo",
+        "title": "3 na mão, 2 valem",
+        "heroLabel": "Você",
+        "heroCards": ["As", "Ks", "Qh"],
+        "villainLabel": "Mesa",
+        "villainCards": [],
+        "streets": [
+          { "label": "3 cartas: A K Q — qual par usar?", "board": [] },
+          { "label": "Flop: Q Q 7 — trinca com a terceira carta", "board": ["Qc", "Qs", "7h"] },
+          { "label": "Turn e river", "board": ["Qc", "Qs", "7h", "9s", "2d"] }
+        ],
+        "equity": 84,
+        "potCents": 15000,
+        "result": "A carta 'extra' (Q) virou trinca com o board. No Pineapple, a terceira carta decide mãos — nunca descarte mentalmente."
+      }
+    }
+  ]
+}

@@ -347,8 +347,18 @@ function NewsThemeCover({
   );
 }
 
-export function NewsTips({ className }: { className?: string }) {
-  const [activeTab, setActiveTab] = useState<"news" | "tips">("news");
+interface NewsTipsProps {
+  className?: string;
+  /** Trava o componente numa aba (páginas dedicadas). Omitido = abas livres. */
+  tab?: "news" | "tips";
+  /** Modo prévia: só conteúdo local embutido (sem fetch remoto), sem autoplay. */
+  compact?: boolean;
+  /** Quantos cards mostrar no modo compacto. Padrão 3. */
+  previewLimit?: number;
+}
+
+export function NewsTips({ className, tab, compact, previewLimit = 3 }: NewsTipsProps) {
+  const [activeTab, setActiveTab] = useState<"news" | "tips">(tab ?? "news");
   const [activeStreet, setActiveStreet] = useState<"preflop" | "flop" | "turn" | "river">("preflop");
   const [newsItems, setNewsItems] = useState<FeedItem[]>([]);
   const [remoteTips, setRemoteTips] = useState<FeedItem[]>([]);
@@ -358,8 +368,9 @@ export function NewsTips({ className }: { className?: string }) {
   /** Texto completo buscado da página da matéria (quando o RSS vem curto/vazio). */
   const [fullBodies, setFullBodies] = useState<Record<string, string>>({});
   const [loadingBodies, setLoadingBodies] = useState<Record<string, boolean>>({});
-  const [visibleCount, setVisibleCount] = useState(8);
+  const [visibleCount, setVisibleCount] = useState(compact ? previewLimit : 8);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const isCompact = Boolean(compact);
 
   const STREETS: { id: "preflop" | "flop" | "turn" | "river"; label: string; icon: React.ReactNode }[] = [
     {
@@ -446,6 +457,25 @@ export function NewsTips({ className }: { className?: string }) {
 
   useEffect(() => {
     let mounted = true;
+
+    if (isCompact) {
+      // Prévia da home: só conteúdo local embutido, sem fetch remoto.
+      setNewsItems(
+        LOCAL_NEWS.map((news) => ({
+          id: news.id,
+          title: news.title,
+          link: news.link || "",
+          pubDate: news.pubDate,
+          description: news.description,
+          source: news.category,
+          isLocal: true as const,
+        })),
+      );
+      setLoading(false);
+      return () => {
+        mounted = false;
+      };
+    }
 
     function toFeedItems(
       feed: FeedConfig,
@@ -762,20 +792,27 @@ export function NewsTips({ className }: { className?: string }) {
       }
     }
 
+    if (isCompact) {
+      // Conteúdo local já aplicado acima; sem fetch remoto nem refresh.
+      return () => {
+        mounted = false;
+      };
+    }
     void fetchAllContent();
     const interval = setInterval(() => void fetchAllContent(), 5 * 60 * 1000);
     return () => {
       mounted = false;
       clearInterval(interval);
     };
-  }, []);
+  }, [isCompact]);
 
   useEffect(() => {
-    setVisibleCount(8);
+    setVisibleCount(isCompact ? previewLimit : 8);
     carouselRef.current?.scrollTo({ left: 0, behavior: "smooth" });
-  }, [activeTab, activeStreet]);
+  }, [activeTab, activeStreet, isCompact, previewLimit]);
 
   useEffect(() => {
+    if (isCompact) return;
     const el = carouselRef.current;
     if (!el) return;
     const id = setInterval(() => {
@@ -790,7 +827,7 @@ export function NewsTips({ className }: { className?: string }) {
       }
     }, 8000);
     return () => clearInterval(id);
-  }, [expandedItems.size, newsItems.length, remoteTips.length]);
+  }, [expandedItems.size, newsItems.length, remoteTips.length, isCompact]);
 
   const localTips: FeedItem[] = LOCAL_TIPS.map((tip, idx) => ({
     id: tip.id,
@@ -825,6 +862,7 @@ export function NewsTips({ className }: { className?: string }) {
 
   return (
     <div className={`zt-panel ${className ?? ""}`}>
+      {!tab && (
       <div className="border-b border-felt-600">
         <nav className="flex gap-1 p-1" role="tablist" aria-label="Categorias de conteúdo">
           <button
@@ -867,6 +905,7 @@ export function NewsTips({ className }: { className?: string }) {
           </button>
         </nav>
       </div>
+      )}
 
       {activeTab === "tips" && (
         <div className="border-b border-felt-600 px-4">
@@ -1048,8 +1087,8 @@ export function NewsTips({ className }: { className?: string }) {
               );
             })}
         </div>
-        {/* Navegação carrossel + Ver mais — desktop e mobile */}
-        {!loading && items.length > 0 && (
+        {/* Navegação carrossel + Ver mais — desktop e mobile (oculta na prévia compacta) */}
+        {!loading && !isCompact && items.length > 0 && (
           <div className="mt-3 flex items-center justify-between gap-2">
             <div className="flex gap-1">
               <button

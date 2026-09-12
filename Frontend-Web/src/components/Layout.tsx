@@ -17,7 +17,7 @@ import { getWalletMode, setWalletModeLocal } from "@/lib/walletMode";
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `zt-nav-link ${isActive ? "zt-nav-link-active" : ""}`;
 
-const MARKETING_PATHS = new Set(["/", "/login", "/register", "/verify-email"]);
+const MARKETING_PATHS = new Set(["/", "/login", "/register", "/verify-email", "/noticias", "/dicas"]);
 
 export function Layout() {
   const navigate = useNavigate();
@@ -131,6 +131,12 @@ export function Layout() {
             </NavLink>
             </>
             )}
+            <NavLink to="/noticias" className={linkClass}>
+              Notícias
+            </NavLink>
+            <NavLink to="/dicas" className={linkClass}>
+              Dicas
+            </NavLink>
             {authed && (
               <NavLink to="/estrutura" className={linkClass}>
                 Minha Estrutura
