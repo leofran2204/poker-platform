@@ -143,7 +143,7 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
       setShowWin(true);
       return;
     }
-    const id = window.setTimeout(() => setShowWin(true), 1000);
+    const id = window.setTimeout(() => setShowWin(true), 2000);
     return () => window.clearTimeout(id);
   }, [finished, hand.id, step, reducedMotion]);
 

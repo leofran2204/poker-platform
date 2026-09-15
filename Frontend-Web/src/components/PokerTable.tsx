@@ -77,7 +77,7 @@ export function PokerTable({
       setRevealStrong(true);
       return;
     }
-    const id = window.setTimeout(() => setRevealStrong(true), 1000);
+    const id = window.setTimeout(() => setRevealStrong(true), 2000);
     return () => window.clearTimeout(id);
   }, [showdownKey]);
   const strongWin = revealStrong && winningCards.size > 0;

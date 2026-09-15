@@ -18,6 +18,8 @@ interface Scenario {
   seats: Seat[];
   boards: string[][];
   pots: number[];
+  /** As 5 do jogo vencedor do herói (mostradas após o suspense do river). */
+  winningFive: { hole: string[]; board: string[] };
 }
 
 const SCENARIOS: Scenario[] = [
@@ -31,6 +33,7 @@ const SCENARIOS: Scenario[] = [
     ],
     boards: [[], ["Ah", "7c", "2d"], ["Ah", "7c", "2d", "9s"], ["Ah", "7c", "2d", "9s", "Kh"]],
     pots: [450, 1_450, 3_200, 6_800],
+    winningFive: { hole: ["As", "Kd"], board: ["Ah", "Kh", "9s"] },
   },
   {
     label: "Par de Damas trinca no flop",
@@ -42,22 +45,31 @@ const SCENARIOS: Scenario[] = [
     ],
     boards: [[], ["Qc", "7s", "2h"], ["Qc", "7s", "2h", "9d"], ["Qc", "7s", "2h", "9d", "3c"]],
     pots: [1_200, 3_600, 7_400, 12_000],
+    winningFive: { hole: ["Qh", "Qd"], board: ["Qc", "9d", "7s"] },
   },
 ];
+
+function phaseOf(boardLen: number): string {
+  if (boardLen === 0) return "PRÉ-FLOP";
+  if (boardLen === 3) return "FLOP";
+  if (boardLen === 4) return "TURN";
+  return "RIVER";
+}
 
 /** Mesa de vitrine na home/auth — feltro real, sem WebSocket. Anima flop→river em loop. */
 export function ShowcaseTable({ className = "" }: { className?: string }) {
   const [scenarioIdx, setScenarioIdx] = useState(0);
   const [streetIdx, setStreetIdx] = useState(1);
-
-  useEffect(() => {
-    if (
+  const [showWin, setShowWin] = useState(false);
+  const [reducedMotion] = useState(
+    () =>
       typeof window !== "undefined" &&
       typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      return;
-    }
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+
+  useEffect(() => {
+    if (reducedMotion) return;
     const id = window.setInterval(() => {
       setStreetIdx((street) => {
         const scenario = SCENARIOS[scenarioIdx];
@@ -67,28 +79,59 @@ export function ShowcaseTable({ className = "" }: { className?: string }) {
       });
     }, 3000);
     return () => window.clearInterval(id);
-  }, [scenarioIdx]);
+  }, [scenarioIdx, reducedMotion]);
 
   const scenario = SCENARIOS[scenarioIdx];
+  const lastIdx = scenario.boards.length - 1;
+  const finished = streetIdx === lastIdx;
   const board = scenario.boards[streetIdx];
+  const prevLen = streetIdx > 0 ? scenario.boards[streetIdx - 1].length : 0;
   const pot = scenario.pots[streetIdx];
+  const winHole = new Set(scenario.winningFive.hole);
+  const winBoard = new Set(scenario.winningFive.board);
+
+  // Suspense do river: o board completa e só ~2s depois as 5 acendem.
+  useEffect(() => {
+    setShowWin(false);
+    if (!finished) return;
+    if (reducedMotion) {
+      setShowWin(true);
+      return;
+    }
+    const id = window.setTimeout(() => setShowWin(true), 2000);
+    return () => window.clearTimeout(id);
+  }, [finished, scenarioIdx, streetIdx, reducedMotion]);
 
   return (
     <div className="flex w-full flex-col items-center gap-2">
+      <div key={`${scenarioIdx}-phase-${streetIdx}`} className="zt-street-banner" aria-hidden>
+        {phaseOf(board.length)}
+      </div>
       <div className={`zt-felt-table zt-showcase-table ${className}`.trim()} aria-hidden>
         <div className="absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
           <div className="rounded border border-gold/40 bg-black/40 px-3 py-1 text-center">
             <div className="text-[10px] uppercase tracking-wider text-gold-soft">Pot</div>
-            <div key={pot} className="font-mono text-base font-bold text-white">
+            <div className="font-mono text-base font-bold text-white">
               {formatChips(pot)}
             </div>
           </div>
           <div className="flex min-h-[72px] items-center gap-1.5">
-            {board.map((c, i) => (
-              <span key={`${scenarioIdx}-${streetIdx}-${c}`} className="zt-deal" style={{ animationDelay: `${i * 160}ms` }}>
-                <PlayingCard code={c} size="md" />
-              </span>
-            ))}
+            {board.map((c, i) => {
+              const isWin = showWin && winBoard.has(c);
+              const dim = showWin && !winBoard.has(c);
+              const isNew = i >= prevLen;
+              return (
+                <span
+                  key={c}
+                  className={
+                    isWin ? "zt-win-pop zt-win-card" : dim ? "zt-dim" : isNew ? "zt-deal" : undefined
+                  }
+                  style={isNew && !showWin ? { animationDelay: `${(i - prevLen) * 350}ms` } : undefined}
+                >
+                  <PlayingCard code={c} size="md" highlight={isWin} />
+                </span>
+              );
+            })}
           </div>
         </div>
         {scenario.seats.map((p) => (
@@ -97,7 +140,7 @@ export function ShowcaseTable({ className = "" }: { className?: string }) {
             className="zt-seat"
             style={{ top: `${p.top}%`, left: `${p.left}%` }}
           >
-            <div className={`zt-seat-card ${p.you ? "active" : ""}`}>
+            <div className={`zt-seat-card ${p.you ? "active" : ""} ${showWin && p.you ? "winner" : ""}`}>
               <div className="flex items-center justify-between gap-1 text-[10px] text-felt-300">
                 <span>{p.dealer ? "D" : " "}</span>
                 {p.you && <span className="text-gold-bright">você</span>}
@@ -109,9 +152,14 @@ export function ShowcaseTable({ className = "" }: { className?: string }) {
               )}
               {p.cards && p.cards.length > 0 && (
                 <div className="mt-1 flex justify-center gap-0.5">
-                  {p.cards.map((c) => (
-                    <PlayingCard key={c} code={c} size="sm" />
-                  ))}
+                  {p.cards.map((c) => {
+                    const isWin = showWin && winHole.has(c);
+                    return (
+                      <span key={c} className={isWin ? "zt-win-pop zt-win-card" : undefined}>
+                        <PlayingCard code={c} size="sm" highlight={isWin} />
+                      </span>
+                    );
+                  })}
                 </div>
               )}
               {!p.cards && (
@@ -119,6 +167,9 @@ export function ShowcaseTable({ className = "" }: { className?: string }) {
                   <PlayingCard faceDown size="sm" />
                   <PlayingCard faceDown size="sm" />
                 </div>
+              )}
+              {showWin && p.you && (
+                <div className="mt-0.5 text-[10px] font-bold text-gold-bright">VENCEDOR</div>
               )}
             </div>
           </div>

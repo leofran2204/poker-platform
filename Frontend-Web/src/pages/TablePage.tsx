@@ -63,7 +63,7 @@ export function TablePage() {
       setPanelStrong(true);
       return;
     }
-    const id = window.setTimeout(() => setPanelStrong(true), 1000);
+    const id = window.setTimeout(() => setPanelStrong(true), 2000);
     return () => window.clearTimeout(id);
   }, [lastResult, resultOpen]);
   // Diário de mãos: snapshots da mão atual + modal de replay/download.

@@ -914,3 +914,9 @@
 - **Board estável (`AnimatedHand.tsx`):** removido o `key` que remontava o board a cada street (flop sumia e 4 cartas reapareciam); agora o flop fica parado e só a carta nova anima (turn soma, river soma).
 - **Suspense pós-river:** board completa e só ~1s depois acendem as 5 (resultado, divisão do pote, selo e fichas); mesa ao vivo conferida — já tinha chaves estáveis, sem mudança.
 - **Validado:** tsc, ESLint limpos, Vitest 40/40, `vite build` OK, `git diff --check` limpo.
+
+## 2026-09-15 — S24: vitrine no padrão novo + suspense de 2s
+
+- **Vitrine do topo (`ShowcaseTable.tsx`):** board estável (fim da remontagem por street), banner FLOP/TURN/RIVER, `winningFive` por cenário (AK: dois pares Ases+Reis; QQ: trinca) com suspense de 2s após o river.
+- **Suspense 1s→2s:** replays (`AnimatedHand`), mesa ao vivo (`PokerTable`) e painel (`TablePage`).
+- **Validado:** tsc, ESLint limpos, Vitest 40/40, `vite build` OK, `git diff --check` limpo.
