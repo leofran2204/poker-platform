@@ -902,3 +902,9 @@
 - **Mini-mesa (`AnimatedHand.tsx`):** herói embaixo + vilão + fictício foldado, selo ALL-IN na street exata, cartas do vencedor com brilho + fichas voando do pote ao assento (`zt-chip-fly` em `index.css`); ritmo 2,6s→5,5s por etapa; `ShowcaseTable` 3,2s→5,5s.
 - **Variantes:** royal com `Ts` de verdade (era `Th` de copas); Short Deck flush vs full house real (era quadra acidental).
 - **Validado:** tsc, ESLint limpos, Vitest 24/24, `vite build` OK (Node 22 empacotado), leituras do vencedor conferidas por avaliador, `git diff --check` limpo.
+
+## 2026-09-15 — S24: replays com 3s/street + destaque das 5 na mesa ao vivo
+
+- **Replays:** pausa 3s por street com streets acumuladas + banner FLOP/TURN/RIVER; `winningFive` nas 7 mãos com as 5 citadas no resultado; teste `winningFive.test.ts` (16 testes, regra 2+3 de Omaha/Pineapple); `ShowcaseTable` em 3s.
+- **Mesa ao vivo (`PokerTable.tsx` + painel em `TablePage.tsx`):** showdown mostra normal por ~1s e acende as 5 do jogo vencedor (glow forte, resto escurece) — usa o `showdown[].cards` que o motor já envia, sem Rust/API; vale p/ cash/MTT, PM/Real.
+- **Validado:** tsc, ESLint limpos, Vitest 40/40, `vite build` OK, `git diff --check` limpo.

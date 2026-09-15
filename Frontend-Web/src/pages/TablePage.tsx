@@ -50,6 +50,22 @@ export function TablePage() {
   } | null>(null);
   const [resultOpen, setResultOpen] = useState(false);
   const winnersRef = useRef<string[]>([]);
+  // Suspense do showdown no painel: acende as 5 ~1s após o resultado fixar.
+  const [panelStrong, setPanelStrong] = useState(false);
+  useEffect(() => {
+    setPanelStrong(false);
+    if (!lastResult || !resultOpen) return;
+    if (
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      setPanelStrong(true);
+      return;
+    }
+    const id = window.setTimeout(() => setPanelStrong(true), 1000);
+    return () => window.clearTimeout(id);
+  }, [lastResult, resultOpen]);
   // Diário de mãos: snapshots da mão atual + modal de replay/download.
   const localIdRef = useRef<string | null>(null);
   const tableNameRef = useRef<string>(id);
@@ -431,11 +447,17 @@ export function TablePage() {
                     {entry.hand ? ` (${handNamePt(entry.hand)})` : ""}
                   </span>
                   <span className="flex gap-0.5">
-                    {entry.cards.map((c, i) => (
-                      <span key={`${entry.name}-${i}`} className={lastResult.names.includes(entry.name) ? "zt-win-pop" : undefined}>
-                        <PlayingCard key={`${entry.name}-${i}`} code={c} size="sm" highlight={lastResult.names.includes(entry.name)} />
-                      </span>
-                    ))}
+                    {entry.cards.map((c, i) => {
+                      const isWin = lastResult.names.includes(entry.name);
+                      const cls = !panelStrong
+                        ? (isWin ? "zt-win-pop" : undefined)
+                        : (isWin ? "zt-win-pop zt-win-card" : "zt-dim");
+                      return (
+                        <span key={`${entry.name}-${i}`} className={cls}>
+                          <PlayingCard key={`${entry.name}-${i}`} code={c} size="sm" highlight={isWin} />
+                        </span>
+                      );
+                    })}
                   </span>
                 </div>
               ))}

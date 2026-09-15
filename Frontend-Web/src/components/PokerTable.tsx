@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type { PlayerWsData, PotWsData, ShowdownEntry } from "@/api/types";
 import { seatPosition } from "@/lib/cards";
 import { handNamePt, streetLabel } from "@/lib/gameLabels";
@@ -56,6 +57,35 @@ export function PokerTable({
   const winnerEntries = showdown.filter((entry) => winners.includes(entry.player_id));
   const winningCards = new Set(winnerEntries.flatMap((entry) => entry.cards));
   const glowCards = winningCards.size > 0 ? winningCards : showdownCards;
+  // Suspense do showdown: mostra tudo normal e após ~1s acende as 5 do jogo
+  // vencedor com glow forte, escurecendo o resto. Vale p/ cash/MTT, PM/Real.
+  const showdownKey =
+    winners.length > 0 && winningCards.size > 0
+      ? `${winners.join("+")}:${[...winningCards].sort().join(",")}`
+      : "";
+  const [revealStrong, setRevealStrong] = useState(false);
+  useEffect(() => {
+    if (!showdownKey) {
+      setRevealStrong(false);
+      return;
+    }
+    if (
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      setRevealStrong(true);
+      return;
+    }
+    const id = window.setTimeout(() => setRevealStrong(true), 1000);
+    return () => window.clearTimeout(id);
+  }, [showdownKey]);
+  const strongWin = revealStrong && winningCards.size > 0;
+  const winWrap = (c: string) => {
+    if (!glowCards.has(c)) return strongWin ? "zt-dim" : undefined;
+    if (!strongWin) return "zt-win-pop";
+    return "zt-win-pop zt-win-card";
+  };
   const winnerNames = winners.map(
     (id) =>
       showdown.find((entry) => entry.player_id === id)?.player_name ??
@@ -180,7 +210,7 @@ export function PokerTable({
                     ["--deal-dy" as string]: "-18px",
                   }}
                 >
-                  <span className={glowCards.has(c) ? "zt-win-pop" : undefined}>
+                  <span className={winWrap(c)}>
                     <PlayingCard code={c} size="md" highlight={glowCards.has(c)} />
                   </span>
                 </span>
@@ -258,7 +288,7 @@ export function PokerTable({
                           ["--deal-dy" as string]: dealDy,
                         }}
                       >
-                        <span className={glowCards.has(c) ? "zt-win-pop" : undefined}>
+                        <span className={winWrap(c)}>
                           <PlayingCard code={c} size={holeSize} highlight={glowCards.has(c)} />
                         </span>
                       </span>
