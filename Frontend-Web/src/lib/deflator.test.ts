@@ -24,16 +24,22 @@ describe("tierForEquity", () => {
 });
 
 describe("cashbackFor", () => {
-  it("AA vs KK (82%): 25% de R$ 200 = R$ 50", () => {
+  it("AA vs KK no pré-flop (82%): 25% de R$ 200 = R$ 50", () => {
     const r = cashbackFor(82, 20000);
     expect(r.percent).toBe(25);
     expect(r.cashbackCents).toBe(5000);
   });
 
-  it("AQ vs KJ (62%): 7% de R$ 400 = R$ 28", () => {
-    const r = cashbackFor(62, 40000);
-    expect(r.percent).toBe(7);
-    expect(r.cashbackCents).toBe(2800);
+  it("trinca vs flush draw no flop (68%): 15% de R$ 200 = R$ 30", () => {
+    const r = cashbackFor(68, 20000);
+    expect(r.percent).toBe(15);
+    expect(r.cashbackCents).toBe(3000);
+  });
+
+  it("flush vs trinca no turn (77%): 25% de R$ 200 = R$ 50 — fase não muda a faixa", () => {
+    const r = cashbackFor(77, 20000);
+    expect(r.percent).toBe(25);
+    expect(r.cashbackCents).toBe(5000);
   });
 
   it("abaixo do mínimo não devolve", () => {

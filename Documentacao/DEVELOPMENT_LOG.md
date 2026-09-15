@@ -895,3 +895,10 @@
 - **Academy em vídeo:** `courseContent.json` com `video`/`handExample` por aula, `CourseVideoPlayer` (abas Vídeo IA/Mão na Mesa + roteiro), trava de fixação 70% nas práticas do motor (`course.ts` + `CourseQuiz` + `CoursePage`/`LessonPage`), formato audiovisual documentado no `CURSO_ESTRATEGIA_POKER.md`.
 - **Rede:** `VP_HANDS_WEEK` 50→100 (`estrutura.rs`), pagamento mensal dia 25, ciclo seg–dom (`PLANO_GO_TO_MARKET`, Termos, `TermsPage`, `EstruturaPage`); `/termos` entra no `MARKETING_PATHS`.
 - **Validado:** tsc, ESLint, Vitest 23/23, `vite build`, `cargo fmt --check` no arquivo (2 diffs pré-existentes no HEAD, fora do escopo — const alterada é neutra).
+
+## 2026-09-14 — S24: replays do Deflator com all-in por street + mesa com vencedores
+
+- **Replays (`homeContent.json`):** `demoHands` 2→3, pote único R$ 200 líquido: all-in pré-flop AA vs KK 82%→R$ 50, all-in flop trinca J vs flush draw 68%→R$ 30, all-in turn flush A vs quadra Q 77%→R$ 50 (1 e 3 mesma faixa: fase não muda tier). Board do AA corrigido (sem `Ah` no flop — antes o herói vencia e o texto dizia o contrário).
+- **Mini-mesa (`AnimatedHand.tsx`):** herói embaixo + vilão + fictício foldado, selo ALL-IN na street exata, cartas do vencedor com brilho + fichas voando do pote ao assento (`zt-chip-fly` em `index.css`); ritmo 2,6s→5,5s por etapa; `ShowcaseTable` 3,2s→5,5s.
+- **Variantes:** royal com `Ts` de verdade (era `Th` de copas); Short Deck flush vs full house real (era quadra acidental).
+- **Validado:** tsc, ESLint limpos, Vitest 24/24, `vite build` OK (Node 22 empacotado), leituras do vencedor conferidas por avaliador, `git diff --check` limpo.

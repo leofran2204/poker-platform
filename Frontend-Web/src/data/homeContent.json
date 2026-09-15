@@ -37,38 +37,73 @@
     ],
     "demoHands": [
       {
-        "id": "aa-vs-kk",
-        "title": "AA vs KK — o clássico de 82%",
+        "id": "allin-preflop-aa-kk",
+        "title": "All-in no pré-flop — AA vs KK (82%)",
         "heroLabel": "Você (AA)",
         "heroCards": ["As", "Ac"],
-        "villainLabel": "Vilão (KK)",
+        "villainLabel": "Leo (KK)",
         "villainCards": ["Ks", "Kd"],
+        "allInStreetIndex": 0,
+        "seats": [
+          { "name": "Você (AA)", "cards": ["As", "Ac"], "isHero": true },
+          { "name": "Leo (KK)", "cards": ["Ks", "Kd"], "isWinner": true },
+          { "name": "Ana", "folded": true }
+        ],
         "streets": [
-          { "label": "Pré-flop: all-in — você tem 82%", "board": [] },
-          { "label": "Flop: A 7 2 — você segue na frente", "board": ["Ah", "7c", "2d"] },
-          { "label": "Turn: 9 — ainda na frente", "board": ["Ah", "7c", "2d", "9s"] },
-          { "label": "River: K — o azar bateu", "board": ["Ah", "7c", "2d", "9s", "Kh"] }
+          { "label": "Pré-flop: ALL-IN PAGO — sua equity de 82% trava aqui", "board": [] },
+          { "label": "Flop: 7 2 5 — seu par de Ases segue na frente", "board": ["7c", "2d", "5h"] },
+          { "label": "Turn: 9 — segue na frente", "board": ["7c", "2d", "5h", "9s"] },
+          { "label": "River: K — trinca de Reis, o azar bateu", "board": ["7c", "2d", "5h", "9s", "Kh"] }
         ],
         "equity": 82,
         "potCents": 20000,
-        "result": "Trinca de Reis vence. Como sua equity era 82% (faixa de 25%), R$ 50,00 dos R$ 200,00 voltam para você na hora."
+        "result": "Trinca de Reis (K K K) do Leo vence seu par de Ases. O all-in foi no pré-flop com 82% (faixa de 25%): R$ 50,00 dos R$ 200,00 voltam para você na hora. Pote líquido, já sem rake."
       },
       {
-        "id": "aq-vs-kj",
-        "title": "AQ vs KJ — favorito leve de 62%",
-        "heroLabel": "Você (AQ)",
-        "heroCards": ["As", "Qd"],
-        "villainLabel": "Vilão (KJ)",
-        "villainCards": ["Kh", "Jh"],
-        "streets": [
-          { "label": "Pré-flop: all-in — você tem 62%", "board": [] },
-          { "label": "Flop: J 5 2 — o vilão passou à frente", "board": ["Jc", "5d", "2s"] },
-          { "label": "Turn: 7 — segue atrás", "board": ["Jc", "5d", "2s", "7h"] },
-          { "label": "River: 9 — não salvou", "board": ["Jc", "5d", "2s", "7h", "9c"] }
+        "id": "allin-flop-set-draw",
+        "title": "All-in no flop — trinca vs flush draw (68%)",
+        "heroLabel": "Você (JJ)",
+        "heroCards": ["Jh", "Jd"],
+        "villainLabel": "Mari (A T)",
+        "villainCards": ["Ah", "Th"],
+        "allInStreetIndex": 1,
+        "seats": [
+          { "name": "Você (JJ)", "cards": ["Jh", "Jd"], "isHero": true },
+          { "name": "Mari (A T)", "cards": ["Ah", "Th"], "isWinner": true },
+          { "name": "Leo", "folded": true }
         ],
-        "equity": 62,
-        "potCents": 40000,
-        "result": "O par de Valetes vence. Como sua equity era 62% (faixa de 7%), R$ 28,00 dos R$ 400,00 voltam para você."
+        "streets": [
+          { "label": "Pré-flop: você aumenta com JJ, Mari paga — sem all-in ainda", "board": [] },
+          { "label": "Flop J 7 2: ALL-IN PAGO — sua trinca tem 68%", "board": ["Jc", "7h", "2h"] },
+          { "label": "Turn: Q — trinca segue na frente", "board": ["Jc", "7h", "2h", "Qd"] },
+          { "label": "River: 5 de copas — flush de As da Mari", "board": ["Jc", "7h", "2h", "Qd", "5h"] }
+        ],
+        "equity": 68,
+        "potCents": 20000,
+        "result": "Flush de As (A T 7 5 2 de copas) da Mari vence sua trinca de Valetes. O all-in foi no flop com 68% (faixa de 15%): R$ 30,00 dos R$ 200,00 voltam para você. Pote líquido, já sem rake."
+      },
+      {
+        "id": "allin-turn-flush-set",
+        "title": "All-in no turn — flush vs trinca (77%)",
+        "heroLabel": "Você (A K)",
+        "heroCards": ["As", "Ks"],
+        "villainLabel": "Leo (Q Q)",
+        "villainCards": ["Qh", "Qd"],
+        "allInStreetIndex": 2,
+        "seats": [
+          { "name": "Você (A K)", "cards": ["As", "Ks"], "isHero": true },
+          { "name": "Leo (Q Q)", "cards": ["Qh", "Qd"], "isWinner": true },
+          { "name": "Ana", "folded": true }
+        ],
+        "streets": [
+          { "label": "Pré-flop: você aumenta com A K suited, Leo paga", "board": [] },
+          { "label": "Flop Q J 7 de espadas: seu flush já está pronto", "board": ["Qs", "Js", "7s"] },
+          { "label": "Turn 2: ALL-IN PAGO — seu flush tem 77%", "board": ["Qs", "Js", "7s", "2d"] },
+          { "label": "River Q: quadra de Damas — bad beat", "board": ["Qs", "Js", "7s", "2d", "Qc"] }
+        ],
+        "equity": 77,
+        "potCents": 20000,
+        "result": "Quadra de Damas (Q Q Q Q) do Leo vence seu flush de As. O all-in foi no turn com 77% (faixa de 25%): R$ 50,00 dos R$ 200,00 voltam — igual ao do pré-flop, porque a fase não muda a faixa. Pote líquido."
       }
     ]
   },
@@ -90,8 +125,8 @@
         "villainCards": [],
         "streets": [
           { "label": "Suas cartas: A K de espadas", "board": [] },
-          { "label": "Flop abre Q J T — sequência real à vista", "board": ["Qs", "Js", "Th"] },
-          { "label": "Turn e river completam a mesa", "board": ["Qs", "Js", "Th", "3d", "2c"] }
+          { "label": "Flop Q J T de espadas — royal flush à vista", "board": ["Qs", "Js", "Ts"] },
+          { "label": "Turn e river completam a mesa", "board": ["Qs", "Js", "Ts", "3d", "2c"] }
         ],
         "equity": 100,
         "potCents": 15000,
@@ -112,10 +147,10 @@
         "heroLabel": "Você (flush)",
         "heroCards": ["As", "Ks"],
         "villainLabel": "Vilão (full house)",
-        "villainCards": ["Qh", "Qd"],
+        "villainCards": ["Qh", "Jd"],
         "streets": [
           { "label": "Pré-flop no baralho curto", "board": [] },
-          { "label": "Flop: Q Q J — vilão com trinca", "board": ["Qc", "Qs", "Jh"] },
+          { "label": "Flop: Q Q J — vilão com full house (Q Q Q J J)", "board": ["Qc", "Qs", "Jh"] },
           { "label": "Turn: 9 de espadas — seu flush desenha", "board": ["Qc", "Qs", "Jh", "9s"] },
           { "label": "River: 8 de espadas — flush pronto", "board": ["Qc", "Qs", "Jh", "9s", "8s"] }
         ],

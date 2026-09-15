@@ -65,7 +65,7 @@ export function ShowcaseTable({ className = "" }: { className?: string }) {
         setScenarioIdx((s) => (s + 1) % SCENARIOS.length);
         return 0;
       });
-    }, 3200);
+    }, 5500);
     return () => window.clearInterval(id);
   }, [scenarioIdx]);
 

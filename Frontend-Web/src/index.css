@@ -420,12 +420,38 @@
     animation: zt-win-pop 0.6s ease-out both;
   }
 
+  /* Fichas do pote voando para o assento vencedor (replays didáticos). */
+  @keyframes zt-chip-fly {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.6);
+    }
+    15% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+      transform: translate(calc(-50% + var(--chip-dx, 0px)), calc(-50% + var(--chip-dy, -60px))) scale(0.85);
+    }
+  }
+
+  .zt-chip-fly {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 30;
+    animation: zt-chip-fly 1.1s ease-in forwards;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .zt-deal {
       animation: none;
     }
     .zt-win-pop {
       animation: none;
+    }
+    .zt-chip-fly {
+      display: none;
     }
   }
 
