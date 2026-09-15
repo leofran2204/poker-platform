@@ -57,7 +57,8 @@
         ],
         "equity": 82,
         "potCents": 20000,
-        "result": "Trinca de Reis (K K K) do Leo vence seu par de Ases. O all-in foi no pré-flop com 82% (faixa de 25%): R$ 50,00 dos R$ 200,00 voltam para você na hora. Pote líquido, já sem rake."
+        "winningFive": { "hole": ["Ks", "Kd"], "board": ["Kh", "9s", "7c"] },
+        "result": "Trinca de Reis (K♠ K♦ + K♥ 9♠ 7♣ no board) do Leo vence seu par de Ases. O all-in foi no pré-flop com 82% (faixa de 25%): R$ 50,00 dos R$ 200,00 voltam para você na hora. Pote líquido, já sem rake."
       },
       {
         "id": "allin-flop-set-draw",
@@ -80,7 +81,8 @@
         ],
         "equity": 68,
         "potCents": 20000,
-        "result": "Flush de As (A T 7 5 2 de copas) da Mari vence sua trinca de Valetes. O all-in foi no flop com 68% (faixa de 15%): R$ 30,00 dos R$ 200,00 voltam para você. Pote líquido, já sem rake."
+        "winningFive": { "hole": ["Ah", "Th"], "board": ["7h", "5h", "2h"] },
+        "result": "Flush de As (A♥ T♥ + 7♥ 5♥ 2♥ no board) da Mari vence sua trinca de Valetes. O all-in foi no flop com 68% (faixa de 15%): R$ 30,00 dos R$ 200,00 voltam para você. Pote líquido, já sem rake."
       },
       {
         "id": "allin-turn-flush-set",
@@ -103,7 +105,8 @@
         ],
         "equity": 77,
         "potCents": 20000,
-        "result": "Quadra de Damas (Q Q Q Q) do Leo vence seu flush de As. O all-in foi no turn com 77% (faixa de 25%): R$ 50,00 dos R$ 200,00 voltam — igual ao do pré-flop, porque a fase não muda a faixa. Pote líquido."
+        "winningFive": { "hole": ["Qh", "Qd"], "board": ["Qs", "Qc", "Js"] },
+        "result": "Quadra de Damas (Q♥ Q♦ + Q♠ Q♣ J♠ no board) do Leo vence seu flush de As. O all-in foi no turn com 77% (faixa de 25%): R$ 50,00 dos R$ 200,00 voltam — igual ao do pré-flop, porque a fase não muda a faixa. Pote líquido."
       }
     ]
   },
@@ -130,7 +133,8 @@
         ],
         "equity": 100,
         "potCents": 15000,
-        "result": "A K Q J T de espadas: royal flush. Suas 2 + 3 da mesa formam o melhor jogo possível."
+        "winningFive": { "hole": ["As", "Ks"], "board": ["Qs", "Js", "Ts"] },
+        "result": "Royal flush de espadas (A♠ K♠ + Q♠ J♠ T♠ no board): suas 2 + 3 da mesa formam o melhor jogo possível."
       }
     },
     {
@@ -156,7 +160,8 @@
         ],
         "equity": 76,
         "potCents": 15000,
-        "result": "No Short Deck, flush supera full house. Aqui quem ri é você — no Hold'em tradicional seria o contrário."
+        "winningFive": { "hole": ["As", "Ks"], "board": ["Qs", "9s", "8s"] },
+        "result": "Flush de As (A♠ K♠ + Q♠ 9♠ 8♠) vence o full house de Damas (Q♥ J♦ + Q♣ Q♠ J♥). No Short Deck, flush supera full house — no Hold'em tradicional seria o contrário."
       }
     },
     {
@@ -181,7 +186,8 @@
         ],
         "equity": 68,
         "potCents": 20000,
-        "result": "Você usa A K de espadas + 3 da mesa para o nut flush. As outras 2 cartas ficam de fora — a regra do 2+3 é inegociável."
+        "winningFive": { "hole": ["As", "Ks"], "board": ["Ts", "9s", "8s"] },
+        "result": "Nut flush (A♠ K♠ + T♠ 9♠ 8♠ da mesa): exatamente 2 da mão + 3 da mesa. As outras 2 cartas ficam de fora — a regra do 2+3 é inegociável."
       }
     },
     {
@@ -206,7 +212,8 @@
         ],
         "equity": 84,
         "potCents": 15000,
-        "result": "A carta 'extra' (Q) virou trinca com o board. No Pineapple, a terceira carta decide mãos — nunca descarte mentalmente."
+        "winningFive": { "hole": ["Qh", "As"], "board": ["Qc", "Qs", "9s"] },
+        "result": "Trinca de Damas com kicker As (Q♥ A♠ + Q♣ Q♠ 9♠): a carta 'extra' (Q) virou trinca usando 2 das suas 3 + 3 da mesa. No Pineapple, a terceira carta decide mãos."
       }
     }
   ]

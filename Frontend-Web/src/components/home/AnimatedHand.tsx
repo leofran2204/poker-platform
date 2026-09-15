@@ -16,6 +16,13 @@ export interface AnimatedSeat {
   isWinner?: boolean;
 }
 
+export interface WinningFive {
+  /** Cartas da mão do vencedor usadas no melhor jogo de 5. */
+  hole: string[];
+  /** Cartas do board usadas no melhor jogo de 5. */
+  board: string[];
+}
+
 export interface AnimatedHandData {
   id: string;
   title: string;
@@ -31,6 +38,8 @@ export interface AnimatedHandData {
   allInStreetIndex?: number;
   /** Assentos da mesa. Ausente = derivado de herói/vilão + 1 fictício foldado. */
   seats?: AnimatedSeat[];
+  /** As 5 cartas do jogo vencedor. Ausente = destaca a mão do vencedor (legado). */
+  winningFive?: WinningFive;
 }
 
 /** Posições dos assentos no feltro (herói embaixo, como na mesa real). */
@@ -47,7 +56,15 @@ const CHIP_FLIGHT = [
   { dx: "-110px", dy: "-56px" },
 ];
 
-const STEP_MS = 5500;
+/** Pausa entre uma batida e a próxima — as streets se acumulam, nada some da tela. */
+const STEP_MS = 3000;
+
+function phaseOf(boardLen: number): string {
+  if (boardLen === 0) return "PRÉ-FLOP";
+  if (boardLen === 3) return "FLOP";
+  if (boardLen === 4) return "TURN";
+  return "RIVER";
+}
 
 /** Replay animado de uma mão numa mini-mesa com jogadores — o "vídeo" didático sem MP4. */
 export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
@@ -83,6 +100,11 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
   );
   const flight = CHIP_FLIGHT[Math.min(winnerIdx, CHIP_FLIGHT.length - 1)];
 
+  const win = hand.winningFive;
+  const useWinFive = !!win && win.hole.length + win.board.length === 5;
+  const winHole = useMemo(() => new Set(hand.winningFive?.hole ?? []), [hand]);
+  const winBoard = useMemo(() => new Set(hand.winningFive?.board ?? []), [hand]);
+
   const allInIdx = hand.allInStreetIndex;
   const hasAllIn = typeof allInIdx === "number";
   const allInPaid = hasAllIn && step >= (allInIdx as number);
@@ -108,6 +130,7 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
 
   const street = hand.streets[step];
   const finished = step === last;
+  const phase = phaseOf(street.board.length);
 
   return (
     <div className="zt-card overflow-hidden">
@@ -148,6 +171,10 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
           </p>
         )}
 
+        <div key={`${hand.id}-phase-${step}`} className="zt-street-banner" aria-live="polite">
+          {phase}
+        </div>
+
         <div className="zt-felt-table" aria-hidden={false}>
           <div className="absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
             <div className="rounded border border-gold/40 bg-black/40 px-3 py-1 text-center">
@@ -161,11 +188,23 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
               className="flex min-h-[52px] flex-wrap items-center justify-center gap-1.5"
             >
               {street.board.length > 0 ? (
-                street.board.map((c, i) => (
-                  <span key={c} className="zt-deal" style={{ animationDelay: `${i * 300}ms` }}>
-                    <PlayingCard code={c} size="sm" />
-                  </span>
-                ))
+                street.board.map((c, i) => {
+                  const isWin = finished && (!useWinFive || winBoard.has(c));
+                  const dim = finished && useWinFive && !winBoard.has(c);
+                  return (
+                    <span
+                      key={c}
+                      className={
+                        finished
+                          ? (isWin ? "zt-win-pop zt-win-card" : dim ? "zt-dim" : undefined)
+                          : "zt-deal"
+                      }
+                      style={finished ? undefined : { animationDelay: `${i * 350}ms` }}
+                    >
+                      <PlayingCard code={c} size="sm" highlight={isWin} />
+                    </span>
+                  );
+                })
               ) : (
                 <span className="text-xs italic text-felt-400">sem cartas comunitárias ainda</span>
               )}
@@ -174,31 +213,36 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
 
           {seats.map((s, i) => {
             const pos = SEAT_POS[Math.min(i, SEAT_POS.length - 1)];
-            const isWinner = finished && i === winnerIdx;
+            const isWinnerSeat = finished && i === winnerIdx;
             return (
               <div
                 key={s.name}
                 className="zt-seat"
                 style={{ top: `${pos.top}%`, left: `${pos.left}%` }}
               >
-                <div className={`zt-seat-card ${s.isHero ? "active" : ""} ${isWinner ? "winner" : ""} ${s.folded ? "folded" : ""}`}>
+                <div className={`zt-seat-card ${s.isHero ? "active" : ""} ${isWinnerSeat ? "winner" : ""} ${s.folded ? "folded" : ""}`}>
                   <div className="truncate text-xs font-semibold text-cream">{s.name}</div>
                   {s.folded ? (
-                    <div className="mt-1 flex justify-center gap-0.5">
+                    <div className={`mt-1 flex justify-center gap-0.5 ${finished && useWinFive ? "zt-dim" : ""}`}>
                       <PlayingCard faceDown size="sm" />
                       <PlayingCard faceDown size="sm" />
                     </div>
                   ) : (
                     <div className="mt-1 flex justify-center gap-0.5">
-                      {(s.cards ?? []).map((c) => (
-                        <span key={c} className={isWinner ? "zt-win-pop" : undefined}>
-                          <PlayingCard code={c} size="sm" highlight={isWinner} />
-                        </span>
-                      ))}
+                      {(s.cards ?? []).map((c) => {
+                        const inFive = i === winnerIdx && winHole.has(c);
+                        const isWin = finished && (useWinFive ? inFive : i === winnerIdx);
+                        const dim = finished && useWinFive && !inFive;
+                        return (
+                          <span key={c} className={isWin ? "zt-win-pop zt-win-card" : dim ? "zt-dim" : undefined}>
+                            <PlayingCard code={c} size="sm" highlight={isWin} />
+                          </span>
+                        );
+                      })}
                     </div>
                   )}
                   {s.folded && <div className="mt-0.5 text-[10px] text-felt-400">foldou</div>}
-                  {isWinner && <div className="mt-0.5 text-[10px] font-bold text-gold-bright">VENCEDOR</div>}
+                  {isWinnerSeat && <div className="mt-0.5 text-[10px] font-bold text-gold-bright">VENCEDOR</div>}
                 </div>
               </div>
             );

@@ -443,11 +443,58 @@
     animation: zt-chip-fly 1.1s ease-in forwards;
   }
 
+  /* Jogo vencedor: as 5 cartas do melhor jogo com glow forte e persistente. */
+  .zt-win-card {
+    display: inline-block;
+    border-radius: 6px;
+    box-shadow: 0 0 0 2px #ffe27a, 0 0 14px #ffe27a, 0 0 30px rgba(201, 162, 39, 0.85);
+    transform: scale(1.07);
+  }
+
+  /* Resto da mesa no showdown: opaco para o olho achar as 5 na hora. */
+  .zt-dim {
+    display: inline-block;
+    opacity: 0.4;
+    filter: saturate(0.4);
+  }
+
+  /* Selo grande da street (PRÉ-FLOP / FLOP / TURN / RIVER). */
+  @keyframes zt-street-in {
+    from {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .zt-street-banner {
+    margin-inline: auto;
+    width: fit-content;
+    border-radius: 9999px;
+    border: 2px solid #c9a227;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 0.2rem 1.1rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.25em;
+    color: #ffe27a;
+    animation: zt-street-in 0.4s ease-out both;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .zt-deal {
       animation: none;
     }
     .zt-win-pop {
+      animation: none;
+    }
+    .zt-win-card {
+      transform: none;
+    }
+    .zt-street-banner {
       animation: none;
     }
     .zt-chip-fly {
