@@ -1,26 +1,27 @@
-# EP06 — Roubos e 3-bets: o contra-ataque (~1 min)
+# EP06 — Roubos e 3-bet v2 (versão aprofundada ~90s)
 
-## Arco
-1. Blinds parados são dinheiro morto: BTN/CO roubam, blinds largam ~70%.
-2. Defesa: no BB com força (ex. JJ), não pague — re-aumente (3-bet 3,5-4x).
-3. Efeito duplo: leva na hora ou joga o pote grande com a melhor mão e iniciativa.
-4. Fecho + próximo: pot odds, a conta de pagar.
+Público: iniciante. Uma ideia só: fim da fila rouba, blinds reagem — cobre pedágio ou tome de volta.
 
-## Cenas (~55s)
-- S1_Titulo (7s): "ROUBOS E 3-BETS" + blinds sozinhos na mesa.
-- S2_Steal (14s): BTN aumenta, SB/BB foldam em sequência; "70% largam".
-- S3_Defesa (14s): BB com J♠ J♦ vs roubo 0,25 → 3-bet 0,90; "fora de posição não paga, ataca".
-- S4_Efeito (10s): "folda = leva" / "paga = pote grande com a melhor".
-- S5_Fecho (8s): regra + próximo: pot odds.
+## Arco narrativo
+1. Gancho: salário sem showdown no fim da fila.
+2. Roubo: abra largo no BTN, posição o resto.
+3. Restile: aperte range, puna com 3-bet valor; short só com mão.
+4. Defesa + squeeze: 3x/4x, pote morto; próximo: pot odds.
 
-## Narração (~130 palavras, ~55s em 1.25x)
-"Blind parado é dinheiro morto. Quando todo mundo desiste até o cutoff ou o
-botão, aumentar com carta mediana não é coragem, é matemática: os blinds
-desistem de setenta por cento das mãos fracas, e você recolhe sem ver o flop.
-Mas e quando tentam roubar o SEU blind? Com par de Valetes no big blind contra
-aumento mínimo do botão, pagar é o erro: qualquer Ás, Rei ou Dama no flop te
-coloca no inferno fora de posição. O certo é o contra-ataque, a 3-bet: algo
-como noventa centavos sobre vinte e cinco. Se ele desistir, o pote é seu na
-hora. Se pagar, você joga o pote grande com a melhor mão e a iniciativa. Roubo
-e contra-ataque andam juntos: ataque os blinds dos outros, defenda os seus com
-re-aumento. No próximo episódio: pot odds, a conta que diz pagar ou foldar."
+## Cenas (script.py) — waits casados com áudio por cena (1.0x)
+- S1_Titulo (~14s) | S2_Roubo (~20s) | S3_Camera (~23s) | S4_Fecho (~31s) — total ~86s.
+
+## Identidade
+- Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.
+- Narração PT-BR por cena (segN.txt → segN.mp3) muxada via ffmpeg. Termos reescritos (bláinde, restile, tribe bete).
+
+## Narração (~223 palavras, ~86s em 1.0x, áudio por cena)
+Voz Edge-TTS pt-BR-AntonioNeural. Texto integral (4 atos = seg1..seg4):
+
+"Roubar bláinde é o salário do jogador agressivo: pote pequeno, sem showdown, várias vezes por sessão. E o melhor lugar para o crime é o fim da fila: cutoff e, principalmente, botão.
+
+Do botão, com todo mundo foldando até você, abra largo: qualquer Ás, reis com quéquer, conectores, um monte de lixo jogável. Os bláindes defendem uma fração — o resto é seu sem ver flópi. E se o small ou o big pagarem, você joga em posição o resto da mão.
+
+Mas o crime tem câmera: vilão esperto percebe o roubo e volta reaumentando em cima — o restile. Contra restile frequente, aperte o range de roubo e puna o blefe com tribe bete por valor: Dama-Dama plus e Ás-Rei adoram esse confronto. E atenção ao stack: contra short stack que vai de olin por cima, roube só com mão que aguenta o confronto.
+
+E quando você está nos bláindes sendo roubado? Reaja com tribe bete: de valor com premiums, de blefe com Ás pequeno naipado e conectores que bloqueiam as premiums dele. Três vezes o aumento com posição, quatro vezes sem. E tem o espremedor, o squeeze: com raiser e pagadores na frente, reaumente grande e leve o pote morto — ninguém defende marginal espremido. Não deixe roubarem sua casa de graça: cobre pedágio — ou tome o pote de volta."

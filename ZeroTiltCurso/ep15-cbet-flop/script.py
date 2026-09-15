@@ -1,4 +1,4 @@
-"""EP15 — C-bet: seco x molhado. Sem LaTeX. Render: manim -ql script.py S1..S5"""
+"""EP15 — C-bet: seco x molhado (versão aprofundada ~90s). Sem LaTeX. Render: manim -ql script.py S1..S5. Áudio por cena (segN.mp3), waits casados."""
 from manim import *
 
 FELT = "#0A2E1A"
@@ -18,7 +18,7 @@ class S1_Titulo(Scene):
         hook.move_to(DOWN * 0.5)
         self.play(Write(head), run_time=1.2)
         self.play(FadeIn(hook, shift=RIGHT * 0.3), run_time=0.7)
-        self.wait(4.5)
+        self.wait(3.0)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
@@ -29,13 +29,13 @@ class S2_Seco(Scene):
                    color=GOLD, weight=BOLD)
         tag.to_edge(UP, buff=0.8)
         rows = VGroup(*[
-            Text(s, font=MONO, font_size=25, color=CREAM)
-            for s in ["poucos draws", "frequente e barata: 25-33%"]
+            Text(s, font=MONO, font_size=24, color=CREAM)
+            for s in ["quase ninguem acerta", "frequente e barata: 25-33%", "range com todos os pares altos"]
         ]).arrange(DOWN, buff=0.4).move_to(DOWN * 0.3)
         self.play(FadeIn(tag), run_time=0.7)
         for r in rows:
             self.play(FadeIn(r, shift=RIGHT * 0.3), run_time=0.6)
-        self.wait(8.5)
+        self.wait(24.5)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
@@ -46,41 +46,41 @@ class S3_Molhado(Scene):
                    color=GOLD, weight=BOLD)
         tag.to_edge(UP, buff=0.8)
         rows = VGroup(*[
-            Text(s, font=MONO, font_size=25, color=CREAM)
+            Text(s, font=MONO, font_size=24, color=CREAM)
             for s in ["acerta pares e draws", "menos vezes, 60-75% por valor"]
         ]).arrange(DOWN, buff=0.4).move_to(DOWN * 0.3)
         self.play(FadeIn(tag), run_time=0.7)
         for r in rows:
             self.play(FadeIn(r, shift=RIGHT * 0.3), run_time=0.6)
-        self.wait(7.5)
+        self.wait(18.0)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
-class S4_Regra(Scene):
+class S4_MeioTermo(Scene):
     def construct(self):
         self.camera.background_color = FELT
-        tag = Text("a regra de ouro", font=MONO, font_size=30,
+        tag = Text("meio-termo: Q 9 2", font=MONO, font_size=28,
                    color=GOLD, weight=BOLD)
-        tag.move_to(UP * 1.4)
+        tag.to_edge(UP, buff=0.8)
         rows = VGroup(*[
-            Text(s, font=MONO, font_size=25, color=CREAM)
-            for s in ["seco barato sempre", "molhado caro as vezes"]
-        ]).arrange(DOWN, buff=0.4).move_to(DOWN * 0.2)
+            Text(s, font=MONO, font_size=24, color=CREAM)
+            for s in ["manda a vantagem de range", "bate em voce: bet pequeno", "bate nele: pot control"]
+        ]).arrange(DOWN, buff=0.4).move_to(DOWN * 0.3)
         self.play(FadeIn(tag), run_time=0.7)
         for r in rows:
             self.play(FadeIn(r, shift=RIGHT * 0.3), run_time=0.6)
-        self.wait(6.0)
+        self.wait(18.0)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
 class S5_Fecho(Scene):
     def construct(self):
         self.camera.background_color = FELT
-        line = Text("tamanho conta historia", font=MONO, font_size=27, color=CREAM)
+        line = Text("seco barato sempre, molhado caro as vezes", font=MONO, font_size=24, color=CREAM)
         nxt = Text("proximo: check-raise e float", font=MONO, font_size=26,
                    color=GOLD, weight=BOLD)
         grp = VGroup(line, nxt).arrange(DOWN, buff=0.6)
         self.play(Write(line), run_time=1.2)
         self.wait(0.5)
         self.play(FadeIn(nxt), run_time=0.8)
-        self.wait(11.5)
+        self.wait(13.5)

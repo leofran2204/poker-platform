@@ -1,4 +1,4 @@
-"""EP12 — No Mississippi nasce o blefe. Sem LaTeX. Render: manim -ql script.py S1..S5"""
+"""EP12 — Mississippi ao boom (versão aprofundada ~95s). Sem LaTeX. Render: manim -ql script.py S1..S5. Áudio por cena (segN.mp3), waits casados."""
 from manim import *
 
 FELT = "#0A2E1A"
@@ -11,77 +11,76 @@ class S1_Titulo(Scene):
     def construct(self):
         self.camera.background_color = FELT
         head = VGroup(
-            Text("NO MISSISSIPPI NASCE O BLEFE", font=MONO, font_size=34, color=GOLD, weight=BOLD),
-            Text("episodio 12: 20 cartas e o blefe", font=MONO, font_size=24, color=CREAM),
+            Text("DO MISSISSIPPI AO BOOM", font=MONO, font_size=36, color=GOLD, weight=BOLD),
+            Text("episodio 12: 20 cartas ao mundo", font=MONO, font_size=24, color=CREAM),
         ).arrange(DOWN, buff=0.3).move_to(UP * 2.2)
-        hook = Text("vencia a mao — ou quem fazia desistir", font=MONO, font_size=24, color=CREAM)
+        hook = Text("o blefe nasceu junto com o jogo", font=MONO, font_size=24, color=CREAM)
         hook.move_to(DOWN * 0.5)
         self.play(Write(head), run_time=1.2)
         self.play(FadeIn(hook, shift=RIGHT * 0.3), run_time=0.7)
-        self.wait(4.5)
+        self.wait(13.0)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
-class S2_20(Scene):
+class S2_Robstown(Scene):
     def construct(self):
         self.camera.background_color = FELT
-        tag = Text("1829: 20 cartas, 4 pessoas", font=MONO, font_size=28,
+        tag = Text("Robstown: 2 + 5", font=MONO, font_size=30,
                    color=GOLD, weight=BOLD)
         tag.to_edge(UP, buff=0.8)
         rows = VGroup(*[
-            Text(s, font=MONO, font_size=25, color=CREAM)
-            for s in ["do As ao 10", "blefe nasceu junto"]
+            Text(s, font=MONO, font_size=24, color=CREAM)
+            for s in ["Blondie Forbes escreve as regras", "2 fechadas + 5 comunitarias", "Texas espalha por decadas"]
         ]).arrange(DOWN, buff=0.4).move_to(DOWN * 0.3)
         self.play(FadeIn(tag), run_time=0.7)
         for r in rows:
             self.play(FadeIn(r, shift=RIGHT * 0.3), run_time=0.6)
-        self.wait(9.0)
+        self.wait(17.5)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
-class S3_52(Scene):
+class S3_Vegas(Scene):
     def construct(self):
         self.camera.background_color = FELT
-        tag = Text("Guerra Civil: 52 cartas", font=MONO, font_size=28,
+        tag = Text("1963: Vegas descobre", font=MONO, font_size=28,
                    color=GOLD, weight=BOLD)
         tag.to_edge(UP, buff=0.8)
         rows = VGroup(*[
-            Text(s, font=MONO, font_size=25, color=CREAM)
-            for s in ["Draw: trocar cartas", "Stud: abertas e fechadas"]
+            Text(s, font=MONO, font_size=24, color=CREAM)
+            for s in ["Corky no California Club", "salao poeirento do Nugget", "1967: as passa a valer alto"]
         ]).arrange(DOWN, buff=0.4).move_to(DOWN * 0.3)
         self.play(FadeIn(tag), run_time=0.7)
         for r in rows:
             self.play(FadeIn(r, shift=RIGHT * 0.3), run_time=0.6)
-        self.wait(9.0)
+        self.wait(16.5)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
-class S4_Holdem(Scene):
+class S4_Dunes(Scene):
     def construct(self):
         self.camera.background_color = FELT
-        tag = Text("1925 Robstown: 2 + 5", font=MONO, font_size=32,
+        tag = Text("1969: a entrada do Dunes", font=MONO, font_size=28,
                    color=GOLD, weight=BOLD)
-        tag.move_to(UP * 1.2)
-        ex = Text("o jogo desta plataforma", font=MONO, font_size=26, color=CREAM)
-        ex.next_to(tag, DOWN, buff=0.7)
-        frame = SurroundingRectangle(ex, color=GOLD, buff=0.2, stroke_width=4)
+        tag.to_edge(UP, buff=0.8)
+        rows = VGroup(*[
+            Text(s, font=MONO, font_size=24, color=CREAM)
+            for s in ["Addington / Brunson / Amarillo", "novatos contra quem sabia", "dinheiro facil"]
+        ]).arrange(DOWN, buff=0.4).move_to(DOWN * 0.3)
         self.play(FadeIn(tag), run_time=0.7)
-        self.play(FadeIn(ex), run_time=0.8)
-        self.play(Create(frame), run_time=0.6)
-        self.wait(7.0)
+        for r in rows:
+            self.play(FadeIn(r, shift=RIGHT * 0.3), run_time=0.6)
+        self.wait(19.5)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
 class S5_Fecho(Scene):
     def construct(self):
         self.camera.background_color = FELT
-        line = Text("1970: WSOP, 7 lendas", font=MONO, font_size=27, color=CREAM)
-        nxt = Text("2003: US$ 86 viram 2,5 mi", font=MONO, font_size=27, color=CREAM)
-        fin = Text("proximo: as lendas", font=MONO, font_size=26,
+        line = Text("1970 WSOP / 2003 Moneymaker", font=MONO, font_size=25, color=CREAM)
+        nxt = Text("proximo: as lendas", font=MONO, font_size=26,
                    color=GOLD, weight=BOLD)
-        grp = VGroup(line, nxt, fin).arrange(DOWN, buff=0.5)
-        self.play(Write(line), run_time=1.0)
-        self.play(FadeIn(nxt, shift=RIGHT * 0.3), run_time=0.7)
+        grp = VGroup(line, nxt).arrange(DOWN, buff=0.6)
+        self.play(Write(line), run_time=1.2)
         self.wait(0.5)
-        self.play(FadeIn(fin), run_time=0.8)
-        self.wait(8.5)
+        self.play(FadeIn(nxt), run_time=0.8)
+        self.wait(14.5)

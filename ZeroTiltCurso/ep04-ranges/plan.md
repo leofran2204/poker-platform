@@ -1,27 +1,33 @@
-# EP04 — Ranges: o que jogar de cada posição (~1 min)
+# EP04 — Ranges v2 (versão aprofundada ~90s)
 
-## Arco
-1. Range = o bloco de mãos que você joga de cada posição.
-2. Notação: s = mesmo naipe, o = naipes diferentes, + = para cima.
-3. UTG (~12%): só elite — pares altos e AK/AQ.
-4. BTN (~45%): ataque amplo — pares, ases suited, conectores.
-5. Regra: cedo elite, tarde ataque. Próximo: tamanho do aumento.
+Público: M1 pré-flop. Uma ideia só: o mapa muda com o assento — e respira com a mesa.
 
-## Cenas (~55s)
-- S1_Titulo (7s): "RANGES" + matriz 13x13 apagada acendendo.
-- S2_Notation (10s): AKs, AKo, 22+ com legenda s/o/+.
-- S3_UTG (13s): matriz com ~12% aceso + "UTG: só elite".
-- S4_BTN (14s): matriz com ~45% aceso + "BTN: ataque".
-- S5_Fecho (8s): regra + próximo: tamanho do aumento.
+## Arco narrativo
+1. Gancho: cada assento, um mapa.
+2. Cedo: UTG só premiums; meio abre um pouco.
+3. Tarde: CO rouba, botão é oceano.
+4. Contra quem: apertado abre mais, pagador aperta valor.
+5. Erro clássico: UTG largo doa fichas.
+6. Fecho: lógica, não lista; próximo: sizing.
 
-## Narração (~130 palavras, ~55s em 1.25x)
-"Profissional não escolhe mão no feeling. Ele joga ranges: o bloco de mãos certo
-para cada posição. Primeiro a notação: S é suited, mesmo naipe. O é offsuit,
-naipes diferentes. E o mais quer dizer para cima: dois pares mais significa
-qualquer par do dois até o Ás. No UTG, o primeiro a falar com oito jogadores
-atrás, o range é elite, uns doze por cento: pares de dez para cima, Ás e Rei,
-Ás e Dama. No botão, o último a falar, o range explode para quase metade do
-baralho: qualquer par, ases do mesmo naipe, conectores. Por quê? Em posição
-você decide com informação, então pode atacar largo. A regra de ouro: cedo,
-elite; tarde, ataque. Decore os dois extremos e ajuste o meio. No próximo
-episódio: o tamanho certo do aumento."
+## Cenas (script.py) — waits casados com áudio por cena (1.0x)
+- S1_Titulo (~11s) | S2_Cedo (~17s) | S3_Tarde (~17.5s) | S4_Contra (~16s) | S5_Erro (~15s) | S6_Fecho (~15.5s) — total ~89s.
+
+## Identidade
+- Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.
+- Narração PT-BR por cena (segN.txt → segN.mp3) muxada via ffmpeg.
+
+## Narração (~200 palavras, ~89s em 1.0x, áudio por cena)
+Voz Edge-TTS pt-BR-AntonioNeural. Texto integral (6 atos = seg1..seg6):
+
+"Range é o mapa das mãos que cada posição joga. E o mapa muda com o assento: quanto mais gente para agir depois de você, mais fechado o mapa.
+
+No under the gun, só premiums: pares altos, Ás-Rei, Ás-Dama naipado. Oito pessoas olhando, erro custa caro. No meio, o mapa abre um pouco: pares médios, conectores do mesmo naipe, Ás com quéquer bom.
+
+No cutoff, o mapa vira arma: roube bláindes com range largo, porque só o botão age depois. E no botão, o mapa é oceano: qualquer par, qualquer Ás, conectores, um monte de blefe. Posição paga o preço da entrada.
+
+E tem a segunda dimensão: contra quem? Contra mesa apertada, abra mais e roube. Contra pagadores, aperte o valor e cobre. Range não é tabela decorada: é tabela viva, que respira com a mesa.
+
+E o erro clássico? Jogar o under the gun como se fosse o botão: range largo cedo é doar fichas para a mesa inteira. Se você se pegou abrindo qualquer Ás de UTG, volte dois episódios e recomece do descarte.
+
+Decore a lógica, não a lista: cedo forte e fechado, tarde largo e agressivo. E nunca jogue fora do mapa sem motivo — motivo se chama informação. No próximo episódio: o tamanho certo do aumento."

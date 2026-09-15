@@ -1,27 +1,30 @@
-# EP08 — EV e fold equity: as duas portas da vitória (~1 min)
+# EP08 — EV e fold equity v2 (versão aprofundada ~85s)
 
-## Arco
-1. Poker não é sobre a mão de hoje, é sobre repetição: +EV lucra em mil mãos.
-2. A moeda viciada: cara ganha 2, coroa perde 1 — mesmo perdendo hoje, jogue sempre.
-3. Duas portas: showdown ou fold do vilão. Call/limp abrem mão da segunda.
-4. Agressão combina carta + fold equity. Fecho + próximo: banca.
+Público: iniciante. Uma ideia só: jogue a média — equidade + fold equity a seu favor.
 
-## Cenas (~55s)
-- S1_Titulo (7s): "EV + FOLD EQUITY" + duas portas.
-- S2_Moeda (14s): cara +2 / coroa -1, 50%; dia ruim vs 10 mil jogadas.
-- S3_Portas (13s): porta 1 showdown / porta 2 fold; call fecha a 2.
-- S4_Agressao (11s): raise = força + chance de levarem fold.
-- S5_Fecho (8s): regra + próximo: gestão de banca.
+## Arco narrativo
+1. Gancho: média de mil futuros, não a mão de hoje.
+2. Duas pernas: equidade (36% do draw) e fold equity (largam agora).
+3. Semi-blefe: 2 jeitos de ganhar, a jogada mais lucrativa.
+4. Erro: blefar rocha que larga vs ter medo de blefar pagador — invertido.
+5. Fecho: soma a seu favor; próximo: banca.
 
-## Narração (~125 palavras, ~52s em 1.25x)
-"No poker você não joga a mão de hoje, joga a repetição. Pense na moeda viciada:
-cara, você ganha dois reais; coroa, perde um. A chance é meio a meio. Num dia
-ruim dá coroa sete vezes em dez e você sai perdendo. Mas a matemática é
-brutalmente lucrativa: em dez mil jogadas, você fica rico. Isso é valor
-esperado positivo, mais EV: a jogada que lucra repetida mil vezes. E existem
-duas portas para vencer o pote: mostrar a melhor mão, ou fazer todo mundo
-desistir. Quem só paga abre mão da segunda porta e vence só com a melhor carta.
-Quem aposta e aumenta joga com as duas: a força das cartas mais a fold equity,
-a chance real do rival largar por medo. Decore: jogue o que é mais EV e bata na
-porta do fold. No próximo episódio: gestão de banca, para a variância nunca te
-zerar."
+## Cenas (script.py) — waits casados com áudio por cena (1.0x)
+- S1_Titulo (~19s) | S2_Pernas (~15s) | S3_Semi (~20.5s) | S4_Erro (~16s) | S5_Fecho (~17s) — total ~85s.
+
+## Identidade
+- Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.
+- Narração PT-BR por cena (segN.txt → segN.mp3) muxada via ffmpeg. Termos reescritos (i-vi, folde equity).
+
+## Narração (~200 palavras, ~85s em 1.0x, áudio por cena)
+Voz Edge-TTS pt-BR-AntonioNeural. Texto integral (5 atos = seg1..seg5):
+
+"Valor esperado é a média de todos os futuros possíveis. Jogada com i-vi positivo dá lucro repetindo mil vezes — mesmo que perca hoje. Jogada com i-vi negativo cobra pedágio invisível toda vez. Profissional não joga a mão: joga a média.
+
+O i-vi tem duas pernas. A primeira é a equidade: sua chance de vencer se todos virem até o fim. Nove outs no flópi? Trinta e seis por cento. É a matemática pura das cartas.
+
+A segunda perna é a folde equity: a chance de todo mundo largar agora. Blefe contra rocha que folda demais? Folde equity gigante, qualquer duas cartas lucram. Blefe contra pagador apaixonado? Folde equity zero — e sem ela, só blefe com equidade real.
+
+Junte as duas: semi-blefe com flush draw. Se pagar, você ainda tem trinta e seis por cento. Se foldarem, leva agora. Dois jeitos de ganhar — por isso o semi-blefe é a jogada mais lucrativa do poker.
+
+E o erro clássico? Blefar quem nunca larga e ter medo de blefar quem larga tudo. Leia o vilão, some equidade com folde equity — e só entre em pote com a soma a seu favor. No próximo episódio: banca, o cinto de segurança."

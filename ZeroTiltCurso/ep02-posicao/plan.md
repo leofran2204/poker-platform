@@ -1,26 +1,33 @@
-# EP02 — Posição: a vantagem de falar por último (~1 min)
+# EP02 — Posição v2 (versão aprofundada ~85s)
 
-## Arco
-1. Mesma mão, dois resultados: K♠ Q♠, flop K♥ 8♦ 4♣.
-2. Fora de posição (BB): fala primeiro, no escuro, vilão pode blefar ou ter tudo.
-3. Em posição (BTN): vilão dá check, você decide com informação.
-4. Aha + regra: em posição ataque com mais mãos; fora, só as fortes.
+Público: iniciante. Uma ideia só: posição é informação, e informação é dinheiro.
 
-## Cenas (~55s)
-- S1_Titulo (7s): "POSIÇÃO" + mesa oval, botão D, setas de ordem de fala.
-- S2_OOP (15s): selo BB + K♠ Q♠; flop K♥ 8♦ 4♣; "?" sobre o vilão; "você fala PRIMEIRO".
-- S3_IP (16s): selo BTN; mesmo flop; check do vilão vira "✓ informação"; duas opções: extrair ou controlar.
-- S4_Regra (10s): "EM POSIÇÃO: mais mãos / FORA: só fortes".
-- S5_Fecho (7s): "próximo episódio: raise ou fold — por que nunca entrar de limp".
+## Arco narrativo
+1. Gancho: agir por último = ver tudo.
+2. Mesa de 9: blinds, UTG, botão que anda.
+3. Cedo: UTG só premiums.
+4. Tarde: CO rouba, BTN é rei, lucro nasce aqui.
+5. Regra de bolso: fora pote pequeno, em posição molde.
+6. Fecho: mesmas cartas, outro resultado; próximo: aumento ou descarte.
 
-## Narração (~130 palavras, ~55s)
-"Mesma mão, dois resultados. Você tem Rei e Dama de espadas, e o flop vem Rei,
-oito e quatro. Fora de posição, no big blind, você fala primeiro. Apostou? Ele
-pode ter tudo ou nada, e você está no escuro. Pediu mesa? Ele aposta e a pressão
-é toda sua. Agora inverte: você no botão, em posição. O vilão pede mesa na sua
-frente. Essa informação vale ouro: ele provavelmente não tem nada demais. Agora
-o controle é seu: aposta para extrair de pares piores, ou pede mesa e vê o turn
-de graça. Agir por último é decidir com as cartas do oponente meio reveladas.
-A regra é simples: em posição, jogue mais mãos e ataque; fora de posição, só as
-fortes. No próximo episódio: aumento ou descarte, e por que nunca entrar só
-pagando."
+## Cenas (script.py) — waits casados com áudio por cena (1.0x)
+- S1_Titulo (~13s) | S2_Mesa (~16s) | S3_Cedo (~11.5s) | S4_Tarde (~15s) | S5_Regra (~18s) | S6_Fecho (~11.5s) — total ~82s.
+
+## Identidade
+- Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.
+- Narração PT-BR por cena (segN.txt → segN.mp3) muxada via ffmpeg. Termos reescritos (bláinde, réque, under the gun).
+
+## Narração (~189 palavras, ~82s em 1.0x, áudio por cena)
+Voz Edge-TTS pt-BR-AntonioNeural. Texto integral (6 atos = seg1..seg6):
+
+"Posição é informação. E informação, no poker, é dinheiro. Quem age por último vê o que todo mundo fez antes de decidir — e decide com a cena completa.
+
+Na mesa de nove, os nomes seguem o botão. Small e big bláinde pagam no escuro. Under the gun fala primeiro no pré-flópi, sem saber de nada: por isso o under the gun joga o range mais fechado da mesa, só premiums.
+
+No meio, Lojack e Hijack respiram: menos gente para trás, range abre um pouco. O réque começa a aparecer: roubar bláindes de quem está apertado.
+
+E no fim, Cutoff e Botão: o botão age por último em todas as rodadas pós-flópi. É o rei das posições — range mais largo, mais blefe, mais valor. A maior parte do seu lucro vai nascer aqui.
+
+A regra de bolso? Cedo: fechado e forte. Tarde: largo e agressivo. Fora de posição, pote pequeno e decisão simples. Em posição, o pote é seu para moldar: blefe quando checam, valor quando pagam.
+
+Grave isso: cartas iguais, resultados diferentes — a diferença mora no assento. No próximo episódio: aumento ou descarte, a primeira decisão."

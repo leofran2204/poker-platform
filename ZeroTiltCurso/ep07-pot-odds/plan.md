@@ -1,27 +1,30 @@
-# EP07 — Pot odds: a conta de pagar ou foldar (~1 min)
+# EP07 — Pot odds v2 (versão aprofundada ~85s)
 
-## Arco
-1. Nunca pague por curiosidade: pagar é negócio, compara custo e retorno.
-2. A conta: valor a pagar / pote total. Exemplo: pote 8, aposta 2, custa 2 para levar 12 = 16,6%.
-3. Outs e regra do 4 e do 2: flush draw tem 9 outs, do turn ao river 9×2 = 18%.
-4. 18 > 16,6: pagamento lucrativo no longo prazo. Fecho + próximo: EV e fold equity.
+Público: iniciante. Uma ideia só: a conta pagar-vs-pote decide o call; implied decide os duvidosos.
 
-## Cenas (~55s)
-- S1_Titulo (7s): "POT ODDS" + pagar é negócio, não curiosidade.
-- S2_Conta (14s): barra do pote 8 + aposta 2; 2/12 = 16,6%.
-- S3_Outs (14s): 4 cartas do naipe + 9 restantes; 9×2 = 18%.
-- S4_Decisao (11s): 18% > 16,6% → CALL +EV.
-- S5_Fecho (8s): regra + próximo: EV e fold equity.
+## Arco narrativo
+1. Gancho: quanto custa ver a próxima carta?
+2. Conta 25 em 75 = 4:1, precisa de 20%.
+3. Outs: flush draw 9 outs, 36% flop-river, 18% turn-river; regra x4/x2.
+4. Compara: 36 vs 25 paga, vermelho folda.
+5. Fecho: implied nos duvidosos; próximo: EV e fold equity.
 
-## Narração (~125 palavras, ~52s em 1.25x)
-"Pagar aposta por curiosidade é jogar dinheiro fora. Pagar é um negócio: você
-compara o custo com o retorno. A conta se chama pot odds: o que você paga
-dividido pelo pote total. Exemplo real: o pote tem oito, o vilão aposta dois.
-O pote vai a dez, e custa dois para você continuar. Dois divididos por doze:
-dezesseis vírgula seis por cento. Você só paga se sua chance de acertar for
-maior que isso. E como saber? Conte seus outs, as cartas que te salvam, e use
-a regra do dois: do turn ao river, multiplique por dois. Buscando o flush com
-quatro do naipe, restam nove: nove vezes dois, dezoito por cento. Dezoito é
-maior que dezesseis e meio: o pagamento é lucrativo no longo prazo, mesmo que
-perca hoje. Decore: outs vezes dois, contra o preço do pote. No próximo
-episódio: valor esperado e fold equity."
+## Cenas (script.py) — waits casados com áudio por cena (1.0x)
+- S1_Titulo (~12s) | S2_Conta (~18s) | S3_Outs (~18.5s) | S4_Compara (~16s) | S5_Fecho (~22s) — total ~84s.
+
+## Identidade
+- Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.
+- Narração PT-BR por cena (segN.txt → segN.mp3) muxada via ffmpeg. Termos reescritos (pote odes, outs, implied).
+
+## Narração (~210 palavras, ~84s em 1.0x, áudio por cena)
+Voz Edge-TTS pt-BR-AntonioNeural. Texto integral (5 atos = seg1..seg5):
+
+"Quanto custa ver a próxima carta? Essa pergunta vale dinheiro — e a resposta se chama pote odes. É a conta mais importante do poker depois da posição.
+
+A conta é simples: divida o que você tem que pagar pelo pote total depois do seu call. Aposta de vinte e cinco num pote de setenta e cinco? Você paga vinte e cinco para concorrer a cem: quatro para um. Precisa de vinte por cento de chance para o call empatar.
+
+E de onde vem a chance? Dos outs: cartas que te colocam na frente. Flush draw tem nove outs — cerca de trinta e seis por cento do flópi ao ríver, dezoito do térn ao ríver. Regra de bolso: outs vezes quatro no flópi, vezes dois no térn.
+
+Compare sempre: nove outs no flópi contra aposta de meio pote? Trinta e seis contra vinte e cinco: call lucrativo. Oesdi sem posição contra overbete? A conta fecha no vermelho: folde sem apego.
+
+E tem a segunda conta: implied odes, o que você ganha a mais quando acertar. Contra pagador apaixonado, pague um pouco pior. Contra rocha que larga tudo, exija a conta exata. Pote odes decide o call, implied decide os casos duvidosos. No próximo episódio: valor esperado e fold equity."

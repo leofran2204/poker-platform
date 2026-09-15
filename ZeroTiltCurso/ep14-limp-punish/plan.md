@@ -1,26 +1,30 @@
-# EP14 — Puna o limp
+# EP14 — Puna o limp (versão aprofundada ~90s)
 
-Público: M1 pré-flop. Uma ideia só: limp do SB é convite — isole de 3,5x a 4x.
+Público: M1 pré-flop. Uma ideia só: leia o vilão, isole no tamanho certo — e fuja da armadilha.
 
 ## Arco narrativo
-1. Gancho: "SB só pagou: tem nome, limp — e é convite."
-2. 3 vantagens do BB: posição absoluta, range capped, iniciativa.
-3. Tamanho: 3,5x a 4x.
-4. Com o quê: pares médios, suited, Ax — posição contra range fraco.
+1. Gancho: limp é convite — mas pode ser armadilha.
+2. Leia: fraco isola 50%+, equilibrado 40-45% forte.
+3. Limp-reraise = alarme, fold sem apego.
+4. Tamanho: 3,5-4x regular, 4,5x fraco, +1 por limper; complete barato.
 5. Fecho: puna toda vez; próximo: c-bet.
 
-## Cenas (script.py) — total ~50s
-- S1_Titulo (7s): "PUNA O LIMP" + "episódio 14: 3,5x a 4x".
-- S2_Vantagens (12s): "posição absoluta" + "range capped: sem AA KK QQ AK" + "iniciativa".
-- S3_Tamanho (11s): "3,5x a 4x o blind" + "pagou 1? suba 3,5-4".
-- S4_Comque (10s): "pares médios / suited / Ax" + "posição x range fraco".
-- S5_Fecho (10s): "puna o limp toda vez" + "próximo: c-bet".
+## Cenas (script.py) — waits casados com áudio por cena (1.0x)
+- S1_Titulo (~11s) | S2_Leia (~19.5s) | S3_Armadilha (~17.5s) | S4_Tamanho (~21s) | S5_Fecho (~21.5s) — total ~87s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.
-- Narração PT-BR separada (narracao.txt) muxada via ffmpeg.
+- Narração PT-BR por cena (segN.txt → segN.mp3) muxada via ffmpeg. Termos reescritos (limpe, bláinde, quéquer).
 
-## Narração (~155 palavras, 62.1s → ~50s em 1.25x)
-Voz Edge-TTS pt-BR-AntonioNeural.
+## Narração (~201 palavras, ~87s em 1.0x, áudio por cena)
+Voz Edge-TTS pt-BR-AntonioNeural. Texto integral (5 atos = seg1..seg5):
 
-"O small blind só pagou. Isso tem nome: limp — e é um convite. No big blind, você tem três vantagens. Um: posição absoluta, você fala por último no flop, no turn e no river. Dois: o range dele é limitado. Ele não tem Ás-Ás, Rei-Rei, Dama-Dama nem Ás-Rei, porque com essas mãos ele teria aumentado antes do flop. Três: a iniciativa. Quem aumenta comanda o tamanho do pote. E o tamanho certo do castigo? Três e meio a quatro big blinds. Se ele pagou um, suba para três e meio ou quatro. Isole com pares médios, conectores do mesmo naipe e Ás com kicker: posição contra range fraco. Sem pagar barato, sem deixar ver flop de graça. Puna o limp toda vez — e o pote pré-flop vira seu lucro mais fácil. No próximo episódio: continuation bet, a aposta que continua a história."
+"O small blind só pagou. Isso tem nome: limpe — e é um convite. Mas atenção: convite também pode ser armadilha.
+
+Primeiro, leia o vilão. A maioria limpa com mão fraca demais para aumentar e boa demais para largar: pares baixos, conectores, Ás com quéquer ruim. Contra eles, isole largo: acima de cinquenta por cento das mãos, que você domina quase tudo que ele paga.
+
+Contra quem tem estratégia equilibrada, aperte: quarenta a quarenta e cinco por cento, só mãos fortes em sequência. E se ele voltar aumentando em cima do seu iso? Alarme total: limpe-rerraise é quase sempre monstro. Largue sem apego.
+
+O tamanho do castigo? Contra regular, três e meio a quatro bláindes. Contra fraco, que paga do mesmo jeito com qualquer tamanho, suba para quatro e meio: pote grande em posição, onde o erro dele custa mais caro. Com curiosos na frente? Some um bláinde por limper.
+
+E o complete do small? Pagando meio bláinde para ver flop, vale contra mesa fraca. Mas contra você, é só o convite que vamos punir. Puna o limpe toda vez — e o pote pré-flop vira seu lucro mais fácil. No próximo episódio: continuation bet, a aposta que continua a história."

@@ -1,26 +1,27 @@
-# EP16 — Check-raise e float
+# EP16 — Check-raise e float (versão aprofundada ~90s)
 
-Público: M2 flop. Uma ideia só: raise no flop é força — responda com topo ou plano.
+Público: M2 flop. Uma ideia só: raise no flop é força ou plano — responda com topo, draw ou fold.
 
 ## Arco narrativo
-1. Gancho: "Apostou o flop e tomou raise em cima: e agora?"
-2. Significado: valor (trincas, 2p, TPTK) ou semi-blefe (NFD, OESD).
-3. Resposta: topo ou draw forte; par médio: fold.
-4. Float: pagar em posição com plano (checa-aposta, aposta-fold).
-5. Fecho: paciência armada; próximo: multiway.
+1. Gancho: tomou raise em cima, e agora?
+2. Significado: valor (trinca/2p/TPTK) ou semi-blefe com 2 jeitos de ganhar.
+3. Float: alvo certo (c-bet 70%+ que desiste), posição, bordo seco; trigger no turn.
+4. Fecho: sem meio-termo; próximo: multiway.
 
-## Cenas (script.py) — total ~54s
-- S1_Titulo (7s): "CHECK-RAISE E FLOAT" + "episódio 16: raise no flop".
-- S2_Significado (12s): "valor: trips / 2p / TPTK" + "semi: NFD / OESD".
-- S3_Resposta (11s): "topo ou draw forte" + "par médio: fold".
-- S4_Float (12s): "posição + plano" + "checa-aposta / aposta-fold".
-- S5_Fecho (12s): "paciência armada" + "próximo: multiway".
+## Cenas (script.py) — waits casados com áudio por cena (1.0x)
+- S1_Titulo (~19s) | S2_Significado (~24s) | S3_Float (~27s) | S4_Fecho (~19.5s) — total ~88.5s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.
-- Narração PT-BR separada (narracao.txt) muxada via ffmpeg.
+- Narração PT-BR por cena (segN.txt → segN.mp3) muxada via ffmpeg. Termos reescritos (flópi, térn, cheque-reise, floute, nati).
 
-## Narração (~155 palavras, 65.5s → ~52.5s em 1.25x)
-Voz Edge-TTS pt-BR-AntonioNeural.
+## Narração (~220 palavras, ~89s em 1.0x, áudio por cena)
+Voz Edge-TTS pt-BR-AntonioNeural. Texto integral (4 atos = seg1..seg4):
 
-"Você apostou o flop e o vilão aumentou em cima: check-raise. O que isso significa? Quase sempre força de verdade: trincas, dois pares, top pair com top kicker. Ou semi-blefe pesado: nut flush draw, sequência aberta com duas pontas. A resposta? Continue só com o topo do seu range ou com draws de alta equidade. Par médio sem outs claros: fold sem remorso. E o contra-ataque se chama float: pagar o flop em posição para tomar o pote no turn. O float precisa de duas coisas: posição e plano. Se ele checar o turn, você aposta e leva. Se ele apostar forte de novo, desista sem equidade. Float é paciência armada: flutue nos boards certos, desista nos errados, nunca pague para ver sem motivo. Quem domina o check-raise e o float joga o flop duas vezes: uma nas cartas, outra na cabeça do vilão. No próximo episódio: potes multiway e set mining."
+"Você apostou o flópi e o vilão aumentou em cima: cheque-reise. O que isso significa? Quase sempre força de verdade: trincas, dois pares, top pair com top quéquer. Ou semi-blefe pesado: nati flush draw, sequência aberta com duas pontas.
+
+A resposta? Continue só com o topo do seu range ou com draws de alta equidade. Par médio sem outs claros: folde sem remorso. E repare no tamanho: contra aposta pequena, o raise cabe mais vezes, porque o range dele é mais largo e fraco. Contra aposta grande, aperte o range e suba menor — não se jogue contra força anunciada.
+
+E o contra-ataque se chama floute: pagar o flópi em posição para tomar o pote no térn. Mire em quem aposta quase todo flópi e desiste no térn: se a frequência de continuation bete passa de setenta por cento e o segundo tiro é raro, é alvo. Posição sempre, de preferência em bordo seco e alto. Se ele checar o térn, você aposta e leva. Se ele apostar forte de novo, desista sem equidade.
+
+Floute é paciência armada: topo, draw ou folde — sem meio-termo. Quem domina o cheque-reise e o floute joga o flópi duas vezes: uma nas cartas, outra na cabeça do vilão. No próximo episódio: potes multiway e sete mining."

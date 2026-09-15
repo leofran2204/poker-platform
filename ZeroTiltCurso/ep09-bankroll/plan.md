@@ -1,27 +1,30 @@
-# EP09 — Gestão de banca: para a variância nunca te zerar (~1 min)
+# EP09 — Banca v2 (versão aprofundada ~80s)
 
-## Arco
-1. Técnica sem banca não adianta: oscilação normal zera quem estoura o limite.
-2. Regra 30-50 buy-ins: NL10 (10 de entrada) = 300 a 500 reservados.
-3. AA perde de 72 uma em cada 8: normal, não azar, não tilt.
-4. Amador tenta recuperar; experiente mantém o plano. Fecho + próximo: revisão final.
+Público: iniciante. Uma ideia só: banca te mantém vivo até o longo prazo trabalhar.
 
-## Cenas (~55s)
-- S1_Titulo (7s): "GESTÃO DE BANCA" + cofre vs tilt.
-- S2_Regra (14s): NL10 → 30-50 buy-ins → R$ 300-500 reservados.
-- S3_Variancia (14s): A♠ A♥ vs 7♦ 2♣, "1 em 8 perde" + cara de tilt cortada.
-- S4_Mente (10s): "plano intacto na mão seguinte".
-- S5_Fecho (8s): regra + próximo: revisão do método completo.
+## Arco narrativo
+1. Gancho: variância cobra de todo mundo (80% perde 20 em 100).
+2. Regra 30-50 buy-ins, dinheiro que pode perder.
+3. Caiu 1/4: desce sem ego; tilt com aluguel é doação.
+4. Cada formato, sua banca.
+5. Fecho: viva até o longo prazo; próximo: revisão.
 
-## Narração (~125 palavras, ~52s em 1.25x)
-"A melhor técnica do mundo não adianta nada se uma oscilação normal zerar seu
-dinheiro. Por isso existe a gestão de banca: a regra dos trinta a cinquenta
-buy-ins. Para jogar NL dez, com entrada máxima de dez, você precisa de trezentos
-a quinhentos reservados só para o poker. Entenda o porquê: mesmo com par de
-Ases contra sete e dois, você perde uma em cada oito vezes. Isso não é azar,
-não é carta marcada, é variância, a conta chegando no curto prazo. O amador
-perde essa mão e tenta recuperar tudo na seguinte, no desespero. O experiente
-entende o percentual, mantém o plano intacto e joga a próxima como se nada
-tivesse acontecido. Banca é cinto de segurança: não evita a batida, evita a
-tragédia. No episódio final: a revisão do método completo, do zero ao jogo
-sólido."
+## Cenas (script.py) — waits casados com áudio por cena (1.0x)
+- S1_Titulo (~15s) | S2_Regra (~18.5s) | S3_Queda (~16s) | S4_Separa (~15.5s) | S5_Fecho (~16s) — total ~80s.
+
+## Identidade
+- Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.
+- Narração PT-BR por cena (segN.txt → segN.mp3) muxada via ffmpeg.
+
+## Narração (~193 palavras, ~80s em 1.0x, áudio por cena)
+Voz Edge-TTS pt-BR-AntonioNeural. Texto integral (5 atos = seg1..seg5):
+
+"Variância é o imposto do acaso: até a melhor mão perde às vezes. Em cem all-ins com oitenta por cento de equidade, você perde vinte. Não é azar perseguindo você — é matemática cobrando a parte dela.
+
+Por isso existe banca: o dinheiro separado só para o poker, que você pode perder sem mudar de vida. Regra de bolso para cash game: trinta a cinquenta buy-ins do nível que você joga. Joga NL10 de dez dólares? Banca de trezentos a quinhentos.
+
+E a regra que salva carreiras: nunca suba de nível estourado e nunca desça por orgulho. Perdeu um quarto da banca? Desce um nível, reconstrói, volta. Tilt com dinheiro do aluguel na mesa não é coragem — é doação.
+
+Separe por formato: banca de cash não paga torneio, banca de torneio não cobre cash. Cada formato tem sua variância, cada variância pede seu colchão. Misturar tudo é o atalho mais rápido para quebrar nos dois.
+
+Banca não te faz jogar melhor — te deixa vivo até o longo prazo fazer o trabalho. Trinta buy-ins, queda de nível sem ego, formatos separados. No próximo episódio: a revisão, o método completo em cinco regras."
