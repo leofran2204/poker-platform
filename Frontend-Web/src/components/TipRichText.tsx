@@ -1,5 +1,5 @@
 import { Fragment, type ReactNode } from "react";
-import { extractConcreteCardCodes } from "@/lib/cards";
+import { bareAceNeighborIsCard, extractConcreteCardCodes, isBareAceWord } from "@/lib/cards";
 import { PlayingCard } from "./PlayingCard";
 
 /**
@@ -163,7 +163,17 @@ function renderInline(text: string, keyPrefix: string): ReactNode {
     const lead = m?.[1] ?? "";
     const core = m?.[2] ?? part;
     const trail = m?.[3] ?? "";
+    // "As/Ah/Ad/Ac" sozinho pode ser artigo ("As cartas") — só vira carta
+    // com outra carta ao lado ("As Kh"). A forma explícita A[s] sempre vale.
     const codes = extractConcreteCardCodes(core);
+    if (
+      codes.length > 0 &&
+      isBareAceWord(core) &&
+      !bareAceNeighborIsCard(parts[i - 2], parts[i + 2])
+    ) {
+      nodes.push(part);
+      return;
+    }
     if (codes.length > 0) {
       if (lead) nodes.push(lead);
       nodes.push(

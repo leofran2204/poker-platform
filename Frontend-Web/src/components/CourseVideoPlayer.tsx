@@ -91,12 +91,19 @@ export function CourseVideoPlayer({ video, handExample, lessonTitle }: Props) {
               <span className="text-2xl">▶️</span>
             </div>
             <h3 className="text-sm sm:text-base font-bold text-gold-bright">
-              {lessonTitle} — Aula em Vídeo de 2 Minutos
+              {video?.url ? `${lessonTitle} — Aula em Vídeo` : `${lessonTitle} — vídeo em produção`}
             </h3>
-            <p className="text-xs text-felt-300">
-              Apresentado pelo jogador virtual <strong className="text-cream">{hostName}</strong> com
-              demonstração gráfica de mãos e explicação de ranges.
-            </p>
+            {video?.url ? (
+              <p className="text-xs text-felt-300">
+                Apresentado pelo jogador virtual <strong className="text-cream">{hostName}</strong> com
+                demonstração gráfica de mãos e explicação de ranges.
+              </p>
+            ) : (
+              <p className="text-xs text-felt-300">
+                O vídeo desta aula ainda está em produção. Enquanto isso, leia o roteiro
+                da narração e veja a demonstração da mão na mesa.
+              </p>
+            )}
             {video?.placeholderScript && (
               <button
                 type="button"

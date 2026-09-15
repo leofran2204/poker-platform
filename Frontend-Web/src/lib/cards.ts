@@ -78,6 +78,33 @@ export function extractConcreteCardCodes(token: string): string[] {
   return [];
 }
 
+/**
+ * Tokens ambíguos: artigo/interjeição PT ("As cartas", "Ah!") ou Ás
+ * ("As Kh", "A[s]"). Só vistos como carta com outra carta ao lado.
+ */
+const BARE_ACE_WORDS = new Set(["As", "Ah", "Ad", "Ac"]);
+
+/** Token é um "ás nu" ambíguo (exige contexto para virar carta). */
+export function isBareAceWord(token: string): boolean {
+  return BARE_ACE_WORDS.has(token);
+}
+
+/**
+ * Um "ás nu" só vira carta se o token vizinho (anterior ou próximo)
+ * também for código de carta — ex. "As Kh" sim, "As cartas" não.
+ * A forma explícita A[s] nunca depende de vizinho.
+ */
+export function bareAceNeighborIsCard(
+  prevToken: string | undefined,
+  nextToken: string | undefined,
+): boolean {
+  for (const t of [prevToken, nextToken]) {
+    if (!t || /^\s*$/.test(t)) continue;
+    if (extractConcreteCardCodes(t).length > 0) return true;
+  }
+  return false;
+}
+
 export type SeatPos = { top: number; left: number };
 
 /** Layouts por cap: índice 0 = base (herói). Coordenadas em % do oval. */
