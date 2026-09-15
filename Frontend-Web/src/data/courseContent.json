@@ -13,7 +13,7 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 53,
+            "durationSeconds": 89,
             "url": "/videos/ep11-historia-baralho.mp4",
             "placeholderScript": "Fala, jogador! Seja muito bem-vindo à Zero Tilt Academy. Você sabia que o baralho com que jogamos poker tem mais de mil anos de história? Nascido na China da dinastia Tang e transformado no baralho de 52 cartas que conhecemos pelos franceses, ele é a máquina de informação incompleta perfeita. O poker não é sorte: é a arte de precificar e tomar decisões sob incerteza. Ao longo deste curso, eu e a nossa equipe de IA vamos te ensinar a pensar como um profissional. Assista à aula, veja o exemplo de mão e responda ao teste para desbloquear o próximo nível!"
           },
@@ -70,7 +70,7 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 50,
+            "durationSeconds": 92,
             "url": "/videos/ep12-mississippi.mp4",
             "placeholderScript": "Em 1829, nos barcos do rio Mississippi, quatro pessoas jogavam com vinte cartas — e o blefe nasceu junto com o jogo. Da Guerra Civil ao Texas Hold'em de 1925, da WSOP de 1970 ao boom Moneymaker: esta é a estrada até o poker de hoje."
           },
@@ -109,11 +109,11 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 55,
+            "durationSeconds": 86,
             "url": "/videos/ep13-lendas.mp4",
             "placeholderScript": "De Johnny Moss a André Akkari: as lendas do poker mundial e do Brasil — e a lição que une todas elas: ninguém nasceu sabendo, estude uma ideia por sessão."
           },
-          "body": "## Lendas mundiais\n\n- **Johnny Moss:** venceu as duas primeiras WSOP (1970–71).\n- **Doyle Brunson:** 10 braceletes; o 10-2 leva seu nome.\n- **Stu Ungar:** 3 títulos do Main Event, gênio trágico.\n- **Phil Ivey (10 braceletes), Phil Hellmuth (17), Daniel Negreanu, Fedor Holz:** a era moderna.\n\n## O Brasil no mapa\n\n- **2004–2006:** amigos de Campinas criam o CPH; **Igor Trafane** e **Devanir Campos (DC)** fundam a **BSOP** — hoje a maior série fora de Vegas.\n- **Alexandre Gomes (2008):** primeiro bracelete brasileiro. **André Akkari (2011):** bracelete e o rosto do poker na TV.\n- **Geração de ouro:** Yuri Martins (2 braceletes), Brunno Botteon (vice do Main Event 2020), Felipe Mojave, João Simão, Kelvin Kerber.\n- **Estrutura:** H2 Club (maior clube da América Latina), federação e mídia especializada profissionalizaram tudo.\n\n## A lição\n\nNinguém nasceu sabendo: Moss era trapaceiro de rua, Moneymaker era contador. Estude uma ideia por sessão — como eles fizeram.",
+          "body": "## Lendas mundiais\n\n- **Johnny Moss:** venceu as duas primeiras WSOP (1970–71).\n- **Doyle Brunson:** 10 braceletes; o 10-2 leva seu nome.\n- **Stu Ungar:** 3 títulos do Main Event, gênio trágico.\n- **Phil Ivey (11 braceletes), Phil Hellmuth (17), Daniel Negreanu, Fedor Holz:** a era moderna.\n\n## O Brasil no mapa\n\n- **2004–2006:** amigos de Campinas criam o CPH; **Igor Trafane** e **Devanir Campos (DC)** fundam a **BSOP** — hoje a maior série fora de Vegas.\n- **Alexandre Gomes (2008):** primeiro bracelete brasileiro. **André Akkari (2011):** bracelete e o rosto do poker na TV.\n- **Geração de ouro:** Yuri Martins (6 braceletes), Brunno Botteon (vice do Main Event 2020), Felipe Mojave, João Simão, Kelvin Kerber.\n- **Estrutura:** H2 Club (maior clube da América Latina), federação e mídia especializada profissionalizaram tudo.\n\n## A lição\n\nNinguém nasceu sabendo: Moss era trapaceiro de rua, Moneymaker era contador. Estude uma ideia por sessão — como eles fizeram.",
           "quiz": [
             {
               "id": "m0l3q1",
@@ -148,7 +148,7 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 54,
+            "durationSeconds": 85,
             "url": "/videos/ep01-poker-do-zero.mp4",
             "placeholderScript": "No Texas Hold'em, cada jogador recebe duas cartas fechadas e compartilha cinco cartas comunitárias na mesa. O objetivo? Formar a melhor mão de cinco cartas ou fazer todos os oponentes desistirem antes do showdown. A hierarquia clássica vai de Carta Alta até Royal Flush. O segredo de quem vence de verdade é a disciplina: foldar mãos fracas cedo e extrair o valor máximo das mãos fortes nas quatro rodadas: Pré-flop, Flop, Turn e River. Vamos ver na prática como funciona uma mão completa!"
           },
@@ -207,7 +207,7 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 55,
+            "durationSeconds": 82,
             "url": "/videos/ep02-posicao.mp4",
             "placeholderScript": "Posição é a maior vantagem do poker. Quem fala por último vê o que todos os outros fizeram antes de colocar uma única ficha no pote. Do Botão e do Cutoff, você pode jogar muito mais mãos e roubar os blinds. Já das primeiras posições, como UTG, você só deve abrir mãos extremamente fortes. Veja estas decisões práticas no nosso motor: responder corretamente a estes spots é o primeiro passo para parar de perder fichas à toa."
           },
@@ -365,7 +365,7 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 51,
+            "durationSeconds": 89,
             "url": "/videos/ep04-ranges.mp4",
             "placeholderScript": "No poker, informação é dinheiro. Quando você está no UTG, fala primeiro pós-flop para 8 adversários — seu range deve ser rígido, apenas 12% das melhores mãos. Mas quando a ação chega em fold até o Botão, você fala por último em todas as rodadas e pode abrir quase 50% das mãos para roubar os blinds! Veja na mesa como uma mão como K-Q suited muda completamente de valor dependendo de onde você está sentado."
           },
@@ -424,7 +424,7 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 50,
+            "durationSeconds": 87,
             "url": "/videos/ep14-limp-punish.mp4",
             "placeholderScript": "Quando o Small Blind apenas completa um blind, ele está te dando um presente. O limp é passivo e indica um range limitado (capped). Ele não tem AA ou KK. No Big Blind, você terá posição em todas as streets. A resposta matemática ideal é o Isolation Raise de 3.5x a 4x com mãos de valor e blefes com bloqueadores como Ás e Cinco de espadas. Veja como forçamos o fold no flop com uma c-bet de apenas um terço do pote!"
           },
@@ -487,7 +487,7 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 52,
+            "durationSeconds": 86,
             "url": "/videos/ep06-steal-3bet.mp4",
             "placeholderScript": "3-betar não é loucura: é a chave para jogar potes grandes em posição. Nós dividimos a 3-bet em duas frentes: por valor, com monstros como QQ e AK, e 3-bet light com bloqueadores, usando mãos como A4s e KTs. Se o adversário foldar pré-flop, você puxa o pote limpo; se ele pagar, você joga o flop em posição com iniciativa e cartas vivas. Olhe este spot com A♠ 4♠ no Botão contra um open do Cutoff!"
           },
@@ -553,7 +553,7 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 50,
+            "durationSeconds": 86,
             "url": "/videos/ep15-cbet-flop.mp4",
             "placeholderScript": "A continuation bet é a aposta mais comum do poker, mas você não deve apostar em todo flop sem pensar. Em boards secos — como Ás, Sete e Dois — o adversário erra mais de 60% das vezes e seu range contém os Áses fortes; aí apostamos pequeno, 25% a 33% do pote. Mas em boards conectados e molhados, como 9, 8 e 7 com flush draw, o oponente acerta dezenas de combos. Nesses boards molhados, pedimos mesa com mãos médias para controlar o pote. Veja a diferença!"
           },
@@ -620,7 +620,7 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 52,
+            "durationSeconds": 89,
             "url": "/videos/ep16-checkraise-float.mp4",
             "placeholderScript": "Você fez a sua c-bet e, de repente, o Big Blind aumentou em check-raise. O que fazer? Em micro e low stakes, o check-raise raramente é blefe puro; costuma ser dois pares, trincas ou draws fortíssimos. Pagar com par médio sem cartas extras é doar fichas. No entanto, em posição e com mãos que possuem cartas de backdoor e posição, você pode usar a técnica do 'Float': pagar no flop para tomar o pote no turn caso ele mostre fraqueza."
           },
@@ -687,7 +687,7 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 51,
+            "durationSeconds": 85,
             "url": "/videos/ep17-multiway-mining.mp4",
             "placeholderScript": "Quando três ou mais jogadores chegam ao flop, a matemática do poker muda totalmente: a eficácia dos blefes desaba. Alguém sempre acerta alguma coisa. Com pares baixos e médios de 22 a 88, nosso plano antes do flop é fazer 'Set Mining': pagar barato torcendo para acertar a trinca. Se você acertar o set, aposte forte para cobrar draws; se errar, passe ou desista barato."
           },
@@ -897,7 +897,7 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 56,
+            "durationSeconds": 84,
             "url": "/videos/ep07-pot-odds.mp4",
             "placeholderScript": "Chega de adivinhar: poker lucrativo é matemática simples. No turn, para saber se vale a pena pagar uma aposta com flush draw ou sequência, usamos a Regra do 2: multiplique o número de outs por dois para achar sua porcentagem de acertar a carta no river. Um flush draw tem 9 outs, logo tem aproximadamente 18% de chance. Se o pote te oferecer um preço menor do que 18%, pagar é lucro garantido no longo prazo!"
           },
@@ -1381,6 +1381,200 @@
               "expected": "raise",
               "engine": "Top Set Ultimate Pineapple Value Bet",
               "why": "Trinca de Áses com K kicker é o monstro do board: aposte por valor para construir o pote."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m6",
+      "title": "Módulo 6: Consolidação",
+      "subtitle": "EV, banca e revisão final. ~12 min.",
+      "lessons": [
+        {
+          "id": "m6l1",
+          "title": "EV e fold equity",
+          "minutes": 4,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 85,
+            "url": "/videos/ep08-ev-foldequity.mp4",
+            "placeholderScript": "Valor esperado é a média de todos os futuros possíveis. Jogada com EV positivo dá lucro repetindo mil vezes. O EV tem duas pernas: equidade e fold equity. Junte as duas no semi-blefe — dois jeitos de ganhar. E o erro clássico? Blefar quem nunca larga e ter medo de blefar quem larga tudo."
+          },
+          "handExample": {
+            "title": "Semi-blefe no botão",
+            "heroPosition": "BTN",
+            "villainPosition": "BB",
+            "heroCards": [
+              "Ah",
+              "5h"
+            ],
+            "boardCards": [
+              "Kh",
+              "9h",
+              "2d"
+            ],
+            "potBb": "8",
+            "actionText": "Você aumentou do BTN com A5 suited, o BB pagou. Flop K high com duas de copas, o BB dá check.",
+            "heroDecision": "Semi-blefe de 60% do pote: fold equity agora + 36% de equidade se pagar.",
+            "keyTakeaway": "Dois jeitos de ganhar: fold agora ou flush depois."
+          },
+          "body": "## O que é EV\n\nValor esperado é a média de todos os futuros possíveis: `EV = equidade × pote − custo`. Jogada com EV positivo dá lucro repetindo mil vezes — mesmo que perca hoje. Profissional não joga a mão: joga a média.\n\n## As duas pernas\n\n- **Equidade:** sua chance se todos virem até o fim. Flush draw no flop (`Ah 5h` em `Kh 9h 2d`): 9 outs, ~36%.\n- **Fold equity:** a chance de todo mundo largar agora. Contra rocha que folda demais ela é gigante; contra pagador apaixonado ela é zero.\n\n## O semi-blefe\n\nAposte o draw: se foldarem, leva agora; se pagarem, ainda tem 36%. Dois jeitos de ganhar — por isso é a jogada mais lucrativa do poker.\n\n## Erro clássico\n\nBlefar quem nunca larga e ter medo de blefar quem larga tudo. Leia o vilão antes de escolher a vítima do blefe.",
+          "quiz": [
+            {
+              "id": "m6l1q1",
+              "kind": "theory",
+              "prompt": "O que é valor esperado (EV)?",
+              "options": [
+                "A média de todos os futuros possíveis da jogada",
+                "O resultado da mão atual",
+                "O tamanho do pote dividido pelo stack"
+              ],
+              "expectedIndex": 0,
+              "explanation": "EV é a média repetindo mil vezes; jogada com EV positivo lucra no longo prazo mesmo perdendo hoje."
+            },
+            {
+              "id": "m6l1q2",
+              "kind": "engine",
+              "prompt": "Flop Kh 9h 2d, pote 8 BB. Você tem Ah 5h (nut flush draw) e o BB dá check. Ação?",
+              "hole": [
+                "Ah",
+                "5h"
+              ],
+              "board": [
+                "Kh",
+                "9h",
+                "2d"
+              ],
+              "options": [
+                "fold",
+                "check",
+                "bet"
+              ],
+              "expected": "bet",
+              "engine": "Semi-bluff",
+              "why": "Nut flush draw tem 36% de equidade + fold equity contra check: semi-blefe lucrativo dos dois jeitos."
+            }
+          ]
+        },
+        {
+          "id": "m6l2",
+          "title": "Banca: o cinto de segurança",
+          "minutes": 4,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 80,
+            "url": "/videos/ep09-bankroll.mp4",
+            "placeholderScript": "Variância é o imposto do acaso: até 80% perde 20 em 100. Por isso existe banca: 30 a 50 buy-ins, queda de nível sem ego e formatos separados. Banca não te faz jogar melhor — te deixa vivo até o longo prazo."
+          },
+          "handExample": {
+            "title": "Shot sem banca não vai",
+            "heroPosition": "Você",
+            "villainPosition": "Nível acima",
+            "heroCards": [
+              "Qh",
+              "Qd"
+            ],
+            "boardCards": [],
+            "potBb": "100",
+            "actionText": "Sua banca tem 18 buy-ins do NL10 e você cogita um shot no NL25 com QQ.",
+            "heroDecision": "Não ir: 18 buy-ins quebram a regra dos 30; o shot espera a banca.",
+            "keyTakeaway": "Banca manda mais que carta: sem 30 buy-ins, sem shot."
+          },
+          "body": "## Variância cobra de todo mundo\n\nEm 100 all-ins com 80% de equidade, você perde 20. Não é azar pessoal — é matemática. Quem joga sem colchão quebra na primeira sequência ruim.\n\n## A regra dos 30–50\n\n| Nível | Buy-in | Banca |\n|---|---|---|\n| NL10 | $10 | $300–$500 |\n| NL25 | $25 | $750–$1.250 |\n\nDinheiro que você pode perder sem mudar de vida — nunca aluguel.\n\n## Caiu 1/4? Desce\n\nPerdeu um quarto da banca: desce um nível, reconstrói, volta. Tilt com dinheiro do aluguel não é coragem, é doação.\n\n## Um formato, uma banca\n\nBanca de cash não paga torneio e vice-versa. Misturar tudo é quebrar nos dois.",
+          "quiz": [
+            {
+              "id": "m6l2q1",
+              "kind": "theory",
+              "prompt": "Qual a regra de banca para cash game?",
+              "options": [
+                "5 a 10 buy-ins do nível",
+                "30 a 50 buy-ins do nível",
+                "100 buy-ins independente do nível"
+              ],
+              "expectedIndex": 1,
+              "explanation": "30–50 buy-ins absorvem a variância; ex.: NL10 pede $300–$500."
+            },
+            {
+              "id": "m6l2q2",
+              "kind": "theory",
+              "prompt": "Você perdeu um quarto da banca. O correto é:",
+              "options": [
+                "Subir de nível para recuperar",
+                "Descer um nível e reconstruir sem ego",
+                "Tirar uma semana de folga e voltar no mesmo nível"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Queda de 25% pede nível abaixo até reconstruir; proteger a banca vem antes do orgulho."
+            }
+          ]
+        },
+        {
+          "id": "m6l3",
+          "title": "Revisão final: o método completo",
+          "minutes": 4,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 85,
+            "url": "/videos/ep10-revisao.mp4",
+            "placeholderScript": "Cinco regras: objetivo, posição, agressão seletiva, conta e banca. Mais o checklist antes de cada mão. Poker é repetição: quem repete decisão correta mil vezes lucra."
+          },
+          "handExample": {
+            "title": "Checklist na prática",
+            "heroPosition": "BTN",
+            "villainPosition": "BB",
+            "heroCards": [
+              "As",
+              "Kd"
+            ],
+            "boardCards": [
+              "Qh",
+              "Js",
+              "2d"
+            ],
+            "potBb": "7.5",
+            "actionText": "BTN com AK suited, BB pagou. Flop Q-J-2 rainbow, BB checa. Checklist: posição sim, range sim, preço sim.",
+            "heroDecision": "C-bet 33%: barato no seco com dois overs e backdoors.",
+            "keyTakeaway": "Checklist antes do clique: posição, range, tamanho, preço, banca."
+          },
+          "body": "## As 5 regras\n\n1. **Objetivo:** melhor jogo de 5 — ou pote sem showdown no blefe.\n2. **Posição:** falar por último é decidir com a cena completa.\n3. **Agressão seletiva:** aumento em vez de limp, iso contra fraco, roubo no botão.\n4. **Conta:** pot odds, outs ×4/×2, EV com fold equity.\n5. **Banca:** 30–50 buy-ins, queda sem ego, formatos separados.\n\n## Checklist de mesa\n\nPosição? Range? Tamanho? Preço? Banca? Cinco sins, jogue sem medo do resultado de hoje. Qualquer não: volte uma casa.\n\n## Como treinar\n\nUma ideia por sessão, começando do M0. Repetição de decisão correta: é assim que se lucra.",
+          "quiz": [
+            {
+              "id": "m6l3q1",
+              "kind": "theory",
+              "prompt": "Qual sequência resume o método Zero Tilt?",
+              "options": [
+                "Blefar muito, pagar tudo, subir de nível rápido",
+                "Objetivo, posição, agressão seletiva, conta e banca",
+                "Decorar ranges, ignorar posição, jogar qualquer pote"
+              ],
+              "expectedIndex": 1,
+              "explanation": "As 5 regras cobrem objetivo, posição, agressão, conta e banca — o curso inteiro em uma linha."
+            },
+            {
+              "id": "m6l3q2",
+              "kind": "engine",
+              "prompt": "Flop Qh Js 2d, pote 7.5 BB. Você tem As Kd no BTN e o BB dá check. Ação?",
+              "hole": [
+                "As",
+                "Kd"
+              ],
+              "board": [
+                "Qh",
+                "Js",
+                "2d"
+              ],
+              "options": [
+                "check",
+                "bet",
+                "fold"
+              ],
+              "expected": "bet",
+              "engine": "C-bet",
+              "why": "Board seco com dois overs + backdoors: c-bet pequena e frequente passa no checklist."
             }
           ]
         }

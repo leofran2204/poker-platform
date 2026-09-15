@@ -931,3 +931,10 @@
 
 - **Vídeos (Manim ~50s, Edge-TTS AntonioNeural):** ep14 limp-punish (49.7s)→m1l2, ep15 c-bet seco/molhado (49.9s)→m2l1, ep16 check-raise/float (52.3s)→m2l2, ep17 multiway/mining (51s)→m2l3; `public/videos/` servindo 12 aulas.
 - **Validado:** tsc, ESLint limpos, Vitest 50/50, `vite build` OK c/ `dist/videos/` (12 MP4s), frames conferidos, `git diff --check` limpo.
+
+## 2026-09-16 — S24: curso sem coach + 17 vídeos refeitos + Módulo 6
+
+- **Player neutro (`CourseVideoPlayer`):** fora avatar IA, persona e aba "Mão na Mesa"; coach analista sob demanda → backlog no `DASHBOARD.md`.
+- **17 vídeos refeitos e aprofundados (Manim ~90s, 1.0x, Edge-TTS AntonioNeural, áudio por cena):** ep01 objetivo, ep02 posições, ep03 raise-fold, ep04 ranges, ep05 sizing, ep06 steal, ep07 odds, ep08 EV, ep09 banca, ep10 revisão, ep11 baralho, ep12 Mississippi, ep13 lendas (Ivey 11 e Yuri 6 corrigidos, aula m0l3 junto), ep14 limp, ep15 c-bet, ep16 x-raise, ep17 multiway.
+- **Módulo 6 Consolidação:** m6l1 EV, m6l2 banca, m6l3 revisão (body + handExample + quiz + vídeo); cadeia m5l3→m6l1; 24 aulas, 15 vídeos ligados.
+- **Validado:** tsc, ESLint limpos, Vitest 50/50, `vite build` OK c/ `dist/videos/` (15 MP4s), frames conferidos, `git diff --check` limpo.

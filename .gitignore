@@ -65,6 +65,11 @@ ZeroTiltCurso/**/media/
 ZeroTiltCurso/**/silent.mp4
 ZeroTiltCurso/**/concat.txt
 ZeroTiltCurso/**/frame_*.png
+ZeroTiltCurso/**/v2_*.png
+ZeroTiltCurso/**/check*.png
+ZeroTiltCurso/**/seg*.txt
+ZeroTiltCurso/**/seg*.mp3
+ZeroTiltCurso/**/narracao.txt
 ZeroTiltCurso/**/__pycache__/
 
 # Pastas de trabalho temporárias / lixo de shell

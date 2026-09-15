@@ -117,6 +117,7 @@ Pendências conscientes: PIX automático, ownership distribuído de mesa, KYC 20
 | # | Tarefa | Pasta | Status |
 |---|--------|-------|--------|
 | PIX | Adaptadores e testes locais preservados; integração real de depósitos, saques e webhooks requer nova autorização de escopo | `API-Axum/` & `Frontend-Web/` | ⏸️ Adiado |
+| COACH | Coach virtual analista sob demanda: jogador pede análise profunda de mão via hand history (fora do curso; curso é só introdução) — requer nova autorização de escopo | `Frontend-Web/` & `API-Axum/` | ⏸️ Adiado |
 
 ### ✅ Concluídas — Sprint Atual (S13 + S12)
 | #   | Tarefa                                                                                                                                                              | Data       |

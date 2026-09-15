@@ -129,10 +129,9 @@ export function LessonPage() {
             </p>
           )}
 
-          {/* Player de Vídeo IA e Mão Prática */}
+          {/* Player de Vídeo da Aula */}
           <CourseVideoPlayer
             video={lesson.video}
-            handExample={lesson.handExample}
             lessonTitle={lesson.title}
           />
 
