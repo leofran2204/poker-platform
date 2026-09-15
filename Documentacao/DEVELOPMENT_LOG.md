@@ -920,3 +920,9 @@
 - **Vitrine do topo (`ShowcaseTable.tsx`):** board estável (fim da remontagem por street), banner FLOP/TURN/RIVER, `winningFive` por cenário (AK: dois pares Ases+Reis; QQ: trinca) com suspense de 2s após o river.
 - **Suspense 1s→2s:** replays (`AnimatedHand`), mesa ao vivo (`PokerTable`) e painel (`TablePage`).
 - **Validado:** tsc, ESLint limpos, Vitest 40/40, `vite build` OK, `git diff --check` limpo.
+
+## 2026-09-15 — S24: fix do Ás no material + lote M0 em vídeo (ep11–13)
+
+- **Ás no lugar da palavra (`TipRichText` + `lib/cards.ts`):** "As/Ah/Ad/Ac" sozinho só vira carta com outra carta ao lado; 7 menções legítimas solitárias convertidas p/ `A[s]`/`A[h]`; teste `cards.test.ts`; "As cartas"/"As Únicas" voltam a ser palavras.
+- **Vídeos M0 (Manim 55s, Edge-TTS AntonioNeural, vid-env):** ep11 história do baralho (53s)→m0l1, ep12 Mississippi (50s)→m0l2, ep13 lendas (54.5s)→m0l3; blocos `video` criados em m0l2/m0l3; `public/videos/` servindo 8 aulas; restante no placeholder honesto.
+- **Validado:** tsc, ESLint limpos, Vitest 50/50, `vite build` OK c/ `dist/videos/`, frames conferidos, `git diff --check` limpo.

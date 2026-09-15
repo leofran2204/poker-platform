@@ -13,7 +13,8 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 53,
+            "url": "/videos/ep11-historia-baralho.mp4",
             "placeholderScript": "Fala, jogador! Seja muito bem-vindo à Zero Tilt Academy. Você sabia que o baralho com que jogamos poker tem mais de mil anos de história? Nascido na China da dinastia Tang e transformado no baralho de 52 cartas que conhecemos pelos franceses, ele é a máquina de informação incompleta perfeita. O poker não é sorte: é a arte de precificar e tomar decisões sob incerteza. Ao longo deste curso, eu e a nossa equipe de IA vamos te ensinar a pensar como um profissional. Assista à aula, veja o exemplo de mão e responda ao teste para desbloquear o próximo nível!"
           },
           "handExample": {
@@ -66,6 +67,13 @@
           "id": "m0l2",
           "title": "Do Mississippi ao mundo",
           "minutes": 5,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 50,
+            "url": "/videos/ep12-mississippi.mp4",
+            "placeholderScript": "Em 1829, nos barcos do rio Mississippi, quatro pessoas jogavam com vinte cartas — e o blefe nasceu junto com o jogo. Da Guerra Civil ao Texas Hold'em de 1925, da WSOP de 1970 ao boom Moneymaker: esta é a estrada até o poker de hoje."
+          },
           "body": "## 1829: 20 cartas e o blefe\n\nNos barcos do rio Mississippi, 4 pessoas jogavam com 20 cartas (do Ás ao 10). Vencia a melhor mão — ou quem fizesse os outros **desistirem**. O blefe nasceu junto com o jogo.\n\n## 52 cartas, Stud e Draw\n\nNa época da Guerra Civil Americana o baralho foi a 52 cartas e surgiram o Draw (trocar cartas) e o Stud (cartas abertas e fechadas).\n\n## 1925: nasce o Texas Hold'em\n\nEm Robstown, no Texas: 2 cartas fechadas + 5 comunitárias. Mais rápido e estratégico — é o jogo desta plataforma.\n\n## Vegas, TV e o boom\n\n- **1970:** Benny Binion junta 7 lendas e cria a World Series of Poker (WSOP).\n- **2002–2003:** o WPT mostra as cartas na TV e Chris Moneymaker transforma US$ 86 em US$ 2,5 milhões — o mundo descobre que qualquer um pode ganhar.\n- **Hoje:** Triton, WSOP com 10 mil inscritos e poker reconhecido como esporte da mente.",
           "quiz": [
             {
@@ -98,6 +106,13 @@
           "id": "m0l3",
           "title": "Nomes que fizeram história",
           "minutes": 5,
+          "video": {
+            "hostName": "Vitor 'Zero Tilt' Brandão",
+            "hostRole": "Coach Virtual IA",
+            "durationSeconds": 55,
+            "url": "/videos/ep13-lendas.mp4",
+            "placeholderScript": "De Johnny Moss a André Akkari: as lendas do poker mundial e do Brasil — e a lição que une todas elas: ninguém nasceu sabendo, estude uma ideia por sessão."
+          },
           "body": "## Lendas mundiais\n\n- **Johnny Moss:** venceu as duas primeiras WSOP (1970–71).\n- **Doyle Brunson:** 10 braceletes; o 10-2 leva seu nome.\n- **Stu Ungar:** 3 títulos do Main Event, gênio trágico.\n- **Phil Ivey (10 braceletes), Phil Hellmuth (17), Daniel Negreanu, Fedor Holz:** a era moderna.\n\n## O Brasil no mapa\n\n- **2004–2006:** amigos de Campinas criam o CPH; **Igor Trafane** e **Devanir Campos (DC)** fundam a **BSOP** — hoje a maior série fora de Vegas.\n- **Alexandre Gomes (2008):** primeiro bracelete brasileiro. **André Akkari (2011):** bracelete e o rosto do poker na TV.\n- **Geração de ouro:** Yuri Martins (2 braceletes), Brunno Botteon (vice do Main Event 2020), Felipe Mojave, João Simão, Kelvin Kerber.\n- **Estrutura:** H2 Club (maior clube da América Latina), federação e mídia especializada profissionalizaram tudo.\n\n## A lição\n\nNinguém nasceu sabendo: Moss era trapaceiro de rua, Moneymaker era contador. Estude uma ideia por sessão — como eles fizeram.",
           "quiz": [
             {
@@ -133,7 +148,8 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 54,
+            "url": "/videos/ep01-poker-do-zero.mp4",
             "placeholderScript": "No Texas Hold'em, cada jogador recebe duas cartas fechadas e compartilha cinco cartas comunitárias na mesa. O objetivo? Formar a melhor mão de cinco cartas ou fazer todos os oponentes desistirem antes do showdown. A hierarquia clássica vai de Carta Alta até Royal Flush. O segredo de quem vence de verdade é a disciplina: foldar mãos fracas cedo e extrair o valor máximo das mãos fortes nas quatro rodadas: Pré-flop, Flop, Turn e River. Vamos ver na prática como funciona uma mão completa!"
           },
           "handExample": {
@@ -191,7 +207,8 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 55,
+            "url": "/videos/ep02-posicao.mp4",
             "placeholderScript": "Posição é a maior vantagem do poker. Quem fala por último vê o que todos os outros fizeram antes de colocar uma única ficha no pote. Do Botão e do Cutoff, você pode jogar muito mais mãos e roubar os blinds. Já das primeiras posições, como UTG, você só deve abrir mãos extremamente fortes. Veja estas decisões práticas no nosso motor: responder corretamente a estes spots é o primeiro passo para parar de perder fichas à toa."
           },
           "handExample": {
@@ -348,7 +365,8 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 51,
+            "url": "/videos/ep04-ranges.mp4",
             "placeholderScript": "No poker, informação é dinheiro. Quando você está no UTG, fala primeiro pós-flop para 8 adversários — seu range deve ser rígido, apenas 12% das melhores mãos. Mas quando a ação chega em fold até o Botão, você fala por último em todas as rodadas e pode abrir quase 50% das mãos para roubar os blinds! Veja na mesa como uma mão como K-Q suited muda completamente de valor dependendo de onde você está sentado."
           },
           "handExample": {
@@ -468,7 +486,8 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 52,
+            "url": "/videos/ep06-steal-3bet.mp4",
             "placeholderScript": "3-betar não é loucura: é a chave para jogar potes grandes em posição. Nós dividimos a 3-bet em duas frentes: por valor, com monstros como QQ e AK, e 3-bet light com bloqueadores, usando mãos como A4s e KTs. Se o adversário foldar pré-flop, você puxa o pote limpo; se ele pagar, você joga o flop em posição com iniciativa e cartas vivas. Olhe este spot com A♠ 4♠ no Botão contra um open do Cutoff!"
           },
           "handExample": {
@@ -874,7 +893,8 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 56,
+            "url": "/videos/ep07-pot-odds.mp4",
             "placeholderScript": "Chega de adivinhar: poker lucrativo é matemática simples. No turn, para saber se vale a pena pagar uma aposta com flush draw ou sequência, usamos a Regra do 2: multiplique o número de outs por dois para achar sua porcentagem de acertar a carta no river. Um flush draw tem 9 outs, logo tem aproximadamente 18% de chance. Se o pote te oferecer um preço menor do que 18%, pagar é lucro garantido no longo prazo!"
           },
           "handExample": {
