@@ -908,3 +908,9 @@
 - **Replays:** pausa 3s por street com streets acumuladas + banner FLOP/TURN/RIVER; `winningFive` nas 7 mãos com as 5 citadas no resultado; teste `winningFive.test.ts` (16 testes, regra 2+3 de Omaha/Pineapple); `ShowcaseTable` em 3s.
 - **Mesa ao vivo (`PokerTable.tsx` + painel em `TablePage.tsx`):** showdown mostra normal por ~1s e acende as 5 do jogo vencedor (glow forte, resto escurece) — usa o `showdown[].cards` que o motor já envia, sem Rust/API; vale p/ cash/MTT, PM/Real.
 - **Validado:** tsc, ESLint limpos, Vitest 40/40, `vite build` OK, `git diff --check` limpo.
+
+## 2026-09-15 — S24: replay com board estável + suspense pós-river
+
+- **Board estável (`AnimatedHand.tsx`):** removido o `key` que remontava o board a cada street (flop sumia e 4 cartas reapareciam); agora o flop fica parado e só a carta nova anima (turn soma, river soma).
+- **Suspense pós-river:** board completa e só ~1s depois acendem as 5 (resultado, divisão do pote, selo e fichas); mesa ao vivo conferida — já tinha chaves estáveis, sem mudança.
+- **Validado:** tsc, ESLint limpos, Vitest 40/40, `vite build` OK, `git diff --check` limpo.

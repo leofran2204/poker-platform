@@ -131,6 +131,21 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
   const street = hand.streets[step];
   const finished = step === last;
   const phase = phaseOf(street.board.length);
+  // Board estável como nas plataformas famosas: o que já está na mesa fica
+  // parado; só a carta nova anima. prevLen = cartas que já estavam no passo anterior.
+  const prevLen = step > 0 ? hand.streets[step - 1].board.length : 0;
+  // Suspense do river: o board completa e só ~1s depois o jogo vencedor acende.
+  const [showWin, setShowWin] = useState(false);
+  useEffect(() => {
+    setShowWin(false);
+    if (!finished) return;
+    if (reducedMotion) {
+      setShowWin(true);
+      return;
+    }
+    const id = window.setTimeout(() => setShowWin(true), 1000);
+    return () => window.clearTimeout(id);
+  }, [finished, hand.id, step, reducedMotion]);
 
   return (
     <div className="zt-card overflow-hidden">
@@ -180,26 +195,28 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
             <div className="rounded border border-gold/40 bg-black/40 px-3 py-1 text-center">
               <div className="text-[10px] uppercase tracking-wider text-gold-soft">Pote</div>
               <div className="font-mono text-base font-bold text-white">
-                {formatBrlFromCents(finished && split ? hand.potCents - split.cashbackCents : hand.potCents)}
+                {formatBrlFromCents(showWin && split ? hand.potCents - split.cashbackCents : hand.potCents)}
               </div>
             </div>
-            <div
-              key={`${hand.id}-${step}`}
-              className="flex min-h-[52px] flex-wrap items-center justify-center gap-1.5"
-            >
+            <div className="flex min-h-[52px] flex-wrap items-center justify-center gap-1.5">
               {street.board.length > 0 ? (
                 street.board.map((c, i) => {
-                  const isWin = finished && (!useWinFive || winBoard.has(c));
-                  const dim = finished && useWinFive && !winBoard.has(c);
+                  const isWin = showWin && (!useWinFive || winBoard.has(c));
+                  const dim = showWin && useWinFive && !winBoard.has(c);
+                  const isNew = i >= prevLen;
                   return (
                     <span
                       key={c}
                       className={
-                        finished
-                          ? (isWin ? "zt-win-pop zt-win-card" : dim ? "zt-dim" : undefined)
-                          : "zt-deal"
+                        isWin
+                          ? "zt-win-pop zt-win-card"
+                          : dim
+                            ? "zt-dim"
+                            : isNew
+                              ? "zt-deal"
+                              : undefined
                       }
-                      style={finished ? undefined : { animationDelay: `${i * 350}ms` }}
+                      style={isNew && !showWin ? { animationDelay: `${(i - prevLen) * 350}ms` } : undefined}
                     >
                       <PlayingCard code={c} size="sm" highlight={isWin} />
                     </span>
@@ -213,7 +230,7 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
 
           {seats.map((s, i) => {
             const pos = SEAT_POS[Math.min(i, SEAT_POS.length - 1)];
-            const isWinnerSeat = finished && i === winnerIdx;
+            const isWinnerSeat = showWin && i === winnerIdx;
             return (
               <div
                 key={s.name}
@@ -223,7 +240,7 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
                 <div className={`zt-seat-card ${s.isHero ? "active" : ""} ${isWinnerSeat ? "winner" : ""} ${s.folded ? "folded" : ""}`}>
                   <div className="truncate text-xs font-semibold text-cream">{s.name}</div>
                   {s.folded ? (
-                    <div className={`mt-1 flex justify-center gap-0.5 ${finished && useWinFive ? "zt-dim" : ""}`}>
+                    <div className={`mt-1 flex justify-center gap-0.5 ${showWin && useWinFive ? "zt-dim" : ""}`}>
                       <PlayingCard faceDown size="sm" />
                       <PlayingCard faceDown size="sm" />
                     </div>
@@ -231,8 +248,8 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
                     <div className="mt-1 flex justify-center gap-0.5">
                       {(s.cards ?? []).map((c) => {
                         const inFive = i === winnerIdx && winHole.has(c);
-                        const isWin = finished && (useWinFive ? inFive : i === winnerIdx);
-                        const dim = finished && useWinFive && !inFive;
+                        const isWin = showWin && (useWinFive ? inFive : i === winnerIdx);
+                        const dim = showWin && useWinFive && !inFive;
                         return (
                           <span key={c} className={isWin ? "zt-win-pop zt-win-card" : dim ? "zt-dim" : undefined}>
                             <PlayingCard code={c} size="sm" highlight={isWin} />
@@ -248,7 +265,7 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
             );
           })}
 
-          {finished && !reducedMotion && (
+          {showWin && !reducedMotion && (
             <>
               {[0, 1, 2].map((i) => (
                 <span
@@ -271,7 +288,7 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
           {street.label}
         </p>
 
-        {finished && (
+        {showWin && (
           <div className="space-y-2">
             <p className="rounded border-l-2 border-gold-bright bg-felt-950/80 p-2.5 text-xs leading-relaxed text-felt-100">
               {hand.result}
