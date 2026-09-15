@@ -424,7 +424,8 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 50,
+            "url": "/videos/ep14-limp-punish.mp4",
             "placeholderScript": "Quando o Small Blind apenas completa um blind, ele está te dando um presente. O limp é passivo e indica um range limitado (capped). Ele não tem AA ou KK. No Big Blind, você terá posição em todas as streets. A resposta matemática ideal é o Isolation Raise de 3.5x a 4x com mãos de valor e blefes com bloqueadores como Ás e Cinco de espadas. Veja como forçamos o fold no flop com uma c-bet de apenas um terço do pote!"
           },
           "handExample": {
@@ -552,7 +553,8 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 50,
+            "url": "/videos/ep15-cbet-flop.mp4",
             "placeholderScript": "A continuation bet é a aposta mais comum do poker, mas você não deve apostar em todo flop sem pensar. Em boards secos — como Ás, Sete e Dois — o adversário erra mais de 60% das vezes e seu range contém os Áses fortes; aí apostamos pequeno, 25% a 33% do pote. Mas em boards conectados e molhados, como 9, 8 e 7 com flush draw, o oponente acerta dezenas de combos. Nesses boards molhados, pedimos mesa com mãos médias para controlar o pote. Veja a diferença!"
           },
           "handExample": {
@@ -618,7 +620,8 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 52,
+            "url": "/videos/ep16-checkraise-float.mp4",
             "placeholderScript": "Você fez a sua c-bet e, de repente, o Big Blind aumentou em check-raise. O que fazer? Em micro e low stakes, o check-raise raramente é blefe puro; costuma ser dois pares, trincas ou draws fortíssimos. Pagar com par médio sem cartas extras é doar fichas. No entanto, em posição e com mãos que possuem cartas de backdoor e posição, você pode usar a técnica do 'Float': pagar no flop para tomar o pote no turn caso ele mostre fraqueza."
           },
           "handExample": {
@@ -684,7 +687,8 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 51,
+            "url": "/videos/ep17-multiway-mining.mp4",
             "placeholderScript": "Quando três ou mais jogadores chegam ao flop, a matemática do poker muda totalmente: a eficácia dos blefes desaba. Alguém sempre acerta alguma coisa. Com pares baixos e médios de 22 a 88, nosso plano antes do flop é fazer 'Set Mining': pagar barato torcendo para acertar a trinca. Se você acertar o set, aposte forte para cobrar draws; se errar, passe ou desista barato."
           },
           "handExample": {
