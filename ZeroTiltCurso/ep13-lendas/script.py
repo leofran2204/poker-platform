@@ -17,7 +17,7 @@ class S1_Titulo(Scene):
         self.camera.background_color = FELT
         head = VGroup(
             Text("LENDAS DO POKER", font=MONO, font_size=40, color=GOLD, weight=BOLD),
-            Text("episodio 13: Moss, Brunson, Ungar", font=MONO, font_size=24, color=CREAM),
+            Text("video 3: Moss, Brunson, Ungar", font=MONO, font_size=24, color=CREAM),
         ).arrange(DOWN, buff=0.3).move_to(UP * 2.2)
         hook = Text("eleito em 70, venceu em 71", font=MONO, font_size=24, color=CREAM)
         hook.move_to(DOWN * 0.5)

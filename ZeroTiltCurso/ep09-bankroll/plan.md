@@ -10,7 +10,7 @@ Público: iniciante. Uma ideia só: banca te mantém vivo até o longo prazo tra
 5. Fecho: viva até o longo prazo; próximo: revisão.
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
-- S1: título + EquityBar 80. S2: regra + ChipStack 30-50. S3: queda + ChipStack 3/4.
+- S1: título (cartaz video 14) + EquityBar 80. S2: regra + ChipStack 30-50. S3: queda + ChipStack 3/4.
 - S4: cash x MTT (2 pilhas). S5: fecho. Total ~80s.
 
 ## Identidade

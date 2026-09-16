@@ -10,7 +10,7 @@ Público: fechamento. Uma ideia só: repetição de decisão correta lucra, pont
 5. Fecho: repetição lucra; agora é mesa.
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
-- S1: título + 5 versos (5 regras). S2: regras 1-3 + ChipStack 3x.
+- S1: título (cartaz video 15) + 5 versos (5 regras). S2: regras 1-3 + ChipStack 3x.
 - S3: regras 4-5 + ChipStack 30-50. S4: checklist + 5 versos. S5: fecho. Total ~85s.
 
 ## Identidade

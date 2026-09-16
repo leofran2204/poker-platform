@@ -17,7 +17,7 @@ class S1_Titulo(Scene):
         self.camera.background_color = FELT
         head = VGroup(
             Text("DO MISSISSIPPI AO BOOM", font=MONO, font_size=36, color=GOLD, weight=BOLD),
-            Text("episodio 12: 20 cartas ao mundo", font=MONO, font_size=24, color=CREAM),
+            Text("video 2: 20 cartas ao mundo", font=MONO, font_size=24, color=CREAM),
         ).arrange(DOWN, buff=0.3).move_to(UP * 2.2)
         hook = Text("o blefe nasceu junto com o jogo", font=MONO, font_size=24, color=CREAM)
         hook.move_to(DOWN * 0.5)

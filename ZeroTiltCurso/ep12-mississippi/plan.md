@@ -10,7 +10,7 @@ Público: iniciante (M0). Uma ideia só: o Hold'em nasceu no Texas e conquistou 
 5. Fecho: 1970 WSOP + 2003 Moneymaker; próximo: lendas.
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
-- S1_Titulo: título + 5 versos. S2_Robstown: MiniTable + AA + 5 versos.
+- S1_Titulo (cartaz video 2): título + 5 versos. S2_Robstown: MiniTable + AA + 5 versos.
 - S3_Vegas: 2 pilhas + 1967. S4_Dunes: mesa AK x versos + POTE.
 - S5_Fecho: WSOP/Moneymaker + pilha "2,5 mi". Biblioteca `shared.py`. Total ~92s.
 

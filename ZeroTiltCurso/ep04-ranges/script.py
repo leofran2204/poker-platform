@@ -17,7 +17,7 @@ class S1_Titulo(Scene):
         self.camera.background_color = FELT
         head = VGroup(
             Text("RANGES: O MAPA", font=MONO, font_size=42, color=GOLD, weight=BOLD),
-            Text("episodio 4: cada assento, um mapa", font=MONO, font_size=24, color=CREAM),
+            Text("video 6: cada assento, um mapa", font=MONO, font_size=24, color=CREAM),
         ).arrange(DOWN, buff=0.3).move_to(UP * 2.2)
         hook = Text("o mapa muda com o assento", font=MONO, font_size=24, color=CREAM)
         hook.move_to(DOWN * 0.5)

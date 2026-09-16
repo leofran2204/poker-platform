@@ -5,6 +5,10 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "..")))
 from manim import *
 from shared import Card, CardBack, MiniTable, ChipStack, glow, deal_in
+from shared import (SuitTile, AsNasTile, CoinMark, StringMark, CrownMark,
+                    SabreMark, ServantMark, HarpMark, DocumentMark,
+                    BolsterMark, CupMark, PoloMark, SunMark, FlowerMark,
+                    NoteMark, SwordsMark, DARK, CREAM)
 
 FELT = "#0A2E1A"
 GOLD = "#C9A227"
@@ -12,12 +16,22 @@ CREAM = "#F4F0E6"
 MONO = "DejaVu Sans Mono"
 
 
+def money_strip(symbol, label):
+    """Tira de papel chinesa: símbolo do naipe + etiqueta."""
+    base = Rectangle(width=2.6, height=0.5, fill_color=CREAM, fill_opacity=1,
+                     stroke_color="#C9A227", stroke_width=2)
+    symbol.move_to(base.get_center() + LEFT * 0.85)
+    tag = Text(label, font=MONO, font_size=20, color=DARK)
+    tag.move_to(base.get_center() + LEFT * 0.85 + RIGHT * 1.05)
+    return VGroup(base, symbol, tag)
+
+
 class S1_Titulo(Scene):
     def construct(self):
         self.camera.background_color = FELT
         head = VGroup(
-            Text("DE ONDE VEM AS CARTAS", font=MONO, font_size=38, color=GOLD, weight=BOLD),
-            Text("episodio 11: mil anos de baralho", font=MONO, font_size=24, color=CREAM),
+            Text("MIL ANOS DE BARALHO", font=MONO, font_size=40, color=GOLD, weight=BOLD),
+            Text("video 1: de onde veio o baralho", font=MONO, font_size=24, color=CREAM),
         ).arrange(DOWN, buff=0.3).move_to(UP * 2.2)
         hook = Text("mil anos antes do seu all-in", font=MONO, font_size=26, color=CREAM)
         hook.move_to(DOWN * 0.5)
@@ -37,9 +51,10 @@ class S2_China(Scene):
                    color=GOLD, weight=BOLD)
         tag.to_edge(UP, buff=0.8)
         strips = VGroup(*[
-            Rectangle(width=2.6, height=0.5, fill_color=CREAM, fill_opacity=1,
-                      stroke_color=GOLD, stroke_width=2)
-            for _ in range(3)
+            money_strip(CoinMark(), "moedas"),
+            money_strip(StringMark(), "cordoes"),
+            money_strip(VGroup(*[CoinMark(r=0.1) for _ in range(3)]
+                               ).arrange(RIGHT, buff=0.08), "miriades"),
         ]).arrange(DOWN, buff=0.25).move_to(DOWN * 0.6)
         cap = Text("tiras de papel » Rota da Seda", font=MONO, font_size=22, color=CREAM)
         cap.next_to(strips, DOWN, buff=0.4)
@@ -56,10 +71,25 @@ class S3_Persia(Scene):
         tag = Text("Persia: dois jogos", font=MONO, font_size=28,
                    color=GOLD, weight=BOLD)
         tag.to_edge(UP, buff=0.8)
-        g_row = VGroup(*[CardBack(height=0.62) for _ in range(8)]).arrange(RIGHT, buff=0.08)
+        g_row = VGroup(*[
+            SuitTile(CrownMark(), width=0.5, height=0.62),
+            SuitTile(CoinMark("#C0C0C0"), width=0.5, height=0.62),
+            SuitTile(SabreMark(), width=0.5, height=0.62),
+            SuitTile(ServantMark().scale(0.85), width=0.5, height=0.62),
+            SuitTile(CoinMark(), width=0.5, height=0.62),
+            SuitTile(HarpMark(), width=0.5, height=0.62),
+            SuitTile(DocumentMark(), width=0.5, height=0.62),
+            SuitTile(BolsterMark(), width=0.5, height=0.62),
+        ]).arrange(RIGHT, buff=0.08)
         g_cap = Text("gandjifa: 96 em 8 naipes", font=MONO, font_size=22, color=CREAM)
         g_block = VGroup(g_row, g_cap).arrange(DOWN, buff=0.2)
-        a_row = VGroup(*[CardBack(height=0.62) for _ in range(5)]).arrange(RIGHT, buff=0.08)
+        a_row = VGroup(*[
+            AsNasTile("as", SunMark(CREAM), width=0.62, height=0.82),
+            AsNasTile("xa", CrownMark(CREAM), width=0.62, height=0.82),
+            AsNasTile("dama", FlowerMark(DARK), width=0.62, height=0.82),
+            AsNasTile("soldado", SwordsMark(CREAM), width=0.62, height=0.82),
+            AsNasTile("danca", NoteMark(CREAM), width=0.62, height=0.82),
+        ]).arrange(RIGHT, buff=0.08)
         a_cap = Text("aznas: 25 em 5 naipes", font=MONO, font_size=22, color=CREAM)
         a_block = VGroup(a_row, a_cap).arrange(DOWN, buff=0.2)
         both = VGroup(g_block, a_block).arrange(DOWN, buff=0.5).move_to(DOWN * 0.3)
@@ -78,8 +108,12 @@ class S4_Mamelucos(Scene):
         tag = Text("mamelucos para a Europa", font=MONO, font_size=28,
                    color=GOLD, weight=BOLD)
         tag.to_edge(UP, buff=0.8)
-        fan = VGroup(*[Card(r, s, height=0.95) for r, s in
-                        [("A", "c"), ("K", "d"), ("Q", "h"), ("J", "s")]]).arrange(RIGHT, buff=0.15)
+        fan = VGroup(*[
+            SuitTile(CoinMark(), "moedas"),
+            SuitTile(PoloMark(), "tacos"),
+            SuitTile(CupMark(), "tacas"),
+            SuitTile(SabreMark(), "espadas"),
+        ]).arrange(RIGHT, buff=0.15)
         cap = Text("Egito: 52 em 4 naipes -> 1370 na Europa", font=MONO, font_size=22, color=CREAM)
         both = VGroup(fan, cap).arrange(DOWN, buff=0.35).move_to(DOWN * 0.4)
         self.play(FadeIn(tag), run_time=0.7)
@@ -97,7 +131,7 @@ class S5_Franca(Scene):
         tag.to_edge(UP, buff=0.8)
         suits = VGroup(*[Card("K", s, height=0.95) for s in ["s", "h", "d", "c"]]
                        ).arrange(RIGHT, buff=0.15)
-        cap = Text("Davi / Alexandre / Cesar / Carlos Magno", font=MONO, font_size=20, color=CREAM)
+        cap = Text("Davi / Carlos Magno / Cesar / Alexandre", font=MONO, font_size=20, color=CREAM)
         both = VGroup(suits, cap).arrange(DOWN, buff=0.35).move_to(DOWN * 0.4)
         self.play(FadeIn(tag), run_time=0.7)
         deal_in(self, list(suits), run_time=0.9)

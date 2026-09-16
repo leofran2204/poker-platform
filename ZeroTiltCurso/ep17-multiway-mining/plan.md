@@ -9,7 +9,7 @@ Público: M2 flop. Uma ideia só: multiway é disciplina — menos blefe, mais v
 4. Fecho: disciplina + próximo módulo: turn.
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
-- S1: título + 3 versos. S2: pilha 50-70%. S3: par 55 + conta 20x.
+- S1: título (cartaz video 11) + 3 versos. S2: pilha 50-70%. S3: par 55 + conta 20x.
 - S4: fecho. Biblioteca `shared.py`. Total ~85s.
 
 ## Identidade

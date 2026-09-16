@@ -11,7 +11,7 @@ Público: iniciante. Uma ideia só: posição é informação, e informação é
 6. Fecho: mesmas cartas, outro resultado; próximo: aumento ou descarte.
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
-- S1: título + mini-mesa. S2: mesa + versos. S3: par AA cedo.
+- S1: título (cartaz video 5) + mini-mesa. S2: mesa + versos. S3: par AA cedo.
 - S4: range largo do botão. S5/S6: regra + fecho. Total ~82s.
 
 ## Identidade

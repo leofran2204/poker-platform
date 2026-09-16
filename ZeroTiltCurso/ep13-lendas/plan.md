@@ -10,7 +10,7 @@ Público: iniciante (M0). Uma ideia só: ninguém nasceu sabendo — estude uma 
 5. Fecho: Yuri 6, Botteon vice 2020 + lição; próximo: ranges.
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
-- S1_Titulo: título + 3 versos. S2_USA: par T-2 + 10 braceletes.
+- S1_Titulo (cartaz video 3): título + 3 versos. S2_USA: par T-2 + 10 braceletes.
 - S3_Modernos: fileiras + pilha "17". S4_Brasil: fileiras + pilha "770 mil".
 - S5_Fecho: Yuri/Botteon + pilha "6". Biblioteca `shared.py`. Total ~86s.
 

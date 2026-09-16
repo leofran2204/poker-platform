@@ -952,3 +952,11 @@
 - **Higiene:** `.gitignore` passa a ignorar `ZeroTiltCurso/**/v3_*.png`; `v3_s3.png` conferido e removido.
 - **Validado:** tsc, ESLint limpos, Vitest 50/50, `vite build` OK c/ `dist/videos/` (15 MP4s, build via runtime bun — Node 18 do PATH não roda Vite 8), frames conferidos, cena ≥ áudio em todas, finais com a duração dos segs, `git diff --check` limpo.
 - **Deploy (`7a09c4f`):** push + `vps-redeploy-frontend.sh` na VPS (só `poker_frontend`, sem rebuild da API, sem migrations) → `DEPLOY_OK`, caddy-health OK; público verificado: `/api/health` OK, bundle novo `index-CyBDPfTg.js`, `/videos/ep09-bankroll.mp4` e `ep10-revisao.mp4` 200 com os bytes v3.
+
+## 2026-09-16 — S24: ep11 com símbolos históricos + cartazes pela ordem da lição
+
+- **Título ep11:** cartaz era `DE ONDE VEM AS CARTAS / episodio 11` na lição 1 — agora `MIL ANOS DE BARALHO / video 1: de onde veio o baralho` (casa com o áudio seg1 e com `m0l1 | De onde vêm as cartas`).
+- **Numeração pela lição:** os 15 vídeos vinculados mostram `video 1..15` na ordem das lições (ep11→1, ep12→2, ep13→3, ep01→4, ep02→5, ep04→6, ep14→7, ep06→8, ep15→9, ep16→10, ep17→11, ep07→12, ep08→13, ep09→14, ep10→15); arquivos mantêm o nome, `courseContent.json` intacto. ep03/ep05 seguem sem vínculo (placeholder honesto, numeração de produção até serem ligados).
+- **Símbolos históricos (pesquisa: money-suited chinesas, gandjifa 96/8 de Ahli Shirazi, aznás 5 séries por cor, Topkapi malik/na'ib):** S2 com moeda furada, cordão e 3 moedas (miríades); S3 com os 8 naipes gandjifa + 5 aznás nas cores das séries; S4 com os 4 naipes mamelucos (sem figuras, como no original); S5 com a ordem certa dos reis (Davi/Carlos Magno/Cesar/Alexandre).
+- **Biblioteca `shared.py`:** SuitTile, AsNasTile + pictogramas vetoriais (moeda, cordão, coroa, sabre, servo, harpa, documento, tecido, taça, tacos, sol, flor, nota, espadas).
+- **Validado:** frames conferidos, waits/durações intactos (áudio 100% reaproveitado), finais com a duração dos segs, `git diff --check` limpo.

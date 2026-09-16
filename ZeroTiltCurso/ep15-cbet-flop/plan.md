@@ -10,7 +10,7 @@ Público: M2 flop. Uma ideia só: textura manda no tamanho — seco barato sempr
 5. Fecho: regra de ouro; próximo: check-raise e float.
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
-- S1: título + mini-mesa. S2: mesa K72 + 25-33%. S3: mesa 987 flush + 60-75%.
+- S1: título (cartaz video 9) + mini-mesa. S2: mesa K72 + 25-33%. S3: mesa 987 flush + 60-75%.
 - S4: mesa Q92 + range. S5: fecho. Biblioteca `shared.py`. Total ~86s.
 
 ## Identidade
