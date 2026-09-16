@@ -944,3 +944,10 @@
 - **Biblioteca `ZeroTiltCurso/shared.py`:** Card, CardBack, MiniTable, ChipStack, EquityBar, glow, deal_in (Manim, sem LaTeX).
 - **M0 visual (áudio reaproveitado):** ep11 com monte, tiras, fileiras Ganjifa/As-Nas, leque 4 naipes, 4 Reis nomeados, mesa com board e showdown com glow; ep12 com mesa AA, pilhas Vegas, mesa AK×versos; ep13 com par T-2 do Brunson e pilhas (17, 770 mil, 6); sincronia casada por cena.
 - **Validado:** frames conferidos, durações idênticas ao áudio, `git diff --check` limpo.
+
+## 2026-09-16 — S24: padrão visual v3 no resto da série (ep01-10 + ep14-17)
+
+- **Leva visual (áudio reaproveitado, waits recasados por cena):** ep01 (versos + mesa AA + royal), ep02-07 (barras, versos, pilhas por episódio), ep08 (EquityBar + mesa A5s×K92), ep09 banca (EquityBar 80 + pilhas 30-50, 3/4, cash×MTT), ep10 revisão (5 versos das regras + pilhas + checklist), ep14-17 (mesas, barras e pilhas por tema); `plan.md` de cada um marca `v3 visual`.
+- **Espelhos:** `Frontend-Web/public/videos/` com os finais v3 (ep01, 02, 04, 06-10, 14-17; ep03/ep05 seguem sem `url` no `courseContent.json`, placeholder honesto).
+- **Higiene:** `.gitignore` passa a ignorar `ZeroTiltCurso/**/v3_*.png`; `v3_s3.png` conferido e removido.
+- **Validado:** tsc, ESLint limpos, Vitest 50/50, `vite build` OK c/ `dist/videos/` (15 MP4s, build via runtime bun — Node 18 do PATH não roda Vite 8), frames conferidos, cena ≥ áudio em todas, finais com a duração dos segs, `git diff --check` limpo.

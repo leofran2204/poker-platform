@@ -1,4 +1,4 @@
-# EP09 — Banca v2 (versão aprofundada ~80s)
+# EP09 — Banca v3 visual (versão aprofundada ~80s)
 
 Público: iniciante. Uma ideia só: banca te mantém vivo até o longo prazo trabalhar.
 
@@ -9,8 +9,9 @@ Público: iniciante. Uma ideia só: banca te mantém vivo até o longo prazo tra
 4. Cada formato, sua banca.
 5. Fecho: viva até o longo prazo; próximo: revisão.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~15s) | S2_Regra (~18.5s) | S3_Queda (~16s) | S4_Separa (~15.5s) | S5_Fecho (~16s) — total ~80s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1: título + EquityBar 80. S2: regra + ChipStack 30-50. S3: queda + ChipStack 3/4.
+- S4: cash x MTT (2 pilhas). S5: fecho. Total ~80s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

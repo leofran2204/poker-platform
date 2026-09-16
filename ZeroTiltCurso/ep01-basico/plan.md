@@ -10,8 +10,9 @@ Público: quem nunca jogou. Uma ideia só: com 7 cartas, forme o melhor jogo de 
 5. Blefe: ninguém pagou, pote seu sem mostrar.
 6. Fecho: showdown, empate divide; próximo: posição.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~16s) | S2_Rodadas (~14.5s) | S3_Jogo (~14s) | S4_Royal (~13s) | S5_Blefe (~10s) | S6_Fecho (~18.5s) — total ~85s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1: título + 2 versos. S2: 5 versos flop/turn/river. S3: mesa + AA.
+- S4: royal com glow. S5: pote do blefe. S6: fecho. Total ~85s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

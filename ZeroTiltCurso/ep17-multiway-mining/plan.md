@@ -8,8 +8,9 @@ Público: M2 flop. Uma ideia só: multiway é disciplina — menos blefe, mais v
 3. Set mining: par baixo, 20x o call, exemplo 55; fora de posição custa mais.
 4. Fecho: disciplina + próximo módulo: turn.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~19s) | S2_Valor (~19.5s) | S3_Mining (~29.5s) | S4_Fecho (~19s) — total ~85s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1: título + 3 versos. S2: pilha 50-70%. S3: par 55 + conta 20x.
+- S4: fecho. Biblioteca `shared.py`. Total ~85s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

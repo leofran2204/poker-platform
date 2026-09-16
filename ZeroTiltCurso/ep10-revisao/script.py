@@ -1,5 +1,10 @@
-"""EP10 — Revisão v2 (versão aprofundada ~90s). Sem LaTeX. Render: manim -ql script.py S1..S5. Áudio por cena (segN.mp3), waits casados."""
+"""EP10 v3 visual (versão aprofundada ~85s). Sem LaTeX. Render: manim -ql script.py S1..S5. Mesmos waits da v2 (áudio reaproveitado)."""
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "..")))
 from manim import *
+from shared import CardBack, ChipStack, deal_in
 
 FELT = "#0A2E1A"
 GOLD = "#C9A227"
@@ -16,9 +21,12 @@ class S1_Titulo(Scene):
         ).arrange(DOWN, buff=0.3).move_to(UP * 2.2)
         hook = Text("17 episodios em 5 regras", font=MONO, font_size=24, color=CREAM)
         hook.move_to(DOWN * 0.5)
+        rules = VGroup(*[CardBack(height=0.6) for _ in range(5)]).arrange(RIGHT, buff=0.15)
+        rules.move_to(DOWN * 2.3)
         self.play(Write(head), run_time=1.2)
         self.play(FadeIn(hook, shift=RIGHT * 0.3), run_time=0.7)
-        self.wait(14.5)
+        deal_in(self, list(rules), run_time=1.0)
+        self.wait(13.9)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
@@ -31,11 +39,14 @@ class S2_Regras(Scene):
         rows = VGroup(*[
             Text(s, font=MONO, font_size=24, color=CREAM)
             for s in ["objetivo: melhor 5 ou blefe", "posicao: ultimo decide", "agressao seletiva"]
-        ]).arrange(DOWN, buff=0.4).move_to(DOWN * 0.3)
+        ]).arrange(DOWN, buff=0.4).move_to(UP * 0.1)
+        chips = ChipStack("3x", n=3)
+        chips.move_to(DOWN * 2.2)
         self.play(FadeIn(tag), run_time=0.7)
         for r in rows:
             self.play(FadeIn(r, shift=RIGHT * 0.3), run_time=0.6)
-        self.wait(16.0)
+        self.play(FadeIn(chips), run_time=0.7)
+        self.wait(15.4)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
@@ -48,11 +59,14 @@ class S3_Conta(Scene):
         rows = VGroup(*[
             Text(s, font=MONO, font_size=24, color=CREAM)
             for s in ["a conta: odds + EV", "banca: 30-50 buy-ins"]
-        ]).arrange(DOWN, buff=0.4).move_to(DOWN * 0.3)
+        ]).arrange(DOWN, buff=0.4).move_to(UP * 0.1)
+        chips = ChipStack("30-50", n=3)
+        chips.move_to(DOWN * 2.2)
         self.play(FadeIn(tag), run_time=0.7)
         for r in rows:
             self.play(FadeIn(r, shift=RIGHT * 0.3), run_time=0.6)
-        self.wait(10.0)
+        self.play(FadeIn(chips), run_time=0.7)
+        self.wait(9.0)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
@@ -63,16 +77,19 @@ class S4_Check(Scene):
                    color=GOLD, weight=BOLD)
         tag.to_edge(UP, buff=0.8)
         rows = VGroup(*[
-            Text(s, font=MONO, font_size=23, color=CREAM)
+            Text(s, font=MONO, font_size=22, color=CREAM)
             for s in ["posicao? range? tamanho?", "preco? banca?"]
-        ]).arrange(DOWN, buff=0.4).move_to(DOWN * 0.3)
-        trig = Text("nao em tudo? volte uma casa", font=MONO, font_size=24, color=CREAM)
-        trig.next_to(rows, DOWN, buff=0.5)
+        ]).arrange(DOWN, buff=0.4).move_to(UP * 0.3)
+        trig = Text("nao em tudo? volte uma casa", font=MONO, font_size=22, color=CREAM)
+        trig.next_to(rows, DOWN, buff=0.4)
+        checks = VGroup(*[CardBack(height=0.5) for _ in range(5)]).arrange(RIGHT, buff=0.12)
+        checks.move_to(DOWN * 2.5)
         self.play(FadeIn(tag), run_time=0.7)
         for r in rows:
             self.play(FadeIn(r, shift=RIGHT * 0.3), run_time=0.6)
         self.play(FadeIn(trig), run_time=0.7)
-        self.wait(22.0)
+        deal_in(self, list(checks), run_time=1.0)
+        self.wait(21.2)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 

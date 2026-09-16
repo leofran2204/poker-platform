@@ -9,8 +9,9 @@ Público: iniciante. Uma ideia só: a primeira decisão (aumento ou descarte) ve
 4. Meio: barato ou fold, dúvida OOP folda.
 5. Fecho: forte aumenta, lixo descarta; próximo: ranges.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~11s) | S2_Lixo (~16.5s) | S3_Premium (~13.5s) | S4_Meio (~20s) | S5_Fecho (~16.5s) — total ~77s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1: título + 7-2. S2: 7-2 UTG. S3: AA com moldura. S4: fileiras + versos.
+- S5: fecho. Biblioteca `shared.py`. Total ~77s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

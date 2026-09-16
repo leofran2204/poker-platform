@@ -9,8 +9,9 @@ Público: M2 flop. Uma ideia só: textura manda no tamanho — seco barato sempr
 4. Meio-termo (Q92): manda a vantagem de range.
 5. Fecho: regra de ouro; próximo: check-raise e float.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~5.5s) | S2_Seco (~27s) | S3_Molhado (~20.5s) | S4_MeioTermo (~20s) | S5_Fecho (~16s) — total ~86s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1: título + mini-mesa. S2: mesa K72 + 25-33%. S3: mesa 987 flush + 60-75%.
+- S4: mesa Q92 + range. S5: fecho. Biblioteca `shared.py`. Total ~86s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

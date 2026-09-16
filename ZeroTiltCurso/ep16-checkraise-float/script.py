@@ -1,5 +1,10 @@
-"""EP16 — Check-raise e float (versão aprofundada ~90s). Sem LaTeX. Render: manim -ql script.py S1..S4. Áudio por cena (segN.mp3), waits casados."""
+"""EP16 v3 visual (versão aprofundada ~90s). Sem LaTeX. Render: manim -ql script.py S1..S4. Mesmos waits da v2 (áudio reaproveitado)."""
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "..")))
 from manim import *
+from shared import Card, CardBack, MiniTable, deal_in
 
 FELT = "#0A2E1A"
 GOLD = "#C9A227"
@@ -16,8 +21,11 @@ class S1_Titulo(Scene):
         ).arrange(DOWN, buff=0.3).move_to(UP * 2.2)
         hook = Text("tomou raise em cima: e agora?", font=MONO, font_size=24, color=CREAM)
         hook.move_to(DOWN * 0.5)
+        table = MiniTable().scale(0.45)
+        table.move_to(DOWN * 2.4)
         self.play(Write(head), run_time=1.2)
         self.play(FadeIn(hook, shift=RIGHT * 0.3), run_time=0.7)
+        self.play(FadeIn(table), run_time=0.6)
         self.wait(16.5)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
@@ -25,16 +33,22 @@ class S1_Titulo(Scene):
 class S2_Significado(Scene):
     def construct(self):
         self.camera.background_color = FELT
-        tag = Text("raise no flop: valor ou semi", font=MONO, font_size=27,
-                   color=GOLD, weight=BOLD)
-        tag.to_edge(UP, buff=0.8)
-        rows = VGroup(*[
-            Text(s, font=MONO, font_size=24, color=CREAM)
-            for s in ["trinca / 2p / TPTK", "NFD / OESD com 2 jeitos de ganhar"]
-        ]).arrange(DOWN, buff=0.4).move_to(DOWN * 0.3)
-        self.play(FadeIn(tag), run_time=0.7)
-        for r in rows:
-            self.play(FadeIn(r, shift=RIGHT * 0.3), run_time=0.6)
+        table = MiniTable().scale(0.58)
+        table.move_to(DOWN * 0.5)
+        hero = [Card(r, s, height=0.75) for r, s in [("J", "h"), ("J", "d")]]
+        for i, c in enumerate(hero):
+            c.move_to(table.get_center() + LEFT * 2.0 + DOWN * 1.35 + RIGHT * 0.85 * i)
+        board = [Card(r, s, height=0.75) for r, s in [("J", "c"), ("7", "h"), ("2", "h")]]
+        for i, c in enumerate(board):
+            c.move_to(table.get_center() + LEFT * 0.75 + RIGHT * 0.75 * i + UP * 0.4)
+        draw = [Card(r, s, height=0.75) for r, s in [("A", "h"), ("T", "h")]]
+        for i, c in enumerate(draw):
+            c.move_to(table.get_center() + RIGHT * 1.6 + DOWN * 1.35 + RIGHT * 0.85 * i)
+        cap = Text("trinca x nut flush draw", font=MONO, font_size=22, color=GOLD, weight=BOLD)
+        cap.to_edge(UP, buff=0.7)
+        self.play(FadeIn(table), run_time=0.6)
+        self.play(FadeIn(cap), run_time=0.5)
+        deal_in(self, hero + board + draw, run_time=1.2)
         self.wait(21.0)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
@@ -42,19 +56,19 @@ class S2_Significado(Scene):
 class S3_Float(Scene):
     def construct(self):
         self.camera.background_color = FELT
-        tag = Text("floute: o alvo certo", font=MONO, font_size=28,
-                   color=GOLD, weight=BOLD)
-        tag.to_edge(UP, buff=0.8)
-        rows = VGroup(*[
-            Text(s, font=MONO, font_size=23, color=CREAM)
-            for s in ["c-bet 70%+ e desiste no turn", "sempre em posicao", "bordo seco alto"]
-        ]).arrange(DOWN, buff=0.35).move_to(DOWN * 0.1)
-        trig = Text("checa? aposta e leva", font=MONO, font_size=24, color=CREAM)
-        trig.next_to(rows, DOWN, buff=0.5)
-        self.play(FadeIn(tag), run_time=0.7)
-        for r in rows:
-            self.play(FadeIn(r, shift=RIGHT * 0.3), run_time=0.6)
-        self.play(FadeIn(trig), run_time=0.7)
+        table = MiniTable().scale(0.58)
+        table.move_to(DOWN * 0.5)
+        hero = [CardBack(height=0.75), CardBack(height=0.75)]
+        for i, c in enumerate(hero):
+            c.move_to(table.get_center() + LEFT * 0.45 + RIGHT * 0.85 * i + DOWN * 1.35)
+        board = [Card(r, s, height=0.75) for r, s in [("K", "s"), ("5", "c"), ("2", "h")]]
+        for i, c in enumerate(board):
+            c.move_to(table.get_center() + LEFT * 0.75 + RIGHT * 0.75 * i + UP * 0.4)
+        cap = Text("floute: posicao + plano no turn", font=MONO, font_size=22, color=GOLD, weight=BOLD)
+        cap.to_edge(UP, buff=0.7)
+        self.play(FadeIn(table), run_time=0.6)
+        self.play(FadeIn(cap), run_time=0.5)
+        deal_in(self, hero + board, run_time=1.2)
         self.wait(23.5)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 

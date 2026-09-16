@@ -8,8 +8,9 @@ Público: M2 flop. Uma ideia só: raise no flop é força ou plano — responda 
 3. Float: alvo certo (c-bet 70%+ que desiste), posição, bordo seco; trigger no turn.
 4. Fecho: sem meio-termo; próximo: multiway.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~19s) | S2_Significado (~24s) | S3_Float (~27s) | S4_Fecho (~19.5s) — total ~88.5s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1: título + mini-mesa. S2: mesa trinca x NFD. S3: mesa float backs.
+- S4: fecho. Biblioteca `shared.py`. Total ~89s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

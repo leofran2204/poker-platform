@@ -9,8 +9,9 @@ Público: M1 pré-flop. Uma ideia só: leia o vilão, isole no tamanho certo —
 4. Tamanho: 3,5-4x regular, 4,5x fraco, +1 por limper; complete barato.
 5. Fecho: puna toda vez; próximo: c-bet.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~11s) | S2_Leia (~19.5s) | S3_Armadilha (~17.5s) | S4_Tamanho (~21s) | S5_Fecho (~21.5s) — total ~87s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1: título + 2 versos. S2: EquityBar 55 + 40-45%.
+- S3: par AA da armadilha. S4: pilha 3,5-4,5x. S5: pilha pote. Total ~87s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

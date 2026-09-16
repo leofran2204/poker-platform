@@ -1,4 +1,4 @@
-# EP10 — Revisão v2 (versão aprofundada ~85s)
+# EP10 — Revisão v3 visual (versão aprofundada ~85s)
 
 Público: fechamento. Uma ideia só: repetição de decisão correta lucra, ponto final.
 
@@ -9,8 +9,9 @@ Público: fechamento. Uma ideia só: repetição de decisão correta lucra, pont
 4. Checklist de mesa + volte uma casa.
 5. Fecho: repetição lucra; agora é mesa.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~17s) | S2_Regras (~19s) | S3_Conta (~12.5s) | S4_Check (~25s) | S5_Fecho (~12.5s) — total ~85s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1: título + 5 versos (5 regras). S2: regras 1-3 + ChipStack 3x.
+- S3: regras 4-5 + ChipStack 30-50. S4: checklist + 5 versos. S5: fecho. Total ~85s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

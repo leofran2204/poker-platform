@@ -9,8 +9,9 @@ Público: iniciante. Uma ideia só: tamanho conta história — padronize o seu 
 4. Limpers: +1x por curioso (ex. 4,5x no BTN).
 5. Fecho: leia quebras de padrão; próximo: roubos e 3-bets.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~15.5s) | S2_Padrao (~19s) | S3_Reabre (~23s) | S4_Limpers (~16.5s) | S5_Fecho (~17.5s) — total ~90s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1: título + pilhas 1x/5x. S2: fileiras + pilha 2,5x. S3: pilhas 3x IP x 4x OOP.
+- S4: pilha 4,5x. S5: fecho. Biblioteca `shared.py`. Total ~90s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

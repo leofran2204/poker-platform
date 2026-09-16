@@ -8,8 +8,9 @@ Público: iniciante. Uma ideia só: fim da fila rouba, blinds reagem — cobre p
 3. Restile: aperte range, puna com 3-bet valor; short só com mão.
 4. Defesa + squeeze: 3x/4x, pote morto; próximo: pot odds.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~14s) | S2_Roubo (~20s) | S3_Camera (~23s) | S4_Fecho (~31s) — total ~86s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1: título + mini-mesa. S2: mesa A9 x versos. S3: par QQ restile.
+- S4: pilha 3x/4x + squeeze. Biblioteca `shared.py`. Total ~86s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

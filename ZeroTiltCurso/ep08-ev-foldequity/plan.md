@@ -1,4 +1,4 @@
-# EP08 — EV e fold equity v2 (versão aprofundada ~85s)
+# EP08 — EV e fold equity v3 visual (versão aprofundada ~85s)
 
 Público: iniciante. Uma ideia só: jogue a média — equidade + fold equity a seu favor.
 
@@ -9,8 +9,9 @@ Público: iniciante. Uma ideia só: jogue a média — equidade + fold equity a 
 4. Erro: blefar rocha que larga vs ter medo de blefar pagador — invertido.
 5. Fecho: soma a seu favor; próximo: banca.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~19s) | S2_Pernas (~15s) | S3_Semi (~20.5s) | S4_Erro (~16s) | S5_Fecho (~17s) — total ~85s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1: título + EquityBar 50. S2: EquityBar 36. S3: mesa A5s + K92.
+- S4: erro rocha x apaixonado. S5: fecho. Total ~85s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

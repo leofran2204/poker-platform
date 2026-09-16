@@ -10,8 +10,9 @@ Público: iniciante. Uma ideia só: posição é informação, e informação é
 5. Regra de bolso: fora pote pequeno, em posição molde.
 6. Fecho: mesmas cartas, outro resultado; próximo: aumento ou descarte.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~13s) | S2_Mesa (~16s) | S3_Cedo (~11.5s) | S4_Tarde (~15s) | S5_Regra (~18s) | S6_Fecho (~11.5s) — total ~82s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1: título + mini-mesa. S2: mesa + versos. S3: par AA cedo.
+- S4: range largo do botão. S5/S6: regra + fecho. Total ~82s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

@@ -10,8 +10,9 @@ Público: M1 pré-flop. Uma ideia só: o mapa muda com o assento — e respira c
 5. Erro clássico: UTG largo doa fichas.
 6. Fecho: lógica, não lista; próximo: sizing.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~11s) | S2_Cedo (~17s) | S3_Tarde (~17.5s) | S4_Contra (~16s) | S5_Erro (~15s) | S6_Fecho (~15.5s) — total ~89s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1: título + mini-mesa. S2: par AK cedo. S3: range largo botão.
+- S4: fileiras + versos. S5/S6: erro + fecho. Total ~88s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

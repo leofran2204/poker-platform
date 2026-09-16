@@ -9,8 +9,9 @@ Público: iniciante. Uma ideia só: a conta pagar-vs-pote decide o call; implied
 4. Compara: 36 vs 25 paga, vermelho folda.
 5. Fecho: implied nos duvidosos; próximo: EV e fold equity.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~12s) | S2_Conta (~18s) | S3_Outs (~18.5s) | S4_Compara (~16s) | S5_Fecho (~22s) — total ~84s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1: título + pilhas 25/100. S2: EquityBar 20%. S3: 9 versos outs.
+- S4: EquityBar 36%. S5: fecho. Biblioteca `shared.py`. Total ~84s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.
