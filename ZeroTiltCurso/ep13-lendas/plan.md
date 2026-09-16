@@ -9,8 +9,10 @@ Público: iniciante (M0). Uma ideia só: ninguém nasceu sabendo — estude uma 
 4. Brasil: CPH 2004, BSOP, Gomes 2008 (2317/770 mil), Akkari 2011 (675 mil).
 5. Fecho: Yuri 6, Botteon vice 2020 + lição; próximo: ranges.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~19s) | S2_USA (~18.5s) | S3_Modernos (~13s) | S4_Brasil (~23s) | S5_Fecho (~17s) — total ~86s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1_Titulo: título + 3 versos. S2_USA: par T-2 + 10 braceletes.
+- S3_Modernos: fileiras + pilha "17". S4_Brasil: fileiras + pilha "770 mil".
+- S5_Fecho: Yuri/Botteon + pilha "6". Biblioteca `shared.py`. Total ~86s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

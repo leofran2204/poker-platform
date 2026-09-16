@@ -9,8 +9,10 @@ Público: iniciante (M0). Uma ideia só: o Hold'em nasceu no Texas e conquistou 
 4. 1969 Dunes: novatos contra quem sabia.
 5. Fecho: 1970 WSOP + 2003 Moneymaker; próximo: lendas.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x)
-- S1_Titulo (~15.5s) | S2_Robstown (~20.5s) | S3_Vegas (~19.5s) | S4_Dunes (~22.5s) | S5_Fecho (~17s) — total ~91.5s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1_Titulo: título + 5 versos. S2_Robstown: MiniTable + AA + 5 versos.
+- S3_Vegas: 2 pilhas + 1967. S4_Dunes: mesa AK x versos + POTE.
+- S5_Fecho: WSOP/Moneymaker + pilha "2,5 mi". Biblioteca `shared.py`. Total ~92s.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

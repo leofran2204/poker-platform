@@ -938,3 +938,9 @@
 - **17 vídeos refeitos e aprofundados (Manim ~90s, 1.0x, Edge-TTS AntonioNeural, áudio por cena):** ep01 objetivo, ep02 posições, ep03 raise-fold, ep04 ranges, ep05 sizing, ep06 steal, ep07 odds, ep08 EV, ep09 banca, ep10 revisão, ep11 baralho, ep12 Mississippi, ep13 lendas (Ivey 11 e Yuri 6 corrigidos, aula m0l3 junto), ep14 limp, ep15 c-bet, ep16 x-raise, ep17 multiway.
 - **Módulo 6 Consolidação:** m6l1 EV, m6l2 banca, m6l3 revisão (body + handExample + quiz + vídeo); cadeia m5l3→m6l1; 24 aulas, 15 vídeos ligados.
 - **Validado:** tsc, ESLint limpos, Vitest 50/50, `vite build` OK c/ `dist/videos/` (15 MP4s), frames conferidos, `git diff --check` limpo.
+
+## 2026-09-16 — S24: padrão visual nos vídeos (shared.py + M0)
+
+- **Biblioteca `ZeroTiltCurso/shared.py`:** Card, CardBack, MiniTable, ChipStack, EquityBar, glow, deal_in (Manim, sem LaTeX).
+- **M0 visual (áudio reaproveitado):** ep11 com monte, tiras, fileiras Ganjifa/As-Nas, leque 4 naipes, 4 Reis nomeados, mesa com board e showdown com glow; ep12 com mesa AA, pilhas Vegas, mesa AK×versos; ep13 com par T-2 do Brunson e pilhas (17, 770 mil, 6); sincronia casada por cena.
+- **Validado:** frames conferidos, durações idênticas ao áudio, `git diff --check` limpo.

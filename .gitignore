@@ -61,6 +61,7 @@ Documentacao/SIMULACAO_RITUAL*.json
 coverage-run.log
 
 # Vídeos do curso (intermediários de render; fontes + finais versionados)
+/media/
 ZeroTiltCurso/**/media/
 ZeroTiltCurso/**/silent.mp4
 ZeroTiltCurso/**/concat.txt

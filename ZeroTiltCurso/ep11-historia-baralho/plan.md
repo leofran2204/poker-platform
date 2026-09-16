@@ -11,9 +11,15 @@ Público: iniciante (M0). Uma ideia só: o baralho tem mil anos e é uma máquin
 6. 13×4=52 cruzou o oceano.
 7. Fecho: informação incompleta; próximo: Mississippi.
 
-## Cenas (script.py) — waits casados com áudio por cena (1.0x, sem 1.25x)
-- S1_Titulo (~9.5s) | S2_China (~13s) | S3_Persia (~14.5s) | S4_Mamelucos (~15.5s)
-- S5_Franca (~14s) | S6_52 (~9.5s) | S7_Fecho (~17s) — total ~93s.
+## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
+- S1_Titulo (~9s): título + monte de versos distribuídos.
+- S2_China (~13s): tiras de papel + Rota da Seda.
+- S3_Persia (~14.5s): 8 versos (gandjifa) + 5 versos (aznás).
+- S4_Mamelucos (~15.5s): leque 4 naipes + 52→Europa.
+- S5_Franca (~14s): 4 Ases + reis nomeados.
+- S6_52 (~10s): MiniTable + board de 5 distribuído.
+- S7_Fecho (~17s): showdown royal com glow nas 5 + pote. Total ~89s.
+- Biblioteca: `ZeroTiltCurso/shared.py` (Card, MiniTable, ChipStack, glow).
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.
