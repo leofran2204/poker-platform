@@ -11,7 +11,7 @@ Público: M1 pré-flop. Uma ideia só: o mapa muda com o assento — e respira c
 6. Fecho: lógica, não lista; próximo: sizing.
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
-- S1: título (cartaz video 6) + mini-mesa. S2: par AK cedo. S3: range largo botão.
+- S1: título (cartaz video 8) + mini-mesa. S2: par AK cedo. S3: range largo botão.
 - S4: fileiras + versos. S5/S6: erro + fecho. Total ~88s.
 
 ## Identidade

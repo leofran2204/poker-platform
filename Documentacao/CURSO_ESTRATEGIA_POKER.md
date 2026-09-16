@@ -5,7 +5,7 @@
 
 ## Módulo 0 (iniciante)
 
-Para quem nunca jogou. Seis aulas curtas com quiz; gabaritos práticos gerados pelo próprio motor `bot/strategy/decide.ts`.
+Para quem nunca jogou. Oito aulas curtas com quiz; gabaritos práticos gerados pelo próprio motor `bot/strategy/decide.ts`.
 
 ### M0L1 — De onde vêm as cartas
 
@@ -30,6 +30,14 @@ Regra de ouro (aumento ou descarte), posição em 30 segundos e 5 situações av
 ### M0L6 — Primeiros passos aqui
 
 Conta com convite (`?ref=`), Play Money primeiro, mesma mesa com 2+ pessoas, uma ideia por sessão.
+
+### M0L7 — Aumento ou descarte: a primeira decisão
+
+Forte aumenta, lixo descarta: 7-2 no UTG é fold sem pensar; AA no botão é raise sempre; no meio, barato ou fold — dúvida fora de posição também descarta.
+
+### M0L8 — Sizing: o tamanho certo
+
+Padrão por posição (UTG 2x ao SB 3x), 3x IP / 3,5–4x OOP na reabertura, +1x por limper; tamanho conta história — padronize o seu e leia o dos outros.
 
 ---
 Leofran, transformar esse rascunho em um manual prático exige sair da teoria abstrata e colocar as cartas na mesa com exemplos reais, números exatos e lógica matemática clara.

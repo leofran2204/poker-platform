@@ -350,6 +350,80 @@
               "explanation": "Poker precisa de 2+ assentos na mesma mesa — combine o horário com os amigos."
             }
           ]
+        },
+        {
+          "id": "m0l7",
+          "title": "Aumento ou descarte: a primeira decisão",
+          "minutes": 4,
+          "video": {
+            "durationSeconds": 77,
+            "url": "/videos/ep03-raise-fold.mp4",
+            "placeholderScript": "Toda mão começa com uma pergunta que vale dinheiro: aumento ou descarte? Lixo fora de posição se descarta sem pensar, premium como AA no botão se aumenta sempre, e no meio-termo vale o barato ou fold — dúvida fora de posição também se descarta."
+          },
+          "body": "## 1. A pergunta que vale dinheiro\n\nToda mão começa com: **aumento ou descarte?** Acertar essa primeira decisão já te coloca na frente de quase toda mesa iniciante.\n\n## 2. Lixo fora de posição: descarte\n\nMão fraca fora de posição perde dinheiro no longo prazo. **7-2 no UTG? Descarte sem pensar** — não tem blefe que salve lixo fora de posição contra mesa cheia.\n\n## 3. Premium: aumente sempre\n\nCom **AA no botão, aumente sempre**: par de ases quer pote grande e poucos oponentes. Limp de AA chama a mesa inteira barato e te atropela no flop.\n\n## 4. O meio: barato ou fold\n\nMãos médias: jogue barato ou descarte. Par baixo sem stack para minerar? Descarte. **Dúvida fora de posição? Descarte também.** Disciplina pré-flop economiza os erros mais caros.",
+          "quiz": [
+            {
+              "id": "m0l7q1",
+              "kind": "theory",
+              "prompt": "Com 7-2 no UTG em mesa cheia, o correto é?",
+              "options": [
+                "Aumentar para roubar os blinds",
+                "Descartar sem pensar",
+                "Pagar para ver o flop"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Lixo fora de posição perde dinheiro no longo prazo — não tem blefe que salve."
+            },
+            {
+              "id": "m0l7q2",
+              "kind": "theory",
+              "prompt": "Com AA no botão, o correto é?",
+              "options": [
+                "Limp para disfarçar a força",
+                "Aumentar sempre",
+                "Descartar de vez em quando"
+              ],
+              "expectedIndex": 1,
+              "explanation": "AA quer pote grande e poucos oponentes; limp chama a mesa inteira barato."
+            }
+          ]
+        },
+        {
+          "id": "m0l8",
+          "title": "Sizing: o tamanho certo",
+          "minutes": 5,
+          "video": {
+            "durationSeconds": 90,
+            "url": "/videos/ep05-sizing.mp4",
+            "placeholderScript": "Apostar do tamanho errado custa fichas dos dois jeitos. O padrão começa na posição (UTG 2x até SB 3x), cresce na reabertura (3x com posição, 3,5-4x sem), soma 1x por limper e termina na leitura: padrão quebrado é medo ou monstro."
+          },
+          "body": "## 1. Tamanho errado custa dos dois jeitos\n\n**Pequeno demais** e mão ruim paga barato para te vencer no final. **Grande demais** e só mão mais forte continua — você isola exatamente quem te bate.\n\n## 2. Padrão por posição\n\nUTG e HJ abrem **2x**, CO **2,3x**, botão **2,5x**, small blind **3x**. Padronize por posição e ninguém lê a sua mão pelo tamanho.\n\n## 3. Reabertura e limpers\n\nCom posição, **3x** o aumento original; sem posição, **3,5-4x**. Contra limpers, **+1x por curioso**: dois pagantes com você no botão? 2,5 + 2 = **4,5x**.\n\n## 4. Leia o tamanho dos outros\n\nAposta miúda que de repente cresce? Força. **Padrão quebrado? Medo ou monstro.** Tamanho conta história: padronize o seu e leia o dos outros.",
+          "quiz": [
+            {
+              "id": "m0l8q1",
+              "kind": "theory",
+              "prompt": "Qual a abertura padrão no botão (BTN)?",
+              "options": [
+                "2,5x",
+                "5x",
+                "Limp"
+              ],
+              "expectedIndex": 0,
+              "explanation": "Botão abre 2,5x no padrão por posição: UTG 2x, CO 2,3x, BTN 2,5x, SB 3x."
+            },
+            {
+              "id": "m0l8q2",
+              "kind": "theory",
+              "prompt": "Dois limpers e você no botão com padrão 2,5x. Quanto aumenta?",
+              "options": [
+                "2,5x, igual sempre",
+                "4,5x",
+                "10x para isolar"
+              ],
+              "expectedIndex": 1,
+              "explanation": "+1x por limper em cima do padrão: 2,5 + 2 = 4,5x."
+            }
+          ]
         }
       ]
     },

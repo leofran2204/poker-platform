@@ -17,7 +17,7 @@ class S1_Titulo(Scene):
         self.camera.background_color = FELT
         head = VGroup(
             Text("O TAMANHO CERTO", font=MONO, font_size=42, color=GOLD, weight=BOLD),
-            Text("episodio 5: caro ou barato, nunca errado", font=MONO, font_size=24, color=CREAM),
+            Text("video 7: caro ou barato, nunca errado", font=MONO, font_size=24, color=CREAM),
         ).arrange(DOWN, buff=0.3).move_to(UP * 2.2)
         hook = Text("pequeno convida, grande isola", font=MONO, font_size=24, color=CREAM)
         hook.move_to(DOWN * 0.5)
@@ -46,7 +46,7 @@ class S2_Padrao(Scene):
         for r in rows:
             self.play(FadeIn(r, shift=RIGHT * 0.3), run_time=0.6)
         self.play(FadeIn(chips), run_time=0.7)
-        self.wait(15.5)
+        self.wait(15.7)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
@@ -65,7 +65,7 @@ class S3_Reabre(Scene):
         self.play(FadeIn(tag), run_time=0.7)
         self.play(FadeIn(ip), FadeIn(oop), run_time=0.9)
         self.play(FadeIn(cap), run_time=0.6)
-        self.wait(19.5)
+        self.wait(20.3)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
@@ -82,7 +82,7 @@ class S4_Limpers(Scene):
         self.play(FadeIn(tag), run_time=0.7)
         self.play(FadeIn(chips), run_time=0.8)
         self.play(FadeIn(cap), run_time=0.6)
-        self.wait(13.7)
+        self.wait(14.1)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
@@ -96,4 +96,4 @@ class S5_Fecho(Scene):
         self.play(Write(line), run_time=1.2)
         self.wait(0.5)
         self.play(FadeIn(nxt), run_time=0.8)
-        self.wait(14.7)
+        self.wait(15.4)

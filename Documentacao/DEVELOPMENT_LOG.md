@@ -960,3 +960,10 @@
 - **Símbolos históricos (pesquisa: money-suited chinesas, gandjifa 96/8 de Ahli Shirazi, aznás 5 séries por cor, Topkapi malik/na'ib):** S2 com moeda furada, cordão e 3 moedas (miríades); S3 com os 8 naipes gandjifa + 5 aznás nas cores das séries; S4 com os 4 naipes mamelucos (sem figuras, como no original); S5 com a ordem certa dos reis (Davi/Carlos Magno/Cesar/Alexandre).
 - **Biblioteca `shared.py`:** SuitTile, AsNasTile + pictogramas vetoriais (moeda, cordão, coroa, sabre, servo, harpa, documento, tecido, taça, tacos, sol, flor, nota, espadas).
 - **Validado:** frames conferidos, waits/durações intactos (áudio 100% reaproveitado), finais com a duração dos segs, `git diff --check` limpo.
+
+## 2026-09-16 — S24: ep03/ep05 viram as lições m0l7/m0l8 (curso com 26 aulas, 17 vídeos)
+
+- **Lições novas no fim do M0** (`courseContent.json`, ids existentes intactos): m0l7 "Aumento ou descarte" → ep03 (~77s), m0l8 "Sizing: o tamanho certo" → ep05 (~90s); body + roteiro + 2 quiz `theory` cada (padrão m0l4/m0l6, sem `engine`); `CURSO_ESTRATEGIA_POKER.md` com M0L7/M0L8 ("Seis" → "Oito aulas").
+- **Correção de sincronia:** ep03/ep05 tinham cenas mais curtas que o áudio (até −0,56s, fala cortada no mux) — waits recasados (só timing, sem mudar o visual), todas as cenas com margem positiva agora.
+- **Renumber em cascata** (regra lição→vídeo): ep03→6, ep05→7, ep04→8, ep14→9, ep06→10, ep15→11, ep16→12, ep17→13, ep07→14, ep08→15, ep09→16, ep10→17 (S1 re-renderizado nos 12, resto das cenas intacto).
+- **Validado:** tsc, ESLint limpos, Vitest 50/50, `vite build` OK c/ `dist/videos/` (17 MP4s), frames S1 conferidos, finais com a duração dos segs, `git diff --check` limpo.

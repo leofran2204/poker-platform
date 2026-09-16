@@ -10,7 +10,7 @@ Público: M1 pré-flop. Uma ideia só: leia o vilão, isole no tamanho certo —
 5. Fecho: puna toda vez; próximo: c-bet.
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
-- S1: título (cartaz video 7) + 2 versos. S2: EquityBar 55 + 40-45%.
+- S1: título (cartaz video 9) + 2 versos. S2: EquityBar 55 + 40-45%.
 - S3: par AA da armadilha. S4: pilha 3,5-4,5x. S5: pilha pote. Total ~87s.
 
 ## Identidade

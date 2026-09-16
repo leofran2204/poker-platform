@@ -1,4 +1,4 @@
-# EP03 — Aumento ou descarte v2 (versão aprofundada ~80s)
+# EP03 — Aumento ou descarte v2 (versão aprofundada ~80s, cartaz video 6, aula m0l7)
 
 Público: iniciante. Uma ideia só: a primeira decisão (aumento ou descarte) vence mesa iniciante.
 
@@ -10,7 +10,7 @@ Público: iniciante. Uma ideia só: a primeira decisão (aumento ou descarte) ve
 5. Fecho: forte aumenta, lixo descarta; próximo: ranges.
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
-- S1: título + 7-2. S2: 7-2 UTG. S3: AA com moldura. S4: fileiras + versos.
+- S1: título (cartaz video 6) + 7-2. S2: 7-2 UTG. S3: AA com moldura. S4: fileiras + versos.
 - S5: fecho. Biblioteca `shared.py`. Total ~77s.
 
 ## Identidade

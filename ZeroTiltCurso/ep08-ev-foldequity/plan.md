@@ -10,7 +10,7 @@ Público: iniciante. Uma ideia só: jogue a média — equidade + fold equity a 
 5. Fecho: soma a seu favor; próximo: banca.
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
-- S1: título (cartaz video 13) + EquityBar 50. S2: EquityBar 36. S3: mesa A5s + K92.
+- S1: título (cartaz video 15) + EquityBar 50. S2: EquityBar 36. S3: mesa A5s + K92.
 - S4: erro rocha x apaixonado. S5: fecho. Total ~85s.
 
 ## Identidade

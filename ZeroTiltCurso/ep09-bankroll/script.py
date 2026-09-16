@@ -17,7 +17,7 @@ class S1_Titulo(Scene):
         self.camera.background_color = FELT
         head = VGroup(
             Text("BANCA: O CINTO", font=MONO, font_size=42, color=GOLD, weight=BOLD),
-            Text("video 14: sobreviva a variancia", font=MONO, font_size=24, color=CREAM),
+            Text("video 16: sobreviva a variancia", font=MONO, font_size=24, color=CREAM),
         ).arrange(DOWN, buff=0.3).move_to(UP * 2.2)
         hook = Text("80% tambem perde 20 vezes", font=MONO, font_size=24, color=CREAM)
         hook.move_to(DOWN * 0.5)

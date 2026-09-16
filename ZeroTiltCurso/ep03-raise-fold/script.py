@@ -17,7 +17,7 @@ class S1_Titulo(Scene):
         self.camera.background_color = FELT
         head = VGroup(
             Text("AUMENTO OU DESCARTE", font=MONO, font_size=38, color=GOLD, weight=BOLD),
-            Text("episodio 3: a primeira decisao", font=MONO, font_size=24, color=CREAM),
+            Text("video 6: a primeira decisao", font=MONO, font_size=24, color=CREAM),
         ).arrange(DOWN, buff=0.3).move_to(UP * 2.2)
         hook = Text("acertar aqui vence mesa iniciante", font=MONO, font_size=24, color=CREAM)
         hook.move_to(DOWN * 0.5)
@@ -44,7 +44,7 @@ class S2_Lixo(Scene):
         self.play(FadeIn(tag), run_time=0.7)
         deal_in(self, list(pair), run_time=0.8)
         self.play(FadeIn(cap), run_time=0.6)
-        self.wait(13.7)
+        self.wait(14.2)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
@@ -63,7 +63,7 @@ class S3_Premium(Scene):
         deal_in(self, list(pair), run_time=0.8)
         self.play(FadeIn(cap), run_time=0.6)
         self.play(Create(frame), run_time=0.6)
-        self.wait(10.2)
+        self.wait(10.6)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 
@@ -97,4 +97,4 @@ class S5_Fecho(Scene):
         self.play(Write(line), run_time=1.2)
         self.wait(0.5)
         self.play(FadeIn(nxt), run_time=0.8)
-        self.wait(13.3)
+        self.wait(14.0)

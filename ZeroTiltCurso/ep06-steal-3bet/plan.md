@@ -9,7 +9,7 @@ Público: iniciante. Uma ideia só: fim da fila rouba, blinds reagem — cobre p
 4. Defesa + squeeze: 3x/4x, pote morto; próximo: pot odds.
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
-- S1: título (cartaz video 8) + mini-mesa. S2: mesa A9 x versos. S3: par QQ restile.
+- S1: título (cartaz video 10) + mini-mesa. S2: mesa A9 x versos. S3: par QQ restile.
 - S4: pilha 3x/4x + squeeze. Biblioteca `shared.py`. Total ~86s.
 
 ## Identidade

@@ -17,7 +17,7 @@ class S1_Titulo(Scene):
         self.camera.background_color = FELT
         head = VGroup(
             Text("ROUBOS E 3-BET", font=MONO, font_size=42, color=GOLD, weight=BOLD),
-            Text("video 8: salario sem showdown", font=MONO, font_size=24, color=CREAM),
+            Text("video 10: salario sem showdown", font=MONO, font_size=24, color=CREAM),
         ).arrange(DOWN, buff=0.3).move_to(UP * 2.2)
         hook = Text("fim da fila: crime perfeito", font=MONO, font_size=24, color=CREAM)
         hook.move_to(DOWN * 0.5)

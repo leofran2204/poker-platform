@@ -1,4 +1,4 @@
-# EP05 — O tamanho certo v2 (versão aprofundada ~90s)
+# EP05 — O tamanho certo v2 (versão aprofundada ~90s, cartaz video 7, aula m0l8)
 
 Público: iniciante. Uma ideia só: tamanho conta história — padronize o seu e leia o dos outros.
 
@@ -10,7 +10,7 @@ Público: iniciante. Uma ideia só: tamanho conta história — padronize o seu 
 5. Fecho: leia quebras de padrão; próximo: roubos e 3-bets.
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
-- S1: título + pilhas 1x/5x. S2: fileiras + pilha 2,5x. S3: pilhas 3x IP x 4x OOP.
+- S1: título (cartaz video 7) + pilhas 1x/5x. S2: fileiras + pilha 2,5x. S3: pilhas 3x IP x 4x OOP.
 - S4: pilha 4,5x. S5: fecho. Biblioteca `shared.py`. Total ~90s.
 
 ## Identidade
