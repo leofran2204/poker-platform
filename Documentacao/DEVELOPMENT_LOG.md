@@ -951,3 +951,4 @@
 - **Espelhos:** `Frontend-Web/public/videos/` com os finais v3 (ep01, 02, 04, 06-10, 14-17; ep03/ep05 seguem sem `url` no `courseContent.json`, placeholder honesto).
 - **Higiene:** `.gitignore` passa a ignorar `ZeroTiltCurso/**/v3_*.png`; `v3_s3.png` conferido e removido.
 - **Validado:** tsc, ESLint limpos, Vitest 50/50, `vite build` OK c/ `dist/videos/` (15 MP4s, build via runtime bun — Node 18 do PATH não roda Vite 8), frames conferidos, cena ≥ áudio em todas, finais com a duração dos segs, `git diff --check` limpo.
+- **Deploy (`7a09c4f`):** push + `vps-redeploy-frontend.sh` na VPS (só `poker_frontend`, sem rebuild da API, sem migrations) → `DEPLOY_OK`, caddy-health OK; público verificado: `/api/health` OK, bundle novo `index-CyBDPfTg.js`, `/videos/ep09-bankroll.mp4` e `ep10-revisao.mp4` 200 com os bytes v3.
