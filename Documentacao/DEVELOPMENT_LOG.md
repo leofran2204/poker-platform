@@ -967,3 +967,4 @@
 - **Correção de sincronia:** ep03/ep05 tinham cenas mais curtas que o áudio (até −0,56s, fala cortada no mux) — waits recasados (só timing, sem mudar o visual), todas as cenas com margem positiva agora.
 - **Renumber em cascata** (regra lição→vídeo): ep03→6, ep05→7, ep04→8, ep14→9, ep06→10, ep15→11, ep16→12, ep17→13, ep07→14, ep08→15, ep09→16, ep10→17 (S1 re-renderizado nos 12, resto das cenas intacto).
 - **Validado:** tsc, ESLint limpos, Vitest 50/50, `vite build` OK c/ `dist/videos/` (17 MP4s), frames S1 conferidos, finais com a duração dos segs, `git diff --check` limpo.
+- **Deploy (`6955415`):** push + `vps-redeploy-frontend.sh` na VPS (só `poker_frontend`, sem rebuild da API, sem migrations) → `DEPLOY_OK`, caddy-health OK; público verificado: `/api/health` OK, bundle novo `index-CfScgm0b.js`, `/videos/ep03-raise-fold.mp4` e `ep05-sizing.mp4` 200 (antes 404).
