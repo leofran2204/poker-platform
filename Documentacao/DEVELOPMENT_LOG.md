@@ -988,6 +988,12 @@
 - **Compatibilidade com o adapter** (`payment_gateway.rs:456-495`): objeto flat no POST (`chk_`/`pending`/valor), envelope no GET, prefixo `pay.depixapp.com`, payload PIX — tudo conforme o esperado pelo código; simulação bloqueada em live como projetado (`:497-500`).
 - Segredos fora do repo; nenhum env da VPS tocado; `PIX_LIVE_ENABLED` segue `false`. Próximo: (a) `sk_test_` para o E2E sandbox com crédito real no lab; (b) escopos `wallet_*` + payout worker (Fase 2); (c) decisão item a item das travas do contrato antes de qualquer tráfego (Fase 3).
 
+## 2026-09-17 — S24: DePix via código próprio em modo live (lab, R$ 5 não pago)
+
+- Sem `sk_test_`, E2E pelo nosso endpoint com a chave live, sem pagar: API lab bootou em modo `production` com gates fail-closed satisfeitos (callback/redirect HTTPS, allowlist vazia, `REQUIRE_EMAIL_VERIFICATION=false`); registro + JWT OK.
+- `POST /api/payments/pix/deposit` R$ 5,00 com `Idempotency-Key` UUID + CPF do dono → 201 com `tx_id`, payload PIX e `payment_url pay.depixapp.com`; repetição com a mesma chave devolveu o mesmo `tx_id` sem nova cobrança (replay idempotente OK); log sem vazamento de segredos.
+- Lado DePix: 2 cobranças de teste no total (smoke anterior expirada + esta pendente com expiração curta), `completed=0`, R$ 0 movido.
+
 ## 2026-09-16 — S24: documentação do curso no estado real (26 aulas, 25 vídeos)
 
 - **Varredura em todos os `.md` do repo** por contagens e formato do curso: histórico (`DEVELOPMENT_LOG.md`, registros datados) preservado; `DASHBOARD.md` (sem backlog de vídeo pendente além do COACH adiado), `Frontend-Web/README.md`, `Documentacao/README.md`, `DEMO_AMIGOS.md`, `QUALITY.md`, `guia_aprendizado.md`, `ARQUITETURA_E_APIS.md`, `scripts/README.md` e `STATUS_OPERACIONAL.json` sem menções obsoletas — nenhum toque (regra: prosa só no arquivo dono).
