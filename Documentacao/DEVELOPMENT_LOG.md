@@ -974,6 +974,7 @@
 - **Lições ligadas** (`courseContent.json` + `url`/duração real): m3l1→ep18, m3l2→ep19, m4l1→ep20, m4l2→ep21, m4l3→ep22, m5l1→ep23, m5l2→ep24, m5l3→ep25; fix factual no body m5l2 (5→9 cartas/naipe, 36/4).
 - **Numeração final 1–25** (regra lição→vídeo): 14 ep18, 15 ep19, 16 ep07, 17 ep20, 18 ep21, 19 ep22, 20 ep23, 21 ep24, 22 ep25, 23 ep08, 24 ep09, 25 ep10 (S1 re-renderizado onde o número mudou).
 - **Validado:** frames conferidos, cena ≥ áudio em todas, finais com a duração dos segs, tsc + ESLint limpos, Vitest 50/50, `vite build` OK, `git diff --check` limpo.
+- **Deploy (`681af13` + `d9f4b89`):** push + `vps-redeploy-frontend.sh` na VPS (só `poker_frontend`, sem rebuild da API, sem migrations) → `DEPLOY_OK`, caddy-health OK; público verificado: `/api/health` OK, bundle novo `index-BHHecIGZ.js`, `/videos/ep18`, `/videos/ep23` e `/videos/ep25` 200 com os bytes novos (25 vídeos no ar).
 
 ## 2026-09-16 — S24: documentação do curso no estado real (26 aulas, 25 vídeos)
 
