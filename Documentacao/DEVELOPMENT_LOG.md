@@ -976,6 +976,18 @@
 - **Validado:** frames conferidos, cena ≥ áudio em todas, finais com a duração dos segs, tsc + ESLint limpos, Vitest 50/50, `vite build` OK, `git diff --check` limpo.
 - **Deploy (`681af13` + `d9f4b89`):** push + `vps-redeploy-frontend.sh` na VPS (só `poker_frontend`, sem rebuild da API, sem migrations) → `DEPLOY_OK`, caddy-health OK; público verificado: `/api/health` OK, bundle novo `index-BHHecIGZ.js`, `/videos/ep18`, `/videos/ep23` e `/videos/ep25` 200 com os bytes novos (25 vídeos no ar).
 
+## 2026-09-17 — S24: DePix Fase 1 (lab + chave live validada, sem mover dinheiro)
+
+- **Testes mock 5/5** (`payment_gateway`/`payments_routes`: sem cruzamento test/live, callback HTTPS pública, HMAC com timestamp, anti-replay, settlement assinado) + **teste de liquidação com Postgres PASS** (`depix_live_webhook_credits_once...`: `completed` credita 1×, cancelamento pós-settlement sinalizado). Lab: `poker_postgres`/`poker_redis` healthy, API lab bootou e aplicou migrations sem `VersionMismatch`.
+- **Chave live validada de forma somente-leitura** (`GET /api/me` → conta Zero Tilt Poker, `is_live:true`): nenhum checkout criado, nenhum centavo movido; segredos fora do repo.
+- **Gate Fase 1c:** E2E sandbox exige `sk_test_` (emitida automaticamente na criação da conta DePix) + CPF de teste — pendente do dono. Fase 2 exige escopos `wallet_*` (nunca concedidos por padrão; pedir no painel DePix) + confirmação de payout na API. Produção segue bloqueada pelas travas do contrato (`documentation_sync.rs:456`, STATUS `automatic_in_production:false`).
+
+## 2026-09-17 — S24: DePix smoke live mínimo (R$ 5, expirado, R$ 0 movido)
+
+- Sem `sk_test_` disponível, smoke controlado só com a chave live e sem pagar: `GET /api/me` (conta Zero Tilt Poker, `is_live:true`), `GET /api/checkouts` (conta zerada), checkout de teste R$ 5,00 com `expires_in=300` e CPF do dono → `pending` com `payment_url` + payload PIX → `GET` com envelope `{checkout}` → expirou sozinho (`expired`, `completed=0`, `completed_amount=0`). Sondas `wallet_*` retornaram 404 (escopo de payout segue não confirmado — assumir ausente).
+- **Compatibilidade com o adapter** (`payment_gateway.rs:456-495`): objeto flat no POST (`chk_`/`pending`/valor), envelope no GET, prefixo `pay.depixapp.com`, payload PIX — tudo conforme o esperado pelo código; simulação bloqueada em live como projetado (`:497-500`).
+- Segredos fora do repo; nenhum env da VPS tocado; `PIX_LIVE_ENABLED` segue `false`. Próximo: (a) `sk_test_` para o E2E sandbox com crédito real no lab; (b) escopos `wallet_*` + payout worker (Fase 2); (c) decisão item a item das travas do contrato antes de qualquer tráfego (Fase 3).
+
 ## 2026-09-16 — S24: documentação do curso no estado real (26 aulas, 25 vídeos)
 
 - **Varredura em todos os `.md` do repo** por contagens e formato do curso: histórico (`DEVELOPMENT_LOG.md`, registros datados) preservado; `DASHBOARD.md` (sem backlog de vídeo pendente além do COACH adiado), `Frontend-Web/README.md`, `Documentacao/README.md`, `DEMO_AMIGOS.md`, `QUALITY.md`, `guia_aprendizado.md`, `ARQUITETURA_E_APIS.md`, `scripts/README.md` e `STATUS_OPERACIONAL.json` sem menções obsoletas — nenhum toque (regra: prosa só no arquivo dono).
