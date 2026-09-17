@@ -492,7 +492,13 @@ As tabelas de *range* são matrizes matemáticas que dizem exatamente quais cart
 
 ## Formato audiovisual (Academy)
 
-Aulas com vídeo de 2 minutos (120s): gancho (0–20s), lógica (20–50s), mão na mesa (50–105s), regra de ouro + desafio (105–120s). Coaches virtuais: Vitor "Zero Tilt" Brandão e Sofia "Cold Felt" Alencar. Trava de fixação: 70% nas situações práticas do motor para desbloquear a próxima aula. Pipeline: roteiro em `courseContent.json` (`placeholderScript`) → áudio IA → avatar com lip-sync → mesa gravada do `handExample` → MP4/WebM no CDN com `video.url` preenchida. Grade interativa vigente em `Frontend-Web/src/data/courseContent.json`.
+26 aulas, 25 vídeos (só a `m0l6`, conta com convite, sem vídeo — placeholder honesto). Os vídeos seguem a ordem das lições e mostram o cartaz `video 1` a `video 25`; arquivos mantêm o nome de produção (`epNN-*`), sem vínculo com o número exibido.
+
+Padrão de produção (Manim v3, sem LaTeX): feltro `#0A2E1A`, dourado `#C9A227`, creme `#F4F0E6`, biblioteca `ZeroTiltCurso/shared.py` (mesa, cartas, fichas, barras, pictogramas históricos). Narração PT-BR por cena em Edge-TTS `pt-BR-AntonioNeural` 1.0x, com reescrita fonética dos termos (`térn`, `flópi`, `choudáun`, nomes próprios aportuguesados); vídeos de ~56 a ~91s conforme a narração. Waits casados por cena: nenhuma cena é mais curta que seu áudio.
+
+Player neutro (`CourseVideoPlayer`): vídeo quando há `url`, ou placeholder honesto + roteiro da narração; sem avatar, persona ou aba de exemplo — a mão de exemplo da aula aparece no corpo da lição. Trava de fixação: 70% nas situações práticas do motor para desbloquear a próxima aula.
+
+Fontes versionadas em `ZeroTiltCurso/epNN-*/` (`plan.md` com arco e narração integral + `script.py` + `segN.mp3` + final); intermediários de render entram no `.gitignore`. Finais espelhados em `Frontend-Web/public/videos/` (hash idêntico). Grade interativa vigente em `Frontend-Web/src/data/courseContent.json` (rota `/curso`).
 
 <!-- DOCUMENTATION_SYNC:START -->
 > **S24** (2026-09-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático desligado.
