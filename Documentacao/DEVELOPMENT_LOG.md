@@ -967,4 +967,11 @@
 - **Correção de sincronia:** ep03/ep05 tinham cenas mais curtas que o áudio (até −0,56s, fala cortada no mux) — waits recasados (só timing, sem mudar o visual), todas as cenas com margem positiva agora.
 - **Renumber em cascata** (regra lição→vídeo): ep03→6, ep05→7, ep04→8, ep14→9, ep06→10, ep15→11, ep16→12, ep17→13, ep07→14, ep08→15, ep09→16, ep10→17 (S1 re-renderizado nos 12, resto das cenas intacto).
 - **Validado:** tsc, ESLint limpos, Vitest 50/50, `vite build` OK c/ `dist/videos/` (17 MP4s), frames S1 conferidos, finais com a duração dos segs, `git diff --check` limpo.
+
+## 2026-09-16 — S24: 8 vídeos novos M3+M4+M5 (curso com 26 aulas, 25 vídeos)
+
+- **Novos** (Manim v3, Edge-TTS AntonioNeural 1.0x, áudio por cena): ep18 double-barrel (scare + sizing 60–75%), ep19 pot-control × polar, ep20 thin-value × blefe × check, ep21 bluff-catchers (6/16/3, nut blocker, 9×6), ep22 overbet 125% (MDF 44%) × blocking 20–30%, ep23 Short Deck (Macau 2014, Triton 2018/Ivey, 630 mãos, 14%×7%, OESD ~50%), ep24 SD Omaha (2+3 exato, 9/naipe), ep25 Pineapple (família + anos 80, sem descarte).
+- **Lições ligadas** (`courseContent.json` + `url`/duração real): m3l1→ep18, m3l2→ep19, m4l1→ep20, m4l2→ep21, m4l3→ep22, m5l1→ep23, m5l2→ep24, m5l3→ep25; fix factual no body m5l2 (5→9 cartas/naipe, 36/4).
+- **Numeração final 1–25** (regra lição→vídeo): 14 ep18, 15 ep19, 16 ep07, 17 ep20, 18 ep21, 19 ep22, 20 ep23, 21 ep24, 22 ep25, 23 ep08, 24 ep09, 25 ep10 (S1 re-renderizado onde o número mudou).
+- **Validado:** frames conferidos, cena ≥ áudio em todas, finais com a duração dos segs, tsc + ESLint limpos, Vitest 50/50, `vite build` OK, `git diff --check` limpo.
 - **Deploy (`6955415`):** push + `vps-redeploy-frontend.sh` na VPS (só `poker_frontend`, sem rebuild da API, sem migrations) → `DEPLOY_OK`, caddy-health OK; público verificado: `/api/health` OK, bundle novo `index-CfScgm0b.js`, `/videos/ep03-raise-fold.mp4` e `ep05-sizing.mp4` 200 (antes 404).

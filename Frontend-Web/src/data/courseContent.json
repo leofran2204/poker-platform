@@ -835,7 +835,8 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 77,
+            "url": "/videos/ep18-double-barrel.mp4",
             "placeholderScript": "Você apostou no flop e tomou call. Agora cai o Turn: a rua onde os potes crescem exponencialmente. O double barrel — apostar de novo no turn — deve ser feito principalmente em 'Scare Cards': cartas altas como Ás ou Rei que favorecem seu range, ou cartas que aumentam sua equidade com flush e straight draws. O sizing correto aqui é mais pesado: 66% a 75% do pote para polarizar sua linha!"
           },
           "handExample": {
@@ -903,7 +904,8 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 83,
+            "url": "/videos/ep19-pot-control.mp4",
             "placeholderScript": "No turn você precisa escolher entre duas filosofias: controlar o pote ou polarizar. Se sua mão tem valor intermediário — como segundo par ou top pair com kicker modesto — você quer 'Pot Control': pedir mesa para chegar ao river sem inflar o pote. Já com mãos monstras ou blefes selecionados, você polariza apostando pesado. Não caia na armadilha de apostar meio pote com jogo médio e tomar raise!"
           },
           "handExample": {
@@ -1047,7 +1049,8 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 78,
+            "url": "/videos/ep20-thin-value.mp4",
             "placeholderScript": "No river a equidade acaba: não existem mais cartas a vir. Suas fichas só podem ser colocadas no meio por dois motivos: por valor, para ser pago por mãos piores, ou por blefe, para fazer mãos melhores desistirem. O thin value bet — apostar uma mão marginal que ainda bate o range de call do vilão — é o divisor de águas entre um amador e um profissional. Veja este exemplo com top pair fraco no river!"
           },
           "handExample": {
@@ -1117,7 +1120,8 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 91,
+            "url": "/videos/ep21-bluff-catchers.mp4",
             "placeholderScript": "Quando o oponente aposta pesado no river, sua mão muitas vezes vira um 'bluff-catcher': ela só vence se ele estiver blefando. Como decidir entre o herocall ou o fold? Olhe para os seus bloqueadores! Se você tem o Ás do naipe do flush que não bateu, você bloqueia os combos de valor do adversário, tornando o blefe muito mais provável. Veja na mesa como usar bloqueadores para desmontar overbets."
           },
           "handExample": {
@@ -1187,7 +1191,8 @@
           "video": {
             "hostName": "Vitor 'Zero Tilt' Brandão",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 76,
+            "url": "/videos/ep22-overbet-blocking.mp4",
             "placeholderScript": "No river os tamanhos de aposta não precisam ser tímidos. A overbet — apostar mais do que o tamanho do pote — é a ferramenta máxima para extrair o stack inteiro quando você tem os nuts absolutos ou para pressionar o adversário quando você bloqueia as melhores mãos. Por outro lado, a 'blocking bet' é uma aposta pequena de 20% do pote para ditar o preço do showdown e não tomar uma aposta gigante do vilão."
           },
           "handExample": {
@@ -1264,7 +1269,8 @@
           "video": {
             "hostName": "Sofia 'Cold Felt' Alencar",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 75,
+            "url": "/videos/ep23-short-deck.mp4",
             "placeholderScript": "Bem-vindo ao Short Deck, a modalidade mais eletrizante do poker moderno! Mas preste muita atenção: se você jogar aqui com as regras do Hold'em comum, você vai perder suas fichas na primeira rodada. No Short Deck, removemos todas as cartas do 2 ao 5, deixando apenas 36 cartas no baralho. Por isso a matemática muda: acertar uma sequência fica muito mais fácil do que acertar uma trinca. Grave bem a regra oficial do Zero Tilt: Trinca vence Sequência, e Flush vence Full House! E lembre-se: o Ás conecta com o 6 para formar a sequência baixa A-6-7-8-9."
           },
           "handExample": {
@@ -1334,7 +1340,8 @@
           "video": {
             "hostName": "Sofia 'Cold Felt' Alencar",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 74,
+            "url": "/videos/ep24-sd-omaha.mp4",
             "placeholderScript": "Se o Short Deck já é cheio de ação, junte quatro cartas na mão e você terá o Short Deck Omaha 5-max. A regra de ouro do Omaha se mantém: você DEVE obrigatoriamente usar duas cartas da sua mão e três cartas da mesa comunitária. Com baralho de 36 cartas e quatro cartas na mão, praticamente todo showdown atinge sequências, flushes e full houses. Mãos fracas sem conectividade e naipes duplos perdem tudo. Veja como escolher suas mãos pré-flop!"
           },
           "handExample": {
@@ -1357,7 +1364,7 @@
             "heroDecision": "Aposta forte por valor. Mão conectada no Omaha Short Deck gera equidade absurda.",
             "keyTakeaway": "Lembre-se sempre: é obrigatório usar exatamente 2 cartas da sua mão e 3 da mesa."
           },
-          "body": "## Regras do Short Deck Omaha (5-max)\n\n1. **4 Cartas Fechadas:** Cada jogador recebe 4 hole cards.\n2. **Regra de 2 + 3:** Obrigatoriamente utiliza 2 da mão e 3 do board.\n3. **Baralho de 36 cartas:** Flushes são muito valiosos e difíceis de fazer (apenas 5 cartas de cada naipe sobram no baralho).",
+          "body": "## Regras do Short Deck Omaha (5-max)\n\n1. **4 Cartas Fechadas:** Cada jogador recebe 4 hole cards.\n2. **Regra de 2 + 3:** Obrigatoriamente utiliza 2 da mão e 3 do board.\n3. **Baralho de 36 cartas:** Flushes são muito valiosos e difíceis de fazer (apenas 9 cartas de cada naipe sobram no baralho).",
           "quiz": [
             {
               "id": "m5l2q1",
@@ -1398,7 +1405,8 @@
           "video": {
             "hostName": "Sofia 'Cold Felt' Alencar",
             "hostRole": "Coach Virtual IA",
-            "durationSeconds": 120,
+            "durationSeconds": 74,
+            "url": "/videos/ep25-pineapple.mp4",
             "placeholderScript": "No Ultimate Pineapple do Zero Tilt, você recebe 3 cartas fechadas e — atenção para o diferencial — não há fase de descarte! Você mantém as 3 cartas na mão até o final, e o motor avalia automaticamente a melhor combinação de duas cartas suas com três da mesa comunitária. Essa carta extra aumenta a frequência de trincas e draws monstruosos. Jogue de forma agressiva em posição e explore as apostas de valor!"
           },
           "handExample": {

@@ -10,7 +10,7 @@ Público: iniciante. Uma ideia só: a conta pagar-vs-pote decide o call; implied
 5. Fecho: implied nos duvidosos; próximo: EV e fold equity.
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
-- S1: título (cartaz video 14) + pilhas 25/100. S2: EquityBar 20%. S3: 9 versos outs.
+- S1: título (cartaz video 16) + pilhas 25/100. S2: EquityBar 20%. S3: 9 versos outs.
 - S4: EquityBar 36%. S5: fecho. Biblioteca `shared.py`. Total ~84s.
 
 ## Identidade
