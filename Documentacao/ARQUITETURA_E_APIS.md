@@ -125,7 +125,13 @@ Referências técnicas: [Documentação DePix](https://depixapp.com/docs/) e [Op
 2. **Eliminação de Artefatos IEEE 754:** Operações numéricas utilizam matemática inteira de centavos e aplicam o resto (`total_centavos % N`) conforme a **Regra do Centavo Ímpar (WSOP / TDA Regra 68)**.
 3. **Garantia Atômica:** O `UPDATE ... WHERE balance >= amount` reserva um saque sem permitir saldo negativo; a linha da carteira e o evento de outbox entram na mesma transação.
 4. **Depósito idempotente:** antes de criar a cobrança, a API grava uma linha `PENDING` com chave de idempotência. O webhook HMAC-SHA256 bloqueia essa linha (`FOR UPDATE`), confere valor e identificador externo persistidos e credita o saldo junto com a transição para `COMPLETED` em uma única transação.
-5. **Chaves PIX:** a chave bruta não é persistida; somente sua impressão SHA-256 é registrada. O saque fica `PENDING` no outbox e não chama um provedor de payout durante a requisição HTTPS.
+5. **Chaves PIX:** a chave bruta trafega só na memória do request e repousa cifrada (AES-256-GCM, segredo só via env) em `wallet_transactions.pix_key_ciphertext`; logs e auditoria levam somente sua impressão SHA-256. O saque fica `PENDING` no outbox e não chama um provedor de payout durante a requisição HTTPS.
+
+#### Payout worker reconciliado (saques DePix, desligado por padrão)
+
+- `POST /api/payments/pix/withdraw` reserva o saldo atomicamente, cifra `{pix_key, tax_number}` (CPF derivado da chave quando ela é CPF; `tax_number` obrigatório nos demais tipos) e enfileira `QUEUED` — ou `HELD` acima de `DEPIX_LIVE_MAX_PAYOUT_CENTS` (padrão R$ 200) para aprovação manual em `POST /api/admin/payouts/:id/approve` (`/reject` recredita; `GET /api/admin/payouts/held` lista a fila).
+- `payout_worker` (`tokio::spawn` no boot) reivindica uma linha por vez (`SKIP LOCKED`), envia `POST /api/withdraw` (`payoutAmountInCents` + `taxNumber`, `Idempotency-Key = tx_id`, escopo `wallet_write`) e reconcilia por polling + ramo `withdraw.*` do webhook (HMAC + dedup): `sent` → `COMPLETED`; `error/canceled/refunded/replaced` → recredita + `REJECTED`. Tentativas com backoff (10×) e recuperação de `SENDING` órfão.
+- Sem `DEPIX_PIXKEY_ENC_KEY` ou sem gateway DePix, tudo falha fechado sem tocar em saldo. `DEPIX_PAYOUT_DRYRUN=true` simula o envio sem HTTP externo (lab).
 
 ### Presença online (plataforma)
 

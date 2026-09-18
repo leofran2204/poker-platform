@@ -190,6 +190,10 @@ pub struct WithdrawRequest {
     pub amount: u64,
     pub pix_key_type: String,
     pub pix_key: String,
+    /// CPF/CNPJ do titular. Obrigatório exceto quando `pix_key_type` é `cpf`
+    /// (a chave já é o documento). Exigência DePix desde 01/05/2026.
+    /// Tráfego em memória + blob cifrado; nunca em log.
+    pub tax_number: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -291,6 +295,17 @@ fn ensure_pix_depositor_is_allowed(user_id: &str) -> Result<(), ApiError> {
             "This account is not authorized for the configured PIX rollout".to_string(),
         ))
     }
+}
+
+pub(crate) fn depix_payout_max_cents() -> u64 {
+    if pix_mode() != "production" {
+        return 600_000;
+    }
+    std::env::var("DEPIX_LIVE_MAX_PAYOUT_CENTS")
+        .ok()
+        .and_then(|value| value.trim().parse::<u64>().ok())
+        .filter(|value| (500..=600_000).contains(value))
+        .unwrap_or(20_000)
 }
 
 pub(crate) fn depix_deposit_max_cents() -> u64 {
@@ -559,7 +574,7 @@ pub async fn pix_webhook_handler(
                 | "checkout.completed"
                 | "checkout.cancelled"
                 | "checkout.expired"
-        );
+        ) || header_event.starts_with("withdraw.");
         if !supported {
             let payload_sha256 = format!("{:x}", Sha256::digest(body.as_ref()));
             sqlx::query(
@@ -580,6 +595,15 @@ pub async fn pix_webhook_handler(
                         .to_string(),
                 }),
             ));
+        }
+        if header_event.starts_with("withdraw.") {
+            return crate::payout_worker::apply_withdraw_webhook(
+                &state.db,
+                &generic,
+                header_event_id,
+                header_event,
+            )
+            .await;
         }
     }
     let payload = parse_verified_webhook(&provider, &body)?;
@@ -983,8 +1007,10 @@ pub async fn simulate_pix_deposit_handler(
 ///
 /// Reserves funds atomically and records an outbox event. It deliberately does
 /// not call an external payout provider in the request path: provider delivery
-/// belongs to a reconciled outbox worker with an encrypted PIX-key reference,
-/// not to a retryable HTTPS request. The raw PIX key is never persisted here.
+/// belongs to a reconciled outbox worker, not to a retryable HTTPS request.
+/// The raw PIX key travels only in memory here and rests encrypted
+/// (AES-256-GCM) in `wallet_transactions.pix_key_ciphertext`; somente sua
+/// impressão SHA-256 vai para logs e auditoria.
 pub async fn create_pix_withdraw_handler(
     State(state): State<AppState>,
     RequireAuth(auth_user): RequireAuth,
@@ -1000,10 +1026,55 @@ pub async fn create_pix_withdraw_handler(
     ) {
         return Err(ApiError::BadRequest("Invalid PIX key type".to_string()));
     }
+    // CPF/CNPJ do titular: a própria chave quando ela é CPF, ou o campo
+    // dedicado (exigência DePix; nunca persistido em claro nem logado).
+    let tax_number = if payload.pix_key_type == "cpf" {
+        let digits: String = payload.pix_key.chars().filter(|c| c.is_ascii_digit()).collect();
+        if digits.len() != 11 {
+            return Err(ApiError::BadRequest(
+                "CPF PIX key must hold 11 digits".to_string(),
+            ));
+        }
+        digits
+    } else {
+        normalized_tax_number(payload.tax_number.as_deref())
+            .ok()
+            .flatten()
+            .filter(|digits| {
+                let digits: String =
+                    digits.chars().filter(|c| c.is_ascii_digit()).collect();
+                digits.len() == 11 || digits.len() == 14
+            })
+            .ok_or_else(|| {
+                ApiError::BadRequest(
+                    "tax_number (CPF/CNPJ) is required for non-CPF PIX keys".to_string(),
+                )
+            })?
+    };
 
     let tx_id = format!("pix_wdr_{}", uuid::Uuid::new_v4());
     let provider = pix_provider();
     let pix_key_fingerprint = pix_key_fingerprint(&payload.pix_key);
+    // Cifra fail-closed: sem segredo, nenhum saque é reservado.
+    let pix_blob = serde_json::json!({
+        "pix_key": payload.pix_key.trim(),
+        "tax_number": tax_number,
+    })
+    .to_string();
+    let pix_key_ciphertext =
+        crate::pix_key_crypto::load_key()
+            .and_then(|key| crate::pix_key_crypto::encrypt_blob(&key, &pix_blob))
+            .map_err(|_| {
+                ApiError::Internal(
+                    "Automatic PIX payouts are unavailable".to_string(),
+                )
+            })?;
+    // Acima do teto automático: reserva e segura para revisão manual.
+    let queue_status = if provider == "depix" && payload.amount > depix_payout_max_cents() {
+        "HELD"
+    } else {
+        "QUEUED"
+    };
     let _audit = crate::audit_span!(&auth_user.user_id, "PIX_WITHDRAWAL_RESERVED");
     let mut transaction = state.db.begin().await?;
 
@@ -1023,14 +1094,16 @@ pub async fn create_pix_withdraw_handler(
 
     sqlx::query(
         "INSERT INTO wallet_transactions \
-         (user_id, amount, transaction_type, status, idempotency_key, provider, pix_key_fingerprint, provider_status) \
-         VALUES ($1::uuid, $2, 'WITHDRAW', 'PENDING', $3, $4, $5, 'QUEUED')",
+         (user_id, amount, transaction_type, status, idempotency_key, provider, pix_key_fingerprint, pix_key_ciphertext, provider_status) \
+         VALUES ($1::uuid, $2, 'WITHDRAW', 'PENDING', $3, $4, $5, $6, $7)",
     )
     .bind(&auth_user.user_id)
     .bind(amount)
     .bind(&tx_id)
     .bind(&provider)
     .bind(&pix_key_fingerprint)
+    .bind(&pix_key_ciphertext)
+    .bind(queue_status)
     .execute(&mut *transaction)
     .await?;
     sqlx::query(
@@ -1057,13 +1130,18 @@ pub async fn create_pix_withdraw_handler(
     .await?;
     transaction.commit().await?;
 
+    let message = if queue_status == "HELD" {
+        "PIX withdrawal reserved for manual review (above the automatic ceiling)".to_string()
+    } else {
+        "PIX withdrawal reserved for reconciled processing".to_string()
+    };
     Ok((
         StatusCode::ACCEPTED,
         Json(WithdrawResponse {
             tx_id,
             amount: payload.amount,
             status: "PENDING".to_string(),
-            message: "PIX withdrawal reserved for reconciled processing".to_string(),
+            message,
         }),
     ))
 }

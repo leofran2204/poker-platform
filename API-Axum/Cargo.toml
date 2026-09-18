@@ -43,6 +43,8 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 dotenvy = "0.15"
 hmac = "0.12"
 sha2 = "0.10"
+# Cifra da chave PIX no payout worker (AES-256-GCM; chave só via env).
+aes-gcm = "0.10"
 reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
 subtle = "2.6"
 

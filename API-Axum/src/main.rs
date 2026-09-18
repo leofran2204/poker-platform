@@ -395,6 +395,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         });
     }
 
+    // Worker de payouts DePix: consome o outbox fora do request path. Sem
+    // segredos configurados ele dorme; com DRYRUN, simula sem HTTP externo.
+    {
+        let payout_db = state.db.clone();
+        tokio::spawn(async move {
+            poker_api::payout_worker::run_payout_worker(payout_db).await;
+        });
+    }
+
     // CORS is explicit and restricted to HTTPS origins in every environment.
     let cors = CorsLayer::new()
         .allow_origin(parse_https_cors_origins(&cors_origins)?)

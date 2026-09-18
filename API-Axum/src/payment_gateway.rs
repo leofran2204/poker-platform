@@ -302,6 +302,27 @@ struct DepixCheckoutEnvelope {
 }
 
 #[derive(Debug, Deserialize)]
+struct DepixWithdrawResponse {
+    withdrawal_id: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct DepixWithdrawEnvelope {
+    response: DepixWithdrawResponse,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct DepixWithdrawalStatus {
+    pub id: String,
+    pub status: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct DepixWithdrawalStatusEnvelope {
+    response: DepixWithdrawalStatus,
+}
+
+#[derive(Debug, Deserialize)]
 struct DepixApiErrorEnvelope {
     error: Option<DepixApiError>,
 }
@@ -417,6 +438,57 @@ impl DepixPixGateway {
             status: checkout.status,
         }
     }
+
+    /// Cria o payout DePix (`POST /api/withdraw`, escopo `wallet_write`).
+    /// Envia `payoutAmountInCents` (o recebedor vê exatamente esse valor) +
+    /// `taxNumber` do titular. `tx_id` interno viaja como `Idempotency-Key`.
+    /// Chamada exclusiva do payout worker reconciliado — nunca do request path.
+    pub fn create_withdraw_payout(
+        &self,
+        tx_id: &str,
+        amount_centavos: u64,
+        pix_key: &str,
+        tax_number: &str,
+    ) -> Result<PixPayoutResult, String> {
+        if amount_centavos == 0 {
+            return Err("Valor de saque inválido".to_string());
+        }
+        if pix_key.trim().is_empty() || tax_number.trim().is_empty() {
+            return Err("Chave PIX e documento do titular são obrigatórios".to_string());
+        }
+        let payload = serde_json::json!({
+            "pixKey": pix_key.trim(),
+            "payoutAmountInCents": amount_centavos,
+            "taxNumber": tax_number.trim(),
+        });
+        let response = Self::client()?
+            .post(format!("{}/api/withdraw", self.api_url))
+            .bearer_auth(&self.api_key)
+            .header("Idempotency-Key", tx_id)
+            .json(&payload)
+            .send()
+            .map_err(|error| format!("DePix withdraw request failed: {error}"))?;
+        let envelope: DepixWithdrawEnvelope = Self::parse_response(response)?;
+        Ok(PixPayoutResult {
+            external_tx_id: envelope.response.withdrawal_id,
+            status: "SENT".to_string(),
+            message: "DePix withdrawal created; awaiting provider settlement".to_string(),
+        })
+    }
+
+    /// Consulta o payout (`GET /api/withdrawals/:id`, escopo `wallet_read`).
+    pub fn fetch_withdrawal_status(
+        &self,
+        withdrawal_id: &str,
+    ) -> Result<DepixWithdrawalStatus, String> {
+        let response = Self::client()?
+            .get(format!("{}/api/withdrawals/{}", self.api_url, withdrawal_id))
+            .bearer_auth(&self.api_key)
+            .send()
+            .map_err(|error| format!("DePix withdrawal status request failed: {error}"))?;
+        let envelope: DepixWithdrawalStatusEnvelope = Self::parse_response(response)?;
+        Ok(envelope.response)
+    }
 }
 
 impl PixGateway for DepixPixGateway {
@@ -518,7 +590,7 @@ impl PixGateway for DepixPixGateway {
         _pix_key_type: &str,
         _pix_key: &str,
     ) -> Result<PixPayoutResult, String> {
-        Err("DePix payouts are unavailable until the reconciled payout worker is enabled".into())
+        Err("DePix payouts run only in the reconciled payout worker, never in the request path".into())
     }
 
     fn verify_webhook_hmac(&self, body: &[u8], signature_header: Option<&str>) -> bool {
@@ -763,6 +835,32 @@ fn depix_config(mode: &str) -> Result<DepixRuntimeConfig, String> {
 
 pub fn depix_runtime_ready(mode: &str) -> bool {
     depix_config(mode).is_ok()
+}
+
+/// Constrói o gateway DePix a partir do ambiente, com as mesmas travas do
+/// `get_payment_gateway`. Uso exclusivo do payout worker reconciliado.
+pub fn depix_gateway_from_env() -> Result<DepixPixGateway, String> {
+    if env::var("PIX_PROVIDER")
+        .unwrap_or_default()
+        .trim()
+        .to_ascii_lowercase()
+        != "depix"
+    {
+        return Err("DePix payouts require PIX_PROVIDER=depix".to_string());
+    }
+    let mode = env::var("PIX_MODE")
+        .unwrap_or_default()
+        .trim()
+        .to_ascii_lowercase();
+    let config = depix_config(&mode)?;
+    Ok(DepixPixGateway::new(
+        &config.api_key,
+        &config.webhook_secret,
+        &config.api_url,
+        config.callback_url,
+        config.redirect_url,
+        config.is_live,
+    ))
 }
 
 /// Empty allow-list = every authenticated user. Non-empty = only those UUIDs.

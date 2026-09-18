@@ -994,6 +994,13 @@
 - `POST /api/payments/pix/deposit` R$ 5,00 com `Idempotency-Key` UUID + CPF do dono → 201 com `tx_id`, payload PIX e `payment_url pay.depixapp.com`; repetição com a mesma chave devolveu o mesmo `tx_id` sem nova cobrança (replay idempotente OK); log sem vazamento de segredos.
 - Lado DePix: 2 cobranças de teste no total (smoke anterior expirada + esta pendente com expiração curta), `completed=0`, R$ 0 movido.
 
+## 2026-09-17 — S24: payout worker reconciliado DePix (Fase 2, sem ativar)
+
+- **Construído** (código + testes, nada ligado em produção): migration `055_depix_payouts` (blob cifrado + `provider_tx_id` + índice da fila); `pix_key_crypto.rs` (AES-256-GCM, nonce UUID, fail-closed); endpoint grava `{pix_key, tax_number}` cifrado no mesmo txn e segura acima do teto em `HELD` (padrão R$ 200); `payout_worker.rs` (claim `SKIP LOCKED`, `POST /api/withdraw` com `Idempotency-Key`, polling + ramo `withdraw.*` no webhook, recredito em falha, fila admin approve/reject/list); `main.rs` com `spawn`; `.env.production.example` documenta as 4 vars novas; `ARQUITETURA_E_APIS.md` §3 atualizado.
+- **Validado no lab (DRYRUN, zero HTTP externo)**: reserva→`QUEUED`→`SENT dryrun_*`; `HELD`→approve→`SENT`; `HELD`→reject→recredito exato; fila vazia; log sem vazamento. No caminho, o lab achou um bug real (approve não rearmava o outbox) — corrigido e revalidado.
+- **Testes novos 7/7** (cifra 4 + worker 3); suíte lib 59/60 — a falha (`game_actor ...folded_without_waiting_for_timeout`) **reproduz no HEAD limpo**, pré-existente (mesma família do drift de `fmt`/`clippy` no toolchain 1.97: repo inteiro acusa, fora deste escopo; arquivos novos estão `fmt`-limpos).
+- Segue travado: sem `wallet_*` não há POST real; sem decisão das travas do contrato, nada ativa. Próximo: escopos no painel DePix + Fase 3 item a item.
+
 ## 2026-09-16 — S24: documentação do curso no estado real (26 aulas, 25 vídeos)
 
 - **Varredura em todos os `.md` do repo** por contagens e formato do curso: histórico (`DEVELOPMENT_LOG.md`, registros datados) preservado; `DASHBOARD.md` (sem backlog de vídeo pendente além do COACH adiado), `Frontend-Web/README.md`, `Documentacao/README.md`, `DEMO_AMIGOS.md`, `QUALITY.md`, `guia_aprendizado.md`, `ARQUITETURA_E_APIS.md`, `scripts/README.md` e `STATUS_OPERACIONAL.json` sem menções obsoletas — nenhum toque (regra: prosa só no arquivo dono).

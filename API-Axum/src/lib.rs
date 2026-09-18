@@ -18,6 +18,8 @@ pub mod handlers;
 pub mod middleware;
 pub mod payment_gateway;
 pub mod payments_routes;
+pub mod payout_worker;
+pub mod pix_key_crypto;
 pub mod presence;
 pub mod state;
 pub mod telemetry;
@@ -308,6 +310,24 @@ pub fn build_router(state: AppState) -> Router {
         .route(
             "/api/admin/deposit-requests/:id/reject",
             post(deposit_requests::reject_deposit_request).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/payouts/held",
+            get(payout_worker::list_held_payouts).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/payouts/:id/approve",
+            post(payout_worker::approve_payout).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/admin/payouts/:id/reject",
+            post(payout_worker::reject_payout).route_layer(
                 from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
             ),
         )
