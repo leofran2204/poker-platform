@@ -49,6 +49,6 @@ Commit / push / deploy **não** fazem parte do DoD local — cada um exige ordem
 - Fases e backlog → DASHBOARD
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático desligado.
+> **S24** (2026-09-18) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

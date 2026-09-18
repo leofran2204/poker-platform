@@ -864,7 +864,7 @@
 - Eps 05-10 (~50-56s cada): sizing, roubos e 3-bets, pot odds, EV e fold equity, banca, revisão final. Série completa em `ZeroTiltCurso/`.
 - Sem botão no resultado: só as 5 cartas do jogo vencedor saltam com brilho dourado (board + mão do vencedor + painel), e o painel some sozinho em 7s.
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático desligado.
+> **S24** (2026-09-18) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
@@ -1000,6 +1000,13 @@
 - **Validado no lab (DRYRUN, zero HTTP externo)**: reserva→`QUEUED`→`SENT dryrun_*`; `HELD`→approve→`SENT`; `HELD`→reject→recredito exato; fila vazia; log sem vazamento. No caminho, o lab achou um bug real (approve não rearmava o outbox) — corrigido e revalidado.
 - **Testes novos 7/7** (cifra 4 + worker 3); suíte lib 59/60 — a falha (`game_actor ...folded_without_waiting_for_timeout`) **reproduz no HEAD limpo**, pré-existente (mesma família do drift de `fmt`/`clippy` no toolchain 1.97: repo inteiro acusa, fora deste escopo; arquivos novos estão `fmt`-limpos).
 - Segue travado: sem `wallet_*` não há POST real; sem decisão das travas do contrato, nada ativa. Próximo: escopos no painel DePix + Fase 3 item a item.
+
+## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
+
+- **Gate consciente** (`src/bin/documentation_sync.rs`): `automatic_in_production=true` agora exige o payout worker no código (`payout_worker.rs` + migration de payout) em vez de recusa blanket; `certified` segue recusado. Renderer condicional (ligado/desligado) + testes do gate atualizados.
+- **Fatos**: `STATUS_OPERACIONAL.json` com `automatic_in_production:true`, `vps_mock:false`, `depix_sandbox_only:false`, `reviewed_on: 2026-09-18`; `documentation-sync --write/--check` verdes (blocos-ponteiro regenerados).
+- **Termos** (cláusula 6.3 nova, 6.3 antiga virou 6.4): crédito só em `completed`, saque automático só para chave do titular até o teto, acima = revisão 24h, falha recredita.
+- **DASHBOARD**: linha PIX `Adiado` → `Em ativação`; roadmap/pendências/deploy refletem DePix reconciliado.
 
 ## 2026-09-16 — S24: documentação do curso no estado real (26 aulas, 25 vídeos)
 

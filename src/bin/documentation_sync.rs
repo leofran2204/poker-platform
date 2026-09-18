@@ -198,7 +198,7 @@ fn main() {
 fn synchronize(mode: Mode) -> Result<(), String> {
     let root = repository_root()?;
     let status = read_status(&root)?;
-    validate_status(&status)?;
+    validate_status(&status, &root)?;
 
     let mut stale = Vec::new();
 
@@ -339,7 +339,7 @@ fn parse_status(content: &str) -> Result<OperationalStatus, String> {
         .map_err(|error| format!("STATUS_OPERACIONAL.json inválido: {error}"))
 }
 
-fn validate_status(status: &OperationalStatus) -> Result<(), String> {
+fn validate_status(status: &OperationalStatus, root: &Path) -> Result<(), String> {
     if status.schema_version != 2 {
         return Err(format!(
             "schema_version {} não é suportado (esperado: 2)",
@@ -454,10 +454,24 @@ fn validate_status(status: &OperationalStatus) -> Result<(), String> {
     require_non_empty("wallets.timezone", &status.wallets.timezone)?;
 
     if status.pix.automatic_in_production {
-        return Err(
-            "pix.automatic_in_production deve ser false enquanto o código rejeitar PIX em production"
-                .to_owned(),
-        );
+        // Ativação consciente (Fase 3): só passa com o payout worker
+        // reconciliado presente no código — nunca por flip acidental.
+        let worker = root.join("API-Axum/src/payout_worker.rs");
+        let has_payout_migration = std::fs::read_dir(root.join("API-Axum/migrations"))
+            .map(|entries| {
+                entries.flatten().any(|entry| {
+                    entry
+                        .file_name()
+                        .to_string_lossy()
+                        .contains("payout")
+                })
+            })
+            .unwrap_or(false);
+        if !(worker.is_file() && has_payout_migration) {
+            return Err("pix.automatic_in_production exige o payout worker reconciliado \
+                (API-Axum/src/payout_worker.rs + migration de payout)"
+                .to_owned());
+        }
     }
     require_non_empty("pix.manual_receiver", &status.pix.manual_receiver)?;
     require_non_empty("pix.manual_key", &status.pix.manual_key)?;
@@ -634,11 +648,16 @@ fn wrap_block(start: &str, end: &str, inner: &str, newline: &str) -> String {
 }
 
 fn render_pointer_block(status: &OperationalStatus, newline: &str) -> String {
+    let pix_state = if status.pix.automatic_in_production {
+        "PIX automático ligado (DePix reconciliado)"
+    } else {
+        "PIX automático desligado"
+    };
     [
         START_MARKER.to_owned(),
         format!(
-            "> **{}** ({}) — demo `{}` · sem certificação de produção · PIX automático desligado.",
-            status.cycle.id, status.reviewed_on, status.production.domain
+            "> **{}** ({}) — demo `{}` · sem certificação de produção · {}.",
+            status.cycle.id, status.reviewed_on, status.production.domain, pix_state
         ),
         "> Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md)."
             .to_owned(),
@@ -667,8 +686,14 @@ fn render_status_md(status: &OperationalStatus) -> String {
         n
     ));
     out.push_str(n);
+    let pix_state = if status.pix.automatic_in_production {
+        "PIX automático ligado (DePix reconciliado)"
+    } else {
+        "PIX automático desligado"
+    };
     out.push_str(&format!(
-        "**Limites:** sem certificação de produção · PIX automático desligado · mesas com dono **{}** (settlement {}).{}",
+        "**Limites:** sem certificação de produção · {} · mesas com dono **{}** (settlement {}).{}",
+        pix_state,
         ownership_label(&status.table_ownership.model),
         status.table_ownership.settlement,
         n
@@ -742,7 +767,14 @@ fn render_status_md(status: &OperationalStatus) -> String {
     }
 
     out.push_str(&format!("## PIX{n}{n}"));
-    out.push_str(&format!("- Automático em production: **não**{n}"));
+    out.push_str(&format!(
+        "- Automático em production: **{}**{n}",
+        if status.pix.automatic_in_production {
+            "sim (DePix reconciliado)"
+        } else {
+            "não"
+        }
+    ));
     out.push_str(&format!(
         "- VPS: {} · DePix: {}{n}",
         if status.pix.vps_mock {
@@ -1250,32 +1282,40 @@ mod tests {
     }
 
     #[test]
-    fn rejects_certified_and_automatic_pix() {
+    fn rejects_certified_and_gates_automatic_pix_on_worker() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let mut invalid = sample_status();
         invalid.production.certified = true;
-        assert!(validate_status(&invalid).is_err());
+        assert!(validate_status(&invalid, &root).is_err());
 
-        invalid = sample_status();
-        invalid.pix.automatic_in_production = true;
-        assert!(validate_status(&invalid).is_err());
+        // Sem o worker no código, automático é recusado mesmo com a flag.
+        let empty_root: PathBuf = std::env::temp_dir().join("depix-gate-probe-no-worker");
+        let mut live = sample_status();
+        live.pix.automatic_in_production = true;
+        assert!(validate_status(&live, &empty_root).is_err());
+
+        // Com o worker presente (este repositório), a flag consciente passa.
+        assert!(validate_status(&live, &root).is_ok());
     }
 
     #[test]
     fn rejects_zero_blinds_and_unknown_variant() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let mut invalid = sample_status();
         invalid.cash_tables[0].small_blind_cents = 0;
-        assert!(validate_status(&invalid).is_err());
+        assert!(validate_status(&invalid, &root).is_err());
 
         invalid = sample_status();
         invalid.cash_tables[0].variant = "plo5".to_owned();
-        assert!(validate_status(&invalid).is_err());
+        assert!(validate_status(&invalid, &root).is_err());
     }
 
     #[test]
     fn rejects_schema_v1_and_unknown_fields() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let mut invalid = sample_status();
         invalid.schema_version = 1;
-        assert!(validate_status(&invalid).is_err());
+        assert!(validate_status(&invalid, &root).is_err());
 
         let mut extra: serde_json::Value = serde_json::from_str(&sample_json()).unwrap();
         extra
@@ -1287,16 +1327,18 @@ mod tests {
 
     #[test]
     fn parses_and_validates_sample_json() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let status = parse_status(&sample_json()).unwrap();
-        validate_status(&status).unwrap();
+        validate_status(&status, &root).unwrap();
     }
 
     #[test]
     fn real_status_json_validates() {
-        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(STATUS_FILE);
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let path = root.join(STATUS_FILE);
         let content = fs::read_to_string(&path).expect("STATUS_OPERACIONAL.json deve existir");
         let status = parse_status(&content).expect("JSON schema v2");
-        validate_status(&status).expect("fatos operacionais válidos");
+        validate_status(&status, &root).expect("fatos operacionais válidos");
         assert_eq!(status.cash_tables.len(), 5);
         assert!(status
             .cash_tables

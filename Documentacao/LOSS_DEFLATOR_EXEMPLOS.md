@@ -212,6 +212,6 @@ Perdas em que o jogador não alcançava a faixa mínima de 56% no snapshot do al
 
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático desligado.
+> **S24** (2026-09-18) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

@@ -2,9 +2,9 @@
 
 # Estado operacional — S24
 
-**S24** — frontend vitrine + catálogo 053 + mesa jogável + Vitest/ESLint. Revisado em **2026-09-10**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
+**S24** — frontend vitrine + catálogo 053 + mesa jogável + Vitest/ESLint. Revisado em **2026-09-18**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
 
-**Limites:** sem certificação de produção · PIX automático desligado · mesas com dono **único por processo** (settlement HMAC).
+**Limites:** sem certificação de produção · PIX automático ligado (DePix reconciliado) · mesas com dono **único por processo** (settlement HMAC).
 
 Fonte máquina: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificação: `cargo run --bin documentation-sync -- --check`.
 
@@ -51,8 +51,8 @@ Zerou a carteira PM: espera o reset. Entradas/rebuys de torneio ilimitados **com
 
 ## PIX
 
-- Automático em production: **não**
-- VPS: mock · DePix: somente sandbox não produtivo
+- Automático em production: **sim (DePix reconciliado)**
+- VPS: não-mock · DePix: fora do sandbox
 - Depósito manual: recebedor **Leofran**, chave `6eefcd53-686e-42d4-a062-03751336251c`
 - Saque: informar chave própria; recebimento em até **24h**
 

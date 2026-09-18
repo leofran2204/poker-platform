@@ -34,8 +34,8 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 ### 📊 Histórico de Sprints
 
 > Estes são registros datados. O status operacional atual prevalece: a
-> integração PIX real continua adiada, embora os adaptadores permaneçam no
-> código para uma futura retomada autorizada.
+> integração PIX real foi autorizada e está em ativação (DePix reconciliado,
+> payout worker, Fase 3) — ver `STATUS_OPERACIONAL.md` e `DEVELOPMENT_LOG.md`.
 
 | Sprint | Período | Objetivo | Entregue | Status |
 |--------|---------|---------|----------|-------|
@@ -80,12 +80,12 @@ F1 Fundação          100%
 F2 Motor + API       100%  (suíte determinística; carga = FULL_VALIDATION)
 F3 Frontend-Web      100%  (Dioxus = histórico git)
 F4 Docker + Caddy CI 100%
-F5 Auth/TLS/PIX mock 100%  (PIX real fora)
+F5 Auth/TLS/PIX mock 100%  (PIX automático em ativação — Fase 3)
 F6 Antifraude        100%
-F7 B2B + demo HTTPS   ~90%  falta: cert. produção / PIX automático / multi-pod
+F7 B2B + demo HTTPS   ~90%  falta: cert. produção / tráfego PIX automático / multi-pod
 ```
 
-Pendências conscientes: PIX automático, ownership distribuído de mesa, KYC 2027. Deploy: [`../Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md`](../Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md).
+Pendências conscientes: tráfego PIX automático (em ativação), ownership distribuído de mesa, KYC 2027. Deploy: [`../Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md`](../Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md).
 
 ---
 
@@ -98,7 +98,7 @@ Pendências conscientes: PIX automático, ownership distribuído de mesa, KYC 20
 | **Lab local só na máquina** | Dev sem domínio | `docker compose up` + `DOMAIN_NAME=localhost` |
 
 **HTTPS obrigatório no browser:** tunnel com Origin CA + Cloudflare **Full (strict)**; VPS com Caddy + Let's Encrypt.  
-**CORS:** `https://zerotiltpoker.net` · **PIX:** mock.
+**CORS:** `https://zerotiltpoker.net` · **PIX:** DePix reconciliado (em ativação).
 
 ---
 
@@ -116,7 +116,7 @@ Pendências conscientes: PIX automático, ownership distribuído de mesa, KYC 20
 
 | # | Tarefa | Pasta | Status |
 |---|--------|-------|--------|
-| PIX | Adaptadores e testes locais preservados; integração real de depósitos, saques e webhooks requer nova autorização de escopo | `API-Axum/` & `Frontend-Web/` | ⏸️ Adiado |
+| PIX | DePix reconciliado em ativação (Fase 3): checkout com idempotência, webhook HMAC, payout worker com cifra + fila admin; sem `wallet_*`, sem tráfego | `API-Axum/` & `Frontend-Web/` | 🟡 Em ativação |
 | COACH | Coach virtual analista sob demanda: jogador pede análise profunda de mão via hand history (fora do curso; curso é só introdução) — requer nova autorização de escopo | `Frontend-Web/` & `API-Axum/` | ⏸️ Adiado |
 
 ### ✅ Concluídas — Sprint Atual (S13 + S12)
@@ -198,6 +198,6 @@ Ambiente (WSL, Node, clippy): [`../AGENTS.md`](../AGENTS.md). Gates: [`QUALITY.m
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático desligado.
+> **S24** (2026-09-18) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

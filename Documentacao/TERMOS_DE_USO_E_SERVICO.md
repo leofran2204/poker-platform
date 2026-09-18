@@ -47,7 +47,8 @@ Este contrato de Termos de Uso ("Contrato") rege o uso da plataforma de poker on
 ## 6. TRANSAÇÕES FINANCEIRAS E SALDOS
 6.1. Todos os saldos e apostas são registrados de forma atômica no Ledger Financeiro Imutável em centavos de moeda corrente.
 6.2. Os depósitos e saques só serão processados após a verificação de segurança da conta.
-6.3. **Cashback e Loss Deflator:** No estágio atual, o benefício opera somente com fichas playmoney. Após a retirada do rake do main pot e de cada side pot, a Plataforma pode devolver ao perdedor all-in parte dos potes líquidos em que era elegível: 7% para equity de 56,0% a 65,9%; 15% de 66,0% a 75,9%; 25% de 76,0% a 85,9%; e 35% a partir de 86,0% (abaixo de 56,0% não há devolução). A equity considerada é a do instante em que o all-in é pago.
+6.3. **Movimentação automática via DePix:** depósitos são creditados somente após a confirmação final do provedor (`completed`); estados intermediários não liberam saldo. Saques automáticos vão exclusivamente para chave PIX de titularidade do próprio Jogador (CPF/CNPJ validado) até o teto publicado; acima dele, o saque aguarda revisão manual em até 24h. Falhas do provedor recreditam o saldo reservado, sem estorno PIX.
+6.4. **Cashback e Loss Deflator:** No estágio atual, o benefício opera somente com fichas playmoney. Após a retirada do rake do main pot e de cada side pot, a Plataforma pode devolver ao perdedor all-in parte dos potes líquidos em que era elegível: 7% para equity de 56,0% a 65,9%; 15% de 66,0% a 75,9%; 25% de 76,0% a 85,9%; e 35% a partir de 86,0% (abaixo de 56,0% não há devolução). A equity considerada é a do instante em que o all-in é pago.
 
 ---
 
@@ -67,6 +68,6 @@ Este contrato de Termos de Uso ("Contrato") rege o uso da plataforma de poker on
 9.3. A Plataforma pode alterar este Contrato mediante publicação da versão atualizada com aviso prévio; o uso continuado implica aceite.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático desligado.
+> **S24** (2026-09-18) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

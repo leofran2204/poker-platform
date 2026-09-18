@@ -1,6 +1,6 @@
 {
     "schema_version": 2,
-    "reviewed_on": "2026-09-10",
+    "reviewed_on": "2026-09-18",
     "cycle": {
         "id": "S24",
         "title": "frontend vitrine + catálogo 053 + mesa jogável + Vitest/ESLint"
@@ -137,9 +137,9 @@
         "rebuy": false
     },
     "pix": {
-        "automatic_in_production": false,
-        "vps_mock": true,
-        "depix_sandbox_only": true,
+        "automatic_in_production": true,
+        "vps_mock": false,
+        "depix_sandbox_only": false,
         "manual_receiver": "Leofran",
         "manual_key": "6eefcd53-686e-42d4-a062-03751336251c",
         "withdraw_sla_hours": 24

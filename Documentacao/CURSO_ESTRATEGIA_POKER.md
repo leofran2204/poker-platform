@@ -501,6 +501,6 @@ Player neutro (`CourseVideoPlayer`): vídeo quando há `url`, ou placeholder hon
 Fontes versionadas em `ZeroTiltCurso/epNN-*/` (`plan.md` com arco e narração integral + `script.py` + `segN.mp3` + final); intermediários de render entram no `.gitignore`. Finais espelhados em `Frontend-Web/public/videos/` (hash idêntico). Grade interativa vigente em `Frontend-Web/src/data/courseContent.json` (rota `/curso`).
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático desligado.
+> **S24** (2026-09-18) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
