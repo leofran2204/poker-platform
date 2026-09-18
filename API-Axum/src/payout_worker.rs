@@ -345,7 +345,7 @@ async fn reconcile_sent(db: &PgPool) -> Result<(), ApiError> {
          FROM wallet_transactions \
          WHERE transaction_type = 'WITHDRAW' AND status = 'PENDING' AND provider_status = 'SENT' \
            AND provider_tx_id IS NOT NULL AND provider_tx_id NOT LIKE 'dryrun\\_%' \
-           AND updated_at < NOW() - make_interval(secs => $1)",
+           AND updated_at < NOW() - ($1 * INTERVAL '1 second')",
     )
     .bind(RECONCILE_AFTER_SECONDS)
     .fetch_all(db)
@@ -389,7 +389,7 @@ async fn recover_stale(db: &PgPool) -> Result<(), sqlx::Error> {
     sqlx::query(
         "UPDATE wallet_transactions SET provider_status = 'QUEUED', updated_at = NOW() \
          WHERE transaction_type = 'WITHDRAW' AND status = 'PENDING' AND provider_status = 'SENDING' \
-           AND updated_at < NOW() - make_interval(mins => $1)",
+           AND updated_at < NOW() - ($1 * INTERVAL '1 minute')",
     )
     .bind(STALE_SENDING_MINUTES)
     .execute(db)
