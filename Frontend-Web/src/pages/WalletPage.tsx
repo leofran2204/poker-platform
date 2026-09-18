@@ -136,6 +136,7 @@ export function WalletPage() {
           amount: charge.amount,
           status: "PENDING",
           provider_status: "PENDING",
+          credited_amount_cents: null,
         });
         setTaxNumber("");
         setMsg(
@@ -375,6 +376,14 @@ export function WalletPage() {
                         <div>
                           <div className="text-[10px] uppercase text-felt-400">Cobrança</div>
                           <div className="font-mono text-sm text-gold-soft">{formatBrlFromCents(pixCharge.amount)}</div>
+                          {pixStatus?.status === "COMPLETED" &&
+                            pixStatus.credited_amount_cents != null &&
+                            pixStatus.credited_amount_cents < pixCharge.amount && (
+                              <div className="font-mono text-xs text-felt-300">
+                                Creditado {formatBrlFromCents(pixStatus.credited_amount_cents)} (taxa DePix{" "}
+                                {formatBrlFromCents(pixCharge.amount - pixStatus.credited_amount_cents)})
+                              </div>
+                            )}
                         </div>
                         <div className="font-mono text-xs text-sky-200">
                           {pixStatus?.provider_status ?? "PENDING"}
@@ -407,7 +416,7 @@ export function WalletPage() {
                       <p className="text-[11px] text-felt-400">
                         Expira em {new Date(pixCharge.expires_at).toLocaleString("pt-BR")}.
                         {info.automated_mode === "production"
-                          ? " Fichas são liberadas apenas após a liquidação final."
+                          ? " Fichas são liberadas apenas após a liquidação final. Creditado o valor líquido (descontada a taxa DePix)."
                           : " A simulação não movimenta dinheiro real."}
                       </p>
                       <button type="button" className="text-xs text-gold-soft underline" onClick={resetPixCharge}>

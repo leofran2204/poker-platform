@@ -23,6 +23,8 @@ pub struct PixChargeStatus {
     pub external_tx_id: String,
     pub amount: u64,
     pub status: String,
+    #[serde(default)]
+    pub amount_received: Option<u64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -293,6 +295,8 @@ struct DepixCheckout {
     pix: Option<DepixCheckoutPix>,
     pix_payload: Option<String>,
     #[serde(default)]
+    amount_received: Option<u64>,
+    #[serde(default)]
     is_live: Option<serde_json::Value>,
 }
 
@@ -436,6 +440,7 @@ impl DepixPixGateway {
             external_tx_id: checkout.id,
             amount: checkout.amount,
             status: checkout.status,
+            amount_received: checkout.amount_received,
         }
     }
 

@@ -156,6 +156,7 @@ export interface PixDepositStatusResponse {
   amount: number;
   status: string;
   provider_status: string;
+  credited_amount_cents?: number | null;
 }
 
 export interface DepositRequestResponse {

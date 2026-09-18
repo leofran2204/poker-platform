@@ -1001,6 +1001,12 @@
 - **Testes novos 7/7** (cifra 4 + worker 3); suíte lib 59/60 — a falha (`game_actor ...folded_without_waiting_for_timeout`) **reproduz no HEAD limpo**, pré-existente (mesma família do drift de `fmt`/`clippy` no toolchain 1.97: repo inteiro acusa, fora deste escopo; arquivos novos estão `fmt`-limpos).
 - Segue travado: sem `wallet_*` não há POST real; sem decisão das travas do contrato, nada ativa. Próximo: escopos no painel DePix + Fase 3 item a item.
 
+## 2026-09-18 — S24: crédito líquido no depósito (taxa DePix não vira saldo)
+
+- **Achado com dinheiro real:** cofre DePix segurou R$ 10 pagos e libera R$ 8,81 em ~14 dias (hold de conta nova). O código lia só `amount` (face): sobre-creditaria R$ 1,19 em silêncio ou travaria em 400.
+- **Fix**: parse de `amount_received`, `settle_amounts` puro (líquido ou face; zero/acima falha fechado), coluna `credited_amount_cents` (migration `056` + backfill), taxa no metadata/audit, UI mostra "Creditado X (taxa Y)", Termos 6.3 com líquido.
+- **Validado:** unit 1/1 + DB 2/2 (líquido 4400/600 no ledger, idempotência do 1º teste intacta), tsc/ESLint/Vitest 50/50, build OK, `git diff --check` limpo. Cofre libera 19/09: o `completed` credita sozinho; confiro e partimos para o saque.
+
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
 
 - **Gate consciente** (`src/bin/documentation_sync.rs`): `automatic_in_production=true` agora exige o payout worker no código (`payout_worker.rs` + migration de payout) em vez de recusa blanket; `certified` segue recusado. Renderer condicional (ligado/desligado) + testes do gate atualizados.

@@ -50,6 +50,9 @@ pub struct WebhookPixPayload {
     /// Integer cents. It is checked against the persisted amount and is never
     /// used as the amount to credit.
     pub amount: u64,
+    /// Net cents actually received (`amount_received`); the credited amount.
+    /// `None` on older payloads: falls back to `amount`.
+    pub amount_received: Option<u64>,
     pub status: String,
     #[serde(default)]
     pub event_id: Option<String>,
@@ -83,6 +86,8 @@ struct DepixWebhookData {
     id: String,
     status: String,
     amount: u64,
+    #[serde(default)]
+    amount_received: Option<u64>,
     metadata: Option<DepixWebhookMetadata>,
 }
 
@@ -146,6 +151,7 @@ fn parse_verified_webhook(provider: &str, body: &[u8]) -> Result<WebhookPixPaylo
             tx_id,
             external_tx_id: Some(payload.payment.id),
             amount: brl_value_to_cents(&payload.payment.value)?,
+            amount_received: None,
             status: if payload.event == "PAYMENT_RECEIVED"
                 && payload.payment.status.eq_ignore_ascii_case("RECEIVED")
             {
@@ -170,6 +176,7 @@ fn parse_verified_webhook(provider: &str, body: &[u8]) -> Result<WebhookPixPaylo
             tx_id,
             external_tx_id: Some(payload.data.id),
             amount: payload.data.amount,
+            amount_received: payload.data.amount_received,
             status: payload.data.status,
             event_id: Some(payload.data.event_id),
             event_type: Some(payload.event),
@@ -339,6 +346,20 @@ fn deposit_tx_id(headers: &HeaderMap, user_id: &str, provider: &str) -> Result<S
 }
 fn pix_key_fingerprint(pix_key: &str) -> String {
     format!("{:x}", Sha256::digest(pix_key.trim().as_bytes()))
+}
+
+/// Crédito líquido do depósito: o valor recebido (`amount_received`) quando
+/// `0 < recebido <= face`, ou a face em payloads antigos sem o campo.
+/// Recebido acima da face é impossível e falha fechado. Retorna
+/// `(creditado, taxa_do_provedor)`.
+fn settle_amounts(face_cents: u64, received_cents: Option<u64>) -> Result<(u64, u64), ApiError> {
+    match received_cents {
+        None => Ok((face_cents, 0)),
+        Some(received) if received == 0 || received > face_cents => Err(ApiError::BadRequest(
+            "PIX webhook net amount is inconsistent with the charge".to_string(),
+        )),
+        Some(received) => Ok((received, face_cents - received)),
+    }
 }
 
 /// POST /api/payments/pix/deposit
@@ -808,8 +829,14 @@ pub async fn pix_webhook_handler(
         ));
     }
 
+    let face_cents: u64 = amount
+        .try_into()
+        .map_err(|_| ApiError::Internal("PIX deposit ledger amount is invalid".to_string()))?;
+    let (credited_cents, provider_fee_cents) =
+        settle_amounts(face_cents, payload.amount_received)?;
+    let credited = cents_to_i64(credited_cents, "Credited amount")?;
     let credited = sqlx::query("UPDATE users SET balance_real = balance_real + $1 WHERE id = $2")
-        .bind(amount)
+        .bind(credited)
         .bind(user_id)
         .execute(&mut *transaction)
         .await?;
@@ -819,10 +846,11 @@ pub async fn pix_webhook_handler(
         ));
     }
     sqlx::query(
-        "UPDATE wallet_transactions SET status = 'COMPLETED', provider_status = $1, updated_at = NOW() \
-         WHERE id = $2",
+        "UPDATE wallet_transactions SET status = 'COMPLETED', provider_status = $1, credited_amount_cents = $2, updated_at = NOW() \
+         WHERE id = $3",
     )
     .bind(payload.status.to_ascii_uppercase())
+    .bind(credited_cents as i64)
     .bind(wallet_id)
     .execute(&mut *transaction)
     .await?;
@@ -834,6 +862,8 @@ pub async fn pix_webhook_handler(
         "tx_id": payload.tx_id,
         "external_tx_id": callback_external_id,
         "amount_cents": amount,
+        "credited_amount_cents": credited_cents,
+        "provider_fee_cents": provider_fee_cents,
         "provider": provider,
         "event_id": payload.event_id,
     }))
@@ -856,6 +886,8 @@ pub struct PixDepositStatusResponse {
     pub amount: u64,
     pub status: String,
     pub provider_status: String,
+    /// Centavos efetivamente creditados (líquido de taxas). `None` antes da liquidação.
+    pub credited_amount_cents: Option<i64>,
 }
 
 async fn reconcile_deposit_status(
@@ -866,8 +898,8 @@ async fn reconcile_deposit_status(
 ) -> Result<PixDepositStatusResponse, ApiError> {
     let callback_amount = cents_to_i64(provider_status.amount, "Provider amount")?;
     let mut transaction = state.db.begin().await?;
-    let row: Option<(uuid::Uuid, i64, String, Option<String>, String)> = sqlx::query_as(
-        "SELECT id, amount, status, external_tx_id, provider \
+    let row: Option<(uuid::Uuid, i64, String, Option<String>, String, Option<i64>)> = sqlx::query_as(
+        "SELECT id, amount, status, external_tx_id, provider, credited_amount_cents \
          FROM wallet_transactions \
          WHERE idempotency_key = $1 AND user_id = $2::uuid AND transaction_type = 'DEPOSIT' \
          FOR UPDATE",
@@ -876,7 +908,7 @@ async fn reconcile_deposit_status(
     .bind(user_id)
     .fetch_optional(&mut *transaction)
     .await?;
-    let (wallet_id, amount, current_status, external_tx_id, stored_provider) =
+    let (wallet_id, amount, current_status, external_tx_id, stored_provider, credited) =
         row.ok_or_else(|| ApiError::NotFound("PIX deposit was not found".into()))?;
     if stored_provider != pix_provider()
         || amount != callback_amount
@@ -889,19 +921,33 @@ async fn reconcile_deposit_status(
 
     let normalized_status = provider_status.status.to_ascii_uppercase();
     let mut ledger_status = current_status;
+    let mut credited_row = credited;
     if normalized_status == "COMPLETED" && ledger_status == "PENDING" {
-        let credited =
+        let face_u64: u64 = amount
+            .try_into()
+            .map_err(|_| ApiError::Internal("PIX deposit ledger amount is invalid".to_string()))?;
+        let (credited_cents, provider_fee_cents) =
+            settle_amounts(face_u64, provider_status.amount_received)?;
+        let credited_rows =
             sqlx::query("UPDATE users SET balance_real = balance_real + $1 WHERE id = $2::uuid")
-                .bind(amount)
+                .bind(cents_to_i64(credited_cents, "Credited amount")?)
                 .bind(user_id)
                 .execute(&mut *transaction)
                 .await?;
-        if credited.rows_affected() != 1 {
+        if credited_rows.rows_affected() != 1 {
             return Err(ApiError::Internal(
-                "PIX deposit user account is missing".into(),
+                "PIX deposit user account is missing".to_string(),
             ));
         }
         ledger_status = "COMPLETED".to_string();
+        sqlx::query(
+            "UPDATE wallet_transactions SET credited_amount_cents = $1 WHERE id = $2",
+        )
+        .bind(credited_cents as i64)
+        .bind(wallet_id)
+        .execute(&mut *transaction)
+        .await?;
+        credited_row = Some(credited_cents as i64);
         sqlx::query(
             "INSERT INTO audit_logs (user_id, action, metadata) \
              VALUES ($1, 'PIX_DEPOSIT_RECONCILED', $2)",
@@ -911,6 +957,8 @@ async fn reconcile_deposit_status(
             "tx_id": tx_id,
             "external_tx_id": provider_status.external_tx_id,
             "amount_cents": amount,
+            "credited_amount_cents": credited_cents,
+            "provider_fee_cents": provider_fee_cents,
             "provider": stored_provider,
         }))
         .execute(&mut *transaction)
@@ -935,6 +983,7 @@ async fn reconcile_deposit_status(
         amount: provider_status.amount,
         status: ledger_status,
         provider_status: normalized_status,
+        credited_amount_cents: credited_row,
     })
 }
 
@@ -1148,7 +1197,7 @@ pub async fn create_pix_withdraw_handler(
 
 #[cfg(test)]
 mod tests {
-    use super::{brl_value_to_cents, normalized_tax_number, parse_verified_webhook};
+    use super::{brl_value_to_cents, normalized_tax_number, parse_verified_webhook, settle_amounts};
 
     #[test]
     fn asaas_webhook_keeps_exact_cent_values() {
@@ -1165,6 +1214,15 @@ mod tests {
         assert!(brl_value_to_cents(&serde_json::json!("12.345")).is_err());
         assert!(brl_value_to_cents(&serde_json::json!("-1.00")).is_err());
         assert!(brl_value_to_cents(&serde_json::json!("1e2")).is_err());
+    }
+
+    #[test]
+    fn settle_credits_net_received_and_records_fee() {
+        assert_eq!(settle_amounts(1000, Some(881)).unwrap(), (881, 119));
+        assert_eq!(settle_amounts(1000, Some(1000)).unwrap(), (1000, 0));
+        assert_eq!(settle_amounts(1000, None).unwrap(), (1000, 0));
+        assert!(settle_amounts(1000, Some(0)).is_err());
+        assert!(settle_amounts(1000, Some(1001)).is_err());
     }
 
     #[test]

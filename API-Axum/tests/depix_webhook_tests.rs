@@ -96,6 +96,12 @@ async fn depix_live_webhook_credits_once_and_flags_post_settlement_cancellation(
     );
 
     let state = state().await;
+    // Isolamento: execução anterior abortada pode ter deixado as linhas fixas.
+    sqlx::query("DELETE FROM wallet_transactions WHERE external_tx_id = ANY($1)")
+        .bind(vec!["chk_completed_test", "chk_processing_test"])
+        .execute(&state.db)
+        .await
+        .unwrap();
     let user_id = uuid::Uuid::new_v4();
     let username = format!("depix_{}", &user_id.simple().to_string()[..12]);
     let email = format!("{username}@test.invalid");
@@ -277,6 +283,117 @@ async fn depix_live_webhook_credits_once_and_flags_post_settlement_cancellation(
         .unwrap();
     sqlx::query("DELETE FROM outbox_events WHERE aggregate_id = $1")
         .bind(&completed_tx)
+        .execute(&state.db)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM audit_logs WHERE user_id = $1")
+        .bind(user_id.to_string())
+        .execute(&state.db)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM users WHERE id = $1")
+        .bind(user_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
+#[ignore = "Requires PostgreSQL; run as an isolated test binary"]
+async fn depix_webhook_credits_net_received_and_records_fee() {
+    const SECRET: &str = "depix-integration-webhook-secret-32-bytes";
+    std::env::set_var("PIX_PROVIDER", "depix");
+    std::env::set_var("PIX_MODE", "production");
+    std::env::set_var("ENVIRONMENT", "production");
+    std::env::set_var("PIX_LIVE_ENABLED", "true");
+    std::env::set_var(
+        "PIX_LIVE_ALLOWED_DEPOSITOR_IDS",
+        "00000000-0000-0000-0000-000000000001",
+    );
+    std::env::set_var("DEPIX_API_KEY", "sk_live_integration_placeholder");
+    std::env::set_var("DEPIX_WEBHOOK_SECRET", SECRET);
+    std::env::set_var("DEPIX_API_BASE_URL", "https://api.depixapp.com");
+    std::env::set_var(
+        "DEPIX_CALLBACK_URL",
+        "https://zerotiltpoker.net/api/webhooks/pix",
+    );
+
+    let state = state().await;
+    sqlx::query("DELETE FROM wallet_transactions WHERE external_tx_id = $1")
+        .bind("chk_net_test")
+        .execute(&state.db)
+        .await
+        .unwrap();
+    let user_id = uuid::Uuid::new_v4();
+    let username = format!("depixnet_{}", &user_id.simple().to_string()[..12]);
+    let email = format!("{username}@test.invalid");
+    sqlx::query(
+        "INSERT INTO users (id, username, email, password_hash, role, status, balance, mfa_enabled, created_at) \
+         VALUES ($1, $2, $3, 'test-hash', 'player', 'active', 0, false, 0)",
+    )
+    .bind(user_id)
+    .bind(&username)
+    .bind(&email)
+    .execute(&state.db)
+    .await
+    .unwrap();
+
+    let tx_id = format!("pix_dep_{}", uuid::Uuid::new_v4().simple());
+    sqlx::query(
+        "INSERT INTO wallet_transactions \
+         (user_id, amount, transaction_type, status, idempotency_key, provider, external_tx_id, provider_status) \
+         VALUES ($1, 5000, 'DEPOSIT', 'PENDING', $2, 'depix', 'chk_net_test', 'AWAITING_PAYMENT')",
+    )
+    .bind(user_id)
+    .bind(&tx_id)
+    .execute(&state.db)
+    .await
+    .unwrap();
+
+    let event_id = format!("evt_{}", uuid::Uuid::new_v4().simple());
+    let body = serde_json::json!({
+        "event": "checkout.completed",
+        "data": {
+            "event_id": event_id,
+            "id": "chk_net_test",
+            "status": "completed",
+            "amount": 5000,
+            "amount_received": 4400,
+            "metadata": { "order_id": tx_id }
+        }
+    })
+    .to_string();
+    let first = deliver(&state, body.clone(), "checkout.completed", &event_id, SECRET).await;
+    assert_eq!(first.0, StatusCode::OK);
+    assert_eq!(first.1["status"], "COMPLETED");
+
+    let balance_real: i64 = sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1")
+        .bind(user_id)
+        .fetch_one(&state.db)
+        .await
+        .unwrap();
+    assert_eq!(balance_real, 4400);
+    let row: (String, Option<i64>) = sqlx::query_as(
+        "SELECT status, credited_amount_cents FROM wallet_transactions WHERE idempotency_key = $1",
+    )
+    .bind(&tx_id)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(row.0, "COMPLETED");
+    assert_eq!(row.1, Some(4400));
+    let fee: i64 = sqlx::query_scalar(
+        "SELECT (metadata->>'provider_fee_cents')::bigint FROM audit_logs \
+         WHERE user_id = $1 AND action = 'PIX_DEPOSIT_SETTLED'",
+    )
+    .bind(user_id.to_string())
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(fee, 600);
+
+    sqlx::query("DELETE FROM payment_webhook_events WHERE event_id = $1")
+        .bind(event_id)
         .execute(&state.db)
         .await
         .unwrap();
