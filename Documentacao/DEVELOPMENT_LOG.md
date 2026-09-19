@@ -1007,6 +1007,7 @@
 - **Fix**: parse de `amount_received`, `settle_amounts` puro (líquido ou face; zero/acima falha fechado), coluna `credited_amount_cents` (migration `056` + backfill), taxa no metadata/audit, UI mostra "Creditado X (taxa Y)", Termos 6.3 com líquido.
 - **Validado:** unit 1/1 + DB 2/2 (líquido 4400/600 no ledger, idempotência do 1º teste intacta), tsc/ESLint/Vitest 50/50, build OK, `git diff --check` limpo. Cofre libera 19/09: o `completed` credita sozinho; confiro e partimos para o saque.
 - **Deploy do fix (`b4eb7388`) antes da liberação:** `REBUILD_API=1` → `DEPLOY_OK`, migrations aplicadas sem `VersionMismatch`, worker no ar, bundle novo `index-Ci7T59ZV.js` (telas com líquido/taxa). Quando o cofre liberar, o crédito de R$ 8,81 entra sozinho e verificado.
+- **Sync `c00b5ddb`:** `vps-redeploy-frontend.sh` (só frontend, sem mudança de código desde o build) → `DEPLOY_OK`, caddy-health OK, `/api/health` OK; VPS no commit do `origin/master`, migrations em 56. Cofre segue `processing` (aguardando `completed` para o crédito + saque de volta).
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
 
