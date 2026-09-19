@@ -1014,6 +1014,7 @@
 - **Bug real achado na varredura "nada pendente"**: `handle_leave` marcava graça como `handle_disconnect`, e o `tick` pulava quem tinha graça — mesa travava no jogador que saía (teste `disconnected_active_player_is_folded...` falhava no HEAD limpo).
 - **Fix**: campo `left_hand` (fora do wire, `#[serde(skip)]`): Leave marca e o tick folda sem esperar, consumindo a marca; Disconnect segue só com graça; re-sit limpa. Graça de cash-out e os 2 testes de graça intactos.
 - **Validado:** suíte lib 61/61 (era 59/60), clippy limpo nos arquivos tocados (drift pré-existente em `bots.rs`/`wallet.rs`/`tournament_coordinator.rs` segue fora de escopo), zero diff novo de `fmt`.
+- **Deploy (`99d14c27`, REBUILD_API=1):** `DEPLOY_OK`, API healthy com o fix, `/api/health` OK. Lab local parado (volumes preservados).
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
 
