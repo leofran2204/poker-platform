@@ -280,6 +280,7 @@ impl TournamentActor {
             seat: assigned,
             is_sitting: true,
             disconnected_since: None,
+            left_hand: false,
         });
         self.broadcast_state();
         assigned

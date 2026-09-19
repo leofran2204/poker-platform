@@ -14,7 +14,7 @@ use aes_gcm::{
 const ENV_VAR: &str = "DEPIX_PIXKEY_ENC_KEY";
 
 fn decode_hex(bytes: &str) -> Result<Vec<u8>, String> {
-    if bytes.len() % 2 != 0 {
+    if !bytes.len().is_multiple_of(2) {
         return Err("pix-key crypto: hex length must be even".to_string());
     }
     (0..bytes.len())

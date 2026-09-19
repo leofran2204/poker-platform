@@ -845,11 +845,10 @@ pub fn depix_runtime_ready(mode: &str) -> bool {
 /// Constrói o gateway DePix a partir do ambiente, com as mesmas travas do
 /// `get_payment_gateway`. Uso exclusivo do payout worker reconciliado.
 pub fn depix_gateway_from_env() -> Result<DepixPixGateway, String> {
-    if env::var("PIX_PROVIDER")
+    if !env::var("PIX_PROVIDER")
         .unwrap_or_default()
         .trim()
-        .to_ascii_lowercase()
-        != "depix"
+        .eq_ignore_ascii_case("depix")
     {
         return Err("DePix payouts require PIX_PROVIDER=depix".to_string());
     }
@@ -882,7 +881,7 @@ pub(crate) fn live_allowlist_permits(raw: &str, user_id: &str) -> bool {
         .map(str::trim)
         .filter(|value| !value.is_empty())
         .collect();
-    ids.is_empty() || ids.iter().any(|id| *id == user_id)
+    ids.is_empty() || ids.contains(&user_id)
 }
 
 pub(crate) fn pix_live_depositor_is_permitted(user_id: &str) -> bool {

@@ -68,6 +68,10 @@ pub struct TablePlayer {
     pub is_sitting: bool,
     #[serde(skip)]
     pub disconnected_since: Option<tokio::time::Instant>,
+    /// Leave explícito no meio da mão: fold imediato no próximo tick.
+    /// Drop de socket (`Disconnect`) não marca: graça sem fold imediato.
+    #[serde(skip)]
+    pub left_hand: bool,
 }
 
 pub struct TableActor {
@@ -427,6 +431,41 @@ impl TableActor {
             return;
         }
 
+        let leaver_active_player = self.game_loop.as_ref().and_then(|game_loop| {
+            (!game_loop.state.is_finished)
+                .then(|| {
+                    game_loop
+                        .state
+                        .active_player()
+                        .map(|player| player.id.clone())
+                })
+                .flatten()
+                .filter(|player_id| {
+                    self.players
+                        .iter()
+                        .find(|player| player.id == *player_id)
+                        .is_none_or(|player| {
+                            !player.is_sitting
+                                && (player.disconnected_since.is_none() || player.left_hand)
+                        })
+                })
+        });
+        if let Some(player_id) = leaver_active_player {
+            if let Some(player) = self
+                .players
+                .iter_mut()
+                .find(|player| player.id == player_id)
+            {
+                player.left_hand = false;
+            }
+            tracing::warn!(
+                table_id = %self.table_id,
+                player_id = %player_id,
+                "Player out of seat during active hand; applying automatic fold"
+            );
+            self.handle_action(player_id, "fold".to_string(), 0).await;
+            return;
+        }
         let disconnected_active_player = self.game_loop.as_ref().and_then(|game_loop| {
             (!game_loop.state.is_finished)
                 .then(|| {
@@ -516,6 +555,7 @@ impl TableActor {
             }
             existing.is_sitting = true;
             existing.disconnected_since = None;
+            existing.left_hand = false;
             let assigned_seat = existing.seat;
             info!(
                 "Player reconnected at table {} in seat {}",
@@ -546,6 +586,7 @@ impl TableActor {
             seat: assigned_seat,
             is_sitting: true,
             disconnected_since: None,
+            left_hand: false,
         });
 
         info!(
@@ -571,6 +612,9 @@ impl TableActor {
             .find(|player| player.id == player_id)
         {
             player.is_sitting = false;
+            // Leave explícito: fold imediato (consome no tick) + graça de
+            // assento para o cash-out. Drop de socket usa handle_disconnect.
+            player.left_hand = true;
             if player.disconnected_since.is_none() {
                 player.disconnected_since = Some(tokio::time::Instant::now());
             }
@@ -1297,6 +1341,7 @@ mod tests {
             seat,
             is_sitting: true,
             disconnected_since: None,
+            left_hand: false,
         }
     }
 

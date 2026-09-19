@@ -1009,6 +1009,12 @@
 - **Deploy do fix (`b4eb7388`) antes da liberação:** `REBUILD_API=1` → `DEPLOY_OK`, migrations aplicadas sem `VersionMismatch`, worker no ar, bundle novo `index-Ci7T59ZV.js` (telas com líquido/taxa). Quando o cofre liberar, o crédito de R$ 8,81 entra sozinho e verificado.
 - **Sync `c00b5ddb`:** `vps-redeploy-frontend.sh` (só frontend, sem mudança de código desde o build) → `DEPLOY_OK`, caddy-health OK, `/api/health` OK; VPS no commit do `origin/master`, migrations em 56. Cofre segue `processing` (aguardando `completed` para o crédito + saque de volta).
 
+## 2026-09-19 — S24: Leave folda já, Disconnect tem graça (fix no game_actor)
+
+- **Bug real achado na varredura "nada pendente"**: `handle_leave` marcava graça como `handle_disconnect`, e o `tick` pulava quem tinha graça — mesa travava no jogador que saía (teste `disconnected_active_player_is_folded...` falhava no HEAD limpo).
+- **Fix**: campo `left_hand` (fora do wire, `#[serde(skip)]`): Leave marca e o tick folda sem esperar, consumindo a marca; Disconnect segue só com graça; re-sit limpa. Graça de cash-out e os 2 testes de graça intactos.
+- **Validado:** suíte lib 61/61 (era 59/60), clippy limpo nos arquivos tocados (drift pré-existente em `bots.rs`/`wallet.rs`/`tournament_coordinator.rs` segue fora de escopo), zero diff novo de `fmt`.
+
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
 
 - **Gate consciente** (`src/bin/documentation_sync.rs`): `automatic_in_production=true` agora exige o payout worker no código (`payout_worker.rs` + migration de payout) em vez de recusa blanket; `certified` segue recusado. Renderer condicional (ligado/desligado) + testes do gate atualizados.

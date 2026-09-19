@@ -890,6 +890,17 @@ pub struct PixDepositStatusResponse {
     pub credited_amount_cents: Option<i64>,
 }
 
+/// Linha de depósito para reconciliação: (id, valor, status, tx externa,
+/// provedor, valor creditado).
+type DepositLedgerRow = (
+    uuid::Uuid,
+    i64,
+    String,
+    Option<String>,
+    String,
+    Option<i64>,
+);
+
 async fn reconcile_deposit_status(
     state: &AppState,
     user_id: &str,
@@ -898,7 +909,7 @@ async fn reconcile_deposit_status(
 ) -> Result<PixDepositStatusResponse, ApiError> {
     let callback_amount = cents_to_i64(provider_status.amount, "Provider amount")?;
     let mut transaction = state.db.begin().await?;
-    let row: Option<(uuid::Uuid, i64, String, Option<String>, String, Option<i64>)> = sqlx::query_as(
+    let row: Option<DepositLedgerRow> = sqlx::query_as(
         "SELECT id, amount, status, external_tx_id, provider, credited_amount_cents \
          FROM wallet_transactions \
          WHERE idempotency_key = $1 AND user_id = $2::uuid AND transaction_type = 'DEPOSIT' \
