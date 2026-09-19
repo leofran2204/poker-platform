@@ -70,7 +70,11 @@ pub async fn save_progress(
             "score deve estar entre 0 e 100".to_string(),
         ));
     }
-    let status = if body.completed { "completed" } else { "started" };
+    let status = if body.completed {
+        "completed"
+    } else {
+        "started"
+    };
     let row: ProgressRow = sqlx::query_as(
         "INSERT INTO course_progress (user_id, lesson_id, status, best_score, attempts, updated_at) \
          VALUES ($1::uuid, $2, $3, $4, 1, NOW()) \

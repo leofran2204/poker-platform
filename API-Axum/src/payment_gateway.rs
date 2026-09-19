@@ -487,7 +487,10 @@ impl DepixPixGateway {
         withdrawal_id: &str,
     ) -> Result<DepixWithdrawalStatus, String> {
         let response = Self::client()?
-            .get(format!("{}/api/withdrawals/{}", self.api_url, withdrawal_id))
+            .get(format!(
+                "{}/api/withdrawals/{}",
+                self.api_url, withdrawal_id
+            ))
             .bearer_auth(&self.api_key)
             .send()
             .map_err(|error| format!("DePix withdrawal status request failed: {error}"))?;
@@ -595,7 +598,10 @@ impl PixGateway for DepixPixGateway {
         _pix_key_type: &str,
         _pix_key: &str,
     ) -> Result<PixPayoutResult, String> {
-        Err("DePix payouts run only in the reconciled payout worker, never in the request path".into())
+        Err(
+            "DePix payouts run only in the reconciled payout worker, never in the request path"
+                .into(),
+        )
     }
 
     fn verify_webhook_hmac(&self, body: &[u8], signature_header: Option<&str>) -> bool {
@@ -996,7 +1002,10 @@ mod tests {
     fn empty_live_allowlist_permits_any_authenticated_user() {
         assert!(live_allowlist_entries_are_valid(""));
         assert!(live_allowlist_entries_are_valid("  "));
-        assert!(live_allowlist_permits("", "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
+        assert!(live_allowlist_permits(
+            "",
+            "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+        ));
         assert!(live_allowlist_permits(
             "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
             "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"

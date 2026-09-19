@@ -78,7 +78,9 @@ impl PokerVariant {
             "short_deck_omaha" | "sd_omaha" | "omaha_sd" | "shortdeck_omaha" | "plo_sd" => {
                 Self::ShortDeckOmaha
             }
-            "ultimate_pineapple" | "pineapple" | "pineapple_short_deck" | "up_sd" => Self::UltimatePineapple,
+            "ultimate_pineapple" | "pineapple" | "pineapple_short_deck" | "up_sd" => {
+                Self::UltimatePineapple
+            }
             "short_deck" | "shortdeck" | "sd" | "six_plus" => Self::ShortDeck,
             _ => Self::Holdem,
         }

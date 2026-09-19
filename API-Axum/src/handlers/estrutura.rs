@@ -45,12 +45,11 @@ pub async fn get_estrutura(
     .fetch_one(&state.db)
     .await?;
 
-    let (referral_code, estrutura_points): (Option<String>, i64) = sqlx::query_as(
-        "SELECT referral_code, estrutura_points FROM users WHERE id = $1",
-    )
-    .bind(uid)
-    .fetch_one(&state.db)
-    .await?;
+    let (referral_code, estrutura_points): (Option<String>, i64) =
+        sqlx::query_as("SELECT referral_code, estrutura_points FROM users WHERE id = $1")
+            .bind(uid)
+            .fetch_one(&state.db)
+            .await?;
 
     let hands_this_week: i64 = sqlx::query_scalar(
         "SELECT COUNT(*) FROM hand_participants hp \
@@ -111,13 +110,15 @@ pub async fn get_estrutura(
 
     let level1 = l1_rows
         .into_iter()
-        .map(|(username, rake_generated_week, commission_paid_week)| EstruturaMember {
-            username,
-            level: 1,
-            sponsor_username: None,
-            rake_generated_week,
-            commission_paid_week,
-        })
+        .map(
+            |(username, rake_generated_week, commission_paid_week)| EstruturaMember {
+                username,
+                level: 1,
+                sponsor_username: None,
+                rake_generated_week,
+                commission_paid_week,
+            },
+        )
         .collect();
 
     let l2_rows: Vec<(String, String, i64, i64)> = sqlx::query_as(

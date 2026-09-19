@@ -38,9 +38,9 @@ mod extreme_fuzz_tests;
 #[cfg(all(test, feature = "massive-tests"))]
 mod fuzz_tests;
 #[cfg(test)]
-mod game_loop_tests;
-#[cfg(test)]
 mod game_loop_runout_tests;
+#[cfg(test)]
+mod game_loop_tests;
 #[cfg(test)]
 mod hand_history_tests;
 #[cfg(test)]

@@ -385,12 +385,10 @@ async fn waitlist_snapshot(
     table_id: uuid::Uuid,
     user_id: &str,
 ) -> Result<WaitlistResponse, ApiError> {
-    let length: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM table_waitlist WHERE table_id = $1",
-    )
-    .bind(table_id)
-    .fetch_one(&state.db)
-    .await?;
+    let length: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM table_waitlist WHERE table_id = $1")
+        .bind(table_id)
+        .fetch_one(&state.db)
+        .await?;
     let position: Option<i64> = sqlx::query_scalar(
         "SELECT position FROM ( \
             SELECT user_id::text AS uid, \

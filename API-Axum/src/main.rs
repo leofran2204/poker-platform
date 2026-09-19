@@ -353,9 +353,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // Build app state with high-concurrency RwLock
-    let active_tables = std::sync::Arc::new(tokio::sync::RwLock::new(
-        std::collections::HashMap::new(),
-    ));
+    let active_tables =
+        std::sync::Arc::new(tokio::sync::RwLock::new(std::collections::HashMap::new()));
     let tournaments = std::sync::Arc::new(tokio::sync::RwLock::new(tournament_map));
     let bots = poker_api::bots::BotFleet::new(poker_api::bots::BotEnv {
         db: pool.clone(),

@@ -257,16 +257,13 @@ pub async fn pm_rebuy(
     // diária à 00:00 (Brasília). Reentradas em mesa/torneio continuam ilimitadas
     // enquanto houver saldo (cada join/register debita o buy-in).
     match kind {
-        WalletKind::PmCash | WalletKind::PmMtt => {
-            return Err(ApiError::BadRequest(
-                "Sem rebuy: saldo Play Money zerado — aguarde a renovação diária à 00:00 (Brasília)".into(),
-            ));
-        }
-        WalletKind::Real => {
-            return Err(ApiError::BadRequest(
-                "Rebuy diário só existe em Play Money".into(),
-            ));
-        }
+        WalletKind::PmCash | WalletKind::PmMtt => Err(ApiError::BadRequest(
+            "Sem rebuy: saldo Play Money zerado — aguarde a renovação diária à 00:00 (Brasília)"
+                .into(),
+        )),
+        WalletKind::Real => Err(ApiError::BadRequest(
+            "Rebuy diário só existe em Play Money".into(),
+        )),
     }
 }
 

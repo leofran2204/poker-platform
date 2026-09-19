@@ -1,0 +1,5 @@
+[toolchain]
+# Toolchain pinado: fmt/clippy/testes validados nesta versão (S24).
+# Sem pin, o stable flutuante reintroduz drift de estilo e lints novos.
+channel = "1.97.1"
+components = ["rustfmt", "clippy"]

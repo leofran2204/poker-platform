@@ -343,6 +343,19 @@ pub struct BotFleet {
     tournament_tasks: RwLock<HashMap<(String, String), JoinHandle<()>>>,
 }
 
+/// Linha da tabela cash lida pelo ensure_actor: 9 colunas.
+type BotTableRow = (
+    String,
+    i64,
+    i64,
+    i16,
+    i64,
+    Option<i64>,
+    Option<i64>,
+    Option<i64>,
+    String,
+);
+
 impl BotFleet {
     pub fn new(env: BotEnv) -> Arc<Self> {
         Arc::new(Self {
@@ -1318,17 +1331,7 @@ impl BotFleet {
         }
         let table_uuid = uuid::Uuid::parse_str(table_id)
             .map_err(|_| BotError("table_id invalido".to_string()))?;
-        let row: Option<(
-            String,
-            i64,
-            i64,
-            i16,
-            i64,
-            Option<i64>,
-            Option<i64>,
-            Option<i64>,
-            String,
-        )> = sqlx::query_as(
+        let row: Option<BotTableRow> = sqlx::query_as(
             "SELECT name, small_blind, big_blind, rake_basis_points, rake_cap, \
              rake_cap_heads_up, rake_cap_three_to_four, rake_cap_five_plus, \
              COALESCE(poker_variant, 'holdem') \
@@ -1585,11 +1588,11 @@ fn postflop_tier(hole: &[Card], community: &[Card]) -> u8 {
         return 2;
     }
     // Draws: 4 do mesmo naipe ou 4 em sequencia (OESD simplificado).
-    let flush_draw = suits.iter().any(|&n| n == 4);
+    let flush_draw = suits.contains(&4);
     let mut best_run = 0;
     let mut run = 0;
-    for r in 1..=14 {
-        if present[r] {
+    for &is_present in present.iter().skip(1) {
+        if is_present {
             run += 1;
             best_run = best_run.max(run);
         } else {
@@ -1724,7 +1727,7 @@ fn has_bot_draw(hole: &[Card], community: &[Card], short_deck: bool) -> bool {
         suits[c.suit as usize] += 1;
         present[c.rank as usize] = true;
     }
-    if suits.iter().any(|&n| n == 4) {
+    if suits.contains(&4) {
         return true;
     }
     if short_deck {
@@ -1738,8 +1741,8 @@ fn has_bot_draw(hole: &[Card], community: &[Card], short_deck: bool) -> bool {
     }
     let mut best_run = 0;
     let mut run = 0;
-    for r in 1..=14 {
-        if present[r] {
+    for &is_present in present.iter().skip(1) {
+        if is_present {
             run += 1;
             best_run = best_run.max(run);
         } else {
@@ -1764,9 +1767,10 @@ fn pair_tier_v2(variant: &str, hole: &[Card], community: &[Card]) -> u8 {
     match variant {
         "short_deck_omaha" | "ultimate_pineapple" => 0,
         _ => {
-            if paired && (hole_hi >= board_hi || (pocket && hole_hi > board_hi)) {
-                1
-            } else if paired || pocket {
+            if (paired && (hole_hi >= board_hi || (pocket && hole_hi > board_hi)))
+                || paired
+                || pocket
+            {
                 1
             } else {
                 0
@@ -1946,6 +1950,23 @@ fn decide_for(
         return Some(("call".to_string(), 0));
     }
     Some(("fold".to_string(), 0))
+}
+
+/// Desfaz a inscrição do bot no motor (o banco já deu rollback sozinho).
+async fn rollback_bot_registration(
+    tournaments: &Arc<RwLock<HashMap<String, crate::tournament_store::TournamentStore>>>,
+    tournament_id: &str,
+    bot_id: &str,
+    snapshot: (u64, u64, u64, u32),
+) {
+    let mut m = tournaments.write().await;
+    if let Some(store) = m.get_mut(tournament_id) {
+        store.state.players.remove(bot_id);
+        store.state.total_buyins = snapshot.0;
+        store.state.total_fees = snapshot.1;
+        store.state.prize_pool = snapshot.2;
+        store.state.players_remaining = snapshot.3;
+    }
 }
 
 #[cfg(test)]
@@ -2172,22 +2193,5 @@ mod tests {
         let mut rnd = seeded_rng(7);
         let p = nit.params(&mut rnd);
         assert!((75..=95).contains(&p.trash_fold));
-    }
-}
-
-/// Desfaz a inscrição do bot no motor (o banco já deu rollback sozinho).
-async fn rollback_bot_registration(
-    tournaments: &Arc<RwLock<HashMap<String, crate::tournament_store::TournamentStore>>>,
-    tournament_id: &str,
-    bot_id: &str,
-    snapshot: (u64, u64, u64, u32),
-) {
-    let mut m = tournaments.write().await;
-    if let Some(store) = m.get_mut(tournament_id) {
-        store.state.players.remove(bot_id);
-        store.state.total_buyins = snapshot.0;
-        store.state.total_fees = snapshot.1;
-        store.state.prize_pool = snapshot.2;
-        store.state.players_remaining = snapshot.3;
     }
 }

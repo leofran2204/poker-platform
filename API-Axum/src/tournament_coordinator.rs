@@ -499,15 +499,15 @@ async fn advance_expired_blinds(state: &AppState) {
     for tid in ids {
         let mut tournaments = state.tournaments.write().await;
         if let Some(store) = tournaments.get_mut(&tid) {
-            if tournament_engine::is_blind_level_expired(&store.state) {
-                if tournament_engine::advance_blinds(&mut store.state).is_ok() {
-                    let _ = sqlx::query("UPDATE tournaments SET current_level=$2 WHERE id=$1::uuid")
-                        .bind(&tid)
-                        .bind(store.state.current_level as i32)
-                        .execute(&state.db)
-                        .await;
-                    tracing::info!(tournament_id=%tid, level=%store.state.current_level, "blind avançado");
-                }
+            if tournament_engine::is_blind_level_expired(&store.state)
+                && tournament_engine::advance_blinds(&mut store.state).is_ok()
+            {
+                let _ = sqlx::query("UPDATE tournaments SET current_level=$2 WHERE id=$1::uuid")
+                    .bind(&tid)
+                    .bind(store.state.current_level as i32)
+                    .execute(&state.db)
+                    .await;
+                tracing::info!(tournament_id=%tid, level=%store.state.current_level, "blind avançado");
             }
         }
     }

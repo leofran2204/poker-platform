@@ -1436,7 +1436,10 @@ mod tests {
             PokerVariant::parse("pineapple"),
             PokerVariant::UltimatePineapple
         );
-        assert_eq!(PokerVariant::parse("up_sd"), PokerVariant::UltimatePineapple);
+        assert_eq!(
+            PokerVariant::parse("up_sd"),
+            PokerVariant::UltimatePineapple
+        );
         assert_eq!(PokerVariant::UltimatePineapple.hole_card_count(), 3);
         assert!(PokerVariant::UltimatePineapple.uses_short_deck());
         assert_eq!(

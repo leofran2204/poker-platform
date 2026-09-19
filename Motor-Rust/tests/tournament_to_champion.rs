@@ -249,7 +249,12 @@ fn run_spec(spec: &MttSpec) {
     start_tournament(&mut state).expect("start");
     assert_eq!(state.current_level, 1);
 
-    let addon_try = process_addon(&mut state, "p0", spec.starting_stack / 2, spec.buy_in.max(1));
+    let addon_try = process_addon(
+        &mut state,
+        "p0",
+        spec.starting_stack / 2,
+        spec.buy_in.max(1),
+    );
     assert!(
         addon_try.is_err(),
         "{} addon deveria falhar no catálogo: {addon_try:?}",
@@ -356,10 +361,7 @@ fn run_spec(spec: &MttSpec) {
         }
     }
 
-    let remaining: Vec<(String, u64)> = stacks
-        .into_iter()
-        .filter(|(_, s)| *s > 0)
-        .collect();
+    let remaining: Vec<(String, u64)> = stacks.into_iter().filter(|(_, s)| *s > 0).collect();
     assert_eq!(
         remaining.len(),
         1,
@@ -401,8 +403,7 @@ fn run_spec(spec: &MttSpec) {
     assert!(!res.winners.is_empty(), "{} sem premiados", spec.name);
     assert!(res.total_prize_pool >= spec.gtd, "{} GTD", spec.name);
     assert_eq!(
-        res.winners[0].player_id,
-        remaining[0].0,
+        res.winners[0].player_id, remaining[0].0,
         "{} campeão diverge do finish",
         spec.name
     );

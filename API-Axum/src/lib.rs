@@ -37,8 +37,8 @@ use std::sync::OnceLock;
 use std::time::Instant;
 
 use crate::handlers::course as course_handlers;
-use crate::handlers::presence as presence_handlers;
 use crate::handlers::estrutura as estrutura_api;
+use crate::handlers::presence as presence_handlers;
 use crate::handlers::{auth, bots as bots_handlers, hand_history, lobby, tournament, websocket};
 use crate::middleware::auth::RequireAuth;
 use crate::middleware::rate_limit::EnforceRateLimit;
@@ -214,9 +214,10 @@ pub fn build_router(state: AppState) -> Router {
         .route("/api/lobby/tables/:id", get(lobby::get_table))
         .route(
             "/api/estrutura",
-            get(estrutura_api::get_estrutura).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            get(estrutura_api::get_estrutura)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/lobby/waitlist",
@@ -315,21 +316,24 @@ pub fn build_router(state: AppState) -> Router {
         )
         .route(
             "/api/admin/payouts/held",
-            get(payout_worker::list_held_payouts).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            get(payout_worker::list_held_payouts)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/payouts/:id/approve",
-            post(payout_worker::approve_payout).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            post(payout_worker::approve_payout)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/payouts/:id/reject",
-            post(payout_worker::reject_payout).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            post(payout_worker::reject_payout)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/stats",
@@ -468,39 +472,45 @@ pub fn build_router(state: AppState) -> Router {
         // ─── Frota de bots (coach/testes) ───
         .route(
             "/api/admin/bots/ensure-pool",
-            post(bots_handlers::ensure_pool).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            post(bots_handlers::ensure_pool)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/bots/start",
-            post(bots_handlers::start_bots).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            post(bots_handlers::start_bots)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/bots/stop",
-            post(bots_handlers::stop_bots).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            post(bots_handlers::stop_bots)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/bots/status",
-            get(bots_handlers::bots_status).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            get(bots_handlers::bots_status)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/bots/start-tournament",
-            post(bots_handlers::start_tournament_bots).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            post(bots_handlers::start_tournament_bots)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         .route(
             "/api/admin/bots/stop-tournament",
-            post(bots_handlers::stop_tournament_bots).route_layer(
-                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
-            ),
+            post(bots_handlers::stop_tournament_bots)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         // ─── WebSocket route ───
         .route("/ws/game/:table_id", get(websocket::game_websocket))

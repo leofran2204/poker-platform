@@ -515,13 +515,16 @@ pub async fn list_admin_tables(
 
     let mut by_table: HashMap<uuid::Uuid, Vec<AdminTableSeat>> = HashMap::new();
     for row in occupied {
-        by_table.entry(row.table_id).or_default().push(AdminTableSeat {
-            seat: row.seat,
-            user_id: row.user_id.to_string(),
-            username: row.username,
-            email: row.email,
-            chips: row.chips,
-        });
+        by_table
+            .entry(row.table_id)
+            .or_default()
+            .push(AdminTableSeat {
+                seat: row.seat,
+                user_id: row.user_id.to_string(),
+                username: row.username,
+                email: row.email,
+                chips: row.chips,
+            });
     }
 
     Ok(Json(
@@ -653,7 +656,9 @@ pub async fn patch_tournament(
 ) -> Result<Json<AdminTournamentItem>, ApiError> {
     require_admin(&auth_user)?;
     if body.status.is_none() && body.scheduled_start_at.is_none() {
-        return Err(ApiError::BadRequest("Provide status and/or scheduled_start_at".into()));
+        return Err(ApiError::BadRequest(
+            "Provide status and/or scheduled_start_at".into(),
+        ));
     }
 
     let tid = uuid::Uuid::parse_str(&tournament_id)

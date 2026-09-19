@@ -345,10 +345,7 @@ fn referral_code_from_id(id: &str) -> String {
         .to_ascii_uppercase()
 }
 
-async fn resolve_sponsor(
-    state: &AppState,
-    code: Option<&str>,
-) -> Result<Option<String>, ApiError> {
+async fn resolve_sponsor(state: &AppState, code: Option<&str>) -> Result<Option<String>, ApiError> {
     let Some(code) = normalize_invite(code) else {
         if !state.require_invite {
             return Ok(None);
@@ -757,10 +754,11 @@ pub async fn verify_email(
     active_user.status = poker_engine::auth::AccountStatus::Active;
     // O UPDATE de status acima dispara o trigger que incrementa token_version.
     // Recarrega para o JWT não nascer com versão antiga (e já revogado).
-    active_user.token_version = sqlx::query_scalar("SELECT token_version FROM users WHERE id = $1::uuid")
-        .bind(&active_user.id)
-        .fetch_one(&state.db)
-        .await?;
+    active_user.token_version =
+        sqlx::query_scalar("SELECT token_version FROM users WHERE id = $1::uuid")
+            .bind(&active_user.id)
+            .fetch_one(&state.db)
+            .await?;
     {
         let mut auth = state.auth.write().await;
         auth.upsert_persisted_user(active_user.clone());

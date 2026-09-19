@@ -459,18 +459,17 @@ fn validate_status(status: &OperationalStatus, root: &Path) -> Result<(), String
         let worker = root.join("API-Axum/src/payout_worker.rs");
         let has_payout_migration = std::fs::read_dir(root.join("API-Axum/migrations"))
             .map(|entries| {
-                entries.flatten().any(|entry| {
-                    entry
-                        .file_name()
-                        .to_string_lossy()
-                        .contains("payout")
-                })
+                entries
+                    .flatten()
+                    .any(|entry| entry.file_name().to_string_lossy().contains("payout"))
             })
             .unwrap_or(false);
         if !(worker.is_file() && has_payout_migration) {
-            return Err("pix.automatic_in_production exige o payout worker reconciliado \
+            return Err(
+                "pix.automatic_in_production exige o payout worker reconciliado \
                 (API-Axum/src/payout_worker.rs + migration de payout)"
-                .to_owned());
+                    .to_owned(),
+            );
         }
     }
     require_non_empty("pix.manual_receiver", &status.pix.manual_receiver)?;

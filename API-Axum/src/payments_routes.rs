@@ -832,8 +832,7 @@ pub async fn pix_webhook_handler(
     let face_cents: u64 = amount
         .try_into()
         .map_err(|_| ApiError::Internal("PIX deposit ledger amount is invalid".to_string()))?;
-    let (credited_cents, provider_fee_cents) =
-        settle_amounts(face_cents, payload.amount_received)?;
+    let (credited_cents, provider_fee_cents) = settle_amounts(face_cents, payload.amount_received)?;
     let credited = cents_to_i64(credited_cents, "Credited amount")?;
     let credited = sqlx::query("UPDATE users SET balance_real = balance_real + $1 WHERE id = $2")
         .bind(credited)
@@ -892,14 +891,7 @@ pub struct PixDepositStatusResponse {
 
 /// Linha de depósito para reconciliação: (id, valor, status, tx externa,
 /// provedor, valor creditado).
-type DepositLedgerRow = (
-    uuid::Uuid,
-    i64,
-    String,
-    Option<String>,
-    String,
-    Option<i64>,
-);
+type DepositLedgerRow = (uuid::Uuid, i64, String, Option<String>, String, Option<i64>);
 
 async fn reconcile_deposit_status(
     state: &AppState,
@@ -951,13 +943,11 @@ async fn reconcile_deposit_status(
             ));
         }
         ledger_status = "COMPLETED".to_string();
-        sqlx::query(
-            "UPDATE wallet_transactions SET credited_amount_cents = $1 WHERE id = $2",
-        )
-        .bind(credited_cents as i64)
-        .bind(wallet_id)
-        .execute(&mut *transaction)
-        .await?;
+        sqlx::query("UPDATE wallet_transactions SET credited_amount_cents = $1 WHERE id = $2")
+            .bind(credited_cents as i64)
+            .bind(wallet_id)
+            .execute(&mut *transaction)
+            .await?;
         credited_row = Some(credited_cents as i64);
         sqlx::query(
             "INSERT INTO audit_logs (user_id, action, metadata) \
@@ -1089,7 +1079,11 @@ pub async fn create_pix_withdraw_handler(
     // CPF/CNPJ do titular: a própria chave quando ela é CPF, ou o campo
     // dedicado (exigência DePix; nunca persistido em claro nem logado).
     let tax_number = if payload.pix_key_type == "cpf" {
-        let digits: String = payload.pix_key.chars().filter(|c| c.is_ascii_digit()).collect();
+        let digits: String = payload
+            .pix_key
+            .chars()
+            .filter(|c| c.is_ascii_digit())
+            .collect();
         if digits.len() != 11 {
             return Err(ApiError::BadRequest(
                 "CPF PIX key must hold 11 digits".to_string(),
@@ -1101,8 +1095,7 @@ pub async fn create_pix_withdraw_handler(
             .ok()
             .flatten()
             .filter(|digits| {
-                let digits: String =
-                    digits.chars().filter(|c| c.is_ascii_digit()).collect();
+                let digits: String = digits.chars().filter(|c| c.is_ascii_digit()).collect();
                 digits.len() == 11 || digits.len() == 14
             })
             .ok_or_else(|| {
@@ -1121,14 +1114,9 @@ pub async fn create_pix_withdraw_handler(
         "tax_number": tax_number,
     })
     .to_string();
-    let pix_key_ciphertext =
-        crate::pix_key_crypto::load_key()
-            .and_then(|key| crate::pix_key_crypto::encrypt_blob(&key, &pix_blob))
-            .map_err(|_| {
-                ApiError::Internal(
-                    "Automatic PIX payouts are unavailable".to_string(),
-                )
-            })?;
+    let pix_key_ciphertext = crate::pix_key_crypto::load_key()
+        .and_then(|key| crate::pix_key_crypto::encrypt_blob(&key, &pix_blob))
+        .map_err(|_| ApiError::Internal("Automatic PIX payouts are unavailable".to_string()))?;
     // Acima do teto automático: reserva e segura para revisão manual.
     let queue_status = if provider == "depix" && payload.amount > depix_payout_max_cents() {
         "HELD"
@@ -1208,7 +1196,9 @@ pub async fn create_pix_withdraw_handler(
 
 #[cfg(test)]
 mod tests {
-    use super::{brl_value_to_cents, normalized_tax_number, parse_verified_webhook, settle_amounts};
+    use super::{
+        brl_value_to_cents, normalized_tax_number, parse_verified_webhook, settle_amounts,
+    };
 
     #[test]
     fn asaas_webhook_keeps_exact_cent_values() {

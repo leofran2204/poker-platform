@@ -1009,6 +1009,13 @@
 - **Deploy do fix (`b4eb7388`) antes da liberação:** `REBUILD_API=1` → `DEPLOY_OK`, migrations aplicadas sem `VersionMismatch`, worker no ar, bundle novo `index-Ci7T59ZV.js` (telas com líquido/taxa). Quando o cofre liberar, o crédito de R$ 8,81 entra sozinho e verificado.
 - **Sync `c00b5ddb`:** `vps-redeploy-frontend.sh` (só frontend, sem mudança de código desde o build) → `DEPLOY_OK`, caddy-health OK, `/api/health` OK; VPS no commit do `origin/master`, migrations em 56. Cofre segue `processing` (aguardando `completed` para o crédito + saque de volta).
 
+## 2026-09-19 — S24: drift de fmt/clippy zerado + toolchain pinado (opção B)
+
+- **Causa**: stable flutuante (1.97.1) com estilo e lints novos; repo formatado em toolchain anterior. CI (`clippy -D warnings`, `fmt --check` em Motor e API) vermelho no `master`.
+- **`cargo fmt`** nos 3 crates (só quebra de linha/indentação, zero lógica) + **lints um a um** (todos mecânicos): `simulated_100` (imports/vars mortos), `bots.rs` (alias de tipo, `contains`, iteradores, `if` colapsado, função movida para antes do `mod tests`), `wallet.rs` (`needless_return`), `tournament_coordinator.rs` (`collapsible_if` sem let-chains, edition 2021), meus arquivos da leva DePix.
+- **Pin**: `rust-toolchain.toml` novo (`channel = "1.97.1"` + rustfmt/clippy) — vale local e no CI (action dtolnay respeita); Docker e frontend fora (imagens/Node próprios).
+- **Validado (espelho do CI)**: fmt 0/0/0, clippy 0/0, Motor 1850, API lib 61/61, doc-sync 12 + `--check` limpo.
+
 ## 2026-09-19 — S24: Leave folda já, Disconnect tem graça (fix no game_actor)
 
 - **Bug real achado na varredura "nada pendente"**: `handle_leave` marcava graça como `handle_disconnect`, e o `tick` pulava quem tinha graça — mesa travava no jogador que saía (teste `disconnected_active_player_is_folded...` falhava no HEAD limpo).

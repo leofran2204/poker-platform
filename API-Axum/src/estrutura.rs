@@ -21,12 +21,11 @@ pub async fn distribute_hand_rake(
     let n = participants.len() as i64;
     let share = rake / n;
 
-    let rows: Vec<(Uuid, Option<Uuid>)> = sqlx::query_as(
-        "SELECT id, sponsored_by FROM users WHERE id = ANY($1)",
-    )
-    .bind(participants)
-    .fetch_all(&mut **tx)
-    .await?;
+    let rows: Vec<(Uuid, Option<Uuid>)> =
+        sqlx::query_as("SELECT id, sponsored_by FROM users WHERE id = ANY($1)")
+            .bind(participants)
+            .fetch_all(&mut **tx)
+            .await?;
 
     let mut sponsor_of = std::collections::HashMap::new();
     for (id, sp) in rows {
@@ -60,11 +59,10 @@ pub async fn distribute_hand_rake(
         )
         .await?;
 
-        let l2: Option<Uuid> =
-            sqlx::query_scalar("SELECT sponsored_by FROM users WHERE id = $1")
-                .bind(l1)
-                .fetch_one(&mut **tx)
-                .await?;
+        let l2: Option<Uuid> = sqlx::query_scalar("SELECT sponsored_by FROM users WHERE id = $1")
+            .bind(l1)
+            .fetch_one(&mut **tx)
+            .await?;
         let Some(l2) = l2 else {
             continue;
         };

@@ -363,7 +363,14 @@ async fn depix_webhook_credits_net_received_and_records_fee() {
         }
     })
     .to_string();
-    let first = deliver(&state, body.clone(), "checkout.completed", &event_id, SECRET).await;
+    let first = deliver(
+        &state,
+        body.clone(),
+        "checkout.completed",
+        &event_id,
+        SECRET,
+    )
+    .await;
     assert_eq!(first.0, StatusCode::OK);
     assert_eq!(first.1["status"], "COMPLETED");
 

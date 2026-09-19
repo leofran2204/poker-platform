@@ -546,7 +546,10 @@ impl TableActor {
         seat: Option<usize>,
         chips: u64,
     ) -> usize {
-        if let Some(existing) = self.players.iter_mut().find(|player| player.id == player_id)
+        if let Some(existing) = self
+            .players
+            .iter_mut()
+            .find(|player| player.id == player_id)
         {
             existing.name = username;
             existing.chips = chips;
@@ -1521,7 +1524,14 @@ mod tests {
         .with_disconnect_cash_out_after(tokio::time::Duration::from_secs(30));
         actor.players = vec![player("a", 0), player("b", 1)];
         actor.handle_leave("a".to_string());
-        assert!(!actor.players.iter().find(|p| p.id == "a").unwrap().is_sitting);
+        assert!(
+            !actor
+                .players
+                .iter()
+                .find(|p| p.id == "a")
+                .unwrap()
+                .is_sitting
+        );
         assert!(actor
             .players
             .iter()

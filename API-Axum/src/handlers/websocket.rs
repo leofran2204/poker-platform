@@ -925,7 +925,10 @@ mod tests {
 
         let filtered = filter_table_state(state, "me");
         assert_eq!(filtered["showdown"][0]["hand_name"], json!("Straight"));
-        assert_eq!(filtered["showdown"][0]["cards"].as_array().unwrap().len(), 5);
+        assert_eq!(
+            filtered["showdown"][0]["cards"].as_array().unwrap().len(),
+            5
+        );
     }
 
     #[test]

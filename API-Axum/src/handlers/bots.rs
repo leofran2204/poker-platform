@@ -202,14 +202,13 @@ pub async fn bots_status(
         .bind(table_uuid)
         .fetch_all(&state.db)
         .await?;
-        let hands_played: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM hand_history WHERE table_id = $1",
-        )
-        .bind(table_uuid)
-        .fetch_one(&state.db)
-        .await
-        .unwrap_or(0)
-            - dep.hands_at_start;
+        let hands_played: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM hand_history WHERE table_id = $1")
+                .bind(table_uuid)
+                .fetch_one(&state.db)
+                .await
+                .unwrap_or(0)
+                - dep.hands_at_start;
         let seat_infos: Vec<BotSeatInfo> = seats
             .into_iter()
             .map(|(user_id, username, chips)| BotSeatInfo {
