@@ -62,6 +62,7 @@ export function WalletPage() {
     const manual = requests.map((r) => ({
       key: `manual-${r.id}`,
       date: r.created_at,
+      settled: null as string | null,
       kind: "Pedido manual",
       amount: r.amount_cents,
       credited: null as number | null,
@@ -71,6 +72,7 @@ export function WalletPage() {
     const auto = ledger.map((t) => ({
       key: `auto-${t.tx_id}`,
       date: t.created_at,
+      settled: t.settled_at ?? null,
       kind: t.kind === "WITHDRAW" ? "Saque DePix" : "Depósito DePix",
       amount: t.amount_cents,
       credited: t.credited_amount_cents ?? null,
@@ -570,17 +572,18 @@ export function WalletPage() {
               <table className="zt-lobby-table">
                 <thead>
                   <tr>
-                    <th>Quando</th>
+                    <th>Pedido em</th>
                     <th>Tipo</th>
                     <th>Valor</th>
                     <th>Status</th>
+                    <th>Creditado em</th>
                     <th>Info</th>
                   </tr>
                 </thead>
                 <tbody>
                   {statement.length === 0 ? (
                     <tr className="!cursor-default">
-                      <td colSpan={5} className="text-felt-400">Nenhuma movimentação ainda</td>
+                      <td colSpan={6} className="text-felt-400">Nenhuma movimentação ainda</td>
                     </tr>
                   ) : (
                     statement.map((r) => (
@@ -589,6 +592,9 @@ export function WalletPage() {
                         <td className="text-xs">{r.kind}</td>
                         <td className="font-mono text-gold-soft">{formatBrlFromCents(r.amount)}</td>
                         <td className="font-mono text-xs">{r.status}</td>
+                        <td className="text-xs text-felt-300">
+                          {r.settled ? new Date(r.settled).toLocaleString("pt-BR") : "—"}
+                        </td>
                         <td className="text-xs text-felt-400">{r.info}</td>
                       </tr>
                     ))

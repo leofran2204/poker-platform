@@ -168,6 +168,7 @@ export interface WalletTransactionItem {
   provider_status?: string | null;
   provider: string;
   created_at: string;
+  settled_at?: string | null;
 }
 
 export interface DepositRequestResponse {

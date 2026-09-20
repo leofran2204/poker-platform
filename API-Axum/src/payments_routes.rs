@@ -889,6 +889,8 @@ pub struct WalletTransactionItem {
     pub provider_status: Option<String>,
     pub provider: String,
     pub created_at: String,
+    /// Data/hora do crédito (`updated_at` da liquidação) quando COMPLETED.
+    pub settled_at: Option<String>,
 }
 
 /// GET /api/wallet/transactions — extrato próprio (até 50, recentes primeiro).
@@ -906,9 +908,11 @@ pub async fn list_my_wallet_transactions(
         Option<String>,
         String,
         chrono::DateTime<chrono::Utc>,
+        Option<chrono::DateTime<chrono::Utc>>,
     )> = sqlx::query_as(
         "SELECT idempotency_key, transaction_type, amount, credited_amount_cents, \
-         status, provider_status, provider, created_at \
+         status, provider_status, provider, created_at, \
+         CASE WHEN status = 'COMPLETED' THEN updated_at ELSE NULL END \
          FROM wallet_transactions WHERE user_id = $1::uuid \
          ORDER BY created_at DESC LIMIT 50",
     )
@@ -927,6 +931,7 @@ pub async fn list_my_wallet_transactions(
                     provider_status,
                     provider,
                     created_at,
+                    settled_at,
                 )| WalletTransactionItem {
                     tx_id,
                     kind,
@@ -936,6 +941,7 @@ pub async fn list_my_wallet_transactions(
                     provider_status,
                     provider,
                     created_at: created_at.to_rfc3339(),
+                    settled_at: settled_at.map(|dt| dt.to_rfc3339()),
                 },
             )
             .collect(),
