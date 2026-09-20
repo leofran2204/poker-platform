@@ -159,6 +159,17 @@ export interface PixDepositStatusResponse {
   credited_amount_cents?: number | null;
 }
 
+export interface WalletTransactionItem {
+  tx_id: string;
+  kind: string;
+  amount_cents: number;
+  credited_amount_cents?: number | null;
+  status: string;
+  provider_status?: string | null;
+  provider: string;
+  created_at: string;
+}
+
 export interface DepositRequestResponse {
   id: string;
   user_id: string;

@@ -880,6 +880,69 @@ pub async fn pix_webhook_handler(
 }
 
 #[derive(Debug, Serialize)]
+pub struct WalletTransactionItem {
+    pub tx_id: String,
+    pub kind: String,
+    pub amount_cents: i64,
+    pub credited_amount_cents: Option<i64>,
+    pub status: String,
+    pub provider_status: Option<String>,
+    pub provider: String,
+    pub created_at: String,
+}
+
+/// GET /api/wallet/transactions — extrato próprio (até 50, recentes primeiro).
+/// Só colunas seguras: sem chave, sem cifra, sem fingerprint.
+pub async fn list_my_wallet_transactions(
+    State(state): State<AppState>,
+    RequireAuth(auth_user): RequireAuth,
+) -> Result<Json<Vec<WalletTransactionItem>>, ApiError> {
+    let rows: Vec<(
+        String,
+        String,
+        i64,
+        Option<i64>,
+        String,
+        Option<String>,
+        String,
+        chrono::DateTime<chrono::Utc>,
+    )> = sqlx::query_as(
+        "SELECT idempotency_key, transaction_type, amount, credited_amount_cents, \
+         status, provider_status, provider, created_at \
+         FROM wallet_transactions WHERE user_id = $1::uuid \
+         ORDER BY created_at DESC LIMIT 50",
+    )
+    .bind(&auth_user.user_id)
+    .fetch_all(&state.db)
+    .await?;
+    Ok(Json(
+        rows.into_iter()
+            .map(
+                |(
+                    tx_id,
+                    kind,
+                    amount_cents,
+                    credited_amount_cents,
+                    status,
+                    provider_status,
+                    provider,
+                    created_at,
+                )| WalletTransactionItem {
+                    tx_id,
+                    kind,
+                    amount_cents,
+                    credited_amount_cents,
+                    status,
+                    provider_status,
+                    provider,
+                    created_at: created_at.to_rfc3339(),
+                },
+            )
+            .collect(),
+    ))
+}
+
+#[derive(Debug, Serialize)]
 pub struct PixDepositStatusResponse {
     pub tx_id: String,
     pub amount: u64,

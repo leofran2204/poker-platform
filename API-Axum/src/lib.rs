@@ -289,6 +289,12 @@ pub fn build_router(state: AppState) -> Router {
                 )),
         )
         .route(
+            "/api/wallet/transactions",
+            get(payments_routes::list_my_wallet_transactions).route_layer(
+                from_extractor_with_state::<RequireAuth, AppState>(state.clone()),
+            ),
+        )
+        .route(
             "/api/wallet/deposit-requests",
             get(deposit_requests::list_my_deposit_requests)
                 .post(deposit_requests::create_deposit_request)

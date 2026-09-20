@@ -8,6 +8,7 @@ import {
   fetchMe,
   getPixDepositStatus,
   listMyDepositRequests,
+  listMyWalletTransactions,
   simulatePixDeposit,
 } from "@/api/client";
 import type {
@@ -16,6 +17,7 @@ import type {
   MeResponse,
   PixDepositResponse,
   PixDepositStatusResponse,
+  WalletTransactionItem,
 } from "@/api/types";
 import { NoIndex } from "@/components/NoIndex";
 import { isAuthenticated } from "@/lib/auth";
@@ -33,6 +35,7 @@ export function WalletPage() {
   const [me, setMe] = useState<MeResponse | null>(null);
   const [info, setInfo] = useState<DepositInfoResponse | null>(null);
   const [requests, setRequests] = useState<DepositRequestResponse[]>([]);
+  const [ledger, setLedger] = useState<WalletTransactionItem[]>([]);
   const [openForm, setOpenForm] = useState(false);
   const [revealPix, setRevealPix] = useState(false);
   const [amountCents, setAmountCents] = useState(100_000);
@@ -55,19 +58,46 @@ export function WalletPage() {
     [info?.pix_key],
   );
 
+  const statement = useMemo(() => {
+    const manual = requests.map((r) => ({
+      key: `manual-${r.id}`,
+      date: r.created_at,
+      kind: "Pedido manual",
+      amount: r.amount_cents,
+      credited: null as number | null,
+      status: r.status,
+      info: r.admin_note || "Aguardando revisão",
+    }));
+    const auto = ledger.map((t) => ({
+      key: `auto-${t.tx_id}`,
+      date: t.created_at,
+      kind: t.kind === "WITHDRAW" ? "Saque DePix" : "Depósito DePix",
+      amount: t.amount_cents,
+      credited: t.credited_amount_cents ?? null,
+      status: t.status,
+      info:
+        t.credited_amount_cents != null && t.credited_amount_cents < t.amount_cents
+          ? `Creditado ${formatBrlFromCents(t.credited_amount_cents)} (taxa ${formatBrlFromCents(t.amount_cents - t.credited_amount_cents)})`
+          : (t.provider_status ?? t.status),
+    }));
+    return [...manual, ...auto].sort((a, b) => (a.date < b.date ? 1 : -1));
+  }, [requests, ledger]);
+
   const load = useCallback(async () => {
     if (!isAuthenticated()) return;
     setError(null);
     try {
       clearMeCache();
-      const [m, i, r] = await Promise.all([
+      const [m, i, r, t] = await Promise.all([
         fetchMe(),
         fetchDepositInfo(),
         listMyDepositRequests(),
+        listMyWalletTransactions(),
       ]);
       setMe(m);
       setInfo(i);
       setRequests(r);
+      setLedger(t);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erro ao carregar carteira");
     }
@@ -535,29 +565,31 @@ export function WalletPage() {
           )}
 
           <div className="zt-panel overflow-hidden !border-0 !shadow-none">
-            <div className="zt-panel-title">Meus pedidos (Jogo Real)</div>
+            <div className="zt-panel-title">Extrato (Jogo Real)</div>
             <div className="zt-table-wrap">
               <table className="zt-lobby-table">
                 <thead>
                   <tr>
                     <th>Quando</th>
+                    <th>Tipo</th>
                     <th>Valor</th>
                     <th>Status</th>
-                    <th>Admin</th>
+                    <th>Info</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {requests.length === 0 ? (
+                  {statement.length === 0 ? (
                     <tr className="!cursor-default">
-                      <td colSpan={4} className="text-felt-400">Nenhum pedido ainda</td>
+                      <td colSpan={5} className="text-felt-400">Nenhuma movimentação ainda</td>
                     </tr>
                   ) : (
-                    requests.map((r) => (
-                      <tr key={r.id} className="!cursor-default">
-                        <td className="text-xs text-felt-300">{new Date(r.created_at).toLocaleString("pt-BR")}</td>
-                        <td className="font-mono text-gold-soft">{formatBrlFromCents(r.amount_cents)}</td>
+                    statement.map((r) => (
+                      <tr key={r.key} className="!cursor-default">
+                        <td className="text-xs text-felt-300">{new Date(r.date).toLocaleString("pt-BR")}</td>
+                        <td className="text-xs">{r.kind}</td>
+                        <td className="font-mono text-gold-soft">{formatBrlFromCents(r.amount)}</td>
                         <td className="font-mono text-xs">{r.status}</td>
-                        <td className="text-xs text-felt-400">{r.admin_note || "—"}</td>
+                        <td className="text-xs text-felt-400">{r.info}</td>
                       </tr>
                     ))
                   )}

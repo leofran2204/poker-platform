@@ -27,6 +27,7 @@ import type {
   TableResponse,
   TokenResponse,
   TournamentInfoResponse,
+  WalletTransactionItem,
   WebSocketTicketResponse,
 } from "./types";
 
@@ -663,6 +664,10 @@ export async function createPixWithdraw(body: {
 }
 export async function listMyDepositRequests(): Promise<DepositRequestResponse[]> {
   return request<DepositRequestResponse[]>("/api/wallet/deposit-requests");
+}
+
+export async function listMyWalletTransactions(): Promise<WalletTransactionItem[]> {
+  return request<WalletTransactionItem[]>("/api/wallet/transactions");
 }
 
 export async function createDepositRequest(body: {
