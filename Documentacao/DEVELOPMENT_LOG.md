@@ -1051,6 +1051,13 @@
 - **Lobby:** faixa 21:30 + cards de torneio (Inscrever / Sentar); cash em cards no celular, tabela no desktop.
 - **Deploy (`21e130f5`, só frontend):** push `2a290ed2..21e130f5` + `vps-redeploy-frontend.sh` (sem rebuild da API, sem migrations) → `DEPLOY_OK` 2026-09-21T06:40:41Z; `/api/health` 200; bundle `index-CozoNWYf.js` / `index-CCqmdR1w.css`; `/videos/ep01-poker-do-zero.mp4` 200 (1.48 MB) + `.vtt`/`.jpg`. API permanece Up ~2h.
 
+## 2026-09-21 — S24: três modalidades (Hold’em, Omaha 4, Brazilian Pineapple)
+
+- **Sai** Texas Short Deck do catálogo (cash + FT do Freeroll).
+- **Omaha 4** (PLO): baralho 52, 4 hole, 2+3, ranking clássico, 6-max.
+- **Brazilian Pineapple**: Short Deck 36, 2 hole +1 após flop/turn/river, 2+3, ranking Short Deck, 5-max (burns).
+- Migration **057**. IDs: `holdem` \| `omaha` \| `brazilian_pineapple`.
+
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
 

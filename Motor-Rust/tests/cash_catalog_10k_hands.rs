@@ -1,10 +1,9 @@
 //! 10.000 mãos por configuração do catálogo cash oficial.
 //!
-//! Configs (blinds/frente/max alinhados à produção — migrations 037/039):
+//! Configs (blinds/frente/max alinhados à produção — migration 057):
 //! - NL 0,25/0,25 · 9-max · frente R$25
-//! - SD Texas 0,25/0,50 · 8-max · frente R$75
-//! - SD Omaha 0,50/0,50 · 5-max · frente R$100
-//! - Ultimate Pineapple 0,50/0,50 · 6-max · frente R$75
+//! - Omaha 4 · 0,50/0,50 · 6-max · frente R$100
+//! - Brazilian Pineapple 0,50/0,50 · 5-max · frente R$75
 //!
 //! Rodar:
 //!   cargo test --test cash_catalog_10k_hands -- --nocapture
@@ -39,34 +38,24 @@ const CATALOG: &[CatalogTable] = &[
         variant: PokerVariant::Holdem,
     },
     CatalogTable {
-        name: "SD Texas 0,25/0,50",
-        small_blind: 25,
-        big_blind: 50,
-        max_players: 8,
-        starting_stack: 7_500,
-        rake_bps: 500,
-        rake_cap: 500,
-        variant: PokerVariant::ShortDeck,
-    },
-    CatalogTable {
-        name: "SD Omaha 0,50/0,50",
-        small_blind: 50,
-        big_blind: 50,
-        max_players: 5,
-        starting_stack: 10_000,
-        rake_bps: 500,
-        rake_cap: 1_000,
-        variant: PokerVariant::ShortDeckOmaha,
-    },
-    CatalogTable {
-        name: "Ultimate Pineapple 0,50/0,50",
+        name: "Omaha 4 0,50/0,50",
         small_blind: 50,
         big_blind: 50,
         max_players: 6,
+        starting_stack: 10_000,
+        rake_bps: 500,
+        rake_cap: 1_000,
+        variant: PokerVariant::Omaha,
+    },
+    CatalogTable {
+        name: "Brazilian Pineapple 0,50/0,50",
+        small_blind: 50,
+        big_blind: 50,
+        max_players: 5,
         starting_stack: 7_500,
         rake_bps: 500,
         rake_cap: 500,
-        variant: PokerVariant::UltimatePineapple,
+        variant: PokerVariant::BrazilianPineapple,
     },
 ];
 
@@ -177,6 +166,21 @@ fn run_catalog_table(cfg: &CatalogTable) {
         }
 
         auto_play(&mut gl, cfg.big_blind);
+
+        if cfg.variant == PokerVariant::BrazilianPineapple
+            && gl.state.community_cards.len() == 5
+        {
+            for p in &gl.state.players {
+                if p.is_in_hand() {
+                    assert_eq!(
+                        p.hole_cards.len(),
+                        5,
+                        "{} pineapple river hole",
+                        cfg.name
+                    );
+                }
+            }
+        }
 
         if short {
             for c in &gl.state.community_cards {

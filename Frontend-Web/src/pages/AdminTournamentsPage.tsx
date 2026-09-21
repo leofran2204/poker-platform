@@ -125,9 +125,8 @@ export function AdminTournamentsPage() {
             Variante
             <select name="variant" className="zt-input" defaultValue="holdem">
               <option value="holdem">Texas Hold'em (9)</option>
-              <option value="short_deck">Short Deck (6)</option>
-              <option value="short_deck_omaha">SD Omaha (5)</option>
-              <option value="ultimate_pineapple">Pineapple (6)</option>
+              <option value="omaha">Omaha 4 (6)</option>
+              <option value="brazilian_pineapple">Brazilian Pineapple (5)</option>
             </select>
           </label>
           <label className="flex flex-col gap-1 text-sm">

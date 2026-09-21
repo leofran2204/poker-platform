@@ -451,30 +451,29 @@ pub fn evaluate_hand_short_deck(hole_cards: &[Card], community_cards: &[Card]) -
     unreachable!("get_high_card always returns Some for any non-empty hand");
 }
 
-/// Short Deck Omaha: exatamente 2 hole + 3 board; ranking Short Deck (Flush > Full House).
-pub fn evaluate_hand_short_deck_omaha(hole_cards: &[Card], community_cards: &[Card]) -> HandResult {
+/// Melhor 5 cartas usando exatamente 2 hole + 3 board.
+fn evaluate_exactly_two_plus_three(
+    hole_cards: &[Card],
+    community_cards: &[Card],
+    eval: fn(&[Card], &[Card]) -> HandResult,
+) -> HandResult {
     if hole_cards.len() < 2 || community_cards.len() < 3 {
-        // Sem board/hole suficientes: avalia o que houver sob regras SD (pré-flop etc.)
-        return evaluate_hand_short_deck(hole_cards, community_cards);
+        return eval(hole_cards, community_cards);
     }
 
-    let hole_n = hole_cards.len().min(4);
     let board_n = community_cards.len().min(5);
-    let hole = &hole_cards[..hole_n];
+    let hole = hole_cards;
     let board = &community_cards[..board_n];
 
     let mut best: Option<HandResult> = None;
-
-    // C(hole, 2)
     for i in 0..hole.len() {
         for j in (i + 1)..hole.len() {
             let h2 = [hole[i], hole[j]];
-            // C(board, 3)
             for a in 0..board.len() {
                 for b in (a + 1)..board.len() {
                     for c_idx in (b + 1)..board.len() {
                         let b3 = [board[a], board[b], board[c_idx]];
-                        let cand = evaluate_hand_short_deck(&h2, &b3);
+                        let cand = eval(&h2, &b3);
                         best = Some(match best {
                             None => cand,
                             Some(ref cur) => {
@@ -491,50 +490,33 @@ pub fn evaluate_hand_short_deck_omaha(hole_cards: &[Card], community_cards: &[Ca
         }
     }
 
-    best.unwrap_or_else(|| evaluate_hand_short_deck(hole_cards, community_cards))
+    best.unwrap_or_else(|| eval(hole_cards, community_cards))
 }
 
-/// Ultimate Pineapple Short Deck: 3 hole, usa exatamente 2 + 3, sem descarte, ranking Short Deck (flush > full house).
+/// Omaha 4 (PLO): exatamente 2 hole + 3 board, ranking clássico (Hold’em).
+pub fn evaluate_hand_omaha(hole_cards: &[Card], community_cards: &[Card]) -> HandResult {
+    evaluate_exactly_two_plus_three(hole_cards, community_cards, evaluate_hand)
+}
+
+/// Brazilian Pineapple: exatamente 2 hole + 3 board, ranking Short Deck.
+pub fn evaluate_hand_brazilian_pineapple(
+    hole_cards: &[Card],
+    community_cards: &[Card],
+) -> HandResult {
+    evaluate_exactly_two_plus_three(hole_cards, community_cards, evaluate_hand_short_deck)
+}
+
+/// Alias histórico: 2+3 com ranking Short Deck (testes de combo).
+pub fn evaluate_hand_short_deck_omaha(hole_cards: &[Card], community_cards: &[Card]) -> HandResult {
+    evaluate_exactly_two_plus_three(hole_cards, community_cards, evaluate_hand_short_deck)
+}
+
+/// Alias histórico do Pineapple 2+3 Short Deck.
 pub fn evaluate_hand_ultimate_pineapple(
     hole_cards: &[Card],
     community_cards: &[Card],
 ) -> HandResult {
-    if hole_cards.len() < 2 || community_cards.len() < 3 {
-        return evaluate_hand_short_deck(hole_cards, community_cards);
-    }
-
-    let hole_n = hole_cards.len().min(3);
-    let board_n = community_cards.len().min(5);
-    let hole = &hole_cards[..hole_n];
-    let board = &community_cards[..board_n];
-
-    let mut best: Option<HandResult> = None;
-
-    for i in 0..hole.len() {
-        for j in (i + 1)..hole.len() {
-            let h2 = [hole[i], hole[j]];
-            for a in 0..board.len() {
-                for b in (a + 1)..board.len() {
-                    for c_idx in (b + 1)..board.len() {
-                        let b3 = [board[a], board[b], board[c_idx]];
-                        let cand = evaluate_hand_short_deck(&h2, &b3);
-                        best = Some(match best {
-                            None => cand,
-                            Some(ref cur) => {
-                                if compare_hands(&cand, cur) == Ordering::Greater {
-                                    cand
-                                } else {
-                                    cur.clone()
-                                }
-                            }
-                        });
-                    }
-                }
-            }
-        }
-    }
-
-    best.unwrap_or_else(|| evaluate_hand_short_deck(hole_cards, community_cards))
+    evaluate_hand_brazilian_pineapple(hole_cards, community_cards)
 }
 
 /// Verifica se uma carta está no slice
@@ -1426,26 +1408,90 @@ mod tests {
     }
 
     #[test]
-    fn test_ultimate_pineapple_parse_and_hole_count() {
+    fn test_catalog_variant_parse_and_hole_count() {
         use crate::types::PokerVariant;
+        assert_eq!(PokerVariant::parse("omaha"), PokerVariant::Omaha);
+        assert_eq!(
+            PokerVariant::parse("short_deck_omaha"),
+            PokerVariant::Omaha
+        );
+        assert_eq!(PokerVariant::Omaha.hole_card_count(), 4);
+        assert!(!PokerVariant::Omaha.uses_short_deck());
+        assert_eq!(PokerVariant::Omaha.as_str(), "omaha");
+
+        assert_eq!(
+            PokerVariant::parse("brazilian_pineapple"),
+            PokerVariant::BrazilianPineapple
+        );
         assert_eq!(
             PokerVariant::parse("ultimate_pineapple"),
-            PokerVariant::UltimatePineapple
+            PokerVariant::BrazilianPineapple
         );
         assert_eq!(
             PokerVariant::parse("pineapple"),
-            PokerVariant::UltimatePineapple
+            PokerVariant::BrazilianPineapple
         );
+        assert_eq!(PokerVariant::BrazilianPineapple.hole_card_count(), 2);
+        assert!(PokerVariant::BrazilianPineapple.uses_short_deck());
         assert_eq!(
-            PokerVariant::parse("up_sd"),
-            PokerVariant::UltimatePineapple
+            PokerVariant::BrazilianPineapple.as_str(),
+            "brazilian_pineapple"
         );
-        assert_eq!(PokerVariant::UltimatePineapple.hole_card_count(), 3);
-        assert!(PokerVariant::UltimatePineapple.uses_short_deck());
-        assert_eq!(
-            PokerVariant::UltimatePineapple.as_str(),
-            "ultimate_pineapple"
-        );
+    }
+
+    #[test]
+    fn test_omaha_four_uses_classic_ranking() {
+        // Flush vs boat: no Omaha tradicional o full house vence (diferente do Short Deck).
+        let flush_hole = vec![
+            c(Rank::Ace, Suit::Hearts),
+            c(Rank::King, Suit::Hearts),
+            c(Rank::Six, Suit::Clubs),
+            c(Rank::Seven, Suit::Diamonds),
+        ];
+        let flush_board = vec![
+            c(Rank::Queen, Suit::Hearts),
+            c(Rank::Jack, Suit::Hearts),
+            c(Rank::Nine, Suit::Hearts),
+            c(Rank::Eight, Suit::Clubs),
+            c(Rank::Three, Suit::Spades),
+        ];
+        let boat_hole = vec![
+            c(Rank::King, Suit::Clubs),
+            c(Rank::King, Suit::Diamonds),
+            c(Rank::Nine, Suit::Clubs),
+            c(Rank::Eight, Suit::Diamonds),
+        ];
+        let boat_board = vec![
+            c(Rank::King, Suit::Spades),
+            c(Rank::Ace, Suit::Spades),
+            c(Rank::Ace, Suit::Hearts),
+            c(Rank::Seven, Suit::Clubs),
+            c(Rank::Four, Suit::Diamonds),
+        ];
+        let flush = evaluate_hand_omaha(&flush_hole, &flush_board);
+        let boat = evaluate_hand_omaha(&boat_hole, &boat_board);
+        assert_eq!(flush.rank, HandRank::Flush);
+        assert_eq!(boat.rank, HandRank::FullHouse);
+        assert_eq!(compare_hands(&boat, &flush), Ordering::Greater);
+    }
+
+    #[test]
+    fn test_omaha_four_cannot_use_three_hole() {
+        let hole = vec![
+            c(Rank::Ace, Suit::Hearts),
+            c(Rank::Ace, Suit::Diamonds),
+            c(Rank::Ace, Suit::Clubs),
+            c(Rank::King, Suit::Spades),
+        ];
+        let board = vec![
+            c(Rank::Ace, Suit::Spades),
+            c(Rank::Nine, Suit::Hearts),
+            c(Rank::Eight, Suit::Diamonds),
+            c(Rank::Seven, Suit::Clubs),
+            c(Rank::Four, Suit::Hearts),
+        ];
+        let r = evaluate_hand_omaha(&hole, &board);
+        assert_eq!(r.rank, HandRank::ThreeOfAKind);
     }
 
     #[test]

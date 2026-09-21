@@ -139,13 +139,11 @@ describe("winningFive — as 5 do jogo vencedor", () => {
     });
   }
 
-  it("shortdeck-demo: full house do vilão perde só pela regra do Short Deck", () => {
-    const h = variantHands.find((x) => x.id === "shortdeck-demo")!;
-    const board = h.streets[h.streets.length - 1].board;
-    const heroBest = bestFive(h.heroCards, board, false);
-    const vilBest = bestFive(h.villainCards, board, false);
-    // No ranking clássico o full house bateria o flush.
-    expect(cmpScore(vilBest, heroBest) > 0).toBe(true);
+  it("pineapple-demo: usa exatamente 2 da mão + 3 da mesa", () => {
+    const h = variantHands.find((x) => x.id === "pineapple-demo")!;
+    expect(h.heroCards).toHaveLength(5);
+    expect(h.winningFive!.hole).toHaveLength(2);
+    expect(h.winningFive!.board).toHaveLength(3);
   });
 
   it("deflator: vencedor declarado vence no ranking clássico", () => {

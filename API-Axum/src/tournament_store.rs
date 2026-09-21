@@ -52,8 +52,8 @@ impl TournamentStore {
             .as_str()
             .to_string();
         let table_max_players = match poker_variant.as_str() {
-            "short_deck_omaha" => 5,
-            "short_deck" | "ultimate_pineapple" => 6,
+            "omaha" => 6,
+            "brazilian_pineapple" => 5,
             _ => 9,
         };
         Self {
@@ -105,11 +105,11 @@ mod tests {
             "play".into(),
             "short_deck_omaha".into(),
         );
-        let short_deck = TournamentStore::with_mode_and_variant(
-            "short-deck".into(),
+        let pineapple = TournamentStore::with_mode_and_variant(
+            "pineapple".into(),
             config.clone(),
             "play".into(),
-            "short_deck".into(),
+            "pineapple".into(),
         );
         let holdem = TournamentStore::with_mode_and_variant(
             "holdem".into(),
@@ -118,42 +118,23 @@ mod tests {
             "holdem".into(),
         );
 
-        assert_eq!(omaha.table_max_players, 5);
-        assert_eq!(short_deck.table_max_players, 6);
+        assert_eq!(omaha.poker_variant, "omaha");
+        assert_eq!(omaha.table_max_players, 6);
+        assert_eq!(pineapple.poker_variant, "brazilian_pineapple");
+        assert_eq!(pineapple.table_max_players, 5);
         assert_eq!(holdem.table_max_players, 9);
     }
 
     #[test]
-    fn long_short_switches_only_when_final_table_starts() {
+    fn without_final_table_variant_stays_on_holdem() {
         let mut tournament = TournamentStore::with_mode_and_variant(
-            "long-short".into(),
+            "texas".into(),
             TournamentConfig::default(),
             "play".into(),
             "holdem".into(),
         );
-        tournament.final_table_variant = Some("short_deck".into());
-        tournament.final_table_max_players = Some(8);
-
         tournament.state.status = poker_engine::tournament_engine::TournamentStatus::Running;
-        tournament.state.players_remaining = 9;
-        assert_eq!(tournament.active_poker_variant(), "holdem");
-
         tournament.state.players_remaining = 8;
-        assert_eq!(tournament.active_poker_variant(), "short_deck");
-
-        tournament.state.status = poker_engine::tournament_engine::TournamentStatus::Registering;
         assert_eq!(tournament.active_poker_variant(), "holdem");
-    }
-
-    #[test]
-    fn pineapple_alias_normalizes_to_six_max_ultimate_pineapple() {
-        let tournament = TournamentStore::with_mode_and_variant(
-            "up".into(),
-            TournamentConfig::default(),
-            "play".into(),
-            "pineapple".into(),
-        );
-        assert_eq!(tournament.poker_variant, "ultimate_pineapple");
-        assert_eq!(tournament.table_max_players, 6);
     }
 }

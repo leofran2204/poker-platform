@@ -30,9 +30,8 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 | Variante (`poker_variant`) | Baralho | Hole cards | Cap típico cash |
 |----------------------------|---------|------------|-----------------|
 | `holdem` (Texas Hold’em) | 52 | 2 | até 9 |
-| `short_deck` (Texas Short Deck) | 36 (sem 2–5) | 2 | até 8 |
-| `short_deck_omaha` | 36 | **4** (usa 2 hole + 3 board) | até 5 |
-| `ultimate_pineapple` | 36 | **3** (usa 2 hole + 3 board, **sem descarte**) | até 6 |
+| `omaha` (Omaha 4 / PLO) | 52 | **4** (usa exatamente 2 hole + 3 board) | até 6 |
+| `brazilian_pineapple` | 36 (sem 2–5) | 2 no pré-flop; **+1** após flop, turn e river (usa exatamente 2 hole + 3 board) | até 5 |
 
 **Carteiras:** Play Money (cash + MTT, reset diário) e Jogo Real (isolado). `money_mode` da mesa/torneio deve coincidir com o modo do cliente (`play` \| `real`).
 
@@ -66,25 +65,20 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 - **A-2-3-4-5** é um straight válido (Ás jogando como carta baixa)
 - Straight normal: 5 cartas consecutivas (ex: 8-9-T-J-Q)
 
-### 2.4 🂠 Short Deck (Six Plus) — `short_deck` (Texas Short Deck, cash 8-max)
-- **36 cartas** (ranks 6–A × 4 naipes); remove 2–5
-- Wheel Short Deck: **A-6-7-8-9**
-- Ranking Short Deck: **Trinca (5) > Sequência (4)** e **Flush (7) > Full House (6)** (`short_deck_rank_value`: Straight 4, Trips 5, FH 6, Flush 7; ordem `Trips` antes de `Straight` em `evaluate_hand_short_deck`; demais ranks como Hold’em)
-- Implementação: `create_short_deck` / `evaluate_hand_short_deck`
-
-### 2.5 🂡 Short Deck Omaha — `short_deck_omaha` (5-max cash + torneio)
-- Mesmo baralho Short Deck (36)
+### 2.4 🂡 Omaha 4 — `omaha` (6-max cash + torneio)
+- Baralho tradicional de **52** cartas
 - Cada jogador recebe **4** hole cards
 - No showdown: exatamente **2** hole + **3** community (melhor combo)
-- Ranking Short Deck (trinca > sequência, flush > boat; wheel A6789)
-- Implementação: `evaluate_hand_short_deck_omaha`
+- Ranking **clássico** (igual ao Hold’em: sequência > trinca, full house > flush; wheel A-2-3-4-5)
+- Implementação: `evaluate_hand_omaha`
 
-### 2.6 🍍 Ultimate Pineapple Short Deck — `ultimate_pineapple` (6-max cash + torneio)
-- Mesmo baralho Short Deck (36)
-- Cada jogador recebe **3** hole cards e **não descarta** (não é Crazy Pineapple)
+### 2.5 🍍 Brazilian Pineapple — `brazilian_pineapple` (5-max cash + torneio)
+- Baralho Short Deck de **36** cartas (ranks 6–A; sem 2–5)
+- Pré-flop: **2** hole cards. Depois de virar flop, turn e river: **+1** hole para quem ainda está na mão (incluindo all-in). Foldado não recebe. Sem descarte. No river: 5 hole.
 - No showdown: exatamente **2** hole + **3** community (melhor combo)
-- Ranking Short Deck (trinca > sequência, flush > boat; wheel A6789)
-- Implementação: `evaluate_hand_ultimate_pineapple`
+- **Única** modalidade com ranking Short Deck: **trinca > sequência** e **flush > full house**; wheel **A-6-7-8-9**
+- Cap 5-max para o baralho 36 caber com burns (1 antes de flop/turn/river)
+- Implementação: `create_short_deck` / `evaluate_hand_brazilian_pineapple` / deal extra em `advance_phase`
 
 ---
 
@@ -99,8 +93,8 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 | `bigBlind`    | number   | > 0; `smallBlind ≤ bigBlind`       |
 | `minBuyIn`    | number   | > 0 (cash oficial: = `maxBuyIn`)   |
 | `maxBuyIn`    | number   | > 0                                |
-| `maxPlayers`  | int      | 2–9 (Texas SD cash oficial: 8; Omaha cash oficial: 5; Pineapple: 6; NL: 9) |
-| `poker_variant` | string | `holdem` \| `short_deck` \| `short_deck_omaha` \| `ultimate_pineapple` |
+| `maxPlayers`  | int      | 2–9 (NL: 9; Omaha 4: 6; Brazilian Pineapple: 5) |
+| `poker_variant` | string | `holdem` \| `omaha` \| `brazilian_pineapple` |
 | `money_mode`  | string   | `play` \| `real`                   |
 | `speed`       | enum     | `normal` \| `turbo` \| `hyper`     |
 | `ante`        | number?  | ≥ 0 (opcional)                     |
@@ -335,7 +329,7 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 | Regra               | Arquivo                          | Função/Local                    |
 |---------------------|----------------------------------|---------------------------------|
 | Baralho 52 cartas   | `Motor-Rust/src/deck.rs`         | `create_deck()`, `shuffle()`    |
-| Ranking de mãos     | `Motor-Rust/src/deck.rs`         | `evaluate_hand()` / `evaluate_hand_ultimate_pineapple()` |
+| Ranking de mãos     | `Motor-Rust/src/deck.rs`         | `evaluate_hand()` / `evaluate_hand_omaha()` / `evaluate_hand_brazilian_pineapple()` |
 | Straight A-2-3-4-5  | `Motor-Rust/src/deck.rs`         | `is_straight()`                 |
 | Side pots           | `Motor-Rust/src/side_pots.rs`    | `calculate_side_pots()`         |
 | Loss Deflator       | `Motor-Rust/src/loss_deflator.rs`| `calculate_progressive_loss_deflator()` |

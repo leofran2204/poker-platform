@@ -791,7 +791,7 @@ pub async fn create_tournament(
     let variant = body.poker_variant.trim().to_ascii_lowercase();
     if !matches!(
         variant.as_str(),
-        "holdem" | "short_deck" | "short_deck_omaha" | "ultimate_pineapple"
+        "holdem" | "omaha" | "brazilian_pineapple"
     ) {
         return Err(ApiError::BadRequest("poker_variant inválida".into()));
     }

@@ -50,34 +50,26 @@ fn auto_play(gl: &mut GameLoop, bb: u64) {
 
 fn main() {
     let t0 = Instant::now();
-    println!("=== SIMULADO 8k cash (2k/mesa x4) + MTT até campeão ===");
+    println!("=== SIMULADO cash (2k/mesa x3) + MTT até campeão ===");
 
-    // 4 mesas play money: NL 9, SD 8, Omaha 5, Pineapple 6
+    // 3 mesas play money: NL 9, Omaha 6, Brazilian Pineapple 5
     let configs = vec![
         (PokerVariant::Holdem, 9, 25, 25, 2500, "NL 0,25 9-max"),
         (
-            PokerVariant::ShortDeck,
-            8,
-            25,
-            50,
-            7500,
-            "SD 0,25/0,50 8-max",
-        ),
-        (
-            PokerVariant::ShortDeckOmaha,
-            5,
-            50,
-            50,
-            10000,
-            "SD Omaha 5-max",
-        ),
-        (
-            PokerVariant::UltimatePineapple,
+            PokerVariant::Omaha,
             6,
             50,
             50,
+            10000,
+            "Omaha 4 6-max",
+        ),
+        (
+            PokerVariant::BrazilianPineapple,
+            5,
+            50,
+            50,
             7500,
-            "Pineapple 6-max",
+            "Brazilian Pineapple 5-max",
         ),
     ];
 
@@ -318,14 +310,14 @@ fn main() {
         ),
         (
             "Omaha 4 Cartas — Torneio",
-            PokerVariant::ShortDeckOmaha,
-            5,
+            PokerVariant::Omaha,
+            6,
             1000,
         ),
         (
-            "Ultimate Pineapple — Torneio",
-            PokerVariant::UltimatePineapple,
-            6,
+            "Brazilian Pineapple — Torneio",
+            PokerVariant::BrazilianPineapple,
+            5,
             1000,
         ),
     ];

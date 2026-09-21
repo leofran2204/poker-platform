@@ -4,7 +4,7 @@
 //! bots numa mesa play pelo painel, eles sentam via assento normal (buy-in em
 //! PM debitado da carteira do bot) e jogam pelos comandos internos do
 //! TableActor, sem WebSocket. A estrategia unica e LAG com avaliacao de mao
-//! real pelo proprio motor (as 4 variantes) — potes crescem, quebras
+//! real pelo proprio motor (Hold'em, Omaha 4 e Brazilian Pineapple) — potes crescem, quebras
 //! acontecem, sobra 1 vencedor.
 //!
 //! Bots nao tem convite nem senha valida: nunca logam, nunca pontuam na
@@ -27,15 +27,10 @@ pub const BOT_EMAIL_DOMAIN: &str = "@bots.local";
 pub const BOT_PM_BALANCE: i64 = 1_000_000;
 
 /// Estrategia unica da frota: base LAG com avaliacao da mao pelo proprio
-/// motor por variante (Hold'em, Short Deck, Omaha SD e Pineapple Ultimate).
+/// motor por variante (Hold'em, Omaha 4 e Brazilian Pineapple).
 pub const STRATEGY_LAG_V2: &str = "lag_v2";
 
-pub const SUPPORTED_VARIANTS: &[&str] = &[
-    "holdem",
-    "short_deck",
-    "short_deck_omaha",
-    "ultimate_pineapple",
-];
+pub const SUPPORTED_VARIANTS: &[&str] = &["holdem", "omaha", "brazilian_pineapple"];
 
 pub fn all_strategies() -> Vec<String> {
     vec![STRATEGY_LAG_V2.to_string()]
@@ -1629,9 +1624,10 @@ fn postflop_tier(hole: &[Card], community: &[Card]) -> u8 {
 // ─── lag_v2: avaliacao com o proprio motor, por variante ───
 
 use poker_engine::deck::{
-    evaluate_hand, evaluate_hand_short_deck, evaluate_hand_short_deck_omaha,
-    evaluate_hand_ultimate_pineapple, HandRank, Rank as EngineRank, Suit as EngineSuit,
+    evaluate_hand, evaluate_hand_brazilian_pineapple, evaluate_hand_omaha, evaluate_hand_short_deck,
+    HandRank, Rank as EngineRank, Suit as EngineSuit,
 };
+use poker_engine::types::PokerVariant;
 
 fn to_engine_card(c: Card) -> Option<poker_engine::deck::Card> {
     let rank = match c.rank {
@@ -1672,11 +1668,11 @@ fn evaluate_rank_for_variant(variant: &str, hole: &[Card], community: &[Card]) -
     if eh.len() != hole.len() || ec.len() != community.len() || community.len() < 3 {
         return None;
     }
-    let res = match variant {
-        "short_deck" => evaluate_hand_short_deck(&eh, &ec),
-        "short_deck_omaha" => evaluate_hand_short_deck_omaha(&eh, &ec),
-        "ultimate_pineapple" => evaluate_hand_ultimate_pineapple(&eh, &ec),
-        _ => evaluate_hand(&eh, &ec),
+    let res = match PokerVariant::parse(variant) {
+        PokerVariant::Omaha => evaluate_hand_omaha(&eh, &ec),
+        PokerVariant::BrazilianPineapple => evaluate_hand_brazilian_pineapple(&eh, &ec),
+        PokerVariant::ShortDeck => evaluate_hand_short_deck(&eh, &ec),
+        PokerVariant::Holdem => evaluate_hand(&eh, &ec),
     };
     Some(res.rank)
 }
@@ -1765,7 +1761,7 @@ fn pair_tier_v2(variant: &str, hole: &[Card], community: &[Card]) -> u8 {
         .any(|c| community.iter().any(|b| b.rank == c.rank));
     let pocket = hole.len() == 2 && hole[0].rank == hole[1].rank;
     match variant {
-        "short_deck_omaha" | "ultimate_pineapple" => 0,
+        "omaha" | "short_deck_omaha" | "brazilian_pineapple" | "ultimate_pineapple" => 0,
         _ => {
             if (paired && (hole_hi >= board_hi || (pocket && hole_hi > board_hi)))
                 || paired
@@ -1781,24 +1777,31 @@ fn pair_tier_v2(variant: &str, hole: &[Card], community: &[Card]) -> u8 {
 
 fn postflop_tier_v2(variant: &str, hole: &[Card], community: &[Card]) -> u8 {
     use HandRank::*;
-    let short = variant != "holdem";
+    let parsed = PokerVariant::parse(variant);
+    let short = parsed.uses_short_deck();
     let rank = evaluate_rank_for_variant(variant, hole, community);
     match rank {
         Some(FourOfAKind | StraightFlush | RoyalFlush) => return 2,
         Some(FullHouse | Flush) => return 2,
         Some(ThreeOfAKind) => {
-            // Em Omaha trips sem full e vulneravel; nas outras e forte.
-            if variant == "short_deck_omaha" || variant == "ultimate_pineapple" {
+            // Em Omaha/Pineapple trips sem full é vulnerável; nas outras é forte.
+            if matches!(
+                parsed,
+                PokerVariant::Omaha | PokerVariant::BrazilianPineapple
+            ) {
                 return 1;
             }
             return 2;
         }
         Some(Straight) => {
-            // Straight raramente e nuts em Omaha/Pineapple.
-            if variant == "short_deck_omaha" || variant == "ultimate_pineapple" {
+            // Straight raramente é nuts em Omaha/Pineapple.
+            if matches!(
+                parsed,
+                PokerVariant::Omaha | PokerVariant::BrazilianPineapple
+            ) {
                 return 1;
             }
-            return if variant == "holdem" { 2 } else { 1 };
+            return if parsed == PokerVariant::Holdem { 2 } else { 1 };
         }
         Some(TwoPair) => return 1,
         _ => {}
@@ -2010,7 +2013,7 @@ mod tests {
         // Flush vale mais que full house no Short Deck.
         assert_eq!(
             evaluate_rank_for_variant(
-                "short_deck",
+                "brazilian_pineapple",
                 &[c("Ah"), c("Kh")],
                 &[c("Qh"), c("Jh"), c("9h")]
             ),
@@ -2019,7 +2022,7 @@ mod tests {
         // Roda A-6-7-8-9 vale straight.
         assert_eq!(
             evaluate_rank_for_variant(
-                "short_deck",
+                "brazilian_pineapple",
                 &[c("Ah"), c("Kd")],
                 &[c("9c"), c("8d"), c("7h"), c("6s"), c("2c")]
             ),
@@ -2033,7 +2036,7 @@ mod tests {
         // 4 do mesmo naipe na mao + 1 no bordo NAO e flush (precisa 2+3).
         assert_ne!(
             evaluate_rank_for_variant(
-                "short_deck_omaha",
+                "omaha",
                 &[c("Ah"), c("Kh"), c("Qh"), c("Jh")],
                 &[c("9h"), c("7c"), c("6d")]
             ),
@@ -2042,7 +2045,7 @@ mod tests {
         // Com 2 do naipe na mao + 3 no bordo, flush existe.
         assert_eq!(
             evaluate_rank_for_variant(
-                "short_deck_omaha",
+                "omaha",
                 &[c("Ah"), c("Kh"), c("7c"), c("6d")],
                 &[c("Qh"), c("Jh"), c("9h")]
             ),

@@ -103,7 +103,7 @@ pub(crate) fn row_to_store(row: TournamentRow) -> TournamentStore {
     store.final_table_variant = row
         .final_table_variant
         .map(|variant| variant.to_ascii_lowercase())
-        .filter(|variant| variant == "short_deck");
+        .filter(|variant| matches!(variant.as_str(), "holdem" | "omaha" | "brazilian_pineapple"));
     store.final_table_max_players = row
         .final_table_max_players
         .map(|players| players.clamp(2, 8) as u8);

@@ -28,7 +28,7 @@ Automação operacional do monorepo.
 
 | Teste | Uso |
 |-------|-----|
-| `Motor-Rust/tests/cash_catalog_10k_hands.rs` | 10k mãos × NLHE / SD / SD Omaha / Ultimate Pineapple |
+| `Motor-Rust/tests/cash_catalog_10k_hands.rs` | 10k mãos × NLHE / Omaha 4 / Brazilian Pineapple |
 | `Motor-Rust/tests/tournament_to_champion.rs` | MTT Play Money até 1 campeão (HE, Freeroll Long→SD, Omaha, Pineapple); 1 rebuy; reservas após nível 6 |
 | `Motor-Rust/tests/short_deck_massive.rs` | Regras SD + 1M evals + 100k mãos 6-max |
 | `cargo test --features massive-tests …` | Fuzz/fairness/stress gated |

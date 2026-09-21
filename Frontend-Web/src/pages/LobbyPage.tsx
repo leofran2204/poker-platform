@@ -17,14 +17,13 @@ import { formatBrlFromCents } from "@/lib/money";
 import { getWalletMode } from "@/lib/walletMode";
 
 type LobbyTab = "cash" | "tournaments";
-type StakeFilter = "all" | "nl025" | "nl075150" | "sd025050" | "sdOmaha050" | "pineapple050";
+type StakeFilter = "all" | "nl025" | "nl075150" | "omaha050" | "pineapple050";
 
 const STAKE_OPTIONS: { id: StakeFilter; label: string }[] = [
   { id: "all", label: "Todos" },
   { id: "nl025", label: "NL 0,25/0,25" },
   { id: "nl075150", label: "NL 0,75/1,50" },
-  { id: "sd025050", label: "SD 0,25/0,50" },
-  { id: "sdOmaha050", label: "SD Omaha 0,50/0,50" },
+  { id: "omaha050", label: "Omaha 0,50/0,50" },
   { id: "pineapple050", label: "Pineapple 0,50/0,50" },
 ];
 
@@ -121,16 +120,14 @@ export function LobbyPage() {
   const filtered = useMemo(() => {
     return tables.filter((t) => {
       if (hideFull && t.players >= t.max_players) return false;
-      const isOmaha = t.poker_variant === "short_deck_omaha";
-      const isSd = t.poker_variant === "short_deck";
-      const isPineapple = t.poker_variant === "ultimate_pineapple";
+      const isOmaha = t.poker_variant === "omaha" || t.poker_variant === "short_deck_omaha";
+      const isPineapple =
+        t.poker_variant === "brazilian_pineapple" || t.poker_variant === "ultimate_pineapple";
       if (stake === "nl025")
-        return !isSd && !isOmaha && !isPineapple && t.small_blind === 25 && t.big_blind === 25;
+        return !isOmaha && !isPineapple && t.small_blind === 25 && t.big_blind === 25;
       if (stake === "nl075150")
-        return !isSd && !isOmaha && !isPineapple && t.small_blind === 75 && t.big_blind === 150;
-      if (stake === "sd025050")
-        return isSd && t.small_blind === 25 && t.big_blind === 50;
-      if (stake === "sdOmaha050")
+        return !isOmaha && !isPineapple && t.small_blind === 75 && t.big_blind === 150;
+      if (stake === "omaha050")
         return isOmaha && t.small_blind === 50 && t.big_blind === 50;
       if (stake === "pineapple050")
         return isPineapple && t.small_blind === 50 && t.big_blind === 50;
@@ -444,9 +441,7 @@ export function LobbyPage() {
                           <div className="flex flex-col items-center gap-1 text-center">
                             <span
                               className={
-                                t.poker_variant === "short_deck" ||
-                                t.poker_variant === "short_deck_omaha" ||
-                                t.poker_variant === "ultimate_pineapple"
+                                deckTypeLabel(t) === "Short Deck"
                                   ? "zt-chip zt-chip-accent"
                                   : "zt-chip"
                               }

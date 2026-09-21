@@ -25,12 +25,7 @@ const CASH_END: &str = "<!-- DOCUMENTATION_SYNC:CASH_CATALOG:END -->";
 const MTT_START: &str = "<!-- DOCUMENTATION_SYNC:MTT_CATALOG:START -->";
 const MTT_END: &str = "<!-- DOCUMENTATION_SYNC:MTT_CATALOG:END -->";
 
-const ALLOWED_VARIANTS: &[&str] = &[
-    "holdem",
-    "short_deck",
-    "short_deck_omaha",
-    "ultimate_pineapple",
-];
+const ALLOWED_VARIANTS: &[&str] = &["holdem", "omaha", "brazilian_pineapple"];
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -927,9 +922,8 @@ fn cash_short_label(table: &CashTable) -> String {
     };
     match table.variant.as_str() {
         "holdem" => format!("NL {blinds}"),
-        "short_deck" => format!("SD {blinds}"),
-        "short_deck_omaha" => format!("SD Omaha {blinds}"),
-        "ultimate_pineapple" => format!("Pineapple {blinds}"),
+        "omaha" => format!("Omaha {blinds}"),
+        "brazilian_pineapple" => format!("Pineapple {blinds}"),
         other => other.to_owned(),
     }
 }
@@ -937,9 +931,8 @@ fn cash_short_label(table: &CashTable) -> String {
 fn variant_label(variant: &str) -> &'static str {
     match variant {
         "holdem" => "Texas Hold’em",
-        "short_deck" => "Texas Short Deck",
-        "short_deck_omaha" => "Short Deck Omaha",
-        "ultimate_pineapple" => "Ultimate Pineapple",
+        "omaha" => "Omaha 4 Cartas",
+        "brazilian_pineapple" => "Brazilian Pineapple",
         _ => "desconhecida",
     }
 }
@@ -1034,27 +1027,19 @@ mod tests {
                     buy_in_cents: 15000,
                 },
                 CashTable {
-                    name: "SD".to_owned(),
-                    variant: "short_deck".to_owned(),
-                    small_blind_cents: 25,
-                    big_blind_cents: 50,
-                    max_players: 8,
-                    buy_in_cents: 7500,
-                },
-                CashTable {
                     name: "Omaha".to_owned(),
-                    variant: "short_deck_omaha".to_owned(),
+                    variant: "omaha".to_owned(),
                     small_blind_cents: 50,
                     big_blind_cents: 50,
-                    max_players: 5,
+                    max_players: 6,
                     buy_in_cents: 10000,
                 },
                 CashTable {
                     name: "Pineapple".to_owned(),
-                    variant: "ultimate_pineapple".to_owned(),
+                    variant: "brazilian_pineapple".to_owned(),
                     small_blind_cents: 50,
                     big_blind_cents: 50,
-                    max_players: 6,
+                    max_players: 5,
                     buy_in_cents: 7500,
                 },
             ],
@@ -1235,8 +1220,7 @@ mod tests {
         assert!(md.contains("sem certificação de produção"));
         assert!(md.contains("NL 0,25"));
         assert!(md.contains("NL 0,75/1,50"));
-        assert!(md.contains("SD 0,25/0,50"));
-        assert!(md.contains("SD Omaha 0,50"));
+        assert!(md.contains("Omaha 0,50"));
         assert!(md.contains("Pineapple 0,50"));
         assert!(md.contains("R$ 150"));
         assert!(!md.contains("Motor 1848"));
@@ -1338,7 +1322,7 @@ mod tests {
         let content = fs::read_to_string(&path).expect("STATUS_OPERACIONAL.json deve existir");
         let status = parse_status(&content).expect("JSON schema v2");
         validate_status(&status, &root).expect("fatos operacionais válidos");
-        assert_eq!(status.cash_tables.len(), 5);
+        assert_eq!(status.cash_tables.len(), 4);
         assert!(status
             .cash_tables
             .iter()

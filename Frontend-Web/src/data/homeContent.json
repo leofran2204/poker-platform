@@ -138,40 +138,13 @@
       }
     },
     {
-      "id": "short_deck",
-      "name": "Texas Short Deck",
-      "deck": "36 cartas (sem 2, 3, 4 e 5)",
-      "hole": "2 cartas só suas",
-      "make": "Igual ao Hold'em: melhor jogo de 5 com as suas 2 + as 5 da mesa.",
-      "twist": "Com menos cartas, o jogo muda: flush vale mais que full house e trinca vale mais que sequência.",
-      "cap": "Mesas até 8 jogadores",
-      "demoHand": {
-        "id": "shortdeck-demo",
-        "title": "Flush bate full house no Short Deck",
-        "heroLabel": "Você (flush)",
-        "heroCards": ["As", "Ks"],
-        "villainLabel": "Vilão (full house)",
-        "villainCards": ["Qh", "Jd"],
-        "streets": [
-          { "label": "Pré-flop no baralho curto", "board": [] },
-          { "label": "Flop: Q Q J — vilão com full house (Q Q Q J J)", "board": ["Qc", "Qs", "Jh"] },
-          { "label": "Turn: 9 de espadas — seu flush desenha", "board": ["Qc", "Qs", "Jh", "9s"] },
-          { "label": "River: 8 de espadas — flush pronto", "board": ["Qc", "Qs", "Jh", "9s", "8s"] }
-        ],
-        "equity": 76,
-        "potCents": 15000,
-        "winningFive": { "hole": ["As", "Ks"], "board": ["Qs", "9s", "8s"] },
-        "result": "Flush de As (A♠ K♠ + Q♠ 9♠ 8♠) vence o full house de Damas (Q♥ J♦ + Q♣ Q♠ J♥). No Short Deck, flush supera full house — no Hold'em tradicional seria o contrário."
-      }
-    },
-    {
       "id": "omaha",
       "name": "Omaha 4 Cartas",
-      "deck": "36 cartas (baralho curto)",
+      "deck": "52 cartas (baralho tradicional)",
       "hole": "4 cartas só suas",
       "make": "Obrigatório usar exatamente 2 da sua mão + 3 da mesa. Nem 1+4, nem 3+2.",
-      "twist": "Com 4 cartas, todo mundo tem mais jogo — os potes crescem e o bad beat aparece mais.",
-      "cap": "Mesas até 5 jogadores",
+      "twist": "Ranking clássico, igual ao Hold'em: sequência vence trinca e full house vence flush.",
+      "cap": "Mesas até 6 jogadores",
       "demoHand": {
         "id": "omaha-demo",
         "title": "Exatamente 2 da mão + 3 da mesa",
@@ -192,28 +165,28 @@
     },
     {
       "id": "pineapple",
-      "name": "Ultimate Pineapple",
-      "deck": "36 cartas (baralho curto)",
-      "hole": "3 cartas só suas, sem descartar",
-      "make": "No showdown, escolha as melhores 2 das suas 3 + 3 da mesa.",
-      "twist": "Três cartas parecem pouco a mais, mas dobram as combinações — e a confusão dos iniciantes.",
-      "cap": "Mesas até 6 jogadores",
+      "name": "Brazilian Pineapple",
+      "deck": "36 cartas (baralho curto, sem 2 a 5)",
+      "hole": "2 no pré-flop; +1 depois do flop, do turn e do river",
+      "make": "No showdown, exatamente 2 da mão + 3 da mesa. Sem descarte.",
+      "twist": "Só aqui o ranking Short Deck: trinca > sequência e flush > full house.",
+      "cap": "Mesas até 5 jogadores",
       "demoHand": {
         "id": "pineapple-demo",
-        "title": "3 na mão, 2 valem",
+        "title": "2 no pré-flop, carta extra em cada street",
         "heroLabel": "Você",
-        "heroCards": ["As", "Ks", "Qh"],
+        "heroCards": ["As", "Ks", "Qh", "8c", "Jc"],
         "villainLabel": "Mesa",
         "villainCards": [],
         "streets": [
-          { "label": "3 cartas: A K Q — qual par usar?", "board": [] },
-          { "label": "Flop: Q Q 7 — trinca com a terceira carta", "board": ["Qc", "Qs", "7h"] },
-          { "label": "Turn e river", "board": ["Qc", "Qs", "7h", "9s", "2d"] }
+          { "label": "Pré-flop: 2 cartas (A K)", "board": [] },
+          { "label": "Flop Q Q 7 + 1 carta extra (Q)", "board": ["Qc", "Qs", "7h"] },
+          { "label": "Turn 9 + 1 extra; river 6 + 1 extra", "board": ["Qc", "Qs", "7h", "9s", "6d"] }
         ],
         "equity": 84,
         "potCents": 15000,
         "winningFive": { "hole": ["Qh", "As"], "board": ["Qc", "Qs", "9s"] },
-        "result": "Trinca de Damas com kicker As (Q♥ A♠ + Q♣ Q♠ 9♠): a carta 'extra' (Q) virou trinca usando 2 das suas 3 + 3 da mesa. No Pineapple, a terceira carta decide mãos."
+        "result": "Trinca de Damas com kicker As (Q♥ A♠ + Q♣ Q♠ 9♠): a carta extra do flop (Q) virou trinca. No river você tem 5 hole e usa exatamente 2 + 3 da mesa."
       }
     }
   ]

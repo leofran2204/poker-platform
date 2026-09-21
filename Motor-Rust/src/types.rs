@@ -56,11 +56,18 @@ impl RakeCapSchedule {
 pub enum PokerVariant {
     #[default]
     Holdem,
+    /// Ranking Short Deck (36) — só o motor; o catálogo vigente usa Brazilian Pineapple.
     ShortDeck,
-    /// Short Deck Omaha (PLO-4 no baralho 36; usa exatamente 2 hole + 3 board).
-    ShortDeckOmaha,
-    /// Ultimate Pineapple Short Deck — 3 hole, usa exatamente 2 + 3, sem descarte, ranking Short Deck (flush > full house).
-    UltimatePineapple,
+    /// Omaha 4 (PLO): baralho 52, 4 hole, exatamente 2+3, ranking clássico.
+    #[serde(alias = "short_deck_omaha", alias = "sd_omaha", alias = "omaha_four")]
+    Omaha,
+    /// Brazilian Pineapple: Short Deck 36, 2 hole +1 por street, 2+3, ranking Short Deck.
+    #[serde(
+        alias = "ultimate_pineapple",
+        alias = "pineapple",
+        alias = "pineapple_short_deck"
+    )]
+    BrazilianPineapple,
 }
 
 impl PokerVariant {
@@ -68,37 +75,44 @@ impl PokerVariant {
         match self {
             Self::Holdem => "holdem",
             Self::ShortDeck => "short_deck",
-            Self::ShortDeckOmaha => "short_deck_omaha",
-            Self::UltimatePineapple => "ultimate_pineapple",
+            Self::Omaha => "omaha",
+            Self::BrazilianPineapple => "brazilian_pineapple",
         }
     }
 
     pub fn parse(raw: &str) -> Self {
         match raw.trim().to_ascii_lowercase().as_str() {
-            "short_deck_omaha" | "sd_omaha" | "omaha_sd" | "shortdeck_omaha" | "plo_sd" => {
-                Self::ShortDeckOmaha
-            }
-            "ultimate_pineapple" | "pineapple" | "pineapple_short_deck" | "up_sd" => {
-                Self::UltimatePineapple
-            }
+            "omaha"
+            | "omaha_4"
+            | "omaha_four"
+            | "plo"
+            | "plo4"
+            | "plo_4"
+            | "short_deck_omaha"
+            | "sd_omaha"
+            | "omaha_sd"
+            | "shortdeck_omaha"
+            | "plo_sd" => Self::Omaha,
+            "brazilian_pineapple"
+            | "ultimate_pineapple"
+            | "pineapple"
+            | "pineapple_short_deck"
+            | "up_sd" => Self::BrazilianPineapple,
             "short_deck" | "shortdeck" | "sd" | "six_plus" => Self::ShortDeck,
             _ => Self::Holdem,
         }
     }
 
+    /// Cartas fechadas no deal inicial (Pineapple ganha +1 após flop/turn/river).
     pub fn hole_card_count(self) -> usize {
         match self {
-            Self::ShortDeckOmaha => 4,
-            Self::UltimatePineapple => 3,
-            Self::Holdem | Self::ShortDeck => 2,
+            Self::Omaha => 4,
+            Self::Holdem | Self::ShortDeck | Self::BrazilianPineapple => 2,
         }
     }
 
     pub fn uses_short_deck(self) -> bool {
-        matches!(
-            self,
-            Self::ShortDeck | Self::ShortDeckOmaha | Self::UltimatePineapple
-        )
+        matches!(self, Self::ShortDeck | Self::BrazilianPineapple)
     }
 }
 

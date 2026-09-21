@@ -22,8 +22,8 @@ Este documento consolida a arquitetura técnica, esquemas de comunicação, cont
 | `POST /api/admin/bots/start-tournament` | Inscreve N bots `lag_v2` no torneio play (admin) |
 | `POST /api/admin/bots/stop-tournament` | Desliga bots do torneio — sit-out, sem cash-out (admin) |
 
-`poker_variant`: `holdem` (Texas Hold’em) \| `short_deck` (Texas Short Deck, cash 8-max) \| `short_deck_omaha` (5-max) \| `ultimate_pineapple` (6-max).  
-Motor: `TableConfig.small_blind` + `big_blind` (SB pode = BB); Short Deck Omaha deal 4 hole; Ultimate Pineapple deal 3 hole (usa 2+3, sem descarte). Ranking Short Deck: **trinca > sequência** e **flush > full house**. Torneios: `scheduled_start_at` (21:30 SP, epoch 1788481800) + `auto_start_min_players` 5 fixo; `tournament_seats` separado (038); 3 mesas por torneio + caps 27/18/15 (048); coordenador auto-start 30s + rebalance/consolidação FT + hidratação no boot + `tournament_coordinator.rs`; **ator MTT** (`tournament_actor.rs`, mesmo protocolo do cash: rake 0, sem deflator, eliminações, run-out all-in, halt auditável); fee 15% no register (`total_fees`, 049).
+`poker_variant`: `holdem` (Texas Hold’em, 9-max) \| `omaha` (Omaha 4, baralho 52, 6-max) \| `brazilian_pineapple` (Short Deck 2+1+1+1, 5-max).
+Motor: `TableConfig.small_blind` + `big_blind` (SB pode = BB); Omaha deal 4 hole (usa 2+3, ranking clássico); Brazilian Pineapple deal 2 hole +1 por street (usa 2+3, ranking Short Deck). Ranking Short Deck só no Pineapple: **trinca > sequência** e **flush > full house**. Torneios: `scheduled_start_at` (21:30 SP, epoch 1788481800) + `auto_start_min_players` 5 fixo; `tournament_seats` separado (038); 3 mesas por torneio + caps 27/18/15 (048); coordenador auto-start 30s + rebalance/consolidação FT + hidratação no boot + `tournament_coordinator.rs`; **ator MTT** (`tournament_actor.rs`, mesmo protocolo do cash: rake 0, sem deflator, eliminações, run-out all-in, halt auditável); fee 15% no register (`total_fees`, 049).
 
 ---
 

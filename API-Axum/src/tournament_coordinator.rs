@@ -109,7 +109,6 @@ pub async fn run_coordinator(state: AppState) {
                 }
             }
         }
-        check_ft_pending(&state).await;
         advance_expired_blinds(&state).await;
         rebalance_tournament_tables(&state).await;
         consolidate_final_tables(&state).await;
@@ -458,37 +457,6 @@ async fn ensure_live_actors(state: &AppState) {
                 idx as u32,
                 format!("{tname} mesa {}", idx + 1),
             )
-            .await;
-        }
-    }
-}
-
-async fn check_ft_pending(state: &AppState) {
-    let ids: Vec<String> = { state.tournaments.read().await.keys().cloned().collect() };
-    for tid in ids {
-        let (remaining, ft_variant, ft_max, status) = {
-            let t = state.tournaments.read().await;
-            if let Some(s) = t.get(&tid) {
-                (
-                    s.state.players_remaining,
-                    s.final_table_variant.clone(),
-                    s.final_table_max_players,
-                    s.state.status.clone(),
-                )
-            } else {
-                continue;
-            }
-        };
-        if status != TournamentStatus::Running {
-            continue;
-        }
-        if ft_variant.as_deref() == Some("short_deck") && ft_max == Some(8) && remaining == 8 {
-            tracing::info!(tournament_id=%tid, "FT 8-max Short Deck pendente — troca no próximo blind");
-            let _ = sqlx::query(
-                "INSERT INTO audit_logs (user_id, action, metadata) VALUES ('system','FT_SWITCH_PENDING', $1)",
-            )
-            .bind(serde_json::json!({"tournament_id":tid,"next_variant":"short_deck","max":8}))
-            .execute(&state.db)
             .await;
         }
     }

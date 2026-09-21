@@ -24,14 +24,12 @@ Guia curto para convidar pessoas a testar e mandar feedback.
 |------|------|--------|-----|--------|
 | NL 0,25 | Texas Hold’em | 0,25 / 0,25 | 9 | R$ 25 |
 | NL 0,75/1,50 | Texas Hold’em | 0,75 / 1,50 | 9 | R$ 150 |
-| SD 0,25/0,50 | Texas Short Deck | 0,25 / 0,50 | 8 | R$ 75 |
-| SD Omaha 0,50 | Short Deck Omaha | 0,50 / 0,50 | 5 | R$ 100 |
-| Pineapple 0,50 | Ultimate Pineapple | 0,50 / 0,50 | 6 | R$ 75 |
+| Omaha 0,50 | Omaha 4 Cartas | 0,50 / 0,50 | 6 | R$ 100 |
+| Pineapple 0,50 | Brazilian Pineapple | 0,50 / 0,50 | 5 | R$ 75 |
 <!-- DOCUMENTATION_SYNC:CASH_CATALOG:END -->
 
-- **Texas Short Deck:** baralho 36 (sem 2–5); **trinca > sequência** e **flush > full house**; wheel A-6-7-8-9  
-- **SD Omaha:** 4 cartas na mão; no showdown usa exatamente 2 hole + 3 board; mesmo ranking Short Deck  
-- **Ultimate Pineapple:** 3 cartas na mão, **sem descarte**; showdown 2 hole + 3 board; mesmo ranking Short Deck  
+- **Omaha 4:** baralho 52; 4 cartas na mão; showdown exatamente 2 hole + 3 board; ranking clássico
+- **Brazilian Pineapple:** baralho 36; 2 cartas no pré-flop e +1 após flop/turn/river; showdown 2+3; **trinca > sequência** e **flush > full house**
 
 ## Carteiras
 
@@ -48,12 +46,12 @@ Guia curto para convidar pessoas a testar e mandar feedback.
 |--------|----------|--------|-----|-----|------|------------|
 | Texas Hold’em | Texas Hold’em | R$ 15 | R$ 150 | 9 | 27 | 1 |
 | Texas R$25 | Texas Hold’em | R$ 25 | — | 9 | 27 | 1 |
-| Texas Hold’em Freeroll (FT Texas Short Deck 8-max) | Texas Hold’em | Grátis | R$ 75 | 9 | 27 | 1 |
-| Omaha 4 Cartas | Short Deck Omaha | R$ 10 | R$ 100 | 5 | 15 | 1 |
-| Ultimate Pineapple | Ultimate Pineapple | R$ 10 | R$ 100 | 6 | 18 | 1 |
+| Texas Hold’em Freeroll | Texas Hold’em | Grátis | R$ 75 | 9 | 27 | 1 |
+| Omaha 4 Cartas | Omaha 4 Cartas | R$ 10 | R$ 100 | 6 | 18 | 1 |
+| Brazilian Pineapple | Brazilian Pineapple | R$ 10 | R$ 100 | 5 | 15 | 1 |
 <!-- DOCUMENTATION_SYNC:MTT_CATALOG:END -->
 
-Início agendado **21:30 America/Sao_Paulo**, auto-start com **5+** jogadores; FT Short Deck troca só no próximo blind + popup. Inscrição no lobby com **taxa 15% por cima** (freeroll grátis) — **mãos MTT ao vivo em 3 mesas**; a página lista `live_table_ids` (não só a mesa 0). Cancelar inscrição devolve buy-in + taxa antes do start.
+Início agendado **21:30 America/Sao_Paulo**, auto-start com **5+** jogadores. Inscrição no lobby com **taxa 15% por cima** (freeroll grátis) — **mãos MTT ao vivo em 3 mesas**; a página lista `live_table_ids` (não só a mesa 0). Cancelar inscrição devolve buy-in + taxa antes do start.
 
 ## Pix / Saque (Jogo Real)
 

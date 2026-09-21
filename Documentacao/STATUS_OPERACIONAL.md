@@ -21,11 +21,10 @@ Fonte máquina: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificaç
 |------|------|--------|-----|--------|
 | NL 0,25 | Texas Hold’em | 0,25 / 0,25 | 9 | R$ 25 |
 | NL 0,75/1,50 | Texas Hold’em | 0,75 / 1,50 | 9 | R$ 150 |
-| SD 0,25/0,50 | Texas Short Deck | 0,25 / 0,50 | 8 | R$ 75 |
-| SD Omaha 0,50 | Short Deck Omaha | 0,50 / 0,50 | 5 | R$ 100 |
-| Pineapple 0,50 | Ultimate Pineapple | 0,50 / 0,50 | 6 | R$ 75 |
+| Omaha 0,50 | Omaha 4 Cartas | 0,50 / 0,50 | 6 | R$ 100 |
+| Pineapple 0,50 | Brazilian Pineapple | 0,50 / 0,50 | 5 | R$ 75 |
 
-Frentes fixas (`min_buy_in = max_buy_in`). Migrations até **056**.
+Frentes fixas (`min_buy_in = max_buy_in`). Migrations até **057**.
 
 ## Torneios
 
@@ -35,9 +34,9 @@ Agenda **21:30** `America/Sao_Paulo`, auto-start com **5+**, **3** mesas por eve
 |--------|----------|--------|-----|-----|------|------------|
 | Texas Hold’em | Texas Hold’em | R$ 15 | R$ 150 | 9 | 27 | 1 |
 | Texas R$25 | Texas Hold’em | R$ 25 | — | 9 | 27 | 1 |
-| Texas Hold’em Freeroll (FT Texas Short Deck 8-max) | Texas Hold’em | Grátis | R$ 75 | 9 | 27 | 1 |
-| Omaha 4 Cartas | Short Deck Omaha | R$ 10 | R$ 100 | 5 | 15 | 1 |
-| Ultimate Pineapple | Ultimate Pineapple | R$ 10 | R$ 100 | 6 | 18 | 1 |
+| Texas Hold’em Freeroll | Texas Hold’em | Grátis | R$ 75 | 9 | 27 | 1 |
+| Omaha 4 Cartas | Omaha 4 Cartas | R$ 10 | R$ 100 | 6 | 18 | 1 |
+| Brazilian Pineapple | Brazilian Pineapple | R$ 10 | R$ 100 | 5 | 15 | 1 |
 
 ## Carteiras
 

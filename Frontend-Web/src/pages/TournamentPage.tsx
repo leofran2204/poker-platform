@@ -122,10 +122,7 @@ export function TournamentPage() {
           <p className="mt-1">
             <span
               className={
-                info.poker_variant === "short_deck" ||
-                info.poker_variant === "short_deck_omaha" ||
-                info.poker_variant === "ultimate_pineapple" ||
-                info.final_table_variant === "short_deck"
+                deckTypeLabel(info) === "Short Deck"
                   ? "zt-chip zt-chip-accent"
                   : "zt-chip"
               }
@@ -186,15 +183,6 @@ export function TournamentPage() {
               ? ` · faltam ${(info.auto_start_min_players ?? 5) - info.registered_players}`
               : ""}
           </p>
-        </div>
-      ) : null}
-
-      {info.final_table_variant === "short_deck" &&
-      info.final_table_max_players === 8 &&
-      info.players_remaining === 8 &&
-      info.status === "running" ? (
-        <div className="rounded border border-amber-500 bg-amber-500/20 px-3 py-2 text-center text-sm font-bold text-amber-100">
-          Mesa final Short Deck 8-max na FT — a troca para Short Deck será no próximo nível de blind!
         </div>
       ) : null}
 
@@ -276,9 +264,6 @@ export function TournamentPage() {
             <dt className="text-xs uppercase text-felt-400">Formato das mesas</dt>
             <dd className="font-mono text-cream">
               {info.table_max_players}-max
-              {info.final_table_variant === "short_deck" && info.final_table_max_players
-                ? ` · Short Deck quando restarem ${info.final_table_max_players}`
-                : ""}
             </dd>
           </div>
           <div>

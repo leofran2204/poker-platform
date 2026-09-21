@@ -35,27 +35,19 @@
             "buy_in_cents": 15000
         },
         {
-            "name": "Texas Hold’em Short Deck",
-            "variant": "short_deck",
-            "small_blind_cents": 25,
-            "big_blind_cents": 50,
-            "max_players": 8,
-            "buy_in_cents": 7500
-        },
-        {
             "name": "Omaha 4 Cartas",
-            "variant": "short_deck_omaha",
-            "small_blind_cents": 50,
-            "big_blind_cents": 50,
-            "max_players": 5,
-            "buy_in_cents": 10000
-        },
-        {
-            "name": "Ultimate Pineapple",
-            "variant": "ultimate_pineapple",
+            "variant": "omaha",
             "small_blind_cents": 50,
             "big_blind_cents": 50,
             "max_players": 6,
+            "buy_in_cents": 10000
+        },
+        {
+            "name": "Brazilian Pineapple",
+            "variant": "brazilian_pineapple",
+            "small_blind_cents": 50,
+            "big_blind_cents": 50,
+            "max_players": 5,
             "buy_in_cents": 7500
         }
     ],
@@ -103,27 +95,25 @@
                 "table_max": 9,
                 "max_players": 27,
                 "reentries": 1,
-                "freeroll": true,
-                "final_table_variant": "short_deck",
-                "final_table_max": 8
+                "freeroll": true
             },
             {
                 "name": "Omaha 4 Cartas",
-                "variant": "short_deck_omaha",
-                "buy_in_cents": 1000,
-                "gtd_cents": 10000,
-                "table_max": 5,
-                "max_players": 15,
-                "reentries": 1,
-                "freeroll": false
-            },
-            {
-                "name": "Ultimate Pineapple",
-                "variant": "ultimate_pineapple",
+                "variant": "omaha",
                 "buy_in_cents": 1000,
                 "gtd_cents": 10000,
                 "table_max": 6,
                 "max_players": 18,
+                "reentries": 1,
+                "freeroll": false
+            },
+            {
+                "name": "Brazilian Pineapple",
+                "variant": "brazilian_pineapple",
+                "buy_in_cents": 1000,
+                "gtd_cents": 10000,
+                "table_max": 5,
+                "max_players": 15,
                 "reentries": 1,
                 "freeroll": false
             }
@@ -161,7 +151,7 @@
         "showdown_sticky": true,
         "disconnect_not_leave": true
     },
-    "migrations_latest": 56,
+    "migrations_latest": 57,
     "email_verification": true,
     "regulation_target": "2027-01"
 }

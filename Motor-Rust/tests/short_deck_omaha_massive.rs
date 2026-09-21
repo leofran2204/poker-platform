@@ -11,8 +11,7 @@
 //!   cargo test --release --test short_deck_omaha_massive -- --nocapture
 
 use poker_engine::deck::{
-    compare_hands, create_short_deck, evaluate_hand_short_deck, evaluate_hand_short_deck_omaha,
-    Card, HandResult,
+    compare_hands, create_deck, evaluate_hand, evaluate_hand_omaha, Card, HandResult,
 };
 use poker_engine::game_loop::{GameLoop, PlayerMove};
 use poker_engine::hand_history::{EndReason, GameType};
@@ -34,7 +33,7 @@ const BIG_BLIND: u64 = 100;
 /// Referência deliberadamente explícita da regra Omaha: escolhe exatamente
 /// duas das quatro hole cards e exatamente três das cinco cartas do board.
 fn reference_omaha_short_deck(hole: &[Card], board: &[Card]) -> HandResult {
-    assert_eq!(hole.len(), 4, "Omaha Short Deck exige quatro hole cards");
+    assert_eq!(hole.len(), 4, "Omaha 4 exige quatro hole cards");
     assert_eq!(board.len(), 5, "showdown exige board completo");
 
     let mut best: Option<HandResult> = None;
@@ -46,7 +45,7 @@ fn reference_omaha_short_deck(hole: &[Card], board: &[Card]) -> HandResult {
                     for third_board in (second_board + 1)..board.len() {
                         let selected_board =
                             [board[first_board], board[second_board], board[third_board]];
-                        let candidate = evaluate_hand_short_deck(&selected_hole, &selected_board);
+                        let candidate = evaluate_hand(&selected_hole, &selected_board);
                         if best.as_ref().is_none_or(|current| {
                             compare_hands(&candidate, current) == Ordering::Greater
                         }) {
@@ -78,20 +77,15 @@ fn short_deck_omaha_one_hundred_thousand_evaluations_match_reference() {
     let started = Instant::now();
 
     for iteration in 0..RANDOM_EVALUATIONS {
-        let mut deck = create_short_deck();
+        let mut deck = create_deck();
         deck.shuffle(&mut rng);
         let hole = &deck[..4];
         let board = &deck[4..9];
 
-        let actual = evaluate_hand_short_deck_omaha(hole, board);
+        let actual = evaluate_hand_omaha(hole, board);
         let expected = reference_omaha_short_deck(hole, board);
         assert_same_hand(&actual, &expected, &format!("avaliação {iteration}"));
         *rank_histogram.entry(actual.value).or_insert(0u64) += 1;
-
-        assert!(
-            hole.iter().chain(board).all(|card| (card.rank as u8) >= 6),
-            "carta abaixo de seis na avaliação {iteration}"
-        );
     }
 
     let elapsed = started.elapsed();
@@ -223,7 +217,7 @@ fn reference_showdown_payouts(game: &GameLoop, pots: &[Pot]) -> HashMap<String, 
 fn short_deck_omaha_one_hundred_thousand_tournament_hands_are_exact() {
     let config = TableConfig::new(BIG_BLIND, 0, 0)
         .with_small_blind(SMALL_BLIND)
-        .with_poker_variant(PokerVariant::ShortDeckOmaha);
+        .with_poker_variant(PokerVariant::Omaha);
     let mut stacks: Vec<(String, u64)> = (0..PLAYERS)
         .map(|seat| (format!("sdo{seat}"), STARTING_STACK))
         .collect();
@@ -262,7 +256,6 @@ fn short_deck_omaha_one_hundred_thousand_tournament_hands_are_exact() {
                 "quantidade de hole cards na mão {hand_index}"
             );
             for card in &player.hole_cards {
-                assert!((card.rank as u8) >= 6, "carta baixa no hole: {card:?}");
                 assert!(
                     dealt_cards.insert((card.rank, card.suit)),
                     "carta duplicada no hole: {card:?}"
@@ -272,7 +265,6 @@ fn short_deck_omaha_one_hundred_thousand_tournament_hands_are_exact() {
 
         auto_play_until_finished(&mut game, hand_index);
         for card in &game.state.community_cards {
-            assert!((card.rank as u8) >= 6, "carta baixa no board: {card:?}");
             assert!(
                 dealt_cards.insert((card.rank, card.suit)),
                 "carta duplicada entre hole e board: {card:?}"

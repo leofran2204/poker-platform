@@ -22,8 +22,8 @@
 
 use crate::deck::{
     compare_hands, create_deck, create_short_deck, deal_cards, evaluate_hand,
-    evaluate_hand_short_deck, evaluate_hand_short_deck_omaha, evaluate_hand_ultimate_pineapple,
-    shuffle_deck, Card, HandResult,
+    evaluate_hand_brazilian_pineapple, evaluate_hand_omaha, evaluate_hand_short_deck, shuffle_deck,
+    Card, HandResult,
 };
 use crate::hand_history::{
     self, Action, EndReason, GameType, HandHistory, PlayerAction, PlayerResult,
@@ -475,7 +475,7 @@ impl GameLoop {
             }
         }
 
-        // 4. Distribuir hole cards (2 Hold'em/SD · 4 Short Deck Omaha)
+        // 4. Distribuir hole cards iniciais (2 Hold'em/Pineapple · 4 Omaha)
         let hole_n = self.config.poker_variant.hole_card_count();
         for _ in 0..hole_n {
             for player in &mut self.state.players {
@@ -705,6 +705,22 @@ impl GameLoop {
         Ok(())
     }
 
+    /// Brazilian Pineapple: 1 hole extra para quem ainda está na mão, após virar a street.
+    fn deal_brazilian_pineapple_extra(&mut self) {
+        if self.config.poker_variant != crate::types::PokerVariant::BrazilianPineapple {
+            return;
+        }
+        let n = self.state.players.len();
+        for i in 0..n {
+            if !self.state.players[i].is_in_hand() {
+                continue;
+            }
+            let (cards, remaining) = deal_cards(&self.state.deck, 1);
+            self.state.players[i].hole_cards.extend(cards);
+            self.state.deck = remaining;
+        }
+    }
+
     /// Avança para a próxima fase do jogo (flop, turn, river, showdown)
     pub fn advance_phase(&mut self) -> Result<(), GameLoopError> {
         // Resetar apostas da rodada
@@ -734,6 +750,7 @@ impl GameLoop {
                 if let Some(h) = &mut self.history {
                     hand_history::set_community_cards(h, GamePhase::Flop, flop);
                 }
+                self.deal_brazilian_pineapple_extra();
             }
             GamePhase::Turn => {
                 let (burn, d1) = deal_cards(&self.state.deck, 1);
@@ -745,6 +762,7 @@ impl GameLoop {
                 if let Some(h) = &mut self.history {
                     hand_history::set_community_cards(h, GamePhase::Turn, turn_card);
                 }
+                self.deal_brazilian_pineapple_extra();
             }
             GamePhase::River => {
                 let (burn, d1) = deal_cards(&self.state.deck, 1);
@@ -756,6 +774,7 @@ impl GameLoop {
                 if let Some(h) = &mut self.history {
                     hand_history::set_community_cards(h, GamePhase::River, river_card);
                 }
+                self.deal_brazilian_pineapple_extra();
             }
             GamePhase::Showdown => {
                 // No showdown, não há mais apostas
@@ -941,6 +960,7 @@ impl GameLoop {
                     if let Some(h) = &mut self.history {
                         hand_history::set_community_cards(h, GamePhase::Flop, flop);
                     }
+                    self.deal_brazilian_pineapple_extra();
                 }
                 GamePhase::Turn => {
                     let (burn, d1) = deal_cards(&self.state.deck, 1);
@@ -952,6 +972,7 @@ impl GameLoop {
                     if let Some(h) = &mut self.history {
                         hand_history::set_community_cards(h, GamePhase::Turn, turn_card);
                     }
+                    self.deal_brazilian_pineapple_extra();
                 }
                 GamePhase::River => {
                     let (burn, d1) = deal_cards(&self.state.deck, 1);
@@ -963,6 +984,7 @@ impl GameLoop {
                     if let Some(h) = &mut self.history {
                         hand_history::set_community_cards(h, GamePhase::River, river_card);
                     }
+                    self.deal_brazilian_pineapple_extra();
                 }
                 _ => {}
             }
@@ -1196,8 +1218,8 @@ impl GameLoop {
         if self.skip_loss_deflator
             || matches!(
                 self.config.poker_variant,
-                crate::types::PokerVariant::ShortDeckOmaha
-                    | crate::types::PokerVariant::UltimatePineapple
+                crate::types::PokerVariant::Omaha
+                    | crate::types::PokerVariant::BrazilianPineapple
             )
         {
             return results;
@@ -1411,12 +1433,11 @@ impl GameLoop {
         for player in &self.state.players {
             if player.is_in_hand() && !player.hole_cards.is_empty() {
                 let eval = match self.config.poker_variant {
-                    crate::types::PokerVariant::ShortDeckOmaha => evaluate_hand_short_deck_omaha(
-                        &player.hole_cards,
-                        &self.state.community_cards,
-                    ),
-                    crate::types::PokerVariant::UltimatePineapple => {
-                        evaluate_hand_ultimate_pineapple(
+                    crate::types::PokerVariant::Omaha => {
+                        evaluate_hand_omaha(&player.hole_cards, &self.state.community_cards)
+                    }
+                    crate::types::PokerVariant::BrazilianPineapple => {
+                        evaluate_hand_brazilian_pineapple(
                             &player.hole_cards,
                             &self.state.community_cards,
                         )
@@ -1635,6 +1656,126 @@ mod tests {
         gl.player_action("alice", PlayerMove::Check).unwrap();
         assert_eq!(gl.state.phase, GamePhase::Showdown);
         assert!(gl.state.is_finished);
+    }
+
+    #[test]
+    fn brazilian_pineapple_deals_extra_hole_each_street() {
+        let config = make_config().with_poker_variant(crate::types::PokerVariant::BrazilianPineapple);
+        let mut gl = GameLoop::new(
+            config,
+            "bp-001".to_string(),
+            "Pineapple".to_string(),
+            GameType::Cash,
+        );
+        gl.add_player("alice".to_string(), 100000);
+        gl.add_player("bob".to_string(), 100000);
+        gl.set_dealer(0);
+        gl.start_hand().unwrap();
+        assert_eq!(gl.state.players[0].hole_cards.len(), 2);
+        assert_eq!(gl.state.players[1].hole_cards.len(), 2);
+        assert_eq!(gl.state.deck.len(), 32);
+
+        gl.player_action("alice", PlayerMove::Call).unwrap();
+        gl.player_action("bob", PlayerMove::Check).unwrap();
+        assert_eq!(gl.state.phase, GamePhase::Flop);
+        assert_eq!(gl.state.players[0].hole_cards.len(), 3);
+        assert_eq!(gl.state.players[1].hole_cards.len(), 3);
+
+        gl.player_action("bob", PlayerMove::Check).unwrap();
+        gl.player_action("alice", PlayerMove::Check).unwrap();
+        assert_eq!(gl.state.phase, GamePhase::Turn);
+        assert_eq!(gl.state.players[0].hole_cards.len(), 4);
+
+        gl.player_action("bob", PlayerMove::Check).unwrap();
+        gl.player_action("alice", PlayerMove::Check).unwrap();
+        assert_eq!(gl.state.phase, GamePhase::River);
+        assert_eq!(gl.state.players[0].hole_cards.len(), 5);
+        assert_eq!(gl.state.players[1].hole_cards.len(), 5);
+        assert_eq!(gl.state.deck.len(), 18);
+        for player in &gl.state.players {
+            for card in &player.hole_cards {
+                assert!((card.rank as u8) >= 6);
+            }
+        }
+    }
+
+    #[test]
+    fn brazilian_pineapple_folded_skips_extra_card() {
+        let config = make_config().with_poker_variant(crate::types::PokerVariant::BrazilianPineapple);
+        let mut gl = GameLoop::new(
+            config,
+            "bp-fold".to_string(),
+            "Pineapple".to_string(),
+            GameType::Cash,
+        );
+        gl.add_player("alice".to_string(), 100000);
+        gl.add_player("bob".to_string(), 100000);
+        gl.set_dealer(0);
+        gl.start_hand().unwrap();
+        gl.player_action("alice", PlayerMove::Fold).unwrap();
+        assert!(gl.state.is_finished);
+        assert_eq!(gl.state.players[0].hole_cards.len(), 2);
+        assert_eq!(gl.state.players[1].hole_cards.len(), 2);
+    }
+
+    #[test]
+    fn brazilian_pineapple_five_max_deck_lasts_to_river() {
+        let config = make_config().with_poker_variant(crate::types::PokerVariant::BrazilianPineapple);
+        let mut gl = GameLoop::new(
+            config,
+            "bp-5max".to_string(),
+            "Pineapple 5-max".to_string(),
+            GameType::Cash,
+        );
+        for i in 0..5 {
+            gl.add_player(format!("p{i}"), 100000);
+        }
+        gl.set_dealer(0);
+        gl.start_hand().unwrap();
+        assert_eq!(gl.state.players[0].hole_cards.len(), 2);
+
+        loop {
+            if gl.state.is_finished {
+                break;
+            }
+            let Some(active) = gl.state.active_player().map(|p| p.id.clone()) else {
+                break;
+            };
+            let to_call = {
+                let p = gl.state.players.iter().find(|p| p.id == active).unwrap();
+                gl.state.current_bet_to_match.saturating_sub(p.current_bet)
+            };
+            let mv = if to_call == 0 {
+                PlayerMove::Check
+            } else {
+                PlayerMove::Call
+            };
+            gl.player_action(&active, mv).unwrap();
+        }
+        assert_eq!(gl.state.community_cards.len(), 5);
+        for player in &gl.state.players {
+            assert_eq!(player.hole_cards.len(), 5);
+        }
+        assert_eq!(gl.state.deck.len(), 3);
+    }
+
+    #[test]
+    fn omaha_four_deals_four_from_full_deck() {
+        let config = make_config().with_poker_variant(crate::types::PokerVariant::Omaha);
+        let mut gl = GameLoop::new(
+            config,
+            "omaha-4".to_string(),
+            "Omaha 4".to_string(),
+            GameType::Cash,
+        );
+        gl.add_player("alice".to_string(), 100000);
+        gl.add_player("bob".to_string(), 100000);
+        gl.set_dealer(0);
+        gl.start_hand().unwrap();
+        assert_eq!(gl.state.players[0].hole_cards.len(), 4);
+        assert_eq!(gl.state.players[1].hole_cards.len(), 4);
+        assert_eq!(gl.state.deck.len(), 44);
+        assert!(!gl.config.poker_variant.uses_short_deck());
     }
 
     #[test]
