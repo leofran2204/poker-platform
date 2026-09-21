@@ -1057,6 +1057,7 @@
 - **Omaha 4** (PLO): baralho 52, 4 hole, 2+3, ranking clássico, 6-max.
 - **Brazilian Pineapple**: Short Deck 36, 2 hole +1 após flop/turn/river, 2+3, ranking Short Deck, 5-max (burns).
 - Migration **057**. IDs: `holdem` \| `omaha` \| `brazilian_pineapple`.
+- **Deploy (`5e69b6b7`, REBUILD_API=1):** `DEPLOY_OK` 2026-09-21T08:51:02Z; `/api/health` 200; bundle `index-DkvFAXcA.js`; cash `holdem`/`omaha`/`brazilian_pineapple`; MTT Omaha 4 6-max e Brazilian Pineapple 5-max; Freeroll sem FT Short Deck. Migrations applied.
 
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
