@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchCourseProgress, type CourseProgressItem } from "@/api/client";
+import { BrandMark } from "@/components/BrandMark";
 import { COURSE, isLessonUnlocked, PASS_SCORE } from "@/lib/course";
 import { isAuthenticated } from "@/lib/auth";
 
@@ -29,7 +30,10 @@ export function CoursePage() {
     <div className="mx-auto w-full max-w-3xl space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-xl font-bold text-gold-bright">Zero Tilt Academy</h1>
+          <h1 className="flex items-center gap-2 text-xl font-bold text-gold-bright">
+            <BrandMark />
+            Zero Tilt Academy
+          </h1>
           <p className="text-sm text-felt-200">
             Aprenda poker do zero com vídeos curtos, quiz e mesa ao vivo para praticar.
           </p>

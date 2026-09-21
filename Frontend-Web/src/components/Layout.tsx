@@ -7,6 +7,7 @@ import {
   reflectPresenceCount,
   reflectPresenceLogout,
 } from "@/components/OnlinePresence";
+import { BrandMark } from "@/components/BrandMark";
 import { SessionConnectivity } from "@/components/SessionConnectivity";
 import { clearTokens, getUsername, isAuthenticated } from "@/lib/auth";
 import { clearMeCache, getMe, isAdminRole } from "@/lib/me";
@@ -165,9 +166,7 @@ export function Layout() {
         <div className="zt-nav-inner">
           <div className="flex min-w-0 items-center gap-3">
             <NavLink to={authed ? "/curso" : "/"} className="zt-brand shrink-0">
-              <span className="text-cream" aria-hidden>
-                ♠
-              </span>
+              <BrandMark />
               Zero Tilt
             </NavLink>
             <OnlinePresenceNav />
@@ -328,8 +327,8 @@ export function Layout() {
         <Outlet />
       </main>
       <footer className="border-t border-felt-700 px-4 py-4 text-center text-xs text-felt-400">
-        Zero Tilt Academy
-        {marketingShell ? " · aprenda poker, jogue quando quiser" : " · Demo / staging"}
+        ZT Poker · Zero Tilt Academy
+        {marketingShell ? " · Estude. Jogue. Sem tilt." : " · Demo / staging"}
         {" · "}
         <NavLink to="/curso" className="text-gold-soft hover:underline">
           Curso

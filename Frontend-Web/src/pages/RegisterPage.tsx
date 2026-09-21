@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { applyAuthTokens, register } from "@/api/client";
+import { BrandMark } from "@/components/BrandMark";
 import { ShowcaseTable } from "@/components/ShowcaseTable";
 import { saveUsername } from "@/lib/auth";
 
@@ -76,7 +77,10 @@ export function RegisterPage() {
   return (
     <div className="zt-auth-split">
       <div className="zt-panel">
-        <div className="zt-panel-title">Criar conta</div>
+        <div className="zt-panel-title flex items-center gap-2">
+          <BrandMark size={24} className="h-6 w-6 rounded-sm object-cover ring-1 ring-gold/40" />
+          Criar conta
+        </div>
         <form className="space-y-4 p-5" onSubmit={onSubmit}>
           <p className="text-sm text-felt-200">
             Dois minutos. Você entra com <strong className="text-gold-soft">R$ 150</strong> de

@@ -15,10 +15,10 @@ export function HomePage() {
       <section className="zt-hero">
         <div className="zt-hero-copy">
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-gold-soft">
-            Zero Tilt Academy
+            ZT Poker · Zero Tilt Academy
           </p>
           <h1 className="text-4xl font-bold tracking-tight text-gold-bright sm:text-5xl lg:text-6xl">
-            Aprenda poker. Jogue quando quiser.
+            Estude. Jogue. Sem tilt.
           </h1>
           <p className="mt-4 max-w-lg text-base leading-relaxed text-cream-muted">
             Escola de poker com aulas curtas, quiz e mesa ao vivo. Treine de graça no Play Money.

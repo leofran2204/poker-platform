@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { applyAuthTokens, login, verifyMfa } from "@/api/client";
+import { BrandMark } from "@/components/BrandMark";
 import { ShowcaseTable } from "@/components/ShowcaseTable";
 import { saveUsername } from "@/lib/auth";
 
@@ -70,7 +71,10 @@ export function LoginPage() {
   return (
     <div className="zt-auth-split">
       <div className="zt-panel">
-        <div className="zt-panel-title">Entrar</div>
+        <div className="zt-panel-title flex items-center gap-2">
+          <BrandMark size={24} className="h-6 w-6 rounded-sm object-cover ring-1 ring-gold/40" />
+          Entrar
+        </div>
         <form className="space-y-4 p-5" onSubmit={onSubmit}>
           {sessionExpired && (
             <p

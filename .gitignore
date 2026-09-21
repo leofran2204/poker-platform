@@ -76,6 +76,9 @@ ZeroTiltCurso/**/seg*.mp3
 ZeroTiltCurso/**/narracao.txt
 ZeroTiltCurso/**/__pycache__/
 
+# Candidatos de marca (escolha local; o vencedor vai em Frontend-Web/public/brand/)
+brand-candidates/
+
 # Pastas de trabalho temporárias / lixo de shell
 tmp/
 temp/

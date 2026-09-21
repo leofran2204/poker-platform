@@ -1059,6 +1059,11 @@
 - Migration **057**. IDs: `holdem` \| `omaha` \| `brazilian_pineapple`.
 - **Deploy (`5e69b6b7`, REBUILD_API=1):** `DEPLOY_OK` 2026-09-21T08:51:02Z; `/api/health` 200; bundle `index-DkvFAXcA.js`; cash `holdem`/`omaha`/`brazilian_pineapple`; MTT Omaha 4 6-max e Brazilian Pineapple 5-max; Freeroll sem FT Short Deck. Migrations applied.
 
+## 2026-09-21 — marca ZT Poker
+
+- Ás cream/ouro com **ZeroTilt** / **Poker** no centro; header **Zero Tilt**; slogan **Estude. Jogue. Sem tilt.**
+- Favicon, login, cadastro, curso, `og:image`. Apelido da casa: **ZT Poker**.
+
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
 
