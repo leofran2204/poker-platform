@@ -117,7 +117,7 @@ pub async fn deposit_info(
             .filter(|value| !automated_available || *value <= automated_max_cents)
             .collect(),
         instructions: if automated_available && automated_mode == "production" {
-            "DePix em produção: gere a cobrança PIX. O saldo só é creditado depois que a DePix confirmar checkout.completed; processing e approved não liberam fichas.".into()
+            "DePix em produção: gere a cobrança PIX. Depósitos até R$ 50 creditam no checkout.processing (saque travado até a liquidação); acima disso o saldo espera checkout.completed.".into()
         } else if automated_available {
             "Sandbox DePix ativo: gere uma cobrança de teste. Nenhum PIX real é criado e somente a confirmação completed credita o saldo.".into()
         } else if manual_available {

@@ -26,6 +26,14 @@ def money_strip(symbol, label):
     return VGroup(base, symbol, tag)
 
 
+def king_with_name(rank, suit, name):
+    """Rei francês com o nome histórico sob a carta (ordem do áudio)."""
+    card = Card(rank, suit, height=0.95)
+    label = Text(name, font=MONO, font_size=16, color=CREAM)
+    label.next_to(card, DOWN, buff=0.16)
+    return VGroup(card, label)
+
+
 class S1_Titulo(Scene):
     def construct(self):
         self.camera.background_color = FELT
@@ -129,14 +137,13 @@ class S5_Franca(Scene):
         tag = Text("a Franca barateou tudo", font=MONO, font_size=28,
                    color=GOLD, weight=BOLD)
         tag.to_edge(UP, buff=0.8)
-        suits = VGroup(*[Card("K", s, height=0.95) for s in ["s", "h", "d", "c"]]
-                       ).arrange(RIGHT, buff=0.15)
-        cap = Text("Davi / Carlos Magno / Cesar / Alexandre", font=MONO, font_size=20, color=CREAM)
-        both = VGroup(suits, cap).arrange(DOWN, buff=0.35).move_to(DOWN * 0.4)
+        suits = VGroup(*[
+            king_with_name("K", s, name)
+            for s, name in [("s", "Davi"), ("c", "Alexandre"), ("d", "Cesar"), ("h", "Carlos Magno")]
+        ]).arrange(RIGHT, buff=0.35).move_to(DOWN * 0.35)
         self.play(FadeIn(tag), run_time=0.7)
         deal_in(self, list(suits), run_time=0.9)
-        self.play(FadeIn(cap), run_time=0.6)
-        self.wait(11.0)
+        self.wait(11.6)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 

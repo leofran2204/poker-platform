@@ -1030,6 +1030,12 @@
 - **Validado:** suíte lib 61/61 (era 59/60), clippy limpo nos arquivos tocados (drift pré-existente em `bots.rs`/`wallet.rs`/`tournament_coordinator.rs` segue fora de escopo), zero diff novo de `fmt`.
 - **Deploy (`99d14c27`, REBUILD_API=1):** `DEPLOY_OK`, API healthy com o fix, `/api/health` OK. Lab local parado (volumes preservados).
 
+## 2026-09-21 — S24: crédito provisório no processing + ep11 S5 com nomes
+
+- **ep11 S5:** cada rei com nome sob a carta na ordem do áudio (Davi / Alexandre / Cesar / Carlos Magno); waits preservados; mux + espelho em `public/videos/`.
+- **Crédito instantâneo:** `checkout.processing` com face ≤ R$ 50 credita `balance_real` (provisório, status `PENDING` + `credited_amount_cents`); saque da conta travado até `completed`; acima do teto o processing não libera fichas. `completed` confirma sem recrédito e ajusta o líquido. `cancelled`/`expired` no provisório reverte até o saldo (sem negativo; shortfall auditado).
+- **Docs:** Termos 6.3, BUSINESS_RULES §0.1, ARQUITETURA_E_APIS §3, extrato "Creditado (provisório)".
+
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
 
 - **Gate consciente** (`src/bin/documentation_sync.rs`): `automatic_in_production=true` agora exige o payout worker no código (`payout_worker.rs` + migration de payout) em vez de recusa blanket; `certified` segue recusado. Renderer condicional (ligado/desligado) + testes do gate atualizados.

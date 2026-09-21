@@ -300,3 +300,50 @@ async fn concurrent_withdrawals_cannot_reserve_the_same_balance_twice() {
     assert_eq!(reservations, 1);
     cleanup_persistent_user(&state, &user_id).await;
 }
+
+#[tokio::test]
+#[ignore = "Requires PostgreSQL ledger — run with DATABASE_URL"]
+async fn provisional_deposit_blocks_withdrawals() {
+    std::env::set_var(
+        "DEPIX_PIXKEY_ENC_KEY",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    );
+    let username = unique_username("wallet_hold");
+    let (state, user_id, token) = make_persistent_state(&username).await;
+    sqlx::query("UPDATE users SET balance_real = 10000 WHERE id = $1::uuid")
+        .bind(&user_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+    sqlx::query(
+        "INSERT INTO wallet_transactions \
+         (user_id, amount, transaction_type, status, idempotency_key, provider, credited_amount_cents, provider_status) \
+         VALUES ($1::uuid, 5000, 'DEPOSIT', 'PENDING', $2, 'depix', 5000, 'PROCESSING')",
+    )
+    .bind(&user_id)
+    .bind(format!("pix_dep_{}", uuid::Uuid::new_v4().simple()))
+    .execute(&state.db)
+    .await
+    .unwrap();
+    let request = Request::builder()
+        .method(Method::POST)
+        .uri("/api/payments/pix/withdraw")
+        .header("Authorization", format!("Bearer {token}"))
+        .header("Content-Type", "application/json")
+        .body(Body::from(
+            r#"{"amount":1000,"pix_key_type":"cpf","pix_key":"12345678900"}"#,
+        ))
+        .unwrap();
+    let response = poker_api::build_router(state.clone())
+        .oneshot(request)
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    let balance: i64 = sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1::uuid")
+        .bind(&user_id)
+        .fetch_one(&state.db)
+        .await
+        .unwrap();
+    assert_eq!(balance, 10_000);
+    cleanup_persistent_user(&state, &user_id).await;
+}

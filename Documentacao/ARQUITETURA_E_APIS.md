@@ -113,7 +113,7 @@ O módulo financeiro usa `wallet_transactions`, `audit_logs` e `outbox_events` n
 - `GET /api/payments/pix/deposit/:tx_id` reconcilia o status do checkout; `POST .../:tx_id/simulate` existe apenas em `ENVIRONMENT=development` e para usuário allowlisted.
 - O adaptador aceita exclusivamente `PIX_PROVIDER=depix`, `PIX_MODE=sandbox`, chave `sk_test_` e origem `https://api.depixapp.com`; produção DePix é rejeitada pelo código.
 - O webhook valida HMAC sobre `timestamp.raw_body`, aplica janela de 5 minutos, confere cabeçalhos/evento/cobrança/valor e deduplica `event_id` em `payment_webhook_events` sem guardar o payload bruto.
-- Somente `checkout.completed` credita `balance_real`. Estados `pending`, `processing` e `approved` nunca liberam saldo; cancelamento e expiração encerram apenas intenções ainda pendentes.
+- `checkout.processing` com face ≤ R$ 50 credita `balance_real` na hora (provisório, `PENDING` + `credited_amount_cents`) e bloqueia saques até o `completed`. Acima do teto, `processing` e `approved` não liberam saldo. `checkout.completed` confirma sem recrédito e ajusta para o líquido. Cancelamento/expiração de provisório reverte (sem saldo negativo); depois de `COMPLETED` vira `REVIEW_REQUIRED`, sem estorno.
 - O instalador local `scripts/install-depix-local-secrets.ps1` valida a chave em `/api/me` e grava os segredos somente no `.env` ignorado pelo Git.
 
 Referências técnicas: [Documentação DePix](https://depixapp.com/docs/) e [OpenAPI DePix](https://depixapp.com/openapi.json).

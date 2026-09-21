@@ -222,16 +222,18 @@ async fn depix_live_webhook_credits_once_and_flags_post_settlement_cancellation(
     )
     .await;
     assert_eq!(processing.0, StatusCode::OK);
-    assert_eq!(processing.1["status"], "IGNORED");
+    assert_eq!(processing.1["status"], "PROVISIONAL");
 
     let balance_real: i64 = sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1")
         .bind(user_id)
         .fetch_one(&state.db)
         .await
         .unwrap();
-    assert_eq!(balance_real, 5000);
-    let processing_status: (String, Option<String>) = sqlx::query_as(
-        "SELECT status, provider_status FROM wallet_transactions WHERE idempotency_key = $1",
+    // completed_tx already credited 5000; processing_tx (R$ 50) credits another 5000.
+    assert_eq!(balance_real, 10_000);
+    let processing_status: (String, Option<String>, Option<i64>) = sqlx::query_as(
+        "SELECT status, provider_status, credited_amount_cents \
+         FROM wallet_transactions WHERE idempotency_key = $1",
     )
     .bind(&processing_tx)
     .fetch_one(&state.db)
@@ -239,6 +241,7 @@ async fn depix_live_webhook_credits_once_and_flags_post_settlement_cancellation(
     .unwrap();
     assert_eq!(processing_status.0, "PENDING");
     assert_eq!(processing_status.1.as_deref(), Some("PROCESSING"));
+    assert_eq!(processing_status.2, Some(5000));
 
     let completed_status: (String, Option<String>) = sqlx::query_as(
         "SELECT status, provider_status FROM wallet_transactions WHERE idempotency_key = $1",
@@ -409,6 +412,260 @@ async fn depix_webhook_credits_net_received_and_records_fee() {
         .execute(&state.db)
         .await
         .unwrap();
+    sqlx::query("DELETE FROM users WHERE id = $1")
+        .bind(user_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+}
+
+fn arm_depix_live_env(secret: &str) {
+    std::env::set_var("PIX_PROVIDER", "depix");
+    std::env::set_var("PIX_MODE", "production");
+    std::env::set_var("ENVIRONMENT", "production");
+    std::env::set_var("PIX_LIVE_ENABLED", "true");
+    std::env::set_var(
+        "PIX_LIVE_ALLOWED_DEPOSITOR_IDS",
+        "00000000-0000-0000-0000-000000000001",
+    );
+    std::env::set_var("DEPIX_API_KEY", "sk_live_integration_placeholder");
+    std::env::set_var("DEPIX_WEBHOOK_SECRET", secret);
+    std::env::set_var("DEPIX_API_BASE_URL", "https://api.depixapp.com");
+    std::env::set_var(
+        "DEPIX_CALLBACK_URL",
+        "https://zerotiltpoker.net/api/webhooks/pix",
+    );
+}
+
+async fn insert_pending_deposit(
+    state: &AppState,
+    user_id: uuid::Uuid,
+    amount: i64,
+    tx_id: &str,
+    external_id: &str,
+) {
+    sqlx::query(
+        "INSERT INTO wallet_transactions \
+         (user_id, amount, transaction_type, status, idempotency_key, provider, external_tx_id, provider_status) \
+         VALUES ($1, $2, 'DEPOSIT', 'PENDING', $3, 'depix', $4, 'AWAITING_PAYMENT')",
+    )
+    .bind(user_id)
+    .bind(amount)
+    .bind(tx_id)
+    .bind(external_id)
+    .execute(&state.db)
+    .await
+    .unwrap();
+}
+
+async fn insert_depix_user(state: &AppState) -> uuid::Uuid {
+    let user_id = uuid::Uuid::new_v4();
+    let username = format!("depix_{}", &user_id.simple().to_string()[..12]);
+    let email = format!("{username}@test.invalid");
+    sqlx::query(
+        "INSERT INTO users (id, username, email, password_hash, role, status, balance, mfa_enabled, created_at) \
+         VALUES ($1, $2, $3, 'test-hash', 'player', 'active', 0, false, 0)",
+    )
+    .bind(user_id)
+    .bind(&username)
+    .bind(&email)
+    .execute(&state.db)
+    .await
+    .unwrap();
+    user_id
+}
+
+#[tokio::test]
+#[ignore = "Requires PostgreSQL; run as an isolated test binary"]
+async fn depix_processing_above_cap_does_not_credit() {
+    const SECRET: &str = "depix-integration-webhook-secret-32-bytes";
+    arm_depix_live_env(SECRET);
+    let state = state().await;
+    sqlx::query("DELETE FROM wallet_transactions WHERE external_tx_id = $1")
+        .bind("chk_over_cap")
+        .execute(&state.db)
+        .await
+        .unwrap();
+    let user_id = insert_depix_user(&state).await;
+    let tx_id = format!("pix_dep_{}", uuid::Uuid::new_v4().simple());
+    insert_pending_deposit(&state, user_id, 10_000, &tx_id, "chk_over_cap").await;
+
+    let event_id = format!("evt_{}", uuid::Uuid::new_v4().simple());
+    let body = serde_json::json!({
+        "event": "checkout.processing",
+        "data": {
+            "event_id": event_id,
+            "id": "chk_over_cap",
+            "status": "processing",
+            "amount": 10000,
+            "metadata": { "order_id": tx_id }
+        }
+    })
+    .to_string();
+    let response = deliver(&state, body, "checkout.processing", &event_id, SECRET).await;
+    assert_eq!(response.0, StatusCode::OK);
+    assert_eq!(response.1["status"], "IGNORED");
+    let balance: i64 = sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1")
+        .bind(user_id)
+        .fetch_one(&state.db)
+        .await
+        .unwrap();
+    assert_eq!(balance, 0);
+    sqlx::query("DELETE FROM users WHERE id = $1")
+        .bind(user_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
+#[ignore = "Requires PostgreSQL; run as an isolated test binary"]
+async fn depix_provisional_credit_settles_once_and_reverses() {
+    const SECRET: &str = "depix-integration-webhook-secret-32-bytes";
+    arm_depix_live_env(SECRET);
+    let state = state().await;
+    sqlx::query("DELETE FROM wallet_transactions WHERE external_tx_id = ANY($1)")
+        .bind(vec!["chk_prov_settle", "chk_prov_reverse", "chk_prov_short"])
+        .execute(&state.db)
+        .await
+        .unwrap();
+    let user_id = insert_depix_user(&state).await;
+    let settle_tx = format!("pix_dep_{}", uuid::Uuid::new_v4().simple());
+    let reverse_tx = format!("pix_dep_{}", uuid::Uuid::new_v4().simple());
+    let shortfall_tx = format!("pix_dep_{}", uuid::Uuid::new_v4().simple());
+    insert_pending_deposit(&state, user_id, 5000, &settle_tx, "chk_prov_settle").await;
+    insert_pending_deposit(&state, user_id, 5000, &reverse_tx, "chk_prov_reverse").await;
+    insert_pending_deposit(&state, user_id, 5000, &shortfall_tx, "chk_prov_short").await;
+
+    for (chk, tx) in [
+        ("chk_prov_settle", settle_tx.as_str()),
+        ("chk_prov_reverse", reverse_tx.as_str()),
+        ("chk_prov_short", shortfall_tx.as_str()),
+    ] {
+        let event_id = format!("evt_{}", uuid::Uuid::new_v4().simple());
+        let body = serde_json::json!({
+            "event": "checkout.processing",
+            "data": {
+                "event_id": event_id,
+                "id": chk,
+                "status": "processing",
+                "amount": 5000,
+                "metadata": { "order_id": tx }
+            }
+        })
+        .to_string();
+        let response = deliver(&state, body, "checkout.processing", &event_id, SECRET).await;
+        assert_eq!(response.1["status"], "PROVISIONAL");
+        let again_id = format!("evt_{}", uuid::Uuid::new_v4().simple());
+        let again_body = serde_json::json!({
+            "event": "checkout.processing",
+            "data": {
+                "event_id": again_id,
+                "id": chk,
+                "status": "processing",
+                "amount": 5000,
+                "metadata": { "order_id": tx }
+            }
+        })
+        .to_string();
+        let again = deliver(&state, again_body, "checkout.processing", &again_id, SECRET).await;
+        assert_eq!(again.1["status"], "IGNORED");
+    }
+
+    let balance: i64 = sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1")
+        .bind(user_id)
+        .fetch_one(&state.db)
+        .await
+        .unwrap();
+    assert_eq!(balance, 15_000);
+
+    let completed_event = format!("evt_{}", uuid::Uuid::new_v4().simple());
+    let completed_body = serde_json::json!({
+        "event": "checkout.completed",
+        "data": {
+            "event_id": completed_event,
+            "id": "chk_prov_settle",
+            "status": "completed",
+            "amount": 5000,
+            "amount_received": 4400,
+            "metadata": { "order_id": settle_tx }
+        }
+    })
+    .to_string();
+    let completed = deliver(
+        &state,
+        completed_body,
+        "checkout.completed",
+        &completed_event,
+        SECRET,
+    )
+    .await;
+    assert_eq!(completed.1["status"], "COMPLETED");
+    let settle_row: (String, Option<i64>) = sqlx::query_as(
+        "SELECT status, credited_amount_cents FROM wallet_transactions WHERE idempotency_key = $1",
+    )
+    .bind(&settle_tx)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(settle_row.0, "COMPLETED");
+    assert_eq!(settle_row.1, Some(4400));
+
+    let cancel_event = format!("evt_{}", uuid::Uuid::new_v4().simple());
+    let cancel_body = serde_json::json!({
+        "event": "checkout.cancelled",
+        "data": {
+            "event_id": cancel_event,
+            "id": "chk_prov_reverse",
+            "status": "cancelled",
+            "amount": 5000,
+            "metadata": { "order_id": reverse_tx }
+        }
+    })
+    .to_string();
+    let reversed = deliver(
+        &state,
+        cancel_body,
+        "checkout.cancelled",
+        &cancel_event,
+        SECRET,
+    )
+    .await;
+    assert_eq!(reversed.1["status"], "REVERSED");
+
+    sqlx::query("UPDATE users SET balance_real = 1000 WHERE id = $1")
+        .bind(user_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+    let short_event = format!("evt_{}", uuid::Uuid::new_v4().simple());
+    let short_body = serde_json::json!({
+        "event": "checkout.cancelled",
+        "data": {
+            "event_id": short_event,
+            "id": "chk_prov_short",
+            "status": "cancelled",
+            "amount": 5000,
+            "metadata": { "order_id": shortfall_tx }
+        }
+    })
+    .to_string();
+    let shortfall = deliver(
+        &state,
+        short_body,
+        "checkout.cancelled",
+        &short_event,
+        SECRET,
+    )
+    .await;
+    assert_eq!(shortfall.1["status"], "REVERSED_SHORTFALL");
+    let balance: i64 = sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1")
+        .bind(user_id)
+        .fetch_one(&state.db)
+        .await
+        .unwrap();
+    assert_eq!(balance, 0);
+
     sqlx::query("DELETE FROM users WHERE id = $1")
         .bind(user_id)
         .execute(&state.db)

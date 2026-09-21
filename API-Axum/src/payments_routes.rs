@@ -220,6 +220,7 @@ type WalletRow = (
     String,
     Option<String>,
     String,
+    Option<i64>,
 );
 
 fn cents_to_i64(amount: u64, field: &str) -> Result<i64, ApiError> {
@@ -360,6 +361,75 @@ fn settle_amounts(face_cents: u64, received_cents: Option<u64>) -> Result<(u64, 
         )),
         Some(received) => Ok((received, face_cents - received)),
     }
+}
+
+/// Teto do crédito no `checkout.processing` (R$ 50). Acima disso o saldo
+/// espera o `completed`.
+pub(crate) const INSTANT_CREDIT_CAP_CENTS: u64 = 5_000;
+
+fn face_eligible_for_instant_credit(face_cents: i64) -> bool {
+    face_cents > 0 && face_cents <= INSTANT_CREDIT_CAP_CENTS as i64
+}
+
+async fn credit_balance_real(
+    transaction: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    user_id: uuid::Uuid,
+    cents: i64,
+) -> Result<(), ApiError> {
+    let credited = sqlx::query("UPDATE users SET balance_real = balance_real + $1 WHERE id = $2")
+        .bind(cents)
+        .bind(user_id)
+        .execute(&mut **transaction)
+        .await?;
+    if credited.rows_affected() != 1 {
+        return Err(ApiError::Internal(
+            "PIX deposit user account is missing".to_string(),
+        ));
+    }
+    Ok(())
+}
+
+/// Debita até `cents` sem deixar saldo negativo. Retorna `(debitado, falta)`.
+async fn debit_balance_real_up_to(
+    transaction: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    user_id: uuid::Uuid,
+    cents: i64,
+) -> Result<(i64, i64), ApiError> {
+    let current: Option<i64> =
+        sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1 FOR UPDATE")
+            .bind(user_id)
+            .fetch_optional(&mut **transaction)
+            .await?;
+    let current = current.ok_or_else(|| {
+        ApiError::Internal("PIX deposit user account is missing".to_string())
+    })?;
+    let debit = current.min(cents).max(0);
+    let shortfall = cents - debit;
+    if debit > 0 {
+        sqlx::query("UPDATE users SET balance_real = balance_real - $1 WHERE id = $2")
+            .bind(debit)
+            .bind(user_id)
+            .execute(&mut **transaction)
+            .await?;
+    }
+    Ok((debit, shortfall))
+}
+
+async fn user_has_provisional_deposit(
+    transaction: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    user_id: &str,
+) -> Result<bool, ApiError> {
+    let held: bool = sqlx::query_scalar(
+        "SELECT EXISTS(\
+             SELECT 1 FROM wallet_transactions \
+             WHERE user_id = $1::uuid AND transaction_type = 'DEPOSIT' \
+               AND status = 'PENDING' AND credited_amount_cents IS NOT NULL\
+         )",
+    )
+    .bind(user_id)
+    .fetch_one(&mut **transaction)
+    .await?;
+    Ok(held)
 }
 
 /// POST /api/payments/pix/deposit
@@ -741,6 +811,144 @@ pub async fn pix_webhook_handler(
                 }
             }
 
+            let pending: Option<(uuid::Uuid, uuid::Uuid, i64, Option<i64>)> = sqlx::query_as(
+                "SELECT id, user_id, amount, credited_amount_cents \
+                 FROM wallet_transactions \
+                 WHERE idempotency_key = $1 AND external_tx_id = $2 \
+                   AND transaction_type = 'DEPOSIT' AND provider = 'depix' \
+                   AND status = 'PENDING' \
+                 FOR UPDATE",
+            )
+            .bind(&payload.tx_id)
+            .bind(payload.external_tx_id.as_deref())
+            .fetch_optional(&mut *transaction)
+            .await?;
+
+            if let Some((wallet_id, user_id, amount, credited)) = pending {
+                if payload.event_type.as_deref() == Some("checkout.processing") {
+                    if credited.is_some() {
+                        sqlx::query(
+                            "UPDATE wallet_transactions \
+                             SET provider_status = 'PROCESSING', updated_at = NOW() \
+                             WHERE id = $1",
+                        )
+                        .bind(wallet_id)
+                        .execute(&mut *transaction)
+                        .await?;
+                        transaction.commit().await?;
+                        return Ok((
+                            StatusCode::OK,
+                            Json(WebhookResponse {
+                                status: "IGNORED".to_string(),
+                                message: "PIX deposit was already provisionally credited"
+                                    .to_string(),
+                            }),
+                        ));
+                    }
+                    if face_eligible_for_instant_credit(amount) {
+                        credit_balance_real(&mut transaction, user_id, amount).await?;
+                        sqlx::query(
+                            "UPDATE wallet_transactions \
+                             SET provider_status = 'PROCESSING', credited_amount_cents = $1, \
+                                 updated_at = NOW() \
+                             WHERE id = $2",
+                        )
+                        .bind(amount)
+                        .bind(wallet_id)
+                        .execute(&mut *transaction)
+                        .await?;
+                        sqlx::query(
+                            "INSERT INTO audit_logs (user_id, action, metadata) \
+                             VALUES ($1, 'PIX_DEPOSIT_PROVISIONAL', $2)",
+                        )
+                        .bind(user_id.to_string())
+                        .bind(serde_json::json!({
+                            "tx_id": payload.tx_id,
+                            "external_tx_id": payload.external_tx_id.as_deref(),
+                            "amount_cents": amount,
+                            "credited_amount_cents": amount,
+                            "cap_cents": INSTANT_CREDIT_CAP_CENTS,
+                            "provider": "depix",
+                            "event_id": payload.event_id.as_deref(),
+                        }))
+                        .execute(&mut *transaction)
+                        .await?;
+                        transaction.commit().await?;
+                        return Ok((
+                            StatusCode::OK,
+                            Json(WebhookResponse {
+                                status: "PROVISIONAL".to_string(),
+                                message: "PIX deposit credited provisionally pending settlement"
+                                    .to_string(),
+                            }),
+                        ));
+                    }
+                } else if let Some(terminal_status) = terminal_status {
+                    if let Some(credited_cents) = credited {
+                        let (debited, shortfall) =
+                            debit_balance_real_up_to(&mut transaction, user_id, credited_cents)
+                                .await?;
+                        sqlx::query(
+                            "UPDATE wallet_transactions \
+                             SET status = 'CANCELLED', provider_status = $1, updated_at = NOW() \
+                             WHERE id = $2",
+                        )
+                        .bind(terminal_status)
+                        .bind(wallet_id)
+                        .execute(&mut *transaction)
+                        .await?;
+                        let action = if shortfall > 0 {
+                            "PIX_DEPOSIT_PROVISIONAL_SHORTFALL"
+                        } else {
+                            "PIX_DEPOSIT_PROVISIONAL_REVERSED"
+                        };
+                        let metadata = serde_json::json!({
+                            "tx_id": payload.tx_id,
+                            "external_tx_id": payload.external_tx_id.as_deref(),
+                            "amount_cents": amount,
+                            "credited_amount_cents": credited_cents,
+                            "reversed_cents": debited,
+                            "shortfall_cents": shortfall,
+                            "provider": "depix",
+                            "provider_status": terminal_status,
+                            "event_id": payload.event_id.as_deref(),
+                            "event_type": payload.event_type.as_deref(),
+                        });
+                        sqlx::query(
+                            "INSERT INTO audit_logs (user_id, action, metadata) VALUES ($1, $2, $3)",
+                        )
+                        .bind(user_id.to_string())
+                        .bind(action)
+                        .bind(&metadata)
+                        .execute(&mut *transaction)
+                        .await?;
+                        if shortfall > 0 {
+                            sqlx::query(
+                                "INSERT INTO outbox_events \
+                                 (aggregate_type, aggregate_id, event_type, payload) \
+                                 VALUES ('wallet_transaction', $1, 'PIX_DEPOSIT_PROVISIONAL_SHORTFALL', $2)",
+                            )
+                            .bind(&payload.tx_id)
+                            .bind(metadata)
+                            .execute(&mut *transaction)
+                            .await?;
+                        }
+                        transaction.commit().await?;
+                        return Ok((
+                            StatusCode::OK,
+                            Json(WebhookResponse {
+                                status: if shortfall > 0 {
+                                    "REVERSED_SHORTFALL".to_string()
+                                } else {
+                                    "REVERSED".to_string()
+                                },
+                                message: "Provisional PIX credit was reversed".to_string(),
+                            }),
+                        ));
+                    }
+                }
+            }
+
             let provider_status = terminal_status
                 .unwrap_or(payload.status.as_str())
                 .to_ascii_uppercase();
@@ -771,14 +979,22 @@ pub async fn pix_webhook_handler(
         ApiError::BadRequest("Settling PIX webhook requires external_tx_id".to_string())
     })?;
     let row: Option<WalletRow> = sqlx::query_as(
-        "SELECT id, user_id, amount, transaction_type, status, external_tx_id, provider \
+        "SELECT id, user_id, amount, transaction_type, status, external_tx_id, provider, credited_amount_cents \
          FROM wallet_transactions WHERE idempotency_key = $1 FOR UPDATE",
     )
     .bind(&payload.tx_id)
     .fetch_optional(&mut *transaction)
     .await?;
-    let (wallet_id, user_id, amount, transaction_type, status, stored_external_id, stored_provider) =
-        row.ok_or_else(|| ApiError::NotFound("Unknown PIX transaction".to_string()))?;
+    let (
+        wallet_id,
+        user_id,
+        amount,
+        transaction_type,
+        status,
+        stored_external_id,
+        stored_provider,
+        already_credited,
+    ) = row.ok_or_else(|| ApiError::NotFound("Unknown PIX transaction".to_string()))?;
 
     if transaction_type != "DEPOSIT" || stored_provider != provider {
         return Err(ApiError::BadRequest(
@@ -833,16 +1049,18 @@ pub async fn pix_webhook_handler(
         .try_into()
         .map_err(|_| ApiError::Internal("PIX deposit ledger amount is invalid".to_string()))?;
     let (credited_cents, provider_fee_cents) = settle_amounts(face_cents, payload.amount_received)?;
-    let credited = cents_to_i64(credited_cents, "Credited amount")?;
-    let credited = sqlx::query("UPDATE users SET balance_real = balance_real + $1 WHERE id = $2")
-        .bind(credited)
-        .bind(user_id)
-        .execute(&mut *transaction)
-        .await?;
-    if credited.rows_affected() != 1 {
-        return Err(ApiError::Internal(
-            "PIX deposit user account is missing".to_string(),
-        ));
+    let target = cents_to_i64(credited_cents, "Credited amount")?;
+    match already_credited {
+        Some(previous) if previous == target => {}
+        Some(previous) if previous > target => {
+            debit_balance_real_up_to(&mut transaction, user_id, previous - target).await?;
+        }
+        Some(previous) => {
+            credit_balance_real(&mut transaction, user_id, target - previous).await?;
+        }
+        None => {
+            credit_balance_real(&mut transaction, user_id, target).await?;
+        }
     }
     sqlx::query(
         "UPDATE wallet_transactions SET status = 'COMPLETED', provider_status = $1, credited_amount_cents = $2, updated_at = NOW() \
@@ -863,6 +1081,7 @@ pub async fn pix_webhook_handler(
         "amount_cents": amount,
         "credited_amount_cents": credited_cents,
         "provider_fee_cents": provider_fee_cents,
+        "provisional_cents": already_credited,
         "provider": provider,
         "event_id": payload.event_id,
     }))
@@ -1000,16 +1219,21 @@ async fn reconcile_deposit_status(
             .map_err(|_| ApiError::Internal("PIX deposit ledger amount is invalid".to_string()))?;
         let (credited_cents, provider_fee_cents) =
             settle_amounts(face_u64, provider_status.amount_received)?;
-        let credited_rows =
-            sqlx::query("UPDATE users SET balance_real = balance_real + $1 WHERE id = $2::uuid")
-                .bind(cents_to_i64(credited_cents, "Credited amount")?)
-                .bind(user_id)
-                .execute(&mut *transaction)
-                .await?;
-        if credited_rows.rows_affected() != 1 {
-            return Err(ApiError::Internal(
-                "PIX deposit user account is missing".to_string(),
-            ));
+        let target = cents_to_i64(credited_cents, "Credited amount")?;
+        let user_uuid = uuid::Uuid::parse_str(user_id).map_err(|_| {
+            ApiError::Internal("PIX deposit user id is invalid".to_string())
+        })?;
+        match credited {
+            Some(previous) if previous == target => {}
+            Some(previous) if previous > target => {
+                debit_balance_real_up_to(&mut transaction, user_uuid, previous - target).await?;
+            }
+            Some(previous) => {
+                credit_balance_real(&mut transaction, user_uuid, target - previous).await?;
+            }
+            None => {
+                credit_balance_real(&mut transaction, user_uuid, target).await?;
+            }
         }
         ledger_status = "COMPLETED".to_string();
         sqlx::query("UPDATE wallet_transactions SET credited_amount_cents = $1 WHERE id = $2")
@@ -1029,6 +1253,7 @@ async fn reconcile_deposit_status(
             "amount_cents": amount,
             "credited_amount_cents": credited_cents,
             "provider_fee_cents": provider_fee_cents,
+            "provisional_cents": credited,
             "provider": stored_provider,
         }))
         .execute(&mut *transaction)
@@ -1036,6 +1261,12 @@ async fn reconcile_deposit_status(
     } else if matches!(normalized_status.as_str(), "CANCELLED" | "EXPIRED")
         && ledger_status == "PENDING"
     {
+        if let Some(credited_cents) = credited {
+            let user_uuid = uuid::Uuid::parse_str(user_id).map_err(|_| {
+                ApiError::Internal("PIX deposit user id is invalid".to_string())
+            })?;
+            debit_balance_real_up_to(&mut transaction, user_uuid, credited_cents).await?;
+        }
         ledger_status = "CANCELLED".to_string();
     }
     sqlx::query(
@@ -1194,6 +1425,11 @@ pub async fn create_pix_withdraw_handler(
     };
     let _audit = crate::audit_span!(&auth_user.user_id, "PIX_WITHDRAWAL_RESERVED");
     let mut transaction = state.db.begin().await?;
+    if user_has_provisional_deposit(&mut transaction, &auth_user.user_id).await? {
+        return Err(ApiError::BadRequest(
+            "Saque indisponível enquanto um depósito provisório não liquidar".to_string(),
+        ));
+    }
 
     let debited = sqlx::query(
         "UPDATE users SET balance_real = balance_real - $1 \
@@ -1266,7 +1502,8 @@ pub async fn create_pix_withdraw_handler(
 #[cfg(test)]
 mod tests {
     use super::{
-        brl_value_to_cents, normalized_tax_number, parse_verified_webhook, settle_amounts,
+        brl_value_to_cents, face_eligible_for_instant_credit, normalized_tax_number,
+        parse_verified_webhook, settle_amounts, INSTANT_CREDIT_CAP_CENTS,
     };
 
     #[test]
@@ -1284,6 +1521,16 @@ mod tests {
         assert!(brl_value_to_cents(&serde_json::json!("12.345")).is_err());
         assert!(brl_value_to_cents(&serde_json::json!("-1.00")).is_err());
         assert!(brl_value_to_cents(&serde_json::json!("1e2")).is_err());
+    }
+
+    #[test]
+    fn instant_credit_cap_is_fifty_reais() {
+        assert_eq!(INSTANT_CREDIT_CAP_CENTS, 5_000);
+        assert!(face_eligible_for_instant_credit(5_000));
+        assert!(face_eligible_for_instant_credit(1));
+        assert!(!face_eligible_for_instant_credit(5_001));
+        assert!(!face_eligible_for_instant_credit(0));
+        assert!(!face_eligible_for_instant_credit(-1));
     }
 
     #[test]

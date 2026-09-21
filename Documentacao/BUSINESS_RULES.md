@@ -18,7 +18,7 @@ Cash exige **≥ 2 assentos** na mesma mesa. Registro com verificação de e-mai
 - **Probabilidades e Estatísticas:** Mantidos em escala flutuante (`f64` entre `0.0` e `1.0` ou `0.0%` a `100.0%`) para cálculo de equidade e exibição de porcentagens.
 - **Formatação de Exibição:** O frontend TypeScript converte centavos apenas na camada visual (`formatBrlFromCents` em `Frontend-Web/src/lib/money.ts`).
 - **Depósito automatizado em Sandbox:** uma cobrança DePix exige usuário allowlisted, `Idempotency-Key`, valor entre 500 e 600.000 centavos e CPF/CNPJ enviado ao provedor sem armazenamento local.
-- **Regra de crédito:** somente confirmação autenticada `checkout.completed`, com identificador e valor coincidentes, pode creditar `balance_real`; eventos repetidos, intermediários ou desconhecidos não alteram o saldo.
+- **Regra de crédito:** `checkout.processing` autenticado, com identificador e valor coincidentes e face ≤ R$ 50 (`5000` centavos), credita `balance_real` de forma provisória (face) e trava saques da conta até a liquidação. `checkout.completed` confirma (ajusta para o líquido recebido, sem recrédito). Acima do teto, só o `completed` credita. Cancelamento/expiração de provisório reverte até o saldo disponível (sem negativo; falta vira auditoria). Eventos repetidos e `approved` não alteram o saldo.
 - **Separação de ambientes:** DePix produtiva permanece bloqueada; o deploy público conserva PIX mock/manual e não executa saque automático.
 
 ---

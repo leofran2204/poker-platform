@@ -95,6 +95,8 @@ export function WalletPage() {
         info:
           fee > 0 && t.credited_amount_cents != null
             ? `Creditado ${formatBrlFromCents(t.credited_amount_cents)} (taxa ${formatBrlFromCents(fee)})`
+            : t.status === "PENDING" && t.credited_amount_cents != null
+              ? "Creditado (provisório)"
             : t.status === "COMPLETED"
               ? "Liquidado"
               : (t.provider_status ?? t.status),
@@ -191,7 +193,7 @@ export function WalletPage() {
         setTaxNumber("");
         setMsg(
           info.automated_mode === "production"
-            ? "Cobrança PIX criada. O saldo será liberado somente após a liquidação final da DePix."
+            ? "Cobrança PIX criada. Até R$ 50 o saldo entra ao confirmar o pagamento; o saque fica travado até liquidar."
             : "Cobrança de teste criada. Use o link ou simule o pagamento no sandbox.",
         );
       } else {
@@ -426,6 +428,12 @@ export function WalletPage() {
                         <div>
                           <div className="text-[10px] uppercase text-felt-400">Cobrança</div>
                           <div className="font-mono text-sm text-gold-soft">{formatBrlFromCents(pixCharge.amount)}</div>
+                          {pixStatus?.status === "PENDING" && pixStatus.credited_amount_cents != null && (
+                            <div className="font-mono text-xs text-felt-300">
+                              Creditado {formatBrlFromCents(pixStatus.credited_amount_cents)} (provisório; saque
+                              travado até liquidar)
+                            </div>
+                          )}
                           {pixStatus?.status === "COMPLETED" &&
                             pixStatus.credited_amount_cents != null &&
                             pixStatus.credited_amount_cents < pixCharge.amount && (
@@ -466,7 +474,7 @@ export function WalletPage() {
                       <p className="text-[11px] text-felt-400">
                         Expira em {formatDateTime(pixCharge.expires_at)}.
                         {info.automated_mode === "production"
-                          ? " Fichas são liberadas apenas após a liquidação final. Creditado o valor líquido (descontada a taxa DePix)."
+                          ? " Até R$ 50 as fichas entram ao confirmar o PIX; o saque fica travado até a liquidação final. Acima disso o crédito espera a liquidação. Valor creditado é o líquido (descontada a taxa DePix)."
                           : " A simulação não movimenta dinheiro real."}
                       </p>
                       <button type="button" className="text-xs text-gold-soft underline" onClick={resetPixCharge}>
