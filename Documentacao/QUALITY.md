@@ -2,7 +2,7 @@
 
 **Dono deste assunto.** Enciclopédia antiga: [`historico/QUALITY_v5.4.md`](historico/QUALITY_v5.4.md). Fatos do dia: [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md). Contrato de agentes: [`../AGENTS.md`](../AGENTS.md).
 
-Não é certificado de produção. PIX automático em production permanece desligado.
+Não é certificado de produção. PIX automático DePix está ligado na demo (crédito provisório ≤ R$ 50 no `processing`; saque travado até o `completed`).
 
 ## O que a CI realmente exige
 
@@ -26,8 +26,8 @@ Frontend local: `npm run lint` (`tsc` + ESLint) e `npm test` (Vitest) em `Fronte
 1. Valores em `u64` centavos. Potes → rake → Loss Deflator **somente** sobre o líquido.
 2. Play Money e Jogo Real não se misturam.
 3. Settlement de mão assinado (HMAC); uma mesa = um processo.
-4. Sem segredos em git, logs ou docs. PIX production e saque automático rejeitados pelo código.
-5. `documentation-sync` recusa `production.certified: true` e `pix.automatic_in_production: true`.
+4. Sem segredos em git, logs ou docs. PIX live exige HMAC, allowlist e tetos; saque automático só pelo payout worker reconciliado.
+5. `documentation-sync` recusa `production.certified: true`. `pix.automatic_in_production: true` exige payout worker + migration de payout.
 
 ## Definition of Done
 
@@ -49,6 +49,6 @@ Commit / push / deploy **não** fazem parte do DoD local — cada um exige ordem
 - Fases e backlog → DASHBOARD
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-18) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S24** (2026-09-21) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

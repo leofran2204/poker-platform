@@ -80,12 +80,12 @@ F1 Fundação          100%
 F2 Motor + API       100%  (suíte determinística; carga = FULL_VALIDATION)
 F3 Frontend-Web      100%  (Dioxus = histórico git)
 F4 Docker + Caddy CI 100%
-F5 Auth/TLS/PIX mock 100%  (PIX automático em ativação — Fase 3)
+F5 Auth/TLS/PIX       100%  (DePix reconciliado na demo — Fase 3)
 F6 Antifraude        100%
-F7 B2B + demo HTTPS   ~90%  falta: cert. produção / tráfego PIX automático / multi-pod
+F7 B2B + demo HTTPS   ~90%  falta: cert. produção / multi-pod
 ```
 
-Pendências conscientes: tráfego PIX automático (em ativação), ownership distribuído de mesa, KYC 2027. Deploy: [`../Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md`](../Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md).
+Pendências conscientes: ownership distribuído de mesa, KYC 2027. Deploy: [`../Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md`](../Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md).
 
 ---
 
@@ -98,7 +98,7 @@ Pendências conscientes: tráfego PIX automático (em ativação), ownership dis
 | **Lab local só na máquina** | Dev sem domínio | `docker compose up` + `DOMAIN_NAME=localhost` |
 
 **HTTPS obrigatório no browser:** tunnel com Origin CA + Cloudflare **Full (strict)**; VPS com Caddy + Let's Encrypt.  
-**CORS:** `https://zerotiltpoker.net` · **PIX:** DePix reconciliado (em ativação).
+**CORS:** `https://zerotiltpoker.net` · **PIX:** DePix reconciliado (crédito provisório ≤ R$ 50).
 
 ---
 
@@ -116,7 +116,7 @@ Pendências conscientes: tráfego PIX automático (em ativação), ownership dis
 
 | # | Tarefa | Pasta | Status |
 |---|--------|-------|--------|
-| PIX | DePix reconciliado em ativação (Fase 3): checkout com idempotência, webhook HMAC, payout worker com cifra + fila admin; sem `wallet_*`, sem tráfego | `API-Axum/` & `Frontend-Web/` | 🟡 Em ativação |
+| PIX | DePix reconciliado na demo: checkout HMAC, crédito provisório ≤ R$ 50, payout worker com cifra + fila admin | `API-Axum/` & `Frontend-Web/` | 🟢 Na demo (sem cert. produção) |
 | COACH | Coach virtual analista sob demanda: jogador pede análise profunda de mão via hand history (fora do curso; curso é só introdução) — requer nova autorização de escopo | `Frontend-Web/` & `API-Axum/` | ⏸️ Adiado |
 
 ### ✅ Concluídas — Sprint Atual (S13 + S12)
@@ -198,6 +198,6 @@ Ambiente (WSL, Node, clippy): [`../AGENTS.md`](../AGENTS.md). Gates: [`QUALITY.m
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-18) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S24** (2026-09-21) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

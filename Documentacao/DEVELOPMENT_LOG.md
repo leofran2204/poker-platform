@@ -864,7 +864,7 @@
 - Eps 05-10 (~50-56s cada): sizing, roubos e 3-bets, pot odds, EV e fold equity, banca, revisão final. Série completa em `ZeroTiltCurso/`.
 - Sem botão no resultado: só as 5 cartas do jogo vencedor saltam com brilho dourado (board + mão do vencedor + painel), e o painel some sozinho em 7s.
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-18) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S24** (2026-09-21) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
@@ -1036,6 +1036,7 @@
 - **Crédito instantâneo:** `checkout.processing` com face ≤ R$ 50 credita `balance_real` (provisório, status `PENDING` + `credited_amount_cents`); saque da conta travado até `completed`; acima do teto o processing não libera fichas. `completed` confirma sem recrédito e ajusta o líquido. `cancelled`/`expired` no provisório reverte até o saldo (sem negativo; shortfall auditado).
 - **Docs:** Termos 6.3, BUSINESS_RULES §0.1, ARQUITETURA_E_APIS §3, extrato "Creditado (provisório)".
 - **Deploy (`54ace444`, REBUILD_API=1):** `DEPLOY_OK`, API healthy, `/api/health` 200, `/videos/ep11-historia-baralho.mp4` 200 (1.39 MB), bundle `index-Cqh0k8Bt.js`.
+- **Docs alinhados ao fato:** AGENTS/QUALITY/README/DEMO/DASHBOARD/RELATORIO deixam de dizer que PIX automático está desligado; STATUS `migrations_latest` 056; ponteiros S24 em 2026-09-21.
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
 

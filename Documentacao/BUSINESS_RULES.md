@@ -19,7 +19,7 @@ Cash exige **≥ 2 assentos** na mesma mesa. Registro com verificação de e-mai
 - **Formatação de Exibição:** O frontend TypeScript converte centavos apenas na camada visual (`formatBrlFromCents` em `Frontend-Web/src/lib/money.ts`).
 - **Depósito automatizado em Sandbox:** uma cobrança DePix exige usuário allowlisted, `Idempotency-Key`, valor entre 500 e 600.000 centavos e CPF/CNPJ enviado ao provedor sem armazenamento local.
 - **Regra de crédito:** `checkout.processing` autenticado, com identificador e valor coincidentes e face ≤ R$ 50 (`5000` centavos), credita `balance_real` de forma provisória (face) e trava saques da conta até a liquidação. `checkout.completed` confirma (ajusta para o líquido recebido, sem recrédito). Acima do teto, só o `completed` credita. Cancelamento/expiração de provisório reverte até o saldo disponível (sem negativo; falta vira auditoria). Eventos repetidos e `approved` não alteram o saldo.
-- **Separação de ambientes:** DePix produtiva permanece bloqueada; o deploy público conserva PIX mock/manual e não executa saque automático.
+- **Separação de ambientes:** a demo/staging usa DePix reconciliado (HMAC, teto de crédito provisório R$ 50, payout worker com teto/`HELD`). CPF/CNPJ não persiste em claro. Sem certificação de produção.
 
 ---
 
@@ -400,6 +400,6 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 **Próxima revisão:** Após implementação de side pots e split pot.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-18) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S24** (2026-09-21) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

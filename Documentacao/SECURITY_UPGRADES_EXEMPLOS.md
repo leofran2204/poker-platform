@@ -227,6 +227,6 @@ fn process_table_bet(user_id: &str, table_id: &str, amount: u64) {
 ```
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-18) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S24** (2026-09-21) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

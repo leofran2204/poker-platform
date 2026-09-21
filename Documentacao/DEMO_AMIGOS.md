@@ -57,8 +57,9 @@ Início agendado **21:30 America/Sao_Paulo**, auto-start com **5+** jogadores; F
 
 ## Pix / Saque (Jogo Real)
 
-- **Depósito:** recebedor **Leofran**, chave `6eefcd53-686e-42d4-a062-03751336251c`. Pague no app do banco, cole o comprovante e aguarde aprovação.
-- **Saque:** informe sua chave Pix; **recebimento em até 24h**.
+- **Depósito automático (DePix):** até R$ 50 as fichas entram ao confirmar o PIX (`processing`); o saque fica travado até a liquidação (`completed`). Acima de R$ 50 o saldo espera o `completed`. Valor creditado é o líquido (taxa DePix no extrato).
+- **Depósito manual (fallback):** recebedor **Leofran**, chave `6eefcd53-686e-42d4-a062-03751336251c`. Pague no app do banco, cole o comprovante e aguarde aprovação.
+- **Saque:** informe sua chave Pix (titular); **recebimento em até 24h**. Com depósito provisório em aberto o saque é recusado.
 
 ## Mensagem pronta para WhatsApp / Discord
 
@@ -79,7 +80,7 @@ Precisa de 2+ pessoas na mesma mesa para começar a mão.
 
 ## Do seu lado (anfitrião)
 
-1. Stack na VPS: `zerotiltpoker.net` (API + Frontend-Web + Caddy). Migrations até **053** (inclui cash NL 0,75/1,50 e Texas MTT R$25).
+1. Stack na VPS: `zerotiltpoker.net` (API + Frontend-Web + Caddy). Migrations até **056** (inclui cash NL 0,75/1,50, curso, payout DePix e crédito líquido).
 2. Health: `https://zerotiltpoker.net/api/health` e `/api/presence/online`
 3. Peça feedback: registro, e-mail, modo carteira, lobby, join, lag, mobile, crashes
 
@@ -104,6 +105,6 @@ Precisa de 2+ pessoas na mesma mesa para começar a mão.
 ```
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-18) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S24** (2026-09-21) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

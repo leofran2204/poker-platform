@@ -107,11 +107,11 @@ Motor interno usa equity em **0.0..=1.0**; o wire expõe percentuais **0–100**
 
 O módulo financeiro usa `wallet_transactions`, `audit_logs` e `outbox_events` no PostgreSQL. Ele ainda não é um livro de partidas dobradas nem uma cadeia de hashes: essas propriedades não são alegadas até existirem no esquema e em uma auditoria independente.
 
-#### DePix Sandbox (somente ambiente não produtivo)
+#### DePix (sandbox e demo live)
 
 - `POST /api/payments/pix/deposit` cria checkout com `Idempotency-Key` UUID, valor em centavos e CPF/CNPJ encaminhado à DePix sem persistência ou log local.
 - `GET /api/payments/pix/deposit/:tx_id` reconcilia o status do checkout; `POST .../:tx_id/simulate` existe apenas em `ENVIRONMENT=development` e para usuário allowlisted.
-- O adaptador aceita exclusivamente `PIX_PROVIDER=depix`, `PIX_MODE=sandbox`, chave `sk_test_` e origem `https://api.depixapp.com`; produção DePix é rejeitada pelo código.
+- Sandbox: `PIX_PROVIDER=depix`, `PIX_MODE=sandbox`, chave `sk_test_`. Demo live: `PIX_MODE=production` + `PIX_LIVE_ENABLED=true` + callback HTTPS + payout worker; sem certificação de produção.
 - O webhook valida HMAC sobre `timestamp.raw_body`, aplica janela de 5 minutos, confere cabeçalhos/evento/cobrança/valor e deduplica `event_id` em `payment_webhook_events` sem guardar o payload bruto.
 - `checkout.processing` com face ≤ R$ 50 credita `balance_real` na hora (provisório, `PENDING` + `credited_amount_cents`) e bloqueia saques até o `completed`. Acima do teto, `processing` e `approved` não liberam saldo. `checkout.completed` confirma sem recrédito e ajusta para o líquido. Cancelamento/expiração de provisório reverte (sem saldo negativo); depois de `COMPLETED` vira `REVIEW_REQUIRED`, sem estorno.
 - O instalador local `scripts/install-depix-local-secrets.ps1` valida a chave em `/api/me` e grava os segredos somente no `.env` ignorado pelo Git.
@@ -124,10 +124,10 @@ Referências técnicas: [Documentação DePix](https://depixapp.com/docs/) e [Op
    - **Cálculos de Pote & Ledger Imutável:** Todas as divisões de potes empatados (*split pots* via `dividir_pote_empatado()`), deduções de rake e registros de auditoria utilizam matemática inteira exata em centavos.
 2. **Eliminação de Artefatos IEEE 754:** Operações numéricas utilizam matemática inteira de centavos e aplicam o resto (`total_centavos % N`) conforme a **Regra do Centavo Ímpar (WSOP / TDA Regra 68)**.
 3. **Garantia Atômica:** O `UPDATE ... WHERE balance >= amount` reserva um saque sem permitir saldo negativo; a linha da carteira e o evento de outbox entram na mesma transação.
-4. **Depósito idempotente:** antes de criar a cobrança, a API grava uma linha `PENDING` com chave de idempotência. O webhook HMAC-SHA256 bloqueia essa linha (`FOR UPDATE`), confere valor e identificador externo persistidos e credita o saldo junto com a transição para `COMPLETED` em uma única transação. O crédito segue o líquido recebido (`amount_received`; face como fallback), com a taxa do provedor no metadata e o valor efetivo em `credited_amount_cents`.
+4. **Depósito idempotente:** antes de criar a cobrança, a API grava uma linha `PENDING` com chave de idempotência. O webhook HMAC-SHA256 bloqueia essa linha (`FOR UPDATE`) e confere valor e identificador externo. Face ≤ R$ 50 pode creditar no `processing` (provisório); o `completed` confirma sem recrédito e grava o líquido em `credited_amount_cents`.
 5. **Chaves PIX:** a chave bruta trafega só na memória do request e repousa cifrada (AES-256-GCM, segredo só via env) em `wallet_transactions.pix_key_ciphertext`; logs e auditoria levam somente sua impressão SHA-256. O saque fica `PENDING` no outbox e não chama um provedor de payout durante a requisição HTTPS.
 
-#### Payout worker reconciliado (saques DePix, desligado por padrão)
+#### Payout worker reconciliado (saques DePix)
 
 - `POST /api/payments/pix/withdraw` reserva o saldo atomicamente, cifra `{pix_key, tax_number}` (CPF derivado da chave quando ela é CPF; `tax_number` obrigatório nos demais tipos) e enfileira `QUEUED` — ou `HELD` acima de `DEPIX_LIVE_MAX_PAYOUT_CENTS` (padrão R$ 200) para aprovação manual em `POST /api/admin/payouts/:id/approve` (`/reject` recredita; `GET /api/admin/payouts/held` lista a fila).
 - `payout_worker` (`tokio::spawn` no boot) reivindica uma linha por vez (`SKIP LOCKED`), envia `POST /api/withdraw` (`payoutAmountInCents` + `taxNumber`, `Idempotency-Key = tx_id`, escopo `wallet_write`) e reconcilia por polling + ramo `withdraw.*` do webhook (HMAC + dedup): `sent` → `COMPLETED`; `error/canceled/refunded/replaced` → recredita + `REJECTED`. Tentativas com backoff (10×) e recuperação de `SENDING` órfão.
@@ -206,6 +206,6 @@ Contador de usuários **logados** com heartbeat recente — distinto dos assento
 - Não há benchmark de release certificado neste repositório. Throughput, latência e capacidade devem ser obtidos exclusivamente em uma execução autorizada da validação completa, com o TSV de evidência gerado pelos scripts.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-18) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S24** (2026-09-21) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

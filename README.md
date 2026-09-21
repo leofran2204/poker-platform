@@ -40,4 +40,4 @@ Ambiente de build (WSL, Node): [`AGENTS.md`](AGENTS.md).
 
 ## Limites
 
-PIX automático e payout **desligados**. Uma mesa = um processo. Regulação planejada **2027-01**.
+PIX automático DePix **ligado** na demo (crédito provisório ≤ R$ 50; saque travado até liquidar). Uma mesa = um processo. Regulação planejada **2027-01**.

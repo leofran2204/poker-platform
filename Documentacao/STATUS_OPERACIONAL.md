@@ -2,7 +2,7 @@
 
 # Estado operacional — S24
 
-**S24** — frontend vitrine + catálogo 053 + mesa jogável + Vitest/ESLint. Revisado em **2026-09-18**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
+**S24** — crédito provisório PIX + catálogo 053 + mesa jogável + Vitest/ESLint. Revisado em **2026-09-21**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
 
 **Limites:** sem certificação de produção · PIX automático ligado (DePix reconciliado) · mesas com dono **único por processo** (settlement HMAC).
 
@@ -25,7 +25,7 @@ Fonte máquina: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificaç
 | SD Omaha 0,50 | Short Deck Omaha | 0,50 / 0,50 | 5 | R$ 100 |
 | Pineapple 0,50 | Ultimate Pineapple | 0,50 / 0,50 | 6 | R$ 75 |
 
-Frentes fixas (`min_buy_in = max_buy_in`). Migrations até **053**.
+Frentes fixas (`min_buy_in = max_buy_in`). Migrations até **056**.
 
 ## Torneios
 

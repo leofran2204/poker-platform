@@ -1,9 +1,9 @@
 {
     "schema_version": 2,
-    "reviewed_on": "2026-09-18",
+    "reviewed_on": "2026-09-21",
     "cycle": {
         "id": "S24",
-        "title": "frontend vitrine + catálogo 053 + mesa jogável + Vitest/ESLint"
+        "title": "crédito provisório PIX + catálogo 053 + mesa jogável + Vitest/ESLint"
     },
     "production": {
         "certified": false,
@@ -161,7 +161,7 @@
         "showdown_sticky": true,
         "disconnect_not_leave": true
     },
-    "migrations_latest": 53,
+    "migrations_latest": 56,
     "email_verification": true,
     "regulation_target": "2027-01"
 }
