@@ -137,7 +137,7 @@
   }
 
   .zt-lobby-stake-tabs {
-    @apply flex flex-wrap gap-1 rounded border border-felt-600 bg-felt-950/60 p-0.5;
+    @apply flex max-w-full flex-nowrap gap-1 overflow-x-auto rounded border border-felt-600 bg-felt-950/60 p-0.5;
   }
 
   .zt-lobby-stake-tabs .zt-tab {

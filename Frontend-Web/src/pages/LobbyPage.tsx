@@ -11,6 +11,7 @@ import {
 } from "@/api/client";
 import type { TableResponse, TournamentInfoResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";
+import { formatCountdown, liveTableIds, nextStartEpoch } from "@/lib/countdown";
 import { deckTypeLabel, gameNameLabel } from "@/lib/gameLabels";
 import { formatBrlFromCents } from "@/lib/money";
 import { getWalletMode } from "@/lib/walletMode";
@@ -37,6 +38,14 @@ function occupancyPct(players: number, max: number): number {
   return Math.min(100, Math.round((players / max) * 100));
 }
 
+function buyInLabel(t: TournamentInfoResponse): string {
+  if (t.is_freeroll) return "Grátis";
+  if ((t.fee_cents ?? 0) > 0) {
+    return `${formatBrlFromCents(t.buy_in)} + ${formatBrlFromCents(t.fee_cents)}`;
+  }
+  return formatBrlFromCents(t.buy_in);
+}
+
 function occupancyBarClass(pct: number, full: boolean): string {
   if (full || pct >= 100) return "zt-occupancy-bar full";
   if (pct >= 75) return "zt-occupancy-bar high";
@@ -58,6 +67,7 @@ export function LobbyPage() {
   const [joiningId, setJoiningId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [registeringId, setRegisteringId] = useState<string | null>(null);
+  const [now, setNow] = useState(() => Date.now());
   const walletMode = getWalletMode();
   const walletModeLabel = walletMode === "real" ? "Jogo Real" : "Play Money";
 
@@ -93,6 +103,11 @@ export function LobbyPage() {
   }, []);
 
   useEffect(() => {
+    const tick = window.setInterval(() => setNow(Date.now()), 1_000);
+    return () => window.clearInterval(tick);
+  }, []);
+
+  useEffect(() => {
     void load();
     const t = window.setInterval(() => void load(), 15_000);
     const onMode = () => void load();
@@ -122,6 +137,8 @@ export function LobbyPage() {
       return true;
     });
   }, [tables, hideFull, stake]);
+
+  const soonestStart = useMemo(() => nextStartEpoch(tournaments), [tournaments]);
 
   useEffect(() => {
     if (selectedId && !filtered.some((t) => t.id === selectedId)) {
@@ -328,7 +345,52 @@ export function LobbyPage() {
           ) : filtered.length === 0 ? (
             <p className="p-6 text-center text-sm text-felt-300">Nenhuma mesa com esses filtros.</p>
           ) : (
-            <div className="zt-table-wrap">
+            <>
+            <div className="space-y-2 p-3 md:hidden">
+              {filtered.map((t) => {
+                const full = t.players >= t.max_players;
+                const pct = occupancyPct(t.players, t.max_players);
+                return (
+                  <div key={t.id} className="rounded border border-felt-600 bg-felt-950/50 p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-cream">{gameNameLabel(t, "cash")}</p>
+                        <p className="mt-1 font-mono text-sm text-gold-soft">
+                          {formatBrlFromCents(t.small_blind)}/{formatBrlFromCents(t.big_blind)}
+                          <span className="ml-2 text-felt-300">
+                            {formatBuyInRange(t.min_buy_in, t.max_buy_in)}
+                          </span>
+                        </p>
+                        <p className="mt-1 text-[11px] text-felt-400">
+                          {deckTypeLabel(t)} · {t.max_players}-max
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        className={
+                          full
+                            ? "zt-btn-secondary shrink-0 !px-3 !py-1.5 !text-xs"
+                            : "zt-btn-primary shrink-0 !px-3 !py-1.5 !text-xs"
+                        }
+                        disabled={joiningId === t.id}
+                        onClick={() => (full ? void handleWaitlist(t) : void handleJoin(t))}
+                      >
+                        {joiningId === t.id ? "…" : full ? "Fila" : "Entrar"}
+                      </button>
+                    </div>
+                    <div className="zt-occupancy mt-2">
+                      <span className={full ? "zt-occupancy-label full" : "zt-occupancy-label"}>
+                        {t.players}/{t.max_players}
+                      </span>
+                      <div className="zt-occupancy-track" aria-hidden>
+                        <div className={occupancyBarClass(pct, full)} style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="zt-table-wrap hidden md:block">
               <table className="zt-lobby-table min-w-[58rem] table-fixed">
                 <colgroup>
                   <col className="w-[28%]" />
@@ -440,10 +502,21 @@ export function LobbyPage() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </div>
       ) : (
-        <div className="zt-panel overflow-hidden">
+        <div className="space-y-3">
+          <div className="rounded border border-gold/40 bg-felt-950/70 px-4 py-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-gold-soft">
+              Evento da noite
+            </p>
+            <p className="mt-1 text-sm text-cream">
+              Início <strong>21:30</strong> America/Sao_Paulo · auto-start com 5+ jogadores
+              {soonestStart ? ` · ${formatCountdown(soonestStart, now)}` : ""}
+            </p>
+          </div>
+          <div className="zt-panel overflow-hidden">
           <div className="zt-lobby-toolbar">
             <div className="min-w-0 flex-1">
               <div className="text-xs font-bold uppercase tracking-wider text-gold-bright">
@@ -451,7 +524,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({tournaments.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                Texas Hold’em (inclui R$25), freeroll (FT Short Deck 8-max), Omaha 4 cartas 5-max e Ultimate Pineapple 6-max · taxa 15% por cima · horário e auto-start no evento
+                Texas, freeroll, Omaha e Pineapple · taxa 15% por cima do buy-in
               </p>
             </div>
             <button
@@ -472,136 +545,104 @@ export function LobbyPage() {
           ) : tournaments.length === 0 ? (
             <p className="p-6 text-center text-sm text-felt-300">Nenhum torneio aberto.</p>
           ) : (
-            <div className="zt-table-wrap">
-              <table className="zt-lobby-table min-w-[68rem] table-fixed">
-                <colgroup>
-                  <col className="w-[22%]" />
-                  <col className="w-[20%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[12%]" />
-                  <col className="w-[9%]" />
-                  <col className="w-[15%]" />
-                  <col className="w-[12%]" />
-                </colgroup>
-                <thead>
-                  <tr>
-                    <th>Nome</th>
-                    <th className="text-center">Tipo</th>
-                    <th>Buy-in</th>
-                    <th>GTD</th>
-                    <th>Inscritos</th>
-                    <th>Rebuy</th>
-                    <th className="text-right">Ação</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tournaments.map((t) => (
-                    <tr
-                      key={t.id}
-                      className="!cursor-pointer"
-                      onDoubleClick={() => navigate(`/tournament/${t.id}`)}
-                    >
-                      <td className="font-semibold text-cream">
-                        <Link to={`/tournament/${t.id}`} className="hover:text-gold-bright">
-                          {gameNameLabel(t, "tournament")}
-                        </Link>
-                      </td>
-                      <td>
-                        <div className="flex flex-col items-center gap-1 text-center">
-                          <span
-                            className={
-                              t.poker_variant === "short_deck" ||
-                              t.poker_variant === "short_deck_omaha" ||
-                              t.poker_variant === "ultimate_pineapple" ||
-                              t.final_table_variant === "short_deck"
-                                ? "zt-chip zt-chip-accent"
-                                : "zt-chip"
-                            }
-                          >
-                            {deckTypeLabel(t)}
-                          </span>
-                          <div className="flex flex-wrap justify-center gap-1">
-                            <span className="zt-chip">{t.table_max_players}-max</span>
-                            {t.final_table_variant === "short_deck" && t.final_table_max_players ? (
-                              <span className="zt-chip zt-chip-accent">
-                                {t.final_table_max_players}-max na FT
-                              </span>
-                            ) : null}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="font-mono text-gold-soft">
-                        {t.is_freeroll
-                          ? "Grátis"
-                          : (t.fee_cents ?? 0) > 0
-                            ? `${formatBrlFromCents(t.buy_in)}+${formatBrlFromCents(t.fee_cents).replace(/^R\$\s/, "")}`
-                            : formatBrlFromCents(t.buy_in)}
-                      </td>
-                      <td className="font-mono text-felt-200">
-                        {formatBrlFromCents(t.guaranteed_prize)}
-                      </td>
-                      <td className="font-mono text-cream">
-                        {t.registered_players}/{t.max_players}
-                      </td>
-                      <td className="text-xs text-felt-300">
-                        {t.allow_rebuy
-                          ? `${formatBrlFromCents(t.rebuy_cost)} → ${t.rebuy_chips.toLocaleString("pt-BR")} (≤niv.${t.rebuy_max_level})`
-                          : "—"}
-                      </td>
-                      <td className="space-x-1 text-right">
+            <div className="grid gap-3 p-3 sm:grid-cols-2">
+              {tournaments.map((t) => {
+                const tables = liveTableIds(t);
+                const registered = registeredIds.has(t.id);
+                const live = t.status === "running" || t.gameplay_ready;
+                return (
+                  <article
+                    key={t.id}
+                    className="flex flex-col gap-3 rounded border border-felt-600 bg-felt-950/50 p-3"
+                  >
+                    <div>
+                      <Link
+                        to={`/tournament/${t.id}`}
+                        className="font-semibold text-cream hover:text-gold-bright"
+                      >
+                        {gameNameLabel(t, "tournament")}
+                      </Link>
+                      <p className="mt-1 text-[11px] text-felt-400">
+                        {deckTypeLabel(t)} · {t.table_max_players}-max
+                        {t.scheduled_start_at
+                          ? ` · ${formatCountdown(t.scheduled_start_at, now)}`
+                          : ""}
+                      </p>
+                    </div>
+                    <dl className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <dt className="text-felt-400">Buy-in</dt>
+                        <dd className="font-mono text-gold-soft">{buyInLabel(t)}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-felt-400">GTD</dt>
+                        <dd className="font-mono text-cream">
+                          {t.guaranteed_prize > 0 ? formatBrlFromCents(t.guaranteed_prize) : "—"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-felt-400">Inscritos</dt>
+                        <dd className="font-mono text-cream">
+                          {t.registered_players}/{t.max_players}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-felt-400">Rebuy</dt>
+                        <dd className="text-felt-200">
+                          {t.allow_rebuy ? `até niv. ${t.rebuy_max_level}` : "não"}
+                        </dd>
+                      </div>
+                    </dl>
+                    <div className="mt-auto flex flex-wrap gap-2">
+                      {live && tables.length > 0 && registered ? (
                         <Link
-                          to={`/tournament/${t.id}`}
-                          className="zt-btn-secondary inline-flex !px-2.5 !py-1 !text-xs"
-                          onClick={(e) => e.stopPropagation()}
+                          to={`/table/${tables[0]}`}
+                          className="zt-btn-primary !px-3 !py-1.5 !text-xs"
                         >
-                          Ver
+                          Sentar
                         </Link>
-                        {registeredIds.has(t.id) && t.status === "registering" ? (
-                          <button
-                            type="button"
-                            className="zt-btn-secondary !px-2.5 !py-1 !text-xs"
-                            disabled={registeringId === t.id}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              void handleUnregister(t);
-                            }}
-                          >
-                            {registeringId === t.id ? "…" : "Cancelar"}
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            className="zt-btn-primary !px-2.5 !py-1 !text-xs"
-                            disabled={
-                              registeringId === t.id ||
-                              registeredIds.has(t.id) ||
-                              t.status === "finished" ||
-                              t.status === "cancelled"
-                            }
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              void handleRegister(t);
-                            }}
-                          >
-                            {registeringId === t.id
-                              ? "…"
-                              : registeredIds.has(t.id)
-                                ? "Inscrito"
-                                : "Inscrever"}
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      ) : registered && t.status === "registering" ? (
+                        <button
+                          type="button"
+                          className="zt-btn-secondary !px-3 !py-1.5 !text-xs"
+                          disabled={registeringId === t.id}
+                          onClick={() => void handleUnregister(t)}
+                        >
+                          {registeringId === t.id ? "…" : "Inscrito · Cancelar"}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="zt-btn-primary !px-3 !py-1.5 !text-xs"
+                          disabled={
+                            registeringId === t.id ||
+                            registered ||
+                            t.status === "finished" ||
+                            t.status === "cancelled"
+                          }
+                          onClick={() => void handleRegister(t)}
+                        >
+                          {registeringId === t.id ? "…" : registered ? "Inscrito" : "Inscrever"}
+                        </button>
+                      )}
+                      <Link
+                        to={`/tournament/${t.id}`}
+                        className="zt-btn-secondary !px-3 !py-1.5 !text-xs"
+                      >
+                        Detalhes
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           )}
+        </div>
         </div>
       )}
 
       <p className="text-[11px] text-felt-400">
-        Cash: clique seleciona · duplo clique entra · mín. 2 na mesma mesa para iniciar mão
+        Cash: mín. 2 na mesma mesa para iniciar a mão. No computador, duplo clique entra.
       </p>
     </div>
   );

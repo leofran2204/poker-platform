@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { getTournament, registerTournament, unregisterTournament, fetchTournamentRegistration } from "@/api/client";
 import type { TournamentInfoResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";
+import { formatCountdown, liveTableIds } from "@/lib/countdown";
 import { deckTypeLabel, gameNameLabel, tournamentStatusLabel } from "@/lib/gameLabels";
 import { formatBrlFromCents } from "@/lib/money";
 import { getWalletMode } from "@/lib/walletMode";
@@ -14,6 +15,7 @@ export function TournamentPage() {
   const [busy, setBusy] = useState(false);
   const [registeredMsg, setRegisteredMsg] = useState<string | null>(null);
   const [registered, setRegistered] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -35,6 +37,11 @@ export function TournamentPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    const tick = window.setInterval(() => setNow(Date.now()), 1_000);
+    return () => window.clearInterval(tick);
+  }, []);
 
   async function handleRegister() {
     if (!isAuthenticated()) {
@@ -97,6 +104,8 @@ export function TournamentPage() {
     );
   }
 
+  const tables = liveTableIds(info);
+
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-2">
@@ -126,20 +135,29 @@ export function TournamentPage() {
             <span className="zt-chip ml-1">{info.table_max_players}-max</span>
           </p>
         </div>
-        <button
-          type="button"
-          className="zt-btn-primary !px-3 !py-1.5 !text-xs"
-          disabled={busy || info.status === "finished" || info.status === "cancelled" || registered}
-          onClick={() => void handleRegister()}
-        >
-          {busy
-            ? "…"
-            : registered
-              ? "Inscrito"
-              : info.is_freeroll
-                ? "Inscrever (grátis)"
-                : `Inscrever (${formatBrlFromCents(info.buy_in + (info.fee_cents ?? 0))})`}
-        </button>
+        {tables.length > 0 && (info.status === "running" || info.gameplay_ready) ? (
+          <Link
+            to={`/table/${tables[0]}`}
+            className="zt-btn-primary !px-3 !py-1.5 !text-xs"
+          >
+            Sentar na mesa
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className="zt-btn-primary !px-3 !py-1.5 !text-xs"
+            disabled={busy || info.status === "finished" || info.status === "cancelled" || registered}
+            onClick={() => void handleRegister()}
+          >
+            {busy
+              ? "…"
+              : registered
+                ? "Inscrito"
+                : info.is_freeroll
+                  ? "Inscrever (grátis)"
+                  : `Inscrever (${formatBrlFromCents(info.buy_in + (info.fee_cents ?? 0))})`}
+          </button>
+        )}
         {registered && info.status === "registering" ? (
           <button
             type="button"
@@ -153,15 +171,21 @@ export function TournamentPage() {
       </div>
 
       {info.scheduled_start_at ? (
-        <div className="rounded border border-sky-700/60 bg-sky-950/30 px-3 py-2 text-xs text-sky-100">
-          Início agendado:{" "}
-          {new Date(info.scheduled_start_at * 1000).toLocaleString("pt-BR", {
-            timeZone: "America/Sao_Paulo",
-          })}{" "}
-          (America/Sao_Paulo) — inicia automático com ≥{info.auto_start_min_players ?? 5} jogadores
-          {info.status === "registering" && info.registered_players < (info.auto_start_min_players ?? 5)
-            ? ` — faltam ${(info.auto_start_min_players ?? 5) - info.registered_players} para iniciar`
-            : ""}
+        <div className="rounded border border-gold/40 bg-felt-950/70 px-4 py-3">
+          <p className="text-xs font-bold uppercase tracking-wider text-gold-soft">Relógio</p>
+          <p className="mt-1 text-lg font-semibold text-cream">
+            {formatCountdown(info.scheduled_start_at, now)}
+          </p>
+          <p className="mt-1 text-xs text-felt-300">
+            {new Date(info.scheduled_start_at * 1000).toLocaleString("pt-BR", {
+              timeZone: "America/Sao_Paulo",
+            })}{" "}
+            America/Sao_Paulo · auto-start com ≥{info.auto_start_min_players ?? 5}
+            {info.status === "registering" &&
+            info.registered_players < (info.auto_start_min_players ?? 5)
+              ? ` · faltam ${(info.auto_start_min_players ?? 5) - info.registered_players}`
+              : ""}
+          </p>
         </div>
       ) : null}
 

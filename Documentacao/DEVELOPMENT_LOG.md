@@ -1044,6 +1044,12 @@
 - **Logado:** `/` e login/registro caem em `/curso`. Header Curso · Lobby · Carteira; Notícias/Dicas/Estrutura/Admin em Mais (menu no celular).
 - **Overflow:** `overflow-x: clip` no documento; cards de feed sem `min-w-[300px]`.
 
+## 2026-09-21 — S24: player da Academy + piloto ep01 720p + lobby MTT
+
+- **Player:** poster, VTT, transcrição da narração real, duração `1 min 29 s`; sem “Coach IA”.
+- **ep01:** 1280×720 30 fps, cartas maiores; 25 aulas com `.vtt` + `.jpg` em `public/videos/`.
+- **Lobby:** faixa 21:30 + cards de torneio (Inscrever / Sentar); cash em cards no celular, tabela no desktop.
+
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
 
