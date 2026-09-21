@@ -88,7 +88,7 @@ export function LessonPage() {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-xl font-bold text-gold-bright">{lesson.title}</h1>
-          <p className="text-xs text-felt-400">~{lesson.minutes} min • Vídeo com Coach IA + Leitura + Quiz</p>
+          <p className="text-xs text-felt-400">Vídeo + leitura + quiz</p>
         </div>
         {isPassed && (
           <span className="rounded bg-emerald-500/20 border border-emerald-500/40 px-2.5 py-1 text-xs font-semibold text-emerald-300">

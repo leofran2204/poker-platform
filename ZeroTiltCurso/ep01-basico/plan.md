@@ -12,7 +12,7 @@ Público: quem nunca jogou. Uma ideia só: com 7 cartas, forme o melhor jogo de 
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
 - S1: título (cartaz video 4) + 2 versos. S2: 5 versos flop/turn/river. S3: mesa + AA.
-- S4: royal com glow. S5: pote do blefe. S6: fecho. Total ~85s.
+- S4: royal com glow. S5: pote do blefe. S6: fecho. Total ~85s. Piloto 720p30 (`manim -qm`), cartas e tipo maiores.
 
 ## Identidade
 - Feltro #0A2E1A, dourado #C9A227, creme #F4F0E6. Monospace, sem LaTeX.

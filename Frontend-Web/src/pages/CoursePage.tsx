@@ -97,7 +97,7 @@ export function CoursePage() {
                       <span className="font-mono text-[11px] text-felt-500">{String(i + 1).padStart(2, "0")}</span>{" "}
                       <span className="text-sm font-semibold text-felt-400">{l.title}</span>
                       <span className="block text-[11px] text-felt-500">
-                        🎬 Vídeo IA (2 min) • Mão na Mesa • Quiz ({l.quiz.length} questões)
+                        Vídeo • leitura • quiz ({l.quiz.length} questões)
                       </span>
                     </span>
                     <span className="shrink-0 font-mono text-xs text-felt-500 flex items-center gap-1">
@@ -117,7 +117,7 @@ export function CoursePage() {
                     <span className="font-mono text-[11px] text-felt-400">{String(i + 1).padStart(2, "0")}</span>{" "}
                     <span className="text-sm font-semibold text-cream">{l.title}</span>
                     <span className="block text-[11px] text-felt-400">
-                      🎬 Vídeo IA (2 min) • Mão na Mesa • Quiz ({l.quiz.length} questões)
+                      Vídeo • leitura • quiz ({l.quiz.length} questões)
                     </span>
                   </span>
                   <span className="shrink-0 font-mono text-xs">

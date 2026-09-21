@@ -15,7 +15,10 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 89,
             "url": "/videos/ep11-historia-baralho.mp4",
-            "placeholderScript": "Fala, jogador! Seja muito bem-vindo à Zero Tilt Academy. Você sabia que o baralho com que jogamos poker tem mais de mil anos de história? Nascido na China da dinastia Tang e transformado no baralho de 52 cartas que conhecemos pelos franceses, ele é a máquina de informação incompleta perfeita. O poker não é sorte: é a arte de precificar e tomar decisões sob incerteza. Ao longo deste curso, eu e a nossa equipe de IA vamos te ensinar a pensar como um profissional. Assista à aula, veja o exemplo de mão e responda ao teste para desbloquear o próximo nível!"
+            "placeholderScript": "Fala, jogador! Seja muito bem-vindo à Zero Tilt Academy. Você sabia que o baralho com que jogamos poker tem mais de mil anos de história? Nascido na China da dinastia Tang e transformado no baralho de 52 cartas que conhecemos pelos franceses, ele é a máquina de informação incompleta perfeita. O poker não é sorte: é a arte de precificar e tomar decisões sob incerteza. Ao longo deste curso, eu e a nossa equipe de IA vamos te ensinar a pensar como um profissional. Assista à aula, veja o exemplo de mão e responda ao teste para desbloquear o próximo nível!",
+            "transcript": "Mil anos antes do seu primeiro olin, a humanidade já jogava cartas. De onde veio o baralho que está na sua mão?\n\nNa China do século nove, na época da dinastia Tang, a corte se divertia com tiras de papel marcadas com símbolos. Dali, pela Rota da Seda, a ideia viajou para o oeste.\n\nNa Pérsia, nasceu o gandjifa: noventa e seis cartas em oito naipes, com rei e ministro. E o aznás, com vinte e cinco cartas em cinco naipes: xá, dama, soldado, bailarino e ás.\n\nNo Egito dos mamelucos, o baralho já tinha cinquenta e duas cartas em quatro naipes — o exemplar de Topcapi sobrevive até hoje. Em mil trezentos e setenta, as cartas chegam à Europa: Catalunha, Florença, Paris.\n\nE foram os franceses que baratearam tudo: naipes simples de imprimir, em vermelho e preto. E cada rei ganhou nome: Davi de espadas, Alexandre de paus, César de ouros, Carlos Magno de copas.\n\nTreze valores vezes quatro naipes. Cinquenta e duas cartas que cruzaram o oceano e viraram centenas de jogos — incluindo o poker.\n\nE o detalhe que importa: o baralho é uma máquina de informação incompleta. Você vê as suas cartas, não as dos outros. Apostar é precificar o que você não vê. No próximo episódio: o Mississippi e o nascimento do blefe.",
+            "captionsUrl": "/videos/ep11-historia-baralho.vtt",
+            "posterUrl": "/videos/ep11-historia-baralho.jpg"
           },
           "handExample": {
             "title": "Informação Incompleta na Prática",
@@ -72,7 +75,10 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 92,
             "url": "/videos/ep12-mississippi.mp4",
-            "placeholderScript": "Em 1829, nos barcos do rio Mississippi, quatro pessoas jogavam com vinte cartas — e o blefe nasceu junto com o jogo. Da Guerra Civil ao Texas Hold'em de 1925, da WSOP de 1970 ao boom Moneymaker: esta é a estrada até o poker de hoje."
+            "placeholderScript": "Em 1829, nos barcos do rio Mississippi, quatro pessoas jogavam com vinte cartas — e o blefe nasceu junto com o jogo. Da Guerra Civil ao Texas Hold'em de 1925, da WSOP de 1970 ao boom Moneymaker: esta é a estrada até o poker de hoje.",
+            "transcript": "Em mil oitocentos e vinte e nove, nos barcos do rio Mississípi, quatro pessoas jogavam com vinte cartas, do ás ao dez. Vencia a melhor mão — ou quem fizesse os outros desistirem. O blefe nasceu junto com o jogo.\n\nNa Guerra Civil, o baralho foi a cinquenta e duas cartas. E no começo do século vinte, numa cidadezinha do Texas chamada Róbstaun, um jogador chamado Blóndi Fórbis colocou no papel as regras de um jogo novo: duas cartas fechadas mais cinco comunitárias. Nascia o Holdém do Texas.\n\nO jogo se espalhou pelo Texas por décadas. Até que em mil novecentos e sessenta e três, Córki Mecórquedeil levou o Holdém para Las Vegas, no California Club. Depois, a única casa a oferecer o jogo era o Nâguet — um salão poeirento no centro velho, sem cliente rico.\n\nEm mil novecentos e sessenta e sete, um grupo de texanos — Édington, Brânson e Amarílo Slim — transformou o jogo: dali em diante, o ás passou a valer alto. Em sessenta e nove, os profissionais foram convidados para a entrada do Dúnis, no meio da avenida principal. Mesa cheia de novato contra quem conhecia o jogo: dinheiro fácil.\n\nEm setenta, Bínion juntou sete lendas e criou a World Series. Em dois mil e três, Mânimeiker transformou oitenta e seis dólares em milhões — e o mundo descobriu que qualquer um pode ganhar. No próximo episódio: as lendas que fizeram história.",
+            "captionsUrl": "/videos/ep12-mississippi.vtt",
+            "posterUrl": "/videos/ep12-mississippi.jpg"
           },
           "body": "## 1829: 20 cartas e o blefe\n\nNos barcos do rio Mississippi, 4 pessoas jogavam com 20 cartas (do Ás ao 10). Vencia a melhor mão — ou quem fizesse os outros **desistirem**. O blefe nasceu junto com o jogo.\n\n## 52 cartas, Stud e Draw\n\nNa época da Guerra Civil Americana o baralho foi a 52 cartas e surgiram o Draw (trocar cartas) e o Stud (cartas abertas e fechadas).\n\n## 1925: nasce o Texas Hold'em\n\nEm Robstown, no Texas: 2 cartas fechadas + 5 comunitárias. Mais rápido e estratégico — é o jogo desta plataforma.\n\n## Vegas, TV e o boom\n\n- **1970:** Benny Binion junta 7 lendas e cria a World Series of Poker (WSOP).\n- **2002–2003:** o WPT mostra as cartas na TV e Chris Moneymaker transforma US$ 86 em US$ 2,5 milhões — o mundo descobre que qualquer um pode ganhar.\n- **Hoje:** Triton, WSOP com 10 mil inscritos e poker reconhecido como esporte da mente.",
           "quiz": [
@@ -111,7 +117,10 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 86,
             "url": "/videos/ep13-lendas.mp4",
-            "placeholderScript": "De Johnny Moss a André Akkari: as lendas do poker mundial e do Brasil — e a lição que une todas elas: ninguém nasceu sabendo, estude uma ideia por sessão."
+            "placeholderScript": "De Johnny Moss a André Akkari: as lendas do poker mundial e do Brasil — e a lição que une todas elas: ninguém nasceu sabendo, estude uma ideia por sessão.",
+            "transcript": "Johnny Móss foi eleito campeão da primeira World Series, em setenta — e venceu a de setenta e um na mesa. Dóil Brânson ganhou dez braceletes, escreveu o Super System e deu nome ao dez e dois. Stu Úngar, três títulos do Main Event: um gênio trágico.\n\nDepois vieram os modernos: Áivi, o mais temido do cash game. Hélmut, dono de dezessete braceletes e das melhores frases do poker. Negriânu, o leitor de almas. Roltz, o alemão que aposentou milionário antes dos trinta.\n\nE o Brasil entrou no mapa. Em dois mil e quatro, amigos de Campinas criaram o C P H. Igor Trafâne e Devanir Campos fundaram o B S O P, hoje a maior série fora de Vegas.\n\nAlexandre Gomes trouxe o primeiro bracelete brasileiro em dois mil e oito: dois mil trezentos e dezessete jogadores, setecentos e setenta mil dólares. André Acári veio em dois mil e onze, com seiscentos e setenta e cinco mil: o segundo do país. E a geração de ouro: Iúri com seis braceletes, Botéon vice mundial em dois mil e vinte.\n\nA lição? Ninguém nasceu sabendo. Móss era trapaceiro de rua, Mânimeiker era contador. Estude uma ideia por sessão — como eles fizeram. No próximo módulo: ranges, a matemática da primeira decisão.",
+            "captionsUrl": "/videos/ep13-lendas.vtt",
+            "posterUrl": "/videos/ep13-lendas.jpg"
           },
           "body": "## Lendas mundiais\n\n- **Johnny Moss:** venceu as duas primeiras WSOP (1970–71).\n- **Doyle Brunson:** 10 braceletes; o 10-2 leva seu nome.\n- **Stu Ungar:** 3 títulos do Main Event, gênio trágico.\n- **Phil Ivey (11 braceletes), Phil Hellmuth (17), Daniel Negreanu, Fedor Holz:** a era moderna.\n\n## O Brasil no mapa\n\n- **2004–2006:** amigos de Campinas criam o CPH; **Igor Trafane** e **Devanir Campos (DC)** fundam a **BSOP** — hoje a maior série fora de Vegas.\n- **Alexandre Gomes (2008):** primeiro bracelete brasileiro. **André Akkari (2011):** bracelete e o rosto do poker na TV.\n- **Geração de ouro:** Yuri Martins (6 braceletes), Brunno Botteon (vice do Main Event 2020), Felipe Mojave, João Simão, Kelvin Kerber.\n- **Estrutura:** H2 Club (maior clube da América Latina), federação e mídia especializada profissionalizaram tudo.\n\n## A lição\n\nNinguém nasceu sabendo: Moss era trapaceiro de rua, Moneymaker era contador. Estude uma ideia por sessão — como eles fizeram.",
           "quiz": [
@@ -150,7 +159,10 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 85,
             "url": "/videos/ep01-poker-do-zero.mp4",
-            "placeholderScript": "No Texas Hold'em, cada jogador recebe duas cartas fechadas e compartilha cinco cartas comunitárias na mesa. O objetivo? Formar a melhor mão de cinco cartas ou fazer todos os oponentes desistirem antes do showdown. A hierarquia clássica vai de Carta Alta até Royal Flush. O segredo de quem vence de verdade é a disciplina: foldar mãos fracas cedo e extrair o valor máximo das mãos fortes nas quatro rodadas: Pré-flop, Flop, Turn e River. Vamos ver na prática como funciona uma mão completa!"
+            "placeholderScript": "No Texas Hold'em, cada jogador recebe duas cartas fechadas e compartilha cinco cartas comunitárias na mesa. O objetivo? Formar a melhor mão de cinco cartas ou fazer todos os oponentes desistirem antes do showdown. A hierarquia clássica vai de Carta Alta até Royal Flush. O segredo de quem vence de verdade é a disciplina: foldar mãos fracas cedo e extrair o valor máximo das mãos fortes nas quatro rodadas: Pré-flop, Flop, Turn e River. Vamos ver na prática como funciona uma mão completa!",
+            "transcript": "Toda mão começa igual: dois bláindes postos e duas cartas fechadas só suas. O small paga metade, o big paga cheio. E a cada mão o botão anda uma casa — todo mundo paga, todo mundo joga em posição.\n\nSão quatro rodadas de aposta. No pré-flópi, cada um decide: folde, pague ou aumente. Depois vêm as comunitárias, que valem para todo mundo: três no flópi, uma no térn, uma no ríver.\n\nCom as suas duas mais as cinco da mesa, você forma o melhor jogo de cinco cartas. Par, dois pares, trinca, sequência, flush, full house, quadra: a hierarquia decide quem leva.\n\nOlha o exemplo máximo: Ás e Rei de espadas na mão, com Dama, Valete e Dez de espadas na mesa. Royal flush: o jogo imbatível, cinco cartas do mesmo naipe em sequência até o Ás.\n\nE se ninguém pagar a sua aposta no caminho? O pote é seu na hora, sem mostrar nada. É o blefe: vencer sem ter o melhor jogo.\n\nNo choudáun, abrem-se as cartas e compara-se o melhor jogo de cinco. Empatou? O pote divide no meio. Dois bláindes, duas suas, cinco da mesa: melhor jogo leva tudo. No próximo episódio: posição, a maior vantagem do poker.",
+            "captionsUrl": "/videos/ep01-poker-do-zero.vtt",
+            "posterUrl": "/videos/ep01-poker-do-zero.jpg"
           },
           "handExample": {
             "title": "Showdown — Melhor Combinação de 5 Cartas",
@@ -209,7 +221,10 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 82,
             "url": "/videos/ep02-posicao.mp4",
-            "placeholderScript": "Posição é a maior vantagem do poker. Quem fala por último vê o que todos os outros fizeram antes de colocar uma única ficha no pote. Do Botão e do Cutoff, você pode jogar muito mais mãos e roubar os blinds. Já das primeiras posições, como UTG, você só deve abrir mãos extremamente fortes. Veja estas decisões práticas no nosso motor: responder corretamente a estes spots é o primeiro passo para parar de perder fichas à toa."
+            "placeholderScript": "Posição é a maior vantagem do poker. Quem fala por último vê o que todos os outros fizeram antes de colocar uma única ficha no pote. Do Botão e do Cutoff, você pode jogar muito mais mãos e roubar os blinds. Já das primeiras posições, como UTG, você só deve abrir mãos extremamente fortes. Veja estas decisões práticas no nosso motor: responder corretamente a estes spots é o primeiro passo para parar de perder fichas à toa.",
+            "transcript": "Posição é informação. E informação, no poker, é dinheiro. Quem age por último vê o que todo mundo fez antes de decidir — e decide com a cena completa.\n\nNa mesa de nove, os nomes seguem o botão. Small e big bláinde pagam no escuro. Under the gun fala primeiro no pré-flópi, sem saber de nada: por isso o under the gun joga o range mais fechado da mesa, só premiums.\n\nNo meio, Lojack e Hijack respiram: menos gente para trás, range abre um pouco. O réque começa a aparecer: roubar bláindes de quem está apertado.\n\nE no fim, Cutoff e Botão: o botão age por último em todas as rodadas pós-flópi. É o rei das posições — range mais largo, mais blefe, mais valor. A maior parte do seu lucro vai nascer aqui.\n\nA regra de bolso? Cedo: fechado e forte. Tarde: largo e agressivo. Fora de posição, pote pequeno e decisão simples. Em posição, o pote é seu para moldar: blefe quando checam, valor quando pagam.\n\nGrave isso: cartas iguais, resultados diferentes — a diferença mora no assento. No próximo episódio: aumento ou descarte, a primeira decisão.",
+            "captionsUrl": "/videos/ep02-posicao.vtt",
+            "posterUrl": "/videos/ep02-posicao.jpg"
           },
           "handExample": {
             "title": "Abertura por Posição",
@@ -358,7 +373,10 @@
           "video": {
             "durationSeconds": 77,
             "url": "/videos/ep03-raise-fold.mp4",
-            "placeholderScript": "Toda mão começa com uma pergunta que vale dinheiro: aumento ou descarte? Lixo fora de posição se descarta sem pensar, premium como AA no botão se aumenta sempre, e no meio-termo vale o barato ou fold — dúvida fora de posição também se descarta."
+            "placeholderScript": "Toda mão começa com uma pergunta que vale dinheiro: aumento ou descarte? Lixo fora de posição se descarta sem pensar, premium como AA no botão se aumenta sempre, e no meio-termo vale o barato ou fold — dúvida fora de posição também se descarta.",
+            "transcript": "Toda mão começa com uma pergunta que vale dinheiro: aumento ou descarte? Acertar essa primeira decisão já te coloca na frente de quase toda mesa iniciante.\n\nA regra de ouro é simples: mão fraca fora de posição perde dinheiro no longo prazo. Sete e dois naipados no under the gun? Descarte sem pensar duas vezes. Não tem blefe que salve lixo fora de posição contra mesa cheia.\n\nCom Ás e Ás no botão, o outro extremo: aumente sempre. Par de ases quer pote grande e poucos oponentes. Limp de Ás-Ás é pedir para cinco pessoas pagarem barato e te atropelarem no flópi.\n\nE o meio? Mãos médias em posição intermediária: jogue barato ou descarte. Par baixo sem stack profundo para minerar? Descarte. Conector fraco fora de posição? Descarte. Disciplina pré-flópi economiza os erros mais caros do poker.\n\nSimples assim: forte aumenta, lixo descarta, dúvida fora de posição descarta também. O resto é refinamento — e começa na próxima aula. No próximo episódio: ranges, o mapa das mãos que cada posição joga.",
+            "captionsUrl": "/videos/ep03-raise-fold.vtt",
+            "posterUrl": "/videos/ep03-raise-fold.jpg"
           },
           "body": "## 1. A pergunta que vale dinheiro\n\nToda mão começa com: **aumento ou descarte?** Acertar essa primeira decisão já te coloca na frente de quase toda mesa iniciante.\n\n## 2. Lixo fora de posição: descarte\n\nMão fraca fora de posição perde dinheiro no longo prazo. **7-2 no UTG? Descarte sem pensar** — não tem blefe que salve lixo fora de posição contra mesa cheia.\n\n## 3. Premium: aumente sempre\n\nCom **AA no botão, aumente sempre**: par de ases quer pote grande e poucos oponentes. Limp de AA chama a mesa inteira barato e te atropela no flop.\n\n## 4. O meio: barato ou fold\n\nMãos médias: jogue barato ou descarte. Par baixo sem stack para minerar? Descarte. **Dúvida fora de posição? Descarte também.** Disciplina pré-flop economiza os erros mais caros.",
           "quiz": [
@@ -395,7 +413,10 @@
           "video": {
             "durationSeconds": 90,
             "url": "/videos/ep05-sizing.mp4",
-            "placeholderScript": "Apostar do tamanho errado custa fichas dos dois jeitos. O padrão começa na posição (UTG 2x até SB 3x), cresce na reabertura (3x com posição, 3,5-4x sem), soma 1x por limper e termina na leitura: padrão quebrado é medo ou monstro."
+            "placeholderScript": "Apostar do tamanho errado custa fichas dos dois jeitos. O padrão começa na posição (UTG 2x até SB 3x), cresce na reabertura (3x com posição, 3,5-4x sem), soma 1x por limper e termina na leitura: padrão quebrado é medo ou monstro.",
+            "transcript": "Apostar do tamanho errado custa fichas dos dois jeitos. Pequeno demais, e mão ruim paga barato para te vencer no final. Grande demais, e só mão mais forte continua — você isola exatamente quem te bate.\n\nO padrão vencedor começa pela posição. Under the gun e hijack abrem dois bláindes. Cutoff, dois vírgula três. Botão, dois e meio. Small blind, três. Padronize por posição e ninguém lê a sua mão pelo tamanho.\n\nNa reabertura, a conta muda. Com posição, três vezes o aumento original: barato para você, caro para ele continuar. Sem posição, três e meia a quatro vezes — porque você vai jogar o resto da mão no escuro e precisa cobrar esse desconto na entrada. A quarta aposta segue a lógica: duas vírgula duas a duas e meia vezes.\n\nE contra quem só pagou? Some um bláinde por limper em cima do seu padrão. Dois curiosos com você no botão? Dois e meio mais dois: quatro e meio no total. Cada pagante aumenta o prêmio e pede proteção extra.\n\nTamanho conta história: padronize o seu e leia o dos outros. Aposta miúda de repente grande? Força. Padrão quebrado? Medo ou monstro. No próximo episódio: roubos de bláinde e o contra-ataque, a tribe bete.",
+            "captionsUrl": "/videos/ep05-sizing.vtt",
+            "posterUrl": "/videos/ep05-sizing.jpg"
           },
           "body": "## 1. Tamanho errado custa dos dois jeitos\n\n**Pequeno demais** e mão ruim paga barato para te vencer no final. **Grande demais** e só mão mais forte continua — você isola exatamente quem te bate.\n\n## 2. Padrão por posição\n\nUTG e HJ abrem **2x**, CO **2,3x**, botão **2,5x**, small blind **3x**. Padronize por posição e ninguém lê a sua mão pelo tamanho.\n\n## 3. Reabertura e limpers\n\nCom posição, **3x** o aumento original; sem posição, **3,5-4x**. Contra limpers, **+1x por curioso**: dois pagantes com você no botão? 2,5 + 2 = **4,5x**.\n\n## 4. Leia o tamanho dos outros\n\nAposta miúda que de repente cresce? Força. **Padrão quebrado? Medo ou monstro.** Tamanho conta história: padronize o seu e leia o dos outros.",
           "quiz": [
@@ -441,7 +462,10 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 89,
             "url": "/videos/ep04-ranges.mp4",
-            "placeholderScript": "No poker, informação é dinheiro. Quando você está no UTG, fala primeiro pós-flop para 8 adversários — seu range deve ser rígido, apenas 12% das melhores mãos. Mas quando a ação chega em fold até o Botão, você fala por último em todas as rodadas e pode abrir quase 50% das mãos para roubar os blinds! Veja na mesa como uma mão como K-Q suited muda completamente de valor dependendo de onde você está sentado."
+            "placeholderScript": "No poker, informação é dinheiro. Quando você está no UTG, fala primeiro pós-flop para 8 adversários — seu range deve ser rígido, apenas 12% das melhores mãos. Mas quando a ação chega em fold até o Botão, você fala por último em todas as rodadas e pode abrir quase 50% das mãos para roubar os blinds! Veja na mesa como uma mão como K-Q suited muda completamente de valor dependendo de onde você está sentado.",
+            "transcript": "Range é o mapa das mãos que cada posição joga. E o mapa muda com o assento: quanto mais gente para agir depois de você, mais fechado o mapa.\n\nNo under the gun, só premiums: pares altos, Ás-Rei, Ás-Dama naipado. Oito pessoas olhando, erro custa caro. No meio, o mapa abre um pouco: pares médios, conectores do mesmo naipe, Ás com quéquer bom.\n\nNo cutoff, o mapa vira arma: roube bláindes com range largo, porque só o botão age depois. E no botão, o mapa é oceano: qualquer par, qualquer Ás, conectores, um monte de blefe. Posição paga o preço da entrada.\n\nE tem a segunda dimensão: contra quem? Contra mesa apertada, abra mais e roube. Contra pagadores, aperte o valor e cobre. Range não é tabela decorada: é tabela viva, que respira com a mesa.\n\nDecore a lógica, não a lista: cedo forte e fechado, tarde largo e agressivo. E nunca jogue fora do mapa sem motivo — motivo se chama informação.\n\nE o erro clássico? Jogar o under the gun como se fosse o botão: range largo cedo é doar fichas para a mesa inteira. Se você se pegou abrindo qualquer Ás de UTG, volte dois episódios e recomece do descarte.\n\nNo próximo episódio: o tamanho certo do aumento.",
+            "captionsUrl": "/videos/ep04-ranges.vtt",
+            "posterUrl": "/videos/ep04-ranges.jpg"
           },
           "handExample": {
             "title": "KQs no UTG vs. BTN",
@@ -500,7 +524,10 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 87,
             "url": "/videos/ep14-limp-punish.mp4",
-            "placeholderScript": "Quando o Small Blind apenas completa um blind, ele está te dando um presente. O limp é passivo e indica um range limitado (capped). Ele não tem AA ou KK. No Big Blind, você terá posição em todas as streets. A resposta matemática ideal é o Isolation Raise de 3.5x a 4x com mãos de valor e blefes com bloqueadores como Ás e Cinco de espadas. Veja como forçamos o fold no flop com uma c-bet de apenas um terço do pote!"
+            "placeholderScript": "Quando o Small Blind apenas completa um blind, ele está te dando um presente. O limp é passivo e indica um range limitado (capped). Ele não tem AA ou KK. No Big Blind, você terá posição em todas as streets. A resposta matemática ideal é o Isolation Raise de 3.5x a 4x com mãos de valor e blefes com bloqueadores como Ás e Cinco de espadas. Veja como forçamos o fold no flop com uma c-bet de apenas um terço do pote!",
+            "transcript": "O small blind só pagou. Isso tem nome: limpe — e é um convite. Mas atenção: convite também pode ser armadilha.\n\nPrimeiro, leia o vilão. A maioria limpa com mão fraca demais para aumentar e boa demais para largar: pares baixos, conectores, Ás com quéquer ruim. Contra eles, isole largo: acima de cinquenta por cento das mãos, que você domina quase tudo que ele paga.\n\nContra quem tem estratégia equilibrada, aperte: quarenta a quarenta e cinco por cento, só mãos fortes em sequência. E se ele voltar aumentando em cima do seu iso? Alarme total: limpe-rerraise é quase sempre monstro. Largue sem apego.\n\nO tamanho do castigo? Contra regular, três e meio a quatro bláindes. Contra fraco, que paga do mesmo jeito com qualquer tamanho, suba para quatro e meio: pote grande em posição, onde o erro dele custa mais caro. Com curiosos na frente? Some um bláinde por limper.\n\nE o complete do small? Pagando meio bláinde para ver flop, vale contra mesa fraca. Mas contra você, é só o convite que vamos punir. Puna o limpe toda vez — e o pote pré-flop vira seu lucro mais fácil. No próximo episódio: continuation bet, a aposta que continua a história.",
+            "captionsUrl": "/videos/ep14-limp-punish.vtt",
+            "posterUrl": "/videos/ep14-limp-punish.jpg"
           },
           "handExample": {
             "title": "Isolation Raise no BB vs. Limp do SB",
@@ -563,7 +590,10 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 86,
             "url": "/videos/ep06-steal-3bet.mp4",
-            "placeholderScript": "3-betar não é loucura: é a chave para jogar potes grandes em posição. Nós dividimos a 3-bet em duas frentes: por valor, com monstros como QQ e AK, e 3-bet light com bloqueadores, usando mãos como A4s e KTs. Se o adversário foldar pré-flop, você puxa o pote limpo; se ele pagar, você joga o flop em posição com iniciativa e cartas vivas. Olhe este spot com A♠ 4♠ no Botão contra um open do Cutoff!"
+            "placeholderScript": "3-betar não é loucura: é a chave para jogar potes grandes em posição. Nós dividimos a 3-bet em duas frentes: por valor, com monstros como QQ e AK, e 3-bet light com bloqueadores, usando mãos como A4s e KTs. Se o adversário foldar pré-flop, você puxa o pote limpo; se ele pagar, você joga o flop em posição com iniciativa e cartas vivas. Olhe este spot com A♠ 4♠ no Botão contra um open do Cutoff!",
+            "transcript": "Roubar bláinde é o salário do jogador agressivo: pote pequeno, sem showdown, várias vezes por sessão. E o melhor lugar para o crime é o fim da fila: cutoff e, principalmente, botão.\n\nDo botão, com todo mundo foldando até você, abra largo: qualquer Ás, reis com quéquer, conectores, um monte de lixo jogável. Os bláindes defendem uma fração — o resto é seu sem ver flópi. E se o small ou o big pagarem, você joga em posição o resto da mão.\n\nMas o crime tem câmera: vilão esperto percebe o roubo e volta reaumentando em cima — o restile. Contra restile frequente, aperte o range de roubo e puna o blefe com tribe bete por valor: Dama-Dama plus e Ás-Rei adoram esse confronto. E atenção ao stack: contra short stack que vai de olin por cima, roube só com mão que aguenta o confronto.\n\nE quando você está nos bláindes sendo roubado? Reaja com tribe bete: de valor com premiums, de blefe com Ás pequeno naipado e conectores que bloqueiam as premiums dele. Três vezes o aumento com posição, quatro vezes sem. E tem o espremedor, o squeeze: com raiser e pagadores na frente, reaumente grande e leve o pote morto — ninguém defende marginal espremido. Não deixe roubarem sua casa de graça: cobre pedágio — ou tome o pote de volta.",
+            "captionsUrl": "/videos/ep06-steal-3bet.vtt",
+            "posterUrl": "/videos/ep06-steal-3bet.jpg"
           },
           "handExample": {
             "title": "3-Bet Light com Blocker de Ás",
@@ -629,7 +659,10 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 86,
             "url": "/videos/ep15-cbet-flop.mp4",
-            "placeholderScript": "A continuation bet é a aposta mais comum do poker, mas você não deve apostar em todo flop sem pensar. Em boards secos — como Ás, Sete e Dois — o adversário erra mais de 60% das vezes e seu range contém os Áses fortes; aí apostamos pequeno, 25% a 33% do pote. Mas em boards conectados e molhados, como 9, 8 e 7 com flush draw, o oponente acerta dezenas de combos. Nesses boards molhados, pedimos mesa com mãos médias para controlar o pote. Veja a diferença!"
+            "placeholderScript": "A continuation bet é a aposta mais comum do poker, mas você não deve apostar em todo flop sem pensar. Em boards secos — como Ás, Sete e Dois — o adversário erra mais de 60% das vezes e seu range contém os Áses fortes; aí apostamos pequeno, 25% a 33% do pote. Mas em boards conectados e molhados, como 9, 8 e 7 com flush draw, o oponente acerta dezenas de combos. Nesses boards molhados, pedimos mesa com mãos médias para controlar o pote. Veja a diferença!",
+            "transcript": "Você aumentou pré-flópi e o flópi veio. E agora?\n\nA resposta está na textura do bordo. Bordo seco: rei, sete e dois de naipes diferentes. Ás, oito e três. Quase ninguém acerta nada aqui. Por isso a continuation bete é frequente e barata: vinte e cinco a trinta e três por cento do pote. Funciona como blefe e como valor fino — e o seu range de agressor tem todos os pares altos que o pagador quase nunca tem.\n\nBordo molhado: nove, oito e sete em sequência. Valete, dez e cinco puxando pro flush. Aqui o oponente acerta pares, sequências e draws — e tem posição sobre o seu blefe. Então bete menos vezes. E quando apostar por valor, cobre caro: sessenta a setenta e cinco por cento, para tirar o preço de quem está comprando.\n\nE tem o meio-termo traiçoeiro: bordo médio, tipo dama, nove e dois. Nem seco, nem molhado. Aqui manda a vantagem de range: se o bordo bate mais no seu range de agressor, bete pequeno e frequente. Se bate no range de quem pagou, controle o pote e cheque mais.\n\nA regra de ouro: no seco, barato e sempre. No molhado, caro e às vezes. O tamanho da aposta conta a história — e a textura diz se ela é verdade. No próximo episódio: cheque-reise e floute.",
+            "captionsUrl": "/videos/ep15-cbet-flop.vtt",
+            "posterUrl": "/videos/ep15-cbet-flop.jpg"
           },
           "handExample": {
             "title": "C-bet 33% em Flop Seco",
@@ -696,7 +729,10 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 89,
             "url": "/videos/ep16-checkraise-float.mp4",
-            "placeholderScript": "Você fez a sua c-bet e, de repente, o Big Blind aumentou em check-raise. O que fazer? Em micro e low stakes, o check-raise raramente é blefe puro; costuma ser dois pares, trincas ou draws fortíssimos. Pagar com par médio sem cartas extras é doar fichas. No entanto, em posição e com mãos que possuem cartas de backdoor e posição, você pode usar a técnica do 'Float': pagar no flop para tomar o pote no turn caso ele mostre fraqueza."
+            "placeholderScript": "Você fez a sua c-bet e, de repente, o Big Blind aumentou em check-raise. O que fazer? Em micro e low stakes, o check-raise raramente é blefe puro; costuma ser dois pares, trincas ou draws fortíssimos. Pagar com par médio sem cartas extras é doar fichas. No entanto, em posição e com mãos que possuem cartas de backdoor e posição, você pode usar a técnica do 'Float': pagar no flop para tomar o pote no turn caso ele mostre fraqueza.",
+            "transcript": "Você apostou o flópi e o vilão aumentou em cima: cheque-reise. O que isso significa? Quase sempre força de verdade: trincas, dois pares, top pair com top quéquer. Ou semi-blefe pesado: nati flush draw, sequência aberta com duas pontas.\n\nA resposta? Continue só com o topo do seu range ou com draws de alta equidade. Par médio sem outs claros: folde sem remorso. E repare no tamanho: contra aposta pequena, o raise cabe mais vezes, porque o range dele é mais largo e fraco. Contra aposta grande, aperte o range e suba menor — não se jogue contra força anunciada.\n\nE o contra-ataque se chama floute: pagar o flópi em posição para tomar o pote no térn. O floute precisa de duas coisas: posição e plano. Mire em quem aposta quase todo flópi e desiste no térn — se a frequência de continuation bete passa de setenta por cento e o segundo tiro é raro, é alvo. Se ele checar o térn, você aposta e leva. Se ele apostar forte de novo, desista sem equidade.\n\nFloute é paciência armada: flutue nos bordos certos, desista nos errados, nunca pague para ver sem motivo. Quem domina o cheque-reise e o floute joga o flópi duas vezes: uma nas cartas, outra na cabeça do vilão. No próximo episódio: potes multiway e sete mining.",
+            "captionsUrl": "/videos/ep16-checkraise-float.vtt",
+            "posterUrl": "/videos/ep16-checkraise-float.jpg"
           },
           "handExample": {
             "title": "Foldando vs. Check-Raise sem Outs",
@@ -763,7 +799,10 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 85,
             "url": "/videos/ep17-multiway-mining.mp4",
-            "placeholderScript": "Quando três ou mais jogadores chegam ao flop, a matemática do poker muda totalmente: a eficácia dos blefes desaba. Alguém sempre acerta alguma coisa. Com pares baixos e médios de 22 a 88, nosso plano antes do flop é fazer 'Set Mining': pagar barato torcendo para acertar a trinca. Se você acertar o set, aposte forte para cobrar draws; se errar, passe ou desista barato."
+            "placeholderScript": "Quando três ou mais jogadores chegam ao flop, a matemática do poker muda totalmente: a eficácia dos blefes desaba. Alguém sempre acerta alguma coisa. Com pares baixos e médios de 22 a 88, nosso plano antes do flop é fazer 'Set Mining': pagar barato torcendo para acertar a trinca. Se você acertar o set, aposte forte para cobrar draws; se errar, passe ou desista barato.",
+            "transcript": "Três ou mais jogadores viram o flópi: pote multiway. Primeira regra: blefe muito menos. Com tanta gente na mão, a chance de alguém ter acertado alguma coisa é enorme. Blefe multiway é dinheiro jogado fora — guarde a criatividade para o mano a mano.\n\nSegunda regra: quando acertar de verdade, cobre sem dó. Trinca, dois pares, overpair forte: aposte por valor de cinquenta a setenta por cento do pote. Em mesa cheia, tem sempre alguém pagando com par pior ou draw — e são esses calls que pagam a sua sessão.\n\nE o sete mining? Pagar com par baixo só para trincar no flópi. A conta é simples: só vale a pena se os stacks forem profundos, umas vinte vezes o valor do call. Par de cincos pagando um bláinde com cem para trás? Pode minerar. Sem profundidade, sem mineração: folde pré-flópi e espere um lugar melhor. E repare: minerar fora de posição cobra mais caro, porque você vai jogar o pós-flópi no escuro.\n\nMultiway é disciplina: menos blefe, mais valor e conta feita antes de pagar. E o sete mining completa a disciplina: par baixo só com stack profundo, umas vinte vezes o call, sem exceção. No próximo módulo: o térn, onde o pote cresce e cada erro custa mais caro.",
+            "captionsUrl": "/videos/ep17-multiway-mining.vtt",
+            "posterUrl": "/videos/ep17-multiway-mining.jpg"
           },
           "handExample": {
             "title": "Set Mining em Pote Multiway",
@@ -837,7 +876,9 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 77,
             "url": "/videos/ep18-double-barrel.mp4",
-            "placeholderScript": "Você apostou no flop e tomou call. Agora cai o Turn: a rua onde os potes crescem exponencialmente. O double barrel — apostar de novo no turn — deve ser feito principalmente em 'Scare Cards': cartas altas como Ás ou Rei que favorecem seu range, ou cartas que aumentam sua equidade com flush e straight draws. O sizing correto aqui é mais pesado: 66% a 75% do pote para polarizar sua linha!"
+            "placeholderScript": "Você apostou no flop e tomou call. Agora cai o Turn: a rua onde os potes crescem exponencialmente. O double barrel — apostar de novo no turn — deve ser feito principalmente em 'Scare Cards': cartas altas como Ás ou Rei que favorecem seu range, ou cartas que aumentam sua equidade com flush e straight draws. O sizing correto aqui é mais pesado: 66% a 75% do pote para polarizar sua linha!",
+            "captionsUrl": "/videos/ep18-double-barrel.vtt",
+            "posterUrl": "/videos/ep18-double-barrel.jpg"
           },
           "handExample": {
             "title": "Double Barrel no Turn com Scare Card",
@@ -906,7 +947,9 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 83,
             "url": "/videos/ep19-pot-control.mp4",
-            "placeholderScript": "No turn você precisa escolher entre duas filosofias: controlar o pote ou polarizar. Se sua mão tem valor intermediário — como segundo par ou top pair com kicker modesto — você quer 'Pot Control': pedir mesa para chegar ao river sem inflar o pote. Já com mãos monstras ou blefes selecionados, você polariza apostando pesado. Não caia na armadilha de apostar meio pote com jogo médio e tomar raise!"
+            "placeholderScript": "No turn você precisa escolher entre duas filosofias: controlar o pote ou polarizar. Se sua mão tem valor intermediário — como segundo par ou top pair com kicker modesto — você quer 'Pot Control': pedir mesa para chegar ao river sem inflar o pote. Já com mãos monstras ou blefes selecionados, você polariza apostando pesado. Não caia na armadilha de apostar meio pote com jogo médio e tomar raise!",
+            "captionsUrl": "/videos/ep19-pot-control.vtt",
+            "posterUrl": "/videos/ep19-pot-control.jpg"
           },
           "handExample": {
             "title": "Pot Control com Segundo Par",
@@ -975,7 +1018,10 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 84,
             "url": "/videos/ep07-pot-odds.mp4",
-            "placeholderScript": "Chega de adivinhar: poker lucrativo é matemática simples. No turn, para saber se vale a pena pagar uma aposta com flush draw ou sequência, usamos a Regra do 2: multiplique o número de outs por dois para achar sua porcentagem de acertar a carta no river. Um flush draw tem 9 outs, logo tem aproximadamente 18% de chance. Se o pote te oferecer um preço menor do que 18%, pagar é lucro garantido no longo prazo!"
+            "placeholderScript": "Chega de adivinhar: poker lucrativo é matemática simples. No turn, para saber se vale a pena pagar uma aposta com flush draw ou sequência, usamos a Regra do 2: multiplique o número de outs por dois para achar sua porcentagem de acertar a carta no river. Um flush draw tem 9 outs, logo tem aproximadamente 18% de chance. Se o pote te oferecer um preço menor do que 18%, pagar é lucro garantido no longo prazo!",
+            "transcript": "Quanto custa ver a próxima carta? Essa pergunta vale dinheiro — e a resposta se chama pote odes. É a conta mais importante do poker depois da posição.\n\nA conta é simples: divida o que você tem que pagar pelo pote total depois do seu call. Aposta de vinte e cinco num pote de setenta e cinco? Você paga vinte e cinco para concorrer a cem: quatro para um. Precisa de vinte por cento de chance para o call empatar.\n\nE de onde vem a chance? Dos outs: cartas que te colocam na frente. Flush draw tem nove outs — cerca de trinta e seis por cento do flópi ao ríver, dezoito do térn ao ríver. Regra de bolso: outs vezes quatro no flópi, vezes dois no térn.\n\nCompare sempre: nove outs no flópi contra aposta de meio pote? Trinta e seis contra vinte e cinco: call lucrativo. Oesdi sem posição contra overbete? A conta fecha no vermelho: folde sem apego.\n\nE tem a segunda conta: implied odes, o que você ganha a mais quando acertar. Contra pagador apaixonado, pague um pouco pior. Contra rocha que larga tudo, exija a conta exata. Pote odes decide o call, implied decide os casos duvidosos. No próximo episódio: valor esperado e fold equity.",
+            "captionsUrl": "/videos/ep07-pot-odds.vtt",
+            "posterUrl": "/videos/ep07-pot-odds.jpg"
           },
           "handExample": {
             "title": "Calculando Pot Odds no Turn",
@@ -1051,7 +1097,9 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 78,
             "url": "/videos/ep20-thin-value.mp4",
-            "placeholderScript": "No river a equidade acaba: não existem mais cartas a vir. Suas fichas só podem ser colocadas no meio por dois motivos: por valor, para ser pago por mãos piores, ou por blefe, para fazer mãos melhores desistirem. O thin value bet — apostar uma mão marginal que ainda bate o range de call do vilão — é o divisor de águas entre um amador e um profissional. Veja este exemplo com top pair fraco no river!"
+            "placeholderScript": "No river a equidade acaba: não existem mais cartas a vir. Suas fichas só podem ser colocadas no meio por dois motivos: por valor, para ser pago por mãos piores, ou por blefe, para fazer mãos melhores desistirem. O thin value bet — apostar uma mão marginal que ainda bate o range de call do vilão — é o divisor de águas entre um amador e um profissional. Veja este exemplo com top pair fraco no river!",
+            "captionsUrl": "/videos/ep20-thin-value.vtt",
+            "posterUrl": "/videos/ep20-thin-value.jpg"
           },
           "handExample": {
             "title": "Thin Value Bet no River",
@@ -1122,7 +1170,9 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 91,
             "url": "/videos/ep21-bluff-catchers.mp4",
-            "placeholderScript": "Quando o oponente aposta pesado no river, sua mão muitas vezes vira um 'bluff-catcher': ela só vence se ele estiver blefando. Como decidir entre o herocall ou o fold? Olhe para os seus bloqueadores! Se você tem o Ás do naipe do flush que não bateu, você bloqueia os combos de valor do adversário, tornando o blefe muito mais provável. Veja na mesa como usar bloqueadores para desmontar overbets."
+            "placeholderScript": "Quando o oponente aposta pesado no river, sua mão muitas vezes vira um 'bluff-catcher': ela só vence se ele estiver blefando. Como decidir entre o herocall ou o fold? Olhe para os seus bloqueadores! Se você tem o Ás do naipe do flush que não bateu, você bloqueia os combos de valor do adversário, tornando o blefe muito mais provável. Veja na mesa como usar bloqueadores para desmontar overbets.",
+            "captionsUrl": "/videos/ep21-bluff-catchers.vtt",
+            "posterUrl": "/videos/ep21-bluff-catchers.jpg"
           },
           "handExample": {
             "title": "Hero Call com Blocker de Flush",
@@ -1193,7 +1243,9 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 76,
             "url": "/videos/ep22-overbet-blocking.mp4",
-            "placeholderScript": "No river os tamanhos de aposta não precisam ser tímidos. A overbet — apostar mais do que o tamanho do pote — é a ferramenta máxima para extrair o stack inteiro quando você tem os nuts absolutos ou para pressionar o adversário quando você bloqueia as melhores mãos. Por outro lado, a 'blocking bet' é uma aposta pequena de 20% do pote para ditar o preço do showdown e não tomar uma aposta gigante do vilão."
+            "placeholderScript": "No river os tamanhos de aposta não precisam ser tímidos. A overbet — apostar mais do que o tamanho do pote — é a ferramenta máxima para extrair o stack inteiro quando você tem os nuts absolutos ou para pressionar o adversário quando você bloqueia as melhores mãos. Por outro lado, a 'blocking bet' é uma aposta pequena de 20% do pote para ditar o preço do showdown e não tomar uma aposta gigante do vilão.",
+            "captionsUrl": "/videos/ep22-overbet-blocking.vtt",
+            "posterUrl": "/videos/ep22-overbet-blocking.jpg"
           },
           "handExample": {
             "title": "Overbet de 125% com o Nut Straight",
@@ -1271,7 +1323,9 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 75,
             "url": "/videos/ep23-short-deck.mp4",
-            "placeholderScript": "Bem-vindo ao Short Deck, a modalidade mais eletrizante do poker moderno! Mas preste muita atenção: se você jogar aqui com as regras do Hold'em comum, você vai perder suas fichas na primeira rodada. No Short Deck, removemos todas as cartas do 2 ao 5, deixando apenas 36 cartas no baralho. Por isso a matemática muda: acertar uma sequência fica muito mais fácil do que acertar uma trinca. Grave bem a regra oficial do Zero Tilt: Trinca vence Sequência, e Flush vence Full House! E lembre-se: o Ás conecta com o 6 para formar a sequência baixa A-6-7-8-9."
+            "placeholderScript": "Bem-vindo ao Short Deck, a modalidade mais eletrizante do poker moderno! Mas preste muita atenção: se você jogar aqui com as regras do Hold'em comum, você vai perder suas fichas na primeira rodada. No Short Deck, removemos todas as cartas do 2 ao 5, deixando apenas 36 cartas no baralho. Por isso a matemática muda: acertar uma sequência fica muito mais fácil do que acertar uma trinca. Grave bem a regra oficial do Zero Tilt: Trinca vence Sequência, e Flush vence Full House! E lembre-se: o Ás conecta com o 6 para formar a sequência baixa A-6-7-8-9.",
+            "captionsUrl": "/videos/ep23-short-deck.vtt",
+            "posterUrl": "/videos/ep23-short-deck.jpg"
           },
           "handExample": {
             "title": "Trinca vence Sequência no Short Deck",
@@ -1342,7 +1396,9 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 74,
             "url": "/videos/ep24-sd-omaha.mp4",
-            "placeholderScript": "Se o Short Deck já é cheio de ação, junte quatro cartas na mão e você terá o Short Deck Omaha 5-max. A regra de ouro do Omaha se mantém: você DEVE obrigatoriamente usar duas cartas da sua mão e três cartas da mesa comunitária. Com baralho de 36 cartas e quatro cartas na mão, praticamente todo showdown atinge sequências, flushes e full houses. Mãos fracas sem conectividade e naipes duplos perdem tudo. Veja como escolher suas mãos pré-flop!"
+            "placeholderScript": "Se o Short Deck já é cheio de ação, junte quatro cartas na mão e você terá o Short Deck Omaha 5-max. A regra de ouro do Omaha se mantém: você DEVE obrigatoriamente usar duas cartas da sua mão e três cartas da mesa comunitária. Com baralho de 36 cartas e quatro cartas na mão, praticamente todo showdown atinge sequências, flushes e full houses. Mãos fracas sem conectividade e naipes duplos perdem tudo. Veja como escolher suas mãos pré-flop!",
+            "captionsUrl": "/videos/ep24-sd-omaha.vtt",
+            "posterUrl": "/videos/ep24-sd-omaha.jpg"
           },
           "handExample": {
             "title": "Regra Obrigatória: 2 da Mão + 3 da Mesa",
@@ -1407,7 +1463,9 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 74,
             "url": "/videos/ep25-pineapple.mp4",
-            "placeholderScript": "No Ultimate Pineapple do Zero Tilt, você recebe 3 cartas fechadas e — atenção para o diferencial — não há fase de descarte! Você mantém as 3 cartas na mão até o final, e o motor avalia automaticamente a melhor combinação de duas cartas suas com três da mesa comunitária. Essa carta extra aumenta a frequência de trincas e draws monstruosos. Jogue de forma agressiva em posição e explore as apostas de valor!"
+            "placeholderScript": "No Ultimate Pineapple do Zero Tilt, você recebe 3 cartas fechadas e — atenção para o diferencial — não há fase de descarte! Você mantém as 3 cartas na mão até o final, e o motor avalia automaticamente a melhor combinação de duas cartas suas com três da mesa comunitária. Essa carta extra aumenta a frequência de trincas e draws monstruosos. Jogue de forma agressiva em posição e explore as apostas de valor!",
+            "captionsUrl": "/videos/ep25-pineapple.vtt",
+            "posterUrl": "/videos/ep25-pineapple.jpg"
           },
           "handExample": {
             "title": "Equidade com 3 Cartas Fechadas",
@@ -1482,7 +1540,10 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 85,
             "url": "/videos/ep08-ev-foldequity.mp4",
-            "placeholderScript": "Valor esperado é a média de todos os futuros possíveis. Jogada com EV positivo dá lucro repetindo mil vezes. O EV tem duas pernas: equidade e fold equity. Junte as duas no semi-blefe — dois jeitos de ganhar. E o erro clássico? Blefar quem nunca larga e ter medo de blefar quem larga tudo."
+            "placeholderScript": "Valor esperado é a média de todos os futuros possíveis. Jogada com EV positivo dá lucro repetindo mil vezes. O EV tem duas pernas: equidade e fold equity. Junte as duas no semi-blefe — dois jeitos de ganhar. E o erro clássico? Blefar quem nunca larga e ter medo de blefar quem larga tudo.",
+            "transcript": "Valor esperado é a média de todos os futuros possíveis. Jogada com i-vi positivo dá lucro repetindo mil vezes — mesmo que perca hoje. Jogada com i-vi negativo cobra pedágio invisível toda vez. Profissional não joga a mão: joga a média.\n\nO i-vi tem duas pernas. A primeira é a equidade: sua chance de vencer se todos virem até o fim. Nove outs no flópi? Trinta e seis por cento. É a matemática pura das cartas.\n\nA segunda perna é a folde equity: a chance de todo mundo largar agora. Blefe contra rocha que folda demais? Folde equity gigante, qualquer duas cartas lucram. Blefe contra pagador apaixonado? Folde equity zero — e sem ela, só blefe com equidade real.\n\nJunte as duas: semi-blefe com flush draw. Se pagar, você ainda tem trinta e seis por cento. Se foldarem, leva agora. Dois jeitos de ganhar — por isso o semi-blefe é a jogada mais lucrativa do poker.\n\nE o erro clássico? Blefar quem nunca larga e ter medo de blefar quem larga tudo. Leia o vilão, some equidade com folde equity — e só entre em pote com a soma a seu favor. No próximo episódio: banca, o cinto de segurança.",
+            "captionsUrl": "/videos/ep08-ev-foldequity.vtt",
+            "posterUrl": "/videos/ep08-ev-foldequity.jpg"
           },
           "handExample": {
             "title": "Semi-blefe no botão",
@@ -1549,7 +1610,10 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 80,
             "url": "/videos/ep09-bankroll.mp4",
-            "placeholderScript": "Variância é o imposto do acaso: até 80% perde 20 em 100. Por isso existe banca: 30 a 50 buy-ins, queda de nível sem ego e formatos separados. Banca não te faz jogar melhor — te deixa vivo até o longo prazo."
+            "placeholderScript": "Variância é o imposto do acaso: até 80% perde 20 em 100. Por isso existe banca: 30 a 50 buy-ins, queda de nível sem ego e formatos separados. Banca não te faz jogar melhor — te deixa vivo até o longo prazo.",
+            "transcript": "Variância é o imposto do acaso: até a melhor mão perde às vezes. Em cem all-ins com oitenta por cento de equidade, você perde vinte. Não é azar perseguindo você — é matemática cobrando a parte dela.\n\nPor isso existe banca: o dinheiro separado só para o poker, que você pode perder sem mudar de vida. Regra de bolso para cash game: trinta a cinquenta buy-ins do nível que você joga. Joga NL10 de dez dólares? Banca de trezentos a quinhentos.\n\nE a regra que salva carreiras: nunca suba de nível estourado e nunca desça por orgulho. Perdeu um quarto da banca? Desce um nível, reconstrói, volta. Tilt com dinheiro do aluguel na mesa não é coragem — é doação.\n\nSepare por formato: banca de cash não paga torneio, banca de torneio não cobre cash. Cada formato tem sua variância, cada variância pede seu colchão. Misturar tudo é o atalho mais rápido para quebrar nos dois.\n\nBanca não te faz jogar melhor — te deixa vivo até o longo prazo fazer o trabalho. Trinta buy-ins, queda de nível sem ego, formatos separados. No próximo episódio: a revisão, o método completo em cinco regras.",
+            "captionsUrl": "/videos/ep09-bankroll.vtt",
+            "posterUrl": "/videos/ep09-bankroll.jpg"
           },
           "handExample": {
             "title": "Shot sem banca não vai",
@@ -1602,7 +1666,10 @@
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 85,
             "url": "/videos/ep10-revisao.mp4",
-            "placeholderScript": "Cinco regras: objetivo, posição, agressão seletiva, conta e banca. Mais o checklist antes de cada mão. Poker é repetição: quem repete decisão correta mil vezes lucra."
+            "placeholderScript": "Cinco regras: objetivo, posição, agressão seletiva, conta e banca. Mais o checklist antes de cada mão. Poker é repetição: quem repete decisão correta mil vezes lucra.",
+            "transcript": "Dezessete episódios, cinco regras. Um: o objetivo — melhor jogo de cinco com sete cartas, ou pote sem showdown no blefe. Dois: a posição — falar por último é decidir com a cena completa, e o botão é o rei.\n\nTrês: agressão seletiva. Aumento em vez de limp, iso-raise contra fraco, roubo no botão, tribe bete contra roubo. Quatro: a conta — pote odes, outs vezes quatro e vezes dois, implied nos duvidosos, equidade mais folde equity em toda decisão.\n\nCinco: a banca. Trinta a cinquenta buy-ins, queda de nível sem ego, formatos separados. Sem banca, até o melhor jogo quebra na primeira sequência ruim.\n\nE o checklist antes de cada mão: estou em posição? Minha mão está no mapa do meu range? O tamanho conta a história certa? O preço fecha a conta? Minha banca aguenta o resultado? Cinco sins, jogue sem medo do resultado de hoje. Se a resposta for não em qualquer item, volte uma casa: folde, cheque, ou desça o tamanho.\n\nPoker é repetição: quem repete decisão correta mil vezes lucra, ponto final. Parabéns por completar o curso. Agora é mesa: te vejo no Zero Tilt Poker.",
+            "captionsUrl": "/videos/ep10-revisao.vtt",
+            "posterUrl": "/videos/ep10-revisao.jpg"
           },
           "handExample": {
             "title": "Checklist na prática",

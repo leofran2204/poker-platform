@@ -33,6 +33,12 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 - Notícias e Dica do Pró **não** ficam na home: `/noticias`, `/dicas`, rodapé e atalhos no Curso
 - Header logado: Curso · Lobby · Carteira (+ Mais). Visitante: Academy · Entrar · Criar conta
 
+## Vídeos da Academy
+
+- Player (`CourseVideoPlayer`): MP4 + poster + legendas VTT + transcrição da narração real. Sem persona de coach.
+- Finais em `public/videos/` (`epNN-*.mp4` / `.vtt` / `.jpg`). Piloto ep01 em 720p30; os demais ainda 480p15 até o lote.
+- Fontes Manim em `ZeroTiltCurso/epNN-*/`.
+
 ## Notícias e dicas
 
 - Componente `NewsTips` com props `tab` (trava aba), `compact` (prévia local sem rede) e `previewLimit`
