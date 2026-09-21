@@ -64,7 +64,9 @@ coverage-run.log
 /media/
 ZeroTiltCurso/**/media/
 ZeroTiltCurso/**/silent.mp4
+ZeroTiltCurso/**/silent720.mp4
 ZeroTiltCurso/**/concat.txt
+ZeroTiltCurso/**/concat720.txt
 ZeroTiltCurso/**/frame_*.png
 ZeroTiltCurso/**/v2_*.png
 ZeroTiltCurso/**/v3_*.png
