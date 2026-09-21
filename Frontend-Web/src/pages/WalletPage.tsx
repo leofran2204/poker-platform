@@ -31,6 +31,16 @@ function maskPixKey(key: string): string {
   return `${k.slice(0, 4)}••••••••${k.slice(-4)}`;
 }
 
+function formatDateTime(value: string): string {
+  return new Date(value).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export function WalletPage() {
   const [me, setMe] = useState<MeResponse | null>(null);
   const [info, setInfo] = useState<DepositInfoResponse | null>(null);
@@ -69,19 +79,27 @@ export function WalletPage() {
       status: r.status,
       info: r.admin_note || "Aguardando revisão",
     }));
-    const auto = ledger.map((t) => ({
-      key: `auto-${t.tx_id}`,
-      date: t.created_at,
-      settled: t.settled_at ?? null,
-      kind: t.kind === "WITHDRAW" ? "Saque DePix" : "Depósito DePix",
-      amount: t.amount_cents,
-      credited: t.credited_amount_cents ?? null,
-      status: t.status,
-      info:
+    const auto = ledger.map((t) => {
+      const fee =
         t.credited_amount_cents != null && t.credited_amount_cents < t.amount_cents
-          ? `Creditado ${formatBrlFromCents(t.credited_amount_cents)} (taxa ${formatBrlFromCents(t.amount_cents - t.credited_amount_cents)})`
-          : (t.provider_status ?? t.status),
-    }));
+          ? t.amount_cents - t.credited_amount_cents
+          : 0;
+      return {
+        key: `auto-${t.tx_id}`,
+        date: t.created_at,
+        settled: t.settled_at ?? null,
+        kind: t.kind === "WITHDRAW" ? "Saque DePix" : "Depósito DePix",
+        amount: t.amount_cents,
+        credited: t.credited_amount_cents ?? null,
+        status: t.status,
+        info:
+          fee > 0 && t.credited_amount_cents != null
+            ? `Creditado ${formatBrlFromCents(t.credited_amount_cents)} (taxa ${formatBrlFromCents(fee)})`
+            : t.status === "COMPLETED"
+              ? "Liquidado"
+              : (t.provider_status ?? t.status),
+      };
+    });
     return [...manual, ...auto].sort((a, b) => (a.date < b.date ? 1 : -1));
   }, [requests, ledger]);
 
@@ -446,7 +464,7 @@ export function WalletPage() {
                         )}
                       </div>
                       <p className="text-[11px] text-felt-400">
-                        Expira em {new Date(pixCharge.expires_at).toLocaleString("pt-BR")}.
+                        Expira em {formatDateTime(pixCharge.expires_at)}.
                         {info.automated_mode === "production"
                           ? " Fichas são liberadas apenas após a liquidação final. Creditado o valor líquido (descontada a taxa DePix)."
                           : " A simulação não movimenta dinheiro real."}
@@ -588,12 +606,12 @@ export function WalletPage() {
                   ) : (
                     statement.map((r) => (
                       <tr key={r.key} className="!cursor-default">
-                        <td className="text-xs text-felt-300">{new Date(r.date).toLocaleString("pt-BR")}</td>
+                        <td className="text-xs text-felt-300">{formatDateTime(r.date)}</td>
                         <td className="text-xs">{r.kind}</td>
                         <td className="font-mono text-gold-soft">{formatBrlFromCents(r.amount)}</td>
                         <td className="font-mono text-xs">{r.status}</td>
                         <td className="text-xs text-felt-300">
-                          {r.settled ? new Date(r.settled).toLocaleString("pt-BR") : "—"}
+                          {r.settled ? formatDateTime(r.settled) : "—"}
                         </td>
                         <td className="text-xs text-felt-400">{r.info}</td>
                       </tr>

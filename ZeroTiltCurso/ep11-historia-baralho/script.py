@@ -178,6 +178,13 @@ class S7_Fecho(Scene):
         self.play(FadeIn(table), run_time=0.5)
         deal_in(self, hero + board, run_time=1.2)
         self.play(FadeIn(cap), run_time=0.5)
-        ring = glow(five)
-        self.play(Create(ring), FadeIn(pot), run_time=0.8)
+        ring = SurroundingRectangle(five, color=GOLD, buff=0.15, stroke_width=8)
+        self.play(
+            Create(ring),
+            FadeIn(pot),
+            board[3].animate.set_opacity(0.25),
+            board[4].animate.set_opacity(0.25),
+            table.animate.set_opacity(0.35),
+            run_time=0.8,
+        )
         self.wait(13.7)
