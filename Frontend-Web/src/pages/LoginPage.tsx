@@ -11,7 +11,7 @@ export function LoginPage() {
   const returnTo =
     requestedReturnTo?.startsWith("/") && !requestedReturnTo.startsWith("//")
       ? requestedReturnTo
-      : "/lobby";
+      : "/curso";
   const sessionExpired = searchParams.get("reason") === "session-expired";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

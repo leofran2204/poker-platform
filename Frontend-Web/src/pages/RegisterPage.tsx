@@ -62,7 +62,7 @@ export function RegisterPage() {
           expires_in: res.expires_in,
         });
         saveUsername(username.trim());
-        navigate("/lobby");
+        navigate("/curso");
         return;
       }
       setError(res.message ?? "Registro incompleto — tente novamente.");

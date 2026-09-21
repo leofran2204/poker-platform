@@ -975,7 +975,7 @@ export function NewsTips({ className, tab, compact, previewLimit = 3 }: NewsTips
               return (
                 <article
                   key={itemKey}
-                  className={`group zt-card min-w-[300px] max-w-[380px] flex-shrink-0 snap-start overflow-hidden transition-colors hover:border-gold-soft/30 ${isExpanded ? "border-gold-soft/40" : ""}`}
+                  className={`group zt-card min-w-0 w-[min(100%,380px)] max-w-full flex-shrink-0 snap-start overflow-hidden transition-colors hover:border-gold-soft/30 ${isExpanded ? "border-gold-soft/40" : ""}`}
                 >
                   {photo ? (
                     <NewsImage

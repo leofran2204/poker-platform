@@ -31,7 +31,18 @@ export function CoursePage() {
         <div>
           <h1 className="text-xl font-bold text-gold-bright">Zero Tilt Academy</h1>
           <p className="text-sm text-felt-200">
-            Aprenda poker do zero com vídeos de 2 minutos, jogador virtual de IA e testes práticos na mesa.
+            Aprenda poker do zero com vídeos curtos, quiz e mesa ao vivo para praticar.
+          </p>
+          <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+            <Link to="/lobby" className="text-gold-soft hover:underline">
+              Ir ao lobby →
+            </Link>
+            <Link to="/noticias" className="text-gold-soft hover:underline">
+              Notícias
+            </Link>
+            <Link to="/dicas" className="text-gold-soft hover:underline">
+              Dica do Pró
+            </Link>
           </p>
         </div>
         <span className="rounded border border-gold-soft/30 bg-felt-900 px-3 py-1 text-xs font-mono text-gold-bright">

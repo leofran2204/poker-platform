@@ -28,11 +28,10 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 
 ## Home
 
-- Hero + `ShowcaseTable` animada (flop→river em loop, 2 cenários, sem WebSocket)
-- `home/LossDeflatorSection` — explicação leiga em 3 passos + tabela de faixas + `DeflatorSimulator` (equity×pote) + replays `AnimatedHand`; copy em `src/data/homeContent.json`
-- `home/GamesSection` — abas Hold'em/Short Deck/Omaha/Pineapple + replay por variante
-- Prévias compactas de Notícias/Dica do Pró (só conteúdo local, sem fetch) + CTA da Academy
-- História do poker mora no curso, não na home
+- Visitante: vitrine da **Academy** (aprenda, depois jogue) + `ShowcaseTable` + deflator + variantes
+- Logado em `/` redireciona para `/curso`
+- Notícias e Dica do Pró **não** ficam na home: `/noticias`, `/dicas`, rodapé e atalhos no Curso
+- Header logado: Curso · Lobby · Carteira (+ Mais). Visitante: Academy · Entrar · Criar conta
 
 ## Notícias e dicas
 

@@ -1038,6 +1038,13 @@
 - **Deploy (`54ace444`, REBUILD_API=1):** `DEPLOY_OK`, API healthy, `/api/health` 200, `/videos/ep11-historia-baralho.mp4` 200 (1.39 MB), bundle `index-Cqh0k8Bt.js`.
 - **Docs alinhados ao fato:** AGENTS/QUALITY/README/DEMO/DASHBOARD/RELATORIO deixam de dizer que PIX automático está desligado; STATUS `migrations_latest` 056; ponteiros S24 em 2026-09-21.
 
+## 2026-09-21 — S24: home da Academy, sessão logada no Curso
+
+- **Visitante:** hero “Aprenda poker. Jogue quando quiser”; CTA Academy; sem widgets de notícias/dicas na home.
+- **Logado:** `/` e login/registro caem em `/curso`. Header Curso · Lobby · Carteira; Notícias/Dicas/Estrutura/Admin em Mais (menu no celular).
+- **Overflow:** `overflow-x: clip` no documento; cards de feed sem `min-w-[300px]`.
+
+
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
 
 - **Gate consciente** (`src/bin/documentation_sync.rs`): `automatic_in_production=true` agora exige o payout worker no código (`payout_worker.rs` + migration de payout) em vez de recusa blanket; `certified` segue recusado. Renderer condicional (ligado/desligado) + testes do gate atualizados.
