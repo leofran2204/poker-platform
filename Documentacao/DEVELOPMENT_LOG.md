@@ -1049,6 +1049,7 @@
 - **Player:** poster, VTT, transcrição da narração real, duração `1 min 29 s`; sem “Coach IA”.
 - **ep01:** 1280×720 30 fps, cartas maiores; 25 aulas com `.vtt` + `.jpg` em `public/videos/`.
 - **Lobby:** faixa 21:30 + cards de torneio (Inscrever / Sentar); cash em cards no celular, tabela no desktop.
+- **Deploy (`21e130f5`, só frontend):** push `2a290ed2..21e130f5` + `vps-redeploy-frontend.sh` (sem rebuild da API, sem migrations) → `DEPLOY_OK` 2026-09-21T06:40:41Z; `/api/health` 200; bundle `index-CozoNWYf.js` / `index-CCqmdR1w.css`; `/videos/ep01-poker-do-zero.mp4` 200 (1.48 MB) + `.vtt`/`.jpg`. API permanece Up ~2h.
 
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
