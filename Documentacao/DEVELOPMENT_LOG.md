@@ -1063,6 +1063,7 @@
 
 - Ás cream/ouro com **ZeroTilt** / **Poker** no centro; header **Zero Tilt**; slogan **Estude. Jogue. Sem tilt.**
 - Favicon, login, cadastro, curso, `og:image`. Apelido da casa: **ZT Poker**.
+- **Deploy (`24fd5932`, só frontend):** `DEPLOY_OK` 2026-09-21T23:33:24Z; `/api/health` 200; `/brand/mark.jpg` 200; bundle `index-B7l79pE_.js`.
 
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
