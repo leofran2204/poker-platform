@@ -1035,6 +1035,7 @@
 - **ep11 S5:** cada rei com nome sob a carta na ordem do áudio (Davi / Alexandre / Cesar / Carlos Magno); waits preservados; mux + espelho em `public/videos/`.
 - **Crédito instantâneo:** `checkout.processing` com face ≤ R$ 50 credita `balance_real` (provisório, status `PENDING` + `credited_amount_cents`); saque da conta travado até `completed`; acima do teto o processing não libera fichas. `completed` confirma sem recrédito e ajusta o líquido. `cancelled`/`expired` no provisório reverte até o saldo (sem negativo; shortfall auditado).
 - **Docs:** Termos 6.3, BUSINESS_RULES §0.1, ARQUITETURA_E_APIS §3, extrato "Creditado (provisório)".
+- **Deploy (`54ace444`, REBUILD_API=1):** `DEPLOY_OK`, API healthy, `/api/health` 200, `/videos/ep11-historia-baralho.mp4` 200 (1.39 MB), bundle `index-Cqh0k8Bt.js`.
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
 
