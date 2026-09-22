@@ -1068,6 +1068,7 @@
 ## 2026-09-21 — curso sem legendas no vídeo
 
 - Player deixa de carregar VTT. Narração fica só na transcrição em texto.
+- **Deploy (`9fea707f`, só frontend):** `DEPLOY_OK` 2026-09-22T02:14:58Z; `/api/health` 200; bundle `index-CLSA2ogj.js`.
 
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
