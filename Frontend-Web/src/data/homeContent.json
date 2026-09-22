@@ -50,15 +50,15 @@
           { "name": "Ana", "folded": true }
         ],
         "streets": [
-          { "label": "Pré-flop: ALL-IN PAGO — sua equity de 82% trava aqui", "board": [] },
-          { "label": "Flop: 7 2 5 — seu par de Ases segue na frente", "board": ["7c", "2d", "5h"] },
+          { "label": "Pré-flóp: ALL-IN PAGO — sua equity de 82% trava aqui", "board": [] },
+          { "label": "Flóp: 7 2 5 — seu par de Ases segue na frente", "board": ["7c", "2d", "5h"] },
           { "label": "Turn: 9 — segue na frente", "board": ["7c", "2d", "5h", "9s"] },
-          { "label": "River: K — trinca de Reis, o azar bateu", "board": ["7c", "2d", "5h", "9s", "Kh"] }
+          { "label": "Ríver: K — trinca de Reis, o azar bateu", "board": ["7c", "2d", "5h", "9s", "Kh"] }
         ],
         "equity": 82,
         "potCents": 20000,
         "winningFive": { "hole": ["Ks", "Kd"], "board": ["Kh", "9s", "7c"] },
-        "result": "Trinca de Reis (K♠ K♦ + K♥ 9♠ 7♣ no board) do Leo vence seu par de Ases. O all-in foi no pré-flop com 82% (faixa de 25%): R$ 50,00 dos R$ 200,00 voltam para você na hora. Pote líquido, já sem rake."
+        "result": "Trinca de Reis (K♠ K♦ + K♥ 9♠ 7♣ no board) do Leo vence seu par de Ases. O all-in foi no pré-flóp com 82% (faixa de 25%): R$ 50,00 dos R$ 200,00 voltam para você na hora. Pote líquido, já sem rake."
       },
       {
         "id": "allin-flop-set-draw",
@@ -74,15 +74,15 @@
           { "name": "Leo", "folded": true }
         ],
         "streets": [
-          { "label": "Pré-flop: você aumenta com JJ, Mari paga — sem all-in ainda", "board": [] },
-          { "label": "Flop J 7 2: ALL-IN PAGO — sua trinca tem 68%", "board": ["Jc", "7h", "2h"] },
+          { "label": "Pré-flóp: você aumenta com JJ, Mari paga — sem all-in ainda", "board": [] },
+          { "label": "Flóp J 7 2: ALL-IN PAGO — sua trinca tem 68%", "board": ["Jc", "7h", "2h"] },
           { "label": "Turn: Q — trinca segue na frente", "board": ["Jc", "7h", "2h", "Qd"] },
-          { "label": "River: 5 de copas — flush de As da Mari", "board": ["Jc", "7h", "2h", "Qd", "5h"] }
+          { "label": "Ríver: 5 de copas — flush de As da Mari", "board": ["Jc", "7h", "2h", "Qd", "5h"] }
         ],
         "equity": 68,
         "potCents": 20000,
         "winningFive": { "hole": ["Ah", "Th"], "board": ["7h", "5h", "2h"] },
-        "result": "Flush de As (A♥ T♥ + 7♥ 5♥ 2♥ no board) da Mari vence sua trinca de Valetes. O all-in foi no flop com 68% (faixa de 15%): R$ 30,00 dos R$ 200,00 voltam para você. Pote líquido, já sem rake."
+        "result": "Flush de As (A♥ T♥ + 7♥ 5♥ 2♥ no board) da Mari vence sua trinca de Valetes. O all-in foi no flóp com 68% (faixa de 15%): R$ 30,00 dos R$ 200,00 voltam para você. Pote líquido, já sem rake."
       },
       {
         "id": "allin-turn-flush-set",
@@ -98,15 +98,15 @@
           { "name": "Ana", "folded": true }
         ],
         "streets": [
-          { "label": "Pré-flop: você aumenta com A K suited, Leo paga", "board": [] },
-          { "label": "Flop Q J 7 de espadas: seu flush já está pronto", "board": ["Qs", "Js", "7s"] },
+          { "label": "Pré-flóp: você aumenta com A K suited, Leo paga", "board": [] },
+          { "label": "Flóp Q J 7 de espadas: seu flush já está pronto", "board": ["Qs", "Js", "7s"] },
           { "label": "Turn 2: ALL-IN PAGO — seu flush tem 77%", "board": ["Qs", "Js", "7s", "2d"] },
-          { "label": "River Q: quadra de Damas — bad beat", "board": ["Qs", "Js", "7s", "2d", "Qc"] }
+          { "label": "Ríver Q: quadra de Damas — bad beat", "board": ["Qs", "Js", "7s", "2d", "Qc"] }
         ],
         "equity": 77,
         "potCents": 20000,
         "winningFive": { "hole": ["Qh", "Qd"], "board": ["Qs", "Qc", "Js"] },
-        "result": "Quadra de Damas (Q♥ Q♦ + Q♠ Q♣ J♠ no board) do Leo vence seu flush de As. O all-in foi no turn com 77% (faixa de 25%): R$ 50,00 dos R$ 200,00 voltam — igual ao do pré-flop, porque a fase não muda a faixa. Pote líquido."
+        "result": "Quadra de Damas (Q♥ Q♦ + Q♠ Q♣ J♠ no board) do Leo vence seu flush de As. O all-in foi no turn com 77% (faixa de 25%): R$ 50,00 dos R$ 200,00 voltam — igual ao do pré-flóp, porque a fase não muda a faixa. Pote líquido."
       }
     ]
   },
@@ -128,8 +128,8 @@
         "villainCards": [],
         "streets": [
           { "label": "Suas cartas: A K de espadas", "board": [] },
-          { "label": "Flop Q J T de espadas — royal flush à vista", "board": ["Qs", "Js", "Ts"] },
-          { "label": "Turn e river completam a mesa", "board": ["Qs", "Js", "Ts", "3d", "2c"] }
+          { "label": "Flóp Q J T de espadas — royal flush à vista", "board": ["Qs", "Js", "Ts"] },
+          { "label": "Turn e ríver completam a mesa", "board": ["Qs", "Js", "Ts", "3d", "2c"] }
         ],
         "equity": 100,
         "potCents": 15000,
@@ -154,8 +154,8 @@
         "villainCards": [],
         "streets": [
           { "label": "4 cartas na mão — mais combinações", "board": [] },
-          { "label": "Flop: T 9 2 com duas de espadas", "board": ["Ts", "9s", "2h"] },
-          { "label": "Turn e river definem", "board": ["Ts", "9s", "2h", "3c", "8s"] }
+          { "label": "Flóp: T 9 2 com duas de espadas", "board": ["Ts", "9s", "2h"] },
+          { "label": "Turn e ríver definem", "board": ["Ts", "9s", "2h", "3c", "8s"] }
         ],
         "equity": 68,
         "potCents": 20000,
@@ -177,66 +177,66 @@
         "heroLabel": "Você",
         "heroCards": ["As", "Ks", "Qh", "8c", "Jc"],
         "villainLabel": "Leo",
-        "villainCards": ["9c", "9d", "Th", "6c", "Kd"],
+        "villainCards": ["Kd", "Jd", "Tc", "8d", "Ac"],
         "seats": [
           { "name": "Você", "cards": ["As", "Ks", "Qh", "8c", "Jc"], "isHero": true, "isWinner": true, "stack": "R$ 420" },
-          { "name": "Leo", "cards": ["9c", "9d", "Th", "6c", "Kd"], "stack": "R$ 180" },
+          { "name": "Leo", "cards": ["Kd", "Jd", "Tc", "8d", "Ac"], "stack": "R$ 180" },
           { "name": "Mari", "cards": ["Jh", "Td", "8h", "7c", "6h"], "stack": "R$ 260" }
         ],
         "streets": [
           {
-            "label": "Pré-flop: duas cartas para cada um",
+            "label": "Pré-flóp: duas cartas para cada um",
             "board": [],
-            "holes": [["As", "Ks"], ["9c", "9d"], ["Jh", "Td"]],
-            "audio": "/audio/pineapple-0.mp3"
+            "holes": [["As", "Ks"], ["Kd", "Jd"], ["Jh", "Td"]],
+            "audio": "/audio/pineapple-0.mp3", "narration": "Brazilian Pineapple: baralho curto de trinta e seis cartas, sem dois até cinco. Cada um começa com duas cartas fechadas. No fim, vale exatamente duas da mão e três da mesa."
           },
           {
             "label": "Você aumenta. Leo paga. Mari paga.",
             "board": [],
-            "holes": [["As", "Ks"], ["9c", "9d"], ["Jh", "Td"]],
-            "audio": "/audio/pineapple-1.mp3"
+            "holes": [["As", "Ks"], ["Kd", "Jd"], ["Jh", "Td"]],
+            "audio": "/audio/pineapple-1.mp3", "narration": "Pré-flóp: você olha Ás e Rei e aumenta. Leo paga. Mari paga. Três na mão, pote formando."
           },
           {
-            "label": "Flop Dama Dama 7. Cada um recebe mais uma carta.",
+            "label": "Flóp Dama Dama 7. Cada um recebe mais uma carta.",
             "board": ["Qc", "Qs", "7h"],
-            "holes": [["As", "Ks", "Qh"], ["9c", "9d", "Th"], ["Jh", "Td", "8h"]],
-            "audio": "/audio/pineapple-2.mp3"
+            "holes": [["As", "Ks", "Qh"], ["Kd", "Jd", "Tc"], ["Jh", "Td", "8h"]],
+            "audio": "/audio/pineapple-2.mp3", "narration": "Flóp: Dama, Dama e sete na mesa. Cada um recebe a terceira carta fechada. A sua é outra Dama: você tem trinca, com duas Damas na mesa e uma na mão."
           },
           {
             "label": "Leo aposta. Mari paga. Você aumenta. Os dois pagam.",
             "board": ["Qc", "Qs", "7h"],
-            "holes": [["As", "Ks", "Qh"], ["9c", "9d", "Th"], ["Jh", "Td", "8h"]],
-            "audio": "/audio/pineapple-3.mp3"
+            "holes": [["As", "Ks", "Qh"], ["Kd", "Jd", "Tc"], ["Jh", "Td", "8h"]],
+            "audio": "/audio/pineapple-3.mp3", "narration": "Leo aposta com o par da mesa. Mari paga. Você aumenta com a Dama extra. Os dois pagam. O pote cresce."
           },
           {
             "label": "Turn: 9 de espadas. Mais uma carta para cada um.",
             "board": ["Qc", "Qs", "7h", "9s"],
-            "holes": [["As", "Ks", "Qh", "8c"], ["9c", "9d", "Th", "6c"], ["Jh", "Td", "8h", "7c"]],
-            "audio": "/audio/pineapple-4.mp3"
+            "holes": [["As", "Ks", "Qh", "8c"], ["Kd", "Jd", "Tc", "8d"], ["Jh", "Td", "8h", "7c"]],
+            "audio": "/audio/pineapple-4.mp3", "narration": "Târn: nove de espadas. Mais uma carta fechada para cada um. Quatro na mão, quatro na mesa. Você aposta de novo. Leo paga. Mari paga."
           },
           {
             "label": "Você aposta. Leo paga. Mari paga.",
             "board": ["Qc", "Qs", "7h", "9s"],
-            "holes": [["As", "Ks", "Qh", "8c"], ["9c", "9d", "Th", "6c"], ["Jh", "Td", "8h", "7c"]],
-            "audio": "/audio/pineapple-5.mp3"
+            "holes": [["As", "Ks", "Qh", "8c"], ["Kd", "Jd", "Tc", "8d"], ["Jh", "Td", "8h", "7c"]],
+            "audio": "/audio/pineapple-5.mp3", "narration": "Você aposta no târn. Leo paga. Mari paga. O pote engorda e falta só o ríver."
           },
           {
-            "label": "River: 6 de ouros. Última carta fechada.",
+            "label": "Ríver: 6 de ouros. Última carta fechada.",
             "board": ["Qc", "Qs", "7h", "9s", "6d"],
-            "holes": [["As", "Ks", "Qh", "8c", "Jc"], ["9c", "9d", "Th", "6c", "Kd"], ["Jh", "Td", "8h", "7c", "6h"]],
-            "audio": "/audio/pineapple-6.mp3"
+            "holes": [["As", "Ks", "Qh", "8c", "Jc"], ["Kd", "Jd", "Tc", "8d", "Ac"], ["Jh", "Td", "8h", "7c", "6h"]],
+            "audio": "/audio/pineapple-6.mp3", "narration": "Ríver: seis de ouros. Última carta fechada: cinco na mão. Última rodada de apostas antes de abrir."
           },
           {
-            "label": "Showdown: duas da mão e três da mesa. Trinca vale mais que sequência.",
+            "label": "Chôudaun: duas da mão e três da mesa. Trinca vale mais que sequência.",
             "board": ["Qc", "Qs", "7h", "9s", "6d"],
-            "holes": [["As", "Ks", "Qh", "8c", "Jc"], ["9c", "9d", "Th", "6c", "Kd"], ["Jh", "Td", "8h", "7c", "6h"]],
-            "audio": "/audio/pineapple-7.mp3"
+            "holes": [["As", "Ks", "Qh", "8c", "Jc"], ["Kd", "Jd", "Tc", "8d", "Ac"], ["Jh", "Td", "8h", "7c", "6h"]],
+            "audio": "/audio/pineapple-7.mp3", "narration": "Chôudaun: abrem-se as cartas. Você mostra trinca de Damas com Ás de quéquer. Mari mostra sequência de seis a dez. Leo tem só um par de Damas. No Pineapple, trinca vale mais que sequência: você leva o pote. Repare: só duas da sua mão jogaram, as outras três ficaram de fora."
           }
         ],
         "equity": 84,
         "potCents": 15000,
         "winningFive": { "hole": ["Qh", "As"], "board": ["Qc", "Qs", "9s"] },
-        "result": "Trinca de damas com ás de kicker: a dama extra do flop mais ás e rei, com dama, dama e nove da mesa. As outras três cartas suas ficam de fora. Trinca vale mais que sequência. Flush vale mais que full house."
+        "result": "Trinca de damas com ás de kicker: sua Qh com As + Qc Qs 9s da mesa. A sequência da Mari (Td 8h + 9s 7h 6d: 6-7-8-9-T) perde para a trinca — no Brazilian Pineapple, trinca vale mais que sequência. O Leo termina com par de damas. Suas outras três cartas ficam de fora: vale exatamente 2 da mão + 3 da mesa."
       }
     }
   ]

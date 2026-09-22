@@ -11,10 +11,10 @@ export function GamesSection() {
   const active = variants.find((v) => v.id === activeId) ?? variants[0];
 
   return (
-    <section aria-labelledby="home-games" className="space-y-4">
+    <section aria-labelledby="home-games" id="demonstracao" className="scroll-mt-20 space-y-4">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold-soft">
-          4 jogos, 1 conta
+          3 jogos, 1 conta
         </p>
         <h2 id="home-games" className="mt-1 text-2xl font-bold text-gold-bright">
           Qual mesa é a sua?

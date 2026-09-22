@@ -61,8 +61,15 @@ const CHIP_FLIGHT = [
   { dx: "-110px", dy: "-56px" },
 ];
 
-/** Pausa entre uma batida e a próxima — as streets se acumulam, nada some da tela. */
+/** Pausa entre uma batida e a próxima — as streets se acumulam, nada some da tela.
+ *  É o ritmo de fallback (sem narração, narração desligada ou áudio indisponível).
+ *  Com narração ligada, a próxima etapa aguarda o fim da fala + AUDIO_END_PAUSE_MS. */
 const STEP_MS = 3000;
+/** Respiro após a fala antes de avançar — dá tempo de olhar a cena. */
+const AUDIO_END_PAUSE_MS = 900;
+
+/** Só uma narração por vez na página: trocar de demonstração interrompe a anterior. */
+let activeAudio: HTMLAudioElement | null = null;
 
 function phaseOf(boardLen: number): string {
   if (boardLen === 0) return "PRÉ-FLOP";
@@ -123,40 +130,110 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
     setPlaying(false);
   }, [hand.id]);
 
+  const street = hand.streets[step];
+  const finished = step === last;
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const speak = useRef(false);
+  const loadedSrc = useRef<string | null>(null);
+  const [audioFailed, setAudioFailed] = useState(false);
+
   useEffect(() => {
-    if (!playing || reducedMotion) return;
+    speak.current = false;
+    loadedSrc.current = null;
+    setAudioFailed(false);
+    const el = audioRef.current;
+    if (el) {
+      el.pause();
+      el.removeAttribute("src");
+      if (activeAudio === el) activeAudio = null;
+    }
+  }, [hand.id]);
+
+  useEffect(() => {
+    setAudioFailed(false);
+  }, [step, hand.id]);
+
+  // Pausa conserva o ponto da explicação: só troca o src quando a etapa mudou.
+  // `restart` = recomeçar do zero (troca de etapa, rever); sem ele, continua de onde parou.
+  const playStep = (src?: string, restart = true) => {
+    const el = audioRef.current;
+    if (!el || !src) return;
+    if (activeAudio && activeAudio !== el) activeAudio.pause();
+    activeAudio = el;
+    if (loadedSrc.current !== src) {
+      el.src = src;
+      loadedSrc.current = src;
+      el.currentTime = 0;
+    } else if (restart) {
+      el.currentTime = 0;
+    }
+    void el.play().catch(() => undefined);
+  };
+
+  const pauseAudio = () => {
+    const el = audioRef.current;
+    el?.pause();
+    if (el && activeAudio === el) activeAudio = null;
+  };
+
+  /** Navegação manual: para tudo (som + timers) e posiciona — o visitante retoma quando quiser. */
+  const stopForNav = () => {
+    speak.current = false;
+    if (endTimer.current !== null) window.clearTimeout(endTimer.current);
+    pauseAudio();
+    setPlaying(false);
+  };
+
+  useEffect(() => {
+    if (!speak.current) return;
+    playStep(street.audio, true);
+    // Só quando o passo muda. O botão Assistir/Continuar dispara o áudio do passo atual.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  // Avanço: dirigido pela narração quando há áudio; temporizado como fallback.
+  const audioDriven = speak.current && !!street.audio && !audioFailed;
+  useEffect(() => {
+    if (!playing || reducedMotion || audioDriven) return;
     if (step >= last) {
       setPlaying(false);
       return;
     }
     const id = window.setTimeout(() => setStep((s) => Math.min(s + 1, last)), STEP_MS);
     return () => window.clearTimeout(id);
-  }, [playing, step, last, reducedMotion]);
+  }, [playing, step, last, reducedMotion, audioDriven]);
 
-  const street = hand.streets[step];
-  const finished = step === last;
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const speak = useRef(false);
+  // Desmontar (trocar de aba/modalidade) interrompe a narração desta demonstração.
+  useEffect(
+    () => () => {
+      const el = audioRef.current;
+      el?.pause();
+      if (el && activeAudio === el) activeAudio = null;
+    },
+    [],
+  );
 
-  useEffect(() => {
-    speak.current = false;
-    audioRef.current?.pause();
-  }, [hand.id]);
+  const endTimer = useRef<number | null>(null);
+  useEffect(
+    () => () => {
+      if (endTimer.current !== null) window.clearTimeout(endTimer.current);
+    },
+    [],
+  );
 
-  const playStep = (src?: string) => {
-    const el = audioRef.current;
-    if (!el || !src) return;
-    el.src = src;
-    el.currentTime = 0;
-    void el.play().catch(() => undefined);
+  const handleAudioEnded = () => {
+    if (!playing || !speak.current) return;
+    if (step >= last) {
+      setPlaying(false);
+      speak.current = false;
+      return;
+    }
+    if (endTimer.current !== null) window.clearTimeout(endTimer.current);
+    endTimer.current = window.setTimeout(
+      () => setStep((s) => Math.min(s + 1, last)),
+      AUDIO_END_PAUSE_MS,
+    );
   };
-
-  useEffect(() => {
-    if (!speak.current) return;
-    playStep(street.audio);
-    // Só quando o passo muda. O botão Assistir dispara o áudio do passo atual.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step]);
   const phase = phaseOf(street.board.length);
   // Board estável como nas plataformas famosas: o que já está na mesa fica
   // parado; só a carta nova anima. prevLen = cartas que já estavam no passo anterior.
@@ -190,15 +267,25 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
             setPlaying((p) => {
               const next = !p;
               speak.current = next;
-              if (!next) audioRef.current?.pause();
-              else playStep(street.audio);
+              if (!next) {
+                if (endTimer.current !== null) window.clearTimeout(endTimer.current);
+                pauseAudio();
+              } else playStep(street.audio, false);
               return next;
             });
           }}
           className="zt-btn-secondary !px-3 !py-1 !text-xs"
-          aria-label={playing ? "Pausar replay" : finished ? "Rever replay" : "Reproduzir replay"}
+          aria-label={
+            playing
+              ? "Pausar replay"
+              : finished
+                ? "Rever replay"
+                : step > 0
+                  ? "Continuar replay"
+                  : "Reproduzir replay"
+          }
         >
-          {playing ? "⏸ Pausar" : finished ? "↺ Rever" : "▶ Assistir"}
+          {playing ? "⏸ Pausar" : finished ? "↺ Rever" : step > 0 ? "▶ Continuar" : "▶ Assistir"}
         </button>
       </div>
 
@@ -224,16 +311,21 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
           {phase}
         </div>
 
-        <audio ref={audioRef} preload="none" />
+        <audio
+          ref={audioRef}
+          preload="none"
+          onEnded={handleAudioEnded}
+          onError={() => setAudioFailed(true)}
+        />
         <div className="zt-felt-table zt-demo-table" aria-hidden={false}>
-          <div className="absolute left-1/2 top-[46%] z-[1] flex w-[58%] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
+          <div className="absolute left-1/2 top-[46%] z-[1] flex w-[72%] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 sm:w-[58%]">
             <div className="rounded border border-gold/40 bg-black/40 px-3 py-1 text-center">
               <div className="text-[10px] uppercase tracking-wider text-gold-soft">Pote</div>
               <div className="font-mono text-base font-bold text-white">
                 {formatBrlFromCents(showWin && split ? hand.potCents - split.cashbackCents : hand.potCents)}
               </div>
             </div>
-            <div className="flex min-h-[52px] flex-wrap items-center justify-center gap-1.5">
+            <div className="zt-board-row flex min-h-[52px] flex-nowrap items-center justify-center gap-1.5">
               {street.board.length > 0 ? (
                 street.board.map((c, i) => {
                   const isWin = showWin && (!useWinFive || winBoard.has(c));
@@ -285,7 +377,7 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
                       <PlayingCard faceDown size="sm" />
                     </div>
                   ) : (
-                    <div className={many ? "zt-hole-grid" : "mt-1 flex justify-center gap-0.5"}>
+                    <div className={many ? "zt-hole-row" : "mt-1 flex justify-center gap-0.5"}>
                       {shown.map((c) => {
                         const inFive = i === winnerIdx && winHole.has(c);
                         const isWin = showWin && (useWinFive ? inFive : i === winnerIdx);
@@ -353,9 +445,7 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
           <button
             type="button"
             onClick={() => {
-              speak.current = false;
-              audioRef.current?.pause();
-              setPlaying(false);
+              stopForNav();
               setStep((s) => Math.max(s - 1, 0));
             }}
             disabled={step === 0}
@@ -372,9 +462,7 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
                 aria-selected={i === step}
                 aria-label={`Etapa ${i + 1}: ${s.label}`}
                 onClick={() => {
-                  speak.current = false;
-                  audioRef.current?.pause();
-                  setPlaying(false);
+                  stopForNav();
                   setStep(i);
                 }}
                 className={`h-2 rounded-full transition-all ${
@@ -392,6 +480,8 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
                 setPlaying(true);
                 return;
               }
+              if (endTimer.current !== null) window.clearTimeout(endTimer.current);
+              pauseAudio();
               speak.current = true;
               setPlaying(false);
               setStep((s) => Math.min(s + 1, last));

@@ -42,6 +42,9 @@ export function HomePage() {
             <Link to="/curso" className="zt-btn-primary px-8 py-3 text-base">
               Começar a Academy
             </Link>
+            <a href="#demonstracao" className="text-sm font-semibold text-cream hover:text-gold-bright">
+              Assistir à demonstração narrada
+            </a>
             <Link to="/register" className="text-sm font-semibold text-cream hover:text-gold-bright">
               Criar conta
             </Link>
@@ -60,11 +63,11 @@ export function HomePage() {
 
       <div className="mx-auto w-full min-w-0 max-w-6xl space-y-12 px-4 py-10">
         <div className="zt-reveal">
-          <LossDeflatorSection />
+          <GamesSection />
         </div>
 
         <div className="zt-reveal">
-          <GamesSection />
+          <LossDeflatorSection />
         </div>
 
         <div className="zt-reveal zt-panel flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">

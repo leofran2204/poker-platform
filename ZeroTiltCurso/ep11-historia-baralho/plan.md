@@ -18,7 +18,7 @@ Público: iniciante (M0). Uma ideia só: o baralho tem mil anos e é uma máquin
 - S4_Mamelucos (~15.5s): 4 naipes de Topkapi (moedas, tacos, taças, cimitarras) + 52→Europa.
 - S5_Franca (~14s): 4 reis com nome sob cada carta na ordem do áudio (Davi/Alexandre/Cesar/Carlos Magno).
 - S6_52 (~10s): MiniTable + board de 5 distribuído.
-- S7_Fecho (~17s): showdown royal com anel grosso nas 5 + resto opaco (mesa e cartas fora) + pote. Total ~89s.
+- S7_Fecho (~17s): chôudaun royal com anel grosso nas 5 + resto opaco (mesa e cartas fora) + pote. Total ~89s.
 - Biblioteca: `ZeroTiltCurso/shared.py` (SuitTile, AsNasTile + pictogramas Coin/String/Crown/Sabre/Servant/Harp/Document/Bolster/Cup/Polo/Sun/Flower/Note/Swords).
 
 ## Identidade

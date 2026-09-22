@@ -338,6 +338,27 @@
     @apply mt-1 grid grid-cols-2 justify-items-center gap-0.5;
   }
 
+  /* Mão privada nas demonstrações: fileira horizontal estável (até 5 cartas,
+   * Pineapple). Cartas sobrepostas como leque — o canto com o rank fica
+   * visível e nada desce de linha nem invade o pote/legenda. */
+  .zt-hole-row {
+    @apply mt-1 flex flex-nowrap justify-center;
+  }
+  .zt-hole-row > * + * {
+    margin-left: -14px;
+  }
+  .zt-seat.wide .zt-seat-card {
+    min-width: 132px;
+  }
+  @media (max-width: 639px) {
+    .zt-hole-row > * + * {
+      margin-left: -18px;
+    }
+    .zt-board-row {
+      gap: 2px;
+    }
+  }
+
   .zt-seat-card {
     @apply min-w-[110px] rounded border-2 border-felt-500 bg-felt-950/90 px-2 py-1.5 text-center shadow-seat;
   }

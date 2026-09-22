@@ -22,10 +22,10 @@ Voz Edge-TTS pt-BR-AntonioNeural. Texto integral (5 atos = seg1..seg5):
 
 "Valor esperado é a média de todos os futuros possíveis. Jogada com i-vi positivo dá lucro repetindo mil vezes — mesmo que perca hoje. Jogada com i-vi negativo cobra pedágio invisível toda vez. Profissional não joga a mão: joga a média.
 
-O i-vi tem duas pernas. A primeira é a equidade: sua chance de vencer se todos virem até o fim. Nove outs no flópi? Trinta e seis por cento. É a matemática pura das cartas.
+O i-vi tem duas pernas. A primeira é a equidade: sua chance de vencer se todos virem até o fim. Nove áuts no flóp? Trinta e seis por cento. É a matemática pura das cartas.
 
 A segunda perna é a folde equity: a chance de todo mundo largar agora. Blefe contra rocha que folda demais? Folde equity gigante, qualquer duas cartas lucram. Blefe contra pagador apaixonado? Folde equity zero — e sem ela, só blefe com equidade real.
 
-Junte as duas: semi-blefe com flush draw. Se pagar, você ainda tem trinta e seis por cento. Se foldarem, leva agora. Dois jeitos de ganhar — por isso o semi-blefe é a jogada mais lucrativa do poker.
+Junte as duas: semi-blefe com flâsh draw. Se pagar, você ainda tem trinta e seis por cento. Se foldarem, leva agora. Dois jeitos de ganhar — por isso o semi-blefe é a jogada mais lucrativa do poker.
 
 E o erro clássico? Blefar quem nunca larga e ter medo de blefar quem larga tudo. Leia o vilão, some equidade com folde equity — e só entre em pote com a soma a seu favor. No próximo episódio: banca, o cinto de segurança."

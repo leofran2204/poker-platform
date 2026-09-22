@@ -7,7 +7,7 @@ Público: iniciante (M0). Uma ideia só: ninguém nasceu sabendo — estude uma 
 2. Brunson (10 + Super System + 10-2) e Ungar (3 Mains).
 3. Modernos: Ivey, Hellmuth 17, Negreanu, Holz.
 4. Brasil: CPH 2004, BSOP, Gomes 2008 (2317/770 mil), Akkari 2011 (675 mil).
-5. Fecho: Yuri 6, Botteon vice 2020 + lição; próximo: ranges.
+5. Fecho: Yuri 6, Botteon vice 2020 + lição; próximo: ráindjs.
 
 ## Cenas (script.py v3 visual) — waits casados com áudio por cena (1.0x)
 - S1_Titulo (cartaz video 3): título + 3 versos. S2_USA: par T-2 + 10 braceletes.
@@ -29,4 +29,4 @@ E o Brasil entrou no mapa. Em dois mil e quatro, amigos de Campinas criaram o C 
 
 Alexandre Gomes trouxe o primeiro bracelete brasileiro em dois mil e oito: dois mil trezentos e dezessete jogadores, setecentos e setenta mil dólares. André Acári veio em dois mil e onze, com seiscentos e setenta e cinco mil: o segundo do país. E a geração de ouro: Iúri com seis braceletes, Botéon vice mundial em dois mil e vinte.
 
-A lição? Ninguém nasceu sabendo. Móss era trapaceiro de rua, Mânimeiker era contador. Estude uma ideia por sessão — como eles fizeram. No próximo módulo: ranges, a matemática da primeira decisão."
+A lição? Ninguém nasceu sabendo. Móss era trapaceiro de rua, Mânimeiker era contador. Estude uma ideia por sessão — como eles fizeram. No próximo módulo: ráindjs, a matemática da primeira decisão."

@@ -43,6 +43,7 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 - Player (`CourseVideoPlayer`): MP4 + poster + transcrição da narração em texto. Sem faixa de legenda.
 - Finais em `public/videos/` (`epNN-*.mp4` / `.jpg`). Piloto ep01 em 720p30; os demais ainda 480p15 até o lote.
 - Voz: Hold’em = **Rôldem**, Omaha = **Omárra** (ep12, ep23–ep25). Os MP4 de ep23–ep25 ainda descrevem o jogo antigo; o texto do Módulo 5 é a regra vigente.
+- Princípio permanente: termo em inglês, pronúncia em inglês. Roteiros usam grafia fonética para o TTS pt-BR (ex.: `Târn`, `flóp`, `chôudaun`, `bláind`, `ráindj`, `flâsh`, `fullrrause`, `tchec-rêise`). Texto de leitura (títulos, quiz, `body`) fica em português normal; transcrição/`narration`/VTT acompanham a voz.
 - Fontes Manim em `ZeroTiltCurso/epNN-*/`.
 
 ## Notícias e dicas

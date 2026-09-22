@@ -96,9 +96,59 @@ interface DemoHand {
   id: string;
   heroCards: string[];
   villainCards: string[];
-  streets: { label: string; board: string[] }[];
-  seats?: { name: string; cards?: string[]; isWinner?: boolean }[];
+  streets: { label: string; board: string[]; holes?: string[][] }[];
+  seats?: { name: string; cards?: string[]; isWinner?: boolean; folded?: boolean }[];
   winningFive?: { hole: string[]; board: string[] };
+}
+
+/**
+ * Ranking Brazilian Pineapple / Short Deck (BUSINESS_RULES §2.5):
+ * trinca > sequência e flush > full house. O `score5` acima usa o
+ * ranking clássico (straight=4, trips=3, flush=5, full=6); aqui só
+ * remapeamos a ordem das categorias — o desempate (tb) é o mesmo.
+ */
+function pineappleCat(classicCat: number): number {
+  const order: Record<number, number> = {
+    0: 0, // carta alta
+    1: 1, // par
+    2: 2, // dois pares
+    4: 3, // sequência passa para baixo da trinca
+    3: 4, // trinca sobe
+    6: 5, // full house passa para baixo do flush
+    5: 6, // flush sobe
+    7: 7, // quadra
+    8: 8, // straight flush
+  };
+  return order[classicCat] ?? classicCat;
+}
+
+function cmpPineapple(a: Scored, b: Scored): number {
+  const d = pineappleCat(a.cat) - pineappleCat(b.cat);
+  if (d !== 0) return d;
+  return cmpScore({ ...a, cat: 0 }, { ...b, cat: 0 });
+}
+
+/** Melhor jogo de 5 com a regra da modalidade (pineapple = ranking Short Deck). */
+function bestFiveRuled(
+  hole: string[],
+  board: string[],
+  exactTwo: boolean,
+  pineapple: boolean,
+): Scored {
+  let best: Scored | null = null;
+  const consider = (cards: string[]) => {
+    const s = score5(cards);
+    if (!best || (pineapple ? cmpPineapple(s, best) : cmpScore(s, best)) > 0) best = s;
+  };
+  if (!exactTwo) {
+    for (const c of combos([...hole, ...board], 5)) consider(c);
+  } else {
+    for (const h of combos(hole, 2)) {
+      for (const b of combos(board, 3)) consider([...h, ...b]);
+    }
+  }
+  if (!best) throw new Error("sem combinação");
+  return best;
 }
 
 const deflatorHands = homeContent.deflator.demoHands as DemoHand[];
@@ -155,6 +205,55 @@ describe("winningFive — as 5 do jogo vencedor", () => {
       const wBest = bestFive(w.cards!, board, false);
       const lBest = bestFive(loser.cards!, board, false);
       expect(cmpScore(wBest, lBest) > 0).toBe(true);
+    }
+  });
+
+  it("variantes: vencedor declarado vence todos com a regra da modalidade", () => {
+    for (const h of variantHands) {
+      const seats = h.seats;
+      // Demos sem assentos (herói joga contra a mesa) não têm adversário.
+      if (!seats || seats.length === 0) continue;
+      const pineapple = h.id === "pineapple-demo";
+      const board = h.streets[h.streets.length - 1].board;
+      const w = seats.find((s) => s.isWinner)!;
+      expect(w.cards).toBeDefined();
+      const wBest = bestFiveRuled(w.cards!, board, w.cards!.length > 2, pineapple);
+      for (const o of seats) {
+        if (o.isWinner || o.folded || !o.cards) continue;
+        const oBest = bestFiveRuled(o.cards, board, o.cards.length > 2, pineapple);
+        const cmp = pineapple ? cmpPineapple(wBest, oBest) : cmpScore(wBest, oBest);
+        expect(cmp > 0).toBe(true);
+      }
+    }
+  });
+
+  it("pineapple-demo: trinca do herói vence a sequência da Mari (ranking Short Deck)", () => {
+    const h = variantHands.find((x) => x.id === "pineapple-demo")!;
+    const board = h.streets[h.streets.length - 1].board;
+    const hero = h.seats!.find((s) => s.isWinner)!;
+    const mari = h.seats!.find((s) => s.name === "Mari")!;
+    const heroBest = bestFiveRuled(hero.cards!, board, true, true);
+    const mariBest = bestFiveRuled(mari.cards!, board, true, true);
+    // Trinca (cat clássica 3) perde para sequência (4) no clássico…
+    expect(cmpScore(heroBest, mariBest) < 0).toBe(true);
+    // …mas vence no ranking Pineapple — é a lição do exemplo.
+    expect(cmpPineapple(heroBest, mariBest) > 0).toBe(true);
+  });
+
+  it("mãos com assentos: distribuição progressiva termina nas cartas dos assentos", () => {
+    for (const h of [...deflatorHands, ...variantHands]) {
+      const seats = h.seats;
+      const withHoles = h.streets.filter((s) => s.holes);
+      if (!seats || withHoles.length === 0) continue;
+      const lastHoles = withHoles[withHoles.length - 1].holes!;
+      expect(lastHoles).toEqual(seats.map((s) => s.cards ?? []));
+      // Ninguém perde carta no caminho: 2 no pré-flop, +1 por street.
+      for (const s of withHoles) {
+        s.holes!.forEach((hole, i) => {
+          const prev = withHoles[0].holes![i] ?? [];
+          expect(hole.slice(0, prev.length)).toEqual(prev);
+        });
+      }
     }
   });
 });

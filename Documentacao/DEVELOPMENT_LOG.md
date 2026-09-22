@@ -1,9 +1,26 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-09-10
+**Atualizado:** 2026-09-22
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 > Painel tático em `DASHBOARD.md`. Cronograma em `CRONOGRAMA.md`. Estado canônico em `STATUS_OPERACIONAL.md` (prevalece sobre retrospectivas históricas que digam “Launch Ready”).
+
+---
+
+## 📌 2026-09-22 — S24: home pedagógica — Pineapple corrigido + player áudio-dirigido (local, sem commit)
+
+| Item | Detalhe |
+|------|---------|
+| **Conteúdo** | `pineapple-demo`: Leo com `Kd Jd Tc 8d Ac` (par de damas) em vez de full house; trinca do herói vence de verdade; texto ensina trips > sequência + 2+3 |
+| **Testes** | `winningFive.test.ts`: ranking Short Deck (Pineapple), vencedor × todos nas variantes, distribuição progressiva; Vitest 58/58 |
+| **Player** | `AnimatedHand`: avanço por `audio.onended` + 900ms (fallback 3s); pausa retoma do ponto; uma narração por vez; Rever/Continuar/Anterior/próxima; `zt-hole-row` em leque (5 cartas sem quebrar) |
+| **Home** | Modalidades antes do deflator; CTA "Assistir à demonstração narrada" (`#demonstracao`); "3 jogos"; vitrine pausável com resultado 6s |
+| **Torneio** | `TournamentPage`: polling 15s + refresh no foco (início aparece sem reload) |
+| **CI** | Job `frontend-web`: etapa `npm test` (Vitest) entre lint e build |
+| **Validado** | `tsc`, ESLint, Vitest 58, Vite build, `git diff --check` — sem commit/push/deploy |
+| **Narração (falas corretas)** | Padrão fonético: `flâsh`, `fullrrause`, `Róyal flâsh`, `Par de Ás/Dama`, `sequência nâtz` (segue `Rôldem/Omárra`). 13 segs corrigidos em 9 eps + `Par de Dama` no ep06; ep15 seg3 era duplicado do seg2 — restaurado o parágrafo do bordo molhado (S3 16.9→24.7s, vídeo 85.3→90.2s, `durationSeconds` 86→90). Áudio Edge-TTS AntonioNeural; remux `-shortest` (só faixa de áudio, exceto cena S3 ep15); 11 VTTs + transcrições/`placeholderScripts` espelhados; 8 `pineapple-*.mp3` da home regravados com o exemplo corrigido (texto em `homeContent.json:streets[].narration`). tsc/ESLint/Vitest 58 verdes |
+| **Turn = Târn** | Termo inglês, pronúncia inglesa: `térn`→`târn` em 10 segs de 7 eps (01, 07, 16–19, 21) + `narracao.txt`/`plan.md`/transcrições/VTTs + `pineapple-4/-5` da home; narrações refeitas e 7 finais remuxados (só áudio). `térn` zerado no repo; tsc/Vitest 58 verdes |
+| **Princípio voz EN** | Termo inglês sempre com pronúncia inglesa em 22 eps (66 segs): `flóp`, `chôudaun`, `smól/bíg bláind`, `ráindj`, `áuts/ódz`, `tri-bét/continuation bét`, `tchec-rêise`, `flôut`, `sték`, `Chórt Dec`, `squîz/ristîl`, `áisou-rêise`, `rêise/rêiser`, `âunder de gân`, `rái-jac/lôujac/câtoff`, `prímiams`, `iú-tí-djí`, `tóp pér`, `skéer cárd`, `dâboul-bérrel`, `impláid`, `complît` + 5 áudios da home. Leitura (títulos/quiz/`body`) preservada em PT normal; transcrição/VTT/`narration` acompanham a voz. Princípio registrado no `Frontend-Web/README.md`. Remux `-shortest` (só áudio); 22/22 hash-iguais; tsc/ESLint/Vitest 58 + Vite build verdes |
 
 ---
 

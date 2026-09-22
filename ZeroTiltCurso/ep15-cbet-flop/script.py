@@ -1,4 +1,4 @@
-"""EP15 v3 visual (versão aprofundada ~90s). Sem LaTeX. Render: manim -ql script.py S1..S5. Mesmos waits da v2 (áudio reaproveitado)."""
+"""EP15 v3 visual (versão aprofundada ~93s). Sem LaTeX. Render: manim -ql script.py S1..S5. S3 com parágrafo do bordo molhado (+flâsh)."""
 import os
 import sys
 
@@ -60,7 +60,7 @@ class S3_Molhado(Scene):
         self.play(FadeIn(table), run_time=0.6)
         self.play(FadeIn(cap), run_time=0.5)
         deal_in(self, board, run_time=1.0)
-        self.wait(16.9)
+        self.wait(24.7)
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)
 
 

@@ -288,6 +288,9 @@ jobs:
       - name: TypeScript lint
         run: npm run lint
 
+      - name: Frontend tests (Vitest)
+        run: npm test
+
       - name: Production build
         run: npm run build
 
@@ -511,6 +514,6 @@ jobs:
           echo "============================================="
           echo "Motor-Rust:      ✅ check + test + clippy + fmt + audit + coverage"
           echo "API-Axum:        ✅ check + test + clippy + fmt"
-          echo "Frontend-Web:   ✅ audit + lint + production build"
+          echo "Frontend-Web:   ✅ audit + lint + test + production build"
           echo "Security:        ✅ Trivy CVE scan"
           echo "============================================="

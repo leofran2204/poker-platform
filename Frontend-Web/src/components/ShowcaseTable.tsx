@@ -56,7 +56,11 @@ function phaseOf(boardLen: number): string {
   return "RIVER";
 }
 
-/** Mesa de vitrine na home/auth — feltro real, sem WebSocket. Anima flop→river em loop. */
+/** Ritmo da vitrine: streets a cada 3s, mas o resultado fica visível por 6s antes da próxima mão. */
+const STREET_MS = 3000;
+const RESULT_DWELL_MS = 6000;
+
+/** Mesa de vitrine na home/auth — feltro real, sem WebSocket. Anima flop→river em loop pausável. */
 export function ShowcaseTable({ className = "" }: { className?: string }) {
   const [scenarioIdx, setScenarioIdx] = useState(0);
   const [streetIdx, setStreetIdx] = useState(1);
@@ -67,23 +71,28 @@ export function ShowcaseTable({ className = "" }: { className?: string }) {
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
-
-  useEffect(() => {
-    if (reducedMotion) return;
-    const id = window.setInterval(() => {
-      setStreetIdx((street) => {
-        const scenario = SCENARIOS[scenarioIdx];
-        if (street + 1 < scenario.boards.length) return street + 1;
-        setScenarioIdx((s) => (s + 1) % SCENARIOS.length);
-        return 0;
-      });
-    }, 3000);
-    return () => window.clearInterval(id);
-  }, [scenarioIdx, reducedMotion]);
+  const [playing, setPlaying] = useState(true);
 
   const scenario = SCENARIOS[scenarioIdx];
   const lastIdx = scenario.boards.length - 1;
   const finished = streetIdx === lastIdx;
+
+  useEffect(() => {
+    if (reducedMotion || !playing) return;
+    const id = window.setTimeout(
+      () => {
+        if (streetIdx + 1 < scenario.boards.length) {
+          setStreetIdx(streetIdx + 1);
+        } else {
+          setScenarioIdx((s) => (s + 1) % SCENARIOS.length);
+          setStreetIdx(0);
+        }
+      },
+      finished ? RESULT_DWELL_MS : STREET_MS,
+    );
+    return () => window.clearTimeout(id);
+  }, [scenarioIdx, streetIdx, finished, playing, reducedMotion, scenario.boards.length]);
+
   const board = scenario.boards[streetIdx];
   const prevLen = streetIdx > 0 ? scenario.boards[streetIdx - 1].length : 0;
   const pot = scenario.pots[streetIdx];
@@ -104,8 +113,20 @@ export function ShowcaseTable({ className = "" }: { className?: string }) {
 
   return (
     <div className="flex w-full flex-col items-center gap-2">
-      <div key={`${scenarioIdx}-phase-${streetIdx}`} className="zt-street-banner" aria-hidden>
-        {phaseOf(board.length)}
+      <div className="flex w-full items-center justify-center gap-2">
+        <div key={`${scenarioIdx}-phase-${streetIdx}`} className="zt-street-banner" aria-hidden>
+          {phaseOf(board.length)}
+        </div>
+        {!reducedMotion && (
+          <button
+            type="button"
+            onClick={() => setPlaying((p) => !p)}
+            className="zt-btn-secondary !px-2 !py-0.5 !text-[11px]"
+            aria-label={playing ? "Pausar vitrine" : "Continuar vitrine"}
+          >
+            {playing ? "⏸" : "▶"}
+          </button>
+        )}
       </div>
       <div className={`zt-felt-table zt-showcase-table ${className}`.trim()} aria-hidden>
         <div className="absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">

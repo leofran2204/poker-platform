@@ -43,6 +43,24 @@ export function TournamentPage() {
     return () => window.clearInterval(tick);
   }, []);
 
+  // O relógio é local, mas o estado do evento vem do servidor: reconsulta a
+  // cada 15s e ao voltar o foco, para o início aparecer sem recarregar a página.
+  useEffect(() => {
+    const poll = window.setInterval(() => {
+      void load();
+    }, 15_000);
+    const onFocus = () => {
+      void load();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => {
+      window.clearInterval(poll);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
+  }, [load]);
+
   async function handleRegister() {
     if (!isAuthenticated()) {
       setError("Faça login para se inscrever.");
