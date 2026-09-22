@@ -21,7 +21,8 @@ export function DeflatorSimulator() {
         Simulador: quanto voltaria para você?
       </h3>
       <p className="mt-1 text-xs text-felt-300">
-        Arraste a sua chance no all-in e digite o pote líquido (já sem rake).
+        Arraste a sua chance no all-in e digite o pote líquido (já sem rake). Abaixo de
+        56% não volta nada — o benefício é para quem jogou na frente.
       </p>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -32,7 +33,7 @@ export function DeflatorSimulator() {
           <input
             id="sim-equity"
             type="range"
-            min={0}
+            min={56}
             max={100}
             step={1}
             value={equity}
@@ -40,8 +41,10 @@ export function DeflatorSimulator() {
             className="w-full accent-[#c9a227]"
           />
           <div className="flex justify-between text-[11px] text-felt-400">
-            <span>0% (azarão)</span>
             <span>56% (mínimo)</span>
+            <span>66%</span>
+            <span>76%</span>
+            <span>86%</span>
             <span>100%</span>
           </div>
         </div>
@@ -77,7 +80,7 @@ export function DeflatorSimulator() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-wider text-felt-300">
-                Faixa de {result.percent}% · {result.tier.label}
+                Se o azar bater e você perder: faixa de {result.percent}% · {result.tier.label}
               </p>
               <p className="mt-1 text-2xl font-bold text-emerald-300">
                 {formatBrlFromCents(result.cashbackCents)}{" "}
@@ -92,6 +95,12 @@ export function DeflatorSimulator() {
               <p className="mt-0.5">A soma fecha exata — nada é criado.</p>
             </div>
           </div>
+        ) : equity >= 100 ? (
+          <p className="text-sm text-felt-200">
+            Com <span className="font-mono font-bold text-amber-300">100%</span> não há como
+            perder — ninguém tira; sem bad beat, sem devolução. Este é o teto teórico,
+            não um valor a receber.
+          </p>
         ) : (
           <p className="text-sm text-felt-200">
             Com <span className="font-mono font-bold text-amber-300">{equity}%</span> você estava

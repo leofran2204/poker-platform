@@ -10,7 +10,7 @@
 //   56% até < 66%      |  7%
 //   66% até < 76%      | 15%
 //   76% até < 86%      | 25%
-//   86% ou mais        | 35%
+//   86% até < 100%     | 35%   (100% = sem perdedor possível: quem tem 100% não perde)
 //
 // IMPORTANTE — Sobre quais pots o cashback incide:
 // O cashback é aplicado SOMENTE sobre os pots em que o PERDEDOR participou
@@ -72,9 +72,11 @@ impl LossDeflatorTier {
     /// Classifica a equity do perdedor conforme a regra financeira oficial.
     ///
     /// As faixas são inclusivas no limite inferior e exclusivas no superior:
-    /// [56%, 66%), [66%, 76%), [76%, 86%) e [86%, 100%].
+    /// [56%, 66%), [66%, 76%), [76%, 86%) e [86%, 100%).
+    /// Equity 1.0 (100%) não tem tier: quem tem 100% não perde, logo não
+    /// há perdedor elegível; valores fora de [0.0, 1.0] também são None.
     pub fn from_loser_equity(loser_equity: f64) -> Option<Self> {
-        if !loser_equity.is_finite() || !(0.0..=1.0).contains(&loser_equity) {
+        if !loser_equity.is_finite() || !(0.0..1.0).contains(&loser_equity) {
             return None;
         }
 
@@ -628,7 +630,8 @@ mod tests {
             (0.76, Some(LossDeflatorTier::TwentyFivePercent)),
             (0.859_999, Some(LossDeflatorTier::TwentyFivePercent)),
             (0.86, Some(LossDeflatorTier::ThirtyFivePercent)),
-            (1.0, Some(LossDeflatorTier::ThirtyFivePercent)),
+            (0.999_999, Some(LossDeflatorTier::ThirtyFivePercent)),
+            (1.0, None),
         ];
 
         for (equity, expected) in cases {
@@ -641,6 +644,21 @@ mod tests {
         assert_eq!(LossDeflatorTier::from_loser_equity(f64::NAN), None);
         assert_eq!(LossDeflatorTier::from_loser_equity(-0.01), None);
         assert_eq!(LossDeflatorTier::from_loser_equity(1.01), None);
+    }
+
+    #[test]
+    fn test_equity_one_hundred_percent_returns_none() {
+        // 100% = sem perdedor possível: quem tem 100% não perde o runout.
+        assert_eq!(LossDeflatorTier::from_loser_equity(1.0), None);
+        let pots = vec![make_pot(20000, vec!["loser", "winner"])];
+        let result = calculate_progressive_loss_deflator(ProgressiveLossDeflatorParams {
+            pots,
+            loser_id: "loser".into(),
+            winner_id: "winner".into(),
+            phase: GamePhase::River,
+            loser_equity: 1.0,
+        });
+        assert!(result.is_none());
     }
 
     #[test]

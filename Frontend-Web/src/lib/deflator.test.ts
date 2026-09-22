@@ -18,8 +18,15 @@ describe("tierForEquity", () => {
   it("bordas entre faixas", () => {
     expect(tierForEquity(66)?.percent).toBe(15);
     expect(tierForEquity(76)?.percent).toBe(25);
+    expect(tierForEquity(85)?.percent).toBe(25);
     expect(tierForEquity(86)?.percent).toBe(35);
-    expect(tierForEquity(100)?.percent).toBe(35);
+    expect(tierForEquity(99.9)?.percent).toBe(35);
+  });
+
+  it("100% não tem tier: quem tem 100% não perde", () => {
+    expect(tierForEquity(100)).toBeNull();
+    expect(cashbackFor(100, 20000).cashbackCents).toBe(0);
+    expect(cashbackFor(100, 20000).percent).toBe(0);
   });
 });
 

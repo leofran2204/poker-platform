@@ -285,8 +285,10 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 | **0** | **56,0% – 65,9%**   | **7%**   | Favorito leve |
 | **1** | **66,0% – 75,9%**   | **15%**  | Favorito moderado |
 | **2** | **76,0% – 85,9%**   | **25%**  | Grande favorito |
-| **3** | **≥ 86,0%**         | **35%**  | Favorito esmagador / bad beat extrema |
+| **3** | **86,0% – 99,9%**     | **35%**  | Favorito esmagador / bad beat extrema |
 | —     | **< 56,0%**         | **0%**   | Não elegível |
+
+> Forma exata no motor (`LossDeflatorTier::from_loser_equity`): topo é `[86%, 100%)`. Equity 100% não tem tier — quem tem 100% não perde o runout, logo não há perdedor elegível; "99,9%" é o arredondamento de exibição.
 
 ### 11.2 ⚙️ Regras de Aplicação e Origem Financeira
 

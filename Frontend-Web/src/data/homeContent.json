@@ -19,7 +19,7 @@
       { "range": "56% – 65,9%", "percent": 7, "label": "Favorito leve", "example": "AQ vs KJ: 62% e perde para um J no flop" },
       { "range": "66% – 75,9%", "percent": 15, "label": "Favorito moderado", "example": "JJ vs AT: 71% e o Ás aparece" },
       { "range": "76% – 85,9%", "percent": 25, "label": "Grande favorito", "example": "AA vs KK: 82% e o K bate no river" },
-      { "range": "86% ou mais", "percent": 35, "label": "Bad beat extrema", "example": "Trinca de Ases com 97% perde para sequência runner-runner" }
+      { "range": "86% – 99,9%", "percent": 35, "label": "Bad beat extrema", "example": "Trinca de Ases com 97% perde para sequência runner-runner" }
     ],
     "faq": [
       {

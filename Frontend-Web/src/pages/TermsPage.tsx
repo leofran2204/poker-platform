@@ -62,7 +62,7 @@ export function TermsPage() {
             2.3. Todos os registros de fichas utilizam precisão bancária atômica em inteiros (centavos), garantindo integridade contábil imutável em nosso Ledger.
           </p>
           <p>
-            2.4. <strong>Cashback e Loss Deflator (play money):</strong> Após a retirada do rake, o perdedor all-in pode receber de volta parte dos potes líquidos: 7% (equity 56–65,9%), 15% (66–75,9%), 25% (76–85,9%) ou 35% (86%+). Abaixo de 56% não há devolução.
+            2.4. <strong>Cashback e Loss Deflator (play money):</strong> Após a retirada do rake, o perdedor all-in pode receber de volta parte dos potes líquidos: 7% (equity 56–65,9%), 15% (66–75,9%), 25% (76–85,9%) ou 35% (86–99,9%). Abaixo de 56% não há devolução; 100% não tem perdedor possível.
           </p>
         </section>
 

@@ -5,8 +5,8 @@
 export interface DeflatorTier {
   /** Equity mínima (inclusive) para esta faixa. */
   minEquity: number;
-  /** Equity máxima (exclusive). null = sem teto. */
-  maxEquity: number | null;
+  /** Equity máxima (exclusive). Topo = 100: 100% não tem tier (quem tem 100% não perde). */
+  maxEquity: number;
   /** Percentual devolvido sobre o pote líquido pós-rake. */
   percent: number;
   /** Rótulo curto para a UI. */
@@ -14,21 +14,21 @@ export interface DeflatorTier {
 }
 
 export const DEFLATOR_TIERS: DeflatorTier[] = [
-  { minEquity: 86, maxEquity: null, percent: 35, label: "Bad beat extrema" },
+  { minEquity: 86, maxEquity: 100, percent: 35, label: "Bad beat extrema" },
   { minEquity: 76, maxEquity: 86, percent: 25, label: "Grande favorito" },
   { minEquity: 66, maxEquity: 76, percent: 15, label: "Favorito moderado" },
   { minEquity: 56, maxEquity: 66, percent: 7, label: "Favorito leve" },
 ];
 
-/** Faixa aplicável a uma equity (0–100). null = abaixo de 56%, sem devolução. */
+/** Faixa aplicável a uma equity (0–100). null = abaixo de 56% ou 100% (sem perdedor possível). */
 export function tierForEquity(equityPercent: number): DeflatorTier | null {
-  if (!Number.isFinite(equityPercent) || equityPercent < 56) return null;
+  if (!Number.isFinite(equityPercent) || equityPercent < 56 || equityPercent >= 100) return null;
   for (const tier of DEFLATOR_TIERS) {
-    if (equityPercent >= tier.minEquity && (tier.maxEquity === null || equityPercent < tier.maxEquity)) {
+    if (equityPercent >= tier.minEquity && equityPercent < tier.maxEquity) {
       return tier;
     }
   }
-  return DEFLATOR_TIERS[0];
+  return null;
 }
 
 export interface CashbackResult {
