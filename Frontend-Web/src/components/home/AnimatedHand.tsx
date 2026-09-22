@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PlayingCard } from "@/components/PlayingCard";
 import { cashbackFor } from "@/lib/deflator";
 import { formatBrlFromCents } from "@/lib/money";
@@ -6,6 +6,10 @@ import { formatBrlFromCents } from "@/lib/money";
 export interface AnimatedStreet {
   label: string;
   board: string[];
+  /** Cartas visíveis de cada assento neste passo (Pineapple cresce street a street). */
+  holes?: string[][];
+  /** Narração deste passo (MP3). */
+  audio?: string;
 }
 
 export interface AnimatedSeat {
@@ -14,6 +18,7 @@ export interface AnimatedSeat {
   folded?: boolean;
   isHero?: boolean;
   isWinner?: boolean;
+  stack?: string;
 }
 
 export interface WinningFive {
@@ -44,9 +49,9 @@ export interface AnimatedHandData {
 
 /** Posições dos assentos no feltro (herói embaixo, como na mesa real). */
 const SEAT_POS = [
-  { top: 86, left: 50 },
-  { top: 28, left: 86 },
-  { top: 28, left: 14 },
+  { top: 88, left: 50 },
+  { top: 16, left: 84 },
+  { top: 16, left: 16 },
 ];
 
 /** Deslocamento das fichas do pote até o assento vencedor. */
@@ -130,6 +135,28 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
 
   const street = hand.streets[step];
   const finished = step === last;
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const speak = useRef(false);
+
+  useEffect(() => {
+    speak.current = false;
+    audioRef.current?.pause();
+  }, [hand.id]);
+
+  const playStep = (src?: string) => {
+    const el = audioRef.current;
+    if (!el || !src) return;
+    el.src = src;
+    el.currentTime = 0;
+    void el.play().catch(() => undefined);
+  };
+
+  useEffect(() => {
+    if (!speak.current) return;
+    playStep(street.audio);
+    // Só quando o passo muda. O botão Assistir dispara o áudio do passo atual.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
   const phase = phaseOf(street.board.length);
   // Board estável como nas plataformas famosas: o que já está na mesa fica
   // parado; só a carta nova anima. prevLen = cartas que já estavam no passo anterior.
@@ -155,11 +182,18 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
           type="button"
           onClick={() => {
             if (finished) {
+              speak.current = true;
               setStep(0);
               setPlaying(true);
               return;
             }
-            setPlaying((p) => !p);
+            setPlaying((p) => {
+              const next = !p;
+              speak.current = next;
+              if (!next) audioRef.current?.pause();
+              else playStep(street.audio);
+              return next;
+            });
           }}
           className="zt-btn-secondary !px-3 !py-1 !text-xs"
           aria-label={playing ? "Pausar replay" : finished ? "Rever replay" : "Reproduzir replay"}
@@ -190,8 +224,9 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
           {phase}
         </div>
 
-        <div className="zt-felt-table" aria-hidden={false}>
-          <div className="absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
+        <audio ref={audioRef} preload="none" />
+        <div className="zt-felt-table zt-demo-table" aria-hidden={false}>
+          <div className="absolute left-1/2 top-[46%] z-[1] flex w-[58%] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
             <div className="rounded border border-gold/40 bg-black/40 px-3 py-1 text-center">
               <div className="text-[10px] uppercase tracking-wider text-gold-soft">Pote</div>
               <div className="font-mono text-base font-bold text-white">
@@ -231,22 +266,27 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
           {seats.map((s, i) => {
             const pos = SEAT_POS[Math.min(i, SEAT_POS.length - 1)];
             const isWinnerSeat = showWin && i === winnerIdx;
+            const shown = street.holes?.[i] ?? s.cards ?? [];
+            const many = shown.length > 2;
             return (
               <div
                 key={s.name}
-                className="zt-seat"
+                className={`zt-seat ${many ? "wide" : ""}`}
                 style={{ top: `${pos.top}%`, left: `${pos.left}%` }}
               >
                 <div className={`zt-seat-card ${s.isHero ? "active" : ""} ${isWinnerSeat ? "winner" : ""} ${s.folded ? "folded" : ""}`}>
                   <div className="truncate text-xs font-semibold text-cream">{s.name}</div>
+                  {s.stack && (
+                    <div className="font-mono text-[10px] text-gold-soft">{s.stack}</div>
+                  )}
                   {s.folded ? (
                     <div className={`mt-1 flex justify-center gap-0.5 ${showWin && useWinFive ? "zt-dim" : ""}`}>
                       <PlayingCard faceDown size="sm" />
                       <PlayingCard faceDown size="sm" />
                     </div>
                   ) : (
-                    <div className="mt-1 flex justify-center gap-0.5">
-                      {(s.cards ?? []).map((c) => {
+                    <div className={many ? "zt-hole-grid" : "mt-1 flex justify-center gap-0.5"}>
+                      {shown.map((c) => {
                         const inFive = i === winnerIdx && winHole.has(c);
                         const isWin = showWin && (useWinFive ? inFive : i === winnerIdx);
                         const dim = showWin && useWinFive && !inFive;
@@ -313,6 +353,8 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
           <button
             type="button"
             onClick={() => {
+              speak.current = false;
+              audioRef.current?.pause();
               setPlaying(false);
               setStep((s) => Math.max(s - 1, 0));
             }}
@@ -330,6 +372,8 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
                 aria-selected={i === step}
                 aria-label={`Etapa ${i + 1}: ${s.label}`}
                 onClick={() => {
+                  speak.current = false;
+                  audioRef.current?.pause();
                   setPlaying(false);
                   setStep(i);
                 }}
@@ -343,10 +387,12 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
             type="button"
             onClick={() => {
               if (finished) {
+                speak.current = true;
                 setStep(0);
                 setPlaying(true);
                 return;
               }
+              speak.current = true;
               setPlaying(false);
               setStep((s) => Math.min(s + 1, last));
             }}

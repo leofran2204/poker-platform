@@ -1347,7 +1347,7 @@
             "heroDecision": "Showdown ganho. No Brazilian Pineapple, trinca é superior a sequência.",
             "keyTakeaway": "Só o Pineapple inverte o ranking: trinca > sequência e flush > full house."
           },
-          "body": "## Brazilian Pineapple (5-max)\n\n- **Baralho de 36:** sem 2, 3, 4 e 5.\n- **Deal:** 2 hole no pré-flop; +1 depois do flop, do turn e do river (5 no river). Sem descarte.\n- **Showdown:** exatamente 2 da mão + 3 da mesa.\n- **Ranking Short Deck:** trinca > sequência; flush > full house; wheel `A-6-7-8-9`.\n- O vídeo desta aula ainda narra o Texas Short Deck antigo. A regra vigente é este texto.",
+          "body": "## Brazilian Pineapple (5-max)\n\n- **Baralho de 36:** sem 2, 3, 4 e 5.\n- **Deal:** 2 hole no pré-flop; +1 depois do flop, do turn e do river (5 no river). Sem descarte.\n- **Showdown:** exatamente 2 da mão + 3 da mesa.\n- **Ranking Short Deck:** trinca vale mais que sequência. Flush vale mais que full house. Sequência baixa: Ás, 6, 7, 8 e 9.\n- O vídeo desta aula ainda narra o Texas Short Deck antigo. A regra vigente é este texto.",
           "quiz": [
             {
               "id": "m5l1q1",

@@ -308,6 +308,15 @@
       0 16px 40px rgba(0, 0, 0, 0.5);
   }
 
+  .zt-felt-table.zt-demo-table {
+    aspect-ratio: auto;
+    min-height: 440px;
+  }
+
+  .zt-demo-table .zt-seat {
+    z-index: 30;
+  }
+
   .zt-felt-table::before {
     content: "";
     position: absolute;

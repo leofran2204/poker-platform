@@ -1082,6 +1082,11 @@
 - Módulo 5 escrito: Omaha 4 tradicional e Brazilian Pineapple. Vídeos ep23–ep25 ainda narram o jogo antigo.
 - **Deploy (`52b3405b`, só frontend):** `DEPLOY_OK` 2026-09-22T03:38:05Z; `/api/health` 200; bundle `index-B-vY52G4.js`.
 
+## 2026-09-22 — replay do Pineapple e nâtz
+
+- Home: ranking em frase (sem “>”). Mão de 3 jogadores até o showdown, carta extra e aposta por street, narração em `/audio/pineapple-N.mp3`. Board não cobre nome nem stack.
+- TTS ep19, ep22, ep24: `nuts` → **nâtz**.
+
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
 

@@ -169,24 +169,74 @@
       "deck": "36 cartas (baralho curto, sem 2 a 5)",
       "hole": "2 no pré-flop; +1 depois do flop, do turn e do river",
       "make": "No showdown, exatamente 2 da mão + 3 da mesa. Sem descarte.",
-      "twist": "Só aqui o ranking Short Deck: trinca > sequência e flush > full house.",
+      "twist": "Só aqui o ranking muda: trinca vale mais que sequência. Flush vale mais que full house.",
       "cap": "Mesas até 5 jogadores",
       "demoHand": {
         "id": "pineapple-demo",
-        "title": "2 no pré-flop, carta extra em cada street",
+        "title": "Mão completa: carta extra e aposta em cada street",
         "heroLabel": "Você",
         "heroCards": ["As", "Ks", "Qh", "8c", "Jc"],
-        "villainLabel": "Mesa",
-        "villainCards": [],
+        "villainLabel": "Leo",
+        "villainCards": ["9c", "9d", "Th", "6c", "Kd"],
+        "seats": [
+          { "name": "Você", "cards": ["As", "Ks", "Qh", "8c", "Jc"], "isHero": true, "isWinner": true, "stack": "R$ 420" },
+          { "name": "Leo", "cards": ["9c", "9d", "Th", "6c", "Kd"], "stack": "R$ 180" },
+          { "name": "Mari", "cards": ["Jh", "Td", "8h", "7c", "6h"], "stack": "R$ 260" }
+        ],
         "streets": [
-          { "label": "Pré-flop: 2 cartas (A K)", "board": [] },
-          { "label": "Flop Q Q 7 + 1 carta extra (Q)", "board": ["Qc", "Qs", "7h"] },
-          { "label": "Turn 9 + 1 extra; river 6 + 1 extra", "board": ["Qc", "Qs", "7h", "9s", "6d"] }
+          {
+            "label": "Pré-flop: duas cartas para cada um",
+            "board": [],
+            "holes": [["As", "Ks"], ["9c", "9d"], ["Jh", "Td"]],
+            "audio": "/audio/pineapple-0.mp3"
+          },
+          {
+            "label": "Você aumenta. Leo paga. Mari paga.",
+            "board": [],
+            "holes": [["As", "Ks"], ["9c", "9d"], ["Jh", "Td"]],
+            "audio": "/audio/pineapple-1.mp3"
+          },
+          {
+            "label": "Flop Dama Dama 7. Cada um recebe mais uma carta.",
+            "board": ["Qc", "Qs", "7h"],
+            "holes": [["As", "Ks", "Qh"], ["9c", "9d", "Th"], ["Jh", "Td", "8h"]],
+            "audio": "/audio/pineapple-2.mp3"
+          },
+          {
+            "label": "Leo aposta. Mari paga. Você aumenta. Os dois pagam.",
+            "board": ["Qc", "Qs", "7h"],
+            "holes": [["As", "Ks", "Qh"], ["9c", "9d", "Th"], ["Jh", "Td", "8h"]],
+            "audio": "/audio/pineapple-3.mp3"
+          },
+          {
+            "label": "Turn: 9 de espadas. Mais uma carta para cada um.",
+            "board": ["Qc", "Qs", "7h", "9s"],
+            "holes": [["As", "Ks", "Qh", "8c"], ["9c", "9d", "Th", "6c"], ["Jh", "Td", "8h", "7c"]],
+            "audio": "/audio/pineapple-4.mp3"
+          },
+          {
+            "label": "Você aposta. Leo paga. Mari paga.",
+            "board": ["Qc", "Qs", "7h", "9s"],
+            "holes": [["As", "Ks", "Qh", "8c"], ["9c", "9d", "Th", "6c"], ["Jh", "Td", "8h", "7c"]],
+            "audio": "/audio/pineapple-5.mp3"
+          },
+          {
+            "label": "River: 6 de ouros. Última carta fechada.",
+            "board": ["Qc", "Qs", "7h", "9s", "6d"],
+            "holes": [["As", "Ks", "Qh", "8c", "Jc"], ["9c", "9d", "Th", "6c", "Kd"], ["Jh", "Td", "8h", "7c", "6h"]],
+            "audio": "/audio/pineapple-6.mp3"
+          },
+          {
+            "label": "Showdown: duas da mão e três da mesa. Trinca vale mais que sequência.",
+            "board": ["Qc", "Qs", "7h", "9s", "6d"],
+            "holes": [["As", "Ks", "Qh", "8c", "Jc"], ["9c", "9d", "Th", "6c", "Kd"], ["Jh", "Td", "8h", "7c", "6h"]],
+            "audio": "/audio/pineapple-7.mp3"
+          }
         ],
         "equity": 84,
         "potCents": 15000,
         "winningFive": { "hole": ["Qh", "As"], "board": ["Qc", "Qs", "9s"] },
-        "result": "Trinca de Damas com kicker As (Q♥ A♠ + Q♣ Q♠ 9♠): a carta extra do flop (Q) virou trinca. No river você tem 5 hole e usa exatamente 2 + 3 da mesa."
+        "result": "Trinca de damas com ás de kicker: a dama extra do flop mais ás e rei, com dama, dama e nove da mesa. As outras três cartas suas ficam de fora. Trinca vale mais que sequência. Flush vale mais que full house."
       }
     }
   ]
