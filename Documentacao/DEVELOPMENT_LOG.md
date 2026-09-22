@@ -1080,6 +1080,7 @@
 - Ciclo S24 no STATUS: três modalidades, Academy, marca ZT Poker, lobby em cards. `reviewed_on` 2026-09-22.
 - Painel, README do frontend e convite deixam de tratar S24 como “local sem commit” e o player como legendado.
 - Módulo 5 escrito: Omaha 4 tradicional e Brazilian Pineapple. Vídeos ep23–ep25 ainda narram o jogo antigo.
+- **Deploy (`52b3405b`, só frontend):** `DEPLOY_OK` 2026-09-22T03:38:05Z; `/api/health` 200; bundle `index-B-vY52G4.js`.
 
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
