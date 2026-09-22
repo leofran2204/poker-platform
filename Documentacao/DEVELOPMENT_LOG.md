@@ -1073,6 +1073,7 @@
 ## 2026-09-22 — pronúncia Rôldem e Omárra
 
 - TTS `pt-BR-AntonioNeural`: Holdém/Hold'em → **Rôldem**; Omaha → **Omárra**. ep12, ep23, ep24, ep25 remuxados. Transcrição na tela segue Hold’em/Omaha.
+- **Deploy (`41c36d16`, só frontend):** `DEPLOY_OK` 2026-09-22T02:35:27Z; `/videos/ep12-mississippi.mp4` 1,64 MB.
 
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
