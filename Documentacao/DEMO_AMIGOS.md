@@ -2,6 +2,8 @@
 
 Guia curto para convidar pessoas a testar e mandar feedback.
 
+Casa: **ZT Poker** (header **Zero Tilt**). Slogan: **Estude. Jogue. Sem tilt.** Três jogos: Hold’em, Omaha 4 (baralho 52) e Brazilian Pineapple (Short Deck).
+
 ## O que cada amigo precisa fazer
 
 1. Abrir **https://zerotiltpoker.net** (HTTPS público)

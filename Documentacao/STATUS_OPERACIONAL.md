@@ -2,7 +2,7 @@
 
 # Estado operacional — S24
 
-**S24** — crédito provisório PIX + catálogo 053 + mesa jogável + Vitest/ESLint. Revisado em **2026-09-21**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
+**S24** — três modalidades + Academy + marca ZT Poker + lobby em cards. Revisado em **2026-09-22**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
 
 **Limites:** sem certificação de produção · PIX automático ligado (DePix reconciliado) · mesas com dono **único por processo** (settlement HMAC).
 

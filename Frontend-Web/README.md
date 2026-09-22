@@ -26,17 +26,23 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 - Logado: `POST /api/presence/heartbeat` periódico
 - Visitante: `GET /api/presence/online`
 
+## Marca
+
+- Apelido **ZT Poker**. Header: ás + **Zero Tilt**. Slogan: **Estude. Jogue. Sem tilt.**
+- Símbolo: `public/brand/mark.jpg` (ás com ZeroTilt / Poker). Favicon e Open Graph usam o mesmo arquivo.
+
 ## Home
 
-- Visitante: vitrine da **Academy** (aprenda, depois jogue) + `ShowcaseTable` + deflator + variantes
+- Visitante: vitrine da **Academy** + `ShowcaseTable` + deflator + três jogos (Hold’em, Omaha 4, Brazilian Pineapple)
 - Logado em `/` redireciona para `/curso`
 - Notícias e Dica do Pró **não** ficam na home: `/noticias`, `/dicas`, rodapé e atalhos no Curso
 - Header logado: Curso · Lobby · Carteira (+ Mais). Visitante: Academy · Entrar · Criar conta
 
 ## Vídeos da Academy
 
-- Player (`CourseVideoPlayer`): MP4 + poster + legendas VTT + transcrição da narração real. Sem persona de coach.
-- Finais em `public/videos/` (`epNN-*.mp4` / `.vtt` / `.jpg`). Piloto ep01 em 720p30; os demais ainda 480p15 até o lote.
+- Player (`CourseVideoPlayer`): MP4 + poster + transcrição da narração em texto. Sem faixa de legenda.
+- Finais em `public/videos/` (`epNN-*.mp4` / `.jpg`). Piloto ep01 em 720p30; os demais ainda 480p15 até o lote.
+- Voz: Hold’em = **Rôldem**, Omaha = **Omárra** (ep12, ep23–ep25). Os MP4 de ep23–ep25 ainda descrevem o jogo antigo; o texto do Módulo 5 é a regra vigente.
 - Fontes Manim em `ZeroTiltCurso/epNN-*/`.
 
 ## Notícias e dicas

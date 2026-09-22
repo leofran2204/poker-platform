@@ -1312,18 +1312,18 @@
     {
       "id": "m5",
       "title": "Módulo 5: As Variantes Zero Tilt",
-      "subtitle": "Texas Short Deck (Trinca > Sequência), Short Deck Omaha e Ultimate Pineapple. ~20 min.",
+      "subtitle": "Omaha 4 no baralho de 52 e Brazilian Pineapple no Short Deck. ~20 min. Os vídeos ep23–ep25 ainda narram a versão anterior.",
       "lessons": [
         {
           "id": "m5l1",
-          "title": "Texas Short Deck: Trinca > Sequência e Flush > Full House",
+          "title": "Brazilian Pineapple: o único Short Deck da casa",
           "minutes": 2,
           "video": {
             "hostName": "Sofia 'Cold Felt' Alencar",
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 75,
             "url": "/videos/ep23-short-deck.mp4",
-            "placeholderScript": "Bem-vindo ao Short Deck, a modalidade mais eletrizante do poker moderno! Mas preste muita atenção: se você jogar aqui com as regras do Hold'em comum, você vai perder suas fichas na primeira rodada. No Short Deck, removemos todas as cartas do 2 ao 5, deixando apenas 36 cartas no baralho. Por isso a matemática muda: acertar uma sequência fica muito mais fácil do que acertar uma trinca. Grave bem a regra oficial do Zero Tilt: Trinca vence Sequência, e Flush vence Full House! E lembre-se: o Ás conecta com o 6 para formar a sequência baixa A-6-7-8-9.",
+            "placeholderScript": "O Short Deck da casa é o Brazilian Pineapple, não um Texas Hold'em de 36 cartas. Você começa com 2 cartas e ganha mais 1 depois do flop, do turn e do river. No showdown usa exatamente 2 da mão e 3 da mesa. Trinca vence sequência, flush vence full house, e a sequência baixa é A-6-7-8-9. O vídeo ainda narra a versão anterior.",
             "captionsUrl": "/videos/ep23-short-deck.vtt",
             "posterUrl": "/videos/ep23-short-deck.jpg"
           },
@@ -1344,27 +1344,27 @@
             ],
             "potBb": "40",
             "actionText": "Você tem Trinca de Damas (Q-Q-Q). O vilão mostra 10s 9s (Sequência 7-8-9-10-J).",
-            "heroDecision": "Showdown ganho! No Short Deck, Trinca é superior a Sequência.",
-            "keyTakeaway": "Hierarquia Short Deck no Zero Tilt: Trinca > Straight e Flush > Full House."
+            "heroDecision": "Showdown ganho. No Brazilian Pineapple, trinca é superior a sequência.",
+            "keyTakeaway": "Só o Pineapple inverte o ranking: trinca > sequência e flush > full house."
           },
-          "body": "## A Matemática do Baralho de 36 Cartas\n\n- **Cartas Removidas:** Todos os 2s, 3s, 4s e 5s (16 cartas eliminadas).\n- **Hierarquia Invertida:**\n  - **Trinca (Three of a Kind) > Sequência (Straight)**\n  - **Flush > Full House**\n- **Wheel Short Deck:** O Ás pode ser usado como a carta mais baixa para formar a sequência `A-6-7-8-9` (com o 9 como carta alta).",
+          "body": "## Brazilian Pineapple (5-max)\n\n- **Baralho de 36:** sem 2, 3, 4 e 5.\n- **Deal:** 2 hole no pré-flop; +1 depois do flop, do turn e do river (5 no river). Sem descarte.\n- **Showdown:** exatamente 2 da mão + 3 da mesa.\n- **Ranking Short Deck:** trinca > sequência; flush > full house; wheel `A-6-7-8-9`.\n- O vídeo desta aula ainda narra o Texas Short Deck antigo. A regra vigente é este texto.",
           "quiz": [
             {
               "id": "m5l1q1",
               "kind": "theory",
-              "prompt": "No Texas Short Deck do Zero Tilt Poker, qual é a hierarquia correta entre Trinca e Sequência?",
+              "prompt": "No Brazilian Pineapple, qual é a hierarquia entre trinca e sequência?",
               "options": [
                 "Sequência vence Trinca, como no Hold'em clássico",
                 "Trinca vence Sequência, porque é matematicamente mais rara com 36 cartas",
                 "Dá empate e o pote é dividido"
               ],
               "expectedIndex": 1,
-              "explanation": "Com 36 cartas, acertar sequências é comum e trincas são raras; logo, Trinca vence Sequência."
+              "explanation": "No Pineapple (baralho 36) a sequência é comum e a trinca é rara; trinca vence sequência. No Hold'em e no Omaha 4 a ordem é a clássica."
             },
             {
               "id": "m5l1q2",
               "kind": "engine",
-              "prompt": "Showdown Short Deck. Jogador 1 tem Trinca de 9s (9♣ 9♦). Jogador 2 tem Sequência (10♠ 6♦ no board 9s 8h 7d Jc 6s). Quem vence?",
+              "prompt": "Showdown no Brazilian Pineapple. Trinca de 9 contra sequência no board. Quem leva o pote?",
               "hole": [
                 "9c",
                 "9d"
@@ -1382,21 +1382,21 @@
                 "raise"
               ],
               "expected": "raise",
-              "engine": "Trinca > Sequência no deck.rs",
-              "why": "No Short Deck oficial, a Trinca de 9 vence a Sequência do adversário."
+              "engine": "Trinca > sequência no Pineapple",
+              "why": "No Brazilian Pineapple a trinca de 9 vence a sequência."
             }
           ]
         },
         {
           "id": "m5l2",
-          "title": "Short Deck Omaha (4 Cartas)",
+          "title": "Omaha 4 Cartas (baralho de 52)",
           "minutes": 2,
           "video": {
             "hostName": "Sofia 'Cold Felt' Alencar",
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 74,
             "url": "/videos/ep24-sd-omaha.mp4",
-            "placeholderScript": "Se o Short Deck já é cheio de ação, junte quatro cartas na mão e você terá o Short Deck Omaha 5-max. A regra de ouro do Omaha se mantém: você DEVE obrigatoriamente usar duas cartas da sua mão e três cartas da mesa comunitária. Com baralho de 36 cartas e quatro cartas na mão, praticamente todo showdown atinge sequências, flushes e full houses. Mãos fracas sem conectividade e naipes duplos perdem tudo. Veja como escolher suas mãos pré-flop!",
+            "placeholderScript": "Omaha 4 na casa usa o baralho de 52, não o Short Deck. Quatro cartas na mão, e no showdown exatamente duas da mão com três da mesa. O ranking é o clássico: sequência vence trinca e full house vence flush. O vídeo ainda fala do Omaha curto.",
             "captionsUrl": "/videos/ep24-sd-omaha.vtt",
             "posterUrl": "/videos/ep24-sd-omaha.jpg"
           },
@@ -1417,10 +1417,10 @@
             ],
             "potBb": "18",
             "actionText": "Você tem quatro cartas broadway com dois naipes (double-suited). Flop monstro!",
-            "heroDecision": "Aposta forte por valor. Mão conectada no Omaha Short Deck gera equidade absurda.",
-            "keyTakeaway": "Lembre-se sempre: é obrigatório usar exatamente 2 cartas da sua mão e 3 da mesa."
+            "heroDecision": "Aposta forte por valor. Quatro cartas conectadas no Omaha 4 geram muita equidade.",
+            "keyTakeaway": "Obrigatório usar exatamente 2 da mão e 3 da mesa. Ranking clássico, igual ao Hold'em."
           },
-          "body": "## Regras do Short Deck Omaha (5-max)\n\n1. **4 Cartas Fechadas:** Cada jogador recebe 4 hole cards.\n2. **Regra de 2 + 3:** Obrigatoriamente utiliza 2 da mão e 3 do board.\n3. **Baralho de 36 cartas:** Flushes são muito valiosos e difíceis de fazer (apenas 9 cartas de cada naipe sobram no baralho).",
+          "body": "## Omaha 4 (6-max)\n\n1. **4 cartas fechadas** no pré-flop.\n2. **2 + 3:** exatamente 2 da mão e 3 da mesa.\n3. **Baralho de 52** e ranking clássico (sequência > trinca, full house > flush).\n4. O vídeo ainda narra o Short Deck Omaha. A regra vigente é este texto.",
           "quiz": [
             {
               "id": "m5l2q1",
@@ -1437,7 +1437,7 @@
             {
               "id": "m5l2q2",
               "kind": "engine",
-              "prompt": "Omaha Short Deck. Você recebe A♠ K♠ Q♦ J♦ (mão double suited conectada no BTN). Ação?",
+              "prompt": "Omaha 4, baralho de 52. Você recebe A♠ K♠ Q♦ J♦ no botão. Ação?",
               "hole": [
                 "As",
                 "Ks"
@@ -1449,26 +1449,26 @@
                 "raise"
               ],
               "expected": "raise",
-              "engine": "Premium Omaha Short Deck Open",
-              "why": "Quatro cartas broadway com dois naipes é o topo absoluto dos ranges de Omaha Short Deck."
+              "engine": "Premium Omaha 4 open",
+              "why": "Quatro cartas broadway com dois naipes é o topo do range de abertura no Omaha 4."
             }
           ]
         },
         {
           "id": "m5l3",
-          "title": "Ultimate Pineapple (3 Hole Cards sem descarte)",
+          "title": "Brazilian Pineapple: 2 cartas e +1 por street",
           "minutes": 2,
           "video": {
             "hostName": "Sofia 'Cold Felt' Alencar",
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 74,
             "url": "/videos/ep25-pineapple.mp4",
-            "placeholderScript": "No Ultimate Pineapple do Zero Tilt, você recebe 3 cartas fechadas e — atenção para o diferencial — não há fase de descarte! Você mantém as 3 cartas na mão até o final, e o motor avalia automaticamente a melhor combinação de duas cartas suas com três da mesa comunitária. Essa carta extra aumenta a frequência de trincas e draws monstruosos. Jogue de forma agressiva em posição e explore as apostas de valor!",
+            "placeholderScript": "No Brazilian Pineapple você começa com 2 cartas. Depois do flop, do turn e do river recebe mais uma, se ainda estiver na mão. Não descarta. No river são 5 hole, e o showdown usa exatamente 2 + 3 da mesa. O vídeo ainda descreve o Ultimate Pineapple de 3 cartas.",
             "captionsUrl": "/videos/ep25-pineapple.vtt",
             "posterUrl": "/videos/ep25-pineapple.jpg"
           },
           "handExample": {
-            "title": "Equidade com 3 Cartas Fechadas",
+            "title": "Carta extra no flop vira trinca",
             "heroPosition": "BTN",
             "villainPosition": "SB",
             "heroCards": [
@@ -1482,28 +1482,28 @@
               "2s"
             ],
             "potBb": "14",
-            "actionText": "Você recebe A-A-K no Ultimate Pineapple. Flop abre com mais um Ás!",
-            "heroDecision": "Aposte por valor. Você tem trinca de Áses com K kicker imbatível.",
-            "keyTakeaway": "Com 3 cartas na mão sem descarte, o valor médio das mãos vencedoras é muito mais alto."
+            "actionText": "Pré-flop A-K. A carta extra do flop é outro Ás, e o board traz mais um Ás.",
+            "heroDecision": "Aposte por valor com a trinca, usando exatamente 2 da mão.",
+            "keyTakeaway": "Você não começa com 3 cartas. A terceira chega depois do flop."
           },
-          "body": "## O que é o Ultimate Pineapple 6-max?\n\n- **3 Cartas na Mão:** Cada jogador recebe 3 hole cards.\n- **Sem Descarte:** Ao contrário do Crazy Pineapple, você segura as 3 cartas até o showdown.\n- **Avaliação:** Melhor mão de 5 cartas combinando 2 da sua mão com 3 da mesa comunitária.\n- **Ação Rápida:** Variada e dinâmica, ideal para cash games e MTTs.",
+          "body": "## Deal do Brazilian Pineapple\n\n- **Pré-flop:** 2 hole.\n- **Depois de cada street:** +1 para quem ainda está na mão (incluindo all-in). Foldado não recebe.\n- **River:** 5 hole. Sem descarte.\n- **Showdown:** exatamente 2 + 3. Ranking Short Deck.\n- Cap de 5 jogadores. O vídeo ainda narra o Ultimate Pineapple de 3 cartas fixas.",
           "quiz": [
             {
               "id": "m5l3q1",
               "kind": "theory",
-              "prompt": "Como funciona o descarte no Ultimate Pineapple do Zero Tilt Poker?",
+              "prompt": "Como chegam as cartas no Brazilian Pineapple?",
               "options": [
-                "Você descarta uma carta antes do flop",
-                "Você descarta uma carta após o flop",
-                "Não há descarte: você segura as 3 cartas e o motor combina as melhores 2 da mão com 3 da mesa"
+                "3 cartas no pré-flop e você descarta uma depois do flop",
+                "2 no pré-flop e +1 depois do flop, do turn e do river, sem descarte",
+                "5 cartas no pré-flop, como no Omaha"
               ],
-              "expectedIndex": 2,
-              "explanation": "No Ultimate Pineapple do Zero Tilt Poker não há descarte; o jogador mantém as 3 cartas."
+              "expectedIndex": 1,
+              "explanation": "Começa com 2. Cada street entrega mais uma a quem ainda está na mão. Não há descarte."
             },
             {
               "id": "m5l3q2",
               "kind": "engine",
-              "prompt": "Ultimate Pineapple. Você tem A♠ A♥ K♠ no Botão com flop A♦ Q♣ 2♠. Ação?",
+              "prompt": "Brazilian Pineapple. Pré-flop A♠ K♠; a carta extra do flop é A♥ e o board é A♦ Q♣ 2♠. Ação?",
               "hole": [
                 "As",
                 "Ah"
@@ -1519,7 +1519,7 @@
                 "raise"
               ],
               "expected": "raise",
-              "engine": "Top Set Ultimate Pineapple Value Bet",
+              "engine": "Trinca no Pineapple — aposta de valor",
               "why": "Trinca de Áses com K kicker é o monstro do board: aposte por valor para construir o pote."
             }
           ]

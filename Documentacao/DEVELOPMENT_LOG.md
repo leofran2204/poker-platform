@@ -1075,6 +1075,12 @@
 - TTS `pt-BR-AntonioNeural`: Holdém/Hold'em → **Rôldem**; Omaha → **Omárra**. ep12, ep23, ep24, ep25 remuxados. Transcrição na tela segue Hold’em/Omaha.
 - **Deploy (`41c36d16`, só frontend):** `DEPLOY_OK` 2026-09-22T02:35:27Z; `/videos/ep12-mississippi.mp4` 1,64 MB.
 
+## 2026-09-22 — docs alinhados ao que está na demo
+
+- Ciclo S24 no STATUS: três modalidades, Academy, marca ZT Poker, lobby em cards. `reviewed_on` 2026-09-22.
+- Painel, README do frontend e convite deixam de tratar S24 como “local sem commit” e o player como legendado.
+- Módulo 5 escrito: Omaha 4 tradicional e Brazilian Pineapple. Vídeos ep23–ep25 ainda narram o jogo antigo.
+
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
 

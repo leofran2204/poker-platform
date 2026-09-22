@@ -11,8 +11,8 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certif
 | # | Parâmetro | Valor |
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
-| 2 | **Sprint atual** | S24 — frontend de vitrine + lobby 053 + mesa jogável |
-| 3 | **Status** | 🟢 Código local (ondas 0–4); demo/staging; sem cert. produção |
+| 2 | **Sprint atual** | S24 — três modalidades, Academy, marca ZT Poker, lobby em cards (na demo) |
+| 3 | **Status** | 🟢 Demo/staging no ar; sem cert. produção |
 | 4 | **Cerimônias** | Planning + Review + Retrospectiva |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
 
@@ -65,7 +65,7 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S21b | 2026-09-04 | PM 150+150 sem rebuy + restore MTT + Dockerfile cache | PM zera torneio (041); cash existente →150 (042); restore 031–038 registering (043, órfãos limpos); PM 150+150 + rebuy MTT ilimitado nv.6 (044); Dockerfile cache deps (build ~20s) + trava anti-dummy | 🟢 Fechado (demo); validado fim a fim |
 | S22 | 2026-09-07 | Gameplay MTT + fee 15% + bots em MTT | 3 mesas/torneio + caps 27/18/15 (048); fee 15% por cima com split 18/12 + total_fees (049); ator MTT (mãos, eliminações, payouts, run-out all-in, halt auditável); bots lag_v2 em MTT + painel; 1º campeão ao vivo (freeroll, payout GTD); Motor 1848 + API 43 + 2 integração MTT | 🟢 Fechado (demo); validado ao vivo |
 | S23 | 2026-09-08 | Cancela inscrição + admin agenda/cria + textos | Unregister pré-start com reembolso total + anulação de fee; estado inscrito + botão Cancelar; datetime-local por linha; POST admin cria (max 3×, BBA 26); fallback por status; validado ao vivo fim a fim | 🟢 Fechado (demo) |
-| S24 | 2026-09-10 | Frontend jogável e convidativo | Home de vitrine + presença pública; lobby NL 0,75/1,50 + taxa MTT; mesa: herói embaixo, fold real, raise em R$, is_sitting/time_bank, Disconnect ≠ Leave; lazy admin/NewsTips; Vitest 16 + ESLint; ajuste admin exige wallet; STATUS schema v2 (JSON fatos + MD gerado) | 🟡 Local (sem commit) |
+| S24 | 2026-09-10 → 2026-09-22 | Academy, três modalidades, marca e lobby | Home Academy; login → `/curso`; lobby MTT em cards + cash no celular; Hold’em / Omaha 4 (52) / Brazilian Pineapple (057); marca ZT Poker; player sem VTT; narração Rôldem/Omárra (ep12, 23–25) | 🟢 Na demo |
 
 Catálogo vigente: [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 
