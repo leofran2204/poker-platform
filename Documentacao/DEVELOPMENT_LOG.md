@@ -1,6 +1,6 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-09-22 (deploy 75de638d no ar, frontend-only DEPLOY_OK)
+**Atualizado:** 2026-09-22 (deploy 75de638d no ar, API rebuildada DEPLOY_OK 06:44 UTC)
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 > Painel tático em `DASHBOARD.md`. Cronograma em `CRONOGRAMA.md`. Estado canônico em `STATUS_OPERACIONAL.md` (prevalece sobre retrospectivas históricas que digam “Launch Ready”).
