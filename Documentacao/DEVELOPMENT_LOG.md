@@ -1086,6 +1086,7 @@
 
 - Home: ranking em frase (sem “>”). Mão de 3 jogadores até o showdown, carta extra e aposta por street, narração em `/audio/pineapple-N.mp3`. Board não cobre nome nem stack.
 - TTS ep19, ep22, ep24: `nuts` → **nâtz**.
+- **Deploy (`b055498f`, só frontend):** `DEPLOY_OK` 2026-09-22T04:10:28Z; `/api/health` 200; `/audio/pineapple-0.mp3` 200; bundle `index-BXN6HKn8.js`.
 
 
 ## 2026-09-18 — S24: Fase 3 — travas do contrato viradas (PIX automático autorizado)
