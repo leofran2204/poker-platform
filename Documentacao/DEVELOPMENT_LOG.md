@@ -1,13 +1,13 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-09-22
+**Atualizado:** 2026-09-22 (deploy dbd620a3 no ar)
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 > Painel tático em `DASHBOARD.md`. Cronograma em `CRONOGRAMA.md`. Estado canônico em `STATUS_OPERACIONAL.md` (prevalece sobre retrospectivas históricas que digam “Launch Ready”).
 
 ---
 
-## 📌 2026-09-22 — S24: home pedagógica — Pineapple corrigido + player áudio-dirigido (local, sem commit)
+## 📌 2026-09-22 — S24: home pedagógica + voz EN (commit dbd620a3, DEPLOY_OK frontend-only)
 
 | Item | Detalhe |
 |------|---------|
