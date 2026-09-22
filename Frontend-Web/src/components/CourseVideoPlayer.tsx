@@ -6,7 +6,7 @@ interface Props {
   lessonTitle: string;
 }
 
-/** Player da aula: vídeo, legendas, transcrição da narração. Sem persona de coach. */
+/** Player da aula: vídeo e transcrição da narração. Sem legendas sobre o vídeo. */
 export function CourseVideoPlayer({ video, lessonTitle }: Props) {
   const [showScript, setShowScript] = useState(false);
   const transcript = video?.transcript?.trim() || video?.placeholderScript?.trim() || "";
@@ -36,17 +36,7 @@ export function CourseVideoPlayer({ video, lessonTitle }: Props) {
             controls
             playsInline
             className="h-full w-full object-contain"
-            crossOrigin="anonymous"
           >
-            {video.captionsUrl && (
-              <track
-                kind="captions"
-                srcLang="pt"
-                label="Português"
-                src={video.captionsUrl}
-                default
-              />
-            )}
             Seu navegador não suporta reprodução de vídeo HTML5.
           </video>
         ) : (
