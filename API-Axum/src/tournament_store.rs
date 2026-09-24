@@ -12,7 +12,7 @@ pub struct TournamentStore {
     pub state: TournamentState,
     /// `play` | `real` — must match client wallet mode.
     pub money_mode: String,
-    /// `holdem` | `short_deck` | `short_deck_omaha` | `ultimate_pineapple`
+    /// `holdem` | `omaha` | `brazilian_pineapple`
     pub poker_variant: String,
     /// Number of seats at each physical tournament table before the final table.
     pub table_max_players: u8,
@@ -20,7 +20,7 @@ pub struct TournamentStore {
     pub final_table_variant: Option<String>,
     /// Remaining-player threshold that activates `final_table_variant`.
     pub final_table_max_players: Option<u8>,
-    /// Horário agendado de início (epoch seconds, America/Sao_Paulo)
+    /// Data e hora definidas pelo admin para o início (epoch seconds).
     pub scheduled_start_at: Option<i64>,
     /// Mínimo de jogadores para auto-start (fixo 5 para todos)
     pub auto_start_min_players: Option<i32>,

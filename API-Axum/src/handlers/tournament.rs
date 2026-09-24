@@ -89,6 +89,14 @@ fn status_string(status: &poker_engine::tournament_engine::TournamentStatus) -> 
     }
 }
 
+fn gameplay_ready(store: &crate::tournament_store::TournamentStore) -> bool {
+    matches!(
+        store.state.status,
+        poker_engine::tournament_engine::TournamentStatus::Running
+            | poker_engine::tournament_engine::TournamentStatus::Paused
+    ) && store.live_table_id.is_some()
+}
+
 fn to_info(store: &crate::tournament_store::TournamentStore) -> TournamentInfoResponse {
     let cfg = &store.state.config;
     TournamentInfoResponse {
@@ -130,7 +138,7 @@ fn to_info(store: &crate::tournament_store::TournamentStore) -> TournamentInfoRe
                 duration_minutes: b.duration_minutes,
             })
             .collect(),
-        gameplay_ready: store.live_table_id.is_some(),
+        gameplay_ready: gameplay_ready(store),
         money_mode: store.money_mode.clone(),
         poker_variant: store.poker_variant.clone(),
         final_table_variant: store.final_table_variant.clone(),
@@ -139,6 +147,26 @@ fn to_info(store: &crate::tournament_store::TournamentStore) -> TournamentInfoRe
         auto_start_min_players: store.auto_start_min_players,
         live_table_id: store.live_table_id.clone(),
         live_table_ids: store.live_table_ids.clone(),
+    }
+}
+
+#[cfg(test)]
+mod response_tests {
+    use super::*;
+    use crate::tournament_store::TournamentStore;
+    use poker_engine::tournament_engine::{TournamentConfig, TournamentStatus};
+
+    #[test]
+    fn gameplay_ready_requires_active_status_and_live_table() {
+        let mut store = TournamentStore::new("tournament".into(), TournamentConfig::default());
+        store.live_table_id = Some("table".into());
+        assert!(!gameplay_ready(&store));
+
+        store.state.status = TournamentStatus::Running;
+        assert!(gameplay_ready(&store));
+
+        store.live_table_id = None;
+        assert!(!gameplay_ready(&store));
     }
 }
 
@@ -240,6 +268,9 @@ pub async fn register_player(
             }
             .into(),
         ));
+    }
+    if mode_is_real {
+        crate::responsible_gaming::ensure_real_money_allowed(&state.db, &auth_user.user_id).await?;
     }
 
     poker_engine::tournament_engine::register_player(
@@ -350,7 +381,7 @@ pub async fn register_player(
         player_id: auth_user.user_id,
         stack: starting_stack,
         registered: true,
-        gameplay_ready: store.live_table_id.is_some(),
+        gameplay_ready: gameplay_ready(store),
         fee_cents,
         total_debited_cents: buy_in as i64 + fee_cents,
     }))

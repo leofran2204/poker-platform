@@ -163,7 +163,7 @@ export function WalletPage() {
     return (
       <div className="zt-panel p-8 text-center">
         <h1 className="text-xl font-bold text-gold-bright">Carteira</h1>
-        <p className="mt-2 text-felt-300">Faça login para ver saldo e pedir fichas.</p>
+        <p className="mt-2 text-felt-300">Faça login para consultar saldos, depósitos e saques.</p>
         <Link to="/login" className="zt-btn-primary mt-4 inline-flex">
           Entrar
         </Link>
@@ -345,6 +345,21 @@ export function WalletPage() {
 
       {mode === "real" ? (
         <div className="zt-panel p-4 space-y-3">
+          <div>
+            <h2 className="font-bold text-gold-bright">Depositar via Pix</h2>
+            <p className="mt-1 max-w-3xl text-xs leading-relaxed text-felt-200">
+              O depósito entra no saldo de Jogo Real. A cobrança informa o status e o valor
+              efetivamente creditado; quando houver taxa do provedor, ela aparece no extrato.{" "}
+              <Link to="/jogo-responsavel" className="font-semibold text-gold-soft underline">
+                Jogue com limites definidos
+              </Link>
+              . Para depositar ou jogar com saldo real, conclua antes a{" "}
+              <Link to="/verificacao" className="font-semibold text-gold-soft underline">
+                verificação da conta
+              </Link>
+              ; o Play Money continua disponível enquanto a análise estiver pendente.
+            </p>
+          </div>
           <button
             type="button"
             className="zt-btn-primary"
@@ -354,7 +369,7 @@ export function WalletPage() {
               setRevealPix(false);
             }}
           >
-            {openForm ? "Fechar" : "Pedir fichas"}
+            {openForm ? "Fechar depósito" : "Iniciar depósito Pix"}
           </button>
 
           {openForm && info && (

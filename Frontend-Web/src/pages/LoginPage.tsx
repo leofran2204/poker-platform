@@ -14,6 +14,7 @@ export function LoginPage() {
       ? requestedReturnTo
       : "/curso";
   const sessionExpired = searchParams.get("reason") === "session-expired";
+  const passwordReset = searchParams.get("passwordReset") === "1";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +83,11 @@ export function LoginPage() {
               role="alert"
             >
               Sua sessão expirou ou foi encerrada. Entre novamente para continuar com segurança.
+            </p>
+          )}
+          {passwordReset && (
+            <p className="rounded border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-sm text-emerald-100" role="status">
+              Senha redefinida. Entre com a nova senha.
             </p>
           )}
           {mfaChallenge ? (
@@ -165,6 +171,10 @@ export function LoginPage() {
             {" · "}
             <Link to="/verify-email" className="font-semibold text-felt-200 hover:underline">
               Verificar e-mail
+            </Link>
+            {" · "}
+            <Link to="/recuperar-senha" className="font-semibold text-felt-200 hover:underline">
+              Esqueci a senha
             </Link>
           </p>
         </form>

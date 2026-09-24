@@ -1,7 +1,7 @@
 # 🏗️ Arquitetura do Motor Central da Plataforma de Poker Online
 
 **Versão:** 4.0  
-**Data:** 2026-08-04  
+**Data:** 2026-09-22
 **Status:** Documento oficial — fonte da verdade para decisões de arquitetura de **motor e stack**
 
 > Este documento é a **fonte da verdade** sobre a arquitetura da plataforma (motor, API, frontend e camadas). Qualquer decisão de design, escolha de tecnologia ou nova pasta deve ser consultada aqui **antes** de iniciar a codificação.
@@ -12,12 +12,12 @@
 
 ---
 
-## 1. 📐 Metodologia — SDD e MCP
+## 1. 📐 Metodologia — contratos e fontes de verdade
 
 - **SDD (Spec-Driven Development):** todas as funcionalidades começam com especificações formais (contratos de API, schemas JSON, regras de negócio).
 - Specs são a "fonte da verdade" e guiam o desenvolvimento do **motor e da API em Rust** e do **frontend em TypeScript**.
-- **MCP (Middleware Control Plane):** garante que os serviços sigam as specs, centraliza logs e políticas de segurança.
-- **WebMCP:** interface web para admins configurarem specs, monitorarem serviços e acessarem relatórios.
+- O contrato de agentes (`AGENTS.md`) e o mapa de donos impedem documentação concorrente.
+- `STATUS_OPERACIONAL.json` é a fonte máquina dos fatos operacionais; `documentation-sync` valida e gera a leitura humana.
 
 ---
 
@@ -40,7 +40,7 @@
 - **Performance:** cálculo de mãos em tempo real sem latência perceptível.
 - **Segurança de memória:** elimina classes inteiras de bugs (buffer overflow, use-after-free).
 - **Concorrência:** modelo async/await nativo, ideal para milhares de conexões WebSocket simultâneas.
-- **Criptografia:** crates auditados (`ring`, `rustls`, `aes-gcm`) para TLS 1.3 e AES-256.
+- **Criptografia:** TLS é terminado pelo Caddy; `aes-gcm` protege chaves PIX no payout worker e HMAC assina settlements/webhooks.
 - **RNG criptograficamente seguro:** essencial para integridade do jogo.
 - **Dinheiro em `u64` centavos:** precisão bancária no motor e na API.
 
@@ -80,20 +80,22 @@
 
 ---
 
-## 3. 🐳 Infraestrutura — Docker e Kubernetes
+## 3. 🐳 Infraestrutura — Docker Compose e caminho Kubernetes
 
-- **Docker** → cada módulo em container isolado.
-- **Kubernetes** → orquestração, escalabilidade automática, alta disponibilidade.
-- **MCP** → plano de controle que valida specs, centraliza logs e políticas de segurança.
-- **WebMCP** → painel web para admins configurarem specs, monitorarem serviços e acessarem relatórios.
+- **Docker Compose (vigente):** PostgreSQL 15, Redis 7, API Axum e frontend/Caddy.
+- **Caddy:** termina HTTPS e encaminha `/api` e `/ws` para a API pela rede interna.
+- **Kubernetes (manifesto de referência):** existe para validação com uma réplica; não representa alta disponibilidade nem ownership distribuído de mesas.
+- **Limite atual:** uma mesa pertence a um único processo. Escala horizontal exige ownership/roteamento explícito antes de múltiplas réplicas.
 
 ---
 
-## 4. 💾 Dados e Mensageria — PostgreSQL e Kafka
+## 4. 💾 Dados e coordenação — PostgreSQL e Redis
 
-- **PostgreSQL** → banco de dados central, com criptografia em colunas sensíveis.
-- **Kafka/RabbitMQ** → mensageria em tempo real para eventos de jogo e estatísticas.
-- **JSON schemas** → validação de dados para evitar injeções e corrupção.
+- **PostgreSQL:** estado durável, ledger, catálogo, histórico e auditoria.
+- **Redis:** presença, rate limiting distribuído e coordenação efêmera suportada pela API.
+- **Atores Tokio em processo:** serializam o estado de cada mesa e torneio; WebSocket entrega os eventos aos clientes.
+- **Kafka/RabbitMQ:** não fazem parte da stack vigente.
+- **JSON:** contratos REST/WSS validados pelo servidor; valores monetários permanecem em centavos inteiros.
 
 ---
 
@@ -105,9 +107,10 @@
 
 | Onde | O quê | Ferramenta (Rust) | Analogia |
 |------|-------|------------------|----------|
-| **Em trânsito** (dados voando na rede) | TLS 1.3 | `rustls`, `ring` | "Conversa sussurrada" — ninguém escuta |
-| **Em repouso** (dados no banco) | AES-256 | `aes-gcm` | "Cofre trancado" — mesmo roubando o disco, não lê |
-| **Senhas** | bcrypt / argon2 | `bcrypt` crate | "Senha vira sopa de letras" — irreversível |
+| **Em trânsito** | HTTPS/WSS | Caddy | O gateway termina TLS e encaminha somente pela rede interna |
+| **Chave PIX de saque** | AES-256-GCM | `aes-gcm` | A chave é cifrada antes da persistência |
+| **Senhas** | Hash adaptativo | `bcrypt` | A senha original não é armazenada |
+| **Liquidação/webhooks** | Autenticidade | HMAC-SHA256 | Detecta alteração de mensagens financeiras |
 
 ### 5.2 🛡️ Autenticação e Autorização — JWT, MFA e RBAC
 
@@ -121,15 +124,22 @@
 
 | Componente | Responsabilidade | Linguagem |
 |------------|------------------|-----------|
-| **Antifraude** | Detectar bots, collusion, chip dumping | Rust (ML) |
-| **Logs centralizados** | Registrar TODAS as ações (quem, quando, onde, o quê) | ELK Stack |
-| **Monitoramento** | Alertas em tempo real (ataques, falhas) | Grafana + Prometheus |
-| **Auditoria** | Trilha imutável para investigação | Logs append-only |
+| **Antifraude** | Regras e sinais para bots, collusion e chip dumping | Rust |
+| **Telemetria da API** | Logs estruturados e métricas medidas pelo processo | `tracing` + endpoint administrativo |
+| **Saúde** | Readiness de API, PostgreSQL, Redis e gateway | healthchecks do Compose/Caddy |
+| **Auditoria financeira/administrativa** | Ações e metadados persistidos | PostgreSQL `audit_logs` |
+
+### 5.3.1 Bots jogadores e coach não são o mesmo componente
+
+- `API-Axum/src/bots.rs` mantém 72 contas técnicas, quatro personalidades e a estratégia `lag_v2` para Play Money, testes e operação administrativa. Elas enviam comandos internos ao ator e não autenticam como usuários.
+- O futuro coach trabalha somente sobre `hand_history` encerrado e verificado. Ele reutiliza tipos, ações legais e avaliadores do motor, mas não copia a política de decisão dos bots nem participa do `TableActor`.
+- A separação evita que heurísticas criadas para produzir adversários variados sejam apresentadas ao aluno como estratégia ótima e mantém qualquer recomendação fora do caminho de jogo ao vivo.
 
 ### 5.4 ⚖️ Conformidade — PCI DSS e LGPD
 
-- **PCI DSS** → padrão internacional para dados de cartão de crédito.
-- **LGPD** → Lei Geral de Proteção de Dados (Brasil).
+- A plataforma não processa cartões; PIX não elimina as obrigações legais aplicáveis.
+- **LGPD:** termos, privacidade e minimização de dados estão documentados, mas isso não equivale a certificação.
+- **Regulação/KYC:** trilho planejado para 2027-01; a demo atual não é certificada para produção.
 - **JWT curtos** → tokens expiram rápido (15-30 min) para reduzir janela de ataque.
 
 ### 5.5 🔄 Diagrama de Fluxo Seguro — Login e Jogada
@@ -154,7 +164,7 @@ Jogador                    Front-end (TypeScript/React)    Backend (Rust)       
    │                            ├───────────────────────────►│                          │
    │                            │                            │ 8. Validar JWT            │
    │                            │                            │ 9. Motor calcula          │
-   │                            │                            │ 10. Gravar (AES-256)      │
+   │                            │                            │ 10. Persistir/auditar     │
    │                            │                            ├─────────────────────────►│
    │                            │                            │                          │
    │                            │ 11. Resultado (JSON)       │                          │
@@ -162,8 +172,8 @@ Jogador                    Front-end (TypeScript/React)    Backend (Rust)       
    │ 12. UI atualiza            │                            │                          │
    │◄───────────────────────────┤                            │                          │
    │                            │                            │                          │
-   │                            │     [LOG] Tudo isso        │                          │
-   │                            │     vai pro ELK Stack      │                          │
+   │                            │     [LOG] tracing +        │                          │
+   │                            │     audit_logs             │                          │
 ```
 
 ---
@@ -172,19 +182,19 @@ Jogador                    Front-end (TypeScript/React)    Backend (Rust)       
 
 1. Jogador faz jogada no front-end (TypeScript/React) → envia via WebSocket.
 2. Backend Rust recebe → valida → motor calcula → resultado em JSON.
-3. Backend Rust registra no PostgreSQL → publica evento em Kafka.
-4. Backend Rust (IA/antifraude) consome eventos → gera estatísticas, detecta fraude → resultados em JSON.
+3. O ator serializa a mudança, persiste o que é durável no PostgreSQL e transmite o novo estado por WebSocket.
+4. Antifraude e auditoria processam sinais dentro da API; Redis sustenta estado efêmero distribuído.
 5. Front-end TypeScript/React consome APIs → renderiza mesas, dashboards.
-6. MCP valida specs e segurança → WebMCP mostra status e relatórios.
+6. CI, `documentation-sync`, testes e endpoints administrativos verificam contratos e operação.
 
 ---
 
-## 7. 📋 Governança — MCP, WebMCP e SDD
+## 7. 📋 Governança — contratos, CI e operação
 
-- **MCP:** garante conformidade com specs, segurança e auditoria.
-- **WebMCP:** interface para admins configurarem, monitorarem e ajustarem o sistema.
-- **SDD:** metodologia que mantém consistência e qualidade em todas as camadas.
-- **Rust unificado:** uma única linguagem para backend, IA, dados e antifraude simplifica governança, reduz pontos de falha e elimina fricção entre equipes.
+- **Contratos:** `BUSINESS_RULES.md`, `ARQUITETURA_E_APIS.md` e este documento definem regras e fronteiras.
+- **CI:** fmt, clippy, testes determinísticos, frontend e `documentation-sync` formam o gate local/contínuo.
+- **Operação:** fatos vigentes vivem no STATUS; deploy e carga exigem procedimentos próprios.
+- **Stack:** Rust concentra motor/API/antifraude; TypeScript/React concentra a experiência web.
 
 ---
 
@@ -194,10 +204,10 @@ Jogador                    Front-end (TypeScript/React)    Backend (Rust)       
 
 | Pasta | Conteúdo | Status |
 |-------|----------|--------|
-| `Infraestrutura-Docker/` | Docker + Deploy (PostgreSQL 15, Redis 7, Kafka) | ✅ Ativo |
+| `Infraestrutura-Docker/` | Docker Compose + Caddy (PostgreSQL 15, Redis 7; sem Kafka) | ✅ Ativo |
 | `Documentacao/` | Documentação do projeto | ✅ Ativo |
 | `Arquitetura-Motor/` | Este documento | ✅ Ativo |
-| `Motor-Rust/` | Motor de jogo Rust (11 módulos + 4 antifraude, 1816 testes) | ✅ Ativo |
+| `Motor-Rust/` | Motor de jogo Rust; contagem de testes deve ser obtida na execução vigente | ✅ Ativo |
 | `Frontend-Web/` | Front-end TypeScript + React + Vite + Tailwind (Full Tilt skin) | ✅ Ativo (deploy canônico) |
 | `API-Axum/` | API HTTPS/WSS (Axum + Tokio) | ✅ Ativo |
 
@@ -209,4 +219,4 @@ Antes de nova pasta ou decisão de arquitetura: este arquivo + `Documentacao/BUS
 
 ---
 
-**Próxima revisão:** Após integração Game Loop ↔ API Axum (WebSocket).
+**Próxima revisão:** antes de introduzir múltiplas réplicas da API ou mensageria externa.

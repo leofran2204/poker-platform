@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { getTable, leaveTable } from "@/api/client";
+import { getTable, leaveTable, sendPlayHeartbeat } from "@/api/client";
 import type { PlayerWsData, PotWsData, ServerMessage, ShowdownEntry, TableResponse } from "@/api/types";
 import { TableSocket, type WsStatus } from "@/api/ws";
 import { PokerTable, handNamePt } from "@/components/PokerTable";
@@ -16,6 +16,15 @@ import {
 import { isAuthenticated } from "@/lib/auth";
 import { formatBrlFromCents } from "@/lib/money";
 import { variantHint } from "@/lib/gameLabels";
+
+function connectionLabel(status: string): string {
+  if (status === "connected") return "estável";
+  if (status === "connecting") return "conectando";
+  if (status === "reconnecting") return "reconectando";
+  if (status === "error") return "com problema";
+  if (status === "disconnected") return "desconectada";
+  return status;
+}
 
 export function TablePage() {
   const { id = "" } = useParams();
@@ -38,6 +47,7 @@ export function TablePage() {
   const [tableName, setTableName] = useState(id);
   const [moneyMode, setMoneyMode] = useState<string | null>(null);
   const [tableMeta, setTableMeta] = useState<TableResponse | null>(null);
+  const [playLimitNotice, setPlayLimitNotice] = useState<string | null>(null);
   const [sittingOut, setSittingOut] = useState(false);
   const [winners, setWinners] = useState<string[]>([]);
   const [showdown, setShowdown] = useState<ShowdownEntry[]>([]);
@@ -270,6 +280,30 @@ export function TablePage() {
   }, [id]);
 
   useEffect(() => {
+    if (moneyMode !== "real" || !isAuthenticated()) return;
+    let cancelled = false;
+    const heartbeat = async () => {
+      try {
+        const result = await sendPlayHeartbeat();
+        if (!cancelled && result.limit_reached) {
+          socketRef.current?.sendSitOut();
+          setSittingOut(true);
+          setPlayLimitNotice("Seu limite diário de tempo foi atingido. Você foi colocado em Sit-out; finalize a mão atual e saia da mesa.");
+        }
+      } catch (err) {
+        if (!cancelled) {
+          socketRef.current?.sendSitOut();
+          setSittingOut(true);
+          setPlayLimitNotice(err instanceof Error ? err.message : "Não foi possível validar o limite de tempo.");
+        }
+      }
+    };
+    void heartbeat();
+    const timer = window.setInterval(() => void heartbeat(), 30_000);
+    return () => { cancelled = true; window.clearInterval(timer); };
+  }, [moneyMode]);
+
+  useEffect(() => {
     if (!id || !isAuthenticated()) return;
     void getTable(id)
       .then((table) => {
@@ -338,7 +372,7 @@ export function TablePage() {
             <p className="mt-1 text-[11px] text-felt-300">{variantHint(tableMeta?.poker_variant)}</p>
           ) : null}
           <p className="text-xs text-felt-400">
-            WS:{" "}
+            Conexão:{" "}
             <span
               className={
                 status === "connected"
@@ -348,7 +382,7 @@ export function TablePage() {
                     : "text-gold-soft"
               }
             >
-              {status}
+              {connectionLabel(status)}
               {statusDetail ? ` — ${statusDetail}` : ""}
             </span>
           </p>
@@ -403,6 +437,12 @@ export function TablePage() {
           <button type="button" className="ml-3 text-xs underline" onClick={() => setActionError(null)}>
             fechar
           </button>
+        </div>
+      )}
+
+      {playLimitNotice && (
+        <div className="rounded border-2 border-amber-700 bg-amber-950/40 px-4 py-3 text-sm text-amber-100" role="alert">
+          {playLimitNotice} <Link to="/jogo-responsavel" className="font-semibold underline">Ver meus limites</Link>
         </div>
       )}
 

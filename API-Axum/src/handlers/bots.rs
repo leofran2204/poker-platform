@@ -1,4 +1,4 @@
-//! Endpoints admin da frota de bots (base do futuro coach).
+//! Endpoints admin da frota de bots jogadores para treino e testes.
 //!
 //! POST /api/admin/bots/ensure-pool — cria as 72 contas bot_*
 //! POST /api/admin/bots/start — liga N bots numa mesa play

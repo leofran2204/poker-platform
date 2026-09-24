@@ -7,7 +7,12 @@ import { HomePage } from "@/pages/HomePage";
 import { LessonPage } from "@/pages/LessonPage";
 import { LobbyPage } from "@/pages/LobbyPage";
 import { LoginPage } from "@/pages/LoginPage";
+import { ForgotPasswordPage } from "@/pages/ForgotPasswordPage";
+import { KycPage } from "@/pages/KycPage";
 import { RegisterPage } from "@/pages/RegisterPage";
+import { RedePage } from "@/pages/RedePage";
+import { ResponsibleGamingPage } from "@/pages/ResponsibleGamingPage";
+import { SupportPage } from "@/pages/SupportPage";
 import { TablePage } from "@/pages/TablePage";
 import { TermsPage } from "@/pages/TermsPage";
 import { TournamentPage } from "@/pages/TournamentPage";
@@ -47,6 +52,7 @@ const AdminAuditPage = lazy(() =>
 const AdminBotsPage = lazy(() =>
   import("@/pages/AdminBotsPage").then((m) => ({ default: m.AdminBotsPage })),
 );
+const AdminProtectionPage = lazy(() => import("@/pages/AdminProtectionPage"));
 const NewsPage = lazy(() =>
   import("@/pages/NewsPage").then((m) => ({ default: m.NewsPage })),
 );
@@ -70,7 +76,12 @@ export default function App() {
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="login" element={<LoginPage />} />
+          <Route path="recuperar-senha" element={<ForgotPasswordPage />} />
           <Route path="register" element={<RegisterPage />} />
+          <Route path="rede" element={<RedePage />} />
+          <Route path="jogo-responsavel" element={<ResponsibleGamingPage />} />
+          <Route path="verificacao" element={<KycPage />} />
+          <Route path="suporte" element={<SupportPage />} />
           <Route path="termos" element={<TermsPage />} />
           <Route path="verify-email" element={<VerifyEmailPage />} />
           <Route path="lobby" element={<LobbyPage />} />
@@ -114,6 +125,7 @@ export default function App() {
             <Route path="antifraud" element={<AdminAntifraudPage />} />
             <Route path="audit" element={<AdminAuditPage />} />
             <Route path="bots" element={<AdminBotsPage />} />
+            <Route path="protection" element={<AdminProtectionPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

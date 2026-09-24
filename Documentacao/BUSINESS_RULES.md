@@ -393,9 +393,23 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 
 ---
 
+## 16. 🛡️ Proteção do Jogador e Acesso ao Jogo Real
+
+- **Play Money:** permanece disponível sem KYC e não consome os limites de Jogo Real.
+- **Maioridade:** novos cadastros do fluxo de produto informam data de nascimento e declaram 18+. A API rejeita data incompatível com maioridade.
+- **KYC manual:** depósito e nova entrada em mesa/torneio de Jogo Real exigem `kyc_status = verified`. CPF não é persistido em claro: somente HMAC com pepper dedicado e os quatro últimos dígitos.
+- **Limites voluntários:** depósito e perda têm tetos diário, semanal e mensal; tempo de Jogo Real tem teto diário em minutos. Reduções são imediatas. Aumento ou remoção só entra em vigor após 24 horas.
+- **Perda computada:** cash considera assentos reais encerrados (`buy_in - cash_out`, nunca negativo); torneios reais consideram entradas, fees e reentradas, descontado prêmio registrado.
+- **Tempo:** heartbeat de mesa real acumula no máximo 60 segundos por atualização. Ao atingir o teto, novas entradas e ações reais são bloqueadas e o jogador é colocado em `Sit-out`.
+- **Autoexclusão:** opções de 24h, 7d, 30d, 180d ou permanente; exige confirmação textual e bloqueia imediatamente depósitos, novas entradas e ações de Jogo Real. Não há cancelamento antecipado pela API.
+- **Recuperação de senha:** código de seis dígitos, validade de 15 minutos, cinco tentativas, uso único e revogação de tokens anteriores após a troca.
+- **Suporte:** chamados autenticados ficam persistidos e podem ser respondidos pela administração; atendimento nunca solicita senha, código de e-mail ou MFA.
+
+---
+
 **Próxima revisão:** Após implementação de side pots e split pot.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-21) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

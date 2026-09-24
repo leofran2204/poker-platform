@@ -51,6 +51,15 @@ export function PokerTable({
   boardStaggerFrom = 0,
 }: Props) {
   const potTotal = pots.reduce((s, p) => s + p.amount, 0);
+  const clampWager = (amount: number) => {
+    const withMinimum = Math.max(minimumWager || 0, amount);
+    return maximumWager > 0 ? Math.min(maximumWager, withMinimum) : withMinimum;
+  };
+  const wagerPresets = [
+    { label: "½ pote", amount: clampWager(Math.round(potTotal / 2)) },
+    { label: "⅔ pote", amount: clampWager(Math.round((potTotal * 2) / 3)) },
+    { label: "Pote", amount: clampWager(potTotal) },
+  ].filter((preset, index, all) => all.findIndex((item) => item.amount === preset.amount) === index);
   const showdownCards = new Set(showdown.flatMap((entry) => entry.cards));
   // Só as cartas do jogo vencedor saltam: cartas dos entries de quem ganhou.
   // (Antes brilhava toda carta revelada, o que diluía o vencedor.)
@@ -357,26 +366,41 @@ export function PokerTable({
               );
             })}
             {wagerAction && (
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min={(minimumWager || 0) / 100}
-                  max={maximumWager ? maximumWager / 100 : undefined}
-                  step={Math.max(0.01, (minimumWager || 25) / 100)}
-                  className="zt-input w-28"
-                  value={(raiseAmount / 100).toFixed(2)}
-                  onChange={(e) => {
-                    const reais = Number(e.target.value);
-                    onRaiseChange(Number.isFinite(reais) ? Math.round(reais * 100) : 0);
-                  }}
-                  aria-label="Valor da aposta em reais"
-                />
+              <div className="flex flex-wrap items-end gap-2">
+                <label className="text-xs font-semibold text-felt-200">
+                  Valor
+                  <input
+                    type="number"
+                    min={(minimumWager || 0) / 100}
+                    max={maximumWager ? maximumWager / 100 : undefined}
+                    step={Math.max(0.01, (minimumWager || 25) / 100)}
+                    className="zt-input mt-1 w-28"
+                    value={(raiseAmount / 100).toFixed(2)}
+                    onChange={(e) => {
+                      const reais = Number(e.target.value);
+                      onRaiseChange(Number.isFinite(reais) ? Math.round(reais * 100) : 0);
+                    }}
+                    aria-label="Valor da aposta em reais"
+                  />
+                </label>
+                <div className="flex gap-1" aria-label="Atalhos de tamanho da aposta">
+                  {wagerPresets.map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      className="zt-tab !px-2 !py-1 !text-xs"
+                      onClick={() => onRaiseChange(preset.amount)}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
                 <button
                   type="button"
                   className="zt-btn-primary"
                   onClick={() => onAction(wagerAction, raiseAmount)}
                 >
-                  {wagerAction === "bet" ? `Bet ${formatChips(raiseAmount)}` : `Raise ${formatChips(raiseAmount)}`}
+                  {wagerAction === "bet" ? `Apostar ${formatChips(raiseAmount)}` : `Aumentar ${formatChips(raiseAmount)}`}
                 </button>
               </div>
             )}

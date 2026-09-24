@@ -424,6 +424,15 @@ async fn handle_game_socket(
             .await
             .map(|row| row.is_some_and(|(game_type,)| game_type == "tournament"))
             .unwrap_or(false);
+    let is_real_money_table: bool = sqlx::query_scalar(
+        "SELECT COALESCE(money_mode,'play')='real' FROM tables WHERE id=$1::uuid",
+    )
+    .bind(&table_id)
+    .fetch_optional(&state.db)
+    .await
+    .ok()
+    .flatten()
+    .unwrap_or(false);
     let tournament_handle: Option<TableActorHandle> = if is_tournament_table {
         let tournament_id: Option<(String,)> = sqlx::query_as(
             "SELECT tournament_id::text FROM tournament_seats WHERE table_id = $1::uuid LIMIT 1",
@@ -608,6 +617,27 @@ async fn handle_game_socket(
                                     .await;
                             }
                             "action" => {
+                                if is_real_money_table
+                                    && crate::responsible_gaming::ensure_real_money_action_allowed(
+                                        &state.db,
+                                        &user_id_for_recv,
+                                    )
+                                    .await
+                                    .is_err()
+                                {
+                                    let _ = tx_cmd
+                                        .send(PlayerCommand::SetSitting {
+                                            player_id: user_id_for_recv.clone(),
+                                            sitting: false,
+                                        })
+                                        .await;
+                                    let _ = tx_outbound
+                                        .send(Message::Text(
+                                            serde_json::json!({"type":"error","message":"Jogo Real pausado por um controle de proteção. Consulte Jogo responsável."}).to_string(),
+                                        ))
+                                        .await;
+                                    continue;
+                                }
                                 let action =
                                     parsed.get("action").and_then(|a| a.as_str()).unwrap_or("");
                                 let amount =
@@ -673,6 +703,27 @@ async fn handle_game_socket(
                             let _ = tx_outbound.send(Message::Binary(pong)).await;
                         }
                         Ok((BinaryOpcode::PlayerAction, packet)) => {
+                            if is_real_money_table
+                                && crate::responsible_gaming::ensure_real_money_action_allowed(
+                                    &state.db,
+                                    &user_id_for_recv,
+                                )
+                                .await
+                                .is_err()
+                            {
+                                let _ = tx_cmd
+                                    .send(PlayerCommand::SetSitting {
+                                        player_id: user_id_for_recv.clone(),
+                                        sitting: false,
+                                    })
+                                    .await;
+                                let _ = tx_outbound
+                                    .send(Message::Text(
+                                        serde_json::json!({"type":"error","message":"Jogo Real pausado por um controle de proteção. Consulte Jogo responsável."}).to_string(),
+                                    ))
+                                    .await;
+                                continue;
+                            }
                             match serde_json::from_slice::<serde_json::Value>(&packet.payload) {
                                 Ok(action) => {
                                     let name = action

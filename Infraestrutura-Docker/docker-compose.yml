@@ -87,6 +87,7 @@ services:
       - RESEND_API_KEY=${RESEND_API_KEY:-}
       - EMAIL_FROM=${EMAIL_FROM:-Zero Tilt Poker <onboarding@resend.dev>}
       - EMAIL_CODE_PEPPER=${EMAIL_CODE_PEPPER:-development-email-code-pepper}
+      - KYC_DATA_PEPPER=${KYC_DATA_PEPPER:-development-kyc-data-pepper}
     depends_on:
       postgres:
         condition: service_healthy

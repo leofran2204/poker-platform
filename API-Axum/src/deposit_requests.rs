@@ -238,11 +238,19 @@ pub async fn create_deposit_request(
     let uid = uuid::Uuid::parse_str(&auth_user.user_id)
         .map_err(|_| ApiError::BadRequest("Invalid user id".into()))?;
 
+    let mut tx = state.db.begin().await?;
+    crate::responsible_gaming::ensure_deposit_allowed(
+        &mut tx,
+        &auth_user.user_id,
+        body.amount_cents,
+    )
+    .await?;
+
     let pending: (i64,) = sqlx::query_as(
         "SELECT COUNT(*) FROM deposit_requests WHERE user_id = $1 AND status = 'pending'",
     )
     .bind(uid)
-    .fetch_one(&state.db)
+    .fetch_one(&mut *tx)
     .await?;
     if pending.0 >= env_max_pending() {
         return Err(ApiError::BadRequest(
@@ -262,8 +270,10 @@ pub async fn create_deposit_request(
     .bind(body.amount_cents)
     .bind(note)
     .bind(proof)
-    .fetch_one(&state.db)
+    .fetch_one(&mut *tx)
     .await?;
+
+    tx.commit().await?;
 
     write_audit(
         &state,

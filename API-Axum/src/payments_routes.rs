@@ -400,9 +400,8 @@ async fn debit_balance_real_up_to(
             .bind(user_id)
             .fetch_optional(&mut **transaction)
             .await?;
-    let current = current.ok_or_else(|| {
-        ApiError::Internal("PIX deposit user account is missing".to_string())
-    })?;
+    let current = current
+        .ok_or_else(|| ApiError::Internal("PIX deposit user account is missing".to_string()))?;
     let debit = current.min(cents).max(0);
     let shortfall = cents - debit;
     if debit > 0 {
@@ -494,6 +493,8 @@ pub async fn create_pix_deposit_handler(
     }
 
     let mut transaction = state.db.begin().await?;
+    crate::responsible_gaming::ensure_deposit_allowed(&mut transaction, &auth_user.user_id, amount)
+        .await?;
     let inserted = sqlx::query(
         "INSERT INTO wallet_transactions \
          (user_id, amount, transaction_type, status, idempotency_key, provider) \
@@ -1112,23 +1113,25 @@ pub struct WalletTransactionItem {
     pub settled_at: Option<String>,
 }
 
+type WalletTransactionRow = (
+    String,
+    String,
+    i64,
+    Option<i64>,
+    String,
+    Option<String>,
+    String,
+    chrono::DateTime<chrono::Utc>,
+    Option<chrono::DateTime<chrono::Utc>>,
+);
+
 /// GET /api/wallet/transactions — extrato próprio (até 50, recentes primeiro).
 /// Só colunas seguras: sem chave, sem cifra, sem fingerprint.
 pub async fn list_my_wallet_transactions(
     State(state): State<AppState>,
     RequireAuth(auth_user): RequireAuth,
 ) -> Result<Json<Vec<WalletTransactionItem>>, ApiError> {
-    let rows: Vec<(
-        String,
-        String,
-        i64,
-        Option<i64>,
-        String,
-        Option<String>,
-        String,
-        chrono::DateTime<chrono::Utc>,
-        Option<chrono::DateTime<chrono::Utc>>,
-    )> = sqlx::query_as(
+    let rows: Vec<WalletTransactionRow> = sqlx::query_as(
         "SELECT idempotency_key, transaction_type, amount, credited_amount_cents, \
          status, provider_status, provider, created_at, \
          CASE WHEN status = 'COMPLETED' THEN updated_at ELSE NULL END \
@@ -1220,9 +1223,8 @@ async fn reconcile_deposit_status(
         let (credited_cents, provider_fee_cents) =
             settle_amounts(face_u64, provider_status.amount_received)?;
         let target = cents_to_i64(credited_cents, "Credited amount")?;
-        let user_uuid = uuid::Uuid::parse_str(user_id).map_err(|_| {
-            ApiError::Internal("PIX deposit user id is invalid".to_string())
-        })?;
+        let user_uuid = uuid::Uuid::parse_str(user_id)
+            .map_err(|_| ApiError::Internal("PIX deposit user id is invalid".to_string()))?;
         match credited {
             Some(previous) if previous == target => {}
             Some(previous) if previous > target => {
@@ -1262,9 +1264,8 @@ async fn reconcile_deposit_status(
         && ledger_status == "PENDING"
     {
         if let Some(credited_cents) = credited {
-            let user_uuid = uuid::Uuid::parse_str(user_id).map_err(|_| {
-                ApiError::Internal("PIX deposit user id is invalid".to_string())
-            })?;
+            let user_uuid = uuid::Uuid::parse_str(user_id)
+                .map_err(|_| ApiError::Internal("PIX deposit user id is invalid".to_string()))?;
             debit_balance_real_up_to(&mut transaction, user_uuid, credited_cents).await?;
         }
         ledger_status = "CANCELLED".to_string();

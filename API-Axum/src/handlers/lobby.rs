@@ -163,6 +163,13 @@ pub async fn join_table(
         ));
     }
 
+    if matches!(
+        crate::wallet::WalletMode::parse(body.wallet_mode.as_deref()),
+        crate::wallet::WalletMode::Real
+    ) {
+        crate::responsible_gaming::ensure_real_money_allowed(&state.db, &auth_user.user_id).await?;
+    }
+
     // Locking the table row serializes seat allocation and capacity checks. The
     // wallet debit and the escrow record are committed atomically below.
     let mut tx = state.db.begin().await?;

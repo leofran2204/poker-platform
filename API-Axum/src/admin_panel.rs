@@ -560,6 +560,7 @@ pub struct AdminTournamentItem {
     pub registered_players: u32,
     pub max_players: u32,
     pub table_max_players: u8,
+    pub scheduled_start_at: Option<i64>,
 }
 
 pub async fn list_admin_tournaments(
@@ -584,6 +585,7 @@ pub async fn list_admin_tournaments(
             registered_players: store.state.players.len() as u32,
             max_players: store.state.config.max_players,
             table_max_players: store.table_max_players,
+            scheduled_start_at: store.scheduled_start_at,
         })
         .collect();
     list.sort_by(|a, b| a.name.cmp(&b.name));
@@ -660,6 +662,11 @@ pub async fn patch_tournament(
             "Provide status and/or scheduled_start_at".into(),
         ));
     }
+    if body.scheduled_start_at.is_some_and(|sched| sched <= 0) {
+        return Err(ApiError::BadRequest(
+            "scheduled_start_at deve ser uma data/hora válida definida pelo admin".into(),
+        ));
+    }
 
     let tid = uuid::Uuid::parse_str(&tournament_id)
         .map_err(|_| ApiError::BadRequest("Invalid tournament id".into()))?;
@@ -734,6 +741,7 @@ pub async fn patch_tournament(
         registered_players: store.state.players.len() as u32,
         max_players: store.state.config.max_players,
         table_max_players: store.table_max_players,
+        scheduled_start_at: store.scheduled_start_at,
     }))
 }
 
@@ -788,11 +796,16 @@ pub async fn create_tournament(
     if body.buy_in_cents < 0 || body.starting_stack <= 0 || body.guaranteed_prize_cents < 0 {
         return Err(ApiError::BadRequest("valores monetários inválidos".into()));
     }
+    let scheduled_start_at = body
+        .scheduled_start_at
+        .filter(|value| *value > 0)
+        .ok_or_else(|| {
+            ApiError::BadRequest(
+                "scheduled_start_at é obrigatório e deve ser definido pelo admin".into(),
+            )
+        })?;
     let variant = body.poker_variant.trim().to_ascii_lowercase();
-    if !matches!(
-        variant.as_str(),
-        "holdem" | "omaha" | "brazilian_pineapple"
-    ) {
+    if !matches!(variant.as_str(), "holdem" | "omaha" | "brazilian_pineapple") {
         return Err(ApiError::BadRequest("poker_variant inválida".into()));
     }
     let money_mode = if body.money_mode.eq_ignore_ascii_case("real") {
@@ -849,7 +862,7 @@ pub async fn create_tournament(
     .bind(&variant)
     .bind(body.final_table_variant.clone())
     .bind(body.final_table_max_players)
-    .bind(body.scheduled_start_at)
+    .bind(scheduled_start_at)
     .bind(body.auto_start_min_players.unwrap_or(5))
     .execute(&state.db)
     .await
@@ -881,6 +894,7 @@ pub async fn create_tournament(
         registered_players: 0,
         max_players: store.state.config.max_players,
         table_max_players: store.table_max_players,
+        scheduled_start_at: store.scheduled_start_at,
     };
     state
         .tournaments
@@ -891,7 +905,11 @@ pub async fn create_tournament(
         &state,
         &auth_user.user_id,
         "TOURNAMENT_CREATED",
-        serde_json::json!({"tournament_id": item.id, "name": item.name}),
+        serde_json::json!({
+            "tournament_id": item.id,
+            "name": item.name,
+            "scheduled_start_at": item.scheduled_start_at
+        }),
     )
     .await?;
     Ok(Json(item))

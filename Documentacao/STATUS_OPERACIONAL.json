@@ -1,6 +1,6 @@
 {
     "schema_version": 2,
-    "reviewed_on": "2026-09-22",
+    "reviewed_on": "2026-09-24",
     "cycle": {
         "id": "S24",
         "title": "três modalidades + Academy + marca ZT Poker + lobby em cards"
@@ -52,7 +52,7 @@
         }
     ],
     "tournament": {
-        "start_local": "21:30",
+        "schedule_owner": "admin",
         "timezone": "America/Sao_Paulo",
         "auto_start_min_players": 5,
         "tables_per_event": 3,
@@ -151,7 +151,7 @@
         "showdown_sticky": true,
         "disconnect_not_leave": true
     },
-    "migrations_latest": 57,
+    "migrations_latest": 58,
     "email_verification": true,
     "regulation_target": "2027-01"
 }

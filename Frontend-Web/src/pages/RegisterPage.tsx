@@ -12,6 +12,7 @@ export function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [inviteCode, setInviteCode] = useState((params.get("ref") ?? "").toUpperCase());
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +24,10 @@ export function RegisterPage() {
 
     if (!termsAccepted) {
       setError("Você precisa ler e aceitar os Termos de Uso e a Política de Privacidade para continuar.");
+      return;
+    }
+    if (!dateOfBirth) {
+      setError("Informe sua data de nascimento.");
       return;
     }
 
@@ -51,6 +56,7 @@ export function RegisterPage() {
         password,
         passwordConfirm,
         inviteCode.trim() || undefined,
+        dateOfBirth,
       );
       if (res.email_verification_required) {
         navigate(`/verify-email?email=${encodeURIComponent(res.email ?? email.trim())}`);
@@ -87,6 +93,13 @@ export function RegisterPage() {
             Play Money para cash e <strong className="text-gold-soft">R$ 150</strong> para
             torneio. O código de e-mail vem depois.
           </p>
+          {inviteCode && (
+            <div className="rounded border border-gold/60 bg-felt-950/70 px-3 py-2 text-xs text-felt-200">
+              <strong className="text-gold-bright">Convite reconhecido:</strong>{" "}
+              <span className="font-mono">{inviteCode}</span>. Seu patrocinador será vinculado no
+              cadastro; trocar de mesa ou clube não altera essa relação.
+            </div>
+          )}
           <div>
             <label className="zt-label" htmlFor="username">
               Usuário
@@ -161,6 +174,24 @@ export function RegisterPage() {
               placeholder="Se alguém te chamou, cola aqui"
               autoComplete="off"
             />
+          </div>
+
+          <div>
+            <label className="zt-label" htmlFor="date-of-birth">
+              Data de nascimento
+            </label>
+            <input
+              id="date-of-birth"
+              type="date"
+              className="zt-input"
+              required
+              autoComplete="bday"
+              value={dateOfBirth}
+              onChange={(e) => setDateOfBirth(e.target.value)}
+            />
+            <p className="mt-1 text-xs text-felt-300">
+              Necessária para confirmar a maioridade. O jogo real exige verificação KYC.
+            </p>
           </div>
 
           <div className="rounded border border-felt-700/80 bg-felt-950/60 p-3">

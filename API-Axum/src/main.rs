@@ -341,6 +341,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    // O hash do CPF precisa de uma chave própria mesmo quando a verificação de
+    // e-mail estiver desligada. Em produção, falhar fechado evita hashes
+    // previsíveis ou a reutilização acidental de outras chaves da aplicação.
+    if is_production {
+        let kyc_data_pepper = std::env::var("KYC_DATA_PEPPER").unwrap_or_default();
+        let normalized_kyc_pepper = kyc_data_pepper.to_ascii_lowercase();
+        let email_code_pepper = std::env::var("EMAIL_CODE_PEPPER").unwrap_or_default();
+        if kyc_data_pepper.len() < 32
+            || normalized_kyc_pepper.contains("change_me")
+            || normalized_kyc_pepper.contains("trocar")
+            || normalized_kyc_pepper.contains("development")
+            || kyc_data_pepper == email_code_pepper
+            || kyc_data_pepper == jwt_secret
+        {
+            return Err("Refusing to boot production without a dedicated KYC_DATA_PEPPER".into());
+        }
+    }
+
     let tournament_map = poker_api::tournament_catalog::load_tournaments_from_db(&pool)
         .await
         .map_err(|e| {
@@ -386,7 +404,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "Auth policy loaded"
     );
 
-    // Coordenador MTT: auto-start 5 no horário agendado (America/Sao_Paulo) + FT popup no próximo blind
+    // Coordenador MTT: auto-start na agenda definida pelo admin + FT popup no próximo blind
     {
         let coordinator_state = state.clone();
         tokio::spawn(async move {

@@ -33,6 +33,7 @@ export interface CourseVideoInfo {
   placeholderScript?: string;
   /** Narração real do MP4 (não o gancho do coach). */
   transcript?: string;
+  captionsUrl?: string;
   posterUrl?: string;
 }
 

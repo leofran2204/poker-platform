@@ -15,13 +15,16 @@ pub mod error;
 pub mod estrutura;
 pub mod game_actor;
 pub mod handlers;
+pub mod kyc;
 pub mod middleware;
 pub mod payment_gateway;
 pub mod payments_routes;
 pub mod payout_worker;
 pub mod pix_key_crypto;
 pub mod presence;
+pub mod responsible_gaming;
 pub mod state;
+pub mod support;
 pub mod telemetry;
 pub mod tournament_actor;
 pub mod tournament_catalog;
@@ -128,10 +131,89 @@ pub fn build_router(state: AppState) -> Router {
                 )),
         )
         .route(
+            "/api/auth/forgot-password",
+            post(auth::forgot_password)
+                .route_layer(from_extractor_with_state::<EnforceRateLimit, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/auth/reset-password",
+            post(auth::reset_password)
+                .route_layer(from_extractor_with_state::<EnforceRateLimit, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
             "/api/auth/me",
             get(auth::me).route_layer(from_extractor_with_state::<RequireAuth, AppState>(
                 state.clone(),
             )),
+        )
+        // ─── Proteção do jogador, KYC e suporte ───
+        .route(
+            "/api/responsible-gaming/settings",
+            get(responsible_gaming::get_settings)
+                .put(responsible_gaming::update_limits)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/responsible-gaming/self-exclusion",
+            post(responsible_gaming::self_exclude)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/responsible-gaming/play-heartbeat",
+            post(responsible_gaming::play_heartbeat)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/kyc",
+            get(kyc::get_my_kyc)
+                .post(kyc::submit_kyc)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/support/tickets",
+            get(support::my_tickets)
+                .post(support::create_ticket)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/admin/kyc",
+            get(kyc::list_kyc).route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                state.clone(),
+            )),
+        )
+        .route(
+            "/api/admin/kyc/:id",
+            patch(kyc::review_kyc).route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                state.clone(),
+            )),
+        )
+        .route(
+            "/api/admin/support/tickets",
+            get(support::admin_tickets)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/admin/support/tickets/:id",
+            patch(support::reply_ticket)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
         )
         // ─── Payment routes (PIX Deposit, Webhook & Withdraw + rate limited) ───
         .route(
@@ -475,7 +557,7 @@ pub fn build_router(state: AppState) -> Router {
                     state.clone(),
                 )),
         )
-        // ─── Frota de bots (coach/testes) ───
+        // ─── Frota de bots jogadores (treino/testes; não é coach) ───
         .route(
             "/api/admin/bots/ensure-pool",
             post(bots_handlers::ensure_pool)

@@ -158,7 +158,7 @@ export function AdminBotsPage() {
     <div className="space-y-4">
       <h1 className="text-xl font-bold text-gold-bright">Bots da casa</h1>
       <p className="text-sm text-felt-300">
-        Elenco de 72 bots para testes e futuro coach. Escolha a mesa e quantos ligar;
+        Elenco de 72 bots jogadores para treino e testes. Eles não prestam coaching. Escolha a mesa e quantos ligar;
         eles jogam sozinhos até restar 1. Só mesas play money.
       </p>
       {error ? (

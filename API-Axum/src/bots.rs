@@ -1,4 +1,4 @@
-//! Frota de bots da casa (base do futuro coach).
+//! Frota de bots jogadores da casa para treino e testes.
 //!
 //! 72 contas `bot_001..072` (is_bot) gerenciadas pelo servidor: o admin liga N
 //! bots numa mesa play pelo painel, eles sentam via assento normal (buy-in em
@@ -8,7 +8,8 @@
 //! acontecem, sobra 1 vencedor.
 //!
 //! Bots nao tem convite nem senha valida: nunca logam, nunca pontuam na
-//! Minha Estrutura como beneficiarios com VP (sponsored_by NULL).
+//! Minha Estrutura como beneficiarios com VP (sponsored_by NULL). O futuro
+//! coach pós-mão é um componente separado: estes bots não aconselham jogadores.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -1624,8 +1625,8 @@ fn postflop_tier(hole: &[Card], community: &[Card]) -> u8 {
 // ─── lag_v2: avaliacao com o proprio motor, por variante ───
 
 use poker_engine::deck::{
-    evaluate_hand, evaluate_hand_brazilian_pineapple, evaluate_hand_omaha, evaluate_hand_short_deck,
-    HandRank, Rank as EngineRank, Suit as EngineSuit,
+    evaluate_hand, evaluate_hand_brazilian_pineapple, evaluate_hand_omaha,
+    evaluate_hand_short_deck, HandRank, Rank as EngineRank, Suit as EngineSuit,
 };
 use poker_engine::types::PokerVariant;
 
@@ -2019,12 +2020,12 @@ mod tests {
             ),
             Some(HandRank::Flush)
         );
-        // Roda A-6-7-8-9 vale straight.
+        // Roda A-6-7-8-9 vale straight, respeitando exatamente 2 hole + 3 board.
         assert_eq!(
             evaluate_rank_for_variant(
                 "brazilian_pineapple",
-                &[c("Ah"), c("Kd")],
-                &[c("9c"), c("8d"), c("7h"), c("6s"), c("2c")]
+                &[c("Ah"), c("6d")],
+                &[c("9c"), c("8d"), c("7h"), c("Ks"), c("Qc")]
             ),
             Some(HandRank::Straight)
         );

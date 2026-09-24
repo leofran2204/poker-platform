@@ -1,8 +1,8 @@
-# Plano de mercado — Rede Zero Tilt em 2 níveis (Play Money)
+# Plano de mercado — Rede Zero Tilt em 2 níveis
 
 **Público:** fundador e cada afiliado com painel da própria rede
-**Data:** 2026-09-05
-**Premissa:** o jogo público **hoje é Play Money**. Nenhum real circula na rede. Este documento é o **molde** para ligar o mesmo grafo em dinheiro real **somente** quando SPA, PSP, KYC e a documentação de compliance estiverem corretos.
+**Data:** 2026-09-24
+**Premissa:** a plataforma oferece Play Money e Jogo Real em carteiras separadas. A rede usa o mesmo grafo de convites nos dois modos, mas qualquer operação real depende de KYC aprovado, controles de proteção e condições operacionais/regulatórias. A existência técnica do Jogo Real não equivale a certificação de produção.
 
 > Fonte operacional: [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md). Demo: [https://zerotiltpoker.net](https://zerotiltpoker.net). Este plano não duplica o catálogo.
 
@@ -10,7 +10,7 @@
 
 ## 1. Em uma frase
 
-A sala cresce por **convite de quem já joga**. O cadastro amarra **só o ID do patrocinador** (`sponsored_by`). Clube é feltro (onde a pessoa escolhe jogar), **sem fatia de rake**. A árvore tem **exatamente 2 níveis**. A bonificação — já no desenho de dinheiro real — é **18% do rake individual** de cada um do 1º nível e **12% do rake individual** de cada um do 2º nível. O resto fica com a **casa**. Sempre rake de **mão jogada daquele jogador**, nunca cadastro.
+A sala cresce por **convite de quem já joga**. O cadastro amarra **só o ID do patrocinador** (`sponsored_by`). Clube é feltro (onde a pessoa escolhe jogar), **sem fatia de rake**. A árvore tem **exatamente 2 níveis**. A bonificação é **18% do rake individual** de cada um do 1º nível e **12% do rake individual** de cada um do 2º nível. O resto fica com a **casa**. Sempre rake de **mão jogada daquele jogador**, nunca cadastro. KYC, limites, autoexclusão e chamados permanecem privados e fora do painel do patrocinador.
 
 Não é pirâmide. Não há taxa de adesão. Quem não senta não pontua.
 
@@ -49,7 +49,7 @@ As redes que quebram reputação pagam por **recrutar**, vendem **kit** e deixam
 
 | Mecânica | Agora (Play Money) | Depois da licença |
 |----------|--------------------|-------------------|
-| Entrada | Convite `?ref=` de quem já tem conta | O mesmo link, com KYC |
+| Entrada | Convite `?ref=` de quem já tem conta; Play Money após cadastro/e-mail | O mesmo link; Jogo Real somente após KYC |
 | 1º nível | Entrou pelo **meu** código | Igual |
 | 2º nível | Entrou pelo código do **meu** 1º nível | Igual |
 | Além do 2º | **Invisível** no meu admin; **zero** comissão minha | Igual |
@@ -282,6 +282,6 @@ Não se “liga o MMN em real”. Substitui-se a **unidade** (ponto → centavo)
 *Este plano descreve a árvore comercial: 18/12 sobre rake individual, clube só como lugar, casa com o resto. Os % são os de dinheiro real; Play Money só troca a unidade.*
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-21) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

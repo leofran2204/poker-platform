@@ -23,6 +23,72 @@ export interface MeResponse {
   referral_code?: string | null;
 }
 
+export interface ResponsibleLimits {
+  deposit_limit_daily_cents: number | null;
+  deposit_limit_weekly_cents: number | null;
+  deposit_limit_monthly_cents: number | null;
+  loss_limit_daily_cents: number | null;
+  loss_limit_weekly_cents: number | null;
+  loss_limit_monthly_cents: number | null;
+  play_time_limit_daily_minutes: number | null;
+}
+
+export interface ResponsibleGamingStatus extends ResponsibleLimits {
+  pending_limits: ResponsibleLimits | null;
+  pending_limits_effective_at: string | null;
+  self_excluded_until: string | null;
+  self_excluded_permanently: boolean;
+  self_exclusion_started_at: string | null;
+  kyc_status: "not_submitted" | "pending" | "verified" | "rejected";
+  date_of_birth: string | null;
+  over_18_declared: boolean;
+  deposited_today_cents: number;
+  deposited_week_cents: number;
+  deposited_month_cents: number;
+  loss_today_cents: number;
+  loss_week_cents: number;
+  loss_month_cents: number;
+  real_play_seconds_today: number;
+}
+
+export interface KycStatusResponse {
+  status: "not_submitted" | "pending" | "verified" | "rejected";
+  legal_name: string | null;
+  tax_id_last4: string | null;
+  date_of_birth: string | null;
+  submitted_at: string | null;
+  reviewed_at: string | null;
+}
+
+export interface AdminKycItem {
+  user_id: string;
+  username: string;
+  email: string;
+  status: string;
+  legal_name: string | null;
+  tax_id_last4: string | null;
+  date_of_birth: string | null;
+  submitted_at: string | null;
+}
+
+export interface SupportTicketResponse {
+  id: string;
+  category: string;
+  subject: string;
+  message: string;
+  status: string;
+  admin_response: string | null;
+  created_at: string;
+  updated_at: string;
+  username?: string | null;
+}
+
+export interface PlayHeartbeatResponse {
+  real_play_seconds_today: number;
+  play_time_limit_daily_minutes: number | null;
+  limit_reached: boolean;
+}
+
 export interface EstruturaMember {
   username: string;
   level: number;
@@ -105,6 +171,7 @@ export interface AdminTournamentItem {
   registered_players: number;
   max_players: number;
   table_max_players: number;
+  scheduled_start_at: number | null;
 }
 
 export interface AdminTournamentPlayer {

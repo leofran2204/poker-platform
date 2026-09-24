@@ -115,8 +115,8 @@ mod tests {
     fn tampered_blob_fails_closed() {
         let blob = encrypt_blob(&test_key(), "segredo").unwrap();
         let mut tampered = blob.clone();
-        tampered.pop();
-        tampered.push(if tampered.ends_with('0') { '1' } else { '0' });
+        let original_last = tampered.pop().unwrap();
+        tampered.push(if original_last == '0' { '1' } else { '0' });
         assert!(decrypt_blob(&test_key(), &tampered).is_err());
         assert!(decrypt_blob(&[0x00; 32], &blob).is_err());
         assert!(decrypt_blob(&test_key(), "sem-separador").is_err());

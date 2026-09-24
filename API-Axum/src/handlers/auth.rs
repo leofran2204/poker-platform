@@ -11,7 +11,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tokio::sync::Semaphore;
 
 use crate::email_service::{
-    codes_equal_hash, generate_numeric_code, hash_code, send_verification_email, CODE_TTL_SECS,
+    codes_equal_hash, generate_numeric_code, hash_code, hash_password_reset_code,
+    password_reset_codes_equal, send_password_reset_email, send_verification_email, CODE_TTL_SECS,
 };
 use crate::error::ApiError;
 use crate::state::AppState;
@@ -47,6 +48,10 @@ pub struct RegisterBody {
     /// Código de convite (`?ref=`). Obrigatório quando REQUIRE_INVITE=true (exceto 1º usuário).
     #[serde(default)]
     pub invite_code: Option<String>,
+    #[serde(default)]
+    pub date_of_birth: Option<String>,
+    #[serde(default)]
+    pub over_18: Option<bool>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -75,6 +80,19 @@ pub struct MfaVerifyBody {
 #[derive(Debug, Deserialize)]
 pub struct RefreshBody {
     pub refresh_token: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ForgotPasswordBody {
+    pub email: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ResetPasswordBody {
+    pub email: String,
+    pub code: String,
+    pub password: String,
+    pub password_confirm: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -286,6 +304,24 @@ async fn verify_password_off_runtime(
     .await
     .map_err(|error| ApiError::Internal(format!("Password worker failed: {error}")))
 }
+
+fn is_strong_password(password: &str) -> bool {
+    password.len() >= 8
+        && password.chars().any(|c| c.is_ascii_uppercase())
+        && password.chars().any(|c| c.is_ascii_lowercase())
+        && password.chars().any(|c| c.is_ascii_digit())
+}
+
+async fn hash_password_off_runtime(password: String) -> Result<String, ApiError> {
+    let _permit = password_work_slots()
+        .acquire_owned()
+        .await
+        .map_err(|_| ApiError::Internal("Password worker pool is unavailable".to_string()))?;
+    tokio::task::spawn_blocking(move || bcrypt::hash(password, 12))
+        .await
+        .map_err(|error| ApiError::Internal(format!("Password worker failed: {error}")))?
+        .map_err(|_| ApiError::Internal("Password hashing failed".into()))
+}
 const MFA_CHALLENGE_TTL_SECS: i64 = 5 * 60;
 const MFA_CHALLENGE_MAX_ATTEMPTS: i16 = 5;
 const MFA_CHALLENGE_RETENTION_SECS: i64 = 24 * 60 * 60;
@@ -421,6 +457,23 @@ pub async fn register(
     State(state): State<AppState>,
     Json(body): Json<RegisterBody>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
+    let birth_date = match body.date_of_birth.as_deref() {
+        Some(value) => {
+            let date = chrono::NaiveDate::parse_from_str(value.trim(), "%Y-%m-%d")
+                .map_err(|_| ApiError::BadRequest("Data de nascimento inválida".into()))?;
+            crate::responsible_gaming::validate_adult(date)?;
+            Some(date)
+        }
+        None if state.require_email_verification => {
+            return Err(ApiError::BadRequest("date_of_birth is required".into()))
+        }
+        None => None,
+    };
+    if state.require_email_verification && body.over_18 != Some(true) {
+        return Err(ApiError::BadRequest(
+            "A declaração de maioridade é obrigatória".into(),
+        ));
+    }
     if state.require_email_verification {
         match &body.password_confirm {
             None => {
@@ -476,11 +529,13 @@ pub async fn register(
         r#"
         INSERT INTO users (
             id, username, email, password_hash, role, status, balance, mfa_enabled, created_at,
-            balance_pm_cash, balance_pm_mtt, balance_real, last_pm_reset_date, preferred_wallet_mode
+            balance_pm_cash, balance_pm_mtt, balance_real, last_pm_reset_date, preferred_wallet_mode,
+            date_of_birth, over_18_declared_at
         )
         VALUES (
             $1::uuid, $2, $3, $4, $5, $6, $7, $8, $9,
-            $10, $11, 0, (timezone('America/Sao_Paulo', now()))::date, 'play'
+            $10, $11, 0, (timezone('America/Sao_Paulo', now()))::date, 'play',
+            $12, CASE WHEN $13 THEN NOW() ELSE NULL END
         )
         "#,
     )
@@ -495,6 +550,8 @@ pub async fn register(
     .bind(user.created_at as i64)
     .bind(crate::wallet::PM_CASH_DAILY_CENTS)
     .bind(crate::wallet::PM_MTT_DAILY_CENTS)
+    .bind(birth_date)
+    .bind(body.over_18.unwrap_or(false))
     .execute(&state.db)
     .await;
     if let Err(error) = persist_result {
@@ -820,6 +877,124 @@ pub async fn resend_verification(
 
     let _ = issue_verification_code(&state, &user.id, &user.email, &user.username).await;
     Ok(generic)
+}
+
+/// POST /api/auth/forgot-password — resposta genérica para impedir enumeração.
+pub async fn forgot_password(
+    State(state): State<AppState>,
+    Json(body): Json<ForgotPasswordBody>,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    let generic = Json(json!({
+        "ok": true,
+        "message": "Se o e-mail estiver cadastrado, enviaremos um código de redefinição."
+    }));
+    let email = body.email.trim().to_lowercase();
+    let Some(user) = load_persisted_user(&state, "email", &email).await? else {
+        return Ok(generic);
+    };
+    let now = now_epoch() as i64;
+    let last: Option<i64> = sqlx::query_scalar(
+        "SELECT MAX(created_at) FROM password_reset_codes WHERE user_id=$1::uuid",
+    )
+    .bind(&user.id)
+    .fetch_optional(&state.db)
+    .await?
+    .flatten();
+    if last.is_some_and(|created| now - created < 60) {
+        return Ok(generic);
+    }
+    let code = generate_numeric_code();
+    let hash = hash_password_reset_code(&code);
+    let mut tx = state.db.begin().await?;
+    sqlx::query("UPDATE password_reset_codes SET consumed_at=$1 WHERE user_id=$2::uuid AND consumed_at IS NULL")
+        .bind(now)
+        .bind(&user.id)
+        .execute(&mut *tx)
+        .await?;
+    sqlx::query("INSERT INTO password_reset_codes(user_id,code_hash,expires_at,created_at) VALUES($1::uuid,$2,$3,$4)")
+        .bind(&user.id)
+        .bind(hash)
+        .bind(now + CODE_TTL_SECS as i64)
+        .bind(now)
+        .execute(&mut *tx)
+        .await?;
+    tx.commit().await?;
+    if let Err(error) = send_password_reset_email(&user.email, &user.username, &code).await {
+        tracing::error!(?error, "failed to send password reset email");
+    }
+    Ok(generic)
+}
+
+/// POST /api/auth/reset-password — código de uso único + revogação de tokens.
+pub async fn reset_password(
+    State(state): State<AppState>,
+    Json(body): Json<ResetPasswordBody>,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    if body.password != body.password_confirm {
+        return Err(ApiError::BadRequest("As senhas não coincidem".into()));
+    }
+    if !is_strong_password(&body.password) {
+        return Err(ApiError::BadRequest(
+            "Senha fraca: use 8+ caracteres, maiúscula, minúscula e número".into(),
+        ));
+    }
+    let code = body.code.trim();
+    if code.len() != 6 || !code.bytes().all(|byte| byte.is_ascii_digit()) {
+        return Err(ApiError::BadRequest("Código deve ter 6 dígitos".into()));
+    }
+    let user = load_persisted_user(&state, "email", &body.email.trim().to_lowercase())
+        .await?
+        .ok_or_else(|| ApiError::Unauthorized("Código inválido ou expirado".into()))?;
+    let now = now_epoch() as i64;
+    let mut tx = state.db.begin().await?;
+    let row: Option<(uuid::Uuid, String, i64, i16)> = sqlx::query_as(
+        "SELECT id,code_hash,expires_at,attempts FROM password_reset_codes \
+         WHERE user_id=$1::uuid AND consumed_at IS NULL ORDER BY created_at DESC LIMIT 1 FOR UPDATE",
+    )
+    .bind(&user.id)
+    .fetch_optional(&mut *tx)
+    .await?;
+    let (id, stored_hash, expires_at, attempts) =
+        row.ok_or_else(|| ApiError::Unauthorized("Código inválido ou expirado".into()))?;
+    if expires_at < now || attempts >= 5 {
+        sqlx::query("UPDATE password_reset_codes SET consumed_at=$1 WHERE id=$2")
+            .bind(now)
+            .bind(id)
+            .execute(&mut *tx)
+            .await?;
+        tx.commit().await?;
+        return Err(ApiError::Unauthorized("Código inválido ou expirado".into()));
+    }
+    if !password_reset_codes_equal(code, &stored_hash) {
+        sqlx::query("UPDATE password_reset_codes SET attempts=attempts+1,consumed_at=CASE WHEN attempts+1>=5 THEN $1 ELSE consumed_at END WHERE id=$2")
+            .bind(now)
+            .bind(id)
+            .execute(&mut *tx)
+            .await?;
+        tx.commit().await?;
+        return Err(ApiError::Unauthorized("Código inválido ou expirado".into()));
+    }
+    let password_hash = hash_password_off_runtime(body.password).await?;
+    sqlx::query("UPDATE users SET password_hash=$1,failed_login_attempts=0,locked_until=NULL WHERE id=$2::uuid")
+        .bind(password_hash)
+        .bind(&user.id)
+        .execute(&mut *tx)
+        .await?;
+    sqlx::query("UPDATE password_reset_codes SET consumed_at=$1 WHERE user_id=$2::uuid AND consumed_at IS NULL")
+        .bind(now)
+        .bind(&user.id)
+        .execute(&mut *tx)
+        .await?;
+    sqlx::query(
+        "INSERT INTO audit_logs(user_id,action,metadata) VALUES($1,'PASSWORD_RESET','{}'::jsonb)",
+    )
+    .bind(&user.id)
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
+    Ok(Json(
+        json!({"ok": true, "message": "Senha redefinida. Entre novamente."}),
+    ))
 }
 
 /// Completes a password-authenticated login with a durable, single-use MFA challenge.

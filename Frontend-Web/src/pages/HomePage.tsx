@@ -39,18 +39,15 @@ export function HomePage() {
             </li>
           </ul>
           <div className="mt-6 flex flex-wrap items-center gap-4">
-            <Link to="/curso" className="zt-btn-primary px-8 py-3 text-base">
-              Começar a Academy
+            <Link to="/register" className="zt-btn-primary px-8 py-3 text-base">
+              Criar conta grátis
+            </Link>
+            <Link to="/curso" className="text-sm font-semibold text-cream hover:text-gold-bright">
+              Conhecer a Academy
             </Link>
             <a href="#demonstracao" className="text-sm font-semibold text-cream hover:text-gold-bright">
               Assistir à demonstração narrada
             </a>
-            <Link to="/register" className="text-sm font-semibold text-cream hover:text-gold-bright">
-              Criar conta
-            </Link>
-            <Link to="/login" className="text-sm font-semibold text-felt-300 hover:text-gold-bright">
-              Já tenho conta
-            </Link>
           </div>
           <div className="mt-6 max-w-xl">
             <OnlinePresenceHero />
@@ -69,6 +66,32 @@ export function HomePage() {
         <div className="zt-reveal">
           <LossDeflatorSection />
         </div>
+
+        <section className="zt-reveal zt-panel grid gap-5 p-5 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-soft">
+              Rede Zero Tilt · 2 níveis
+            </p>
+            <h2 className="mt-2 text-xl font-bold text-gold-bright">
+              Convide para jogar. A rede reconhece atividade, não cadastro.
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-felt-200">
+              Cada jogador tem um link próprio, acompanha apenas dois níveis e precisa jogar para
+              se qualificar. Sem taxa de entrada, sem kit e sem promessa de renda.
+            </p>
+            <p className="mt-2 text-xs text-felt-300">
+              18+ · Poker envolve risco de perda e não é investimento.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs">
+              <span className="zt-chip">1º nível · 18%</span>
+              <span className="zt-chip">2º nível · 12%</span>
+              <span className="zt-chip">Clube sem fatia</span>
+            </div>
+          </div>
+          <Link to="/rede" className="zt-btn-secondary shrink-0">
+            Entender a rede →
+          </Link>
+        </section>
 
         <div className="zt-reveal zt-panel flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>

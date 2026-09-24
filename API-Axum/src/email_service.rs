@@ -50,6 +50,22 @@ pub fn codes_equal_hash(code: &str, stored_hash: &str) -> bool {
     computed.as_bytes().ct_eq(stored_hash.as_bytes()).into()
 }
 
+pub fn hash_password_reset_code(code: &str) -> String {
+    let pepper = env::var("EMAIL_CODE_PEPPER")
+        .unwrap_or_else(|_| "development-email-code-pepper".to_string());
+    let mut mac =
+        HmacSha256::new_from_slice(pepper.as_bytes()).expect("HMAC accepts keys of any size");
+    mac.update(b"zero-tilt-password-reset-v1\0");
+    mac.update(code.as_bytes());
+    format!("{:x}", mac.finalize().into_bytes())
+}
+
+pub fn password_reset_codes_equal(code: &str, stored_hash: &str) -> bool {
+    use subtle::ConstantTimeEq;
+    let computed = hash_password_reset_code(code);
+    computed.as_bytes().ct_eq(stored_hash.as_bytes()).into()
+}
+
 /// Subject + texto plano + HTML do e-mail de boas-vindas.
 pub fn build_welcome_message(username: &str, code: &str) -> (String, String, String) {
     let subject = "♠ Zero Tilt — confirme sua conta e puxe a cadeira".to_string();
@@ -166,6 +182,34 @@ pub async fn send_verification_email(
                 Err(err)
             }
         },
+        "log" if !is_production() => {
+            log_email(to_email, &subject, code, &text);
+            Ok(())
+        }
+        "log" => Err("EMAIL_PROVIDER=log is forbidden in production".to_string()),
+        "smtp" => Err("EMAIL_PROVIDER=smtp is not implemented".to_string()),
+        other => Err(format!("Unsupported EMAIL_PROVIDER: {other}")),
+    }
+}
+
+pub async fn send_password_reset_email(
+    to_email: &str,
+    username: &str,
+    code: &str,
+) -> Result<(), String> {
+    let subject = "Zero Tilt — código para redefinir sua senha".to_string();
+    let text = format!(
+        "Olá, {username}!\n\nSeu código para redefinir a senha é {code}. Ele vale por 15 minutos e só pode ser usado uma vez.\n\nSe você não pediu a troca, ignore esta mensagem."
+    );
+    let html = format!(
+        "<html><body style=\"font-family:Segoe UI,sans-serif;background:#0f2a0f;color:#e8e0d0;padding:24px\"><h1 style=\"color:#d4a843\">Redefinição de senha</h1><p>Olá, {}.</p><p>Use o código abaixo em até 15 minutos:</p><p style=\"font-size:30px;font-weight:bold;letter-spacing:.3em;color:#d4a843\">{}</p><p>Se você não pediu a troca, ignore esta mensagem.</p></body></html>",
+        html_escape(username),
+        code
+    );
+    match resolve_provider().as_str() {
+        "resend" => send_via_resend(to_email, &subject, &text, &html)
+            .await
+            .map(|_| ()),
         "log" if !is_production() => {
             log_email(to_email, &subject, code, &text);
             Ok(())

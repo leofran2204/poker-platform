@@ -18,7 +18,7 @@ import { getWalletMode, setWalletModeLocal } from "@/lib/walletMode";
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `zt-nav-link ${isActive ? "zt-nav-link-active" : ""}`;
 
-const VISITOR_HOME_PATHS = new Set(["/", "/login", "/register", "/verify-email", "/termos"]);
+const VISITOR_HOME_PATHS = new Set(["/", "/login", "/register", "/verify-email", "/recuperar-senha", "/termos", "/rede", "/jogo-responsavel"]);
 
 export function Layout() {
   const navigate = useNavigate();
@@ -161,6 +161,12 @@ export function Layout() {
 
   return (
     <div className="zt-shell">
+      <a
+        href="#main-content"
+        className="fixed left-3 top-3 z-[100] -translate-y-24 rounded bg-gold px-3 py-2 text-sm font-bold text-ink transition-transform focus:translate-y-0"
+      >
+        Pular para o conteúdo
+      </a>
       <SessionConnectivity />
       <header className="zt-nav">
         <div className="zt-nav-inner">
@@ -182,6 +188,9 @@ export function Layout() {
                 </NavLink>
                 <NavLink to="/wallet" className={linkClass}>
                   Carteira
+                </NavLink>
+                <NavLink to="/estrutura" className={linkClass}>
+                  Minha Rede
                 </NavLink>
                 <div className="relative" ref={moreRef}>
                   <button
@@ -209,11 +218,18 @@ export function Layout() {
                         Dica do Pró
                       </NavLink>
                       <NavLink
-                        to="/estrutura"
+                        to="/verificacao"
                         className="block px-3 py-1.5 text-sm text-felt-200 hover:bg-felt-800 hover:text-cream"
                         onClick={() => setMoreOpen(false)}
                       >
-                        Minha Estrutura
+                        Verificação
+                      </NavLink>
+                      <NavLink
+                        to="/suporte"
+                        className="block px-3 py-1.5 text-sm text-felt-200 hover:bg-felt-800 hover:text-cream"
+                        onClick={() => setMoreOpen(false)}
+                      >
+                        Suporte
                       </NavLink>
                       {isAdmin && (
                         <NavLink
@@ -252,6 +268,9 @@ export function Layout() {
                 <NavLink to="/curso" className={linkClass}>
                   Academy
                 </NavLink>
+                <NavLink to="/rede" className={linkClass}>
+                  Rede
+                </NavLink>
                 <NavLink to="/login" className={linkClass}>
                   Entrar
                 </NavLink>
@@ -286,7 +305,13 @@ export function Layout() {
                 </NavLink>
                 {learnLinks}
                 <NavLink to="/estrutura" className={linkClass} onClick={() => setMenuOpen(false)}>
-                  Minha Estrutura
+                  Minha Rede
+                </NavLink>
+                <NavLink to="/verificacao" className={linkClass} onClick={() => setMenuOpen(false)}>
+                  Verificação
+                </NavLink>
+                <NavLink to="/suporte" className={linkClass} onClick={() => setMenuOpen(false)}>
+                  Suporte
                 </NavLink>
                 {isAdmin && (
                   <NavLink to="/admin" className={linkClass} onClick={() => setMenuOpen(false)}>
@@ -303,6 +328,9 @@ export function Layout() {
                 <NavLink to="/curso" className={linkClass} onClick={() => setMenuOpen(false)}>
                   Academy
                 </NavLink>
+                <NavLink to="/rede" className={linkClass} onClick={() => setMenuOpen(false)}>
+                  Rede
+                </NavLink>
                 {learnLinks}
                 <NavLink to="/login" className={linkClass} onClick={() => setMenuOpen(false)}>
                   Entrar
@@ -316,6 +344,7 @@ export function Layout() {
         )}
       </header>
       <main
+        id="main-content"
         className={
           homeBleed
             ? "w-full min-w-0 flex-1"
@@ -326,7 +355,7 @@ export function Layout() {
       >
         <Outlet />
       </main>
-      <footer className="border-t border-felt-700 px-4 py-4 text-center text-xs text-felt-400">
+      <footer className="border-t border-felt-700 px-4 py-4 text-center text-xs text-felt-300">
         ZT Poker · Zero Tilt Academy
         {marketingShell ? " · Estude. Jogue. Sem tilt." : " · Demo / staging"}
         {" · "}
@@ -342,8 +371,20 @@ export function Layout() {
           Dica do Pró
         </NavLink>
         {" · "}
+        <NavLink to="/rede" className="text-gold-soft hover:underline">
+          Rede
+        </NavLink>
+        {" · "}
         <NavLink to="/termos" className="text-gold-soft hover:underline">
           Termos
+        </NavLink>
+        {" · "}
+        <NavLink to="/jogo-responsavel" className="text-gold-soft hover:underline">
+          Jogo responsável
+        </NavLink>
+        {" · "}
+        <NavLink to="/suporte" className="text-gold-soft hover:underline">
+          Suporte
         </NavLink>
       </footer>
     </div>

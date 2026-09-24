@@ -1,6 +1,6 @@
 # Arquitetura Técnica & Especificação de APIs - Plataforma de Poker Online em Rust
 
-**Atualizado:** 2026-09-04 | **Status:** Em revisão contínua — S21b, PM 150+150 sem rebuy, restore MTT, Dockerfile cache, migrations 044; sem certificação de produção.
+**Atualizado:** 2026-09-24 | **Status:** Em revisão contínua — S24, três modalidades, Academy, proteção do jogador e migrations 058; sem certificação de produção.
 
 Este documento consolida a arquitetura técnica, esquemas de comunicação, contratos de API e modelos de segurança da **Plataforma de Poker Online em Rust**.
 
@@ -13,7 +13,7 @@ Este documento consolida a arquitetura técnica, esquemas de comunicação, cont
 | `GET /api/lobby/tables?mode=play\|real` | Filtra `money_mode`; inclui mesas `OPEN` **lotadas**; responde `poker_variant`, blinds, frentes, `players/max_players` |
 | `POST /api/lobby/join` | Body: `table_id`, `buy_in`, `wallet_mode` — rejeita PM em mesa Real e vice-versa; recusa mesa cheia |
 | `POST /api/lobby/leave` | Cash-out entre mãos; WS drop usa graça de 45 s no `TableActor` (`cash_seats::persist_cash_out_seat`) |
-| `GET /api/lobby/tournaments?mode=…` | Catálogo com `money_mode` + `poker_variant` + `scheduled_start_at` + `auto_start_min_players` + FT 8-max |
+| `GET /api/lobby/tournaments?mode=…` | Catálogo com `money_mode`, `poker_variant`, agenda, mínimo, mesas vivas e `gameplay_ready` somente em `running/paused` com ator físico associado |
 | `POST /api/tournament/register` | Debita buy-in + **fee 15%** (freeroll zero) conforme modo; fee reparte 18/12/70; resposta traz `fee_cents` + `total_debited_cents` |
 | `POST /api/tournament/unregister` | Cancela pré-start com reembolso total + anulação do fee (S23) |
 | `GET /api/tournament/:id/registration` | Diz se o autenticado está inscrito (S23) |
@@ -23,7 +23,7 @@ Este documento consolida a arquitetura técnica, esquemas de comunicação, cont
 | `POST /api/admin/bots/stop-tournament` | Desliga bots do torneio — sit-out, sem cash-out (admin) |
 
 `poker_variant`: `holdem` (Texas Hold’em, 9-max) \| `omaha` (Omaha 4, baralho 52, 6-max) \| `brazilian_pineapple` (Short Deck 2+1+1+1, 5-max).
-Motor: `TableConfig.small_blind` + `big_blind` (SB pode = BB); Omaha deal 4 hole (usa 2+3, ranking clássico); Brazilian Pineapple deal 2 hole +1 por street (usa 2+3, ranking Short Deck). Ranking Short Deck só no Pineapple: **trinca > sequência** e **flush > full house**. Torneios: `scheduled_start_at` (21:30 SP, epoch 1788481800) + `auto_start_min_players` 5 fixo; `tournament_seats` separado (038); 3 mesas por torneio + caps 27/18/15 (048); coordenador auto-start 30s + rebalance/consolidação FT + hidratação no boot + `tournament_coordinator.rs`; **ator MTT** (`tournament_actor.rs`, mesmo protocolo do cash: rake 0, sem deflator, eliminações, run-out all-in, halt auditável); fee 15% no register (`total_fees`, 049).
+Motor: `TableConfig.small_blind` + `big_blind` (SB pode = BB); Omaha deal 4 hole (usa 2+3, ranking clássico); Brazilian Pineapple deal 2 hole +1 por street (usa 2+3, ranking Short Deck). Ranking Short Deck só no Pineapple: **trinca > sequência** e **flush > full house**. Torneios: `scheduled_start_at` é definido exclusivamente pelo admin no cadastro ou em `PATCH /api/admin/tournaments/:id`; o coordenador não cria nem altera datas. Depois do horário definido, o auto-start ocorre ao atingir `auto_start_min_players` (5 no catálogo vigente). `tournament_seats` é separado (038); 3 mesas por torneio + caps 27/18/15 (048); coordenador a cada 30s + rebalance/consolidação FT + hidratação no boot (`tournament_coordinator.rs`); **ator MTT** (`tournament_actor.rs`, mesmo protocolo do cash: rake 0, sem deflator, eliminações, run-out all-in, halt auditável); fee 15% no register (`total_fees`, 049).
 
 ---
 
@@ -34,7 +34,7 @@ graph TD
     Client["Client Web (React TS / Frontend-Web)"]
     WS["Servidor WebSocket (Tokio / Axum)"]
     Limiter["Rate limit Redis atômico"]
-    Actor["TableActor Stateful (Kubernetes Pod)"]
+    Actor["TableActor/TournamentActor local ao processo"]
     Engine["Motor Core (GameLoop & SidePots)"]
     Ledger["Carteira PostgreSQL + outbox"]
     Antifraud["Detector de Conluio & IP Guard"]
@@ -177,6 +177,51 @@ Contador de usuários **logados** com heartbeat recente — distinto dos assento
 - Todo endpoint protegido consulta o registro persistido para status, papel e versão antes de autorizar. Assim suspensão, banimento, rebaixamento ou mudança de MFA revogam tokens já emitidos em todas as réplicas.
 - O limite por IP usa script atômico no Redis em produção; o limitador em memória é um fallback exclusivo de desenvolvimento quando Redis não foi configurado.
 
+### Proteção do jogador, KYC e suporte
+
+| Endpoint | Auth | Função |
+|----------|------|--------|
+| `POST /api/auth/forgot-password` | público + rate limit | resposta anti-enumeração e envio de código |
+| `POST /api/auth/reset-password` | público + rate limit | troca com código de uso único e revogação de tokens |
+| `GET/PUT /api/responsible-gaming/settings` | JWT | consumo atual e limites pessoais |
+| `POST /api/responsible-gaming/self-exclusion` | JWT | autoexclusão temporária ou permanente |
+| `POST /api/responsible-gaming/play-heartbeat` | JWT | contabilização de tempo em mesa real |
+| `GET/POST /api/kyc` | JWT | status e submissão KYC sem CPF em claro |
+| `GET/POST /api/support/tickets` | JWT | histórico e abertura de chamado |
+| `GET /api/admin/kyc`, `PATCH /api/admin/kyc/:id` | admin | fila e decisão KYC manual |
+| `GET /api/admin/support/tickets`, `PATCH /api/admin/support/tickets/:id` | admin | fila, resposta e resolução |
+
+- A migration `058_player_protection_controls.sql` é a fonte do schema destes recursos.
+- `KYC_DATA_PEPPER` é obrigatório em produção, distinto de JWT e do pepper de códigos de e-mail.
+- Os bloqueios financeiros e de entrada são aplicados na API; a interface apenas apresenta o estado e solicita as operações.
+
+### Coach pós-mão — arquitetura proposta, ainda não implementada
+
+O coach não reutiliza a frota de jogadores como fonte de verdade e não recebe eventos de ação ao vivo. A frota de 72 contas em `API-Axum/src/bots.rs` continua limitada a oponentes simulados de Play Money, testes e preenchimento administrativo de mesas/MTTs.
+
+Fluxo futuro mínimo:
+
+```text
+aluno escolhe hand_id encerrado
+  → API confirma participação/admin e settlement válido
+  → reconstrói o estado conhecido no ponto de decisão
+  → analisadores determinísticos por rua calculam fatos
+  → política pedagógica produz alternativas + incertezas + concept_tags
+  → frontend resolve concept_tags para lições de courseContent.json
+```
+
+Contrato futuro recomendado: `POST /api/coach/reviews`, autenticado e assíncrono apenas se a medição justificar. A entrada contém `hand_id` e o índice da ação; a resposta estruturada contém contexto, fatos calculados, ação tomada, alternativas, justificativas, hipóteses, nível de confiança e `concept_tags`. URLs de vídeo não ficam hardcoded no Rust: a API devolve tags estáveis e o frontend faz o vínculo com a grade vigente.
+
+Gates obrigatórios antes de expor o endpoint:
+
+- mão encerrada, pertencente ao solicitante ou acessada por admin; settlement HMAC verificado;
+- nenhuma análise de mão ativa, nenhum endpoint de recomendação no WS e nenhuma carta privada adicional;
+- aritmética em inteiros/razões controladas e reutilização do avaliador do `Motor-Rust`, sem crate paralelo de regras;
+- fixtures por variante, rua, posição, stack e pote; explicações revisadas e links de lição existentes;
+- rate limit, trilha de auditoria e política de retenção; latência e capacidade publicadas somente depois de benchmark reproduzível.
+
+Fases: (1) MVP Hold’em com ações legais, sizing e pot odds; (2) equity/EV e alternativas com hipóteses explícitas; (3) Omaha 4 e Brazilian Pineapple com regras próprias; (4) personalização opt-in pelo histórico do aluno. A implementação deve nascer em módulo `coach`, separado de `bots.rs`, para não acoplar pedagogia à personalidade dos oponentes simulados.
+
 
 ---
 
@@ -206,6 +251,6 @@ Contador de usuários **logados** com heartbeat recente — distinto dos assento
 - Não há benchmark de release certificado neste repositório. Throughput, latência e capacidade devem ser obtidos exclusivamente em uma execução autorizada da validação completa, com o TSV de evidência gerado pelos scripts.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-21) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

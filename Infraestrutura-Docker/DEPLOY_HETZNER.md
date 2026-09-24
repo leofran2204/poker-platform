@@ -64,6 +64,7 @@ Env de referência: `.env.staging.example` ou `../.env.production.example` (nunc
 - [ ] Repositório no GitHub (já: `poker-platform`)
 - [ ] Segredos gerados (nunca commitar `.env`):
   - `JWT_SECRET` ≥ 32 bytes aleatórios
+  - `EMAIL_CODE_PEPPER` e `KYC_DATA_PEPPER` ≥ 32 bytes, aleatórios, exclusivos e diferentes do JWT
   - `POSTGRES_PASSWORD` forte
   - `PIX_PROVIDER=mock` / `PIX_MODE=mock` (padrão seguro da VPS)
   - Nunca instalar `sk_test_` ou habilitar DePix no ambiente público; a integração DePix é exclusiva de laboratório local não produtivo
@@ -146,14 +147,15 @@ cd poker-platform
 
 ### 4.5 Arquivo `.env` de staging
 
-O `docker-compose.yml` já interpola `POSTGRES_*`, `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, `DOMAIN_NAME`, PIX e rake a partir do `.env`. Não é necessário editar o YAML na VPS.
+O `docker-compose.yml` já interpola `POSTGRES_*`, `DATABASE_URL`, `JWT_SECRET`, `EMAIL_CODE_PEPPER`, `KYC_DATA_PEPPER`, `CORS_ORIGINS`, `DOMAIN_NAME`, PIX e rake a partir do `.env`. Não é necessário editar o YAML na VPS.
 
 ```bash
 cd /opt/poker-platform/Infraestrutura-Docker
 cp .env.staging.example .env
 # gere senhas/JWT (nunca use os placeholders TROCAR_*):
 #   openssl rand -base64 48
-# edite POSTGRES_PASSWORD, DATABASE_URL, JWT_SECRET, PIX_WEBHOOK_SECRET
+# edite POSTGRES_PASSWORD, DATABASE_URL, JWT_SECRET, EMAIL_CODE_PEPPER,
+# KYC_DATA_PEPPER e PIX_WEBHOOK_SECRET; use valores independentes
 chmod 600 .env
 ```
 
@@ -219,7 +221,7 @@ Smoke de mesa: register/login → lobby → join → WS (all-in pode demorar no 
 
 ## 6. O que **não** fazer neste deploy
 
-- `ENVIRONMENT=production` com `JWT_SECRET` fraco (a API recusa segredos conhecidos em production)
+- `ENVIRONMENT=production` com JWT ou peppers fracos/reutilizados (a API recusa iniciar)
 - `PIX_MODE=production` (código bloqueia PIX real)
 - Expor Postgres/Redis na internet
 - Esperar multi-pod de mesas (ainda **1 dono por processo**)
@@ -259,6 +261,8 @@ docker compose -f /opt/poker-platform/Infraestrutura-Docker/docker-compose.yml p
 docker compose -f /opt/poker-platform/Infraestrutura-Docker/docker-compose.yml restart poker_api
 
 # Migrations: a API roda sqlx migrate no boot (veja main.rs)
+# Depois do boot, confirme a versão e o sucesso:
+# SELECT version, description, success FROM _sqlx_migrations ORDER BY version DESC LIMIT 5;
 
 # Entrar no Postgres
 docker exec -it poker_postgres psql -U poker_user -d poker_db

@@ -6,13 +6,14 @@ interface Props {
   lessonTitle: string;
 }
 
-/** Player da aula: vídeo e transcrição da narração. Sem legendas sobre o vídeo. */
+/** Player da aula: vídeo, legenda em pt-BR e transcrição completa da narração. */
 export function CourseVideoPlayer({ video, lessonTitle }: Props) {
   const [showScript, setShowScript] = useState(false);
   const transcript = video?.transcript?.trim() || video?.placeholderScript?.trim() || "";
   const durationLabel = video?.durationSeconds
     ? formatLessonDuration(video.durationSeconds)
     : null;
+  const captionsUrl = video?.captionsUrl ?? video?.url?.replace(/\.mp4(?=$|\?)/i, ".vtt");
 
   return (
     <div className="zt-panel overflow-hidden border border-gold-soft/30 bg-felt-950/80 shadow-2xl">
@@ -37,6 +38,15 @@ export function CourseVideoPlayer({ video, lessonTitle }: Props) {
             playsInline
             className="h-full w-full object-contain"
           >
+            {captionsUrl && (
+              <track
+                kind="captions"
+                src={captionsUrl}
+                srcLang="pt-BR"
+                label="Português"
+                default
+              />
+            )}
             Seu navegador não suporta reprodução de vídeo HTML5.
           </video>
         ) : (

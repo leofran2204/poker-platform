@@ -1,4 +1,4 @@
-//! Coordenador de torneios — auto-start agendado (5 players, America/Sao_Paulo) e aviso FT Short Deck.
+//! Coordenador de torneios — auto-start na data/hora definida pelo admin e aviso FT Short Deck.
 //! Q2 B: usa tournament_seats separado. Q3 B: FT só no próximo blind + popup.
 
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -13,7 +13,7 @@ fn now_epoch() -> i64 {
         .as_secs() as i64
 }
 
-/// Verifica se o torneio pode iniciar: horário agendado + 5 players
+/// Verifica se o torneio pode iniciar: data/hora agendada pelo admin + mínimo configurado.
 pub fn should_start(
     store: &crate::tournament_store::TournamentStore,
     scheduled_start_at: Option<i64>,
@@ -34,7 +34,7 @@ pub fn should_start(
     store.state.players.len() >= need
 }
 
-/// Tarefa em background: a cada 30s verifica torneios agendados e inicia os que atingiram horário+5
+/// Tarefa em background: verifica torneios e inicia os que atingiram a agenda e o mínimo.
 pub async fn run_coordinator(state: AppState) {
     let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(30));
     loop {
@@ -105,7 +105,7 @@ pub async fn run_coordinator(state: AppState) {
                             .await;
                         }
                     }
-                    tracing::info!(tournament_id=%tid, "torneio iniciado auto com 5+ players no horário agendado");
+                    tracing::info!(tournament_id=%tid, "torneio iniciado automaticamente na agenda definida pelo admin");
                 }
             }
         }
@@ -478,5 +478,52 @@ async fn advance_expired_blinds(state: &AppState) {
                 tracing::info!(tournament_id=%tid, level=%store.state.current_level, "blind avançado");
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::tournament_store::TournamentStore;
+    use poker_engine::tournament_engine::{register_player, TournamentConfig};
+
+    fn store_with_players(count: usize) -> TournamentStore {
+        let mut store = TournamentStore::new("scheduled".into(), TournamentConfig::default());
+        for index in 0..count {
+            register_player(
+                &mut store.state,
+                &format!("player-{index}"),
+                &format!("Player {index}"),
+            )
+            .expect("test registration must succeed");
+        }
+        store
+    }
+
+    #[test]
+    fn should_start_requires_schedule_status_and_minimum_players() {
+        let scheduled = 1_000;
+        assert!(!should_start(
+            &store_with_players(5),
+            Some(scheduled),
+            5,
+            999
+        ));
+        assert!(!should_start(
+            &store_with_players(4),
+            Some(scheduled),
+            5,
+            1_000
+        ));
+        assert!(should_start(
+            &store_with_players(5),
+            Some(scheduled),
+            5,
+            1_000
+        ));
+
+        let mut running = store_with_players(5);
+        running.state.status = TournamentStatus::Running;
+        assert!(!should_start(&running, Some(scheduled), 5, 1_000));
     }
 }

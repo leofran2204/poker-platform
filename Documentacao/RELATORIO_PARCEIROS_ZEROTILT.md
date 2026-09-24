@@ -578,6 +578,6 @@ Pendências identificadas nos documentos existentes, para correção pelos respe
 *Números e limites vigentes: [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md). O pitch original é de 2026-09-04; a avaliação crítica da seção 13 é de 2026-09-17 (PIX automático DePix na demo entrou depois). Não alegar certificação de produção nem autoexclusão pronta. Recomendações desta análise não significam implementação, mudança operacional ou autorização jurídica.*
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-21) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

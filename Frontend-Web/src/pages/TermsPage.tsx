@@ -24,7 +24,7 @@ export function TermsPage() {
           <ul className="list-disc pl-4 space-y-1">
             <li><strong>Poker é Esporte da Mente:</strong> Habilidade, matemática e controle emocional preponderam sobre a aleatoriedade no longo prazo — sem promessa de ganho.</li>
             <li><strong>Maioridade:</strong> Apenas maiores de 18 anos podem se cadastrar.</li>
-            <li><strong>Zero Tilt Academy & Tutor IA:</strong> Os cursos e o simulador com robô são ferramentas de treino teórico e pedagógico. Não há promessa de ganho fácil ou retorno financeiro.</li>
+            <li><strong>Zero Tilt Academy e coach virtual:</strong> Os cursos e qualquer coach futuro são ferramentas pedagógicas. A análise será somente pós-mão, sem assistência em tempo real e sem promessa de ganho ou retorno financeiro.</li>
             <li><strong>Rede de Afiliados (2 Níveis):</strong> Você não paga nada para entrar e ninguém ganha comissão por recrutar pessoas. Toda comissão vem exclusivamente do consumo real (rake das mãos jogadas), limitada a exatamente 2 níveis.</li>
             <li><strong>Sua Privacidade (LGPD):</strong> Seus dados pessoais (CPF, e-mail, telefone) nunca são exibidos para quem te indicou e nunca são compartilhados com IAs de terceiros.</li>
             <li><strong>Tolerância Zero com Trapaça:</strong> Conluio, robôs nas mesas públicas ou contas múltiplas geram banimento imediato.</li>

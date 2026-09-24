@@ -295,7 +295,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({filtered.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                NL 0,25/0,25 9-max (R$25) · NL 0,75/1,50 9-max (R$150) · SD 0,25/0,50 8-max (R$75) · Pineapple 0,50/0,50 6-max (R$75) · SD Omaha 0,50/0,50 5-max (R$100) · auto 15s
+                NL 0,25/0,25 9-max (R$25) · NL 0,75/1,50 9-max (R$150) · Omaha 0,50/0,50 6-max (R$100) · Pineapple 0,50/0,50 5-max (R$75) · ação automática em 15s
               </p>
             </div>
 
@@ -504,10 +504,10 @@ export function LobbyPage() {
         <div className="space-y-3">
           <div className="rounded border border-gold/40 bg-felt-950/70 px-4 py-3">
             <p className="text-xs font-bold uppercase tracking-wider text-gold-soft">
-              Evento da noite
+              Próximos torneios
             </p>
             <p className="mt-1 text-sm text-cream">
-              Início <strong>21:30</strong> America/Sao_Paulo · auto-start com 5+ jogadores
+              Data e horário definidos pelo admin · auto-start com 5+ jogadores
               {soonestStart ? ` · ${formatCountdown(soonestStart, now)}` : ""}
             </p>
           </div>

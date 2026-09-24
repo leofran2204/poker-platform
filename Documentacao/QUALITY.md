@@ -28,6 +28,7 @@ Frontend local: `npm run lint` (`tsc` + ESLint) e `npm test` (Vitest) em `Fronte
 3. Settlement de mão assinado (HMAC); uma mesa = um processo.
 4. Sem segredos em git, logs ou docs. PIX live exige HMAC, allowlist e tetos; saque automático só pelo payout worker reconciliado.
 5. `documentation-sync` recusa `production.certified: true`. `pix.automatic_in_production: true` exige payout worker + migration de payout.
+6. Jogo Real falha fechado para KYC, autoexclusão e limites; `KYC_DATA_PEPPER` de produção tem no mínimo 32 bytes e não reutiliza JWT ou pepper de e-mail.
 
 ## Definition of Done
 
@@ -49,6 +50,6 @@ Commit / push / deploy **não** fazem parte do DoD local — cada um exige ordem
 - Fases e backlog → DASHBOARD
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-21) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

@@ -525,7 +525,11 @@ async fn depix_provisional_credit_settles_once_and_reverses() {
     arm_depix_live_env(SECRET);
     let state = state().await;
     sqlx::query("DELETE FROM wallet_transactions WHERE external_tx_id = ANY($1)")
-        .bind(vec!["chk_prov_settle", "chk_prov_reverse", "chk_prov_short"])
+        .bind(vec![
+            "chk_prov_settle",
+            "chk_prov_reverse",
+            "chk_prov_short",
+        ])
         .execute(&state.db)
         .await
         .unwrap();

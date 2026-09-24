@@ -17,12 +17,22 @@ Não dá para esconder 100%: datas de registro, nameservers e IP do VPS continua
 - Chave PIX na Carteira fica **mascarada** até “Mostrar chave” / “Copiar”
 - Nome do recebedor PIX permanece completo (necessário para o jogador conferir no banco)
 
+## Dados de conta, KYC e suporte
+
+- Data de nascimento e nome legal são usados para maioridade e análise manual da conta.
+- O CPF informado no KYC não é persistido em claro: o banco guarda HMAC com `KYC_DATA_PEPPER` exclusivo e somente os quatro últimos dígitos para conferência operacional.
+- Patrocinadores da rede de dois níveis não recebem CPF, e-mail, data de nascimento, nome legal nem conteúdo de chamados.
+- Chamados de suporte ficam vinculados à conta e não devem conter senha, códigos de verificação ou MFA.
+- A proteção técnica descrita aqui não substitui política de retenção, base legal, canal do titular e revisão jurídica LGPD antes de operação certificada.
+
 ## Limites honestos
 
 | Vetor | Status |
 |-------|--------|
 | WHOIS público | Em geral privado (Hostinger) |
 | Nome PIX na Carteira | Visível a quem está logado e pede fichas |
+| CPF de KYC no banco | Somente HMAC + últimos 4 dígitos; sem texto integral |
+| Nome legal e nascimento | Restritos ao fluxo autenticado de KYC/admin |
 | Certificate Transparency | Domínio listado em logs CT |
 | IP do servidor | Descobrível por DNS |
 
@@ -33,6 +43,6 @@ Não dá para esconder 100%: datas de registro, nameservers e IP do VPS continua
 3. Não publicar CPF/telefone/endereço em páginas públicas
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-21) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

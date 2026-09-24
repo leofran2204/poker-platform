@@ -86,7 +86,7 @@ struct CashTable {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Tournament {
-    start_local: String,
+    schedule_owner: String,
     timezone: String,
     auto_start_min_players: u8,
     tables_per_event: u8,
@@ -378,7 +378,13 @@ fn validate_status(status: &OperationalStatus, root: &Path) -> Result<(), String
         }
     }
 
-    validate_hh_mm(&status.tournament.start_local)?;
+    require_non_empty(
+        "tournament.schedule_owner",
+        &status.tournament.schedule_owner,
+    )?;
+    if status.tournament.schedule_owner != "admin" {
+        return Err("tournament.schedule_owner deve ser \"admin\"".to_owned());
+    }
     require_non_empty("tournament.timezone", &status.tournament.timezone)?;
     if status.tournament.auto_start_min_players < 2 {
         return Err("tournament.auto_start_min_players deve ser >= 2".to_owned());
@@ -519,23 +525,6 @@ fn is_year_month(value: &str) -> bool {
         && value.chars().enumerate().all(|(index, character)| {
             index == 4 && character == '-' || index != 4 && character.is_ascii_digit()
         })
-}
-
-fn validate_hh_mm(value: &str) -> Result<(), String> {
-    let bytes = value.as_bytes();
-    if bytes.len() != 5 || bytes[2] != b':' {
-        return Err("tournament.start_local deve usar o formato HH:MM".to_owned());
-    }
-    let hours: u8 = value[..2]
-        .parse()
-        .map_err(|_| "tournament.start_local inválido".to_owned())?;
-    let minutes: u8 = value[3..]
-        .parse()
-        .map_err(|_| "tournament.start_local inválido".to_owned())?;
-    if hours > 23 || minutes > 59 {
-        return Err("tournament.start_local fora do intervalo".to_owned());
-    }
-    Ok(())
 }
 
 fn synchronize_document(
@@ -716,8 +705,8 @@ fn render_status_md(status: &OperationalStatus) -> String {
     let t = &status.tournament;
     out.push_str(&format!("## Torneios{n}{n}"));
     out.push_str(&format!(
-        "Agenda **{}** `{}`, auto-start com **{}+**, **{}** mesas por evento, taxa **{}%** por cima (freeroll sem taxa; split {}/{}/{}). Modos: {}.{}{}",
-        t.start_local,
+        "Agenda definida pelo **{}** em `{}`, auto-start com **{}+**, **{}** mesas por evento, taxa **{}%** por cima (freeroll sem taxa; split {}/{}/{}). Modos: {}.{}{}",
+        t.schedule_owner,
         t.timezone,
         t.auto_start_min_players,
         t.tables_per_event,
@@ -1044,7 +1033,7 @@ mod tests {
                 },
             ],
             tournament: Tournament {
-                start_local: "21:30".to_owned(),
+                schedule_owner: "admin".to_owned(),
                 timezone: "America/Sao_Paulo".to_owned(),
                 auto_start_min_players: 5,
                 tables_per_event: 3,
@@ -1132,7 +1121,7 @@ mod tests {
                 "buy_in_cents": 2500
             }],
             "tournament": {
-                "start_local": "21:30",
+                "schedule_owner": "admin",
                 "timezone": "America/Sao_Paulo",
                 "auto_start_min_players": 5,
                 "tables_per_event": 3,
@@ -1222,6 +1211,7 @@ mod tests {
         assert!(md.contains("NL 0,75/1,50"));
         assert!(md.contains("Omaha 0,50"));
         assert!(md.contains("Pineapple 0,50"));
+        assert!(md.contains("Agenda definida pelo **admin**"));
         assert!(md.contains("R$ 150"));
         assert!(!md.contains("Motor 1848"));
     }
@@ -1291,6 +1281,15 @@ mod tests {
         invalid = sample_status();
         invalid.cash_tables[0].variant = "plo5".to_owned();
         assert!(validate_status(&invalid, &root).is_err());
+    }
+
+    #[test]
+    fn rejects_non_admin_tournament_schedule_owner() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let mut invalid = sample_status();
+        invalid.tournament.schedule_owner = "system".to_owned();
+        let error = validate_status(&invalid, &root).unwrap_err();
+        assert!(error.contains("tournament.schedule_owner deve ser \"admin\""));
     }
 
     #[test]

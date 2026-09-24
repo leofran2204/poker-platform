@@ -9,6 +9,30 @@ import {
 import type { AdminTournamentItem, AdminTournamentPlayer } from "@/api/types";
 import { formatBrlFromCents } from "@/lib/money";
 
+function formatAdminSchedule(epoch: number | null): string {
+  if (!epoch) return "Sem agenda";
+  return new Date(epoch * 1000).toLocaleString("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+}
+
+function scheduleInputValue(epoch: number | null): string {
+  if (!epoch) return "";
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  })
+    .format(new Date(epoch * 1000))
+    .replace(" ", "T");
+}
+
 export function AdminTournamentsPage() {
   const [items, setItems] = useState<AdminTournamentItem[]>([]);
   const [players, setPlayers] = useState<AdminTournamentPlayer[]>([]);
@@ -79,6 +103,11 @@ export function AdminTournamentsPage() {
       setError("Nome obrigatório");
       return;
     }
+    const scheduledStartAt = Math.floor(new Date(when).getTime() / 1000);
+    if (!when || !Number.isFinite(scheduledStartAt) || scheduledStartAt <= 0) {
+      setError("Data e hora de início são obrigatórias");
+      return;
+    }
     setBusy(true);
     setError(null);
     setMsg(null);
@@ -91,7 +120,7 @@ export function AdminTournamentsPage() {
         poker_variant: variant,
         money_mode: mode,
         guaranteed_prize_cents: Math.round(gtdReais * 100),
-        scheduled_start_at: when ? Math.floor(new Date(when).getTime() / 1000) : null,
+        scheduled_start_at: scheduledStartAt,
       });
       setMsg("Torneio criado (max = 3x por mesa).");
       await load();
@@ -146,7 +175,7 @@ export function AdminTournamentsPage() {
           </label>
           <label className="flex flex-col gap-1 text-sm">
             Início
-            <input name="when" type="datetime-local" className="zt-input" />
+            <input name="when" type="datetime-local" className="zt-input" required />
           </label>
         </div>
         <button type="submit" className="zt-btn-primary" disabled={busy}>
@@ -162,6 +191,7 @@ export function AdminTournamentsPage() {
               <th>GTD</th>
               <th>Inscritos</th>
               <th>Status</th>
+              <th>Início (São Paulo)</th>
               <th>Ações</th>
             </tr>
           </thead>
@@ -177,11 +207,13 @@ export function AdminTournamentsPage() {
                   {t.registered_players}/{t.max_players} · {t.table_max_players}-max
                 </td>
                 <td className="font-mono text-xs">{t.status}</td>
+                <td className="font-mono text-xs">{formatAdminSchedule(t.scheduled_start_at)}</td>
                 <td className="space-x-1">
                   <input
                     type="datetime-local"
                     className="zt-input !px-1 !py-0.5 !text-[10px]"
                     aria-label="Agendar início"
+                    defaultValue={scheduleInputValue(t.scheduled_start_at)}
                     onChange={(e) => void reschedule(t.id, e.currentTarget.value)}
                   />
                   <button type="button" className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]" onClick={() => void openPlayers(t.id)}>

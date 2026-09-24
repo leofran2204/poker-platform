@@ -97,6 +97,9 @@ export function AdminLayout() {
         <NavLink to="/admin/bots" className={subLink}>
           Bots
         </NavLink>
+        <NavLink to="/admin/protection" className={subLink}>
+          Proteção
+        </NavLink>
       </div>
       <Outlet />
     </div>

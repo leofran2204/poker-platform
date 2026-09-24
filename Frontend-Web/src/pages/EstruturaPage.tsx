@@ -8,6 +8,7 @@ import { formatBrlFromCents } from "@/lib/money";
 export function EstruturaPage() {
   const [data, setData] = useState<EstruturaResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">("idle");
 
   const load = useCallback(async () => {
     setError(null);
@@ -48,37 +49,64 @@ export function EstruturaPage() {
     data.referral_code && typeof window !== "undefined"
       ? `${window.location.origin}/register?ref=${data.referral_code}`
       : null;
+  const handProgress = Math.min(
+    100,
+    Math.round((data.hands_this_week / Math.max(1, data.vp_hands_needed)) * 100),
+  );
+  const rakeProgress = Math.min(
+    100,
+    Math.round((data.personal_rake_cents_week / Math.max(1, data.vp_rake_cents_needed)) * 100),
+  );
+
+  async function copyInvite() {
+    if (!invite) return;
+    try {
+      await navigator.clipboard.writeText(invite);
+      setCopyStatus("copied");
+      window.setTimeout(() => setCopyStatus("idle"), 2500);
+    } catch {
+      setCopyStatus("error");
+    }
+  }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-bold text-gold-bright">Minha Estrutura</h1>
-      <p className="text-sm text-felt-300">
-        Você vê só dois níveis. 18% do rake de quem entrou pelo seu convite, 12% de quem
-        entrou pelo convite deles. Sem cadastro, só mão jogada. Clube não leva fatia.
-      </p>
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-soft">Rede Zero Tilt</p>
+          <h1 className="mt-1 text-2xl font-bold text-gold-bright">Minha Rede</h1>
+          <p className="mt-1 max-w-3xl text-sm text-felt-200">
+            Dois níveis, sem taxa e sem bônus por cadastro. A apuração vem do rake individual de
+            quem efetivamente jogou: 18% no 1º nível e 12% no 2º.
+          </p>
+        </div>
+        <Link to="/rede" className="text-sm font-semibold text-gold-soft hover:underline">
+          Como a rede funciona
+        </Link>
+      </div>
       <div className="zt-panel p-4 text-sm space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-felt-800 pb-2">
           <div>
-            <span className="text-xs text-felt-400 block">Pontos Acumulados</span>
+            <span className="text-xs text-felt-300 block">ZT Points acumulados</span>
             <span className="font-mono text-lg font-bold text-gold-bright">{data.estrutura_points}</span>{" "}
-            <span className="text-xs text-felt-400">({formatBrlFromCents(data.estrutura_points)} em rake)</span>
+            <span className="text-xs text-felt-300">apuração separada da carteira</span>
           </div>
           <div className="text-right">
-            <span className="text-xs text-felt-400 block">Ciclo de Pagamento</span>
+            <span className="text-xs text-felt-300 block">Ciclo de apuração</span>
             <span className="text-xs font-semibold text-felt-200">Todo dia 25 de cada mês</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
           <div>
-            <span className="text-felt-400">Comissões da Semana:</span>{" "}
+            <span className="text-felt-300">Pontos da semana:</span>{" "}
             <span className="font-semibold text-felt-200">L1: {data.points_week_l1} · L2: {data.points_week_l2}</span>
             {data.withheld_week > 0 && (
               <span className="text-amber-400 block">⚠️ Retido (sem qualificação): {data.withheld_week} pts</span>
             )}
           </div>
           <div>
-            <span className="text-felt-400">Status da Semana:</span>{" "}
+            <span className="text-felt-300">Status da semana:</span>{" "}
             {data.eligible ? (
               <span className="text-emerald-400 font-semibold">✅ Qualificado (ativo)</span>
             ) : (
@@ -88,22 +116,42 @@ export function EstruturaPage() {
         </div>
 
         <div className="rounded border border-felt-800 bg-felt-950/60 p-3 text-xs space-y-1">
-          <p className="font-semibold text-gold-bright">Critério de Ativação Semanal (Segunda a Domingo):</p>
-          <ul className="list-disc pl-4 space-y-0.5 text-felt-300">
+          <p className="font-semibold text-gold-bright">Qualificação semanal (segunda a domingo)</p>
+          <p className="text-felt-200">Alcance uma das duas metas:</p>
+          <ul className="list-disc pl-4 space-y-2 text-felt-200">
             <li>
-              <strong>Volume de jogo:</strong> {data.hands_this_week}/{data.vp_hands_needed} mãos concluídas na semana{" "}
-              {data.hands_this_week >= data.vp_hands_needed ? "✅" : `(faltam ${Math.max(0, data.vp_hands_needed - data.hands_this_week)})`}
+              <strong>Mãos:</strong> {data.hands_this_week}/{data.vp_hands_needed}{" "}
+              {data.hands_this_week >= data.vp_hands_needed ? "✓" : `(faltam ${Math.max(0, data.vp_hands_needed - data.hands_this_week)})`}
+              <div className="mt-1 h-1.5 overflow-hidden rounded bg-felt-900" aria-hidden>
+                <div className="h-full rounded bg-gold" style={{ width: `${handProgress}%` }} />
+              </div>
+            </li>
+            <li>
+              <strong>Rake pessoal:</strong>{" "}
+              {formatBrlFromCents(data.personal_rake_cents_week)}/{formatBrlFromCents(data.vp_rake_cents_needed)}{" "}
+              {data.personal_rake_cents_week >= data.vp_rake_cents_needed ? "✓" : ""}
+              <div className="mt-1 h-1.5 overflow-hidden rounded bg-felt-900" aria-hidden>
+                <div className="h-full rounded bg-gold" style={{ width: `${rakeProgress}%` }} />
+              </div>
             </li>
           </ul>
-          <p className="text-[11px] text-felt-400 pt-1">
-            Conforme a Cláusula 4 dos <Link to="/termos" className="text-gold underline hover:text-gold-bright">Termos de Uso</Link>, afiliados inativos não acumulam bonificação de rede retroativa.
+          <p className="text-xs text-felt-300 pt-1">
+            A rede não paga por cadastro. Conforme os <Link to="/termos" className="text-gold underline hover:text-gold-bright">Termos de Uso</Link>, atividade sem qualificação não acumula bonificação retroativa.
           </p>
         </div>
 
         {invite && (
-          <div className="pt-2">
-            <span className="text-xs text-felt-400 block">Seu link de indicação direta:</span>
-            <p className="break-all font-mono text-xs text-felt-200 bg-felt-900/80 p-2 rounded border border-felt-800">{invite}</p>
+          <div className="border-t border-felt-800 pt-3">
+            <span className="text-xs text-felt-300 block">Compartilhe seu convite:</span>
+            <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center">
+              <p className="min-w-0 flex-1 break-all font-mono text-xs text-felt-200 bg-felt-900/80 p-2 rounded border border-felt-800">{invite}</p>
+              <button type="button" className="zt-btn-primary shrink-0 !py-1.5 !text-xs" onClick={() => void copyInvite()}>
+                {copyStatus === "copied" ? "Link copiado ✓" : "Copiar convite"}
+              </button>
+            </div>
+            {copyStatus === "error" && (
+              <p className="mt-1 text-xs text-red-200" role="alert">Selecione o link e copie manualmente.</p>
+            )}
           </div>
         )}
       </div>
@@ -127,28 +175,32 @@ function MemberTable({
   showSponsor?: boolean;
 }) {
   if (rows.length === 0) {
-    return <p className="p-4 text-sm text-felt-400">Ninguém neste nível ainda.</p>;
+    return <p className="p-4 text-sm text-felt-300">Ninguém neste nível ainda.</p>;
   }
   return (
-    <table className="w-full text-left text-sm">
-      <thead>
-        <tr className="text-xs uppercase text-felt-400">
-          <th className="px-3 py-2">Jogador</th>
-          {showSponsor ? <th className="px-3 py-2">Entrou por</th> : null}
-          <th className="px-3 py-2">Rake gerado (semana)</th>
-          <th className="px-3 py-2">Seus pontos</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r) => (
-          <tr key={r.username} className="border-t border-felt-700">
-            <td className="px-3 py-2">{r.username}</td>
-            {showSponsor ? <td className="px-3 py-2">{r.sponsor_username ?? "—"}</td> : null}
-            <td className="px-3 py-2 font-mono">{formatBrlFromCents(r.rake_generated_week)}</td>
-            <td className="px-3 py-2 font-mono">{r.commission_paid_week}</td>
+    <div className="zt-table-wrap">
+      <table className="w-full min-w-[38rem] text-left text-sm">
+        <thead>
+          <tr className="text-xs uppercase text-felt-300">
+            <th className="px-3 py-2">Jogador</th>
+            {showSponsor ? <th className="px-3 py-2">Entrou por</th> : null}
+            <th className="px-3 py-2">Rake gerado (semana)</th>
+            <th className="px-3 py-2">Seus pontos</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.username} className="border-t border-felt-700">
+              <td className="px-3 py-2">{r.username}</td>
+              {showSponsor ? <td className="px-3 py-2">{r.sponsor_username ?? "—"}</td> : null}
+              <td className="px-3 py-2 font-mono">
+                {formatBrlFromCents(r.rake_generated_week)}
+              </td>
+              <td className="px-3 py-2 font-mono">{r.commission_paid_week}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

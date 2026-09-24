@@ -3,7 +3,7 @@
 Procedimento de validação da plataforma em **Docker Compose**, **demo residencial (Cloudflare Tunnel HTTPS)** e **Kubernetes** (1 réplica).
 
 **Domínio demo:** `zerotiltpoker.net`  
-**Não é certificação de produção.** PIX permanece mock/sandbox.
+**Não é certificação de produção.** Na demo VPS, o DePix está reconciliado conforme o `STATUS_OPERACIONAL.md`; laboratório e tunnel usam o modo configurado no `.env` e permanecem mock por padrão.
 
 | Caminho | Guia | HTTPS |
 |---------|------|--------|
@@ -46,14 +46,16 @@ curl -fsS https://zerotiltpoker.net/caddy-health   # com tunnel/VPS no ar
 curl -fsS https://zerotiltpoker.net/health
 ```
 
+Antes de subir a API em `ENVIRONMENT=production`, configure `JWT_SECRET`, `EMAIL_CODE_PEPPER` e `KYC_DATA_PEPPER` com valores aleatórios independentes de pelo menos 32 bytes. Depois do boot, confirme `Migrations applied` nos logs e valide `_sqlx_migrations`; a release de proteção do jogador exige a migration `058` com `success = true`.
+
 ---
 
-## ☸️ 2. Orquestração em Kubernetes (StatefulSets & Session Affinity)
+## ☸️ 2. Manifesto Kubernetes de referência
 
-O manifesto [k8s-statefulset.yaml](file:///c:/Users/leofr/Projetos/Poker_Project/Infraestrutura-Docker/k8s-statefulset.yaml) assegura o isolamento de estado por mesa (*Sticky Session Affinity*):
+O manifesto [`k8s-statefulset.yaml`](k8s-statefulset.yaml) serve para validação com **uma réplica**. Afinidade por IP não implementa ownership distribuído de mesa e não autoriza escalar a API horizontalmente. Antes de usar múltiplas réplicas, é obrigatório definir roteamento/ownership dos atores e validar settlement HMAC entre processos.
 
 ```bash
-# Criar namespace de produção
+# Criar namespace de laboratório
 kubectl create namespace poker-platform
 
 # Aplicar o StatefulSet e o Service com ClientIP affinity
@@ -66,20 +68,20 @@ kubectl get pods -n poker-platform -o wide
 
 ---
 
-## 🔒 3. Hardening de Segurança OWASP Container Security
+## 🔒 3. Hardening de containers
 
-Todos os containers da plataforma atendem aos requisitos estritos de segurança OWASP:
-- **Usuário Sem Privilégios (`user: 10001:10001`)**: Nenhum container roda como `root`.
-- **Sistema de Arquivos Read-Only (`read_only: true`)**: Impede alteração maliciosa de binários em tempo de execução.
-- **Remoção de Linux Capabilities (`cap_drop: - ALL`)**: Elimina permissões administrativas do kernel.
-- **Prevenção de Escalada de Privilégios (`no-new-privileges:true`)**: Bloqueia chamadas `setuid`.
+O Compose aplica controles diferentes conforme a função do container:
+
+- **API:** usuário `10001:10001`, filesystem read-only, `/tmp` em `tmpfs`, `cap_drop: ALL` e `no-new-privileges`.
+- **Frontend/Caddy:** filesystem read-only, diretórios graváveis em `tmpfs`, `cap_drop: ALL`, apenas `NET_BIND_SERVICE` readicionada e `no-new-privileges`.
+- **PostgreSQL/Redis:** imagens oficiais fixadas por digest, portas publicadas somente em loopback, volumes persistentes e `no-new-privileges`.
+
+Esses controles reduzem a superfície de ataque, mas não constituem certificação OWASP ou auditoria externa.
 
 ---
 
-## 📊 4. SLA de Produção & Latência Sub-Milissegundo
+## 📊 4. Evidência de capacidade
 
-| Métrica | SLA de Produção | Desempenho Medido |
-| :--- | :--- | :--- |
-| **Avaliação de Mão 7-Cards** | $< 50 \, \mu s$ | **11,916 $\mu s$** |
-| **Throughput WebSocket** | $> 50.000$ msgs/s | **376.891 msgs/s** |
-| **Integridade do Ledger** | SHA-256 Chain | **100% Válido** |
+Não existe SLA de produção nem benchmark de release certificado neste repositório. Resultados históricos não devem ser apresentados como capacidade vigente.
+
+Para gerar evidência reproduzível, use `Documentacao/FULL_VALIDATION.md` e `scripts/full-validation.*` somente com autorização explícita. Registre ambiente, commit, duração, carga e resultado; integridade financeira deve ser confirmada por testes/consultas, não por porcentagem declarativa.

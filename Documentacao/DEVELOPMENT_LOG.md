@@ -882,7 +882,7 @@
 - Eps 05-10 (~50-56s cada): sizing, roubos e 3-bets, pot odds, EV e fold equity, banca, revisão final. Série completa em `ZeroTiltCurso/`.
 - Sem botão no resultado: só as 5 cartas do jogo vencedor saltam com brilho dourado (board + mão do vencedor + painel), e o painel some sozinho em 7s.
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-21) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
@@ -1119,3 +1119,27 @@
 - **Varredura em todos os `.md` do repo** por contagens e formato do curso: histórico (`DEVELOPMENT_LOG.md`, registros datados) preservado; `DASHBOARD.md` (sem backlog de vídeo pendente além do COACH adiado), `Frontend-Web/README.md`, `Documentacao/README.md`, `DEMO_AMIGOS.md`, `QUALITY.md`, `guia_aprendizado.md`, `ARQUITETURA_E_APIS.md`, `scripts/README.md` e `STATUS_OPERACIONAL.json` sem menções obsoletas — nenhum toque (regra: prosa só no arquivo dono).
 - **Reescrito só o § Formato audiovisual** (`CURSO_ESTRATEGIA_POKER.md`, dono do curso-produto): saiu o formato antigo (120s, avatares com lip-sync, CDN) e entrou o real — 26 aulas/25 vídeos (só `m0l6` no placeholder honesto), cartazes `video 1–25` na ordem das lições, Manim v3 + `shared.py`, AntonioNeural 1.0x com reescrita fonética, 56–91s, waits casados, player neutro, trava 70%, fontes em `ZeroTiltCurso/epNN-*/` e espelhos em `public/videos/`.
 - **Deploy (`6955415`):** push + `vps-redeploy-frontend.sh` na VPS (só `poker_frontend`, sem rebuild da API, sem migrations) → `DEPLOY_OK`, caddy-health OK; público verificado: `/api/health` OK, bundle novo `index-CfScgm0b.js`, `/videos/ep03-raise-fold.mp4` e `ep05-sizing.mp4` 200 (antes 404).
+
+## 2026-09-22 — S24: agenda MTT sob controle admin e documentação realinhada (local)
+
+- **Achado na demo:** os 10 torneios públicos permaneciam `registering` com zero inscritos e datas vencidas de 03/09 ou 10/09; quatro eventos Play ainda carregavam `live_table_id` residual e apareciam como `gameplay_ready` sem estarem `running`.
+- **Contrato de agenda:** `scheduled_start_at` é obrigatório na criação e definido exclusivamente pelo admin no cadastro ou no `PATCH /api/admin/tournaments/:id`; o painel mostra a agenda vigente em `America/Sao_Paulo`. O coordenador apenas lê a data e nunca cria, corrige ou avança horários. Depois da data escolhida, inicia quando atingir o mínimo configurado.
+- **Fonte operacional:** `STATUS_OPERACIONAL.json` substitui o horário fixo por `schedule_owner: "admin"`; STATUS, convite e lobby deixam de anunciar 21:30 como regra vigente.
+- **Contrato público:** `gameplay_ready` agora exige status `running`/`paused` e `live_table_id`, inclusive na resposta de inscrição.
+- **Teste corrigido:** o caso da roda A-6-7-8-9 do bot Brazilian Pineapple agora respeita a regra exatamente 2 hole + 3 board; era um fixture inválido, não falha do avaliador.
+- **Qualidade:** API com 63 testes unitários, Clippy `--all-targets -D warnings` e `cargo fmt --check` verdes; frontend com TypeScript/ESLint, build Vite e 59 testes verdes; sincronizador documental com 13 testes e `--check` verde.
+- **Docs:** arquitetura passa a refletir PostgreSQL + Redis (sem Kafka/ELK fictícios), Caddy/TLS, atores por processo e Kubernetes de referência; deploy deixa de alegar PIX mock na VPS, hardening uniforme e SLA certificado; dashboard registra migrations até 057.
+- **Estado:** mudança somente local; sem commit, push ou deploy. As datas públicas permanecem como estão até o admin definir as próximas pelo painel/API.
+
+## 2026-09-24 — S24: experiência, rede e proteção do jogador (release 058)
+
+- **Aquisição em rede:** a jornada pública passa a explicar o Marketing de Rede de dois níveis, mantendo 18% no L1, 12% no L2 e remuneração vinculada a rake de jogo — nunca ao simples cadastro.
+- **Jogo Real preservado:** Play Money e Jogo Real continuam separados e disponíveis no produto; operações reais passam a falhar fechado até KYC manual aprovado, enquanto Play Money permanece utilizável.
+- **Controles pessoais:** limites voluntários de depósito/perda diário, semanal e mensal, limite diário de tempo, resfriamento de 24h para relaxamento e autoexclusão temporária ou permanente sem cancelamento antecipado.
+- **Conta e atendimento:** cadastro com nascimento/18+, recuperação de senha por código de uso único e central autenticada de suporte com fila administrativa.
+- **Dados KYC:** CPF não é persistido em claro; somente HMAC com `KYC_DATA_PEPPER` dedicado e quatro últimos dígitos. Produção recusa boot com pepper ausente, fraco ou reutilizado.
+- **Enforcement:** depósitos, entrada cash/MTT e ações WebSocket reais consultam KYC, autoexclusão e limites no servidor; mesa envia `Sit-out` ao atingir bloqueio de tempo.
+- **Migration 058:** cria configurações/atividade de jogo responsável, códigos de recuperação e tickets, além dos campos KYC em `users`.
+- **Qualidade local:** TypeScript/ESLint, build Vite e 59 testes frontend; `cargo check`, fmt e 67 testes API; migration local 056→058 e healthcheck Docker `OK`.
+- **Publicação:** commit, push e deploy da demo autorizados pelo proprietário nesta entrega; a evidência operacional é conferida no pós-deploy sem alegar certificação de produção.
+- **Coach reformulado antes da publicação:** o rascunho paralelo `BOTS_DE_COACHING.md` foi analisado e absorvido pelos documentos-dono. A proposta de quatro coaches e feedback ao vivo foi substituída por um coach único de revisão pós-mão, com analisadores por rua, tags para a Academy, autorização por hand history e proibição explícita de RTA. A frota existente permanece oponente simulado; o coach continua planejado, não implementado.

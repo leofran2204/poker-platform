@@ -502,7 +502,33 @@ Player neutro (`CourseVideoPlayer`): vídeo quando há `url`, ou placeholder hon
 
 Fontes versionadas em `ZeroTiltCurso/epNN-*/` (`plan.md` com arco e narração integral + `script.py` + `segN.mp3` + final); intermediários de render entram no `.gitignore`. Finais espelhados em `Frontend-Web/public/videos/` (hash idêntico). Grade interativa vigente em `Frontend-Web/src/data/courseContent.json` (rota `/curso`).
 
+## Coach virtual pós-mão — especificação pedagógica futura
+
+O coach será uma ferramenta opcional de **estudo de mãos encerradas**, não assistência durante partidas. Ele não está implementado nesta release e não pode ser anunciado como disponível. A primeira versão deve usar uma única identidade pedagógica e analisadores internos por rua; quatro personagens separados de pré-flop, flop, turn e river aumentariam inconsistência, manutenção e custo sem melhorar a jornada do aluno.
+
+### Jornada eficaz
+
+1. O aluno escolhe uma mão própria já liquidada no histórico.
+2. Seleciona um ponto de decisão e vê novamente posição, stacks, pote, ações e cartas que eram conhecidas naquele instante.
+3. O sistema separa **fatos calculáveis** (preço, pot odds, tamanho, combinação e ações legais), **heurísticas declaradas** e informações indisponíveis.
+4. A resposta apresenta uma alternativa principal e, quando pertinente, uma segunda linha plausível com os respectivos trade-offs — sem rotular toda divergência como erro.
+5. Tags como `position`, `preflop_range`, `bet_sizing`, `pot_odds`, `equity`, `fold_equity` e `bankroll` apontam para lições existentes em `courseContent.json`.
+6. O aluno resolve uma situação curta de fixação antes de marcar a revisão como concluída.
+
+### Regras pedagógicas e de integridade
+
+- Nunca emitir recomendação enquanto a mão estiver ativa nem usar WebSocket de mesa para feedback; isso seria RTA e conflita com os Termos.
+- Nunca revelar cartas não mostradas, ranges privados ou dados de outro jogador. A análise reconstrói somente o que o aluno podia conhecer no ponto escolhido.
+- Não prometer solução “GTO”, ação universalmente ótima ou lucro. Cada resposta declara variante, número de jogadores, posições, stacks, tamanho do pote, rake/deflator aplicável e hipótese de range.
+- Hold’em é o primeiro escopo. Omaha 4 e Brazilian Pineapple só entram depois de fixtures específicos que garantam exatamente 2 hole + 3 board e o ranking correto de cada variante.
+- Feedback deve ser curto e acionável: decisão → motivo → conta → alternativa → lição. Texto persuasivo não substitui evidência do motor.
+- Personalização futura usa apenas histórico do próprio aluno, com consentimento e possibilidade de exclusão; não inventa leitura psicológica ou perfil profissional.
+
+### Critério de qualidade do conteúdo
+
+Um caso de referência precisa ter resultado reproduzível, explicação revisada, link de lição válido e teste que impeça regressão matemática. Antes de liberar o produto, amostras devem ser revisadas por responsável de conteúdo identificado; o sistema continua sendo coach virtual, sem biografia ou credenciais humanas inventadas.
+
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-21) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

@@ -124,7 +124,7 @@
   }
 
   .zt-label {
-    @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-felt-300;
+    @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-felt-200;
   }
 
   .zt-table-wrap {

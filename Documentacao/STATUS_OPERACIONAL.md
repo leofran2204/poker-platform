@@ -2,7 +2,7 @@
 
 # Estado operacional — S24
 
-**S24** — três modalidades + Academy + marca ZT Poker + lobby em cards. Revisado em **2026-09-22**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
+**S24** — três modalidades + Academy + marca ZT Poker + lobby em cards. Revisado em **2026-09-24**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
 
 **Limites:** sem certificação de produção · PIX automático ligado (DePix reconciliado) · mesas com dono **único por processo** (settlement HMAC).
 
@@ -24,11 +24,11 @@ Fonte máquina: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificaç
 | Omaha 0,50 | Omaha 4 Cartas | 0,50 / 0,50 | 6 | R$ 100 |
 | Pineapple 0,50 | Brazilian Pineapple | 0,50 / 0,50 | 5 | R$ 75 |
 
-Frentes fixas (`min_buy_in = max_buy_in`). Migrations até **057**.
+Frentes fixas (`min_buy_in = max_buy_in`). Migrations até **058**.
 
 ## Torneios
 
-Agenda **21:30** `America/Sao_Paulo`, auto-start com **5+**, **3** mesas por evento, taxa **15%** por cima (freeroll sem taxa; split 18/12/70). Modos: play + real.
+Agenda definida pelo **admin** em `America/Sao_Paulo`, auto-start com **5+**, **3** mesas por evento, taxa **15%** por cima (freeroll sem taxa; split 18/12/70). Modos: play + real.
 
 | Evento | Variante | Buy-in | GTD | Cap | Máx. | Reentradas |
 |--------|----------|--------|-----|-----|------|------------|

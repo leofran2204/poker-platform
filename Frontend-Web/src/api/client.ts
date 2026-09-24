@@ -7,6 +7,7 @@ import {
 } from "@/lib/sessionEvents";
 import type {
   AdminPresenceResponse,
+  AdminKycItem,
   AdminStatsResponse,
   AdminTableListItem,
   AdminTournamentItem,
@@ -23,7 +24,12 @@ import type {
   ClubFinancialsResponse,
   ClubResponse,
   JoinResponse,
+  KycStatusResponse,
   MeResponse,
+  PlayHeartbeatResponse,
+  ResponsibleGamingStatus,
+  ResponsibleLimits,
+  SupportTicketResponse,
   TableResponse,
   TokenResponse,
   TournamentInfoResponse,
@@ -165,6 +171,7 @@ export async function register(
   password: string,
   passwordConfirm: string,
   inviteCode?: string,
+  dateOfBirth?: string,
 ): Promise<RegisterResult> {
   return request<RegisterResult>(
     "/api/auth/register",
@@ -176,10 +183,113 @@ export async function register(
         password,
         password_confirm: passwordConfirm,
         invite_code: inviteCode || undefined,
+        date_of_birth: dateOfBirth || undefined,
+        over_18: true,
       }),
     },
     false,
   );
+}
+
+export async function forgotPassword(email: string): Promise<{ ok: boolean; message: string }> {
+  return request(
+    "/api/auth/forgot-password",
+    { method: "POST", body: JSON.stringify({ email }) },
+    false,
+  );
+}
+
+export async function resetPassword(body: {
+  email: string;
+  code: string;
+  password: string;
+  password_confirm: string;
+}): Promise<{ ok: boolean; message: string }> {
+  return request(
+    "/api/auth/reset-password",
+    { method: "POST", body: JSON.stringify(body) },
+    false,
+  );
+}
+
+export async function fetchResponsibleGaming(): Promise<ResponsibleGamingStatus> {
+  return request("/api/responsible-gaming/settings");
+}
+
+export async function updateResponsibleLimits(
+  limits: ResponsibleLimits,
+): Promise<{ ok: boolean; delayed: boolean; message: string }> {
+  return request("/api/responsible-gaming/settings", {
+    method: "PUT",
+    body: JSON.stringify(limits),
+  });
+}
+
+export async function startSelfExclusion(
+  duration: "24h" | "7d" | "30d" | "180d" | "permanent",
+  confirmation: string,
+): Promise<{ ok: boolean; self_excluded_until: string | null; permanent: boolean }> {
+  return request("/api/responsible-gaming/self-exclusion", {
+    method: "POST",
+    body: JSON.stringify({ duration, confirmation }),
+  });
+}
+
+export async function sendPlayHeartbeat(): Promise<PlayHeartbeatResponse> {
+  return request("/api/responsible-gaming/play-heartbeat", { method: "POST" });
+}
+
+export async function fetchKyc(): Promise<KycStatusResponse> {
+  return request("/api/kyc");
+}
+
+export async function submitKyc(body: {
+  legal_name: string;
+  tax_id: string;
+  date_of_birth: string;
+}): Promise<KycStatusResponse> {
+  return request("/api/kyc", { method: "POST", body: JSON.stringify(body) });
+}
+
+export async function listMySupportTickets(): Promise<SupportTicketResponse[]> {
+  return request("/api/support/tickets");
+}
+
+export async function createSupportTicket(body: {
+  category: string;
+  subject: string;
+  message: string;
+}): Promise<SupportTicketResponse> {
+  return request("/api/support/tickets", { method: "POST", body: JSON.stringify(body) });
+}
+
+export async function listAdminKyc(status = "pending"): Promise<AdminKycItem[]> {
+  return request(`/api/admin/kyc?status=${encodeURIComponent(status)}`);
+}
+
+export async function reviewAdminKyc(
+  userId: string,
+  status: "verified" | "rejected",
+): Promise<{ ok: boolean; status: string }> {
+  return request(`/api/admin/kyc/${encodeURIComponent(userId)}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function listAdminSupportTickets(status = "open"): Promise<SupportTicketResponse[]> {
+  return request(`/api/admin/support/tickets?status=${encodeURIComponent(status)}`);
+}
+
+export async function replyAdminSupportTicket(
+  id: string,
+  status: "in_progress" | "resolved" | "closed",
+  response: string,
+): Promise<SupportTicketResponse> {
+  return request(`/api/admin/support/tickets/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status, response }),
+  });
 }
 
 export async function login(email: string, password: string): Promise<LoginResult> {
@@ -596,7 +706,7 @@ export interface CreateTournamentInput {
   poker_variant: string;
   money_mode: string;
   guaranteed_prize_cents: number;
-  scheduled_start_at?: number | null;
+  scheduled_start_at: number;
 }
 
 export async function createAdminTournament(
