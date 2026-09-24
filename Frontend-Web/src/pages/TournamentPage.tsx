@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router";
 import { getTournament, registerTournament, unregisterTournament, fetchTournamentRegistration } from "@/api/client";
 import type { TournamentInfoResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";

@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router";
 import { ApiError } from "@/api/client";
 import { isAuthenticated } from "@/lib/auth";
 import { clearMeCache, getMe } from "@/lib/me";
+import { safeInternalPath } from "@/lib/safeUrl";
 import {
   CONNECTION_STATUS_EVENT,
   type ConnectionStatusDetail,
@@ -13,8 +14,8 @@ import {
 type UiStatus = "online" | "offline" | "reconnecting";
 
 function safeReturnPath(pathname: string, search: string): string {
-  const path = `${pathname}${search}`;
-  if (!path.startsWith("/") || path.startsWith("//") || path.startsWith("/login")) {
+  const path = safeInternalPath(`${pathname}${search}`, "/lobby");
+  if (path.startsWith("/login")) {
     return "/lobby";
   }
   return path;

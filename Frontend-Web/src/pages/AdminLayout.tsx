@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink, Navigate, Outlet } from "react-router-dom";
+import { NavLink, Navigate, Outlet } from "react-router";
 import { NoIndex } from "@/components/NoIndex";
 import { getMe, isAdminRole } from "@/lib/me";
 import { isAuthenticated } from "@/lib/auth";

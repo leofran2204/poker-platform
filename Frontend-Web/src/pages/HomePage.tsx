@@ -1,4 +1,4 @@
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, Link } from "react-router";
 import { isAuthenticated } from "@/lib/auth";
 import { OnlinePresenceHero } from "@/components/OnlinePresence";
 import { GamesSection } from "@/components/home/GamesSection";

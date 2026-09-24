@@ -1,18 +1,16 @@
 import { FormEvent, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { applyAuthTokens, login, verifyMfa } from "@/api/client";
 import { BrandMark } from "@/components/BrandMark";
 import { ShowcaseTable } from "@/components/ShowcaseTable";
 import { saveUsername } from "@/lib/auth";
+import { safeInternalPath } from "@/lib/safeUrl";
 
 export function LoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const requestedReturnTo = searchParams.get("returnTo");
-  const returnTo =
-    requestedReturnTo?.startsWith("/") && !requestedReturnTo.startsWith("//")
-      ? requestedReturnTo
-      : "/curso";
+  const returnTo = safeInternalPath(requestedReturnTo, "/curso");
   const sessionExpired = searchParams.get("reason") === "session-expired";
   const passwordReset = searchParams.get("passwordReset") === "1";
   const [email, setEmail] = useState("");

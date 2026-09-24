@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router";
 import { forgotPassword, resetPassword } from "@/api/client";
 
 export function ForgotPasswordPage() {

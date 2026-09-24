@@ -1143,3 +1143,10 @@
 - **Qualidade local:** TypeScript/ESLint, build Vite e 59 testes frontend; `cargo check`, fmt e 67 testes API; migration local 056→058 e healthcheck Docker `OK`.
 - **Publicação:** commit, push e deploy da demo autorizados pelo proprietário nesta entrega; a evidência operacional é conferida no pós-deploy sem alegar certificação de produção.
 - **Coach reformulado antes da publicação:** o rascunho paralelo `BOTS_DE_COACHING.md` foi analisado e absorvido pelos documentos-dono. A proposta de quatro coaches e feedback ao vivo foi substituída por um coach único de revisão pós-mão, com analisadores por rua, tags para a Academy, autorização por hand history e proibição explícita de RTA. A frota existente permanece oponente simulado; o coach continua planejado, não implementado.
+
+## 2026-09-24 — frontend em React 19 e dependências sem alertas conhecidos
+
+- **Análise individual do audit:** os sete apontamentos vinham de duas dependências diretas. `vitest@2.1.9` trazia cinco ocorrências no ambiente de testes (`vitest`, `@vitest/mocker`, `vite-node`, Vite e esbuild); `react-router-dom@6.30.6` concentrava duas ocorrências no roteamento.
+- **Migração:** React/React DOM e tipos em 19.3.0, React Router em 8.4.0 e Vitest em 5.0.1. Os 27 imports deixam o pacote de compatibilidade `react-router-dom` e usam `react-router`; Node mínimo passa a 22.22.0, compatível com o builder Node 24.
+- **Defesa em profundidade:** o retorno pós-login agora passa por `safeInternalPath`, que rejeita origem externa, `//`, barras invertidas literais/codificadas e caracteres de controle antes de chamar o roteador.
+- **Resultado:** `npm audit` com zero vulnerabilidades conhecidas; TypeScript e ESLint limpos; 9 arquivos/63 testes aprovados; `npm ci` e build Vite 8 reproduzidos em imagem limpa com Node 24. Permanece apenas o aviso não bloqueante de chunk principal acima de 500 kB.

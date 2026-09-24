@@ -12,11 +12,11 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 
 | Peça | Tecnologia |
 |------|------------|
-| UI | React 18 |
+| UI | React 19 |
 | Linguagem | TypeScript |
 | Build | Vite 8 |
 | Estilo | Tailwind 3 + CSS de componentes `.zt-*` |
-| Rotas | react-router-dom 6 |
+| Rotas | React Router 8 (`react-router`) |
 | Presença | `components/OnlinePresence.tsx` → `/api/presence/*` |
 
 ## Presença online

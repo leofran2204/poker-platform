@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import { sendPresenceOffline, setWalletMode as apiSetWalletMode } from "@/api/client";
 import type { MeResponse, WalletMode } from "@/api/types";
 import {

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import homeContent from "@/data/homeContent.json";
 import { AnimatedHand, type AnimatedHandData } from "@/components/home/AnimatedHand";
 import { DeflatorSimulator } from "@/components/home/DeflatorSimulator";

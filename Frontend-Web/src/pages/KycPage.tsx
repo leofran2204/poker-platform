@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { fetchKyc, submitKyc } from "@/api/client";
 import type { KycStatusResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";

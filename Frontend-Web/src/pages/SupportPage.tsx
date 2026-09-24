@@ -1,5 +1,5 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { createSupportTicket, listMySupportTickets } from "@/api/client";
 import type { SupportTicketResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";

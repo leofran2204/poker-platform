@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { fetchCourseProgress, type CourseProgressItem } from "@/api/client";
 import { BrandMark } from "@/components/BrandMark";
 import { COURSE, isLessonUnlocked, PASS_SCORE } from "@/lib/course";

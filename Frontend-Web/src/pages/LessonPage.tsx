@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router";
 import { fetchCourseProgress, saveCourseProgress, type CourseProgressItem } from "@/api/client";
 import { CourseQuiz } from "@/components/CourseQuiz";
 import { CourseVideoPlayer } from "@/components/CourseVideoPlayer";

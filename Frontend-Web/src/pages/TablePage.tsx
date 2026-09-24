@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router";
 import { getTable, leaveTable, sendPlayHeartbeat } from "@/api/client";
 import type { PlayerWsData, PotWsData, ServerMessage, ShowdownEntry, TableResponse } from "@/api/types";
 import { TableSocket, type WsStatus } from "@/api/ws";

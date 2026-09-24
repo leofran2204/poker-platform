@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { applyAuthTokens, resendVerification, verifyEmail } from "@/api/client";
 import { saveUsername } from "@/lib/auth";
 

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { fetchEstrutura } from "@/api/client";
 import type { EstruturaResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";

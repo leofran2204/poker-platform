@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { applyAuthTokens, register } from "@/api/client";
 import { BrandMark } from "@/components/BrandMark";
 import { ShowcaseTable } from "@/components/ShowcaseTable";

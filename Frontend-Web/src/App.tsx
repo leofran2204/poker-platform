@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { Layout } from "@/components/Layout";
 import { CoursePage } from "@/pages/CoursePage";
 import { EstruturaPage } from "@/pages/EstruturaPage";
