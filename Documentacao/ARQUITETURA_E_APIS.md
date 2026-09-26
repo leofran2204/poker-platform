@@ -1,6 +1,6 @@
 # Arquitetura Técnica & Especificação de APIs - Plataforma de Poker Online em Rust
 
-**Atualizado:** 2026-09-24 | **Status:** Em revisão contínua — S24, três modalidades, Academy, proteção do jogador e migrations 058; sem certificação de produção.
+**Atualizado:** 2026-09-26 | **Status:** Em revisão contínua — S25, quatro modalidades, Academy, proteção do jogador e migrations 059; sem certificação de produção.
 
 Este documento consolida a arquitetura técnica, esquemas de comunicação, contratos de API e modelos de segurança da **Plataforma de Poker Online em Rust**.
 
@@ -251,6 +251,6 @@ Fases: (1) MVP Hold’em com ações legais, sizing e pot odds; (2) equity/EV e 
 - Não há benchmark de release certificado neste repositório. Throughput, latência e capacidade devem ser obtidos exclusivamente em uma execução autorizada da validação completa, com o TSV de evidência gerado pelos scripts.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

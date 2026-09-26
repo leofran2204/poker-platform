@@ -27,12 +27,12 @@ Hoje o jogo público que faz sentido é **Play Money** (fichas de treino). Dinhe
 
 Quem já tentou pôquer online no Brasil conhece duas dores: sala vazia e sala que trata o jogador como caixa eletrônico.
 
-Aqui o catálogo é **curto de propósito** (uma mesa por variante, frente fixa). Short Deck e Pineapple não são nome no lobby: o motor troca baralho e ranking (trinca ganha de sequência; flush ganha de full house). Parceiro técnico testa isso em cinco minutos.
+Aqui o catálogo é **curto de propósito** (uma mesa por variante, frente fixa). Texas Short Deck troca baralho e ranking no motor; Brazilian Pineapple mantém baralho e ranking clássicos, com sua dinâmica 2+1+1+1. Parceiro técnico testa isso em cinco minutos.
 
 O que já está no ar e pode ser clicado:
 
 - HTTPS no domínio, e-mail verificado, MFA
-- Cash ao vivo: Hold’em 9-max (NL 0,25 e NL 0,75/1,50), Short Deck 8-max, Omaha curto 5-max, Pineapple 6-max
+- Cash ao vivo: Hold’em tradicional 9-max (NL 0,25 e NL 0,75/1,50), Texas Short Deck 8-max, Omaha 4 6-max e Brazilian Pineapple 6-max
 - Duas carteiras de treino (cash e torneio), R$ 150 cada, reset diário
 - Carteira Real **isolada** da de treino (não mistura salário com fichas de brincadeira)
 - Admin de clubes e agentes (split 15% casa / 85% clube no motor)
@@ -127,6 +127,6 @@ O nome Zero Tilt só vale se a mesa das 21h existir. O resto é conversa.
 *Fonte operacional: `STATUS_OPERACIONAL.json` (S21). Este texto não alega certificação de produção, Pix de produção, nem autoexclusão pronta.*
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

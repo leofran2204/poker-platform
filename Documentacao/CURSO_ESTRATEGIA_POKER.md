@@ -3,7 +3,7 @@
 > Base teórica do `bot/strategy/`: posição, ranges pré-flop, matemática (pot odds, EV, outs), 3-bets, ferramentas e gestão de banca. Redação própria a partir de estudo de fontes públicas.
 > Versão interativa (com quiz avaliado pelo motor): `Frontend-Web/src/data/courseContent.json`, rota `/curso`.
 
-O código local oferece quatro jogos: Texas Hold’em tradicional; Texas Hold’em Short Deck (36 cartas, trinca > sequência e flush > full house); Omaha 4 (52 cartas, exatamente 2 hole + 3 board); e Brazilian Pineapple (52 cartas, ranking clássico, 2 hole e +1 após flop, turn e river, 2+3 no showdown). O Módulo 5 interativo traz as regras atuais em texto e quiz. Os vídeos ep23–ep25 estão temporariamente ocultos na plataforma porque narram o catálogo anterior; precisam de regravação antes de voltar ao curso. A publicação desse catálogo ainda depende de deploy e sincronização do STATUS operacional.
+O catálogo publicado oferece quatro jogos: Texas Hold’em tradicional; Texas Hold’em Short Deck (36 cartas, trinca > sequência e flush > full house); Omaha 4 (52 cartas, exatamente 2 hole + 3 board); e Brazilian Pineapple (52 cartas, ranking clássico, 2 hole e +1 após flop, turn e river, 2+3 no showdown). O Módulo 5 interativo traz as regras atuais em texto e quiz. Os vídeos ep23–ep25 estão temporariamente ocultos na plataforma porque narram o catálogo anterior; precisam de regravação antes de voltar ao curso.
 
 ## Módulo 0 (iniciante)
 
@@ -529,6 +529,6 @@ O coach será uma ferramenta opcional de **estudo de mãos encerradas**, não as
 Um caso de referência precisa ter resultado reproduzível, explicação revisada, link de lição válido e teste que impeça regressão matemática. Antes de liberar o produto, amostras devem ser revisadas por responsável de conteúdo identificado; o sistema continua sendo coach virtual, sem biografia ou credenciais humanas inventadas.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

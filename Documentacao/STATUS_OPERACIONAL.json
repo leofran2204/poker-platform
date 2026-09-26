@@ -1,9 +1,9 @@
 {
     "schema_version": 2,
-    "reviewed_on": "2026-09-24",
+    "reviewed_on": "2026-09-26",
     "cycle": {
-        "id": "S24",
-        "title": "três modalidades + Academy + marca ZT Poker + lobby em cards"
+        "id": "S25",
+        "title": "quatro modalidades + showdown completo + Loss Deflator com side pots"
     },
     "production": {
         "certified": false,
@@ -35,6 +35,14 @@
             "buy_in_cents": 15000
         },
         {
+            "name": "Texas Hold’em Short Deck",
+            "variant": "short_deck",
+            "small_blind_cents": 50,
+            "big_blind_cents": 50,
+            "max_players": 8,
+            "buy_in_cents": 10000
+        },
+        {
             "name": "Omaha 4 Cartas",
             "variant": "omaha",
             "small_blind_cents": 50,
@@ -47,7 +55,7 @@
             "variant": "brazilian_pineapple",
             "small_blind_cents": 50,
             "big_blind_cents": 50,
-            "max_players": 5,
+            "max_players": 6,
             "buy_in_cents": 7500
         }
     ],
@@ -112,8 +120,8 @@
                 "variant": "brazilian_pineapple",
                 "buy_in_cents": 1000,
                 "gtd_cents": 10000,
-                "table_max": 5,
-                "max_players": 15,
+                "table_max": 6,
+                "max_players": 18,
                 "reentries": 1,
                 "freeroll": false
             }
@@ -151,7 +159,7 @@
         "showdown_sticky": true,
         "disconnect_not_leave": true
     },
-    "migrations_latest": 58,
+    "migrations_latest": 59,
     "email_verification": true,
     "regulation_target": "2027-01"
 }

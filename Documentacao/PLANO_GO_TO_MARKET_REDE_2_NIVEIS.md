@@ -282,6 +282,6 @@ Não se “liga o MMN em real”. Substitui-se a **unidade** (ponto → centavo)
 *Este plano descreve a árvore comercial: 18/12 sobre rake individual, clube só como lugar, casa com o resto. Os % são os de dinheiro real; Play Money só troca a unidade.*
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

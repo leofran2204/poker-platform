@@ -2,7 +2,7 @@
 
 Guia curto para convidar pessoas a testar e mandar feedback.
 
-Casa: **ZT Poker** (header **Zero Tilt**). Slogan: **Estude. Jogue. Sem tilt.** Três jogos: Hold’em, Omaha 4 (baralho 52) e Brazilian Pineapple (Short Deck).
+Casa: **ZT Poker** (header **Zero Tilt**). Slogan: **Estude. Jogue. Sem tilt.** Quatro jogos: Texas Hold’em tradicional, Texas Hold’em Short Deck, Omaha 4 e Brazilian Pineapple.
 
 ## O que cada amigo precisa fazer
 
@@ -26,12 +26,14 @@ Casa: **ZT Poker** (header **Zero Tilt**). Slogan: **Estude. Jogue. Sem tilt.** 
 |------|------|--------|-----|--------|
 | NL 0,25 | Texas Hold’em | 0,25 / 0,25 | 9 | R$ 25 |
 | NL 0,75/1,50 | Texas Hold’em | 0,75 / 1,50 | 9 | R$ 150 |
+| Texas Short Deck 0,50 | Texas Hold’em Short Deck | 0,50 / 0,50 | 8 | R$ 100 |
 | Omaha 0,50 | Omaha 4 Cartas | 0,50 / 0,50 | 6 | R$ 100 |
-| Pineapple 0,50 | Brazilian Pineapple | 0,50 / 0,50 | 5 | R$ 75 |
+| Pineapple 0,50 | Brazilian Pineapple | 0,50 / 0,50 | 6 | R$ 75 |
 <!-- DOCUMENTATION_SYNC:CASH_CATALOG:END -->
 
 - **Omaha 4:** baralho 52; 4 cartas na mão; showdown exatamente 2 hole + 3 board; ranking clássico
-- **Brazilian Pineapple:** baralho 36; 2 cartas no pré-flop e +1 após flop/turn/river; showdown 2+3; **trinca > sequência** e **flush > full house**
+- **Texas Hold’em Short Deck:** baralho 36; 2 cartas; até 8 jogadores; **trinca > sequência** e **flush > full house**
+- **Brazilian Pineapple:** baralho 52; 2 cartas no pré-flop e +1 após flop/turn/river; showdown 2+3; ranking clássico; até 6 jogadores
 
 ## Carteiras
 
@@ -50,7 +52,7 @@ Casa: **ZT Poker** (header **Zero Tilt**). Slogan: **Estude. Jogue. Sem tilt.** 
 | Texas R$25 | Texas Hold’em | R$ 25 | — | 9 | 27 | 1 |
 | Texas Hold’em Freeroll | Texas Hold’em | Grátis | R$ 75 | 9 | 27 | 1 |
 | Omaha 4 Cartas | Omaha 4 Cartas | R$ 10 | R$ 100 | 6 | 18 | 1 |
-| Brazilian Pineapple | Brazilian Pineapple | R$ 10 | R$ 100 | 5 | 15 | 1 |
+| Brazilian Pineapple | Brazilian Pineapple | R$ 10 | R$ 100 | 6 | 18 | 1 |
 <!-- DOCUMENTATION_SYNC:MTT_CATALOG:END -->
 
 Data e horário definidos pelo **admin** em `America/Sao_Paulo`, com auto-start para **5+** jogadores. Inscrição no lobby com **taxa 15% por cima** (freeroll grátis) — **mãos MTT ao vivo em 3 mesas**; a página lista `live_table_ids` (não só a mesa 0). Cancelar inscrição devolve buy-in + taxa antes do start.
@@ -88,7 +90,7 @@ Precisa de 2+ pessoas na mesma mesa para começar a mão.
 
 ## Do seu lado (anfitrião)
 
-1. Stack na VPS: `zerotiltpoker.net` (API + Frontend-Web + Caddy). Release atual usa migrations até **058**, incluindo proteção do jogador, KYC básico/manual, recuperação de senha e suporte.
+1. Stack na VPS: `zerotiltpoker.net` (API + Frontend-Web + Caddy). Release atual usa migrations até **059**, incluindo quatro modalidades, proteção do jogador, KYC básico/manual, recuperação de senha e suporte.
 2. Health: `https://zerotiltpoker.net/api/health` e `/api/presence/online`
 3. Peça feedback: registro, e-mail, verificação, limites, suporte, modo carteira, lobby, join, lag, mobile e crashes
 
@@ -107,12 +109,12 @@ Precisa de 2+ pessoas na mesma mesa para começar a mão.
 [ ] Badge “N online” no header
 [ ] Registrar + verificar e-mail
 [ ] Toggle Play Money / Jogo Real no header
-[ ] Lobby lista NL 0,25 · NL 0,75/1,50 · SD 0,25/0,50 · Omaha · Pineapple (+ Torneios)
+[ ] Lobby lista NL 0,25 · NL 0,75/1,50 · Short Deck 0,50/0,50 · Omaha · Pineapple (+ Torneios)
 [ ] Dois perfis no MESMO modo entram na MESMA mesa
 [ ] Mão inicia com ≥ 2 assentos
 ```
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

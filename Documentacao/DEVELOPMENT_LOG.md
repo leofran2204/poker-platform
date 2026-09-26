@@ -1,9 +1,21 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-09-22 (deploy 75de638d no ar, API rebuildada DEPLOY_OK 06:44 UTC)
+**Atualizado:** 2026-09-26 (deploy fcf4065e no ar, migration 059, API e frontend healthy)
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 > Painel tático em `DASHBOARD.md`. Cronograma em `CRONOGRAMA.md`. Estado canônico em `STATUS_OPERACIONAL.md` (prevalece sobre retrospectivas históricas que digam “Launch Ready”).
+
+---
+
+## 📌 2026-09-26 — S25: quatro modalidades, showdown completo e rateio por pote
+
+- **Catálogo:** Texas Hold’em tradicional 9-max, Texas Hold’em Short Deck 8-max, Omaha 4 6-max e Brazilian Pineapple 6-max; Pineapple usa 52 cartas, ranking clássico e mantém 2+1+1+1 com showdown 2+3.
+- **Showdown da home:** as cartas dos adversários abrem no resultado, com identificação da mão e indicação clara de vitória/derrota.
+- **Loss Deflator:** quarta demonstração com main pot + side pot; dois perdedores na faixa de 25% compartilham o teto do pote principal. O motor aplica o mesmo rateio e conserva os centavos.
+- **Rede:** home e página da rede ganharam explicação por etapas, exemplo concreto e CTA mais claro, mantendo pontos Play Money, dois níveis e qualificação semanal.
+- **Academy:** catálogo textual e quizzes corrigidos; vídeos que narram o catálogo anterior permanecem ocultos até regravação.
+- **Validação:** frontend TypeScript/ESLint/build + 65 testes; Clippy completo do motor; testes de mesa cheia 9/8/6; 10 mil mãos por modalidade; migration 059 idempotente ensaiada localmente com rollback.
+- **Publicação:** commit `fcf4065e`, migration 059 aplicada com sucesso, catálogo público conferido e stack 4/4 healthy; backup `backups/pre-059-fcf4065e.dump` e imagens anteriores marcadas na VPS.
 
 ---
 
@@ -882,7 +894,7 @@
 - Eps 05-10 (~50-56s cada): sizing, roubos e 3-bets, pot odds, EV e fold equity, banca, revisão final. Série completa em `ZeroTiltCurso/`.
 - Sem botão no resultado: só as 5 cartas do jogo vencedor saltam com brilho dourado (board + mão do vencedor + painel), e o painel some sozinho em 7s.
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 

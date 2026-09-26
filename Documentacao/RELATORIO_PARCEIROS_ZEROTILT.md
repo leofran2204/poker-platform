@@ -23,7 +23,7 @@ Zero Tilt não é um clone de sala gigante. É uma plataforma de pôquer **recre
 2. **O jogador não pode sair destroçado da sessão** — Loss Deflator (cashback de bad beat por matemática, não por “bônus de cassino”), frentes fixas, Play Money que renova, ensino no próprio lobby.
 3. **O crescimento é de convite, não de anúncio** — rede de **dois níveis** (18% do rake individual do 1º nível, 12% do 2º, resto à casa; clube sem fatia), hoje ensaiada em Play Money; dinheiro real só com licença.
 
-O que já está no ar: demo HTTPS, e-mail verificado, MFA, mesas Play Money e Jogo Real **isoladas**, quatro variantes (Hold’em, Short Deck, Omaha Short Deck, Ultimate Pineapple), torneios com Big Blind Ante em 26 níveis (inscrição + **mãos MTT ao vivo em 3 mesas**, S22), admin de clubes, stack Docker **4/4 healthy** na VPS.
+O que já está no ar: demo HTTPS, e-mail verificado, MFA, mesas Play Money e Jogo Real **isoladas**, quatro variantes (Texas Hold’em tradicional, Texas Hold’em Short Deck, Omaha 4 e Brazilian Pineapple), torneios com Big Blind Ante em 26 níveis (inscrição + **mãos MTT ao vivo em 3 mesas**), admin de clubes, stack Docker **4/4 healthy** na VPS.
 
 O que **não** está: certificação de produção, autoexclusão de produto, multi-servidor de mesas. PIX automático DePix **está ligado na demo** (crédito provisório até R$ 50 no `processing`, saque travado até liquidar). Isso não se esconde. O parceiro que entra agora compra **produto + liquidez Play Money + o trilho até 2027**, não um cassino “já legalizado”.
 
@@ -40,7 +40,7 @@ Zero Tilt escolhe o lado difícil:
 | Escolha de produto | O que o jogador sente | O que o parceiro ganha |
 |--------------------|----------------------|------------------------|
 | Catálogo **curto** e frentes **fixas** | Não precisa “escolher stake até quebrar” | Liquidez concentrada (o único problema do pôquer) |
-| **Short Deck** e **Omaha Short Deck** nativos no motor | Jogo mais rápido, mais showdown, menos fold-fest | Diferenciação vs. “só NL Hold’em 100bb” |
+| **Texas Short Deck**, **Omaha 4** e **Brazilian Pineapple** nativos no motor | Mais formatos sem misturar as regras | Diferenciação vs. “só NL Hold’em 100bb” |
 | Big Blind Ante (26 níveis) nos MTT | Torneio moderno, sem ante morto bagunçando pote | Formato que o jogador de 2020+ já espera |
 | Skin Full Tilt, PT-BR de verdade | Nostalgia + clareza (não Google Translate) | Identidade; não é mais um skin cinza |
 | Dica do Pró + história do pôquer (8 capítulos mundo + 7 Brasil) | A sala ensina em vez de só extrair | Recreacional fica; regular não se sente otário |
@@ -52,11 +52,11 @@ Catálogo cash vigente (Play Money e Jogo Real, mesas espelhadas, **não** mistu
 |------|----------|--------|-----|--------|
 | Hold’em | 52 cartas, 2 hole | 0,25 / 0,25 | 9 | R$ 25 |
 | Hold’em NL 0,75/1,50 | 52 cartas, 2 hole | 0,75 / 1,50 | 9 | R$ 150 |
-| Hold’em Short Deck | 36 cartas (sem 2–5); trinca > sequência; flush > full house; wheel A-6-7-8-9 | 0,25 / 0,50 | 8 | R$ 75 |
-| Omaha Short Deck | 4 hole; showdown = 2 hole + 3 board | 0,50 / 0,50 | 5 | R$ 100 |
-| Ultimate Pineapple | 3 hole, sem descarte; showdown 2 hole + 3 board | 0,50 / 0,50 | 6 | R$ 75 |
+| Texas Hold’em Short Deck | 36 cartas (sem 2–5); trinca > sequência; flush > full house; wheel A-6-7-8-9 | 0,50 / 0,50 | 8 | R$ 100 |
+| Omaha 4 | 52 cartas; 4 hole; showdown = exatamente 2 hole + 3 board; ranking clássico | 0,50 / 0,50 | 6 | R$ 100 |
+| Brazilian Pineapple | 52 cartas; 2 hole +1 após flop/turn/river; showdown = exatamente 2 hole + 3 board; ranking clássico | 0,50 / 0,50 | 6 | R$ 75 |
 
-Short Deck no Zero Tilt **não é um rótulo no lobby**: o motor troca baralho e avaliador (`create_short_deck`, `evaluate_hand_short_deck`, `evaluate_hand_short_deck_omaha`). Isso é o tipo de detalhe que um parceiro técnico testa em cinco minutos — e que uma operação “de fachada” não tem.
+Texas Short Deck no Zero Tilt **não é um rótulo no lobby**: o motor troca baralho e avaliador (`create_short_deck`, `evaluate_hand_short_deck`). Omaha 4 e Brazilian Pineapple usam baralho de 52 e ranking clássico, com avaliadores próprios. Isso é o tipo de detalhe que um parceiro técnico testa em cinco minutos — e que uma operação “de fachada” não tem.
 
 ---
 
@@ -578,6 +578,6 @@ Pendências identificadas nos documentos existentes, para correção pelos respe
 *Números e limites vigentes: [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md). O pitch original é de 2026-09-04; a avaliação crítica da seção 13 é de 2026-09-17 (PIX automático DePix na demo entrou depois). Não alegar certificação de produção nem autoexclusão pronta. Recomendações desta análise não significam implementação, mudança operacional ou autorização jurídica.*
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

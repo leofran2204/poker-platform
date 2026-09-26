@@ -1018,6 +1018,14 @@ mod tests {
                     buy_in_cents: 15000,
                 },
                 CashTable {
+                    name: "Texas Short Deck".to_owned(),
+                    variant: "short_deck".to_owned(),
+                    small_blind_cents: 50,
+                    big_blind_cents: 50,
+                    max_players: 8,
+                    buy_in_cents: 10000,
+                },
+                CashTable {
                     name: "Omaha".to_owned(),
                     variant: "omaha".to_owned(),
                     small_blind_cents: 50,
@@ -1211,6 +1219,7 @@ mod tests {
         assert!(md.contains("sem certificação de produção"));
         assert!(md.contains("NL 0,25"));
         assert!(md.contains("NL 0,75/1,50"));
+        assert!(md.contains("Texas Short Deck 0,50"));
         assert!(md.contains("Omaha 0,50"));
         assert!(md.contains("Pineapple 0,50"));
         assert!(md.contains("Agenda definida pelo **admin**"));
@@ -1323,7 +1332,15 @@ mod tests {
         let content = fs::read_to_string(&path).expect("STATUS_OPERACIONAL.json deve existir");
         let status = parse_status(&content).expect("JSON schema v2");
         validate_status(&status, &root).expect("fatos operacionais válidos");
-        assert_eq!(status.cash_tables.len(), 4);
+        assert_eq!(status.cash_tables.len(), 5);
+        assert!(status
+            .cash_tables
+            .iter()
+            .any(|table| table.variant == "short_deck" && table.max_players == 8));
+        assert!(status
+            .cash_tables
+            .iter()
+            .any(|table| table.variant == "brazilian_pineapple" && table.max_players == 6));
         assert!(status
             .cash_tables
             .iter()

@@ -72,6 +72,6 @@ Este contrato de Termos de Uso ("Contrato") rege o uso da plataforma de poker on
 9.3. A Plataforma pode alterar este Contrato mediante publicação da versão atualizada com aviso prévio; o uso continuado implica aceite.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

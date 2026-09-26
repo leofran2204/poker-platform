@@ -36,7 +36,7 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 
 **Carteiras:** Play Money (cash + MTT, reset diário) e Jogo Real (isolado). `money_mode` da mesa/torneio deve coincidir com o modo do cliente (`play` \| `real`).
 
-**Catálogo publicado (blinds, frentes, MTT, PIX):** [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md). A migração 059 prepara o catálogo local de quatro modalidades; até o deploy, o STATUS ainda descreve a demo anterior. Frentes cash **fixas** (`min_buy_in = max_buy_in`). Small blind pode **igualar** big blind.
+**Catálogo publicado (blinds, frentes, MTT, PIX):** [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md). A migração 059 publica as quatro modalidades e separa Texas tradicional de Texas Short Deck. Frentes cash **fixas** (`min_buy_in = max_buy_in`). Small blind pode **igualar** big blind.
 
 ---
 
@@ -418,6 +418,6 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 **Próxima revisão:** Após implementação de side pots e split pot.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S24** (2026-09-24) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
