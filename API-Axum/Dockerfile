@@ -39,7 +39,7 @@ RUN find /app -name "rust-toolchain*" -delete \
     && test $(stat -c%s /app/API-Axum/target/release/poker-api) -gt 1000000
 
 # Stage 2: Imagem final leve e blindada (Hardened Non-Root Container)
-FROM debian:bookworm-slim@sha256:abd67ffcfa541b485a3dff59865ab629aa048a6c613e639d36e7456b0b229241
+FROM debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251
 
 # Cria usuário não-privilegiado dedicado
 RUN groupadd -g 10001 appgroup && \
