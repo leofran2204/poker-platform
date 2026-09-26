@@ -46,7 +46,7 @@ export function HomePage() {
               Conhecer a Academy
             </Link>
             <a href="#demonstracao" className="text-sm font-semibold text-cream hover:text-gold-bright">
-              Assistir à demonstração narrada
+              Assistir às demonstrações
             </a>
           </div>
           <div className="mt-6 max-w-xl">
@@ -67,30 +67,39 @@ export function HomePage() {
           <LossDeflatorSection />
         </div>
 
-        <section className="zt-reveal zt-panel grid gap-5 p-5 lg:grid-cols-[1fr_auto] lg:items-center">
+        <section className="zt-reveal zt-panel overflow-hidden p-5 sm:p-7">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-soft">
-              Rede Zero Tilt · 2 níveis
+              Sua mesa começa com um convite
             </p>
-            <h2 className="mt-2 text-xl font-bold text-gold-bright">
-              Convide para jogar. A rede reconhece atividade, não cadastro.
+            <h2 className="mt-2 max-w-2xl text-2xl font-bold text-gold-bright sm:text-3xl">
+              Traga sua turma. Transforme uma partida em uma comunidade.
             </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-felt-200">
-              Cada jogador tem um link próprio, acompanha apenas dois níveis e precisa jogar para
-              se qualificar. Sem taxa de entrada, sem kit e sem promessa de renda.
+            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-felt-200">
+              Compartilhe seu link, combine uma mesa Play Money e evoluam juntos na Academy.
+              Sua rede mostra quem chegou pelo seu convite, a atividade da turma e os pontos
+              gerados pelas mãos jogadas. Você acompanha tudo em até dois níveis.
             </p>
-            <p className="mt-2 text-xs text-felt-300">
-              18+ · Poker envolve risco de perda e não é investimento.
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2 text-xs">
-              <span className="zt-chip">1º nível · 18%</span>
-              <span className="zt-chip">2º nível · 12%</span>
-              <span className="zt-chip">Clube sem fatia</span>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              <div className="rounded border border-felt-600 bg-felt-950/60 p-3">
+                <strong className="text-sm text-cream">01 · Convide</strong>
+                <p className="mt-1 text-xs leading-relaxed text-felt-300">Seu link conecta amigos à sua rede e à mesma sala.</p>
+              </div>
+              <div className="rounded border border-felt-600 bg-felt-950/60 p-3">
+                <strong className="text-sm text-cream">02 · Joguem</strong>
+                <p className="mt-1 text-xs leading-relaxed text-felt-300">Marquem uma sessão, estudem uma mão e voltem à mesa.</p>
+              </div>
+              <div className="rounded border border-gold/40 bg-gold/10 p-3">
+                <strong className="text-sm text-gold-bright">03 · Acompanhe</strong>
+                <p className="mt-1 text-xs leading-relaxed text-felt-200">Veja seus dois níveis, mãos da semana e pontos no painel.</p>
+              </div>
             </div>
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <Link to="/rede" className="zt-btn-primary">Descobrir como funciona →</Link>
+              <span className="text-xs text-felt-300">Cadastro grátis · pontos só por atividade · 18+</span>
+            </div>
+            <p className="mt-3 text-xs text-felt-400">Pontos Play Money não são dinheiro. Poker envolve risco de perda e não é investimento.</p>
           </div>
-          <Link to="/rede" className="zt-btn-secondary shrink-0">
-            Entender a rede →
-          </Link>
         </section>
 
         <div className="zt-reveal zt-panel flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">

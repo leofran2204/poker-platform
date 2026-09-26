@@ -50,26 +50,27 @@ fn auto_play(gl: &mut GameLoop, bb: u64) {
 
 fn main() {
     let t0 = Instant::now();
-    println!("=== SIMULADO cash (2k/mesa x3) + MTT até campeão ===");
+    println!("=== SIMULADO cash (100k/mesa x4) + MTT até campeão ===");
 
-    // 3 mesas play money: NL 9, Omaha 6, Brazilian Pineapple 5
+    // 4 modalidades play money: NL 9, Short Deck 8, Omaha 6, Pineapple 6
     let configs = vec![
         (PokerVariant::Holdem, 9, 25, 25, 2500, "NL 0,25 9-max"),
         (
-            PokerVariant::Omaha,
-            6,
+            PokerVariant::ShortDeck,
+            8,
             50,
             50,
             10000,
-            "Omaha 4 6-max",
+            "Texas Short Deck 8-max",
         ),
+        (PokerVariant::Omaha, 6, 50, 50, 10000, "Omaha 4 6-max"),
         (
             PokerVariant::BrazilianPineapple,
-            5,
+            6,
             50,
             50,
             7500,
-            "Brazilian Pineapple 5-max",
+            "Brazilian Pineapple 6-max",
         ),
     ];
 
@@ -87,8 +88,8 @@ fn main() {
         let mut stacks: Vec<(String, u64)> = (0..max_players)
             .map(|i| (format!("p{}_{}", label.replace(" ", "_"), i), 10000))
             .collect();
-        // verifica ranking Short Deck: trips > straight e flush > FH via evaluate
-        {
+        // Verifica o ranking exclusivo do Texas Short Deck.
+        if variant == PokerVariant::ShortDeck {
             // Trips 777 vs Straight 6789T
             let trips = evaluate_hand_short_deck(
                 &[
@@ -284,12 +285,12 @@ fn main() {
 
     println!("Cash 400k total: {} mãos, rake total {} cents (R$ {:.2}), deflator triggers ~{}, cashback simulado {} cents", total_hands, total_rake, total_rake as f64/100.0, deflator_triggers, total_deflator_cashback);
     println!(
-        "Verificação Short Deck ranking: flush>FH {} , trips>straight {} (devem ser 4 cada)",
+        "Verificação Short Deck ranking: flush>FH {} , trips>straight {} (devem ser 1 cada)",
         flush_beats_fh, trips_beats_straight
     );
 
-    // MTT até campeão: 28 players (play), 4 torneios 7 cada
-    println!("\n=== MTT até campeão (28 players, 4 torneios) ===");
+    // MTT até campeão: 35 players (play), 5 torneios 7 cada
+    println!("\n=== MTT até campeão (35 players, 5 torneios) ===");
     let mtt_start = Instant::now();
     let blind_levels: Vec<BlindLevel> = (0..26)
         .map(|i| BlindLevel {
@@ -303,21 +304,22 @@ fn main() {
     let configs_mtt = vec![
         ("Texas Hold’em — Torneio", PokerVariant::Holdem, 9, 1500),
         (
+            "Texas Short Deck — Torneio",
+            PokerVariant::ShortDeck,
+            8,
+            1000,
+        ),
+        (
             "Texas Hold’em — Torneio Freeroll",
             PokerVariant::Holdem,
             9,
             0,
         ),
-        (
-            "Omaha 4 Cartas — Torneio",
-            PokerVariant::Omaha,
-            6,
-            1000,
-        ),
+        ("Omaha 4 Cartas — Torneio", PokerVariant::Omaha, 6, 1000),
         (
             "Brazilian Pineapple — Torneio",
             PokerVariant::BrazilianPineapple,
-            5,
+            6,
             1000,
         ),
     ];
@@ -376,10 +378,6 @@ fn main() {
                 let _ = poker_engine::tournament_engine::advance_blinds(&mut state);
                 level += 1;
             }
-            // FT 8: quando restam 8, troca para short_deck (já está no config, mas simula)
-            if state.players_remaining == 8 {
-                // FT Short Deck 8-max já está via final_table_variant, mas aqui só log
-            }
         }
         // Finaliza para achar campeão
         while state.players_remaining > 1 {
@@ -397,7 +395,7 @@ fn main() {
         }
         let _ = poker_engine::tournament_engine::finish_tournament(&mut state);
         println!(
-            "  {}: {} mãos, duração ~{} min ({} níveis), FT 8? {}",
+            "  {}: {} mãos, duração ~{} min ({} níveis), Short Deck? {}",
             name,
             hands,
             hands * 5 / 7,
@@ -414,13 +412,13 @@ fn main() {
     let mtt_elapsed = mtt_start.elapsed();
     println!("\n=== RESUMO ===");
     println!(
-        "Cash 8k mãos em {:.2}s ({:.0} mãos/s), rake R$ {:.2}, deflator ~{} triggers",
+        "Cash 400k mãos em {:.2}s ({:.0} mãos/s), rake R$ {:.2}, deflator ~{} triggers",
         elapsed.as_secs_f64() - mtt_elapsed.as_secs_f64(),
-        8000.0 / (elapsed.as_secs_f64() - mtt_elapsed.as_secs_f64()),
+        400000.0 / (elapsed.as_secs_f64() - mtt_elapsed.as_secs_f64()),
         total_rake as f64 / 100.0,
         deflator_triggers
     );
-    println!("MTT 4 torneios até campeão: {} mãos totais em {:.2}s, média {:.1} mãos/torneio, ~{:.0} min por torneio (26 níveis 5min = 130min teórico, mas com 7 players acaba em ~10-15 min)", total_mtt_hands, mtt_elapsed.as_secs_f64(), total_mtt_hands as f64/4.0, total_mtt_hands as f64 *5.0/7.0);
-    println!("Estimativa torneio real 100 players: 130min (26*5) + FT, com 9/5/6-max ~2-3h; com 7 players ~15min como simulado");
+    println!("MTT 5 torneios até campeão: {} mãos totais em {:.2}s, média {:.1} mãos/torneio, ~{:.0} min por torneio (26 níveis 5min = 130min teórico, mas com 7 players acaba em ~10-15 min)", total_mtt_hands, mtt_elapsed.as_secs_f64(), total_mtt_hands as f64/5.0, total_mtt_hands as f64 *5.0/7.0);
+    println!("Estimativa torneio real 100 players: 130min (26*5) + FT, com mesas 9/8/6-max ~2-3h; com 7 players ~15min como simulado");
     println!("Motores: deck Short Deck 36, flush>FH {}, trips>straight {}, side_pots OK, rake cap 500, loss_deflator OK", flush_beats_fh>0, trips_beats_straight>0);
 }

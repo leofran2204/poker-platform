@@ -7,6 +7,7 @@ interface Seat {
   top: number;
   left: number;
   cards?: string[];
+  showdownHand: string;
   chips: number;
   bet: number;
   dealer?: boolean;
@@ -20,32 +21,35 @@ interface Scenario {
   pots: number[];
   /** As 5 do jogo vencedor do herói (mostradas após o suspense do river). */
   winningFive: { hole: string[]; board: string[] };
+  result: string;
 }
 
 const SCENARIOS: Scenario[] = [
   {
     label: "Você de A K contra 3 na mesa",
     seats: [
-      { name: "você", top: 86, left: 50, cards: ["As", "Kd"], chips: 24_850, bet: 150, you: true },
-      { name: "Ana", top: 28, left: 14, chips: 15_200, bet: 150 },
-      { name: "Leo", top: 10, left: 50, chips: 30_100, bet: 0, dealer: true },
-      { name: "Mari", top: 28, left: 86, chips: 9_800, bet: 150 },
+      { name: "você", top: 86, left: 50, cards: ["As", "Kd"], showdownHand: "Dois pares: Ases e Reis", chips: 24_850, bet: 150, you: true },
+      { name: "Ana", top: 28, left: 14, cards: ["Qc", "Qd"], showdownHand: "Par de Damas", chips: 15_200, bet: 150 },
+      { name: "Leo", top: 10, left: 50, cards: ["Jc", "Js"], showdownHand: "Par de Valetes", chips: 30_100, bet: 0, dealer: true },
+      { name: "Mari", top: 28, left: 86, cards: ["Tc", "Td"], showdownHand: "Par de Dez", chips: 9_800, bet: 150 },
     ],
     boards: [[], ["Ah", "7c", "2d"], ["Ah", "7c", "2d", "9s"], ["Ah", "7c", "2d", "9s", "Kh"]],
     pots: [450, 1_450, 3_200, 6_800],
     winningFive: { hole: ["As", "Kd"], board: ["Ah", "Kh", "9s"] },
+    result: "Seus dois pares, Ases e Reis, vencem os pares de Damas, Valetes e Dez dos adversários.",
   },
   {
     label: "Par de Damas trinca no flop",
     seats: [
-      { name: "você", top: 86, left: 50, cards: ["Qh", "Qd"], chips: 21_300, bet: 400, you: true },
-      { name: "Beto", top: 28, left: 14, chips: 18_700, bet: 400 },
-      { name: "Leo", top: 10, left: 50, chips: 27_900, bet: 0, dealer: true },
-      { name: "Sofia", top: 28, left: 86, chips: 12_400, bet: 400 },
+      { name: "você", top: 86, left: 50, cards: ["Qh", "Qd"], showdownHand: "Trinca de Damas", chips: 21_300, bet: 400, you: true },
+      { name: "Beto", top: 28, left: 14, cards: ["As", "Ad"], showdownHand: "Par de Ases", chips: 18_700, bet: 400 },
+      { name: "Leo", top: 10, left: 50, cards: ["Ks", "Kd"], showdownHand: "Par de Reis", chips: 27_900, bet: 0, dealer: true },
+      { name: "Sofia", top: 28, left: 86, cards: ["7h", "7d"], showdownHand: "Trinca de Setes", chips: 12_400, bet: 400 },
     ],
     boards: [[], ["Qc", "7s", "2h"], ["Qc", "7s", "2h", "9d"], ["Qc", "7s", "2h", "9d", "3c"]],
     pots: [1_200, 3_600, 7_400, 12_000],
     winningFive: { hole: ["Qh", "Qd"], board: ["Qc", "9d", "7s"] },
+    result: "Sua trinca de Damas vence a trinca de Setes de Sofia e os pares de Beto e Leo.",
   },
 ];
 
@@ -111,6 +115,10 @@ export function ShowcaseTable({ className = "" }: { className?: string }) {
     return () => window.clearTimeout(id);
   }, [finished, scenarioIdx, streetIdx, reducedMotion]);
 
+  useEffect(() => {
+    if (reducedMotion) setStreetIdx(SCENARIOS[0].boards.length - 1);
+  }, [reducedMotion]);
+
   return (
     <div className="flex w-full flex-col items-center gap-2">
       <div className="flex w-full items-center justify-center gap-2">
@@ -171,10 +179,10 @@ export function ShowcaseTable({ className = "" }: { className?: string }) {
               {p.bet > 0 && (
                 <div className="mt-0.5 text-[10px] text-felt-200">Aposta {formatChips(p.bet)}</div>
               )}
-              {p.cards && p.cards.length > 0 && (
+              {p.cards && (p.you || showWin) && (
                 <div className="mt-1 flex justify-center gap-0.5">
                   {p.cards.map((c) => {
-                    const isWin = showWin && winHole.has(c);
+                    const isWin = showWin && p.you && winHole.has(c);
                     return (
                       <span key={c} className={isWin ? "zt-win-pop zt-win-card" : undefined}>
                         <PlayingCard code={c} size="sm" highlight={isWin} />
@@ -183,21 +191,23 @@ export function ShowcaseTable({ className = "" }: { className?: string }) {
                   })}
                 </div>
               )}
-              {!p.cards && (
+              {!p.you && !showWin && (
                 <div className="mt-1 flex justify-center gap-0.5">
                   <PlayingCard faceDown size="sm" />
                   <PlayingCard faceDown size="sm" />
                 </div>
               )}
-              {showWin && p.you && (
-                <div className="mt-0.5 text-[10px] font-bold text-gold-bright">VENCEDOR</div>
+              {showWin && (
+                <div className={`mt-0.5 text-[10px] font-bold ${p.you ? "text-gold-bright" : "text-felt-300"}`}>
+                  {p.showdownHand} · {p.you ? "VENCEU" : "PERDEU"}
+                </div>
               )}
             </div>
           </div>
         ))}
       </div>
-      <p className="text-[11px] text-felt-400" aria-hidden>
-        {scenario.label} · mesa ilustrativa
+      <p className="text-center text-[11px] text-felt-300" aria-live="polite">
+        {showWin ? scenario.result : `${scenario.label} · cartas dos adversários abrem no showdown`}
       </p>
     </div>
   );

@@ -24,7 +24,7 @@ pub struct TableResponse {
     pub game_type: String,
     /// `play` | `real` — fichas PM não servem em mesas real e vice-versa.
     pub money_mode: String,
-    /// `holdem` | `omaha` | `brazilian_pineapple`
+    /// `holdem` | `short_deck` | `omaha` | `brazilian_pineapple`
     pub poker_variant: String,
 }
 

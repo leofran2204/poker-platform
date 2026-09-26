@@ -15,6 +15,7 @@ export interface AnimatedStreet {
 export interface AnimatedSeat {
   name: string;
   cards?: string[];
+  showdownHand?: string;
   folded?: boolean;
   isHero?: boolean;
   isWinner?: boolean;
@@ -376,12 +377,18 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
                       <PlayingCard faceDown size="sm" />
                       <PlayingCard faceDown size="sm" />
                     </div>
+                  ) : !s.isHero && !showWin ? (
+                    <div className={many ? "zt-hole-row" : "mt-1 flex justify-center gap-0.5"}>
+                      {Array.from({ length: shown.length || 2 }, (_, cardIndex) => (
+                        <PlayingCard key={cardIndex} faceDown size="sm" />
+                      ))}
+                    </div>
                   ) : (
                     <div className={many ? "zt-hole-row" : "mt-1 flex justify-center gap-0.5"}>
                       {shown.map((c) => {
                         const inFive = i === winnerIdx && winHole.has(c);
                         const isWin = showWin && (useWinFive ? inFive : i === winnerIdx);
-                        const dim = showWin && useWinFive && !inFive;
+                        const dim = showWin && useWinFive && i === winnerIdx && !inFive;
                         return (
                           <span key={c} className={isWin ? "zt-win-pop zt-win-card" : dim ? "zt-dim" : undefined}>
                             <PlayingCard code={c} size="sm" highlight={isWin} />
@@ -391,7 +398,11 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
                     </div>
                   )}
                   {s.folded && <div className="mt-0.5 text-[10px] text-felt-400">foldou</div>}
-                  {isWinnerSeat && <div className="mt-0.5 text-[10px] font-bold text-gold-bright">VENCEDOR</div>}
+                  {showWin && !s.folded && (
+                    <div className={`mt-0.5 text-[10px] font-bold ${isWinnerSeat ? "text-gold-bright" : "text-felt-300"}`}>
+                      {s.showdownHand ? `${s.showdownHand} · ` : ""}{isWinnerSeat ? "VENCEU" : "PERDEU"}
+                    </div>
+                  )}
                 </div>
               </div>
             );

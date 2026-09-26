@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import homeContent from "@/data/homeContent.json";
 import { AnimatedHand, type AnimatedHandData } from "@/components/home/AnimatedHand";
 import { DeflatorSimulator } from "@/components/home/DeflatorSimulator";
+import { SidePotDeflatorDemo } from "@/components/home/SidePotDeflatorDemo";
 
 const { intro, steps, tiers, faq, demoHands } = homeContent.deflator;
 
@@ -68,6 +69,7 @@ export function LossDeflatorSection() {
         {(demoHands as AnimatedHandData[]).map((h) => (
           <AnimatedHand key={h.id} hand={h} />
         ))}
+        <SidePotDeflatorDemo />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">

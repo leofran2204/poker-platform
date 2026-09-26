@@ -56,12 +56,12 @@ impl RakeCapSchedule {
 pub enum PokerVariant {
     #[default]
     Holdem,
-    /// Ranking Short Deck (36) — só o motor; o catálogo vigente usa Brazilian Pineapple.
+    /// Texas Hold'em Short Deck: 36 cartas e ranking Six Plus.
     ShortDeck,
     /// Omaha 4 (PLO): baralho 52, 4 hole, exatamente 2+3, ranking clássico.
     #[serde(alias = "short_deck_omaha", alias = "sd_omaha", alias = "omaha_four")]
     Omaha,
-    /// Brazilian Pineapple: Short Deck 36, 2 hole +1 por street, 2+3, ranking Short Deck.
+    /// Brazilian Pineapple: 52 cartas, 2 hole +1 por street, 2+3, ranking clássico.
     #[serde(
         alias = "ultimate_pineapple",
         alias = "pineapple",
@@ -82,17 +82,8 @@ impl PokerVariant {
 
     pub fn parse(raw: &str) -> Self {
         match raw.trim().to_ascii_lowercase().as_str() {
-            "omaha"
-            | "omaha_4"
-            | "omaha_four"
-            | "plo"
-            | "plo4"
-            | "plo_4"
-            | "short_deck_omaha"
-            | "sd_omaha"
-            | "omaha_sd"
-            | "shortdeck_omaha"
-            | "plo_sd" => Self::Omaha,
+            "omaha" | "omaha_4" | "omaha_four" | "plo" | "plo4" | "plo_4" | "short_deck_omaha"
+            | "sd_omaha" | "omaha_sd" | "shortdeck_omaha" | "plo_sd" => Self::Omaha,
             "brazilian_pineapple"
             | "ultimate_pineapple"
             | "pineapple"
@@ -112,7 +103,7 @@ impl PokerVariant {
     }
 
     pub fn uses_short_deck(self) -> bool {
-        matches!(self, Self::ShortDeck | Self::BrazilianPineapple)
+        matches!(self, Self::ShortDeck)
     }
 }
 

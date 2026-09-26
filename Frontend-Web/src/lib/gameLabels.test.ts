@@ -3,7 +3,7 @@ import { gameNameLabel, handNamePt, tournamentStatusLabel } from "./gameLabels";
 import { isAdminRole } from "./me";
 
 describe("gameNameLabel", () => {
-  it("nomeia as três modalidades", () => {
+  it("nomeia as quatro modalidades", () => {
     expect(gameNameLabel({ poker_variant: "holdem" }, "cash")).toBe(
       "Texas Hold’em — Cash Game",
     );
@@ -12,6 +12,9 @@ describe("gameNameLabel", () => {
     );
     expect(gameNameLabel({ poker_variant: "brazilian_pineapple" }, "cash")).toBe(
       "Brazilian Pineapple — Cash Game",
+    );
+    expect(gameNameLabel({ poker_variant: "short_deck" }, "cash")).toBe(
+      "Texas Hold’em Short Deck — Cash Game",
     );
     expect(gameNameLabel({ poker_variant: "short_deck_omaha" }, "tournament")).toBe(
       "Omaha 4 Cartas — Torneio",

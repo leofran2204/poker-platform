@@ -1,9 +1,10 @@
 //! 10.000 mãos por configuração do catálogo cash oficial.
 //!
-//! Configs (blinds/frente/max alinhados à produção — migration 057):
+//! Configs (blinds/frente/max do catálogo local proposto — migration 059):
 //! - NL 0,25/0,25 · 9-max · frente R$25
+//! - Texas Short Deck 0,50/0,50 · 8-max · frente R$100
 //! - Omaha 4 · 0,50/0,50 · 6-max · frente R$100
-//! - Brazilian Pineapple 0,50/0,50 · 5-max · frente R$75
+//! - Brazilian Pineapple 0,50/0,50 · 6-max · frente R$75
 //!
 //! Rodar:
 //!   cargo test --test cash_catalog_10k_hands -- --nocapture
@@ -38,6 +39,16 @@ const CATALOG: &[CatalogTable] = &[
         variant: PokerVariant::Holdem,
     },
     CatalogTable {
+        name: "Texas Short Deck 0,50/0,50",
+        small_blind: 50,
+        big_blind: 50,
+        max_players: 8,
+        starting_stack: 10_000,
+        rake_bps: 500,
+        rake_cap: 500,
+        variant: PokerVariant::ShortDeck,
+    },
+    CatalogTable {
         name: "Omaha 4 0,50/0,50",
         small_blind: 50,
         big_blind: 50,
@@ -51,7 +62,7 @@ const CATALOG: &[CatalogTable] = &[
         name: "Brazilian Pineapple 0,50/0,50",
         small_blind: 50,
         big_blind: 50,
-        max_players: 5,
+        max_players: 6,
         starting_stack: 7_500,
         rake_bps: 500,
         rake_cap: 500,
@@ -167,17 +178,10 @@ fn run_catalog_table(cfg: &CatalogTable) {
 
         auto_play(&mut gl, cfg.big_blind);
 
-        if cfg.variant == PokerVariant::BrazilianPineapple
-            && gl.state.community_cards.len() == 5
-        {
+        if cfg.variant == PokerVariant::BrazilianPineapple && gl.state.community_cards.len() == 5 {
             for p in &gl.state.players {
                 if p.is_in_hand() {
-                    assert_eq!(
-                        p.hole_cards.len(),
-                        5,
-                        "{} pineapple river hole",
-                        cfg.name
-                    );
+                    assert_eq!(p.hole_cards.len(), 5, "{} pineapple river hole", cfg.name);
                 }
             }
         }

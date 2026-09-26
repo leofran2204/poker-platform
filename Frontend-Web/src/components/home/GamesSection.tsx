@@ -14,14 +14,14 @@ export function GamesSection() {
     <section aria-labelledby="home-games" id="demonstracao" className="scroll-mt-20 space-y-4">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold-soft">
-          3 jogos, 1 conta
+          4 jogos, 1 conta
         </p>
         <h2 id="home-games" className="mt-1 text-2xl font-bold text-gold-bright">
           Qual mesa é a sua?
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-felt-200">
-          Todo jogo usa cartas comunitárias na mesa, mas cada um muda o baralho, a mão inicial e
-          até o que vale mais. Escolha uma aba e assista a um exemplo animado.
+          Texas tradicional e Short Deck, Omaha e Brazilian Pineapple usam cartas comunitárias,
+          mas mudam o baralho ou a maneira de formar a mão. Escolha uma aba e acompanhe o showdown.
         </p>
       </div>
 

@@ -1206,6 +1206,41 @@ impl GameLoop {
         target - pending
     }
 
+    /// Divide o teto de um pote entre pedidos de cashback, sem repetir o percentual
+    /// para cada perdedor. Empates de centavos seguem a ordem recebida (assentos
+    /// ordenados a partir do botão).
+    fn share_pot_cashback(requests: &[(usize, u64)], cap: u64) -> Vec<(usize, u64)> {
+        let requested_total: u128 = requests.iter().map(|(_, amount)| *amount as u128).sum();
+        if requested_total == 0 || cap == 0 {
+            return requests.iter().map(|(idx, _)| (*idx, 0)).collect();
+        }
+        if requested_total <= cap as u128 {
+            return requests.to_vec();
+        }
+
+        let mut shares: Vec<(usize, u64, u128)> = requests
+            .iter()
+            .map(|(idx, amount)| {
+                let numerator = *amount as u128 * cap as u128;
+                (
+                    *idx,
+                    (numerator / requested_total) as u64,
+                    numerator % requested_total,
+                )
+            })
+            .collect();
+        let distributed: u64 = shares.iter().map(|(_, amount, _)| *amount).sum();
+        let mut remainder_order: Vec<usize> = (0..shares.len()).collect();
+        remainder_order.sort_by(|&a, &b| shares[b].2.cmp(&shares[a].2).then(a.cmp(&b)));
+        for &position in remainder_order.iter().take((cap - distributed) as usize) {
+            shares[position].1 += 1;
+        }
+        shares
+            .into_iter()
+            .map(|(idx, amount, _)| (idx, amount))
+            .collect()
+    }
+
     /// Calcula o Loss Deflator por equity para todos os perdedores all-in elegíveis.
     fn calculate_loss_deflators(
         &self,
@@ -1213,16 +1248,15 @@ impl GameLoop {
         payouts: &mut HashMap<String, u64>,
         players_for_pots: &[PlayerForPots],
     ) -> Vec<loss_deflator::ProgressiveLossDeflatorResult> {
-        let mut results = Vec::new();
+        let mut candidates = Vec::new();
         // Equity MC do loss deflator: pula em Omaha/Pineapple e em stress (skip_loss_deflator).
         if self.skip_loss_deflator
             || matches!(
                 self.config.poker_variant,
-                crate::types::PokerVariant::Omaha
-                    | crate::types::PokerVariant::BrazilianPineapple
+                crate::types::PokerVariant::Omaha | crate::types::PokerVariant::BrazilianPineapple
             )
         {
-            return results;
+            return Vec::new();
         }
 
         let player_hands = side_pots::precompute_hands_for_variant(
@@ -1351,75 +1385,101 @@ impl GameLoop {
                 loser_equity,
             };
 
-            if let Some(mut deflator) = loss_deflator::calculate_progressive_loss_deflator(params) {
-                // O cashback creditado deve ser exatamente o que foi debitado.
-                let requested_entries = deflator.per_pot_cashback.clone();
-                let mut actual_entries = Vec::new();
-                let mut actual_cashback = 0u64;
-
-                for entry in requested_entries {
-                    if entry.pot_index >= pots.len() {
-                        continue;
-                    }
-                    let pot = &pots[entry.pot_index];
-                    let pot_winners =
-                        side_pots::find_winners_for_pot(pot, players_for_pots, &player_hands);
-                    let valid_winners: Vec<String> = pot_winners
-                        .into_iter()
-                        .filter(|winner| winner != &player.id)
-                        .collect();
-                    if valid_winners.is_empty() {
-                        continue;
-                    }
-
-                    let mut ordered_winners: Vec<String> = seat_order_from_button
-                        .iter()
-                        .filter(|winner_id| valid_winners.contains(*winner_id))
-                        .cloned()
-                        .collect();
-                    for winner_id in valid_winners {
-                        if !ordered_winners.contains(&winner_id) {
-                            ordered_winners.push(winner_id);
-                        }
-                    }
-
-                    let debited = Self::debit_cashback_from_winners(
-                        payouts,
-                        &mut pot_payouts_remaining[entry.pot_index],
-                        &ordered_winners,
-                        entry.amount,
-                    );
-                    if debited > 0 {
-                        actual_cashback += debited;
-                        actual_entries.push(loss_deflator::PotCashbackEntry {
-                            pot_index: entry.pot_index,
-                            amount: debited,
-                        });
-                    }
-                }
-
-                if actual_cashback == 0 {
-                    continue;
-                }
-
-                deflator.cashback = actual_cashback;
-                deflator.base_cashback = actual_cashback;
-                deflator.eligible_pot_ids =
-                    actual_entries.iter().map(|entry| entry.pot_index).collect();
-                deflator.eligible_pot_total = deflator
-                    .eligible_pot_ids
-                    .iter()
-                    .map(|pot_index| pots[*pot_index].amount)
-                    .sum();
-                deflator.per_pot_cashback = actual_entries;
-                deflator.opponents_counted = opponents_counted.max(1);
-
-                let loser_payout = payouts.entry(player.id.clone()).or_insert(0);
-                *loser_payout += actual_cashback;
-                results.push(deflator);
+            if let Some(deflator) = loss_deflator::calculate_progressive_loss_deflator(params) {
+                candidates.push((deflator, opponents_counted.max(1)));
             }
         }
 
+        let mut actual_entries = vec![Vec::new(); candidates.len()];
+        for (pot_index, pot) in pots.iter().enumerate() {
+            let pot_winners = side_pots::find_winners_for_pot(pot, players_for_pots, &player_hands);
+            let mut requests: Vec<(usize, u64)> = candidates
+                .iter()
+                .enumerate()
+                .filter_map(|(idx, (candidate, _))| {
+                    if pot_winners.contains(&candidate.loser_id) {
+                        return None;
+                    }
+                    candidate
+                        .per_pot_cashback
+                        .iter()
+                        .find(|entry| entry.pot_index == pot_index && entry.amount > 0)
+                        .map(|entry| (idx, entry.amount))
+                })
+                .collect();
+            if requests.is_empty() {
+                continue;
+            }
+            requests.sort_by_key(|(idx, _)| {
+                seat_order_from_button
+                    .iter()
+                    .position(|id| id == &candidates[*idx].0.loser_id)
+                    .unwrap_or(usize::MAX)
+            });
+            // A maior faixa elegível define o teto deste pote líquido. Faixas
+            // diferentes dividem esse teto proporcionalmente aos pedidos.
+            let highest_basis_points = requests
+                .iter()
+                .map(|(idx, _)| candidates[*idx].0.tier.basis_points())
+                .max()
+                .unwrap_or(0);
+            let pot_cap = ((pot.amount as u128 * highest_basis_points as u128) / 10_000) as u64;
+            for (idx, amount) in Self::share_pot_cashback(&requests, pot_cap) {
+                if amount == 0 {
+                    continue;
+                }
+                let loser_id = &candidates[idx].0.loser_id;
+                let valid_winners: Vec<String> = pot_winners
+                    .iter()
+                    .filter(|winner| *winner != loser_id)
+                    .cloned()
+                    .collect();
+                let mut ordered_winners: Vec<String> = seat_order_from_button
+                    .iter()
+                    .filter(|winner_id| valid_winners.contains(*winner_id))
+                    .cloned()
+                    .collect();
+                for winner_id in valid_winners {
+                    if !ordered_winners.contains(&winner_id) {
+                        ordered_winners.push(winner_id);
+                    }
+                }
+                let debited = Self::debit_cashback_from_winners(
+                    payouts,
+                    &mut pot_payouts_remaining[pot_index],
+                    &ordered_winners,
+                    amount,
+                );
+                if debited > 0 {
+                    actual_entries[idx].push(loss_deflator::PotCashbackEntry {
+                        pot_index,
+                        amount: debited,
+                    });
+                }
+            }
+        }
+
+        let mut results = Vec::new();
+        for ((mut deflator, opponents_counted), entries) in
+            candidates.into_iter().zip(actual_entries)
+        {
+            let cashback: u64 = entries.iter().map(|entry| entry.amount).sum();
+            if cashback == 0 {
+                continue;
+            }
+            deflator.cashback = cashback;
+            deflator.base_cashback = cashback;
+            deflator.eligible_pot_ids = entries.iter().map(|entry| entry.pot_index).collect();
+            deflator.eligible_pot_total = deflator
+                .eligible_pot_ids
+                .iter()
+                .map(|pot_index| pots[*pot_index].amount)
+                .sum();
+            deflator.per_pot_cashback = entries;
+            deflator.opponents_counted = opponents_counted;
+            *payouts.entry(deflator.loser_id.clone()).or_insert(0) += cashback;
+            results.push(deflator);
+        }
         results
     }
     /// Constrói a lista de PlayerResult para hand history
@@ -1558,6 +1618,31 @@ fn now_timestamp_ms() -> u64 {
 mod tests {
     use super::*;
 
+    #[test]
+    fn two_bad_beats_share_one_pot_cap_and_side_pot_stays_isolated() {
+        // Mesmo exemplo da home: pote principal líquido R$ 300 e dois
+        // perdedores na faixa de 25%. Os R$ 75 são compartilhados.
+        let main = GameLoop::share_pot_cashback(&[(0, 7_500), (1, 7_500)], 7_500);
+        assert_eq!(main, vec![(0, 3_750), (1, 3_750)]);
+
+        // No side pot líquido R$ 200 só o segundo perdedor participou.
+        let side = GameLoop::share_pot_cashback(&[(1, 5_000)], 5_000);
+        assert_eq!(side, vec![(1, 5_000)]);
+        assert_eq!(
+            main.iter().map(|(_, amount)| amount).sum::<u64>() + side[0].1,
+            12_500
+        );
+        assert_eq!(main[0].1, 3_750);
+        assert_eq!(main[1].1 + side[0].1, 8_750);
+        assert_eq!(50_000 - 12_500, 37_500);
+
+        // Centavo indivisível: prioridade determinística do assento após o botão.
+        assert_eq!(
+            GameLoop::share_pot_cashback(&[(0, 5_001), (1, 5_001)], 5_001),
+            vec![(0, 2_501), (1, 2_500)]
+        );
+    }
+
     fn make_config() -> TableConfig {
         TableConfig::new(1000, 500, 500) // BB=1000, rake=5%, cap=500
     }
@@ -1660,7 +1745,8 @@ mod tests {
 
     #[test]
     fn brazilian_pineapple_deals_extra_hole_each_street() {
-        let config = make_config().with_poker_variant(crate::types::PokerVariant::BrazilianPineapple);
+        let config =
+            make_config().with_poker_variant(crate::types::PokerVariant::BrazilianPineapple);
         let mut gl = GameLoop::new(
             config,
             "bp-001".to_string(),
@@ -1673,7 +1759,7 @@ mod tests {
         gl.start_hand().unwrap();
         assert_eq!(gl.state.players[0].hole_cards.len(), 2);
         assert_eq!(gl.state.players[1].hole_cards.len(), 2);
-        assert_eq!(gl.state.deck.len(), 32);
+        assert_eq!(gl.state.deck.len(), 48);
 
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
@@ -1691,17 +1777,14 @@ mod tests {
         assert_eq!(gl.state.phase, GamePhase::River);
         assert_eq!(gl.state.players[0].hole_cards.len(), 5);
         assert_eq!(gl.state.players[1].hole_cards.len(), 5);
-        assert_eq!(gl.state.deck.len(), 18);
-        for player in &gl.state.players {
-            for card in &player.hole_cards {
-                assert!((card.rank as u8) >= 6);
-            }
-        }
+        assert_eq!(gl.state.deck.len(), 34);
+        assert!(!gl.config.poker_variant.uses_short_deck());
     }
 
     #[test]
     fn brazilian_pineapple_folded_skips_extra_card() {
-        let config = make_config().with_poker_variant(crate::types::PokerVariant::BrazilianPineapple);
+        let config =
+            make_config().with_poker_variant(crate::types::PokerVariant::BrazilianPineapple);
         let mut gl = GameLoop::new(
             config,
             "bp-fold".to_string(),
@@ -1719,15 +1802,72 @@ mod tests {
     }
 
     #[test]
-    fn brazilian_pineapple_five_max_deck_lasts_to_river() {
-        let config = make_config().with_poker_variant(crate::types::PokerVariant::BrazilianPineapple);
+    fn texas_full_tables_reach_showdown_with_unique_cards() {
+        use crate::types::PokerVariant;
+
+        for (variant, seats, deck_size) in [
+            (PokerVariant::Holdem, 9, 52),
+            (PokerVariant::ShortDeck, 8, 36),
+        ] {
+            let config = make_config().with_poker_variant(variant);
+            let mut gl = GameLoop::new(
+                config,
+                "texas-full-table".to_string(),
+                "Texas full table".to_string(),
+                GameType::Cash,
+            );
+            for seat in 0..seats {
+                gl.add_player(format!("p{seat}"), 100_000);
+            }
+            gl.set_dealer(0);
+            gl.start_hand().unwrap();
+            for _ in 0..100 {
+                if gl.state.is_finished {
+                    break;
+                }
+                let player = gl.state.active_player().unwrap();
+                let id = player.id.clone();
+                let action = if player.current_bet < gl.state.current_bet_to_match {
+                    PlayerMove::Call
+                } else {
+                    PlayerMove::Check
+                };
+                gl.player_action(&id, action).unwrap();
+            }
+            assert!(gl.state.is_finished);
+            assert_eq!(gl.state.community_cards.len(), 5);
+            assert_eq!(gl.state.deck.len(), deck_size - seats * 2 - 5 - 3);
+            let mut seen = gl.state.community_cards.clone();
+            for player in &gl.state.players {
+                assert_eq!(player.hole_cards.len(), 2);
+                for card in &player.hole_cards {
+                    assert!(!seen.contains(card), "carta duplicada: {card:?}");
+                    seen.push(*card);
+                }
+            }
+            if variant == PokerVariant::ShortDeck {
+                assert!(seen.iter().all(|card| card.rank as u8 >= 6));
+            }
+            let resolution = gl.resolve_hand().unwrap();
+            let stacks: u64 = gl.state.players.iter().map(|player| player.stack).sum();
+            assert_eq!(
+                stacks + resolution.payouts.values().sum::<u64>() + resolution.rake,
+                seats as u64 * 100_000
+            );
+        }
+    }
+
+    #[test]
+    fn brazilian_pineapple_six_max_deck_lasts_to_river() {
+        let config =
+            make_config().with_poker_variant(crate::types::PokerVariant::BrazilianPineapple);
         let mut gl = GameLoop::new(
             config,
-            "bp-5max".to_string(),
-            "Pineapple 5-max".to_string(),
+            "bp-6max".to_string(),
+            "Pineapple 6-max".to_string(),
             GameType::Cash,
         );
-        for i in 0..5 {
+        for i in 0..6 {
             gl.add_player(format!("p{i}"), 100000);
         }
         gl.set_dealer(0);
@@ -1756,7 +1896,7 @@ mod tests {
         for player in &gl.state.players {
             assert_eq!(player.hole_cards.len(), 5);
         }
-        assert_eq!(gl.state.deck.len(), 3);
+        assert_eq!(gl.state.deck.len(), 14);
     }
 
     #[test]

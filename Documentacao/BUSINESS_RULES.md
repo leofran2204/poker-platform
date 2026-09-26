@@ -30,12 +30,13 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 | Variante (`poker_variant`) | Baralho | Hole cards | Cap típico cash |
 |----------------------------|---------|------------|-----------------|
 | `holdem` (Texas Hold’em) | 52 | 2 | até 9 |
+| `short_deck` (Texas Hold’em Short Deck) | 36 (6–A) | 2 | até 8 |
 | `omaha` (Omaha 4 / PLO) | 52 | **4** (usa exatamente 2 hole + 3 board) | até 6 |
-| `brazilian_pineapple` | 36 (sem 2–5) | 2 no pré-flop; **+1** após flop, turn e river (usa exatamente 2 hole + 3 board) | até 5 |
+| `brazilian_pineapple` | 52 | 2 no pré-flop; **+1** após flop, turn e river (usa exatamente 2 hole + 3 board) | até 6 |
 
 **Carteiras:** Play Money (cash + MTT, reset diário) e Jogo Real (isolado). `money_mode` da mesa/torneio deve coincidir com o modo do cliente (`play` \| `real`).
 
-**Catálogo (blinds, frentes, MTT, PIX):** [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md). Frentes cash **fixas** (`min_buy_in = max_buy_in`). Small blind pode **igualar** big blind. FT Short Deck troca só no próximo blind + popup.
+**Catálogo publicado (blinds, frentes, MTT, PIX):** [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md). A migração 059 prepara o catálogo local de quatro modalidades; até o deploy, o STATUS ainda descreve a demo anterior. Frentes cash **fixas** (`min_buy_in = max_buy_in`). Small blind pode **igualar** big blind.
 
 ---
 
@@ -72,13 +73,19 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 - Ranking **clássico** (igual ao Hold’em: sequência > trinca, full house > flush; wheel A-2-3-4-5)
 - Implementação: `evaluate_hand_omaha`
 
-### 2.5 🍍 Brazilian Pineapple — `brazilian_pineapple` (5-max cash + torneio)
-- Baralho Short Deck de **36** cartas (ranks 6–A; sem 2–5)
+### 2.5 🍍 Brazilian Pineapple — `brazilian_pineapple` (6-max cash + torneio)
+- Baralho tradicional de **52** cartas (ranks 2–A)
 - Pré-flop: **2** hole cards. Depois de virar flop, turn e river: **+1** hole para quem ainda está na mão (incluindo all-in). Foldado não recebe. Sem descarte. No river: 5 hole.
 - No showdown: exatamente **2** hole + **3** community (melhor combo)
-- **Única** modalidade com ranking Short Deck: **trinca > sequência** e **flush > full house**; wheel **A-6-7-8-9**
-- Cap 5-max para o baralho 36 caber com burns (1 antes de flop/turn/river)
-- Implementação: `create_short_deck` / `evaluate_hand_brazilian_pineapple` / deal extra em `advance_phase`
+- Ranking **clássico**: sequência > trinca, full house > flush; wheel A-2-3-4-5
+- Até **6 jogadores**; o baralho de 52 cobre cinco cartas fechadas por jogador, board e burns
+- Implementação: `create_deck` / `evaluate_hand_brazilian_pineapple` / deal extra em `advance_phase`
+
+### 2.6 🂡 Texas Hold’em Short Deck — `short_deck` (8-max cash + torneio)
+- Baralho de **36** cartas (ranks 6–A; sem 2–5)
+- Duas cartas fechadas, cinco comunitárias; melhor combinação de cinco como no Hold’em
+- Ranking Six Plus: **trinca > sequência** e **flush > full house**; wheel **A-6-7-8-9**
+- Implementação: `create_short_deck` / `evaluate_hand_short_deck`
 
 ---
 
@@ -93,8 +100,8 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 | `bigBlind`    | number   | > 0; `smallBlind ≤ bigBlind`       |
 | `minBuyIn`    | number   | > 0 (cash oficial: = `maxBuyIn`)   |
 | `maxBuyIn`    | number   | > 0                                |
-| `maxPlayers`  | int      | 2–9 (NL: 9; Omaha 4: 6; Brazilian Pineapple: 5) |
-| `poker_variant` | string | `holdem` \| `omaha` \| `brazilian_pineapple` |
+| `maxPlayers`  | int      | 2–9 (Texas tradicional: 9; Texas Short Deck: 8; Omaha 4 e Brazilian Pineapple: 6) |
+| `poker_variant` | string | `holdem` \| `short_deck` \| `omaha` \| `brazilian_pineapple` |
 | `money_mode`  | string   | `play` \| `real`                   |
 | `speed`       | enum     | `normal` \| `turbo` \| `hyper`     |
 | `ante`        | number?  | ≥ 0 (opcional)                     |
@@ -248,7 +255,7 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
 - **Roteamento de Ledger**: O valor do Rake do Clube (`club_rake`) é injetado diretamente no saldo administrativo da tabela `clubs` (`balance`) ao final de cada mão (apenas mesas com `club_id`). O fee da plataforma (`platform_fee`) é contabilizado para a Zerotilt.
 - **Split 15/85 no motor:** ainda existe para mesa com `club_id` (código legado). **Não é** a regra comercial desta rede.
 - **Rede de afiliados (canônico):** cadastro grava só o **ID do patrocinador** (`users.sponsored_by`). Clube é lugar, **sem rake**. Dois níveis no admin de cada um. Comissão sobre o **rake individual** da mão em que o afiliado sentou: **18%** ao patrocinador direto, **12%** ao avô (se houver), **resto à casa**. Sem avô: 18% + 82% casa. Sem patrocinador: 100% casa. Sem bônus por cadastro. Mesmos % em ponto e em real. **Fee de torneio também pontua:** 18/12 sobre os 15% cobrados por cima do buy-in no ato da inscrição (S22). Detalhe: `PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md`.
-- **Torneios multi-mesa (S22):** 3 mesas físicas por torneio; tetos Texas 27 · SD 24 · Omaha 15 · Pineapple 18 (`max_players = 3×table_max`, 048). Rebalance com desnível >1; consolidação na FT; gameplay WS ao vivo; run-out automático em all-in geral; halt auditável (`MTT_TABLE_HALTED`).
+- **Torneios multi-mesa:** 3 mesas físicas por torneio e `max_players = 3×table_max`; Texas tradicional até 27, Texas Short Deck até 24, Omaha 4 e Brazilian Pineapple até 18. O admin pode criar Texas Short Deck com mesa até 8, definindo data e horário. Rebalance com desnível >1; consolidação na FT; gameplay WS ao vivo; run-out automático em all-in geral; halt auditável (`MTT_TABLE_HALTED`).
 - **Play-money**: operação atual permanece sem dinheiro real; saques de clube via admin são intenções mock/sandbox.
 
 ---
@@ -298,6 +305,7 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 - **Múltiplos All-Ins e Fases Distintas:** Cada perdedor possui um snapshot individual de fase e board para calcular sua equity. A fase não escolhe o tier.
 - **Equity multiway:** quando o perdedor all-in compartilha potes com **dois ou mais** oponentes ainda na mão, a equity usa Monte Carlo multiway determinístico (`get_multiway_win_probability`). Com um único oponente, usa heads-up.
 - **Isolamento de Side Pots:** O cashback de um perdedor é calculado e descontado APENAS dos potes líquidos pós-rake em que ele participou. Side pots nos quais não era elegível ficam intocados.
+- **Teto compartilhado por pote:** Quando vários perdedores all-in se qualificam no mesmo pote, a maior faixa elegível define o teto percentual único daquele pote líquido. Os perdedores dividem esse teto proporcionalmente aos pedidos individuais; faixas iguais dividem em partes iguais. Centavos residuais seguem a ordem dos assentos a partir do botão. Um side pot só entra no rateio dos perdedores elegíveis a ele.
 - **Limite Máximo:** Cashback nunca excede 35% do valor perdido.
 - **Anti-abuso:** Perder propositalmente para receber cashback é detectado pelo módulo antifraude.
 
@@ -331,7 +339,7 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 | Regra               | Arquivo                          | Função/Local                    |
 |---------------------|----------------------------------|---------------------------------|
 | Baralho 52 cartas   | `Motor-Rust/src/deck.rs`         | `create_deck()`, `shuffle()`    |
-| Ranking de mãos     | `Motor-Rust/src/deck.rs`         | `evaluate_hand()` / `evaluate_hand_omaha()` / `evaluate_hand_brazilian_pineapple()` |
+| Ranking de mãos     | `Motor-Rust/src/deck.rs`         | `evaluate_hand()` / `evaluate_hand_short_deck()` / `evaluate_hand_omaha()` / `evaluate_hand_brazilian_pineapple()` |
 | Straight A-2-3-4-5  | `Motor-Rust/src/deck.rs`         | `is_straight()`                 |
 | Side pots           | `Motor-Rust/src/side_pots.rs`    | `calculate_side_pots()`         |
 | Loss Deflator       | `Motor-Rust/src/loss_deflator.rs`| `calculate_progressive_loss_deflator()` |

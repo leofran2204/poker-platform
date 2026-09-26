@@ -4,7 +4,7 @@
 //! bots numa mesa play pelo painel, eles sentam via assento normal (buy-in em
 //! PM debitado da carteira do bot) e jogam pelos comandos internos do
 //! TableActor, sem WebSocket. A estrategia unica e LAG com avaliacao de mao
-//! real pelo proprio motor (Hold'em, Omaha 4 e Brazilian Pineapple) — potes crescem, quebras
+//! real pelo proprio motor (Hold'em, Short Deck, Omaha 4 e Brazilian Pineapple) — potes crescem, quebras
 //! acontecem, sobra 1 vencedor.
 //!
 //! Bots nao tem convite nem senha valida: nunca logam, nunca pontuam na
@@ -28,10 +28,10 @@ pub const BOT_EMAIL_DOMAIN: &str = "@bots.local";
 pub const BOT_PM_BALANCE: i64 = 1_000_000;
 
 /// Estrategia unica da frota: base LAG com avaliacao da mao pelo proprio
-/// motor por variante (Hold'em, Omaha 4 e Brazilian Pineapple).
+/// motor por variante (Hold'em, Short Deck, Omaha 4 e Brazilian Pineapple).
 pub const STRATEGY_LAG_V2: &str = "lag_v2";
 
-pub const SUPPORTED_VARIANTS: &[&str] = &["holdem", "omaha", "brazilian_pineapple"];
+pub const SUPPORTED_VARIANTS: &[&str] = &["holdem", "short_deck", "omaha", "brazilian_pineapple"];
 
 pub fn all_strategies() -> Vec<String> {
     vec![STRATEGY_LAG_V2.to_string()]

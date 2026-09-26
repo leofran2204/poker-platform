@@ -17,12 +17,13 @@ import { formatBrlFromCents } from "@/lib/money";
 import { getWalletMode } from "@/lib/walletMode";
 
 type LobbyTab = "cash" | "tournaments";
-type StakeFilter = "all" | "nl025" | "nl075150" | "omaha050" | "pineapple050";
+type StakeFilter = "all" | "nl025" | "nl075150" | "shortdeck050" | "omaha050" | "pineapple050";
 
 const STAKE_OPTIONS: { id: StakeFilter; label: string }[] = [
   { id: "all", label: "Todos" },
   { id: "nl025", label: "NL 0,25/0,25" },
   { id: "nl075150", label: "NL 0,75/1,50" },
+  { id: "shortdeck050", label: "Short Deck 0,50/0,50" },
   { id: "omaha050", label: "Omaha 0,50/0,50" },
   { id: "pineapple050", label: "Pineapple 0,50/0,50" },
 ];
@@ -123,10 +124,13 @@ export function LobbyPage() {
       const isOmaha = t.poker_variant === "omaha" || t.poker_variant === "short_deck_omaha";
       const isPineapple =
         t.poker_variant === "brazilian_pineapple" || t.poker_variant === "ultimate_pineapple";
+      const isHoldem = !t.poker_variant || t.poker_variant === "holdem";
       if (stake === "nl025")
-        return !isOmaha && !isPineapple && t.small_blind === 25 && t.big_blind === 25;
+        return isHoldem && t.small_blind === 25 && t.big_blind === 25;
       if (stake === "nl075150")
-        return !isOmaha && !isPineapple && t.small_blind === 75 && t.big_blind === 150;
+        return isHoldem && t.small_blind === 75 && t.big_blind === 150;
+      if (stake === "shortdeck050")
+        return t.poker_variant === "short_deck" && t.small_blind === 50 && t.big_blind === 50;
       if (stake === "omaha050")
         return isOmaha && t.small_blind === 50 && t.big_blind === 50;
       if (stake === "pineapple050")
@@ -295,7 +299,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({filtered.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                NL 0,25/0,25 9-max (R$25) · NL 0,75/1,50 9-max (R$150) · Omaha 0,50/0,50 6-max (R$100) · Pineapple 0,50/0,50 5-max (R$75) · ação automática em 15s
+                Texas tradicional, Texas Short Deck, Omaha 4 e Brazilian Pineapple · confira blinds, frente e vagas em cada mesa · ação automática em 15s
               </p>
             </div>
 
@@ -519,7 +523,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({tournaments.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                Texas, freeroll, Omaha e Pineapple · taxa 15% por cima do buy-in
+                Texas tradicional e Short Deck, freeroll, Omaha e Pineapple · taxa 15% por cima do buy-in
               </p>
             </div>
             <button

@@ -498,12 +498,12 @@ pub fn evaluate_hand_omaha(hole_cards: &[Card], community_cards: &[Card]) -> Han
     evaluate_exactly_two_plus_three(hole_cards, community_cards, evaluate_hand)
 }
 
-/// Brazilian Pineapple: exatamente 2 hole + 3 board, ranking Short Deck.
+/// Brazilian Pineapple: exatamente 2 hole + 3 board, ranking clássico.
 pub fn evaluate_hand_brazilian_pineapple(
     hole_cards: &[Card],
     community_cards: &[Card],
 ) -> HandResult {
-    evaluate_exactly_two_plus_three(hole_cards, community_cards, evaluate_hand_short_deck)
+    evaluate_exactly_two_plus_three(hole_cards, community_cards, evaluate_hand)
 }
 
 /// Alias histórico: 2+3 com ranking Short Deck (testes de combo).
@@ -511,7 +511,7 @@ pub fn evaluate_hand_short_deck_omaha(hole_cards: &[Card], community_cards: &[Ca
     evaluate_exactly_two_plus_three(hole_cards, community_cards, evaluate_hand_short_deck)
 }
 
-/// Alias histórico do Pineapple 2+3 Short Deck.
+/// Alias histórico do Brazilian Pineapple 2+3.
 pub fn evaluate_hand_ultimate_pineapple(
     hole_cards: &[Card],
     community_cards: &[Card],
@@ -1411,10 +1411,7 @@ mod tests {
     fn test_catalog_variant_parse_and_hole_count() {
         use crate::types::PokerVariant;
         assert_eq!(PokerVariant::parse("omaha"), PokerVariant::Omaha);
-        assert_eq!(
-            PokerVariant::parse("short_deck_omaha"),
-            PokerVariant::Omaha
-        );
+        assert_eq!(PokerVariant::parse("short_deck_omaha"), PokerVariant::Omaha);
         assert_eq!(PokerVariant::Omaha.hole_card_count(), 4);
         assert!(!PokerVariant::Omaha.uses_short_deck());
         assert_eq!(PokerVariant::Omaha.as_str(), "omaha");
@@ -1432,7 +1429,8 @@ mod tests {
             PokerVariant::BrazilianPineapple
         );
         assert_eq!(PokerVariant::BrazilianPineapple.hole_card_count(), 2);
-        assert!(PokerVariant::BrazilianPineapple.uses_short_deck());
+        assert!(!PokerVariant::BrazilianPineapple.uses_short_deck());
+        assert!(PokerVariant::ShortDeck.uses_short_deck());
         assert_eq!(
             PokerVariant::BrazilianPineapple.as_str(),
             "brazilian_pineapple"
@@ -1534,7 +1532,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ultimate_pineapple_flush_beats_full_house() {
+    fn test_ultimate_pineapple_full_house_beats_flush() {
         let flush_hole = vec![
             c(Rank::Ace, Suit::Hearts),
             c(Rank::King, Suit::Hearts),
@@ -1563,6 +1561,6 @@ mod tests {
         let boat = evaluate_hand_ultimate_pineapple(&boat_hole, &boat_board);
         assert_eq!(flush.rank, HandRank::Flush);
         assert_eq!(boat.rank, HandRank::FullHouse);
-        assert_eq!(compare_hands(&flush, &boat), Ordering::Greater);
+        assert_eq!(compare_hands(&boat, &flush), Ordering::Greater);
     }
 }

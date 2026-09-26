@@ -278,7 +278,7 @@ export interface TableResponse {
   max_buy_in: number;
   game_type: string;
   money_mode: string;
-  /** `holdem` | `omaha` | `brazilian_pineapple` */
+  /** `holdem` | `short_deck` | `omaha` | `brazilian_pineapple` */
   poker_variant: string;
 }
 
@@ -314,7 +314,7 @@ export interface TournamentInfoResponse {
   blind_levels: BlindLevelDto[];
   gameplay_ready: boolean;
   money_mode: string;
-  /** `holdem` | `omaha` | `brazilian_pineapple` */
+  /** `holdem` | `short_deck` | `omaha` | `brazilian_pineapple` */
   poker_variant: string;
   final_table_variant?: string | null;
   final_table_max_players?: number | null;

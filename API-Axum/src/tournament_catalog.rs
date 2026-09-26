@@ -103,10 +103,20 @@ pub(crate) fn row_to_store(row: TournamentRow) -> TournamentStore {
     store.final_table_variant = row
         .final_table_variant
         .map(|variant| variant.to_ascii_lowercase())
-        .filter(|variant| matches!(variant.as_str(), "holdem" | "omaha" | "brazilian_pineapple"));
+        .filter(|variant| {
+            matches!(
+                variant.as_str(),
+                "holdem" | "short_deck" | "omaha" | "brazilian_pineapple"
+            )
+        });
+    let final_table_cap = match store.final_table_variant.as_deref() {
+        Some("holdem") => 9,
+        Some("short_deck") => 8,
+        _ => 6,
+    };
     store.final_table_max_players = row
         .final_table_max_players
-        .map(|players| players.clamp(2, 8) as u8);
+        .map(|players| players.clamp(2, final_table_cap) as u8);
     store.scheduled_start_at = row.scheduled_start_at;
     store.auto_start_min_players = row.auto_start_min_players;
     store.live_table_id = row.live_table_id.map(|id| id.to_string());

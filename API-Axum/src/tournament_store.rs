@@ -12,7 +12,7 @@ pub struct TournamentStore {
     pub state: TournamentState,
     /// `play` | `real` — must match client wallet mode.
     pub money_mode: String,
-    /// `holdem` | `omaha` | `brazilian_pineapple`
+    /// `holdem` | `short_deck` | `omaha` | `brazilian_pineapple`
     pub poker_variant: String,
     /// Number of seats at each physical tournament table before the final table.
     pub table_max_players: u8,
@@ -53,7 +53,8 @@ impl TournamentStore {
             .to_string();
         let table_max_players = match poker_variant.as_str() {
             "omaha" => 6,
-            "brazilian_pineapple" => 5,
+            "brazilian_pineapple" => 6,
+            "short_deck" => 8,
             _ => 9,
         };
         Self {
@@ -111,6 +112,12 @@ mod tests {
             "play".into(),
             "pineapple".into(),
         );
+        let short_deck = TournamentStore::with_mode_and_variant(
+            "short-deck".into(),
+            config.clone(),
+            "play".into(),
+            "short_deck".into(),
+        );
         let holdem = TournamentStore::with_mode_and_variant(
             "holdem".into(),
             config,
@@ -121,7 +128,9 @@ mod tests {
         assert_eq!(omaha.poker_variant, "omaha");
         assert_eq!(omaha.table_max_players, 6);
         assert_eq!(pineapple.poker_variant, "brazilian_pineapple");
-        assert_eq!(pineapple.table_max_players, 5);
+        assert_eq!(pineapple.table_max_players, 6);
+        assert_eq!(short_deck.poker_variant, "short_deck");
+        assert_eq!(short_deck.table_max_players, 8);
         assert_eq!(holdem.table_max_players, 9);
     }
 

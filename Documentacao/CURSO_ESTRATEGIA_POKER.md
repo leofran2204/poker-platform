@@ -3,7 +3,7 @@
 > Base teórica do `bot/strategy/`: posição, ranges pré-flop, matemática (pot odds, EV, outs), 3-bets, ferramentas e gestão de banca. Redação própria a partir de estudo de fontes públicas.
 > Versão interativa (com quiz avaliado pelo motor): `Frontend-Web/src/data/courseContent.json`, rota `/curso`.
 
-Na casa há três jogos. Hold’em e Omaha 4 (4 hole, baralho 52, exatamente 2+3) usam ranking clássico. Só o Brazilian Pineapple é Short Deck: 2 hole e +1 após flop, turn e river, 2+3 no showdown, trinca > sequência e flush > full house. O Módulo 5 interativo descreve essa regra. Os vídeos ep23–ep25 ainda narram Texas Short Deck, Omaha curto e Ultimate Pineapple de 3 cartas — dívida de regravação.
+O código local oferece quatro jogos: Texas Hold’em tradicional; Texas Hold’em Short Deck (36 cartas, trinca > sequência e flush > full house); Omaha 4 (52 cartas, exatamente 2 hole + 3 board); e Brazilian Pineapple (52 cartas, ranking clássico, 2 hole e +1 após flop, turn e river, 2+3 no showdown). O Módulo 5 interativo traz as regras atuais em texto e quiz. Os vídeos ep23–ep25 estão temporariamente ocultos na plataforma porque narram o catálogo anterior; precisam de regravação antes de voltar ao curso. A publicação desse catálogo ainda depende de deploy e sincronização do STATUS operacional.
 
 ## Módulo 0 (iniciante)
 

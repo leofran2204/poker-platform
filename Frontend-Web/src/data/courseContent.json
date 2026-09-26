@@ -1312,20 +1312,17 @@
     {
       "id": "m5",
       "title": "Módulo 5: As Variantes Zero Tilt",
-      "subtitle": "Omaha 4 no baralho de 52 e Brazilian Pineapple no Short Deck. ~20 min. Os vídeos ep23–ep25 ainda narram a versão anterior.",
+      "subtitle": "Quatro modalidades: Texas tradicional e Short Deck, Omaha 4 e Brazilian Pineapple. Regras atuais em texto e quiz; vídeos das variantes em atualização.",
       "lessons": [
         {
           "id": "m5l1",
-          "title": "Brazilian Pineapple: o único Short Deck da casa",
+          "title": "Texas Hold'em Short Deck: 36 cartas",
           "minutes": 2,
           "video": {
             "hostName": "Sofia 'Cold Felt' Alencar",
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 75,
-            "url": "/videos/ep23-short-deck.mp4",
-            "placeholderScript": "O Chórt Dec da casa é o Brazilian Pineapple, não um Texas Hold'em de 36 cartas. Você começa com 2 cartas e ganha mais 1 depois do flóp, do turn e do ríver. No chôudaun usa exatamente 2 da mão e 3 da mesa. Trinca vence sequência, flâsh vence fullrrause, e a sequência baixa é A-6-7-8-9. O vídeo ainda narra a versão anterior.",
-            "captionsUrl": "/videos/ep23-short-deck.vtt",
-            "posterUrl": "/videos/ep23-short-deck.jpg"
+            "placeholderScript": "Texas Hold'em Short Deck usa 36 cartas, de seis a Ás. Duas cartas fechadas e cinco comunitárias, como no Texas tradicional. Aqui trinca vence sequência e flush vence full house. A menor sequência é Ás, seis, sete, oito e nove. O vídeo está sendo atualizado para refletir o catálogo atual."
           },
           "handExample": {
             "title": "Trinca vence Sequência no Short Deck",
@@ -1344,27 +1341,27 @@
             ],
             "potBb": "40",
             "actionText": "Você tem Trinca de Damas (Q-Q-Q). O vilão mostra 10s 9s (Sequência 7-8-9-10-J).",
-            "heroDecision": "Showdown ganho. No Brazilian Pineapple, trinca é superior a sequência.",
-            "keyTakeaway": "Só o Pineapple inverte o ranking: trinca > sequência e flush > full house."
+            "heroDecision": "Showdown ganho. No Texas Hold'em Short Deck, trinca é superior a sequência.",
+            "keyTakeaway": "A inversão do ranking pertence ao Short Deck: trinca > sequência e flush > full house."
           },
-          "body": "## Brazilian Pineapple (5-max)\n\n- **Baralho de 36:** sem 2, 3, 4 e 5.\n- **Deal:** 2 hole no pré-flop; +1 depois do flop, do turn e do river (5 no river). Sem descarte.\n- **Showdown:** exatamente 2 da mão + 3 da mesa.\n- **Ranking Short Deck:** trinca vale mais que sequência. Flush vale mais que full house. Sequência baixa: Ás, 6, 7, 8 e 9.\n- O vídeo desta aula ainda narra o Texas Short Deck antigo. A regra vigente é este texto.",
+          "body": "## Texas Hold'em Short Deck (8-max)\n\n- **Baralho de 36:** sem 2, 3, 4 e 5.\n- **Deal:** 2 cartas fechadas no pré-flop, como no Texas tradicional.\n- **Showdown:** a melhor combinação de 5 entre as 2 da mão e as 5 comunitárias.\n- **Ranking Short Deck:** trinca vence sequência; flush vence full house. Sequência baixa: Ás, 6, 7, 8 e 9.\n- O Brazilian Pineapple usa 52 cartas e ranking tradicional. O vídeo desta aula está sendo atualizado.",
           "quiz": [
             {
               "id": "m5l1q1",
               "kind": "theory",
-              "prompt": "No Brazilian Pineapple, qual é a hierarquia entre trinca e sequência?",
+              "prompt": "No Texas Hold'em Short Deck, qual é a hierarquia entre trinca e sequência?",
               "options": [
                 "Sequência vence Trinca, como no Hold'em clássico",
                 "Trinca vence Sequência, porque é matematicamente mais rara com 36 cartas",
                 "Dá empate e o pote é dividido"
               ],
               "expectedIndex": 1,
-              "explanation": "No Pineapple (baralho 36) a sequência é comum e a trinca é rara; trinca vence sequência. No Hold'em e no Omaha 4 a ordem é a clássica."
+              "explanation": "No Short Deck, com 36 cartas, trinca vence sequência. No Texas tradicional, Omaha 4 e Brazilian Pineapple, sequência vence trinca."
             },
             {
               "id": "m5l1q2",
               "kind": "engine",
-              "prompt": "Showdown no Brazilian Pineapple. Trinca de 9 contra sequência no board. Quem leva o pote?",
+              "prompt": "Showdown no Texas Hold'em Short Deck. Trinca de 9 contra sequência. Quem leva o pote?",
               "hole": [
                 "9c",
                 "9d"
@@ -1382,8 +1379,8 @@
                 "raise"
               ],
               "expected": "raise",
-              "engine": "Trinca > sequência no Pineapple",
-              "why": "No Brazilian Pineapple a trinca de 9 vence a sequência."
+              "engine": "Trinca > sequência no Short Deck",
+              "why": "No Texas Hold'em Short Deck, a trinca de 9 vence a sequência."
             }
           ]
         },
@@ -1395,10 +1392,7 @@
             "hostName": "Sofia 'Cold Felt' Alencar",
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 74,
-            "url": "/videos/ep24-sd-omaha.mp4",
-            "placeholderScript": "Omaha 4 na casa usa o baralho de 52, não o Chórt Dec. Quatro cartas na mão, e no chôudaun exatamente duas da mão com três da mesa. O ranking é o clássico: sequência vence trinca e fullrrause vence flâsh. O vídeo ainda fala do Omaha curto.",
-            "captionsUrl": "/videos/ep24-sd-omaha.vtt",
-            "posterUrl": "/videos/ep24-sd-omaha.jpg"
+            "placeholderScript": "Omaha 4 usa baralho de cinquenta e duas cartas. Você recebe quatro cartas fechadas e, no showdown, forma o melhor jogo com exatamente duas da mão e três da mesa. O ranking é o clássico: sequência vence trinca e full house vence flush. O vídeo está sendo atualizado."
           },
           "handExample": {
             "title": "Regra Obrigatória: 2 da Mão + 3 da Mesa",
@@ -1420,7 +1414,7 @@
             "heroDecision": "Aposta forte por valor. Quatro cartas conectadas no Omaha 4 geram muita equidade.",
             "keyTakeaway": "Obrigatório usar exatamente 2 da mão e 3 da mesa. Ranking clássico, igual ao Hold'em."
           },
-          "body": "## Omaha 4 (6-max)\n\n1. **4 cartas fechadas** no pré-flop.\n2. **2 + 3:** exatamente 2 da mão e 3 da mesa.\n3. **Baralho de 52** e ranking clássico (sequência > trinca, full house > flush).\n4. O vídeo ainda narra o Short Deck Omaha. A regra vigente é este texto.",
+          "body": "## Omaha 4 (6-max)\n\n1. **4 cartas fechadas** no pré-flop.\n2. **2 + 3:** exatamente 2 da mão e 3 da mesa.\n3. **Baralho de 52** e ranking clássico (sequência > trinca, full house > flush).\n4. O vídeo está sendo atualizado para estas regras.",
           "quiz": [
             {
               "id": "m5l2q1",
@@ -1462,10 +1456,7 @@
             "hostName": "Sofia 'Cold Felt' Alencar",
             "hostRole": "Coach Virtual IA",
             "durationSeconds": 74,
-            "url": "/videos/ep25-pineapple.mp4",
-            "placeholderScript": "No Brazilian Pineapple você começa com 2 cartas. Depois do flóp, do turn e do ríver recebe mais uma, se ainda estiver na mão. Não descarta. No ríver são 5 hole, e o chôudaun usa exatamente 2 + 3 da mesa. O vídeo ainda descreve o Ultimate Pineapple de 3 cartas.",
-            "captionsUrl": "/videos/ep25-pineapple.vtt",
-            "posterUrl": "/videos/ep25-pineapple.jpg"
+            "placeholderScript": "Brazilian Pineapple usa o baralho tradicional de cinquenta e duas cartas e ranking clássico. Você começa com duas cartas fechadas. Depois do flop, turn e river, recebe mais uma se ainda estiver na mão. Não descarta. No showdown, usa exatamente duas da mão e três da mesa. A mesa comporta até seis jogadores. O vídeo está sendo atualizado."
           },
           "handExample": {
             "title": "Carta extra no flop vira trinca",
@@ -1473,8 +1464,8 @@
             "villainPosition": "SB",
             "heroCards": [
               "Ad",
-              "Ac",
-              "Kd"
+              "Kd",
+              "Ac"
             ],
             "boardCards": [
               "Ah",
@@ -1486,7 +1477,7 @@
             "heroDecision": "Aposte por valor com a trinca, usando exatamente 2 da mão.",
             "keyTakeaway": "Você não começa com 3 cartas. A terceira chega depois do flop."
           },
-          "body": "## Deal do Brazilian Pineapple\n\n- **Pré-flop:** 2 hole.\n- **Depois de cada street:** +1 para quem ainda está na mão (incluindo all-in). Foldado não recebe.\n- **River:** 5 hole. Sem descarte.\n- **Showdown:** exatamente 2 + 3. Ranking Short Deck.\n- Cap de 5 jogadores. O vídeo ainda narra o Ultimate Pineapple de 3 cartas fixas.",
+          "body": "## Brazilian Pineapple (6-max)\n\n- **Baralho:** 52 cartas e ranking tradicional; sequência vence trinca, full house vence flush.\n- **Pré-flop:** 2 cartas fechadas.\n- **Depois de cada street:** +1 para quem ainda está na mão (incluindo all-in). Foldado não recebe.\n- **River:** 5 cartas fechadas. Sem descarte.\n- **Showdown:** exatamente 2 da mão + 3 da mesa.\n- O vídeo está sendo atualizado para estas regras.",
           "quiz": [
             {
               "id": "m5l3q1",

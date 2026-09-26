@@ -805,8 +805,51 @@ pub async fn create_tournament(
             )
         })?;
     let variant = body.poker_variant.trim().to_ascii_lowercase();
-    if !matches!(variant.as_str(), "holdem" | "omaha" | "brazilian_pineapple") {
+    if !matches!(
+        variant.as_str(),
+        "holdem" | "short_deck" | "omaha" | "brazilian_pineapple"
+    ) {
         return Err(ApiError::BadRequest("poker_variant inválida".into()));
+    }
+    let variant_cap = match variant.as_str() {
+        "holdem" => 9,
+        "short_deck" => 8,
+        _ => 6,
+    };
+    if body.table_max_players > variant_cap {
+        return Err(ApiError::BadRequest(format!(
+            "table_max_players deve ser no máximo {variant_cap} para {variant}"
+        )));
+    }
+    let final_table_variant = body
+        .final_table_variant
+        .as_deref()
+        .map(|value| value.trim().to_ascii_lowercase());
+    match (final_table_variant.as_deref(), body.final_table_max_players) {
+        (None, None) => {}
+        (Some(final_variant), Some(final_max)) => {
+            if !matches!(
+                final_variant,
+                "holdem" | "short_deck" | "omaha" | "brazilian_pineapple"
+            ) {
+                return Err(ApiError::BadRequest("final_table_variant inválida".into()));
+            }
+            let final_cap = match final_variant {
+                "holdem" => 9,
+                "short_deck" => 8,
+                _ => 6,
+            };
+            if !(2..=final_cap).contains(&final_max) {
+                return Err(ApiError::BadRequest(format!(
+                    "final_table_max_players deve ser 2..{final_cap} para {final_variant}"
+                )));
+            }
+        }
+        _ => {
+            return Err(ApiError::BadRequest(
+                "final_table_variant e final_table_max_players devem ser informados juntos".into(),
+            ));
+        }
     }
     let money_mode = if body.money_mode.eq_ignore_ascii_case("real") {
         "real"
@@ -860,7 +903,7 @@ pub async fn create_tournament(
     .bind(body.allow_rebuy.unwrap_or(false))
     .bind(money_mode)
     .bind(&variant)
-    .bind(body.final_table_variant.clone())
+    .bind(final_table_variant)
     .bind(body.final_table_max_players)
     .bind(scheduled_start_at)
     .bind(body.auto_start_min_players.unwrap_or(5))

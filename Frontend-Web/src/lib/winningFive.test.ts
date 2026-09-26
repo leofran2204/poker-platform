@@ -102,12 +102,12 @@ interface DemoHand {
 }
 
 /**
- * Ranking Brazilian Pineapple / Short Deck (BUSINESS_RULES §2.5):
+ * Ranking Texas Hold'em Short Deck (BUSINESS_RULES §2.6):
  * trinca > sequência e flush > full house. O `score5` acima usa o
  * ranking clássico (straight=4, trips=3, flush=5, full=6); aqui só
  * remapeamos a ordem das categorias — o desempate (tb) é o mesmo.
  */
-function pineappleCat(classicCat: number): number {
+function shortDeckCat(classicCat: number): number {
   const order: Record<number, number> = {
     0: 0, // carta alta
     1: 1, // par
@@ -122,23 +122,23 @@ function pineappleCat(classicCat: number): number {
   return order[classicCat] ?? classicCat;
 }
 
-function cmpPineapple(a: Scored, b: Scored): number {
-  const d = pineappleCat(a.cat) - pineappleCat(b.cat);
+function cmpShortDeck(a: Scored, b: Scored): number {
+  const d = shortDeckCat(a.cat) - shortDeckCat(b.cat);
   if (d !== 0) return d;
   return cmpScore({ ...a, cat: 0 }, { ...b, cat: 0 });
 }
 
-/** Melhor jogo de 5 com a regra da modalidade (pineapple = ranking Short Deck). */
+/** Melhor jogo de 5 com a regra da modalidade. */
 function bestFiveRuled(
   hole: string[],
   board: string[],
   exactTwo: boolean,
-  pineapple: boolean,
+  shortDeck: boolean,
 ): Scored {
   let best: Scored | null = null;
   const consider = (cards: string[]) => {
     const s = score5(cards);
-    if (!best || (pineapple ? cmpPineapple(s, best) : cmpScore(s, best)) > 0) best = s;
+    if (!best || (shortDeck ? cmpShortDeck(s, best) : cmpScore(s, best)) > 0) best = s;
   };
   if (!exactTwo) {
     for (const c of combos([...hole, ...board], 5)) consider(c);
@@ -173,6 +173,7 @@ describe("winningFive — as 5 do jogo vencedor", () => {
       const pool = new Set([
         ...h.heroCards,
         ...h.villainCards,
+        ...(h.seats?.flatMap((seat) => seat.cards ?? []) ?? []),
         ...h.streets[h.streets.length - 1].board,
       ]);
       for (const c of five) expect(pool.has(c)).toBe(true);
@@ -213,31 +214,28 @@ describe("winningFive — as 5 do jogo vencedor", () => {
       const seats = h.seats;
       // Demos sem assentos (herói joga contra a mesa) não têm adversário.
       if (!seats || seats.length === 0) continue;
-      const pineapple = h.id === "pineapple-demo";
+      const shortDeck = h.id === "short-deck-demo";
       const board = h.streets[h.streets.length - 1].board;
       const w = seats.find((s) => s.isWinner)!;
       expect(w.cards).toBeDefined();
-      const wBest = bestFiveRuled(w.cards!, board, w.cards!.length > 2, pineapple);
+      const wBest = bestFiveRuled(w.cards!, board, w.cards!.length > 2, shortDeck);
       for (const o of seats) {
         if (o.isWinner || o.folded || !o.cards) continue;
-        const oBest = bestFiveRuled(o.cards, board, o.cards.length > 2, pineapple);
-        const cmp = pineapple ? cmpPineapple(wBest, oBest) : cmpScore(wBest, oBest);
-        expect(cmp > 0).toBe(true);
+        const oBest = bestFiveRuled(o.cards, board, o.cards.length > 2, shortDeck);
+        const cmp = shortDeck ? cmpShortDeck(wBest, oBest) : cmpScore(wBest, oBest);
+        expect(cmp > 0, `${h.id}: ${w.name} deve vencer ${o.name}`).toBe(true);
       }
     }
   });
 
-  it("pineapple-demo: trinca do herói vence a sequência da Mari (ranking Short Deck)", () => {
+  it("pineapple-demo: sequência da Mari vence a trinca do herói (ranking clássico)", () => {
     const h = variantHands.find((x) => x.id === "pineapple-demo")!;
     const board = h.streets[h.streets.length - 1].board;
-    const hero = h.seats!.find((s) => s.isWinner)!;
-    const mari = h.seats!.find((s) => s.name === "Mari")!;
-    const heroBest = bestFiveRuled(hero.cards!, board, true, true);
-    const mariBest = bestFiveRuled(mari.cards!, board, true, true);
-    // Trinca (cat clássica 3) perde para sequência (4) no clássico…
-    expect(cmpScore(heroBest, mariBest) < 0).toBe(true);
-    // …mas vence no ranking Pineapple — é a lição do exemplo.
-    expect(cmpPineapple(heroBest, mariBest) > 0).toBe(true);
+    const hero = h.seats!.find((s) => s.isHero)!;
+    const mari = h.seats!.find((s) => s.isWinner)!;
+    const heroBest = bestFiveRuled(hero.cards!, board, true, false);
+    const mariBest = bestFiveRuled(mari.cards!, board, true, false);
+    expect(cmpScore(mariBest, heroBest) > 0).toBe(true);
   });
 
   it("mãos com assentos: distribuição progressiva termina nas cartas dos assentos", () => {

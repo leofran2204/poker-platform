@@ -326,32 +326,26 @@ fn run_spec(spec: &MttSpec) {
             out.insert(id.clone());
             let _ = eliminate_player(&mut state, &id, None);
             if state.current_level <= state.config.rebuy_max_level {
-                match process_rebuy(&mut state, &id) {
-                    Ok(()) => {
-                        stacks.insert(id.clone(), spec.rebuy_chips);
-                        out.remove(&id);
-                        rebuys += 1;
-                    }
-                    Err(_) => {}
+                if let Ok(()) = process_rebuy(&mut state, &id) {
+                    stacks.insert(id.clone(), spec.rebuy_chips);
+                    out.remove(&id);
+                    rebuys += 1;
                 }
             } else if waiter_idx < waiter_ids.len() {
                 let wid = waiter_ids[waiter_idx].clone();
                 waiter_idx += 1;
-                match register_player(&mut state, &wid, &format!("Reserva {wid}")) {
-                    Ok(()) => {
-                        stacks.insert(wid, spec.starting_stack);
-                        replacements += 1;
-                    }
-                    Err(_) => {}
+                if let Ok(()) = register_player(&mut state, &wid, &format!("Reserva {wid}")) {
+                    stacks.insert(wid, spec.starting_stack);
+                    replacements += 1;
                 }
             }
         }
 
         orbits += 1;
-        if orbits % HANDS_PER_LEVEL == 0 {
+        if orbits.is_multiple_of(HANDS_PER_LEVEL) {
             let _ = advance_blinds(&mut state);
         }
-        if orbits % 50 == 0 {
+        if orbits.is_multiple_of(50) {
             eprintln!(
                 "[{}] orbit={orbits} hands={hands} alive={} level={} rebuys={rebuys} waiters_in={replacements}",
                 spec.name,
@@ -378,7 +372,7 @@ fn run_spec(spec: &MttSpec) {
 
     let clock_min = u64::from(state.current_level.max(1)) * 5;
     let wall = t0.elapsed();
-    let itm_2 = state.eliminated_order.iter().rev().next().cloned();
+    let itm_2 = state.eliminated_order.iter().next_back().cloned();
     let itm_3 = state.eliminated_order.iter().rev().nth(1).cloned();
     let result = finish_tournament(&mut state);
     println!(

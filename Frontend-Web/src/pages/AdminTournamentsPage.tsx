@@ -9,6 +9,10 @@ import {
 import type { AdminTournamentItem, AdminTournamentPlayer } from "@/api/types";
 import { formatBrlFromCents } from "@/lib/money";
 
+function maxSeatsForVariant(variant: string): number {
+  return variant === "holdem" ? 9 : variant === "short_deck" ? 8 : 6;
+}
+
 function formatAdminSchedule(epoch: number | null): string {
   if (!epoch) return "Sem agenda";
   return new Date(epoch * 1000).toLocaleString("pt-BR", {
@@ -40,6 +44,8 @@ export function AdminTournamentsPage() {
   const [error, setError] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [newVariant, setNewVariant] = useState("holdem");
+  const [newTableMax, setNewTableMax] = useState(9);
 
   const load = useCallback(async () => {
     setError(null);
@@ -152,15 +158,20 @@ export function AdminTournamentsPage() {
           </label>
           <label className="flex flex-col gap-1 text-sm">
             Variante
-            <select name="variant" className="zt-input" defaultValue="holdem">
+            <select name="variant" className="zt-input" value={newVariant} onChange={(event) => {
+              const variant = event.target.value;
+              setNewVariant(variant);
+              setNewTableMax(maxSeatsForVariant(variant));
+            }}>
               <option value="holdem">Texas Hold'em (9)</option>
               <option value="omaha">Omaha 4 (6)</option>
-              <option value="brazilian_pineapple">Brazilian Pineapple (5)</option>
+              <option value="brazilian_pineapple">Brazilian Pineapple (6)</option>
+              <option value="short_deck">Texas Hold’em Short Deck (8)</option>
             </select>
           </label>
           <label className="flex flex-col gap-1 text-sm">
             Por mesa
-            <input name="tablemax" type="number" min={2} max={9} defaultValue={9} className="zt-input w-20" />
+            <input name="tablemax" type="number" min={2} max={maxSeatsForVariant(newVariant)} value={newTableMax} onChange={(event) => setNewTableMax(Number(event.target.value))} className="zt-input w-20" />
           </label>
           <label className="flex flex-col gap-1 text-sm">
             Modo

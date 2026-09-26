@@ -25,7 +25,7 @@ const CASH_END: &str = "<!-- DOCUMENTATION_SYNC:CASH_CATALOG:END -->";
 const MTT_START: &str = "<!-- DOCUMENTATION_SYNC:MTT_CATALOG:START -->";
 const MTT_END: &str = "<!-- DOCUMENTATION_SYNC:MTT_CATALOG:END -->";
 
-const ALLOWED_VARIANTS: &[&str] = &["holdem", "omaha", "brazilian_pineapple"];
+const ALLOWED_VARIANTS: &[&str] = &["holdem", "short_deck", "omaha", "brazilian_pineapple"];
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -911,6 +911,7 @@ fn cash_short_label(table: &CashTable) -> String {
     };
     match table.variant.as_str() {
         "holdem" => format!("NL {blinds}"),
+        "short_deck" => format!("Texas Short Deck {blinds}"),
         "omaha" => format!("Omaha {blinds}"),
         "brazilian_pineapple" => format!("Pineapple {blinds}"),
         other => other.to_owned(),
@@ -920,6 +921,7 @@ fn cash_short_label(table: &CashTable) -> String {
 fn variant_label(variant: &str) -> &'static str {
     match variant {
         "holdem" => "Texas Hold’em",
+        "short_deck" => "Texas Hold’em Short Deck",
         "omaha" => "Omaha 4 Cartas",
         "brazilian_pineapple" => "Brazilian Pineapple",
         _ => "desconhecida",

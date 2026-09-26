@@ -1,6 +1,6 @@
 {
   "deflator": {
-    "intro": "No poker, às vezes você joga perfeito e perde mesmo assim — o famoso bad beat. O Loss Deflator é o amortecedor da Zero Tilt: quando você vai all-in com a melhor mão e o azar bate, parte do pote volta na hora.",
+    "intro": "No poker, você pode ser favorito no all-in e perder no river. O Loss Deflator devolve parte dos potes líquidos em que você perdeu, conforme sua equity no instante em que o all-in foi pago. Em potes disputados por mais de um perdedor elegível, o benefício é compartilhado.",
     "steps": [
       {
         "title": "1. All-in pago",
@@ -12,7 +12,7 @@
       },
       {
         "title": "3. Volta parte do pote",
-        "body": "Se o azar vencer, de 7% a 35% do pote líquido volta para você na liquidação. O dinheiro sai do pote do vencedor — ninguém cria ficha, a conta fecha exata."
+        "body": "Se o azar vencer, a faixa de 7% a 35% define a devolução do pote líquido elegível. Quando há mais de um perdedor elegível no mesmo pote, eles dividem o teto desse pote. Nenhuma ficha é criada."
       }
     ],
     "tiers": [
@@ -32,7 +32,7 @@
       },
       {
         "q": "Vale para side pot?",
-        "a": "Só dos potes em que você participou. Se um side pot foi disputado só entre outros dois jogadores, ele fica 100% intocado."
+        "a": "Só dos potes em que você participou. Cada pote tem seu próprio teto de devolução: dois perdedores na faixa de 25% que compartilham o mesmo pote dividem esses 25%; ninguém recebe 25% inteiro duas vezes."
       }
     ],
     "demoHands": [
@@ -124,8 +124,13 @@
         "title": "Royal flush: o jogo imbatível",
         "heroLabel": "Você",
         "heroCards": ["As", "Ks"],
-        "villainLabel": "Mesa",
-        "villainCards": [],
+        "villainLabel": "Leo",
+        "villainCards": ["Qh", "Qd"],
+        "seats": [
+          { "name": "Você", "cards": ["As", "Ks"], "isHero": true, "isWinner": true, "showdownHand": "Royal flush" },
+          { "name": "Leo", "cards": ["Qh", "Qd"], "showdownHand": "Par de Damas" },
+          { "name": "Mari", "cards": ["Ac", "Ad"], "showdownHand": "Par de Ases" }
+        ],
         "streets": [
           { "label": "Suas cartas: A K de espadas", "board": [] },
           { "label": "Flóp Q J T de espadas — royal flush à vista", "board": ["Qs", "Js", "Ts"] },
@@ -134,7 +139,7 @@
         "equity": 100,
         "potCents": 15000,
         "winningFive": { "hole": ["As", "Ks"], "board": ["Qs", "Js", "Ts"] },
-        "result": "Royal flush de espadas (A♠ K♠ + Q♠ J♠ T♠ no board): suas 2 + 3 da mesa formam o melhor jogo possível."
+        "result": "Seu royal flush de espadas (A♠ K♠ + Q♠ J♠ T♠ no board) vence o par de Ases da Mari e o par de Damas do Leo. No showdown, as cartas dos três jogadores ficam visíveis."
       }
     },
     {
@@ -150,8 +155,13 @@
         "title": "Exatamente 2 da mão + 3 da mesa",
         "heroLabel": "Você",
         "heroCards": ["As", "Ks", "Qd", "Jd"],
-        "villainLabel": "Mesa",
-        "villainCards": [],
+        "villainLabel": "Leo",
+        "villainCards": ["Ah", "Kc", "Qc", "Jc"],
+        "seats": [
+          { "name": "Você", "cards": ["As", "Ks", "Qd", "Jd"], "isHero": true, "isWinner": true, "showdownHand": "Flush de Ás" },
+          { "name": "Leo", "cards": ["Ah", "Kc", "Qc", "Jc"], "showdownHand": "Sequência" },
+          { "name": "Mari", "cards": ["7d", "7h", "2d", "2c"], "showdownHand": "Trinca de Dois" }
+        ],
         "streets": [
           { "label": "4 cartas na mão — mais combinações", "board": [] },
           { "label": "Flóp: T 9 2 com duas de espadas", "board": ["Ts", "9s", "2h"] },
@@ -160,83 +170,115 @@
         "equity": 68,
         "potCents": 20000,
         "winningFive": { "hole": ["As", "Ks"], "board": ["Ts", "9s", "8s"] },
-        "result": "Nut flush (A♠ K♠ + T♠ 9♠ 8♠ da mesa): exatamente 2 da mão + 3 da mesa. As outras 2 cartas ficam de fora — a regra do 2+3 é inegociável."
+        "result": "Seu flush de Ás (A♠ K♠ + T♠ 9♠ 8♠ da mesa) vence a sequência do Leo e a trinca da Mari. No Omaha, exatamente 2 cartas da mão e 3 da mesa formam o jogo."
+      }
+    },
+    {
+      "id": "short_deck",
+      "name": "Texas Hold’em Short Deck",
+      "deck": "36 cartas (6 a A; sem 2 a 5)",
+      "hole": "2 cartas só suas",
+      "make": "Como no Hold’em tradicional, use qualquer combinação das suas 2 cartas e das 5 da mesa.",
+      "twist": "No ranking Short Deck, flush vence full house e trinca vence sequência. A menor sequência é A-6-7-8-9.",
+      "cap": "Mesas até 8 jogadores",
+      "demoHand": {
+        "id": "short-deck-demo",
+        "title": "Flush vence full house no Short Deck",
+        "heroLabel": "Você",
+        "heroCards": ["Ah", "Qh"],
+        "villainLabel": "Leo",
+        "villainCards": ["Ks", "8c"],
+        "seats": [
+          { "name": "Você", "cards": ["Ah", "Qh"], "isHero": true, "isWinner": true, "showdownHand": "Flush de Ás" },
+          { "name": "Leo", "cards": ["Ks", "8c"], "showdownHand": "Full house" },
+          { "name": "Mari", "folded": true }
+        ],
+        "streets": [
+          { "label": "Pré-flop: duas cartas para cada jogador", "board": [] },
+          { "label": "Flop: você completa um flush de copas", "board": ["6h", "7h", "8h"] },
+          { "label": "Turn: um Rei ajuda Leo", "board": ["6h", "7h", "8h", "Kc"] },
+          { "label": "River: outro Rei; Leo faz full house, mas seu flush vence", "board": ["6h", "7h", "8h", "Kc", "Kd"] }
+        ],
+        "equity": 0,
+        "potCents": 15000,
+        "winningFive": { "hole": ["Ah", "Qh"], "board": ["6h", "7h", "8h"] },
+        "result": "Seu flush de Ás (A♥ Q♥ + 8♥ 7♥ 6♥) vence o full house de Reis com Oitos do Leo. Essa inversão do ranking clássico é própria do Texas Hold’em Short Deck."
       }
     },
     {
       "id": "pineapple",
       "name": "Brazilian Pineapple",
-      "deck": "36 cartas (baralho curto, sem 2 a 5)",
+      "deck": "52 cartas (baralho tradicional)",
       "hole": "2 no pré-flop; +1 depois do flop, do turn e do river",
       "make": "No showdown, exatamente 2 da mão + 3 da mesa. Sem descarte.",
-      "twist": "Só aqui o ranking muda: trinca vale mais que sequência. Flush vale mais que full house.",
-      "cap": "Mesas até 5 jogadores",
+      "twist": "Ranking clássico: sequência vence trinca e full house vence flush. A diferença está na carta extra a cada street.",
+      "cap": "Mesas até 6 jogadores",
       "demoHand": {
         "id": "pineapple-demo",
-        "title": "Mão completa: carta extra e aposta em cada street",
+        "title": "Carta extra a cada street; sequência vence trinca",
         "heroLabel": "Você",
         "heroCards": ["As", "Ks", "Qh", "8c", "Jc"],
         "villainLabel": "Leo",
-        "villainCards": ["Kd", "Jd", "Tc", "8d", "Ac"],
+        "villainCards": ["Kd", "Jd", "2c", "8d", "Ac"],
         "seats": [
-          { "name": "Você", "cards": ["As", "Ks", "Qh", "8c", "Jc"], "isHero": true, "isWinner": true, "stack": "R$ 420" },
-          { "name": "Leo", "cards": ["Kd", "Jd", "Tc", "8d", "Ac"], "stack": "R$ 180" },
-          { "name": "Mari", "cards": ["Jh", "Td", "8h", "7c", "6h"], "stack": "R$ 260" }
+          { "name": "Você", "cards": ["As", "Ks", "Qh", "8c", "Jc"], "isHero": true, "stack": "R$ 420", "showdownHand": "Trinca de Damas" },
+          { "name": "Leo", "cards": ["Kd", "Jd", "2c", "8d", "Ac"], "stack": "R$ 180", "showdownHand": "Par de Damas" },
+          { "name": "Mari", "cards": ["Jh", "Td", "8h", "7c", "6h"], "isWinner": true, "stack": "R$ 260", "showdownHand": "Sequência até Dez" }
         ],
         "streets": [
           {
             "label": "Pré-flóp: duas cartas para cada um",
             "board": [],
             "holes": [["As", "Ks"], ["Kd", "Jd"], ["Jh", "Td"]],
-            "audio": "/audio/pineapple-0.mp3", "narration": "Brazilian Pineapple: baralho curto de trinta e seis cartas, sem dois até cinco. Cada um começa com duas cartas fechadas. No fim, vale exatamente duas da mão e três da mesa."
+            "narration": "Brazilian Pineapple usa o baralho tradicional de cinquenta e duas cartas. Cada jogador começa com duas cartas fechadas e forma o jogo com exatamente duas da mão e três da mesa."
           },
           {
             "label": "Você aumenta. Leo paga. Mari paga.",
             "board": [],
             "holes": [["As", "Ks"], ["Kd", "Jd"], ["Jh", "Td"]],
-            "audio": "/audio/pineapple-1.mp3", "narration": "Pré-flóp: você olha Ás e Rei e aumenta. Leo paga. Mari paga. Três na mão, pote formando."
+            "narration": "Pré-flóp: você olha Ás e Rei e aumenta. Leo paga. Mari paga. Três jogadores na mão, pote formando."
           },
           {
             "label": "Flóp Dama Dama 7. Cada um recebe mais uma carta.",
             "board": ["Qc", "Qs", "7h"],
-            "holes": [["As", "Ks", "Qh"], ["Kd", "Jd", "Tc"], ["Jh", "Td", "8h"]],
-            "audio": "/audio/pineapple-2.mp3", "narration": "Flóp: Dama, Dama e sete na mesa. Cada um recebe a terceira carta fechada. A sua é outra Dama: você tem trinca, com duas Damas na mesa e uma na mão."
+            "holes": [["As", "Ks", "Qh"], ["Kd", "Jd", "2c"], ["Jh", "Td", "8h"]],
+            "narration": "Flóp: Dama, Dama e sete na mesa. Cada um recebe a terceira carta fechada. A sua é outra Dama: você tem trinca, com duas Damas na mesa e uma na mão."
           },
           {
             "label": "Leo aposta. Mari paga. Você aumenta. Os dois pagam.",
             "board": ["Qc", "Qs", "7h"],
-            "holes": [["As", "Ks", "Qh"], ["Kd", "Jd", "Tc"], ["Jh", "Td", "8h"]],
-            "audio": "/audio/pineapple-3.mp3", "narration": "Leo aposta com o par da mesa. Mari paga. Você aumenta com a Dama extra. Os dois pagam. O pote cresce."
+            "holes": [["As", "Ks", "Qh"], ["Kd", "Jd", "2c"], ["Jh", "Td", "8h"]],
+            "narration": "Leo aposta com o par da mesa. Mari paga. Você aumenta com a Dama extra. Os dois pagam. O pote cresce."
           },
           {
             "label": "Turn: 9 de espadas. Mais uma carta para cada um.",
             "board": ["Qc", "Qs", "7h", "9s"],
-            "holes": [["As", "Ks", "Qh", "8c"], ["Kd", "Jd", "Tc", "8d"], ["Jh", "Td", "8h", "7c"]],
-            "audio": "/audio/pineapple-4.mp3", "narration": "Târn: nove de espadas. Mais uma carta fechada para cada um. Quatro na mão, quatro na mesa. Você aposta de novo. Leo paga. Mari paga."
+            "holes": [["As", "Ks", "Qh", "8c"], ["Kd", "Jd", "2c", "8d"], ["Jh", "Td", "8h", "7c"]],
+            "narration": "Târn: nove de espadas. Mais uma carta fechada para cada um. Quatro na mão, quatro na mesa. Você aposta de novo. Leo paga. Mari paga."
           },
           {
             "label": "Você aposta. Leo paga. Mari paga.",
             "board": ["Qc", "Qs", "7h", "9s"],
-            "holes": [["As", "Ks", "Qh", "8c"], ["Kd", "Jd", "Tc", "8d"], ["Jh", "Td", "8h", "7c"]],
-            "audio": "/audio/pineapple-5.mp3", "narration": "Você aposta no târn. Leo paga. Mari paga. O pote engorda e falta só o ríver."
+            "holes": [["As", "Ks", "Qh", "8c"], ["Kd", "Jd", "2c", "8d"], ["Jh", "Td", "8h", "7c"]],
+            "narration": "Você aposta no târn. Leo paga. Mari paga. O pote engorda e falta só o ríver."
           },
           {
             "label": "Ríver: 6 de ouros. Última carta fechada.",
             "board": ["Qc", "Qs", "7h", "9s", "6d"],
-            "holes": [["As", "Ks", "Qh", "8c", "Jc"], ["Kd", "Jd", "Tc", "8d", "Ac"], ["Jh", "Td", "8h", "7c", "6h"]],
-            "audio": "/audio/pineapple-6.mp3", "narration": "Ríver: seis de ouros. Última carta fechada: cinco na mão. Última rodada de apostas antes de abrir."
+            "holes": [["As", "Ks", "Qh", "8c", "Jc"], ["Kd", "Jd", "2c", "8d", "Ac"], ["Jh", "Td", "8h", "7c", "6h"]],
+            "narration": "Ríver: seis de ouros. Última carta fechada: cinco na mão. Última rodada de apostas antes de abrir."
           },
           {
-            "label": "Chôudaun: duas da mão e três da mesa. Trinca vale mais que sequência.",
+            "label": "Showdown: duas da mão e três da mesa. Sequência vence trinca.",
             "board": ["Qc", "Qs", "7h", "9s", "6d"],
-            "holes": [["As", "Ks", "Qh", "8c", "Jc"], ["Kd", "Jd", "Tc", "8d", "Ac"], ["Jh", "Td", "8h", "7c", "6h"]],
-            "audio": "/audio/pineapple-7.mp3", "narration": "Chôudaun: abrem-se as cartas. Você mostra trinca de Damas com Ás de quéquer. Mari mostra sequência de seis a dez. Leo tem só um par de Damas. No Pineapple, trinca vale mais que sequência: você leva o pote. Repare: só duas da sua mão jogaram, as outras três ficaram de fora."
+            "holes": [["As", "Ks", "Qh", "8c", "Jc"], ["Kd", "Jd", "2c", "8d", "Ac"], ["Jh", "Td", "8h", "7c", "6h"]],
+            "narration": "Showdown: você mostra trinca de Damas. Mari mostra sequência de seis a dez e vence no ranking tradicional. Leo tem só um par de Damas. Mari usa exatamente duas cartas da mão e três da mesa."
           }
         ],
         "equity": 84,
         "potCents": 15000,
-        "winningFive": { "hole": ["Qh", "As"], "board": ["Qc", "Qs", "9s"] },
-        "result": "Trinca de damas com ás de kicker: sua Qh com As + Qc Qs 9s da mesa. A sequência da Mari (Td 8h + 9s 7h 6d: 6-7-8-9-T) perde para a trinca — no Brazilian Pineapple, trinca vale mais que sequência. O Leo termina com par de damas. Suas outras três cartas ficam de fora: vale exatamente 2 da mão + 3 da mesa."
+        "winningFive": { "hole": ["Td", "8h"], "board": ["9s", "7h", "6d"] },
+        "result": "Mari vence com sequência de seis a dez: T♦ 8♥ da mão + 9♠ 7♥ 6♦ da mesa. Sua trinca de Damas perde, porque Brazilian Pineapple usa o ranking tradicional. Leo termina com par de Damas."
       }
     }
   ]

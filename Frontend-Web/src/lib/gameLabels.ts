@@ -29,6 +29,7 @@ export function gameNameLabel(
   const formatName = format === "cash" ? "Cash Game" : "Torneio";
   if (isBrazilianPineapple(game)) return `Brazilian Pineapple — ${formatName}`;
   if (isOmaha(game)) return `Omaha 4 Cartas — ${formatName}`;
+  if (game.poker_variant === "short_deck") return `Texas Hold’em Short Deck — ${formatName}`;
   return `Texas Hold’em — ${formatName}`;
 }
 
@@ -85,7 +86,9 @@ export function variantHint(variant?: string | null): string | null {
       return "Omaha 4 cartas · baralho 52 · exatamente 2 hole + 3 board";
     case "brazilian_pineapple":
     case "ultimate_pineapple":
-      return "Brazilian Pineapple · 2+1+1+1 · 2 hole + 3 board · ranking Short Deck";
+      return "Brazilian Pineapple · baralho 52 · 2+1+1+1 · 2 da mão + 3 da mesa · ranking clássico";
+    case "short_deck":
+      return "Texas Hold’em Short Deck · baralho 36 (6 a A) · flush vence full house";
     case "holdem":
       return "Texas Hold’em · 2 cartas · ranking clássico";
     default:
@@ -96,9 +99,7 @@ export function variantHint(variant?: string | null): string | null {
 export function deckTypeLabel(game: GameDescriptor): string {
   const variant = game.poker_variant ?? "";
   const gameType = (game.game_type ?? "").toLowerCase();
-  return variant === "brazilian_pineapple" ||
-    variant === "ultimate_pineapple" ||
-    gameType.includes("pineapple")
+  return variant === "short_deck" || gameType.includes("short deck")
     ? "Short Deck"
     : "Tradicional";
 }
