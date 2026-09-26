@@ -144,6 +144,7 @@ services:
       retries: 8
       start_period: 30s
     # ─── Hardening de Segurança (OWASP Container Security) ───
+    user: "10001:10001"
     read_only: true
     tmpfs:
       - /tmp:rw,noexec,nosuid

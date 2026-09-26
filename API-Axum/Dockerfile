@@ -48,7 +48,9 @@ RUN groupadd -g 10001 appgroup && \
 WORKDIR /app
 
 # Certificados TLS + curl (somente healthcheck Compose em loopback 127.0.0.1)
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl \
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copia o binário e as migrations garantindo permissão para o usuário appuser

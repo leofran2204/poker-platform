@@ -518,7 +518,7 @@ jobs:
         run: docker build -f Frontend-Web/Dockerfile . --target builder
 
       - name: Validate Caddyfile syntax
-        run: docker run --rm -v ${{ github.workspace }}/Infraestrutura-Docker/Caddyfile:/etc/caddy/Caddyfile:ro caddy:2.10.2-alpine@sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d caddy validate --config /etc/caddy/Caddyfile
+        run: docker run --rm -v ${{ github.workspace }}/Infraestrutura-Docker/Caddyfile:/etc/caddy/Caddyfile:ro caddy:2.11.4-alpine@sha256:6aeddd44c3078b0f9a35206472a11420648a79c184603ef95957d0a20044cb2b caddy validate --config /etc/caddy/Caddyfile
 
   deploy-readiness-gate:
     name: Deploy Readiness Gate ✅
