@@ -410,7 +410,7 @@ jobs:
       - name: Apply PostgreSQL migrations
         run: |
           for migration in migrations/*.sql; do
-            PGPASSWORD=password psql --set ON_ERROR_STOP=1 --host localhost --username user --dbname poker_db --file "$migration"
+            PGPASSWORD=password psql --single-transaction --set ON_ERROR_STOP=1 --host localhost --username user --dbname poker_db --file "$migration"
           done
 
       - name: Run deterministic API tests
