@@ -37,7 +37,7 @@ Uma mudança está pronta **localmente** quando:
 1. Compila e clippy `-D warnings` no crate tocado (WSL).
 2. Testes determinísticos relevantes passam (sem disparar full-validation).
 3. Frontend tocado: `tsc` + lint + Vitest + build Vite com Node empacotado.
-4. Fatos operacionais: JSON schema v2 + `documentation-sync --write` e `--check`. Prosa única só no arquivo dono (`AGENTS.md`).
+4. Fatos operacionais: JSON schema v3 + `documentation-sync --write` e `--check`. Prosa única só no arquivo dono (`AGENTS.md`).
 5. Sem regressão óbvia no fluxo alterado.
 
 Commit / push / deploy **não** fazem parte do DoD local — cada um exige ordem explícita (`AGENTS.md`).
@@ -72,7 +72,7 @@ Inventário automatizado: 685 caminhos versionados, mais 39 arquivos locais novo
 
 ### Limites e próximos controles
 
-- Alterações locais, sem commit, push ou deploy. STATUS continua descrevendo a demo publicada, migration 059; a migration local 060 não foi reescrita.
+- Nesta etapa de 27–28/09, as alterações eram locais e a demo estava na migration 059. A publicação posterior está registrada em **Release S26** abaixo; a migration 060 não foi reescrita.
 - Erros antigos de ranking/equity podem ter afetado mãos já liquidadas. Fazer auditoria somente de leitura de hand histories e settlements da versão publicada, quantificar impacto e elaborar reconciliação revisável antes de qualquer ajuste financeiro. Nenhum saldo foi recalculado nesta etapa.
 - A regra usa fase/board do all-in e o conjunto final de oponentes elegíveis. Aderência exata a um snapshot de aceitação da aposta, sobretudo com folds posteriores e side pots, requer auditoria específica de eventos e fixtures; a correção de modalidade não prova esse contrato temporal.
 - Hold’em pré-flop conserva estimativa Monte Carlo determinística; proximidade aos limites de tier exige avaliação da política de incerteza. Não confundir precisão média com garantia por mão.
@@ -103,14 +103,18 @@ Inventário automatizado: 685 caminhos versionados, mais 39 arquivos locais novo
 ## Release S26 — 01/10/2026
 
 - Motor: `fmt`, `clippy --all-targets -D warnings`, 1.859 testes de biblioteca e nove regressões de variantes aprovados; 31 testes ignorados por seus gates existentes. Nenhuma carga massiva executada.
-- API: `fmt` e `clippy --all-targets -D warnings` aprovados; 77 testes de biblioteca, 17 de router e 13 contratos de banco aprovados (12 em `api_tests`, um de estorno em `estrutura`). Contratos PostgreSQL executados explicitamente no banco local com migration 060; o novo teste cobre autorização administrativa, conciliação, rejeição de totais desatualizados, fechamento concorrente/idempotente, bônus de 35%, comissão base de 30%, déficit e separação entre pontos PM, comissão Real e saldo de jogo. O contrato de estorno é marcado como dependente de banco, sem retornar sucesso silencioso quando falta `DATABASE_URL`.
+- API: `fmt` e `clippy --all-targets -D warnings` aprovados; 77 testes de biblioteca, 17 de router e 17 contratos de banco aprovados (12 em `api_tests`, quatro em `payments_tests` e um de estorno em `estrutura`). Contratos PostgreSQL executados explicitamente no banco local com migration 060 e em banco isolado criado do zero; o novo teste cobre autorização administrativa, conciliação, rejeição de totais desatualizados, fechamento concorrente/idempotente, bônus de 35%, comissão base de 30%, déficit e separação entre pontos PM, comissão Real e saldo de jogo. O contrato de estorno é marcado como dependente de banco, sem retornar sucesso silencioso quando falta `DATABASE_URL`.
 - Frontend: TypeScript, ESLint, 83 testes em 11 arquivos e build Vite aprovados (172 módulos; bundle inicial 411,43 kB antes de gzip). As dicas reutilizam a teoria canônica da Academy.
 - Documentação: contrato operacional schema v3 substitui o split bruto 18/12/70 por programa direto sobre NGR mensal; 14 testes da ferramenta, `fmt`/`clippy`, geração e `--check` aprovados em 22 documentos. A migração do schema rejeita o campo antigo e bases de comissão incompatíveis.
 - Inventário: JSONs válidos, sem colisão de migrations, sem links locais quebrados nos documentos alterados; nenhum candidato de publicação acima de 50 MiB ou correspondência nos padrões de credenciais examinados. Isso não substitui auditoria externa de segurança.
-- Migration 060 local conferida por SHA-384; a VPS estava em 059 antes da publicação. Evidência de deploy será registrada após conferir containers, migração e conteúdo servido.
+- Deploy principal confirmado em 01/10 às 15:27:57 UTC (12:27:57 em São Paulo), com backup PostgreSQL/Caddy validado e imagens anteriores preservadas. API, frontend, PostgreSQL e Redis saudáveis; processos de API/frontend com uid 10001. Todas as 60 migrations conferidas por SHA-384 e as 87 mídias por SHA-256 entre Git e container. Nenhum agente ativado, backfill ou fechamento financeiro executado pelo deploy.
 - O primeiro CI identificou advisories novos em `brace-expansion`; atualizadas somente as duas dependências transitivas para 1.1.21 e 5.0.12. `npm ci` e `npm audit` passaram com zero vulnerabilidades, assim como TypeScript, ESLint, 83 testes e build após a correção.
 - Reproduzida a falha do contrato de depósito: a conta de teste não possuía KYC. O teste agora exige 403 sem criar cobrança, verifica a conta sintética e então confere crédito e idempotência. Os quatro contratos de carteira passaram; provedor mock e chave sintética são inicializados antes das requisições paralelas. O CI também executa explicitamente o contrato de estorno do agente e interrompe migrations quando o PostgreSQL relata erro.
 - O gate estrito expôs o autocommit no executor antigo do CI: a migration 026 perdia sua tabela `ON COMMIT DROP` antes do uso. Reprodução em banco isolado confirmou o erro. As 60 migrations passaram em banco vazio com uma transação por arquivo (`psql --single-transaction`), alinhado ao sqlx. Preservados os arquivos/checksums das migrations já aplicadas.
+- Smoke público: `/health`, `/caddy-health`, lobby, Academy e Agente ZT acessíveis por HTTPS; vídeo Omaha com SHA-256 idêntico ao manifesto, Range HTTP 206, VTT e WebP corretos. Laboratório Pineapple confirmou distribuição 2→5 no all-in, sem carteira ou liquidação.
+- Chrome público em 1440/390 px: aula Omaha com 13 capítulos, 63 legendas, transcrição, nove fontes e quiz; home, dicas e Agente ZT sem exceções/avisos de console nem overflow horizontal. Cinco cenários de treino em cada largura e fluxos de all-in, replay, caderno, check-raise e retomada aprovados. A primeira tentativa de percorrer toda a grade atingiu a cota de requisições; a amostra posterior passou respeitando a janela. Não foi alterado o rate limit.
+- A conferência pública identificou dicas locais ocultas até terminar o carregamento de RSS. A correção `dc391a29` apresenta o conteúdo disponível imediatamente, com 83 testes, lint e build aprovados; redeploy somente do frontend confirmado às 22:15:50 UTC (19:15:50 em São Paulo). Evidências descartáveis da conferência pública em `artifacts/release-s26/`.
+- CI da versão publicada `dc391a29`: [Rust CI](https://github.com/leofran2204/poker-platform/actions/runs/36933764739) e [Container Supply Chain](https://github.com/leofran2204/poker-platform/actions/runs/36933764974) concluídos com sucesso, incluindo contratos PostgreSQL, auditorias, build Docker, cobertura, SBOM, assinatura e atestações. A documentação final passou por `documentation-sync --check` (22 arquivos), verificação dos links locais e `git diff --check`.
 
 ## Onde não procurar qualidade
 

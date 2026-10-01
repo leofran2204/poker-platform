@@ -9,6 +9,8 @@ O proprietário ampliou a solicitação: pesquisa histórica, acadêmica e técn
 
 ### Entrega S26
 
+Publicada na [demo](https://zerotiltpoker.net/curso) em 01/10/2026. Evidências de deploy e conferência pública em `QUALITY.md` e `DEVELOPMENT_LOG.md`.
+
 - Home reformulada; filme v3 de 81,70 segundos explica Brazilian Pineapple e Texas Hold’em Short Deck. Legendas, transcrição e duração são derivadas do mesmo roteiro/manifesto. Publicação e evidências operacionais são registradas em `DEVELOPMENT_LOG.md`.
 - Os 25 vídeos técnicos foram regravados e se somam aos três históricos: as 28 aulas atuais têm vídeo em 1080p30, legendas, transcrição e capítulos. Roteiros e renderizador em `ZeroTiltCurso/editorial/`; finais em `Frontend-Web/public/videos/`.
 - Vinte e uma referências vinculadas em `courseSources.json`. A grade tem 28 aulas, 65 questões e dez agrupamentos; os IDs existentes e o progresso concluído foram preservados. Os 25 textos técnicos foram ampliados com exemplos resolvidos, hipóteses e orientação de laboratório.

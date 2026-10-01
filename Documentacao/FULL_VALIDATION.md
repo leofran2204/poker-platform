@@ -11,7 +11,7 @@ cargo run --bin documentation-sync -- --write
 cargo run --bin documentation-sync -- --check
 ```
 
-O utilitário gera `STATUS_OPERACIONAL.md` a partir do JSON (schema v2), reescreve o bloco curto `DOCUMENTATION_SYNC` e as tabelas de catálogo em `DEMO_AMIGOS.md`. Conteúdo histórico, legal, didático e exemplos técnicos permanecem sob revisão humana.
+O utilitário gera `STATUS_OPERACIONAL.md` a partir do JSON (schema v3), reescreve o bloco curto `DOCUMENTATION_SYNC` e as tabelas de catálogo em `DEMO_AMIGOS.md`. Conteúdo histórico, legal, didático e exemplos técnicos permanecem sob revisão humana.
 
 ## Regra de execução
 

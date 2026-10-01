@@ -128,7 +128,7 @@ Evitar promessas de renda, ganho garantido, comissão por cadastro e qualquer or
 
 ## 9. Transição técnica
 
-O modelo foi implementado localmente na migration `060` e no código da API e do frontend:
+O modelo foi publicado na demo em 01/10/2026, com a migration `060` e o código da API e do frontend:
 
 1. novas linhas usam `program_version = 2` e somente o patrocinador direto;
 2. o ledger 18%/12% anterior permanece preservado como histórico `program_version = 1`;
@@ -139,7 +139,7 @@ O modelo foi implementado localmente na migration `060` e no código da API e do
 7. o painel do agente mostra carteira direta, NGR, meta, projeção e histórico;
 8. o painel administrativo aprova/suspende agentes, fixa a meta, registra deduções e fecha o mês.
 
-A demo pública continua com o comportamento do último deploy até a migration `060` e o novo build serem publicados. Linhas históricas não são recalculadas nem somadas ao novo programa.
+A migration `060` foi aplicada na demo em 01/10/2026 às 12:27:37 (America/Sao_Paulo); a saúde do novo build foi confirmada às 12:27:57. Linhas históricas não são recalculadas nem somadas ao novo programa. O deploy não ativou agentes nem definiu metas, deduções ou fechamentos; evidências em `DEVELOPMENT_LOG.md` e `QUALITY.md`.
 
 ---
 
@@ -169,7 +169,7 @@ Indicadores mensais:
 - [ ] Fixar a primeira meta mensal com dados de margem
 - [x] Implementar o novo ledger e o fechamento mensal
 - [x] Atualizar o painel e as mensagens públicas
-- [ ] Publicar a migration `060` e registrar a data efetiva do corte em produção
+- [x] Publicar a migration `060` e registrar a data efetiva do corte na demo (01/10/2026)
 
 ---
 

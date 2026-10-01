@@ -1,6 +1,6 @@
 # Arquitetura Técnica & Especificação de APIs - Plataforma de Poker Online em Rust
 
-**Atualizado:** 2026-09-29 | **Status:** Em revisão contínua — migration 060, Agente ZT e mesas da Academy validados localmente; demo pública ainda em 059; sem certificação de produção.
+**Atualizado:** 2026-10-01 | **Status:** Em revisão contínua — migration 060, Agente ZT e mesas da Academy publicados na demo; evidências em `QUALITY.md`; sem certificação de produção.
 
 Este documento consolida a arquitetura técnica, esquemas de comunicação, contratos de API e modelos de segurança da **Plataforma de Poker Online em Rust**.
 

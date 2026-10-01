@@ -560,7 +560,7 @@ Sinal para continuar: pessoas voltam sem insistência, entendem o serviço e com
 
 Pendências identificadas nos documentos existentes, para correção pelos respectivos donos:
 
-- A migration `060` preserva o ledger 18/12 como histórico e inicia o programa direto em versão separada; a publicação na demo ainda precisa de deploy.
+- A migration `060` preserva o ledger 18/12 como histórico e inicia o programa direto em versão separada; a publicação na demo, pendente nesta avaliação, foi concluída em 01/10 (ver atualização S26 abaixo).
 - A qualificação é 100 mãos em `:111`, mas o checklist em `:276` cita 50 mãos ou volume de rake.
 - STATUS descreve carteira real e depósito manual; plano e trechos das regras descrevem só PM. Falta reconciliar a operação efetiva, sem presumir movimentação já realizada.
 - A seção de regras financeiras ainda apresenta split B2B 15/85 ao lado do modelo de afiliados em que clube não recebe rake. É necessário explicitar escopos e impedir leitura de dupla remuneração.
@@ -576,7 +576,7 @@ Pendências identificadas nos documentos existentes, para correção pelos respe
 
 A avaliação datada da seção 13 permanece como retrato do conteúdo então examinado. A implementação atual tem 28 aulas, 65 questões, 21 referências, 35 cenários de estudo e 29 vídeos ativos (28 aulas + home), somando aproximadamente 161,9 minutos em 1080p. O histórico do Omaha foi ampliado e as dicas passaram a usar a teoria da Academy. A revisão corrigiu wheel, equity por variante, exemplos e gabaritos; os limites de validação e as pendências editoriais continuam em `QUALITY.md` e `DASHBOARD.md`.
 
-O programa direto usa a migration 060 e NGR mensal separado por PM/Real. A auditoria histórica 18/12 não valida esse modelo; publicação efetiva e seus testes estão no `DEVELOPMENT_LOG.md`. Critérios comerciais, assinatura, enquadramento e desempenho de retenção não são demonstrados por testes de software.
+O programa direto foi publicado na demo em 01/10 com a migration 060 e NGR mensal separado por PM/Real. A auditoria histórica 18/12 não valida esse modelo; evidências do deploy e dos testes de fechamento estão no `DEVELOPMENT_LOG.md` e em `QUALITY.md`. Critérios comerciais, assinatura, enquadramento e desempenho de retenção não são demonstrados por testes de software.
 
 <!-- DOCUMENTATION_SYNC:START -->
 > **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).

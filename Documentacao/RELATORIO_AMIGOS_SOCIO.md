@@ -81,7 +81,7 @@ Operação informal **entre cadastrados**, Play Money:
 
 1. Uma mesa âncora: Texas Hold’em 0,25/0,25, 20h–24h, quatro noites.
 2. Quem já tem conta chama quem **joga**, não quem “quer renda”.
-3. Plano implementado localmente: o **Agente ZT Poker** recebe **30% do NGR** dos jogadores que trouxe diretamente e chega a **35%** no mês em que cumprir a meta. A demo pública muda após a publicação da migration `060` e do novo build.
+3. Plano publicado na demo em 01/10/2026: o **Agente ZT Poker** recebe **30% do NGR** dos jogadores que trouxe diretamente e chega a **35%** no mês em que cumprir a meta. A migration `060` e o novo build estão aplicados; ativação e metas seguem a aprovação administrativa descrita no plano do programa.
 4. Um nível só. Sem comissão por cadastro e sem Pix no grupo.
 
 Isso é o máximo que dá para fazer com zero real e um servidor. Se a mesa das 21h não encher, nenhum organograma salva.

@@ -15,7 +15,7 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certif
 - [x] Ampliar os 25 textos técnicos com exemplos resolvidos, hipóteses e exercícios de laboratório; fontes vinculadas; catálogo ampliado para 21 referências.
 - [x] Complementar a aula histórica com Omaha (30/09): seis fontes adicionais, duas questões e vídeo de 4min14s; o curso específico permanece para outro momento.
 - [x] Unificar as dicas locais com a teoria revisada da Academy; retirar a cópia antiga com ranges contraditórios.
-- [ ] Publicar S26 na demo e registrar evidências de migração, saúde e conteúdo servido.
+- [x] Publicar S26 na demo em 01/10 e registrar evidências de migração, saúde e conteúdo servido em [QUALITY](QUALITY.md).
 - [ ] Auditar hand histories e settlements antigos quanto a wheel e equity Short Deck, sem alterar saldos automaticamente.
 - [ ] Conferir snapshot temporal do all-in, folds posteriores e equity de side pots com eventos reproduzíveis.
 - [x] Regravar os 25 vídeos técnicos da grade atual; conferir os 28 vídeos de aula e o filme da home, com decodificação integral, cobertura das palavras da narração, legendas, capítulos, transcrições e vínculo com os cenários. Retirar mídias obsoletas da pasta pública.
@@ -84,6 +84,7 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S23 | 2026-09-08 | Cancela inscrição + admin agenda/cria + textos | Unregister pré-start com reembolso total + anulação de fee; estado inscrito + botão Cancelar; datetime-local por linha; POST admin cria (max 3×, BBA 26); fallback por status; validado ao vivo fim a fim | 🟢 Fechado (demo) |
 | S24 | 2026-09-10 → 2026-09-24 | Academy, três modalidades, marca, lobby e proteção | Home Academy; login → `/curso`; lobby MTT em cards + cash no celular; Hold’em / Omaha 4 (52) / Brazilian Pineapple (057); marca ZT Poker; limites voluntários, autoexclusão, KYC manual, recuperação de senha e suporte (058) | 🟢 Fechado (demo) |
 | S25 | 2026-09-26 | Quatro modalidades, showdown completo e Loss Deflator com side pots | Texas tradicional + Texas Short Deck + Omaha 4 + Brazilian Pineapple; showdown da home; rateio do deflator por pote; migration 059 | 🟢 Publicado na demo |
+| S26 | 2026-09-27 → 2026-10-01 | Auditoria, Academy e Agente ZT direto | Wheel/equity corrigidos; 28 aulas, 35 cenários, 29 vídeos; história do Omaha; programa mensal NGR e migration 060 | 🟢 Publicado na demo; pendências de aprofundamento acima |
 
 Catálogo vigente: [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 
@@ -203,9 +204,9 @@ Pendências conscientes: ownership distribuído de mesa, integração externa de
 | —   | **`Motor-Rust`**     | **Motor (deck, side_pots, loss_deflator, rake+B2B 15/85, rng, hand_history, tournament, auth, lobby, antifraude)**      | **✅ Ativo — suíte histórica ~1.904 (`--lib`)** |
 | —   | **`Frontend-Web`**   | **SPA React/Vite/Tailwind (canônico): home, lobby, mesa, admin lazy, Vitest + ESLint**                                    | **✅ Ativo** |
 | —   | `Frontend-Dioxus`    | WASM legado (rotas/mesa/lobby) — **removido do monorepo**; só histórico git                                              | 📦 Histórico |
-| —   | **`API-Axum`**       | **API HTTPS/WSS Axum; TableActor + TournamentActor; admin B2B; migrations até 060 local (059 na demo)**                  | **✅ Ativo** |
+| —   | **`API-Axum`**       | **API HTTPS/WSS Axum; TableActor + TournamentActor; admin B2B; migrations até 060 local e na demo**                  | **✅ Ativo** |
 
-> Contagens de testes: valores **históricos reportados** em logs/CI; revalidar com `cargo test` no ambiente atual (toolchain GNU no Windows).
+> Contagens de testes: valores **históricos reportados** em logs/CI; revalidar com `cargo test` no WSL Ubuntu, conforme `AGENTS.md`.
 
 ---
 
