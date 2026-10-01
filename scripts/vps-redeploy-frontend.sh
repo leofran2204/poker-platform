@@ -56,6 +56,13 @@ else
   docker compose build poker_frontend
 fi
 
+# Volumes existentes podem ter sido criados pelo Caddy antigo (root).
+# Usa apenas os dois volumes persistentes definidos no Compose; preserva os
+# certificados e executa o servidor final como 10001, sem privilégios extras.
+echo "${LOG_TAG} preparando ownership dos volumes Caddy para uid 10001"
+docker compose run --rm --no-deps --user 0:0 --cap-add CHOWN --cap-add DAC_OVERRIDE \
+  --entrypoint /bin/sh poker_frontend -c 'chown -R 10001:10001 /data /config'
+
 echo "${LOG_TAG} docker compose up -d --wait --wait-timeout 180"
 docker compose up -d --wait --wait-timeout 180
 # Força a recarga de configurações montadas (ex.: Caddyfile).

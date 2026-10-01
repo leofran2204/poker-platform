@@ -51,8 +51,8 @@ Antes de subir a API em `ENVIRONMENT=production`, configure `JWT_SECRET`, `EMAIL
 ### Publicação S26 — Academy e Agente ZT
 
 1. Conferir branch/commit, alterações locais na VPS e numeração/checksums das migrations. Não alterar SQL já aplicado.
-2. Criar e conferir backup PostgreSQL fora da árvore versionada, com acesso restrito, antes do primeiro boot da API nova. Preservar o `.env` do servidor.
-3. Executar `REBUILD_API=1 bash scripts/vps-redeploy-frontend.sh` a partir da raiz do clone. O script exige fast-forward, containers saudáveis e resposta da API por HTTPS.
+2. Criar e conferir backup PostgreSQL e dos volumes Caddy fora da árvore versionada, com acesso restrito, antes do primeiro boot da API nova. Preservar o `.env` do servidor.
+3. Executar `REBUILD_API=1 bash scripts/vps-redeploy-frontend.sh` a partir da raiz do clone. O script exige fast-forward, ajusta os dois volumes Caddy para uid 10001 (migração do frontend antigo root) e exige containers saudáveis e resposta da API por HTTPS. O ajuste usa um container transitório; o servidor permanece sem privilégios extras.
 4. Conferir os quatro containers, `/health`, `/caddy-health`, catálogo público e migration 060. O boot não ativa agentes, não fecha ciclos e não faz backfill de vínculos.
 5. Conferir `/curso`, a aula histórica `m0l2`, vídeo/legenda/poster atuais e `POST /api/academy/play` com cenário didático. Comparar o SHA-256 da mídia com o manifesto editorial; o laboratório não movimenta carteiras.
 6. Registrar commit, horário e resultado em `DEVELOPMENT_LOG.md` e `QUALITY.md`. Falha em API, migração ou conteúdo servido impede declarar deploy concluído.
