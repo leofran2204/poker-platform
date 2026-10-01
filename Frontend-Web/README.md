@@ -55,7 +55,7 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 - Componente `NewsTips` com props `tab` (trava aba), `compact` (prévia local sem rede) e `previewLimit`
 - Páginas dedicadas `/noticias` e `/dicas` (lazy no `App.tsx`, links no nav)
 - Aba **Notícias**: RSS multi-fonte; capa = thumbnail/og oficial **ou** fallback temático (sem rostos repetidos/errados)
-- Aba **Dica do Pró**: teoria por street derivada das aulas revisadas em `src/data/courseContent.json`, sem cópia editorial separada
+- Aba **Dica do Pró**: teoria por street derivada das aulas revisadas em `src/data/courseContent.json`, sem cópia editorial separada; conteúdo local visível enquanto os feeds externos carregam
 
 ## Lobby e carteira
 

@@ -168,11 +168,11 @@ interface LocalTip {
 }
 
 // As dicas usam a mesma teoria revisada das aulas, sem uma segunda cópia editorial.
-const STREETS: Record<string, LocalTip["street"]> = {
+const LESSON_STREETS: Record<string, LocalTip["street"]> = {
   m1: "preflop", m2: "flop", m3: "turn", m4: "river",
 };
 const LOCAL_TIPS: LocalTip[] = allLessons().flatMap((lesson) => {
-  const street = STREETS[lesson.id.slice(0, 2)];
+  const street = LESSON_STREETS[lesson.id.slice(0, 2)];
   return street ? [{
     id: lesson.id,
     title: lesson.title,
@@ -860,6 +860,7 @@ export function NewsTips({ className, tab, compact, previewLimit = 3 }: NewsTips
 
   const items: FeedItem[] =
     activeTab === "news" ? newsItems : tipsByStreet.map((tip) => ({ ...tip, id: tip.id }));
+  const showInitialLoading = loading && items.length === 0;
 
   function formatDate(dateStr: string): string {
     const date = parseRSSDate(dateStr);
@@ -944,7 +945,7 @@ export function NewsTips({ className, tab, compact, previewLimit = 3 }: NewsTips
       )}
 
       <div className="p-4">
-        {loading && (
+        {showInitialLoading && (
           <div className="flex items-center justify-center py-8">
             <div className="zt-spinner" />
             <span className="ml-3 text-felt-300">
@@ -973,8 +974,7 @@ export function NewsTips({ className, tab, compact, previewLimit = 3 }: NewsTips
           role="feed"
           aria-label={`${activeTab === "news" ? "Notícias" : "Dica do Pró"} de poker`}
         >
-          {!loading &&
-            items.slice(0, visibleCount).map((item) => {
+          {items.slice(0, visibleCount).map((item) => {
               const itemKey = String(item.id);
               const isExpanded = expandedItems.has(itemKey);
               const rssBody = (item.description ?? "").trim();
@@ -1102,7 +1102,7 @@ export function NewsTips({ className, tab, compact, previewLimit = 3 }: NewsTips
             })}
         </div>
         {/* Navegação carrossel + Ver mais — desktop e mobile (oculta na prévia compacta) */}
-        {!loading && !isCompact && items.length > 0 && (
+        {!isCompact && items.length > 0 && (
           <div className="mt-3 flex items-center justify-between gap-2">
             <div className="flex gap-1">
               <button
