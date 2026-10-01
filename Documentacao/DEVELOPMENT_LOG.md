@@ -1,11 +1,23 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-09-26 (deploy fcf4065e no ar, migration 059, API e frontend healthy)
+**Atualizado:** 2026-09-27 (decisão comercial Agente ZT local; deploy fcf4065e permanece no ar)
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 > Painel tático em `DASHBOARD.md`. Cronograma em `CRONOGRAMA.md`. Estado canônico em `STATUS_OPERACIONAL.md` (prevalece sobre retrospectivas históricas que digam “Launch Ready”).
 
 ---
+
+## 📌 2026-09-27 — S25 local: documentação alinhada e backfill da rede
+
+- **Documentação:** `DASHBOARD.md` passa a refletir S25 e migrations 059.
+- **Decisão comercial:** o modelo de dois níveis foi substituído no plano pelo **Agente ZT Poker**: um nível, 30% do NGR direto e mais 5 pontos percentuais no mês em que atingir a meta. O histórico 18%/12% permanece auditável e a demo pública só muda após novo deploy.
+- **Implementação Agente ZT:** migration `060` preserva o ledger antigo como versão 1 e cria versão 2 por mês/carteira, status do agente, metas, deduções, fechamentos e saldo Real separado. Novas mãos e fees registram somente o agente direto ativo; o fechamento aplica 30% ou 35% do NGR e credita uma vez.
+- **Painéis:** `/estrutura` mostra diretos, Play/Real, NGR, meta, projeção e histórico; Admin Usuários aprova/suspende agente, fixa meta, registra dedução e fecha mês.
+- **Validação local:** migrations `059` e `060` aplicadas no PostgreSQL local; API iniciou e carregou o catálogo. Dois testes financeiros cobrem meta, piso e déficit, separação Play/Real, estorno idempotente de inscrição específica e estorno após ciclo fechado, com fixtures revertidas na mesma transação. `cargo check --locked`, Clippy estrito, TypeScript, ESLint e build Vite passaram. Sem deploy.
+- **API:** `GET /api/admin/estrutura/backfill` mostra a raiz e a quantidade de contas humanas sem patrocinador; `POST` exige confirmação da mesma raiz, bloqueia raiz já patrocinada, exclui contas técnicas `is_bot`, altera somente contas sem vínculo e grava `ESTRUTURA_BACKFILL` na mesma transação.
+- **Frontend:** Admin Usuários exibe a prévia e permite executar o vínculo após confirmação explícita.
+- **Validação local:** `cargo fmt`, `cargo check --locked` e Clippy `-D warnings` na API; TypeScript, ESLint e build Vite no frontend. Nenhuma suíte de testes foi acionada nesta tarefa.
+- **Operação:** a etapa inicial de backfill não alterou dados. Na continuação, o PostgreSQL local foi iniciado e recebeu as migrations `059` e `060`; o backfill não foi executado. A autenticação SSH disponível recusou acesso à VPS. Sem commit, push ou deploy.
 
 ## 📌 2026-09-26 — S25: quatro modalidades, showdown completo e rateio por pote
 
@@ -894,7 +906,7 @@
 - Eps 05-10 (~50-56s cada): sizing, roubos e 3-bets, pot odds, EV e fold equity, banca, revisão final. Série completa em `ZeroTiltCurso/`.
 - Sem botão no resultado: só as 5 cartas do jogo vencedor saltam com brilho dourado (board + mão do vencedor + painel), e o painel some sozinho em 7s.
 <!-- DOCUMENTATION_SYNC:START -->
-> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
@@ -1162,3 +1174,59 @@
 - **Migração:** React/React DOM e tipos em 19.3.0, React Router em 8.4.0 e Vitest em 5.0.1. Os 27 imports deixam o pacote de compatibilidade `react-router-dom` e usam `react-router`; Node mínimo passa a 22.22.0, compatível com o builder Node 24.
 - **Defesa em profundidade:** o retorno pós-login agora passa por `safeInternalPath`, que rejeita origem externa, `//`, barras invertidas literais/codificadas e caracteres de controle antes de chamar o roteador.
 - **Resultado:** `npm audit` com zero vulnerabilidades conhecidas; TypeScript e ESLint limpos; 9 arquivos/63 testes aprovados; `npm ci` e build Vite 8 reproduzidos em imagem limpa com Node 24. Permanece apenas o aviso não bloqueante de chunk principal acima de 500 kB.
+
+
+## 2026-09-27 — auditoria de regras, Academy e filme da home (local)
+
+- Corrigidos desempates A2345/A6789, formação de cinco cartas do wheel e cálculo de equity do Loss Deflator com regras próprias de Short Deck. Adicionadas regressões de ranking, split, cartas inválidas, distribuição por pote e exemplos didáticos.
+- Corrigidas contradições na regra normativa e nos exemplos financeiros: base líquida elegível, teto compartilhado, modos de saldo e exclusão de Omaha/Pineapple do deflator atual.
+- Academy organizada em dez grupos, 28 aulas e 63 questões; duas aulas novas de Pineapple derivam combinações e probabilidades, distinguindo ranking de equity. Gabaritos revisados, fontes vinculadas e IDs anteriores preservados.
+- Vídeos técnicos anteriores marcados para revisão, com reprodução suspensa na interface. Regravação integral e simuladores por módulo continuam pendentes, sem anúncio de conclusão.
+- Filme v3 com Pineapple e Short Deck: 81,70 s, 1080p30, VTT, poster, transcrição e manifesto gerados juntos. Timeline de ep13 corrigida.
+- Home/Academy verificadas em Chrome headless a 1440/390 px; vídeo carregado, Escape e desafio funcionais; carregamento das rotas separado para reduzir o pacote inicial. Resultados e limites no documento QUALITY.
+- Nenhuma publicação nem movimentação financeira. Impacto em mãos anteriores e contrato temporal do snapshot ficam explicitamente pendentes de auditoria com dados históricos.
+
+### 2026-09-28 — fechamento das verificações locais
+
+- Nove regressões de modalidade aprovadas, incluindo distribuição de potes e conferência dos exemplos da Academy pelo avaliador Rust. QJ no flop T98 de Omaha confirmado como sequência de dama alta, com o projeto de flush separado da mão feita.
+- API: 14 testes de router e 11 contratos PostgreSQL adicionais aprovados no banco local; npm audit e cargo audit (motor/API) sem vulnerabilidades conhecidas reportadas.
+- Frontend: 75 testes, TypeScript/ESLint e build aprovados. Chunk inicial de 410,71 kB. Inspeção Chrome desktop/celular repetida após o build final.
+- Inventário final: 723 arquivos existentes lidos automaticamente, 24 JSON válidos e sem colisão de migration em disco. Limitações e prioridades permanecem em QUALITY e DASHBOARD.
+
+### 2026-09-28 — Academy em implementação e diagnóstico do sandbox
+
+- Iniciada a conclusão solicitada dos simuladores e vídeos. Catálogo `courseTraining.json`: 35 cenários para os dez grupos e cobertura das 28 aulas. Endpoint isolado `POST /api/academy/play` usa o `GameLoop` Rust, sem SQL, carteira ou liquidação financeira, com replay determinístico, perguntas objetivas avaliadas no servidor e bots limitados às próprias cartas e informações públicas.
+- Seis testes iniciais da Academy aprovados: cobertura, cartas legais, reprodução, informação oculta, respostas, ações e conservação de fichas. Interface de estudo, replay e caderno adicionados; integração visual e gates completos ainda não concluídos. Não tratar esta anotação como aprovação da entrega.
+- Regravação técnica ainda não executada. O script temporário `.codex-tmp/academy-content.mjs` contém a ampliação editorial preparada; a gravação foi bloqueada com EPERM e a tentativa elevada foi interrompida pelo usuário. O JSON permaneceu na versão 3, conforme leitura posterior. Retomar a aplicação autorizada após resolver o modo de execução e então produzir/conferir os 25 vídeos técnicos.
+- A pedido do usuário, prioridade temporária para os bloqueios do ambiente. Configuração local já confiável/elevated; perfil da sessão restrito, iniciada em `C:\`. Diagnóstico e caminhos suportados registrados em `scripts/README.md`. Nenhum perfil de segurança global, ACL ou regra de firewall foi alterado.
+
+### 2026-09-29 — conclusão local das mesas e regravação da grade atual
+
+- Após o usuário ativar acesso completo na CLI, Node/WSL/renderização funcionaram no perfil `danger-full-access`. Nenhuma alteração global de ACL, firewall ou configuração do Codex foi necessária. Uma interrupção posterior da síntese foi diagnosticada como DNS; a retomada preservou as aulas já produzidas.
+- `courseContent.json` versão 6: 28 aulas, 63 questões, dez módulos e 15 referências. Os 25 textos técnicos foram ampliados com hipóteses, exemplos resolvidos e prática; regras de Hold’em, Short Deck, Omaha 4 e Brazilian Pineapple respeitam o motor da plataforma.
+- Dez mesas de módulo com 35 cenários cobrem todas as aulas: modos guiado/desafio/prática variada, bots com informação limitada, ações legais, replay, retorno de decisão, caderno local, reabertura e exportação. Distribuição progressiva 2→5 do Pineapple funciona também após all-in. Perguntas objetivas são corrigidas no servidor; dicas acompanham a street atual e não aparecem sobre estados antigos do replay.
+- A API de estudo não acessa banco, carteira nem settlement; usa fichas sem valor, sem rake ou comissões. Corpo, ações, concorrência e frequência são limitados; a cota de requisições é separada da autenticação. Bots são heurísticos, sem consulta paga a LLM/solver por ação. Modelo aprovado de Agente ZT (30%/35%, um nível) preservado.
+- Regravados os 25 vídeos técnicos em 1080p30, somados aos três históricos e ao filme da home: 29 vídeos ativos/159,4 minutos, com legendas, transcrições, capítulos e posters. O renderizador deriva as aulas dos dados canônicos, confere hashes, valida a sequência completa de palavras e substitui o MP4 público somente após concluir a codificação. Um trecho truncado foi detectado e refeito; 399 trechos finais completos, nenhum ausente/incompleto.
+- Removidos 78 arquivos obsoletos da pasta pública após conferir referências/caminhos/hashes. Permanecem 87 arquivos ativos; fontes anteriores preservadas nos episódios originais e no histórico git. Gates falham quando texto, exercício ou cenário diverge do vídeo correspondente.
+- Verificações: motor 1.859 testes de biblioteca + nove regressões de variantes; API 78 de biblioteca + 17 de router; frontend 83 em 11 arquivos, TypeScript/ESLint e build Vite aprovados. `fmt`/`clippy` aprovados. Nesta rodada, 31 testes do motor e 11 contratos de banco permaneceram ignorados; os contratos de banco tiveram rodada separada anterior documentada em QUALITY.
+- Navegador: 35 cenários desktop e cinco mobile; fluxos de all-in/replay/salvar/reabrir/check-raise/encerrar; 29 vídeos carregados, capítulos/legendas/transcrição em desktop e celular, sem exceções ou overflow nas superfícies conferidas. Os 29 MP4 passaram pela decodificação integral; 376 cenas técnicas passaram pela medição de layout.
+- Esta conclusão corresponde às 28 aulas atuais. Expansão futura de cash/MTT/ICM e modelos avançados permanece no currículo; a conferência automatizada não equivale a escuta humana integral da prosódia ou certificação GTO. Evidências e demais limites em QUALITY/DASHBOARD. Trabalho local, sem commit, push, deploy ou movimentação financeira.
+
+### 2026-09-30 — retomada e conclusão da história do Omaha (local)
+
+- Retomado o pedido de 29/09 de complementar a aula histórica; o proprietário reservou o curso específico de Omaha para outro momento. A preparação já estava aplicada ao conteúdo, mas a renderização de `ep12` havia sido interrompida.
+- `m0l2` incorpora seis referências históricas, jornalísticas e acadêmicas: Ciaffone, dois relatos/entrevista de Turner, PokerNews, relatório oficial da WSOP e dissertação de Kenneth Ho (Harvard Extension School, 2015). Diferencia memórias retrospectivas, registros de torneio e modelo matemático; não apresenta a origem do nome em Nebraska como comprovada nem atribui invenção exclusiva.
+- Conteúdo versão 7: 28 aulas, 65 questões e 21 referências. Duas perguntas históricas adicionadas; IDs e pré-requisitos preservados. Corrigida a formulação geográfica de uma pergunta e substituído o link do relatório WSOP por sua página oficial acessível.
+- Finalizado `ep12-mississippi-omaha-v3.mp4`: 1920×1080, 30 fps, 253,93 segundos, 13 capítulos, 63 trechos de legenda, poster e transcrição sincronizados. Manifesto vincula hashes do roteiro, conteúdo e MP4. Os três arquivos da versão anterior foram movidos para `artifacts/academy-audit/retired-ep12-v2/` após confirmar ausência de referências; a pasta pública conserva 87 mídias ativas.
+- Validação: 83 testes frontend, TypeScript, ESLint, build Vite e `git diff --check` aprovados. O novo MP4 foi decodificado integralmente; evidências dos outros 28 foram reaproveitadas somente com SHA inalterado. Treze cenas verificadas visualmente e por limites de texto. Chrome em 1440/390 px: duração, legendas, capítulos, transcrição, nove fontes e quiz corretos, sem exceção JavaScript nem overflow horizontal. Grade audiovisual atual: 29 vídeos, 161,9 minutos. Evidências em `artifacts/academy-audit/omaha-history-*` e `media-progress.json`.
+- Trabalho concluído localmente, sem commit, push ou deploy. A verificação automatizada não substitui escuta editorial humana integral.
+- Na revisão final dos logs, corrigida a chave React repetida entre player e quiz em `LessonPage.tsx`, preservando o reinício de ambos ao trocar de aula. Testes, lint e build repetidos e aprovados; a conferência desktop/celular passou também sem avisos ou erros de console.
+
+### 2026-10-01 — preparação e publicação S26 autorizadas
+
+- O proprietário solicitou explicitamente atualização dos arquivos/documentos, commit, push e deploy; a retomada mantém essa autorização.
+- Consolidada a entrega de 27–30/09: Academy, revisão do motor, história do Omaha, vídeos e Agente ZT em um nível. Atualizados os documentos donos, índices e guia de deploy; os registros datados anteriores permanecem como histórico.
+- STATUS migra para schema v3, com programa direto sobre NGR mensal no lugar do split antigo. A grade contém 28 aulas/65 questões/21 referências e 29 vídeos ativos. As dicas usam a mesma teoria das aulas, removendo a cópia contraditória de `tipsContent.json`.
+- Validado no PostgreSQL local o fechamento mensal concorrente/idempotente, bônus, comissão base, conciliação, déficit e isolamento PM/Real. Verificações completas e seus limites em `QUALITY.md`.
+- O script de VPS agora exige fast-forward, containers saudáveis e API pelo proxy HTTPS; backups e arquivos temporários ficam fora do contexto Docker. A VPS foi encontrada no commit `68d17d8`, com quatro containers saudáveis e migration 059; o arquivo 060 coincide com o checksum já aplicado no laboratório.
+- Publicação em andamento: confirmar commit, backup, aplicação da 060 e conteúdo servido antes de registrar conclusão. Nenhuma ativação de agente, meta comercial, backfill, fechamento de ciclo ou movimentação financeira na VPS faz parte deste deploy.

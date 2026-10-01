@@ -89,27 +89,75 @@ export interface PlayHeartbeatResponse {
   limit_reached: boolean;
 }
 
-export interface EstruturaMember {
+export interface AgentDirectPlayer {
   username: string;
-  level: number;
-  sponsor_username?: string | null;
-  rake_generated_week: number;
-  commission_paid_week: number;
+  play_gross_revenue_cents: number;
+  play_cash_rake_cents: number;
+  play_tournament_fees_cents: number;
+  real_gross_revenue_cents: number;
+  real_cash_rake_cents: number;
+  real_tournament_fees_cents: number;
+  active: boolean;
+}
+
+export interface AgentModeSummary {
+  money_mode: "play" | "real";
+  active_players_count: number;
+  gross_revenue_cents: number;
+  deductions_cents: number;
+  ngr_cents: number;
+  target_ngr_cents: number;
+  target_reached: boolean;
+  commission_percent: number;
+  projected_commission_cents: number;
+  adjustments: {
+    id: string;
+    category: string;
+    amount_cents: number;
+    note: string;
+    created_at: string;
+  }[];
+}
+
+export interface AgentCycleSummary {
+  cycle_start: string;
+  money_mode: "play" | "real";
+  target_ngr_cents: number;
+  status: "open" | "closed";
+  gross_revenue_cents: number;
+  deductions_cents: number;
+  ngr_cents: number;
+  commission_percent: number | null;
+  commission_cents: number;
 }
 
 export interface EstruturaResponse {
   referral_code?: string | null;
-  eligible: boolean;
-  hands_this_week: number;
-  personal_rake_cents_week: number;
-  vp_hands_needed: number;
-  vp_rake_cents_needed: number;
+  agent_status: "inactive" | "active" | "suspended";
+  cycle_start: string;
+  base_percent: number;
+  bonus_percent: number;
   estrutura_points: number;
-  points_week_l1: number;
-  points_week_l2: number;
-  withheld_week: number;
-  level1: EstruturaMember[];
-  level2: EstruturaMember[];
+  agent_commission_balance_cents: number;
+  direct_players_count: number;
+  active_players_count: number;
+  play: AgentModeSummary;
+  real: AgentModeSummary;
+  direct_players: AgentDirectPlayer[];
+  recent_cycles: AgentCycleSummary[];
+}
+
+export interface EstruturaBackfillPreview {
+  root_user_id: string;
+  root_username: string;
+  unlinked_accounts: number;
+  root_has_sponsor: boolean;
+}
+
+export interface EstruturaBackfillResult {
+  root_user_id: string;
+  root_username: string;
+  updated_accounts: number;
 }
 
 export interface AdminStatsResponse {
@@ -136,6 +184,31 @@ export interface AdminUserResponse {
   created_at: number;
   last_login: number | null;
   mfa_enabled: boolean;
+  agent_status: "inactive" | "active" | "suspended";
+  agent_commission_balance_cents: number;
+  agent_play_target_cents: number;
+  agent_real_target_cents: number;
+}
+
+export interface AgentConfigResponse {
+  user_id: string;
+  agent_status: "inactive" | "active" | "suspended";
+  cycle_start: string;
+  money_mode: "play" | "real";
+  target_ngr_cents: number;
+}
+
+export interface AgentCloseResponse {
+  user_id: string;
+  cycle_start: string;
+  money_mode: "play" | "real";
+  target_ngr_cents: number;
+  gross_revenue_cents: number;
+  deductions_cents: number;
+  ngr_cents: number;
+  commission_percent: number;
+  commission_cents: number;
+  already_closed: boolean;
 }
 
 export interface AdminTableSeat {

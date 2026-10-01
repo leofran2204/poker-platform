@@ -97,7 +97,7 @@ export function CourseQuiz({
             {showResult && (
               <p className={`text-xs ${correct ? "text-emerald-200" : "text-red-200"}`}>
                 {correct ? "Certo. " : "Não foi dessa vez. "}
-                {q.kind === "theory" ? q.explanation : `Motor: ${q.engine}. ${q.why}`}
+                {q.kind === "theory" ? q.explanation : `Critério: ${q.engine}. ${q.why}`}
               </p>
             )}
           </div>
@@ -132,7 +132,7 @@ export function CourseQuiz({
               <p className="text-xs text-felt-300">
                 {passed
                   ? `🎉 Parabéns! Você atingiu a nota mínima (${PASS_SCORE}%) e desbloqueou a próxima aula!`
-                  : `⚠️ Você obteve nota abaixo da nota de corte (${PASS_SCORE}%). Revise o vídeo e tente novamente para avançar.`}
+                  : `Você obteve nota abaixo da nota de corte (${PASS_SCORE}%). Revise a aula e tente novamente para avançar.`}
               </p>
             </div>
             {!passed && (

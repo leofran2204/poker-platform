@@ -2,10 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { fetchCourseProgress, saveCourseProgress, type CourseProgressItem } from "@/api/client";
 import { CourseQuiz } from "@/components/CourseQuiz";
+import { CourseSources } from "@/components/CourseSources";
 import { CourseVideoPlayer } from "@/components/CourseVideoPlayer";
 import { TipRichText } from "@/components/TipRichText";
-import { allLessons, findLesson, isLessonUnlocked, moduleOfLesson, PASS_SCORE } from "@/lib/course";
+import { allLessons, findLesson, isLessonUnlocked, lessonFormat, lessonPrerequisites, moduleOfLesson, PASS_SCORE } from "@/lib/course";
 import { isAuthenticated } from "@/lib/auth";
+import { TRAINING } from "@/lib/academy";
 
 export function LessonPage() {
   const { lessonId } = useParams();
@@ -72,6 +74,7 @@ export function LessonPage() {
   const prev = idx > 0 ? lessons[idx - 1] : undefined;
   const next = idx >= 0 && idx < lessons.length - 1 ? lessons[idx + 1] : undefined;
   const mod = moduleOfLesson(lesson.id);
+  const missingPrerequisite = lessonPrerequisites(lesson.id).map(findLesson).find(p => p && progress[p.id]?.status !== "completed" && (progress[p.id]?.best_score ?? 0) < PASS_SCORE);
 
   const currentProg = progress[lesson.id];
   const isPassed =
@@ -88,7 +91,7 @@ export function LessonPage() {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-xl font-bold text-gold-bright">{lesson.title}</h1>
-          <p className="text-xs text-felt-400">Vídeo + leitura + quiz</p>
+          <p className="text-xs text-felt-400">{lessonFormat(lesson)}</p>
         </div>
         {isPassed && (
           <span className="rounded bg-emerald-500/20 border border-emerald-500/40 px-2.5 py-1 text-xs font-semibold text-emerald-300">
@@ -108,11 +111,11 @@ export function LessonPage() {
           <p className="text-xs text-felt-300">
             {!authed
               ? "Entre na sua conta e conclua as aulas anteriores para liberar esta."
-              : `Atinja ${PASS_SCORE}% na aula anterior (${prev?.title ?? "—"}) para liberar esta.`}
+              : `Atinja ${PASS_SCORE}% no pré-requisito: ${missingPrerequisite?.title ?? "aula de fundamentos"}.`}
           </p>
-          {prev ? (
-            <Link to={`/curso/${prev.id}`} className="zt-btn-primary !text-xs inline-block">
-              Ir para {prev.title} →
+          {missingPrerequisite ? (
+            <Link to={`/curso/${missingPrerequisite.id}`} className="zt-btn-primary !text-xs inline-block">
+              Ir para {missingPrerequisite.title} →
             </Link>
           ) : (
             <Link to="/curso" className="zt-btn-secondary !text-xs inline-block">
@@ -131,6 +134,7 @@ export function LessonPage() {
 
           {/* Player de Vídeo da Aula */}
           <CourseVideoPlayer
+            key={`video-${lesson.id}`}
             video={lesson.video}
             lessonTitle={lesson.title}
           />
@@ -141,10 +145,12 @@ export function LessonPage() {
               Material Didático de Apoio
             </h2>
             <TipRichText text={lesson.body} className="space-y-3 text-sm text-felt-100" />
+            <CourseSources sourceIds={lesson.sources} />
           </div>
 
           {/* Quiz de Fixação Bloqueante */}
           <CourseQuiz
+            key={`quiz-${lesson.id}`}
             questions={lesson.quiz}
             onFinish={(score, passed) => {
               setLastScore(score);
@@ -152,6 +158,11 @@ export function LessonPage() {
               void persist(passed, score);
             }}
           />
+          {mod && <div className="zt-panel p-5 space-y-3 border-gold-soft/30">
+            <h2 className="font-semibold text-gold-bright">Leve esta ideia para a mesa</h2>
+            <p className="text-sm text-felt-200">Bots, ações reais e replay. Pratique com fichas sem valor e compare suas decisões.</p>
+            <Link className="zt-btn-primary inline-flex !text-xs" to={`/curso/mesa/${mod.id}?cenario=${TRAINING.scenarios.find(s => s.lesson === lesson.id)?.id ?? ""}`}>Abrir simulador desta aula →</Link>
+          </div>}
         </>
       )}
 
@@ -166,7 +177,7 @@ export function LessonPage() {
         )}
 
         {next ? (
-          isPassed ? (
+          isLessonUnlocked(next.id, { ...progress, ...(isPassed ? { [lesson.id]: { status: "completed", best_score: lastScore ?? PASS_SCORE } } : {}) }) ? (
             <Link
               to={`/curso/${next.id}`}
               className="zt-btn-primary !text-xs animate-pulse shadow-lg shadow-gold-bright/10"

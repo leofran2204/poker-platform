@@ -1,0 +1,214 @@
+WEBVTT
+
+00:00:00.501 --> 00:00:06.663
+Zero Tilt Academy Sizing o tamanho certo Nesta aula nosso
+
+00:00:06.676 --> 00:00:11.560
+objetivo é Distinguir total da aposta e valor adicional Vamos
+
+00:00:11.573 --> 00:00:15.129
+desenvolver a teoria resolver exemplos e aplicar a ideia na
+
+00:00:15.142 --> 00:00:16.276
+mesa deste módulo
+
+00:00:18.435 --> 00:00:23.501
+Declare o tamanho e a unidade Uma abertura para 2,5 big
+
+00:00:23.514 --> 00:00:28.127
+blinds significa total de 2,5 big blinds não acrescentar esse
+
+00:00:28.140 --> 00:00:32.290
+valor a uma aposta anterior Quando houver aposta confira o
+
+00:00:32.302 --> 00:00:34.390
+mínimo de raise e o stack efetivo
+
+00:00:36.568 --> 00:00:42.755
+Exemplo de plano Para estes exercícios adotamos abertura de 2,5 big
+
+00:00:42.768 --> 00:00:46.222
+blinds no botão de uma mesa Texas cash 100 big blinds
+
+00:00:47.111 --> 00:00:51.144
+Como heurística de isolamento acrescentamos 1 big blinds por limper
+
+00:00:51.428 --> 00:00:56.660
+dois limpers levam a 4,5 big blinds Essa regra de treino
+
+00:00:56.673 --> 00:01:01.505
+não prova que o tamanho é ótimo Posição rake stacks
+
+00:01:01.789 --> 00:01:04.753
+adversários e estrutura de apostas mudam a análise
+
+00:01:06.935 --> 00:01:10.789
+Pratique Antes de clicar diga se há uma aposta a
+
+00:01:10.802 --> 00:01:15.351
+enfrentar e quanto ficará o total investido nesta rodada Bet
+
+00:01:15.364 --> 00:01:17.233
+e raise são ações diferentes
+
+00:01:19.402 --> 00:01:23.707
+Preço produzido pela aposta Com pote de 10 big blinds e
+
+00:01:23.720 --> 00:01:27.045
+aposta de 5 o rival paga 5 para um pote final
+
+00:01:27.058 --> 00:01:30.189
+de 20 precisa de 25 por cento de equity em um
+
+00:01:30.202 --> 00:01:34.352
+call final sem taxas Com aposta de 10 o pote
+
+00:01:34.364 --> 00:01:40.060
+final será 30 e o preço sobe para 33,33 por cento Apostar
+
+00:01:40.073 --> 00:01:43.656
+maior oferece preço pior ao caller mas também arrisca mais
+
+00:01:43.669 --> 00:01:47.818
+e pode fazer mãos piores desistirem Não escolha o tamanho
+
+00:01:47.831 --> 00:01:50.267
+apenas porque deseja ganhar um pote grande
+
+00:01:52.435 --> 00:01:56.612
+Incremento e mínimo Se a aposta vigente é 100 fichas e
+
+00:01:56.625 --> 00:01:59.833
+o último aumento completo foi de 100 o próximo raise
+
+00:01:59.846 --> 00:02:04.047
+completo precisa chegar a pelo menos 200 Depois de um
+
+00:02:04.060 --> 00:02:08.119
+raise de 100 para 300 o incremento é 200 o próximo
+
+00:02:08.132 --> 00:02:12.372
+total mínimo é 500 A interface mostra o total da
+
+00:02:12.385 --> 00:02:15.529
+rodada subtraia o que você já investiu para saber o
+
+00:02:15.542 --> 00:02:20.027
+adicional All-ins menores que o aumento completo exigem atenção
+
+00:02:20.039 --> 00:02:22.539
+às regras da mesa e não devem ser descritos como
+
+00:02:22.552 --> 00:02:23.764
+aumentos completos
+
+00:02:25.935 --> 00:02:31.336
+Compare respostas Repita uma distribuição e experimente dois tamanhos
+
+00:02:31.349 --> 00:02:37.573
+legais Observe quais bots pagam desistem ou aumentam Uma única
+
+00:02:37.586 --> 00:02:40.769
+resposta não permite estimar a frequência real de um perfil
+
+00:02:41.052 --> 00:02:44.274
+o exercício serve para compreender como o tamanho modifica a
+
+00:02:44.287 --> 00:02:48.746
+árvore de decisões Registre também o stack que sobra para
+
+00:02:48.759 --> 00:02:49.661
+a próxima street
+
+00:02:51.835 --> 00:02:57.352
+Laboratório O raise é um total Objetivo Distinguir total da
+
+00:02:57.365 --> 00:03:01.179
+aposta e valor adicional Abra a mesa deste módulo e
+
+00:03:01.192 --> 00:03:05.470
+comece pelo treino guiado Para subir a 3 big blinds com
+
+00:03:05.483 --> 00:03:12.184
+0,5 big blinds já investido entram mais 2,5 big blinds O controle
+
+00:03:12.197 --> 00:03:16.927
+mostra o total Depois repita no modo desafio respondendo à
+
+00:03:16.939 --> 00:03:21.166
+pergunta objetiva antes de cada ação Use o replay para
+
+00:03:21.179 --> 00:03:26.063
+comparar uma alternativa na mesma distribuição Uma nova distribuição
+
+00:03:26.076 --> 00:03:28.769
+preserva as cartas que definem o cenário e varia as
+
+00:03:28.782 --> 00:03:29.336
+demais
+
+00:03:31.502 --> 00:03:35.896
+Registre sua justificativa no caderno acertar a leitura e respeitar
+
+00:03:35.909 --> 00:03:38.396
+as hipóteses importam mais que ganhar esta mão
+
+00:03:40.568 --> 00:03:43.803
+Qual abertura adotamos no botão para o exercício de Texas
+
+00:03:43.816 --> 00:03:48.804
+cash 100 big blinds desta aula A. 2 5x B. 5x
+
+00:03:48.817 --> 00:03:53.018
+C. Limp Pause o vídeo faça sua leitura e registre
+
+00:03:53.031 --> 00:03:54.732
+uma resposta antes de continuar
+
+00:03:56.902 --> 00:04:04.171
+Resposta do exercício 2 5x Adotamos 2,5 big blinds neste exercício
+
+00:04:05.060 --> 00:04:07.625
+Não é um tamanho obrigatório nem universal
+
+00:04:09.768 --> 00:04:13.286
+Dois limpers e você no botão com padrão 2 5x
+
+00:04:14.177 --> 00:04:19.525
+Quanto aumenta A. 2 5x igual sempre B. 4 5x
+
+00:04:19.538 --> 00:04:22.721
+C. 10x para isolar Pause o vídeo faça sua leitura
+
+00:04:22.734 --> 00:04:25.002
+e registre uma resposta antes de continuar
+
+00:04:27.168 --> 00:04:32.543
+Resposta do exercício 4 5x mais 1x por limper em
+
+00:04:32.556 --> 00:04:36.976
+cima do padrão 2,5 mais 2 igual a 4 5x
+
+00:04:39.135 --> 00:04:41.545
+Abra o simulador da aula e escolha o cenário O
+
+00:04:41.558 --> 00:04:45.734
+raise é um total Jogue uma mão completa responda às
+
+00:04:45.747 --> 00:04:49.884
+perguntas e registre seu plano Depois use o replay para
+
+00:04:49.897 --> 00:04:54.459
+comparar outra ação na mesma distribuição Volte em outra sessão
+
+00:04:54.471 --> 00:04:59.407
+no modo desafio Avalie o raciocínio com as informações disponíveis
+
+00:04:59.678 --> 00:05:03.801
+sem confundir uma vitória isolada com uma boa estratégia As
+
+00:05:03.814 --> 00:05:08.093
+fontes estão no material de apoio Este curso não promete
+
+00:05:08.105 --> 00:05:10.309
+lucro e o treino usa fichas sem valor

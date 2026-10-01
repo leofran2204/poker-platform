@@ -1,0 +1,67 @@
+{
+  "filename": "ep12-mississippi-omaha-v3",
+  "durationSeconds": 253.93,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 6677330,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Do rio à mesa mundial."
+    },
+    {
+      "start": 15.63,
+      "title": "Uma viagem. Um jogo chamado poker."
+    },
+    {
+      "start": 37.23,
+      "title": "O ás já aparece como carta alta."
+    },
+    {
+      "start": 54.5,
+      "title": "O primeiro campeão foi escolhido por voto."
+    },
+    {
+      "start": 71.93,
+      "title": "Omaha tinha mais de um caminho."
+    },
+    {
+      "start": 89.03,
+      "title": "Turner. Gwen. Boyd. Um marco de difusão."
+    },
+    {
+      "start": 109.43,
+      "title": "Omaha nasceu em Nebraska?"
+    },
+    {
+      "start": 126.9,
+      "title": "Limit: 1983. Pot-limit: 1984."
+    },
+    {
+      "start": 147.93,
+      "title": "Quatro privadas. Use duas mais três."
+    },
+    {
+      "start": 168.6,
+      "title": "Nome de cidade é prova de origem?"
+    },
+    {
+      "start": 186.63,
+      "title": "Uma vitória. Uma enorme repercussão."
+    },
+    {
+      "start": 206.97,
+      "title": "Omaha também chega à pesquisa."
+    },
+    {
+      "start": 227.4,
+      "title": "Relato, marco ou promessa?"
+    }
+  ],
+  "episodeHash": "02ba41b76f307f53c53d43e383a11e7d87d6d2c5e933372bca34d310b1453b5a",
+  "sha256": "41647b863f77d6daecb63ff6fe1e264f812c5245cd4bb960653ecb9eb5b5deef",
+  "rendererVersion": 3,
+  "contentHash": "a9a49ed16636a5e979a698e6d69613f80406e8f2877df727b172f7af19c2643b"
+}

@@ -29,6 +29,328 @@ use poker_api::tournament_store::TournamentStore;
 
 // ─── Test helpers ───
 
+#[tokio::test]
+#[ignore = "Requires local PostgreSQL with migration 060 — set DATABASE_URL to run"]
+async fn agent_cycle_close_is_guarded_idempotent_and_separates_wallets() {
+    use axum::extract::{Path, State};
+    use axum::Json;
+    use poker_api::handlers::estrutura::{close_agent_cycle, AgentCloseRequest};
+    use poker_api::middleware::auth::{AuthUser, RequireAuth};
+
+    let mut state = make_test_state();
+    state.db = sqlx::postgres::PgPoolOptions::new()
+        .max_connections(4)
+        .connect(&std::env::var("DATABASE_URL").expect("DATABASE_URL required"))
+        .await
+        .unwrap();
+    let agent = uuid::Uuid::new_v4();
+    let player = uuid::Uuid::new_v4();
+    for (id, sponsor) in [(agent, None), (player, Some(agent))] {
+        let name = format!("ac_{}", &id.simple().to_string()[..12]);
+        sqlx::query("INSERT INTO users (id, username, email, password_hash, agent_status, sponsored_by) VALUES ($1, $2, $3, 'test', 'active', $4)")
+            .bind(id).bind(&name).bind(format!("{name}@test.invalid")).bind(sponsor)
+            .execute(&state.db).await.unwrap();
+    }
+    let cycle: chrono::NaiveDate = sqlx::query_scalar("SELECT (date_trunc('month', timezone('America/Sao_Paulo', now())) - INTERVAL '3 months')::date")
+        .fetch_one(&state.db).await.unwrap();
+    let next = cycle.checked_add_months(chrono::Months::new(1)).unwrap();
+    let before: (i64, i64, i64) = sqlx::query_as(
+        "SELECT estrutura_points, agent_commission_balance_cents, balance FROM users WHERE id = $1",
+    )
+    .bind(agent)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    let mut tx = state.db.begin().await.unwrap();
+    for (mode, amount, deduction, target) in [
+        ("play", 1500_i64, 500_i64, 1000_i64),
+        ("real", 2000, 2500, 0),
+    ] {
+        poker_api::estrutura::distribute_fee(&mut tx, player, amount, uuid::Uuid::new_v4(), mode)
+            .await
+            .unwrap();
+        sqlx::query("INSERT INTO agent_monthly_cycles (agent_user_id, cycle_start, money_mode, target_ngr_cents) VALUES ($1, $2, $3, $4)")
+            .bind(agent).bind(cycle).bind(mode).bind(target).execute(&mut *tx).await.unwrap();
+        sqlx::query("INSERT INTO agent_ngr_adjustments (agent_user_id, cycle_start, money_mode, category, amount_cents, note) VALUES ($1, $2, $3, 'payment_cost', $4, 'Contract fixture')")
+            .bind(agent).bind(cycle).bind(mode).bind(deduction).execute(&mut *tx).await.unwrap();
+    }
+    sqlx::query("UPDATE estrutura_ledger SET cycle_start = $2 WHERE beneficiary_user_id = $1 AND program_version = 2")
+        .bind(agent).bind(cycle).execute(&mut *tx).await.unwrap();
+    tx.commit().await.unwrap();
+    let admin = RequireAuth(AuthUser {
+        user_id: agent.to_string(),
+        username: "contract".into(),
+        role: "admin".into(),
+    });
+    let request = |mode: &str, gross, deductions, target| AgentCloseRequest {
+        cycle_start: cycle,
+        money_mode: mode.into(),
+        reconciled: true,
+        expected_gross_revenue_cents: gross,
+        expected_deductions_cents: deductions,
+        expected_target_ngr_cents: target,
+    };
+    let mut ordinary = admin.clone();
+    ordinary.0.role = "user".into();
+    assert!(matches!(
+        close_agent_cycle(
+            ordinary,
+            State(state.clone()),
+            Path(agent.to_string()),
+            Json(request("play", 1500, 500, 1000))
+        )
+        .await,
+        Err(poker_api::error::ApiError::Forbidden(_))
+    ));
+    assert!(matches!(
+        close_agent_cycle(
+            admin.clone(),
+            State(state.clone()),
+            Path(agent.to_string()),
+            Json(request("play", 1501, 500, 1000))
+        )
+        .await,
+        Err(poker_api::error::ApiError::Conflict(_))
+    ));
+    let mut unreconciled = request("play", 1500, 500, 1000);
+    unreconciled.reconciled = false;
+    assert!(close_agent_cycle(
+        admin.clone(),
+        State(state.clone()),
+        Path(agent.to_string()),
+        Json(unreconciled)
+    )
+    .await
+    .is_err());
+    let (one, two) = tokio::join!(
+        close_agent_cycle(
+            admin.clone(),
+            State(state.clone()),
+            Path(agent.to_string()),
+            Json(request("play", 1500, 500, 1000))
+        ),
+        close_agent_cycle(
+            admin.clone(),
+            State(state.clone()),
+            Path(agent.to_string()),
+            Json(request("play", 1500, 500, 1000))
+        )
+    );
+    let one = one.unwrap().0;
+    let two = two.unwrap().0;
+    assert_ne!(one.already_closed, two.already_closed);
+    assert_eq!(
+        (one.ngr_cents, one.commission_percent, one.commission_cents),
+        (1000, 35, 350)
+    );
+    assert_eq!(two.commission_cents, 350);
+    let real = close_agent_cycle(
+        admin.clone(),
+        State(state.clone()),
+        Path(agent.to_string()),
+        Json(request("real", 2000, 2500, 0)),
+    )
+    .await
+    .unwrap()
+    .0;
+    assert_eq!((real.ngr_cents, real.commission_cents), (0, 0));
+    let repeated = close_agent_cycle(
+        admin.clone(),
+        State(state.clone()),
+        Path(agent.to_string()),
+        Json(request("real", 2000, 2500, 0)),
+    )
+    .await
+    .unwrap()
+    .0;
+    assert!(repeated.already_closed);
+    let carried: (i64, i64) = sqlx::query_as("SELECT COUNT(*)::BIGINT, SUM(amount_cents)::BIGINT FROM agent_ngr_adjustments WHERE agent_user_id = $1 AND cycle_start = $2 AND money_mode = 'real'")
+        .bind(agent).bind(next).fetch_one(&state.db).await.unwrap();
+    assert_eq!(carried, (1, 500));
+    let reference = uuid::Uuid::new_v4();
+    let mut tx = state.db.begin().await.unwrap();
+    poker_api::estrutura::distribute_fee(&mut tx, player, 1500, reference, "real")
+        .await
+        .unwrap();
+    sqlx::query("UPDATE estrutura_ledger SET cycle_start = $2 WHERE source_reference_id = $1")
+        .bind(reference)
+        .bind(next)
+        .execute(&mut *tx)
+        .await
+        .unwrap();
+    tx.commit().await.unwrap();
+    let mut next_request = request("real", 1500, 500, 0);
+    next_request.cycle_start = next;
+    let next_real = close_agent_cycle(
+        admin,
+        State(state.clone()),
+        Path(agent.to_string()),
+        Json(next_request),
+    )
+    .await
+    .unwrap()
+    .0;
+    assert_eq!(
+        (
+            next_real.ngr_cents,
+            next_real.commission_percent,
+            next_real.commission_cents
+        ),
+        (1000, 30, 300)
+    );
+    let after: (i64, i64, i64) = sqlx::query_as(
+        "SELECT estrutura_points, agent_commission_balance_cents, balance FROM users WHERE id = $1",
+    )
+    .bind(agent)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(after, (before.0 + 350, before.1 + 300, before.2));
+    let mut cleanup = state.db.begin().await.unwrap();
+    for statement in [
+        "DELETE FROM estrutura_ledger WHERE beneficiary_user_id = $1",
+        "DELETE FROM agent_ngr_adjustments WHERE agent_user_id = $1",
+        "DELETE FROM agent_monthly_cycles WHERE agent_user_id = $1",
+    ] {
+        sqlx::query(statement)
+            .bind(agent)
+            .execute(&mut *cleanup)
+            .await
+            .unwrap();
+    }
+    sqlx::query("DELETE FROM audit_logs WHERE user_id = $1")
+        .bind(agent.to_string())
+        .execute(&mut *cleanup)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM users WHERE id = $1")
+        .bind(player)
+        .execute(&mut *cleanup)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM users WHERE id = $1")
+        .bind(agent)
+        .execute(&mut *cleanup)
+        .await
+        .unwrap();
+    cleanup.commit().await.unwrap();
+}
+
+#[tokio::test]
+async fn academy_public_route_works_without_database_or_wallet() {
+    let app = poker_api::build_router(make_test_state());
+    let payload = serde_json::json!({"version":1,"scenario":"pine-allin","seed":7,"actions":[]});
+    let (status, body) = send_request(
+        app.clone(),
+        Method::POST,
+        "/api/academy/play",
+        Some(payload.to_string()),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    let initial: serde_json::Value = serde_json::from_str(&body).unwrap();
+    assert_eq!(
+        initial["state"]["players"][0]["cards"]
+            .as_array()
+            .unwrap()
+            .len(),
+        2
+    );
+    assert_eq!(
+        initial["state"]["players"][1]["cards"],
+        serde_json::json!([])
+    );
+    let played = serde_json::json!({"version":1,"scenario":"pine-allin","seed":7,"actions":[{"action":"all_in","answer":"2"}]});
+    let (status, body) = send_request(
+        app,
+        Method::POST,
+        "/api/academy/play",
+        Some(played.to_string()),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    let final_state: serde_json::Value = serde_json::from_str(&body).unwrap();
+    assert_eq!(final_state["state"]["finished"], true);
+    assert_eq!(
+        final_state["state"]["players"][0]["cards"]
+            .as_array()
+            .unwrap()
+            .len(),
+        5
+    );
+    assert_eq!(final_state["reviews"][0]["correct"], true);
+    assert!(final_state.get("balance").is_none());
+}
+
+#[tokio::test]
+async fn academy_rejects_invalid_payloads_and_oversized_bodies() {
+    let app = poker_api::build_router(make_test_state());
+    for (payload, expected) in [
+        (
+            serde_json::json!({"version":999,"scenario":"pine-allin","seed":1}),
+            StatusCode::BAD_REQUEST,
+        ),
+        (
+            serde_json::json!({"version":1,"scenario":"missing","seed":1}),
+            StatusCode::BAD_REQUEST,
+        ),
+        (
+            serde_json::json!({"version":1,"scenario":"pine-allin","seed":-1}),
+            StatusCode::UNPROCESSABLE_ENTITY,
+        ),
+        (
+            serde_json::json!({"version":1,"scenario":"pine-allin","seed":1,"balance":100}),
+            StatusCode::UNPROCESSABLE_ENTITY,
+        ),
+        (
+            serde_json::json!({"version":1,"scenario":"pine-allin","seed":1,"actions":[{"action":"raise","amount":100.5}]}),
+            StatusCode::UNPROCESSABLE_ENTITY,
+        ),
+        (
+            serde_json::json!({"version":1,"scenario":"primeira-mao","seed":1,"actions":[{"action":"raise","amount":101}]}),
+            StatusCode::BAD_REQUEST,
+        ),
+        (
+            serde_json::json!({"version":1,"scenario":"pine-allin","seed":1,"actions":[{"action":"call","answer":"x".repeat(17000)}]}),
+            StatusCode::PAYLOAD_TOO_LARGE,
+        ),
+    ] {
+        let (status, body) = send_request(
+            app.clone(),
+            Method::POST,
+            "/api/academy/play",
+            Some(payload.to_string()),
+        )
+        .await;
+        assert_eq!(status, expected, "{body}");
+    }
+}
+
+#[tokio::test]
+async fn academy_rate_limit_does_not_exhaust_auth_quota() {
+    let mut state = make_test_state();
+    state.rate_limiter = poker_api::middleware::rate_limit::RateLimiter::new(2, 60);
+    let app = poker_api::build_router(state.clone());
+    let payload = serde_json::json!({"version":1,"scenario":"primeira-mao","seed":1});
+    for expected in [
+        StatusCode::OK,
+        StatusCode::OK,
+        StatusCode::TOO_MANY_REQUESTS,
+    ] {
+        let (status, body) = send_request(
+            app.clone(),
+            Method::POST,
+            "/api/academy/play",
+            Some(payload.to_string()),
+        )
+        .await;
+        assert_eq!(status, expected, "{body}");
+    }
+    // Mesmo identificador fallback das requisições sem ConnectInfo.
+    let (status, _) = send_request(app, Method::POST, "/api/auth/login", Some("{}".into())).await;
+    assert_eq!(status, StatusCode::UNPROCESSABLE_ENTITY);
+}
+
 /// Builds a test AppState with an in-memory AuthManager.
 /// The `db` field is a placeholder — DB-dependent tests are marked #[ignore].
 fn make_test_state() -> AppState {

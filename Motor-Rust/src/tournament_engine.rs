@@ -633,7 +633,7 @@ fn generate_tournament_id(name: &str) -> String {
 // -----------------------------------------------------------
 
 /// Fee de 15% cobrado POR CIMA do buy-in. O buy-in integral compõe o prize
-/// pool; só o fee alimenta a rede Minha Estrutura (18% L1 + 12% L2 + 70% casa).
+/// pool; só o fee integra a receita atribuível ao Agente ZT (NGR mensal direto).
 pub const TOURNAMENT_FEE_BASIS_POINTS: u64 = 1500;
 
 /// Fee em centavos para um buy-in (freeroll: zero).

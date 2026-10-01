@@ -95,6 +95,35 @@ impl Default for RateLimiter {
 #[derive(Debug, Clone)]
 pub struct EnforceRateLimit;
 
+/// O treino possui um contador separado para não consumir a cota de login/PIX.
+#[derive(Debug, Clone)]
+pub struct EnforceAcademyRateLimit;
+
+#[axum::async_trait]
+impl<S> FromRequestParts<S> for EnforceAcademyRateLimit
+where
+    S: Send + Sync,
+    AppState: FromRef<S>,
+{
+    type Rejection = ApiError;
+
+    async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+        let app_state = AppState::from_ref(state);
+        let client_ip = extract_client_ip(parts, app_state.rate_limiter.trust_proxy_headers);
+        if !app_state
+            .rate_limiter
+            .check_rate_limit(&format!("academy:{client_ip}"), app_state.redis.as_ref())
+            .await
+            .map_err(ApiError::Internal)?
+        {
+            return Err(ApiError::TooManyRequests(
+                "Limite de ações do treino atingido. Aguarde um minuto e tente novamente.".into(),
+            ));
+        }
+        Ok(EnforceAcademyRateLimit)
+    }
+}
+
 #[axum::async_trait]
 impl<S> FromRequestParts<S> for EnforceRateLimit
 where

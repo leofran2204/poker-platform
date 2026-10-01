@@ -1,0 +1,27 @@
+Zero Tilt Academy. Como punir o Limp do Small Blind. Nesta aula, nosso objetivo é: Comparar check e isolamento após o limp. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Limp do small blind. Quando todos desistiram e o SB completa, o big blinds pode dar check se nada falta pagar, ou aumentar dentro dos limites legais. O limp pode conter mãos fracas e fortes; não identifica sozinho um jogador fraco.
+
+Plano do exercício. Texas cash 100 big blinds, blinds 0,5 dividido por 1: o SB completa e tende a pagar isolamentos com mãos piores, sem muitas armadilhas. Treinamos raise com ás e cinco do mesmo naipe, usando 3,5–4 big blinds como referência de tamanho. Contra outras frequências ou stacks, check pode integrar a estratégia.
+
+Revise a hipótese. Observe frequência de limp, fold para raise e limp-reraise antes de explorar uma tendência.
+
+A opção do big blind. Com blinds de 0,5 e 1 big blinds, o small blind já pagou meio blind. Ao completar mais meio, os dois jogadores têm 1 big blinds comprometido. O big blind não precisa pagar novamente para ver o flop: pode dar check. Aumentar para 4 big blinds exige mais 3 big blinds do big blind e oferece ao small blind a decisão de acrescentar 3 big blinds. Não confunda o custo adicional com o total da aposta.
+
+O tamanho depende da resposta. Se o rival paga aumentos com muitas mãos fracas, aumentar uma mão que joga bem contra essa faixa pode construir valor. Se ele inclui armadilhas e aumenta de volta, a avaliação muda. Um raise com ás e cinco do mesmo naipe pode combinar força, bloqueadores e potencial de formar flush, mas não deve ser rotulado automaticamente como valor contra qualquer range de call. O perfil é uma hipótese do exercício.
+
+Observe sem concluir cedo. Registre quantas vezes o rival completou, desistiu para aumento e fez limp-reraise. Amostras pequenas oscilam bastante. No simulador, o perfil é declarado para tornar o exercício reproduzível; em uma mesa real essa informação teria de ser inferida. Compare check e raise na mesma distribuição sem usar as cartas reveladas no final como justificativa retroativa.
+
+Laboratório: O small blind completa. Objetivo: Comparar check e isolamento após o limp. Abra a mesa deste módulo e comece pelo treino guiado. Você está no big blind. Se nada falta pagar, check é legal; o isolamento aumenta o total da aposta. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+Qual referência de iso-raise foi adotada no exercício desta aula, com Texas cash e 100 big blinds? A. 2.0 big blinds B. 3.5x a 4x o big blind C. All-in direto Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: 3.5x a 4x o big blind. 3,5–4 big blinds é a referência do exercício, a ajustar conforme posição, stacks e resposta do adversário.
+
+Suas cartas: ás de espadas, cinco de espadas. Cartas comunitárias: ainda não reveladas. Texas cash 100 big blinds. SB completa e, no modelo do exercício, paga raises com várias mãos piores. Qual ação por valor/semi-blefe treinamos no big blinds com A♠ 5♠? A. fold B. check C. raise Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: raise. ás e cinco do mesmo naipe tem excelente jogabilidade, bloqueador de Ás e posição para isolar o Small Blind.
+
+Abra o simulador da aula e escolha o cenário O small blind completa. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

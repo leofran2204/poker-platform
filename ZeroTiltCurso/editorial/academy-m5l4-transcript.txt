@@ -1,0 +1,45 @@
+Zero Tilt Academy. Pineapple: combinações e probabilidades condicionais. Nesta aula, nosso objetivo é: Contar candidatas legais e refazer a leitura depois da extra. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Conte sem duplicar. A combinação combinação de n elementos tomados k a k igual a n!/[k!(n menos k)!] conta seleções sem considerar ordem. Para h cartas privadas e b comunitárias, o número de candidatas legais de cinco cartas é combinação de h elementos tomados 2 a 2 vezes combinação de b elementos tomados 3 a 3.
+
+Flop, turn e river. Depois da carta extra: flop combinação de 3 elementos tomados 2 a 2 vezes combinação de 3 elementos tomados 3 a 3 igual a 3; turn combinação de 4 elementos tomados 2 a 2 vezes combinação de 4 elementos tomados 3 a 3 igual a 24; river combinação de 5 elementos tomados 2 a 2 vezes combinação de 5 elementos tomados 3 a 3 igual a 100. A regra sempre continua 2 mais 3. Essas candidatas compartilham cartas: são correlacionadas, não cem apostas independentes nem cem vezes mais equity. No pré-flop ainda não há três comunitárias para uma mão completa.
+
+Uma probabilidade exata, com hipóteses. Antes de receber a extra do flop, você conhece ás de ouros rei de ouros e o board ás de copas dama de paus dois de espadas. Sob embaralhamento uniforme, sem outras cartas reveladas nem condicionamento por ranges adversários, existem 47 cartas desconhecidas e dois ases restantes. A chance de a carta extra designada a você ser um ás é 2 dividido por 47 aproximadamente 4,2553 por cento. Cartas queimadas e mãos escondidas continuam desconhecidas; não invente seus valores nem as retire como cartas conhecidas.
+
+Se outras cartas forem reveladas ou você modelar ranges condicionados à ação, refaça a conta.
+
+Amostragem sem reposição. Se N cartas são desconhecidas, K pertencem à classe desejada e observamos n posições aleatórias, a chance de exatamente k sucessos é combinação de K elementos tomados k a k vezes combinação de N menos K elementos tomados n menos k a n menos k/combinação de N elementos tomados n a n. O modelo exige posições uniformes e hipóteses explícitas. Não multiplique chances como se as retiradas fossem independentes.
+
+Aplicação. Receber outro ás não garante vencer: os rivais também recebem extras, o board muda e o showdown exige 2 mais 3. As regras aproximadas de outs do Texas não capturam automaticamente esses eventos. Registre sempre: cartas conhecidas, fase, modalidade e evento que está calculando.
+
+Derive o número de pares. Com três privadas, escolha a primeira de três formas e a segunda de duas: seis escolhas ordenadas. Cada par foi contado duas vezes, então existem três pares distintos. Com cinco privadas, são cinco vezes quatro dividido por dois, isto é, dez pares. No river também há dez trios comunitários; o produto é cem candidatas legais. Escolher a melhor dessas candidatas é uma operação de ranking, não uma soma de probabilidades.
+
+Dois eventos sem reposição. Suponha 47 cartas desconhecidas, das quais duas são ases, e observe duas posições futuras específicas, uniformes, sem outra informação. A chance de nenhum ás é 45 sobre 47 vezes 44 sobre 46. Portanto, a chance de pelo menos um ás é um menos esse produto, aproximadamente 8,42 por cento. Não use duas vezes 2 sobre 47 como igualdade: as retiradas dependem umas das outras. A conta não informa se esse ás produzirá a melhor mão no showdown.
+
+O que uma simulação precisa preservar. Para estimar equity, um programa deve remover cartas conhecidas uma única vez, amostrar mãos rivais compatíveis, distribuir board e extras na ordem correta e dividir empates. Se um jogador desistir, ele para de receber; isso muda quais posições do baralho são consumidas. Este simulador ensina a distribuição e a decisão com o motor real, mas não publica uma estimativa de equity baseada em um modelo adversário oculto.
+
+Laboratório: Da contagem à decisão. Objetivo: Contar candidatas legais e refazer a leitura depois da extra. Abra a mesa deste módulo e comece pelo treino guiado. No turn: seis pares privados vezes quatro trios comunitários, total 24. Não são 24 eventos independentes. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+Quantas candidatas legais existem no river, com cinco privadas e cinco comunitárias? A. 25 B. 100 C. 252 Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: 100. combinação de 5 elementos tomados 2 a 2 vezes combinação de 5 elementos tomados 3 a 3 igual a 10 vezes 10 igual a 100. Cada candidata usa exatamente 2 mais 3.
+
+E no turn, depois de receber a quarta carta privada? A. 16 B. 24 C. 60 Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: 24. combinação de 4 elementos tomados 2 a 2 vezes combinação de 4 elementos tomados 3 a 3 igual a 6 vezes 4 igual a 24.
+
+Antes da extra do flop: ás de ouros rei de ouros e ás de copas dama de paus dois de espadas são as únicas cartas conhecidas. Sem inferências de ranges, qual chance de receber um ás nessa extra? A. 2 dividido por 47 B. 2 dividido por 52 C. 3 dividido por 47 Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: 2 dividido por 47. Conhecemos cinco cartas, duas são ases: restam 47 desconhecidas e dois ases.
+
+Cem candidatas no river significam cem chances independentes de vitória? A. Sim B. Não Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Não. Elas compartilham cartas e enfrentam o mesmo board e os mesmos adversários.
+
+Como tratar uma carta queimada cujo valor não foi revelado, neste modelo de informação? A. Retirar um ás por precaução B. Continuar tratando seu valor como desconhecido C. Presumir que não é ás Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Continuar tratando seu valor como desconhecido. O valor não observado não pode ser inventado. O cálculo marginal continua condicionado apenas às informações declaradas.
+
+Abra o simulador da aula e escolha o cenário Da contagem à decisão. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

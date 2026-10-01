@@ -1,0 +1,29 @@
+Zero Tilt Academy. Como responder a Check-Raise e a Arte do Float. Nesta aula, nosso objetivo é: Recalcular o preço após a agressão adversária. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Responder ao check-raise. Um check-raise pode conter valor e blefes. Compare o tamanho total a pagar, stacks, textura e range plausível do rival; top pair não exige sempre call nem sempre fold.
+
+Modelo explícito. No exercício, o rival é definido como alguém que só dá check-raise grande com dois pares ou melhor e quase nunca blefa. rei e nove em rei, oito e três rainbow pode ser descartado contra esse modelo. Se as frequências mudarem, refaça a análise.
+
+Float. É pagar com um plano de disputar o pote em uma rodada posterior, frequentemente em posição. Exige leitura das continuações adversárias e do preço; não é pagar qualquer mão esperando um check.
+
+Refaça o preço após o raise. Suponha um pote de 10 big blinds, sua aposta de 3 e um aumento rival para 12. Antes da sua decisão, há 25 big blinds: dez do pote, três seus e doze do rival. Você já colocou três e precisa acrescentar nove. O pote após call será 34, de modo que o limiar é nove sobre trinta e quatro, aproximadamente 26,47 por cento, sem taxas e supondo que a decisão encerre as apostas.
+
+Não use doze como custo adicional.
+
+Força absoluta e força relativa. Top pair pode ser uma mão forte contra um range amplo, mas fraca contra um range composto apenas por dois pares, trincas e combinações superiores. No treino de check-raise, o bot de valor só aumenta quando sua própria mão satisfaz a política declarada. Isso torna a leitura estudável. Contra um rival que também usa blefes e projetos, você teria de reconstruir a composição de continuações.
+
+Um float precisa de plano. Pagar uma aposta pequena em posição pode preservar opções quando sua mão tem equity e o adversário abandona certas linhas futuras. Mas você não sabe se ele dará check no turn. Registre quais cartas permitem continuar e qual nova aposta tornaria o plano inadequado. Não chame de float qualquer call feito apenas por curiosidade.
+
+Laboratório: Responder ao check-raise. Objetivo: Recalcular o preço após a agressão adversária. Abra a mesa deste módulo e comece pelo treino guiado. O bot de valor dá check-raise com dois pares ou melhor. Uma aposta sua pode provocar essa resposta. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+O que é a jogada conhecida como 'Float' no poker? A. Dar fold imediatamente no pré-flop B. Pagar uma aposta no flop em posição com intenção de tomar o pote no turn quando o rival checar C. Pedir tempo extra para pensar Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Pagar uma aposta no flop em posição com intenção de tomar o pote no turn quando o rival checar. Float é um call planejado em posição para explorar o check do agressor no turn.
+
+Suas cartas: rei de ouros, nove de ouros. Cartas comunitárias: rei de paus, oito de espadas, três de copas. Texas, flop rei de paus oito de espadas três de copas. Você tem K♦ 9♦. No modelo desta aula, o rival só dá check-raise grande com dois pares ou melhor e quase nunca blefa. Qual decisão conservadora treinamos? A. fold B. call C. raise Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: fold. Contra o range forte definido no enunciado, descartamos top pair com kicker 9. Não é uma regra contra todo check-raise.
+
+Abra o simulador da aula e escolha o cenário Responder ao check-raise. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

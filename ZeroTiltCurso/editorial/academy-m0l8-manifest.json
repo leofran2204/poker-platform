@@ -1,0 +1,71 @@
+{
+  "lessonId": "m0l8",
+  "filename": "zt-academy-m0l8-v3",
+  "contentHash": "0b7accbe65f90f1c71a58ae6a26443db559ac49804385bf742a38d644e6a52e4",
+  "rendererVersion": 3,
+  "durationSeconds": 312.0,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 7649975,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Sizing: o tamanho certo"
+    },
+    {
+      "start": 17.93,
+      "title": "Declare o tamanho e a unidade"
+    },
+    {
+      "start": 36.07,
+      "title": "Exemplo de plano"
+    },
+    {
+      "start": 66.43,
+      "title": "Pratique"
+    },
+    {
+      "start": 78.9,
+      "title": "Preço produzido pela aposta"
+    },
+    {
+      "start": 111.93,
+      "title": "Incremento e mínimo"
+    },
+    {
+      "start": 145.43,
+      "title": "Compare respostas"
+    },
+    {
+      "start": 171.33,
+      "title": "Laboratório: O raise é um total"
+    },
+    {
+      "start": 211.0,
+      "title": "Laboratório: O raise é um total"
+    },
+    {
+      "start": 220.07,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 236.4,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 249.27,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 266.67,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 278.63,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "cce0f2cf2a9f28b9e98bac696aaf821718ca08b9a24ededfc6ce6b5ec9fd5351"
+}

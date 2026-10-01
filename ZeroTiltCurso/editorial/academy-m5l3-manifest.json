@@ -1,0 +1,79 @@
+{
+  "lessonId": "m5l3",
+  "filename": "zt-academy-m5l3-v3",
+  "contentHash": "e5ec7715a31257544e4bb6aef637ab024254878110dff7c97c296ec99d95e3e0",
+  "rendererVersion": 3,
+  "durationSeconds": 415.97,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 10701944,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Brazilian Pineapple: 2 cartas e +1 por street"
+    },
+    {
+      "start": 20.77,
+      "title": "Modalidade exclusiva da ZT"
+    },
+    {
+      "start": 36.03,
+      "title": "Distribuição completa"
+    },
+    {
+      "start": 64.83,
+      "title": "Formação e ranking"
+    },
+    {
+      "start": 87.7,
+      "title": "Exemplo passo a passo"
+    },
+    {
+      "start": 128.87,
+      "title": "Exercício de recuperação"
+    },
+    {
+      "start": 150.57,
+      "title": "O momento da carta extra"
+    },
+    {
+      "start": 184.4,
+      "title": "Compare com o Texas"
+    },
+    {
+      "start": 213.63,
+      "title": "Planeje a revisão por street"
+    },
+    {
+      "start": 243.0,
+      "title": "Laboratório: Duas, três, quatro, cinco privadas"
+    },
+    {
+      "start": 281.17,
+      "title": "Laboratório: Duas, três, quatro, cinco privadas"
+    },
+    {
+      "start": 290.23,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 311.83,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 328.73,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 366.2,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 382.2,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "1f1521a6797a46b59a436f64bcd8906eff05063ddc0e115fa3855faff5ca19c8"
+}

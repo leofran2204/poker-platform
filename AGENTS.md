@@ -10,8 +10,8 @@ Caminho do repositório: `c:/Users/leofr/Projetos/Poker_Project` (nunca OneDrive
 
 | Assunto | Dono | Como alterar |
 |---|---|---|
-| Ciclo, catálogo cash/MTT, carteiras, PIX, presença, certificação, flags | `Documentacao/STATUS_OPERACIONAL.json` (máquina) → `STATUS_OPERACIONAL.md` (leitura, gerado) | Editar o JSON schema v2 + `cargo run --bin documentation-sync -- --write` e `--check`. Campo extra no JSON é erro. `certified: true` é recusado. `pix.automatic_in_production: true` exige payout worker no código. |
-| Regras de pôquer e dinheiro (rake, fee, 18/12, PM×Real, deflator) | `Documentacao/BUSINESS_RULES.md` | Editar só a regra. Stakes vigentes estão no STATUS. |
+| Ciclo, catálogo cash/MTT, agentes, carteiras, PIX, presença, certificação, flags | `Documentacao/STATUS_OPERACIONAL.json` (máquina) → `STATUS_OPERACIONAL.md` (leitura, gerado) | Editar o JSON schema v3 + `cargo run --bin documentation-sync -- --write` e `--check`. Campo extra no JSON é erro. `certified: true` é recusado. `pix.automatic_in_production: true` exige payout worker no código. |
+| Regras de pôquer e dinheiro (rake, fee, comissão do agente, PM×Real, deflator) | `Documentacao/BUSINESS_RULES.md` | Editar só a regra. Stakes vigentes estão no STATUS. |
 | Arquitetura motor/stack/pastas | `Arquitetura-Motor/ARQUITETURA_MOTOR.md` | |
 | Contratos REST/WS/admin | `Documentacao/ARQUITETURA_E_APIS.md` | |
 | Agora, backlog, DoD, fases | `Documentacao/DASHBOARD.md` | |
@@ -21,12 +21,12 @@ Caminho do repositório: `c:/Users/leofr/Projetos/Poker_Project` (nunca OneDrive
 | Carga massiva autorizada | `Documentacao/FULL_VALIDATION.md` + `scripts/README.md` | |
 | Convite demo | `Documentacao/DEMO_AMIGOS.md` | Tabelas cash/MTT geradas do JSON. |
 | Pitch amigos / due diligence | `RELATORIO_AMIGOS_SOCIO.md` / `RELATORIO_PARCEIROS_ZEROTILT.md` | Números = STATUS, não copiar stakes. |
-| GTM rede 2 níveis | `Documentacao/PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md` | |
+| GTM Agente ZT Poker | `Documentacao/PLANO_GO_TO_MARKET_AGENTE_ZT.md` | Um nível; 30% do NGR direto + 5 p.p. por desempenho. |
 | Curso de estratégia (produto) | `Documentacao/CURSO_ESTRATEGIA_POKER.md` | |
-| Curso em vídeo (produto) | `ZeroTiltCurso/epNN-*/` (plan.md + script.py + narracao.mp3 + final) | Intermediários de render ignorados no `.gitignore`. |
+| Curso em vídeo (produto) | `ZeroTiltCurso/editorial/` (roteiros, renderizadores e manifestos); finais em `Frontend-Web/public/videos/` | Intermediários ignorados no `.gitignore`. `ZeroTiltCurso/epNN-*/` preserva as fontes anteriores. |
 | Exemplos Loss Deflator / JWT | `LOSS_DEFLATOR_EXEMPLOS.md` / `SECURITY_UPGRADES_EXEMPLOS.md` | |
 | Deploy | `Infraestrutura-Docker/DEPLOY_HETZNER.md`, `DEPLOY_HOME_CLOUDFLARE.md`, índice `DEPLOYMENT_VALIDATION.md` | |
-| UI Full Tilt | `Frontend-Web/README.md` | Catálogo = STATUS. |
+| UI ZT Poker e Academy | `Frontend-Web/README.md` | Catálogo = STATUS. |
 | Legal | `TERMOS_DE_USO_E_SERVICO.md`, `PRIVACIDADE_DOMINIO.md` | Não misturar com ops. |
 | Enciclopédia antiga / metas Fase 2 / cronograma detalhado | `Documentacao/historico/` | Snapshot. Não é vigente. |
 
@@ -102,7 +102,7 @@ Esse perfil orienta toda tarefa: aplique as competências pertinentes ao pedido 
 | Segurança e integridade do jogo | Proteger saldos, liquidação e dados; respeitar centavos inteiros, HMAC e ausência de segredos em logs. | `Documentacao/BUSINESS_RULES.md`, `Documentacao/QUALITY.md` e contratos da API. |
 | Empreendedorismo, administração e gestão | Relacionar produto, operação, custos, receitas e prioridades; distinguir fatos, hipóteses e metas, com critérios de sucesso verificáveis. | `Documentacao/STATUS_OPERACIONAL.md`, `Documentacao/BUSINESS_RULES.md` e `Documentacao/DASHBOARD.md`. |
 | Marketing e vendas | Traduzir capacidades existentes em propostas de valor claras; trabalhar aquisição, conversão e retenção com comunicação adequada ao público e métricas explícitas. Nunca prometer o que o código rejeita. | `Documentacao/STATUS_OPERACIONAL.md`, `Documentacao/DEMO_AMIGOS.md` e documentos de pitch indicados no índice `Documentacao/README.md`. |
-| Desenvolvimento de negócios em marketing de rede | Planejar convites, ativação, formação e acompanhamento da rede conforme o modelo aprovado de dois níveis; sem spam nem promessas de ganho. | Somente `Documentacao/PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md` para o modelo e a estratégia da rede; fatos operacionais no STATUS. |
+| Desenvolvimento de negócios com agentes | Planejar seleção, ativação e acompanhamento dos Agentes ZT conforme o modelo aprovado de um nível; sem spam nem promessas de ganho. | Somente `Documentacao/PLANO_GO_TO_MARKET_AGENTE_ZT.md` para o modelo e a estratégia comercial; fatos operacionais no STATUS. |
 | Ensino de poker e cursos EAD | Organizar progressão por nível, objetivos de aprendizagem, exemplos de mãos, exercícios e avaliações; produzir roteiros e aulas claros e verificar a correção das explicações. Ensinar tomada de decisão e variância sem prometer lucro. | `Documentacao/CURSO_ESTRATEGIA_POKER.md`, `ZeroTiltCurso/epNN-*/` e `Documentacao/BUSINESS_RULES.md` para regras específicas da plataforma. |
 | Atendimento e comunidade | Orientar jogadores em PT-BR com clareza, acolher dúvidas e usar dificuldades recorrentes para melhorar produto e ensino; nunca pedir senha ou código. | `Documentacao/DEMO_AMIGOS.md` e `Documentacao/STATUS_OPERACIONAL.md`. |
 

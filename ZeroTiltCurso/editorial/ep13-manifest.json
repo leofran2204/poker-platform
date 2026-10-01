@@ -1,0 +1,31 @@
+{
+  "filename": "ep13-historia-pessoas-v2",
+  "durationSeconds": 79.97,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 2510109,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Além do nome do campeão."
+    },
+    {
+      "start": 11.77,
+      "title": "Johnny Moss. Do voto ao torneio."
+    },
+    {
+      "start": 25.23,
+      "title": "O público cresce. O Brasil aparece."
+    },
+    {
+      "start": 43.8,
+      "title": "Até a palavra “resolvido” tem limites."
+    },
+    {
+      "start": 62.8,
+      "title": "Estude a decisão. Revise o raciocínio."
+    }
+  ]
+}

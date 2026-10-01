@@ -1,0 +1,25 @@
+Zero Tilt Academy. Texas Hold'em Short Deck: 36 cartas. Nesta aula, nosso objetivo é: Ler ás, seis, sete, oito e nove como sequência baixa do Short Deck. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Texas Hold'em Short Deck (8-max). - Baralho de 36: sem 2, 3, 4 e 5. Deal: 2 cartas fechadas no pré-flop, como no Texas tradicional. Showdown: a melhor combinação de 5 entre as 2 da mão e as 5 comunitárias. Ranking Short Deck: trinca vence sequência; flush vence full house. Sequência baixa: Ás, 6, 7, 8 e 9. O Brazilian Pineapple usa 52 cartas e ranking tradicional.
+
+Não importe probabilidades do Texas tradicional. O universo começa em 36 cartas. Retire apenas as cartas conhecidas desse universo e avalie com o ranking da modalidade. ás, seis, sete, oito e nove é menor que seis, sete, oito, nove e dez. As regras de Short Deck podem variar entre plataformas; aqui estudamos as regras da Zê Tê.
+
+Ranking que muda decisões. A ordem local, do menor para o maior, é carta alta, par, dois pares, sequência, trinca, full house, flush, quadra, straight flush e royal flush. O ás pode atuar abaixo do seis na sequência ás, seis, sete, oito e nove, que termina no nove. Ele não transforma essa sequência em uma sequência de ás alto. Compare com seis, sete, oito, nove e dez: a segunda termina no dez e vence a primeira.
+
+Refaça o denominador. No turn, duas privadas e quatro comunitárias conhecidas deixam trinta cartas desconhecidas, pois o baralho tem trinta e seis. Se quatro copas estiverem entre as seis cartas conhecidas, restam cinco copas: cada naipe possui nove cartas. Sob distribuição uniforme e sem outras informações, a chance de uma copa no river é cinco sobre trinta, ou 16,67 por cento. Isso mede a carta do river; não certifica a vitória do flush nem considera ranges condicionados.
+
+Não misture modalidades. O nome Short Deck não altera a regra de formação do Texas: você pode usar zero, uma ou duas privadas. Já Omaha e Brazilian Pineapple da plataforma usam baralho de cinquenta e duas e exatamente duas privadas. No treino, comece identificando baralho, ranking e seleção; só depois calcule preços ou pense em blefar.
+
+Laboratório: O ás abaixo do seis. Objetivo: Ler ás, seis, sete, oito e nove como sequência baixa do Short Deck. Abra a mesa deste módulo e comece pelo treino guiado. A sequência termina no nove. Uma sequência até dez é maior; trinca supera sequência na Zê Tê. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+No Texas Hold'em Short Deck, qual é a hierarquia entre trinca e sequência? A. Sequência vence Trinca, como no Hold'em clássico B. Trinca vence sequência pelo ranking adotado na Zê Tê C. Dá empate e o pote é dividido Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Trinca vence sequência pelo ranking adotado na Zê Tê. No Short Deck, com 36 cartas, trinca vence sequência. No Texas tradicional, Omaha 4 e Brazilian Pineapple, sequência vence trinca.
+
+Suas cartas: nove de paus, nove de ouros. Cartas comunitárias: nove de espadas, oito de copas, sete de ouros, valete de paus, seis de espadas. Short Deck da Zê Tê: você tem nove de paus nove de ouros no board nove de espadas oito de copas sete de ouros valete de paus seis de espadas. O rival tem dez de copas dama de copas (sequência). Quem tem a mão mais forte? A. Sua trinca B. A sequência rival C. Empate Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Sua trinca. Na Zê Tê, trinca supera sequência em Short Deck. Este resultado não se aplica ao ranking clássico.
+
+Abra o simulador da aula e escolha o cenário O ás abaixo do seis. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

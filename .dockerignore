@@ -9,6 +9,9 @@
 **/node_modules/
 **/dist/
 artifacts/
+.codex-tmp/
+backups/
+ZeroTiltCurso/**/media/
 proptest-regressions/
 **/*.log
 

@@ -1,0 +1,39 @@
+{
+  "filename": "ep11-cartas-historia-v2",
+  "durationSeconds": 124.83,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 3927468,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "As cartas antes do poker."
+    },
+    {
+      "start": 14.57,
+      "title": "52 cartas. Outros naipes."
+    },
+    {
+      "start": 33.03,
+      "title": "Um baralho não é uma certidão de origem."
+    },
+    {
+      "start": 51.73,
+      "title": "13 valores. 4 naipes."
+    },
+    {
+      "start": 68.07,
+      "title": "Você vê uma parte. Decide sobre o todo."
+    },
+    {
+      "start": 89.27,
+      "title": "Qual afirmação o objeto comprova?"
+    },
+    {
+      "start": 102.47,
+      "title": "Observe a evidência. Respeite a incerteza."
+    }
+  ]
+}

@@ -25,6 +25,9 @@ export interface CourseEngineQuestion extends CourseQuizQuestionBase {
 export type CourseQuizQuestion = CourseTheoryQuestion | CourseEngineQuestion;
 
 export interface CourseVideoInfo {
+  contentHash?: string;
+  rendererVersion?: number;
+  publicationStatus?: "published" | "review";
   url?: string;
   durationSeconds?: number;
   hostName?: string;
@@ -35,16 +38,10 @@ export interface CourseVideoInfo {
   transcript?: string;
   captionsUrl?: string;
   posterUrl?: string;
+  chapters?: { start: number; title: string }[];
 }
 
-export function formatLessonDuration(seconds: number): string {
-  const total = Math.max(0, Math.round(seconds));
-  const minutes = Math.floor(total / 60);
-  const rest = total % 60;
-  if (minutes === 0) return `${rest} s`;
-  if (rest === 0) return minutes === 1 ? "1 min" : `${minutes} min`;
-  return `${minutes} min ${rest} s`;
-}
+export { formatLessonDuration } from "./courseDuration";
 
 export interface CourseHandExample {
   title: string;
@@ -60,9 +57,13 @@ export interface CourseHandExample {
 
 export interface CourseLesson {
   id: string;
+  prerequisites?: string[];
+  variant?: "holdem" | "short_deck" | "omaha" | "brazilian_pineapple";
   title: string;
   minutes: number;
   body: string;
+  /** Chaves bibliográficas de courseSources.json. */
+  sources?: string[];
   video?: CourseVideoInfo;
   handExample?: CourseHandExample;
   quiz: CourseQuizQuestion[];
@@ -105,13 +106,23 @@ export function isLessonUnlocked(
   lessonId: string,
   progress: Record<string, { status: string; best_score: number }>,
 ): boolean {
+  if (!findLesson(lessonId)) return false;
+  const passed = (id: string) => progress[id]?.status === "completed" || (progress[id]?.best_score ?? 0) >= PASS_SCORE;
+  // Uma reorganização editorial nunca retira acesso a uma aula já concluída.
+  return passed(lessonId) || lessonPrerequisites(lessonId).every(passed);
+}
+
+export function lessonPrerequisites(lessonId: string): string[] {
   const lessons = allLessons();
-  const idx = lessons.findIndex((l) => l.id === lessonId);
-  if (idx <= 0) return true; // Primeira aula sempre liberada
-  const prevLesson = lessons[idx - 1];
-  const p = progress[prevLesson.id];
-  if (!p) return false;
-  return p.status === "completed" || p.best_score >= PASS_SCORE;
+  const idx = lessons.findIndex(l => l.id === lessonId);
+  if (idx < 0) return [];
+  return lessons[idx].prerequisites ?? (idx > 0 ? [lessons[idx - 1].id] : []);
+}
+
+export function lessonFormat(lesson: CourseLesson): string {
+  return lesson.video?.url && lesson.video.publicationStatus !== "review"
+    ? "Vídeo • leitura • quiz"
+    : "Leitura • quiz";
 }
 
 export function calculateQuizScores(
@@ -137,7 +148,7 @@ export function calculateQuizScores(
     engineScore = Math.round((engineCorrect / engineQuestions.length) * 100);
   }
 
-  // Regra aprovada: 70% nas situações práticas do motor ou 70% geral
+  // Regra aprovada: 70% nos exercícios práticos (gabarito editorial) ou 70% geral.
   const passed = hasEngineQuestions ? engineScore >= PASS_SCORE : totalScore >= PASS_SCORE;
 
   return { totalScore, engineScore, hasEngineQuestions, passed };

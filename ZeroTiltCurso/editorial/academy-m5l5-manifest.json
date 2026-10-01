@@ -1,0 +1,95 @@
+{
+  "lessonId": "m5l5",
+  "filename": "zt-academy-m5l5-v3",
+  "contentHash": "2d7906f0c7740f96bbc01188e85924b7ff5f9e333b59aa32e32508d329918b09",
+  "rendererVersion": 3,
+  "durationSeconds": 492.57,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 12663412,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Pineapple: showdown, empates e leitura de equity"
+    },
+    {
+      "start": 20.4,
+      "title": "Método para classificar"
+    },
+    {
+      "start": 41.63,
+      "title": "O board não joga sozinho"
+    },
+    {
+      "start": 64.27,
+      "title": "Ranking não é equity"
+    },
+    {
+      "start": 96.17,
+      "title": "Auditoria de uma estimativa"
+    },
+    {
+      "start": 126.83,
+      "title": "Exercício comparativo"
+    },
+    {
+      "start": 156.47,
+      "title": "Faça a comparação inteira"
+    },
+    {
+      "start": 193.07,
+      "title": "Equity inclui frações de empate"
+    },
+    {
+      "start": 226.83,
+      "title": "Interprete precisão com cuidado"
+    },
+    {
+      "start": 259.27,
+      "title": "Laboratório: O board não joga sozinho"
+    },
+    {
+      "start": 298.1,
+      "title": "Laboratório: O board não joga sozinho"
+    },
+    {
+      "start": 307.17,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 350.37,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 365.13,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 386.5,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 402.13,
+      "title": "Exercício resolvido 3"
+    },
+    {
+      "start": 418.77,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 431.07,
+      "title": "Exercício resolvido 4"
+    },
+    {
+      "start": 445.77,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 458.77,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "e672036f62f65d1ab7fb26177f86d38e00f7029d173dd8848a4013e517d483a6"
+}

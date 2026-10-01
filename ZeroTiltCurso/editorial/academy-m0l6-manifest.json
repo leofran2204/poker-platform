@@ -1,0 +1,63 @@
+{
+  "lessonId": "m0l6",
+  "filename": "zt-academy-m0l6-v3",
+  "contentHash": "d7a0c0a20f425f79bb0f3a4d05e36f81131a7dc4d557c45bed0dd71e23e77d30",
+  "rendererVersion": 3,
+  "durationSeconds": 283.8,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 7106690,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Primeiros passos aqui"
+    },
+    {
+      "start": 19.1,
+      "title": "Conheça o ambiente"
+    },
+    {
+      "start": 42.0,
+      "title": "Conta e acesso"
+    },
+    {
+      "start": 61.53,
+      "title": "Mesas com outros jogadores"
+    },
+    {
+      "start": 80.83,
+      "title": "Entre na Academy"
+    },
+    {
+      "start": 113.27,
+      "title": "Três modos de praticar"
+    },
+    {
+      "start": 146.8,
+      "title": "Guarde o processo"
+    },
+    {
+      "start": 176.8,
+      "title": "Laboratório: Sua primeira mão completa"
+    },
+    {
+      "start": 213.77,
+      "title": "Laboratório: Sua primeira mão completa"
+    },
+    {
+      "start": 222.83,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 238.53,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 250.2,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "5127cc78399558a75a1024772a6787c22e91f2bcdcce02d6bfc1a1afe9a66743"
+}

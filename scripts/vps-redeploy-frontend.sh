@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Redeploy do frontend TypeScript (Full Tilt) na VPS.
+# Redeploy do frontend TypeScript e, opcionalmente, da API na VPS.
 # Uso (na VPS, como root ou user com docker):
 #   cd /opt/poker-platform && bash scripts/vps-redeploy-frontend.sh
 # Background:
@@ -29,14 +29,20 @@ if [[ ! -f "${COMPOSE_DIR}/docker-compose.yml" ]]; then
 fi
 
 cd "${POKER_ROOT}"
-echo "${LOG_TAG} git pull origin master"
-git pull origin master
+echo "${LOG_TAG} git pull --ff-only origin master"
+git pull --ff-only origin master
 
 cd "${COMPOSE_DIR}"
 export DOCKER_BUILDKIT=1
 
 if [[ ! -f .env ]]; then
-  echo "${LOG_TAG} WARN: ${COMPOSE_DIR}/.env ausente — compose pode falhar"
+  echo "${LOG_TAG} FAIL: ${COMPOSE_DIR}/.env ausente" >&2
+  exit 1
+fi
+
+if ! command -v curl >/dev/null 2>&1; then
+  echo "${LOG_TAG} FAIL: curl é necessário para validar API e proxy" >&2
+  exit 1
 fi
 
 # SKIP_BUILD=1 → só recria containers (útil após fix de Caddyfile montado em volume)
@@ -50,43 +56,35 @@ else
   docker compose build poker_frontend
 fi
 
-echo "${LOG_TAG} docker compose up -d --force-recreate poker_frontend"
-docker compose up -d --force-recreate poker_frontend
-# Garante postgres/redis/api se estiverem parados
-docker compose up -d
+echo "${LOG_TAG} docker compose up -d --wait --wait-timeout 180"
+docker compose up -d --wait --wait-timeout 180
+# Força a recarga de configurações montadas (ex.: Caddyfile).
+docker compose up -d --force-recreate --wait --wait-timeout 180 poker_frontend
 
 echo "${LOG_TAG} docker compose ps"
-docker compose ps || true
+docker compose ps
 
 echo "${LOG_TAG} health (local)"
-sleep 5
 HEALTH_OK=0
-if command -v curl >/dev/null 2>&1; then
-  if curl -fsS http://127.0.0.1/caddy-health | grep -q OK; then
-    echo "${LOG_TAG} caddy-health OK"
+DOMAIN="${DEPLOY_DOMAIN:-zerotiltpoker.net}"
+for attempt in {1..12}; do
+  if curl --max-time 10 -fsS http://127.0.0.1/caddy-health | grep -q OK &&
+    curl --max-time 10 -fsS -o /dev/null --resolve "${DOMAIN}:443:127.0.0.1" "https://${DOMAIN}/health"; then
+    echo "${LOG_TAG} caddy-health e API via HTTPS OK"
     HEALTH_OK=1
-  else
-    echo "${LOG_TAG} caddy-health FAIL (curl)"
+    break
   fi
-  # /health só existe no vhost HTTPS do domínio (Caddyfile): sonda com
-  # SNI/Host corretos via --resolve. http://127.0.0.1/health dá 404 by design.
-  curl -fsS -o /dev/null -w "api-via-proxy /health %{http_code}\n" --resolve zerotiltpoker.net:443:127.0.0.1 https://zerotiltpoker.net/health || true
-else
-  if wget -qO- http://127.0.0.1/caddy-health 2>/dev/null | grep -q OK; then
-    echo "${LOG_TAG} caddy-health OK"
-    HEALTH_OK=1
-  else
-    echo "${LOG_TAG} caddy-health FAIL (wget)"
-  fi
-fi
+  echo "${LOG_TAG} aguardando saúde do proxy e API (${attempt}/12)"
+  sleep 5
+done
 
 docker compose ps || true
 
 if [[ "${HEALTH_OK}" -eq 1 ]]; then
   echo "${LOG_TAG} $(date -u +%Y-%m-%dT%H:%M:%SZ) DEPLOY_OK"
-  echo "${LOG_TAG} Abra https://zerotiltpoker.net (hard refresh Ctrl+F5)"
+  echo "${LOG_TAG} Abra https://${DOMAIN} (hard refresh Ctrl+F5)"
   exit 0
 fi
 
-echo "${LOG_TAG} $(date -u +%Y-%m-%dT%H:%M:%SZ) DEPLOY_WARN healthcheck ainda falhou — ver: docker logs poker_frontend"
+echo "${LOG_TAG} $(date -u +%Y-%m-%dT%H:%M:%SZ) DEPLOY_FAIL healthcheck do proxy/API falhou — conferir containers e logs"
 exit 1

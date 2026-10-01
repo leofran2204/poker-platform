@@ -22,7 +22,7 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 ## Presença online
 
 - **Header:** badge `N online` (visitante via GET público; logado via heartbeat)
-- **Home:** mesa de vitrine + faixa com contagem e aviso de mín. 2 na mesa
+- **Home:** apresentação editorial, desafio de pot odds e acesso às demonstrações sob demanda
 - Logado: `POST /api/presence/heartbeat` periódico
 - Visitante: `GET /api/presence/online`
 
@@ -33,25 +33,29 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 
 ## Home
 
-- Visitante: vitrine da **Academy** + `ShowcaseTable` + deflator + três jogos (Hold’em, Omaha 4, Brazilian Pineapple)
+- Visitante: hero editorial, filme v3 de 81,70 s, desafio de pot odds, Academy, quatro modalidades e Agente ZT. Brazilian Pineapple aparece como modalidade exclusiva; Short Deck tem regras próprias.
 - Logado em `/` redireciona para `/curso`
 - Notícias e Dica do Pró **não** ficam na home: `/noticias`, `/dicas`, rodapé e atalhos no Curso
 - Header logado: Curso · Lobby · Carteira (+ Mais). Visitante: Academy · Entrar · Criar conta
 
-## Vídeos da Academy
+## Academy e mídia
 
-- Player (`CourseVideoPlayer`): MP4 + poster + transcrição da narração em texto. Sem faixa de legenda.
-- Finais em `public/videos/` (`epNN-*.mp4` / `.jpg`). Piloto ep01 em 720p30; os demais ainda 480p15 até o lote.
-- Voz: Hold’em = **Rôldem**, Omaha = **Omárra** (ep12, ep23–ep25). Os MP4 de ep23–ep25 ainda descrevem o jogo antigo; o texto do Módulo 5 é a regra vigente.
-- Princípio permanente: termo em inglês, pronúncia em inglês. Roteiros usam grafia fonética para o TTS pt-BR (ex.: `Târn`, `flóp`, `chôudaun`, `bláind`, `ráindj`, `flâsh`, `fullrrause`, `tchec-rêise`). Texto de leitura (títulos, quiz, `body`) fica em português normal; transcrição/`narration`/VTT acompanham a voz.
-- Fontes Manim em `ZeroTiltCurso/epNN-*/`.
+- Grade local: 28 aulas e 65 questões em `src/data/courseContent.json`; pré-requisitos explícitos, modalidades após fundamentos, história opcional com a difusão do Omaha. IDs/progresso anteriores preservados.
+- Player: MP4, poster, VTT em português, capítulos e transcrição real. Estado do player e quiz reinicia ao mudar de aula.
+- As 28 aulas atuais têm vídeo publicado localmente. Os 25 técnicos v3 derivam da teoria, dos exercícios e dos cenários atuais; o gate de mídia confere SHA-256 do conteúdo e dos arquivos. A pasta pública contém somente os arquivos da grade ativa e do filme atual.
+- Home v3, história ep11–ep13 v2 e 25 aulas técnicas v3: 1080p30, narração sintética, fontes bibliográficas vinculadas. Originais e renderizador em `ZeroTiltCurso/editorial/`; resultados em `public/videos/`.
+- `homeFilm.json` é gerado com duração/transcrição/capítulos reais; não duplicar o roteiro no JSX.
+- O quiz de aula usa gabarito editorial local. A mesa de estudo avalia regras e contas no servidor, sem certificar estratégia ótima.
+- `/curso/mesa/:moduleId`: dez mesas de módulo, 35 cenários nas quatro modalidades, bots com informação limitada, treino guiado/desafio/prática variada, replay, retorno de uma decisão e comparação. Caderno e até 50 sessões persistem apenas neste navegador; permitem reabrir e exportar JSON. Não há depósito nem vínculo com saldo.
+- Cliente em `src/lib/academy.ts`; catálogo único em `src/data/courseTraining.json`, também compilado na API. Alterar regras/cenários exige revisar versão, testes e vídeos afetados. Testes de persistência/contrato em `academy.test.ts`.
+- Testes de integridade em `src/lib/courseAudit.test.ts`. Conteúdo pedagógico e fontes: [documento do curso](../Documentacao/CURSO_ESTRATEGIA_POKER.md).
 
 ## Notícias e dicas
 
 - Componente `NewsTips` com props `tab` (trava aba), `compact` (prévia local sem rede) e `previewLimit`
 - Páginas dedicadas `/noticias` e `/dicas` (lazy no `App.tsx`, links no nav)
 - Aba **Notícias**: RSS multi-fonte; capa = thumbnail/og oficial **ou** fallback temático (sem rostos repetidos/errados)
-- Aba **Dica do Pró**: tips por street (`src/data/tipsContent.json`)
+- Aba **Dica do Pró**: teoria por street derivada das aulas revisadas em `src/data/courseContent.json`, sem cópia editorial separada
 
 ## Lobby e carteira
 
@@ -59,21 +63,21 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 - Cash: filtros alinhados ao catálogo em [`../Documentacao/STATUS_OPERACIONAL.md`](../Documentacao/STATUS_OPERACIONAL.md)
 - Badges: Tradicional / Short Deck + X-max
 - Torneios: lista por modo; buy-in + taxa 15%; cancelar inscrição
-- Home pública: hero da mesa + presença online (GET público)
+- Home pública: hero editorial e presença no header (GET público)
 
 ## Desenvolvimento local
 
 ```bash
 cd Frontend-Web
-npm install
+npm ci
 npm run dev
 npm test
 npm run lint
 ```
 
-Admin e `NewsTips` entram via `React.lazy`. Links de notícia/história só `http(s)`.
+Admin, Academy, mesa, torneio e `NewsTips` entram via `React.lazy`; replays e deflator da home carregam sob demanda. Links de notícia/história só `http(s)`.
 
-Proxy Vite encaminha `/api` e `/ws` para `http://127.0.0.1:3000` (API Axum).
+Proxy Vite encaminha `/api` e `/ws` para `http://127.0.0.1:3000` (API Axum). Para a prévia isolada de estudo, `POKER_DEV_API_URL=http://127.0.0.1:3188` troca somente o destino de `/api`; `academy_preview` e comandos estão em `scripts/README.md`. Essa prévia não fornece login, carteira, lobby ou presença.
 
 ## Produção (Docker)
 

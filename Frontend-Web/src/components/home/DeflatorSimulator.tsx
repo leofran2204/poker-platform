@@ -21,8 +21,8 @@ export function DeflatorSimulator() {
         Simulador: quanto voltaria para você?
       </h3>
       <p className="mt-1 text-xs text-felt-300">
-        Arraste a sua chance no all-in e digite o pote líquido (já sem rake). Abaixo de
-        56% não volta nada — o benefício é para quem jogou na frente.
+        Informe a equity e o pote líquido elegível (já sem rake). Exemplo com um único
+        perdedor elegível. Abaixo de 56% não há benefício; múltiplos perdedores dividem o teto do pote.
       </p>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">

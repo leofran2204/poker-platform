@@ -24,6 +24,7 @@ RUN mkdir -p Motor-Rust/src API-Axum/src \
 # Copia os diretórios necessários do workspace
 COPY Motor-Rust ./Motor-Rust
 COPY API-Axum ./API-Axum
+COPY Frontend-Web/src/data/courseTraining.json ./Frontend-Web/src/data/courseTraining.json
 
 # Compila a API em modo release
 WORKDIR /app/API-Axum

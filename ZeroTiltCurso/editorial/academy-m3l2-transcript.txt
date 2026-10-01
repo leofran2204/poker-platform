@@ -1,0 +1,27 @@
+Zero Tilt Academy. Pot Control vs. Apostas Polarizadas. Nesta aula, nosso objetivo é: Comparar check-back e aposta em board de três paus. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Pot control. Dar check pode preservar mãos de força intermediária e evitar ampliar a exposição naquela rodada. Isso não garante um showdown barato: o rival pode apostar depois.
+
+Polarização. Um range polarizado reúne mãos fortes para valor e blefes. Não se define apenas por apostar 75 por cento ou mais: depende da composição do range e do contexto.
+
+Exercício. valete de copas dez de ouros em valete de paus oito de ouros quatro de paus nove de paus tem top pair e uma broca para sequência, em um board com três paus. Após check do rival, check-back é o plano de controle do exercício. Call exige uma aposta a enfrentar.
+
+Relação entre stack e pote. relação entre stack efetivo e pote é o stack efetivo dividido pelo pote. Se restam 60 big blinds efetivos e há 20 no pote, o relação entre stack efetivo e pote é três. Esse número ajuda a visualizar quantas apostas grandes ainda cabem, mas não ordena um all-in automaticamente. A mesma relação pode exigir estratégias diferentes conforme board, modalidade, posição e distribuição de forças.
+
+Proteja a leitura do check. Check não significa sempre desistência futura. Um range de check pode incluir mãos fracas, médias e fortes. Se você presumir que todo check permite blefar sem resistência, ficará vulnerável a calls e raises. O bot de valor do treino demonstra uma dessas possibilidades: pode dar check com uma mão forte e reagir à sua aposta.
+
+A polarização é uma composição. Uma aposta grande com apenas mãos médias não se torna polarizada por causa do tamanho. A ideia envolve uma parte forte para valor e uma parte de blefes, com proporções dependentes do modelo. Com valete de copas dez de ouros em valete de paus oito de ouros quatro de paus nove de paus, classifique top pair, broca e riscos dos três paus antes de decidir. Compare a preservação de showdown com a exposição criada por cada tamanho.
+
+Laboratório: Controlar com mão intermediária. Objetivo: Comparar check-back e aposta em board de três paus. Abra a mesa deste módulo e comece pelo treino guiado. Top pair e uma broca coexistem com possíveis flushes. A composição do range importa mais que o nome da mão. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+Qual o principal objetivo do 'Pot Control' no turn? A. Fazer o vilão desistir na hora B. Evitar inflar o pote com mãos de força intermediária e chegar barato ao showdown C. Aumentar o valor do rake Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Evitar inflar o pote com mãos de força intermediária e chegar barato ao showdown. Mãos de força média jogam melhor em potes controlados, evitando decisões difíceis contra raises.
+
+Suas cartas: valete de copas, dez de ouros. Cartas comunitárias: valete de paus, oito de ouros, quatro de paus, nove de paus. Board valete de paus oito de ouros quatro de paus nove de paus. Você tem J♥ 10♦ no botão. Vilão no big blinds checa no turn. Ação? A. check B. bet Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: check. Check-back evita colocar mais fichas nesta rodada; não há aposta para pagar. A mão também tem uma broca, mas o board já permite flush.
+
+Abra o simulador da aula e escolha o cenário Controlar com mão intermediária. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

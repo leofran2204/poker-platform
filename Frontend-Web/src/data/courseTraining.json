@@ -1,0 +1,902 @@
+{
+  "version": 1,
+  "reviewedAt": "2026-09-28",
+  "scenarios": [
+    {
+      "id": "regras-showdown",
+      "module": "fundamentos",
+      "lesson": "m0l4",
+      "title": "As cinco cartas que contam",
+      "variant": "holdem",
+      "phase": "river",
+      "hole": [
+        "As",
+        "Kd"
+      ],
+      "board": [
+        "Ah",
+        "Qc",
+        "8s",
+        "4d",
+        "2c"
+      ],
+      "topic": "ranking",
+      "objective": "Classificar a mão e comparar kickers antes de agir.",
+      "hint": "Um par de ases usa K, Q e 8 como kickers. Observe se a aposta adversária muda o preço.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "posicao-botao",
+      "module": "fundamentos",
+      "lesson": "m0l5",
+      "title": "Botão: observar antes de decidir",
+      "variant": "holdem",
+      "phase": "preflop",
+      "hole": [
+        "Ac",
+        "Ad"
+      ],
+      "board": [],
+      "topic": "position",
+      "objective": "Reconhecer quem age antes e depois do flop.",
+      "hint": "No heads-up, o botão paga o small blind: primeiro pré-flop e último pós-flop.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "primeira-mao",
+      "module": "fundamentos",
+      "lesson": "m0l6",
+      "title": "Sua primeira mão completa",
+      "variant": "holdem",
+      "phase": "preflop",
+      "hole": [
+        "Kh",
+        "Qh"
+      ],
+      "board": [],
+      "topic": "legal",
+      "objective": "Percorrer pré-flop, flop, turn e river com ações legais.",
+      "hint": "Leia quanto falta pagar. Check não custa fichas; call cobre uma aposta.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "raise-fold",
+      "module": "fundamentos",
+      "lesson": "m0l7",
+      "title": "Abrir com um plano",
+      "variant": "holdem",
+      "phase": "preflop",
+      "hole": [
+        "7c",
+        "2d"
+      ],
+      "board": [],
+      "topic": "position",
+      "objective": "Distinguir uma mão de abertura de uma desistência disciplinada.",
+      "hint": "O cenário tem três lugares. A política do treino é seletiva; não transforme duas cartas ruins em obrigação de blefar.",
+      "profiles": [
+        "tight",
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "sizing-total",
+      "module": "fundamentos",
+      "lesson": "m0l8",
+      "title": "O raise é um total",
+      "variant": "holdem",
+      "phase": "preflop",
+      "hole": [
+        "Ah",
+        "Kh"
+      ],
+      "board": [],
+      "topic": "sizing",
+      "objective": "Distinguir total da aposta e valor adicional.",
+      "hint": "Para subir a 3 BB com 0,5 BB já investido, entram mais 2,5 BB. O controle mostra o total.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "side-pots",
+      "module": "fundamentos",
+      "lesson": "m0l4",
+      "title": "Stacks diferentes, potes diferentes",
+      "variant": "holdem",
+      "phase": "preflop",
+      "hole": [
+        "Qs",
+        "Qd"
+      ],
+      "board": [],
+      "topic": "pots",
+      "objective": "Ver quais jogadores podem disputar cada pote.",
+      "hint": "O menor stack só participa da parcela coberta por sua contribuição. Compare os potes ao final.",
+      "profiles": [
+        "pressure",
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000,
+      "stacks": [
+        2500,
+        6000,
+        10000
+      ]
+    },
+    {
+      "id": "pine-distribuicao",
+      "module": "pineapple",
+      "lesson": "m5l3",
+      "title": "Duas, três, quatro, cinco privadas",
+      "variant": "brazilian_pineapple",
+      "phase": "preflop",
+      "hole": [
+        "As",
+        "Ks"
+      ],
+      "board": [],
+      "topic": "selection",
+      "objective": "Acompanhar cada extra sem descartar cartas.",
+      "hint": "Cada participante ainda na mão recebe uma extra depois do flop, turn e river, inclusive em all-in.",
+      "profiles": [
+        "caller",
+        "passive"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "pine-flop",
+      "module": "pineapple",
+      "lesson": "m5l3",
+      "title": "Trinca com o kicker correto",
+      "variant": "brazilian_pineapple",
+      "phase": "flop",
+      "hole": [
+        "As",
+        "Ks",
+        "Ah"
+      ],
+      "board": [
+        "Ad",
+        "Qc",
+        "2s"
+      ],
+      "topic": "selection",
+      "objective": "Selecionar exatamente duas privadas e três comunitárias.",
+      "hint": "As e Ah formam trinca com Ad, Qc e 2s. O rei privado fica fora.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "pine-combinacoes",
+      "module": "pineapple",
+      "lesson": "m5l4",
+      "title": "Da contagem à decisão",
+      "variant": "brazilian_pineapple",
+      "phase": "turn",
+      "hole": [
+        "Ad",
+        "Kd",
+        "Js",
+        "9s"
+      ],
+      "board": [
+        "Ah",
+        "Qc",
+        "2s",
+        "Tc"
+      ],
+      "topic": "combinations",
+      "objective": "Contar candidatas legais e refazer a leitura depois da extra.",
+      "hint": "No turn: seis pares privados vezes quatro trios comunitários, total 24. Não são 24 eventos independentes.",
+      "profiles": [
+        "pressure"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "pine-board",
+      "module": "pineapple",
+      "lesson": "m5l5",
+      "title": "O board não joga sozinho",
+      "variant": "brazilian_pineapple",
+      "phase": "river",
+      "hole": [
+        "9c",
+        "9d",
+        "8c",
+        "7d",
+        "6s"
+      ],
+      "board": [
+        "Ah",
+        "Kh",
+        "Qh",
+        "Jh",
+        "Th"
+      ],
+      "topic": "selection",
+      "objective": "Encontrar a melhor mão sem usar cinco cartas do board.",
+      "hint": "Escolha duas privadas e três comunitárias. Nove e oito com dama, valete e dez formam sequência até dama.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "pine-allin",
+      "module": "pineapple",
+      "lesson": "m5l5",
+      "title": "Extras até para quem está all-in",
+      "variant": "brazilian_pineapple",
+      "phase": "preflop",
+      "hole": [
+        "Ac",
+        "Ad"
+      ],
+      "board": [],
+      "topic": "selection",
+      "objective": "Verificar a distribuição até o showdown após all-in.",
+      "hint": "Nenhuma carta extra é cancelada pelo all-in. A formação final continua exatamente 2+3.",
+      "profiles": [
+        "pressure"
+      ],
+      "opening": 300,
+      "stack": 10000,
+      "stacks": [
+        900,
+        900
+      ]
+    },
+    {
+      "id": "sd-wheel",
+      "module": "short-deck",
+      "lesson": "m5l1",
+      "title": "O ás abaixo do seis",
+      "variant": "short_deck",
+      "phase": "flop",
+      "hole": [
+        "As",
+        "6d"
+      ],
+      "board": [
+        "7c",
+        "8h",
+        "9s"
+      ],
+      "topic": "ranking",
+      "objective": "Ler A6789 como sequência baixa do Short Deck.",
+      "hint": "A sequência termina no nove. Uma sequência até dez é maior; trinca supera sequência na ZT.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "sd-flush",
+      "module": "short-deck",
+      "lesson": "m5l1",
+      "title": "Flush e full house",
+      "variant": "short_deck",
+      "phase": "river",
+      "hole": [
+        "Ah",
+        "Kh"
+      ],
+      "board": [
+        "Qh",
+        "Jh",
+        "8h",
+        "8d",
+        "Qc"
+      ],
+      "topic": "ranking",
+      "objective": "Aplicar o ranking específico antes de escolher uma aposta.",
+      "hint": "Aqui flush supera full house. Não transporte o ranking clássico para esta mesa.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "sd-probabilidade",
+      "module": "short-deck",
+      "lesson": "m5l1",
+      "title": "Contar em 36 cartas",
+      "variant": "short_deck",
+      "phase": "turn",
+      "hole": [
+        "Ah",
+        "Kh"
+      ],
+      "board": [
+        "Qh",
+        "9h",
+        "8c",
+        "6d"
+      ],
+      "topic": "unknown",
+      "objective": "Calcular o universo desconhecido com duas privadas e quatro comunitárias.",
+      "hint": "Trinta e seis menos seis cartas conhecidas deixa trinta desconhecidas para você.",
+      "profiles": [
+        "pressure"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "omaha-2mais3",
+      "module": "omaha",
+      "lesson": "m5l2",
+      "title": "Quatro privadas, apenas duas escolhidas",
+      "variant": "omaha",
+      "phase": "flop",
+      "hole": [
+        "Ah",
+        "Kh",
+        "Qc",
+        "Jc"
+      ],
+      "board": [
+        "Th",
+        "9h",
+        "8c"
+      ],
+      "topic": "combinations",
+      "objective": "Contar seis pares e reconhecer a sequência feita.",
+      "hint": "Qc e Jc com Th, 9h e 8c formam sequência até dama. Ah e Kh oferecem um projeto diferente.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "omaha-as",
+      "module": "omaha",
+      "lesson": "m5l2",
+      "title": "Um ás de copas não basta",
+      "variant": "omaha",
+      "phase": "river",
+      "hole": [
+        "Ah",
+        "Kd",
+        "Qc",
+        "Js"
+      ],
+      "board": [
+        "Kh",
+        "Qh",
+        "8h",
+        "4h",
+        "2c"
+      ],
+      "topic": "selection",
+      "objective": "Recusar um flush que dependeria de quatro cartas comunitárias.",
+      "hint": "Flush exige duas privadas do mesmo naipe e três comunitárias. Você só tem uma copa privada.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "omaha-redraw",
+      "module": "omaha",
+      "lesson": "m5l2",
+      "title": "Mão feita e possibilidades futuras",
+      "variant": "omaha",
+      "phase": "turn",
+      "hole": [
+        "Ah",
+        "Kh",
+        "Qc",
+        "Jc"
+      ],
+      "board": [
+        "Th",
+        "9h",
+        "8c",
+        "2d"
+      ],
+      "topic": "combinations",
+      "objective": "Comparar o estado atual com novas combinações possíveis no river.",
+      "hint": "Há seis pares privados e quatro trios do board: 24 candidatas neste turn.",
+      "profiles": [
+        "pressure",
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "abertura-range",
+      "module": "m1",
+      "lesson": "m1l1",
+      "title": "Posição e mãos de abertura",
+      "variant": "holdem",
+      "phase": "preflop",
+      "hole": [
+        "Ks",
+        "Qs"
+      ],
+      "board": [],
+      "topic": "position",
+      "objective": "Relacionar jogadores por agir, posição e plano de abertura.",
+      "hint": "A mesa didática começa com três jogadores. Ajuste o range ao número real de oponentes; não copie um chart 9-max.",
+      "profiles": [
+        "tight",
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "limp-sb",
+      "module": "m1",
+      "lesson": "m1l2",
+      "title": "O small blind completa",
+      "variant": "holdem",
+      "phase": "preflop",
+      "hole": [
+        "As",
+        "5s"
+      ],
+      "board": [],
+      "topic": "sizing",
+      "objective": "Comparar check e isolamento após o limp.",
+      "hint": "Você está no big blind. Se nada falta pagar, check é legal; o isolamento aumenta o total da aposta.",
+      "profiles": [
+        "limper"
+      ],
+      "opening": 300,
+      "stack": 10000,
+      "dealer": 1,
+      "setup": "limp"
+    },
+    {
+      "id": "tres-bet",
+      "module": "m1",
+      "lesson": "m1l3",
+      "title": "Reaumentar uma abertura",
+      "variant": "holdem",
+      "phase": "preflop",
+      "hole": [
+        "Ac",
+        "Kc"
+      ],
+      "board": [],
+      "topic": "sizing",
+      "objective": "Construir uma 3-bet e distinguir o total do incremento.",
+      "hint": "A abertura adversária foi para 2,5 BB. No exercício, compare uma 3-bet de valor com apenas pagar.",
+      "profiles": [
+        "opener"
+      ],
+      "opening": 250,
+      "stack": 10000,
+      "dealer": 1,
+      "setup": "open"
+    },
+    {
+      "id": "flop-textura",
+      "module": "m2",
+      "lesson": "m2l1",
+      "title": "Board conectado",
+      "variant": "holdem",
+      "phase": "flop",
+      "hole": [
+        "Qs",
+        "Js"
+      ],
+      "board": [
+        "9h",
+        "8h",
+        "7c"
+      ],
+      "topic": "ranking",
+      "objective": "Reconhecer a broca antes de apostar ou dar check.",
+      "hint": "Um dez completa sequência; este flop permite diversas mãos fortes ao caller. Não há c-bet obrigatória.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "flop-checkraise",
+      "module": "m2",
+      "lesson": "m2l2",
+      "title": "Responder ao check-raise",
+      "variant": "holdem",
+      "phase": "flop",
+      "hole": [
+        "Kh",
+        "9d"
+      ],
+      "board": [
+        "Kc",
+        "8s",
+        "3d"
+      ],
+      "topic": "odds",
+      "objective": "Recalcular o preço após a agressão adversária.",
+      "hint": "O bot de valor dá check-raise com dois pares ou melhor. Uma aposta sua pode provocar essa resposta.",
+      "profiles": [
+        "value"
+      ],
+      "opening": 300,
+      "stack": 10000,
+      "opponent_holes": [
+        [
+          "8h",
+          "8d"
+        ]
+      ]
+    },
+    {
+      "id": "flop-multiway",
+      "module": "m2",
+      "lesson": "m2l3",
+      "title": "Top set contra dois bots",
+      "variant": "holdem",
+      "phase": "flop",
+      "hole": [
+        "8c",
+        "8d"
+      ],
+      "board": [
+        "8h",
+        "7s",
+        "2c"
+      ],
+      "topic": "ranking",
+      "objective": "Buscar valor sem ignorar jogadores adicionais.",
+      "hint": "Sua trinca é a maior possível neste flop. Pense em quais pares e projetos pagariam cada tamanho.",
+      "profiles": [
+        "caller",
+        "passive"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "turn-scare",
+      "module": "m3",
+      "lesson": "m3l1",
+      "title": "Quando chega uma carta maior",
+      "variant": "holdem",
+      "phase": "turn",
+      "hole": [
+        "Ah",
+        "Qd"
+      ],
+      "board": [
+        "Qc",
+        "8s",
+        "3h",
+        "Kd"
+      ],
+      "topic": "ranking",
+      "objective": "Atualizar a força relativa e planejar o river.",
+      "hint": "AQ passou a segundo par. Um rei no turn não obriga a apostar nem elimina seu valor de showdown.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "turn-control",
+      "module": "m3",
+      "lesson": "m3l2",
+      "title": "Controlar com mão intermediária",
+      "variant": "holdem",
+      "phase": "turn",
+      "hole": [
+        "Jh",
+        "Td"
+      ],
+      "board": [
+        "Jc",
+        "8d",
+        "4c",
+        "9c"
+      ],
+      "topic": "ranking",
+      "objective": "Comparar check-back e aposta em board de três paus.",
+      "hint": "Top pair e uma broca coexistem com possíveis flushes. A composição do range importa mais que o nome da mão.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "turn-preco",
+      "module": "m3",
+      "lesson": "m3l3",
+      "title": "O preço de continuar",
+      "variant": "holdem",
+      "phase": "turn",
+      "hole": [
+        "Ah",
+        "Jh"
+      ],
+      "board": [
+        "Kh",
+        "7h",
+        "2c",
+        "9d"
+      ],
+      "topic": "odds",
+      "objective": "Calcular o limiar do call e separar completar flush de vencer.",
+      "hint": "Com quatro copas conhecidas, restam nove em 46 cartas desconhecidas. Isso descreve completar uma copa, não equity garantida.",
+      "profiles": [
+        "pressure"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "river-valor",
+      "module": "m4",
+      "lesson": "m4l1",
+      "title": "Receber de mãos piores",
+      "variant": "holdem",
+      "phase": "river",
+      "hole": [
+        "As",
+        "Jd"
+      ],
+      "board": [
+        "Ac",
+        "9h",
+        "4s",
+        "2d",
+        "7c"
+      ],
+      "topic": "ranking",
+      "objective": "Escolher valor fino de acordo com o perfil que paga.",
+      "hint": "O bot pagador continua com pares a preços moderados. A hipótese de receber de pior precisa sustentar sua aposta.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000,
+      "opponent_holes": [
+        [
+          "Ah",
+          "8c"
+        ]
+      ]
+    },
+    {
+      "id": "river-catcher",
+      "module": "m4",
+      "lesson": "m4l2",
+      "title": "Pagar pelo motivo certo",
+      "variant": "holdem",
+      "phase": "river",
+      "hole": [
+        "Ac",
+        "Ad"
+      ],
+      "board": [
+        "Jh",
+        "Ts",
+        "5d",
+        "2c",
+        "9h"
+      ],
+      "topic": "odds",
+      "objective": "Calcular o preço e identificar o que AA bloqueia.",
+      "hint": "AA não bloqueia KQ. Não use a força absoluta do overpair para inventar a frequência de blefes.",
+      "profiles": [
+        "pressure"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "river-overbet",
+      "module": "m4",
+      "lesson": "m4l3",
+      "title": "Identifique o flush antes do sizing",
+      "variant": "holdem",
+      "phase": "river",
+      "hole": [
+        "Jh",
+        "Th"
+      ],
+      "board": [
+        "9h",
+        "8h",
+        "7c",
+        "2d",
+        "Ah"
+      ],
+      "topic": "ranking",
+      "objective": "Reconhecer o flush e comparar diferentes tamanhos.",
+      "hint": "Você tem flush A-J-T-9-8. Um adversário com Kh Qh tem um flush maior; sua mão não é o nuts.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "ev-decisoes",
+      "module": "m6",
+      "lesson": "m6l1",
+      "title": "Preço, hipótese e resultado",
+      "variant": "holdem",
+      "phase": "river",
+      "hole": [
+        "Kd",
+        "Qs"
+      ],
+      "board": [
+        "Kh",
+        "9c",
+        "6d",
+        "4s",
+        "2h"
+      ],
+      "topic": "odds",
+      "objective": "Separar a conta exata do preço de uma hipótese de equity.",
+      "hint": "A tela informa o preço. A equity depende do range; o resultado desta mão não prova a rentabilidade do call.",
+      "profiles": [
+        "pressure"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "banca-limites",
+      "module": "m6",
+      "lesson": "m6l2",
+      "title": "Uma sessão com limite",
+      "variant": "holdem",
+      "phase": "preflop",
+      "hole": [
+        "9h",
+        "9d"
+      ],
+      "board": [],
+      "topic": "position",
+      "objective": "Decidir uma duração e um limite de treino antes de iniciar.",
+      "hint": "Registre no caderno o limite da sessão. Ao atingi-lo, use Encerrar treino; não aumente o stack para recuperar.",
+      "profiles": [
+        "pressure",
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 3000
+    },
+    {
+      "id": "revisao-integrada",
+      "module": "m6",
+      "lesson": "m6l3",
+      "title": "Explique a decisão antes do river",
+      "variant": "holdem",
+      "phase": "flop",
+      "hole": [
+        "As",
+        "Qs"
+      ],
+      "board": [
+        "Qh",
+        "Tc",
+        "4s"
+      ],
+      "topic": "odds",
+      "objective": "Registrar informação, alternativas e justificativa em cada decisão.",
+      "hint": "Use o modo desafio e escreva sua justificativa. Depois reveja a mesma distribuição com outra linha.",
+      "profiles": [
+        "pressure",
+        "value"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "historia-informacao",
+      "module": "m0",
+      "lesson": "m0l1",
+      "title": "Da observação à inferência",
+      "variant": "holdem",
+      "phase": "preflop",
+      "hole": [
+        "Js",
+        "Ts"
+      ],
+      "board": [],
+      "topic": "unknown",
+      "objective": "Separar cartas vistas de hipóteses sobre o rival.",
+      "hint": "Esta mesa demonstra Hold’em atual. Não é uma reconstrução dos jogos do baralho do Met.",
+      "profiles": [
+        "caller"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "historia-blefe",
+      "module": "m0",
+      "lesson": "m0l2",
+      "title": "Apostar com informação incompleta",
+      "variant": "holdem",
+      "phase": "river",
+      "hole": [
+        "Qs",
+        "Js"
+      ],
+      "board": [
+        "Ah",
+        "9d",
+        "7c",
+        "4h",
+        "2s"
+      ],
+      "topic": "odds",
+      "objective": "Observar como aposta e desistência encerram uma mão.",
+      "hint": "O exercício usa regras atuais: relatos históricos não definem os ranges deste bot.",
+      "profiles": [
+        "tight"
+      ],
+      "opening": 300,
+      "stack": 10000
+    },
+    {
+      "id": "historia-processo",
+      "module": "m0",
+      "lesson": "m0l3",
+      "title": "Revisar uma decisão",
+      "variant": "holdem",
+      "phase": "flop",
+      "hole": [
+        "Ac",
+        "Kc"
+      ],
+      "board": [
+        "Kh",
+        "8s",
+        "3d"
+      ],
+      "topic": "ranking",
+      "objective": "Descrever uma escolha sem depender do resultado final.",
+      "hint": "Compare duas linhas pelo replay. Nenhuma sequência de vitórias comprova que o bot é GTO.",
+      "profiles": [
+        "pressure"
+      ],
+      "opening": 300,
+      "stack": 10000
+    }
+  ]
+}

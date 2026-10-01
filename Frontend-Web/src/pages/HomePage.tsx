@@ -1,122 +1,76 @@
+import { lazy, Suspense, useRef, useState } from "react";
 import { Navigate, Link } from "react-router";
 import { isAuthenticated } from "@/lib/auth";
-import { OnlinePresenceHero } from "@/components/OnlinePresence";
-import { GamesSection } from "@/components/home/GamesSection";
-import { LossDeflatorSection } from "@/components/home/LossDeflatorSection";
-import { ShowcaseTable } from "@/components/ShowcaseTable";
+import { PlayingCard } from "@/components/PlayingCard";
+import homeFilm from "@/data/homeFilm.json";
+import { formatLessonDuration } from "@/lib/courseDuration";
+import "./home-premium.css";
 
-export function HomePage() {
-  if (isAuthenticated()) {
-    return <Navigate to="/curso" replace />;
-  }
+const Games = lazy(() => import("@/components/home/GamesSection").then(m => ({default: m.GamesSection})));
+const Deflator = lazy(() => import("@/components/home/LossDeflatorSection").then(m => ({default: m.LossDeflatorSection})));
 
-  return (
-    <div className="w-full min-w-0">
-      <section className="zt-hero">
-        <div className="zt-hero-copy">
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-gold-soft">
-            ZT Poker · Zero Tilt Academy
-          </p>
-          <h1 className="text-4xl font-bold tracking-tight text-gold-bright sm:text-5xl lg:text-6xl">
-            Estude. Jogue. Sem tilt.
-          </h1>
-          <p className="mt-4 max-w-lg text-base leading-relaxed text-cream-muted">
-            Escola de poker com aulas curtas, quiz e mesa ao vivo. Treine de graça no Play Money.
-            Quando quiser, compre fichas e jogue de verdade o que aprendeu.
-          </p>
-          <ul className="mt-5 grid gap-2 text-sm text-felt-200 sm:grid-cols-3">
-            <li className="rounded border border-felt-600 bg-felt-950/50 px-3 py-2">
-              <strong className="block text-gold-soft">Academy</strong>
-              Vídeos, quiz e progresso na conta
-            </li>
-            <li className="rounded border border-felt-600 bg-felt-950/50 px-3 py-2">
-              <strong className="block text-gold-soft">Treino grátis</strong>
-              Play Money no cadastro, todo dia
-            </li>
-            <li className="rounded border border-felt-600 bg-felt-950/50 px-3 py-2">
-              <strong className="block text-gold-soft">Mesa real</strong>
-              Compre fichas quando quiser — saldos separados
-            </li>
-          </ul>
-          <div className="mt-6 flex flex-wrap items-center gap-4">
-            <Link to="/register" className="zt-btn-primary px-8 py-3 text-base">
-              Criar conta grátis
-            </Link>
-            <Link to="/curso" className="text-sm font-semibold text-cream hover:text-gold-bright">
-              Conhecer a Academy
-            </Link>
-            <a href="#demonstracao" className="text-sm font-semibold text-cream hover:text-gold-bright">
-              Assistir às demonstrações
-            </a>
-          </div>
-          <div className="mt-6 max-w-xl">
-            <OnlinePresenceHero />
-          </div>
-        </div>
-        <div className="zt-hero-table">
-          <ShowcaseTable />
-        </div>
-      </section>
-
-      <div className="mx-auto w-full min-w-0 max-w-6xl space-y-12 px-4 py-10">
-        <div className="zt-reveal">
-          <GamesSection />
-        </div>
-
-        <div className="zt-reveal">
-          <LossDeflatorSection />
-        </div>
-
-        <section className="zt-reveal zt-panel overflow-hidden p-5 sm:p-7">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-soft">
-              Sua mesa começa com um convite
-            </p>
-            <h2 className="mt-2 max-w-2xl text-2xl font-bold text-gold-bright sm:text-3xl">
-              Traga sua turma. Transforme uma partida em uma comunidade.
-            </h2>
-            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-felt-200">
-              Compartilhe seu link, combine uma mesa Play Money e evoluam juntos na Academy.
-              Sua rede mostra quem chegou pelo seu convite, a atividade da turma e os pontos
-              gerados pelas mãos jogadas. Você acompanha tudo em até dois níveis.
-            </p>
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              <div className="rounded border border-felt-600 bg-felt-950/60 p-3">
-                <strong className="text-sm text-cream">01 · Convide</strong>
-                <p className="mt-1 text-xs leading-relaxed text-felt-300">Seu link conecta amigos à sua rede e à mesma sala.</p>
-              </div>
-              <div className="rounded border border-felt-600 bg-felt-950/60 p-3">
-                <strong className="text-sm text-cream">02 · Joguem</strong>
-                <p className="mt-1 text-xs leading-relaxed text-felt-300">Marquem uma sessão, estudem uma mão e voltem à mesa.</p>
-              </div>
-              <div className="rounded border border-gold/40 bg-gold/10 p-3">
-                <strong className="text-sm text-gold-bright">03 · Acompanhe</strong>
-                <p className="mt-1 text-xs leading-relaxed text-felt-200">Veja seus dois níveis, mãos da semana e pontos no painel.</p>
-              </div>
-            </div>
-            <div className="mt-5 flex flex-wrap items-center gap-3">
-              <Link to="/rede" className="zt-btn-primary">Descobrir como funciona →</Link>
-              <span className="text-xs text-felt-300">Cadastro grátis · pontos só por atividade · 18+</span>
-            </div>
-            <p className="mt-3 text-xs text-felt-400">Pontos Play Money não são dinheiro. Poker envolve risco de perda e não é investimento.</p>
-          </div>
-        </section>
-
-        <div className="zt-reveal zt-panel flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-base font-bold text-gold-bright">
-              Do zero absoluto ao jogo pensante
-            </h2>
-            <p className="mt-1 max-w-xl text-sm text-felt-200">
-              História do poker, posição, ranges e equidade — com vídeos curtos, quiz avaliado pelo
-              motor e progresso salvo na conta. Notícias e Dica do Pró ficam na Academy.
-            </p>
-          </div>
-          <Link to="/curso" className="zt-btn-primary shrink-0 px-6 py-2.5">
-            Abrir a Academy →
-          </Link>
-        </div>
+function DecisionChallenge() {
+  const [answer, setAnswer] = useState<number | null>(null);
+  return <section className="hp-section" id="desafio" aria-labelledby="decision-title">
+    <header className="hp-heading"><p className="hp-eyebrow">01 / Experimente pensar o jogo</p><h2 id="decision-title">Uma mão. <em>Uma boa pergunta.</em></h2><p>A decisão começa antes de clicar em pagar. Experimente um pouco da Academy.</p></header>
+    <div className="hp-challenge">
+      <div className="hp-table" aria-label="Exemplo fictício de Texas Hold’em no river">
+        <div className="hp-table-top"><span>Texas Hold’em</span><span>RIVER · EXEMPLO</span></div>
+        <div className="hp-opponent"><PlayingCard faceDown size="sm" /><PlayingCard faceDown size="sm" /><span>Adversário · aposta 50</span></div>
+        <div className="hp-pot"><span>POTE APÓS A APOSTA</span><strong>150 <small>fichas</small></strong></div>
+        <div className="hp-board">{["Qs","7h","2c","9d","Kh"].map(code => <PlayingCard key={code} code={code} />)}</div>
+        <div className="hp-hand"><PlayingCard code="Ah" /><PlayingCard code="Qd" /><span>SUA MÃO</span></div>
+        <p className="hp-caption">Cartas ilustrativas. As chances dependem das mãos possíveis do adversário.</p>
+      </div>
+      <div className="hp-challenge-copy"><span className="hp-label">O PREÇO DO CALL</span><h3>Você precisa pagar 50.<br />Qual é a equidade mínima?</h3><p>Já há 150 fichas no pote, incluindo a aposta adversária. Considere a última decisão da mão, sem rake nem novas apostas.</p>
+        <div className="hp-answers" aria-label="Escolha a equidade mínima para o equilíbrio">{[20,25,33].map(value => <button key={value} type="button" aria-pressed={answer===value} onClick={() => setAnswer(value)}>{value}%</button>)}</div>
+        <div className="hp-answer" aria-live="polite" aria-atomic="true">{answer===null ? <p>Escolha uma resposta para revelar o raciocínio.</p> : <><strong>{answer===25 ? "Isso: 25% para empatar em valor esperado." : "O ponto de equilíbrio é 25%. Veja por quê."}</strong><p>50 ÷ (150 + 50) = 25%. Seu call forma um pote final de 200. Acima desse limiar, o call tem EV positivo neste modelo. Isso não revela a sua equidade real nem garante o resultado da mão.</p></>}</div>
+        <Link to="/curso/m0l4" className="hp-link">Começar pelos fundamentos na Academy ↗</Link><p className="hp-source">Conceito: <a href="https://ocw.mit.edu/courses/15-s50-poker-theory-and-analytics-january-iap-2015/resources/mit15_s50iap15_l3_basic/" target="_blank" rel="noreferrer">MIT · Poker Theory and Analytics, aula 3</a>. Exemplo original ZT.</p>
       </div>
     </div>
-  );
+  </section>;
 }
+
+function VisitorHome() {
+  const dialog=useRef<HTMLDialogElement>(null);
+  const [filmOpen,setFilmOpen]=useState(false);
+  const [gamesOpen,setGamesOpen]=useState(false);
+  const [deflatorOpen,setDeflatorOpen]=useState(false);
+  function openFilm() { setFilmOpen(true); dialog.current?.showModal(); }
+  return <div className="hp">
+    <section className="hp-hero" aria-labelledby="home-title">
+      <picture className="hp-hero-image" aria-hidden="true"><source media="(max-width: 700px)" srcSet="/brand/home/hero-800.webp" /><img src="/brand/home/hero-1600.webp" width="1672" height="941" alt="" fetchPriority="high" /></picture><div className="hp-shade" />
+      <div className="hp-hero-inner"><div className="hp-hero-copy"><p className="hp-eyebrow"><span aria-hidden="true">♠</span> ZERO TILT POKER / ACADEMY & MESAS</p><h1 id="home-title">Poker é decisão.<br /><em>Evolua</em> a cada mão.</h1><p className="hp-description">Entenda o que acontece entre as cartas.<br />Descubra o poker, estude a estratégia e experimente suas decisões nas mesas gratuitas.</p>
+        <div className="hp-actions"><Link to="/register" className="hp-button">Começar grátis <span aria-hidden="true">↗</span></Link><button type="button" className="hp-film-button" onClick={openFilm}><span className="hp-play" aria-hidden="true">▶</span><span>Conheça a ZT Poker<small>Assista ao filme · {formatLessonDuration(homeFilm.durationSeconds)}</small></span></button></div><p className="hp-note">Play Money · sem depósito para começar · 18+</p></div>
+        <div className="hp-hero-caption" aria-hidden="true">MENOS IMPULSO.<br />MAIS RACIOCÍNIO.<i /></div><a className="hp-scroll" href="#desafio">A próxima decisão é sua <span aria-hidden="true">↓</span></a>
+      </div>
+    </section>
+    <div className="hp-path" aria-label="Como começar">{[["01","Descubra o jogo","História, regras e possibilidades."],["02","Entenda a decisão","Aulas, exemplos e perguntas."],["03","Pratique no seu ritmo","Mesas de Play Money gratuitas."]].map(([n,title,body])=><div key={n}><span>{n}</span><p><strong>{title}</strong>{body}</p></div>)}</div>
+    <DecisionChallenge />
+    <section className="hp-section hp-academy" aria-labelledby="academy-title"><div><p className="hp-eyebrow">02 / Zero Tilt Academy</p><h2 id="academy-title">Muito além<br />da próxima <em>carta.</em></h2><p className="hp-body">De um baralho do século XV à matemática de uma aposta. Explore o jogo com contexto, exemplos visuais e referências que você pode consultar.</p><Link to="/curso" className="hp-link">Explorar a Academy ↗</Link><div className="hp-topics"><span>História</span><span>Estratégia</span><span>Matemática</span><span>Autocontrole</span></div></div>
+      <Link to="/curso/m0l1" className="hp-lesson"><div className="hp-lesson-image"><img src="/videos/ep11-cartas-historia-v2.webp" width="1280" height="720" loading="lazy" alt="As cartas antes do poker — nova aula de história" /><span aria-hidden="true">↗</span></div><div className="hp-lesson-info"><span className="hp-label">HISTÓRIA / AULA 01</span><h3>As cartas antes do poker</h3><p>Um objeto de museu. Muitas perguntas.<br />Veja o que a história realmente documenta.</p><span className="hp-link">Assistir à aula →</span></div></Link>
+    </section>
+    <section className="hp-section hp-games" id="modalidades" aria-labelledby="games-title"><header className="hp-heading"><p className="hp-eyebrow">03 / Encontre a sua mesa</p><h2 id="games-title">Quatro jogos.<br className="hp-mobile-break" /> <em>Novas maneiras de pensar.</em></h2><p>Uma conta, diferentes desafios. Conheça as regras antes de entrar.</p></header>
+      <div className="hp-variants">{[
+        ["Brazilian Pineapple","Exclusivo ZT Poker","♥","Comece com duas. Receba mais uma após flop, turn e river, sem descartar. Use duas privadas e três da mesa.","2 → 3 → 4 → 5 PRIVADAS"],
+        ["Short Deck","Outra dinâmica","♦","Do 6 ao ás. Aqui, flush supera full house e trinca supera sequência.","36 CARTAS"],
+        ["Omaha 4","Mais combinações","♣","Quatro cartas na mão. Use exatamente duas delas e três comunitárias.","2 + 3 NO SHOWDOWN"],
+        ["Texas Hold’em","O clássico","♠","Duas cartas na mão, cinco na mesa. Forme a melhor combinação de cinco.","52 CARTAS"],
+      ].map(([name,detail,symbol,body,tag],i)=><article className="hp-variant" key={name}><div className="hp-variant-top"><span>0{i+1}</span><span aria-hidden="true">{symbol}</span></div><p className="hp-label">{detail}</p><h3>{name}</h3><p>{body}</p><span className="hp-tag">{tag}</span></article>)}</div>
+      <button type="button" className="hp-disclosure" aria-expanded={gamesOpen} aria-controls="home-replays" onClick={()=>setGamesOpen(!gamesOpen)}>{gamesOpen ? "Fechar demonstrações" : "Ver uma mão de cada modalidade"}<span aria-hidden="true">{gamesOpen ? "−" : "+"}</span></button>
+      <div id="home-replays" hidden={!gamesOpen}>{gamesOpen && <div className="hp-expanded"><Suspense fallback={<p role="status">Carregando demonstrações…</p>}><Games /></Suspense></div>}</div>
+    </section>
+    <section className="hp-section hp-control" aria-labelledby="control-title"><div><p className="hp-eyebrow">04 / Clareza para jogar</p><h2 id="control-title">O controle também<br />faz parte do <em>jogo.</em></h2></div><div className="hp-control-list">
+      <article><span>01</span><div><h3>Treine com Play Money</h3><p>Fichas virtuais para experimentar. O saldo de treino é separado do saldo de Jogo Real.</p></div></article>
+      <article><span>02</span><div><h3>Conheça o Loss Deflator</h3><p>Entenda quando se aplica a redistribuição de parte do pote líquido e acompanhe os exemplos. O mecanismo não elimina perdas.</p><button type="button" className="hp-link" aria-expanded={deflatorOpen} aria-controls="home-deflator-details" onClick={()=>setDeflatorOpen(!deflatorOpen)}>{deflatorOpen ? "Fechar explicação −" : "Ver regras e simulação +"}</button></div></article>
+      <article><span>03</span><div><h3>Respeite seu limite</h3><p>Defina tempo e orçamento. Faça uma pausa quando a vontade de recuperar perdas começar a guiar suas decisões.</p><Link to="/jogo-responsavel" className="hp-link">Jogo responsável ↗</Link></div></article>
+    </div><div id="home-deflator-details" className="hp-full" hidden={!deflatorOpen}>{deflatorOpen && <div className="hp-expanded"><Suspense fallback={<p role="status">Carregando explicação…</p>}><Deflator /></Suspense></div>}</div></section>
+    <section className="hp-section hp-agent" aria-labelledby="agent-title"><div><p className="hp-eyebrow">Agente ZT Poker</p><h2 id="agent-title">Uma comunidade.<br /><em>Um único nível.</em></h2><p className="hp-body">Traga jogadores diretamente, acompanhe sua operação e desenvolva sua comunidade.</p><Link to="/rede" className="hp-link">Conhecer o programa ↗</Link></div><div className="hp-agent-numbers"><div><strong>30<small>%</small></strong><span>do NGR dos jogadores diretos</span></div><span className="hp-agent-arrow" aria-hidden="true">→</span><div><strong>35<small>%</small></strong><span>ao atingir a meta mensal</span></div><p>Sujeito à aprovação, às regras do programa e ao fechamento mensal conciliado. NGR é a receita líquida elegível, não o valor dos depósitos.</p></div></section>
+    <section className="hp-section hp-final" aria-labelledby="final-title"><p className="hp-eyebrow">Zero Tilt Poker</p><h2 id="final-title">Sua próxima decisão?<br /><em>Começar a aprender.</em></h2><Link to="/register" className="hp-button">Criar conta grátis <span aria-hidden="true">↗</span></Link><p>18+ · Poker envolve risco de perda. Jogue com responsabilidade.</p></section>
+    <dialog ref={dialog} className="hp-dialog" aria-labelledby="film-title" onClose={()=>setFilmOpen(false)}><div className="hp-film-header"><h2 id="film-title">Poker é decisão. Evolua a cada mão.</h2><button type="button" onClick={()=>dialog.current?.close()} aria-label="Fechar filme">✕</button></div>
+      {filmOpen && <video controls autoPlay playsInline preload="none" poster={`/videos/${homeFilm.filename}.webp`}><source src={`/videos/${homeFilm.filename}.mp4`} type="video/mp4" /><track kind="captions" src={`/videos/${homeFilm.filename}.vtt`} srcLang="pt-BR" label="Português" default />Seu navegador não suporta vídeo. <a href={`/videos/${homeFilm.filename}.mp4`}>Abrir o filme</a>.</video>}
+      <details className="hp-transcript"><summary>Ler transcrição</summary>{homeFilm.transcript.split("\n\n").map((paragraph,i)=><p key={i}>{paragraph}</p>)}</details>
+    </dialog>
+  </div>;
+}
+export function HomePage() { return isAuthenticated() ? <Navigate to="/curso" replace /> : <VisitorHome />; }

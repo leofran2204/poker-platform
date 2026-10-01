@@ -31,7 +31,7 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 |----------------------------|---------|------------|-----------------|
 | `holdem` (Texas Hold’em) | 52 | 2 | até 9 |
 | `short_deck` (Texas Hold’em Short Deck) | 36 (6–A) | 2 | até 8 |
-| `omaha` (Omaha 4 / PLO) | 52 | **4** (usa exatamente 2 hole + 3 board) | até 6 |
+| `omaha` (Omaha 4) | 52 | **4** (usa exatamente 2 hole + 3 board) | até 6 |
 | `brazilian_pineapple` | 52 | 2 no pré-flop; **+1** após flop, turn e river (usa exatamente 2 hole + 3 board) | até 6 |
 
 **Carteiras:** Play Money (cash + MTT, reset diário) e Jogo Real (isolado). `money_mode` da mesa/torneio deve coincidir com o modo do cliente (`play` \| `real`).
@@ -56,8 +56,8 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 | 8    | Four of a Kind    | 8     |
 | 7    | Full House        | 7     |
 | 6    | Flush             | 6     |
-| 5    | Three of a Kind   | 5     |
-| 4    | Straight          | 4     |
+| 5    | Straight          | 5     |
+| 4    | Three of a Kind   | 4     |
 | 3    | Two Pair          | 3     |
 | 2    | One Pair          | 2     |
 | 1    | High Card         | 1     |
@@ -247,14 +247,17 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
 - Devolvido no cash-out
 - **Rake Cash Games:** configuração por mesa em pontos-base inteiros (padrão: 500 = 5,00%; cap legado padrão: R$ 100,00). O cálculo e o rateio são feitos exclusivamente com inteiros em centavos.
 - **Cap de rake por nº de jogadores (opcional):** a mesa pode definir agenda completa `rake_cap_heads_up` / `rake_cap_three_to_four` / `rake_cap_five_plus` (todos NULL = só cap legado; ou os três preenchidos). O motor escolhe o cap conforme quantos jogadores receberam cartas na mão (`RakeCapSchedule`).
-- ✅ **Fee Torneios: 15% por cima do Buy-in (S22, antes 7%):** ex. R$ 10 + R$ 1,50; freeroll sem fee; taxa 0% em Re-buys e Add-ons. O fee reparte 18% L1 + 12% L2 + 70% casa na inscrição (`distribute_fee`, linhas `source_type='fee'`).
-- ✅ **Cancelamento de inscrição (S23):** só pré-start; reembolsa buy-in + fee integralmente e anula as linhas de fee do pagador (estorna pontos creditados, piso zero; auditoria `MTT_UNREGISTER`). Pós-start não cancela.
+- ✅ **Fee Torneios: 15% por cima do Buy-in (S22, antes 7%):** ex. R$ 10 + R$ 1,50; freeroll sem fee; taxa 0% em Re-buys e Add-ons. Na migration `060`, o fee passa a compor o NGR mensal do Agente ZT direto (`source_type='fee'`, `program_version=2`); a comissão só é creditada no fechamento.
+- ✅ **Cancelamento de inscrição:** só pré-start; reembolsa buy-in + fee integralmente. No programa Agente ZT, gera dedução idempotente apenas das receitas daquela inscrição, preservando o ledger e os fechamentos. Se o mês original estiver fechado, o estorno entra no mês atual. Linhas legadas sem referência de torneio exigem conciliação manual; não são apagadas nem estornadas por aproximação. Auditoria `MTT_UNREGISTER`. Pós-start não cancela.
 
 ### 9.3 🏢 Divisão Financeira B2B SaaS (Rake Split 15% / 85%)
 - **Ordem de Execução Inviolável**: Potes brutos → Cálculo de Rake → **Split B2B (15% Plataforma Zerotilt / 85% Clube Locatário)** → Aplicação do Loss Deflator sobre o pote líquido pós-rake → Distribuição dos prêmios.
 - **Roteamento de Ledger**: O valor do Rake do Clube (`club_rake`) é injetado diretamente no saldo administrativo da tabela `clubs` (`balance`) ao final de cada mão (apenas mesas com `club_id`). O fee da plataforma (`platform_fee`) é contabilizado para a Zerotilt.
 - **Split 15/85 no motor:** ainda existe para mesa com `club_id` (código legado). **Não é** a regra comercial desta rede.
-- **Rede de afiliados (canônico):** cadastro grava só o **ID do patrocinador** (`users.sponsored_by`). Clube é lugar, **sem rake**. Dois níveis no admin de cada um. Comissão sobre o **rake individual** da mão em que o afiliado sentou: **18%** ao patrocinador direto, **12%** ao avô (se houver), **resto à casa**. Sem avô: 18% + 82% casa. Sem patrocinador: 100% casa. Sem bônus por cadastro. Mesmos % em ponto e em real. **Fee de torneio também pontua:** 18/12 sobre os 15% cobrados por cima do buy-in no ato da inscrição (S22). Detalhe: `PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md`.
+- **Agente ZT Poker (implementado localmente na migration `060`):** um único nível. O agente recebe **30% do NGR dos jogadores ligados diretamente ao seu `users.sponsored_by`** e mais **5 pontos percentuais** no mês em que atingir a meta registrada antes do ciclo. Não há comissão de segundo nível, por cadastro, depósito, saldo, buy-in, prêmio ou perda do jogador.
+- **Corte auditável:** linhas novas usam `program_version=2`, ficam separadas por `money_mode` e não creditam antecipadamente. O fechamento mensal idempotente desconta ajustes identificados, aplica 30%/35% e credita ZT Points ou saldo de comissão Real. O ledger 18%/12% permanece somente como histórico `program_version=1`. Detalhe: `PLANO_GO_TO_MARKET_AGENTE_ZT.md`.
+- **Proteção da margem:** bots e autoindicações ficam fora da apuração. Em mesas privadas B2B, apenas a parcela retida pela plataforma (15% do rake) compõe a receita atribuível aos agentes; a parcela do clube não é remunerada novamente. Em mesas públicas, a base é o rake atribuível aos participantes, dividido igualmente e com resíduo de centavos retido pela plataforma.
+- **Conciliação mensal:** metas só podem ser definidas para meses futuros. Sem meta positiva, vale 30%. Fechamento manual a partir do dia 25 do mês seguinte, em ordem cronológica por agente/carteira, exige confirmação da conciliação e dos totais apresentados. Comissão calculada em inteiros, com piso zero de NGR; deduções excedentes passam ao próximo ciclo. O saldo Real de comissões é separado da carteira do jogador; este fluxo não executa saques. Recompensas, tributos e custos atribuíveis devem ser conciliados pelo administrador antes de fechar.
 - **Torneios multi-mesa:** 3 mesas físicas por torneio e `max_players = 3×table_max`; Texas tradicional até 27, Texas Short Deck até 24, Omaha 4 e Brazilian Pineapple até 18. O admin pode criar Texas Short Deck com mesa até 8, definindo data e horário. Rebalance com desnível >1; consolidação na FT; gameplay WS ao vivo; run-out automático em all-in geral; halt auditável (`MTT_TABLE_HALTED`).
 - **Play-money**: operação atual permanece sem dinheiro real; saques de clube via admin são intenções mock/sandbox.
 
@@ -287,6 +290,8 @@ O **Loss Deflator** é um sistema de cashback automático que devolve parte das 
 
 O cashback é determinado pela **equity do perdedor no instante em que o all-in é pago**. O cálculo heads-up é determinístico: enumeração quando viável e Monte Carlo determinístico nos espaços maiores (`get_heads_up_win_probability()`). A fase da mão serve apenas para reconstruir quais cartas já estavam abertas; **preflop, flop, turn ou river nunca determinam o percentual**.
 
+**Modalidades implementadas:** Texas Hold’em e Texas Hold’em Short Deck. Omaha 4 e Brazilian Pineapple estão explicitamente excluídos do cálculo no motor. A entrada de liquidação é `get_multiway_win_probability_for_variant`: valida cartas e modalidade, usa 52 cartas/ranking clássico no Hold’em e 36 cartas/ranking específico no Short Deck. No Short Deck, enumera todos os boards possíveis (até 201.376 em heads-up pré-flop). Equity inclui frações de empate; não é apenas frequência de vitória isolada.
+
 | Tier  | Equity do Perdedor | Cashback | Perfil do Rango |
 |-------|---------------------|----------|-----------------|
 | **0** | **56,0% – 65,9%**   | **7%**   | Favorito leve |
@@ -300,24 +305,28 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 ### 11.2 ⚙️ Regras de Aplicação e Origem Financeira
 
 - **Ordem financeira obrigatória:** formar main pot e side pots → retirar o rake de cada pote → calcular o Loss Deflator somente sobre os potes elegíveis já líquidos → concluir os pagamentos.
-- **Origem das Fichas:** O cashback é autofinanciado pelas fichas playmoney dos potes líquidos da mão. Ele é descontado da fatia do(s) vencedor(es) do pote elegível e entregue ao perdedor all-in; não cria fichas novas.
-- **Aplicação atual:** Cash Games e torneios usam apenas fichas **playmoney**; não há dinheiro real habilitado.
+- **Origem das Fichas:** O cashback sai dos potes líquidos da própria mão. É descontado da fatia do(s) vencedor(es) do pote elegível e entregue ao perdedor all-in; não cria fichas novas nem debita o caixa da plataforma.
+- **Modos de saldo:** o motor aplica a regra sem misturar Play Money e Jogo Real. Disponibilidade de carteiras e mesas é definida no STATUS, não por este exemplo financeiro.
 - **Múltiplos All-Ins e Fases Distintas:** Cada perdedor possui um snapshot individual de fase e board para calcular sua equity. A fase não escolhe o tier.
-- **Equity multiway:** quando o perdedor all-in compartilha potes com **dois ou mais** oponentes ainda na mão, a equity usa Monte Carlo multiway determinístico (`get_multiway_win_probability`). Com um único oponente, usa heads-up.
+- **Equity multiway:** considera os oponentes ainda na mão que compartilham potes elegíveis com o perdedor. Hold’em usa enumeração/amostragem determinística; Short Deck usa enumeração exata. A parcela dos empates é dividida pelo número de vencedores.
 - **Isolamento de Side Pots:** O cashback de um perdedor é calculado e descontado APENAS dos potes líquidos pós-rake em que ele participou. Side pots nos quais não era elegível ficam intocados.
 - **Teto compartilhado por pote:** Quando vários perdedores all-in se qualificam no mesmo pote, a maior faixa elegível define o teto percentual único daquele pote líquido. Os perdedores dividem esse teto proporcionalmente aos pedidos individuais; faixas iguais dividem em partes iguais. Centavos residuais seguem a ordem dos assentos a partir do botão. Um side pot só entra no rateio dos perdedores elegíveis a ele.
-- **Limite Máximo:** Cashback nunca excede 35% do valor perdido.
-- **Anti-abuso:** Perder propositalmente para receber cashback é detectado pelo módulo antifraude.
+- **Limite Máximo:** o teto é de até 35% de cada pote líquido elegível, compartilhado conforme a regra acima. A base não é o aporte individual nem uma garantia de ressarcimento de 35% da perda pessoal.
+- **Anti-abuso:** módulos antifraude produzem sinais para revisão. Não existe garantia de detectar toda perda proposital.
 
 ### 11.3 📐 Exemplos
 
-| Cenário                          | Equity | Tier | Perda   | Cashback |
-|----------------------------------|--------|------|---------|----------|
-| All-in preflop, A♠A♦ vs K♠K♦    | 82%    | 2    | R$ 200  | R$ 50    |
-| All-in flop, set vs flush draw   | 65%    | 0    | R$ 100  | R$ 7     |
-| All-in turn, overpair vs set     | 7%     | —    | R$ 100  | R$ 0     |
-| All-in preflop, AK vs QQ         | 62%    | 0    | R$ 500  | R$ 35    |
-| All-in flop, flush vs straight   | 88%    | 3    | R$ 300  | R$ 105   |
+Exemplos aritméticos com equity **fornecida**, um único perdedor elegível e base já líquida de rake. Não são estimativas de mãos sem board/ranges definidos.
+
+| Equity fornecida | Pote líquido elegível | Percentual | Cashback |
+|---|---:|---:|---:|
+| 55% | 20.000 centavos | 0% | 0 |
+| 60% | 20.000 centavos | 7% | 1.400 |
+| 70% | 20.000 centavos | 15% | 3.000 |
+| 80% | 20.000 centavos | 25% | 5.000 |
+| 90% | 20.000 centavos | 35% | 7.000 |
+
+Um exemplo de equity exata com cartas e regressão automatizada está em [`LOSS_DEFLATOR_EXEMPLOS.md`](LOSS_DEFLATOR_EXEMPLOS.md).
 
 ## 12. �📖 Glossário — Termos do Poker
 
@@ -418,6 +427,6 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 **Próxima revisão:** Após implementação de side pots e split pot.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

@@ -1,217 +1,73 @@
-# Guia de Exemplos Práticos — Loss Deflator (Bad Beat Cashback)
+# Exemplos reproduzíveis — Loss Deflator
 
-**Atualizado:** 2026-07-30 | **Status:** Regra normativa 56/66/76/86; exemplos em fichas playmoney e potes pós-rake.
+Atualizado em 27/09/2026. Regra normativa: [BUSINESS_RULES.md, seção 11](BUSINESS_RULES.md). Este documento explica contas; a disponibilidade operacional é definida no [STATUS](STATUS_OPERACIONAL.md).
 
-Este documento serve como material de apoio técnico e educacional para o funcionamento do módulo **Loss Deflator** (`loss_deflator.rs`). Aqui você encontrará definições visuais, conceitos probabilísticos e simulações matemáticas reais de mãos de poker para cada um dos Tiers de cashback.
+## 1. Equity e base de cálculo
 
+Equity é a parcela esperada do pote no showdown, incluindo a fração de empates. Ela depende da modalidade, cartas conhecidas, oponentes e hipóteses. Chance de completar um draw não é automaticamente equity. O deflator usa as cartas efetivas dos participantes considerados pelo motor; um jogador durante a mão não conhece necessariamente essas cartas.
 
----
+A base financeira é o **pote líquido elegível**, após rake. Não é o aporte individual, o saldo da conta ou o valor perdido pelo jogador. Percentuais e teto compartilhado estão na regra normativa. A redistribuição sai das parcelas dos vencedores e conserva o total; não cria dinheiro nem usa caixa da plataforma.
 
-## 1. Conceitos Fundamentais
+O motor habilita o mecanismo para Texas Hold’em e Short Deck. Omaha e Brazilian Pineapple continuam excluídos até existir o modelo específico validado. Não transferir probabilidades de Hold’em para essas modalidades.
 
-### 📐 O que é Equity?
-A **Equity** representa a sua **chance percentual matemática de vencer o pote** em um determinado momento da mão, caso nenhuma outra ação de aposta ocorra e todas as cartas restantes sejam distribuídas. 
+## 2. Um exemplo exato com cartas
 
-*   Ela é calculada simulando todas as combinações possíveis de cartas comunitárias (*board*) restantes e dividindo o número de vitórias pelo total de cenários.
-*   A Equity é dinâmica: ela muda drasticamente a cada rodada (Pré-flop ➔ Flop ➔ Turn ➔ River) à medida que novas cartas são reveladas.
-*   **O Loss Deflator só é ativado se o perdedor tinha equity ≥ 56% no instante em que o all-in foi pago.**
-*   **A fase não determina o tier:** ela apenas define quantas cartas do board já eram conhecidas no snapshot.
-*   **A base financeira é pós-rake:** primeiro o rake sai do main pot e de todos os side pots; depois aplica-se o percentual somente aos potes líquidos em que o perdedor era elegível.
+Texas tradicional, heads-up, all-in no turn:
 
----
+- Herói: Ad Ac.
+- Rival: Jh Th.
+- Board conhecido: Qs 9c 4d 2s.
+- Oito cartas são conhecidas; restam 44 rivers possíveis.
+- O rival vence nos quatro reis e quatro oitos: oito resultados. Nos outros 36, o herói vence. Não há empate.
+- Equity do herói: 36/44 = 81,81818…%, faixa de 25%.
+- Se o river for Kc, o rival forma sequência e o herói perde.
 
-## 2. Tipos de Draws (Projetos de Sequência e Flush)
+Adotando um pote elegível **já líquido** de 20.000 centavos e apenas esse perdedor elegível: cashback de 5.000, pagamento ao vencedor de 15.000. Soma: 20.000. Não inferimos o pote bruto ou rake a partir desses valores líquidos.
 
-Draws são projetos de mãos que ainda não estão prontas, mas que podem se tornar mãos muito fortes (como Sequências ou Flushes) se as cartas certas baterem no *board*. A força e a Equity desses draws dependem do número de **outs** (cartas restantes no baralho que completam o jogo).
+O teste `documented_turn_equity_is_exact_and_selects_twenty_five_percent` reproduz a equity e o cálculo em `Motor-Rust/tests/variant_audit_regressions.rs`.
 
-### 🕳️ Gutshot (Sequência Interna / Broca)
-É quando o jogador tem 4 cartas da sequência, mas falta exatamente **uma carta específica no meio** para completá-la.
-*   **Outs:** **4 outs** (ex: existem apenas quatro cartas daquele valor específico no baralho de 52 cartas).
-*   **Chance de bater no River:** ~9% (com 1 carta por vir).
-*   **Exemplo:**
-    *   Sua mão: `8♦ 7♥`
-    *   Board: `J♠ T♣ 2♦` (faltando apenas o `9` no meio para formar a sequência 7-8-**9**-T-J).
+## 3. Exercícios aritméticos por faixa
 
-### 👐 OESD (Open-Ended Straight Draw / Sequência Aberta)
-É quando o jogador possui **4 cartas consecutivas** e pode completar a sequência por **qualquer uma das duas pontas**.
-*   **Outs:** **8 outs** (4 cartas que completam a ponta de cima e 4 que completam a de baixo).
-*   **Chance de bater no River:** ~18% (com 1 carta por vir).
-*   **Exemplo:**
-    *   Sua mão: `9♠ 8♦`
-    *   Board: `T♥ 7♣ 2♠` (qualquer `6` ou `J` completa a sequência: **6**-7-8-9-T ou 7-8-9-T-**J**).
+Nesta tabela a equity é uma entrada fornecida, não uma estimativa de mãos não especificadas. Um perdedor elegível, pote líquido de 50.000 centavos:
 
-### ⛈️ Combo Draw (Monster Draw / OESD + Flush Draw)
-Ocorre quando o jogador tem, simultaneamente, um projeto de sequência aberta (OESD) e um projeto de Flush (4 cartas do mesmo naipe).
-*   **Outs:** **15 outs** (9 outs de flush + 8 outs de sequência, subtraindo as 2 cartas que dão ambos e já foram contadas).
-*   **Chance de bater no River:** ~34% (com 1 carta por vir).
-*   **Exemplo:**
-    *   Sua mão: `8♠ 7♠`
-    *   Board: `T♠ 9♣ 4♠ 2♦` (Turn)
-    *   Qualquer espada (♠) dá um Flush; qualquer `6` ou `J` dá uma sequência.
+| Equity fornecida | Percentual | Ao perdedor | Ao vencedor |
+|---|---:|---:|---:|
+| 55% | 0% | 0 | 50.000 |
+| 60% | 7% | 3.500 | 46.500 |
+| 70% | 15% | 7.500 | 42.500 |
+| 80% | 25% | 12.500 | 37.500 |
+| 90% | 35% | 17.500 | 32.500 |
 
----
+55% pode ser favorito heads-up e ainda ser inelegível. Com board completo e mãos fixas, um perdedor tem equity zero; uma entrada hipotética de 100% não representa um jogador que depois perde nesse mesmo modelo.
 
-## 3. Tabela Comparativa de Draws (Flop ➔ River)
+## 4. Potes paralelos e teto compartilhado
 
-A tabela abaixo resume a probabilidade de um draw bater a partir do Flop (2 cartas por vir) ou a partir do Turn (1 carta por vir):
+Os próximos casos são entradas contábeis ilustrativas. Tiers em snapshots distintos são fornecidos para demonstrar rateio, sem inventar cartas que os produzam.
 
-| Tipo de Draw | Outs no Baralho | Chance no River (Turn) | Chance até o River (Flop) |
-| :--- | :---: | :---: | :---: |
-| **Gutshot (Broca)** | 4 | ~9% | ~17% |
-| **OESD (Sequência Aberta)** | 8 | ~18% | ~31% |
-| **Flush Draw (4 do mesmo naipe)** | 9 | ~20% | ~35% |
-| **Combo Draw (OESD + Flush)** | 15 | ~34% | ~54% |
+### Um perdedor que participa apenas do main pot
 
----
+Main pot líquido: 6.000; side pot: 16.000. Perdedor A é elegível apenas ao main e tem faixa de 15%. B vence ambos os potes. A recebe 900 do main; B recebe 5.100 + 16.000 = 21.100. Soma: 22.000. O side pot não financia A.
 
-## 4. Exemplos Reais do Loss Deflator por Tier
+### Dois perdedores elegíveis em momentos diferentes
 
-Nas tabelas a seguir, todas as perdas simuladas foram padronizadas em **500** fichas/moeda (sem moedas específicas).
+Main pot líquido: 12.000, elegíveis A/B/C. Side pot líquido: 12.000, elegíveis B/C. C vence ambos. A tem faixa de 15% e B de 35%, calculadas em snapshots distintos.
 
-### Tier 3 — 35% (Equity do Perdedor ≥ 86%)
-O perdedor tinha chance quase nula de perder a mão (Bad Beats extremos).
+- Main: pedidos de 1.800 e 4.200; teto único de 35% × 12.000 = 4.200.
+- Rateio proporcional 30%/70%: A recebe 1.260, B recebe 2.940.
+- Side: só B é perdedor elegível; recebe 4.200.
+- Totais: A 1.260; B 7.140; C 15.600. Soma: 24.000.
 
-| Fase do All-In | Mão melhor VS Mão pior | Chances da mão melhor perder % | Board / Desfecho | Total da perda | Tier | Deflator de perda |
-| :--- | :--- | :---: | :--- | :---: | :---: | :---: |
-| **Pré-flop** | `A♠ A♦` vs `7♥ 2♣` | **12%** *(88% Equity)* | Sem board <br> *(72o acerta dois pares milagrosos)* | 500 | **Tier 3 (35%)** | **175** |
-| **Flop** | `A♦ A♣` *(set)* vs `K♦ Q♠` | **3%** *(97% Equity)* | Board: `A♠ 7♣ 2♥` <br> *(KQ acerta J+T runner-runner para Broadway)* | 500 | **Tier 3 (35%)** | **175** |
-| **Turn** | `Q♣ Q♦` *(set)* vs `J♦ 9♥` | **9%** *(91% Equity)* | Board: `Q♥ 8♠ 3♣ 2♦` <br> *(J9 acerta T no river para sequência)* | 500 | **Tier 3 (35%)** | **175** |
+Somar os pedidos integrais violaria o teto do main. Também não se pode atribuir 70% de equity simultaneamente a dois jogadores no mesmo confronto e mesmo snapshot: suas parcelas e as dos demais somam 100%.
 
----
+### Vencedores empatados
 
-### Tier 2 — 25% (Equity do Perdedor 76%–85,9%)
-O perdedor era claro favorito, mas o oponente possuía um projeto com alguns outs (ex: gutshot simples).
+Pote líquido: 30.000. Um perdedor elegível tem faixa de 25%, recebendo 7.500. Dois vencedores empatados recebem 11.250 cada após financiar o benefício. Soma: 30.000. Havendo centavos indivisíveis, a ordem dos assentos a partir do botão resolve os resíduos, conforme o motor.
 
-| Fase do All-In | Mão melhor VS Mão pior | Chances da mão melhor perder % | Board / Desfecho | Total da perda | Tier | Deflator de perda |
-| :--- | :--- | :---: | :--- | :---: | :---: | :---: |
-| **Pré-flop** | `A♥ A♣` vs `K♠ K♦` | **18%** *(82% Equity)* | Sem board <br> *(KK acerta K no flop para trinca)* | 500 | **Tier 2 (25%)** | **125** |
-| **Flop** | `A♠ A♣` *(overpair)* vs `6♣ 5♦` | **17%** *(83% Equity)* | Board: `K♦ 7♠ 3♥` <br> *(65 acerta 4 no river para sequência)* | 500 | **Tier 2 (25%)** | **125** |
-| **Turn** | `A♦ A♣` *(overpair)* vs `J♥ T♥` | **18%** *(82% Equity)* | Board: `Q♠ 9♣ 4♦ 2♠` <br> *(JT acerta K ou 8 no river para sequência)* | 500 | **Tier 2 (25%)** | **125** |
+## 5. Limites da análise
 
----
-
-### Tier 1 — 15% (Equity do Perdedor 66%–75,9%)
-O perdedor era favorito moderado, mas o oponente tinha bons draws (ex: OESD simples).
-
-| Fase do All-In | Mão melhor VS Mão pior | Chances da mão melhor perder % | Board / Desfecho | Total da perda | Tier | Deflator de perda |
-| :--- | :--- | :---: | :--- | :---: | :---: | :---: |
-| **Pré-flop** | `J♠ J♦` vs `A♣ T♥` | **29%** *(71% Equity)* | Sem board <br> *(AT acerta Ás no flop)* | 500 | **Tier 1 (15%)** | **75** |
-| **Flop** | `A♠ A♣` *(overpair)* vs `9♣ 8♦` | **31%** *(69% Equity)* | Board: `T♥ 7♠ 2♣` <br> *(98 completa sequência aberta no river)* | 500 | **Tier 1 (15%)** | **75** |
-| **Turn** | `A♠ A♣` *(overpair)* vs `8♠ 7♠` | **34%** *(66% Equity)* | Board: `T♠ 9♣ 4♠ 2♦` <br> *(87♠ completa flush ou sequência — 15 outs)* | 500 | **Tier 1 (15%)** | **75** |
-
----
-
-### Tier 0 — 7% (Equity do Perdedor 56,0%–65,9%)
-Cenários em que o perdedor era favorito leve e acabou superado.
-
-| Fase do All-In | Mão do perdedor VS vencedor | Equity do perdedor no all-in | Board / Desfecho | Pote líquido elegível | Tier | Devolução |
-| :--- | :--- | :---: | :--- | :---: | :---: | :---: |
-| **Pré-flop** | `A♠ Q♦` vs `K♥ J♥` | **≈62%** | `2♣ 5♦ 7♠ J♣ 9♦` | 500 | **Tier 0 (7%)** | **35** |
-| **Flop** | overpair vs combo draw | **60%** | O draw completa no river | 500 | **Tier 0 (7%)** | **35** |
-| **Turn** | par maior vs duas overcards + draw | **58%** | O oponente acerta um out no river | 500 | **Tier 0 (7%)** | **35** |
-
----
-
-### Sem Cashback — Equity do Perdedor < 56%
-Perdas em que o jogador não alcançava a faixa mínima de 56% no snapshot do all-in.
-
-| Fase do All-In | Mão do perdedor VS vencedor | Equity do perdedor no all-in | Board / Desfecho | Pote líquido elegível | Tier | Devolução |
-| :--- | :--- | :---: | :--- | :---: | :---: | :---: |
-| **Pré-flop** | `9♠ 9♦` vs `A♣ K♣` | **≈54%** | Um Ás aparece no board | 500 | **N/A** | **0** |
-| **Flop** | projeto de sequência vs par feito | **48%** | O projeto não completa | 500 | **N/A** | **0** |
-| **Turn** | duas overcards vs par | **≈14%** | O par segura | 500 | **N/A** | **0** |
-
----
-
-## 5. 💡 Origem das Fichas e Exemplos Práticos de Múltiplos All-Ins
-
-> ⚠️ **Princípio Fundamental:** os exemplos usam fichas playmoney e valores de pote **já líquidos de rake**. A ordem é main pot/side pots → rake → Loss Deflator nos potes líquidos elegíveis → pagamentos. O vencedor daquele pote financia o cashback; um side pot do qual o perdedor não participou fica intocado.
-
-### 🎲 6 Casos Práticos Reais (Cash Games & Torneios)
-
-#### Exemplo 1: Heads-up Simples (1 contra 1) — All-in no Flop
-* **Situação:** Ana (100) vs Beto (100). Pote líquido elegível após o rake = **200 fichas playmoney**.
-* **Ação:** Ana vai all-in no flop com `A♠ A♥`; sua equity registrada é **80%**, portanto o tier é 25%. Beto paga com `9♣ 8♣`.
-* **Resultado:** Beto acerta um Flush no River e vence a mão.
-* **Cálculo:** Cashback da Ana = 25% de R$ 200 = **R$ 50,00**.
-* **Distribuição Final:**
-  * Beto (Vencedor): R$ 200 - R$ 50 = **R$ 150,00**.
-  * Ana (Perdedora All-in): Recebe **R$ 50,00**.
-  * ⚖️ *Soma Total:* 150 + 50 = **R$ 200,00** (Conservação exata de 100%).
-
-#### Exemplo 2: Múltiplos Stacks (Main Pot + Side Pot) — Todos All-in no Pré-flop
-* **Situação:** Carlos (R$ 50), Diego (R$ 100) e Eduardo (R$ 100).
-* **Potes Formados:**
-  * **Main Pot:** R$ 150 (R$ 50 de cada). Elegíveis: Carlos, Diego, Eduardo.
-  * **Side Pot:** R$ 100 (R$ 50 de Diego e Eduardo). Elegíveis: Diego e Eduardo.
-* **Ação:** Todos vão all-in no pré-flop. Carlos e Diego têm **70% de equity** em seus confrontos elegíveis, portanto recebem a faixa de 15%. **Eduardo vence a mão inteira.**
-* **Cálculo dos cashbacks sobre potes líquidos pós-rake:**
-  * Carlos: 15% de 150 = **22,50**.
-  * Diego: 15% de 250 = **37,50**.
-* **Distribuição Final:**
-  * Eduardo (Vencedor de tudo): R$ 250 - 22,50 - 37,50 = **R$ 190,00**.
-  * Carlos: Recebe **R$ 22,50**.
-  * Diego: Recebe **R$ 37,50**.
-  * ⚖️ *Soma Total:* 190 + 22,50 + 37,50 = **R$ 250,00**.
-
-#### Exemplo 3: Proteção de Side Pot (Respeito a quem não disputou)
-* **Situação:** Fernando (R$ 20), Gabriela (R$ 100), Hélio (R$ 100).
-* **Potes Formados:** Main Pot = R$ 60 | Side Pot = R$ 160 (Gabriela e Hélio).
-* **Ação:** Fernando vai all-in no pré-flop com **70% de equity** (tier 15%). Gabriela e Hélio vão all-in no turn; suas fases não definem qualquer percentual.
-* **Showdown:** **Gabriela** ganha o Main Pot (R$ 60). **Hélio** ganha o Side Pot (R$ 160). Fernando perdeu.
-* **Cálculo:**
-  * Fernando: 15% do main pot líquido de 60 = **9**.
-  * Esse R$ 9,00 sai APENAS da Gabriela (ganhadora do Main Pot).
-  * O pote de Hélio (Side Pot de R$ 160) fica **100% intocado**, pois Fernando não participou do Side Pot!
-* **Distribuição Final:**
-  * Gabriela: R$ 60 - R$ 9 = **R$ 51,00**.
-  * Hélio: **R$ 160,00** (Intocado!).
-  * Fernando: **R$ 9,00**.
-  * ⚖️ *Soma Total:* 51 + 160 + 9 = **R$ 220,00**.
-
-#### Exemplo 4: All-ins em fases diferentes, tiers definidos pela equity
-* **Situação:** Igor (40), João (100), Lucas (100); os valores abaixo já são líquidos de rake.
-* **Pré-flop:** Igor all-in; sua equity no snapshot é **70%**, então recebe 15%.
-* **Turn:** João all-in; sua equity no snapshot é **90%**, então recebe 35%.
-* **Showdown:** **Lucas** vence o Main Pot (R$ 120) e o Side Pot (R$ 120).
-* **Cálculos:**
-  * Igor: 15% de 120 = **18**.
-  * João: 35% de 240 (sua participação elegível total) = **84**.
-* **Distribuição Final:**
-  * Lucas (Vencedor): R$ 240 - R$ 18 - R$ 84 = **R$ 138,00**.
-  * Igor: **R$ 18,00**.
-  * João: **R$ 84,00**.
-  * ⚖️ *Soma Total:* 138 + 18 + 84 = **R$ 240,00**.
-
-#### Exemplo 5: Pote Dividido (Split Pot) entre 2 Vencedores
-* **Situação:** Marcelo (R$ 100), Natália (R$ 100), Otávio (R$ 100). Pote Total = R$ 300.
-* **Ação:** Marcelo vai all-in no flop com **80% de equity** (tier 25%). Natália e Otávio empatam na melhor mão.
-* **Cálculo:** Marcelo perdeu R$ 300 (25%) = **R$ 75,00**.
-* **Distribuição:** Os R$ 75,00 são descontados meio a meio dos dois vencedores (R$ 37,50 cada).
-  * Natália: R$ 150 - R$ 37,50 = **R$ 112,50**.
-  * Otávio: R$ 150 - R$ 37,50 = **R$ 112,50**.
-  * Marcelo: **R$ 75,00**.
-  * ⚖️ *Soma Total:* 112,50 + 112,50 + 75 = **R$ 300,00**.
-
-#### Exemplo 6: Equity abaixo do mínimo no river
-* **Situação:** Pedro (100) vs Quênia (100). Com o board completo, Pedro paga all-in no river já drawing dead.
-* **Resultado:** Quênia vence.
-* **Cálculo:** A equity de Pedro no snapshot era 0%, abaixo de 56%; por isso o cashback é 0%. O motivo é a equity, não a fase.
-* **Distribuição Final:** Quênia recebe **R$ 200,00 integralmente**. Pedro recebe R$ 0,00.
-
-#### Exemplo 7: Tier 0 — Faixa mínima de 7% (equity de 56,0% a 65,9%)
-* **Situação:** Rodrigo (R$ 200) vs Sandra (R$ 200). Pote Total = **R$ 400**.
-* **Ação:** All-in no Pré-flop com `A♥ Q♥` (Rodrigo) vs `K♣ J♣` (Sandra). Rodrigo é favorito leve com **62% de Equity** (Tier 0 = **7%**).
-* **Resultado:** Sandra acerta um Rei no Flop e vence a mão.
-* **Cálculo:** Cashback do Rodrigo = 7% de R$ 400 = **R$ 28,00**.
-* **Distribuição Final:**
-  * Sandra (Vencedora): R$ 400 - R$ 28 = **R$ 372,00**.
-  * Rodrigo (Perdedor All-in): Recebe **R$ 28,00** (7% de cashback).
-  * ⚖️ *Soma Total:* 372 + 28 = **R$ 400,00**.
-
-
+Uma estimativa Monte Carlo não é uma garantia exata, sobretudo perto dos limites de faixa. Short Deck usa enumeração exata no código local corrigido. Em Hold’em, espaços maiores mantêm amostragem determinística. A auditoria de snapshots e de mãos históricas exige os registros reais de cada mão; esta documentação não recalcula nem movimenta saldos.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

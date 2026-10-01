@@ -1,7 +1,7 @@
-# Deploy Hetzner Cloud — Poker Platform
+# Deploy em VPS — Poker Platform
 
-**Objetivo:** subir a stack Docker (Postgres + Redis + API Axum + Frontend/Caddy) em VPS **robusto e barato**.  
-**Status do produto:** staging / demo. **Sem certificação de produção.** A VPS mantém PIX mock; DePix existe somente em Sandbox não produtiva e allowlisted; mesas com dono único por processo.
+**Objetivo:** subir a stack Docker (Postgres + Redis + API Axum + Frontend/Caddy) em VPS Ubuntu.
+**Status do produto:** staging / demo. **Sem certificação de produção.** A demo vigente está na Hostinger, com DePix reconciliado conforme o [STATUS](../Documentacao/STATUS_OPERACIONAL.md). Novos laboratórios usam mock por padrão; preservar a configuração autorizada do servidor existente. Mesas têm dono único por processo.
 
 **Domínio do produto:** [`zerotiltpoker.net`](https://zerotiltpoker.net)  
 **Host público (staging/demo):** `zerotiltpoker.net` (apex) — Caddy + Let's Encrypt + reverse_proxy da API no mesmo host.
@@ -12,33 +12,11 @@
 
 ---
 
-## 1. Tamanho da VM e custo estimado
+## 1. Capacidade e provedor
 
-### Recomendado (staging confortável)
+O procedimento vale para uma VPS Ubuntu x86_64 com Docker. A instalação vigente está na Hostinger; o nome histórico deste arquivo foi preservado para manter os links. Conferir RAM, disco livre e uso atual antes do build Rust; imagens podem ser construídas em CI quando a VPS não comportar o compilador. Preços, planos e cotas devem ser consultados no provedor ao contratar.
 
-| Item | Valor |
-|------|--------|
-| **Provedor** | [Hetzner Cloud](https://www.hetzner.com/cloud) |
-| **Plano alvo** | **CX32** ou **CPX31/CPX32** (confira nomes no console; busque **~4 vCPU · 8 GB RAM · ≥80 GB**) |
-| **Região** | **Ashburn (US-East)** se latência for BR/US; **Falkenstein/Nuremberg (DE)** se preferir UE/preço |
-| **SO** | **Ubuntu 24.04 LTS** (ou 22.04) x86_64 |
-| **Custo VM** | ordem de grandeza **€6–12 / mês** (verifique preço atual no painel) |
-| **Snapshot backup** | ~20% do volume (ex.: +€1–3/mês) — **recomendo ativar** |
-| **IP flutuante** | opcional; se não usar, o IP da VM muda se recriar a instância |
-| **Total estimado** | **~€8–15 / mês** (~R$ 50–90, câmbio variável) |
-
-### Mínimo viável (apertado)
-
-| Item | Valor |
-|------|--------|
-| Plano | **CX22 / CPX22** (~2 vCPU · **4 GB** · 40 GB) |
-| Custo | ~**€4–8 / mês** |
-| Risco | build Docker da API/Rust pode **estourar RAM**; prefira build em CI ou máquina local e só puxe imagens |
-
-### O que **não** cabe bem
-
-- 1–2 GB de RAM (estilo free tier mínimo) com Postgres + Redis + API + build na mesma máquina.
-- Multireplica K8s: o projeto ainda é **1 processo dono das mesas** (`k8s-statefulset` = 1 réplica).
+A API permanece com uma réplica, responsável pelos atores das mesas.
 
 ---
 
@@ -48,7 +26,7 @@
 1. postgres     (volume postgres_data; healthcheck pg_isready)
 2. redis        (volume redis_data; healthcheck PING)
 3. poker_api    (build Motor-Rust + API-Axum; healthcheck curl http://127.0.0.1:3000/health — readiness Postgres+Redis)
-4. poker_frontend (Caddy + WASM; healthcheck wget :80; depends_on API healthy; publica 80/443 HTTPS)
+4. poker_frontend (Caddy + SPA React/Vite; healthcheck wget :80; depends_on API healthy; publica 80/443 HTTPS)
 ```
 
 Portas públicas na VPS: **apenas 22, 80, 443** (tráfego de produto em **HTTPS**).  
@@ -59,15 +37,15 @@ Env de referência: `.env.staging.example` ou `../.env.production.example` (nunc
 
 ## 3. Checklist pré-voo
 
-- [ ] Conta Hetzner + cartão
+- [ ] Acesso administrativo à VPS e capacidade disponível para build
 - [ ] Domínio **zerotiltpoker.net** com registro **A** (e opcional **www**) para o IP da VM
 - [ ] Repositório no GitHub (já: `poker-platform`)
 - [ ] Segredos gerados (nunca commitar `.env`):
   - `JWT_SECRET` ≥ 32 bytes aleatórios
   - `EMAIL_CODE_PEPPER` e `KYC_DATA_PEPPER` ≥ 32 bytes, aleatórios, exclusivos e diferentes do JWT
   - `POSTGRES_PASSWORD` forte
-  - `PIX_PROVIDER=mock` / `PIX_MODE=mock` (padrão seguro da VPS)
-  - Nunca instalar `sk_test_` ou habilitar DePix no ambiente público; a integração DePix é exclusiva de laboratório local não produtivo
+  - `PIX_PROVIDER=mock` / `PIX_MODE=mock` em um laboratório novo
+  - Não misturar chaves de teste e produção; na demo existente, conservar o DePix autorizado, seus limites e reconciliação
 - [ ] `CORS_ORIGINS=https://zerotiltpoker.net` (só HTTPS; a API **rejeita** origem sem HTTPS)
 
 ---
@@ -79,7 +57,7 @@ Env de referência: `.env.staging.example` ou `../.env.production.example` (nunc
 1. Hetzner Console → **New project** → **Add server**
 2. Location: Ashburn ou DE  
 3. Image: **Ubuntu 24.04**  
-4. Type: **CX32 / ~8 GB** (recomendado)  
+4. Type: capacidade de CPU, memória e disco dimensionada para os serviços e o build
 5. SSH key: cole sua chave pública  
 6. Firewall (criar e anexar):
 
@@ -167,7 +145,7 @@ Template versionado: **`.env.staging.example`** (já com `DOMAIN_NAME=zerotiltpo
 - `CORS_ORIGINS` = origem HTTPS completa (`https://zerotiltpoker.net`).
 - `DOMAIN_NAME=zerotiltpoker.net` **sem** `https://`.
 - Se servir também `www`, inclua no CORS: `https://zerotiltpoker.net,https://www.zerotiltpoker.net` e considere redirect www→apex no Caddy (opcional).
-- PIX: mantenha `mock`; não use `PIX_MODE=production`.
+- PIX: laboratório novo inicia em `mock`. O deploy de código não troca o provedor, as chaves, os limites ou o modo da demo existente.
 
 ### 4.6 Caddy / domínio
 
@@ -180,7 +158,7 @@ Caddy pede certificado Let's Encrypt sozinho nas portas 80/443 quando `DOMAIN_NA
 ```bash
 cd /opt/poker-platform/Infraestrutura-Docker
 
-# 1) Build (API Rust + Frontend WASM — demora na 1ª vez; use 8 GB de RAM)
+# 1) Build (API Rust + Frontend React/Vite — demora na 1ª vez; use 8 GB de RAM)
 docker compose build
 
 # 2) Sobe dependências e apps
@@ -213,7 +191,7 @@ Smoke de mesa: register/login → lobby → join → WS (all-in pode demorar no 
 |------|------|
 | Snapshot Hetzner | Console → Volume/Server → **Enable backups** ou snapshot semanal |
 | Dump Postgres | `docker exec poker_postgres pg_dump -U poker_user poker_db > backup.sql` |
-| Atualizar código | `git pull` → `docker compose build` → `docker compose up -d` |
+| Atualizar código | Backup → `REBUILD_API=1 bash scripts/vps-redeploy-frontend.sh` na raiz → [validação](DEPLOYMENT_VALIDATION.md) |
 | Logs | `docker compose logs -f --tail=200` |
 | Disco | `df -h`; limpar `docker system prune` com cuidado |
 
@@ -222,23 +200,16 @@ Smoke de mesa: register/login → lobby → join → WS (all-in pode demorar no 
 ## 6. O que **não** fazer neste deploy
 
 - `ENVIRONMENT=production` com JWT ou peppers fracos/reutilizados (a API recusa iniciar)
-- `PIX_MODE=production` (código bloqueia PIX real)
+- Trocar configuração financeira ou ativar agentes/fechar ciclos como efeito colateral do deploy
 - Expor Postgres/Redis na internet
 - Esperar multi-pod de mesas (ainda **1 dono por processo**)
 - Usar free tier Oracle **como se fosse** o mesmo que Hetzner (capacidade e ARM mudam o jogo)
 
 ---
 
-## 7. Custo mensal resumido (ordem de grandeza)
+## 7. Custos operacionais
 
-| Item | € / mês |
-|------|---------|
-| VM ~8 GB | 8–12 |
-| Backups | 1–3 |
-| Domínio (anual/12) | ~1 |
-| **Total** | **~€10–16** |
-
-Sem tráfego massivo o transfer da Hetzner costuma bastar; confira a cota do plano.
+Registrar os custos reais de VPS, backups, domínio e tráfego. As estimativas antigas de planos Hetzner foram retiradas por não descreverem a instalação vigente.
 
 ---
 
@@ -270,4 +241,4 @@ docker exec -it poker_postgres psql -U poker_user -d poker_db
 
 ---
 
-**Resumo:** compre **Hetzner ~8 GB**, Ubuntu, Docker, clone o repo, DNS **A** de `zerotiltpoker.net` → IP da VPS, `.env` a partir de `.env.staging.example`, `compose build && up -d`. Custo típico **~€10–16/mês** com backup. Ideal para **staging/demo**; não é selo de produção.
+Estado do serviço e catálogo: [STATUS_OPERACIONAL.md](../Documentacao/STATUS_OPERACIONAL.md). Evidências de publicação: [DEVELOPMENT_LOG.md](../Documentacao/DEVELOPMENT_LOG.md).

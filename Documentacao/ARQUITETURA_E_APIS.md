@@ -1,12 +1,26 @@
 # Arquitetura Técnica & Especificação de APIs - Plataforma de Poker Online em Rust
 
-**Atualizado:** 2026-09-26 | **Status:** Em revisão contínua — S25, quatro modalidades, Academy, proteção do jogador e migrations 059; sem certificação de produção.
+**Atualizado:** 2026-09-29 | **Status:** Em revisão contínua — migration 060, Agente ZT e mesas da Academy validados localmente; demo pública ainda em 059; sem certificação de produção.
 
 Este documento consolida a arquitetura técnica, esquemas de comunicação, contratos de API e modelos de segurança da **Plataforma de Poker Online em Rust**.
 
 > **Limite operacional atual:** `TableActor` é local ao processo. Por isso o manifesto Kubernetes mantém uma réplica até existir ownership distribuído de mesa; Redis não transforma o ator em componente multi-pod por si só.
 
-### Lobby e carteiras (REST)
+## Contratos REST
+
+### Academy: mesas de estudo (implementação local de 28/09/2026)
+
+`POST /api/academy/play` é público, não usa carteira, SQL, rake, comissão nem settlement. O corpo contém `version` (versão de `courseTraining.json`), `scenario`, `seed` u32 e `actions` (até 64 decisões). Cada decisão tem `action` (`fold`, `check`, `call`, `bet`, `raise`, `all_in`), `amount` inteiro opcional (total da aposta na rodada) e `answer` opcional para a pergunta objetiva. Campos extras são rejeitados.
+
+A resposta traz `state`, `legal`, `question`, `hint`, `events`, `reviews`, `payouts` e `pots`. O servidor reconstrói a mão com `GameLoop`, baralho validado e seed didática; executa as respostas dos bots e retorna o próximo turno do aluno ou showdown. Preço do call usa somente os potes aos quais o aluno é elegível. `payouts` são fichas didáticas recebidas, separadas dos stacks restantes; nenhum valor é creditado em conta.
+
+O cenário fixa cartas pedagógicas antes da primeira ação. O baralho não é rearranjado depois de folds. Políticas de bot recebem apenas cartas próprias, board e estado público. Replay oculta cartas adversárias antes do encerramento; cartas de jogadores que foldaram permanecem ocultas. Esta seed reproduzível não é usada em mesas com saldo.
+
+Limites: corpo 16 KiB; até 4 reconstruções simultâneas por processo; até 256 eventos; contador de requisições separado por IP (`academy:`), com a política padrão de 30/minuto. O trabalho mantém a vaga de concorrência mesmo após cancelamento pelo cliente. Entradas inválidas: 400/422; corpo excessivo: 413; cota/capacidade: 429. A nota de regras/matemática é calculada no servidor; ela não avalia EV estratégico nem altera a nota/progresso do quiz de aula.
+
+Catálogo compartilhado: `Frontend-Web/src/data/courseTraining.json`; serviço: `API-Axum/src/academy.rs`; cliente: `/curso/mesa/:moduleId`. O Docker da API copia o catálogo antes de compilar. O exemplo `academy_preview` sobe somente essa rota em `127.0.0.1:3188`, sem inicializar o ambiente financeiro; instruções no README de scripts.
+
+### Catálogo e operação
 
 | Endpoint | Notas |
 |----------|--------|
@@ -14,13 +28,20 @@ Este documento consolida a arquitetura técnica, esquemas de comunicação, cont
 | `POST /api/lobby/join` | Body: `table_id`, `buy_in`, `wallet_mode` — rejeita PM em mesa Real e vice-versa; recusa mesa cheia |
 | `POST /api/lobby/leave` | Cash-out entre mãos; WS drop usa graça de 45 s no `TableActor` (`cash_seats::persist_cash_out_seat`) |
 | `GET /api/lobby/tournaments?mode=…` | Catálogo com `money_mode`, `poker_variant`, agenda, mínimo, mesas vivas e `gameplay_ready` somente em `running/paused` com ator físico associado |
-| `POST /api/tournament/register` | Debita buy-in + **fee 15%** (freeroll zero) conforme modo; fee reparte 18/12/70; resposta traz `fee_cents` + `total_debited_cents` |
+| `POST /api/tournament/register` | Debita buy-in + **fee 15%** (freeroll zero) conforme modo; fee compõe o NGR mensal do agente direto; resposta traz `fee_cents` + `total_debited_cents` |
 | `POST /api/tournament/unregister` | Cancela pré-start com reembolso total + anulação do fee (S23) |
 | `GET /api/tournament/:id/registration` | Diz se o autenticado está inscrito (S23) |
 | `POST /api/admin/tournaments` | Cria torneio em `registering` (valida max = 3× mesa; S23) |
 | `PATCH /api/admin/tournaments/:id` | `status` e/ou `scheduled_start_at` (admin) |
 | `POST /api/admin/bots/start-tournament` | Inscreve N bots `lag_v2` no torneio play (admin) |
 | `POST /api/admin/bots/stop-tournament` | Desliga bots do torneio — sit-out, sem cash-out (admin) |
+| `GET /api/admin/estrutura/backfill` | Prévia administrativa da raiz e das contas antigas sem patrocinador |
+| `POST /api/admin/estrutura/backfill` | Vincula, de forma idempotente e auditada, contas humanas sem patrocinador ao primeiro usuário humano revisado na prévia; contas técnicas `is_bot` ficam fora da rede |
+| `GET /api/estrutura?cycle_start=YYYY-MM-01` | Painel do Agente ZT: diretos, NGR Play/Real, meta, projeção 30%/35%, até 100 deduções por modo e 12 fechamentos; mês atual por padrão; rejeita futuro |
+| `PATCH /api/admin/agentes/:id` | Aprova/suspende o agente e fixa meta apenas para mês futuro (`status`, `cycle_start`, `money_mode`, `target_ngr_cents`) |
+| `GET /api/admin/agentes/:id/cycle?cycle_start=YYYY-MM-01&money_mode=play` | Prévia de NGR, meta, percentual, comissão e até 100 deduções identificadas |
+| `POST /api/admin/agentes/:id/adjustments` | Dedução em ciclo aberto: `request_id` UUID obrigatório e reutilizado em tentativas da mesma operação, `cycle_start`, `money_mode`, `category`, `amount_cents`, `note`; mesma chave/dados retorna a dedução existente; dados diferentes retornam conflito |
+| `POST /api/admin/agentes/:id/close` | Exige `cycle_start`, `money_mode`, `reconciled: true` e `expected_gross_revenue_cents`, `expected_deductions_cents`, `expected_target_ngr_cents` da prévia. A partir do dia 25 seguinte e em ordem cronológica; trava ciclo, rejeita totais alterados, credita uma vez; déficit vai ao ciclo seguinte |
 
 `poker_variant`: `holdem` (Texas Hold’em tradicional, 9-max) \| `short_deck` (Texas Hold’em Short Deck, baralho 36, 8-max) \| `omaha` (Omaha 4, baralho 52, 6-max) \| `brazilian_pineapple` (baralho 52, 2+1+1+1, 6-max).
 Motor: `TableConfig.small_blind` + `big_blind` (SB pode = BB); Omaha deal 4 hole (usa 2+3, ranking clássico); Brazilian Pineapple deal 2 hole +1 por street (usa 2+3, ranking clássico). Só Texas Short Deck usa o baralho de 36 cartas e o ranking **trinca > sequência** e **flush > full house**. Torneios: `scheduled_start_at` é definido exclusivamente pelo admin no cadastro ou em `PATCH /api/admin/tournaments/:id`; o coordenador não cria nem altera datas. Depois do horário definido, o auto-start ocorre ao atingir `auto_start_min_players` (5 no catálogo vigente). `tournament_seats` é separado (038); 3 mesas por torneio; coordenador a cada 30s + rebalance/consolidação FT + hidratação no boot (`tournament_coordinator.rs`); **ator MTT** (`tournament_actor.rs`, mesmo protocolo do cash: rake 0, sem deflator, eliminações, run-out all-in, halt auditável); fee 15% no register (`total_fees`, 049).
@@ -168,7 +189,7 @@ Contador de usuários **logados** com heartbeat recente — distinto dos assento
 - `POST /api/admin/clubs/:id/withdraw`: Solicita o saque das comissões do saldo acumulado do clube via chave PIX.
 - `PUT /api/admin/clubs/:id/theme`: Atualiza o JSON de personalização visual (`custom_theme_json`) para a injeção do tema White-Label no Frontend.
 - `GET /api/admin/clubs/:id/agents`: Lista agentes B2B do clube locatário (legado white-label).
-- `POST /api/admin/clubs/:id/agents`: legado B2B. A **rede de afiliados** (2 níveis, 18%/12% sobre rake individual, resto à casa, vínculo = `users.sponsored_by`, clube sem fatia) — ver `PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md`.
+- `POST /api/admin/clubs/:id/agents`: legado B2B, separado do **Agente ZT Poker**. O programa novo usa `users.sponsored_by`, um nível e fechamento mensal de 30%/35% do NGR — ver `PLANO_GO_TO_MARKET_AGENTE_ZT.md`.
 - **Cliente canônico:** o dashboard `/admin/clubs` em `Frontend-Web` consome esses endpoints via **HTTPS** same-origin (`api/client.ts` + JWT admin).
 
 ### Autorização revogável e distribuída
@@ -251,6 +272,6 @@ Fases: (1) MVP Hold’em com ações legais, sizing e pot odds; (2) equity/EV e 
 - Não há benchmark de release certificado neste repositório. Throughput, latência e capacidade devem ser obtidos exclusivamente em uma execução autorizada da validação completa, com o TSV de evidência gerado pelos scripts.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

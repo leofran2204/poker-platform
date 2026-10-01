@@ -1,0 +1,71 @@
+{
+  "lessonId": "m4l3",
+  "filename": "zt-academy-m4l3-v3",
+  "contentHash": "5432467144ba836f676379ed782a0849d234ae9f1ce144acdc654ddce651166c",
+  "rendererVersion": 3,
+  "durationSeconds": 357.77,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 8994917,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Overbet Polarizada vs. Blocking Bet"
+    },
+    {
+      "start": 19.37,
+      "title": "Overbet"
+    },
+    {
+      "start": 36.77,
+      "title": "Blocking bet"
+    },
+    {
+      "start": 51.33,
+      "title": "Primeiro classifique a mão"
+    },
+    {
+      "start": 76.53,
+      "title": "O preço de uma overbet"
+    },
+    {
+      "start": 110.57,
+      "title": "Uma aposta pequena não fecha a ação"
+    },
+    {
+      "start": 135.93,
+      "title": "Não confunda força com invulnerabilidade"
+    },
+    {
+      "start": 170.7,
+      "title": "Laboratório: Identifique o flush antes do sizing"
+    },
+    {
+      "start": 212.23,
+      "title": "Laboratório: Identifique o flush antes do sizing"
+    },
+    {
+      "start": 221.3,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 250.53,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 269.0,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 304.4,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 323.5,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "97f69385248fd5382c2c42828eac424a163a6425b9d3873edd525f100af8589d"
+}

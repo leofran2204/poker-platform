@@ -139,6 +139,10 @@ pub struct AdminUserRow {
     pub created_at: i64,
     pub last_login: Option<i64>,
     pub mfa_enabled: bool,
+    pub agent_status: String,
+    pub agent_commission_balance_cents: i64,
+    pub agent_play_target_cents: i64,
+    pub agent_real_target_cents: i64,
 }
 
 #[derive(Debug, Serialize)]
@@ -153,6 +157,10 @@ pub struct AdminUserResponse {
     pub created_at: i64,
     pub last_login: Option<i64>,
     pub mfa_enabled: bool,
+    pub agent_status: String,
+    pub agent_commission_balance_cents: i64,
+    pub agent_play_target_cents: i64,
+    pub agent_real_target_cents: i64,
 }
 
 impl From<AdminUserRow> for AdminUserResponse {
@@ -168,6 +176,10 @@ impl From<AdminUserRow> for AdminUserResponse {
             created_at: r.created_at,
             last_login: r.last_login,
             mfa_enabled: r.mfa_enabled,
+            agent_status: r.agent_status,
+            agent_commission_balance_cents: r.agent_commission_balance_cents,
+            agent_play_target_cents: r.agent_play_target_cents,
+            agent_real_target_cents: r.agent_real_target_cents,
         }
     }
 }
@@ -226,7 +238,10 @@ pub async fn list_users(
 
     let rows: Vec<AdminUserRow> = match (like.as_ref(), status) {
         (Some(like), Some(st)) => sqlx::query_as(
-            "SELECT id, username, email, role, status, balance, email_verified_at, created_at, last_login, mfa_enabled \
+            "SELECT id, username, email, role, status, balance, email_verified_at, created_at, last_login, mfa_enabled, \
+                    agent_status, agent_commission_balance_cents, \
+                    COALESCE((SELECT c.target_ngr_cents FROM agent_monthly_cycles c WHERE c.agent_user_id = users.id AND c.cycle_start = date_trunc('month', timezone('America/Sao_Paulo', now()))::date AND c.money_mode = 'play'), 0)::BIGINT AS agent_play_target_cents, \
+                    COALESCE((SELECT c.target_ngr_cents FROM agent_monthly_cycles c WHERE c.agent_user_id = users.id AND c.cycle_start = date_trunc('month', timezone('America/Sao_Paulo', now()))::date AND c.money_mode = 'real'), 0)::BIGINT AS agent_real_target_cents \
              FROM users WHERE status = $1 AND (username ILIKE $2 OR email ILIKE $2) \
              ORDER BY created_at DESC LIMIT $3 OFFSET $4",
         )
@@ -237,7 +252,10 @@ pub async fn list_users(
         .fetch_all(&state.db)
         .await?,
         (Some(like), None) => sqlx::query_as(
-            "SELECT id, username, email, role, status, balance, email_verified_at, created_at, last_login, mfa_enabled \
+            "SELECT id, username, email, role, status, balance, email_verified_at, created_at, last_login, mfa_enabled, \
+                    agent_status, agent_commission_balance_cents, \
+                    COALESCE((SELECT c.target_ngr_cents FROM agent_monthly_cycles c WHERE c.agent_user_id = users.id AND c.cycle_start = date_trunc('month', timezone('America/Sao_Paulo', now()))::date AND c.money_mode = 'play'), 0)::BIGINT AS agent_play_target_cents, \
+                    COALESCE((SELECT c.target_ngr_cents FROM agent_monthly_cycles c WHERE c.agent_user_id = users.id AND c.cycle_start = date_trunc('month', timezone('America/Sao_Paulo', now()))::date AND c.money_mode = 'real'), 0)::BIGINT AS agent_real_target_cents \
              FROM users WHERE username ILIKE $1 OR email ILIKE $1 \
              ORDER BY created_at DESC LIMIT $2 OFFSET $3",
         )
@@ -247,7 +265,10 @@ pub async fn list_users(
         .fetch_all(&state.db)
         .await?,
         (None, Some(st)) => sqlx::query_as(
-            "SELECT id, username, email, role, status, balance, email_verified_at, created_at, last_login, mfa_enabled \
+            "SELECT id, username, email, role, status, balance, email_verified_at, created_at, last_login, mfa_enabled, \
+                    agent_status, agent_commission_balance_cents, \
+                    COALESCE((SELECT c.target_ngr_cents FROM agent_monthly_cycles c WHERE c.agent_user_id = users.id AND c.cycle_start = date_trunc('month', timezone('America/Sao_Paulo', now()))::date AND c.money_mode = 'play'), 0)::BIGINT AS agent_play_target_cents, \
+                    COALESCE((SELECT c.target_ngr_cents FROM agent_monthly_cycles c WHERE c.agent_user_id = users.id AND c.cycle_start = date_trunc('month', timezone('America/Sao_Paulo', now()))::date AND c.money_mode = 'real'), 0)::BIGINT AS agent_real_target_cents \
              FROM users WHERE status = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
         )
         .bind(st)
@@ -256,7 +277,10 @@ pub async fn list_users(
         .fetch_all(&state.db)
         .await?,
         (None, None) => sqlx::query_as(
-            "SELECT id, username, email, role, status, balance, email_verified_at, created_at, last_login, mfa_enabled \
+            "SELECT id, username, email, role, status, balance, email_verified_at, created_at, last_login, mfa_enabled, \
+                    agent_status, agent_commission_balance_cents, \
+                    COALESCE((SELECT c.target_ngr_cents FROM agent_monthly_cycles c WHERE c.agent_user_id = users.id AND c.cycle_start = date_trunc('month', timezone('America/Sao_Paulo', now()))::date AND c.money_mode = 'play'), 0)::BIGINT AS agent_play_target_cents, \
+                    COALESCE((SELECT c.target_ngr_cents FROM agent_monthly_cycles c WHERE c.agent_user_id = users.id AND c.cycle_start = date_trunc('month', timezone('America/Sao_Paulo', now()))::date AND c.money_mode = 'real'), 0)::BIGINT AS agent_real_target_cents \
              FROM users ORDER BY created_at DESC LIMIT $1 OFFSET $2",
         )
         .bind(limit)
@@ -352,7 +376,10 @@ pub async fn patch_user(
     .await?;
 
     let row: AdminUserRow = sqlx::query_as(
-        "SELECT id, username, email, role, status, balance, email_verified_at, created_at, last_login, mfa_enabled \
+        "SELECT id, username, email, role, status, balance, email_verified_at, created_at, last_login, mfa_enabled, \
+                agent_status, agent_commission_balance_cents, \
+                COALESCE((SELECT c.target_ngr_cents FROM agent_monthly_cycles c WHERE c.agent_user_id = users.id AND c.cycle_start = date_trunc('month', timezone('America/Sao_Paulo', now()))::date AND c.money_mode = 'play'), 0)::BIGINT AS agent_play_target_cents, \
+                COALESCE((SELECT c.target_ngr_cents FROM agent_monthly_cycles c WHERE c.agent_user_id = users.id AND c.cycle_start = date_trunc('month', timezone('America/Sao_Paulo', now()))::date AND c.money_mode = 'real'), 0)::BIGINT AS agent_real_target_cents \
          FROM users WHERE id = $1",
     )
     .bind(uid)

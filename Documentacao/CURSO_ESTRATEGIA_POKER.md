@@ -1,506 +1,157 @@
 # Curso de Estratégia de Poker — Zero Tilt (conteúdo exclusivo da plataforma)
 
-> Base teórica do `bot/strategy/`: posição, ranges pré-flop, matemática (pot odds, EV, outs), 3-bets, ferramentas e gestão de banca. Redação própria a partir de estudo de fontes públicas.
-> Versão interativa (com quiz avaliado pelo motor): `Frontend-Web/src/data/courseContent.json`, rota `/curso`.
-
-O catálogo publicado oferece quatro jogos: Texas Hold’em tradicional; Texas Hold’em Short Deck (36 cartas, trinca > sequência e flush > full house); Omaha 4 (52 cartas, exatamente 2 hole + 3 board); e Brazilian Pineapple (52 cartas, ranking clássico, 2 hole e +1 após flop, turn e river, 2+3 no showdown). O Módulo 5 interativo traz as regras atuais em texto e quiz. Os vídeos ep23–ep25 estão temporariamente ocultos na plataforma porque narram o catálogo anterior; precisam de regravação antes de voltar ao curso.
-
-## Módulo 0 (iniciante)
-
-Para quem nunca jogou. Oito aulas curtas com quiz; gabaritos práticos gerados pelo próprio motor `bot/strategy/decide.ts`.
-
-### M0L1 — De onde vêm as cartas
-
-Cartas na China Tang (~séc. IX) → baralhos mamelucos com 4 naipes (séc. XII–XIV) → Europa no séc. XIV → baralho francês de 52 (13 valores × 4 naipes). Apostar é precificar o que você não vê.
-
-### M0L2 — Do Mississippi ao mundo
-
-1829: 20 cartas e o blefe nos barcos a vapor → 52 cartas, Draw e Stud → 1925: nasce o Texas Hold'em em Robstown → 1970: WSOP de Binion → 2002–03: WPT na TV e o efeito Moneymaker → hoje: Triton, WSOP e esporte da mente.
-
-### M0L3 — Nomes que fizeram história
-
-Mundo: Johnny Moss, Doyle Brunson, Stu Ungar, Ivey, Hellmuth, Negreanu, Holz. Brasil: CPH (2004), BSOP de Trafane e DC (2006), Alexandre Gomes (bracelete 2008), Akkari (2011), Yuri Martins, Botteon, H2 Club.
-
-### M0L4 — Regras: sua primeira mão
-
-Objetivo (melhor mão de 5 ou fazer todos desistirem) → hierarquia completa → blinds → fluxo pré-flop/flop/turn/river/showdown → ações (fold, check, call, bet/raise, all-in).
-
-### M0L5 — Suas primeiras decisões
-
-Regra de ouro (aumento ou descarte), posição em 30 segundos e 5 situações avaliadas pelo motor: As Ah no botão (raise), 7c 2d no UTG (fold), Ks Qs vs raise (call), top pair vs ½ pote (call por pot odds), nada vs ¾ pote (fold).
-
-### M0L6 — Primeiros passos aqui
-
-Conta com convite (`?ref=`), Play Money primeiro, mesma mesa com 2+ pessoas, uma ideia por sessão.
-
-### M0L7 — Aumento ou descarte: a primeira decisão
-
-Forte aumenta, lixo descarta: 7-2 no UTG é fold sem pensar; AA no botão é raise sempre; no meio, barato ou fold — dúvida fora de posição também descarta.
-
-### M0L8 — Sizing: o tamanho certo
-
-Padrão por posição (UTG 2x ao SB 3x), 3x IP / 3,5–4x OOP na reabertura, +1x por limper; tamanho conta história — padronize o seu e leia o dos outros.
-
----
-Leofran, transformar esse rascunho em um manual prático exige sair da teoria abstrata e colocar as cartas na mesa com exemplos reais, números exatos e lógica matemática clara.
-
-Abaixo está o aprofundamento completo de cada ponto, estruturado para você entender exatamente o que fazer em cada situação de jogo.
-
----
-
-## 1. O Fundamento da Posição
-
-No poker, a posição define a ordem de fala em todas as rodadas pós-flop (Flop, Turn e River). Quem fala por último tem a maior vantagem matemática do jogo: a **vantagem de informação**.
-
-Quando você age por último, você vê se o oponente apostou, se pediu mesa (check) com hesitação ou se demonstrou força antes de você colocar qualquer centavo no pote.
-
-### Exemplo Prático: Jogando com Posição vs. Fora de Posição
-
-* **Cenário:** Mesa NL10 ($0,05 / $0,10). Você tem $10,00 no caixa.
-* **Mão:** Você recebe $K\spadesuit Q\spadesuit$.
-* **Situação A (Fora de Posição - você no Big Blind, oponente no Botão):**
-* O flop vem: $K\heartsuit 8\diamondsuit 4\clubsuit$. Você acertou o par maior com bom acompanhante (top pair, good kicker).
-* Como você fala primeiro, você não sabe o que o rival tem. Se você apostar $0,40$ e ele pagar, você continua no escuro no Turn. Se você pedir mesa (check), ele pode apostar e colocar pressão em você sem você saber se ele tem um par de Ases ou apenas blefe.
-
-
-* **Situação B (Em Posição - você no Botão, oponente no Big Blind):**
-* O flop vem igual: $K\heartsuit 8\diamondsuit 4\clubsuit$.
-* O oponente dá check imediatamente.
-* Essa ação dele entrega uma informação valiosa: ele não acertou uma mão monstruosa. Você agora tem o controle: pode apostar para extrair fichas de pares piores (como um par de 8) ou pedir mesa para controlar o tamanho do pote e ver o Turn de graça.
-
-
-
----
-
-## 2. O Mapa da Mesa (Full-Ring de 9 a 10 Lugares)
-
-Uma mesa cheia é dividida em grupos de posições. A regra básica é: **quanto mais cedo você fala, menos mãos você pode jogar**, pois há muitos jogadores esperando atrás de você que podem acordar com cartas melhores.
-
-| Zona | Posições | O que significa na prática | Postura Correta |
-| --- | --- | --- | --- |
-| **Iniciais (Early)** | UTG, UTG+1, UTG+2 | Os primeiros a falar pré-flop. Há 7 a 9 pessoas atrás. | **Extrema cautela.** Apenas mãos premium. |
-| **Médias (Middle)** | MP1, MP2, MP3 | Metade dos jogadores já desistiu. O risco diminuiu um pouco. | **Seletivo.** Adiciona pares médios e figuras fortes. |
-| **Finais (Late)** | Cutoff (CO), Botão (BTN) | Posições de maior lucro. Você agirá por último pós-flop. | **Ataque.** Joga muitas mãos e tenta roubar o pote. |
-| **Cegas (Blinds)** | Small Blind (SB), Big Blind (BB) | Posições defensivas obrigatórias. Você jogará fora de posição. | **Defesa seletiva.** Evite disputar potes médios sem jogo forte. |
-
-### Dinâmica das Mesas que Esvaziam
-
-Se três jogadores saírem da mesa e sobrarem apenas 6 pessoas (Mesa 6-Max), **as posições iniciais deixam de existir**. O primeiro a falar já é o jogador em posição média (MP). Você não deve esperar cartas ultra-raras como se estivesse em uma mesa de 10 pessoas; seu leque de mãos precisa se expandir para não ser devorado pelo pagamento obrigatório dos blinds a cada rodada.
-
----
-
-## 3. A Regra do "Aumento ou Descarte" (Por que Nunca Entrar de Limp)
-
-Entrar de *limp* (apenas pagar o valor do Big Blind sem aumentar) é o erro mais clássico de quem está começando.
-
-* **O Limp não gera desistências:** Quando você apenas paga $0,10$, você convida os outros jogadores da mesa a pagarem barato também. Cinco jogadores entram no pote. Suas chances matemáticas de ganhar caem drasticamente, porque qualquer carta baixa do bordo pode acertar dois pares ou trincas na mão de alguém.
-* **O Aumento (Raise) dá duas formas de vencer:**
-1. Todos desistem pré-flop e você ganha o pote ali mesmo, sem risco.
-2. Alguém paga, mas você tem a iniciativa da aposta e pode representar mãos fortes no Flop.
-
-
-* **O Limp dá apenas uma forma de vencer:** Acertar a melhor mão no Flop no confronto direto. Isso reduz sua taxa de vitória pela metade no longo prazo.
-
----
-
-## 4. Tabela Estruturada de Mãos Iniciais (Ranges)
-
-Entenda as notações: a letra **s** significa cartas do mesmo naipe (*suited*), e a letra **o** significa cartas de naipes diferentes (*offsuit*). O sinal **+** indica todas as combinações superiores daquele par ou sequência.
-
-* **Posições Iniciais (UTG / UTG+1):**
-* Pares: $TT, JJ, QQ, KK, AA$
-* Cartas Altas: $AKs, AKo, AQs$
-* *Motivo:* Se você entrar com $K\heartsuit J\diamondsuit$ aqui, é provável que alguém atrás tenha $KQ$, $AK$ ou um par alto, dominando você completamente.
-
-
-* **Posições Médias (MP):**
-* Pares: $88, 99$ e todos os superiores.
-* Cartas Altas: $AQo, AJs, KQs$.
-
-
-* **Posições Finais (Cutoff e Botão):**
-* Pares: $22$ até $AA$ (qualquer par tem valor de ataque aqui).
-* Cartas Altas: Todos os Ases do mesmo naipe ($A2s+$), $ATo+$, $KJs+, KTo+, QJs$.
-* Conectores do mesmo naipe: $78s, 89s, 9Ts, JTs$ (excelentes para acertar sequências e flushes disfarçados).
-
-
-
----
-
-## 5. Cálculo Matemático do Aumento Pré-Flop
-
-Entrar na mão com o tamanho de aposta correto desencoraja mãos fracas de pagarem barato e constrói o pote quando você tem vantagem.
-
-### Regra Padrão
-
-* **Sem limpers antes de você:** Aumente entre $2,5$ a $3$ vezes o valor do Big Blind.
-* **Com limpers (jogadores que só pagaram o blind):** Use a fórmula:
-
-$$\text{Aposta} = 3 \times \text{BB} + (1 \times \text{BB por cada jogador que pagou})$$
-
-
-
-### Exemplo Passo a Passo (Mesa NL10 - Blinds $0,05 / $0,10)
-
-* Você está no Botão com $A\spadesuit K\heartsuit$.
-* O UTG apenas pagou $0,10$. O MP também apenas pagou $0,10$.
-* A conta é direta:
-* Base do aumento: $3 \times 0,10 = \$0,30$.
-* Adicional de 2 limpers: $2 \times 0,10 = \$0,20$.
-* **Seu Aumento Final:** $\$0,50$.
-
-
-* **Por que fazer isso?** Se você apostar apenas os $\$0,30$ padrão, o pote já terá muito dinheiro morto acumulado. O UTG precisará pagar apenas mais $\$0,20$ para disputar um pote de quase um dólar, tornando vantajoso para ele continuar com cartas ruins. Ao fazer $\$0,50$, você quebra a matemática dele e cobra caro pela curiosidade alheia.
-
----
-
-## 6. Dinâmicas Avançadas: Roubos (Steals) e Contra-Ataques (3-Bets)
-
-No poker competitivo, os potes disputados não dependem apenas de acertar cartas no Flop, mas de capturar as apostas obrigatórias (os blinds) que ficam soltas na mesa.
-
-### 1. O Roubo de Blinds (Steal)
-
-* **Quando ocorre:** Todos os jogadores até o Cutoff ou Botão desistem.
-* **A jogada:** Você aumenta mesmo com cartas medianas (ex: $K\diamondsuit 9\diamondsuit$ ou $A\clubsuit 4\clubsuit$).
-* **A lógica:** Os jogadores no Small Blind e no Big Blind já perderam a posição para as rodadas seguintes e tendem a desistir de cerca de 70% a 80% das mãos fracas. Você recolhe as fichas sem ver o flop.
-
-### 2. O Contra-Ataque (3-Bet / Re-Steal)
-
-* **Conceito:** A primeira aposta pré-flop é o Big Blind (1ª aposta). O primeiro aumento é a 2ª aposta (open raise). Re-aumentar esse jogador é fazer uma **3-Bet**.
-* **Cenário Real:**
-* O jogador no Botão tenta roubar seus blinds aumentando para $\$0,25$.
-* Você está no Big Blind segurando $J\spadesuit J\diamondsuit$.
-* **Ação Errada:** Apenas pagar os $\$0,25$. O Flop trará cartas maiores ($A, K$ ou $Q$) em mais de 50% das vezes, colocando você em uma situação desconfortável fora de posição.
-* **Ação Correta:** Fazer uma 3-Bet para $\$0,85$ a $\$1,00$ (cerca de 3,5x a 4x o valor do aumento original por você estar fora de posição).
-* **O Desfecho:** Se ele desistir, você ganha o pote imediatamente. Se ele pagar, você toma as rédeas da mão com um par de Valetes já com o pote inflado a seu favor.
-
-
-
----
-
-## 7. O Kit de Ferramentas Essenciais
-
-Para progredir além do nível básico, o jogador precisa de programas de apoio para auditar decisões fora do calor do jogo:
-
-* **Calculadoras de Probabilidade (Ex: Equilab):** Software gratuito onde você digita sua mão e o intervalo do oponente. Ele simula milhões de mãos em segundos e mostra que, por exemplo, o seu par de $A-A$ tem aproximadamente $82\%$ de chance de vitória contra o $K-K$ dele antes do Flop.
-* **Rastreadores e HUDs (Ex: Hand2Note, PokerTracker):** Softwares que registram todas as mãos jogadas e projetam números flutuantes na tela sobre cada oponente:
-* **VPIP (% de vezes que põe dinheiro no pote):** Se o número for acima de 35%, o rival é passivo e joga qualquer lixo. Se for abaixo de 15%, ele só joga com cartas excelentes.
-* **PFR (% de vezes que entra aumentando):** Mostra a agressividade real do rival.
-
-
-* **Reprodutor de Mãos:** Ferramenta para rever suas maiores perdas da sessão, verificar se você cometeu um erro estrutural (como pagar fora de posição) ou se apenas sofreu um desfecho improvável natural da matemática (bad beat).
-
----
-
-## 8. Gestão de Caixa e Disciplina
-
-Ter a melhor técnica não adianta nada se uma oscilação comum de cartas zerar seu dinheiro.
-
-* **Regra dos 30 a 50 Buy-ins:** Para jogar mesas de NL10 (onde a entrada máxima é de $\$10,00$), você deve ter no mínimo $\$300,00$ a $\$500,00$ reservados exclusivamente para o poker.
-* **Controle de Frustração:** Mesmo com $A-A$ contra uma mão fraca como $7-2$, você perderá cerca de 1 em cada 8 vezes se o oponente teimar em pagar tudo até o fim. A diferença entre o jogador amador e o experiente é que o experiente entende essa porcentagem como variação estatística normal e mantém o plano de ação intacto na mão seguinte, sem tentar recuperar fichas no desespero.
-
-A consistência no poker é construída repetindo decisões matematicamente corretas milhares de vezes. Domine a seleção dessas mãos iniciais em sua respectiva posição antes de tentar jogadas complexas pós-flop.
-
-
-Você tem toda razão, Leofran. Aplicar uma regra prática no poker sem entender a teoria matemática e lógica por trás é como tentar construir uma casa sem entender a planta: na primeira oscilação, a estrutura desmorona.
-
-Antes de decorar tabelas ou jogar qualquer mão, você precisa dominar os **pilares conceituais** que regem o jogo. Abaixo, cada conceito teórico fundamental está destrinchado do zero, seguido da sua aplicação prática imediata.
-
----
-
-### 1. Teoria da Informação Incompleta e a Vantagem Posicional
-
-No xadrez, os dois jogadores veem todas as peças o tempo todo; é um jogo de informação perfeita. O poker é o oposto: um jogo de **informação incompleta**. Você nunca vê as cartas do oponente, apenas as decisões dele.
-
-* **O Conceito Teórico:** Toda tomada de decisão humana fica mais precisa à medida que o nível de incerteza diminui. Quando você é forçado a agir primeiro, sua decisão é tomada sob **cegueira quase total**. Quando você age por último, você coleta pistas valiosas (se o oponente apostou rápido, se hesitou ou se preferiu passar a vez sem colocar fichas).
-* **Realização de Equidade (*Equity Realization*):** Esse é um dos conceitos mais importantes do poker moderno. Ter uma mão matematicamente boa não garante que você verá o final da rodada. Se você estiver fora de posição, o adversário pode apostar forte e obrigar você a desistir de uma mão que tinha potencial, simplesmente porque a incerteza ficou cara demais para você aguentar.
-* **Exemplo Prático:**
-* Imagine que você tem $10\heartsuit 9\heartsuit$ no Big Blind (fora de posição) e o adversário está no Botão (com posição). O Flop vem com $10\spadesuit 4\diamondsuit 2\clubsuit$.
-* Você acertou o par maior, mas o seu acompanhante (o 9) é mediano. Como você fala primeiro, se der mesa (check), o Botão aposta pesado. Você não sabe se ele tem um par de Ases ou se está apenas tentando te tirar da mão. Você fica desconfortável e muitas vezes desiste da melhor mão por pura falta de informação. Se as posições fossem invertidas, você veria a mesa dele primeiro e controlaria o preço da rodada com tranquilidade.
-
-
-
----
-
-### 2. Equidade (Equity) e Valor Esperado (EV - Expected Value)
-
-O poker não é um jogo sobre quem tem a melhor mão no momento, mas sim sobre **probabilidade acumulada a longo prazo**.
-
-* **O Conceito de Equidade:** Equidade é a sua fatia teórica do pote. Se você tem 60% de chance matemática de vencer uma mão até o final, significa que 60% de todo o dinheiro colocado na mesa já pertence a você em termos estatísticos, não importa quem puxe as fichas no final daquela rodada isolada.
-* **O Conceito de EV (+EV e -EV):** Toda decisão no poker tem um "Valor Esperado".
-* Uma jogada **+EV** (Valor Esperado Positivo) é aquela que gera lucro quando repetida 1.000 vezes, mesmo que perca hoje.
-* Uma jogada **-EV** (Valor Esperado Negativo) é aquela que perde dinheiro no longo prazo, mesmo que você dê sorte e ganhe uma vez.
-
-
-* **Exemplo Prático (A Moeda Viciada):**
-* Imagine que um amigo propõe uma aposta de cara ou coroa. Cada vez que der "cara", você ganha R$ 2,00. Cada vez que der "coroa", você paga R$ 1,00.
-* A chance matemática é de 50% para cada lado. Se você jogar 10 vezes e der "coroa" em 7, você perdeu dinheiro no dia. Mas a matemática dessa aposta é brutalmente lucrativa (+EV). Se você repetir isso 10.000 vezes, você inevitavelmente ficará rico. No poker profissional, você toma apenas decisões com a matemática a seu favor e ignora a perda momentânea de fichas do dia a dia (a chamada *variância*).
-
-
-
----
-
-### 3. A Dinâmica da "Fold Equity" (Equidade de Desistência)
-
-Por que os melhores jogadores do mundo raramente apenas pagam apostas e preferem aumentar ou desistir? A resposta está na existência de duas portas de saída para a vitória.
-
-* **O Conceito Teórico:** Existem apenas duas formas de ganhar um pote:
-1. Mostrar a melhor mão no final da rodada (*Showdown*).
-2. Fazer todos os adversários desistirem antes do final.
-
-
-* **A Falha Matemática do Call (Pagar) e do Limp:** Quando você apenas paga o valor mínimo para entrar na mão (Limp) ou apenas paga uma aposta (Call), você abre mão da segunda forma de vencer. Você só ganha se suas cartas forem superiores às do rival no final.
-* **O Poder da Agressividade:** Quando você aposta ou aumenta (Raise), você combina a força das suas cartas com a **Fold Equity** (a chance real de o adversário largar as cartas por medo de perder mais fichas). Você passa a ter duas formas de embolsar o dinheiro, enquanto o jogador passivo tem apenas uma.
-* **Exemplo Prático:**
-* Você tem $A\diamondsuit 5\diamondsuit$ no Botão e o adversário no Big Blind tem $K\clubsuit Q\spadesuit$. As cartas dele são tecnicamente melhores que as suas para formar pares altos.
-* Se você der apenas *call*, o flop vem com $8\heartsuit 4\clubsuit 2\spadesuit$. Nenhum dos dois acertou nada. Se ele apostar, você é obrigado a sair e perde o que investiu.
-* Mas se você tiver feito um *aumento pré-flop*, você mostrou força. Quando o mesmo flop sem sentido aparece e ele passa a vez, você aposta meio pote. O adversário desiste do $K-Q$ dele porque acha que você tem um par grande. Você recolheu as fichas com uma mão pior, puramente pelo uso da *Fold Equity*.
-
-
-
----
-
-### 4. Raciocínio por Intervalos (Ranges) vs. Mão Específica
-
-O erro número um de quem assiste poker na televisão é achar que o profissional tenta adivinhar exatamente as duas cartas do oponente.
-
-* **O Conceito Teórico:** Nenhum ser humano consegue prever cartas exatas com precisão. O jogador técnico pensa em **Ranges (Intervalos de mãos)**: o grupo completo de cartas possíveis que um oponente jogaria de determinada maneira a partir de uma posição específica.
-* **Combinações Numéricas (Combos):**
-* Existem 1.326 combinações possíveis de duas cartas no baralho.
-* Qualquer par de mão (como $A-A$ ou $K-K$) possui **6 combinações** possíveis.
-* Duas cartas diferentes de naipes distintos (como $A\spadesuit K\heartsuit$) possuem **12 combinações**.
-* Duas cartas diferentes do mesmo naipe (como $A\spadesuit K\spadesuit$) possuem apenas **4 combinações**.
-
-
-* **Aplicação Prática:**
-* Quando um jogador muito conservador aumenta de uma posição inicial (UTG), o *range* dele não é uma mão solta, mas um bloco estreito: pares altos ($TT$ a $AA$) e cartas altas do mesmo naipe ($AKs, AQs$). Isso representa menos de 5% de todas as cartas do baralho.
-* Se você tem um par de Valetes ($J-J$) e esse jogador conservador aumenta muito o pote, você não pensa "ele tem Ás e Rei". Você analisa o bloco todo dele: contra esse grupo específico de mãos, o seu par de Valetes está numericamente atrás na maioria dos cenários. Pensar em grupo de cartas evita armadilhas emocionais.
-
-
-
----
-
-### 5. Probabilidades do Pote (Pot Odds) e Matemática de Decisão
-
-Você nunca deve pagar uma aposta por curiosidade. O pagamento de uma aposta é uma transação comercial simples: você compara o custo da entrada com o retorno potencial.
-
-* **A Fórmula Básica de Pot Odds:**
-
-$$\text{Pot Odds} = \frac{\text{Valor que você precisa pagar}}{\text{Tamanho total do pote após seu pagamento}}$$
-
-
-* **O Cálculo das Saídas (Outs):**
-* *Outs* são as cartas restantes no baralho que transformam sua mão na combinação vencedora.
-* **Regra Prática do 4 e do 2:**
-* Do Flop até o River (duas cartas por vir), multiplique seus *outs* por **4** para saber sua porcentagem aproximada de vitória.
-* Do Turn para o River (apenas uma carta por vir), multiplique seus *outs* por **2**.
-
-
-
-
-* **Exemplo Prático Completo:**
-* O pote tem **$ 8,00**. O oponente aposta **$ 2,00**.
-* O pote total agora é de **$ 10,00** ($8 + 2$).
-* Custa **$ 2,00** para você pagar.
-* Pela fórmula: $\frac{2}{10 + 2} = \frac{2}{12} = 16,6\%$.
-* **A Decisão:** Você só deve pagar essa aposta se sua chance matemática de acertar sua carta for **maior que 16,6%**.
-* Se você estiver buscando um *flush* (quatro cartas do mesmo naipe na mão e no bordo juntas), restam **9 cartas** do seu naipe no baralho (seus 9 *outs*).
-* Do Turn para o River, a conta é rápida: $9 \times 2 = 18\%$.
-* **Conclusão lógica:** Você tem 18% de chance de vencer e o pote exige apenas 16,6% para o pagamento ser correto. A conta fecha no positivo; o pagamento é uma decisão lucrativa no longo prazo (+EV).
-
-
-
----
-
-### 6. A Estrutura de Fichas: Short Stack vs. Deep Stack
-
-A quantidade de fichas que você tem na mesa dita completamente a complexidade matemática do seu jogo.
-
-* **A Unidade de Medida Real (Big Blinds):** Nunca meça seu dinheiro em dólares ou reais na mesa. Meça sempre em **Big Blinds (BB)**. Se o blind é $ 0,10 e você tem $ 10,00, você tem **100 BBs**.
-* **Short Stack (20 a 40 BBs):**
-* Quando você joga com poucas fichas relativas ao tamanho do blind, a margem para manobras pós-flop desaparece. O jogo se torna puramente matemático e binário: ou você desiste antes de entrar, ou empurra todas as fichas (All-in) para maximizar sua força pré-flop. É uma estratégia desenhada para errar pouco e explorar o excesso de confiança dos outros.
-
-
-* **Deep Stack (100 BBs ou mais):**
-* Aqui o jogo é profundo. Uma aposta pré-flop compromete apenas uma fração minúscula do seu patrimônio. A habilidade de ler o adversário nas rodadas finais (Turn e River), extrair valor com mãos médias e aplicar pressão usando a vantagem de posição torna-se o fator decisivo para lucrar.
-
-
-
-Dominar esses seis fundamentos teóricos é o que separa quem joga poker como aposta de quem joga poker como investimento estatístico. A partir dessa base sólida, a seleção de mãos e a postura em cada posição da mesa deixam de ser decoreba e passam a ser uma consequência lógica da matemática.
-
-
-## O Guia Definitivo do Poker: Do Zero ao Avançado
-
-Leofran, para dominar o poker de forma profissional, você precisa compreender que o jogo funciona como uma engrenagem exata: a teoria sustenta a matemática, e os ranges organizam as suas decisões na mesa.
-
----
-
-## Módulo 1: Os Pilares Teóricos do Jogo
-
-Antes de olhar para qualquer carta, você deve entender as leis invisíveis que movimentam as fichas.
-
-* **Informação Incompleta:** Ao contrário do xadrez, você não vê as cartas do adversário. Quem age por último na rodada coleta dados cruciais (como a hesitação ou a aposta do rival) antes de investir dinheiro. Essa é a base da vantagem posicional.
-* **Valor Esperado (+EV e -EV):** O poker premia a consistência estatística, não o resultado de uma única mão. Uma jogada de Valor Esperado Positivo (+EV) é aquela que, repetida mil vezes, gera lucro, mesmo que você perca dinheiro em algumas rodadas isoladas devido à variância (sorte momentânea).
-* **Fold Equity (Equidade de Desistência):** Você ganha potes de duas formas: mostrando a melhor carta no final ou forçando o oponente a desistir antes disso. A agressividade (apostar e aumentar) combina a força das suas cartas com a chance de o rival abandonar o jogo por medo de perder mais.
-* **Conceito de Ranges (Intervalos):** Um profissional nunca tenta adivinhar as "duas cartas exatas" do oponente. Ele calcula o bloco completo de combinações possíveis que aquele jogador tem nas mãos com base na posição e nas ações anteriores.
-
----
-
-## Módulo 2: O Mapa da Mesa e a Vantagem Posicional
-
-A mesa de poker é dividida em zonas de risco e lucro. Quanto mais cedo você fala na rodada, menos cartas pode jogar, pois há dezenas de adversários atrás de você esperando uma oportunidade.
-
-* **Posições Iniciais (UTG):** Onde o jogo começa. Exige rigor absoluto. Como há muitos jogadores atrás, você só joga cartas de elite.
-* **Posições Médias (MP):** O risco diminui levemente, permitindo adicionar pares médios ao seu plano de jogo.
-* **Posições Finais (Cutoff e Botão):** O território de maior lucro. Como você agirá por último no pós-flop, pode atacar com um leque muito maior de cartas e pressionar os adversários.
-* **Os Blinds (Small e Big Blind):** Posições defensivas obrigatórias onde você joga "fora de posição" na maioria das rodadas seguintes.
-* **Exemplo Prático de Posição:** Com $K\heartsuit Q\heartsuit$ no Big Blind (fora de posição), se o flop trouxer cartas perigosas, você não sabe o que o Botão tem e acaba desistindo por falta de informação. Se as posições estivessem invertidas, você veria a ação dele primeiro e controlaria o tamanho da aposta com tranquilidade.
-
----
-
-## Módulo 3: O Cérebro do Jogador: Tipos de Ranges e Tabelas Pré-Flop
-
-As tabelas de *range* são matrizes matemáticas que dizem exatamente quais cartas você deve jogar em cada posição da mesa. No poker moderno, existem quatro tipos fundamentais de ranges que você precisa dominar:
-
-* **1. Range de Abertura (Open-Raise / RFI):**
-* É o grupo de mãos com o qual você é o primeiro a colocar fichas na mesa aumentando o valor (raise), sem que ninguém tenha entrado antes.
-* *Exemplo prático:* Nas posições iniciais (UTG), seu range de abertura é restrito a cerca de 10% a 12% do baralho ($TT+, AK, AQs$). Já no Botão (BTN), seu range de abertura se expande para quase 45% do baralho (incluindo pares baixos, ases suited e conectores do mesmo naipe como $8\spadesuit 7\spadesuit$), porque você quer roubar os blinds dos oponentes.
-
-
-* **2. Range de 3-Bet (Re-Raise):**
-* É o grupo de cartas extremamente fortes com o qual você responde aumentando um raise que já foi feito por outro jogador.
-* *Exemplo prático:* Um adversário nas posições médias aumentou a aposta. Você está no Botão com um par de Damas ($QQ$) ou $A-K$. Em vez de apenas pagar, você faz uma 3-Bet (triplica o valor da aposta dele). Isso retira da mão mãos fracas que ele usou para roubar e isola o confronto contra o oponente.
-
-
-* **3. Range de Call (Pagar / Flat):**
-* É o grupo de mãos intermediárias que você escolhe apenas pagar para ver o flop barato, geralmente em posições finais ou nos blinds.
-* *Aviso prático:* O range de call deve ser restrito. Pagar apostas sem iniciativa própria costuma ser um erro estrutural, pois elimina a sua *Fold Equity*. Você só paga quando o pote oferece uma matemática muito favorável ou para ver flops com pares médios e cartassuited.
-
-
-* **4. Range de Defesa e Re-estudo (Fold / All-in):**
-* É a matriz de reação quando você sofre uma aposta e precisa decidir entre desistir imediatamente (Fold) ou empurrar todas as fichas (All-in).
-* *Exemplo prático:* Se você tentou roubar os blinds do Botão e o Big Blind deu um re-raise em você, seu range de defesa contra esse ataque se restringe estritamente a pares médios altos ($99$ até $AA$) e cartas do topo do baralho ($AJ$ até $AK$). Tudo o que estiver fora disso deve ser descartado no lixo sem hesitação.
-
-
-
----
-
-## Módulo 4: A Matemática e as Decisões de Longo Prazo
-
-* **Pot Odds (Probabilidades do Pote):** A relação entre o valor que você precisa pagar para continuar na mão e o dinheiro total que já está na mesa. Você só paga uma aposta se a chance matemática de acertar sua carta for superior à porcentagem exigida pelo pote.
-* **Cálculo de Outs (Regra do 4 e do 2):**
-* *Outs* são as cartas restantes no baralho que dão a vitória a você.
-* Se faltam duas cartas para acabar a rodada (do Flop para o River), multiplique seus outs por **4** para ter sua porcentagem de vitória. Se falta apenas uma carta (do Turn para o River), multiplique por **2**.
-
-
-* **Exemplo Matemático Completo:**
-* O pote tem $\$8,00$ e o oponente aposta $\$2,00$ (total de $\$10,00$ no pote). Custa $\$2,00$ para você pagar. A conta é $\frac{2}{12} = 16,6\%$.
-* Se você está buscando um *flush* (precisa de uma carta do seu naipe e restam 9 cartas no baralho), o cálculo do Turn para o River é $9 \times 2 = 18\%$. Como 18% é maior do que os 16,6% exigidos pelo pote, o pagamento é matematicamente lucrativo (+EV).
-
-
-
----
-
-## Módulo 5: Gestão de Caixa e Ferramentas de Evolução
-
-* **A Regra dos Buy-ins:** Nunca coloque todo o seu dinheiro em uma única mesa. Para jogar de forma segura na modalidade escolhida, mantenha um caixa (bankroll) de pelo menos 30 a 40 vezes o valor máximo da entrada da mesa (buy-in). Isso protege você contra as oscilações normais da sorte.
-* **Equilab:** Software gratuito para simular milhões de combinações de mãos e testar a força real do seu range contra o do oponente antes do Flop.
-* **HUD (Heads-Up Display):** Ferramenta que coleta dados estatísticos dos adversários em tempo real na tela, permitindo identificar se o rival joga muitas mãos (passivo) ou se é um jogador rigoroso e agressivo.
-* **Controle Emocional:** Entender que a matemática cobra o seu preço a longo prazo blinda sua mente contra frustrações pontuais, mantendo sua disciplina inegociável mão após mão.
-
-
-## O Guia Definitivo do Poker: Do Zero ao Avançado
-
-Leofran, para dominar o poker de forma profissional, você precisa compreender que o jogo funciona como uma engrenagem exata: a teoria sustenta a matemática, e os ranges organizam as suas decisões na mesa.
-
----
-
-## Módulo 1: Os Pilares Teóricos do Jogo
-
-Antes de olhar para qualquer carta, você deve entender as leis invisíveis que movimentam as fichas.
-
-* **Informação Incompleta:** Ao contrário do xadrez, você não vê as cartas do adversário. Quem age por último na rodada coleta dados cruciais (como a hesitação ou a aposta do rival) antes de investir dinheiro. Essa é a base da vantagem posicional.
-* **Valor Esperado (+EV e -EV):** O poker premia a consistência estatística, não o resultado de uma única mão. Uma jogada de Valor Esperado Positivo (+EV) é aquela que, repetida mil vezes, gera lucro, mesmo que você perca dinheiro em algumas rodadas isoladas devido à variância (sorte momentânea).
-* **Fold Equity (Equidade de Desistência):** Você ganha potes de duas formas: mostrando a melhor carta no final ou forçando o oponente a desistir antes disso. A agressividade (apostar e aumentar) combina a força das suas cartas com a chance de o rival abandonar o jogo por medo de perder mais.
-* **Conceito de Ranges (Intervalos):** Um profissional nunca tenta adivinhar as "duas cartas exatas" do oponente. Ele calcula o bloco completo de combinações possíveis que aquele jogador tem nas mãos com base na posição e nas ações anteriores.
-
----
-
-## Módulo 2: O Mapa da Mesa e a Vantagem Posicional
-
-A mesa de poker é dividida em zonas de risco e lucro. Quanto mais cedo você fala na rodada, menos cartas pode jogar, pois há dezenas de adversários atrás de você esperando uma oportunidade.
-
-* **Posições Iniciais (UTG):** Onde o jogo começa. Exige rigor absoluto. Como há muitos jogadores atrás, você só joga cartas de elite.
-* **Posições Médias (MP):** O risco diminui levemente, permitindo adicionar pares médios ao seu plano de jogo.
-* **Posições Finais (Cutoff e Botão):** O território de maior lucro. Como você agirá por último no pós-flop, pode atacar com um leque muito maior de cartas e pressionar os adversários.
-* **Os Blinds (Small e Big Blind):** Posições defensivas obrigatórias onde você joga "fora de posição" na maioria das rodadas seguintes.
-* **Exemplo Prático de Posição:** Com $K\heartsuit Q\heartsuit$ no Big Blind (fora de posição), se o flop trouxer cartas perigosas, você não sabe o que o Botão tem e acaba desistindo por falta de informação. Se as posições estivessem invertidas, você veria a ação dele primeiro e controlaria o tamanho da aposta com tranquilidade.
-
----
-
-## Módulo 3: O Cérebro do Jogador: Tipos de Ranges e Tabelas Pré-Flop
-
-As tabelas de *range* são matrizes matemáticas que dizem exatamente quais cartas você deve jogar em cada posição da mesa. No poker moderno, existem quatro tipos fundamentais de ranges que você precisa dominar:
-
-* **1. Range de Abertura (Open-Raise / RFI):**
-* É o grupo de mãos com o qual você é o primeiro a colocar fichas na mesa aumentando o valor (raise), sem que ninguém tenha entrado antes.
-* *Exemplo prático:* Nas posições iniciais (UTG), seu range de abertura é restrito a cerca de 10% a 12% do baralho ($TT+, AK, AQs$). Já no Botão (BTN), seu range de abertura se expande para quase 45% do baralho (incluindo pares baixos, ases suited e conectores do mesmo naipe como $8\spadesuit 7\spadesuit$), porque você quer roubar os blinds dos oponentes.
-
-
-* **2. Range de 3-Bet (Re-Raise):**
-* É o grupo de cartas extremamente fortes com o qual você responde aumentando um raise que já foi feito por outro jogador.
-* *Exemplo prático:* Um adversário nas posições médias aumentou a aposta. Você está no Botão com um par de Damas ($QQ$) ou $A-K$. Em vez de apenas pagar, você faz uma 3-Bet (triplica o valor da aposta dele). Isso retira da mão mãos fracas que ele usou para roubar e isola o confronto contra o oponente.
-
-
-* **3. Range de Call (Pagar / Flat):**
-* É o grupo de mãos intermediárias que você escolhe apenas pagar para ver o flop barato, geralmente em posições finais ou nos blinds.
-* *Aviso prático:* O range de call deve ser restrito. Pagar apostas sem iniciativa própria costuma ser um erro estrutural, pois elimina a sua *Fold Equity*. Você só paga quando o pote oferece uma matemática muito favorável ou para ver flops com pares médios e cartassuited.
-
-
-* **4. Range de Defesa e Re-estudo (Fold / All-in):**
-* É a matriz de reação quando você sofre uma aposta e precisa decidir entre desistir imediatamente (Fold) ou empurrar todas as fichas (All-in).
-* *Exemplo prático:* Se você tentou roubar os blinds do Botão e o Big Blind deu um re-raise em você, seu range de defesa contra esse ataque se restringe estritamente a pares médios altos ($99$ até $AA$) e cartas do topo do baralho ($AJ$ até $AK$). Tudo o que estiver fora disso deve ser descartado no lixo sem hesitação.
-
-
-
----
-
-## Módulo 4: A Matemática e as Decisões de Longo Prazo
-
-* **Pot Odds (Probabilidades do Pote):** A relação entre o valor que você precisa pagar para continuar na mão e o dinheiro total que já está na mesa. Você só paga uma aposta se a chance matemática de acertar sua carta for superior à porcentagem exigida pelo pote.
-* **Cálculo de Outs (Regra do 4 e do 2):**
-* *Outs* são as cartas restantes no baralho que dão a vitória a você.
-* Se faltam duas cartas para acabar a rodada (do Flop para o River), multiplique seus outs por **4** para ter sua porcentagem de vitória. Se falta apenas uma carta (do Turn para o River), multiplique por **2**.
-
-
-* **Exemplo Matemático Completo:**
-* O pote tem $\$8,00$ e o oponente aposta $\$2,00$ (total de $\$10,00$ no pote). Custa $\$2,00$ para você pagar. A conta é $\frac{2}{12} = 16,6\%$.
-* Se você está buscando um *flush* (precisa de uma carta do seu naipe e restam 9 cartas no baralho), o cálculo do Turn para o River é $9 \times 2 = 18\%$. Como 18% é maior do que os 16,6% exigidos pelo pote, o pagamento é matematicamente lucrativo (+EV).
-
-
-
----
-
-## Módulo 5: Gestão de Caixa e Ferramentas de Evolução
-
-* **A Regra dos Buy-ins:** Nunca coloque todo o seu dinheiro em uma única mesa. Para jogar de forma segura na modalidade escolhida, mantenha um caixa (bankroll) de pelo menos 30 a 40 vezes o valor máximo da entrada da mesa (buy-in). Isso protege você contra as oscilações normais da sorte.
-* **Equilab:** Software gratuito para simular milhões de combinações de mãos e testar a força real do seu range contra o do oponente antes do Flop.
-* **HUD (Heads-Up Display):** Ferramenta que coleta dados estatísticos dos adversários em tempo real na tela, permitindo identificar se o rival joga muitas mãos (passivo) ou se é um jogador rigoroso e agressivo.
-* **Controle Emocional:** Entender que a matemática cobra o seu preço a longo prazo blinda sua mente contra frustrações pontuais, mantendo sua disciplina inegociável mão após mão.
-
-
-
-
-
-## Formato audiovisual (Academy)
-
-26 aulas, 25 vídeos (só a `m0l6`, conta com convite, sem vídeo — placeholder honesto). Os vídeos seguem a ordem das lições e mostram o cartaz `video 1` a `video 25`; arquivos mantêm o nome de produção (`epNN-*`), sem vínculo com o número exibido.
-
-Padrão de produção (Manim v3, sem LaTeX): feltro `#0A2E1A`, dourado `#C9A227`, creme `#F4F0E6`, biblioteca `ZeroTiltCurso/shared.py` (mesa, cartas, fichas, barras, pictogramas históricos). Narração PT-BR por cena em Edge-TTS `pt-BR-AntonioNeural` 1.0x, com reescrita fonética dos termos (`térn`, `flópi`, `choudáun`, nomes próprios aportuguesados); vídeos de ~56 a ~91s conforme a narração. Waits casados por cena: nenhuma cena é mais curta que seu áudio.
-
-Player neutro (`CourseVideoPlayer`): vídeo quando há `url`, ou placeholder honesto + roteiro da narração; sem avatar, persona ou aba de exemplo — a mão de exemplo da aula aparece no corpo da lição. Trava de fixação: 70% nas situações práticas do motor para desbloquear a próxima aula.
-
-Fontes versionadas em `ZeroTiltCurso/epNN-*/` (`plan.md` com arco e narração integral + `script.py` + `segN.mp3` + final); intermediários de render entram no `.gitignore`. Finais espelhados em `Frontend-Web/public/videos/` (hash idêntico). Grade interativa vigente em `Frontend-Web/src/data/courseContent.json` (rota `/curso`).
+> Produto educacional: teoria, exercícios e prática por módulo nas quatro modalidades da plataforma.
+> Versão interativa atual: `Frontend-Web/src/data/courseContent.json`, rota `/curso`. O quiz atual compara respostas com gabaritos locais; não consulta um solver nem o motor Rust para avaliar estratégias.
+
+## Reformulação integral — diretriz de 27/09/2026
+
+O proprietário ampliou a solicitação: pesquisa histórica, acadêmica e técnica do básico ao avançado; aulas completas e detalhadas; teoria e exercícios; **uma mesa simuladora por módulo, com bots e situações alinhados ao conteúdo**. A duração deve seguir o objetivo pedagógico. Vídeos curtos de apresentação são peças de entrada, não substituem as aulas aprofundadas.
+
+### Entrega S26
+
+- Home reformulada; filme v3 de 81,70 segundos explica Brazilian Pineapple e Texas Hold’em Short Deck. Legendas, transcrição e duração são derivadas do mesmo roteiro/manifesto. Publicação e evidências operacionais são registradas em `DEVELOPMENT_LOG.md`.
+- Os 25 vídeos técnicos foram regravados e se somam aos três históricos: as 28 aulas atuais têm vídeo em 1080p30, legendas, transcrição e capítulos. Roteiros e renderizador em `ZeroTiltCurso/editorial/`; finais em `Frontend-Web/public/videos/`.
+- Vinte e uma referências vinculadas em `courseSources.json`. A grade tem 28 aulas, 65 questões e dez agrupamentos; os IDs existentes e o progresso concluído foram preservados. Os 25 textos técnicos foram ampliados com exemplos resolvidos, hipóteses e orientação de laboratório.
+- **História do Omaha — 30/09/2026:** a aula `m0l2` integra testemunhos de Ciaffone/Turner, Golden Nugget em 1982, a incerteza do nome, Limit Omaha na WSOP em 1983, Pot-Limit em 1984 e o modelo acadêmico de Ho (2015). Seis fontes e duas perguntas adicionadas; vídeo histórico de 253,93 segundos, com 13 capítulos. O curso específico de Omaha permanece para outro momento, conforme orientação do proprietário.
+- **Implementação de 28–30/09/2026:** nova ordem por pré-requisitos, ampliação dos textos/gabaritos, regravação dos 25 vídeos técnicos e mesas dos dez módulos com 35 cenários, bots por perfil, ações completas e revisão. A expansão curricular de 15 etapas descrita abaixo continua como arquitetura de aprofundamento; esta entrega corresponde às 28 aulas atuais. Evidências e limites da conferência em `QUALITY.md`.
+- Os rascunhos duplicados com recomendações absolutas foram removidos deste documento. O conteúdo de cada aula tem um único local de edição: `courseContent.json`. As dicas locais de `/dicas` também são derivadas dessa fonte; `tipsContent.json` foi retirado. Vídeos antigos foram retirados da pasta pública; os originais em `ZeroTiltCurso/epNN-*/` e o histórico git preservam a rastreabilidade.
+
+### Estrutura didática obrigatória de cada módulo
+
+1. Objetivo observável, modalidade, nível e pré-requisitos.
+2. Teoria desenvolvida em unidades: definição, motivo, condições de uso, limites e fontes.
+3. Exemplos resolvidos passo a passo; depois, situações parecidas com uma variável alterada.
+4. Exercícios de regras, cálculo e decisão; explicação tanto da resposta quanto das alternativas.
+5. Mesa do módulo com bots: treino guiado, repetição com variações e prática sem dicas.
+6. Revisão após a decisão ou mão, com replay, informação disponível na ocasião e justificativa.
+7. Avaliação por competência e revisão posterior. Ganhar uma mão não é critério suficiente para aprovar uma decisão.
+
+### Grade de trabalho e mesas correspondentes
+
+Esta é a arquitetura curricular da reformulação; não um catálogo de funcionalidades já disponível.
+
+| Etapa | Conteúdo a desenvolver | Situações da mesa simuladora |
+|---|---|---|
+| 1. Começar com segurança | Interface, fichas de treino, modalidades, limites e diferença entre resultado e decisão | Bots demonstram turnos, ações legais e encerramento da mão; sem pressão de tempo |
+| 2. Regras e leitura de mãos | Blinds, posição, streets, ranking clássico, empates, kickers, all-in e potes paralelos | Showdowns reproduzíveis; aluno monta as cinco cartas e identifica elegibilidade por pote |
+| 3. Matemática fundamental | Frações do pote, pot odds, equidade, EV, outs limpos, variância e hipóteses | Bots variam preço da aposta; comparação de call/fold com ranges declarados no exercício |
+| 4. Hold’em pré-flop | Posições 9-max/6-max/heads-up, stacks efetivos, ranges, limps, isolamento, 3-bet/4-bet e rake | Perfis que abrem, pagam, fazem limp ou reaumentam; treino IP e OOP |
+| 5. Hold’em flop | Texturas, vantagem de range e de nuts, SPR, c-bet, check, sizings, multiway | Mesmo range em boards diferentes; bots dão check, pagam e fazem check-raise conforme perfil |
+| 6. Hold’em turn | Runouts, double barrel, cartas que mudam vantagem, realização de equidade, controle do pote | Bot altera continuidades por turn; aluno planeja turn e river, sem conhecer cartas futuras |
+| 7. Hold’em river | Valor fino, polarização, bluff-catchers, blockers, overbets, MDF e seus limites | Ranges com composições diferentes de valor/blefe; feedback condicionado às hipóteses |
+| 8. Short Deck — fundamentos | 36 cartas, seleção das cinco, ranking ZT e A-6-7-8-9 | Bot apresenta trinca contra sequência e flush contra full house; nenhuma carta 2–5 |
+| 9. Short Deck — estratégia | Combinatória própria, equidades, posição, draws, stacks e ajustes | Cenários recalculados com 36 cartas; não reutilizar percentuais de Hold’em de 52 cartas |
+| 10. Omaha 4 — fundamentos | Quatro privadas, exatamente 2+3, ranking clássico e estrutura de aposta aplicável | Bot explora erros de um único ás do naipe e falsas quadras; aluno seleciona 2+3 |
+| 11. Omaha 4 — estratégia | Conectividade, naipes, nut potential, blockers, redraws, wraps, SPR e multiway | Bots com draws dominados, nuts e redraws; cálculo com as quatro cartas conhecidas |
+| 12. Brazilian Pineapple — fundamentos | 2 privadas inicialmente, +1 após cada street, sem descarte, 2+3 e ranking clássico | Mesma mão progride com 2/3/4/5 privadas; foldados não recebem; all-in recebe |
+| 13. Brazilian Pineapple — estratégia | Atualização das possibilidades a cada carta privada, seleção 2+3 e incerteza futura | Bots e aluno recebem extras legais; reavaliar a mão em cada street sem antecipar as extras |
+| 14. Cash, torneios e regras ZT | Rake, Loss Deflator, side pots, blinds, stacks; chip EV versus valor de premiação e introdução a ICM | Cenários específicos de cash/MTT; modelo econômico e premiação sempre explícitos |
+| 15. Estudo avançado e revisão | Equilíbrio, exploração, frequências, limites de solver, nodelocking, amostra e plano de estudo | Alternância de perfis; comparar decisões em cenários novos e revisar erros recorrentes |
+| Complemento: história e ciência | Fontes materiais, Cowell, WSOP, pesquisa em jogos de informação imperfeita | Experimento de informação privada e exercícios de evidência; não bloquear regras básicas por história |
+
+Sequência: fundamentos comuns → trilha da modalidade escolhida → aprofundamento → aplicações e revisão. A biblioteca histórica fica acessível como complemento. Não exigir que o aluno termine Hold’em avançado para conhecer Omaha ou Pineapple. Preservar os IDs das aulas e o progresso existente ao reorganizar; separar numeração de exibição, ID de aula e nome do arquivo de produção.
+
+### Regras específicas: a plataforma prevalece
+
+| Modalidade ZT | Baralho / privadas | Formação / ranking |
+|---|---|---|
+| Texas Hold’em | 52 / 2 | Melhor cinco entre sete; pode usar 0, 1 ou 2 privadas; ranking clássico |
+| Texas Hold’em Short Deck | 36, de 6 a A / 2 | Melhor cinco; trinca > sequência; flush > full house; sequência baixa A-6-7-8-9 |
+| Omaha 4 | 52 / 4 | Exatamente 2 privadas + 3 comunitárias; ranking clássico |
+| Brazilian Pineapple | 52 / 2, depois 3/4/5 | Exatamente 2+3; ranking clássico; sem descarte; extras também para all-in |
+
+Fontes normativas internas: `BUSINESS_RULES.md`, `Motor-Rust/src/deck.rs`, distribuição em `game.rs` e catálogo no STATUS. Referências externas de Omaha, Short Deck ou Pineapple precisam ser confrontadas com essas regras. Não anunciar Omaha Short Deck, não ensinar descarte no Brazilian Pineapple e não assumir que toda mesa Omaha implementa a estrutura de apostas de um site externo.
+
+### Arquitetura das mesas de estudo
+
+Implementação de 28/09/2026: `courseTraining.json` define 35 cenários para os dez módulos e cobre todas as 28 aulas. `/curso/mesa/:moduleId` usa `POST /api/academy/play`, com o `GameLoop` Rust e sem estado financeiro. Os bots operacionais do lobby permanecem separados das políticas didáticas.
+
+| Módulo | Cenários implementados |
+|---|---|
+| Fundamentos | Ranking/kickers, posição, primeira mão, raise/fold, total do aumento, potes paralelos |
+| Brazilian Pineapple | Distribuição progressiva, flop, combinações no turn, board que não pode ser usado inteiro, extras após all-in |
+| Texas Short Deck | A6789, flush no ranking ZT, denominador de 36 cartas |
+| Omaha 4 | Combinações 2+3, um único ás do naipe, mão feita e possibilidades futuras em pote multiway |
+| Pré-flop | Abertura, limp do small blind, resposta a uma abertura |
+| Flop | Textura conectada, check-raise por valor do bot, pote multiway |
+| Turn | Carta que muda a análise, controle do pote, preços de call variados |
+| River | Valor, bluff-catcher, leitura de flush antes de escolher tamanho |
+| Consolidação | Hipóteses de EV, limite da sessão, revisão integrada |
+| História opcional | Informação privada, blefe, processo de decisão |
+
+As cartas que definem cada exercício são fixadas antes da mão. Nova seed varia adversários, cartas futuras não fixadas e decisões aleatórias; trocar de cenário varia a situação/posição. Há replay, comparação a partir de uma decisão anterior, caderno, exportação e reabertura de sessões locais. O modo sem dicas oculta o auxílio durante a decisão. A correção objetiva usa cartas atuais, preço, contribuições e regras; não atribui nota GTO nem finge calcular equity sem modelo.
+
+- Um simulador compartilhado com configurações por módulo; uma experiência de mesa própria para cada módulo. Reutilizar componentes visuais e regras verificadas do motor, evitando quatro motores divergentes.
+- Sessões educacionais isoladas de carteiras, com fichas sem valor, sem depósitos, saques, rake cobrado ou comissões de agente. Simulações de rake/deflator devem ser identificadas como cálculos didáticos.
+- Contrato de cenário: ID/versão, módulo, variante, objetivo, estado inicial legal, seed, posições, stacks, potes, histórico, política de cada bot, decisões avaliadas, fontes, critérios e explicações.
+- Bots pedagógicos com perfis configuráveis e política de ação compatível com a informação que possuem. O gerador pode selecionar o cenário antes da mão; não pode rearranjar cartas durante a mão para forçar um resultado.
+- Treino guiado explica antes e depois; desafio avalia sem dicas durante a decisão; prática variada percorre os cenários do módulo. Perguntas objetivas acompanham ações reais de uma mão completa.
+- Reiniciar o cenário, repetir a mesma distribuição, usar nova seed ou escolher outra situação/posição; comparar alternativas e consultar replay. Feedback distingue regras exatas e contas sob hipóteses; nenhuma nota estratégica ótima é alegada.
+- Nenhuma consulta paga a LLM ou solver por ação por padrão. Produzir cenários e referências previamente, executar políticas locais/servidor com limites de recursos e cachear avaliações reutilizáveis. Estimar custo por sessão antes de escalar.
+- Não chamar os bots de GTO sem prova específica. Não apresentar frequências, EV ou equidade como exatos quando forem estimativas. O coach planejado para mãos reais continua separado e exclusivamente pós-mão.
+- O caderno local registra cenário, seed, ações, respostas e anotações, com reabertura/exportação de até 50 sessões. As perguntas da mesa são corrigidas no servidor; o endpoint de progresso do quiz de aula ainda recebe a nota informada pelo cliente. Nenhum dos dois contratos constitui certificação de competência estratégica.
+
+### Pesquisa: profundidade e atualização
+
+Consulta bibliográfica iniciada em 27/09/2026. Registrar autor, data, seção/página, modalidade, hipóteses, nível de evidência e uso no curso. Priorizar documentos primários, artigos e material técnico dos autores. Conteúdo de fornecedores é referência técnica com interesse comercial, não evidência acadêmica independente. Publicação recente não substitui validação.
+
+| Fonte consultada | Uso e limite |
+|---|---|
+| [The Met — The Cloisters Playing Cards](https://www.metmuseum.org/art/collection/search/475513) | Objeto e data aproximada; imagem em domínio público. Não documenta a invenção do poker. |
+| [Joe Cowell, 1844, p. 94](https://archive.org/details/thirtyyearspasse00cowe/page/n97/mode/2up) | Memórias e relato de poker. A edição contém uma inconsistência entre o número de cartas mencionado e os valores enumerados; não repetir esse número sem crítica da fonte. |
+| [Kuhn, 1950, pp. 97–103](https://sites.math.rutgers.edu/~zeilberg/akherim/PokerPapers/Kuhn1951.pdf) | Modelo de três cartas, informação privada e estratégia. O nome do PDF inclui 1951; a referência da obra é 1950. |
+| [MIT — Basic Strategy, 2015](https://ocw.mit.edu/courses/15-s50-poker-theory-and-analytics-january-iap-2015/resources/mit15_s50iap15_l3_basic/) | Pot odds e EV; exemplos originais com hipóteses explícitas. Não copiar slides/vídeos sob licença não comercial. |
+| [Bowling et al., Science, 2015](https://pubmed.ncbi.nlm.nih.gov/25574016/) | Resumo consultado; resultado restrito a heads-up limit Hold’em. |
+| [Brown e Sandholm — Pluribus, Science, 2019](https://noambrown.github.io/papers/19-Science-Superhuman.pdf) | Pesquisa em no-limit com seis jogadores; resultado experimental não valida automaticamente nossos bots. |
+| [Zinkevich et al. — CFR, 2007](https://poker.cs.ualberta.ca/publications/NIPS07-cfr.pdf) | Fundamentos de minimização de arrependimento e aproximações em jogos de informação imperfeita. Garantias dependem das hipóteses do jogo. |
+| [Palomäki et al., 2013](https://researchportal.helsinki.fi/fi/publications/this-is-just-so-unfair-a-qualitative-analysis-of-loss-induced-emo/) | Resumo de estudo qualitativo, 60 participantes; não causal, não teste de tratamento. |
+| [Dunlosky et al., 2013](https://www.wku.edu/senate/documents/improving_student_learning_dunlosky_2013.pdf) | Recuperação ativa e estudo distribuído; aplicação pedagógica ao poker é nossa inferência. |
+| [WSOP — história oficial](https://www.wsop.com/about/world-series-of-poker/) e [Moss](https://www.wsop.com/players/162565666/johnny-moss/) | Datas e formatos; separar testemunho institucional de alegações gerais de retorno. |
+| [PokerStars — PLO Rules](https://www.pokerstars.com/poker/learn/lesson/plo-rules/) | Confirma a regra 2+3. Estrutura pot-limit depende da mesa e precisa corresponder ao motor ZT. |
+| [GTO Wizard — Multiway Preflop Solving, 03/02/2026](https://blog.gtowizard.com/introducing-multiway-preflop-solving/) | Referência técnica atual sobre parametrização por rake, stacks, limps e perfis. Alegações de desempenho são do fornecedor. Não foi contratada assinatura nem reutilizada sua base proprietária. |
+
+### Correções aplicadas na auditoria de 27/09/2026
+
+- Gabaritos editoriais são identificados como critérios, sem alegar execução do motor. Showdowns pedem classificação ou vencedor.
+- Omaha exibe quatro privadas e diferencia draw de mão feita; o kicker da trinca de ases no exemplo Pineapple é Q/2, respeitando exatamente 2+3. Casos reproduzidos em testes do motor.
+- Removidas regras absolutas e promessas de lucro, corrigidos pot odds, posição, ações legais, blockers e leitura de flush. Exemplos estratégicos declaram hipóteses e objetivos.
+- Ranges dependem da modalidade, número de lugares, stacks, sizings, rake e oponentes. Tabelas ilustrativas não são chart universal nem política ótima do motor.
+- Legendas, cartazes numerados e chamadas “próximo episódio” precisam acompanhar a grade final. Não renumerar apenas a lista e manter áudio apontando para aula errada.
+
+### Critérios para declarar um módulo completo
+
+Teoria e fontes revisadas; exemplos e exercícios específicos da variante; vídeo/legendas/transcrição concordantes; mesa funcional com ações legais e bots adequados; repetição variada; feedback que respeita informações ocultas; avaliação por objetivo; navegação e pré-requisitos coerentes. A entrega será incremental por módulos completos. Não declarar o curso inteiro concluído após trocar a aparência ou produzir apenas a abertura.
+
+## Grade e publicação audiovisual
+
+| Grupo | Aulas | Acesso |
+|---|---|---|
+| Fundamentos | m0l4–m0l8 | Regras primeiro; primeiros passos disponível separadamente |
+| Brazilian Pineapple | m5l3, m5l4, m5l5 | Regras comuns → distribuição → combinações/probabilidades → showdown/equity |
+| Texas Short Deck | m5l1 | Após regras comuns |
+| Omaha 4 | m5l2 | Após regras comuns |
+| Texas pré-flop, flop, turn, river | m1–m4 | Progressão a partir dos fundamentos |
+| Consolidação | m6 | EV após matemática; orçamento disponível desde o início |
+| História opcional | m0l1–m0l3 | Acesso independente, inclusive visitante |
+
+Conclusões anteriores mantêm acesso mesmo se a ordem mudar. IDs inexistentes não liberam aula. Quiz e estado do player reiniciam ao mudar de aula. O backend atual registra a nota declarada pelo cliente; isso é acompanhamento de estudo, não certificação de domínio ou avaliação antifraude. A avaliação futura precisa ser validada no servidor.
+
+### Base matemática do Brazilian Pineapple
+
+As aulas m5l4/m5l5 contêm derivações próprias: C(h,2)×C(b,3) dá 3 candidatas no flop, 24 no turn e 100 no river após as extras. São combinações correlacionadas, não probabilidades independentes de vitória. O exemplo de extra de ás usa 2/47 sob informação e distribuição explicitadas. A mesa atual distribui board e extras sem reposição, inclusive aos jogadores em all-in. Futuras estimativas de equity por amostragem precisam repetir essa distribuição para todos os participantes ativos e computar frações de empates. Nenhuma tabela de equity ou range ótimo foi publicada como validada.
+
+Referências metodológicas: [MIT 18.443, aula 17, p. 10](https://ocw.mit.edu/courses/18-443-statistics-for-applications-spring-2015/c9f6cf548a6e918d3dc798fc0d7c8170_MIT18_443S15_LEC17.pdf) para amostragem sem reposição; [NIST, intervalos para proporções](https://itl.nist.gov/div898/handbook/prc/section2/prc241.htm) para os limites de estimativas. As fontes não estudam nem endossam o Brazilian Pineapple da ZT.
+
+### Produção e rastreabilidade
+
+- Roteiros da home/história: `ZeroTiltCurso/editorial/episodes.json`. Os 25 roteiros técnicos são derivados de `courseContent.json` e `courseTraining.json`, incluindo teoria, exercícios resolvidos e orientação de prática. Renderizador: `render.py`; dependências: `requirements.txt`.
+- Finais 1080p30 H.264/AAC: home v3, ep11–ep13 v2 e 25 arquivos `zt-academy-*-v3` em `Frontend-Web/public/videos/`; VTT e WebP acompanham cada MP4. Manifestos de duração/tamanho/capítulos e transcrições ficam junto ao renderizador.
+- A home lê `src/data/homeFilm.json`, gerado pelo renderizador. Os vídeos históricos têm fontes e capítulos nas aulas. Marcos visuais de ep13 corrigidos para 1970/1971 e 2003/2008.
+- Voz sintética PT-BR AntonioNeural; efeitos sonoros originais, sem música de terceiros. Fontes locais atuais: Georgia e Segoe UI do Windows. Para reprodução em outro sistema, configurar fontes disponíveis/licenciadas e manter a inspeção visual.
+- A imagem histórica do Met é de domínio público, objeto 1983.515.1–.52. Arte do hero gerada por IA e preservada em `editorial/assets/hero-source.png`; derivados WebP em `public/brand/home/`. Nenhum slide acadêmico foi reproduzido.
+- Todas as 28 aulas atuais têm `publicationStatus: published`. Foram retirados 78 arquivos obsoletos da pasta pública, incluindo o protótipo anterior da home; permanecem apenas os 87 arquivos dos 29 vídeos ativos. Os arquivos-fonte anteriores continuam arquivados em `ZeroTiltCurso/epNN-*/` e no git.
+- Cada vídeo técnico guarda SHA-256 do conteúdo/cenários e do MP4. Alterar teoria, exercício ou cenário invalida o gate e exige regenerar as aulas afetadas. O renderizador valida a cobertura integral de palavras da voz, repete síntese incompleta e substitui o MP4 público somente após concluir a codificação e reconferir o conteúdo. `render.py --check` confere publicações, VTT/transcrição, capítulos, duração, imagens e hashes; `--decode` acrescenta decodificação integral por FFmpeg.
+- Auditoria de dados, gabaritos, cartas, arquivos e pré-requisitos: `Frontend-Web/src/lib/courseAudit.test.ts`. Regras e exemplos de mãos: `Motor-Rust/tests/variant_audit_regressions.rs`.
 
 ## Coach virtual pós-mão — especificação pedagógica futura
 
@@ -529,6 +180,6 @@ O coach será uma ferramenta opcional de **estudo de mãos encerradas**, não as
 Um caso de referência precisa ter resultado reproduzível, explicação revisada, link de lição válido e teste que impeça regressão matemática. Antes de liberar o produto, amostras devem ser revisadas por responsável de conteúdo identificado; o sistema continua sendo coach virtual, sem biografia ou credenciais humanas inventadas.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

@@ -1,0 +1,27 @@
+Zero Tilt Academy. Revisão final: o método completo. Nesta aula, nosso objetivo é: Registrar informação, alternativas e justificativa em cada decisão. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Método de revisão. 1. Identifique a modalidade e as regras de formação da mão. Registre fase, posição, stacks, ações e informações disponíveis. Defina ranges ou hipóteses; não atribua equity sem um modelo. Compare ações legais, preço e possíveis continuações. Respeite orçamento e tempo; avalie a decisão separadamente do resultado.
+
+Prática distribuída. Responda aos exercícios antes de abrir as explicações. Volte em outra sessão e explique o raciocínio com suas próprias palavras. Dunlosky e colaboradores classificam testes de prática e estudo distribuído como técnicas de alta utilidade em uma revisão educacional; ela não mediu ganhos financeiros neste curso.
+
+Pratique e revise. As mesas de cada módulo oferecem treino guiado, desafio e prática variada, com bots e replay. Uma nota neste curso é registro de estudo, não certificação profissional ou prova de domínio estratégico.
+
+Revise em duas passagens. Na primeira passagem, esconda o resultado e reconstrua a informação disponível: modalidade, cartas próprias, board, posições, stacks e ações. Escreva pelo menos duas alternativas legais e a condição que faria preferir cada uma. Na segunda passagem, veja a continuação e identifique o que foi resultado aleatório, mudança de informação ou falha no raciocínio. Essa separação reduz a tendência de chamar toda vitória de boa decisão.
+
+Use os quatro jogos como teste de regras. No Hold’em, pergunte se o board pode jogar sozinho. No Short Deck, refaça universo e ranking. No Omaha, confirme duas privadas entre quatro. No Brazilian Pineapple, acompanhe as extras e selecione duas entre as privadas disponíveis naquela street. Só depois de acertar essas bases avance para preço, ranges e tamanhos.
+
+Um ciclo de aprendizagem. Assista ao capítulo, resolva o exemplo sem ajuda e jogue o cenário correspondente. Salve a justificativa e volte em outra sessão no modo desafio. Se errar o preço ou a formação da mão, refaça a conta antes de aumentar a dificuldade. O registro de estudo mostra tentativas e respostas objetivas; ele não certifica habilidade profissional nem prevê lucro contra pessoas.
+
+Laboratório: Explique a decisão antes do river. Objetivo: Registrar informação, alternativas e justificativa em cada decisão. Abra a mesa deste módulo e comece pelo treino guiado. Use o modo desafio e escreva sua justificativa. Depois reveja a mesma distribuição com outra linha. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+Qual sequência resume o método Zero Tilt? A. Blefar muito, pagar tudo, subir de nível rápido B. Objetivo, posição, agressão seletiva, conta e banca C. Decorar ranges, ignorar posição, jogar qualquer pote Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Objetivo, posição, agressão seletiva, conta e banca. As 5 regras cobrem objetivo, posição, agressão, conta e banca — o curso inteiro em uma linha.
+
+Suas cartas: ás de espadas, rei de ouros. Cartas comunitárias: dama de copas, valete de espadas, dois de ouros. Texas: ás de espadas rei de ouros no flop dama de copas valete de espadas dois de ouros. Qual projeto de sequência você já tem? A. Nenhum projeto direto B. Broca: um dez completa sequência C. Sequência pronta Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Broca: um dez completa sequência. Um dez permite dez, valete, dama, rei e ás. Não é apenas um backdoor; a decisão de apostar depende de ranges e contexto.
+
+Abra o simulador da aula e escolha o cenário Explique a decisão antes do river. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

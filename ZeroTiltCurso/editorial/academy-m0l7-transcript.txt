@@ -1,0 +1,27 @@
+Zero Tilt Academy. Aumento ou descarte: a primeira decisão. Nesta aula, nosso objetivo é: Distinguir uma mão de abertura de uma desistência disciplinada. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Agressão seletiva. Em potes ainda fechados no Texas cash, um plano de raise ou fold pode simplificar as decisões iniciais. É uma estratégia didática com hipóteses, não uma lei do poker: completar no small blind e estratégias de limp podem existir em outros contextos.
+
+Pratique com um cenário definido. Mesa 9-max, 100 big blinds, sem ante: abra par de ases no botão após folds; descarte sete e dois de naipes diferentes no posição inicial. Compare posição, jogadores por agir e custo da abertura. Ao enfrentar um raise, a decisão é outra: fold, call e 3-bet dependem do range, tamanho e stacks.
+
+Revisão. Anote o plano antes de ver o resultado. Ganhar uma mão não torna qualquer decisão correta; perder não prova um erro.
+
+A decisão anterior à ação. Pergunte se o pote chegou fechado, se alguém completou ou se já houve aumento. Um plano de abertura não responde automaticamente a uma 3-bet. Com par de ases em pote fechado, a intenção comum é construir valor contra mãos piores; com sete e dois de naipes diferentes em posição inicial, a dificuldade de realizar equity contra muitos adversários sustenta o descarte do plano básico. Entre esses extremos existe uma região dependente das condições do jogo, e não uma fronteira universal.
+
+Calcule o risco do roubo. Em um modelo simplificado, há 1,5 big blinds nos blinds e você abre arriscando 2,5 big blinds, assumindo que perde a aposta sempre que houver continuação. O blefe puro equilibra quando todos desistem em 2,5 dividido por 4, ou 62,5 por cento das vezes. Na mão real, você ainda pode ganhar após receber call; também pode enfrentar uma 3-bet. Esse modelo isola uma parte da decisão, não descreve toda a rentabilidade de abrir.
+
+Um resultado não corrige o plano. Se uma mão fraca ganhar após uma abertura ruim, o resultado não altera as informações que você tinha. Faça a revisão no ponto da decisão. No modo desafio, justifique posição, adversários por agir e tamanho antes de ver o flop. Depois compare uma linha com raise e outra com fold usando o mesmo cenário.
+
+Laboratório: Abrir com um plano. Objetivo: Distinguir uma mão de abertura de uma desistência disciplinada. Abra a mesa deste módulo e comece pelo treino guiado. O cenário tem três lugares. A política do treino é seletiva; não transforme duas cartas ruins em obrigação de blefar. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+No plano inicial de Texas cash 9-max, 100 big blinds, pote fechado, qual decisão treinamos com sete e dois de naipes diferentes no posição inicial? A. Aumentar para roubar os blinds B. Descartar C. Pagar para ver o flop Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Descartar. O plano inicial exclui sete e dois de naipes diferentes desta posição. Isso não define uma estratégia universal para qualquer formato.
+
+No mesmo plano, todos deram fold e você tem par de ases no botão. Qual decisão treinamos? A. Limp para disfarçar a força B. Aumentar por valor C. Descartar de vez em quando Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Aumentar por valor. par de ases quer pote grande e poucos oponentes; limp chama a mesa inteira barato.
+
+Abra o simulador da aula e escolha o cenário Abrir com um plano. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

@@ -905,14 +905,11 @@ impl BotFleet {
             }
             let payer = uuid::Uuid::parse_str(bot_id)
                 .map_err(|_| BotError("bot id invalido".to_string()))?;
-            let week_start: i64 = sqlx::query_scalar(
-                "SELECT EXTRACT(EPOCH FROM date_trunc('week', timezone('America/Sao_Paulo', now())))::BIGINT",
-            )
-            .fetch_one(&mut *tx)
-            .await
-            .map_err(|e| BotError(format!("relogio semanal: {e}")))?;
+            let source_reference_id = uuid::Uuid::parse_str(tournament_id)
+                .map_err(|_| BotError("torneio invalido".to_string()))?;
             if let Err(e) =
-                crate::estrutura::distribute_fee(&mut tx, payer, fee_i, week_start).await
+                crate::estrutura::distribute_fee(&mut tx, payer, fee_i, source_reference_id, "play")
+                    .await
             {
                 rollback_bot_registration(&self.env.tournaments, tournament_id, bot_id, snapshot)
                     .await;
@@ -2014,20 +2011,33 @@ mod tests {
         // Flush vale mais que full house no Short Deck.
         assert_eq!(
             evaluate_rank_for_variant(
-                "brazilian_pineapple",
+                "short_deck",
                 &[c("Ah"), c("Kh")],
                 &[c("Qh"), c("Jh"), c("9h")]
             ),
             Some(HandRank::Flush)
         );
-        // Roda A-6-7-8-9 vale straight, respeitando exatamente 2 hole + 3 board.
+        // A-6-7-8-9 é a sequência baixa somente no Short Deck.
         assert_eq!(
             evaluate_rank_for_variant(
-                "brazilian_pineapple",
+                "short_deck",
                 &[c("Ah"), c("6d")],
                 &[c("9c"), c("8d"), c("7h"), c("Ks"), c("Qc")]
             ),
             Some(HandRank::Straight)
+        );
+    }
+
+    #[test]
+    fn pineapple_does_not_inherit_short_deck_wheel() {
+        use poker_engine::deck::HandRank;
+        assert_eq!(
+            evaluate_rank_for_variant(
+                "brazilian_pineapple",
+                &[c("Ah"), c("6d"), c("2s"), c("3s"), c("4s")],
+                &[c("9c"), c("8d"), c("7h"), c("Ks"), c("Qc")]
+            ),
+            Some(HandRank::HighCard)
         );
     }
 

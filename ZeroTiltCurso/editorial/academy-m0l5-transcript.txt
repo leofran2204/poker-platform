@@ -1,0 +1,39 @@
+Zero Tilt Academy. Suas primeiras decisões e posições. Nesta aula, nosso objetivo é: Reconhecer quem age antes e depois do flop. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Posição é informação adicional. O botão age por último pós-flop quando continua na mão. No pré-flop, os blinds ainda agem depois dele. posição inicial tem mais adversários por agir, mas fica em posição pós-flop contra os blinds. Posição não revela cartas escondidas nem garante lucro.
+
+Um plano inicial de abertura. Para o exercício de Texas Hold’em cash 9-max com 100 big blinds, pote sem entradas e blinds 0,5 dividido por 1 big blinds: abrir par de ases no botão e desistir de sete e dois de naipes diferentes no posição inicial são escolhas do plano didático. O tamanho de abertura é uma hipótese de treino; considere rake, stacks e respostas adversárias ao construir um range.
+
+Separe preço e força. Se havia 10 big blinds e o rival apostou 5 big blinds, pagar 5 forma um pote de 20 big blinds: preço de 25 por cento. Ter top pair não informa sozinho sua equity contra o range adversário. No flop, apostas futuras também influenciam a decisão.
+
+Uma volta completa ao botão. Considere três lugares: botão, small blind e big blind. Pré-flop, o botão age primeiro porque está imediatamente depois do big blind. No flop, o small blind começa e o botão termina, caso os três continuem. Por isso a mesma cadeira tem ordens diferentes conforme a street. Se o small blind desistir, ele deixa de fazer parte da sequência ativa. Um jogador em all-in continua disputando o pote, mas não recebe novos turnos de aposta.
+
+Stack efetivo e plano. Em heads-up, se você tem 100 big blinds e o rival 40 big blinds, o máximo que ambos podem disputar entre si é limitado aos 40 big blinds de cada lado. O excesso não pode ser ganho desse rival naquela mão. Antes de abrir, planeje uma resposta a call e a raise. Não é necessário prever cada carta: identifique quais tipos de flop permitem valor, quais exigem cautela e quanto você está disposto a investir sob cada hipótese.
+
+Por que observar ajuda. Agir depois revela uma ação, não a mão escondida. Um check pode vir de fraqueza, controle do pote ou armadilha. Use essa informação para atualizar hipóteses sem tratá-la como certeza. No treino, compare o mesmo cenário contra um bot pagador e um bot seletivo: a força das suas cartas permanece, mas as respostas podem mudar.
+
+Laboratório: Botão: observar antes de decidir. Objetivo: Reconhecer quem age antes e depois do flop. Abra a mesa deste módulo e comece pelo treino guiado. No heads-up, o botão paga o small blind: primeiro pré-flop e último pós-flop. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+Suas cartas: ás de espadas, ás de copas. Cartas comunitárias: ainda não reveladas. Texas cash 9-max, 100 big blinds, todos desistiram até o botão. Pelo plano de abertura desta aula, o que fazer com par de ases? A. fold B. call C. raise Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: raise. Aumentar constrói o pote com par de ases. O tamanho deve respeitar a configuração da mesa.
+
+Suas cartas: sete de paus, dois de ouros. Cartas comunitárias: ainda não reveladas. Texas cash 9-max, 100 big blinds, pote fechado. Pelo plano inicial, o que fazer no posição inicial com sete e dois de naipes diferentes? A. fold B. call C. raise Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: fold. Desista desta mão no plano proposto; oito adversários ainda vão agir.
+
+Havia 10 big blinds no pote. O rival apostou 5 big blinds. Pagar custa 5 big blinds. Qual é o preço do call sobre o pote final, sem rake? A. 25 por cento B. 33,3 por cento C. 50 por cento Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: 25 por cento. 5 dividido por (10 mais 5 mais 5) igual a 25 por cento. Isso não calcula sua equity.
+
+Quem ainda age depois do botão no pré-flop, numa mesa com três ou mais jogadores? A. Ninguém B. Small blind e big blind C. O dealer Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Small blind e big blind. O botão tem a última ação pós-flop, não no pré-flop.
+
+Top pair sozinho permite afirmar que você tem 50 por cento de equity? A. Sim B. Não Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Não. É necessário especificar as mãos ou o range adversário, o board e a modalidade.
+
+Abra o simulador da aula e escolha o cenário Botão: observar antes de decidir. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

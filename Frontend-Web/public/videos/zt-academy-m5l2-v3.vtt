@@ -1,0 +1,259 @@
+WEBVTT
+
+00:00:00.501 --> 00:00:07.385
+Zero Tilt Academy Omaha 4 Cartas baralho de 52 Nesta aula
+
+00:00:07.642 --> 00:00:11.379
+nosso objetivo é Contar seis pares e reconhecer a sequência
+
+00:00:11.392 --> 00:00:16.109
+feita Vamos desenvolver a teoria resolver exemplos e aplicar a
+
+00:00:16.122 --> 00:00:17.745
+ideia na mesa deste módulo
+
+00:00:19.902 --> 00:00:27.352
+Omaha 4 6-max 1 4 cartas fechadas no pré-flop 2 mais 3
+
+00:00:27.609 --> 00:00:32.635
+exatamente 2 da mão e 3 da mesa Baralho de 52 e ranking
+
+00:00:32.648 --> 00:00:36.772
+clássico sequência maior que trinca full house maior que flush
+
+00:00:38.935 --> 00:00:43.846
+Contagem e leitura As quatro cartas privadas oferecem combinação
+
+00:00:43.859 --> 00:00:49.271
+de 4 elementos tomados 2 a 2 igual a 6 pares No river existem
+
+00:00:49.284 --> 00:00:53.924
+combinação de 5 elementos tomados 3 a 3 igual a 10 trios comunitários
+
+00:00:54.220 --> 00:00:58.666
+60 candidatas correlacionadas para escolher a melhor mão legal
+
+00:00:59.555 --> 00:01:04.465
+Isso não significa 60 chances independentes de vencer Um único
+
+00:01:04.478 --> 00:01:07.313
+ás de copas na mão não basta para flush mesmo
+
+00:01:07.326 --> 00:01:11.333
+com quatro copas no board O rótulo Omaha descreve as
+
+00:01:11.346 --> 00:01:14.271
+cartas e a formação da mão confira na mesa a
+
+00:01:14.284 --> 00:01:17.751
+estrutura de apostas sem presumir um limite de pote não
+
+00:01:17.764 --> 00:01:18.498
+demonstrado
+
+00:01:20.668 --> 00:01:24.755
+Escolha pares privados Com ás de copas rei de copas
+
+00:01:24.768 --> 00:01:27.177
+dama de paus valete de paus e flop dez de
+
+00:01:27.190 --> 00:01:30.116
+copas nove de copas oito de paus o par dama
+
+00:01:30.129 --> 00:01:33.904
+de paus valete de paus forma sequência até dama O
+
+00:01:33.917 --> 00:01:36.456
+par ás de copas rei de copas com o mesmo
+
+00:01:36.469 --> 00:01:40.373
+flop ainda não forma flush há duas copas privadas e
+
+00:01:40.386 --> 00:01:44.948
+apenas duas comunitárias de copas Um futuro river ou turn
+
+00:01:44.961 --> 00:01:48.994
+de copas poderá mudar as escolhas A existência de uma
+
+00:01:49.007 --> 00:01:52.087
+mão feita e de um projeto simultâneos não significa que
+
+00:01:52.100 --> 00:01:55.180
+você pode usar as quatro privadas na mesma combinação
+
+00:01:57.368 --> 00:02:01.442
+Nuts e possibilidades de melhorar Ter a melhor mão possível
+
+00:02:01.455 --> 00:02:04.148
+em uma street não implica continuar na frente em todas
+
+00:02:04.161 --> 00:02:08.491
+as cartas seguintes Um board que dobra pode permitir full
+
+00:02:08.504 --> 00:02:13.388
+house uma carta do terceiro naipe pode permitir flush Avalie
+
+00:02:13.401 --> 00:02:16.841
+também possibilidades de melhorar para uma mão ainda mais forte
+
+00:02:17.731 --> 00:02:20.901
+A análise depende das cartas e dos ranges por isso
+
+00:02:20.914 --> 00:02:23.787
+não tratamos qualquer sequência como all-in automático
+
+00:02:25.968 --> 00:02:30.364
+Preço com quatro cartas As pot odds continuam sendo uma
+
+00:02:30.377 --> 00:02:34.179
+relação entre custo e pote elegível O que muda é
+
+00:02:34.191 --> 00:02:37.078
+a distribuição de mãos e a forma de estimar equity
+
+00:02:37.967 --> 00:02:41.923
+Um ás isolado de determinado naipe pode remover combinações rivais
+
+00:02:42.194 --> 00:02:46.563
+mas não fabrica um flush próprio No river conte seis
+
+00:02:46.575 --> 00:02:50.596
+pares privados e dez trios do board total sessenta candidatas
+
+00:02:50.854 --> 00:02:53.779
+selecione a melhor e compare com as mãos elegíveis
+
+00:02:55.968 --> 00:03:02.374
+Laboratório Quatro privadas apenas duas escolhidas Objetivo Contar
+
+00:03:02.387 --> 00:03:06.253
+seis pares e reconhecer a sequência feita Abra a mesa
+
+00:03:06.266 --> 00:03:10.248
+deste módulo e comece pelo treino guiado dama de paus
+
+00:03:10.261 --> 00:03:13.109
+e valete de paus com dez de copas nove de
+
+00:03:13.122 --> 00:03:16.923
+copas e oito de paus formam sequência até dama ás
+
+00:03:16.936 --> 00:03:20.235
+de copas e rei de copas oferecem um projeto diferente
+
+00:03:21.124 --> 00:03:25.145
+Depois repita no modo desafio respondendo à pergunta objetiva
+
+00:03:25.158 --> 00:03:28.805
+antes de cada ação Use o replay para comparar uma
+
+00:03:28.818 --> 00:03:33.611
+alternativa na mesma distribuição Uma nova distribuição preserva
+
+00:03:33.624 --> 00:03:36.395
+as cartas que definem o cenário e varia as demais
+
+00:03:38.568 --> 00:03:42.963
+Registre sua justificativa no caderno acertar a leitura e respeitar
+
+00:03:42.975 --> 00:03:45.463
+as hipóteses importam mais que ganhar esta mão
+
+00:03:47.635 --> 00:03:50.431
+Se você tem 4 cartas de Copas na mão no Omaha
+
+00:03:50.444 --> 00:03:53.228
+e o board tem 1 carta de Copas você tem um
+
+00:03:53.241 --> 00:03:58.693
+Flush A. Sim porque você tem 5 cartas de copas no
+
+00:03:58.706 --> 00:04:02.804
+total B. Não pois a regra do Omaha exige usar
+
+00:04:02.817 --> 00:04:07.585
+obrigatoriamente 2 cartas da mão e 3 da mesa C. Depende do
+
+00:04:07.598 --> 00:04:10.446
+valor do Ás Pause o vídeo faça sua leitura e
+
+00:04:10.459 --> 00:04:12.778
+registre uma resposta antes de continuar
+
+00:04:14.935 --> 00:04:18.917
+Resposta do exercício Não pois a regra do Omaha exige
+
+00:04:18.930 --> 00:04:23.751
+usar obrigatoriamente 2 cartas da mão e 3 da mesa No Omaha
+
+00:04:23.764 --> 00:04:27.978
+é mandatório usar exatamente 2 da mão e 3 da mesa Com
+
+00:04:27.991 --> 00:04:31.225
+apenas 1 copa no board é impossível fazer flush
+
+00:04:33.368 --> 00:04:37.196
+Suas cartas ás de copas rei de copas dama de
+
+00:04:37.208 --> 00:04:42.957
+paus valete de paus Cartas comunitárias dez de copas nove
+
+00:04:42.970 --> 00:04:47.223
+de copas oito de paus Omaha ás de copas rei
+
+00:04:47.236 --> 00:04:49.839
+de copas dama de paus valete de paus no flop
+
+00:04:49.852 --> 00:04:53.743
+dez de copas nove de copas oito de paus Usando
+
+00:04:53.756 --> 00:04:57.597
+exatamente duas privadas e três comunitárias qual mão já está
+
+00:04:57.609 --> 00:05:02.661
+formada A. Sequência B. Carta alta C. Flush Pause o
+
+00:05:02.674 --> 00:05:06.063
+vídeo faça sua leitura e registre uma resposta antes de
+
+00:05:06.076 --> 00:05:06.643
+continuar
+
+00:05:08.802 --> 00:05:13.803
+Resposta do exercício Sequência dama de paus valete de paus
+
+00:05:13.816 --> 00:05:16.368
+mais dez de copas nove de copas oito de paus
+
+00:05:16.380 --> 00:05:21.509
+formam sequência dama valete dez nove e oito ás de
+
+00:05:21.522 --> 00:05:24.331
+copas rei de copas com as duas copas do board
+
+00:05:24.344 --> 00:05:29.074
+são apenas projeto de flush Não misture as duas candidatas
+
+00:05:31.235 --> 00:05:33.967
+Abra o simulador da aula e escolha o cenário Quatro
+
+00:05:33.980 --> 00:05:39.548
+privadas apenas duas escolhidas Jogue uma mão completa responda
+
+00:05:39.561 --> 00:05:43.620
+às perguntas e registre seu plano Depois use o replay
+
+00:05:43.633 --> 00:05:47.950
+para comparar outra ação na mesma distribuição Volte em outra
+
+00:05:47.963 --> 00:05:52.564
+sessão no modo desafio Avalie o raciocínio com as informações
+
+00:05:52.577 --> 00:05:56.623
+disponíveis sem confundir uma vitória isolada com uma boa estratégia
+
+00:05:57.512 --> 00:06:01.559
+As fontes estão no material de apoio Este curso não
+
+00:06:01.571 --> 00:06:04.239
+promete lucro e o treino usa fichas sem valor

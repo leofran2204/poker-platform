@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import tipsData from "@/data/tipsContent.json";
+import { allLessons } from "@/lib/course";
 import { TipRichText } from "@/components/TipRichText";
 import { looksLikePortuguese, translateNewsFields, translateToPortuguese } from "@/lib/translatePt";
 import { parseJinaMarkdown, parseRssXml } from "@/lib/parseRss";
@@ -167,7 +167,21 @@ interface LocalTip {
   imageUrl?: string;
 }
 
-const LOCAL_TIPS: LocalTip[] = tipsData.tips as LocalTip[];
+// As dicas usam a mesma teoria revisada das aulas, sem uma segunda cópia editorial.
+const STREETS: Record<string, LocalTip["street"]> = {
+  m1: "preflop", m2: "flop", m3: "turn", m4: "river",
+};
+const LOCAL_TIPS: LocalTip[] = allLessons().flatMap((lesson) => {
+  const street = STREETS[lesson.id.slice(0, 2)];
+  return street ? [{
+    id: lesson.id,
+    title: lesson.title,
+    description: lesson.body,
+    street,
+    category: "Zero Tilt Academy",
+    link: `https://zerotiltpoker.net/curso/${lesson.id}`,
+  }] : [];
+});
 
 const CORS_PROXY = "https://api.rss2json.com/v1/api.json?rss_url=";
 const PAGE_PROXY = "https://api.allorigins.win/raw?url=";

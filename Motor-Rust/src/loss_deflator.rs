@@ -27,7 +27,7 @@
 // A ordem financeira obrigatória é pots → rake → Loss Deflator → pagamentos.
 
 use crate::deck::{contains_card, create_full_deck, Card};
-use crate::types::{GamePhase, Pot};
+use crate::types::{GamePhase, PokerVariant, Pot};
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
 
@@ -259,21 +259,20 @@ pub fn calculate_progressive_loss_deflator(
 
 /// Número de amostras Monte Carlo por chamada (quando não há board completo).
 ///
-/// Com board vazio (preflop) há C(45,5) ≈ 1.2M boards possíveis — a
-/// enumeração exata era inviável em tempo de execução/testes. Com Monte Carlo
+/// Heads-up pré-flop com quatro cartas conhecidas tem C(48,5) = 1.712.304
+/// boards possíveis. Nos espaços maiores usamos Monte Carlo e
 /// fixamos o custo em no máximo `MC_SAMPLES` avaliações (sem reposição,
 /// determinístico via seed), o que mantém a precisão dentro da tolerância dos
-/// testes sem custo exponencial. Erro típico ~1/√N ≈ 0.14% em 500k amostras.
+/// testes sem custo exponencial. A precisão amostral não garante um tier exato
+/// para equities próximas dos limites; `mc_error_bound` é uma aproximação.
 const MC_SAMPLES: u32 = 500_000;
 
-/// Calcula probabilidade de vitória heads-up.
+/// Calcula equity heads-up (vitória + metade da frequência de empate).
 ///
 /// Quando o board já está completo (river), a avaliação é exata (1 board).
-/// Caso contrário usa **Monte Carlo sem reposição**: o baralho restante é
-/// embaralhado uma única vez e percorrido em janelas de `cards_to_deal` cartas,
-/// de modo que cada board possível é avaliado no máximo uma vez (sem repetir
-/// boards já verificados). O número de amostras é limitado ao total de boards
-/// distintos disponíveis.
+/// Caso contrário embaralha índices a cada tentativa, sorteia um board e
+/// rejeita repetições: amostragem uniforme sem reposição entre boards. Quando
+/// todos os boards distintos cabem no limite, o resultado é exato.
 #[allow(dead_code)]
 pub fn get_heads_up_win_probability(
     hero_cards: &[Card],
@@ -403,15 +402,29 @@ pub fn get_multiway_win_probability(
 }
 
 fn multiway_outcome(hero_cards: &[Card], villain_hands: &[&[Card]], board: &[Card]) -> f64 {
-    use crate::deck::{compare_hands, evaluate_hand};
+    multiway_outcome_for_variant(hero_cards, villain_hands, board, PokerVariant::Holdem)
+}
+
+fn multiway_outcome_for_variant(
+    hero_cards: &[Card],
+    villain_hands: &[&[Card]],
+    board: &[Card],
+    variant: PokerVariant,
+) -> f64 {
+    use crate::deck::{compare_hands, evaluate_hand, evaluate_hand_short_deck};
     use std::cmp::Ordering;
 
-    let hero_hand = evaluate_hand(hero_cards, board);
+    let evaluate = if variant == PokerVariant::ShortDeck {
+        evaluate_hand_short_deck
+    } else {
+        evaluate_hand
+    };
+    let hero_hand = evaluate(hero_cards, board);
     let mut best = hero_hand.clone();
     let mut tied = 1u32;
 
     for hand in villain_hands {
-        let villain_hand = evaluate_hand(hand, board);
+        let villain_hand = evaluate(hand, board);
         match compare_hands(&villain_hand, &best) {
             Ordering::Greater => {
                 best = villain_hand;
@@ -431,6 +444,83 @@ fn multiway_outcome(hero_cards: &[Card], villain_hands: &[&[Card]], board: &[Car
     }
 }
 
+/// Equity para liquidação, com validação do baralho e ranking da modalidade.
+/// Omaha/Pineapple exigem outro modelo e continuam sem Loss Deflator.
+/// Short Deck é exato: até C(32, 5) = 201.376 boards heads-up pré-flop.
+pub fn get_multiway_win_probability_for_variant(
+    hero_cards: &[Card],
+    villain_hands: &[&[Card]],
+    board_cards: &[Card],
+    variant: PokerVariant,
+) -> Option<f64> {
+    if !matches!(variant, PokerVariant::Holdem | PokerVariant::ShortDeck)
+        || hero_cards.len() != 2
+        || villain_hands.iter().any(|hand| hand.len() != 2)
+        || !matches!(board_cards.len(), 0 | 3 | 4 | 5)
+    {
+        return None;
+    }
+    let full_deck = if variant == PokerVariant::ShortDeck {
+        crate::deck::create_short_deck()
+    } else {
+        create_full_deck()
+    };
+    let mut known = hero_cards.to_vec();
+    for hand in villain_hands {
+        known.extend_from_slice(hand);
+    }
+    known.extend_from_slice(board_cards);
+    if known
+        .iter()
+        .enumerate()
+        .any(|(i, card)| !full_deck.contains(card) || known[..i].contains(card))
+    {
+        return None;
+    }
+    let deck: Vec<Card> = full_deck
+        .into_iter()
+        .filter(|c| !known.contains(c))
+        .collect();
+    if deck.len() < 5 - board_cards.len() {
+        return None;
+    }
+    if variant == PokerVariant::Holdem {
+        return Some(get_multiway_win_probability(
+            hero_cards,
+            villain_hands,
+            board_cards,
+        ));
+    }
+    if villain_hands.is_empty() {
+        return Some(1.0);
+    }
+    let mut total = 0_u64;
+    let mut equity = 0.0;
+    visit_runouts(&deck, 0, &mut board_cards.to_vec(), &mut |board| {
+        equity += multiway_outcome_for_variant(hero_cards, villain_hands, board, variant);
+        total += 1;
+    });
+    Some(equity / total as f64)
+}
+
+fn visit_runouts(
+    deck: &[Card],
+    start: usize,
+    board: &mut Vec<Card>,
+    visit: &mut impl FnMut(&[Card]),
+) {
+    let needed = 5 - board.len();
+    if needed == 0 {
+        visit(board);
+        return;
+    }
+    for i in start..=deck.len() - needed {
+        board.push(deck[i]);
+        visit_runouts(deck, i + 1, board, visit);
+        board.pop();
+    }
+}
+
 /// CSPRNG determinístico: seed derivada das cartas conhecidas (não do relógio),
 /// para que o mesmo cenário sempre produza a mesma estimativa.
 fn monte_carlo_rng(known_cards: &[Card]) -> rand::rngs::StdRng {
@@ -447,7 +537,7 @@ fn monte_carlo_rng(known_cards: &[Card]) -> rand::rngs::StdRng {
     rand::rngs::StdRng::seed_from_u64(seed)
 }
 
-/// Conta C(n, k) sem estourar para os tamanhos usados aqui (n <= 45).
+/// Conta C(n, k) sem estourar para os tamanhos usados aqui (n <= 52, k <= 5).
 fn combinations_count(n: usize, k: usize) -> usize {
     if k > n {
         return 0;
@@ -464,7 +554,7 @@ fn combinations_count(n: usize, k: usize) -> usize {
 ///
 /// A amostragem é **sem reposição** sobre uma população finita de `max_boards`
 /// boards possíveis, sorteando `samples` deles. Para o pior caso (proporção
-/// p = 0.5), o erro padrão da estimativa é:
+/// p = 0.5), a aproximação do erro padrão para população grande é:
 ///
 ///   SE = 0.5 · √( (1 - f) / samples ),   onde f = samples / max_boards
 ///
@@ -472,12 +562,13 @@ fn combinations_count(n: usize, k: usize) -> usize {
 /// - Caso contrário aplica o fator de correção de população finita (1 - f),
 ///   que deixa o erro MENOR que o Monte Carlo com reposição.
 ///
-/// O valor retornado é a **margem de 3 desvios (~99.7% de confiança)**:
+/// O valor retornado é três vezes esse erro padrão. A interpretação de
+/// ~99,7% depende da aproximação normal; não é um limite rigoroso por mão:
 ///
 ///   bound = 3 · SE
 ///
-/// Exemplo: 500k amostras no preflop (max ≈ 1.22M) →
-///   f ≈ 0.41, SE ≈ 0.00034, bound ≈ 0.0010 (0.10%).
+/// Exemplo: 500k amostras entre C(48,5) = 1.712.304 boards →
+///   f ≈ 0,292, SE ≈ 0,000595, margem ≈ 0,001785 (0,1785 ponto percentual).
 ///
 /// Esta função é uma segurança extra: os testes podem exigir que o desvio
 /// observado da estimativa fique dentro de `mc_error_bound(...)`.

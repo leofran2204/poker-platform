@@ -1,0 +1,29 @@
+Zero Tilt Academy. Draws, Outs e Matemática de Pot Odds no Turn. Nesta aula, nosso objetivo é: Calcular o limiar do call e separar completar flush de vencer. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Preço do call. Se o pote já contém a aposta rival, chame esse total de P; se pagar custa C, o limiar sem rake é C/(P mais C). No river, com ação encerrada após o call, compare esse preço com sua equity contra o range. Exemplo: P igual a 150 e C igual a 50 para 25 por cento. O denominador inclui o próprio call.
+
+Outs não são garantia de vitória. Texas no turn: duas cartas próprias e quatro comunitárias deixam 46 cartas desconhecidas para quem não conhece a mão rival. Com quatro copas conhecidas, restam nove: 9 dividido por 46 aproximadamente 19,57 por cento de uma copa no river sob distribuição uniforme. Algumas podem não vencer, e outras cartas também podem ganhar; completar flush e equity são medidas diferentes.
+
+Regra de bolso e limites. Outs vezes 2 para uma carta e outs vezes 4 para duas são aproximações. Ver apenas o flop não garante chegar ao river pelo preço de uma aposta: considere apostas futuras, rake, posição e outs contaminados. Com cartas adversárias reveladas, recalcule o denominador e os outs.
+
+Exercício resolvido. Pote antes da aposta: 12 big blinds. Rival aposta 3 big blinds; pagar forma 18 big blinds. Preço: 3 dividido por 18 aproximadamente 16,67 por cento. A chance de completar um projeto não basta para recomendar call sem hipóteses sobre vitórias, futuras apostas e rake. No river, se P igual a 120 e C igual a 40, o limiar é 25 por cento.
+
+Calcule uma chance sem atalhos. Com nove cartas de um naipe ainda desconhecidas em quarenta e seis, completar esse naipe no river tem probabilidade nove sobre quarenta e seis. Se duas cartas rivais forem reveladas, o denominador cai para quarenta e quatro, mas você também deve retirar do numerador qualquer carta favorável revelada. Não reduza o denominador e esqueça de revisar o evento.
+
+Outs contaminados e outras vitórias. Uma carta que completa seu flush pode também dar full house a um adversário em um board pareado. Em outro cenário, um ás que não completa o flush pode produzir a melhor mão. Por isso equity não é automaticamente igual à chance de acertar o projeto escolhido. O preço do call pode ser calculado exatamente; a comparação estratégica depende de um modelo de mãos rivais e das apostas que ainda podem ocorrer.
+
+Exemplo de valor esperado condicionado. Em um call final com pote de 150 antes de você pagar e custo de 50, uma equity hipotética de 30 por cento produz 0,30 vezes 200 menos 50, ou 10 fichas de valor esperado. Com 20 por cento, o resultado seria menos 10. Esses percentuais são premissas para exercitar a fórmula, não equities atribuídas às cartas visíveis do simulador. Se houver potes paralelos, só conte a parcela em que você será elegível.
+
+Laboratório: O preço de continuar. Objetivo: Calcular o limiar do call e separar completar flush de vencer. Abra a mesa deste módulo e comece pelo treino guiado. Com quatro copas conhecidas, restam nove em 46 cartas desconhecidas. Isso descreve completar uma copa, não equity garantida. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+Texas no turn: só suas duas cartas e quatro do board são conhecidas, quatro delas de copas. Qual é a chance de a próxima comunitária ser de copas sob distribuição uniforme? A. 9 dividido por 46 aproximadamente 19,57 por cento B. 9 dividido por 52 aproximadamente 17,31 por cento C. Exatamente 18 por cento Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: 9 dividido por 46 aproximadamente 19,57 por cento. Há 46 cartas desconhecidas, nove de copas. Isso mede completar o naipe, não a chance final de vencer.
+
+Suas cartas: ás de copas, rei de copas. Cartas comunitárias: dama de copas, nove de copas, três de paus, dois de ouros, sete de espadas. River: após a aposta adversária, o pote contém 150 fichas. Call custa 50 e encerra a ação. Sem rake, qual é a equity mínima para equilíbrio? A. 20 por cento B. 25 por cento C. 33,3 por cento Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: 25 por cento. Inclua o próprio call no pote final: 50 dividido por 200. Não é uma estimativa da equity destas cartas.
+
+Abra o simulador da aula e escolha o cenário O preço de continuar. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

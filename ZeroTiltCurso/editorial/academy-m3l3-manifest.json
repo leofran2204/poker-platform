@@ -1,0 +1,75 @@
+{
+  "lessonId": "m3l3",
+  "filename": "zt-academy-m3l3-v3",
+  "contentHash": "8b64375f670a70f06556f0002279c4381480a3c1965aa179b7e1abd9801a11a6",
+  "rendererVersion": 3,
+  "durationSeconds": 411.9,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 10467785,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Draws, Outs e Matemática de Pot Odds no Turn"
+    },
+    {
+      "start": 20.27,
+      "title": "Preço do call"
+    },
+    {
+      "start": 47.77,
+      "title": "Outs não são garantia de vitória"
+    },
+    {
+      "start": 79.73,
+      "title": "Regra de bolso e limites"
+    },
+    {
+      "start": 103.73,
+      "title": "Exercício resolvido"
+    },
+    {
+      "start": 136.2,
+      "title": "Calcule uma chance sem atalhos"
+    },
+    {
+      "start": 163.9,
+      "title": "Outs contaminados e outras vitórias"
+    },
+    {
+      "start": 194.6,
+      "title": "Exemplo de EV condicionado"
+    },
+    {
+      "start": 229.5,
+      "title": "Laboratório: O preço de continuar"
+    },
+    {
+      "start": 269.8,
+      "title": "Laboratório: O preço de continuar"
+    },
+    {
+      "start": 278.87,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 311.07,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 328.83,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 364.4,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 378.53,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "a1f3788cf91766a5962bb38544c30914f111731262638f1738e37f1006fd8db1"
+}

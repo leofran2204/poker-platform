@@ -1,0 +1,71 @@
+{
+  "lessonId": "m0l7",
+  "filename": "zt-academy-m0l7-v3",
+  "contentHash": "c110b4b14134a5f3379d1158ba34f05d588a805bbbfc60034433fafff6d03c7c",
+  "rendererVersion": 3,
+  "durationSeconds": 325.13,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 8032999,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Aumento ou descarte: a primeira decisão"
+    },
+    {
+      "start": 19.3,
+      "title": "Agressão seletiva"
+    },
+    {
+      "start": 39.7,
+      "title": "Pratique com um cenário definido"
+    },
+    {
+      "start": 66.7,
+      "title": "Revisão"
+    },
+    {
+      "start": 78.37,
+      "title": "A decisão anterior à ação"
+    },
+    {
+      "start": 115.13,
+      "title": "Calcule o risco do roubo"
+    },
+    {
+      "start": 151.6,
+      "title": "Um resultado não corrige o plano"
+    },
+    {
+      "start": 177.13,
+      "title": "Laboratório: Abrir com um plano"
+    },
+    {
+      "start": 215.57,
+      "title": "Laboratório: Abrir com um plano"
+    },
+    {
+      "start": 224.63,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 247.0,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 261.0,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 280.8,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 291.77,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "1561e9f275d40f8ddd7e150d3619808898ddb8bb6eff85b3a4e8dd69180d53a9"
+}

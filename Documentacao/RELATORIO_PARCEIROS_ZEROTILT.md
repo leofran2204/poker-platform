@@ -21,13 +21,13 @@ Zero Tilt não é um clone de sala gigante. É uma plataforma de pôquer **recre
 
 1. **A mesa tem que ser honesta e rápida** — regras em Rust, dinheiro em centavos inteiros, baralho auditável, liquidação de mão assinada.
 2. **O jogador não pode sair destroçado da sessão** — Loss Deflator (cashback de bad beat por matemática, não por “bônus de cassino”), frentes fixas, Play Money que renova, ensino no próprio lobby.
-3. **O crescimento é de convite, não de anúncio** — rede de **dois níveis** (18% do rake individual do 1º nível, 12% do 2º, resto à casa; clube sem fatia), hoje ensaiada em Play Money; dinheiro real só com licença.
+3. **O crescimento é de convite, não de anúncio** — **Agente ZT Poker** em um nível: 30% do NGR dos jogadores diretos e mais 5 pontos percentuais por desempenho; o código usa ledger mensal de NGR e preserva o 18%/12% somente como histórico.
 
 O que já está no ar: demo HTTPS, e-mail verificado, MFA, mesas Play Money e Jogo Real **isoladas**, quatro variantes (Texas Hold’em tradicional, Texas Hold’em Short Deck, Omaha 4 e Brazilian Pineapple), torneios com Big Blind Ante em 26 níveis (inscrição + **mãos MTT ao vivo em 3 mesas**), admin de clubes, stack Docker **4/4 healthy** na VPS.
 
 O que **não** está: certificação de produção, autoexclusão de produto, multi-servidor de mesas. PIX automático DePix **está ligado na demo** (crédito provisório até R$ 50 no `processing`, saque travado até liquidar). Isso não se esconde. O parceiro que entra agora compra **produto + liquidez Play Money + o trilho até 2027**, não um cassino “já legalizado”.
 
-**Pedido:** liquidez (gente na mesa) e, no futuro, capital de compliance. A rede é 2 níveis: **18%** do rake de quem você trouxe, **12%** do rake de quem eles trouxeram, resto à casa. Clube não leva dinheiro. Enquanto a papelada não fecha, a operação pública é **Play Money**.
+**Pedido:** liquidez (gente na mesa) e, no futuro, capital de compliance. O programa remunera somente o jogador direto: **30% do NGR**, chegando a **35%** no mês da meta. A ativação de cada agente exige aprovação; dinheiro real permanece sujeito às condições operacionais aplicáveis.
 
 ---
 
@@ -188,28 +188,26 @@ Quem apresentar Zero Tilt como “já é jogo responsável certificado” está 
 
 ---
 
-## 7. Como o parceiro entra — rede de 2 níveis, rake, não pirâmide
+## 7. Como o parceiro entra — Agente ZT Poker
 
-O motor continua com B2B **15% casa / 85% clube**. A rede de gente é outra camada: o cadastro grava o **ID do patrocinador**, e o jogador pode sentar em qualquer clube sem mudar de pai. Detalhe: [`PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md`](PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md).
+O motor continua com B2B **15% casa / 85% clube**. O cadastro grava o **ID do patrocinador**, e o jogador pode sentar em qualquer clube sem mudar de vínculo. O Agente ZT recebe 30% do NGR dos próprios jogadores e chega a 35% por desempenho; a migration `060` separa o programa novo do histórico 18%/12%. Detalhe: [`PLANO_GO_TO_MARKET_AGENTE_ZT.md`](PLANO_GO_TO_MARKET_AGENTE_ZT.md).
 
-```
-Raiz (1º cadastro da plataforma)
- └── 1º nível (entrou pelo convite da raiz, ou já estava na sala)
-        └── 2º nível (entrou pelo convite do 1º nível)
-               └── (nível 3: a raiz não vê e não ganha)
+```text
+Agente ZT
+ └── jogadores ligados diretamente ao código do agente
 ```
 
-Cada afiliado, no **próprio** admin, vê só os seus dois andares.
+Cada agente vê somente os próprios jogadores diretos e sua apuração.
 
 Regras que o relatório **pode** assinar em reunião:
 
-1. Profundidade máxima **2** na tela de cada um. Não existe “neto” visível nem pago para mim.
+1. Existe somente **um nível direto**. Indicações feitas pelos jogadores não remuneram o agente.
 2. Sem taxa de adesão, kit ou bônus por cadastrar gente.
-3. Comissão só sobre **rake individual de mão jogada**: **18%** (1º nível) e **12%** (2º nível); o resto fica com a casa. Clube não recebe rake nesta rede.
+3. Comissão de **30% do NGR direto**, chegando a **35%** no mês em que a meta registrada antes do ciclo for atingida.
 4. Hoje a liquidação da rede é **Play Money** (pontos, tickets, ranking). BRL só com SPA + PSP + KYC.
-5. Quem não joga na semana **não** leva volume de linha.
+5. O agente traz, integra e acompanha jogadores; não recebe depósitos nem movimenta carteiras.
 
-O parceiro âncora não “compra uma vaga”: ele **traz liquidez**, indica com o próprio código e acompanha só a rede dele.
+O parceiro âncora não “compra uma vaga”: ele **traz liquidez**, indica com o próprio código e acompanha somente os jogadores que trouxe.
 
 Saque de comissão de clube (`POST /api/admin/clubs/:id/withdraw`) existe no desenho da API — **não se usa** para a rede Play Money. É o interruptor do dia em que a papelada estiver correta.
 
@@ -224,7 +222,7 @@ Saque de comissão de clube (`POST /api/admin/clubs/:id/withdraw`) existe no des
 | Lobby | Filtros stake/variante, Play \| Real, online | Header + `/lobby` |
 | Motor | Hold’em, Short Deck, Omaha Short Deck, BBA 26 | Sentar e jogar; docs de variante |
 | Dinheiro | PM diário; Real isolado; PIX DePix na demo (provisório ≤ R$ 50) | Carteira + STATUS |
-| B2B + rede | Convite `?ref=`; 18/12 modelo; 15/85 no motor é legado | Plano de rede 2 níveis |
+| B2B + agentes | Convite `?ref=`; ledger v2 com 30% + 5 p.p. sobre NGR direto; 18/12 preservado como histórico | Plano Agente ZT, um nível |
 | Qualidade | Gate S20c verde; VPS 4/4 | `STATUS_OPERACIONAL.json` |
 | Conteúdo | Dica do Pró, história 8+7, PT-BR | Home / laterais da mesa |
 
@@ -241,7 +239,7 @@ Saque de comissão de clube (`POST /api/admin/clubs/:id/withdraw`) existe no des
 | KYC/AML | Exigência SPA | Parceiro de compliance + fluxo de documentos |
 | MTT ao vivo ainda em evolução | Torneio não é o carro-chefe | Acabar o ciclo de mãos MTT com a mesma disciplina do cash |
 | UI de Provably Fair no cliente TS | O motor prova; o jogador leigo não clica “auditar” | Modal de auditoria no histórico (o codec 0x30/0x31 já existe) |
-| Painel **Minha Estrutura** + ledger 18/12 | Convite `?ref=` + painel + ledger mão a mão e sobre fee 15% (S22) | Admin do afiliado (2 níveis) + pontos sobre rake individual |
+| Painel **Agente ZT** + ledger mensal | Convite `?ref=`, receita direta PM/Real, deduções, meta e fechamento com conciliação | 30% do NGR direto + 5 p.p. por meta; histórico 18/12 preservado |
 | Catálogo curto | Bom para liquidez; pouco para high roller | Só crescer stake **depois** de encher as três mesas |
 
 Nenhum desses gaps é vergonha de staging. São a lista de compras do sócio.
@@ -258,8 +256,8 @@ Três coisas, nesta ordem:
 
 Em troca:
 
-- **18%** do rake individual de quem o afiliado trouxe e **12%** do segundo nível; resto à casa. Clube não leva fatia.
-- Árvore de **2 níveis** com os mesmos % em ponto e em real.
+- **30%** do NGR dos jogadores diretos e mais **5 pontos percentuais** no mês da meta; a casa preserva no mínimo 65% do NGR antes dos demais custos.
+- Um único nível, com cálculo transparente e fechamento mensal.
 - Produto que o jogador recreacional consegue **explicar para a família**: treina, aprende, não mistura salário, e o bad beat tem regra.
 
 ---
@@ -488,31 +486,28 @@ Há uma contradição prioritária: `STATUS_OPERACIONAL.md:46` documenta depósi
 
 ### 13.8 MMN: o convite é útil; a árvore não resolve o negócio
 
-**Para este estágio, recomendo crescimento por comunidade e indicação direta; não recomendo colocar MMN remunerado sobre rake no centro da proposta.** Trata-se de recomendação de estratégia, não de mudança aplicada ao plano canônico.
+**Para este estágio, recomendo crescimento por comunidade e indicação direta.** Essa recomendação foi incorporada ao plano Agente ZT em 27/09/2026: um nível, 30% do NGR direto e mais 5 pontos percentuais por desempenho.
 
-O desenho atual tem aspectos melhores que recrutamento remunerado: não cobra kit ou adesão, não promete pagamento pelo simples cadastro e vincula comissão a uma atividade existente. Contudo, dois níveis e ausência de kit não são um certificado de legalidade ou sustentabilidade. A CVM/Senacon diferencia venda legítima de produtos e serviços de estruturas dependentes de recrutamento e promessas irreais; é preciso examinar a substância econômica, não o nome escolhido. [CVM — marketing multinível e pirâmides](https://www.gov.br/cvm/pt-br/assuntos/noticias/2013/distincao-entre-marketing-multinivel-e-piramides-financeiras-e-tema-do-6-boletim-de-protecao-do-consumidor-investidor-00d2f80d3c9d4a41860a973cf591a4d2).
-
-Também é importante entender que dois níveis remunerados por participante não limitam a profundidade total do grafo: cada novo participante pode ter seus próprios dois níveis. O painel limitado não é prova suficiente de controle do modelo econômico.
+O novo desenho não cobra kit ou adesão, não promete pagamento pelo simples cadastro e remunera somente a carteira direta. Isso reduz a dependência de recrutamento em cadeia, mas o nome e a profundidade não substituem a análise da substância econômica. [CVM — marketing multinível e pirâmides](https://www.gov.br/cvm/pt-br/assuntos/noticias/2013/distincao-entre-marketing-multinivel-e-piramides-financeiras-e-tema-do-6-boletim-de-protecao-do-consumidor-investidor-00d2f80d3c9d4a41860a973cf591a4d2).
 
 Os riscos específicos são:
 
-- Remunerar volume de jogo e exigir 100 mãos semanais pode incentivar frequência para qualificação, em tensão com a promessa de controle do tilt. A exigência não prova, sozinha, caráter “anti-pirâmide”.
-- Os 30% máximos destinados à rede diminuem a margem disponível para suporte, infraestrutura, pagamentos, fraude e tributos. Os 70% restantes não são lucro líquido.
-- O segundo nível paga alguém mais distante da aquisição direta; sem comparação de retenção e receita incremental, pode ser custo sem benefício demonstrado.
+- Os 35% máximos destinados ao agente diminuem a margem disponível para suporte, infraestrutura, pagamentos, fraude e tributos. Os 65% restantes do NGR não são lucro líquido.
+- Uma meta mal calibrada pode premiar volume sem margem. Por isso ela precisa ser fixada antes do ciclo com base no NGR, não em depósito ou número de cadastros.
 - Amigos e familiares podem aderir por afeto ou constrangimento, inflando a percepção de demanda. Relações pessoais tornam disputas sobre perdas e pagamentos mais dolorosas.
 - Rede comercial requer suporte, regras, extratos e resolução de disputas. Para uma pessoa com emprego em horário comercial, essa carga importa tanto quanto o custo do servidor.
 
 O problema inicial de poker é reunir pessoas compatíveis no mesmo horário e manter a experiência justa. Uma árvore cheia de cadastros não resolve uma mesa vazia. Com pouca gente, dividir atenção entre variantes, stakes, cash e torneios piora a concentração. Proponho testar uma sessão âncora de Hold'em com fichas virtuais, sem alterar o catálogo automaticamente.
 
-Depois de validar uma oferta educacional que as pessoas comprariam sem recrutar ninguém, pode-se testar indicação direta com condições claras e comissão compatível com a margem. A remuneração deve depender da venda efetiva do serviço, considerar cancelamentos e não exigir compras compulsórias. Uma eventual mudança para esse modelo precisará ser registrada no dono do plano, sem misturar comissões de curso com o ledger de rake.
+Depois de validar uma oferta educacional que as pessoas comprariam sem indicação, pode-se ativar o Agente ZT com condições claras e comissão compatível com a margem. A remuneração deve considerar benefícios, cancelamentos, chargebacks, tributos e custos de pagamento, sem misturar comissões de curso com o ledger de rake.
 
 ### 13.9 Economia: contas para decidir, não projeções de renda
 
 Sem dados de jogadores ativos, rake efetivo, custos, impostos, churn e horas do fundador, não é possível estimar lucro real. Os exemplos abaixo são **hipóteses ilustrativas**, não preços de mercado, promessa de faturamento ou recomendação de iniciar jogo real.
 
-**Operação de rake:** suponha 30 jogadores ativos gerando 40 reais de rake individual por mês. O rake bruto seria 1.200; com os dois níveis integralmente pagos, 360 iriam à rede e 840 ficariam na casa antes de qualquer outro custo. Depositar ou apostar 40 reais não é o mesmo que gerar 40 reais de rake.
+**Operação de rake:** suponha 30 jogadores ativos gerando 40 reais de rake individual por mês e, apenas para simplificar, nenhuma dedução adicional. O NGR seria 1.200; no mês da meta, 420 iriam aos agentes e 780 ficariam na casa antes dos demais custos. Com recompensas, estornos, tributos ou custos de pagamento, o NGR e a comissão seriam menores. Depositar ou apostar 40 reais não é o mesmo que gerar 40 reais de rake.
 
-Se um custo operacional hipotético fosse 500 por mês, o ponto de equilíbrio antes de tributos e custos variáveis seria `500 / 0,70 = 714,29` de rake bruto. Para obter mais 2.000 de remuneração do fundador, seriam `2.500 / 0,70 = 3.571,43`, ainda ignorando tributos, perdas, atendimento adicional e pagamentos. Logo, esse cálculo é um piso incompleto, não viabilidade demonstrada.
+Se um custo operacional hipotético fosse 500 por mês, o ponto de equilíbrio antes dos custos não deduzidos do NGR seria `500 / 0,65 = 769,23`. Para obter mais 2.000 de remuneração do fundador, seriam `2.500 / 0,65 = 3.846,15`, ainda ignorando outros custos, perdas e atendimento adicional. Logo, esse cálculo é um piso incompleto, não viabilidade demonstrada.
 
 O rake retira recursos da mesa. Comissões redistribuem parte e podem ou não voltar ao jogo; não criam riqueza agregada. Em um grupo fechado, a continuidade depende de as pessoas aceitarem pagar pelo entretenimento e de suas condições para fazê-lo. O orçamento doméstico dos conhecidos não deve ser tratado como motor infinito de receita. Saldos dos jogadores também não são capital de giro da empresa.
 
@@ -565,7 +560,7 @@ Sinal para continuar: pessoas voltam sem insistência, entendem o serviço e com
 
 Pendências identificadas nos documentos existentes, para correção pelos respectivos donos:
 
-- `PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md:149` chama ledger e painel de implementados; `:246` ainda os chama de modelo.
+- A migration `060` preserva o ledger 18/12 como histórico e inicia o programa direto em versão separada; a publicação na demo ainda precisa de deploy.
 - A qualificação é 100 mãos em `:111`, mas o checklist em `:276` cita 50 mãos ou volume de rake.
 - STATUS descreve carteira real e depósito manual; plano e trechos das regras descrevem só PM. Falta reconciliar a operação efetiva, sem presumir movimentação já realizada.
 - A seção de regras financeiras ainda apresenta split B2B 15/85 ao lado do modelo de afiliados em que clube não recebe rake. É necessário explicitar escopos e impedir leitura de dupla remuneração.
@@ -575,9 +570,15 @@ Pendências identificadas nos documentos existentes, para correção pelos respe
 
 ---
 
-*Números e limites vigentes: [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md). O pitch original é de 2026-09-04; a avaliação crítica da seção 13 é de 2026-09-17 (PIX automático DePix na demo entrou depois). Não alegar certificação de produção nem autoexclusão pronta. Recomendações desta análise não significam implementação, mudança operacional ou autorização jurídica.*
+*Números e limites vigentes: [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md). O pitch original é de 2026-09-04; a avaliação crítica da seção 13 é de 2026-09-17 (PIX automático DePix na demo entrou depois). Não alegar certificação de produção. A avaliação de 17/09 precede os controles de proteção da migration 058; o estado atual prevalece. Recomendações desta análise não significam implementação, mudança operacional ou autorização jurídica.*
+
+## Atualização técnica — S26 (01/10/2026)
+
+A avaliação datada da seção 13 permanece como retrato do conteúdo então examinado. A implementação atual tem 28 aulas, 65 questões, 21 referências, 35 cenários de estudo e 29 vídeos ativos (28 aulas + home), somando aproximadamente 161,9 minutos em 1080p. O histórico do Omaha foi ampliado e as dicas passaram a usar a teoria da Academy. A revisão corrigiu wheel, equity por variante, exemplos e gabaritos; os limites de validação e as pendências editoriais continuam em `QUALITY.md` e `DASHBOARD.md`.
+
+O programa direto usa a migration 060 e NGR mensal separado por PM/Real. A auditoria histórica 18/12 não valida esse modelo; publicação efetiva e seus testes estão no `DEVELOPMENT_LOG.md`. Critérios comerciais, assinatura, enquadramento e desempenho de retenção não são demonstrados por testes de software.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

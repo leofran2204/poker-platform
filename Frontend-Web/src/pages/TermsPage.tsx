@@ -11,7 +11,7 @@ export function TermsPage() {
           Termos de Uso, Política de Privacidade (LGPD) e Regulamento da Plataforma
         </h1>
         <p className="text-xs text-felt-400">
-          Versão Oficial 4.3 • Última atualização: 11 de setembro de 2026 • Zero Tilt Poker & Zero Tilt Academy
+          Versão Oficial 4.4 • Última atualização: 27 de setembro de 2026 • Zero Tilt Poker & Zero Tilt Academy
         </p>
       </div>
 
@@ -25,7 +25,7 @@ export function TermsPage() {
             <li><strong>Poker é Esporte da Mente:</strong> Habilidade, matemática e controle emocional preponderam sobre a aleatoriedade no longo prazo — sem promessa de ganho.</li>
             <li><strong>Maioridade:</strong> Apenas maiores de 18 anos podem se cadastrar.</li>
             <li><strong>Zero Tilt Academy e coach virtual:</strong> Os cursos e qualquer coach futuro são ferramentas pedagógicas. A análise será somente pós-mão, sem assistência em tempo real e sem promessa de ganho ou retorno financeiro.</li>
-            <li><strong>Rede de Afiliados (2 Níveis):</strong> Você não paga nada para entrar e ninguém ganha comissão por recrutar pessoas. Toda comissão vem exclusivamente do consumo real (rake das mãos jogadas), limitada a exatamente 2 níveis.</li>
+            <li><strong>Agente ZT Poker:</strong> Um nível direto, sem taxa de adesão e sem comissão por cadastro. Quando ativado, o agente recebe 30% do NGR direto e chega a 35% no mês da meta.</li>
             <li><strong>Sua Privacidade (LGPD):</strong> Seus dados pessoais (CPF, e-mail, telefone) nunca são exibidos para quem te indicou e nunca são compartilhados com IAs de terceiros.</li>
             <li><strong>Tolerância Zero com Trapaça:</strong> Conluio, robôs nas mesas públicas ou contas múltiplas geram banimento imediato.</li>
           </ul>
@@ -69,26 +69,26 @@ export function TermsPage() {
         {/* Cláusula 3 */}
         <section className="space-y-2">
           <h2 className="text-base font-bold text-gold-bright border-b border-felt-800 pb-1">
-            3. Zero Tilt Academy, Tutor Robô de IA e Isenção Educacional
+            3. Zero Tilt Academy, Ferramentas de Estudo e Isenção Educacional
           </h2>
           <p>
-            3.1. A <strong>Zero Tilt Academy</strong> e seus simuladores com <strong>Tutor de Inteligência Artificial</strong> são produtos concebidos com fins estritamente pedagógicos e analíticos.
+            3.1. A <strong>Zero Tilt Academy</strong>, suas mesas de estudo com bots didáticos e eventuais ferramentas de coach virtual, quando disponibilizadas, têm fins estritamente pedagógicos e analíticos. O coach virtual limita-se à revisão de mãos já encerradas.
           </p>
           <p>
             3.2. <strong>Isenção de Garantia de Lucros:</strong> A conclusão de aulas, a obtenção de notas superiores a 70% ou o treinamento com os robôs da casa não constituem garantia de vitória ou ganho monetário em mesas competitivas contra outros humanos. O desempenho depende exclusivamente da tomada de decisão pessoal do jogador.
           </p>
           <p>
-            3.3. <strong>Proibição de Assistência em Tempo Real (RTA) e Bots Externos:</strong> O uso do Tutor de IA é restrito à área de treino e cursos. É terminantemente proibido utilizar softwares de auxílio em tempo real (RTA), bots externos ou inteligências artificiais acopladas durante partidas regulares ao vivo com outros usuários humanos. A infração enseja banimento sumário.
+            3.3. <strong>Proibição de Assistência em Tempo Real (RTA) e Bots Externos:</strong> As ferramentas pedagógicas ficam restritas à área de treino e à revisão de mãos encerradas. É terminantemente proibido utilizar softwares de auxílio em tempo real (RTA), bots externos ou inteligências artificiais acopladas durante partidas regulares ao vivo com outros usuários humanos. A infração enseja banimento sumário.
           </p>
         </section>
 
         {/* Cláusula 4 */}
         <section className="space-y-2">
           <h2 className="text-base font-bold text-gold-bright border-b border-felt-800 pb-1">
-            4. Programa de Afiliados em 2 Níveis (Cláusula Anti-Pirâmide)
+            4. Programa Agente ZT Poker
           </h2>
           <p>
-            4.1. O programa de expansão comunitária da plataforma opera como um <strong>contrato de agenciamento comercial e comissão de vendas em estritos 2 (dois) níveis</strong>.
+            4.1. Quando ativado pela plataforma, o programa opera em <strong>um único nível</strong>. O Agente ZT recebe 30% da receita líquida atribuível aos jogadores ligados diretamente ao seu código e mais 5 pontos percentuais no mês em que atingir a meta informada antes do ciclo.
           </p>
           <p>
             4.2. <strong>Não Caracterização de Pirâmide Financeira:</strong> Em estrito cumprimento à Lei nº 1.521/1951 (crimes contra a economia popular) e às diretrizes da Comissão de Valores Mobiliários (CVM):
@@ -96,17 +96,17 @@ export function TermsPage() {
           <ul className="list-disc pl-5 space-y-1 text-xs text-felt-300">
             <li>Não há cobrança de taxa de adesão, aquisição de kits ou mensalidades obrigatórias para se tornar afiliado;</li>
             <li>Nenhuma comissão ou remuneração é paga pela simples indicação, cadastro ou recrutamento de novos usuários;</li>
-            <li>Toda e qualquer bonificação decorre <strong>exclusivamente da prestação e consumo real de serviços</strong> (comissão sobre o rake de mãos jogadas nas mesas);</li>
-            <li>A árvore de comissionamento encerra-se peremptoriamente no 2º nível (18% para o 1º nível direto e 12% para o 2º nível indireto, restando 70% para a plataforma). Não existem níveis infinitos, matrizes forçadas ou sistemas binários.</li>
+            <li>A comissão incide somente sobre o NGR dos jogadores ligados diretamente ao agente;</li>
+            <li>Não há segundo nível, matriz forçada ou sistema binário.</li>
           </ul>
           <p>
-            4.3. <strong>Requisito de Ativação e Qualificação Semanal:</strong> Para ter direito e fazer jus ao recebimento de qualquer bonificação de sua rede de afiliados, o usuário deve ter <strong>disputado e concluído no mínimo 100 (cem) mãos</strong> no ciclo semanal vigente, apurado impreterivelmente de <strong>segunda-feira (00:00:00 BRT) até domingo (23:59:59 BRT)</strong>.
+            4.3. <strong>Base de cálculo:</strong> NGR direto é a soma do rake e dos fees atribuíveis, descontados benefícios concedidos aos jogadores, estornos, chargebacks, tributos e custos de pagamento diretamente atribuíveis.
           </p>
           <p className="text-xs text-felt-300">
-            Caso o afiliado não atinja a meta de 100 mãos no ciclo semanal, a pontuação da rede gerada nessa semana não é creditada, sendo retida pela casa. Não há acúmulo passivo sem trabalho e engajamento efetivo no jogo.
+            Cadastro, depósito, saldo, buy-in, prêmio e perda do jogador não geram comissão. Autoindicação, fraude e movimentação artificial são excluídas da apuração.
           </p>
           <p>
-            4.4. <strong>Data e Periodicidade de Pagamento das Bonificações:</strong> As bonificações decorrentes das semanas em que o afiliado esteve devidamente qualificado são consolidadas ao final do ciclo mensal e <strong>pagas todo dia 25 (vinte e cinco) de cada mês</strong> (ou no primeiro dia útil subsequente).
+            4.4. <strong>Fechamento:</strong> A apuração usa o mês civil em America/Sao_Paulo e pode ser consolidada pelo administrador a partir do dia 25 do mês seguinte, após a conciliação do ciclo anterior. No Play Money, qualquer benefício permanece virtual e não pode ser convertido em dinheiro ou PIX.
           </p>
         </section>
 
@@ -122,7 +122,7 @@ export function TermsPage() {
             5.2. <strong>Blindagem e Pseudonimização na Rede:</strong> Em nenhuma hipótese o patrocinador de um usuário terá acesso a nome completo, e-mail, telefone, CPF ou dados bancários de seus indicados. O painel da rede exibe estritamente o identificador de jogador mascarado (username) e o volume numérico de comissão agregada.
           </p>
           <p>
-            5.3. <strong>Tratamento de Dados no Tutor de IA:</strong> As análises de erros e padrões de jogo realizadas pelo Tutor Robô processam tão somente dados matemáticos da partida (cartas, fichas e apostas). Nenhum dado pessoal identificável é compartilhado ou vendido a provedores externos de inteligência artificial ou corretores de dados.
+            5.3. <strong>Dados nas Ferramentas de Estudo:</strong> O servidor de treino processa o cenário, a distribuição, as ações e as respostas aos exercícios. As anotações do caderno são salvas neste navegador e podem ser exportadas pelo aluno. A mesa de estudo não envia esses dados a serviços externos de inteligência artificial. Quando disponibilizado, o coach virtual deve analisar somente mãos encerradas do próprio jogador, sem revelar cartas privadas de terceiros. Qualquer uso futuro de provedor externo exige atualização prévia desta política e informação ao titular.
           </p>
           <p>
             5.4. <strong>Retenção para Fins de Integridade e Legislação Antifraude:</strong> O histórico de mãos disputadas (Hand History) e os registros de transações financeiras são arquivados de forma criptografada pelo prazo de 5 (cinco) anos, em atendimento à legislação de prevenção à lavagem de dinheiro e integridade desportiva (Art. 16 da LGPD).

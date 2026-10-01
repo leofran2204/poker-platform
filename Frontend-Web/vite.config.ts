@@ -2,6 +2,8 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath, URL } from "node:url";
 
+const apiTarget = process.env.POKER_DEV_API_URL ?? "http://127.0.0.1:3000";
+
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -13,7 +15,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "http://127.0.0.1:3000",
+        target: apiTarget,
         changeOrigin: true,
       },
       "/ws": {

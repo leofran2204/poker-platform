@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { fetchCourseProgress, type CourseProgressItem } from "@/api/client";
 import { BrandMark } from "@/components/BrandMark";
-import { COURSE, isLessonUnlocked, PASS_SCORE } from "@/lib/course";
+import { COURSE, isLessonUnlocked, lessonFormat, PASS_SCORE } from "@/lib/course";
 import { isAuthenticated } from "@/lib/auth";
 
 export function CoursePage() {
@@ -35,7 +35,7 @@ export function CoursePage() {
             Zero Tilt Academy
           </h1>
           <p className="text-sm text-felt-200">
-            Aprenda poker do zero com vídeos curtos, quiz e mesa ao vivo para praticar.
+            Assista às aulas, resolva os exercícios e pratique na mesa de cada módulo.
           </p>
           <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">
             <Link to="/lobby" className="text-gold-soft hover:underline">
@@ -57,7 +57,7 @@ export function CoursePage() {
       {!authed && (
         <p className="rounded border border-felt-700 bg-felt-800 px-3 py-2 text-xs text-felt-200">
           Você está navegando como visitante. <Link to="/login" className="text-gold-soft underline">Entre na sua conta</Link> para salvar
-          seu progresso e desbloquear os módulos sequencialmente.
+          seu progresso. As trilhas por modalidade ficam disponíveis após a aula de regras; história é opcional.
         </p>
       )}
 
@@ -83,6 +83,7 @@ export function CoursePage() {
               {m.title}
             </h2>
             <p className="text-xs text-felt-400 pl-4">{m.subtitle}</p>
+            <Link to={`/curso/mesa/${m.id}`} className="mt-3 ml-4 inline-flex zt-btn-primary !text-xs">Praticar na mesa deste módulo →</Link>
           </div>
           <div className="grid gap-2 pl-2">
             {m.lessons.map((l, i) => {
@@ -95,13 +96,13 @@ export function CoursePage() {
                   <div
                     key={l.id}
                     className="zt-panel flex items-center justify-between gap-3 p-3 opacity-50 cursor-not-allowed border-felt-800 bg-felt-950/40"
-                    title={`Complete a aula anterior com nota mínima de ${PASS_SCORE}% para liberar`}
+                    title={`Complete os pré-requisitos com nota mínima de ${PASS_SCORE}% para liberar`}
                   >
                     <span>
                       <span className="font-mono text-[11px] text-felt-500">{String(i + 1).padStart(2, "0")}</span>{" "}
                       <span className="text-sm font-semibold text-felt-400">{l.title}</span>
                       <span className="block text-[11px] text-felt-500">
-                        Vídeo • leitura • quiz ({l.quiz.length} questões)
+                        {lessonFormat(l)} ({l.quiz.length} questões)
                       </span>
                     </span>
                     <span className="shrink-0 font-mono text-xs text-felt-500 flex items-center gap-1">
@@ -121,7 +122,7 @@ export function CoursePage() {
                     <span className="font-mono text-[11px] text-felt-400">{String(i + 1).padStart(2, "0")}</span>{" "}
                     <span className="text-sm font-semibold text-cream">{l.title}</span>
                     <span className="block text-[11px] text-felt-400">
-                      Vídeo • leitura • quiz ({l.quiz.length} questões)
+                      {lessonFormat(l)} ({l.quiz.length} questões)
                     </span>
                   </span>
                   <span className="shrink-0 font-mono text-xs">

@@ -1,10 +1,8 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { Layout } from "@/components/Layout";
-import { CoursePage } from "@/pages/CoursePage";
 import { EstruturaPage } from "@/pages/EstruturaPage";
 import { HomePage } from "@/pages/HomePage";
-import { LessonPage } from "@/pages/LessonPage";
 import { LobbyPage } from "@/pages/LobbyPage";
 import { LoginPage } from "@/pages/LoginPage";
 import { ForgotPasswordPage } from "@/pages/ForgotPasswordPage";
@@ -13,11 +11,15 @@ import { RegisterPage } from "@/pages/RegisterPage";
 import { RedePage } from "@/pages/RedePage";
 import { ResponsibleGamingPage } from "@/pages/ResponsibleGamingPage";
 import { SupportPage } from "@/pages/SupportPage";
-import { TablePage } from "@/pages/TablePage";
 import { TermsPage } from "@/pages/TermsPage";
-import { TournamentPage } from "@/pages/TournamentPage";
 import { VerifyEmailPage } from "@/pages/VerifyEmailPage";
 import { WalletPage } from "@/pages/WalletPage";
+
+const CoursePage = lazy(() => import("@/pages/CoursePage").then(m => ({ default: m.CoursePage })));
+const LessonPage = lazy(() => import("@/pages/LessonPage").then(m => ({ default: m.LessonPage })));
+const TrainingPage = lazy(() => import("@/pages/TrainingPage").then(m => ({ default: m.TrainingPage })));
+const TablePage = lazy(() => import("@/pages/TablePage").then(m => ({ default: m.TablePage })));
+const TournamentPage = lazy(() => import("@/pages/TournamentPage").then(m => ({ default: m.TournamentPage })));
 
 const AdminLayout = lazy(() =>
   import("@/pages/AdminLayout").then((m) => ({ default: m.AdminLayout })),
@@ -64,7 +66,7 @@ function AdminFallback() {
   return (
     <div className="flex items-center gap-3 p-8 text-sm text-felt-300">
       <span className="zt-spinner" aria-hidden />
-      Carregando painel…
+      Carregando…
     </div>
   );
 }
@@ -85,8 +87,9 @@ export default function App() {
           <Route path="termos" element={<TermsPage />} />
           <Route path="verify-email" element={<VerifyEmailPage />} />
           <Route path="lobby" element={<LobbyPage />} />
-          <Route path="curso" element={<CoursePage />} />
-          <Route path="curso/:lessonId" element={<LessonPage />} />
+          <Route path="curso" element={<Suspense fallback={<AdminFallback />}><CoursePage /></Suspense>} />
+          <Route path="curso/:lessonId" element={<Suspense fallback={<AdminFallback />}><LessonPage /></Suspense>} />
+          <Route path="curso/mesa/:moduleId" element={<Suspense fallback={<AdminFallback />}><TrainingPage /></Suspense>} />
           <Route
             path="noticias"
             element={
@@ -105,8 +108,8 @@ export default function App() {
           />
           <Route path="wallet" element={<WalletPage />} />
           <Route path="estrutura" element={<EstruturaPage />} />
-          <Route path="tournament/:id" element={<TournamentPage />} />
-          <Route path="table/:id" element={<TablePage />} />
+          <Route path="tournament/:id" element={<Suspense fallback={<AdminFallback />}><TournamentPage /></Suspense>} />
+          <Route path="table/:id" element={<Suspense fallback={<AdminFallback />}><TablePage /></Suspense>} />
           <Route
             path="admin"
             element={

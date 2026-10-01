@@ -1,0 +1,71 @@
+{
+  "lessonId": "m4l1",
+  "filename": "zt-academy-m4l1-v3",
+  "contentHash": "fcabbcdfad51fc9b566055795f7018c12ede93e40129c5f21b5b945a5667b99d",
+  "rendererVersion": 3,
+  "durationSeconds": 329.9,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 8246481,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Thin Value Bet vs. Blefe Puro"
+    },
+    {
+      "start": 18.83,
+      "title": "Valor no river"
+    },
+    {
+      "start": 36.7,
+      "title": "Exemplo com hipótese"
+    },
+    {
+      "start": 57.73,
+      "title": "Ações legais"
+    },
+    {
+      "start": 72.1,
+      "title": "O range que paga é o relevante"
+    },
+    {
+      "start": 99.53,
+      "title": "Compare com dar check"
+    },
+    {
+      "start": 128.53,
+      "title": "Exercício controlado"
+    },
+    {
+      "start": 159.57,
+      "title": "Laboratório: Receber de mãos piores"
+    },
+    {
+      "start": 198.03,
+      "title": "Laboratório: Receber de mãos piores"
+    },
+    {
+      "start": 207.1,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 230.67,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 246.07,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 284.0,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 296.03,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "a4f0581d840b717d20858ec71e9b5d79417a8eb53ddb013a87d2390c80d16c4c"
+}

@@ -2,6 +2,55 @@
 
 Automação operacional do monorepo.
 
+## Ambiente local e permissões do Codex
+
+Abra `C:\Users\leofr\Projetos\Poker_Project` como pasta do projeto. Informar `workdir` em um comando não muda a pasta nem o perfil de permissões da sessão aberta em `C:\`.
+
+Diagnóstico de 28/09/2026: o projeto já consta como confiável e `[windows].sandbox = "elevated"` está configurado. O log registrou configuração do sandbox sem erros; as ACLs consultadas permitem modificação ao grupo `CodexSandboxUsers`. A sessão, porém, ainda apresentou `EPERM` na gravação pelo Node e `Wsl/Service/E_ACCESSDENIED`. A inspeção não identificou uma falha única que explique todos os bloqueios. Não alterar ACLs em massa nem afirmar que uma reinstalação resolveu sem repetir as verificações.
+
+O perfil ativo é escolhido no controle de permissões do aplicativo (na CLI, `/permissions`). **Aprovar por mim**, quando disponível, mantém o sandbox e encaminha pedidos elegíveis à revisão automática; recusas ainda podem ocorrer. **Acesso completo** remove os limites do sandbox sobre arquivos e rede, inclusive fora do projeto. Apenas definir `approval_policy = "never"` não libera recursos bloqueados. Confira o perfil efetivamente recebido pela sessão antes de declarar uma mudança aplicada.
+
+Para ferramentas Linux, executar o próprio Codex no WSL é uma alternativa suportada. Chamar `wsl.exe` de dentro do sandbox Windows é um caminho diferente. Não mover o repositório nem criar outra cópia para contornar uma recusa.
+
+Referências oficiais: [sandbox e aprovações](https://learn.chatgpt.com/docs/sandboxing), [Windows](https://learn.chatgpt.com/docs/windows/windows-sandbox) e [WSL](https://learn.chatgpt.com/docs/windows/wsl).
+
+Após o usuário selecionar acesso completo na CLI em 28/09/2026, a sessão recebeu `danger-full-access` e `approval_policy=never`. Gravação pelo Node, WSL, testes Rust e renderização voltaram a funcionar. A mudança vale para o perfil ativo; não é garantia contra erros de rede, aplicação ou sessões futuras com outro perfil. Nenhuma configuração global ou ACL foi alterada pelo agente.
+
+## Prévia isolada da Academy
+
+Na raiz do repositório, API de estudo sem banco/carteira:
+
+```powershell
+wsl.exe -d Ubuntu -- bash -lc 'cd /mnt/c/Users/leofr/Projetos/Poker_Project/API-Axum && CARGO_TARGET_DIR=$HOME/poker-build/api-target cargo run --locked --example academy_preview'
+```
+
+Em outro terminal, dentro de `Frontend-Web`:
+
+```powershell
+$env:POKER_DEV_API_URL = 'http://127.0.0.1:3188'
+& 'C:\Users\leofr\AppData\Local\hermes\node\node.exe' node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5181 --strictPort
+```
+
+Abrir `http://127.0.0.1:5181/curso/mesa/pineapple`. O exemplo fornece apenas `POST /api/academy/play`; outras rotas da API não existem nessa prévia. Ctrl+C encerra cada processo. Remover `POKER_DEV_API_URL` para voltar ao backend completo.
+
+Regravação a partir do conteúdo canônico e das dependências de `ZeroTiltCurso/editorial/requirements.txt`:
+
+```powershell
+& 'C:\Users\leofr\AppData\Local\hermes\hermes-agent\venv\Scripts\python.exe' ZeroTiltCurso/editorial/render.py --academy all
+# Ou uma aula: --academy m5l4
+```
+
+O comando publica os arquivos somente no checkout local. Reutiliza cache de narração validado, confere a sequência completa de palavras, gera legendas/capítulos/transcrição e compara o hash da aula antes de atualizar o JSON. Um fluxo de voz truncado é repetido; após quatro falhas, o lote para. `courseAudit.test.ts` rejeita vídeo técnico ausente ou com hash diferente do texto, quiz, fontes ou cenários. Alterações exigem regravar as aulas afetadas antes do gate final.
+
+Validação audiovisual independente:
+
+```powershell
+& 'C:\Users\leofr\AppData\Local\hermes\hermes-agent\venv\Scripts\python.exe' ZeroTiltCurso/editorial/render.py --check
+# Acrescentar --decode para decodificar integralmente todos os MP4.
+```
+
+O verificador exige todos os vídeos ativos, confere hashes, duração, capítulos, poster 1280×720, limites temporais de cada legenda e correspondência completa entre VTT e transcrição. A decodificação adicional verifica os fluxos de áudio/vídeo e produz evidência em `artifacts/academy-audit/media.json`. Interrupção de rede não invalida vídeos já concluídos: repetir `--academy all` retoma as aulas ainda pendentes ou alteradas.
+
 ## Canônicos (usar)
 
 | Script | Uso |
@@ -14,12 +63,12 @@ Automação operacional do monorepo.
 | `full-validation.ps1` / `.sh` | Lote de validação autorizada (motor/API/gateway) |
 | `deploy.ps1` / `deploy.sh` | Deploy assistido |
 | `verify-public-https.sh` | Checagem HTTPS/Caddy público |
-| `vps-redeploy-frontend.sh` | Redeploy na VPS (`REBUILD_API=1` para API+migration) |
+| `vps-redeploy-frontend.sh` | Redeploy na VPS (`REBUILD_API=1` para API+migration); exige fast-forward, containers saudáveis e API por HTTPS |
 | `coverage.ps1` / `.sh` | Cobertura (quando autorizado) |
 | `ws-probe.mjs` | Sonda WS local pontual (`node scripts/ws-probe.mjs <email>`) |
 | `full-catalog-100.mjs` | Catálogo completo local: 100 contas (72 cash + 28 MTT) |
 | `full-catalog-100-vps.mjs` | Catálogo completo contra a VPS (sessão longa real) |
-| `estrutura-rede-e2e.mjs` / `.py` | E2E Minha Estrutura (convite, mesa, mãos, 18/12 no painel) |
+| `estrutura-rede-e2e.mjs` / `.py` | Histórico do modelo 18/12; não valida o programa Agente ZT v2 e não é gate da release atual |
 | `estrutura-bots-jogar.mjs` | Bots WS da Estrutura (fase VP + allin-fest) |
 | `wipe-*.sql` / `wipe-emalupe-users.ps1` | Limpeza pontual de contas sintéticas/teste (ops, com backup antes) |
 | `wipe-all-test-accounts.sql` | Limpeza geral de contas de teste (ops, com backup antes) |

@@ -1,6 +1,6 @@
 # Zero Tilt Poker — poker-platform
 
-Motor e API em **Rust**, UI em **TypeScript** (React + Vite + Tailwind), skin **Full Tilt**. Demo: [zerotiltpoker.net](https://zerotiltpoker.net). **Sem** certificação de produção.
+Motor e API em **Rust**, UI em **TypeScript** (React + Vite + Tailwind), marca **ZT Poker** e Academy com aulas, vídeos e mesas de estudo. Demo: [zerotiltpoker.net](https://zerotiltpoker.net). **Sem** certificação de produção.
 
 | | |
 |--|--|
@@ -10,6 +10,8 @@ Motor e API em **Rust**, UI em **TypeScript** (React + Vite + Tailwind), skin **
 | **Arquitetura** | [`Arquitetura-Motor/ARQUITETURA_MOTOR.md`](Arquitetura-Motor/ARQUITETURA_MOTOR.md) |
 | **Gates CI** | [`Documentacao/QUALITY.md`](Documentacao/QUALITY.md) |
 | **Painel** | [`Documentacao/DASHBOARD.md`](Documentacao/DASHBOARD.md) |
+| **Academy e currículo** | [`Documentacao/CURSO_ESTRATEGIA_POKER.md`](Documentacao/CURSO_ESTRATEGIA_POKER.md) |
+| **Agente ZT** | [`Documentacao/PLANO_GO_TO_MARKET_AGENTE_ZT.md`](Documentacao/PLANO_GO_TO_MARKET_AGENTE_ZT.md) |
 | **Índice de docs** | [`Documentacao/README.md`](Documentacao/README.md) |
 | **Repositório** | https://github.com/leofran2204/poker-platform |
 
@@ -20,6 +22,7 @@ Motor e API em **Rust**, UI em **TypeScript** (React + Vite + Tailwind), skin **
 | `Motor-Rust/` | Regras, rake, deflator, antifraude |
 | `API-Axum/` | REST + WebSocket, PostgreSQL, Redis |
 | `Frontend-Web/` | UI canônica |
+| `ZeroTiltCurso/editorial/` | Roteiros, fontes, legendas e manifestos dos vídeos atuais |
 | `Infraestrutura-Docker/` | Compose, Caddy, deploy |
 | `Documentacao/` | Donos por assunto; `historico/` = snapshots |
 | `Arquitetura-Motor/` | Spec do motor/stack |

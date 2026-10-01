@@ -1,0 +1,67 @@
+{
+  "lessonId": "m5l1",
+  "filename": "zt-academy-m5l1-v3",
+  "contentHash": "639a6a976d8eaa54e9be637fefb0f96f0651bce8f944e3ae69a84841c9e5ed3f",
+  "rendererVersion": 3,
+  "durationSeconds": 359.1,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 9060659,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Texas Hold'em Short Deck: 36 cartas"
+    },
+    {
+      "start": 21.87,
+      "title": "Texas Hold'em Short Deck (8-max)"
+    },
+    {
+      "start": 58.63,
+      "title": "Não importe probabilidades do Texas tradicional"
+    },
+    {
+      "start": 87.03,
+      "title": "Ranking que muda decisões"
+    },
+    {
+      "start": 121.73,
+      "title": "Refaça o denominador"
+    },
+    {
+      "start": 158.17,
+      "title": "Não misture modalidades"
+    },
+    {
+      "start": 183.9,
+      "title": "Laboratório: O ás abaixo do seis"
+    },
+    {
+      "start": 223.17,
+      "title": "Laboratório: O ás abaixo do seis"
+    },
+    {
+      "start": 232.23,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 253.33,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 271.7,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 313.03,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 325.4,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "60f7bca39e62ac380c5bea1f8c430234c474e531f7ba06bb63a788952c5c3016"
+}

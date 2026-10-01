@@ -22,25 +22,25 @@ Este contrato de Termos de Uso ("Contrato") rege o uso da plataforma de poker on
 
 ---
 
-## 3. ZERO TILT ACADEMY, TUTOR IA E ISENÇÃO DE GANHOS
-3.1. A Zero Tilt Academy e eventuais simuladores ou coach virtual, quando disponibilizados, são ferramentas estritamente pedagógicas e analíticas. O coach limita-se à revisão de mãos já encerradas.
+## 3. ZERO TILT ACADEMY, FERRAMENTAS DE ESTUDO E ISENÇÃO DE GANHOS
+3.1. A Zero Tilt Academy, suas mesas de estudo com bots didáticos e eventuais ferramentas de coach virtual, quando disponibilizadas, têm fins estritamente pedagógicos e analíticos. O coach limita-se à revisão de mãos já encerradas.
 3.2. A conclusão de módulos ou aprovação em testes de fixação não assegura garantia, promessa de rentabilidade ou ganhos financeiros em mesas reais. O poker é um esporte de habilidade cujo resultado depende de cada decisão individual.
 
 ---
 
-## 4. PROGRAMA DE AFILIADOS EM 2 NÍVEIS (ANTI-PIRÂMIDE)
-4.1. O programa de expansão opera como contrato de agenciamento comercial em **estritos 2 (dois) níveis** (18% L1 e 12% L2, restando 70% para a casa).
+## 4. PROGRAMA AGENTE ZT POKER
+4.1. Quando ativado pela Plataforma, o programa opera em **um único nível**. O Agente ZT recebe 30% da receita líquida atribuível aos jogadores ligados diretamente ao seu código e mais 5 (cinco) pontos percentuais no mês em que atingir a meta de desempenho informada antes do início do ciclo.
 4.2. **Cumprimento à Lei nº 1.521/1951:** Não há cobrança de taxa de adesão ou compra de kits obrigatórios. Nenhuma bonificação é gerada pelo simples recrutamento ou cadastro de novos membros.
-4.3. Toda remuneração decorre unicamente da prestação efetiva e consumo real de serviços (rake gerado nas mesas).
-4.4. **Critério de Qualificação / Ativação Semanal:** Para fazer jus às bonificações de sua rede no período, o afiliado deve ter jogado no mínimo **100 (cem) mãos** na semana, computadas de **segunda-feira (00:00:00 BRT) a domingo (23:59:59 BRT)**. Sem essa atividade, a linha não pontua naquela semana (pontuação retida pela casa).
-4.5. **Data de Pagamento:** As bonificações apuradas são consolidadas mensalmente e pagas **todo dia 25 de cada mês**.
+4.3. A base de cálculo é o NGR direto: rake e fees atribuíveis, descontados os benefícios concedidos aos jogadores, estornos, chargebacks, tributos e custos de pagamento diretamente atribuíveis. Não há remuneração sobre cadastro, depósito, saldo, buy-in, prêmio ou perda do jogador.
+4.4. Indicações feitas pelos jogadores do agente não geram comissão. Autoindicação, fraude e movimentação artificial são excluídas da apuração e submetidas à auditoria.
+4.5. **Fechamento:** a apuração usa o mês civil em `America/Sao_Paulo` e pode ser consolidada pelo administrador a partir do dia 25 do mês seguinte, após a conciliação do ciclo anterior. No Play Money, qualquer benefício permanece virtual e sem conversão em dinheiro ou PIX.
 
 ---
 
 ## 5. PRIVACIDADE E PROTEÇÃO DE DADOS (LGPD — LEI Nº 13.709/2018)
 5.1. A Plataforma processa dados pessoais exclusivamente para execução de contrato, segurança e combate a fraudes.
 5.2. **Garantia de Pseudonimização:** Patrocinadores na rede não têm acesso a dados pessoais sensíveis, CPF, e-mail, telefone ou dados bancários de seus indicados.
-5.3. **Tratamento do coach virtual:** Quando disponibilizado, o coach deve analisar somente mãos encerradas do próprio Jogador, sem assistência em tempo real e sem revelar cartas privadas de terceiros. Qualquer uso futuro de provedor externo exige atualização prévia desta política e informação ao titular.
+5.3. **Dados nas ferramentas de estudo:** O servidor de treino processa o cenário, a distribuição, as ações e as respostas aos exercícios. As anotações do caderno são salvas neste navegador e podem ser exportadas pelo aluno. A mesa de estudo não envia esses dados a serviços externos de inteligência artificial. Quando disponibilizado, o coach virtual deve analisar somente mãos encerradas do próprio Jogador, sem assistência em tempo real e sem revelar cartas privadas de terceiros. Qualquer uso futuro de provedor externo exige atualização prévia desta política e informação ao titular.
 5.4. Em cumprimento à legislação antifraude, o histórico de partidas (Hand History) é retido por 5 anos (Art. 16 da LGPD).
 5.5. No KYC básico/manual, a Plataforma guarda nome legal, data de nascimento, estado da análise e somente HMAC do CPF com os quatro últimos dígitos; o CPF integral não é persistido nesse fluxo. O acesso administrativo deve ser limitado à análise e segurança da conta.
 
@@ -72,6 +72,6 @@ Este contrato de Termos de Uso ("Contrato") rege o uso da plataforma de poker on
 9.3. A Plataforma pode alterar este Contrato mediante publicação da versão atualizada com aviso prévio; o uso continuado implica aceite.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

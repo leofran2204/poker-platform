@@ -1,0 +1,75 @@
+{
+  "lessonId": "m6l2",
+  "filename": "zt-academy-m6l2-v3",
+  "contentHash": "ff6e867684dba928b3bb94582e0b2624fd5b0b8a741980e1b29f36ac8acac10b",
+  "rendererVersion": 3,
+  "durationSeconds": 347.47,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 8594654,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Banca: o cinto de segurança"
+    },
+    {
+      "start": 18.9,
+      "title": "Variância e orçamento"
+    },
+    {
+      "start": 42.57,
+      "title": "Limites pessoais"
+    },
+    {
+      "start": 72.93,
+      "title": "Decisão após perdas"
+    },
+    {
+      "start": 91.2,
+      "title": "Pesquisa sobre tilt"
+    },
+    {
+      "start": 113.87,
+      "title": "Defina o que pode ser perdido"
+    },
+    {
+      "start": 145.87,
+      "title": "Uma sessão de treino com começo e fim"
+    },
+    {
+      "start": 174.67,
+      "title": "Não converta exemplos em garantias"
+    },
+    {
+      "start": 206.8,
+      "title": "Laboratório: Uma sessão com limite"
+    },
+    {
+      "start": 245.27,
+      "title": "Laboratório: Uma sessão com limite"
+    },
+    {
+      "start": 254.33,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 267.9,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 281.37,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 299.8,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 313.93,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "ba07b7f02873932eabf609e4b37cdabc371fe63784932ef9f3ecd13ee9ab6f35"
+}

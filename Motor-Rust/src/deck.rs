@@ -327,7 +327,8 @@ fn build_straight_cards_short(cards: &[Card], high: Rank) -> Vec<Card> {
         vals.sort_unstable();
         vals.dedup();
         if vals.contains(&14) && vals.contains(&6) && vals.contains(&7) && vals.contains(&8) {
-            let needed = [Rank::Ace, Rank::Nine, Rank::Eight, Rank::Seven, Rank::Six];
+            // Ordem de desempate: o ás é baixo neste straight.
+            let needed = [Rank::Nine, Rank::Eight, Rank::Seven, Rank::Six, Rank::Ace];
             let mut result = Vec::new();
             for &r in &needed {
                 if let Some(c) = cards.iter().find(|c| c.rank == r) {
@@ -617,7 +618,7 @@ fn get_straight_flush(cards: &[Card]) -> Option<HandResult> {
 /// Constrói o Vec das 5 cartas que formam a sequência
 fn build_straight_cards(cards: &[Card], high: Rank) -> Vec<Card> {
     let high_val = high as u8;
-    let low_val = if high == Rank::Five { 14 } else { high_val - 4 }; // wheel: A conta como 1
+    let low_val = if high == Rank::Five { 2 } else { high_val - 4 };
 
     let mut result: Vec<Card> = cards
         .iter()
@@ -631,7 +632,14 @@ fn build_straight_cards(cards: &[Card], high: Rank) -> Vec<Card> {
         .copied()
         .collect();
 
-    result.sort_by_key(|c| std::cmp::Reverse(c.rank));
+    result.sort_by_key(|c| {
+        let value = if high == Rank::Five && c.rank == Rank::Ace {
+            1
+        } else {
+            c.rank as u8
+        };
+        std::cmp::Reverse(value)
+    });
     result.dedup_by(|a, b| a.rank == b.rank);
     result.truncate(5);
     result

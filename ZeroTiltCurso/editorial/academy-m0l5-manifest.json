@@ -1,0 +1,95 @@
+{
+  "lessonId": "m0l5",
+  "filename": "zt-academy-m0l5-v3",
+  "contentHash": "80e4bcc3deaf9b2fce6e2772a46f65680f62dbe68ebd81f2bf811bb9a8ca77b7",
+  "rendererVersion": 3,
+  "durationSeconds": 434.1,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 10501825,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Suas primeiras decisões e posições"
+    },
+    {
+      "start": 18.73,
+      "title": "Posição é informação adicional"
+    },
+    {
+      "start": 42.17,
+      "title": "Um plano inicial de abertura"
+    },
+    {
+      "start": 70.47,
+      "title": "Separe preço e força"
+    },
+    {
+      "start": 92.63,
+      "title": "Uma volta completa ao botão"
+    },
+    {
+      "start": 129.03,
+      "title": "Stack efetivo e plano"
+    },
+    {
+      "start": 161.53,
+      "title": "Por que observar ajuda"
+    },
+    {
+      "start": 188.6,
+      "title": "Laboratório: Botão: observar antes de decidir"
+    },
+    {
+      "start": 225.13,
+      "title": "Laboratório: Botão: observar antes de decidir"
+    },
+    {
+      "start": 234.2,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 260.4,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 271.97,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 299.17,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 308.77,
+      "title": "Exercício resolvido 3"
+    },
+    {
+      "start": 332.83,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 346.63,
+      "title": "Exercício resolvido 4"
+    },
+    {
+      "start": 364.57,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 374.87,
+      "title": "Exercício resolvido 5"
+    },
+    {
+      "start": 389.5,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 399.6,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "9af82743ad8203ba74c2270caed84c9a419c1f9a788a358e449e418c4c683c10"
+}

@@ -37,6 +37,7 @@ struct OperationalStatus {
     stack: Stack,
     cash_tables: Vec<CashTable>,
     tournament: Tournament,
+    agent_program: AgentProgram,
     wallets: Wallets,
     pix: Pix,
     presence: Presence,
@@ -91,17 +92,18 @@ struct Tournament {
     auto_start_min_players: u8,
     tables_per_event: u8,
     fee_percent: u8,
-    fee_split: FeeSplit,
     modes: Vec<String>,
     events: Vec<TournamentEvent>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct FeeSplit {
-    l1: u8,
-    l2: u8,
-    house: u8,
+struct AgentProgram {
+    levels: u8,
+    base_percent: u8,
+    bonus_percentage_points: u8,
+    basis: String,
+    settlement: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -335,9 +337,9 @@ fn parse_status(content: &str) -> Result<OperationalStatus, String> {
 }
 
 fn validate_status(status: &OperationalStatus, root: &Path) -> Result<(), String> {
-    if status.schema_version != 2 {
+    if status.schema_version != 3 {
         return Err(format!(
-            "schema_version {} não é suportado (esperado: 2)",
+            "schema_version {} não é suportado (esperado: 3)",
             status.schema_version
         ));
     }
@@ -395,9 +397,14 @@ fn validate_status(status: &OperationalStatus, root: &Path) -> Result<(), String
     if status.tournament.fee_percent > 100 {
         return Err("tournament.fee_percent deve estar em 0..=100".to_owned());
     }
-    let split = &status.tournament.fee_split;
-    if u16::from(split.l1) + u16::from(split.l2) + u16::from(split.house) != 100 {
-        return Err("tournament.fee_split deve somar 100".to_owned());
+    let agent = &status.agent_program;
+    if agent.levels != 1
+        || agent.base_percent != 30
+        || agent.bonus_percentage_points != 5
+        || agent.basis != "direct_ngr"
+        || agent.settlement != "monthly"
+    {
+        return Err("agent_program deve refletir um nível, 30% do NGR direto + 5 p.p. por meta e fechamento mensal".to_owned());
     }
     if status.tournament.modes.is_empty() {
         return Err("tournament.modes não pode ser vazio".to_owned());
@@ -705,15 +712,12 @@ fn render_status_md(status: &OperationalStatus) -> String {
     let t = &status.tournament;
     out.push_str(&format!("## Torneios{n}{n}"));
     out.push_str(&format!(
-        "Agenda definida pelo **{}** em `{}`, auto-start com **{}+**, **{}** mesas por evento, taxa **{}%** por cima (freeroll sem taxa; split {}/{}/{}). Modos: {}.{}{}",
+        "Agenda definida pelo **{}** em `{}`, auto-start com **{}+**, **{}** mesas por evento, taxa **{}%** por cima (freeroll sem taxa). Modos: {}.{}{}",
         t.schedule_owner,
         t.timezone,
         t.auto_start_min_players,
         t.tables_per_event,
         t.fee_percent,
-        t.fee_split.l1,
-        t.fee_split.l2,
-        t.fee_split.house,
         t.modes.join(" + "),
         n,
         n
@@ -721,6 +725,14 @@ fn render_status_md(status: &OperationalStatus) -> String {
     out.push_str(&render_mtt_table(status, n));
     out.push_str(n);
     out.push_str(n);
+
+    out.push_str(&format!("## Agente ZT Poker{n}{n}"));
+    out.push_str(&format!(
+        "**{} nível direto**, comissão base de **{}% do NGR direto** e bônus de **{} p.p.** quando a meta mensal é atingida. Apuração mensal, com deduções e carregamento de déficit; PM e Real separados. Receita atribuída não é crédito imediato. Regras: [`BUSINESS_RULES.md`](BUSINESS_RULES.md).{n}{n}",
+        status.agent_program.levels,
+        status.agent_program.base_percent,
+        status.agent_program.bonus_percentage_points,
+    ));
 
     out.push_str(&format!("## Carteiras{n}{n}"));
     out.push_str(&format!(
@@ -982,7 +994,7 @@ mod tests {
 
     fn sample_status() -> OperationalStatus {
         OperationalStatus {
-            schema_version: 2,
+            schema_version: 3,
             reviewed_on: "2026-09-10".to_owned(),
             cycle: Cycle {
                 id: "S24".to_owned(),
@@ -1048,11 +1060,6 @@ mod tests {
                 auto_start_min_players: 5,
                 tables_per_event: 3,
                 fee_percent: 15,
-                fee_split: FeeSplit {
-                    l1: 18,
-                    l2: 12,
-                    house: 70,
-                },
                 modes: vec!["play".to_owned(), "real".to_owned()],
                 events: vec![TournamentEvent {
                     name: "Texas Hold’em".to_owned(),
@@ -1066,6 +1073,13 @@ mod tests {
                     final_table_variant: None,
                     final_table_max: None,
                 }],
+            },
+            agent_program: AgentProgram {
+                levels: 1,
+                base_percent: 30,
+                bonus_percentage_points: 5,
+                basis: "direct_ngr".to_owned(),
+                settlement: "monthly".to_owned(),
             },
             wallets: Wallets {
                 pm_cash_cents: 15000,
@@ -1107,7 +1121,7 @@ mod tests {
 
     fn sample_json() -> String {
         serde_json::to_string(&serde_json::json!({
-            "schema_version": 2,
+            "schema_version": 3,
             "reviewed_on": "2026-09-10",
             "cycle": { "id": "S24", "title": "ciclo de teste" },
             "production": {
@@ -1136,7 +1150,6 @@ mod tests {
                 "auto_start_min_players": 5,
                 "tables_per_event": 3,
                 "fee_percent": 15,
-                "fee_split": { "l1": 18, "l2": 12, "house": 70 },
                 "modes": ["play", "real"],
                 "events": [{
                     "name": "Texas",
@@ -1148,6 +1161,13 @@ mod tests {
                     "reentries": 1,
                     "freeroll": false
                 }]
+            },
+            "agent_program": {
+                "levels": 1,
+                "base_percent": 30,
+                "bonus_percentage_points": 5,
+                "basis": "direct_ngr",
+                "settlement": "monthly"
             },
             "wallets": {
                 "pm_cash_cents": 15000,
@@ -1319,6 +1339,23 @@ mod tests {
     }
 
     #[test]
+    fn rejects_legacy_agent_contract() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let mut invalid = sample_status();
+        invalid.agent_program.levels = 2;
+        assert!(validate_status(&invalid, &root).is_err());
+        invalid = sample_status();
+        invalid.agent_program.basis = "gross_fee".to_owned();
+        assert!(validate_status(&invalid, &root).is_err());
+        let mut legacy: serde_json::Value = serde_json::from_str(&sample_json()).unwrap();
+        legacy["tournament"]["fee_split"] = serde_json::json!({"l1":18,"l2":12,"house":70});
+        assert!(parse_status(&legacy.to_string()).is_err());
+        let markdown = render_status_md(&sample_status());
+        assert!(markdown.contains("30% do NGR direto"));
+        assert!(!markdown.contains("split 18/12/70"));
+    }
+
+    #[test]
     fn parses_and_validates_sample_json() {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let status = parse_status(&sample_json()).unwrap();
@@ -1330,7 +1367,7 @@ mod tests {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let path = root.join(STATUS_FILE);
         let content = fs::read_to_string(&path).expect("STATUS_OPERACIONAL.json deve existir");
-        let status = parse_status(&content).expect("JSON schema v2");
+        let status = parse_status(&content).expect("JSON schema v3");
         validate_status(&status, &root).expect("fatos operacionais válidos");
         assert_eq!(status.cash_tables.len(), 5);
         assert!(status

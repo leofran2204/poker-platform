@@ -1,0 +1,71 @@
+{
+  "lessonId": "m1l1",
+  "filename": "zt-academy-m1l1-v3",
+  "contentHash": "929d3352d266c3b7d3c6361ffa200629930871edfd8ae1296e272260834b8120",
+  "rendererVersion": 3,
+  "durationSeconds": 347.93,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 8695817,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Ranges de Abertura por Posição (9-max)"
+    },
+    {
+      "start": 20.53,
+      "title": "Range depende do cenário"
+    },
+    {
+      "start": 45.0,
+      "title": "Posição pós-flop"
+    },
+    {
+      "start": 62.33,
+      "title": "Exercício guiado"
+    },
+    {
+      "start": 83.57,
+      "title": "Conte combinações e frequências"
+    },
+    {
+      "start": 118.1,
+      "title": "Stack, rake e número de jogadores"
+    },
+    {
+      "start": 149.77,
+      "title": "Construa uma pergunta estudável"
+    },
+    {
+      "start": 180.5,
+      "title": "Laboratório: Posição e mãos de abertura"
+    },
+    {
+      "start": 220.67,
+      "title": "Laboratório: Posição e mãos de abertura"
+    },
+    {
+      "start": 229.73,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 256.3,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 273.87,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 302.07,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 313.97,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "a3aed437f018553a7de44b1be020cecb04780326b623f16a90349a1d1084f019"
+}

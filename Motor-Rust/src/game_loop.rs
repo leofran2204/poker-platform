@@ -399,6 +399,18 @@ impl GameLoop {
 
     /// Inicia a mão: coleta blinds, distribui hole cards, define primeira ação
     pub fn start_hand(&mut self) -> Result<(), GameLoopError> {
+        let full_deck = if self.config.poker_variant.uses_short_deck() {
+            create_short_deck()
+        } else {
+            create_deck()
+        };
+        self.start_hand_with_deck(shuffle_deck(&full_deck))
+    }
+
+    /// Inicia uma distribuição reproduzível para estudo/replay. O baralho deve
+    /// conter exatamente todas as cartas da variante, sem duplicatas. Mesas
+    /// operacionais continuam chamando start_hand(), que usa CSPRNG.
+    pub fn start_hand_with_deck(&mut self, deck: Vec<Card>) -> Result<(), GameLoopError> {
         if self.state.players.len() < 2 {
             return Err(GameLoopError::NotEnoughPlayers);
         }
@@ -406,13 +418,26 @@ impl GameLoop {
             return Err(GameLoopError::HandAlreadyFinished);
         }
 
-        // 1. Criar e embaralhar baralho (Hold'em 52 ou Short Deck 36)
+        if self.history.is_some() {
+            return Err(GameLoopError::InvalidActionForPhase(
+                "A mão já foi iniciada".to_string(),
+            ));
+        }
         let full_deck = if self.config.poker_variant.uses_short_deck() {
             create_short_deck()
         } else {
             create_deck()
         };
-        self.state.deck = shuffle_deck(&full_deck);
+        if deck.len() != full_deck.len()
+            || full_deck
+                .iter()
+                .any(|card| deck.iter().filter(|c| *c == card).count() != 1)
+        {
+            return Err(GameLoopError::InvalidActionForPhase(
+                "Baralho de estudo inválido para a modalidade".to_string(),
+            ));
+        }
+        self.state.deck = deck;
 
         let sb_index = self.small_blind_index();
         let bb_index = self.big_blind_index();
@@ -1371,11 +1396,14 @@ impl GameLoop {
             let villain_refs: Vec<&[crate::deck::Card]> =
                 villain_owned.iter().map(|h| h.as_slice()).collect();
             let opponents_counted = villain_refs.len() as u8;
-            let loser_equity = loss_deflator::get_multiway_win_probability(
+            let Some(loser_equity) = loss_deflator::get_multiway_win_probability_for_variant(
                 &player.hole_cards,
                 &villain_refs,
                 board_slice,
-            );
+                self.config.poker_variant,
+            ) else {
+                continue;
+            };
 
             let params = ProgressiveLossDeflatorParams {
                 pots: pots.to_vec(),

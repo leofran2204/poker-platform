@@ -1,0 +1,241 @@
+WEBVTT
+
+00:00:00.501 --> 00:00:06.856
+Zero Tilt Academy Ranges de Abertura por Posição 9-max Nesta
+
+00:00:06.869 --> 00:00:11.856
+aula nosso objetivo é Relacionar jogadores por agir posição e
+
+00:00:11.869 --> 00:00:16.547
+plano de abertura Vamos desenvolver a teoria resolver exemplos
+
+00:00:16.560 --> 00:00:18.866
+e aplicar a ideia na mesa deste módulo
+
+00:00:21.035 --> 00:00:24.774
+Range depende do cenário Um range é um conjunto de
+
+00:00:24.786 --> 00:00:29.580
+mãos possíveis podendo ter frequências diferentes Na abertura
+
+00:00:29.593 --> 00:00:34.593
+9-max posição inicial enfrenta oito jogadores por agir no botão
+
+00:00:34.877 --> 00:00:39.451
+só os blinds Isso costuma permitir mais aberturas no botão
+
+00:00:39.761 --> 00:00:43.343
+sob hipóteses comparáveis de stacks rake e respostas
+
+00:00:45.502 --> 00:00:50.851
+Posição pós-flop posição inicial fica fora de posição contra callers
+
+00:00:50.864 --> 00:00:54.897
+à sua esquerda mas em posição contra os blinds O
+
+00:00:54.910 --> 00:00:59.717
+botão age por último pós-flop Não confunda a ordem pré-flop
+
+00:00:59.730 --> 00:01:00.645
+com a pós-flop
+
+00:01:02.835 --> 00:01:09.061
+Exercício guiado Texas cash 9-max 100 big blinds todos desistiram
+
+00:01:09.344 --> 00:01:12.218
+no botão inclua rei e dama do mesmo naipe na
+
+00:01:12.231 --> 00:01:16.058
+abertura do plano básico Registre o tamanho e o que
+
+00:01:16.071 --> 00:01:20.195
+fará diante de uma 3-bet Um quadro de ranges sem
+
+00:01:20.208 --> 00:01:21.896
+essas hipóteses é incompleto
+
+00:01:24.068 --> 00:01:29.340
+Conte combinações e frequências Uma mão pareada possui seis combinações
+
+00:01:29.353 --> 00:01:33.992
+antes de cartas conhecidas Uma mão não pareada suited possui
+
+00:01:34.005 --> 00:01:37.910
+quatro e offsuit doze O conjunto ás e rei tem
+
+00:01:37.923 --> 00:01:43.155
+dezesseis quatro suited mais doze offsuit Um range com frequências
+
+00:01:43.168 --> 00:01:48.026
+mistas exige ponderar essas combinações Abrir uma classe em metade
+
+00:01:48.039 --> 00:01:51.492
+das ocasiões não significa que cada carta individual apareceu
+
+00:01:51.505 --> 00:01:55.758
+metade das vezes Primeiro defina quais classes entram e em
+
+00:01:55.771 --> 00:01:56.415
+que cenário
+
+00:01:58.602 --> 00:02:03.410
+Stack rake e número de jogadores Uma abertura pode receber
+
+00:02:03.423 --> 00:02:08.281
+call raise ou folds Stacks menores reduzem a profundidade das
+
+00:02:08.294 --> 00:02:12.405
+decisões seguintes stacks maiores ampliam a importância de posição
+
+00:02:12.418 --> 00:02:16.541
+e de mãos capazes de formar combinações fortes Rake e
+
+00:02:16.554 --> 00:02:20.923
+cap mudam o valor das continuações Os treinos isolam o
+
+00:02:20.936 --> 00:02:24.454
+conceito com rake zero e stacks declarados por isso seus
+
+00:02:24.466 --> 00:02:27.688
+resultados não são uma tabela pronta para qualquer mesa do
+
+00:02:27.701 --> 00:02:28.113
+lobby
+
+00:02:30.268 --> 00:02:34.445
+Construa uma pergunta estudável Em vez de perguntar se rei
+
+00:02:34.458 --> 00:02:38.092
+e dama do mesmo naipe é sempre abertura defina posição
+
+00:02:38.401 --> 00:02:43.646
+número de jogadores stack efetivo e tamanho Depois pergunte quais
+
+00:02:43.659 --> 00:02:48.221
+respostas dos blinds tornariam outra linha preferível O artigo
+
+00:02:48.234 --> 00:02:52.538
+técnico do GTO Wizard consultado em 2026 reforça a necessidade
+
+00:02:52.551 --> 00:02:56.378
+de parametrizar esses elementos não usamos tabelas proprietárias
+
+00:02:56.391 --> 00:02:58.839
+do fornecedor como gabarito deste treino
+
+00:03:01.002 --> 00:03:07.086
+Laboratório Posição e mãos de abertura Objetivo Relacionar jogadores
+
+00:03:07.098 --> 00:03:11.261
+por agir posição e plano de abertura Abra a mesa
+
+00:03:11.274 --> 00:03:15.462
+deste módulo e comece pelo treino guiado A mesa didática
+
+00:03:15.475 --> 00:03:19.714
+começa com três jogadores Ajuste o range ao número real
+
+00:03:19.727 --> 00:03:24.689
+de oponentes não copie um chart 9-max Depois repita no
+
+00:03:24.702 --> 00:03:28.890
+modo desafio respondendo à pergunta objetiva antes de cada ação
+
+00:03:29.779 --> 00:03:33.477
+Use o replay para comparar uma alternativa na mesma distribuição
+
+00:03:34.366 --> 00:03:37.936
+Uma nova distribuição preserva as cartas que definem o cenário
+
+00:03:37.949 --> 00:03:38.993
+e varia as demais
+
+00:03:41.168 --> 00:03:45.563
+Registre sua justificativa no caderno acertar a leitura e respeitar
+
+00:03:45.575 --> 00:03:48.063
+as hipóteses importam mais que ganhar esta mão
+
+00:03:50.235 --> 00:03:52.877
+Por que o range de abertura do posição inicial é
+
+00:03:52.889 --> 00:03:57.427
+muito mais fechado do que o do Botão A. Porque
+
+00:03:57.440 --> 00:04:00.765
+o posição inicial é obrigado a apostar mais fichas B.
+
+00:04:01.654 --> 00:04:04.695
+Porque há mais adversários por agir e pode ficar fora
+
+00:04:04.708 --> 00:04:09.154
+de posição pós-flop C. Porque o dealer não permite blefes
+
+00:04:09.167 --> 00:04:12.350
+no posição inicial Pause o vídeo faça sua leitura e
+
+00:04:12.363 --> 00:04:14.644
+registre uma resposta antes de continuar
+
+00:04:16.802 --> 00:04:20.616
+Resposta do exercício Porque há mais adversários por agir e
+
+00:04:20.629 --> 00:04:25.721
+pode ficar fora de posição pós-flop Oito adversários ainda agem
+
+00:04:26.610 --> 00:04:29.780
+posição inicial fica em posição contra os blinds e fora
+
+00:04:29.793 --> 00:04:32.190
+de posição contra jogadores à sua esquerda
+
+00:04:34.368 --> 00:04:39.718
+Suas cartas rei de paus dama de paus Cartas comunitárias
+
+00:04:39.924 --> 00:04:45.903
+ainda não reveladas Texas cash 9-max 100 big blinds todos deram
+
+00:04:45.916 --> 00:04:50.194
+fold No plano básico de abertura você está no botão
+
+00:04:50.207 --> 00:04:55.439
+com K ♣ Q ♣ Ação A. fold B. call
+
+00:04:55.452 --> 00:04:58.609
+C. raise Pause o vídeo faça sua leitura e registre
+
+00:04:58.622 --> 00:05:00.375
+uma resposta antes de continuar
+
+00:05:02.568 --> 00:05:07.209
+Resposta do exercício raise rei e dama do mesmo naipe
+
+00:05:07.222 --> 00:05:10.302
+no Botão é uma excelente mão para abrir roubar blinds
+
+00:05:10.315 --> 00:05:12.286
+ou jogar em posição com vantagem
+
+00:05:14.468 --> 00:05:17.432
+Abra o simulador da aula e escolha o cenário Posição
+
+00:05:17.445 --> 00:05:21.673
+e mãos de abertura Jogue uma mão completa responda às
+
+00:05:21.686 --> 00:05:25.823
+perguntas e registre seu plano Depois use o replay para
+
+00:05:25.836 --> 00:05:30.398
+comparar outra ação na mesma distribuição Volte em outra sessão
+
+00:05:30.410 --> 00:05:35.346
+no modo desafio Avalie o raciocínio com as informações disponíveis
+
+00:05:35.617 --> 00:05:39.740
+sem confundir uma vitória isolada com uma boa estratégia As
+
+00:05:39.753 --> 00:05:44.032
+fontes estão no material de apoio Este curso não promete
+
+00:05:44.044 --> 00:05:46.248
+lucro e o treino usa fichas sem valor

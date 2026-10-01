@@ -1,0 +1,27 @@
+Zero Tilt Academy. Double Barrel: Scare Cards e Sizing de Turn. Nesta aula, nosso objetivo é: Atualizar a força relativa e planejar o river. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+O segundo barril. Uma aposta no turn após apostar no flop precisa de uma razão: receber de pior, fazer melhor desistir ou combinar fold equity com possibilidade de melhorar. A iniciativa, sozinha, não é justificativa.
+
+A carta favorece qual range?. Um rei pode beneficiar parte do range de quem abriu, mas também melhorar o caller. Reconstrua ambos os ranges após as ações anteriores. Não transforme toda carta alta em “scare card automática”.
+
+Exercício. Você tem ás e dama em dama, oito e três-K. Sua mão passou de top pair a segundo par. Se o objetivo declarado é controlar o pote e preservar valor de showdown após check adversário, check-back cumpre esse plano. Apostar ás e dama não é automaticamente um segundo barril polarizado.
+
+Atualize os ranges, não só o board. Depois de uma c-bet paga, o range do caller já não é o mesmo do pré-flop. Parte das mãos desistiu e parte continuou. A carta do turn interage com essa distribuição filtrada. Um rei pode favorecer alguns reis do agressor, mas também melhorar rei e dama ou outros reis do caller que estavam no modelo. A narrativa da iniciativa não substitui a enumeração das mãos plausíveis.
+
+Aposta por valor, blefe ou proteção. Ao apostar, diga quais mãos piores pagam e quais melhores podem desistir. Negar equity a mãos com chances de melhorar pode fazer parte da razão, mas precisa ser comparado ao custo de enfrentar raises e ao valor de dar check. Uma mão intermediária pode preferir preservar showdown em algumas linhas e apostar em outras. A categoria da mão sozinha não resolve o problema.
+
+Planeje dois tipos de river. Depois de escolher uma aposta no turn, descreva o que fará em um river favorável e em um que complete um projeto adversário. Use stacks e pote para saber quais tamanhos ainda cabem. No replay do exercício, compare o que você sabia antes do river com o que apareceu depois; não use o resultado para reescrever sua hipótese original.
+
+Laboratório: Quando chega uma carta maior. Objetivo: Atualizar a força relativa e planejar o river. Abra a mesa deste módulo e comece pelo treino guiado. ás e dama passou a segundo par. Um rei no turn não obriga a apostar nem elimina seu valor de showdown. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+Quando uma carta do turn pode favorecer uma nova aposta? A. Sempre que é um ás ou rei B. Quando melhora a relação entre os ranges e sustenta um objetivo de valor ou blefe C. Sempre que você apostou o flop Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Quando melhora a relação entre os ranges e sustenta um objetivo de valor ou blefe. Analise ambos os ranges, a linha anterior e a razão para apostar.
+
+Suas cartas: ás de espadas, dama de ouros. Cartas comunitárias: dama de espadas, oito de paus, três de copas, rei de ouros. Texas, dama de espadas oito de paus três de copas, turn rei de ouros. Você tem A♠ Q♦ no botão e o big blinds checa. O objetivo do exercício é controlar o pote com segundo par. Qual ação atende a esse plano? A. check B. bet Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: check. Check-back controla o pote. Uma aposta exigiria outra hipótese sobre o range que paga ou desiste.
+
+Abra o simulador da aula e escolha o cenário Quando chega uma carta maior. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

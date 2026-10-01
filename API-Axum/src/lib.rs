@@ -4,6 +4,7 @@
 // in `tests/` can access `build_router`, `AppState`, and `TournamentStore`
 // without needing to duplicate the router construction logic.
 
+pub mod academy;
 pub mod admin_panel;
 pub mod admin_routes;
 pub mod binary_codec;
@@ -44,7 +45,7 @@ use crate::handlers::estrutura as estrutura_api;
 use crate::handlers::presence as presence_handlers;
 use crate::handlers::{auth, bots as bots_handlers, hand_history, lobby, tournament, websocket};
 use crate::middleware::auth::RequireAuth;
-use crate::middleware::rate_limit::EnforceRateLimit;
+use crate::middleware::rate_limit::{EnforceAcademyRateLimit, EnforceRateLimit};
 use crate::state::AppState;
 use axum::middleware::from_extractor_with_state;
 
@@ -90,6 +91,14 @@ pub fn track_websocket_connection() -> WebSocketConnectionGuard {
 pub fn build_router(state: AppState) -> Router {
     API_STARTED_AT.get_or_init(Instant::now);
     Router::new()
+        .route(
+            "/api/academy/play",
+            post(academy::play)
+                .layer(axum::extract::DefaultBodyLimit::max(16 * 1024))
+                .route_layer(
+                    from_extractor_with_state::<EnforceAcademyRateLimit, AppState>(state.clone()),
+                ),
+        )
         // ─── Auth routes (public + rate limited) ───
         .route(
             "/api/auth/register",
@@ -297,6 +306,42 @@ pub fn build_router(state: AppState) -> Router {
         .route(
             "/api/estrutura",
             get(estrutura_api::get_estrutura)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/admin/estrutura/backfill",
+            get(estrutura_api::preview_backfill)
+                .post(estrutura_api::execute_backfill)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/admin/agentes/:id",
+            patch(estrutura_api::configure_agent)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/admin/agentes/:id/adjustments",
+            post(estrutura_api::add_agent_adjustment)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/admin/agentes/:id/cycle",
+            get(estrutura_api::preview_agent_cycle)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/admin/agentes/:id/close",
+            post(estrutura_api::close_agent_cycle)
                 .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
                     state.clone(),
                 )),

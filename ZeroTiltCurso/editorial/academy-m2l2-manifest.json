@@ -1,0 +1,75 @@
+{
+  "lessonId": "m2l2",
+  "filename": "zt-academy-m2l2-v3",
+  "contentHash": "64295cc91a3ed18c636c108e633960f067950155cd98b46556309fe0fb527a3c",
+  "rendererVersion": 3,
+  "durationSeconds": 331.67,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 8201941,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Como responder a Check-Raise e a Arte do Float"
+    },
+    {
+      "start": 19.23,
+      "title": "Responder ao check-raise"
+    },
+    {
+      "start": 35.63,
+      "title": "Modelo explícito"
+    },
+    {
+      "start": 56.03,
+      "title": "Float"
+    },
+    {
+      "start": 72.0,
+      "title": "Refaça o preço após o raise"
+    },
+    {
+      "start": 105.5,
+      "title": "Refaça o preço após o raise"
+    },
+    {
+      "start": 109.93,
+      "title": "Força absoluta e força relativa"
+    },
+    {
+      "start": 140.8,
+      "title": "Um float precisa de plano"
+    },
+    {
+      "start": 166.8,
+      "title": "Laboratório: Responder ao check-raise"
+    },
+    {
+      "start": 204.17,
+      "title": "Laboratório: Responder ao check-raise"
+    },
+    {
+      "start": 213.23,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 234.0,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 248.33,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 284.3,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 297.87,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "6121e69bfb1f5619a2caccb7b5c54d43fdbc60cab41c6fb4f97d32944be6dbcc"
+}

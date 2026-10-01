@@ -59,7 +59,7 @@ export function LossDeflatorSection() {
             ))}
           </ul>
           <p className="border-t border-felt-600 bg-felt-900/50 px-4 py-2 text-[11px] text-felt-400">
-            Abaixo de 56% não há devolução — o benefício é para quem jogou na frente.
+            Abaixo de 56% não há devolução. Esse é o limiar de elegibilidade, mesmo quando o jogador era favorito.
           </p>
         </div>
         <DeflatorSimulator />

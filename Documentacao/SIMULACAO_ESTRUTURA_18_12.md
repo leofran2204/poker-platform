@@ -1,5 +1,7 @@
 # Ata — Teste de Sustentabilidade 18/12 (Fase D)
 
+> **Registro histórico do modelo anterior.** Em 27/09/2026 foi aprovado o plano Agente ZT Poker, com um nível e 30% do NGR direto + 5 pontos percentuais por desempenho. O teste abaixo documenta o ledger 18%/12% da época, preservado como `program_version = 1`. O contrato vigente usa NGR mensal na versão 2 (migration 060); esta ata não valida o novo programa.
+
 **Data:** 2026-09-07/08 · **Ambiente:** VPS `zerotiltpoker.net` (demo/staging, play money)
 **Escopo:** rede Minha Estrutura 18%/12% em cash half/half + MTT + fee 15% + cenários funcionais e adversariais.
 **Contas:** 15 `t18_*` em 2 árvores + ciclo + L3 + fantasmas + sem-patrocínio; 6 `smoke_mtt_*` (suporte); frota `bot_*` lag_v2.
@@ -48,6 +50,6 @@
 **Modelo sustentável e correto por construção:** margem da casa ≥ 98% no volume testado (pior caso teórico 70%), anti-pirâmide (VP) funcional, sem vazamento em ciclos/L3/bots. Aprovado para seguir operando a demo; revisitar com stakes maiores antes de qualquer alegação de receita real.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

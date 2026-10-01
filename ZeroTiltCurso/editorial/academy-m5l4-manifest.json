@@ -1,0 +1,107 @@
+{
+  "lessonId": "m5l4",
+  "filename": "zt-academy-m5l4-v3",
+  "contentHash": "22fbad187494cfa09ac5d69e0a89227340b283bd147d6d5b0b05335ac5d7db47",
+  "rendererVersion": 3,
+  "durationSeconds": 546.7,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 13811260,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Pineapple: combinações e probabilidades condicionais"
+    },
+    {
+      "start": 20.5,
+      "title": "Conte sem duplicar"
+    },
+    {
+      "start": 45.6,
+      "title": "Flop, turn e river"
+    },
+    {
+      "start": 91.37,
+      "title": "Uma probabilidade exata, com hipóteses"
+    },
+    {
+      "start": 133.03,
+      "title": "Uma probabilidade exata, com hipóteses"
+    },
+    {
+      "start": 141.0,
+      "title": "Amostragem sem reposição"
+    },
+    {
+      "start": 172.73,
+      "title": "Aplicação"
+    },
+    {
+      "start": 196.57,
+      "title": "Derive o número de pares"
+    },
+    {
+      "start": 231.63,
+      "title": "Dois eventos sem reposição"
+    },
+    {
+      "start": 271.77,
+      "title": "O que uma simulação precisa preservar"
+    },
+    {
+      "start": 304.0,
+      "title": "Laboratório: Da contagem à decisão"
+    },
+    {
+      "start": 343.97,
+      "title": "Laboratório: Da contagem à decisão"
+    },
+    {
+      "start": 353.03,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 368.8,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 386.47,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 399.93,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 414.73,
+      "title": "Exercício resolvido 3"
+    },
+    {
+      "start": 440.5,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 453.3,
+      "title": "Exercício resolvido 4"
+    },
+    {
+      "start": 468.07,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 477.83,
+      "title": "Exercício resolvido 5"
+    },
+    {
+      "start": 497.23,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 513.13,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "7c751aa36b080d1cd2e64a826a523bef4c46641124fbac0b025e655205563d3a"
+}

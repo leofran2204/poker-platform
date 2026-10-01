@@ -4,7 +4,7 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net). Contrato de agentes: [`../
 
 ## Sincronização de fatos
 
-Fonte máquina: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json) (schema v2). Humanos leem o Markdown gerado. Não coloque parágrafo no JSON.
+Fonte máquina: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json) (schema v3, incluindo o programa de agente direto). Humanos leem o Markdown gerado. Não coloque parágrafo no JSON.
 
 ```bash
 cargo run --bin documentation-sync -- --write
@@ -34,7 +34,7 @@ O `--check` é obrigatório na CI. Prosa histórica, legal e didática não é r
 | `guia_aprendizado.md` | Como aprender o código |
 | `RELATORIO_AMIGOS_SOCIO.md` | Pitch 4 min |
 | `RELATORIO_PARCEIROS_ZEROTILT.md` | Due diligence |
-| `PLANO_GO_TO_MARKET_REDE_2_NIVEIS.md` | GTM rede 2 níveis |
+| `PLANO_GO_TO_MARKET_AGENTE_ZT.md` | GTM Agente ZT: um nível, 30% + 5 p.p. por desempenho |
 | `CURSO_ESTRATEGIA_POKER.md` | Curso de jogo (produto) |
 | `LOSS_DEFLATOR_EXEMPLOS.md` | Exemplos do deflator |
 | `SECURITY_UPGRADES_EXEMPLOS.md` | Exemplos JWT / provably fair |
@@ -46,6 +46,6 @@ O `--check` é obrigatório na CI. Prosa histórica, legal e didática não é r
 Deploy: [`../Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md`](../Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md).
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

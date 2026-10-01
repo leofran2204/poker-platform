@@ -1,0 +1,71 @@
+{
+  "lessonId": "m1l3",
+  "filename": "zt-academy-m1l3-v3",
+  "contentHash": "470bc06a215489dcf6ea2a1b5cb73719f41d57f676c8b337baedb3fd78c8963a",
+  "rendererVersion": 3,
+  "durationSeconds": 366.13,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 9117027,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "3-bet por Valor e 3-bet Light com Blockers"
+    },
+    {
+      "start": 20.33,
+      "title": "Valor, blefe e bloqueadores"
+    },
+    {
+      "start": 44.57,
+      "title": "Contagem de combinações"
+    },
+    {
+      "start": 80.23,
+      "title": "Exercício"
+    },
+    {
+      "start": 104.07,
+      "title": "Três tamanhos diferentes"
+    },
+    {
+      "start": 135.87,
+      "title": "Bloqueadores têm dois lados"
+    },
+    {
+      "start": 167.6,
+      "title": "Planeje a próxima decisão"
+    },
+    {
+      "start": 198.93,
+      "title": "Laboratório: Reaumentar uma abertura"
+    },
+    {
+      "start": 238.63,
+      "title": "Laboratório: Reaumentar uma abertura"
+    },
+    {
+      "start": 247.7,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 273.97,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 290.77,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 321.53,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 332.47,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "aa867bf1d93229bfd0315b6476374fefbc86af5999fd7066d119ddd757cdccf0"
+}

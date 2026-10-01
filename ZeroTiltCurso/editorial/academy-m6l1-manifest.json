@@ -1,0 +1,75 @@
+{
+  "lessonId": "m6l1",
+  "filename": "zt-academy-m6l1-v3",
+  "contentHash": "139c12cc83b549050af72c1bd9730ba076bd8e741011bd0ef19196493124e335",
+  "rendererVersion": 3,
+  "durationSeconds": 352.63,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 8620785,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "EV e fold equity"
+    },
+    {
+      "start": 18.7,
+      "title": "Valor esperado"
+    },
+    {
+      "start": 39.27,
+      "title": "Fold equity e semi-blefe"
+    },
+    {
+      "start": 58.73,
+      "title": "Modelo simplificado"
+    },
+    {
+      "start": 84.7,
+      "title": "Exercício"
+    },
+    {
+      "start": 104.67,
+      "title": "Derive as parcelas do modelo"
+    },
+    {
+      "start": 135.0,
+      "title": "Compare duas hipóteses"
+    },
+    {
+      "start": 171.63,
+      "title": "Margem e incerteza"
+    },
+    {
+      "start": 199.2,
+      "title": "Laboratório: Preço, hipótese e resultado"
+    },
+    {
+      "start": 232.53,
+      "title": "Laboratório: Preço, hipótese e resultado"
+    },
+    {
+      "start": 247.1,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 267.33,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 282.5,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 303.77,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 318.33,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "501861882dfce7c1562eb8f964ebe152d617363a0992761b2377b06c4085bac5"
+}

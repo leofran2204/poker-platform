@@ -6,12 +6,29 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certif
 
 ---
 
+## S26 — auditoria, Academy e Agente ZT (27/09–01/10/2026)
+
+- [x] Corrigir wheel clássico/Short Deck, equity por modalidade e exercícios inconsistentes; evidências em [QUALITY](QUALITY.md).
+- [x] Reordenar Academy com pré-requisitos, preservar progresso e aprofundar a base matemática de Pineapple.
+- [x] Filme da home com Brazilian Pineapple/Short Deck, fontes, legendas e verificação desktop/celular.
+- [x] Mesas dos dez módulos atuais: 35 cenários, bots didáticos, ações completas, replay/comparação e caderno salvo/reaberto; cobertura das 28 aulas.
+- [x] Ampliar os 25 textos técnicos com exemplos resolvidos, hipóteses e exercícios de laboratório; fontes vinculadas; catálogo ampliado para 21 referências.
+- [x] Complementar a aula histórica com Omaha (30/09): seis fontes adicionais, duas questões e vídeo de 4min14s; o curso específico permanece para outro momento.
+- [x] Unificar as dicas locais com a teoria revisada da Academy; retirar a cópia antiga com ranges contraditórios.
+- [ ] Publicar S26 na demo e registrar evidências de migração, saúde e conteúdo servido.
+- [ ] Auditar hand histories e settlements antigos quanto a wheel e equity Short Deck, sem alterar saldos automaticamente.
+- [ ] Conferir snapshot temporal do all-in, folds posteriores e equity de side pots com eventos reproduzíveis.
+- [x] Regravar os 25 vídeos técnicos da grade atual; conferir os 28 vídeos de aula e o filme da home, com decodificação integral, cobertura das palavras da narração, legendas, capítulos, transcrições e vínculo com os cenários. Retirar mídias obsoletas da pasta pública.
+- [ ] Escuta editorial humana integral para avaliar prosódia, ritmo e pronúncia além das verificações automatizadas.
+- [ ] Expandir a grade atual conforme as 15 etapas do [currículo](CURSO_ESTRATEGIA_POKER.md), incluindo aplicações cash/MTT/ICM e análise avançada com modelos declarados.
+- [ ] Validar a nota do quiz de aula no servidor (as perguntas da mesa de estudo já são corrigidas no backend) e a política de erro amostral nas fronteiras do Loss Deflator.
+
 ## 📅 Cadência de Sprints — Metodologia Ágil
 
 | # | Parâmetro | Valor |
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
-| 2 | **Sprint atual** | S24 — três modalidades, Academy, marca ZT Poker, lobby em cards e proteção do jogador |
+| 2 | **Sprint atual** | S26 — Academy revisada, história do Omaha e Agente ZT em um nível |
 | 3 | **Status** | 🟢 Demo/staging no ar; sem cert. produção |
 | 4 | **Cerimônias** | Planning + Review + Retrospectiva |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
@@ -65,7 +82,8 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S21b | 2026-09-04 | PM 150+150 sem rebuy + restore MTT + Dockerfile cache | PM zera torneio (041); cash existente →150 (042); restore 031–038 registering (043, órfãos limpos); PM 150+150 + rebuy MTT ilimitado nv.6 (044); Dockerfile cache deps (build ~20s) + trava anti-dummy | 🟢 Fechado (demo); validado fim a fim |
 | S22 | 2026-09-07 | Gameplay MTT + fee 15% + bots em MTT | 3 mesas/torneio + caps 27/18/15 (048); fee 15% por cima com split 18/12 + total_fees (049); ator MTT (mãos, eliminações, payouts, run-out all-in, halt auditável); bots lag_v2 em MTT + painel; 1º campeão ao vivo (freeroll, payout GTD); Motor 1848 + API 43 + 2 integração MTT | 🟢 Fechado (demo); validado ao vivo |
 | S23 | 2026-09-08 | Cancela inscrição + admin agenda/cria + textos | Unregister pré-start com reembolso total + anulação de fee; estado inscrito + botão Cancelar; datetime-local por linha; POST admin cria (max 3×, BBA 26); fallback por status; validado ao vivo fim a fim | 🟢 Fechado (demo) |
-| S24 | 2026-09-10 → 2026-09-24 | Academy, três modalidades, marca, lobby e proteção | Home Academy; login → `/curso`; lobby MTT em cards + cash no celular; Hold’em / Omaha 4 (52) / Brazilian Pineapple (057); marca ZT Poker; limites voluntários, autoexclusão, KYC manual, recuperação de senha e suporte (058) | 🟡 Código validado; deploy 058 autorizado |
+| S24 | 2026-09-10 → 2026-09-24 | Academy, três modalidades, marca, lobby e proteção | Home Academy; login → `/curso`; lobby MTT em cards + cash no celular; Hold’em / Omaha 4 (52) / Brazilian Pineapple (057); marca ZT Poker; limites voluntários, autoexclusão, KYC manual, recuperação de senha e suporte (058) | 🟢 Fechado (demo) |
+| S25 | 2026-09-26 | Quatro modalidades, showdown completo e Loss Deflator com side pots | Texas tradicional + Texas Short Deck + Omaha 4 + Brazilian Pineapple; showdown da home; rateio do deflator por pote; migration 059 | 🟢 Publicado na demo |
 
 Catálogo vigente: [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 
@@ -118,10 +136,12 @@ Pendências conscientes: ownership distribuído de mesa, integração externa de
 |---|--------|-------|--------|
 | PIX | DePix reconciliado na demo: checkout HMAC, crédito provisório ≤ R$ 50, payout worker com cifra + fila admin | `API-Axum/` & `Frontend-Web/` | 🟢 Na demo (sem cert. produção) |
 | COACH | Especificação integrada: revisão somente pós-mão, um coach com analisadores por rua, fatos/hipóteses separados e tags para a Academy. MVP Hold’em → matemática/EV → variantes → personalização opt-in. Sem RTA e sem reutilizar bots jogadores como coach. | `Motor-Rust/`, `API-Axum/` & `Frontend-Web/` | 📐 Planejado; não implementado |
+| AGENTE | **Agente ZT Poker**: um nível, NGR por carteira, 30% + 5 p.p., metas futuras, estornos identificados, prévia de fechamento e novos painéis | `API-Axum/` & `Frontend-Web/` | Implementado localmente; dois testes financeiros e análise estática aprovados; validação integrada e deploy pendentes |
 
-### ✅ Concluídas — Sprint Atual (S13 + S12)
+### ✅ Entregas recentes e históricas
 | #   | Tarefa                                                                                                                                                              | Data       |
 |-----|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| NET | **Backfill da rede** — prévia e execução administrativa idempotente/auditada para vincular contas antigas ao primeiro usuário; execução na demo ainda pendente | 2026-09-27 |
 | ONL | **Contador de online** — `presence` API + badge header + hero home; heartbeat autenticado; TTL 90s Redis | 2026-08-07 |
 | AUTH| **MFA + harden auth** — challenges opacos (mig 016), bcrypt non-blocking, lockout atômico, Resend async, guards de produção, LoginPage 2 passos | 2026-08-06 |
 | SEC | **Supply-chain CI** — rust-ci reforçado, supply-chain workflow, Dependabot, audit.toml | 2026-08-06 |
@@ -181,9 +201,9 @@ Pendências conscientes: ownership distribuído de mesa, integração externa de
 | —   | `Documentacao`       | Regras, STATUS, dashboard, logs; `historico/` = snapshots                                                                 | ✅ Ativo                  |
 | —   | `Arquitetura-Motor`  | Arquitetura alvo (Rust puro)                                                                                              | ✅ Ativo                  |
 | —   | **`Motor-Rust`**     | **Motor (deck, side_pots, loss_deflator, rake+B2B 15/85, rng, hand_history, tournament, auth, lobby, antifraude)**      | **✅ Ativo — suíte histórica ~1.904 (`--lib`)** |
-| —   | **`Frontend-Web`**   | **SPA React/Vite/Tailwind (canônico): home, lobby, mesa, admin lazy, Vitest 16 + ESLint**                                 | **✅ Ativo** |
+| —   | **`Frontend-Web`**   | **SPA React/Vite/Tailwind (canônico): home, lobby, mesa, admin lazy, Vitest + ESLint**                                    | **✅ Ativo** |
 | —   | `Frontend-Dioxus`    | WASM legado (rotas/mesa/lobby) — **removido do monorepo**; só histórico git                                              | 📦 Histórico |
-| —   | **`API-Axum`**       | **API HTTPS/WSS Axum; TableActor + TournamentActor; admin B2B; migrations até 057**                                      | **✅ Ativo** |
+| —   | **`API-Axum`**       | **API HTTPS/WSS Axum; TableActor + TournamentActor; admin B2B; migrations até 060 local (059 na demo)**                  | **✅ Ativo** |
 
 > Contagens de testes: valores **históricos reportados** em logs/CI; revalidar com `cargo test` no ambiente atual (toolchain GNU no Windows).
 
@@ -198,6 +218,6 @@ Ambiente (WSL, Node, clippy): [`../AGENTS.md`](../AGENTS.md). Gates: [`QUALITY.m
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S25** (2026-09-26) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

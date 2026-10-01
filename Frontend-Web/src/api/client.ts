@@ -13,6 +13,11 @@ import type {
   AdminTournamentItem,
   AdminTournamentPlayer,
   AdminUserResponse,
+  AgentCloseResponse,
+  AgentModeSummary,
+  AgentConfigResponse,
+  EstruturaBackfillPreview,
+  EstruturaBackfillResult,
   AntifraudAlertSummary,
   AuditLogItem,
   DepositInfoResponse,
@@ -481,8 +486,75 @@ export async function fetchMe(): Promise<MeResponse> {
   return request<MeResponse>("/api/auth/me");
 }
 
-export async function fetchEstrutura(): Promise<EstruturaResponse> {
-  return request<EstruturaResponse>("/api/estrutura");
+export async function fetchEstrutura(cycleStart?: string): Promise<EstruturaResponse> {
+  return request<EstruturaResponse>(`/api/estrutura${cycleStart ? `?cycle_start=${encodeURIComponent(cycleStart)}` : ""}`);
+}
+
+export async function previewEstruturaBackfill(): Promise<EstruturaBackfillPreview> {
+  return request<EstruturaBackfillPreview>("/api/admin/estrutura/backfill");
+}
+
+export async function executeEstruturaBackfill(
+  rootUserId: string,
+): Promise<EstruturaBackfillResult> {
+  return request<EstruturaBackfillResult>("/api/admin/estrutura/backfill", {
+    method: "POST",
+    body: JSON.stringify({ root_user_id: rootUserId, confirm: true }),
+  });
+}
+
+export async function configureAgent(
+  id: string,
+  body: {
+    status?: "inactive" | "active" | "suspended";
+    cycle_start?: string;
+    money_mode?: "play" | "real";
+    target_ngr_cents?: number;
+  },
+): Promise<AgentConfigResponse> {
+  return request<AgentConfigResponse>(`/api/admin/agentes/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function addAgentAdjustment(
+  id: string,
+  body: {
+    request_id: string;
+    cycle_start: string;
+    money_mode: "play" | "real";
+    category: "reward" | "refund" | "chargeback" | "tax" | "payment_cost" | "other";
+    amount_cents: number;
+    note: string;
+  },
+): Promise<{ id: string; amount_cents: number }> {
+  return request(`/api/admin/agentes/${id}/adjustments`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function previewAgentCycle(id: string, cycleStart: string, moneyMode: "play" | "real"): Promise<AgentModeSummary> {
+  const query = new URLSearchParams({ cycle_start: cycleStart, money_mode: moneyMode });
+  return request<AgentModeSummary>(`/api/admin/agentes/${id}/cycle?${query}`);
+}
+
+export async function closeAgentCycle(
+  id: string,
+  cycleStart: string,
+  moneyMode: "play" | "real",
+  preview: AgentModeSummary,
+): Promise<AgentCloseResponse> {
+  return request<AgentCloseResponse>(`/api/admin/agentes/${id}/close`, {
+    method: "POST",
+    body: JSON.stringify({
+      cycle_start: cycleStart, money_mode: moneyMode, reconciled: true,
+      expected_gross_revenue_cents: preview.gross_revenue_cents,
+      expected_deductions_cents: preview.deductions_cents,
+      expected_target_ngr_cents: preview.target_ngr_cents,
+    }),
+  });
 }
 
 export async function fetchAdminStats(): Promise<AdminStatsResponse> {

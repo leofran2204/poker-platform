@@ -1,0 +1,27 @@
+Zero Tilt Academy. Sizing: o tamanho certo. Nesta aula, nosso objetivo é: Distinguir total da aposta e valor adicional. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Declare o tamanho e a unidade. Uma abertura para 2,5 big blinds significa total de 2,5 big blinds, não acrescentar esse valor a uma aposta anterior. Quando houver aposta, confira o mínimo de raise e o stack efetivo.
+
+Exemplo de plano. Para estes exercícios, adotamos abertura de 2,5 big blinds no botão de uma mesa Texas cash 100 big blinds. Como heurística de isolamento, acrescentamos 1 big blinds por limper: dois limpers levam a 4,5 big blinds. Essa regra de treino não prova que o tamanho é ótimo. Posição, rake, stacks, adversários e estrutura de apostas mudam a análise.
+
+Pratique. Antes de clicar, diga se há uma aposta a enfrentar e quanto ficará o total investido nesta rodada. Bet e raise são ações diferentes.
+
+Preço produzido pela aposta. Com pote de 10 big blinds e aposta de 5, o rival paga 5 para um pote final de 20: precisa de 25 por cento de equity em um call final sem taxas. Com aposta de 10, o pote final será 30 e o preço sobe para 33,33 por cento. Apostar maior oferece preço pior ao caller, mas também arrisca mais e pode fazer mãos piores desistirem. Não escolha o tamanho apenas porque deseja ganhar um pote grande.
+
+Incremento e mínimo. Se a aposta vigente é 100 fichas e o último aumento completo foi de 100, o próximo raise completo precisa chegar a pelo menos 200. Depois de um raise de 100 para 300, o incremento é 200: o próximo total mínimo é 500. A interface mostra o total da rodada; subtraia o que você já investiu para saber o adicional. All-ins menores que o aumento completo exigem atenção às regras da mesa e não devem ser descritos como aumentos completos.
+
+Compare respostas. Repita uma distribuição e experimente dois tamanhos legais. Observe quais bots pagam, desistem ou aumentam. Uma única resposta não permite estimar a frequência real de um perfil; o exercício serve para compreender como o tamanho modifica a árvore de decisões. Registre também o stack que sobra para a próxima street.
+
+Laboratório: O raise é um total. Objetivo: Distinguir total da aposta e valor adicional. Abra a mesa deste módulo e comece pelo treino guiado. Para subir a 3 big blinds com 0,5 big blinds já investido, entram mais 2,5 big blinds. O controle mostra o total. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+Qual abertura adotamos no botão para o exercício de Texas cash 100 big blinds desta aula? A. 2,5x B. 5x C. Limp Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: 2,5x. Adotamos 2,5 big blinds neste exercício. Não é um tamanho obrigatório nem universal.
+
+Dois limpers e você no botão com padrão 2,5x. Quanto aumenta? A. 2,5x, igual sempre B. 4,5x C. 10x para isolar Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: 4,5x. mais 1x por limper em cima do padrão: 2,5 mais 2 igual a 4,5x.
+
+Abra o simulador da aula e escolha o cenário O raise é um total. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

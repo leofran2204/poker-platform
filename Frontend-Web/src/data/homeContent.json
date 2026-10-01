@@ -1,10 +1,10 @@
 {
   "deflator": {
-    "intro": "No poker, você pode ser favorito no all-in e perder no river. O Loss Deflator devolve parte dos potes líquidos em que você perdeu, conforme sua equity no instante em que o all-in foi pago. Em potes disputados por mais de um perdedor elegível, o benefício é compartilhado.",
+    "intro": "No Texas Hold’em e no Short Deck da ZT, o Loss Deflator pode redistribuir parte de potes líquidos para perdedores de all-in elegíveis, conforme a equity e as regras do mecanismo. Não se aplica atualmente a Omaha 4 nem Brazilian Pineapple. Não elimina perdas e não usa saldo da casa.",
     "steps": [
       {
         "title": "1. All-in pago",
-        "body": "Você aposta todas as fichas com a melhor mão e o adversário paga. A partir daí não há mais decisão — só o baralho."
+        "body": "Um jogador fica all-in e há aposta correspondente. A elegibilidade depende da equity naquele estágio e dos potes disputados; ter a melhor mão feita não é o mesmo que ter a maior equity."
       },
       {
         "title": "2. Foto da sua chance",
@@ -16,10 +16,10 @@
       }
     ],
     "tiers": [
-      { "range": "56% – 65,9%", "percent": 7, "label": "Favorito leve", "example": "AQ vs KJ: 62% e perde para um J no flop" },
-      { "range": "66% – 75,9%", "percent": 15, "label": "Favorito moderado", "example": "JJ vs AT: 71% e o Ás aparece" },
-      { "range": "76% – 85,9%", "percent": 25, "label": "Grande favorito", "example": "AA vs KK: 82% e o K bate no river" },
-      { "range": "86% – 99,9%", "percent": 35, "label": "Bad beat extrema", "example": "Trinca de Ases com 97% perde para sequência runner-runner" }
+      { "range": "56% – 65,9%", "percent": 7, "label": "Favorito leve", "example": "Exemplo de faixa: equity de 60% no instante considerado. O resultado da mão ainda pode ser uma perda." },
+      { "range": "66% – 75,9%", "percent": 15, "label": "Favorito moderado", "example": "Exemplo de faixa: equity de 70% no instante considerado. O resultado da mão ainda pode ser uma perda." },
+      { "range": "76% – 85,9%", "percent": 25, "label": "Grande favorito", "example": "Exemplo de faixa: equity de 80% no instante considerado. O resultado da mão ainda pode ser uma perda." },
+      { "range": "86% – 99,9%", "percent": 35, "label": "Bad beat extrema", "example": "Exemplo de faixa: equity de 90% no instante considerado. O resultado da mão ainda pode ser uma perda." }
     ],
     "faq": [
       {
@@ -28,7 +28,7 @@
       },
       {
         "q": "E se eu tinha menos de 56%?",
-        "a": "Aí não volta nada: com menos de 56% você não era favorito, era coin flip ou azarão. O benefício protege quem jogou na frente."
+        "a": "Abaixo de 56% não há benefício. Esse é o limiar de elegibilidade; alguém com 55% pode ser favorito em heads-up e ainda assim ficar fora da faixa."
       },
       {
         "q": "Vale para side pot?",

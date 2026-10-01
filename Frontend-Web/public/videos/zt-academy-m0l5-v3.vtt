@@ -1,0 +1,286 @@
+WEBVTT
+
+00:00:00.501 --> 00:00:06.624
+Zero Tilt Academy Suas primeiras decisões e posições Nesta aula
+
+00:00:06.882 --> 00:00:10.683
+nosso objetivo é Reconhecer quem age antes e depois do
+
+00:00:10.696 --> 00:00:15.426
+flop Vamos desenvolver a teoria resolver exemplos e aplicar a
+
+00:00:15.439 --> 00:00:17.062
+ideia na mesa deste módulo
+
+00:00:19.235 --> 00:00:24.275
+Posição é informação adicional O botão age por último pós-flop
+
+00:00:24.288 --> 00:00:28.824
+quando continua na mão No pré-flop os blinds ainda agem
+
+00:00:28.837 --> 00:00:33.850
+depois dele posição inicial tem mais adversários por agir mas
+
+00:00:33.863 --> 00:00:38.347
+fica em posição pós-flop contra os blinds Posição não revela
+
+00:00:38.360 --> 00:00:40.512
+cartas escondidas nem garante lucro
+
+00:00:42.668 --> 00:00:46.600
+Um plano inicial de abertura Para o exercício de Texas
+
+00:00:46.613 --> 00:00:50.698
+Hold’em cash 9-max com 100 big blinds pote sem entradas e
+
+00:00:50.711 --> 00:00:55.144
+blinds 0,5 dividido por 1 big blinds abrir par de ases no
+
+00:00:55.157 --> 00:00:58.031
+botão e desistir de sete e dois de naipes diferentes
+
+00:00:58.043 --> 00:01:02.412
+no posição inicial são escolhas do plano didático O tamanho
+
+00:01:02.425 --> 00:01:06.136
+de abertura é uma hipótese de treino considere rake stacks
+
+00:01:06.149 --> 00:01:08.778
+e respostas adversárias ao construir um range
+
+00:01:10.968 --> 00:01:15.016
+Separe preço e força Se havia 10 big blinds e o
+
+00:01:15.029 --> 00:01:19.372
+rival apostou 5 big blinds pagar 5 forma um pote de 20 big
+
+00:01:19.385 --> 00:01:23.959
+blinds preço de 25 por cento Ter top pair não informa
+
+00:01:23.972 --> 00:01:28.727
+sozinho sua equity contra o range adversário No flop apostas
+
+00:01:28.740 --> 00:01:30.970
+futuras também influenciam a decisão
+
+00:01:33.135 --> 00:01:38.729
+Uma volta completa ao botão Considere três lugares botão small
+
+00:01:38.742 --> 00:01:43.446
+blind e big blind Pré-flop o botão age primeiro porque
+
+00:01:43.459 --> 00:01:47.904
+está imediatamente depois do big blind No flop o small
+
+00:01:47.917 --> 00:01:51.435
+blind começa e o botão termina caso os três continuem
+
+00:01:52.325 --> 00:01:55.598
+Por isso a mesma cadeira tem ordens diferentes conforme a
+
+00:01:55.611 --> 00:01:59.734
+street Se o small blind desistir ele deixa de fazer
+
+00:01:59.747 --> 00:02:04.374
+parte da sequência ativa Um jogador em all-in continua disputando
+
+00:02:04.386 --> 00:02:07.350
+o pote mas não recebe novos turnos de aposta
+
+00:02:09.535 --> 00:02:14.214
+Stack efetivo e plano Em heads-up se você tem 100 big
+
+00:02:14.227 --> 00:02:17.552
+blinds e o rival 40 big blinds o máximo que ambos
+
+00:02:17.565 --> 00:02:20.915
+podem disputar entre si é limitado aos 40 big blinds de
+
+00:02:20.928 --> 00:02:24.717
+cada lado O excesso não pode ser ganho desse rival
+
+00:02:24.730 --> 00:02:28.802
+naquela mão Antes de abrir planeje uma resposta a call
+
+00:02:28.815 --> 00:02:33.299
+e a raise Não é necessário prever cada carta identifique
+
+00:02:33.312 --> 00:02:36.830
+quais tipos de flop permitem valor quais exigem cautela e
+
+00:02:36.843 --> 00:02:39.846
+quanto você está disposto a investir sob cada hipótese
+
+00:02:42.035 --> 00:02:46.637
+Por que observar ajuda Agir depois revela uma ação não
+
+00:02:46.650 --> 00:02:50.954
+a mão escondida Um check pode vir de fraqueza controle
+
+00:02:50.967 --> 00:02:55.529
+do pote ou armadilha Use essa informação para atualizar hipóteses
+
+00:02:55.542 --> 00:03:00.116
+sem tratá-la como certeza No treino compare o mesmo cenário
+
+00:03:00.129 --> 00:03:03.441
+contra um bot pagador e um bot seletivo a força
+
+00:03:03.454 --> 00:03:06.920
+das suas cartas permanece mas as respostas podem mudar
+
+00:03:09.102 --> 00:03:15.314
+Laboratório Botão observar antes de decidir Objetivo Reconhecer
+
+00:03:15.327 --> 00:03:18.884
+quem age antes e depois do flop Abra a mesa
+
+00:03:18.897 --> 00:03:23.317
+deste módulo e comece pelo treino guiado No heads-up o
+
+00:03:23.330 --> 00:03:27.312
+botão paga o small blind primeiro pré-flop e último pós-flop
+
+00:03:28.201 --> 00:03:32.222
+Depois repita no modo desafio respondendo à pergunta objetiva
+
+00:03:32.235 --> 00:03:35.881
+antes de cada ação Use o replay para comparar uma
+
+00:03:35.894 --> 00:03:40.688
+alternativa na mesma distribuição Uma nova distribuição preserva
+
+00:03:40.701 --> 00:03:43.472
+as cartas que definem o cenário e varia as demais
+
+00:03:45.635 --> 00:03:50.029
+Registre sua justificativa no caderno acertar a leitura e respeitar
+
+00:03:50.042 --> 00:03:52.529
+as hipóteses importam mais que ganhar esta mão
+
+00:03:54.702 --> 00:03:59.999
+Suas cartas ás de espadas ás de copas Cartas comunitárias
+
+00:04:00.206 --> 00:04:06.597
+ainda não reveladas Texas cash 9-max 100 big blinds todos desistiram
+
+00:04:06.610 --> 00:04:10.373
+até o botão Pelo plano de abertura desta aula o
+
+00:04:10.386 --> 00:04:13.801
+que fazer com par de ases A. fold B. call
+
+00:04:13.814 --> 00:04:16.971
+C. raise Pause o vídeo faça sua leitura e registre
+
+00:04:16.984 --> 00:04:18.737
+uma resposta antes de continuar
+
+00:04:20.902 --> 00:04:26.071
+Resposta do exercício raise Aumentar constrói o pote com par
+
+00:04:26.083 --> 00:04:30.297
+de ases O tamanho deve respeitar a configuração da mesa
+
+00:04:32.468 --> 00:04:38.011
+Suas cartas sete de paus dois de ouros Cartas comunitárias
+
+00:04:38.217 --> 00:04:44.467
+ainda não reveladas Texas cash 9-max 100 big blinds pote fechado
+
+00:04:45.356 --> 00:04:48.836
+Pelo plano inicial o que fazer no posição inicial com
+
+00:04:48.849 --> 00:04:52.573
+sete e dois de naipes diferentes A. fold B. call
+
+00:04:52.586 --> 00:04:55.743
+C. raise Pause o vídeo faça sua leitura e registre
+
+00:04:55.756 --> 00:04:57.508
+uma resposta antes de continuar
+
+00:04:59.668 --> 00:05:05.056
+Resposta do exercício fold Desista desta mão no plano proposto
+
+00:05:05.275 --> 00:05:07.105
+oito adversários ainda vão agir
+
+00:05:09.268 --> 00:05:14.424
+Havia 10 big blinds no pote O rival apostou 5 big blinds
+
+00:05:15.314 --> 00:05:19.373
+Pagar custa 5 big blinds Qual é o preço do call
+
+00:05:19.386 --> 00:05:23.703
+sobre o pote final sem rake A. 25 por cento B.
+
+00:05:23.716 --> 00:05:28.265
+33,3 por cento C. 50 por cento Pause o vídeo faça sua
+
+00:05:28.277 --> 00:05:31.151
+leitura e registre uma resposta antes de continuar
+
+00:05:33.335 --> 00:05:39.857
+Resposta do exercício 25 por cento 5 dividido por 10 mais 5 mais
+
+00:05:39.870 --> 00:05:44.960
+5 igual a 25 por cento Isso não calcula sua equity
+
+00:05:47.135 --> 00:05:50.524
+Quem ainda age depois do botão no pré-flop numa mesa
+
+00:05:50.537 --> 00:05:55.951
+com três ou mais jogadores A. Ninguém B. Small blind
+
+00:05:55.964 --> 00:05:59.933
+e big blind C. O dealer Pause o vídeo faça
+
+00:05:59.946 --> 00:06:02.897
+sua leitura e registre uma resposta antes de continuar
+
+00:06:05.068 --> 00:06:10.289
+Resposta do exercício Small blind e big blind O botão
+
+00:06:10.302 --> 00:06:13.175
+tem a última ação pós-flop não no pré-flop
+
+00:06:15.368 --> 00:06:18.886
+Top pair sozinho permite afirmar que você tem 50 por cento
+
+00:06:18.899 --> 00:06:24.854
+de equity A. Sim B. Não Pause o vídeo faça
+
+00:06:24.867 --> 00:06:27.818
+sua leitura e registre uma resposta antes de continuar
+
+00:06:30.002 --> 00:06:35.080
+Resposta do exercício Não É necessário especificar as mãos ou
+
+00:06:35.093 --> 00:06:37.915
+o range adversário o board e a modalidade
+
+00:06:40.102 --> 00:06:42.911
+Abra o simulador da aula e escolha o cenário Botão
+
+00:06:43.130 --> 00:06:47.861
+observar antes de decidir Jogue uma mão completa responda às
+
+00:06:47.874 --> 00:06:52.010
+perguntas e registre seu plano Depois use o replay para
+
+00:06:52.023 --> 00:06:56.585
+comparar outra ação na mesma distribuição Volte em outra sessão
+
+00:06:56.598 --> 00:07:01.533
+no modo desafio Avalie o raciocínio com as informações disponíveis
+
+00:07:01.804 --> 00:07:05.928
+sem confundir uma vitória isolada com uma boa estratégia As
+
+00:07:05.941 --> 00:07:10.219
+fontes estão no material de apoio Este curso não promete
+
+00:07:10.232 --> 00:07:12.436
+lucro e o treino usa fichas sem valor

@@ -1,0 +1,71 @@
+{
+  "lessonId": "m2l1",
+  "filename": "zt-academy-m2l1-v3",
+  "contentHash": "bd164b130b58838432e14d1517b35aebf399f1cad54587b94ad4c0ee506ebea6",
+  "rendererVersion": 3,
+  "durationSeconds": 339.77,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 8468114,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "C-bet no Flop: Boards Secos vs Molhados"
+    },
+    {
+      "start": 19.9,
+      "title": "Textura e ranges"
+    },
+    {
+      "start": 40.4,
+      "title": "Exemplo guiado"
+    },
+    {
+      "start": 69.0,
+      "title": "Tamanho como hipótese"
+    },
+    {
+      "start": 84.57,
+      "title": "Vantagem de range e vantagem de nuts"
+    },
+    {
+      "start": 116.8,
+      "title": "Um exemplo de textura"
+    },
+    {
+      "start": 149.47,
+      "title": "Check também constrói uma estratégia"
+    },
+    {
+      "start": 180.07,
+      "title": "Laboratório: Board conectado"
+    },
+    {
+      "start": 217.53,
+      "title": "Laboratório: Board conectado"
+    },
+    {
+      "start": 226.6,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 245.9,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 260.23,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 294.8,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 306.4,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "2df714c9e99e640e0f73ebe3b054b7ed9d23b9701b65278f2036d8ca19399ad8"
+}

@@ -1,0 +1,31 @@
+Zero Tilt Academy. Brazilian Pineapple: 2 cartas e mais 1 por street. Nesta aula, nosso objetivo é: Selecionar exatamente duas privadas e três comunitárias. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Modalidade exclusiva da Zê Tê. O Brazilian Pineapple estudado aqui é o da Zero Tilt Poker. Use as regras locais; materiais sobre Pineapple de três cartas com descarte descrevem outro jogo.
+
+Distribuição completa. Baralho de 52 cartas, mesa até seis jogadores. Receba duas privadas no pré-flop. Depois de abrir cada street — flop, turn e river — chega mais uma carta privada a cada participante ainda na mão, inclusive all-in. Quem desistiu não recebe. Não há descarte: são três privadas no flop, quatro no turn e cinco no river.
+
+Formação e ranking. Escolha exatamente duas privadas e três comunitárias. O ranking é clássico: sequência supera trinca; full house supera flush. ás, dois, três, quatro e cinco é a sequência baixa. Nunca use três privadas para completar uma combinação ou seu kicker.
+
+Exemplo passo a passo. Você começou com ás de espadas rei de espadas. Flop ás de ouros dama de paus dois de espadas; recebeu ás de copas. Os pares privados candidatos são ás de espadas-rei de espadas, ás de espadas-ás de copas e rei de espadas-ás de copas. Como existem só três comunitárias, todas precisam entrar. A melhor escolha é ás de espadas-ás de copas com ás de ouros-dama de paus-dois de espadas: ás, ás, ás, dama e dois. O rei fica fora. No turn, outras combinações passam a ser possíveis e a análise deve ser refeita.
+
+Exercício de recuperação. Sem consultar o texto, descreva a sequência 2 para 3 para 4 para 5 e explique por que o all-in ainda recebe cartas. Depois conte os pares privados possíveis no flop: são três. A próxima aula mostra como isso se transforma em uma base matemática.
+
+O momento da carta extra. A ordem importa: a street abre e então cada jogador ainda na mão recebe sua nova privada. No início do flop, avalie as três privadas e as três comunitárias que realmente estão disponíveis. Não use uma futura carta do turn na decisão anterior. Se você desistir, para de receber extras; se ficar all-in, continua recebendo enquanto disputar a mão. O simulador conserva essa diferença e o replay mostra o crescimento da mão privada.
+
+Compare com o Texas. No Hold’em, um ás privado pode combinar com quatro copas da mesa para formar flush. No Brazilian Pineapple, um único ás de copas não basta: a combinação precisa de duas privadas. Ter cinco privadas ao final amplia as escolhas, mas não autoriza usar três, quatro ou cinco delas no showdown. A pergunta correta é qual par privado combina melhor com qual trio do board.
+
+Planeje a revisão por street. Separe três registros: mão feita agora, possibilidades condicionais de melhorar e custo para continuar. Uma extra pode melhorar sua seleção; também pode não mudar nada. Os rivais recebem cartas e podem mudar de força ao mesmo tempo. Por isso não reutilizamos charts de Pineapple com descarte nem porcentagens de Hold’em como se fossem resultados medidos desta modalidade.
+
+Laboratório: Duas, três, quatro, cinco privadas. Objetivo: Acompanhar cada extra sem descartar cartas. Abra a mesa deste módulo e comece pelo treino guiado. Cada participante ainda na mão recebe uma extra depois do flop, turn e river, inclusive em all-in. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+Como chegam as cartas no Brazilian Pineapple? A. 3 cartas no pré-flop e você descarta uma depois do flop B. 2 no pré-flop e mais 1 depois do flop, do turn e do river, sem descarte C. 5 cartas no pré-flop, como no Omaha Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: 2 no pré-flop e mais 1 depois do flop, do turn e do river, sem descarte. Começa com 2. Cada street entrega mais uma a quem ainda está na mão. Não há descarte.
+
+Suas cartas: ás de espadas, rei de espadas, ás de copas. Cartas comunitárias: ás de ouros, dama de paus, dois de espadas. Brazilian Pineapple após a carta extra do flop: ás de espadas rei de espadas ás de copas, board ás de ouros dama de paus dois de espadas. Qual é a melhor mão legal? A. ás, ás, ás, rei e dama B. ás, ás, ás, dama e dois C. ás, ás, rei, dama e dois Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: ás, ás, ás, dama e dois. Usamos ás de espadas ás de copas e as três comunitárias. O rei seria uma terceira carta privada, proibida nesta combinação.
+
+Abra o simulador da aula e escolha o cenário Trinca com o kicker correto. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

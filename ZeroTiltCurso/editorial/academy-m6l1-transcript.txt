@@ -1,0 +1,29 @@
+Zero Tilt Academy. valor esperado e fold equity. Nesta aula, nosso objetivo é: Separar a conta exata do preço de uma hipótese de equity. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Valor esperado. valor esperado é a média ponderada dos resultados de um modelo. Para um call final, sem rake, valor esperado igual a equity vezes pote final menos custo do call. valor esperado positivo não garante lucro em mil mãos nem em qualquer sequência finita.
+
+Fold equity e semi-blefe. Uma aposta com projeto pode ganhar quando todos desistem ou no showdown. Ter duas formas de ganhar não prova que apostar é lucrativo. Considere frequência de folds, range que paga, tamanho, raises e futuras apostas.
+
+Modelo simplificado. Se o pote inicial é P, sua aposta é B, todos desistem com frequência F e, quando há um call, sua equity é e, sem raises, apostas posteriores ou rake: valor esperado igual a F vezes P mais (1 menos F) vezes [e vezes (P mais 2B) menos B]. As hipóteses fazem parte da fórmula.
+
+Exercício. P igual a 10, B igual a 5, F igual a 0, e igual a 20 por cento: valor esperado igual a 0,2 vezes 20 menos 5 igual a menos 1. Um projeto pode ter valor esperado negativo se ninguém desiste e a equity não cobre o preço.
+
+Derive as parcelas do modelo. Se todos desistem, você ganha o pote que já existia. Se há um call e não existem outras ações, o pote final inclui sua aposta e a aposta que o rival igualou. Multiplique sua parcela esperada por esse pote e desconte seu investimento. Só então pondere o ramo de fold e o ramo de call. Se houver raise, mais de um caller ou novas streets, a árvore precisa ganhar esses ramos.
+
+Compare duas hipóteses. Com pote 10, aposta 5 e equity de 20 por cento quando pago, o ramo de call vale menos 1. Se todos desistem 30 por cento das vezes, o modelo resulta em 0,30 vezes 10 mais 0,70 vezes menos 1: 2,3 big blinds. Se ninguém desiste, vale menos 1. A mudança veio da hipótese de resposta, não de uma garantia embutida nas cartas. Não transporte esses 30 por cento para o perfil do bot sem medição ou definição.
+
+Margem e incerteza. Pequenas diferenças de valor esperado podem desaparecer quando você altera rake, ranges ou frequências. Registre quais parâmetros mudariam sua decisão. Em uma sessão curta, a soma observada pode se afastar bastante da média prevista. O treino avalia contas e leituras no contexto declarado, e não premia a perseguição de resultados positivos.
+
+Laboratório: Preço, hipótese e resultado. Objetivo: Separar a conta exata do preço de uma hipótese de equity. Abra a mesa deste módulo e comece pelo treino guiado. A tela informa o preço. A equity depende do range; o resultado desta mão não prova a rentabilidade do call. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição.
+
+Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+O que é valor esperado (valor esperado)? A. A média de todos os futuros possíveis da jogada B. O resultado da mão atual C. O tamanho do pote dividido pelo stack Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: A média de todos os futuros possíveis da jogada. valor esperado é uma média ponderada pelas probabilidades do modelo. A amostra observada pode divergir dessa média.
+
+No modelo sem raises, rake ou apostas futuras: P igual a 10, B igual a 5, ninguém desiste e sua equity quando pago é 20 por cento. Qual valor esperado da aposta? A. mais 1 B. 0 C. menos 1 Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: menos 1. 0,20 vezes (10 mais 5 mais 5) menos 5 igual a menos 1. A existência de um draw não garante aposta lucrativa.
+
+Abra o simulador da aula e escolha o cenário Preço, hipótese e resultado. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

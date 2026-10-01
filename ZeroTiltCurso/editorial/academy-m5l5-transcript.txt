@@ -1,0 +1,39 @@
+Zero Tilt Academy. Pineapple: showdown, empates e leitura de equity. Nesta aula, nosso objetivo é: Encontrar a melhor mão sem usar cinco cartas do board. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Método para classificar. Liste pares privados, combine com trios do board, classifique cada mão de cinco cartas e compare a categoria mais alta. Nos empates de categoria, compare os valores relevantes e os kickers da própria combinação legal. Nunca acrescente uma sexta carta.
+
+O board não joga sozinho. Mesmo com ás, rei, dama, valete e dez de copas na mesa, você precisa usar duas privadas. Sem duas copas privadas, não pode reivindicar aquele royal flush. Esse é um contraste importante com o Texas Hold’em, que permite usar zero privadas.
+
+Ranking não é equity. Ranking classifica a mão formada agora. Equity é sua parcela esperada do pote no showdown, incluindo frações de empate, condicionada às informações e hipóteses do modelo. Antes do river, simular Pineapple exige sortear o restante do board e as futuras extras de todos os participantes ainda ativos, inclusive all-ins, sem reutilizar cartas. Mãos adversárias fixas e ranges produzem perguntas diferentes.
+
+Auditoria de uma estimativa. Exija a fase e o momento da extra, cartas conhecidas, número de jogadores, ranges, modelo de distribuição, quantidade de amostras e método de incerteza. Uma frequência estimada não é um valor exato. Intervalos binomiais de vitória não medem automaticamente equity com empates fracionários. Ainda não publicamos tabelas de equity ou ranges ótimos validados para esta modalidade.
+
+Exercício comparativo. No flop ás de espadas rei de espadas ás de copas / ás de ouros dama de paus dois de espadas, a trinca tem Q e 2 de apoio. Trocar rei de espadas por valete de paus não altera essa mão feita; porém pode alterar possibilidades futuras. Compare estado atual e potencial futuro separadamente. Use fichas fictícias nos exercícios; avaliar uma decisão não requer arriscar saldo real.
+
+Faça a comparação inteira. No exemplo ás de espadas rei de espadas ás de copas com ás de ouros dama de paus dois de espadas, a melhor mão é ás, ás, ás, dama e dois. Se um rival puder formar a mesma trinca usando duas privadas, compare os kickers que restam dentro das cinco cartas escolhidas. Não recupere o rei que ficou fora só para desempatar. Quando todos os valores relevantes forem iguais, divida o pote elegível. O simulador mostra as melhores cinco cartas para ajudar a conferir a formação.
+
+Equity inclui frações de empate. Em quatro resultados equiprováveis, suponha uma vitória, uma derrota e dois empates entre dois jogadores. Sua parcela média é um mais zero mais meio mais meio, dividido por quatro: 50 por cento. A frequência de vitórias isoladas foi apenas 25 por cento. Em um empate entre três, cada participante recebe um terço da parcela em disputa. Com side pots, a elegibilidade precisa ser tratada separadamente.
+
+Interprete precisão com cuidado. Repetir a mesma seed reproduz uma distribuição; não cria uma nova amostra independente. Uma simulação maior reduz parte do erro amostral, mas não corrige um range errado nem uma regra de seleção implementada incorretamente. Declare quais cartas e ações condicionaram a análise. Na revisão, compare sua avaliação anterior ao river com a mão revelada depois, sem transferir conhecimento futuro para a decisão passada.
+
+Laboratório: O board não joga sozinho. Objetivo: Encontrar a melhor mão sem usar cinco cartas do board. Abra a mesa deste módulo e comece pelo treino guiado. Escolha duas privadas e três comunitárias. Nove e oito com dama, valete e dez formam sequência até dama. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+Suas cartas: nove de paus, nove de ouros, oito de paus, sete de ouros, seis de espadas. Cartas comunitárias: ás de copas, rei de copas, dama de copas, valete de copas, dez de copas. Pineapple no river: nove de paus nove de ouros oito de paus sete de ouros seis de espadas, board ás de copas rei de copas dama de copas valete de copas dez de copas. Você pode usar o royal flush inteiro da mesa? A. Sim, a mesa joga B. Não, devo usar exatamente duas privadas Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Não, devo usar exatamente duas privadas. Sem duas copas privadas, esta mão não forma flush. O royal da mesa não pode jogar sozinho.
+
+No Pineapple all-in no flop, o que uma simulação de equity deve incluir? A. Só turn e river comunitários B. Board futuro e extras futuras de todos os jogadores ainda na mão C. Descartar uma das privadas Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Board futuro e extras futuras de todos os jogadores ainda na mão. All-ins continuam recebendo as cartas extras. Elas não podem ser ignoradas nem sorteadas com reposição.
+
+Se você divide o pote igualmente com dois outros vencedores, qual parcela conta para sua equity? A. 1 B. 1 dividido por 2 C. 1 dividido por 3 Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: 1 dividido por 3. Três vencedores equivalentes dividem o pote em três parcelas, antes das regras de centavos restantes.
+
+As chances de vitória de uma simulação são uma garantia do próximo resultado? A. Sim B. Não Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Não. A estimativa depende das hipóteses, da amostragem e da informação conhecida. O próximo resultado continua incerto.
+
+Abra o simulador da aula e escolha o cenário O board não joga sozinho. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

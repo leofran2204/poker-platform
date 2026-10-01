@@ -1,0 +1,27 @@
+Zero Tilt Academy. Thin Value Bet vs. Blefe Puro. Nesta aula, nosso objetivo é: Escolher valor fino de acordo com o perfil que paga. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Valor no river. Uma aposta por valor busca ser paga por mãos piores. Thin value descreve uma margem menor contra o range que paga. Ser forte contra o range inteiro do rival não basta: compare com a parte que continuará.
+
+Exemplo com hipótese. ás e valete em ás, nove, quatro, dois e sete rainbow, rival dá check e sabemos, para este exercício, que pagará uma aposta pequena com vários ases menores. Treinamos bet por valor. Se ele só pagar mãos melhores, a conclusão muda.
+
+Ações legais. Após check, você pode dar check ou bet. Diante de aposta, as opções passam a fold, call ou raise, respeitando stacks e regras da mesa.
+
+O range que paga é o relevante. Suponha que o rival chegue ao river com muitos pares fracos, mas desista de todos diante de uma aposta grande. A força da sua mão contra o conjunto inicial não prova que a aposta grande seja por valor. Você precisa identificar mãos piores que continuem. Uma aposta pequena pode receber calls mais amplos; também oferece ao rival a opção de aumentar.
+
+Compare com dar check. O valor incremental de apostar deve ser comparado ao que aconteceria ao dar check. Se você já venceria o showdown contra uma mão fraca que sempre desiste para a aposta, o fold dessa mão não acrescenta o pagamento desejado. Em contrapartida, receber de mãos piores aumenta o ganho, e pagar raises de mãos melhores aumenta o custo. Não julgue uma value bet apenas pela ocorrência de um call.
+
+Exercício controlado. ás e valete em ás, nove, quatro, dois e sete tem top pair com valete. O cenário fixa um pagador com um ás menor para estudar recebimento de valor. Isso é uma condição didática, não uma leitura garantida sobre usuários reais. Repita a mão com tamanhos distintos e registre em que ponto a política do bot deixa de continuar. Depois descreva por que uma única amostra não estima um range de população.
+
+Laboratório: Receber de mãos piores. Objetivo: Escolher valor fino de acordo com o perfil que paga. Abra a mesa deste módulo e comece pelo treino guiado. O bot pagador continua com pares a preços moderados. A hipótese de receber de pior precisa sustentar sua aposta. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+Qual a definição correta de um 'Thin Value Bet' no river? A. Apostar com os nuts absolutos esperando tomar call de all-in B. Apostar uma mão de força média esperando ser pago por mãos marginalmente piores do adversário C. Blefar quando você tem certeza de que vai perder Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Apostar uma mão de força média esperando ser pago por mãos marginalmente piores do adversário. Thin value é a aposta precisa para extrair fichas de mãos inferiores que pagam por curiosidade.
+
+Suas cartas: ás de ouros, valete de ouros. Cartas comunitárias: ás de espadas, nove de paus, quatro de ouros, dois de copas, sete de espadas. Texas, river ás de espadas nove de paus quatro de ouros dois de copas sete de espadas, você tem A♦ J♦. O rival checa e, no modelo do exercício, paga uma aposta pequena com vários ases menores. Qual ação treinamos por valor? A. check B. bet Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: bet. A hipótese fornece mãos piores que pagam. A aposta é bet, pois ninguém apostou nesta rodada.
+
+Abra o simulador da aula e escolha o cenário Receber de mãos piores. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

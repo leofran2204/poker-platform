@@ -1,0 +1,27 @@
+Zero Tilt Academy. Ranges de Abertura por Posição (9-max). Nesta aula, nosso objetivo é: Relacionar jogadores por agir, posição e plano de abertura. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Range depende do cenário. Um range é um conjunto de mãos possíveis, podendo ter frequências diferentes. Na abertura 9-max, posição inicial enfrenta oito jogadores por agir; no botão, só os blinds. Isso costuma permitir mais aberturas no botão, sob hipóteses comparáveis de stacks, rake e respostas.
+
+Posição pós-flop. posição inicial fica fora de posição contra callers à sua esquerda, mas em posição contra os blinds. O botão age por último pós-flop. Não confunda a ordem pré-flop com a pós-flop.
+
+Exercício guiado. Texas cash 9-max, 100 big blinds, todos desistiram: no botão, inclua rei e dama do mesmo naipe na abertura do plano básico. Registre o tamanho e o que fará diante de uma 3-bet. Um quadro de ranges sem essas hipóteses é incompleto.
+
+Conte combinações e frequências. Uma mão pareada possui seis combinações antes de cartas conhecidas. Uma mão não pareada suited possui quatro, e offsuit doze. O conjunto ás e rei tem dezesseis: quatro suited mais doze offsuit. Um range com frequências mistas exige ponderar essas combinações. Abrir uma classe em metade das ocasiões não significa que cada carta individual apareceu metade das vezes. Primeiro defina quais classes entram e em que cenário.
+
+Stack, rake e número de jogadores. Uma abertura pode receber call, raise ou folds. Stacks menores reduzem a profundidade das decisões seguintes; stacks maiores ampliam a importância de posição e de mãos capazes de formar combinações fortes. Rake e cap mudam o valor das continuações. Os treinos isolam o conceito com rake zero e stacks declarados, por isso seus resultados não são uma tabela pronta para qualquer mesa do lobby.
+
+Construa uma pergunta estudável. Em vez de perguntar se rei e dama do mesmo naipe é sempre abertura, defina posição, número de jogadores, stack efetivo e tamanho. Depois pergunte quais respostas dos blinds tornariam outra linha preferível. O artigo técnico do GTO Wizard consultado em 2026 reforça a necessidade de parametrizar esses elementos; não usamos tabelas proprietárias do fornecedor como gabarito deste treino.
+
+Laboratório: Posição e mãos de abertura. Objetivo: Relacionar jogadores por agir, posição e plano de abertura. Abra a mesa deste módulo e comece pelo treino guiado. A mesa didática começa com três jogadores. Ajuste o range ao número real de oponentes; não copie um chart 9-max. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+Por que o range de abertura do posição inicial é muito mais fechado do que o do Botão? A. Porque o posição inicial é obrigado a apostar mais fichas B. Porque há mais adversários por agir e pode ficar fora de posição pós-flop C. Porque o dealer não permite blefes no posição inicial Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Porque há mais adversários por agir e pode ficar fora de posição pós-flop. Oito adversários ainda agem. posição inicial fica em posição contra os blinds e fora de posição contra jogadores à sua esquerda.
+
+Suas cartas: rei de paus, dama de paus. Cartas comunitárias: ainda não reveladas. Texas cash 9-max, 100 big blinds, todos deram fold. No plano básico de abertura, você está no botão com K♣ Q♣. Ação? A. fold B. call C. raise Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: raise. rei e dama do mesmo naipe no Botão é uma excelente mão para abrir, roubar blinds ou jogar em posição com vantagem.
+
+Abra o simulador da aula e escolha o cenário Posição e mãos de abertura. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

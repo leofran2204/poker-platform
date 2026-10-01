@@ -1,0 +1,83 @@
+{
+  "lessonId": "m0l4",
+  "filename": "zt-academy-m0l4-v3",
+  "contentHash": "c948aec0185d4e45307a9dd622159e762785e7484be729fc97822a3d922c0747",
+  "rendererVersion": 3,
+  "durationSeconds": 410.47,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 10471445,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Regras e Hierarquia de Mãos"
+    },
+    {
+      "start": 18.17,
+      "title": "O objetivo de uma mão"
+    },
+    {
+      "start": 44.2,
+      "title": "Ranking clássico, do maior para o menor"
+    },
+    {
+      "start": 75.73,
+      "title": "Quatro modalidades da ZT"
+    },
+    {
+      "start": 111.6,
+      "title": "Ações e ordem"
+    },
+    {
+      "start": 144.7,
+      "title": "Ações e ordem"
+    },
+    {
+      "start": 151.0,
+      "title": "Desempate sem uma sexta carta"
+    },
+    {
+      "start": 196.77,
+      "title": "Entenda os potes paralelos"
+    },
+    {
+      "start": 229.7,
+      "title": "Entenda os potes paralelos"
+    },
+    {
+      "start": 238.6,
+      "title": "Sua rotina de leitura"
+    },
+    {
+      "start": 265.17,
+      "title": "Laboratório: As cinco cartas que contam"
+    },
+    {
+      "start": 302.9,
+      "title": "Laboratório: As cinco cartas que contam"
+    },
+    {
+      "start": 311.97,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 335.6,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 349.5,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 366.23,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 376.6,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "d13880e667d4636196d6e901133f8faaac544cd379e016083cfad8c5b4f8f6a1"
+}

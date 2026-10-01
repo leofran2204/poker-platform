@@ -1,0 +1,71 @@
+{
+  "lessonId": "m3l1",
+  "filename": "zt-academy-m3l1-v3",
+  "contentHash": "d819e4918375f26849341c76ef5dad18c34b78db36ddcf59f4c1373aa4fafcaa",
+  "rendererVersion": 3,
+  "durationSeconds": 326.47,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 8099959,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Double Barrel: Scare Cards e Sizing de Turn"
+    },
+    {
+      "start": 19.3,
+      "title": "O segundo barril"
+    },
+    {
+      "start": 36.77,
+      "title": "A carta favorece qual range?"
+    },
+    {
+      "start": 54.8,
+      "title": "Exercício"
+    },
+    {
+      "start": 78.03,
+      "title": "Atualize os ranges, não só o board"
+    },
+    {
+      "start": 108.9,
+      "title": "Aposta por valor, blefe ou proteção"
+    },
+    {
+      "start": 138.4,
+      "title": "Planeje dois tipos de river"
+    },
+    {
+      "start": 164.2,
+      "title": "Laboratório: Quando chega uma carta maior"
+    },
+    {
+      "start": 200.13,
+      "title": "Laboratório: Quando chega uma carta maior"
+    },
+    {
+      "start": 209.2,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 231.27,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 244.47,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 281.0,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 292.77,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "56e7d2dc00b3ba2a8f7a7ef0910a804222017212d75a9325505e3e0b879cbb68"
+}

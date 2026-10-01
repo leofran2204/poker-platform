@@ -1,0 +1,25 @@
+Zero Tilt Academy. Omaha 4 Cartas (baralho de 52). Nesta aula, nosso objetivo é: Contar seis pares e reconhecer a sequência feita. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Omaha 4 (6-max). 1. 4 cartas fechadas no pré-flop. 2 mais 3: exatamente 2 da mão e 3 da mesa. Baralho de 52 e ranking clássico (sequência maior que trinca, full house maior que flush).
+
+Contagem e leitura. As quatro cartas privadas oferecem combinação de 4 elementos tomados 2 a 2 igual a 6 pares. No river existem combinação de 5 elementos tomados 3 a 3 igual a 10 trios comunitários: 60 candidatas, correlacionadas, para escolher a melhor mão legal. Isso não significa 60 chances independentes de vencer. Um único ás de copas na mão não basta para flush, mesmo com quatro copas no board. O rótulo Omaha descreve as cartas e a formação da mão; confira na mesa a estrutura de apostas, sem presumir um limite de pote não demonstrado.
+
+Escolha pares privados. Com ás de copas rei de copas dama de paus valete de paus e flop dez de copas nove de copas oito de paus, o par dama de paus valete de paus forma sequência até dama. O par ás de copas rei de copas, com o mesmo flop, ainda não forma flush: há duas copas privadas e apenas duas comunitárias de copas. Um futuro river ou turn de copas poderá mudar as escolhas. A existência de uma mão feita e de um projeto simultâneos não significa que você pode usar as quatro privadas na mesma combinação.
+
+Nuts e possibilidades de melhorar. Ter a melhor mão possível em uma street não implica continuar na frente em todas as cartas seguintes. Um board que dobra pode permitir full house; uma carta do terceiro naipe pode permitir flush. Avalie também possibilidades de melhorar para uma mão ainda mais forte. A análise depende das cartas e dos ranges, por isso não tratamos qualquer sequência como all-in automático.
+
+Preço com quatro cartas. As pot odds continuam sendo uma relação entre custo e pote elegível. O que muda é a distribuição de mãos e a forma de estimar equity. Um ás isolado de determinado naipe pode remover combinações rivais, mas não fabrica um flush próprio. No river, conte seis pares privados e dez trios do board, total sessenta candidatas; selecione a melhor e compare com as mãos elegíveis.
+
+Laboratório: Quatro privadas, apenas duas escolhidas. Objetivo: Contar seis pares e reconhecer a sequência feita. Abra a mesa deste módulo e comece pelo treino guiado. dama de paus e valete de paus com dez de copas, nove de copas e oito de paus formam sequência até dama. ás de copas e rei de copas oferecem um projeto diferente. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+Se você tem 4 cartas de Copas na mão no Omaha e o board tem 1 carta de Copas, você tem um Flush? A. Sim, porque você tem 5 cartas de copas no total B. Não, pois a regra do Omaha exige usar obrigatoriamente 2 cartas da mão e 3 da mesa C. Depende do valor do Ás Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Não, pois a regra do Omaha exige usar obrigatoriamente 2 cartas da mão e 3 da mesa. No Omaha é mandatório usar exatamente 2 da mão e 3 da mesa. Com apenas 1 copa no board, é impossível fazer flush.
+
+Suas cartas: ás de copas, rei de copas, dama de paus, valete de paus. Cartas comunitárias: dez de copas, nove de copas, oito de paus. Omaha: ás de copas rei de copas dama de paus valete de paus no flop dez de copas nove de copas oito de paus. Usando exatamente duas privadas e três comunitárias, qual mão já está formada? A. Sequência B. Carta alta C. Flush Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Sequência. dama de paus valete de paus mais dez de copas nove de copas oito de paus formam sequência dama, valete, dez, nove e oito. ás de copas rei de copas com as duas copas do board são apenas projeto de flush. Não misture as duas candidatas.
+
+Abra o simulador da aula e escolha o cenário Quatro privadas, apenas duas escolhidas. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

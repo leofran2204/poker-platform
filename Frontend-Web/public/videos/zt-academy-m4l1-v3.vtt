@@ -1,0 +1,241 @@
+WEBVTT
+
+00:00:00.501 --> 00:00:06.147
+Zero Tilt Academy Thin Value Bet vs. Blefe Puro Nesta
+
+00:00:06.160 --> 00:00:10.142
+aula nosso objetivo é Escolher valor fino de acordo com
+
+00:00:10.155 --> 00:00:14.846
+o perfil que paga Vamos desenvolver a teoria resolver exemplos
+
+00:00:14.859 --> 00:00:17.165
+e aplicar a ideia na mesa deste módulo
+
+00:00:19.335 --> 00:00:23.525
+Valor no river Uma aposta por valor busca ser paga
+
+00:00:23.537 --> 00:00:28.074
+por mãos piores Thin value descreve uma margem menor contra
+
+00:00:28.086 --> 00:00:31.656
+o range que paga Ser forte contra o range inteiro
+
+00:00:31.669 --> 00:00:35.032
+do rival não basta compare com a parte que continuará
+
+00:00:37.202 --> 00:00:41.907
+Exemplo com hipótese ás e valete em ás nove quatro
+
+00:00:42.177 --> 00:00:45.554
+dois e sete rainbow rival dá check e sabemos para
+
+00:00:45.567 --> 00:00:49.252
+este exercício que pagará uma aposta pequena com vários ases
+
+00:00:49.265 --> 00:00:54.316
+menores Treinamos bet por valor Se ele só pagar mãos
+
+00:00:54.329 --> 00:00:56.069
+melhores a conclusão muda
+
+00:00:58.235 --> 00:01:03.095
+Ações legais Após check você pode dar check ou bet
+
+00:01:03.984 --> 00:01:07.605
+Diante de aposta as opções passam a fold call ou
+
+00:01:07.618 --> 00:01:10.440
+raise respeitando stacks e regras da mesa
+
+00:01:12.602 --> 00:01:16.108
+O range que paga é o relevante Suponha que o
+
+00:01:16.121 --> 00:01:19.588
+rival chegue ao river com muitos pares fracos mas desista
+
+00:01:19.600 --> 00:01:23.273
+de todos diante de uma aposta grande A força da
+
+00:01:23.286 --> 00:01:25.889
+sua mão contra o conjunto inicial não prova que a
+
+00:01:25.902 --> 00:01:30.644
+aposta grande seja por valor Você precisa identificar mãos piores
+
+00:01:30.657 --> 00:01:35.103
+que continuem Uma aposta pequena pode receber calls mais amplos
+
+00:01:35.387 --> 00:01:37.874
+também oferece ao rival a opção de aumentar
+
+00:01:40.035 --> 00:01:44.276
+Compare com dar check O valor incremental de apostar deve
+
+00:01:44.289 --> 00:01:48.219
+ser comparado ao que aconteceria ao dar check Se você
+
+00:01:48.232 --> 00:01:50.913
+já venceria o showdown contra uma mão fraca que sempre
+
+00:01:50.926 --> 00:01:54.199
+desiste para a aposta o fold dessa mão não acrescenta
+
+00:01:54.212 --> 00:01:59.353
+o pagamento desejado Em contrapartida receber de mãos piores aumenta
+
+00:01:59.366 --> 00:02:02.304
+o ganho e pagar raises de mãos melhores aumenta o
+
+00:02:02.317 --> 00:02:06.454
+custo Não julgue uma value bet apenas pela ocorrência de
+
+00:02:06.467 --> 00:02:06.866
+um call
+
+00:02:09.035 --> 00:02:14.320
+Exercício controlado ás e valete em ás nove quatro dois
+
+00:02:14.333 --> 00:02:18.121
+e sete tem top pair com valete O cenário fixa
+
+00:02:18.134 --> 00:02:20.866
+um pagador com um ás menor para estudar recebimento de
+
+00:02:20.879 --> 00:02:25.415
+valor Isso é uma condição didática não uma leitura garantida
+
+00:02:25.428 --> 00:02:29.745
+sobre usuários reais Repita a mão com tamanhos distintos e
+
+00:02:29.758 --> 00:02:32.322
+registre em que ponto a política do bot deixa de
+
+00:02:32.335 --> 00:02:36.627
+continuar Depois descreva por que uma única amostra não estima
+
+00:02:36.639 --> 00:02:37.902
+um range de população
+
+00:02:40.068 --> 00:02:45.920
+Laboratório Receber de mãos piores Objetivo Escolher valor fino
+
+00:02:45.933 --> 00:02:49.155
+de acordo com o perfil que paga Abra a mesa
+
+00:02:49.168 --> 00:02:53.420
+deste módulo e comece pelo treino guiado O bot pagador
+
+00:02:53.433 --> 00:02:57.866
+continua com pares a preços moderados A hipótese de receber
+
+00:02:57.879 --> 00:03:02.402
+de pior precisa sustentar sua aposta Depois repita no modo
+
+00:03:02.415 --> 00:03:07.480
+desafio respondendo à pergunta objetiva antes de cada ação Use
+
+00:03:07.492 --> 00:03:12.003
+o replay para comparar uma alternativa na mesma distribuição Uma
+
+00:03:12.016 --> 00:03:15.379
+nova distribuição preserva as cartas que definem o cenário e
+
+00:03:15.392 --> 00:03:16.371
+varia as demais
+
+00:03:18.535 --> 00:03:22.929
+Registre sua justificativa no caderno acertar a leitura e respeitar
+
+00:03:22.942 --> 00:03:25.429
+as hipóteses importam mais que ganhar esta mão
+
+00:03:27.602 --> 00:03:30.578
+Qual a definição correta de um Thin Value Bet no
+
+00:03:30.591 --> 00:03:34.897
+river A. Apostar com os nuts absolutos esperando tomar call
+
+00:03:34.910 --> 00:03:37.719
+de all-in B. Apostar uma mão de força média esperando
+
+00:03:37.732 --> 00:03:42.513
+ser pago por mãos marginalmente piores do adversário C. Blefar
+
+00:03:42.526 --> 00:03:44.936
+quando você tem certeza de que vai perder Pause o
+
+00:03:44.948 --> 00:03:48.415
+vídeo faça sua leitura e registre uma resposta antes de
+
+00:03:48.428 --> 00:03:49.008
+continuar
+
+00:03:51.168 --> 00:03:55.137
+Resposta do exercício Apostar uma mão de força média esperando
+
+00:03:55.150 --> 00:03:59.868
+ser pago por mãos marginalmente piores do adversário Thin value
+
+00:03:59.881 --> 00:04:02.961
+é a aposta precisa para extrair fichas de mãos inferiores
+
+00:04:02.974 --> 00:04:04.404
+que pagam por curiosidade
+
+00:04:06.568 --> 00:04:11.969
+Suas cartas ás de ouros valete de ouros Cartas comunitárias
+
+00:04:12.214 --> 00:04:15.822
+ás de espadas nove de paus quatro de ouros dois
+
+00:04:15.835 --> 00:04:20.668
+de copas sete de espadas Texas river ás de espadas
+
+00:04:20.681 --> 00:04:23.297
+nove de paus quatro de ouros dois de copas sete
+
+00:04:23.309 --> 00:04:28.077
+de espadas você tem A ♦ J ♦ O rival
+
+00:04:28.090 --> 00:04:31.789
+checa e no modelo do exercício paga uma aposta pequena
+
+00:04:31.802 --> 00:04:37.059
+com vários ases menores Qual ação treinamos por valor A.
+
+00:04:37.072 --> 00:04:40.036
+check B. bet Pause o vídeo faça sua leitura e
+
+00:04:40.049 --> 00:04:42.330
+registre uma resposta antes de continuar
+
+00:04:44.502 --> 00:04:49.787
+Resposta do exercício bet A hipótese fornece mãos piores que
+
+00:04:49.799 --> 00:04:54.374
+pagam A aposta é bet pois ninguém apostou nesta rodada
+
+00:04:56.535 --> 00:04:59.421
+Abra o simulador da aula e escolha o cenário Receber
+
+00:04:59.434 --> 00:05:04.152
+de mãos piores Jogue uma mão completa responda às perguntas
+
+00:05:04.165 --> 00:05:08.250
+e registre seu plano Depois use o replay para comparar
+
+00:05:08.263 --> 00:05:12.464
+outra ação na mesma distribuição Volte em outra sessão no
+
+00:05:12.477 --> 00:05:17.310
+modo desafio Avalie o raciocínio com as informações disponíveis
+
+00:05:17.580 --> 00:05:21.704
+sem confundir uma vitória isolada com uma boa estratégia As
+
+00:05:21.717 --> 00:05:25.995
+fontes estão no material de apoio Este curso não promete
+
+00:05:26.008 --> 00:05:28.212
+lucro e o treino usa fichas sem valor

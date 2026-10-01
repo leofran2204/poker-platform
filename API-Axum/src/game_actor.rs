@@ -196,7 +196,7 @@ async fn persist_completed_hand(
     .bind(record.table_id)
     .fetch_one(&mut *tx)
     .await?;
-    sqlx::query(
+    let inserted = sqlx::query(
         "INSERT INTO hand_history (id, table_id, hand_number, game_type, small_blind, big_blind, actions_json, community_cards_json, loss_deflators_json, settlement_json, settlement_signature, winner_player_id, pot_total, rake_collected, end_reason) \
          VALUES ($1, $2, $3, 'cash', $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) \
          ON CONFLICT (id) DO NOTHING",
@@ -217,6 +217,11 @@ async fn persist_completed_hand(
     .bind(record.reason)
     .execute(&mut *tx)
     .await?;
+    if inserted.rows_affected() == 0 {
+        // Uma repetição da persistência não pode creditar novamente clube/agente.
+        tx.rollback().await?;
+        return Ok(());
+    }
 
     // FASE 2: Ledger B2B SaaS
     // Deposita a fatia do Clube no saldo administrativo se a mesa for privada.
@@ -229,7 +234,7 @@ async fn persist_completed_hand(
                 .flatten();
 
         if let Some(c_id) = club_id {
-            let platform_fee = (record.rake * 15) / 100;
+            let platform_fee = crate::estrutura::commission(record.rake, 15);
             let club_rake = record.rake.saturating_sub(platform_fee);
             sqlx::query("UPDATE clubs SET balance = balance + $1 WHERE id = $2")
                 .bind(club_rake)

@@ -302,7 +302,7 @@ pub async fn register_player(
         }
     }
 
-    // Taxa 15% por cima do buy-in: debita junto e reparte 18/12/70 na rede.
+    // Taxa 15% por cima do buy-in: debita junto e registra o NGR do agente direto.
     // Freeroll (buy-in zero) não tem fee.
     let fee_cents =
         i64::try_from(poker_engine::tournament_engine::entry_fee_cents(buy_in)).unwrap_or(0);
@@ -318,17 +318,18 @@ pub async fn register_player(
             store.state.players.remove(&auth_user.user_id);
             ApiError::BadRequest("Invalid player id".into())
         })?;
-        let week_start: i64 = sqlx::query_scalar(
-            "SELECT EXTRACT(EPOCH FROM date_trunc('week', timezone('America/Sao_Paulo', now())))::BIGINT",
-        )
-        .fetch_one(&mut *tx)
-        .await
-        .map_err(|_| {
+        let source_reference_id = uuid::Uuid::parse_str(&tournament_id).map_err(|_| {
             store.state.players.remove(&auth_user.user_id);
-            ApiError::Internal("week clock unavailable".into())
+            ApiError::BadRequest("Invalid tournament id".into())
         })?;
-        if let Err(e) =
-            crate::estrutura::distribute_fee(&mut tx, payer, fee_cents, week_start).await
+        if let Err(e) = crate::estrutura::distribute_fee(
+            &mut tx,
+            payer,
+            fee_cents,
+            source_reference_id,
+            mode.as_str(),
+        )
+        .await
         {
             store.state.players.remove(&auth_user.user_id);
             return Err(ApiError::Internal(format!("fee split failed: {e}")));
@@ -401,8 +402,8 @@ pub struct UnregisterResponse {
 }
 
 /// POST /api/tournament/unregister — cancela a inscrição PRÉ-START com
-/// reembolso total (buy-in + fee 15%) e anulação das linhas de fee do pagador
-/// (estorna pontos onde houve crédito). Pós-start: 403.
+/// reembolso total (buy-in + fee 15%) e dedução identificada do fee no NGR.
+/// Receitas e fechamentos anteriores permanecem no histórico. Pós-start: 403.
 pub async fn unregister_player(
     State(state): State<AppState>,
     RequireAuth(auth_user): RequireAuth,
@@ -449,24 +450,12 @@ pub async fn unregister_player(
         }
         if fee_i > 0 {
             crate::wallet::credit_wallet(&mut *tx, &auth_user.user_id, fee_i, kind).await?;
-            // Anula o fee: estorna pontos creditados e apaga as linhas do pagador.
+            // Dedução idempotente somente das receitas desta inscrição.
             let payer = uuid::Uuid::parse_str(&auth_user.user_id)
                 .map_err(|_| ApiError::BadRequest("Invalid player id".into()))?;
-            sqlx::query(
-                "UPDATE users SET estrutura_points = GREATEST(estrutura_points - el.commission_cents, 0) \
-                 FROM estrutura_ledger el \
-                 WHERE el.source_type = 'fee' AND el.source_user_id = $1 AND el.eligible \
-                   AND users.id = el.beneficiary_user_id",
-            )
-            .bind(payer)
-            .execute(&mut *tx)
-            .await?;
-            sqlx::query(
-                "DELETE FROM estrutura_ledger WHERE source_type = 'fee' AND source_user_id = $1",
-            )
-            .bind(payer)
-            .execute(&mut *tx)
-            .await?;
+            let tournament_ref = uuid::Uuid::parse_str(&tournament_id)
+                .map_err(|_| ApiError::BadRequest("Invalid tournament id".into()))?;
+            crate::estrutura::refund_fee(&mut tx, payer, tournament_ref).await?;
         }
         sqlx::query("DELETE FROM tournament_players WHERE tournament_id = $1::uuid AND player_id = $2")
             .bind(&tournament_id)

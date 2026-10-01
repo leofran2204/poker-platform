@@ -1,0 +1,71 @@
+{
+  "lessonId": "m1l2",
+  "filename": "zt-academy-m1l2-v3",
+  "contentHash": "8ba3c88095f16ddc99acbbbed374ec75ca4475a3b662efc54038761ce656fb61",
+  "rendererVersion": 3,
+  "durationSeconds": 325.5,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 8011413,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Como punir o Limp do Small Blind"
+    },
+    {
+      "start": 18.13,
+      "title": "Limp do small blind"
+    },
+    {
+      "start": 36.53,
+      "title": "Plano do exercício"
+    },
+    {
+      "start": 62.57,
+      "title": "Revise a hipótese"
+    },
+    {
+      "start": 72.13,
+      "title": "A opção do big blind"
+    },
+    {
+      "start": 105.6,
+      "title": "O tamanho depende da resposta"
+    },
+    {
+      "start": 136.9,
+      "title": "Observe sem concluir cedo"
+    },
+    {
+      "start": 166.07,
+      "title": "Laboratório: O small blind completa"
+    },
+    {
+      "start": 203.63,
+      "title": "Laboratório: O small blind completa"
+    },
+    {
+      "start": 212.7,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 233.07,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 248.33,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 279.97,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 291.8,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "232e855961396272f9cfc6a8c82a98dac0eb99bbacff0adaf7bcfa81a39a5fe1"
+}

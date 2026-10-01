@@ -1,0 +1,128 @@
+{
+  "met-cloisters": {
+    "title": "The Cloisters Playing Cards",
+    "credit": "The Metropolitan Museum of Art · c. 1475–1480 · objeto 1983.515.1–.52",
+    "url": "https://www.metmuseum.org/art/collection/search/475513",
+    "note": "Baralho preservado de 52 cartas e naipes de caça. A data do objeto não é uma data de invenção do poker. Imagem em domínio público."
+  },
+  "cowell-1844": {
+    "title": "Thirty Years Passed Among the Players",
+    "credit": "Joe Cowell · Harper & Brothers, 1844 · parte II, p. 94",
+    "url": "https://archive.org/details/thirtyyearspasse00cowe/page/n97/mode/2up",
+    "note": "Relato autobiográfico de poker em um barco. Memória publicada posteriormente; não prova a origem exata do jogo. O texto já descreve o ás como valor alto."
+  },
+  "kuhn-1950": {
+    "title": "A Simplified Two-Person Poker",
+    "credit": "Harold W. Kuhn · Contributions to the Theory of Games I, 1950 · pp. 97–103",
+    "url": "https://sites.math.rutgers.edu/~zeilberg/akherim/PokerPapers/Kuhn1951.pdf",
+    "note": "Modelo matemático com três cartas e dois jogadores. Ilustra informação privada e escolhas estratégicas; não fornece uma estratégia pronta de Hold’em."
+  },
+  "wsop-history": {
+    "title": "História oficial da World Series of Poker",
+    "credit": "WSOP · seções 1970 e 2003",
+    "url": "https://www.wsop.com/about/world-series-of-poker/",
+    "note": "Documenta a primeira edição e a vitória de Moneymaker. O impacto histórico de uma vitória não indica o retorno esperado de um iniciante."
+  },
+  "wsop-moss": {
+    "title": "Johnny Moss",
+    "credit": "WSOP · perfil histórico",
+    "url": "https://www.wsop.com/players/162565666/johnny-moss/",
+    "note": "Distingue a escolha por voto em 1970 da vitória no torneio em 1971."
+  },
+  "wsop-brazil": {
+    "title": "2015 WSOP Official Report — Event 30",
+    "credit": "WSOP · relatório de Thiago Nishijima, 2015",
+    "url": "https://www.wsop.com/pdfs/reports/14238-final-report.pdf",
+    "note": "O relatório identifica Alexandre Gomes (2008) como o primeiro brasileiro a conquistar um bracelete. Registro retrospectivo da organizadora."
+  },
+  "mit-pot-odds": {
+    "title": "Poker Theory and Analytics — Basic Strategy",
+    "credit": "Kevin Desmond · MIT OpenCourseWare, 2015 · slides 12–15",
+    "url": "https://ocw.mit.edu/courses/15-s50-poker-theory-and-analytics-january-iap-2015/resources/mit15_s50iap15_l3_basic/",
+    "note": "Pot odds e valor esperado. Os exemplos da Academy são próprios; os slides e vídeos do MIT não foram reproduzidos. O vínculo é bibliográfico, sem endosso institucional."
+  },
+  "bowling-2015": {
+    "title": "Heads-up Limit Hold’em Poker Is Solved",
+    "credit": "Bowling, Burch, Johanson e Tammelin · Science 347, 2015 · pp. 145–149 · DOI 10.1126/science.1259433",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/25574016/",
+    "note": "Resultado de solução essencialmente fraca para heads-up limit Hold’em. Não se estende automaticamente a no-limit, múltiplos jogadores ou a todas as mãos individuais."
+  },
+  "palomaki-2013": {
+    "title": "“This is just so unfair!” — Loss-induced Emotions and Tilting",
+    "credit": "Palomäki, Laakasuo e Salmela · International Gambling Studies 13(2), 2013 · pp. 255–270",
+    "url": "https://doi.org/10.1080/14459795.2013.780631",
+    "note": "Análise qualitativa de relatos de 60 jogadores finlandeses. Relaciona narrativas de perdas, indignação e perseguição de perdas; não demonstra causalidade nem eficácia de um tratamento."
+  },
+  "dunlosky-2013": {
+    "title": "Improving Students’ Learning With Effective Learning Techniques",
+    "credit": "Dunlosky e colaboradores · Psychological Science in the Public Interest 14(1), 2013 · pp. 4–58",
+    "url": "https://www.wku.edu/senate/documents/improving_student_learning_dunlosky_2013.pdf",
+    "note": "Revisão de técnicas de aprendizagem. Fundamenta perguntas de recuperação e estudo distribuído. A aplicação ao curso de poker é uma escolha pedagógica, não um resultado específico sobre poker."
+  },
+  "mit-hypergeometric": {
+    "title": "Statistics for Applications — Lecture 17",
+    "credit": "MIT 18.443 · Dr. Kempthorne · 2015 · p. 10",
+    "url": "https://ocw.mit.edu/courses/18-443-statistics-for-applications-spring-2015/c9f6cf548a6e918d3dc798fc0d7c8170_MIT18_443S15_LEC17.pdf",
+    "note": "Distribuição hipergeométrica para amostragem uniforme sem reposição. Os exemplos e derivações para Brazilian Pineapple são originais da ZT; a fonte não estuda nem endossa esta modalidade."
+  },
+  "nist-proportions": {
+    "title": "Confidence intervals for proportions",
+    "credit": "NIST/SEMATECH e-Handbook · seção 7.2.4.1 · consulta 27/09/2026",
+    "url": "https://itl.nist.gov/div898/handbook/prc/section2/prc241.htm",
+    "note": "Discute intervalos de Wilson e exatos para proporções. Uma proporção de vitórias binárias é diferente de equity com parcelas de empate; não aplicar automaticamente o mesmo intervalo."
+  },
+  "gtow-multiway-2026": {
+    "title": "Introducing Multiway Preflop Solving",
+    "credit": "GTO Wizard · documentação técnica do fornecedor · 03/02/2026",
+    "url": "https://blog.gtowizard.com/introducing-multiway-preflop-solving/",
+    "note": "Referência sobre parametrização por posições, stacks, rake e respostas. Fonte comercial; nenhuma solução proprietária ou assinatura é usada como gabarito da Academy. Consultada em 28/09/2026."
+  },
+  "pokerstars-omaha": {
+    "title": "PLO Rules",
+    "credit": "PokerStars Learn · regras de formação de mãos",
+    "url": "https://www.pokerstars.com/poker/learn/lesson/plo-rules/",
+    "note": "Referência para exatamente duas privadas mais três comunitárias. A estrutura de apostas PLO da fonte não é atribuída automaticamente à mesa Omaha da ZT."
+  },
+  "pluribus-2019": {
+    "title": "Superhuman AI for multiplayer poker",
+    "credit": "Noam Brown e Tuomas Sandholm · Science 365, 2019 · pp. 885–890",
+    "url": "https://noambrown.github.io/papers/19-Science-Superhuman.pdf",
+    "note": "Pesquisa em no-limit Texas Hold’em com seis jogadores. Contextualiza os limites de transferir resultados de IA entre jogos; não valida nem torna GTO os bots pedagógicos da Academy."
+  },
+  "ciaffone-omaha-2007": {
+    "title": "All About Omaha Origins",
+    "credit": "Bob Ciaffone · Card Player · 12/07/2007",
+    "url": "https://www.cardplayer.com/cardplayer-poker-magazines/65671-erick-lindgren-20-12/articles/16829-all-about-omaha-origins",
+    "note": "Relato retrospectivo de participante: Michigan, Golden Nugget e difusão do pot-limit. Não prova inventor ou local únicos. Consulta: 29/09/2026."
+  },
+  "turner-omaha-2014": {
+    "title": "The origins of Omaha Hi/Lo poker",
+    "credit": "Robert Turner · GamingToday · 04/11/2014",
+    "url": "https://www.gamingtoday.com/news/the-origins-of-omaha-hi-lo-poker/",
+    "note": "Memória em primeira pessoa sobre Gwen, Bill Boyd e 1982. A sequência exata da adoção do pot-limit diverge de Ciaffone. Consulta: 29/09/2026."
+  },
+  "turner-interview-2014": {
+    "title": "Interview with Robert Turner, Inventor of Omaha Poker",
+    "credit": "Robbie Strazynski · Cardplayer Lifestyle · 23/01/2014",
+    "url": "https://cardplayerlifestyle.com/poker-lifestyle/interview-robert-turner-inventor-omaha-poker/",
+    "note": "Turner não confirma uma origem em Nebraska. O título editorial da entrevista não comprova autoria exclusiva. Consulta: 29/09/2026."
+  },
+  "pokernews-omaha-1983": {
+    "title": "History in Spades: Defunct Bracelet Events from the WSOP",
+    "credit": "Chad Holloway · PokerNews · 21/10/2010",
+    "url": "https://www.pokernews.com/news/2010/10/history-in-spades-defunct-bracelet-events-from-the-wsop-9161.htm",
+    "note": "Retrospectiva jornalística: Limit Omaha na WSOP de 1983, vencido por David Sklansky. Consulta: 29/09/2026."
+  },
+  "wsop-potlimit-1984": {
+    "title": "Rast But Not Least — Event History",
+    "credit": "WSOP · relatório oficial do evento 15 · 2011",
+    "url": "https://www.wsop.com/news/rast-but-not-least/",
+    "note": "A organizadora registra dois torneios de Pot-Limit Omaha em 1984, primeira presença de pot-limit na série. Consulta: 30/09/2026."
+  },
+  "ho-omaha-2015": {
+    "title": "A No-Limit Omaha Hi-Lo Poker Jam/Fold Endgame Equilibrium",
+    "credit": "Kenneth Ho · dissertação de mestrado, Harvard Extension School · 2015",
+    "url": "https://dash.harvard.edu/server/api/core/bitstreams/7312037d-b83c-6bd4-e053-0100007fdf3b/content",
+    "note": "Pesquisa com dois jogadores, Hi-Lo e decisões restritas a all-in/desistir. Não resolve Omaha completo nem investiga sua etimologia. Consulta: 29/09/2026."
+  }
+}

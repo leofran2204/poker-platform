@@ -1,0 +1,27 @@
+Zero Tilt Academy. Potes Multiway & Set Mining. Nesta aula, nosso objetivo é: Buscar valor sem ignorar jogadores adicionais. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Potes multiway. Para ganhar por blefe, todos os adversários que ainda disputam precisam desistir. Frequências de defesa e valor das mãos mudam com mais jogadores; não presuma fold equity zero nem use automaticamente uma estratégia heads-up.
+
+Set mining. Com um par privado, a chance de o flop conter ao menos uma das duas cartas restantes desse rank é 1 menos combinação de 48 elementos tomados 3 a 3/combinação de 50 elementos tomados 3 a 3, aproximadamente 11,76 por cento, se só as duas cartas próprias forem conhecidas. Acertar não garante vitória nem pagamento. Stack efetivo, posição, rake e risco de set maior entram na decisão. “20 vezes o call” é uma heurística, não uma prova de rentabilidade.
+
+Exercício de valor. Em oito de copas sete de espadas dois de paus com oito de paus oito de ouros, você tem top set. Após checks, treine bet por valor contra adversários que pagam com pares e projetos. Ajuste o tamanho às hipóteses do exercício.
+
+O blefe precisa passar por todos. Com dois adversários, ganhar imediatamente exige que ambos desistam. Se, em um modelo artificial, cada um desistisse com probabilidade de metade e os eventos fossem independentes, a chance conjunta seria um quarto. Em poker, as decisões podem ser correlacionadas e o segundo jogador observa a ação do primeiro. Portanto esse produto ilustra uma hipótese, não uma fórmula universal de fold equity multiway.
+
+Condição mínima de pagamento. Se você pagasse 1 big blinds apenas para buscar a trinca no flop, nunca ganhasse sem acertar e não tivesse custos posteriores, uma probabilidade de acerto de 11,76 por cento exigiria ganhos líquidos médios superiores a aproximadamente 7,5 big blinds nos acertos para equilibrar as falhas. O modelo ignora derrotas após acertar, rake e ações futuras. Ele mostra por que a simples presença de um stack grande não garante pagamento suficiente.
+
+Top set ainda exige planejamento. Em oito de copas sete de espadas dois de paus com oito de paus oito de ouros, você tem top set. Pergunte quais pares e projetos pagariam uma aposta e quantas cartas podem alterar a força relativa no turn. Uma aposta por valor pode ser apropriada contra os perfis do cenário, porém o tamanho depende da continuidade desejada. Ao chegar ao showdown, se houver stacks diferentes, leia separadamente os jogadores elegíveis a cada pote.
+
+Laboratório: Top set contra dois bots. Objetivo: Buscar valor sem ignorar jogadores adicionais. Abra a mesa deste módulo e comece pelo treino guiado. Sua trinca é a maior possível neste flop. Pense em quais pares e projetos pagariam cada tamanho. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+Por que geralmente selecionamos blefes com mais cuidado em potes multiway? A. Porque o rake é mais caro em potes multiway B. Porque todos os adversários precisam desistir para o blefe ganhar imediatamente C. Porque os potes multiway são proibidos em torneios Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Porque todos os adversários precisam desistir para o blefe ganhar imediatamente. Mais adversários mudam as probabilidades e estratégias de continuação; a fold equity não é necessariamente zero.
+
+Suas cartas: oito de paus, oito de ouros. Cartas comunitárias: oito de copas, sete de espadas, dois de paus. Texas, flop oito de copas sete de espadas dois de paus com três jogadores. Você tem 8♣ 8♦, todos deram check e o objetivo é extrair valor de pares e projetos que pagam. Qual ação inicia a aposta? A. check B. bet Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: bet. Sem aposta anterior na rodada, a ação é bet. O tamanho depende das mãos que continuarão e dos stacks.
+
+Abra o simulador da aula e escolha o cenário Top set contra dois bots. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

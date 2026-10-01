@@ -1,0 +1,67 @@
+{
+  "lessonId": "m5l2",
+  "filename": "zt-academy-m5l2-v3",
+  "contentHash": "49b158e110719927259c375fb9def9ea47225e7c22b6979929105347d8d3e8f5",
+  "rendererVersion": 3,
+  "durationSeconds": 365.9,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 9366443,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Omaha 4 Cartas (baralho de 52)"
+    },
+    {
+      "start": 19.4,
+      "title": "Omaha 4 (6-max)"
+    },
+    {
+      "start": 38.43,
+      "title": "Contagem e leitura"
+    },
+    {
+      "start": 80.17,
+      "title": "Escolha pares privados"
+    },
+    {
+      "start": 116.87,
+      "title": "Nuts e possibilidades de melhorar"
+    },
+    {
+      "start": 145.47,
+      "title": "Preço com quatro cartas"
+    },
+    {
+      "start": 175.47,
+      "title": "Laboratório: Quatro privadas, apenas duas escolhidas"
+    },
+    {
+      "start": 218.07,
+      "title": "Laboratório: Quatro privadas, apenas duas escolhidas"
+    },
+    {
+      "start": 227.13,
+      "title": "Exercício resolvido 1"
+    },
+    {
+      "start": 254.43,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 272.87,
+      "title": "Exercício resolvido 2"
+    },
+    {
+      "start": 308.3,
+      "title": "Confira o raciocínio"
+    },
+    {
+      "start": 330.73,
+      "title": "Agora, pratique"
+    }
+  ],
+  "sha256": "1d5467331967e976dc013b7e5156db3f839f09725de817aa8fab6133469a30d5"
+}

@@ -1,0 +1,27 @@
+Zero Tilt Academy. Overbet Polarizada vs. Blocking Bet. Nesta aula, nosso objetivo é: Reconhecer o flush e comparar diferentes tamanhos. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Overbet. Uma aposta maior que o pote pode integrar uma estratégia polarizada quando ranges e stacks sustentam valor forte e blefes apropriados. Não maximiza retorno em qualquer cenário; o rival pode responder com folds e raises.
+
+Blocking bet. Uma aposta pequena fora de posição pode buscar valor fino ou induzir certas respostas. Ela não fixa o preço do showdown: o adversário continua podendo aumentar.
+
+Primeiro classifique a mão. valete de copas dez de copas no board nove de copas oito de copas sete de paus dois de ouros ás de copas forma flush ás, valete, dez, nove e oito, não apenas sequência. Também não é nut flush: rei de copas dama de copas forma um flush maior. Uma categoria errada contamina todo o plano de aposta.
+
+O preço de uma overbet. Com pote de 100 e aposta de 150, um call custa 150 para um total de 400: o limiar é 37,5 por cento, sem taxas e sem futuras apostas. Quanto maior a aposta em relação ao pote, maior a equidade exigida para pagar nesse modelo e maior o risco financeiro do blefe. Um blefe puro que perde sempre ao ser pago precisa de folds acima de 150 dividido por 250, ou 60 por cento, nesse modelo.
+
+Uma aposta pequena não fecha a ação. A blocking bet pode buscar pagamento de pior ou influenciar respostas, mas o rival pode aumentar. Se você aposta pequeno sem plano contra raise, apenas transfere a dificuldade para a próxima decisão. Registre antes se sua mão pretende pagar, desistir ou aumentar de volta contra diferentes tamanhos e ranges.
+
+Não confunda força com invulnerabilidade. valete de copas dez de copas em nove de copas oito de copas sete de paus dois de ouros ás de copas forma flush de ás, valete, dez, nove e oito. rei de copas dama de copas permite flush de ás, rei, dama, nove e oito, que é maior. Portanto sua mão não é o nut flush. A leitura correta é o ponto de partida; escolher uma overbet ainda exige justificar quais mãos piores pagarão e quais melhores poderiam continuar ou aumentar.
+
+Laboratório: Identifique o flush antes do sizing. Objetivo: Reconhecer o flush e comparar diferentes tamanhos. Abra a mesa deste módulo e comece pelo treino guiado. Você tem flush ás, valete, dez, nove e oito. Um adversário com rei de copas dama de copas tem um flush maior; sua mão não é o nuts. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+Quando é matematicamente correto aplicar uma Overbet ( maior que 100 por cento do pote) no river? A. Quando você tem uma mão média e quer assustar o adversário B. Com uma linha polarizada: tendo mãos absolutas (nuts) ou blefes bem selecionados contra um range com muitos bluff-catchers C. Sempre que você estiver no botão Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Com uma linha polarizada: tendo mãos absolutas (nuts) ou blefes bem selecionados contra um range com muitos bluff-catchers. A overbet é polarizada: extrai valor máximo das mãos fortes ou aplica máxima pressão de blefe.
+
+Suas cartas: valete de copas, dez de copas. Cartas comunitárias: nove de copas, oito de copas, sete de paus, dois de ouros, ás de copas. Texas, river nove de copas oito de copas sete de paus dois de ouros ás de copas. Com valete de copas dez de copas, qual descrição está correta? A. Nut straight absoluto B. Flush, mas não nut flush C. Straight flush Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Flush, mas não nut flush. As cinco copas são ás de copas valete de copas dez de copas nove de copas oito de copas. rei de copas dama de copas pode formar um flush maior; não há cinco cartas consecutivas de copas.
+
+Abra o simulador da aula e escolha o cenário Identifique o flush antes do sizing. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

@@ -1,0 +1,297 @@
+{
+  "home": {
+    "filename": "zt-poker-apresentacao-v3",
+    "title": "Poker é decisão.",
+    "subtitle": "Evolua a cada mão.",
+    "scenes": [
+      {
+        "kind": "hero",
+        "label": "ZERO TILT POKER",
+        "title": "Antes de jogar.\nAprenda a decidir.",
+        "detail": "Uma nova perspectiva sobre cada mão.",
+        "voice": "Uma carta vira. O cenário muda. No poker, cada decisão conta. E entender o jogo torna cada mão mais interessante."
+      },
+      {
+        "kind": "pineapple",
+        "label": "EXCLUSIVO ZERO TILT POKER",
+        "title": "Brazilian Pineapple.\nA mão se transforma.",
+        "detail": "Sem descarte · Exatamente 2 da mão + 3 da mesa",
+        "voice": "Conheça o Brazilian Pineapple, modalidade exclusiva da Zero Tilt Poker. Você começa com duas cartas e recebe mais uma depois do flop, do turn e do river, enquanto estiver na mão. Sem descartar. Para formar seu jogo, use exatamente duas cartas da mão e três da mesa. O ranking é o clássico."
+      },
+      {
+        "kind": "shortdeck",
+        "label": "TEXAS HOLDEM SHORT DECK",
+        "title": "Menos cartas.\nUm novo raciocínio.",
+        "detail": "Na ZT: trinca supera sequência · Flush supera full house",
+        "voice": "No Texas Holdem Short Deck, ficam as trinta e seis cartas, do seis ao ás. Aqui na Zero Tilt, trinca vence sequência e flush vence full house. A menor sequência é ás, seis, sete, oito e nove. Conhecer essas diferenças muda a forma de ler cada mão."
+      },
+      {
+        "kind": "journey",
+        "label": "ZERO TILT ACADEMY",
+        "title": "Descubra. Entenda.\nExperimente.",
+        "detail": "História · estratégia · decisões",
+        "voice": "Descubra a história das cartas, entenda a estratégia e coloque uma ideia em prática nas mesas gratuitas de Play Money."
+      },
+      {
+        "kind": "hero",
+        "label": "A SUA PRÓXIMA MÃO COMEÇA AQUI",
+        "title": "Poker é decisão.\nEvolua a cada mão.",
+        "detail": "Crie sua conta · Conheça a Academy",
+        "voice": "Texas Holdem tradicional, Short Deck, Omaha quatro cartas e Brazilian Pineapple. Escolha a sua mesa e respeite seus limites. Zero Tilt Poker. Para maiores de dezoito anos."
+      }
+    ]
+  },
+  "ep11": {
+    "filename": "ep11-cartas-historia-v2",
+    "title": "As cartas antes do poker",
+    "subtitle": "História documentada. Decisões que continuam atuais.",
+    "scenes": [
+      {
+        "kind": "hero",
+        "label": "ACADEMY / HISTÓRIA 01",
+        "title": "As cartas\nantes do poker.",
+        "detail": "O que um baralho antigo pode nos ensinar?",
+        "voice": "Antes dos cassinos e das mesas online, as cartas já contavam histórias. Mas um objeto antigo conta também os limites do que sabemos. Vamos começar com uma peça real de museu."
+      },
+      {
+        "kind": "museum",
+        "label": "CERCA DE 1475 A 1480",
+        "title": "52 cartas.\nOutros naipes.",
+        "detail": "The Cloisters Playing Cards · The Met",
+        "source": "The Met · objeto 1983.515.1–.52 · domínio público",
+        "voice": "O Metropolitan Museum preserva um baralho completo de cinquenta e duas cartas, produzido nos Países Baixos meridionais por volta de mil quatrocentos e setenta e cinco a mil quatrocentos e oitenta. Seus naipes representam equipamentos de caça, como cornetas e coleiras."
+      },
+      {
+        "kind": "museum",
+        "label": "UM DOCUMENTO MATERIAL",
+        "title": "Um baralho não é\numa certidão de origem.",
+        "detail": "Objeto preservado ≠ primeiro baralho inventado",
+        "source": "The Met · The Cloisters Playing Cards",
+        "voice": "Isso não significa que o baralho foi inventado ali, nem que já se jogava poker com ele. O próprio museu observa que as regras exatas dos jogos associados a essas cartas não são conhecidas. Datas, objetos e regras são evidências diferentes."
+      },
+      {
+        "kind": "cards",
+        "label": "O BARALHO CLÁSSICO ATUAL",
+        "title": "13 valores.\n4 naipes.",
+        "detail": "52 cartas · sem curingas no Hold’em tradicional",
+        "voice": "No Texas Holdem tradicional, usamos cinquenta e duas cartas: treze valores em quatro naipes. O Short Deck é diferente e usa trinta e seis. Antes de estudar uma estratégia, confira as regras da modalidade."
+      },
+      {
+        "kind": "kuhn",
+        "label": "DO OBJETO AO PROBLEMA",
+        "title": "Você vê uma parte.\nDecide sobre o todo.",
+        "detail": "Informação privada + ações observadas",
+        "source": "H. W. Kuhn · A Simplified Two-Person Poker · 1950, pp. 97–103",
+        "voice": "O matemático Harold Kuhn estudou um modelo de poker com apenas três cartas e dois jogadores. Cada pessoa recebe uma carta escondida. Mesmo nesse jogo pequeno, apostar envolve pensar no que o outro pode ter e no que pode fazer. É um modelo teórico, não uma estratégia pronta para o Holdem."
+      },
+      {
+        "kind": "question",
+        "label": "PAUSE E RESPONDA",
+        "title": "Qual afirmação\no objeto comprova?",
+        "detail": "A · O poker nasceu em 1475\nB · Existia esse baralho nessa época",
+        "voice": "Agora pause: aquele baralho comprova que o poker nasceu no século quinze? Ou comprova que existia aquele tipo de baralho naquela época? Pense antes de continuar."
+      },
+      {
+        "kind": "journey",
+        "label": "RESPOSTA / B",
+        "title": "Observe a evidência.\nRespeite a incerteza.",
+        "detail": "Na história. E em cada decisão à mesa.",
+        "voice": "A segunda resposta. O objeto documenta o baralho, não a invenção do poker. Essa atenção à evidência acompanha todo o curso. Você observa, formula uma hipótese e aceita que uma parte continua desconhecida. Na próxima aula, vamos a um relato de viagem do século dezenove."
+      }
+    ]
+  },
+  "ep12": {
+    "filename": "ep12-mississippi-omaha-v3",
+    "title": "Do rio à mesa mundial",
+    "subtitle": "Dos primeiros relatos à difusão do Omaha e à pesquisa.",
+    "scenes": [
+      {
+        "kind": "hero",
+        "label": "ACADEMY / HISTÓRIA 02",
+        "title": "Do rio à\nmesa mundial.",
+        "detail": "Documentos, mudanças e personagens",
+        "voice": "O poker ganhou o mundo por muitos caminhos. Nesta aula, vamos dos relatos de viagem à difusão do Omaha, aos torneios e à pesquisa. Cada fonte responde a uma pergunta diferente sobre essa história."
+      },
+      {
+        "kind": "timeline",
+        "label": "1844 / PUBLICAÇÃO",
+        "title": "Uma viagem.\nUm jogo chamado poker.",
+        "detail": "Joe Cowell · memórias publicadas em 1844",
+        "source": "Joe Cowell · 1844 · segunda parte, p. 94",
+        "voice": "Em suas memórias publicadas em mil oitocentos e quarenta e quatro, o ator Joe Cowell descreve pessoas jogando poker em um barco. Na página noventa e quatro da segunda parte, ele relata cartas escondidas, apostas e desistências. É um testemunho histórico, não uma prova do instante em que o jogo nasceu.",
+        "markers": [
+          "1844",
+          "1970",
+          "2003"
+        ]
+      },
+      {
+        "kind": "cards",
+        "label": "LEIA O DOCUMENTO COM CUIDADO",
+        "title": "O ás já aparece\ncomo carta alta.",
+        "detail": "Relato de Cowell · publicado em 1844",
+        "source": "Joe Cowell · 1844 · segunda parte, p. 94",
+        "voice": "Há um detalhe revelador: Cowell coloca os ases no topo dos valores. Por isso, não faz sentido dizer que o ás só passou a valer alto em mil novecentos e sessenta e sete. Uma fonte antiga pode corrigir uma história repetida por muito tempo."
+      },
+      {
+        "kind": "timeline",
+        "label": "1970 / WORLD SERIES OF POKER",
+        "title": "O primeiro campeão\nfoi escolhido por voto.",
+        "detail": "Johnny Moss · a competição mudou de formato",
+        "source": "WSOP · história oficial e perfil de Johnny Moss",
+        "voice": "Em mil novecentos e setenta, Johnny Moss foi escolhido campeão da primeira World Series por votação entre os participantes. No ano seguinte, venceu o Main Event disputado como torneio. O evento foi construindo o formato que conhecemos.",
+        "markers": [
+          "1844",
+          "1970",
+          "2003"
+        ]
+      },
+      {
+        "kind": "timeline",
+        "label": "DÉCADA DE 1970 / MEMÓRIA DE PARTICIPANTE",
+        "title": "Omaha tinha\nmais de um caminho.",
+        "detail": "Michigan · two by three / nomes regionais",
+        "markers": [
+          "1970s",
+          "1982",
+          "1983"
+        ],
+        "source": "Bob Ciaffone · Card Player · 12/07/2007",
+        "voice": "Bob Ciaffone recorda uma variante de Omaha no Michigan dos anos setenta, com comunitárias abertas uma a uma. Seu testemunho registra também nomes regionais. É uma memória de participante, publicada décadas depois."
+      },
+      {
+        "kind": "timeline",
+        "label": "1982 / GOLDEN NUGGET, LAS VEGAS",
+        "title": "Turner. Gwen. Boyd.\nUm marco de difusão.",
+        "detail": "Nugget Hold’em · oferta em cassino",
+        "markers": [
+          "1982",
+          "1983",
+          "1984"
+        ],
+        "source": "Robert Turner · GamingToday · 04/11/2014",
+        "voice": "Robert Turner relata que ele e Gwen, de Seattle, promoveram o jogo de quatro cartas no Golden Nugget em mil novecentos e oitenta e dois. Bill Boyd apoiou a oferta e o nome Nugget Holdem. Esse episódio documenta a difusão em cassino, sem provar a invenção exclusiva do jogo."
+      },
+      {
+        "kind": "question",
+        "label": "NOME / O QUE A FONTE PERMITE DIZER",
+        "title": "Omaha nasceu\nem Nebraska?",
+        "detail": "O nome não comprova o local de origem.",
+        "source": "Entrevista de Turner a Robbie Strazynski · 23/01/2014",
+        "voice": "O nome Omaha parece indicar uma cidade, mas a documentação pede cautela. Em entrevista, Turner disse não conhecer uma ligação com Nebraska. Sua lembrança incerta de um frequentador daquela cidade não demonstra de onde veio o nome."
+      },
+      {
+        "kind": "timeline",
+        "label": "WSOP / DOIS MARCOS DIFERENTES",
+        "title": "Limit: 1983.\nPot-limit: 1984.",
+        "detail": "David Sklansky venceu o Limit Omaha de 1983.",
+        "markers": [
+          "1983",
+          "1984"
+        ],
+        "source": "PokerNews · 21/10/2010 / WSOP · Event 15, 2011 · Event History",
+        "voice": "A retrospectiva da PokerNews registra a estreia do Limit Omaha na World Series em mil novecentos e oitenta e três, vencida por David Sklansky. O relatório da organizadora situa os primeiros dois eventos de Pot Limit Omaha em mil novecentos e oitenta e quatro. Não confunda os formatos nem as datas."
+      },
+      {
+        "kind": "cards",
+        "label": "REGRAS / IDENTIDADE DA MODALIDADE",
+        "title": "Quatro privadas.\nUse duas mais três.",
+        "detail": "Formação da mão ≠ limite de aposta",
+        "voice": "No Omaha de quatro cartas, use exatamente duas privadas e três comunitárias. Limit e pot limit descrevem as apostas. High e high low descrevem a disputa do pote. Conhecer esses formatos históricos não significa que todos estejam disponíveis na Zero Tilt."
+      },
+      {
+        "kind": "question",
+        "label": "PAUSE / HISTÓRIA COM EVIDÊNCIA",
+        "title": "Nome de cidade\né prova de origem?",
+        "detail": "A · Sim, basta o nome\nB · Não, é preciso documentação",
+        "voice": "Pause e responda: o nome de uma cidade basta para provar a origem de uma modalidade? A resposta é não. Precisamos de documentação. Dizer que uma origem não está comprovada é diferente de inventar outra origem para preencher a lacuna."
+      },
+      {
+        "kind": "timeline",
+        "label": "2003 / UM NOVO PÚBLICO",
+        "title": "Uma vitória.\nUma enorme repercussão.",
+        "detail": "Chris Moneymaker · campeão do Main Event",
+        "source": "WSOP · história oficial, seção 2003",
+        "voice": "Em dois mil e três, Chris Moneymaker, classificado por um satélite online, venceu o Main Event. A história oficial da World Series relaciona essa vitória à expansão do público. Um resultado excepcional ajuda a explicar uma época; ele não prevê o resultado de quem começa hoje.",
+        "markers": [
+          "1844",
+          "1970",
+          "2003"
+        ]
+      },
+      {
+        "kind": "timeline",
+        "label": "2015 / PESQUISA COM LIMITES EXPLÍCITOS",
+        "title": "Omaha também\nchega à pesquisa.",
+        "detail": "Kenneth Ho · Harvard Extension School\nHi-Lo · dois jogadores · all-in ou desistir",
+        "markers": [
+          "1982",
+          "1984",
+          "2015"
+        ],
+        "source": "Kenneth Ho · dissertação de mestrado · 2015",
+        "voice": "Em dois mil e quinze, Kenneth Ho estudou Omaha High Low em uma dissertação da Harvard Extension School. O modelo tem dois jogadores e permite apenas ir all-in ou desistir. Esse resultado trata de um jogo restrito. Não resolve todo Omaha e não explica a origem do seu nome."
+      },
+      {
+        "kind": "question",
+        "label": "PARA LEVAR À PRÓXIMA AULA",
+        "title": "Relato, marco\nou promessa?",
+        "detail": "Uma história de sucesso não estima a sua chance de vencer.",
+        "voice": "Relatos, resultados de torneios e modelos científicos têm alcances diferentes. Turner e Ciaffone divergem em detalhes da passagem para pot limit; por isso, não apresentamos uma sequência única como indiscutível. Leia as fontes, compare o que cada uma sustenta e registre sua conclusão no exercício. A história desperta a curiosidade e ensina a avaliar evidências."
+      }
+    ]
+  },
+  "ep13": {
+    "filename": "ep13-historia-pessoas-v2",
+    "title": "Pessoas, feitos e contexto",
+    "subtitle": "Como ler a história dos campeões.",
+    "scenes": [
+      {
+        "kind": "hero",
+        "label": "ACADEMY / HISTÓRIA 03",
+        "title": "Além do nome\ndo campeão.",
+        "detail": "Feitos documentados. Contexto para aprender.",
+        "voice": "Nomes famosos despertam a curiosidade. Para aprender com a história, precisamos perguntar o que o registro comprova, e o que ele não permite concluir."
+      },
+      {
+        "kind": "timeline",
+        "label": "1970 → 1971",
+        "title": "Johnny Moss.\nDo voto ao torneio.",
+        "detail": "Dois títulos, dois processos diferentes",
+        "source": "WSOP · perfil de Johnny Moss e história oficial",
+        "voice": "Johnny Moss foi eleito campeão em mil novecentos e setenta e venceu o torneio no ano seguinte. Chamar as duas conquistas simplesmente de vitórias esconde uma diferença importante no formato.",
+        "markers": [
+          "1970",
+          "1971"
+        ]
+      },
+      {
+        "kind": "timeline",
+        "label": "2003 → 2008",
+        "title": "O público cresce.\nO Brasil aparece.",
+        "detail": "Moneymaker · 2003 / Alexandre Gomes · 2008",
+        "source": "WSOP · história oficial; relatório do evento 30 de 2015",
+        "voice": "Moneymaker marcou a expansão do público em dois mil e três. Em dois mil e oito, Alexandre Gomes conquistou o primeiro bracelete brasileiro, um marco registrado pela própria World Series. São acontecimentos históricos, não receitas pessoais de sucesso.",
+        "markers": [
+          "2003",
+          "2008"
+        ]
+      },
+      {
+        "kind": "kuhn",
+        "label": "2015 / PESQUISA CIENTÍFICA",
+        "title": "Até a palavra\n“resolvido” tem limites.",
+        "detail": "Heads-up · Limit Hold’em · resultado específico",
+        "source": "Bowling, Burch, Johanson e Tammelin · Science, 2015",
+        "voice": "Em dois mil e quinze, pesquisadores publicaram uma solução essencialmente fraca para o Texas Holdem com limite e apenas dois jogadores. O resultado é específico. Não significa que todo poker foi resolvido, nem que uma pessoa ou um programa vai ganhar todas as mãos."
+      },
+      {
+        "kind": "journey",
+        "label": "RESULTADO E PROCESSO",
+        "title": "Estude a decisão.\nRevise o raciocínio.",
+        "detail": "Informação disponível · alternativas · incerteza",
+        "voice": "Ao rever uma mão, anote o que era conhecido, quais alternativas existiam e por que você escolheu uma delas. Esse é o exercício do nosso curso. A história inspira perguntas; uma análise cuidadosa vai além do nome de quem venceu."
+      }
+    ]
+  }
+}

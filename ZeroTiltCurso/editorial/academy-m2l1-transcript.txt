@@ -1,0 +1,27 @@
+Zero Tilt Academy. C-bet no Flop: Boards Secos vs Molhados. Nesta aula, nosso objetivo é: Reconhecer a broca antes de apostar ou dar check. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Textura e ranges. Um flop seco oferece menos projetos diretos; um flop conectado e com duas cartas de um naipe oferece mais. A textura sozinha não determina frequência nem tamanho da c-bet: compare ranges, vantagem de nuts, posição e número de jogadores.
+
+Exemplo guiado. botão abre dama de espadas valete de espadas, big blinds paga, flop nove de copas oito de copas sete de paus e big blinds dá check. Você tem uma broca: um dez completa uma sequência. O board pode favorecer várias mãos do caller; treine check-back para observar uma continuação sem inflar o pote. Não há aposta para pagar: call é ilegal neste estado.
+
+Tamanho como hipótese. 25–33 por cento em certos boards secos é uma referência frequente de estudo, não uma regra para todo flop. Apostar maior também muda quais mãos podem continuar.
+
+Vantagem de range e vantagem de nuts. Vantagem de range descreve uma comparação da distribuição de forças dos dois conjuntos de mãos. Vantagem de nuts se refere à presença relativa das combinações mais fortes. As duas coisas podem apontar em direções diferentes. Não conclua que quem abriu pré-flop sempre possui as duas vantagens. Pergunte quais pares, conectores e mãos suited poderiam chegar a esse board por cada linha.
+
+Um exemplo de textura. Em nove de copas oito de copas sete de paus, dama de espadas valete de espadas tem uma broca: os dez completam sequência. Não é um projeto aberto com oito outs nominais. Mesmo a chegada de um dez precisa ser analisada: alguns adversários podem empatar ou fazer mãos diferentes conforme seus pares e naipes. Em um flop ás, sete e dois rainbow, a textura oferece outros projetos e conecta de outra maneira com os ranges pré-flop.
+
+Check também constrói uma estratégia. Dar check pode preservar equity, proteger parte do range de check e permitir uma decisão posterior. Apostar cobra de projetos e pode gerar folds, mas expõe a mão a check-raises. No simulador, observe o tamanho do pote que chega ao turn sob as duas linhas. A comparação serve para entender consequências, sem apresentar um único tamanho de c-bet como solução universal.
+
+Laboratório: Board conectado. Objetivo: Reconhecer a broca antes de apostar ou dar check. Abra a mesa deste módulo e comece pelo treino guiado. Um dez completa sequência; este flop permite diversas mãos fortes ao caller. Não há c-bet obrigatória. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+O que deve ser avaliado antes de escolher o tamanho da c-bet? A. Somente se o flop parece seco B. Ranges, textura, posição, stacks e adversários C. Apenas a força da sua mão Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Ranges, textura, posição, stacks e adversários. A textura é uma parte do cenário. Nenhum tamanho funciona como regra universal.
+
+Suas cartas: dama de espadas, valete de espadas. Cartas comunitárias: nove de copas, oito de copas, sete de paus. Texas, botão abre Q♠ J♠ e big blinds paga. Flop 9♥ 8♥ 7♣, big blinds dá check. Neste exercício, qual ação controla o pote sem apostar? A. check B. bet Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: check. Não existe aposta para pagar. Um dez completa sua broca, mas isso não obriga uma c-bet.
+
+Abra o simulador da aula e escolha o cenário Board conectado. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

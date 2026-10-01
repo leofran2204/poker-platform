@@ -160,7 +160,7 @@ export function Layout() {
   ) : null;
 
   return (
-    <div className="zt-shell">
+    <div className={`zt-shell${homeBleed && !authed ? " zt-shell--home" : ""}`}>
       <a
         href="#main-content"
         className="fixed left-3 top-3 z-[100] -translate-y-24 rounded bg-gold px-3 py-2 text-sm font-bold text-ink transition-transform focus:translate-y-0"
@@ -190,7 +190,7 @@ export function Layout() {
                   Carteira
                 </NavLink>
                 <NavLink to="/estrutura" className={linkClass}>
-                  Minha Rede
+                  Agente ZT
                 </NavLink>
                 <div className="relative" ref={moreRef}>
                   <button
@@ -269,7 +269,7 @@ export function Layout() {
                   Academy
                 </NavLink>
                 <NavLink to="/rede" className={linkClass}>
-                  Rede
+                  Agente ZT
                 </NavLink>
                 <NavLink to="/login" className={linkClass}>
                   Entrar
@@ -305,7 +305,7 @@ export function Layout() {
                 </NavLink>
                 {learnLinks}
                 <NavLink to="/estrutura" className={linkClass} onClick={() => setMenuOpen(false)}>
-                  Minha Rede
+                  Agente ZT
                 </NavLink>
                 <NavLink to="/verificacao" className={linkClass} onClick={() => setMenuOpen(false)}>
                   Verificação
@@ -329,7 +329,7 @@ export function Layout() {
                   Academy
                 </NavLink>
                 <NavLink to="/rede" className={linkClass} onClick={() => setMenuOpen(false)}>
-                  Rede
+                  Agente ZT
                 </NavLink>
                 {learnLinks}
                 <NavLink to="/login" className={linkClass} onClick={() => setMenuOpen(false)}>
@@ -372,7 +372,7 @@ export function Layout() {
         </NavLink>
         {" · "}
         <NavLink to="/rede" className="text-gold-soft hover:underline">
-          Rede
+          Agente ZT
         </NavLink>
         {" · "}
         <NavLink to="/termos" className="text-gold-soft hover:underline">

@@ -1,0 +1,27 @@
+Zero Tilt Academy. Bluff-Catchers e a Força dos Blockers. Nesta aula, nosso objetivo é: Calcular o preço e identificar o que par de ases bloqueia. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Bluff-catcher. É uma mão que vence os blefes considerados e perde para as mãos de valor consideradas. A categoria depende do range: um overpair nem sempre é um bluff-catcher adequado.
+
+Preço e frequência. River heads-up, pote 20 big blinds antes da aposta, rival aposta 20: pagar custa 20 para um pote final de 60, limiar de 33,33 por cento. Se você vence todos os blefes e perde para todo valor, sem empates nem rake, precisa de mais de um terço de blefes no range de aposta para valor esperado positivo.
+
+Blockers. Avalie quais combinações suas cartas removem. Em valete, dez, cinco, dois e nove, par de ases não bloqueia rei e dama, a sequência máxima. Uma carta pode remover blefes e piorar um call; “ter blocker” não é razão suficiente.
+
+Derive o limite dos blefes. Com pote de 20 big blinds e aposta rival de 20, você acrescenta 20 a um pote que terminará em 60. Se sua mão perde para todo valor e ganha de todo blefe, sem empates, precisa vencer mais de um terço das vezes para o call ter expectativa positiva. No limite de um terço, a expectativa é zero. A frequência relevante é a proporção de blefes dentro do range que apostou, e não dentro de todas as mãos que o rival recebeu.
+
+frequência mínima de defesa responde a outra pergunta. Em um modelo simplificado de river, a frequência mínima de defesa P dividido por P mais B torna um blefe sem equity indiferente, considerando uma resposta adequada do range e as demais hipóteses. Para uma aposta do pote, o valor é 50 por cento. Isso não ordena pagar metade das suas mãos contra qualquer pessoa: um range sem blefes pode tornar muitos calls ruins. Pot odds avaliam o preço de uma mão; frequência mínima de defesa é uma referência de defesa de range em um modelo.
+
+Conte o que foi removido. Em valete, dez, cinco, dois e nove, rei e dama forma sequência até rei. par de ases não remove reis nem damas dessa combinação. Se você tivesse uma dama, removeria algumas combinações de rei e dama, mas também poderia retirar blefes com dama. Liste valor e blefes antes de atribuir um efeito favorável ao blocker. No desafio, faça a conta do preço sem ver a dica e explique a hipótese necessária para pagar.
+
+Laboratório: Pagar pelo motivo certo. Objetivo: Calcular o preço e identificar o que par de ases bloqueia. Abra a mesa deste módulo e comece pelo treino guiado. par de ases não bloqueia rei e dama. Não use a força absoluta do overpair para inventar a frequência de blefes. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+O que é um 'Bluff-Catcher' no poker? A. Um jogador que só aposta quando blefa B. Uma mão que não bate nenhuma mão de valor do rival, mas vence todos os blefes dele C. Um software para detectar trapaças Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Uma mão que não bate nenhuma mão de valor do rival, mas vence todos os blefes dele. Bluff-catcher é a mão que ganha exclusivamente das apostas de blefe do oponente.
+
+Suas cartas: ás de ouros, ás de paus. Cartas comunitárias: valete de espadas, dez de espadas, cinco de paus, dois de ouros, nove de copas. Texas, river valete de espadas dez de espadas cinco de paus dois de ouros nove de copas. Você tem ás de ouros ás de paus. Seus ases bloqueiam combinações de rei e dama? A. Sim B. Não Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Não. par de ases não remove reis nem damas. Precisamos analisar o range e o preço antes de recomendar call.
+
+Abra o simulador da aula e escolha o cenário Pagar pelo motivo certo. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

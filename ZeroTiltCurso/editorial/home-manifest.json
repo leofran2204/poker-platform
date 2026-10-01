@@ -1,0 +1,31 @@
+{
+  "filename": "zt-poker-apresentacao-v3",
+  "durationSeconds": 81.7,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 3187502,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Antes de jogar. Aprenda a decidir."
+    },
+    {
+      "start": 12.07,
+      "title": "Brazilian Pineapple. A mão se transforma."
+    },
+    {
+      "start": 35.93,
+      "title": "Menos cartas. Um novo raciocínio."
+    },
+    {
+      "start": 57.1,
+      "title": "Descubra. Entenda. Experimente."
+    },
+    {
+      "start": 65.93,
+      "title": "Poker é decisão. Evolua a cada mão."
+    }
+  ]
+}

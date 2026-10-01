@@ -1,0 +1,27 @@
+Zero Tilt Academy. 3-bet por Valor e 3-bet Light com Blockers. Nesta aula, nosso objetivo é: Construir uma 3-bet e distinguir o total do incremento. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+
+Valor, blefe e bloqueadores. Uma 3-bet é um aumento sobre o raise inicial. Seu range e tamanho dependem das posições, stack efetivo e respostas adversárias. ás e rei do mesmo naipe pode integrar a parte de valor; ás e cinco do mesmo naipe pode aparecer como blefe em determinados cenários, mas não é uma obrigação.
+
+Contagem de combinações. Sem cartas conhecidas, existem combinação de 4 elementos tomados 2 a 2 igual a 6 combinações de par de ases e 4 vezes 4 igual a 16 de ás e rei. Ao segurar um ás, sem conhecer outras cartas dessas classes, restam combinação de 3 elementos tomados 2 a 2 igual a 3 combinações de par de ases e 3 vezes 4 igual a 12 de ás e rei. Reduzir combinações não prova que um blefe é lucrativo: importam também as mãos que o rival paga e as que descarta.
+
+Exercício. Texas cash 100 big blinds: cutoff abre 2,5 big blinds e o botão tem ás e rei do mesmo naipe. No plano de treino, usamos 3-bet por valor, com referência de 7,5–8 big blinds. Compare o plano com um stack de 20 big blinds: não transplante o tamanho automaticamente.
+
+Três tamanhos diferentes. Se o rival abre para 2,5 big blinds e você aumenta para 8, sua 3-bet é de 8 big blinds no total. O incremento sobre a abertura foi 5,5 big blinds. Se você não tinha fichas investidas, o custo inicial é 8 big blinds; se era big blind, parte já estava comprometida. A diferença importa para pot odds, stack efetivo e planejamento de respostas a uma 4-bet.
+
+Bloqueadores têm dois lados. Segurar um ás reduz certas combinações fortes do adversário, mas também pode reduzir mãos que ele desistiria. Um blocker não fornece por si só a frequência de fold. Liste primeiro o range de abertura, depois quais mãos pagam e quais reaumentam. Sem essa decomposição, dizer que ás e cinco do mesmo naipe bloqueia ases é verdadeiro, porém insuficiente para provar que o blefe tem valor esperado positivo.
+
+Planeje a próxima decisão. Ao escolher a 3-bet, antecipe o stack que restará se houver call. Com 100 big blinds, você ainda pode enfrentar várias apostas pós-flop. Com 20 big blinds, a relação entre pote e stack muda muito. No exercício, pratique o total legal do raise e descreva quais respostas fariam você continuar. Os bots não são um solver e uma vitória contra eles não valida automaticamente o range escolhido.
+
+Laboratório: Reaumentar uma abertura. Objetivo: Construir uma 3-bet e distinguir o total do incremento. Abra a mesa deste módulo e comece pelo treino guiado. A abertura adversária foi para 2,5 big blinds. No exercício, compare uma 3-bet de valor com apenas pagar. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+
+Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+
+O que significa dizer que ás e cinco suited é uma excelente mão para 3-bet light por ter 'blocker'? A. Que você bloqueia o dealer de distribuir cartas B. Que ter um Ás na sua mão reduz matematicamente as chances do rival ter par de ases ou ás e rei C. Que você não pode tomar raise Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: Que ter um Ás na sua mão reduz matematicamente as chances do rival ter par de ases ou ás e rei. Ter um Ás na mão reduz em 50 por cento os combos de par de ases e em 25 por cento os combos de ás e rei do vilão.
+
+Suas cartas: ás de copas, rei de copas. Cartas comunitárias: ainda não reveladas. Texas cash 100 big blinds. cutoff abre 2,5 big blinds. No plano de 3-bet por valor desta aula, você tem A♥ K♥ no botão. Ação? A. fold B. call C. raise Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+
+Resposta do exercício: raise. ás e rei do mesmo naipe é uma mão de valor premium: 3-bete para construir o pote em posição.
+
+Abra o simulador da aula e escolha o cenário Reaumentar uma abertura. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.
