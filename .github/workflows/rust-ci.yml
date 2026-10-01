@@ -410,7 +410,7 @@ jobs:
       - name: Apply PostgreSQL migrations
         run: |
           for migration in migrations/*.sql; do
-            PGPASSWORD=password psql --host localhost --username user --dbname poker_db --file "$migration"
+            PGPASSWORD=password psql --set ON_ERROR_STOP=1 --host localhost --username user --dbname poker_db --file "$migration"
           done
 
       - name: Run deterministic API tests
@@ -423,6 +423,9 @@ jobs:
 
       - name: Run PostgreSQL wallet contract tests
         run: cargo test --test payments_tests -- --ignored --nocapture
+
+      - name: Run PostgreSQL agent refund contract
+        run: cargo test --lib estrutura::tests::refund_is_scoped_to_one_tournament_and_idempotent -- --ignored --nocapture
 
       - name: Run shared Redis rate-limit contract test
         run: cargo test --test rate_limit_tests -- --ignored --nocapture

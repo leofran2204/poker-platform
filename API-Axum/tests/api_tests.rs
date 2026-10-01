@@ -55,7 +55,7 @@ async fn agent_cycle_close_is_guarded_idempotent_and_separates_wallets() {
         .fetch_one(&state.db).await.unwrap();
     let next = cycle.checked_add_months(chrono::Months::new(1)).unwrap();
     let before: (i64, i64, i64) = sqlx::query_as(
-        "SELECT estrutura_points, agent_commission_balance_cents, balance FROM users WHERE id = $1",
+        "SELECT estrutura_points, agent_commission_balance_cents, balance_real FROM users WHERE id = $1",
     )
     .bind(agent)
     .fetch_one(&state.db)
@@ -199,7 +199,7 @@ async fn agent_cycle_close_is_guarded_idempotent_and_separates_wallets() {
         (1000, 30, 300)
     );
     let after: (i64, i64, i64) = sqlx::query_as(
-        "SELECT estrutura_points, agent_commission_balance_cents, balance FROM users WHERE id = $1",
+        "SELECT estrutura_points, agent_commission_balance_cents, balance_real FROM users WHERE id = $1",
     )
     .bind(agent)
     .fetch_one(&state.db)

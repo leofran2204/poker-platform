@@ -58,6 +58,18 @@ async fn get_valid_access_token(state: &AppState, username: &str) -> String {
 }
 
 async fn make_persistent_state(username: &str) -> (AppState, String, String) {
+    // Initialize the mock provider before concurrent wallet requests; no test
+    // may depend on another test setting the payout encryption key first.
+    static TEST_PAYMENT_ENV: std::sync::Once = std::sync::Once::new();
+    TEST_PAYMENT_ENV.call_once(|| {
+        std::env::set_var("PIX_PROVIDER", "mock");
+        std::env::set_var("PIX_MODE", "mock");
+        std::env::set_var("ENVIRONMENT", "development");
+        std::env::set_var(
+            "DEPIX_PIXKEY_ENC_KEY",
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        );
+    });
     let database_url =
         std::env::var("DATABASE_URL").expect("DATABASE_URL is required for wallet contract tests");
     let db = sqlx::postgres::PgPoolOptions::new()
@@ -193,15 +205,34 @@ async fn test_pix_webhook_invalid_secret_returns_401() {
 async fn wallet_deposit_webhook_is_atomic_and_idempotent() {
     let username = unique_username("wallet_dep");
     let (state, user_id, token) = make_persistent_state(&username).await;
-    let request = Request::builder()
-        .method(Method::POST)
-        .uri("/api/payments/pix/deposit")
-        .header("Authorization", format!("Bearer {token}"))
-        .header("Content-Type", "application/json")
-        .body(Body::from(r#"{"amount":5000}"#))
+    let request = || {
+        Request::builder()
+            .method(Method::POST)
+            .uri("/api/payments/pix/deposit")
+            .header("Authorization", format!("Bearer {token}"))
+            .header("Content-Type", "application/json")
+            .body(Body::from(r#"{"amount":5000}"#))
+            .unwrap()
+    };
+    let response = poker_api::build_router(state.clone())
+        .oneshot(request())
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::FORBIDDEN);
+    let pending: i64 =
+        sqlx::query_scalar("SELECT COUNT(*) FROM wallet_transactions WHERE user_id = $1::uuid")
+            .bind(&user_id)
+            .fetch_one(&state.db)
+            .await
+            .unwrap();
+    assert_eq!(pending, 0, "KYC rejection must not create a pending charge");
+    sqlx::query("UPDATE users SET kyc_status = 'verified' WHERE id = $1::uuid")
+        .bind(&user_id)
+        .execute(&state.db)
+        .await
         .unwrap();
     let response = poker_api::build_router(state.clone())
-        .oneshot(request)
+        .oneshot(request())
         .await
         .unwrap();
     assert_eq!(response.status(), StatusCode::OK);
@@ -304,10 +335,6 @@ async fn concurrent_withdrawals_cannot_reserve_the_same_balance_twice() {
 #[tokio::test]
 #[ignore = "Requires PostgreSQL ledger — run with DATABASE_URL"]
 async fn provisional_deposit_blocks_withdrawals() {
-    std::env::set_var(
-        "DEPIX_PIXKEY_ENC_KEY",
-        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-    );
     let username = unique_username("wallet_hold");
     let (state, user_id, token) = make_persistent_state(&username).await;
     sqlx::query("UPDATE users SET balance_real = 10000 WHERE id = $1::uuid")
