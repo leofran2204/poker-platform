@@ -5,6 +5,8 @@ Procedimento de validação da plataforma em **Docker Compose**, **demo residenc
 **Domínio demo:** `zerotiltpoker.net`  
 **Não é certificação de produção.** Na demo VPS, o DePix está reconciliado conforme o `STATUS_OPERACIONAL.md`; laboratório e tunnel usam o modo configurado no `.env` e permanecem mock por padrão.
 
+Última publicação conferida: **05/10/2026, 15:47:34 UTC**, código `6b4d8cc0`, Pineapple híbrido e filme na home/Academy. Quatro serviços saudáveis, 60 migrations e 90 arquivos de mídia íntegros. Evidências, CI e exceção temporária de build em [QUALITY](../Documentacao/QUALITY.md#publicação-pineapple--05102026). Documentação posterior não exige reconstruir essas imagens.
+
 | Caminho | Guia | HTTPS |
 |---------|------|--------|
 | Casa + Tunnel | [DEPLOY_HOME_CLOUDFLARE.md](DEPLOY_HOME_CLOUDFLARE.md) | E2E (CF + Origin CA) |

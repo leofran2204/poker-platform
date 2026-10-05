@@ -148,7 +148,7 @@ Referências metodológicas: [MIT 18.443, aula 17, p. 10](https://ocw.mit.edu/co
 
 - Roteiros da home/história: `ZeroTiltCurso/editorial/episodes.json`. Os 25 roteiros técnicos são derivados de `courseContent.json` e `courseTraining.json`, incluindo teoria, exercícios resolvidos e orientação de prática. Renderizador: `render.py`; dependências: `requirements.txt`.
 - Finais 1080p30 H.264/AAC: home v3, ep11–ep13 v2 e 25 arquivos `zt-academy-*-v3` em `Frontend-Web/public/videos/`; VTT e WebP acompanham cada MP4. Manifestos de duração/tamanho/capítulos e transcrições ficam junto ao renderizador.
-- O destaque local da home e da Academy lê `src/data/pineappleFilm.json`, gerado pelo renderizador. `homeFilm.json` preserva o institucional anterior como acesso secundário. Os vídeos históricos têm fontes e capítulos nas aulas. Marcos visuais de ep13 corrigidos para 1970/1971 e 2003/2008.
+- O destaque da home e da Academy lê `src/data/pineappleFilm.json`, gerado pelo renderizador. `homeFilm.json` preserva o institucional anterior como acesso secundário. Os vídeos históricos têm fontes e capítulos nas aulas. Marcos visuais de ep13 corrigidos para 1970/1971 e 2003/2008.
 - Voz sintética PT-BR AntonioNeural; efeitos sonoros originais, sem música de terceiros. Fontes locais atuais: Georgia e Segoe UI do Windows. Para reprodução em outro sistema, configurar fontes disponíveis/licenciadas e manter a inspeção visual.
 - A imagem histórica do Met é de domínio público, objeto 1983.515.1–.52. Arte do hero gerada por IA e preservada em `editorial/assets/hero-source.png`; derivados WebP em `public/brand/home/`. Nenhum slide acadêmico foi reproduzido.
 - As 28 aulas preservam seus vídeos; as três Pineapple agora têm `publicationStatus: prior_rules`, com avisos e snapshots da regra anterior. Após a retirada dos 78 arquivos obsoletos, o novo destaque amplia a pasta pública para 90 arquivos/30 vídeos (incluindo o institucional preservado). Os arquivos-fonte anteriores continuam arquivados em `ZeroTiltCurso/epNN-*/` e no git.
@@ -182,19 +182,19 @@ O coach será uma ferramenta opcional de **estudo de mãos encerradas**, não as
 Um caso de referência precisa ter resultado reproduzível, explicação revisada, link de lição válido e teste que impeça regressão matemática. Antes de liberar o produto, amostras devem ser revisadas por responsável de conteúdo identificado; o sistema continua sendo coach virtual, sem biografia ou credenciais humanas inventadas.
 
 
-## Pineapple híbrido — atualização local de 04/10/2026
+## Pineapple híbrido — implementado em 04/10 e publicado em 05/10/2026
 
 A mesa de estudo versão 2 usa os limites do motor: pré-flop 1–4 BB; pós-flop com aumento limitado ao pote antes do call. Bots, sizing e disponibilidade de all-in seguem o mesmo contrato. O cenário de extras em all-in usa stacks de 2 BB, legalmente consumidos no pré-flop. Registros de treino da versão anterior não são reproduzidos sob a nova regra.
 
 A leitura `m5l3` e os avisos das três aulas Pineapple explicam a estrutura vigente. Os vídeos `m5l3`, `m5l4` e `m5l5` permanecem identificados como material da regra anterior (`prior_rules` / `legacy_no_limit`), com MP4, hashes e snapshot das fontes originais preservados nos manifestos. Essas três gravações não foram substituídas; o gate confere separadamente a origem antiga e os cenários atuais. Regras de cartas desses vídeos continuam válidas.
 
-### Filme de entrada — home e Academy (local)
+### Filme de entrada — home e Academy
 
 `zt-brazilian-pineapple-hybrid-v1.mp4` ensina a modalidade em **477,67 segundos**, 720p30, com a voz brasileira sintética anterior na mesma velocidade. São 31 cenas originais de cartas, mesa, fichas, contadores e destaques ancorados nas palavras da narração. A capa, os 113 trechos de legenda, a transcrição e os oito capítulos derivam de `episodes.json` (`pineapple`), `render.py` e `pineapple.py`. Manifesto: `pineapple-manifest.json`, versão `brazilian_pineapple_hybrid_v1` e hashes de integridade.
 
 Capítulos reais: 0:00 objetivo; 0:26 cartas 2→5; 1:12 seleção 2+3; 2:13 blinds/pré-flop; 3:12 limite pós-flop; 4:27 mínimos/all-ins/reabertura; 6:02 antes/potes/formatos; 7:21 recapitulação e prática. Os valores de aposta são ilustrativos. Os exemplos distinguem pagamento adicional, total da rodada, pote bruto e última ação de cada jogador. Incluem R$ 20/R$ 55, potes de R$ 50/70/90, blind incompleto, reabertura individual/cumulativa, ante, saldo insuficiente, potes paralelos e devolução. O encerramento informa Play Money, exclusão do Loss Deflator e 18+.
 
-O mesmo filme abre por ação do visitante na home ou no início da Academy, com controles, legendas, transcrição e capítulos acessíveis por teclado. Não há autoplay nem busca do MP4 ao abrir a página ou apenas abrir o modal. Usuários conectados continuam redirecionados de `/` para `/curso`. O institucional anterior fica em acesso secundário. Publicação futura deve acompanhar a regra e exige ausência de mãos Pineapple abertas e de torneios Pineapple em andamento; nenhum deploy faz parte desta entrega.
+O mesmo filme abre por ação do visitante na home ou no início da Academy, com controles, legendas, transcrição e capítulos acessíveis por teclado. Não há autoplay nem busca do MP4 ao abrir a página ou apenas abrir o modal. Usuários conectados continuam redirecionados de `/` para `/curso`. O institucional anterior fica em acesso secundário. Publicado junto com a regra em 05/10/2026, após confirmar ausência de mãos e torneios em andamento. Verificações públicas e limites da revisão editorial em [QUALITY](QUALITY.md#publicação-pineapple--05102026).
 
 <!-- DOCUMENTATION_SYNC:START -->
 > **S26** (2026-10-05) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).

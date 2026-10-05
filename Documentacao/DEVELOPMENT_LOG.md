@@ -1,6 +1,6 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-10-05 (publicação do Pineapple híbrido autorizada; resultados datados abaixo)
+**Atualizado:** 2026-10-05 (Pineapple híbrido e filme publicados; resultados datados abaixo)
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 > Painel tático em `DASHBOARD.md`. Cronograma em `CRONOGRAMA.md`. Estado canônico em `STATUS_OPERACIONAL.md` (prevalece sobre retrospectivas históricas que digam “Launch Ready”).
@@ -1278,3 +1278,9 @@ Validação: 87 testes frontend, TypeScript/ESLint/Vite, auditoria dos 90 arquiv
 O proprietário autorizou atualizar o projeto, commit, push e deploy do conjunto local: correções de integridade, regra Pineapple híbrida, treino versão 2 e novo filme. Estado operacional e 22 documentos sincronizados. A revisão HTTP identificou fixtures ainda na versão 1 do treino; agora cobrem a versão 2 e a rejeição explícita da versão antiga. O CI passa a executar os 19 casos dirigidos, os três exemplos do filme e o contrato PostgreSQL de premiação atômica.
 
 Rotina local repetida: 1.859 testes do motor (31 ignorados), 22 dirigidos, 80 testes de biblioteca da API, contratos HTTP/segurança sem banco, 87 testes frontend, fmt/clippy, TypeScript/ESLint/Vite, dez contratos do executor no WSL e integridade das 30 produções/90 arquivos aprovados. A primeira chamada dos contratos Python em Windows falhou por depender de processos POSIX; a execução no WSL, ambiente previsto do executor, passou. Não houve nova campanha massiva. Pré-conferência da VPS encontrou zero assentos ativos, zero snapshots e zero torneios em andamento/agendados com inscritos; 60 checksums de migration conferidos. Essa leitura será repetida durante a janela de publicação. Escuta editorial humana integral permanece pendente, conforme QUALITY.
+
+## 2026-10-05 — Pineapple híbrido e filme publicados
+
+Commit `79b1a086` enviado com o conjunto local; CI identificou um alerta sem patch em `braces` de build e libpcre2 desatualizado na camada Docker em cache. Commit `6b4d8cc0` atualiza libpcre2 para `10.42-1+deb12u2` e impõe exceção npm restrita ao advisory de build, com cinco testes de bloqueio e expiração automática em 19/10. Produção não recebe exceção; decisão e acompanhamento em QUALITY.
+
+Após ambos os workflows aprovarem, publicada a versão `6b4d8cc0` às 15:47:34 UTC (12:47:34 em São Paulo). Backups conferidos, imagens anteriores preservadas e três verificações de ausência de jogos durante a janela. API/frontend recriados, Postgres/Redis preservados, `.env` idêntico e nenhuma migration nova. Conferência pública aprovou home/Academy em desktop/celular, oito capítulos, legendas/transcrição/teclado, os arquivos de mídia e o treino sob a regra híbrida. Quatro serviços saudáveis, 60 migrations e 90 arquivos íntegros. Evidências e limites em [QUALITY](QUALITY.md#publicação-pineapple--05102026); registro final de documentação não muda as imagens de código publicadas.
