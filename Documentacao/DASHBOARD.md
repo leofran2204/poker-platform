@@ -22,6 +22,7 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certif
 - [ ] Publicação do Pineapple híbrido autorizada em 05/10/2026; executar após os gates, sem mãos Pineapple abertas nem torneios Pineapple em andamento, e registrar a conferência pública.
 - [x] Regravar os 25 vídeos técnicos da grade atual; conferir os 28 vídeos de aula e o filme da home, com decodificação integral, cobertura das palavras da narração, legendas, capítulos, transcrições e vínculo com os cenários. Retirar mídias obsoletas da pasta pública.
 - [ ] Escuta editorial humana integral para avaliar prosódia, ritmo e pronúncia além das verificações automatizadas.
+- [ ] Remover/atualizar a dependência de build `braces` ou migrar Tailwind antes de 19/10/2026; exceção exata e temporária em [QUALITY](QUALITY.md#exceção-temporária-de-build--05102026-a-18102026), sem renovação automática.
 - [ ] Expandir a grade atual conforme as 15 etapas do [currículo](CURSO_ESTRATEGIA_POKER.md), incluindo aplicações cash/MTT/ICM e análise avançada com modelos declarados.
 - [ ] Validar a nota do quiz de aula no servidor (as perguntas da mesa de estudo já são corrigidas no backend) e a política de erro amostral nas fronteiras do Loss Deflator.
 

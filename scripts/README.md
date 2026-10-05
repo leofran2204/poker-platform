@@ -2,6 +2,8 @@
 
 Automação operacional do monorepo.
 
+Auditoria frontend: `npm run audit:security` em `Frontend-Web/`; contratos em `node --test scripts/audit-frontend.test.mjs` na raiz. Script dedicado com um único propósito: manter o gate npm e uma exceção de build restrita e expirada automaticamente para `GHSA-vfj7-8cjw-p6xm`, descrita em [QUALITY](../Documentacao/QUALITY.md#exceção-temporária-de-build--05102026-a-18102026). Produção continua sem exceções.
+
 ## Ambiente local e permissões do Codex
 
 Abra `C:\Users\leofr\Projetos\Poker_Project` como pasta do projeto. Informar `workdir` em um comando não muda a pasta nem o perfil de permissões da sessão aberta em `C:\`.

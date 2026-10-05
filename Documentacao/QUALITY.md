@@ -21,6 +21,14 @@ Campanha local por situações reais de jogo (contagens somente do que foi execu
 
 Frontend local: `npm run lint` (`tsc` + ESLint) e `npm test` (Vitest) em `Frontend-Web/`, com o Node do `AGENTS.md` — nunca Node 18 do PATH.
 
+### Exceção temporária de build — 05/10/2026 a 18/10/2026
+
+`npm run audit:security` mantém o bloqueio de alertas high/critical, com uma exceção exata para [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), sem versão corrigida de `braces` em 05/10. A dependência 3.0.3 é exclusiva do build Tailwind 3 (chokidar/micromatch/fast-glob); seus padrões vêm dos dois globs fixos do repositório, não de jogadores. A imagem final serve somente arquivos estáticos, sem Node/Tailwind/braces. Não foi declarada ausência de vulnerabilidade no pacote.
+
+Decisão de engenharia desta entrega: preservar a compatibilidade visual do frontend e limitar a aceitação ao vetor não exposto. O script dedicado `scripts/audit-frontend.mjs` é necessário para impor escopo e prazo, em vez de ignorar o código de saída inteiro do npm. Ele audita produção separadamente, exige `dev: true` no lockfile, versão e globs revisados, restringe a cadeia nominal de dependências e rejeita novos advisories, caminhos desconhecidos, falhas de rede e relatórios inválidos. A exceção expira automaticamente em **19/10/2026 00:00 UTC**. Cinco contratos verificam aceitação restrita, bloqueio em produção, expiração, novos alertas e ciclos. Atualizar/remover a dependência ou migrar Tailwind em entrega própria antes do prazo; não renovar automaticamente.
+
+O scan da primeira imagem API encontrou `CVE-2026-103111` em libpcre2. A camada apt foi invalidada com `SECURITY_REFRESH=2026-10-05`; o Dockerfile agora exige libpcre2 ≥ `10.42-1+deb12u2`. Nenhuma exceção foi adicionada ao Trivy.
+
 ## Invariantes (código)
 
 1. Valores em `u64` centavos. Potes → rake → Loss Deflator **somente** sobre o líquido.

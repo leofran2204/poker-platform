@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Zero Tilt Poker — frontend TypeScript (Full Tilt inspired)",
   "scripts": {
+    "audit:security": "node ../scripts/audit-frontend.mjs",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",

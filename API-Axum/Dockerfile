@@ -49,9 +49,12 @@ RUN groupadd -g 10001 appgroup && \
 WORKDIR /app
 
 # Certificados TLS + curl (somente healthcheck Compose em loopback 127.0.0.1)
+# Refresh this value when Debian security updates invalidate the cached apt layer.
+ARG SECURITY_REFRESH=2026-10-05
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl \
+    && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' libpcre2-8-0)" ge '10.42-1+deb12u2' \
     && rm -rf /var/lib/apt/lists/*
 
 # Copia o binário e as migrations garantindo permissão para o usuário appuser
