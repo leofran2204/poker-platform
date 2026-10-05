@@ -103,5 +103,105 @@
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "7c751aa36b080d1cd2e64a826a523bef4c46641124fbac0b025e655205563d3a"
+  "sha256": "7c751aa36b080d1cd2e64a826a523bef4c46641124fbac0b025e655205563d3a",
+  "sourceSnapshot": {
+    "id": "m5l4",
+    "title": "Pineapple: combinações e probabilidades condicionais",
+    "body": "## Conte sem duplicar\nA combinação C(n,k)=n!/[k!(n−k)!] conta seleções sem considerar ordem. Para h cartas privadas e b comunitárias, o número de candidatas legais de cinco cartas é C(h,2)×C(b,3).\n\n## Flop, turn e river\nDepois da carta extra: flop C(3,2)×C(3,3)=3; turn C(4,2)×C(4,3)=24; river C(5,2)×C(5,3)=100. A regra sempre continua 2+3. Essas candidatas compartilham cartas: são correlacionadas, não cem apostas independentes nem cem vezes mais equity. No pré-flop ainda não há três comunitárias para uma mão completa.\n\n## Uma probabilidade exata, com hipóteses\nAntes de receber a extra do flop, você conhece Ad Kd e o board Ah Qc 2s. Sob embaralhamento uniforme, sem outras cartas reveladas nem condicionamento por ranges adversários, existem 47 cartas desconhecidas e dois ases restantes. A chance de a carta extra designada a você ser um ás é 2/47≈4,2553%. Cartas queimadas e mãos escondidas continuam desconhecidas; não invente seus valores nem as retire como cartas conhecidas. Se outras cartas forem reveladas ou você modelar ranges condicionados à ação, refaça a conta.\n\n## Amostragem sem reposição\nSe N cartas são desconhecidas, K pertencem à classe desejada e observamos n posições aleatórias, a chance de exatamente k sucessos é C(K,k)×C(N−K,n−k)/C(N,n). O modelo exige posições uniformes e hipóteses explícitas. Não multiplique chances como se as retiradas fossem independentes.\n\n## Aplicação\nReceber outro ás não garante vencer: os rivais também recebem extras, o board muda e o showdown exige 2+3. As regras aproximadas de outs do Texas não capturam automaticamente esses eventos. Registre sempre: cartas conhecidas, fase, modalidade e evento que está calculando.\n\n## Aprofundamento aplicado\n### Derive o número de pares\nCom três privadas, escolha a primeira de três formas e a segunda de duas: seis escolhas ordenadas. Cada par foi contado duas vezes, então existem três pares distintos. Com cinco privadas, são cinco vezes quatro dividido por dois, isto é, dez pares. No river também há dez trios comunitários; o produto é cem candidatas legais. Escolher a melhor dessas candidatas é uma operação de ranking, não uma soma de probabilidades.\n\n### Dois eventos sem reposição\nSuponha 47 cartas desconhecidas, das quais duas são ases, e observe duas posições futuras específicas, uniformes, sem outra informação. A chance de nenhum ás é 45 sobre 47 vezes 44 sobre 46. Portanto, a chance de pelo menos um ás é um menos esse produto, aproximadamente 8,42%. Não use duas vezes 2 sobre 47 como igualdade: as retiradas dependem umas das outras. A conta não informa se esse ás produzirá a melhor mão no showdown.\n\n### O que uma simulação precisa preservar\nPara estimar equity, um programa deve remover cartas conhecidas uma única vez, amostrar mãos rivais compatíveis, distribuir board e extras na ordem correta e dividir empates. Se um jogador desistir, ele para de receber; isso muda quais posições do baralho são consumidas. Este simulador ensina a distribuição e a decisão com o motor real, mas não publica uma estimativa de equity baseada em um modelo adversário oculto.\n\n## Laboratório: Da contagem à decisão\nObjetivo: Contar candidatas legais e refazer a leitura depois da extra. Abra a mesa deste módulo e comece pelo treino guiado. No turn: seis pares privados vezes quatro trios comunitários, total 24. Não são 24 eventos independentes. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
+    "quiz": [
+      {
+        "id": "m5l4q1",
+        "kind": "theory",
+        "prompt": "Quantas candidatas legais existem no river, com cinco privadas e cinco comunitárias?",
+        "options": [
+          "25",
+          "100",
+          "252"
+        ],
+        "expectedIndex": 1,
+        "explanation": "C(5,2)×C(5,3)=10×10=100. Cada candidata usa exatamente 2+3."
+      },
+      {
+        "id": "m5l4q2",
+        "kind": "theory",
+        "prompt": "E no turn, depois de receber a quarta carta privada?",
+        "options": [
+          "16",
+          "24",
+          "60"
+        ],
+        "expectedIndex": 1,
+        "explanation": "C(4,2)×C(4,3)=6×4=24."
+      },
+      {
+        "id": "m5l4q3",
+        "kind": "theory",
+        "prompt": "Antes da extra do flop: Ad Kd e Ah Qc 2s são as únicas cartas conhecidas. Sem inferências de ranges, qual chance de receber um ás nessa extra?",
+        "options": [
+          "2/47",
+          "2/52",
+          "3/47"
+        ],
+        "expectedIndex": 0,
+        "explanation": "Conhecemos cinco cartas, duas são ases: restam 47 desconhecidas e dois ases."
+      },
+      {
+        "id": "m5l4q4",
+        "kind": "theory",
+        "prompt": "Cem candidatas no river significam cem chances independentes de vitória?",
+        "options": [
+          "Sim",
+          "Não"
+        ],
+        "expectedIndex": 1,
+        "explanation": "Elas compartilham cartas e enfrentam o mesmo board e os mesmos adversários."
+      },
+      {
+        "id": "m5l4q5",
+        "kind": "theory",
+        "prompt": "Como tratar uma carta queimada cujo valor não foi revelado, neste modelo de informação?",
+        "options": [
+          "Retirar um ás por precaução",
+          "Continuar tratando seu valor como desconhecido",
+          "Presumir que não é ás"
+        ],
+        "expectedIndex": 1,
+        "explanation": "O valor não observado não pode ser inventado. O cálculo marginal continua condicionado apenas às informações declaradas."
+      }
+    ],
+    "sources": [
+      "mit-hypergeometric"
+    ],
+    "training": [
+      {
+        "id": "pine-combinacoes",
+        "module": "pineapple",
+        "lesson": "m5l4",
+        "title": "Da contagem à decisão",
+        "variant": "brazilian_pineapple",
+        "phase": "turn",
+        "hole": [
+          "Ad",
+          "Kd",
+          "Js",
+          "9s"
+        ],
+        "board": [
+          "Ah",
+          "Qc",
+          "2s",
+          "Tc"
+        ],
+        "topic": "combinations",
+        "objective": "Contar candidatas legais e refazer a leitura depois da extra.",
+        "hint": "No turn: seis pares privados vezes quatro trios comunitários, total 24. Não são 24 eventos independentes.",
+        "profiles": [
+          "pressure"
+        ],
+        "opening": 300,
+        "stack": 10000
+      }
+    ]
+  },
+  "bettingRuleVersion": "legacy_no_limit"
 }

@@ -15,7 +15,7 @@ export interface StudyReview {
 }
 export interface StudyResponse {
   version: number; scenario: string; module: string; variant: string; state: StudySnapshot;
-  legal: { can_check: boolean; to_call: number; min_total: number; max_total: number; can_raise: boolean; bet_exists: boolean; call_price_percent: number; eligible_pot_after_call: number };
+  legal: { can_check: boolean; to_call: number; min_total: number; max_total: number; can_raise: boolean; can_all_in: boolean; betting_structure: string; bet_exists: boolean; call_price_percent: number; eligible_pot_after_call: number };
   question: { prompt: string; options: string[]; unit: string } | null;
   hint: string; events: { actor: string; action: string; amount: number; setup: boolean; state: StudySnapshot }[];
   reviews: StudyReview[]; payouts: Record<string, number>; pots: { amount: number; eligible_players: string[] }[];

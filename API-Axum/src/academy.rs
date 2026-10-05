@@ -129,6 +129,8 @@ pub struct StudyLegal {
     min_total: u64,
     max_total: u64,
     can_raise: bool,
+    can_all_in: bool,
+    betting_structure: String,
     bet_exists: bool,
     call_price_percent: f64,
     eligible_pot_after_call: u64,
@@ -407,14 +409,17 @@ fn legal(game: &GameLoop) -> StudyLegal {
         .filter(|pot| pot.is_eligible("hero"))
         .map(|p| p.amount)
         .sum::<u64>();
-    let min_total = st.current_bet_to_match + st.min_raise;
-    let max_total = p.current_bet + p.stack;
+    let legal = game.legal_actions("hero");
+    let min_total = legal.minimum_wager;
+    let max_total = legal.maximum_wager;
     StudyLegal {
         can_check: to_call == 0,
         to_call,
         min_total,
         max_total,
-        can_raise: max_total >= min_total && p.stack > to_call,
+        can_raise: legal.allows("raise") || legal.allows("bet"),
+        can_all_in: legal.allows("allin"),
+        betting_structure: game.betting_structure().into(),
         bet_exists: st.current_bet_to_match > 0,
         call_price_percent: if eligible_pot_after_call > 0 {
             100.0 * to_call as f64 / eligible_pot_after_call as f64
@@ -602,6 +607,7 @@ fn advance_bots(
             &s.profiles[i - 1],
             random,
         );
+        let action = game.legal_actions(&p.id).constrain_move(action);
         record_action(game, action, false, events)?;
         game.run_out_stalled_hand();
     }
@@ -664,7 +670,8 @@ pub fn replay(request: StudyRequest) -> Result<StudyResponse, String> {
         let action = if game.state.phase == GamePhase::Preflop
             && game.state.current_bet_to_match < s.opening
         {
-            PlayerMove::Raise(s.opening)
+            game.legal_actions(&player.id)
+                .constrain_move(PlayerMove::Raise(s.opening))
         } else if player.current_bet < game.state.current_bet_to_match {
             PlayerMove::Call
         } else {
@@ -676,7 +683,10 @@ pub fn replay(request: StudyRequest) -> Result<StudyResponse, String> {
         record_action(&mut game, PlayerMove::Call, true, &mut events)?;
     }
     if s.setup == "open" {
-        record_action(&mut game, PlayerMove::Raise(s.opening), true, &mut events)?;
+        let action = game
+            .legal_actions(&game.state.active_player().unwrap().id)
+            .constrain_move(PlayerMove::Raise(s.opening));
+        record_action(&mut game, action, true, &mut events)?;
     }
     let mut random = u64::from(request.seed) ^ 0x67ad_f010_873a_9765;
     advance_bots(&mut game, s, &mut random, &mut events)?;
@@ -940,9 +950,24 @@ mod tests {
     }
 
     #[test]
-    fn every_scenario_accepts_fold_and_all_in_without_financial_side_effects() {
+    fn every_scenario_accepts_fold_and_only_legal_all_ins_without_financial_side_effects() {
         for s in &catalog().scenarios {
             for action in ["fold", "all_in"] {
+                if action == "all_in"
+                    && !replay(request(&s.id, 7, vec![])).unwrap().legal.can_all_in
+                {
+                    assert!(replay(request(
+                        &s.id,
+                        7,
+                        vec![StudyAction {
+                            action: action.into(),
+                            amount: 0,
+                            answer: String::new()
+                        }]
+                    ))
+                    .is_err());
+                    continue;
+                }
                 let result = replay(request(
                     &s.id,
                     7,

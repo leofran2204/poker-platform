@@ -35,6 +35,57 @@ use crate::side_pots::{self, PlayerForPots, SidePotsResult};
 use crate::types::{GamePhase, Pot, TableConfig};
 use std::collections::HashMap;
 
+pub const PINEAPPLE_RULE_VERSION: &str = "brazilian_pineapple_hybrid_v1";
+
+/// Public betting contract. Wagers are street totals; call_amount is the
+/// additional payment (capped by the stack). Only the active player has actions.
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
+pub struct LegalActions {
+    pub available_actions: Vec<String>,
+    pub call_amount: u64,
+    pub minimum_wager: u64,
+    pub maximum_wager: u64,
+}
+
+impl LegalActions {
+    pub fn allows(&self, action: &str) -> bool {
+        self.available_actions.iter().any(|a| a == action)
+    }
+
+    /// Bound a bot/simulator's proposed sizing to this contract. Human actions
+    /// are validated, never silently converted using this helper.
+    pub fn constrain_move(&self, proposed: PlayerMove) -> PlayerMove {
+        let passive = if self.allows("check") {
+            PlayerMove::Check
+        } else {
+            PlayerMove::Call
+        };
+        match proposed {
+            PlayerMove::AllIn if self.allows("allin") => PlayerMove::AllIn,
+            PlayerMove::Bet(_) | PlayerMove::Raise(_) | PlayerMove::AllIn => {
+                if self.allows("bet") || self.allows("raise") {
+                    let amount = match proposed {
+                        PlayerMove::Bet(n) | PlayerMove::Raise(n) => n,
+                        _ => self.maximum_wager,
+                    }
+                    .clamp(self.minimum_wager, self.maximum_wager);
+                    if self.allows("bet") {
+                        PlayerMove::Bet(amount)
+                    } else {
+                        PlayerMove::Raise(amount)
+                    }
+                } else if self.allows("allin") {
+                    PlayerMove::AllIn
+                } else {
+                    passive
+                }
+            }
+            PlayerMove::Check | PlayerMove::Call => passive,
+            PlayerMove::Fold => PlayerMove::Fold,
+        }
+    }
+}
+
 // ─── Tipos de estado ───
 
 /// Estado individual de um jogador durante a mão
@@ -148,7 +199,9 @@ impl HandState {
 
     /// Soma total apostado na mão (pote total em centavos)
     pub fn total_pot(&self) -> u64 {
-        self.players.iter().map(|p| p.total_bet).sum()
+        self.players
+            .iter()
+            .fold(0u64, |sum, p| sum.saturating_add(p.total_bet))
     }
 
     /// Encontra o próximo jogador que pode agir a partir do índice dado
@@ -254,6 +307,12 @@ pub enum PlayerMove {
 
 // ─── GameLoop principal ───
 
+struct AllInSnapshot {
+    phase: GamePhase,
+    board: Vec<Card>,
+    opponents: Vec<Vec<Card>>,
+}
+
 /// Máquina de estados que orquestra uma mão completa de Texas Hold'em (em centavos u64)
 pub struct GameLoop {
     /// Estado da mão atual
@@ -274,6 +333,11 @@ pub struct GameLoop {
     pub start_timestamp: u64,
     /// Contador de ações (para timestamp relativo no histórico)
     action_counter: u64,
+    /// Bet faced/completed by each player on this street. A short all-in can
+    /// require another response without reopening that player's raise rights.
+    acted_bets: HashMap<String, u64>,
+    /// Frozen at the first payment, before advancing the board or any later fold.
+    all_in_snapshots: HashMap<String, AllInSnapshot>,
     /// Arredondamento aplicado às frações de centavo do rake.
     pub rake_rounding: RakeRounding,
     /// Se true, pula Monte Carlo do loss deflator (stress / bench).
@@ -315,6 +379,8 @@ impl GameLoop {
             history: None,
             start_timestamp: now_timestamp_ms(),
             action_counter: 0,
+            acted_bets: HashMap::new(),
+            all_in_snapshots: HashMap::new(),
             rake_rounding: RakeRounding::HalfToEven,
             skip_loss_deflator: false,
             big_blind_ante_player_id: None,
@@ -413,6 +479,17 @@ impl GameLoop {
     pub fn start_hand_with_deck(&mut self, deck: Vec<Card>) -> Result<(), GameLoopError> {
         if self.state.players.len() < 2 {
             return Err(GameLoopError::NotEnoughPlayers);
+        }
+        if self
+            .state
+            .players
+            .iter()
+            .try_fold(0u64, |sum, p| sum.checked_add(p.stack))
+            .is_none()
+        {
+            return Err(GameLoopError::InvalidBetAmount(
+                "Total de fichas excede u64".into(),
+            ));
         }
         if self.state.is_finished {
             return Err(GameLoopError::HandAlreadyFinished);
@@ -521,6 +598,11 @@ impl GameLoop {
         } else {
             self.state.active_player_index = self.next_player_after(bb_index);
         }
+        // A blind can consume the entire stack. Never ask that player to act;
+        // if everyone is all-in the caller uses run_out_stalled_hand().
+        if !self.state.players[self.state.active_player_index].can_act() {
+            self.advance_to_next_player();
+        }
 
         // 7. Inicializar hand history
         let players_ids: Vec<String> = self.state.players.iter().map(|p| p.id.clone()).collect();
@@ -546,6 +628,7 @@ impl GameLoop {
             players_ids,
             starting_stacks,
         );
+        history.betting_rule_version = Some(self.betting_structure().into());
 
         // Registrar blinds no histórico
         let sb_id = self.state.players[sb_index].id.clone();
@@ -554,8 +637,129 @@ impl GameLoop {
         self.record_history_action(&mut history, &bb_id, Action::Raise, bb_amount);
 
         self.history = Some(history);
+        self.capture_paid_all_ins();
 
         Ok(())
+    }
+
+    /// Preserve every live opponent when an all-in is first covered (including
+    /// a shorter all-in payment). Later actions cannot rewrite this information.
+    fn capture_paid_all_ins(&mut self) {
+        for hero in &self.state.players {
+            if !hero.is_all_in
+                || hero.has_folded
+                || hero.total_bet == 0
+                || self.all_in_snapshots.contains_key(&hero.id)
+            {
+                continue;
+            }
+            let paid = self.state.players.iter().any(|other| {
+                other.id != hero.id
+                    && other.is_in_hand()
+                    && other.total_bet > 0
+                    && (other.total_bet >= hero.total_bet || other.is_all_in)
+            });
+            if paid {
+                self.all_in_snapshots.insert(
+                    hero.id.clone(),
+                    AllInSnapshot {
+                        phase: self.state.phase,
+                        board: self.state.community_cards.clone(),
+                        opponents: self
+                            .state
+                            .players
+                            .iter()
+                            .filter(|other| other.id != hero.id && other.is_in_hand())
+                            .map(|other| other.hole_cards.clone())
+                            .collect(),
+                    },
+                );
+            }
+        }
+    }
+
+    /// Whether the action has reopened for this player, including cumulative
+    /// short all-ins. Checking an unopened street does not forfeit a later raise.
+    pub fn can_raise(&self, player_id: &str) -> bool {
+        self.acted_bets.get(player_id).is_none_or(|last| {
+            (*last == 0 && self.state.current_bet_to_match > 0)
+                || self.state.current_bet_to_match.saturating_sub(*last) >= self.state.min_raise
+        })
+    }
+
+    pub fn betting_structure(&self) -> &'static str {
+        if self.config.poker_variant == crate::types::PokerVariant::BrazilianPineapple {
+            PINEAPPLE_RULE_VERSION
+        } else {
+            "no_limit_v1"
+        }
+    }
+
+    fn fixed_preflop(&self) -> bool {
+        self.betting_structure() == PINEAPPLE_RULE_VERSION && self.state.phase == GamePhase::Preflop
+    }
+
+    fn wager_bounds(&self, player: &PlayerState) -> (u64, u64) {
+        let st = &self.state;
+        let stack_total = player.current_bet.saturating_add(player.stack);
+        if self.fixed_preflop() {
+            let bb = st.big_blind.max(1);
+            let next = (st.current_bet_to_match / bb)
+                .saturating_add(1)
+                .saturating_mul(bb);
+            (next, next.min(bb.saturating_mul(4)).min(stack_total))
+        } else {
+            let minimum = st.current_bet_to_match.saturating_add(st.min_raise);
+            let maximum = if self.betting_structure() == PINEAPPLE_RULE_VERSION {
+                // total_bet already includes the current street and antes once.
+                player
+                    .current_bet
+                    .saturating_add(st.current_bet_to_match.saturating_sub(player.current_bet))
+                    .saturating_add(st.total_pot())
+                    .min(stack_total)
+            } else {
+                stack_total
+            };
+            (minimum, maximum)
+        }
+    }
+
+    pub fn legal_actions(&self, player_id: &str) -> LegalActions {
+        let mut legal = LegalActions::default();
+        let Some(p) = self.state.active_player().filter(|p| p.id == player_id) else {
+            return legal;
+        };
+        if self.history.is_none() || self.state.is_finished || !p.can_act() || p.stack == 0 {
+            return legal;
+        }
+        let to_call = self
+            .state
+            .current_bet_to_match
+            .saturating_sub(p.current_bet);
+        legal.available_actions.push("fold".into());
+        legal
+            .available_actions
+            .push(if to_call == 0 { "check" } else { "call" }.into());
+        legal.call_amount = to_call.min(p.stack);
+        let (minimum, maximum) = self.wager_bounds(p);
+        let can_raise = self.can_raise(player_id);
+        if can_raise && maximum >= minimum && maximum > self.state.current_bet_to_match {
+            legal.available_actions.push(
+                if self.state.current_bet_to_match == 0 {
+                    "bet"
+                } else {
+                    "raise"
+                }
+                .into(),
+            );
+            legal.minimum_wager = minimum;
+            legal.maximum_wager = maximum;
+        }
+        let all_in = p.current_bet.saturating_add(p.stack);
+        if all_in <= self.state.current_bet_to_match || (can_raise && all_in <= maximum) {
+            legal.available_actions.push("allin".into());
+        }
+        legal
     }
 
     /// Processa a ação de um jogador
@@ -566,6 +770,10 @@ impl GameLoop {
     ) -> Result<(), GameLoopError> {
         if self.state.is_finished {
             return Err(GameLoopError::HandAlreadyFinished);
+        }
+
+        if self.history.is_none() {
+            return Err(GameLoopError::HandNotStarted);
         }
 
         // Validar que é a vez do jogador
@@ -582,6 +790,41 @@ impl GameLoop {
         let current_bet_to_match = self.state.current_bet_to_match;
         let player_current = self.state.players[active_idx].current_bet;
         let to_call = current_bet_to_match.saturating_sub(player_current);
+
+        let increases_bet = match move_type {
+            PlayerMove::Bet(_) | PlayerMove::Raise(_) => true,
+            PlayerMove::AllIn => player_current.saturating_add(player.stack) > current_bet_to_match,
+            _ => false,
+        };
+        if increases_bet && !self.can_raise(player_id) {
+            return Err(GameLoopError::InvalidActionForPhase(
+                "All-in menor que o aumento completo não reabre a ação".into(),
+            ));
+        }
+
+        let fixed_preflop = self.fixed_preflop();
+        if self.betting_structure() == PINEAPPLE_RULE_VERSION {
+            let legal = self.legal_actions(player_id);
+            let valid = match move_type {
+                PlayerMove::Fold => legal.allows("fold"),
+                PlayerMove::Check => legal.allows("check"),
+                PlayerMove::Call => legal.allows("call"),
+                PlayerMove::AllIn => legal.allows("allin"),
+                PlayerMove::Bet(n) | PlayerMove::Raise(n) => {
+                    let action = if matches!(move_type, PlayerMove::Bet(_)) {
+                        "bet"
+                    } else {
+                        "raise"
+                    };
+                    legal.allows(action) && n >= legal.minimum_wager && n <= legal.maximum_wager
+                }
+            };
+            if !valid {
+                return Err(GameLoopError::InvalidBetAmount(
+                    "Ação fora dos limites do Brazilian Pineapple".into(),
+                ));
+            }
+        }
 
         match move_type {
             PlayerMove::Fold => {
@@ -620,7 +863,7 @@ impl GameLoop {
                 self.record_history_action_id(active_idx, Action::Call, call_amount);
             }
             PlayerMove::Bet(amount) => {
-                if to_call > 0 {
+                if current_bet_to_match > 0 {
                     return Err(GameLoopError::InvalidActionForPhase(
                         "Bet não permitido quando há aposta — use Raise".to_string(),
                     ));
@@ -659,7 +902,7 @@ impl GameLoop {
                     ));
                 }
                 let raise_increment = amount.saturating_sub(current_bet_to_match);
-                if raise_increment < self.state.min_raise {
+                if !fixed_preflop && raise_increment < self.state.min_raise {
                     return Err(GameLoopError::RaiseTooSmall(format!(
                         "Aumento mínimo: {} (raise de {})",
                         self.state.min_raise, raise_increment
@@ -674,6 +917,10 @@ impl GameLoop {
                     self.state.players[active_idx].total_bet += all_in_amount - player_current;
                     self.mark_player_all_in(active_idx);
                     if all_in_amount > current_bet_to_match {
+                        let actual_increment = all_in_amount - current_bet_to_match;
+                        if actual_increment >= self.state.min_raise {
+                            self.state.min_raise = actual_increment;
+                        }
                         self.state.current_bet_to_match = all_in_amount;
                         self.reset_other_players_acted(active_idx);
                     }
@@ -683,7 +930,9 @@ impl GameLoop {
                     self.state.players[active_idx].current_bet = amount;
                     self.state.players[active_idx].total_bet += total_needed;
                     self.state.current_bet_to_match = amount;
-                    self.state.min_raise = raise_increment;
+                    if !fixed_preflop {
+                        self.state.min_raise = raise_increment;
+                    }
                     if self.state.players[active_idx].stack == 0 {
                         self.mark_player_all_in(active_idx);
                     }
@@ -703,7 +952,7 @@ impl GameLoop {
 
                 if new_total_bet > current_bet_to_match {
                     let raise_increment = new_total_bet - current_bet_to_match;
-                    if raise_increment >= self.state.min_raise {
+                    if !fixed_preflop && raise_increment >= self.state.min_raise {
                         self.state.min_raise = raise_increment;
                     }
                     self.state.current_bet_to_match = new_total_bet;
@@ -712,6 +961,10 @@ impl GameLoop {
                 self.record_history_action_id(active_idx, Action::AllIn, all_in_amount);
             }
         }
+
+        self.capture_paid_all_ins();
+        self.acted_bets
+            .insert(player_id.to_string(), self.state.current_bet_to_match);
 
         // Verificar se a rodada de apostas terminou
         if self.is_betting_round_complete() {
@@ -748,7 +1001,8 @@ impl GameLoop {
 
     /// Avança para a próxima fase do jogo (flop, turn, river, showdown)
     pub fn advance_phase(&mut self) -> Result<(), GameLoopError> {
-        // Resetar apostas da rodada
+        // Resetar apostas e direitos de aumento da rodada.
+        self.acted_bets.clear();
         for player in &mut self.state.players {
             player.reset_round_bet();
         }
@@ -1313,7 +1567,12 @@ impl GameLoop {
                 continue;
             }
 
-            let phase = match player.all_in_phase {
+            let phase = match self
+                .all_in_snapshots
+                .get(&player.id)
+                .map(|s| s.phase)
+                .or(player.all_in_phase)
+            {
                 Some(p) if p != GamePhase::Showdown => p,
                 _ => continue,
             };
@@ -1378,7 +1637,14 @@ impl GameLoop {
                 GamePhase::River | GamePhase::Showdown => 5,
             }
             .min(self.state.community_cards.len());
-            let board_slice = &self.state.community_cards[..board_len_at_all_in];
+            let snapshot = self.all_in_snapshots.get(&player.id);
+            if snapshot.is_none() && self.history.is_some() {
+                // A dealt hand must have an observed payment; never invent a snapshot.
+                continue;
+            }
+            let board_slice = snapshot
+                .map(|s| s.board.as_slice())
+                .unwrap_or(&self.state.community_cards[..board_len_at_all_in]);
 
             let villain_owned: Vec<Vec<crate::deck::Card>> = opponent_ids
                 .iter()
@@ -1393,8 +1659,14 @@ impl GameLoop {
             if villain_owned.is_empty() {
                 continue;
             }
-            let villain_refs: Vec<&[crate::deck::Card]> =
-                villain_owned.iter().map(|h| h.as_slice()).collect();
+            // Hand-state-only analytical fixtures retain their explicitly supplied
+            // phase/opponents. Every played hand uses its immutable payment snapshot.
+            let villain_refs: Vec<&[crate::deck::Card]> = snapshot
+                .map(|s| &s.opponents)
+                .unwrap_or(&villain_owned)
+                .iter()
+                .map(|h| h.as_slice())
+                .collect();
             let opponents_counted = villain_refs.len() as u8;
             let Some(loser_equity) = loss_deflator::get_multiway_win_probability_for_variant(
                 &player.hole_cards,

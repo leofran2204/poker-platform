@@ -175,6 +175,11 @@ Contador de usuários **logados** com heartbeat recente — distinto dos assento
 - `POST /api/lobby/leave` só liquida entre mãos, transferindo o stack persistido de volta à carteira e registrando o cash-out.
 - O WebSocket aceita apenas o dono de um assento ativo e financiado em mesa `OPEN`; não fornece stack de demonstração.
 - O navegador primeiro solicita `POST /api/lobby/tables/:id/ws-ticket` com Bearer JWT. O WebSocket recebe somente o ticket opaco, vinculado à mesa, com validade de 60 segundos e consumo único (Redis quando configurado).
+- `hand_id` identifica a mão no `table_state` para correlacionar ações com o histórico persistido, inclusive quando calls distintos têm o mesmo preço na mesma street.
+- `GameLoop::legal_actions(player_id)` é a fonte de ações e limites para cash, MTT, bots, treinos e geradores. Os atores carregam `_legal_actions` por jogador internamente; o filtro WS remove esse campo de todos e projeta somente o contrato do destinatário. Espectadores e mãos terminadas recebem ações vazias.
+- `available_actions` contém `fold`, `check`/`call`, `bet`/`raise` e `allin` apenas quando legais. `minimum_wager` e `maximum_wager` são **totais da rodada**, não incrementos; zero quando não há aposta/aumento completo disponível. `call_amount` mantém o contrato existente: **pagamento adicional** limitado ao saldo. `betting_structure` identifica `brazilian_pineapple_hybrid_v1` ou `no_limit_v1` na mão ativa.
+- No Pineapple, a UI oferece o único aumento fixo pré-flop e informa teto 4 BB. No pós-flop, seletor/atalhos respeitam o máximo; “all-in” só aparece se permitido. Rótulo: **aumento limitado ao pote antes do call**. Fórmula e reabertura em [BUSINESS_RULES.md](BUSINESS_RULES.md#estrutura-de-apostas-híbrida--brazilian_pineapple_hybrid_v1).
+- `betting_rule_version` é persistido no histórico do motor e no `settlement_json` assinado de cash/MTT, sem nova coluna. JSONs antigos sem o campo continuam originais; não há replay/reliquidação sob regra nova.
 - `table_state` inclui `is_sitting` e `time_bank` (segundos restantes do turno). Queda de socket envia `PlayerCommand::Disconnect` (reserva o assento ~45s, **não** fold imediato). Sit-out voluntário no meio da mão ainda folda. `POST /api/lobby/leave` é o cash-out explícito.
 - `POST /api/admin/users/:id/adjust-balance` exige `wallet`: `pm_cash` \| `pm_mtt` \| `real` (sem default para Real).
 - Redis é obrigatório em produção para que tickets e snapshots de mesa não se dividam entre réplicas; o fallback em memória existe apenas para desenvolvimento/testes locais.
@@ -272,6 +277,6 @@ Fases: (1) MVP Hold’em com ações legais, sizing e pot odds; (2) equity/EV e 
 - Não há benchmark de release certificado neste repositório. Throughput, latência e capacidade devem ser obtidos exclusivamente em uma execução autorizada da validação completa, com o TSV de evidência gerado pelos scripts.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-05) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

@@ -52,6 +52,6 @@ ALLOW_TEMP_MAIL=true HANDS_PER_TABLE=2 node scripts/live-sim-full-ritual.mjs
 ```
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-05) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

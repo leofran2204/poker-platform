@@ -467,6 +467,8 @@ export type ServerMessage =
       community_cards: string[];
       stage: string;
       pots: PotWsData[];
+      betting_structure?: string | null;
+      hand_id?: string | null;
       available_actions: string[];
       call_amount: number;
       minimum_wager: number;

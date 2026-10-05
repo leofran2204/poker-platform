@@ -427,26 +427,37 @@ pub fn finish_tournament(state: &mut TournamentState) -> Result<TournamentResult
         return Err("Torneio não está em andamento".to_string());
     }
 
+    // Validate and plan the complete ranking before changing the state.
+    let prizes = calculate_prizes(state)?;
+    let mut winners = Vec::new();
+    let mut remaining: Vec<_> = state
+        .players
+        .values()
+        .filter(|e| e.eliminated_at.is_none())
+        .collect();
+    remaining.sort_by(|a, b| b.stack.cmp(&a.stack).then(a.player_id.cmp(&b.player_id)));
+    let mut ranking: Vec<String> = remaining.iter().map(|e| e.player_id.clone()).collect();
+    for id in state.eliminated_order.iter().rev() {
+        if state
+            .players
+            .get(id)
+            .is_some_and(|e| e.eliminated_at.is_some())
+            && !ranking.contains(id)
+        {
+            ranking.push(id.clone());
+        }
+    }
+    if ranking.len() != state.players.len() || ranking.is_empty() {
+        return Err("Classificação de torneio incompleta".into());
+    }
     let now = current_timestamp();
     state.status = TournamentStatus::Finished;
     state.finished_at = Some(now);
-
-    // Distribui prêmios
-    let prizes = calculate_prizes(state);
-    let mut winners = Vec::new();
-
-    // Atribui prêmios aos jogadores restantes por ordem de stack
-    let mut remaining: Vec<&mut PlayerTournamentEntry> = state
-        .players
-        .values_mut()
-        .filter(|e| e.eliminated_at.is_none())
-        .collect();
-    remaining.sort_by_key(|e| std::cmp::Reverse(e.stack));
-
-    for (i, entry) in remaining.iter_mut().enumerate() {
+    for (i, id) in ranking.iter().enumerate() {
+        let entry = state.players.get_mut(id).expect("validated ranking");
         let position = (i + 1) as u32;
         entry.final_position = Some(position);
-
+        entry.prize = None;
         if let Some(&prize) = prizes.get(i) {
             entry.prize = Some(prize);
             winners.push(WinnerEntry {
@@ -704,14 +715,45 @@ fn recalculate_prize_pool(state: &mut TournamentState) {
 }
 
 /// Calcula a distribuição de prêmios baseado no prize_distribution
-fn calculate_prizes(state: &TournamentState) -> Vec<u64> {
-    let pool = state.prize_pool;
-    state
+fn calculate_prizes(state: &TournamentState) -> Result<Vec<u64>, String> {
+    // Configuration percentages are converted once; money never passes through f64.
+    const SCALE: u64 = 1_000_000;
+    let weights: Vec<u64> = state
         .config
         .prize_distribution
         .iter()
-        .map(|&pct| (pool as f64 * pct) as u64)
-        .collect()
+        .map(|&pct| {
+            if !pct.is_finite() || !(0.0..=1.0).contains(&pct) {
+                return Err("Percentual de premiação inválido".to_string());
+            }
+            Ok((pct * SCALE as f64).round() as u64)
+        })
+        .collect::<Result<_, _>>()?;
+    if weights.iter().map(|&w| u128::from(w)).sum::<u128>() != u128::from(SCALE) {
+        return Err("Distribuição de premiação deve somar 100%".into());
+    }
+    let weights = &weights[..weights.len().min(state.players.len())];
+    let total: u128 = weights.iter().map(|&w| u128::from(w)).sum();
+    if total == 0 {
+        return Err("Premiação sem posições elegíveis".into());
+    }
+    // Fewer entrants than paid places: normalize the weights of existing places.
+    let numerators: Vec<u128> = weights
+        .iter()
+        .map(|&w| u128::from(state.prize_pool) * u128::from(w))
+        .collect();
+    let mut prizes: Vec<u64> = numerators.iter().map(|n| (n / total) as u64).collect();
+    let residual = state.prize_pool - prizes.iter().sum::<u64>();
+    let mut order: Vec<usize> = (0..prizes.len()).collect();
+    order.sort_by(|&a, &b| {
+        (numerators[b] % total)
+            .cmp(&(numerators[a] % total))
+            .then(a.cmp(&b))
+    });
+    for &i in order.iter().take(residual as usize) {
+        prizes[i] += 1;
+    }
+    Ok(prizes)
 }
 
 /// Verifica se o nível atual de blinds expirou

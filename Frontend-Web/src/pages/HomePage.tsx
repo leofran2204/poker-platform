@@ -1,8 +1,10 @@
-import { lazy, Suspense, useRef, useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Navigate, Link } from "react-router";
 import { isAuthenticated } from "@/lib/auth";
 import { PlayingCard } from "@/components/PlayingCard";
 import homeFilm from "@/data/homeFilm.json";
+import pineappleFilm from "@/data/pineappleFilm.json";
+import { PineappleFilm } from "@/components/PineappleFilm";
 import { formatLessonDuration } from "@/lib/courseDuration";
 import "./home-premium.css";
 
@@ -32,17 +34,13 @@ function DecisionChallenge() {
 }
 
 function VisitorHome() {
-  const dialog=useRef<HTMLDialogElement>(null);
-  const [filmOpen,setFilmOpen]=useState(false);
   const [gamesOpen,setGamesOpen]=useState(false);
   const [deflatorOpen,setDeflatorOpen]=useState(false);
-  function openFilm() { setFilmOpen(true); dialog.current?.showModal(); }
   return <div className="hp">
-    <section className="hp-hero" aria-labelledby="home-title">
-      <picture className="hp-hero-image" aria-hidden="true"><source media="(max-width: 700px)" srcSet="/brand/home/hero-800.webp" /><img src="/brand/home/hero-1600.webp" width="1672" height="941" alt="" fetchPriority="high" /></picture><div className="hp-shade" />
-      <div className="hp-hero-inner"><div className="hp-hero-copy"><p className="hp-eyebrow"><span aria-hidden="true">♠</span> ZERO TILT POKER / ACADEMY & MESAS</p><h1 id="home-title">Poker é decisão.<br /><em>Evolua</em> a cada mão.</h1><p className="hp-description">Entenda o que acontece entre as cartas.<br />Descubra o poker, estude a estratégia e experimente suas decisões nas mesas gratuitas.</p>
-        <div className="hp-actions"><Link to="/register" className="hp-button">Começar grátis <span aria-hidden="true">↗</span></Link><button type="button" className="hp-film-button" onClick={openFilm}><span className="hp-play" aria-hidden="true">▶</span><span>Conheça a ZT Poker<small>Assista ao filme · {formatLessonDuration(homeFilm.durationSeconds)}</small></span></button></div><p className="hp-note">Play Money · sem depósito para começar · 18+</p></div>
-        <div className="hp-hero-caption" aria-hidden="true">MENOS IMPULSO.<br />MAIS RACIOCÍNIO.<i /></div><a className="hp-scroll" href="#desafio">A próxima decisão é sua <span aria-hidden="true">↓</span></a>
+    <section className="hp-hero hp-pineapple" aria-labelledby="home-title">
+      <div className="hp-hero-inner"><div className="hp-hero-copy"><p className="hp-eyebrow"><span aria-hidden="true">♠</span> ZERO TILT POKER / COMECE PELAS REGRAS</p><h1 id="home-title">Brazilian<br /><em>Pineapple.</em></h1><p className="hp-description">Sua mão cresce. Sua decisão muda.<br />Aprenda as cartas, as apostas e os potes com uma mesa animada, exemplos e narração em português.</p>
+        <div className="hp-actions"><PineappleFilm /><Link to="/curso" className="hp-link">Explorar a Academy ↗</Link></div><p className="hp-note">Vídeo de {formatLessonDuration(pineappleFilm.durationSeconds)} · legendas e capítulos · 18+</p></div>
+        <figure className="hp-pineapple-cover"><img src={`/videos/${pineappleFilm.filename}.webp`} width="1280" height="720" alt="Cinco cartas privadas; duas destacadas para combinar com três comunitárias" fetchPriority="high" /><figcaption>2 → 3 → 4 → 5 privadas. Sem descarte.<br /><span>Pratique com Play Money, sem depósito para começar.</span></figcaption></figure><a className="hp-scroll" href="#desafio">A próxima decisão é sua <span aria-hidden="true">↓</span></a>
       </div>
     </section>
     <div className="hp-path" aria-label="Como começar">{[["01","Descubra o jogo","História, regras e possibilidades."],["02","Entenda a decisão","Aulas, exemplos e perguntas."],["03","Pratique no seu ritmo","Mesas de Play Money gratuitas."]].map(([n,title,body])=><div key={n}><span>{n}</span><p><strong>{title}</strong>{body}</p></div>)}</div>
@@ -67,10 +65,7 @@ function VisitorHome() {
     </div><div id="home-deflator-details" className="hp-full" hidden={!deflatorOpen}>{deflatorOpen && <div className="hp-expanded"><Suspense fallback={<p role="status">Carregando explicação…</p>}><Deflator /></Suspense></div>}</div></section>
     <section className="hp-section hp-agent" aria-labelledby="agent-title"><div><p className="hp-eyebrow">Agente ZT Poker</p><h2 id="agent-title">Uma comunidade.<br /><em>Um único nível.</em></h2><p className="hp-body">Traga jogadores diretamente, acompanhe sua operação e desenvolva sua comunidade.</p><Link to="/rede" className="hp-link">Conhecer o programa ↗</Link></div><div className="hp-agent-numbers"><div><strong>30<small>%</small></strong><span>do NGR dos jogadores diretos</span></div><span className="hp-agent-arrow" aria-hidden="true">→</span><div><strong>35<small>%</small></strong><span>ao atingir a meta mensal</span></div><p>Sujeito à aprovação, às regras do programa e ao fechamento mensal conciliado. NGR é a receita líquida elegível, não o valor dos depósitos.</p></div></section>
     <section className="hp-section hp-final" aria-labelledby="final-title"><p className="hp-eyebrow">Zero Tilt Poker</p><h2 id="final-title">Sua próxima decisão?<br /><em>Começar a aprender.</em></h2><Link to="/register" className="hp-button">Criar conta grátis <span aria-hidden="true">↗</span></Link><p>18+ · Poker envolve risco de perda. Jogue com responsabilidade.</p></section>
-    <dialog ref={dialog} className="hp-dialog" aria-labelledby="film-title" onClose={()=>setFilmOpen(false)}><div className="hp-film-header"><h2 id="film-title">Poker é decisão. Evolua a cada mão.</h2><button type="button" onClick={()=>dialog.current?.close()} aria-label="Fechar filme">✕</button></div>
-      {filmOpen && <video controls autoPlay playsInline preload="none" poster={`/videos/${homeFilm.filename}.webp`}><source src={`/videos/${homeFilm.filename}.mp4`} type="video/mp4" /><track kind="captions" src={`/videos/${homeFilm.filename}.vtt`} srcLang="pt-BR" label="Português" default />Seu navegador não suporta vídeo. <a href={`/videos/${homeFilm.filename}.mp4`}>Abrir o filme</a>.</video>}
-      <details className="hp-transcript"><summary>Ler transcrição</summary>{homeFilm.transcript.split("\n\n").map((paragraph,i)=><p key={i}>{paragraph}</p>)}</details>
-    </dialog>
+    <p className="hp-archive"><a href={`/videos/${homeFilm.filename}.mp4`}>Filme institucional da ZT Poker · {formatLessonDuration(homeFilm.durationSeconds)}</a></p>
   </div>;
 }
 export function HomePage() { return isAuthenticated() ? <Navigate to="/curso" replace /> : <VisitorHome />; }

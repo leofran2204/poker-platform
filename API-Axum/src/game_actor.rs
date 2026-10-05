@@ -764,7 +764,7 @@ impl TableActor {
         Ok(chips)
     }
 
-    async fn handle_action(&mut self, player_id: String, action: String, amount: u64) {
+    pub(crate) async fn handle_action(&mut self, player_id: String, action: String, amount: u64) {
         let elapsed_ms = self
             .last_turn_start
             .map(|t| t.elapsed().as_millis() as u64)
@@ -935,6 +935,7 @@ impl TableActor {
                                 .unwrap_or_else(|| serde_json::json!([]));
                             let settlement = serde_json::json!({
                                 "version": 1,
+                                "betting_rule_version": history.betting_rule_version,
                                 "hand_id": history.hand_id,
                                 "table_id": table_id,
                                 "pot_total": history.total_pot,
@@ -1195,7 +1196,7 @@ impl TableActor {
         })
     }
 
-    fn broadcast_state(&self) {
+    pub(crate) fn broadcast_state(&self) {
         let mut players_json = Vec::new();
         let mut community_cards = Vec::new();
         let mut stage = "waiting".to_string();
@@ -1228,6 +1229,7 @@ impl TableActor {
                         "name": tp.name,
                         "chips": gp.stack,
                         "bet": gp.current_bet,
+                        "_legal_actions": gl.legal_actions(&gp.id),
                         "cards": gp.hole_cards.iter().map(card_to_string).collect::<Vec<String>>(),
                         "folded": gp.has_folded,
                         "is_active": gl.state.active_player().map(|ap| ap.id == gp.id).unwrap_or(false),
@@ -1258,6 +1260,8 @@ impl TableActor {
             "type": "table_state",
             "table_id": self.table_id,
             "stage": stage,
+            "betting_structure": self.game_loop.as_ref().map(|g| g.betting_structure()),
+            "hand_id": self.game_loop.as_ref().map(|g| &g.hand_id),
             "community_cards": community_cards,
             "pots": pots,
             "players": players_json,

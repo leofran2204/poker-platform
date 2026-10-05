@@ -75,5 +75,99 @@
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "1f1521a6797a46b59a436f64bcd8906eff05063ddc0e115fa3855faff5ca19c8"
+  "sha256": "1f1521a6797a46b59a436f64bcd8906eff05063ddc0e115fa3855faff5ca19c8",
+  "sourceSnapshot": {
+    "id": "m5l3",
+    "title": "Brazilian Pineapple: 2 cartas e +1 por street",
+    "body": "## Modalidade exclusiva da ZT\nO Brazilian Pineapple estudado aqui é o da Zero Tilt Poker. Use as regras locais; materiais sobre Pineapple de três cartas com descarte descrevem outro jogo.\n\n## Distribuição completa\nBaralho de 52 cartas, mesa até seis jogadores. Receba duas privadas no pré-flop. Depois de abrir cada street — flop, turn e river — chega mais uma carta privada a cada participante ainda na mão, inclusive all-in. Quem desistiu não recebe. Não há descarte: são três privadas no flop, quatro no turn e cinco no river.\n\n## Formação e ranking\nEscolha exatamente duas privadas e três comunitárias. O ranking é clássico: sequência supera trinca; full house supera flush. A-2-3-4-5 é a sequência baixa. Nunca use três privadas para completar uma combinação ou seu kicker.\n\n## Exemplo passo a passo\nVocê começou com As Ks. Flop Ad Qc 2s; recebeu Ah. Os pares privados candidatos são As-Ks, As-Ah e Ks-Ah. Como existem só três comunitárias, todas precisam entrar. A melhor escolha é As-Ah com Ad-Qc-2s: A-A-A-Q-2. O rei fica fora. No turn, outras combinações passam a ser possíveis e a análise deve ser refeita.\n\n## Exercício de recuperação\nSem consultar o texto, descreva a sequência 2→3→4→5 e explique por que o all-in ainda recebe cartas. Depois conte os pares privados possíveis no flop: são três. A próxima aula mostra como isso se transforma em uma base matemática.\n\n## Aprofundamento aplicado\n### O momento da carta extra\nA ordem importa: a street abre e então cada jogador ainda na mão recebe sua nova privada. No início do flop, avalie as três privadas e as três comunitárias que realmente estão disponíveis. Não use uma futura carta do turn na decisão anterior. Se você desistir, para de receber extras; se ficar all-in, continua recebendo enquanto disputar a mão. O simulador conserva essa diferença e o replay mostra o crescimento da mão privada.\n\n### Compare com o Texas\nNo Hold’em, um ás privado pode combinar com quatro copas da mesa para formar flush. No Brazilian Pineapple, um único ás de copas não basta: a combinação precisa de duas privadas. Ter cinco privadas ao final amplia as escolhas, mas não autoriza usar três, quatro ou cinco delas no showdown. A pergunta correta é qual par privado combina melhor com qual trio do board.\n\n### Planeje a revisão por street\nSepare três registros: mão feita agora, possibilidades condicionais de melhorar e custo para continuar. Uma extra pode melhorar sua seleção; também pode não mudar nada. Os rivais recebem cartas e podem mudar de força ao mesmo tempo. Por isso não reutilizamos charts de Pineapple com descarte nem porcentagens de Hold’em como se fossem resultados medidos desta modalidade.\n\n## Laboratório: Duas, três, quatro, cinco privadas\nObjetivo: Acompanhar cada extra sem descartar cartas. Abra a mesa deste módulo e comece pelo treino guiado. Cada participante ainda na mão recebe uma extra depois do flop, turn e river, inclusive em all-in. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
+    "quiz": [
+      {
+        "id": "m5l3q1",
+        "kind": "theory",
+        "prompt": "Como chegam as cartas no Brazilian Pineapple?",
+        "options": [
+          "3 cartas no pré-flop e você descarta uma depois do flop",
+          "2 no pré-flop e +1 depois do flop, do turn e do river, sem descarte",
+          "5 cartas no pré-flop, como no Omaha"
+        ],
+        "expectedIndex": 1,
+        "explanation": "Começa com 2. Cada street entrega mais uma a quem ainda está na mão. Não há descarte."
+      },
+      {
+        "id": "m5l3q2",
+        "kind": "engine",
+        "prompt": "Brazilian Pineapple após a carta extra do flop: As Ks Ah, board Ad Qc 2s. Qual é a melhor mão legal?",
+        "hole": [
+          "As",
+          "Ks",
+          "Ah"
+        ],
+        "board": [
+          "Ad",
+          "Qc",
+          "2s"
+        ],
+        "options": [
+          "A-A-A-K-Q",
+          "A-A-A-Q-2",
+          "A-A-K-Q-2"
+        ],
+        "expected": "A-A-A-Q-2",
+        "engine": "Exatamente 2 privadas + 3 comunitárias",
+        "why": "Usamos As Ah e as três comunitárias. O rei seria uma terceira carta privada, proibida nesta combinação."
+      }
+    ],
+    "sources": [],
+    "training": [
+      {
+        "id": "pine-distribuicao",
+        "module": "pineapple",
+        "lesson": "m5l3",
+        "title": "Duas, três, quatro, cinco privadas",
+        "variant": "brazilian_pineapple",
+        "phase": "preflop",
+        "hole": [
+          "As",
+          "Ks"
+        ],
+        "board": [],
+        "topic": "selection",
+        "objective": "Acompanhar cada extra sem descartar cartas.",
+        "hint": "Cada participante ainda na mão recebe uma extra depois do flop, turn e river, inclusive em all-in.",
+        "profiles": [
+          "caller",
+          "passive"
+        ],
+        "opening": 300,
+        "stack": 10000
+      },
+      {
+        "id": "pine-flop",
+        "module": "pineapple",
+        "lesson": "m5l3",
+        "title": "Trinca com o kicker correto",
+        "variant": "brazilian_pineapple",
+        "phase": "flop",
+        "hole": [
+          "As",
+          "Ks",
+          "Ah"
+        ],
+        "board": [
+          "Ad",
+          "Qc",
+          "2s"
+        ],
+        "topic": "selection",
+        "objective": "Selecionar exatamente duas privadas e três comunitárias.",
+        "hint": "As e Ah formam trinca com Ad, Qc e 2s. O rei privado fica fora.",
+        "profiles": [
+          "caller"
+        ],
+        "opening": 300,
+        "stack": 10000
+      }
+    ]
+  },
+  "bettingRuleVersion": "legacy_no_limit"
 }

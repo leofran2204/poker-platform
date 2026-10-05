@@ -2,7 +2,7 @@
 
 # Estado operacional — S26
 
-**S26** — Academy revisada, história do Omaha e Agente ZT em um nível. Revisado em **2026-10-01**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
+**S26** — Brazilian Pineapple híbrido, filme da home e Academy revisada. Revisado em **2026-10-05**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
 
 **Limites:** sem certificação de produção · PIX automático ligado (DePix reconciliado) · mesas com dono **único por processo** (settlement HMAC).
 
@@ -31,13 +31,13 @@ Frentes fixas (`min_buy_in = max_buy_in`). Migrations até **060**.
 
 Agenda definida pelo **admin** em `America/Sao_Paulo`, auto-start com **5+**, **3** mesas por evento, taxa **15%** por cima (freeroll sem taxa). Modos: play + real.
 
-| Evento | Variante | Buy-in | GTD | Cap | Máx. | Reentradas |
-|--------|----------|--------|-----|-----|------|------------|
-| Texas Hold’em | Texas Hold’em | R$ 15 | R$ 150 | 9 | 27 | 1 |
-| Texas R$25 | Texas Hold’em | R$ 25 | — | 9 | 27 | 1 |
-| Texas Hold’em Freeroll | Texas Hold’em | Grátis | R$ 75 | 9 | 27 | 1 |
-| Omaha 4 Cartas | Omaha 4 Cartas | R$ 10 | R$ 100 | 6 | 18 | 1 |
-| Brazilian Pineapple | Brazilian Pineapple | R$ 10 | R$ 100 | 6 | 18 | 1 |
+| Evento | Variante | Buy-in | GTD | Cap | Máx. | Reentradas PM | Reentradas Real |
+|--------|----------|--------|-----|-----|------|---------------|-----------------|
+| Texas Hold’em | Texas Hold’em | R$ 15 | R$ 150 | 9 | 27 | ilimitadas | 1 |
+| Texas R$25 | Texas Hold’em | R$ 25 | — | 9 | 27 | 1 | 1 |
+| Texas Hold’em Freeroll | Texas Hold’em | Grátis | R$ 75 | 9 | 27 | ilimitadas | 1 |
+| Omaha 4 Cartas | Omaha 4 Cartas | R$ 10 | R$ 100 | 6 | 18 | ilimitadas | 1 |
+| Brazilian Pineapple | Brazilian Pineapple | R$ 10 | R$ 100 | 6 | 18 | ilimitadas | 1 |
 
 ## Agente ZT Poker
 
@@ -51,7 +51,7 @@ Agenda definida pelo **admin** em `America/Sao_Paulo`, auto-start com **5+**, **
 | Torneio | R$ 150 / dia | Buy-in com saldo real |
 | Mistura | **Não** — PM não entra em mesa Real | idem |
 
-Zerou a carteira PM: espera o reset. Entradas/rebuys de torneio ilimitados **com saldo**.
+Zerou a carteira PM: espera o reset. Inscrições sem cota diária, **com saldo**; reentradas seguem o limite PM de cada evento acima.
 
 ## PIX
 

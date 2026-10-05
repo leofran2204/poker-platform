@@ -388,45 +388,114 @@ async fn finish_decided_tournaments(state: &AppState) {
         if !decided {
             continue;
         }
-        let result = {
-            let mut tournaments = state.tournaments.write().await;
-            match tournaments.get_mut(&tid) {
-                Some(store) => engine::finish_tournament(&mut store.state),
-                None => continue,
-            }
+        let mut tournaments = state.tournaments.write().await;
+        let Some(store) = tournaments.get_mut(&tid) else {
+            continue;
         };
-        let result = match result {
+        // A rebuy can occur between the read lock above and this write lock.
+        if store.state.status != engine::TournamentStatus::Running
+            || store.state.players_remaining > 1
+        {
+            continue;
+        }
+        let mut finished = store.state.clone();
+        let result = match engine::finish_tournament(&mut finished) {
             Ok(r) => r,
-            Err(_) => continue,
-        };
-        let kind = if money_mode.eq_ignore_ascii_case("real") {
-            crate::wallet::WalletKind::Real
-        } else {
-            crate::wallet::WalletKind::PmMtt
-        };
-        for w in &result.winners {
-            if w.prize == 0 {
+            Err(error) => {
+                tracing::error!(tournament_id=%tid, %error, "classificação MTT inválida; prêmios não creditados");
                 continue;
             }
-            let _ =
-                crate::wallet::credit_wallet(&state.db, &w.player_id, w.prize as i64, kind).await;
+        };
+        match persist_tournament_prizes(&state.db, &result, &money_mode).await {
+            Ok(_) => store.state = finished,
+            Err(error) => {
+                tracing::error!(tournament_id=%tid, %error, "premiação MTT revertida; próxima rodada tentará novamente");
+                continue;
+            }
         }
-        let _ = sqlx::query(
-            "UPDATE tournaments SET status='finished', finished_at=$2, prize_pool=$3 WHERE id=$1::uuid",
-        )
-        .bind(&tid)
-        .bind(result.finished_at as i64)
-        .bind(result.total_prize_pool as i64)
-        .execute(&state.db)
-        .await;
-        let _ = sqlx::query(
-            "INSERT INTO audit_logs (user_id, action, metadata) VALUES ('system','MTT_FINISHED', $1)",
-        )
-        .bind(serde_json::json!({"tournament_id":tid,"winners":result.winners.len()}))
-        .execute(&state.db)
-        .await;
         tracing::info!(tournament_id=%tid, winners=result.winners.len(), "torneio finalizado com prêmios");
     }
+}
+
+/// The tournament row lock makes retries/concurrent finalizers idempotent.
+/// Wallets, paid positions, status and audit commit together, or all roll back.
+async fn persist_tournament_prizes(
+    pool: &sqlx::PgPool,
+    result: &poker_engine::tournament_engine::TournamentResult,
+    money_mode: &str,
+) -> Result<bool, sqlx::Error> {
+    let invalid = |message: &str| sqlx::Error::Protocol(message.to_string());
+    if result
+        .winners
+        .iter()
+        .map(|w| u128::from(w.prize))
+        .sum::<u128>()
+        != u128::from(result.total_prize_pool)
+    {
+        return Err(invalid("Premiação não conserva o prize pool"));
+    }
+    let prize_pool =
+        i64::try_from(result.total_prize_pool).map_err(|_| invalid("Premiação excede BIGINT"))?;
+    let mut tx = pool.begin().await?;
+    let (status, mode): (String, String) =
+        sqlx::query_as("SELECT status, money_mode FROM tournaments WHERE id=$1::uuid FOR UPDATE")
+            .bind(&result.tournament_id)
+            .fetch_one(&mut *tx)
+            .await?;
+    if mode != money_mode || !matches!(mode.as_str(), "play" | "real") {
+        return Err(invalid("Carteira de torneio divergente"));
+    }
+    if status == "finished" {
+        tx.rollback().await?;
+        return Ok(false);
+    }
+    if status != "running" {
+        return Err(invalid("Torneio não está running no banco"));
+    }
+    let credit = if mode == "real" {
+        "UPDATE users SET balance_real=balance_real+$1 WHERE id=$2::uuid"
+    } else {
+        "UPDATE users SET balance_pm_mtt=balance_pm_mtt+$1 WHERE id=$2::uuid"
+    };
+    let mut ids = std::collections::HashSet::new();
+    for winner in &result.winners {
+        if !ids.insert(&winner.player_id) {
+            return Err(invalid("Vencedor duplicado"));
+        }
+        let prize = i64::try_from(winner.prize).map_err(|_| invalid("Prêmio excede BIGINT"))?;
+        let paid = sqlx::query(credit)
+            .bind(prize)
+            .bind(&winner.player_id)
+            .execute(&mut *tx)
+            .await?;
+        if paid.rows_affected() != 1 {
+            return Err(invalid("Carteira premiada ausente"));
+        }
+        let recorded = sqlx::query("UPDATE tournament_players SET final_position=$3, prize=$4 WHERE tournament_id=$1::uuid AND player_id=$2")
+            .bind(&result.tournament_id).bind(&winner.player_id).bind(winner.position as i32).bind(prize)
+            .execute(&mut *tx).await?;
+        if recorded.rows_affected() != 1 {
+            return Err(invalid("Inscrição premiada ausente"));
+        }
+    }
+    sqlx::query(
+        "UPDATE tournaments SET status='finished', finished_at=$2, prize_pool=$3 WHERE id=$1::uuid",
+    )
+    .bind(&result.tournament_id)
+    .bind(result.finished_at as i64)
+    .bind(prize_pool)
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query(
+        "INSERT INTO audit_logs (user_id, action, metadata) VALUES ('system','MTT_FINISHED', $1)",
+    )
+    .bind(
+        serde_json::json!({"tournament_id":result.tournament_id,"money_mode":mode,"result":result}),
+    )
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
+    Ok(true)
 }
 
 /// Cura pós-restart: garante um ator vivo para cada mesa viva de torneio
@@ -486,6 +555,119 @@ mod tests {
     use super::*;
     use crate::tournament_store::TournamentStore;
     use poker_engine::tournament_engine::{register_player, TournamentConfig};
+
+    #[tokio::test]
+    #[ignore = "requires isolated migrated PostgreSQL"]
+    async fn tournament_prizes_are_atomic_idempotent_and_wallet_isolated() {
+        use poker_engine::tournament_engine::{TournamentResult, WinnerEntry};
+        let pool = sqlx::postgres::PgPoolOptions::new()
+            .max_connections(4)
+            .connect(&std::env::var("DATABASE_URL").expect("isolated DATABASE_URL"))
+            .await
+            .unwrap();
+        for mode in ["play", "real"] {
+            let tid = uuid::Uuid::new_v4();
+            let ids: Vec<_> = (0..3).map(|_| uuid::Uuid::new_v4()).collect();
+            sqlx::query("INSERT INTO tournaments (id,name,buy_in,starting_stack,max_players,status,money_mode,prize_pool) VALUES ($1,'payout regression',0,1000,5,'running',$2,10003)")
+                .bind(tid).bind(mode).execute(&pool).await.unwrap();
+            for id in &ids {
+                let name = format!("prize_{}", &id.simple().to_string()[..20]);
+                sqlx::query("INSERT INTO users (id,username,email,password_hash,balance_pm_cash,balance_pm_mtt,balance_real) VALUES ($1,$2,$2,'synthetic',100,200,300)")
+                    .bind(id).bind(&name).execute(&pool).await.unwrap();
+                sqlx::query("INSERT INTO tournament_players (tournament_id,player_id,player_name,stack) VALUES ($1,$2,$3,0)")
+                    .bind(tid).bind(id.to_string()).bind(name).execute(&pool).await.unwrap();
+            }
+            let result = TournamentResult {
+                tournament_id: tid.to_string(),
+                tournament_name: "payout regression".into(),
+                total_players: 3,
+                total_prize_pool: 10003,
+                started_at: 1,
+                finished_at: 2,
+                duration_seconds: 1,
+                winners: ids
+                    .iter()
+                    .zip([5001, 3001, 2001])
+                    .enumerate()
+                    .map(|(i, (id, prize))| WinnerEntry {
+                        position: (i + 1) as u32,
+                        player_id: id.to_string(),
+                        player_name: format!("P{i}"),
+                        prize,
+                    })
+                    .collect(),
+            };
+            let mut broken = result.clone();
+            broken.winners[2].player_id = uuid::Uuid::new_v4().to_string();
+            assert!(persist_tournament_prizes(&pool, &broken, mode)
+                .await
+                .is_err());
+            let balances: Vec<(i64, i64, i64)> = sqlx::query_as(
+                "SELECT balance_pm_cash,balance_pm_mtt,balance_real FROM users WHERE id=ANY($1)",
+            )
+            .bind(&ids)
+            .fetch_all(&pool)
+            .await
+            .unwrap();
+            assert!(
+                balances.iter().all(|b| *b == (100, 200, 300)),
+                "partial credits must roll back"
+            );
+            let status: String = sqlx::query_scalar("SELECT status FROM tournaments WHERE id=$1")
+                .bind(tid)
+                .fetch_one(&pool)
+                .await
+                .unwrap();
+            assert_eq!(status, "running");
+            let (a, b) = tokio::join!(
+                persist_tournament_prizes(&pool, &result, mode),
+                persist_tournament_prizes(&pool, &result, mode)
+            );
+            assert_ne!(a.unwrap(), b.unwrap(), "exactly one finalizer pays");
+            assert!(!persist_tournament_prizes(&pool, &result, mode)
+                .await
+                .unwrap());
+            for (id, prize) in ids.iter().zip([5001, 3001, 2001]) {
+                let balance: (i64, i64, i64) = sqlx::query_as(
+                    "SELECT balance_pm_cash,balance_pm_mtt,balance_real FROM users WHERE id=$1",
+                )
+                .bind(id)
+                .fetch_one(&pool)
+                .await
+                .unwrap();
+                assert_eq!(
+                    balance,
+                    if mode == "play" {
+                        (100, 200 + prize, 300)
+                    } else {
+                        (100, 200, 300 + prize)
+                    }
+                );
+            }
+            let paid: i64 = sqlx::query_scalar(
+                "SELECT sum(prize)::bigint FROM tournament_players WHERE tournament_id=$1",
+            )
+            .bind(tid)
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+            assert_eq!(paid, 10003);
+            let audits: i64 = sqlx::query_scalar("SELECT count(*) FROM audit_logs WHERE action='MTT_FINISHED' AND metadata->>'tournament_id'=$1")
+                .bind(tid.to_string()).fetch_one(&pool).await.unwrap();
+            assert_eq!(audits, 1);
+            sqlx::query("DELETE FROM audit_logs WHERE action='MTT_FINISHED' AND metadata->>'tournament_id'=$1").bind(tid.to_string()).execute(&pool).await.unwrap();
+            sqlx::query("DELETE FROM tournaments WHERE id=$1")
+                .bind(tid)
+                .execute(&pool)
+                .await
+                .unwrap();
+            sqlx::query("DELETE FROM users WHERE id=ANY($1)")
+                .bind(&ids)
+                .execute(&pool)
+                .await
+                .unwrap();
+        }
+    }
 
     fn store_with_players(count: usize) -> TournamentStore {
         let mut store = TournamentStore::new("scheduled".into(), TournamentConfig::default());

@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { formatLessonDuration, type CourseVideoInfo } from "@/lib/course";
+import type { CourseVideoInfo } from "@/lib/course";
+import { formatLessonDuration } from "@/lib/courseDuration";
 
 interface Props {
   video?: CourseVideoInfo;
@@ -10,6 +11,8 @@ interface Props {
 export function CourseVideoPlayer({ video, lessonTitle }: Props) {
   const [showScript, setShowScript] = useState(false);
   const player = useRef<HTMLVideoElement>(null);
+  const pendingSeek = useRef<number | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
   const transcript = video?.transcript?.trim() || video?.placeholderScript?.trim() || "";
   const durationLabel = video?.durationSeconds
     ? formatLessonDuration(video.durationSeconds)
@@ -44,9 +47,16 @@ export function CourseVideoPlayer({ video, lessonTitle }: Props) {
             ref={player}
             src={video.url}
             poster={video.posterUrl}
-            preload="metadata"
+            preload="none"
             controls
             playsInline
+            onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
+            onLoadedMetadata={(event) => {
+              if (pendingSeek.current !== null) {
+                event.currentTarget.currentTime = pendingSeek.current;
+                pendingSeek.current = null;
+              }
+            }}
             className="h-full w-full object-contain"
           >
             {captionsUrl && (
@@ -74,10 +84,14 @@ export function CourseVideoPlayer({ video, lessonTitle }: Props) {
 
       {video?.chapters && video.url && (
         <nav aria-label="Capítulos do vídeo" className="flex flex-wrap gap-2 border-t border-felt-800 px-4 py-3">
-          {video.chapters.map(chapter => (
-            <button key={chapter.start} type="button" className="rounded border border-felt-700 px-2 py-1 text-left text-xs text-gold-soft hover:bg-felt-800" onClick={() => {
+          {video.chapters.map((chapter, index, chapters) => (
+            <button key={chapter.start} type="button" aria-current={currentTime >= chapter.start && currentTime < (chapters[index + 1]?.start ?? Infinity) ? "true" : undefined} className="min-h-11 rounded border border-felt-700 px-3 py-2 text-left text-xs text-gold-soft hover:bg-felt-800 aria-[current=true]:border-gold-soft aria-[current=true]:bg-felt-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold-soft" onClick={() => {
               if (!player.current) return;
-              player.current.currentTime = chapter.start;
+              if (player.current.readyState < 1) {
+                pendingSeek.current = chapter.start;
+              } else {
+                player.current.currentTime = chapter.start;
+              }
               void player.current.play().catch(() => { /* Os controles nativos continuam disponíveis. */ });
             }}>
               {Math.floor(chapter.start / 60)}:{String(Math.floor(chapter.start % 60)).padStart(2, "0")} · {chapter.title}

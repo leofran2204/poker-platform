@@ -68,6 +68,6 @@ Pote líquido: 30.000. Um perdedor elegível tem faixa de 25%, recebendo 7.500. 
 Uma estimativa Monte Carlo não é uma garantia exata, sobretudo perto dos limites de faixa. Short Deck usa enumeração exata no código local corrigido. Em Hold’em, espaços maiores mantêm amostragem determinística. A auditoria de snapshots e de mãos históricas exige os registros reais de cada mão; esta documentação não recalcula nem movimenta saldos.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-05) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

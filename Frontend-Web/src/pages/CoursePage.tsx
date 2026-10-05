@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { fetchCourseProgress, type CourseProgressItem } from "@/api/client";
 import { BrandMark } from "@/components/BrandMark";
+import { PineappleFilm } from "@/components/PineappleFilm";
 import { COURSE, isLessonUnlocked, lessonFormat, PASS_SCORE } from "@/lib/course";
 import { isAuthenticated } from "@/lib/auth";
 
@@ -53,6 +54,8 @@ export function CoursePage() {
           Nota de Corte: {PASS_SCORE}%
         </span>
       </div>
+
+      <PineappleFilm academy />
 
       {!authed && (
         <p className="rounded border border-felt-700 bg-felt-800 px-3 py-2 text-xs text-felt-200">

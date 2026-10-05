@@ -1,9 +1,9 @@
 {
     "schema_version": 3,
-    "reviewed_on": "2026-10-01",
+    "reviewed_on": "2026-10-05",
     "cycle": {
         "id": "S26",
-        "title": "Academy revisada, história do Omaha e Agente ZT em um nível"
+        "title": "Brazilian Pineapple híbrido, filme da home e Academy revisada"
     },
     "production": {
         "certified": false,
@@ -78,7 +78,8 @@
                 "table_max": 9,
                 "max_players": 27,
                 "reentries": 1,
-                "freeroll": false
+                "freeroll": false,
+                "play_reentries": 0
             },
             {
                 "name": "Texas R$25",
@@ -88,7 +89,8 @@
                 "table_max": 9,
                 "max_players": 27,
                 "reentries": 1,
-                "freeroll": false
+                "freeroll": false,
+                "play_reentries": 1
             },
             {
                 "name": "Texas Hold’em Freeroll",
@@ -98,7 +100,8 @@
                 "table_max": 9,
                 "max_players": 27,
                 "reentries": 1,
-                "freeroll": true
+                "freeroll": true,
+                "play_reentries": 0
             },
             {
                 "name": "Omaha 4 Cartas",
@@ -108,7 +111,8 @@
                 "table_max": 6,
                 "max_players": 18,
                 "reentries": 1,
-                "freeroll": false
+                "freeroll": false,
+                "play_reentries": 0
             },
             {
                 "name": "Brazilian Pineapple",
@@ -118,7 +122,8 @@
                 "table_max": 6,
                 "max_players": 18,
                 "reentries": 1,
-                "freeroll": false
+                "freeroll": false,
+                "play_reentries": 0
             }
         ]
     },

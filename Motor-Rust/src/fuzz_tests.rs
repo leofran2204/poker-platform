@@ -259,6 +259,7 @@ proptest! {
             game_type: GameType::Cash,
         };
         let hh = HandHistory {
+            betting_rule_version: None,
             hand_id: hand_id.clone(),
             timestamp: 1700000000,
             table_config: config,

@@ -17,7 +17,9 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certif
 - [x] Unificar as dicas locais com a teoria revisada da Academy; retirar a cópia antiga com ranges contraditórios.
 - [x] Publicar S26 na demo em 01/10 e registrar evidências de migração, saúde e conteúdo servido em [QUALITY](QUALITY.md).
 - [ ] Auditar hand histories e settlements antigos quanto a wheel e equity Short Deck, sem alterar saldos automaticamente.
-- [ ] Conferir snapshot temporal do all-in, folds posteriores e equity de side pots com eventos reproduzíveis.
+- [x] Corrigir localmente o snapshot no pagamento do all-in, preservando os oponentes após folds posteriores; regressões temporais e de side pots aprovadas em 03/10. Evidência em [FULL_VALIDATION](FULL_VALIDATION.md); auditoria histórica continua pendente.
+- [x] Implementar e concluir localmente a validação focada do Pineapple híbrido: matriz cash sem lacunas, MTT até campeão, rede 5/20 mesas com Node Linux e reinício controlado. Orçamento de 15 minutos/dois trabalhadores respeitado. Resultados Pineapple anteriores continuam como evidência da regra antiga; esta entrega não é uma nova campanha integral de todas as modalidades. [Evidências](FULL_VALIDATION.md#resultado-consolidado-da-estrutura-híbrida).
+- [ ] Publicação do Pineapple híbrido autorizada em 05/10/2026; executar após os gates, sem mãos Pineapple abertas nem torneios Pineapple em andamento, e registrar a conferência pública.
 - [x] Regravar os 25 vídeos técnicos da grade atual; conferir os 28 vídeos de aula e o filme da home, com decodificação integral, cobertura das palavras da narração, legendas, capítulos, transcrições e vínculo com os cenários. Retirar mídias obsoletas da pasta pública.
 - [ ] Escuta editorial humana integral para avaliar prosódia, ritmo e pronúncia além das verificações automatizadas.
 - [ ] Expandir a grade atual conforme as 15 etapas do [currículo](CURSO_ESTRATEGIA_POKER.md), incluindo aplicações cash/MTT/ICM e análise avançada com modelos declarados.
@@ -28,7 +30,7 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certif
 | # | Parâmetro | Valor |
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
-| 2 | **Sprint atual** | S26 — Academy revisada, história do Omaha e Agente ZT em um nível |
+| 2 | **Sprint atual** | S26 — Brazilian Pineapple híbrido, filme da home e Academy revisada |
 | 3 | **Status** | 🟢 Demo/staging no ar; sem cert. produção |
 | 4 | **Cerimônias** | Planning + Review + Retrospectiva |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
@@ -219,6 +221,6 @@ Ambiente (WSL, Node, clippy): [`../AGENTS.md`](../AGENTS.md). Gates: [`QUALITY.m
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-05) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

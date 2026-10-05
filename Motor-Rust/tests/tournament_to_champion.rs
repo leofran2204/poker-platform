@@ -1,411 +1,267 @@
-//! Joga cada MTT Play Money até restar 1 campeão, mesa a mesa.
-//!
-//! Campo = `table_max * 3` (várias mesas lotadas) + 2 reservas **por mesa**.
-//! Rebuy: 1× até o nível 6. Depois do rebuy, reservas entram no lugar de quem quebra.
-//! Addon: tentado e esperado recusar (catálogo `allow_addon=false`).
-//! Relógio: 26 níveis × 5 min; o teste avança de nível a cada 20 órbitas
-//! (uma mão em cada mesa da órbita ≈ 15 s/mão ao vivo).
-//!
-//!   cargo test --test tournament_to_champion -- --nocapture
-
+//! Five live catalogue events, legal entries, chip/money ledgers and full replay.
+//! Reads the isolated migrated database snapshot, not stale duplicated constants.
+use poker_engine::deck::{create_deck, create_short_deck};
 use poker_engine::game_loop::{GameLoop, PlayerMove};
 use poker_engine::hand_history::GameType;
-use poker_engine::tournament_engine::{
-    advance_blinds, create_tournament, eliminate_player, finish_tournament, process_addon,
-    process_rebuy, register_player, start_tournament, BlindLevel, TournamentConfig,
-    TournamentSpeed,
-};
+use poker_engine::tournament_engine::*;
 use poker_engine::types::{PokerVariant, TableConfig};
-use std::collections::{HashMap, HashSet};
-use std::time::Instant;
+use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
+use serde_json::{json, Value};
+use std::collections::BTreeMap;
+use std::fs::{self, File};
+use std::io::Write;
+use std::path::PathBuf;
 
-const HANDS_PER_LEVEL: u32 = 20;
-const WAITERS_PER_TABLE: usize = 2;
-const TABLES_IN_FIELD: usize = 3;
-
-fn bba_levels() -> Vec<BlindLevel> {
-    let bbs = [
-        50u64, 100, 150, 200, 300, 400, 600, 800, 1000, 1200, 1600, 2000, 2400, 3000, 4000, 5000,
-        6000, 8000, 10000, 12000, 16000, 20000, 24000, 30000, 40000, 50000,
-    ];
-    bbs.iter()
-        .enumerate()
-        .map(|(i, &bb)| BlindLevel {
-            level: (i + 1) as u32,
-            small_blind: if i == 0 { 50 } else { bb / 2 },
-            big_blind: bb,
-            ante: bb,
-            duration_minutes: 5,
-        })
-        .collect()
+fn emit(out: &mut File, value: Value) {
+    writeln!(out, "{value}").unwrap();
+    out.flush().unwrap();
 }
-
-struct MttSpec {
-    name: &'static str,
-    variant: PokerVariant,
-    table_max: usize,
-    buy_in: u64,
-    starting_stack: u64,
-    gtd: u64,
-    rebuy_cost: u64,
-    rebuy_chips: u64,
-    is_freeroll: bool,
-    final_table_variant: Option<PokerVariant>,
-    final_table_max: usize,
-}
-
-const SPECS: &[MttSpec] = &[
-    MttSpec {
-        name: "Texas Hold’em — Torneio",
-        variant: PokerVariant::Holdem,
-        table_max: 9,
-        buy_in: 1500,
-        starting_stack: 10_000,
-        gtd: 15_000,
-        rebuy_cost: 1500,
-        rebuy_chips: 15_000,
-        is_freeroll: false,
-        final_table_variant: None,
-        final_table_max: 9,
-    },
-    MttSpec {
-        name: "Texas Hold’em — Torneio Freeroll",
-        variant: PokerVariant::Holdem,
-        table_max: 9,
-        buy_in: 0,
-        starting_stack: 5_000,
-        gtd: 7_500,
-        rebuy_cost: 1000,
-        rebuy_chips: 10_000,
-        is_freeroll: true,
-        final_table_variant: None,
-        final_table_max: 9,
-    },
-    MttSpec {
-        name: "Omaha 4 Cartas — Torneio",
-        variant: PokerVariant::Omaha,
-        table_max: 6,
-        buy_in: 1000,
-        starting_stack: 10_000,
-        gtd: 10_000,
-        rebuy_cost: 2000,
-        rebuy_chips: 20_000,
-        is_freeroll: false,
-        final_table_variant: None,
-        final_table_max: 6,
-    },
-    MttSpec {
-        name: "Brazilian Pineapple — Torneio",
-        variant: PokerVariant::BrazilianPineapple,
-        table_max: 5,
-        buy_in: 1000,
-        starting_stack: 10_000,
-        gtd: 10_000,
-        rebuy_cost: 2000,
-        rebuy_chips: 20_000,
-        is_freeroll: false,
-        final_table_variant: None,
-        final_table_max: 5,
-    },
-];
-
-fn auto_play(gl: &mut GameLoop, big_blind: u64, starting_stack: u64) {
-    let mut steps = 0u32;
-    while !gl.state.is_finished && steps < 3_000 {
-        steps += 1;
-        let Some(active) = gl.state.active_player().map(|p| p.id.clone()) else {
-            break;
-        };
-        let to_call = {
-            let p = gl.state.players.iter().find(|p| p.id == active).expect("p");
-            gl.state.current_bet_to_match.saturating_sub(p.current_bet)
-        };
-        let roll = steps.wrapping_mul(41).wrapping_add(active.len() as u32) % 100;
-        let late = big_blind >= starting_stack / 4;
-        let mv = if to_call == 0 {
-            if roll > 90 {
-                PlayerMove::Raise(big_blind.max(1) * 2)
-            } else {
-                PlayerMove::Check
-            }
-        } else if late && roll < 32 {
-            PlayerMove::AllIn
-        } else if roll < 16 {
-            PlayerMove::Fold
-        } else if roll > 96 {
-            PlayerMove::AllIn
-        } else {
-            PlayerMove::Call
-        };
-        if gl.player_action(&active, mv).is_err() {
-            let fb = if to_call == 0 {
-                PlayerMove::Check
-            } else {
-                PlayerMove::Call
-            };
-            if gl.player_action(&active, fb).is_err() {
-                let _ = gl.player_action(&active, PlayerMove::Fold);
-            }
-        }
-    }
-}
-
-fn seat_tables(alive: &[(String, u64)], table_max: usize) -> Vec<Vec<(String, u64)>> {
-    let n = alive.len();
-    if n < 2 {
-        return Vec::new();
-    }
-    let mut n_tables = n.div_ceil(table_max).max(1);
-    while n_tables > 1 && n / n_tables < 2 {
-        n_tables -= 1;
-    }
-    let mut tables = vec![Vec::new(); n_tables];
-    for (i, player) in alive.iter().cloned().enumerate() {
-        tables[i % n_tables].push(player);
-    }
-    tables.retain(|table| table.len() >= 2);
-    for table in &mut tables {
-        if table.len() > table_max {
-            table.truncate(table_max);
-        }
-    }
-    tables
-}
-
-fn play_one_hand(
-    spec: &MttSpec,
-    variant: PokerVariant,
-    seated: &[(String, u64)],
-    blinds: &BlindLevel,
-    hand_id: u32,
-) -> Option<HashMap<String, u64>> {
-    if seated.len() < 2 {
-        return None;
-    }
-    let mut gl = GameLoop::new(
-        TableConfig::new(blinds.big_blind, 0, 0)
-            .with_small_blind(blinds.small_blind)
-            .with_poker_variant(variant),
-        format!("{}-{hand_id}", spec.name),
-        spec.name.to_string(),
-        GameType::Tournament,
-    )
-    .with_ante(blinds.ante)
-    .with_skip_loss_deflator(true);
-    for (id, stack) in seated {
-        gl.add_player(id.clone(), *stack);
-    }
-    gl.set_dealer((hand_id as usize) % seated.len());
-    if gl.start_hand().is_err() {
-        return None;
-    }
-    auto_play(&mut gl, blinds.big_blind, spec.starting_stack);
-    if !gl.state.is_finished {
-        return None;
-    }
-    let res = gl.resolve_hand().ok()?;
-    let mut next = HashMap::new();
-    for p in &gl.state.players {
-        let pay = res.payouts.get(&p.id).copied().unwrap_or(0);
-        next.insert(p.id.clone(), p.stack + pay);
-    }
-    Some(next)
-}
-
-fn run_spec(spec: &MttSpec) {
-    let field = spec.table_max * TABLES_IN_FIELD;
-    let waiter_count = WAITERS_PER_TABLE * TABLES_IN_FIELD;
-    let cfg = TournamentConfig {
-        name: spec.name.to_string(),
-        game_type: spec.variant.as_str().to_string(),
-        buy_in: spec.buy_in,
-        starting_stack: spec.starting_stack,
-        max_players: (field + waiter_count) as u32,
-        speed: TournamentSpeed::Normal,
-        blind_levels: bba_levels(),
-        prize_pool_pct: 1.0,
-        prize_distribution: vec![0.50, 0.30, 0.20],
-        late_registration: true,
-        // Catálogo vivo fecha late-reg no nível 4; neste teste as reservas entram
-        // depois do rebuy (nível 6), como pedido da simulação.
-        late_registration_max_level: 26,
-        allow_rebuy: true,
-        allow_addon: false,
-        rebuy_max_level: 6,
-        guaranteed_prize: spec.gtd,
-        is_freeroll: spec.is_freeroll,
-        rebuy_cost: spec.rebuy_cost,
-        rebuy_chips: spec.rebuy_chips,
-        rebuy_max_count: 1,
-        rebuy_stack_threshold: 0,
+#[test]
+#[ignore = "authorized campaign with isolated migrated catalogue"]
+fn catalog_mtts_to_champion() {
+    assert_eq!(
+        std::env::var("FULL_VALIDATION_APPROVED").as_deref(),
+        Ok("1")
+    );
+    let dir = PathBuf::from(std::env::var("FULL_VALIDATION_REPORT_DIR").unwrap());
+    let detail: Value =
+        serde_json::from_slice(&fs::read(dir.join("catalog-db.json")).unwrap()).unwrap();
+    let index: usize = std::env::var("FULL_VALIDATION_MTT_INDEX")
+        .unwrap()
+        .parse()
+        .unwrap();
+    let row = &detail["mtt"][index];
+    let u = |key: &str| row[key].as_u64().unwrap();
+    let variant = match row["poker_variant"].as_str().unwrap() {
+        "holdem" => PokerVariant::Holdem,
+        "omaha" => PokerVariant::Omaha,
+        "brazilian_pineapple" => PokerVariant::BrazilianPineapple,
+        _ => panic!("catalog variant"),
     };
-
-    let mut state = create_tournament(cfg);
+    let cap = u("table_max_players") as usize;
+    let field = u("max_players") as usize;
+    let cfg = TournamentConfig {
+        name: row["name"].as_str().unwrap().into(),
+        game_type: variant.as_str().into(),
+        buy_in: u("buy_in"),
+        starting_stack: u("starting_stack"),
+        max_players: field as u32,
+        blind_levels: serde_json::from_value(row["blind_levels"].clone()).unwrap(),
+        late_registration: row["late_registration"].as_bool().unwrap(),
+        late_registration_max_level: u("late_reg_max_level") as u32,
+        allow_rebuy: row["allow_rebuy"].as_bool().unwrap(),
+        rebuy_max_level: u("rebuy_max_level") as u32,
+        guaranteed_prize: u("guaranteed_prize"),
+        is_freeroll: row["is_freeroll"].as_bool().unwrap(),
+        rebuy_cost: u("rebuy_cost"),
+        rebuy_chips: u("rebuy_chips"),
+        rebuy_max_count: u("rebuy_max_count") as u32,
+        rebuy_stack_threshold: u("rebuy_stack_threshold"),
+        ..Default::default()
+    };
+    let mut trace = File::create(dir.join(format!("mtt-{index}-events.jsonl"))).unwrap();
+    emit(
+        &mut trace,
+        json!({"event":"catalog","row":row,"units":{"stack":"tournament_chips","prize":"cents"}}),
+    );
+    let mut cancelled = create_tournament(cfg.clone());
+    register_player(&mut cancelled, "cancel", "Cancel").unwrap();
+    assert_eq!(
+        unregister_player(&mut cancelled, "cancel").unwrap(),
+        cfg.buy_in + entry_fee_cents(cfg.buy_in)
+    );
+    assert_eq!(cancelled.total_buyins, 0);
+    cancel_tournament(&mut cancelled).unwrap();
+    assert_eq!(cancelled.status, TournamentStatus::Cancelled);
+    let mut state = create_tournament(cfg.clone());
+    let mut stacks = BTreeMap::new();
     for i in 0..field {
-        register_player(&mut state, &format!("p{i}"), &format!("Jogador {i}"))
-            .expect("register field");
+        let id = format!("p{i:02}");
+        register_player(&mut state, &id, &id).unwrap();
+        stacks.insert(id, cfg.starting_stack);
     }
-    let waiter_ids: Vec<String> = (0..waiter_count).map(|i| format!("w{i}")).collect();
-    start_tournament(&mut state).expect("start");
-    assert_eq!(state.current_level, 1);
-
-    let addon_try = process_addon(
-        &mut state,
-        "p0",
-        spec.starting_stack / 2,
-        spec.buy_in.max(1),
-    );
-    assert!(
-        addon_try.is_err(),
-        "{} addon deveria falhar no catálogo: {addon_try:?}",
-        spec.name
-    );
-
-    let mut stacks: HashMap<String, u64> = (0..field)
-        .map(|i| (format!("p{i}"), spec.starting_stack))
-        .collect();
-    let mut out: HashSet<String> = HashSet::new();
-    let mut waiter_idx = 0usize;
-    let mut replacements = 0u32;
-    let mut rebuys = 0u32;
-    let mut orbits = 0u32;
-    let mut hands = 0u32;
-    let t0 = Instant::now();
-
-    while stacks.values().filter(|s| **s > 0).count() >= 2 && orbits < 2_000 {
-        let alive: Vec<(String, u64)> = stacks
-            .iter()
-            .filter(|(_, s)| **s > 0)
-            .map(|(id, s)| (id.clone(), *s))
-            .collect();
-        if alive.len() < 2 {
-            break;
+    assert!(register_player(&mut state, "overflow", "overflow").is_err());
+    start_tournament(&mut state).unwrap();
+    assert!(unregister_player(&mut state, "p00").is_err());
+    assert!(process_addon(&mut state, "p00", 100, 100).is_err());
+    let mut tables = vec![Vec::<String>::new(); 3];
+    for (i, t, _) in assign_initial_tables(field, cap as u32) {
+        tables[t as usize].push(format!("p{i:02}"));
+    }
+    let mut chip_supply = field as u64 * cfg.starting_stack;
+    let mut reentries = 0;
+    let mut moves = 0;
+    let mut hands = 0u64;
+    let mut orbit = 0;
+    while stacks.values().filter(|s| **s > 0).count() > 1 {
+        orbit += 1;
+        assert!(orbit < 2000, "MTT did not reach champion");
+        for table in &mut tables {
+            table.retain(|id| stacks[id] > 0);
         }
-
-        let switched = spec.final_table_variant.is_some() && alive.len() <= spec.final_table_max;
-        let variant = if switched {
-            spec.final_table_variant.unwrap()
+        let alive = stacks.values().filter(|s| **s > 0).count();
+        if should_consolidate(alive as u32, cap as u32) {
+            let merged: Vec<_> = tables.iter().flatten().cloned().collect();
+            if tables.iter().skip(1).any(|t| !t.is_empty()) {
+                moves += 1;
+            }
+            tables = vec![merged, vec![], vec![]];
         } else {
-            spec.variant
-        };
-        let table_max = if switched {
-            spec.final_table_max
-        } else {
-            spec.table_max
-        };
-
-        let blinds = state
-            .config
-            .blind_levels
-            .get((state.current_level.saturating_sub(1)) as usize)
-            .cloned()
-            .unwrap_or_else(|| state.config.blind_levels.last().unwrap().clone());
-
-        let tables = seat_tables(&alive, table_max);
-        if tables.is_empty() {
-            break;
+            while let Some((from, to)) =
+                rebalance_move(&tables.iter().map(|t| t.len() as u32).collect::<Vec<_>>())
+            {
+                let id = tables[from].pop().unwrap();
+                emit(
+                    &mut trace,
+                    json!({"event":"move","player":id,"from":from,"to":to}),
+                );
+                tables[to].push(id);
+                moves += 1;
+            }
         }
-        for seated in tables {
+        let blinds = get_current_blinds(&state).unwrap().clone();
+        for (table_idx, seats) in tables.iter().enumerate().filter(|(_, s)| s.len() >= 2) {
+            assert!(seats.len() <= cap);
             hands += 1;
-            if let Some(next) = play_one_hand(spec, variant, &seated, &blinds, hands) {
-                for (id, stack) in next {
-                    stacks.insert(id.clone(), stack);
-                    if let Some(entry) = state.players.get_mut(&id) {
-                        entry.stack = stack;
-                    }
-                }
+            let seed = 0x261001 + index as u64 * 100000 + hands;
+            let mut rng = StdRng::seed_from_u64(seed);
+            let mut deck = if variant.uses_short_deck() {
+                create_short_deck()
+            } else {
+                create_deck()
+            };
+            deck.shuffle(&mut rng);
+            let initial: u64 = seats.iter().map(|id| stacks[id]).sum();
+            let mut game = GameLoop::new(
+                TableConfig::new(blinds.big_blind, 0, 0)
+                    .with_small_blind(blinds.small_blind)
+                    .with_poker_variant(variant),
+                format!("mtt-{index}-{hands}"),
+                cfg.name.clone(),
+                GameType::Tournament,
+            )
+            .with_ante(blinds.ante)
+            .with_skip_loss_deflator(true);
+            for id in seats {
+                game.add_player(id.clone(), stacks[id]);
             }
-        }
-
-        let busted: Vec<String> = stacks
-            .iter()
-            .filter(|(id, s)| **s == 0 && !out.contains(*id))
-            .map(|(id, _)| id.clone())
-            .collect();
-        for id in busted {
-            out.insert(id.clone());
-            let _ = eliminate_player(&mut state, &id, None);
-            if state.current_level <= state.config.rebuy_max_level {
-                if let Ok(()) = process_rebuy(&mut state, &id) {
-                    stacks.insert(id.clone(), spec.rebuy_chips);
-                    out.remove(&id);
-                    rebuys += 1;
-                }
-            } else if waiter_idx < waiter_ids.len() {
-                let wid = waiter_ids[waiter_idx].clone();
-                waiter_idx += 1;
-                if let Ok(()) = register_player(&mut state, &wid, &format!("Reserva {wid}")) {
-                    stacks.insert(wid, spec.starting_stack);
-                    replacements += 1;
-                }
+            let dealer = hands as usize % seats.len();
+            game.set_dealer(dealer);
+            emit(
+                &mut trace,
+                json!({"event":"hand","hand":hands,"seed":seed,"table":table_idx,
+                "dealer":dealer,"deck":deck,"blinds":blinds,"seats":seats,
+                "stacks":seats.iter().map(|id|(id,stacks[id])).collect::<BTreeMap<_,_>>()}),
+            );
+            game.start_hand_with_deck(deck).unwrap();
+            let mut steps = 0;
+            while !game.state.is_finished {
+                steps += 1;
+                assert!(steps < 500);
+                let p = game.state.active_player().unwrap();
+                let id = p.id.clone();
+                let call = game
+                    .state
+                    .current_bet_to_match
+                    .saturating_sub(p.current_bet);
+                let action = if hands.is_multiple_of(3) && (game.can_raise(&id) || p.stack <= call)
+                {
+                    PlayerMove::AllIn
+                } else if call > 0 {
+                    PlayerMove::Call
+                } else {
+                    PlayerMove::Check
+                };
+                let action = game.legal_actions(&id).constrain_move(action);
+                emit(
+                    &mut trace,
+                    json!({"event":"action","hand":hands,"player":id,"move":format!("{action:?}")}),
+                );
+                game.player_action(&id, action).unwrap();
             }
-        }
-
-        orbits += 1;
-        if orbits.is_multiple_of(HANDS_PER_LEVEL) {
-            let _ = advance_blinds(&mut state);
-        }
-        if orbits.is_multiple_of(50) {
-            eprintln!(
-                "[{}] orbit={orbits} hands={hands} alive={} level={} rebuys={rebuys} waiters_in={replacements}",
-                spec.name,
-                stacks.values().filter(|s| **s > 0).count(),
-                state.current_level
+            let result = game.resolve_hand().unwrap();
+            assert_eq!(result.rake, 0);
+            for p in &game.state.players {
+                stacks.insert(
+                    p.id.clone(),
+                    p.stack + result.payouts.get(&p.id).copied().unwrap_or(0),
+                );
+            }
+            assert_eq!(
+                seats.iter().map(|id| stacks[id]).sum::<u64>(),
+                initial,
+                "tournament chips lost"
+            );
+            emit(
+                &mut trace,
+                json!({"event":"settlement","hand":hands,"payouts":result.payouts,"pots":result.pots}),
             );
         }
-    }
-
-    let remaining: Vec<(String, u64)> = stacks.into_iter().filter(|(_, s)| *s > 0).collect();
-    assert_eq!(
-        remaining.len(),
-        1,
-        "{} deveria ter 1 campeão, restaram {} (orbits={orbits} hands={hands} level={})",
-        spec.name,
-        remaining.len(),
-        state.current_level
-    );
-    if let Some((champ_id, champ_stack)) = remaining.first() {
-        if let Some(entry) = state.players.get_mut(champ_id) {
-            entry.stack = *champ_stack;
+        let busted: Vec<_> = stacks
+            .iter()
+            .filter(|(id, s)| **s == 0 && state.players[*id].eliminated_at.is_none())
+            .map(|(id, _)| id.clone())
+            .collect();
+        // Equal-stack simultaneous busts: deterministic seat/id tie-break in the
+        // harness; production coordinator tie-break remains separately audited.
+        for id in busted {
+            eliminate_player(&mut state, &id, None).unwrap();
+            if state.current_level <= cfg.rebuy_max_level
+                && state.players[&id].rebuys < cfg.rebuy_max_count
+            {
+                process_rebuy(&mut state, &id).unwrap();
+                stacks.insert(id.clone(), state.players[&id].stack);
+                chip_supply += state.players[&id].stack;
+                reentries += 1;
+                assert!(
+                    process_rebuy(&mut state, &id).is_err(),
+                    "more than catalogue reentry limit"
+                );
+                if !tables.iter().any(|t| t.contains(&id)) {
+                    let t = tables.iter().position(|t| t.len() < cap).unwrap();
+                    tables[t].push(id.clone());
+                }
+                emit(
+                    &mut trace,
+                    json!({"event":"reentry","player":id,"chips":state.players[&id].stack}),
+                );
+            } else {
+                emit(&mut trace, json!({"event":"elimination","player":id}));
+            }
         }
+        for (id, stack) in &stacks {
+            state.players.get_mut(id).unwrap().stack = *stack;
+        }
+        assert_eq!(stacks.values().sum::<u64>(), chip_supply);
+        if orbit % 4 == 0 && state.current_level < (cfg.blind_levels.len() as u32) {
+            advance_blinds(&mut state).unwrap();
+            emit(
+                &mut trace,
+                json!({"event":"blind_level","level":state.current_level}),
+            );
+        }
+        fs::write(dir.join(format!("mtt-{index}-progress.json")),json!({"hands":hands,
+            "players_remaining":state.players_remaining,"level":state.current_level,"reentries":reentries,
+            "moves":moves,"chip_supply":chip_supply}).to_string()).unwrap();
     }
-
-    let clock_min = u64::from(state.current_level.max(1)) * 5;
-    let wall = t0.elapsed();
-    let itm_2 = state.eliminated_order.iter().next_back().cloned();
-    let itm_3 = state.eliminated_order.iter().rev().nth(1).cloned();
-    let result = finish_tournament(&mut state);
-    println!(
-        "[{}] champion={:?} stack={} hands={hands} orbits={orbits} rebuys={rebuys} waiters_in={replacements}/{} level={} clock≈{clock_min}min wall={wall:?} itm2={:?} itm3={:?} finish={:?}",
-        spec.name,
-        remaining.first().map(|(id, _)| id.clone()),
-        remaining.first().map(|(_, s)| *s).unwrap_or(0),
-        waiter_count,
-        state.current_level,
-        itm_2,
-        itm_3,
-        result.as_ref().map(|r| (
-            r.winners.first().map(|w| w.player_id.clone()),
-            r.winners.len(),
-            r.total_prize_pool,
-            r.duration_seconds
-        ))
-    );
-    let Ok(res) = result else {
-        panic!("{} finish: {result:?}", spec.name);
-    };
-    assert!(!res.winners.is_empty(), "{} sem premiados", spec.name);
-    assert!(res.total_prize_pool >= spec.gtd, "{} GTD", spec.name);
+    let result = finish_tournament(&mut state).unwrap();
+    fs::write(dir.join(format!("mtt-{index}.json")),serde_json::to_vec_pretty(&json!({
+        "result":result,"hands":hands,"reentries":reentries,"moves":moves,
+        "chip_supply":chip_supply,"awarded_cents":result.winners.iter().map(|w|w.prize).sum::<u64>(),
+        "elimination_order":state.eliminated_order})).unwrap()).unwrap();
     assert_eq!(
-        res.winners[0].player_id, remaining[0].0,
-        "{} campeão diverge do finish",
-        spec.name
+        result.winners[0].player_id,
+        *stacks.iter().find(|(_, s)| **s > 0).unwrap().0
     );
-}
-
-#[test]
-fn play_money_mtts_run_to_a_champion() {
-    for spec in SPECS {
-        run_spec(spec);
-    }
+    assert!(reentries > 0, "reentry not covered");
+    assert!(moves > 0, "table movement not covered");
+    assert_eq!(
+        result.winners.iter().map(|w| w.prize).sum::<u64>(),
+        result.total_prize_pool,
+        "unawarded prize money: eliminated paid places must receive their prizes"
+    );
+    assert_eq!(
+        result.total_prize_pool,
+        (state.total_buyins + state.total_rebuys).max(cfg.guaranteed_prize)
+    );
 }

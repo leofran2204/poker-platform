@@ -38,18 +38,24 @@ Regravação a partir do conteúdo canônico e das dependências de `ZeroTiltCur
 ```powershell
 & 'C:\Users\leofr\AppData\Local\hermes\hermes-agent\venv\Scripts\python.exe' ZeroTiltCurso/editorial/render.py --academy all
 # Ou uma aula: --academy m5l4
+# Filme de entrada da home e da Academy (regra híbrida, até oito minutos):
+& 'C:\Users\leofr\AppData\Local\hermes\hermes-agent\venv\Scripts\python.exe' ZeroTiltCurso/editorial/render.py --episode pineapple
 ```
 
-O comando publica os arquivos somente no checkout local. Reutiliza cache de narração validado, confere a sequência completa de palavras, gera legendas/capítulos/transcrição e compara o hash da aula antes de atualizar o JSON. Um fluxo de voz truncado é repetido; após quatro falhas, o lote para. `courseAudit.test.ts` rejeita vídeo técnico ausente ou com hash diferente do texto, quiz, fontes ou cenários. Alterações exigem regravar as aulas afetadas antes do gate final.
+O comando publica os arquivos somente no checkout local. Reutiliza cache de narração validado, confere a sequência completa de palavras, gera legendas/capítulos/transcrição e compara o hash da aula antes de atualizar o JSON. Um fluxo de voz truncado é repetido; após quatro falhas, o lote para. `courseAudit.test.ts` rejeita vídeo técnico anunciado como atual com hash diferente do texto, quiz, fontes ou cenários. Material mantido da regra anterior exige `prior_rules`, aviso na aula e `sourceSnapshot` auditável no manifesto; seus arquivos e hashes originais continuam verificados. Regravar a aula permite voltar a anunciá-la como atual.
 
 Validação audiovisual independente:
 
 ```powershell
 & 'C:\Users\leofr\AppData\Local\hermes\hermes-agent\venv\Scripts\python.exe' ZeroTiltCurso/editorial/render.py --check
 # Acrescentar --decode para decodificar integralmente todos os MP4.
+# Para decodificar somente o filme novo, sem repetir os 29 anteriores:
+& 'C:\Users\leofr\AppData\Local\hermes\hermes-agent\venv\Scripts\python.exe' ZeroTiltCurso/editorial/render.py --check --decode --only pineapple
 ```
 
 O verificador exige todos os vídeos ativos, confere hashes, duração, capítulos, poster 1280×720, limites temporais de cada legenda e correspondência completa entre VTT e transcrição. A decodificação adicional verifica os fluxos de áudio/vídeo e produz evidência em `artifacts/academy-audit/media.json`. Interrupção de rede não invalida vídeos já concluídos: repetir `--academy all` retoma as aulas ainda pendentes ou alteradas.
+
+O filme `pineapple` usa cenas próprias em `episodes.json` e desenho em `pineapple.py`; reutiliza a voz/cache de `render.py`. A renderização recusa duração superior a 480 segundos e cue visual sem palavra correspondente na narração. Produz capítulos HTML e nativos no MP4, hashes do roteiro/MP4/VTT/capa/transcrição e `pineappleFilm.json`, compartilhado pela home/Academy. O modo `--only pineapple` grava `media-pineapple.json` e preserva o relatório completo. Arquivos novos de legenda/transcrição têm LF fixo para manter seus hashes em Windows/Linux.
 
 ## Canônicos (usar)
 
@@ -60,7 +66,9 @@ O verificador exige todos os vídeos ativos, confere hashes, duração, capítul
 | `live-e2e-real-catalog.mjs` | Variante com Mail.tm + crédito admin opcional (`ADMIN_TOKEN`) |
 | `live-sim-full-ritual.mjs` | Ritual Play Money: 1 jogador/e-mail por assento + 2 reservas/mesa; `HANDS_PER_TABLE` (default 2000); Mail.tm (`ALLOW_TEMP_MAIL=true`) |
 | `clear-zombie-play-seats.sql` | Ops: cash-out de assentos Play Money `ACTIVE` órfãos (fallback; o actor S20f faz isso sozinho) |
-| `full-validation.ps1` / `.sh` | Lote de validação autorizada (motor/API/gateway) |
+| `full-validation.ps1` / `.sh` / `.py` | Campanha isolada por situações, até 60 minutos após compilação e dois trabalhadores; método/resultado em Documentacao/FULL_VALIDATION.md |
+| `full-validation-network.mjs` | Cliente interno HTTPS/WSS local; não usar contra a demo |
+| `test_full_validation.py` | Contratos do executor: contagem, interrupção e isolamento; sem carga de poker |
 | `deploy.ps1` / `deploy.sh` | Deploy assistido |
 | `verify-public-https.sh` | Checagem HTTPS/Caddy público |
 | `vps-redeploy-frontend.sh` | Redeploy na VPS (`REBUILD_API=1` para API+migration); exige fast-forward, containers saudáveis e API por HTTPS |
@@ -77,17 +85,14 @@ O verificador exige todos os vídeos ativos, confere hashes, duração, capítul
 
 | Teste | Uso |
 |-------|-----|
-| `Motor-Rust/tests/cash_catalog_10k_hands.rs` | 10k mãos × NLHE / Omaha 4 / Brazilian Pineapple |
-| `Motor-Rust/tests/tournament_to_champion.rs` | MTT Play Money até 1 campeão (HE, Freeroll Long→SD, Omaha, Pineapple); 1 rebuy; reservas após nível 6 |
+| `Motor-Rust/tests/cash_catalog_10k_hands.rs` | Nome preservado; cinco configurações, lotes de 1.000, parada por cobertura/teto e replay; acionado pelo executor |
+| `Motor-Rust/tests/tournament_to_champion.rs` | Cinco eventos do banco isolado, fichas e premiação separadas; sem reservas fora da late registration |
 | `Motor-Rust/tests/short_deck_massive.rs` | Regras SD + 1M evals + 100k mãos 6-max |
 | `cargo test --features massive-tests …` | Fuzz/fairness/stress gated |
 
-Exemplo Docker (Windows sem toolchain GNU):
+A campanha atual é acionada por ./scripts/full-validation.ps1 -Approved no Windows (WSL Ubuntu) ou FULL_VALIDATION_APPROVED=1 bash scripts/full-validation.sh all no Linux. Os testes de lotes são ignorados na rotina e exigem variáveis/artefatos preparados pelo executor.
 
-```bash
-docker run --rm -v "$PWD":/app -w /app/Motor-Rust rust:1.97.0-bookworm \
-  cargo test --test cash_catalog_10k_hands -- --nocapture
-```
+**Resultado atual:** campanha ainda incompleta. A nova autorização de 03/10 comprovou 25.000 mãos cash, cinco MTTs/309 mãos, equity, 21 contratos de banco/Redis, atores 1/5/20 e HTTPS/WSS de uma mesa. Pendentes última fixture Pineapple, rede de cinco/vinte mesas e reinício. O cliente agora exige Node Linux no PATH ou em `artifacts/full-validation/runtime/node`: Windows→WSL agrupava os IPs e atingia o rate limit. A última tentativa expirou por deadline após discrepância de relógios; nova carga exige novo orçamento autorizado. [Método, evidências e reprodução](../Documentacao/FULL_VALIDATION.md). Os scripts históricos de demo listados acima não fazem parte desta campanha local.
 
 ## Seeded catalog e2e
 
@@ -108,3 +113,9 @@ Os scripts `.mjs` que usam WebSocket resolvem `ws` em `scripts/node_modules/` (d
 
 `install-depix-local-secrets.ps1` solicita a chave `sk_test_` e o webhook secret sem ecoá-los, valida a chave em `https://api.depixapp.com/api/me` e grava somente em `Infraestrutura-Docker/.env`, ignorado pelo Git. Use `-AllowedDepositorId <UUID>` para limitar quem pode criar/simular cobranças. Não use esse instalador na VPS pública.
 `install-depix-vps-live-secrets.ps1` valida `sk_live_` em `/api/me` (conta verificada). Escopos `merchant_read`/`merchant_write` e aprovação da API são confirmações explícitas. Allow-list de UUIDs é **opcional**: omitida, todo usuário logado gera PIX (o cadastro por convite é o portão). Use primeiro sem `-Apply`. A instalação na VPS exige `-ConfirmProviderApproval -ConfirmRegulatoryAuthorization -Apply`. Segredos nunca vão por pipe/chat.
+
+### Perfil focado Pineapple híbrido
+
+`scripts/full-validation.ps1 -Phase pineapple -Minutes 15 -Approved` executa a campanha local autorizada com dois trabalhadores, banco/rede exclusivos e deadline de 15 minutos após compilação. Equivalente WSL: `FULL_VALIDATION_APPROVED=1 FULL_VALIDATION_MINUTES=15 bash scripts/full-validation.sh pineapple`. Abrange fixtures, cash/MTT Pineapple, contrato motor/atores/WS, HTTPS/WSS 5/20 mesas e reinício. Resultados e lacunas pertencem a [FULL_VALIDATION.md](../Documentacao/FULL_VALIDATION.md). Não reutilizar resultados Pineapple antigos como evidência da regra híbrida.
+
+O perfil `pineapple-cash` permite complementar somente as fixtures e o lote cash, sem repetir MTT/rede. Cada continuação deve receber teto reduzido conforme o orçamento restante; um resultado parcial não substitui as evidências das outras camadas.

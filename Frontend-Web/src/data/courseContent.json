@@ -1,5 +1,5 @@
 {
-  "version": 7,
+  "version": 8,
   "modules": [
     {
       "id": "fundamentos",
@@ -638,7 +638,7 @@
           "title": "Brazilian Pineapple: 2 cartas e +1 por street",
           "minutes": 8,
           "video": {
-            "publicationStatus": "published",
+            "publicationStatus": "prior_rules",
             "url": "/videos/zt-academy-m5l3-v3.mp4",
             "captionsUrl": "/videos/zt-academy-m5l3-v3.vtt",
             "posterUrl": "/videos/zt-academy-m5l3-v3.webp",
@@ -711,7 +711,8 @@
               }
             ],
             "contentHash": "e5ec7715a31257544e4bb6aef637ab024254878110dff7c97c296ec99d95e3e0",
-            "rendererVersion": 3
+            "rendererVersion": 3,
+            "bettingRuleVersion": "legacy_no_limit"
           },
           "handExample": {
             "title": "Carta extra no flop vira trinca",
@@ -732,7 +733,7 @@
             "heroDecision": "Forme A-A-A-Q-2 com Ad Ac e Ah Qc 2s. O rei privado fica fora.",
             "keyTakeaway": "Você não começa com 3 cartas. A terceira chega depois do flop."
           },
-          "body": "## Modalidade exclusiva da ZT\nO Brazilian Pineapple estudado aqui é o da Zero Tilt Poker. Use as regras locais; materiais sobre Pineapple de três cartas com descarte descrevem outro jogo.\n\n## Distribuição completa\nBaralho de 52 cartas, mesa até seis jogadores. Receba duas privadas no pré-flop. Depois de abrir cada street — flop, turn e river — chega mais uma carta privada a cada participante ainda na mão, inclusive all-in. Quem desistiu não recebe. Não há descarte: são três privadas no flop, quatro no turn e cinco no river.\n\n## Formação e ranking\nEscolha exatamente duas privadas e três comunitárias. O ranking é clássico: sequência supera trinca; full house supera flush. A-2-3-4-5 é a sequência baixa. Nunca use três privadas para completar uma combinação ou seu kicker.\n\n## Exemplo passo a passo\nVocê começou com As Ks. Flop Ad Qc 2s; recebeu Ah. Os pares privados candidatos são As-Ks, As-Ah e Ks-Ah. Como existem só três comunitárias, todas precisam entrar. A melhor escolha é As-Ah com Ad-Qc-2s: A-A-A-Q-2. O rei fica fora. No turn, outras combinações passam a ser possíveis e a análise deve ser refeita.\n\n## Exercício de recuperação\nSem consultar o texto, descreva a sequência 2→3→4→5 e explique por que o all-in ainda recebe cartas. Depois conte os pares privados possíveis no flop: são três. A próxima aula mostra como isso se transforma em uma base matemática.\n\n## Aprofundamento aplicado\n### O momento da carta extra\nA ordem importa: a street abre e então cada jogador ainda na mão recebe sua nova privada. No início do flop, avalie as três privadas e as três comunitárias que realmente estão disponíveis. Não use uma futura carta do turn na decisão anterior. Se você desistir, para de receber extras; se ficar all-in, continua recebendo enquanto disputar a mão. O simulador conserva essa diferença e o replay mostra o crescimento da mão privada.\n\n### Compare com o Texas\nNo Hold’em, um ás privado pode combinar com quatro copas da mesa para formar flush. No Brazilian Pineapple, um único ás de copas não basta: a combinação precisa de duas privadas. Ter cinco privadas ao final amplia as escolhas, mas não autoriza usar três, quatro ou cinco delas no showdown. A pergunta correta é qual par privado combina melhor com qual trio do board.\n\n### Planeje a revisão por street\nSepare três registros: mão feita agora, possibilidades condicionais de melhorar e custo para continuar. Uma extra pode melhorar sua seleção; também pode não mudar nada. Os rivais recebem cartas e podem mudar de força ao mesmo tempo. Por isso não reutilizamos charts de Pineapple com descarte nem porcentagens de Hold’em como se fossem resultados medidos desta modalidade.\n\n## Laboratório: Duas, três, quatro, cinco privadas\nObjetivo: Acompanhar cada extra sem descartar cartas. Abra a mesa deste módulo e comece pelo treino guiado. Cada participante ainda na mão recebe uma extra depois do flop, turn e river, inclusive em all-in. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
+          "body": "## Estrutura vigente do Brazilian Pineapple\nPré-flop Fixed Limit: patamares de 1, 2, 3 e 4 BB. O big blind é o primeiro patamar; o teto de 4 BB também vale heads-up. All-ins curtos podem ficar entre patamares; completar um patamar só reabre a ação de quem já agiu quando essa pessoa enfrenta pelo menos 1 BB adicional.\n\nNo flop, turn e river, o aumento é limitado ao pote antes do call. Se P é o pote atual (incluindo contribuições e antes uma única vez), C é o pagamento necessário e B é sua contribuição na rodada, o máximo total é min(B + saldo, B + C + P). O mínimo segue o último incremento completo; reabertura exige 100%, incluindo incrementos curtos cumulativos. All-in respeita o teto.\n\nExemplo: pote R$ 10, abertura R$ 5, aumento máximo para R$ 20. Com dois, três ou quatro participantes contribuindo R$ 20 nessa rodada, os potes finais são R$ 50, R$ 70 e R$ 90. Após o aumento para R$ 20, o pote R$ 35 e o call R$ 20 permitem ao próximo jogador aumentar para R$ 55.\n\nVale em cash e torneios, Play Money e Jogo Real. Distribuição progressiva, escolha de duas privadas, blinds, entradas e premiação continuam iguais.\n\n## Modalidade exclusiva da ZT\nO Brazilian Pineapple estudado aqui é o da Zero Tilt Poker. Use as regras locais; materiais sobre Pineapple de três cartas com descarte descrevem outro jogo.\n\n## Distribuição completa\nBaralho de 52 cartas, mesa até seis jogadores. Receba duas privadas no pré-flop. Depois de abrir cada street — flop, turn e river — chega mais uma carta privada a cada participante ainda na mão, inclusive all-in. Quem desistiu não recebe. Não há descarte: são três privadas no flop, quatro no turn e cinco no river.\n\n## Formação e ranking\nEscolha exatamente duas privadas e três comunitárias. O ranking é clássico: sequência supera trinca; full house supera flush. A-2-3-4-5 é a sequência baixa. Nunca use três privadas para completar uma combinação ou seu kicker.\n\n## Exemplo passo a passo\nVocê começou com As Ks. Flop Ad Qc 2s; recebeu Ah. Os pares privados candidatos são As-Ks, As-Ah e Ks-Ah. Como existem só três comunitárias, todas precisam entrar. A melhor escolha é As-Ah com Ad-Qc-2s: A-A-A-Q-2. O rei fica fora. No turn, outras combinações passam a ser possíveis e a análise deve ser refeita.\n\n## Exercício de recuperação\nSem consultar o texto, descreva a sequência 2→3→4→5 e explique por que o all-in ainda recebe cartas. Depois conte os pares privados possíveis no flop: são três. A próxima aula mostra como isso se transforma em uma base matemática.\n\n## Aprofundamento aplicado\n### O momento da carta extra\nA ordem importa: a street abre e então cada jogador ainda na mão recebe sua nova privada. No início do flop, avalie as três privadas e as três comunitárias que realmente estão disponíveis. Não use uma futura carta do turn na decisão anterior. Se você desistir, para de receber extras; se ficar all-in, continua recebendo enquanto disputar a mão. O simulador conserva essa diferença e o replay mostra o crescimento da mão privada.\n\n### Compare com o Texas\nNo Hold’em, um ás privado pode combinar com quatro copas da mesa para formar flush. No Brazilian Pineapple, um único ás de copas não basta: a combinação precisa de duas privadas. Ter cinco privadas ao final amplia as escolhas, mas não autoriza usar três, quatro ou cinco delas no showdown. A pergunta correta é qual par privado combina melhor com qual trio do board.\n\n### Planeje a revisão por street\nSepare três registros: mão feita agora, possibilidades condicionais de melhorar e custo para continuar. Uma extra pode melhorar sua seleção; também pode não mudar nada. Os rivais recebem cartas e podem mudar de força ao mesmo tempo. Por isso não reutilizamos charts de Pineapple com descarte nem porcentagens de Hold’em como se fossem resultados medidos desta modalidade.\n\n## Laboratório: Duas, três, quatro, cinco privadas\nObjetivo: Acompanhar cada extra sem descartar cartas. Abra a mesa deste módulo e comece pelo treino guiado. Cada participante ainda na mão recebe uma extra depois do flop, turn e river, inclusive em all-in. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
             {
               "id": "m5l3q1",
@@ -850,7 +851,7 @@
             "mit-hypergeometric"
           ],
           "video": {
-            "publicationStatus": "published",
+            "publicationStatus": "prior_rules",
             "url": "/videos/zt-academy-m5l4-v3.mp4",
             "captionsUrl": "/videos/zt-academy-m5l4-v3.vtt",
             "posterUrl": "/videos/zt-academy-m5l4-v3.webp",
@@ -951,7 +952,8 @@
               }
             ],
             "contentHash": "22fbad187494cfa09ac5d69e0a89227340b283bd147d6d5b0b05335ac5d7db47",
-            "rendererVersion": 3
+            "rendererVersion": 3,
+            "bettingRuleVersion": "legacy_no_limit"
           }
         },
         {
@@ -1030,7 +1032,7 @@
             "nist-proportions"
           ],
           "video": {
-            "publicationStatus": "published",
+            "publicationStatus": "prior_rules",
             "url": "/videos/zt-academy-m5l5-v3.mp4",
             "captionsUrl": "/videos/zt-academy-m5l5-v3.vtt",
             "posterUrl": "/videos/zt-academy-m5l5-v3.webp",
@@ -1119,7 +1121,8 @@
               }
             ],
             "contentHash": "2d7906f0c7740f96bbc01188e85924b7ff5f9e333b59aa32e32508d329918b09",
-            "rendererVersion": 3
+            "rendererVersion": 3,
+            "bettingRuleVersion": "legacy_no_limit"
           }
         }
       ]

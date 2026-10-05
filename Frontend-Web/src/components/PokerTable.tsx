@@ -15,6 +15,7 @@ interface Props {
   localPlayerId?: string | null;
   availableActions: string[];
   onAction: (action: string, amount?: number) => void;
+  bettingStructure?: string | null;
   raiseAmount: number;
   onRaiseChange: (v: number) => void;
   callAmount: number;
@@ -38,6 +39,7 @@ export function PokerTable({
   localPlayerId,
   availableActions,
   onAction,
+  bettingStructure,
   raiseAmount,
   onRaiseChange,
   callAmount,
@@ -50,15 +52,19 @@ export function PokerTable({
   maxPlayers = 9,
   boardStaggerFrom = 0,
 }: Props) {
+  const hybrid = bettingStructure === "brazilian_pineapple_hybrid_v1";
+  const fixedPreflop = hybrid && stage === "preflop";
+  const wager = fixedPreflop ? minimumWager : raiseAmount;
+  const streetBase = hybrid ? (players.find(p => p.id === localPlayerId)?.bet ?? 0) + callAmount : 0;
   const potTotal = pots.reduce((s, p) => s + p.amount, 0);
   const clampWager = (amount: number) => {
     const withMinimum = Math.max(minimumWager || 0, amount);
     return maximumWager > 0 ? Math.min(maximumWager, withMinimum) : withMinimum;
   };
   const wagerPresets = [
-    { label: "½ pote", amount: clampWager(Math.round(potTotal / 2)) },
-    { label: "⅔ pote", amount: clampWager(Math.round((potTotal * 2) / 3)) },
-    { label: "Pote", amount: clampWager(potTotal) },
+    { label: "½ pote", amount: clampWager(streetBase + Math.round(potTotal / 2)) },
+    { label: "⅔ pote", amount: clampWager(streetBase + Math.round((potTotal * 2) / 3)) },
+    { label: hybrid ? "Máximo" : "Pote", amount: hybrid ? maximumWager : clampWager(potTotal) },
   ].filter((preset, index, all) => all.findIndex((item) => item.amount === preset.amount) === index);
   const showdownCards = new Set(showdown.flatMap((entry) => entry.cards));
   // Só as cartas do jogo vencedor saltam: cartas dos entries de quem ganhou.
@@ -327,6 +333,7 @@ export function PokerTable({
         })}
       </div>
 
+      {hybrid && <p className="text-center text-xs text-felt-200 mt-3">{fixedPreflop ? "Pré-flop Fixed Limit · patamares 1, 2, 3 e 4 BB · teto 4 BB, inclusive heads-up" : "Pós-flop · aumento limitado ao pote antes do call"}</p>}
       <div className="zt-action-bar">
         {availableActions.length === 0 ? (
           <span className="text-sm text-felt-400">
@@ -367,13 +374,13 @@ export function PokerTable({
             })}
             {wagerAction && (
               <div className="flex flex-wrap items-end gap-2">
-                <label className="text-xs font-semibold text-felt-200">
-                  Valor
+                {!fixedPreflop && <><label className="text-xs font-semibold text-felt-200">
+                  Total na rodada
                   <input
                     type="number"
                     min={(minimumWager || 0) / 100}
                     max={maximumWager ? maximumWager / 100 : undefined}
-                    step={Math.max(0.01, (minimumWager || 25) / 100)}
+                    step={0.01}
                     className="zt-input mt-1 w-28"
                     value={(raiseAmount / 100).toFixed(2)}
                     onChange={(e) => {
@@ -394,13 +401,14 @@ export function PokerTable({
                       {preset.label}
                     </button>
                   ))}
-                </div>
+                </div></>}
                 <button
                   type="button"
+                  disabled={!Number.isInteger(wager) || wager < minimumWager || wager > maximumWager}
                   className="zt-btn-primary"
-                  onClick={() => onAction(wagerAction, raiseAmount)}
+                  onClick={() => onAction(wagerAction, wager)}
                 >
-                  {wagerAction === "bet" ? `Apostar ${formatChips(raiseAmount)}` : `Aumentar ${formatChips(raiseAmount)}`}
+                  {wagerAction === "bet" ? `Apostar ${formatChips(wager)}` : `Aumentar para ${formatChips(wager)}`}
                 </button>
               </div>
             )}

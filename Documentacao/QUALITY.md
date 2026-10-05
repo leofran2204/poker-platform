@@ -17,7 +17,7 @@ Workflow `.github/workflows/rust-ci.yml` (não inflar com carga massiva):
 | Containers | scan + validação de build Docker |
 | Gate de deploy | depende dos jobs acima — **não** equivale a certificação de produção |
 
-Carga 100 cenários / 1M WSS / fuzz frontend: [`FULL_VALIDATION.md`](FULL_VALIDATION.md), **só** com autorização explícita. Scripts: [`../scripts/README.md`](../scripts/README.md).
+Campanha local por situações reais de jogo (contagens somente do que foi executado): [`FULL_VALIDATION.md`](FULL_VALIDATION.md), **só** com autorização explícita. Scripts: [`../scripts/README.md`](../scripts/README.md).
 
 Frontend local: `npm run lint` (`tsc` + ESLint) e `npm test` (Vitest) em `Frontend-Web/`, com o Node do `AGENTS.md` — nunca Node 18 do PATH.
 
@@ -116,6 +116,39 @@ Inventário automatizado: 685 caminhos versionados, mais 39 arquivos locais novo
 - A conferência pública identificou dicas locais ocultas até terminar o carregamento de RSS. A correção `dc391a29` apresenta o conteúdo disponível imediatamente, com 83 testes, lint e build aprovados; redeploy somente do frontend confirmado às 22:15:50 UTC (19:15:50 em São Paulo). Evidências descartáveis da conferência pública em `artifacts/release-s26/`.
 - CI da versão publicada `dc391a29`: [Rust CI](https://github.com/leofran2204/poker-platform/actions/runs/36933764739) e [Container Supply Chain](https://github.com/leofran2204/poker-platform/actions/runs/36933764974) concluídos com sucesso, incluindo contratos PostgreSQL, auditorias, build Docker, cobertura, SBOM, assinatura e atestações. A documentação final passou por `documentation-sync --check` (22 arquivos), verificação dos links locais e `git diff --check`.
 
+## Primeira campanha de jogo — 02/10/2026 (antes das correções)
+
+**Reprovada; carga interrompida por falha reproduzível.** Método, lacunas e reprodução em [FULL_VALIDATION.md](FULL_VALIDATION.md); evidência em [summary.json](../artifacts/full-validation/20261002T061251Z-e31cc0/summary.json).
+
+- Um caso dirigido aprovado, um falho e uma reprodução confirmando a falha. Nenhuma das 36 etapas posteriores da versão executada foi iniciada. Inventariar 2.045 testes e compilá-los não os contabiliza como aprovados.
+- Falha: após raise de 25 para 75, call e all-in curto para 100, o motor aceita o jogador que já agiu aumentar para 150. O último incremento completo era 50; o all-in acrescentou 25. A fixture parte de três entradas fixas de 2.500 centavos e obtém o short stack por uma mão legal anterior. Mantida a expectativa de rejeição, sem alteração da regra/código de produção.
+- Ambiguidade no banco migrado: quatro MTTs PM têm reentradas ilimitadas (rebuy_max_count=0), enquanto o catálogo de eventos informa uma; os equivalentes Real têm uma. Registrar a decisão de negócio antes de qualquer correção. Nenhuma migration foi editada/criada.
+- Lotes cash, campeões MTT, precisão Monte Carlo, atores concorrentes e HTTPS/WSS continuam sem evidência desta campanha. As novas fixtures posteriores, inclusive a auditoria temporal do Loss Deflator, foram preparadas e compiladas, mas não executadas após a interrupção.
+- Executores agora usam stack exclusiva, contas sintéticas, provedores mock/log, orçamento global e até dois trabalhadores. Contagens vêm do libtest; etapas pendentes/ignoradas e timeout não viram sucesso. Removida a afirmação de milhões de entradas frontend que não eram executadas.
+- Seis contratos do executor passaram; clippy --all-targets -D warnings passou para motor e API, incluindo a feature full-validation na API. Sintaxe Python/PowerShell/Bash/Node e verificações documentais constam dos artefatos finais. Esses checks não substituem os cenários interrompidos.
+- Preparação/execução contabilizadas somaram 529,81 segundos, excluindo compilação. Dumps e traces foram preservados; containers temporários removidos. Sem carga na demo, modificação de carteiras reais, commit, push ou deploy.
+
+## Retomada local — 03/10/2026
+
+**Campanha incompleta por deadline; correções locais com regressões aprovadas.** Evidências e lacunas em [FULL_VALIDATION.md](FULL_VALIDATION.md). A última execução completou 36.000 mãos cash e quatro MTTs até campeão (234 mãos); o parcial Pineapple não é contabilizável. Permanecem pendentes cash/MTT Pineapple, precisão de equity, matriz completa e os estágios integrados de API/atores/HTTPS/WSS. Não foi iniciada nova campanha massiva após a expiração.
+
+- Corrigidos reabertura após all-in curto, turno do small blind all-in, ações legais no WS e snapshot dos oponentes no pagamento do all-in, preservado mesmo após fold posterior. As fixtures mantêm entradas e evolução de stacks por jogo legal.
+- Premiação contempla posições eliminadas e redistribui proporcionalmente quando há menos inscritos que posições pagas, conforme decisão do proprietário. Centavos são conservados por rateio inteiro; créditos, posições, status e auditoria são atômicos e idempotentes.
+- O catálogo passou a representar separadamente as reentradas PM/Real já vigentes nas migrations, sem modificar SQL histórico. Comparação com banco vazio sem divergências.
+- Rotina: 1.859 testes de biblioteca do motor (31 ignorados), 12 regressões dirigidas, 79 testes de biblioteca da API (dois ignorados), 14 testes do sincronizador e oito contratos do executor aprovados. `fmt` e `clippy --all-targets -D warnings` passaram; API também conferida com `full-validation`.
+- Executado separadamente um dos contratos ignorados da API, em PostgreSQL descartável: rollback integral da premiação, finalizações concorrentes, repetição sem crédito duplicado e isolamento PM/Real aprovados. Não equivale à campanha integrada da API.
+- O executor agora distingue deadline de falha, preserva os originais durante reproduções e registra tempos monotônico e de relógio. As últimas mudanças no gerador cash, referências de equity e transporte foram compiladas/verificadas estaticamente, mas aguardam nova campanha autorizada.
+- Trabalho local, sem commit, push, deploy ou tráfego na demo. Relatórios originais e dumps preservados em `artifacts/full-validation/`.
+
+## Nova campanha autorizada — 03/10/2026
+
+**Resultado incompleto.** Na evidência principal, 25.000 mãos das cinco configurações cash e cinco MTTs (309 mãos), com pools integralmente premiados. Cobertos os 440 pares globais; quatro configurações sem lacunas individuais e Pineapple com um par pendente. Sete referências de equity aprovadas, erro máximo de 0,08399 ponto percentual; quatro vizinhanças dos tiers testemunhadas. As tentativas anteriores não são somadas como cobertura nova.
+
+- Passaram 21 contratos de banco/Redis, as rotinas da API, atores internos com 1/5/20 mesas e desconexões. Corrigida a fixture antiga que confundia desconexão com remoção imediata; agora exige preservação e reconexão do assento sem duplicação.
+- HTTPS/WSS de uma mesa passou, incluindo timeout, repetição imediata de call, privacidade e settlement persistido. Cinco mesas encontraram HTTP 429; vinte mesas e reinício ficaram pendentes. Duas sondas de socket comprovaram que o encaminhamento do Node Windows ao WSL agrupava IPs; runtime Linux mantém as origens distintas. O executor exige Linux, sem alterar limites da API.
+- A tentativa após esse ajuste expirou por deadline antes da primeira mão cash: 93,07 s monotônicos contra 29.824,56 s de relógio. Causa da discrepância não determinada. Sem nova carga depois da expiração; containers exclusivos removidos. O relatório preserva o zero efetivamente executado nessa tentativa.
+- A última fixture Pineapple e o transporte Linux em carga integrada aguardam execução. Formatação, clippy dos crates tocados, oito contratos do executor e diagnóstico de loopback passaram. Método, caminhos e limitações em [FULL_VALIDATION.md](FULL_VALIDATION.md) e no [resumo consolidado](../artifacts/full-validation/authorized-20261003-summary.json).
+
 ## Onde não procurar qualidade
 
 - Aprendizado / protocolo Mark → `guia_aprendizado.md`
@@ -123,7 +156,25 @@ Inventário automatizado: 685 caminhos versionados, mais 39 arquivos locais novo
 - Catálogo e ciclo → STATUS
 - Fases e backlog → DASHBOARD
 
+
+## Pineapple híbrido — entrega local de 04/10/2026
+
+Regra `brazilian_pineapple_hybrid_v1` aplicada no motor, atores cash/MTT, WebSocket, bots, interface e treinos; sem migration. Pré-flop 1–4 BB, pós-flop com aumento limitado ao pote antes do call e reabertura completa/cumulativa. Novos históricos/settlements versionados; originais anteriores preservados.
+
+Verificação: 1.859 testes de biblioteca do motor (31 ignorados), 19 casos dirigidos (sete novos grupos Pineapple), 80 testes de biblioteca da API (dois contratos de banco ignorados nessa rotina), 86 testes frontend e dez contratos do executor. Rust fmt/clippy de todos os alvos, TypeScript, ESLint, Vite, sincronização dos 22 documentos e integridade das 29 mídias aprovados. Três vídeos Pineapple permanecem claramente identificados como material da regra anterior; leitura e treinos já usam a regra nova. A conferência de mídia não constitui nova narração/renderização nem escuta editorial integral.
+
+A campanha focada foi concluída dentro dos 15 minutos autorizados com dois trabalhadores: 6.000 mãos cash, 385 pares sem lacunas, MTT em 75 mãos com premiação integral, HTTPS/WSS 5/20 mesas e reinício. Contagens repetidas não são somadas; diagnóstico, fontes e limites em [FULL_VALIDATION.md](FULL_VALIDATION.md#resultado-consolidado-da-estrutura-híbrida). Sem commit, push ou deploy.
+
+## Filme Brazilian Pineapple — verificação local de 04/10/2026
+
+- Filme novo: 477,67 s (limite 480 s), H.264/AAC, 1280×720 a 30 fps, 31 cenas, oito capítulos HTML/nativos no MP4 e 113 trechos VTT. Mesma voz `pt-BR-AntonioNeural`, taxa original `-3%`, sem acelerar áudio. SHA-256 do MP4: `a533b0b947bb25d1c7fa45170fadc2e577d72a8d69559aedda1e49e6640208e5`.
+- Roteiro e exemplos conferidos contra `BUSINESS_RULES.md`, os sete grupos Pineapple de `full_validation_situations` e três regressões em `pineapple_film_examples`: cartas do próprio roteiro, sequência baixa/empate, flush inválido 1+4, reabertura pós-flop individual e camadas dos potes. Sem mudanças na lógica de apostas, APIs ou migrations.
+- Inspeção visual das 31 cenas, entradas das cartas, seleção 2+3 e contadores; corrigida a passagem do pote de R$ 35 para R$ 50 no call de Ana. Medidos 2.323 textos em entradas, destaques e finais de cena, sem ultrapassar os limites. A cobertura de palavras dos 31 segmentos é completa; VTT/transcrição coincidem. O áudio final mede -16,44 LUFS e pico verdadeiro de -0,81 dBTP, sem clipping. Essa checagem usa metadados de fala e medição do sinal; não registra escuta humana integral.
+- `render.py --check` aprovou as 30 produções/90 arquivos, incluindo os originais das três aulas `prior_rules`. `--check --decode --only pineapple` decodificou o novo MP4 integralmente; FFprobe conferiu duração, codecs e oito capítulos. A repetição da decodificação dos 29 vídeos inalterados foi interrompida após oito, pois seus hashes e a evidência anterior são preservados. Relatórios em `artifacts/academy-audit/media.json` e `media-pineapple.json`.
+- Frontend: 87 testes em 12 arquivos, TypeScript, ESLint e Vite aprovados. Chrome headless isolado em 1440, 390 e 320 px validou home/Academy sem overflow ou exceção JavaScript, todos os capítulos, primeiro salto sem metadados, legendas, transcrição, Enter/Escape, botão de fechar, retorno do foco e reabertura pausada. Nenhum MP4 é solicitado antes da reprodução ou seleção de capítulo. Redirecionamento logado `/` → `/curso` confirmado com sessão sintética e respostas de API locais, sem testar autenticação real ou servidor de produção.
+- Evidências da produção e interface: `artifacts/pineapple-film/` (`browser.json`, `editorial-audit.json`, capturas e painéis das 31 cenas). Fontes e finais ficam no repositório; intermediários/cache permanecem ignorados. Entrega estritamente local. Publicação futura exige a regra correspondente, nenhuma mão Pineapple aberta e nenhum torneio Pineapple em andamento.
+
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-05) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

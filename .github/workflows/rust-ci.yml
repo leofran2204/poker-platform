@@ -127,6 +127,9 @@ jobs:
         # individuais também permanecem ignored sem essa feature.
         run: cargo test --lib -- --nocapture
 
+      - name: Verify betting rules and published Pineapple examples
+        run: cargo test --locked --test full_validation_situations --test pineapple_film_examples
+
   clippy:
     name: Cargo Clippy (Lint)
     runs-on: ubuntu-latest
@@ -426,6 +429,9 @@ jobs:
 
       - name: Run PostgreSQL agent refund contract
         run: cargo test --lib estrutura::tests::refund_is_scoped_to_one_tournament_and_idempotent -- --ignored --nocapture
+
+      - name: Run atomic tournament payout contract
+        run: cargo test --lib tournament_coordinator::tests::tournament_prizes_are_atomic_idempotent_and_wallet_isolated -- --ignored --nocapture
 
       - name: Run shared Redis rate-limit contract test
         run: cargo test --test rate_limit_tests -- --ignored --nocapture

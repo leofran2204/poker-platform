@@ -81,6 +81,19 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 - Até **6 jogadores**; o baralho de 52 cobre cinco cartas fechadas por jogador, board e burns
 - Implementação: `create_deck` / `evaluate_hand_brazilian_pineapple` / deal extra em `advance_phase`
 
+#### Estrutura de apostas híbrida — `brazilian_pineapple_hybrid_v1`
+
+Aplica-se por modalidade, em cash e torneios, Play Money e Jogo Real; não há opção administrativa nem migration.
+
+- **Pré-flop:** Fixed Limit em totais de 1, 2, 3 e 4 big blinds. O BB é o primeiro patamar, mesmo se o blind for incompleto. Cada aumento normal vai ao próximo patamar; o teto de 4 BB também vale heads-up. All-in curto pode ficar entre o valor atual e o próximo patamar, se consumir todo o saldo. Quem tem direito de aumentar pode completar o próximo patamar. A conclusão só reabre para quem já agiu quando esse jogador enfrenta pelo menos 1 BB adicional, inclusive por incrementos curtos cumulativos.
+- **Flop, turn e river:** aumento limitado ao pote antes do call. Não é Pot Limit tradicional. Sendo `P` o pote atual (todas as contribuições pagas, uma vez), `C` o pagamento necessário e `B` a contribuição do jogador na rodada, o máximo total é `min(B + saldo, B + C + P)`. Antes entram em `P`, sem compor `C`.
+- O mínimo pós-flop mantém o último incremento completo. Reabertura exige 100% desse incremento, inclusive pela soma de aumentos curtos desde a última ação do jogador. All-in curto não altera o mínimo e saldo grande não autoriza ultrapassar o teto. Check em rua sem aposta preserva o direito de responder aumentando a uma abertura posterior.
+- Ações ilegais são rejeitadas antes de alterar fichas, turno ou histórico. Os limites são recalculados a cada ação em centavos inteiros, com aritmética protegida. Blinds, entradas, rake, distribuição progressiva, seleção 2+3 e premiação permanecem iguais. Demais modalidades mantêm sua estrutura.
+
+Exemplo: pote inicial R$ 10; abertura R$ 5 deixa `P=15`, `C=5`, `B=0`, portanto o aumento máximo é **para R$ 20**. Dois, três ou quatro jogadores contribuindo R$ 20 nessa rodada produzem potes finais de **R$ 50, R$ 70 e R$ 90**. Imediatamente após o aumento para R$ 20, `P=35`, `C=20`, `B=0` permitem ao próximo jogador aumentar **para R$ 55**.
+
+Novos históricos e settlements JSON registram `betting_rule_version`; ausência significa a regra original. Históricos, assinaturas e liquidações antigos não são reescritos. Publicação futura exige ausência de mãos Pineapple abertas **e** de torneios Pineapple em andamento. Esta implementação é local até publicação explicitamente autorizada.
+
 ### 2.6 🂡 Texas Hold’em Short Deck — `short_deck` (8-max cash + torneio)
 - Baralho de **36** cartas (ranks 6–A; sem 2–5)
 - Duas cartas fechadas, cinco comunitárias; melhor combinação de cinco como no Hold’em
@@ -250,6 +263,8 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
 - ✅ **Fee Torneios: 15% por cima do Buy-in (S22, antes 7%):** ex. R$ 10 + R$ 1,50; freeroll sem fee; taxa 0% em Re-buys e Add-ons. Na migration `060`, o fee passa a compor o NGR mensal do Agente ZT direto (`source_type='fee'`, `program_version=2`); a comissão só é creditada no fechamento.
 - ✅ **Cancelamento de inscrição:** só pré-start; reembolsa buy-in + fee integralmente. No programa Agente ZT, gera dedução idempotente apenas das receitas daquela inscrição, preservando o ledger e os fechamentos. Se o mês original estiver fechado, o estorno entra no mês atual. Linhas legadas sem referência de torneio exigem conciliação manual; não são apagadas nem estornadas por aproximação. Auditoria `MTT_UNREGISTER`. Pós-start não cancela.
 
+- **Premiação MTT:** inclui eliminados que terminaram nas posições pagas. Se houver menos inscritos que posições premiadas, os percentuais das posições existentes são normalizados proporcionalmente (decisão do proprietário em 02/10/2026: 50%/30%/20% com dois inscritos vira 62,5%/37,5%). O cálculo monetário usa inteiros; centavos residuais vão às maiores frações descartadas, com desempate pela melhor posição. A soma dos prêmios é exatamente o prize pool. Créditos, posições pagas, finalização e auditoria são persistidos na mesma transação, sem novo crédito em repetição.
+
 ### 9.3 🏢 Divisão Financeira B2B SaaS (Rake Split 15% / 85%)
 - **Ordem de Execução Inviolável**: Potes brutos → Cálculo de Rake → **Split B2B (15% Plataforma Zerotilt / 85% Clube Locatário)** → Aplicação do Loss Deflator sobre o pote líquido pós-rake → Distribuição dos prêmios.
 - **Roteamento de Ledger**: O valor do Rake do Clube (`club_rake`) é injetado diretamente no saldo administrativo da tabela `clubs` (`balance`) ao final de cada mão (apenas mesas com `club_id`). O fee da plataforma (`platform_fee`) é contabilizado para a Zerotilt.
@@ -307,8 +322,8 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 - **Ordem financeira obrigatória:** formar main pot e side pots → retirar o rake de cada pote → calcular o Loss Deflator somente sobre os potes elegíveis já líquidos → concluir os pagamentos.
 - **Origem das Fichas:** O cashback sai dos potes líquidos da própria mão. É descontado da fatia do(s) vencedor(es) do pote elegível e entregue ao perdedor all-in; não cria fichas novas nem debita o caixa da plataforma.
 - **Modos de saldo:** o motor aplica a regra sem misturar Play Money e Jogo Real. Disponibilidade de carteiras e mesas é definida no STATUS, não por este exemplo financeiro.
-- **Múltiplos All-Ins e Fases Distintas:** Cada perdedor possui um snapshot individual de fase e board para calcular sua equity. A fase não escolhe o tier.
-- **Equity multiway:** considera os oponentes ainda na mão que compartilham potes elegíveis com o perdedor. Hold’em usa enumeração/amostragem determinística; Short Deck usa enumeração exata. A parcela dos empates é dividida pelo número de vencedores.
+- **Múltiplos All-Ins e Fases Distintas:** Cada perdedor possui um snapshot individual de fase, board e cartas dos oponentes, fixado no primeiro pagamento do seu all-in (inclusive pagamento all-in menor). A fase não escolhe o tier.
+- **Equity multiway:** preserva todos os oponentes ainda na mão no instante do pagamento do all-in. Um fold posterior não retira esse oponente do snapshot nem altera retroativamente a equity. A elegibilidade financeira continua sendo apurada pelos potes finais; preservar cartas para equity não dá direito ao pote a quem desistiu. Hold’em usa enumeração/amostragem determinística; Short Deck usa enumeração exata. A parcela dos empates é dividida pelo número de vencedores.
 - **Isolamento de Side Pots:** O cashback de um perdedor é calculado e descontado APENAS dos potes líquidos pós-rake em que ele participou. Side pots nos quais não era elegível ficam intocados.
 - **Teto compartilhado por pote:** Quando vários perdedores all-in se qualificam no mesmo pote, a maior faixa elegível define o teto percentual único daquele pote líquido. Os perdedores dividem esse teto proporcionalmente aos pedidos individuais; faixas iguais dividem em partes iguais. Centavos residuais seguem a ordem dos assentos a partir do botão. Um side pot só entra no rateio dos perdedores elegíveis a ele.
 - **Limite Máximo:** o teto é de até 35% de cada pote líquido elegível, compartilhado conforme a regra acima. A base não é o aporte individual nem uma garantia de ressarcimento de 35% da perda pessoal.
@@ -427,6 +442,6 @@ Um exemplo de equity exata com cartas e regressão automatizada está em [`LOSS_
 **Próxima revisão:** Após implementação de side pots e split pot.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-05) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

@@ -114,9 +114,12 @@ async def narration(key, scenes):
         words=json.loads(bounds.read_text(encoding='utf-8'))
         pcm=subprocess.check_output([FFMPEG,'-v','error','-i',str(path),'-f','s16le','-ac','1','-ar','48000','-'])
         samples=np.frombuffer(pcm,dtype='<i2').astype(np.float32)/32768
-        lead=.4
-        length=math.ceil((len(samples)/48000+lead+.75)*FPS)/FPS
+        lead=.25 if key=='pineapple' else .4
+        tail=.55 if key=='pineapple' else .75
+        length=math.ceil((len(samples)/48000+lead+tail)*FPS)/FPS
+        scene['speechLead']=lead
         scene.update(start=start,duration=length)
+        scene['words']=words
         track=np.zeros(round(length*48000),dtype=np.float32)
         track[round(lead*48000):round(lead*48000)+len(samples)]=samples
         tracks.append(track)
@@ -510,6 +513,9 @@ async def render(key):
         content_hash=lesson_fingerprint(lesson,training)
     scenes=episode['scenes']
     wav,captions,total=await narration(key,scenes)
+    if key == 'pineapple':
+        await render_pineapple(episode, episode_hash, wav, captions, total)
+        return
     name=episode['filename']
     silent=WORK/f'{name}-silent.mp4'
     cmd=[FFMPEG,'-y','-v','error','-f','rawvideo','-vcodec','rawvideo','-s',f'{W}x{H}','-pix_fmt','rgb24','-r',str(FPS),'-i','-','-an','-c:v','libx264','-preset','fast','-crf','22','-pix_fmt','yuv420p',str(silent)]
@@ -560,7 +566,69 @@ async def render(key):
         COURSE_FILE.write_text(json.dumps(course,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(manifest,ensure_ascii=False),flush=True)
 
-def check_publications(decode=False, ready_only=False):
+async def render_pineapple(episode, episode_hash, wav, captions, total):
+    import pineapple
+    if total > episode['maxDurationSeconds']:
+        raise RuntimeError(f'Film is {total:.2f}s; revise script to fit 480s without speeding speech')
+    scenes=episode['scenes']; name=episode['filename']
+    # All cue phrases must exist before encoding starts.
+    for scene in scenes: pineapple.prepare(scene, sys.modules[__name__])
+    silent=WORK/f'{name}-silent.mp4'
+    cmd=[FFMPEG,'-y','-v','error','-f','rawvideo','-pix_fmt','rgb24','-s','1280x720',
+         '-r',str(pineapple.SOURCE_FPS),'-i','-','-an','-vf','fps=30','-c:v','libx264',
+         '-preset','veryfast','-threads','2','-crf','21','-pix_fmt','yuv420p',str(silent)]
+    process=subprocess.Popen(cmd,stdin=subprocess.PIPE)
+    chapter_list=[]; frame_count=0
+    audit=ROOT/'artifacts/pineapple-film'; audit.mkdir(parents=True,exist_ok=True)
+    try:
+        for i,scene in enumerate(scenes):
+            if not chapter_list or chapter_list[-1]['title']!=scene['chapter']:
+                chapter_list.append({'start':round(scene['start'],2),'title':scene['chapter']})
+            # Absolute frame edges prevent per-scene rounding drift.
+            last=round((scene['start']+scene['duration'])*pineapple.SOURCE_FPS)
+            while frame_count<last:
+                t=max(0,frame_count/pineapple.SOURCE_FPS-scene['start'])
+                process.stdin.write(pineapple.frame(scene,t,i,len(scenes),sys.modules[__name__]).tobytes())
+                frame_count+=1
+            for label,t in [('start',2.5),('end',scene['duration']-1)]:
+                pineapple.frame(scene,t,i,len(scenes),sys.modules[__name__]).save(audit/f'scene-{i+1:02}-{label}.png')
+            print(f'Rendered pineapple/{i+1}: {scene["title"]}',flush=True)
+        process.stdin.close()
+        if process.wait()!=0: raise RuntimeError('Pineapple video encoder failed')
+    except BaseException:
+        process.kill(); process.wait(); raise
+    encoded=WORK/f'{name}-encoded.mp4'
+    # Add native MP4 chapters in addition to accessible HTML chapter buttons.
+    metadata=WORK/f'{name}-chapters.txt'
+    metadata.write_text(';FFMETADATA1\n'+''.join(
+        f"[CHAPTER]\nTIMEBASE=1/1000\nSTART={round(c['start']*1000)}\nEND={round((chapter_list[j+1]['start'] if j+1<len(chapter_list) else total)*1000)}\ntitle={c['title']}\n"
+        for j,c in enumerate(chapter_list)),encoding='utf-8')
+    subprocess.run([FFMPEG,'-y','-v','error','-i',str(silent),'-i',str(wav),'-i',str(metadata),
+        '-map','0:v:0','-map','1:a:0','-map_metadata','2','-map_chapters','2','-c:v','copy',
+        '-af','loudnorm=I=-16:TP=-1.5:LRA=9','-c:a','aac','-b:a','128k','-movflags','+faststart',
+        '-t',str(total),str(encoded)],check=True)
+    current=json.loads((HERE/'episodes.json').read_text(encoding='utf-8'))['pineapple']
+    if episode_fingerprint(current)!=episode_hash: raise RuntimeError('Pineapple script changed during rendering')
+    target=OUT/f'{name}.mp4'; encoded.replace(target)
+    (OUT/f'{name}.vtt').write_text('WEBVTT\n\n'+'\n\n'.join(f'{stamp(a)} --> {stamp(b)}\n{text}' for a,b,text in captions)+'\n',encoding='utf-8',newline='\n')
+    pineapple.poster(sys.modules[__name__]).save(OUT/f'{name}.webp',quality=92)
+    transcript='\n\n'.join(s['voice'] for s in scenes)
+    transcript_path=HERE/'pineapple-transcript.txt'; transcript_path.write_text(transcript+'\n',encoding='utf-8',newline='\n')
+    manifest={'filename':name,'title':episode['title'],'bettingRuleVersion':episode['bettingRuleVersion'],
+        'durationSeconds':round(total,2),'width':1280,'height':720,'fps':30,'bytes':target.stat().st_size,
+        'voice':'pt-BR-AntonioNeural (synthetic)','voiceRate':'-3%','chapters':chapter_list,
+        'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'episodeHash':episode_hash,'rendererVersion':1,
+        'assetHashes':{ext:hashlib.sha256((OUT/f'{name}.{ext}').read_bytes()).hexdigest() for ext in ('mp4','vtt','webp')},
+        'transcriptHash':hashlib.sha256(transcript_path.read_bytes()).hexdigest(),
+        'scenes':[{'start':round(s['start'],3),'duration':round(s['duration'],3),'title':s['title'],
+                   'cueTime':s['cueTime'],'finalCueTime':s['finalCueTime'],'highlights':s['highlights']} for s in scenes]}
+    (HERE/'pineapple-manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    # Scene timings belong to the production manifest, not the initial page bundle.
+    public={k:v for k,v in manifest.items() if k!='scenes'}
+    (ROOT/'Frontend-Web/src/data/pineappleFilm.json').write_text(json.dumps({**public,'transcript':transcript},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    print(f'Pineapple ready locally: {total:.2f}s / {target.stat().st_size} bytes',flush=True)
+
+def check_publications(decode=False, ready_only=False, only=None):
     """Validate active media only. --decode also reads every audio/video frame."""
     course=json.loads(COURSE_FILE.read_text(encoding='utf-8'))
     training=json.loads(TRAINING_FILE.read_text(encoding='utf-8'))
@@ -568,12 +636,20 @@ def check_publications(decode=False, ready_only=False):
     for module in course['modules']:
         for lesson in module['lessons']:
             video=lesson.get('video',{})
-            if video.get('publicationStatus')!='published':
+            prior_rules = video.get('publicationStatus') == 'prior_rules'
+            if video.get('publicationStatus') not in ('published', 'prior_rules'):
                 if ready_only: continue
                 raise RuntimeError(f"Lesson without current video: {lesson['id']}")
             if module['id']!='m0':
-                assert video['contentHash']==lesson_fingerprint(lesson,training), lesson['id']
                 manifest=json.loads((HERE/f"academy-{lesson['id']}-manifest.json").read_text(encoding='utf-8'))
+                if prior_rules:
+                    assert lesson['id'] in ('m5l3', 'm5l4', 'm5l5'), lesson['id']
+                    assert video['bettingRuleVersion']==manifest['bettingRuleVersion']=='legacy_no_limit', lesson['id']
+                    original=json.dumps(manifest['sourceSnapshot'], ensure_ascii=False, separators=(',', ':'))
+                    assert video['contentHash']==hashlib.sha256(original.encode('utf-8')).hexdigest(), lesson['id']
+                    assert video['contentHash']!=lesson_fingerprint(lesson,training), lesson['id']
+                else:
+                    assert video['contentHash']==lesson_fingerprint(lesson,training), lesson['id']
                 assert manifest['contentHash']==video['contentHash'], lesson['id']
                 assert manifest['rendererVersion']==video['rendererVersion']==ACADEMY_RENDER_VERSION, lesson['id']
             else:
@@ -586,6 +662,18 @@ def check_publications(decode=False, ready_only=False):
             entries.append((lesson['id'],video,manifest))
     home=json.loads((ROOT/'Frontend-Web/src/data/homeFilm.json').read_text(encoding='utf-8'))
     entries.append(('home',{'url':f"/videos/{home['filename']}.mp4",'captionsUrl':f"/videos/{home['filename']}.vtt",'posterUrl':f"/videos/{home['filename']}.webp",**home},home))
+    pineapple=json.loads((ROOT/'Frontend-Web/src/data/pineappleFilm.json').read_text(encoding='utf-8'))
+    manifest=json.loads((HERE/'pineapple-manifest.json').read_text(encoding='utf-8'))
+    episode=json.loads((HERE/'episodes.json').read_text(encoding='utf-8'))['pineapple']
+    assert manifest['episodeHash']==pineapple['episodeHash']==episode_fingerprint(episode)
+    assert manifest['bettingRuleVersion']==pineapple['bettingRuleVersion']==episode['bettingRuleVersion']=='brazilian_pineapple_hybrid_v1'
+    assert 0<pineapple['durationSeconds']<=episode['maxDurationSeconds']==480
+    assert manifest['transcriptHash']==hashlib.sha256((HERE/'pineapple-transcript.txt').read_bytes()).hexdigest()
+    assert pineapple['transcript']==(HERE/'pineapple-transcript.txt').read_text(encoding='utf-8').strip()
+    for ext,digest in manifest['assetHashes'].items():
+        assert digest==pineapple['assetHashes'][ext]==hashlib.sha256((OUT/f"{pineapple['filename']}.{ext}").read_bytes()).hexdigest()
+    entries.append(('pineapple',{'url':f"/videos/{pineapple['filename']}.mp4",'captionsUrl':f"/videos/{pineapple['filename']}.vtt",'posterUrl':f"/videos/{pineapple['filename']}.webp",**pineapple},manifest))
+    if only: entries=[entry for entry in entries if entry[0]==only]
     def seconds(value):
         h,m,s=value.split(':'); return int(h)*3600+int(m)*60+float(s)
     records=[]
@@ -614,20 +702,22 @@ def check_publications(decode=False, ready_only=False):
         print(f'Checked {key}: {len(captions)} captions, {video["durationSeconds"]:.2f}s',flush=True)
     audit=ROOT/'artifacts/academy-audit'
     audit.mkdir(parents=True,exist_ok=True)
-    (audit/('media-partial.json' if ready_only else 'media.json')).write_text(json.dumps(records,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    report=f'media-{only}.json' if only else ('media-partial.json' if ready_only else 'media.json')
+    (audit/report).write_text(json.dumps(records,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(f'Current publications: {len(entries)} · {sum(v[1]["durationSeconds"] for v in entries)/60:.1f} minutes',flush=True)
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser()
     parser.add_argument('--prepare',action='store_true')
-    parser.add_argument('--episode',choices=('home','ep11','ep12','ep13','all'))
+    parser.add_argument('--episode',choices=('home','pineapple','ep11','ep12','ep13','all'))
     parser.add_argument('--academy',help='Lesson ID or all (25 technical lessons).')
     parser.add_argument('--check',action='store_true',help='Validate all active lessons and the home film.')
     parser.add_argument('--decode',action='store_true',help='With --check, decode every media file completely.')
+    parser.add_argument('--only',choices=('pineapple',),help='With --check, limit the media audit to the new film.')
     args=parser.parse_args()
     if args.prepare: prepare()
     if args.episode:
-        for key in (('home','ep11','ep12','ep13') if args.episode=='all' else (args.episode,)):
+        for key in (('home','pineapple','ep11','ep12','ep13') if args.episode=='all' else (args.episode,)):
             asyncio.run(render(key))
     if args.academy:
         course=json.loads(COURSE_FILE.read_text(encoding='utf-8'))
@@ -636,4 +726,5 @@ if __name__=='__main__':
             if args.academy not in ids: parser.error('Unknown technical lesson')
             ids=[args.academy]
         for lesson_id in ids: asyncio.run(render_academy(lesson_id))
-    if args.check: check_publications(args.decode)
+    if args.only and not args.check: parser.error('--only requires --check')
+    if args.check: check_publications(args.decode,only=args.only)

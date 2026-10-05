@@ -3977,25 +3977,25 @@ mod resolve_showdown_errors_tests {
     }
 
     #[test]
-    fn betting_round_3p_incompleto_apos_bet() {
+    fn betting_round_3p_incompleto_apos_raise() {
         let mut gl = make_game_loop_3p();
         gl.start_hand().unwrap();
-        // 3p: alice(UTG) call, bob(SB) call, carol(BB) bet
+        // 3p: alice(UTG) call, bob(SB) call, carol(BB) raise
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Call).unwrap();
-        gl.player_action("carol", PlayerMove::Bet(30)).unwrap();
-        // Carol bet, alice e bob precisam agir → não completa
+        gl.player_action("carol", PlayerMove::Raise(30)).unwrap();
+        // Carol aumenta, alice e bob precisam agir → não completa
         assert_eq!(gl.state.phase, GamePhase::Preflop);
     }
 
     #[test]
-    fn betting_round_3p_completo_apos_todos_call_bet() {
+    fn betting_round_3p_completo_apos_todos_call_raise() {
         let mut gl = make_game_loop_3p();
         gl.start_hand().unwrap();
-        // 3p: alice(UTG) call, bob(SB) call, carol(BB) bet, alice call, bob call
+        // 3p: alice(UTG) call, bob(SB) call, carol(BB) raise, alice call, bob call
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Call).unwrap();
-        gl.player_action("carol", PlayerMove::Bet(30)).unwrap();
+        gl.player_action("carol", PlayerMove::Raise(30)).unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Call).unwrap();
         // Todos agiram, current_bet igual (30) → completa → flop
@@ -4006,10 +4006,10 @@ mod resolve_showdown_errors_tests {
     fn betting_round_allin_reseta_outros() {
         let mut gl = make_game_loop_3p();
         gl.start_hand().unwrap();
-        // 3p: alice(UTG) call, bob(SB) call, carol(BB) bet, alice call, bob all-in
+        // 3p: alice(UTG) call, bob(SB) call, carol(BB) raise, alice call, bob all-in
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Call).unwrap();
-        gl.player_action("carol", PlayerMove::Bet(30)).unwrap();
+        gl.player_action("carol", PlayerMove::Raise(30)).unwrap();
         gl.player_action("alice", PlayerMove::Call).unwrap();
         // Bob all-in (raise) → reseta carol
         gl.player_action("bob", PlayerMove::AllIn).unwrap();

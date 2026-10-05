@@ -116,6 +116,9 @@ struct TournamentEvent {
     table_max: u8,
     max_players: u16,
     reentries: u8,
+    /// PM override; zero means unlimited, as in the persisted tournament config.
+    #[serde(default)]
+    play_reentries: Option<u8>,
     freeroll: bool,
     #[serde(default)]
     final_table_variant: Option<String>,
@@ -756,7 +759,7 @@ fn render_status_md(status: &OperationalStatus) -> String {
         out.push_str(&format!("Rebuy de carteira PM: sim.{n}{n}"));
     } else {
         out.push_str(&format!(
-            "Zerou a carteira PM: espera o reset. Entradas/rebuys de torneio ilimitados **com saldo**.{}{}",
+            "Zerou a carteira PM: espera o reset. Inscrições sem cota diária, **com saldo**; reentradas seguem o limite PM de cada evento acima.{}{}",
             n, n
         ));
     }
@@ -877,10 +880,20 @@ fn render_cash_table(status: &OperationalStatus, newline: &str) -> String {
     rows.join(newline)
 }
 
+fn reentry_label(limit: u8) -> String {
+    if limit == 0 {
+        "ilimitadas".into()
+    } else {
+        limit.to_string()
+    }
+}
+
 fn render_mtt_table(status: &OperationalStatus, newline: &str) -> String {
     let mut rows = vec![
-        "| Evento | Variante | Buy-in | GTD | Cap | Máx. | Reentradas |".to_owned(),
-        "|--------|----------|--------|-----|-----|------|------------|".to_owned(),
+        "| Evento | Variante | Buy-in | GTD | Cap | Máx. | Reentradas PM | Reentradas Real |"
+            .to_owned(),
+        "|--------|----------|--------|-----|-----|------|---------------|-----------------|"
+            .to_owned(),
     ];
     for event in &status.tournament.events {
         let buy_in = if event.freeroll {
@@ -898,14 +911,15 @@ fn render_mtt_table(status: &OperationalStatus, newline: &str) -> String {
             name.push_str(&format!(" (FT {} {max}-max)", variant_label(variant)));
         }
         rows.push(format!(
-            "| {} | {} | {} | {} | {} | {} | {} |",
+            "| {} | {} | {} | {} | {} | {} | {} | {} |",
             name,
             variant_label(&event.variant),
             buy_in,
             gtd,
             event.table_max,
             event.max_players,
-            event.reentries
+            reentry_label(event.play_reentries.unwrap_or(event.reentries)),
+            reentry_label(event.reentries)
         ));
     }
     rows.join(newline)
@@ -1069,6 +1083,7 @@ mod tests {
                     table_max: 9,
                     max_players: 27,
                     reentries: 1,
+                    play_reentries: None,
                     freeroll: false,
                     final_table_variant: None,
                     final_table_max: None,

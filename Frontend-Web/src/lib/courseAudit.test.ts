@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import { allLessons, calculateQuizScores, COURSE, findLesson, isLessonUnlocked, lessonFormat, lessonPrerequisites } from "./course";
 import sources from "@/data/courseSources.json";
 import homeFilm from "@/data/homeFilm.json";
+import pineappleFilm from "@/data/pineappleFilm.json";
 import training from "@/data/courseTraining.json";
 
 const lessons = allLessons();
@@ -113,7 +114,7 @@ describe("integridade da Academy", () => {
     }
   });
 
-  it("mantém os 25 vídeos técnicos publicados e sincronizados com teoria, exercícios e cenários", () => {
+  it("verifica os 25 vídeos técnicos, com origem preservada para a regra anterior do Pineapple", () => {
     const technical = COURSE.modules.filter(m => m.id !== "m0").flatMap(m => m.lessons);
     expect(technical).toHaveLength(25);
     for (const lesson of technical) {
@@ -121,9 +122,19 @@ describe("integridade da Academy", () => {
         sources: lesson.sources ?? [], training: training.scenarios.filter(s => s.lesson === lesson.id) };
       const hash = createHash("sha256").update(JSON.stringify(payload)).digest("hex");
       const manifest = JSON.parse(readFileSync(fileURLToPath(new URL(`../../../ZeroTiltCurso/editorial/academy-${lesson.id}-manifest.json`, import.meta.url)), "utf8"));
-      expect(lesson.video?.publicationStatus, lesson.id).toBe("published");
-      expect(lesson.video?.contentHash, lesson.id).toBe(hash);
-      expect(manifest.contentHash, lesson.id).toBe(hash);
+      if (["m5l3", "m5l4", "m5l5"].includes(lesson.id)) {
+        expect(lesson.video?.publicationStatus).toBe("prior_rules");
+        expect(lesson.video?.bettingRuleVersion).toBe("legacy_no_limit");
+        expect(manifest.bettingRuleVersion).toBe("legacy_no_limit");
+        const originalHash = createHash("sha256").update(JSON.stringify(manifest.sourceSnapshot)).digest("hex");
+        expect(manifest.contentHash).toBe(originalHash);
+        expect(lesson.video?.contentHash).toBe(originalHash);
+        expect(hash).not.toBe(originalHash);
+      } else {
+        expect(lesson.video?.publicationStatus, lesson.id).toBe("published");
+        expect(lesson.video?.contentHash, lesson.id).toBe(hash);
+        expect(manifest.contentHash, lesson.id).toBe(hash);
+      }
       expect(lesson.video?.rendererVersion, lesson.id).toBe(manifest.rendererVersion);
       const transcript = readFileSync(fileURLToPath(new URL(`../../../ZeroTiltCurso/editorial/academy-${lesson.id}-transcript.txt`, import.meta.url)), "utf8");
       expect(lesson.video?.transcript?.replace(/\r\n/g, "\n"), lesson.id).toBe(transcript.replace(/\r\n/g, "\n").trim());
@@ -135,12 +146,41 @@ describe("integridade da Academy", () => {
     }
   }, 30_000); // Lê e calcula SHA-256 dos 25 MP4, inclusive em discos mais lentos.
 
-  it("a pasta pública contém somente as mídias da grade ativa e do filme atual", () => {
+  it("o destaque Pineapple tem no máximo oito minutos e corresponde à regra e ao roteiro", () => {
+    const editorial = new URL("../../../ZeroTiltCurso/editorial/", import.meta.url);
+    const manifest = JSON.parse(readFileSync(new URL("pineapple-manifest.json", editorial), "utf8"));
+    const episode = JSON.parse(readFileSync(new URL("episodes.json", editorial), "utf8")).pineapple;
+    expect(pineappleFilm.durationSeconds).toBeGreaterThan(0);
+    expect(pineappleFilm.durationSeconds).toBeLessThanOrEqual(480);
+    expect(pineappleFilm.bettingRuleVersion).toBe("brazilian_pineapple_hybrid_v1");
+    expect(pineappleFilm.bettingRuleVersion).toBe(episode.bettingRuleVersion);
+    expect(pineappleFilm.bettingRuleVersion).toBe(manifest.bettingRuleVersion);
+    expect(createHash("sha256").update(JSON.stringify(episode)).digest("hex")).toBe(manifest.episodeHash);
+    expect(pineappleFilm.episodeHash).toBe(manifest.episodeHash);
+    expect(pineappleFilm.chapters).toEqual(manifest.chapters);
+    expect(pineappleFilm.chapters).toHaveLength(8);
+    expect(pineappleFilm.chapters[0].start).toBe(0);
+    expect(pineappleFilm.durationSeconds).toBe(manifest.durationSeconds);
+    const transcript = readFileSync(new URL("pineapple-transcript.txt", editorial), "utf8");
+    expect(pineappleFilm.transcript).toBe(transcript.replace(/\r\n/g, "\n").trim());
+    expect(pineappleFilm.transcript).toContain("O Loss Deflator não se aplica ao Brazilian Pineapple");
+    expect(pineappleFilm.transcript).toContain("cinquenta e cinco");
+    expect(pineappleFilm.transcript).toContain("maiores de dezoito anos");
+    for (const ext of ["mp4", "vtt", "webp"] as const) {
+      const asset = readFileSync(fileURLToPath(new URL(`../../public/videos/${pineappleFilm.filename}.${ext}`, import.meta.url)));
+      const hash = createHash("sha256").update(asset).digest("hex");
+      expect(hash).toBe(pineappleFilm.assetHashes[ext]);
+      expect(hash).toBe(manifest.assetHashes[ext]);
+    }
+  }, 30_000);
+
+  it("a pasta pública contém a grade, o novo destaque e o institucional preservado", () => {
     const active = lessons.flatMap(l => [l.video?.url, l.video?.captionsUrl, l.video?.posterUrl]);
     for (const ext of ["mp4", "vtt", "webp"]) active.push(`/videos/${homeFilm.filename}.${ext}`);
+    for (const ext of ["mp4", "vtt", "webp"]) active.push(`/videos/${pineappleFilm.filename}.${ext}`);
     const names = new Set(active.filter(Boolean).map(url => url!.split("/").pop()));
     const files = readdirSync(fileURLToPath(new URL("../../public/videos", import.meta.url))).filter(file => /\.(mp4|vtt|webp|jpg)$/i.test(file));
-    expect(files.length).toBe(29 * 3);
+    expect(files.length).toBe(30 * 3);
     for (const file of files) expect(names.has(file), `Mídia sem referência vigente: ${file}`).toBe(true);
   });
 

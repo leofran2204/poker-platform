@@ -7827,7 +7827,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -7851,7 +7856,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -7875,7 +7885,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -7899,7 +7914,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -7923,7 +7943,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -7947,7 +7972,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -7971,7 +8001,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -7995,7 +8030,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8019,7 +8059,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8043,7 +8088,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8067,7 +8117,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8091,7 +8146,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8115,7 +8175,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8139,7 +8204,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8163,7 +8233,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8187,7 +8262,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8211,7 +8291,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8235,7 +8320,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8259,7 +8349,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8283,7 +8378,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8307,7 +8407,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8331,7 +8436,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8355,7 +8465,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8379,7 +8494,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8403,7 +8523,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8427,7 +8552,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8451,7 +8581,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8475,7 +8610,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8499,7 +8639,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8523,7 +8668,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8547,7 +8697,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8571,7 +8726,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8595,7 +8755,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8619,7 +8784,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8643,7 +8813,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8667,7 +8842,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8691,7 +8871,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8715,7 +8900,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8739,7 +8929,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8763,7 +8958,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8787,7 +8987,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8811,7 +9016,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8835,7 +9045,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8859,7 +9074,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8883,7 +9103,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8907,7 +9132,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8931,7 +9161,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8955,7 +9190,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -8979,7 +9219,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9003,7 +9248,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9027,7 +9277,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9051,7 +9306,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9075,7 +9335,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9099,7 +9364,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9123,7 +9393,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9147,7 +9422,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9171,7 +9451,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9195,7 +9480,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9219,7 +9509,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9243,7 +9538,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9267,7 +9567,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9291,7 +9596,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9315,7 +9625,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9339,7 +9654,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9363,7 +9683,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9387,7 +9712,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9411,7 +9741,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9435,7 +9770,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9459,7 +9799,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9483,7 +9828,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9507,7 +9857,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9531,7 +9886,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9555,7 +9915,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9579,7 +9944,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9603,7 +9973,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9627,7 +10002,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9651,7 +10031,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9675,7 +10060,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9699,7 +10089,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 
     #[test]
@@ -9723,7 +10118,12 @@ mod lote_7e_addon_finish {
         let res = finish_tournament(&mut state);
         assert!(res.is_ok());
         assert_eq!(state.status, TournamentStatus::Finished);
-        assert_eq!(res.unwrap().winners.len(), 1);
+        let result = res.unwrap();
+        assert_eq!(result.winners.len(), (num_players as usize).min(3));
+        assert_eq!(
+            result.winners.iter().map(|w| w.prize).sum::<u64>(),
+            result.total_prize_pool
+        );
     }
 }
 // ═══════════════════════════════════════════════════════════════════

@@ -804,18 +804,7 @@ fn filter_table_state(mut state_json: serde_json::Value, for_player_id: &str) ->
     redact_global_sensitive_fields(&mut state_json);
     let is_table_state =
         state_json.get("type").and_then(|value| value.as_str()) == Some("table_state");
-    let current_bet_to_match = state_json
-        .get("current_bet_to_match")
-        .and_then(|value| value.as_u64())
-        .unwrap_or(0);
-    let min_raise = state_json
-        .get("min_raise")
-        .and_then(|value| value.as_u64())
-        .unwrap_or(0);
-    let mut available_actions = Vec::new();
-    let mut call_amount = 0;
-    let mut minimum_wager = 0;
-    let mut maximum_wager = 0;
+    let mut legal = poker_engine::game_loop::LegalActions::default();
 
     // Showdown: mão terminada revela as cartas de quem pagou até o fim
     // (não foldou) — regra do poker real. Fora disso, cartas alheias
@@ -826,47 +815,22 @@ fn filter_table_state(mut state_json: serde_json::Value, for_player_id: &str) ->
         .unwrap_or(false);
     if let Some(players) = state_json.get_mut("players").and_then(|v| v.as_array_mut()) {
         for player in players {
+            let player_legal = player
+                .as_object_mut()
+                .and_then(|p| p.remove("_legal_actions"));
+            if let Some(p) = player.as_object_mut() {
+                p.remove("_raise_allowed");
+            }
             let pid = player.get("id").and_then(|v| v.as_str()).unwrap_or("");
             let folded = player
                 .get("folded")
                 .and_then(|value| value.as_bool())
                 .unwrap_or(false);
             if pid == for_player_id && is_table_state {
-                let is_active = player
-                    .get("is_active")
-                    .and_then(|value| value.as_bool())
-                    .unwrap_or(false);
-                let chips = player
-                    .get("chips")
-                    .and_then(|value| value.as_u64())
-                    .unwrap_or(0);
-                let player_bet = player
-                    .get("bet")
-                    .and_then(|value| value.as_u64())
-                    .unwrap_or(0);
-
-                if is_active && chips > 0 {
-                    let to_call = current_bet_to_match.saturating_sub(player_bet);
-                    available_actions.push("fold");
-                    if to_call == 0 {
-                        available_actions.push("check");
-                        if min_raise > 0 && chips >= min_raise {
-                            available_actions.push("bet");
-                            minimum_wager = min_raise;
-                            maximum_wager = chips;
-                        }
-                    } else {
-                        available_actions.push("call");
-                        call_amount = to_call.min(chips);
-                        let all_in_total = player_bet.saturating_add(chips);
-                        let minimum_raise_total = current_bet_to_match.saturating_add(min_raise);
-                        if all_in_total >= minimum_raise_total {
-                            available_actions.push("raise");
-                            minimum_wager = minimum_raise_total;
-                            maximum_wager = all_in_total;
-                        }
-                    }
-                    available_actions.push("allin");
+                if !showdown_reveal {
+                    legal = player_legal
+                        .and_then(|v| serde_json::from_value(v).ok())
+                        .unwrap_or_default();
                 }
             } else if pid != for_player_id {
                 // A broadcast state is shared by every socket; never leak an
@@ -887,10 +851,10 @@ fn filter_table_state(mut state_json: serde_json::Value, for_player_id: &str) ->
         }
     }
     if is_table_state {
-        state_json["available_actions"] = serde_json::json!(available_actions);
-        state_json["call_amount"] = serde_json::json!(call_amount);
-        state_json["minimum_wager"] = serde_json::json!(minimum_wager);
-        state_json["maximum_wager"] = serde_json::json!(maximum_wager);
+        state_json["available_actions"] = serde_json::json!(legal.available_actions);
+        state_json["call_amount"] = serde_json::json!(legal.call_amount);
+        state_json["minimum_wager"] = serde_json::json!(legal.minimum_wager);
+        state_json["maximum_wager"] = serde_json::json!(legal.maximum_wager);
     }
     state_json
 }
@@ -996,6 +960,142 @@ mod tests {
         assert!(filtered["nested"].get("refresh_token").is_none());
     }
 
+    #[tokio::test]
+    async fn pineapple_cash_mtt_and_websocket_share_limits_and_rejection() {
+        use crate::game_actor::{TableActor, TablePlayer};
+        use crate::tournament_actor::TournamentActor;
+        use poker_engine::{
+            game_loop::{GameLoop, PlayerMove},
+            hand_history::GameType,
+            types::{PokerVariant, TableConfig},
+        };
+        use std::{collections::HashMap, sync::Arc};
+        use tokio::sync::{broadcast, mpsc, RwLock};
+        for game_type in [GameType::Cash, GameType::Tournament] {
+            let config =
+                TableConfig::new(100, 0, 0).with_poker_variant(PokerVariant::BrazilianPineapple);
+            let mut g = GameLoop::new(config.clone(), "rule".into(), "rule".into(), game_type);
+            g.add_player("me".into(), 10000);
+            g.add_player("other".into(), 10000);
+            g.start_hand().unwrap();
+            g.player_action("me", PlayerMove::Raise(200)).unwrap();
+            let expected = g.legal_actions("other");
+            assert_eq!((expected.minimum_wager, expected.maximum_wager), (300, 300));
+            let (_, rx) = mpsc::channel(10);
+            let (tx, mut messages) = broadcast::channel(10);
+            let mut cash =
+                TableActor::new("table".into(), "rule".into(), rx, tx).with_config(config);
+            cash.players = g
+                .state
+                .players
+                .iter()
+                .map(|p| TablePlayer {
+                    id: p.id.clone(),
+                    name: p.id.clone(),
+                    chips: p.stack,
+                    seat: p.seat_index,
+                    is_sitting: true,
+                    disconnected_since: None,
+                    left_hand: false,
+                })
+                .collect();
+            cash.game_loop = Some(g);
+            let state;
+            if game_type == GameType::Cash {
+                let before = format!("{:?}", cash.game_loop.as_ref().unwrap().state);
+                let turn_before = cash.last_turn_start;
+                cash.handle_action("other".into(), "raise".into(), 1000)
+                    .await;
+                assert_eq!(
+                    before,
+                    format!("{:?}", cash.game_loop.as_ref().unwrap().state)
+                );
+                assert_eq!(cash.last_turn_start, turn_before);
+                cash.broadcast_state();
+                state = messages.try_recv().unwrap();
+            } else {
+                let mut mtt = TournamentActor {
+                    table_id: cash.table_id,
+                    tournament_id: "mtt".into(),
+                    table_index: 0,
+                    name: cash.name,
+                    players: cash.players,
+                    game_loop: cash.game_loop,
+                    rx: cash.rx,
+                    tx_broadcast: cash.tx_broadcast,
+                    next_hand_at: None,
+                    dealer_index: 0,
+                    dealer_seat: None,
+                    antifraud: cash.antifraud,
+                    last_turn_start: None,
+                    turn_timeout: cash.turn_timeout,
+                    db: sqlx::postgres::PgPoolOptions::new()
+                        .connect_lazy("postgres://unused:unused@127.0.0.1:1/unused")
+                        .unwrap(),
+                    audit_secret: "synthetic".into(),
+                    idle_ticks: 0,
+                    last_winners: vec![],
+                    tournaments: Arc::new(RwLock::new(HashMap::new())),
+                    active_tables: Arc::new(RwLock::new(HashMap::new())),
+                    persistence_halted: false,
+                };
+                let before = format!("{:?}", mtt.game_loop.as_ref().unwrap().state);
+                mtt.handle_action("other".into(), "allin".into(), 0).await;
+                assert_eq!(
+                    before,
+                    format!("{:?}", mtt.game_loop.as_ref().unwrap().state)
+                );
+                assert!(mtt.last_turn_start.is_none());
+                mtt.broadcast_state();
+                state = messages.try_recv().unwrap();
+            }
+            let view = filter_table_state(state.clone(), "other");
+            assert_eq!(view["betting_structure"], "brazilian_pineapple_hybrid_v1");
+            let actual: poker_engine::game_loop::LegalActions =
+                serde_json::from_value(view.clone()).unwrap();
+            assert_eq!(actual, expected);
+            assert!(view["players"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|p| p.get("_legal_actions").is_none()));
+            assert_eq!(
+                filter_table_state(state, "spectator")["available_actions"],
+                json!([])
+            );
+        }
+    }
+
+    fn with_engine_actions(mut state: serde_json::Value) -> serde_json::Value {
+        use poker_engine::{game_loop::GameLoop, hand_history::GameType, types::TableConfig};
+        let mut game = GameLoop::new(
+            TableConfig::new(25, 0, 0),
+            "ws".into(),
+            "ws".into(),
+            GameType::Cash,
+        );
+        game.add_player("me".into(), 2500);
+        game.add_player("other".into(), 2500);
+        game.start_hand().unwrap();
+        game.state.current_bet_to_match = state["current_bet_to_match"].as_u64().unwrap();
+        game.state.min_raise = state["min_raise"].as_u64().unwrap();
+        game.state.active_player_index = 0;
+        game.state.players[0].current_bet = state["players"][0]["bet"].as_u64().unwrap();
+        game.state.players[0].stack = state["players"][0]["chips"].as_u64().unwrap();
+        let mut legal = game.legal_actions("me");
+        if state["players"][0]["_raise_allowed"] == false {
+            legal.available_actions.retain(|a| {
+                a != "raise"
+                    && a != "bet"
+                    && (a != "allin" || game.state.players[0].stack <= legal.call_amount)
+            });
+            legal.minimum_wager = 0;
+            legal.maximum_wager = 0;
+        }
+        state["players"][0]["_legal_actions"] = json!(legal);
+        state
+    }
+
     #[test]
     fn adds_recipient_specific_actions_without_exposing_them_to_opponents() {
         let state = json!({
@@ -1008,7 +1108,7 @@ mod tests {
             ]
         });
 
-        let filtered = filter_table_state(state, "me");
+        let filtered = filter_table_state(with_engine_actions(state), "me");
 
         assert_eq!(
             filtered["available_actions"],
@@ -1031,7 +1131,7 @@ mod tests {
             ]
         });
 
-        let filtered = filter_table_state(state, "me");
+        let filtered = filter_table_state(with_engine_actions(state), "me");
 
         assert_eq!(
             filtered["available_actions"],
@@ -1039,5 +1139,53 @@ mod tests {
         );
         assert_eq!(filtered["minimum_wager"], json!(200));
         assert_eq!(filtered["maximum_wager"], json!(1500));
+    }
+
+    #[test]
+    fn short_allin_does_not_offer_raise_or_shove_and_internal_flags_are_removed() {
+        let state = json!({
+            "type": "table_state",
+            "current_bet_to_match": 100, "min_raise": 50,
+            "players": [
+                {"id":"me", "chips":1000, "bet":75, "is_active":true, "_raise_allowed":false},
+                {"id":"other", "chips":0, "bet":100, "_raise_allowed":true}
+            ]
+        });
+        let filtered = filter_table_state(with_engine_actions(state.clone()), "me");
+        assert_eq!(filtered["available_actions"], json!(["fold", "call"]));
+        assert_eq!(filtered["call_amount"], 25);
+        assert_eq!(filtered["minimum_wager"], 0);
+        for recipient in ["me", "spectator"] {
+            let view = filter_table_state(with_engine_actions(state.clone()), recipient);
+            assert!(view["players"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|p| p.get("_raise_allowed").is_none()));
+        }
+        let mut short = state;
+        short["players"][0]["chips"] = json!(20);
+        let filtered = filter_table_state(with_engine_actions(short), "me");
+        assert_eq!(
+            filtered["available_actions"],
+            json!(["fold", "call", "allin"])
+        );
+        assert_eq!(filtered["call_amount"], 20);
+    }
+
+    #[test]
+    fn big_blind_option_offers_raise_instead_of_bet() {
+        let state = json!({
+            "type": "table_state",
+            "current_bet_to_match":25, "min_raise":25,
+            "players":[{"id":"me", "chips":2475, "bet":25, "is_active":true, "_raise_allowed":true}]
+        });
+        let filtered = filter_table_state(with_engine_actions(state), "me");
+        assert_eq!(
+            filtered["available_actions"],
+            json!(["fold", "check", "raise", "allin"])
+        );
+        assert_eq!(filtered["minimum_wager"], 50);
+        assert_eq!(filtered["maximum_wager"], 2500);
     }
 }

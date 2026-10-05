@@ -1,252 +1,466 @@
-//! 10.000 mãos por configuração do catálogo cash oficial.
-//!
-//! Configs (blinds/frente/max do catálogo local proposto — migration 059):
-//! - NL 0,25/0,25 · 9-max · frente R$25
-//! - Texas Short Deck 0,50/0,50 · 8-max · frente R$100
-//! - Omaha 4 · 0,50/0,50 · 6-max · frente R$100
-//! - Brazilian Pineapple 0,50/0,50 · 6-max · frente R$75
-//!
-//! Rodar:
-//!   cargo test --test cash_catalog_10k_hands -- --nocapture
-
+//! Authorized cash campaign. Fixed entries, legal stack evolution, deterministic replay.
+//! The filename is kept for existing callers; batches now stop on coverage saturation.
+use poker_engine::deck::{create_deck, create_short_deck, Card};
 use poker_engine::game_loop::{GameLoop, PlayerMove};
 use poker_engine::hand_history::GameType;
-use poker_engine::types::{PokerVariant, TableConfig};
-use std::time::Instant;
+use poker_engine::side_pots::{find_winners_for_pot, precompute_hands_for_variant, PlayerForPots};
+use poker_engine::types::{PokerVariant, RakeCapSchedule, TableConfig};
+use rand::{rngs::StdRng, seq::SliceRandom, Rng, SeedableRng};
+use serde_json::{json, Value};
+use std::collections::BTreeSet;
+use std::fs::{self, File};
+use std::io::{BufWriter, Write};
+use std::path::PathBuf;
+use std::time::{SystemTime, UNIX_EPOCH};
 
-const HANDS: u32 = 10_000;
-
-struct CatalogTable {
-    name: &'static str,
-    small_blind: u64,
-    big_blind: u64,
-    max_players: usize,
-    starting_stack: u64,
-    rake_bps: u16,
-    rake_cap: u64,
-    variant: PokerVariant,
+fn output() -> PathBuf {
+    PathBuf::from(std::env::var("FULL_VALIDATION_REPORT_DIR").expect("campaign output required"))
 }
-
-const CATALOG: &[CatalogTable] = &[
-    CatalogTable {
-        name: "NLHE 0,25/0,25",
-        small_blind: 25,
-        big_blind: 25,
-        max_players: 9,
-        starting_stack: 2_500,
-        rake_bps: 500,
-        rake_cap: 250,
-        variant: PokerVariant::Holdem,
-    },
-    CatalogTable {
-        name: "Texas Short Deck 0,50/0,50",
-        small_blind: 50,
-        big_blind: 50,
-        max_players: 8,
-        starting_stack: 10_000,
-        rake_bps: 500,
-        rake_cap: 500,
-        variant: PokerVariant::ShortDeck,
-    },
-    CatalogTable {
-        name: "Omaha 4 0,50/0,50",
-        small_blind: 50,
-        big_blind: 50,
-        max_players: 6,
-        starting_stack: 10_000,
-        rake_bps: 500,
-        rake_cap: 1_000,
-        variant: PokerVariant::Omaha,
-    },
-    CatalogTable {
-        name: "Brazilian Pineapple 0,50/0,50",
-        small_blind: 50,
-        big_blind: 50,
-        max_players: 6,
-        starting_stack: 7_500,
-        rake_bps: 500,
-        rake_cap: 500,
-        variant: PokerVariant::BrazilianPineapple,
-    },
-];
-
-fn auto_play(gl: &mut GameLoop, big_blind: u64) {
-    let mut steps = 0u32;
-    while !gl.state.is_finished && steps < 3_000 {
-        steps += 1;
-        let Some(active) = gl.state.active_player().map(|p| p.id.clone()) else {
-            break;
-        };
-        let to_call = {
-            let p = gl
-                .state
-                .players
-                .iter()
-                .find(|p| p.id == active)
-                .expect("active");
-            gl.state.current_bet_to_match.saturating_sub(p.current_bet)
-        };
-        let roll = steps.wrapping_mul(37).wrapping_add(active.len() as u32) % 100;
-        let mv = if to_call == 0 {
-            if roll > 93 {
-                PlayerMove::Raise(big_blind * 2)
-            } else {
-                PlayerMove::Check
-            }
-        } else if roll < 12 {
-            PlayerMove::Fold
-        } else if roll > 98 {
-            PlayerMove::AllIn
-        } else {
-            PlayerMove::Call
-        };
-        if gl.player_action(&active, mv).is_err() {
-            let fb = if to_call == 0 {
-                PlayerMove::Check
-            } else {
-                PlayerMove::Call
-            };
-            if gl.player_action(&active, fb).is_err() {
-                let _ = gl.player_action(&active, PlayerMove::Fold);
-            }
-        }
+fn event(out: &mut impl Write, value: Value) {
+    serde_json::to_writer(&mut *out, &value).unwrap();
+    writeln!(out).unwrap();
+    out.flush().unwrap();
+}
+fn variant(value: &str) -> PokerVariant {
+    match value {
+        "holdem" => PokerVariant::Holdem,
+        "short_deck" => PokerVariant::ShortDeck,
+        "omaha" => PokerVariant::Omaha,
+        "brazilian_pineapple" => PokerVariant::BrazilianPineapple,
+        _ => panic!("unknown variant"),
     }
-    assert!(
-        gl.state.is_finished,
-        "mão não terminou steps={steps} phase={:?}",
-        gl.state.phase
-    );
 }
-
-fn run_catalog_table(cfg: &CatalogTable) {
-    let config = TableConfig::new(cfg.big_blind, cfg.rake_bps, cfg.rake_cap)
-        .with_small_blind(cfg.small_blind)
-        .with_poker_variant(cfg.variant);
-
-    let hole_expected = cfg.variant.hole_card_count();
-    let short = cfg.variant.uses_short_deck();
-
-    let mut stacks: Vec<(String, u64)> = (0..cfg.max_players)
-        .map(|i| (format!("p{i}"), cfg.starting_stack))
+fn cards_valid(game: &GameLoop, short: bool) {
+    let cards: Vec<Card> = game
+        .state
+        .players
+        .iter()
+        .flat_map(|p| p.hole_cards.iter())
+        .chain(&game.state.community_cards)
+        .chain(&game.state.burn_pile)
+        .chain(&game.state.deck)
+        .copied()
         .collect();
-
-    let mut total_rake = 0u64;
-    let mut showdowns = 0u32;
-    let mut fold_wins = 0u32;
-    let mut rebuys = 0u32;
-    let t0 = Instant::now();
-
-    for hand_idx in 0..HANDS {
-        for (_, s) in stacks.iter_mut() {
-            if *s < cfg.big_blind * 10 {
-                *s = cfg.starting_stack;
-                rebuys += 1;
-            }
-        }
-        let before: u64 = stacks.iter().map(|(_, s)| *s).sum();
-
-        let mut gl = GameLoop::new(
-            config.clone(),
-            format!("{}-{hand_idx}", cfg.name),
-            cfg.name.to_string(),
-            GameType::Cash,
-        )
-        .with_skip_loss_deflator(true);
-        for (id, stack) in &stacks {
-            gl.add_player(id.clone(), *stack);
-        }
-        gl.set_dealer((hand_idx as usize) % cfg.max_players);
-        gl.start_hand()
-            .unwrap_or_else(|e| panic!("{} start_hand: {e:?}", cfg.name));
-
-        assert_eq!(gl.state.small_blind, cfg.small_blind, "{} SB", cfg.name);
-        assert_eq!(gl.state.big_blind, cfg.big_blind, "{} BB", cfg.name);
-
-        for p in &gl.state.players {
-            assert_eq!(p.hole_cards.len(), hole_expected, "{} hole cards", cfg.name);
-            if short {
-                for c in &p.hole_cards {
-                    assert!(
-                        (c.rank as u8) >= 6,
-                        "{} carta baixa no hole {:?}",
-                        cfg.name,
-                        c
-                    );
-                }
-            }
-        }
-
-        auto_play(&mut gl, cfg.big_blind);
-
-        if cfg.variant == PokerVariant::BrazilianPineapple && gl.state.community_cards.len() == 5 {
-            for p in &gl.state.players {
-                if p.is_in_hand() {
-                    assert_eq!(p.hole_cards.len(), 5, "{} pineapple river hole", cfg.name);
-                }
-            }
-        }
-
-        if short {
-            for c in &gl.state.community_cards {
-                assert!(
-                    (c.rank as u8) >= 6,
-                    "{} carta baixa no board {:?}",
-                    cfg.name,
-                    c
-                );
-            }
-        }
-
-        let res = gl
-            .resolve_hand()
-            .unwrap_or_else(|e| panic!("{} resolve: {e:?}", cfg.name));
-        total_rake += res.rake;
-        let platform = (res.rake * 15) / 100;
-        let club = res.rake.saturating_sub(platform);
-        assert_eq!(platform + club, res.rake, "{} B2B split", cfg.name);
-
-        match res.end_reason {
-            poker_engine::hand_history::EndReason::Showdown => showdowns += 1,
-            poker_engine::hand_history::EndReason::AllFolded => fold_wins += 1,
-            _ => {}
-        }
-
-        for p in &gl.state.players {
-            let pay = res.payouts.get(&p.id).copied().unwrap_or(0);
-            if let Some((_, s)) = stacks.iter_mut().find(|(id, _)| id == &p.id) {
-                *s = p.stack + pay;
-            }
-        }
-        let after: u64 = stacks.iter().map(|(_, s)| *s).sum();
+    let expected = if short {
+        create_short_deck()
+    } else {
+        create_deck()
+    };
+    assert_eq!(cards.len(), expected.len(), "card count");
+    for card in expected {
         assert_eq!(
-            after + res.rake,
-            before,
-            "{} conservação mão {hand_idx}: before={before} after={after} rake={}",
-            cfg.name,
-            res.rake
+            cards.iter().filter(|c| **c == card).count(),
+            1,
+            "impossible card"
         );
-
-        if hand_idx > 0 && hand_idx % 2_500 == 0 {
-            eprintln!(
-                "[{}] progress {hand_idx}/{HANDS} elapsed={:.1}s",
-                cfg.name,
-                t0.elapsed().as_secs_f64()
-            );
-        }
     }
-
-    let elapsed = t0.elapsed();
-    eprintln!(
-        "[{}] DONE hands={HANDS} elapsed={elapsed:?} hps={:.1} showdowns={showdowns} folds={fold_wins} rake={total_rake} rebuys={rebuys}",
-        cfg.name,
-        HANDS as f64 / elapsed.as_secs_f64().max(0.001)
-    );
+}
+fn expired() -> bool {
+    let deadline: u64 = std::env::var("FULL_VALIDATION_DEADLINE")
+        .unwrap()
+        .parse()
+        .unwrap();
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs()
+        >= deadline
 }
 
 #[test]
-fn cash_catalog_ten_thousand_hands_each_table() {
-    for cfg in CATALOG {
-        eprintln!("=== START {} ===", cfg.name);
-        run_catalog_table(cfg);
+#[ignore = "manual campaign: requires authorization, deadline and artifact directory"]
+fn cash_catalog_coverage_batches() {
+    assert_eq!(
+        std::env::var("FULL_VALIDATION_APPROVED").as_deref(),
+        Ok("1")
+    );
+    let catalog: Value =
+        serde_json::from_str(include_str!("../../Documentacao/STATUS_OPERACIONAL.json")).unwrap();
+    let index: usize = std::env::var("FULL_VALIDATION_CASH_INDEX")
+        .unwrap()
+        .parse()
+        .unwrap();
+    let cfg = &catalog["cash_tables"][index];
+    let detail: Value =
+        serde_json::from_slice(&fs::read(output().join("catalog-db.json")).unwrap()).unwrap();
+    let row = &detail["cash"][index];
+    let v = variant(cfg["variant"].as_str().unwrap());
+    let bb = cfg["big_blind_cents"].as_u64().unwrap();
+    let sb = cfg["small_blind_cents"].as_u64().unwrap();
+    let entry = cfg["buy_in_cents"].as_u64().unwrap();
+    let cap = cfg["max_players"].as_u64().unwrap() as usize;
+    // Independent sessions for every legal occupancy. Only a busted player is replaced,
+    // with a NEW synthetic identity and exactly the fixed catalogue entry.
+    let mut sessions: Vec<Vec<(String, u64)>> = (2..=cap)
+        .map(|n| {
+            (0..n)
+                .map(|seat| (format!("c{index}-n{n}-p{seat}"), entry))
+                .collect()
+        })
+        .collect();
+    let mut replacements = 0;
+    let mut trace =
+        BufWriter::new(File::create(output().join(format!("cash-{index}-events.jsonl"))).unwrap());
+    let mut coverage = BTreeSet::<String>::new();
+    let mut batches = Vec::new();
+    let mut stagnant = 0;
+    let mut hands = 0;
+    let mut stop = "ceiling";
+    for batch in 0..20u64 {
+        let prior = coverage.len();
+        // Each batch rotates through occupancies and target streets. Subsequent batches
+        // favour aggressive/passive policies missing from this configuration's evidence.
+        for offset in 0..1000u64 {
+            if expired() {
+                stop = "deadline";
+                break;
+            }
+            let hand = batch * 1000 + offset;
+            let seed = 0x26_1001 + index as u64 * 1_000_000 + hand;
+            let mut rng = StdRng::seed_from_u64(seed);
+            let n = 2 + hand as usize % (cap - 1);
+            let stacks = &mut sessions[n - 2];
+            for (id, stack) in stacks.iter_mut() {
+                if *stack == 0 {
+                    replacements += 1;
+                    *id = format!("c{index}-replacement-{replacements}");
+                    *stack = entry;
+                    event(
+                        &mut trace,
+                        json!({"event":"entry","player":id,"cents":entry}),
+                    );
+                }
+            }
+            let before: u64 = stacks.iter().map(|(_, s)| s).sum();
+            // Deflator is exercised in directed fixtures and a separate precision campaign:
+            // calculating 500k boards on every preflop all-in would duplicate that evidence.
+            let mut game = GameLoop::new(
+                TableConfig::new(
+                    bb,
+                    row["rake_basis_points"].as_u64().unwrap() as u16,
+                    row["rake_cap"].as_u64().unwrap(),
+                )
+                .with_rake_cap_schedule(RakeCapSchedule {
+                    heads_up: row["rake_cap_heads_up"].as_u64().unwrap(),
+                    three_to_four: row["rake_cap_three_to_four"].as_u64().unwrap(),
+                    five_plus: row["rake_cap_five_plus"].as_u64().unwrap(),
+                })
+                .with_small_blind(sb)
+                .with_poker_variant(v),
+                format!("cash-{index}-{hand}"),
+                cfg["name"].as_str().unwrap().into(),
+                GameType::Cash,
+            )
+            .with_skip_loss_deflator(true);
+            for (id, stack) in stacks.iter() {
+                game.add_player(id.clone(), *stack);
+            }
+            let dealer = hand as usize / (cap - 1) % n;
+            game.set_dealer(dealer);
+            let mut deck = if v.uses_short_deck() {
+                create_short_deck()
+            } else {
+                create_deck()
+            };
+            deck.shuffle(&mut rng);
+            event(
+                &mut trace,
+                json!({"event":"start","betting_rule_version":game.betting_structure(),"hand":hand,"seed":seed,"config":cfg,
+                "stacks":stacks,"dealer":dealer,"deck":deck,"deflator":"directed_only"}),
+            );
+            game.start_hand_with_deck(deck).unwrap();
+            game.run_out_stalled_hand();
+            cards_valid(&game, v.uses_short_deck());
+            let mut contexts = Vec::new();
+            let target = (hand / (cap - 1) as u64 % 4) as usize;
+            let mut policy = (hand / ((cap - 1) * 4) as u64 % 5) as usize;
+            if batch > 0 {
+                if !coverage.contains("sequence=allin")
+                    || !coverage.contains("sequence=fold_after_allin")
+                {
+                    policy = 0;
+                } else if !coverage.contains("sequence=check_raise") {
+                    policy = 2;
+                }
+            }
+            let mut steps = 0;
+            let mut raises = 0;
+            let mut checked = BTreeSet::new();
+            while !game.state.is_finished {
+                steps += 1;
+                assert!(steps < 500, "hand stalled: seed {seed}");
+                let p = game.state.active_player().unwrap();
+                let id = p.id.clone();
+                let seat = p.seat_index;
+                let to_call = game
+                    .state
+                    .current_bet_to_match
+                    .saturating_sub(p.current_bet);
+                let street = match game.state.community_cards.len() {
+                    0 => 0,
+                    3 => 1,
+                    4 => 2,
+                    _ => 3,
+                };
+                let phase = format!("{:?}", game.state.phase);
+                let seen_allin = game.state.players.iter().any(|p| p.is_all_in);
+                let roll: u32 = rng.gen_range(0..100);
+                let min_total = game.state.current_bet_to_match + game.state.min_raise;
+                let legal = game.legal_actions(&id);
+                let mv = if v == PokerVariant::BrazilianPineapple
+                    && street == 0
+                    && legal.allows("allin")
+                {
+                    // Evolved short stacks can now witness a preflop all-in;
+                    // deep stacks remain limited to the next fixed level.
+                    PlayerMove::AllIn
+                } else if hand == 0 && n == 2 && index != 4 {
+                    // Two legal HU hands witness medium/short stacks and a
+                    // check-raise followed by one covered all-in. No chip injection.
+                    match steps {
+                        1 => PlayerMove::Raise(entry - 50 * bb),
+                        2 => PlayerMove::AllIn,
+                        _ => PlayerMove::Fold,
+                    }
+                } else if hand == (cap - 1) as u64 && n == 2 && index != 4 {
+                    match steps {
+                        1 => PlayerMove::Raise(40 * bb),
+                        2 | 6 | 8 => PlayerMove::Call,
+                        3 => PlayerMove::Check,
+                        4 => PlayerMove::Bet(bb),
+                        5 => PlayerMove::Raise(2 * bb),
+                        7 => PlayerMove::AllIn,
+                        _ => panic!("unexpected directed HU step {steps}"),
+                    }
+                } else if policy == 0 && seen_allin && to_call > 0 && roll < 30 {
+                    PlayerMove::Fold
+                } else if (policy == 2 && raises >= 4 && game.can_raise(&id))
+                    || (street == target
+                        && policy == 0
+                        && (!seen_allin || roll < 35)
+                        && (game.can_raise(&id) || p.stack <= to_call))
+                {
+                    PlayerMove::AllIn
+                } else if to_call > 0 && matches!(policy, 0 | 1 | 3) && roll < 30 {
+                    PlayerMove::Fold
+                } else if street >= target
+                    // Bound the policy's raises, not the legal size of a stack.
+                    // Deep stacks can otherwise make 500 perfectly legal min-raises.
+                    && raises < 8
+                    && (policy == 2 || (matches!(policy, 1 | 3) && raises < 2))
+                    && game.can_raise(&id)
+                    && roll < 40
+                    && p.current_bet + p.stack >= min_total
+                {
+                    let increment = if policy == 3 {
+                        game.state.min_raise.saturating_mul(1 + u64::from(roll % 5))
+                    } else {
+                        game.state.min_raise
+                    };
+                    let total =
+                        (game.state.current_bet_to_match + increment).min(p.current_bet + p.stack);
+                    if game.state.current_bet_to_match == 0 {
+                        PlayerMove::Bet(total)
+                    } else {
+                        PlayerMove::Raise(total)
+                    }
+                } else if to_call == 0 {
+                    PlayerMove::Check
+                } else {
+                    PlayerMove::Call
+                };
+                let mv = legal.constrain_move(mv);
+                let sequence = match mv {
+                    PlayerMove::Fold if seen_allin => "fold_after_allin",
+                    PlayerMove::Fold => "fold",
+                    PlayerMove::AllIn => "allin",
+                    PlayerMove::Bet(_) | PlayerMove::Raise(_)
+                        if checked.contains(&(phase.clone(), seat)) =>
+                    {
+                        "check_raise"
+                    }
+                    PlayerMove::Bet(_) | PlayerMove::Raise(_) if raises > 0 => "reraise",
+                    PlayerMove::Bet(_) | PlayerMove::Raise(_) => "open",
+                    _ => "passive",
+                };
+                let position = if seat == dealer {
+                    "button"
+                } else if n == 2 {
+                    "bb"
+                } else if seat == (dealer + 1) % n {
+                    "sb"
+                } else if seat == (dealer + 2) % n {
+                    "bb"
+                } else {
+                    "other"
+                };
+                let stack = if p.stack <= 20 * bb {
+                    "short"
+                } else if p.stack <= 100 * bb {
+                    "medium"
+                } else {
+                    "deep"
+                };
+                contexts.push(vec![
+                    format!("variant={}", cfg["variant"].as_str().unwrap()),
+                    format!(
+                        "occupancy={}",
+                        if n == 2 {
+                            "hu"
+                        } else if n == cap {
+                            "full"
+                        } else {
+                            "partial"
+                        }
+                    ),
+                    format!("position={position}"),
+                    format!("street={phase}"),
+                    format!("stack={stack}"),
+                    format!("sequence={sequence}"),
+                ]);
+                event(
+                    &mut trace,
+                    json!({"event":"action","hand":hand,"step":steps,"player":id,
+                    "phase":phase,"move":format!("{mv:?}"),"to_call":to_call}),
+                );
+                if matches!(mv, PlayerMove::Check) {
+                    checked.insert((phase, seat));
+                }
+                if matches!(mv, PlayerMove::Bet(_) | PlayerMove::Raise(_)) {
+                    raises += 1;
+                }
+                game.player_action(&id, mv).unwrap();
+                cards_valid(&game, v.uses_short_deck());
+                assert_eq!(
+                    game.state
+                        .players
+                        .iter()
+                        .map(|p| p.stack + p.total_bet)
+                        .sum::<u64>(),
+                    before,
+                    "financial divergence seed {seed}"
+                );
+            }
+            if v == PokerVariant::BrazilianPineapple && game.state.community_cards.len() == 5 {
+                for p in game.state.players.iter().filter(|p| p.is_in_hand()) {
+                    assert_eq!(p.hole_cards.len(), 5);
+                }
+            }
+            let result = game.resolve_hand().unwrap();
+            assert_eq!(
+                game.state.players.iter().map(|p| p.stack).sum::<u64>()
+                    + result.payouts.values().sum::<u64>()
+                    + result.rake,
+                before,
+                "settlement divergence seed {seed}"
+            );
+            let players: Vec<_> = game
+                .state
+                .players
+                .iter()
+                .map(|p| PlayerForPots {
+                    id: p.id.clone(),
+                    total_bet: p.total_bet,
+                    has_folded: p.has_folded,
+                    cards: p.hole_cards.clone(),
+                })
+                .collect();
+            let evaluated = precompute_hands_for_variant(&players, &game.state.community_cards, v);
+            let tied = result
+                .pots
+                .iter()
+                .any(|pot| find_winners_for_pot(pot, &players, &evaluated).len() > 1);
+            let allins = game.state.players.iter().filter(|p| p.is_all_in).count();
+            // Distinct contested eligibility sets define actual side pots.
+            // Uncalled returns and segments with the same contenders do not.
+            let contested: BTreeSet<Vec<String>> = result
+                .pots
+                .iter()
+                .filter_map(|pot| {
+                    let mut eligible: Vec<_> = pot
+                        .eligible_players
+                        .iter()
+                        .filter(|id| {
+                            game.state
+                                .players
+                                .iter()
+                                .any(|p| p.id == **id && !p.has_folded)
+                        })
+                        .cloned()
+                        .collect();
+                    eligible.sort();
+                    (eligible.len() > 1).then_some(eligible)
+                })
+                .collect();
+            for mut row in contexts {
+                row.extend([
+                    format!(
+                        "allin={}",
+                        if allins == 0 {
+                            "none"
+                        } else if allins == 1 {
+                            "single"
+                        } else {
+                            "multi"
+                        }
+                    ),
+                    format!("tie={tied}"),
+                    format!(
+                        "pots={}",
+                        if contested.len() > 1 {
+                            "multiple"
+                        } else {
+                            "single"
+                        }
+                    ),
+                ]);
+                for a in 0..row.len() {
+                    coverage.insert(row[a].clone());
+                    for b in a + 1..row.len() {
+                        let mut pair = [row[a].clone(), row[b].clone()];
+                        pair.sort();
+                        coverage.insert(pair.join("|"));
+                    }
+                }
+            }
+            for (id, stack) in stacks.iter_mut() {
+                *stack = game
+                    .state
+                    .players
+                    .iter()
+                    .find(|p| p.id == *id)
+                    .unwrap()
+                    .stack
+                    + result.payouts.get(id).copied().unwrap_or(0);
+            }
+            event(
+                &mut trace,
+                json!({"event":"settlement","hand":hand,"payouts":result.payouts,
+                "rake":result.rake,"pots":result.pots,"stacks":stacks}),
+            );
+            hands += 1;
+        }
+        let gained = coverage.len() - prior;
+        stagnant = if gained == 0 { stagnant + 1 } else { 0 };
+        batches.push(json!({"batch":batch,"hands_completed":hands,"new_coverage":gained}));
+        let report = json!({"config":cfg,"hands":hands,"batches":batches,"coverage":coverage,
+            "stop":if stop=="deadline" {"deadline"} else if stagnant>=3 {"saturation"} else if batch == 19 {"ceiling"} else {"running"},
+            "replacements":replacements,"deflator":"directed_only"});
+        fs::write(
+            output().join(format!("cash-{index}.json")),
+            serde_json::to_vec_pretty(&report).unwrap(),
+        )
+        .unwrap();
+        if stop == "deadline" || stagnant >= 3 {
+            if stagnant >= 3 {
+                stop = "saturation";
+            }
+            break;
+        }
     }
+    event(
+        &mut trace,
+        json!({"event":"stop","reason":stop,"hands":hands}),
+    );
+    assert_ne!(stop, "deadline", "incomplete campaign: time limit");
 }

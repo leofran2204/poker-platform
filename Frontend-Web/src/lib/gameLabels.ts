@@ -86,7 +86,7 @@ export function variantHint(variant?: string | null): string | null {
       return "Omaha 4 cartas · baralho 52 · exatamente 2 hole + 3 board";
     case "brazilian_pineapple":
     case "ultimate_pineapple":
-      return "Brazilian Pineapple · baralho 52 · 2+1+1+1 · 2 da mão + 3 da mesa · ranking clássico";
+      return "Brazilian Pineapple · baralho 52 · 2+1+1+1 · 2 da mão + 3 da mesa · ranking clássico · pré-flop 1–4 BB · pós-flop: aumento limitado ao pote antes do call";
     case "short_deck":
       return "Texas Hold’em Short Deck · baralho 36 (6 a A) · flush vence full house";
     case "holdem":

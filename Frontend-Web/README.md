@@ -33,7 +33,7 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 
 ## Home
 
-- Visitante: hero editorial, filme v3 de 81,70 s, desafio de pot odds, Academy, quatro modalidades e Agente ZT. Brazilian Pineapple aparece como modalidade exclusiva; Short Deck tem regras próprias.
+- Visitante: Brazilian Pineapple é o destaque, com capa própria e “Aprenda Brazilian Pineapple”. Filme de 477,67 s (até oito minutos), exemplos da regra híbrida e acesso também no início da Academy. O institucional v3 de 81,70 s permanece como link secundário no fim da home.
 - Logado em `/` redireciona para `/curso`
 - Notícias e Dica do Pró **não** ficam na home: `/noticias`, `/dicas`, rodapé e atalhos no Curso
 - Header logado: Curso · Lobby · Carteira (+ Mais). Visitante: Academy · Entrar · Criar conta
@@ -41,10 +41,10 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 ## Academy e mídia
 
 - Grade local: 28 aulas e 65 questões em `src/data/courseContent.json`; pré-requisitos explícitos, modalidades após fundamentos, história opcional com a difusão do Omaha. IDs/progresso anteriores preservados.
-- Player: MP4, poster, VTT em português, capítulos e transcrição real. Estado do player e quiz reinicia ao mudar de aula.
-- As 28 aulas atuais têm vídeo publicado localmente. Os 25 técnicos v3 derivam da teoria, dos exercícios e dos cenários atuais; o gate de mídia confere SHA-256 do conteúdo e dos arquivos. A pasta pública contém somente os arquivos da grade ativa e do filme atual.
-- Home v3, história ep11–ep13 v2 e 25 aulas técnicas v3: 1080p30, narração sintética, fontes bibliográficas vinculadas. Originais e renderizador em `ZeroTiltCurso/editorial/`; resultados em `public/videos/`.
-- `homeFilm.json` é gerado com duração/transcrição/capítulos reais; não duplicar o roteiro no JSX.
+- Player: MP4, poster, VTT em português, capítulos com indicação do atual e transcrição real. Carrega sob demanda, sem autoplay; saltos funcionam antes de carregar os metadados. O modal fecha por botão/Escape, desmonta o vídeo e devolve o foco. Estado do player e quiz reinicia ao mudar de aula.
+- As 28 aulas preservam seus vídeos. `m5l3`, `m5l4` e `m5l5` continuam como material da regra anterior (`prior_rules` / `legacy_no_limit`), com aviso e fontes originais auditáveis. A pasta pública contém 90 arquivos: 28 aulas, o destaque Pineapple e o institucional preservado, cada um com MP4/VTT/WebP.
+- O novo Pineapple é 720p30 H.264/AAC, 31 cenas e oito capítulos; as 29 produções anteriores permanecem em 1080p30. Voz sintética brasileira `pt-BR-AntonioNeural`, sem aceleração. Fontes/renderizadores em `ZeroTiltCurso/editorial/`; finais em `public/videos/`.
+- `pineappleFilm.json` e `homeFilm.json` são gerados com duração/transcrição/capítulos reais; não duplicar o roteiro no JSX. O novo manifesto também registra `brazilian_pineapple_hybrid_v1`, SHA-256 do roteiro, MP4, VTT, capa e transcrição. Entrega local: publicar junto com a regra, sem mãos nem torneios Pineapple em andamento.
 - O quiz de aula usa gabarito editorial local. A mesa de estudo avalia regras e contas no servidor, sem certificar estratégia ótima.
 - `/curso/mesa/:moduleId`: dez mesas de módulo, 35 cenários nas quatro modalidades, bots com informação limitada, treino guiado/desafio/prática variada, replay, retorno de uma decisão e comparação. Caderno e até 50 sessões persistem apenas neste navegador; permitem reabrir e exportar JSON. Não há depósito nem vínculo com saldo.
 - Cliente em `src/lib/academy.ts`; catálogo único em `src/data/courseTraining.json`, também compilado na API. Alterar regras/cenários exige revisar versão, testes e vídeos afetados. Testes de persistência/contrato em `academy.test.ts`.

@@ -1835,6 +1835,42 @@ fn decide_for(
     params: &BotParams,
     rnd: &mut dyn FnMut() -> u64,
 ) -> Option<(String, u64)> {
+    use poker_engine::game_loop::{LegalActions, PlayerMove};
+    let me = state["players"]
+        .as_array()?
+        .iter()
+        .find(|p| p["id"].as_str() == Some(bot_id))?;
+    let legal: LegalActions = serde_json::from_value(me.get("_legal_actions")?.clone()).ok()?;
+    if legal.available_actions.is_empty() {
+        return None;
+    }
+    let (action, amount) = propose_for(state, bot_id, variant, params, rnd)?;
+    let proposed = match action.as_str() {
+        "fold" => PlayerMove::Fold,
+        "check" => PlayerMove::Check,
+        "call" => PlayerMove::Call,
+        "bet" => PlayerMove::Bet(amount),
+        "raise" => PlayerMove::Raise(amount),
+        _ => PlayerMove::AllIn,
+    };
+    let result = match legal.constrain_move(proposed) {
+        PlayerMove::Fold => ("fold", 0),
+        PlayerMove::Check => ("check", 0),
+        PlayerMove::Call => ("call", 0),
+        PlayerMove::Bet(n) => ("bet", n),
+        PlayerMove::Raise(n) => ("raise", n),
+        PlayerMove::AllIn => ("allin", 0),
+    };
+    Some((result.0.into(), result.1))
+}
+
+fn propose_for(
+    state: &serde_json::Value,
+    bot_id: &str,
+    variant: &str,
+    params: &BotParams,
+    rnd: &mut dyn FnMut() -> u64,
+) -> Option<(String, u64)> {
     let players = state.get("players")?.as_array()?;
     let me = players
         .iter()
@@ -1908,17 +1944,14 @@ fn decide_for(
             2 => {
                 // Forte: aposta 2/3 do pote (bet_strong%) ou mesa traiçoeira.
                 if roll < params.bet_strong as u64 {
-                    let amt = (pot * 2 / 3)
-                        .clamp(min_raise, stack)
-                        .max(min_raise)
-                        .min(stack);
+                    let amt = (pot.saturating_mul(2) / 3).max(min_raise).min(stack);
                     return Some(("bet".to_string(), amt));
                 }
                 return Some(("check".to_string(), 0));
             }
             1 => {
                 if roll < params.bet_medium as u64 {
-                    let amt = (pot / 2).clamp(min_raise, stack).max(min_raise).min(stack);
+                    let amt = (pot / 2).max(min_raise).min(stack);
                     return Some(("bet".to_string(), amt));
                 }
                 return Some(("check".to_string(), 0));

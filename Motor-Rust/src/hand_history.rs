@@ -114,6 +114,9 @@ pub struct PlayerResult {
 /// Registro completo de uma mão de poker
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HandHistory {
+    /// Missing means the original rules, never reinterpret or rewrite old hands.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub betting_rule_version: Option<String>,
     /// ID único da mão (UUID v4 ou similar)
     pub hand_id: String,
     /// Timestamp UNIX de quando a mão começou
@@ -177,6 +180,7 @@ pub fn create_hand_history(
     starting_stacks: HashMap<String, u64>,
 ) -> HandHistory {
     HandHistory {
+        betting_rule_version: None,
         hand_id,
         timestamp: now_timestamp(),
         table_config,

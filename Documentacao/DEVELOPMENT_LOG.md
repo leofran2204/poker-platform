@@ -1,6 +1,6 @@
 # 📝 Histórico de Desenvolvimento — Plataforma de Poker Online
 
-**Atualizado:** 2026-09-27 (decisão comercial Agente ZT local; deploy fcf4065e permanece no ar)
+**Atualizado:** 2026-10-05 (publicação do Pineapple híbrido autorizada; resultados datados abaixo)
 **Propósito:** Registro cronológico de desenvolvimento + retrospectivas de sprint.
 
 > Painel tático em `DASHBOARD.md`. Cronograma em `CRONOGRAMA.md`. Estado canônico em `STATUS_OPERACIONAL.md` (prevalece sobre retrospectivas históricas que digam “Launch Ready”).
@@ -906,7 +906,7 @@
 - Eps 05-10 (~50-56s cada): sizing, roubos e 3-bets, pot odds, EV e fold equity, banca, revisão final. Série completa em `ZeroTiltCurso/`.
 - Sem botão no resultado: só as 5 cartas do jogo vencedor saltam com brilho dourado (board + mão do vencedor + painel), e o painel some sozinho em 7s.
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-05) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
@@ -1238,3 +1238,43 @@
 - Conferência pública concluída em Chrome a 1440/390 px: home, dicas, Agente ZT e aula Omaha (13 capítulos, 63 legendas, transcrição, nove fontes e quiz) sem erros/avisos de console ou overflow horizontal. Cinco cenários de treino por largura e os fluxos principais passaram; a rodada inicial mais extensa encontrou o rate limit e foi substituída por uma amostra dentro da janela, preservando a proteção. Evidências locais em `artifacts/release-s26/`.
 - Atualizados os documentos donos de arquitetura, regras, qualidade, curso, plano comercial, pitches e dashboard para refletir a migration 060 e a publicação S26. Preservadas as pendências editoriais, auditorias históricas e expansão futura da grade.
 - Encerramento: [Rust CI](https://github.com/leofran2204/poker-platform/actions/runs/36933764739) e [Container Supply Chain](https://github.com/leofran2204/poker-platform/actions/runs/36933764974) aprovados para `dc391a29`. Conferência final da VPS repetiu 60 migrations e 87 mídias com checksums corretos, quatro containers saudáveis e uid 10001 nos serviços da aplicação. O commit final contém apenas documentação, sincronizada em 22 arquivos e sem links locais quebrados nos documentos alterados.
+
+### 2026-10-03 — correções da campanha de jogo (local)
+
+- Retomada a tarefa de resolver as divergências. O proprietário confirmou preservar o conjunto de oponentes no pagamento do all-in e redistribuir proporcionalmente os prêmios quando faltarem participantes para as posições previstas.
+- Corrigidos reabertura de apostas após all-ins curtos/cumulativos, ações legais no WS e small blind que já está all-in. O snapshot do Loss Deflator conserva fase, board e oponentes; a elegibilidade financeira segue os potes finais.
+- Premiação inclui posições pagas eliminadas e conserva integralmente o pool em centavos, com redistribuição proporcional e maiores resíduos. Persistência transacional com bloqueio do torneio, rollback e proteção contra pagamento duplicado; estado em memória só é finalizado após persistir.
+- Reconciliadas as reentradas PM/Real do catálogo com as migrations 044/053, sem alterar migrations. Gerador e executor passaram a distinguir aumentos legais prolongados de travamento, deadline de falha e artefatos de reprodução dos originais.
+- A última campanha completou 36.000 mãos cash e quatro MTTs (234 mãos), mas expirou durante Pineapple. A versão antiga sobrescreveu o checkpoint parcial ao reproduzir; esse lote não é contado. A campanha permanece incompleta, com equity, matriz e integração API/rede pendentes. Últimas melhorias do gerador/transporte ainda não tiveram campanha completa. Detalhes e tempos em [FULL_VALIDATION](FULL_VALIDATION.md).
+- Rotina aprovada: 1.859 testes de biblioteca do motor, 12 dirigidos, 79 de biblioteca da API, 14 do sincronizador e oito do executor; formatação e clippy sem warnings. Contrato PostgreSQL separado confirmou rollback, concorrência, idempotência e carteiras isoladas da premiação em banco descartável.
+- Evidências preservadas em `artifacts/full-validation/`. Sem nova campanha massiva após o deadline, sem commit, push ou deploy; demo e saldos reais não foram alterados.
+
+### 2026-10-03 — nova autorização de carga e diagnóstico de transporte (local)
+
+- O proprietário autorizou uma nova janela de até 60 minutos com dois trabalhadores. As tentativas receberam tetos reduzidos de 60, 45 e 35 minutos; resultados originais preservados, sem somar repetições como cobertura adicional.
+- A evidência principal `20261003T051020Z-cb15a3` completou 25.000 mãos cash e os cinco MTTs em 309 mãos, conservando integralmente os pools. Cobriu 440 pares globais; restou um par individual de Pineapple. Sete referências de equity e quatro vizinhanças dos tiers passaram, com erro máximo de 0,08399 ponto percentual.
+- Passaram 21 contratos de banco/Redis, rotinas da API, atores internos 1/5/20 e desconexões. Corrigida uma fixture antiga que esperava remoção imediata após desconexão; o contrato exige reserva e reconexão do mesmo assento/fichas.
+- HTTPS/WSS de uma mesa confirmou reconexão, timeout, privacidade, repetição imediata de call e settlement durável. Cinco mesas falharam com 429. Diagnóstico de duas conexões comprovou que o Node Windows chegava ao WSL como um só IP; Node Linux preservou os endereços. Adotado runtime Linux oficial com checksum verificado, sem mudar os limites da API.
+- A tentativa final `20261003T153704Z-ed6cd9` expirou antes da primeira mão cash: 93,07 s monotônicos e 29.824,56 s de relógio, durante grande retenção das ferramentas. Causa da discrepância não determinada. Sem nova carga após o deadline; removidos os containers exclusivos e preservados os dumps.
+- Permanecem pendentes a última fixture Pineapple, HTTPS/WSS de cinco/vinte mesas com runtime Linux e reinício controlado. Checks de rotina finais aprovados; resumo em `artifacts/full-validation/authorized-20261003-summary.json` e limites em FULL_VALIDATION/QUALITY. Nenhuma alteração de código de produção nesta continuação; sem commit, push ou deploy.
+
+
+## 2026-10-04 — Brazilian Pineapple híbrido (local)
+
+Implementados patamares pré-flop 1–4 BB, teto heads-up e pós-flop limitado ao pote antes do call, com reabertura completa/cumulativa. Motor fornece ações/limites para cash, MTT, bots, WS e treino. UI usa aumento fixo pré-flop, sizing limitado pós-flop e all-in condicional. Versão da regra registrada nos novos históricos e settlements assinados; nenhuma migration ou reliquidação anterior. Academy versão 8 e treinos versão 2; três vídeos preservados e identificados como material da regra anterior, com snapshots e hashes originais.
+
+Campanha focada concluída em 577,983 segundos contabilizados de 900 autorizados, dois trabalhadores: 6.000 mãos cash, matriz 385/385, MTT de 75 mãos, WSS 5/20 mesas e reinício aprovados. Corrigido falso positivo do verificador que confundia calls iguais em turnos distintos e preenchida a lacuna pré-flop do gerador. Evidência e limites em `FULL_VALIDATION.md` e `artifacts/full-validation/pineapple-hybrid-20261004-summary.json`. Testes e checks em `QUALITY.md`. Entrega local; sem commit, push ou deploy. Publicação exige ausência de mãos/torneios Pineapple em andamento.
+
+## 2026-10-04 — Brazilian Pineapple como entrada da home e da Academy (local)
+
+Produzido um filme único de 477,67 segundos, com 31 cenas animadas originais, voz brasileira sintética existente sem aceleração, 113 legendas e oito capítulos. Ensina distribuição 2→5 sem descarte, seleção 2+3, ranking, patamares pré-flop, limite pós-flop antes do call, mínimos, all-ins, reabertura individual/cumulativa, ante, potes e formatos. Contas conferidas com o motor; três novas regressões verificam os exemplos do filme. Fontes em `ZeroTiltCurso/editorial/`, finais MP4/VTT/WebP em `Frontend-Web/public/videos/`, manifesto versionado `brazilian_pineapple_hybrid_v1` com hashes de integridade.
+
+Home destaca a modalidade com capa e botão “Aprenda Brazilian Pineapple”; Academy reutiliza o mesmo vídeo na entrada. Modal com reprodução sob demanda, transcrição, legendas e capítulos por teclado; sem autoplay. O redirecionamento logado para `/curso` foi mantido. Institucional anterior permanece secundário; as três aulas Pineapple conservam os originais e a identificação `prior_rules`.
+
+Validação: 87 testes frontend, TypeScript/ESLint/Vite, auditoria dos 90 arquivos de mídia, decodificação integral do filme, inspeção das 31 cenas e teste de home/Academy em 1440/390/320 px. Detalhes, limites da revisão de voz e evidências em `QUALITY.md`. Nenhuma API de apostas, migration ou saldo foi alterado. Sem commit, push ou deploy; publicação deve ser coordenada com a regra e ausência de mãos/torneios Pineapple em andamento.
+
+## 2026-10-05 — preparação da publicação autorizada
+
+O proprietário autorizou atualizar o projeto, commit, push e deploy do conjunto local: correções de integridade, regra Pineapple híbrida, treino versão 2 e novo filme. Estado operacional e 22 documentos sincronizados. A revisão HTTP identificou fixtures ainda na versão 1 do treino; agora cobrem a versão 2 e a rejeição explícita da versão antiga. O CI passa a executar os 19 casos dirigidos, os três exemplos do filme e o contrato PostgreSQL de premiação atômica.
+
+Rotina local repetida: 1.859 testes do motor (31 ignorados), 22 dirigidos, 80 testes de biblioteca da API, contratos HTTP/segurança sem banco, 87 testes frontend, fmt/clippy, TypeScript/ESLint/Vite, dez contratos do executor no WSL e integridade das 30 produções/90 arquivos aprovados. A primeira chamada dos contratos Python em Windows falhou por depender de processos POSIX; a execução no WSL, ambiente previsto do executor, passou. Não houve nova campanha massiva. Pré-conferência da VPS encontrou zero assentos ativos, zero snapshots e zero torneios em andamento/agendados com inscritos; 60 checksums de migration conferidos. Essa leitura será repetida durante a janela de publicação. Escuta editorial humana integral permanece pendente, conforme QUALITY.

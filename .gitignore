@@ -84,3 +84,6 @@ tmp/
 temp/
 *.tmp.ps1
 codex-*.tmp.ps1
+
+# Python validation-runner bytecode (source and reports have separate owners).
+scripts/__pycache__/

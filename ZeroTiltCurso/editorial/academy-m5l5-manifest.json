@@ -91,5 +91,134 @@
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "e672036f62f65d1ab7fb26177f86d38e00f7029d173dd8848a4013e517d483a6"
+  "sha256": "e672036f62f65d1ab7fb26177f86d38e00f7029d173dd8848a4013e517d483a6",
+  "sourceSnapshot": {
+    "id": "m5l5",
+    "title": "Pineapple: showdown, empates e leitura de equity",
+    "body": "## Método para classificar\nListe pares privados, combine com trios do board, classifique cada mão de cinco cartas e compare a categoria mais alta. Nos empates de categoria, compare os valores relevantes e os kickers da própria combinação legal. Nunca acrescente uma sexta carta.\n\n## O board não joga sozinho\nMesmo com A-K-Q-J-T de copas na mesa, você precisa usar duas privadas. Sem duas copas privadas, não pode reivindicar aquele royal flush. Esse é um contraste importante com o Texas Hold’em, que permite usar zero privadas.\n\n## Ranking não é equity\nRanking classifica a mão formada agora. Equity é sua parcela esperada do pote no showdown, incluindo frações de empate, condicionada às informações e hipóteses do modelo. Antes do river, simular Pineapple exige sortear o restante do board e as futuras extras de todos os participantes ainda ativos, inclusive all-ins, sem reutilizar cartas. Mãos adversárias fixas e ranges produzem perguntas diferentes.\n\n## Auditoria de uma estimativa\nExija a fase e o momento da extra, cartas conhecidas, número de jogadores, ranges, modelo de distribuição, quantidade de amostras e método de incerteza. Uma frequência estimada não é um valor exato. Intervalos binomiais de vitória não medem automaticamente equity com empates fracionários. Ainda não publicamos tabelas de equity ou ranges ótimos validados para esta modalidade.\n\n## Exercício comparativo\nNo flop As Ks Ah / Ad Qc 2s, a trinca tem Q e 2 de apoio. Trocar Ks por Jc não altera essa mão feita; porém pode alterar possibilidades futuras. Compare estado atual e potencial futuro separadamente. Use fichas fictícias nos exercícios; avaliar uma decisão não requer arriscar saldo real.\n\n## Aprofundamento aplicado\n### Faça a comparação inteira\nNo exemplo As Ks Ah com Ad Qc 2s, a melhor mão é A-A-A-Q-2. Se um rival puder formar a mesma trinca usando duas privadas, compare os kickers que restam dentro das cinco cartas escolhidas. Não recupere o rei que ficou fora só para desempatar. Quando todos os valores relevantes forem iguais, divida o pote elegível. O simulador mostra as melhores cinco cartas para ajudar a conferir a formação.\n\n### Equity inclui frações de empate\nEm quatro resultados equiprováveis, suponha uma vitória, uma derrota e dois empates entre dois jogadores. Sua parcela média é um mais zero mais meio mais meio, dividido por quatro: 50%. A frequência de vitórias isoladas foi apenas 25%. Em um empate entre três, cada participante recebe um terço da parcela em disputa. Com side pots, a elegibilidade precisa ser tratada separadamente.\n\n### Interprete precisão com cuidado\nRepetir a mesma seed reproduz uma distribuição; não cria uma nova amostra independente. Uma simulação maior reduz parte do erro amostral, mas não corrige um range errado nem uma regra de seleção implementada incorretamente. Declare quais cartas e ações condicionaram a análise. Na revisão, compare sua avaliação anterior ao river com a mão revelada depois, sem transferir conhecimento futuro para a decisão passada.\n\n## Laboratório: O board não joga sozinho\nObjetivo: Encontrar a melhor mão sem usar cinco cartas do board. Abra a mesa deste módulo e comece pelo treino guiado. Escolha duas privadas e três comunitárias. Nove e oito com dama, valete e dez formam sequência até dama. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
+    "quiz": [
+      {
+        "id": "m5l5q1",
+        "kind": "engine",
+        "prompt": "Pineapple no river: 9c 9d 8c 7d 6s, board Ah Kh Qh Jh Th. Você pode usar o royal flush inteiro da mesa?",
+        "hole": [
+          "9c",
+          "9d",
+          "8c",
+          "7d",
+          "6s"
+        ],
+        "board": [
+          "Ah",
+          "Kh",
+          "Qh",
+          "Jh",
+          "Th"
+        ],
+        "options": [
+          "Sim, a mesa joga",
+          "Não, devo usar exatamente duas privadas"
+        ],
+        "expected": "Não, devo usar exatamente duas privadas",
+        "engine": "Regra 2 + 3",
+        "why": "Sem duas copas privadas, esta mão não forma flush. O royal da mesa não pode jogar sozinho."
+      },
+      {
+        "id": "m5l5q2",
+        "kind": "theory",
+        "prompt": "No Pineapple all-in no flop, o que uma simulação de equity deve incluir?",
+        "options": [
+          "Só turn e river comunitários",
+          "Board futuro e extras futuras de todos os jogadores ainda na mão",
+          "Descartar uma das privadas"
+        ],
+        "expectedIndex": 1,
+        "explanation": "All-ins continuam recebendo as cartas extras. Elas não podem ser ignoradas nem sorteadas com reposição."
+      },
+      {
+        "id": "m5l5q3",
+        "kind": "theory",
+        "prompt": "Se você divide o pote igualmente com dois outros vencedores, qual parcela conta para sua equity?",
+        "options": [
+          "1",
+          "1/2",
+          "1/3"
+        ],
+        "expectedIndex": 2,
+        "explanation": "Três vencedores equivalentes dividem o pote em três parcelas, antes das regras de centavos restantes."
+      },
+      {
+        "id": "m5l5q4",
+        "kind": "theory",
+        "prompt": "As chances de vitória de uma simulação são uma garantia do próximo resultado?",
+        "options": [
+          "Sim",
+          "Não"
+        ],
+        "expectedIndex": 1,
+        "explanation": "A estimativa depende das hipóteses, da amostragem e da informação conhecida. O próximo resultado continua incerto."
+      }
+    ],
+    "sources": [
+      "nist-proportions"
+    ],
+    "training": [
+      {
+        "id": "pine-board",
+        "module": "pineapple",
+        "lesson": "m5l5",
+        "title": "O board não joga sozinho",
+        "variant": "brazilian_pineapple",
+        "phase": "river",
+        "hole": [
+          "9c",
+          "9d",
+          "8c",
+          "7d",
+          "6s"
+        ],
+        "board": [
+          "Ah",
+          "Kh",
+          "Qh",
+          "Jh",
+          "Th"
+        ],
+        "topic": "selection",
+        "objective": "Encontrar a melhor mão sem usar cinco cartas do board.",
+        "hint": "Escolha duas privadas e três comunitárias. Nove e oito com dama, valete e dez formam sequência até dama.",
+        "profiles": [
+          "caller"
+        ],
+        "opening": 300,
+        "stack": 10000
+      },
+      {
+        "id": "pine-allin",
+        "module": "pineapple",
+        "lesson": "m5l5",
+        "title": "Extras até para quem está all-in",
+        "variant": "brazilian_pineapple",
+        "phase": "preflop",
+        "hole": [
+          "Ac",
+          "Ad"
+        ],
+        "board": [],
+        "topic": "selection",
+        "objective": "Verificar a distribuição até o showdown após all-in.",
+        "hint": "Nenhuma carta extra é cancelada pelo all-in. A formação final continua exatamente 2+3.",
+        "profiles": [
+          "pressure"
+        ],
+        "opening": 300,
+        "stack": 10000,
+        "stacks": [
+          900,
+          900
+        ]
+      }
+    ]
+  },
+  "bettingRuleVersion": "legacy_no_limit"
 }

@@ -4,73 +4,28 @@ on:
   workflow_dispatch:
     inputs:
       approved:
-        description: "Confirma a execução da carga intensa"
+        description: "Confirma campanha local isolada, até 60 minutos após compilação"
         required: true
         type: choice
         options: ["no", "yes"]
-
-env:
-  CARGO_TERM_COLOR: always
-  RUSTFLAGS: "-D warnings"
 
 permissions:
   contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  motor:
-    name: Motor — 79 cenários de carga
+  gameplay:
+    name: Gameplay — catálogo, precisão e integridade
     if: inputs.approved == 'yes'
     runs-on: ubuntu-latest
-    timeout-minutes: 180
-    defaults:
-      run:
-        working-directory: ./Motor-Rust
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
-        with:
-          toolchain: stable
-      - name: Run routine and massive scenarios
-        env:
-          FULL_VALIDATION_APPROVED: "1"
-          FULL_VALIDATION_REPORT_DIR: ${{ github.workspace }}/artifacts/full-validation
-        run: bash ../scripts/full-validation.sh motor
-      - name: Upload workload metrics
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: full-validation-metrics-motor
-          path: artifacts/full-validation
-          if-no-files-found: warn
-
-  api:
-    name: API HTTPS — handlers, WebSocket and security
-    if: inputs.approved == 'yes'
-    runs-on: ubuntu-latest
-    timeout-minutes: 180
-    services:
-      postgres:
-        image: postgres:15-alpine@sha256:3d0f7584ed7d04e27fa050d6683a74746608faf21f202be78460d679cc56461f
-        env:
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: poker_db
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    defaults:
-      run:
-        working-directory: ./API-Axum
+    timeout-minutes: 120
     env:
-      DATABASE_URL: postgres://user:password@localhost:5432/poker_db
+      FULL_VALIDATION_APPROVED: "1"
+      FULL_VALIDATION_MINUTES: "60"
+      CARGO_BUILD_JOBS: "2"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -78,48 +33,19 @@ jobs:
       - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # stable
         with:
           toolchain: stable
-      - name: Apply PostgreSQL migrations
-        run: |
-          for migration in migrations/*.sql; do
-            PGPASSWORD=password psql --host localhost --username user --dbname poker_db --file "$migration"
-          done
-      - name: Run API validation profile
-        env:
-          FULL_VALIDATION_APPROVED: "1"
-          FULL_VALIDATION_REPORT_DIR: ${{ github.workspace }}/artifacts/full-validation
-          API_FUZZ_CASES: "2000"
-        run: bash ../scripts/full-validation.sh api
-      - name: Upload workload metrics
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+      - name: Install local WSS test client
+        run: npm ci --prefix scripts --ignore-scripts
+      - name: Verify runner accounting and stop behaviour
+        run: python3 scripts/test_full_validation.py
+      - name: Run isolated campaign
+        run: bash scripts/full-validation.sh all
+      - name: Publish actual results including failed and unexecuted stages
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: full-validation-metrics-api
+          name: full-validation-evidence
           path: artifacts/full-validation
-          if-no-files-found: warn
-
-  # Frontend Dioxus (WASM) removido do monorepo — validação de UI canônica: Frontend-Web via rust-ci.yml
-
-  public_gateway:
-    name: Gateway público HTTPS/WSS — Caddy E2E
-    if: inputs.approved == 'yes'
-    runs-on: ubuntu-latest
-    timeout-minutes: 180
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Start hardened local stack
-        run: |
-          cp Infraestrutura-Docker/.env.example Infraestrutura-Docker/.env
-          docker compose -f Infraestrutura-Docker/docker-compose.yml up -d --build
-      - name: Verify HTTPS, HSTS, redirect and WSS handshake
-        env:
-          PUBLIC_GATEWAY_URL: https://localhost
-          PUBLIC_GATEWAY_INSECURE_LOCAL_CERT: "1"
-        run: bash scripts/verify-public-https.sh
-      - name: Collect container logs on failure
-        if: failure()
-        run: docker compose -f Infraestrutura-Docker/docker-compose.yml logs --no-color
-      - name: Stop local stack
-        if: always()
-        run: docker compose -f Infraestrutura-Docker/docker-compose.yml down -v
+          if-no-files-found: error

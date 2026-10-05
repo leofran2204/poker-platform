@@ -46,13 +46,13 @@ Casa: **ZT Poker** (header **Zero Tilt**). Slogan: **Estude. Jogue. Sem tilt.** 
 ## Torneios
 
 <!-- DOCUMENTATION_SYNC:MTT_CATALOG:START -->
-| Evento | Variante | Buy-in | GTD | Cap | Máx. | Reentradas |
-|--------|----------|--------|-----|-----|------|------------|
-| Texas Hold’em | Texas Hold’em | R$ 15 | R$ 150 | 9 | 27 | 1 |
-| Texas R$25 | Texas Hold’em | R$ 25 | — | 9 | 27 | 1 |
-| Texas Hold’em Freeroll | Texas Hold’em | Grátis | R$ 75 | 9 | 27 | 1 |
-| Omaha 4 Cartas | Omaha 4 Cartas | R$ 10 | R$ 100 | 6 | 18 | 1 |
-| Brazilian Pineapple | Brazilian Pineapple | R$ 10 | R$ 100 | 6 | 18 | 1 |
+| Evento | Variante | Buy-in | GTD | Cap | Máx. | Reentradas PM | Reentradas Real |
+|--------|----------|--------|-----|-----|------|---------------|-----------------|
+| Texas Hold’em | Texas Hold’em | R$ 15 | R$ 150 | 9 | 27 | ilimitadas | 1 |
+| Texas R$25 | Texas Hold’em | R$ 25 | — | 9 | 27 | 1 | 1 |
+| Texas Hold’em Freeroll | Texas Hold’em | Grátis | R$ 75 | 9 | 27 | ilimitadas | 1 |
+| Omaha 4 Cartas | Omaha 4 Cartas | R$ 10 | R$ 100 | 6 | 18 | ilimitadas | 1 |
+| Brazilian Pineapple | Brazilian Pineapple | R$ 10 | R$ 100 | 6 | 18 | ilimitadas | 1 |
 <!-- DOCUMENTATION_SYNC:MTT_CATALOG:END -->
 
 Data e horário definidos pelo **admin** em `America/Sao_Paulo`, com auto-start para **5+** jogadores. Inscrição no lobby com **taxa 15% por cima** (freeroll grátis) — **mãos MTT ao vivo em 3 mesas**; a página lista `live_table_ids` (não só a mesa 0). Cancelar inscrição devolve buy-in + taxa antes do start.
@@ -115,6 +115,6 @@ Precisa de 2+ pessoas na mesma mesa para começar a mão.
 ```
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-01) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-05) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
