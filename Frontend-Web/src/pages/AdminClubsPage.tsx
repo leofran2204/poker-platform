@@ -89,7 +89,7 @@ export function AdminClubsPage() {
       </div>
 
       {error && (
-        <p className="rounded border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200">
+        <p className="rounded-sm border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200">
           {error}
         </p>
       )}

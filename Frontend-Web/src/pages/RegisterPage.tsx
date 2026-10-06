@@ -84,7 +84,7 @@ export function RegisterPage() {
     <div className="zt-auth-split">
       <div className="zt-panel">
         <div className="zt-panel-title flex items-center gap-2">
-          <BrandMark size={24} className="h-6 w-6 rounded-sm object-cover ring-1 ring-gold/40" />
+          <BrandMark size={24} className="h-6 w-6 rounded-xs object-cover ring-1 ring-gold/40" />
           Criar conta
         </div>
         <form className="space-y-4 p-5" onSubmit={onSubmit}>
@@ -94,7 +94,7 @@ export function RegisterPage() {
             torneio. O código de e-mail vem depois.
           </p>
           {inviteCode && (
-            <div className="rounded border border-gold/60 bg-felt-950/70 px-3 py-2 text-xs text-felt-200">
+            <div className="rounded-sm border border-gold/60 bg-felt-950/70 px-3 py-2 text-xs text-felt-200">
               <strong className="text-gold-bright">Convite reconhecido:</strong>{" "}
               <span className="font-mono">{inviteCode}</span>. Seu patrocinador será vinculado no
               cadastro; trocar de mesa ou clube não altera essa relação.
@@ -194,14 +194,14 @@ export function RegisterPage() {
             </p>
           </div>
 
-          <div className="rounded border border-felt-700/80 bg-felt-950/60 p-3">
+          <div className="rounded-sm border border-felt-700/80 bg-felt-950/60 p-3">
             <label className="flex items-start gap-2.5 text-xs text-felt-200 cursor-pointer">
               <input
                 type="checkbox"
                 required
                 checked={termsAccepted}
                 onChange={(e) => setTermsAccepted(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-felt-600 bg-felt-900 text-gold-bright focus:ring-gold-soft cursor-pointer shrink-0"
+                className="mt-0.5 h-4 w-4 rounded-sm border-felt-600 bg-felt-900 text-gold-bright focus:ring-gold-soft cursor-pointer shrink-0"
               />
               <span>
                 Li, compreendi e concordo integralmente com os{" "}
@@ -214,7 +214,7 @@ export function RegisterPage() {
           </div>
 
           {error && (
-            <p className="rounded border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-200">
+            <p className="rounded-sm border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-200">
               {error}
             </p>
           )}

@@ -95,12 +95,12 @@ export function VerifyEmailPage() {
             />
           </div>
           {error && (
-            <p className="rounded border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-200">
+            <p className="rounded-sm border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-200">
               {error}
             </p>
           )}
           {info && (
-            <p className="rounded border border-rail bg-felt-850 px-3 py-2 text-sm text-gold-soft">
+            <p className="rounded-sm border border-rail bg-felt-850 px-3 py-2 text-sm text-gold-soft">
               {info}
             </p>
           )}

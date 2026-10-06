@@ -208,7 +208,7 @@ export function AdminTournamentsPage() {
           </thead>
           <tbody>
             {items.map((t) => (
-              <tr key={t.id} className="!cursor-default">
+              <tr key={t.id} className="cursor-default!">
                 <td className="font-semibold text-cream">{t.name}</td>
                 <td className="font-mono text-gold-soft">
                   {t.is_freeroll ? "Grátis" : formatBrlFromCents(t.buy_in)}
@@ -222,21 +222,21 @@ export function AdminTournamentsPage() {
                 <td className="space-x-1">
                   <input
                     type="datetime-local"
-                    className="zt-input !px-1 !py-0.5 !text-[10px]"
+                    className="zt-input px-1! py-0.5! text-[10px]!"
                     aria-label="Agendar início"
                     defaultValue={scheduleInputValue(t.scheduled_start_at)}
                     onChange={(e) => void reschedule(t.id, e.currentTarget.value)}
                   />
-                  <button type="button" className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]" onClick={() => void openPlayers(t.id)}>
+                  <button type="button" className="zt-btn-secondary px-2! py-0.5! text-[10px]!" onClick={() => void openPlayers(t.id)}>
                     Inscritos
                   </button>
-                  <button type="button" className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]" onClick={() => void setStatus(t.id, "registering")}>
+                  <button type="button" className="zt-btn-secondary px-2! py-0.5! text-[10px]!" onClick={() => void setStatus(t.id, "registering")}>
                     Open
                   </button>
-                  <button type="button" className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]" onClick={() => void setStatus(t.id, "paused")}>
+                  <button type="button" className="zt-btn-secondary px-2! py-0.5! text-[10px]!" onClick={() => void setStatus(t.id, "paused")}>
                     Pause
                   </button>
-                  <button type="button" className="zt-btn-danger !px-2 !py-0.5 !text-[10px]" onClick={() => void setStatus(t.id, "cancelled")}>
+                  <button type="button" className="zt-btn-danger px-2! py-0.5! text-[10px]!" onClick={() => void setStatus(t.id, "cancelled")}>
                     Cancel
                   </button>
                 </td>
@@ -262,14 +262,14 @@ export function AdminTournamentsPage() {
               </thead>
               <tbody>
                 {players.length === 0 ? (
-                  <tr className="!cursor-default">
+                  <tr className="cursor-default!">
                     <td colSpan={5} className="text-felt-400">
                       Ninguém inscrito
                     </td>
                   </tr>
                 ) : (
                   players.map((p) => (
-                    <tr key={p.player_id} className="!cursor-default">
+                    <tr key={p.player_id} className="cursor-default!">
                       <td className="text-cream">{p.player_name}</td>
                       <td className="text-[11px] text-felt-300">{p.email ?? "—"}</td>
                       <td className="font-mono">{p.stack.toLocaleString("pt-BR")}</td>

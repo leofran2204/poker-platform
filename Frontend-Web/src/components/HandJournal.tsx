@@ -95,7 +95,7 @@ export function HandJournal({ tableId, tableName, initialHand = null, onClose }:
     >
       <div
         ref={panelRef}
-        className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded border-2 border-gold bg-felt-950 p-4"
+        className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-sm border-2 border-gold bg-felt-950 p-4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-3 flex items-center justify-between">
@@ -119,7 +119,7 @@ export function HandJournal({ tableId, tableName, initialHand = null, onClose }:
               {hands.map((h) => (
                 <li
                   key={h.key}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded border border-rail bg-felt-900 px-3 py-2 text-sm"
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-sm border border-rail bg-felt-900 px-3 py-2 text-sm"
                 >
                   <span className="text-cream">
                     {fmtDate(h.endedAt)} — {h.winners.join(" + ")}

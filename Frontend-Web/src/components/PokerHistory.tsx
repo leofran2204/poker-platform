@@ -16,7 +16,7 @@ export function PokerHistory({ variant }: { variant: Variant }) {
 
   return (
     <div className="zt-panel overflow-hidden">
-      <div className={`border-b border-felt-600 bg-gradient-to-r ${theme} px-4 py-3`}>
+      <div className={`border-b border-felt-600 bg-linear-to-r ${theme} px-4 py-3`}>
         <h2 className="text-sm font-bold uppercase tracking-wide text-gold-bright">{data.title}</h2>
         <p className="text-xs text-felt-300">{data.subtitle}</p>
         {(data as { disclaimer?: string }).disclaimer && (
@@ -29,15 +29,15 @@ export function PokerHistory({ variant }: { variant: Variant }) {
         <div className="relative border-l-2 border-gold/20 pl-6">
           {data.blocks.map((block, idx) => (
             <div key={idx} className="relative pb-5 last:pb-0">
-              <span className="absolute -left-[25px] top-1 flex h-3 w-3 items-center justify-center rounded-full border-2 border-gold bg-felt-800" />
+              <span className="absolute left-[-25px] top-1 flex h-3 w-3 items-center justify-center rounded-full border-2 border-gold bg-felt-800" />
               <div className="flex items-baseline gap-2">
-                <span className="rounded bg-gold/20 px-1.5 py-0.5 text-xs font-bold text-gold-bright">{block.year}</span>
+                <span className="rounded-sm bg-gold/20 px-1.5 py-0.5 text-xs font-bold text-gold-bright">{block.year}</span>
                 <h3 className="text-sm font-semibold text-cream">{block.title}</h3>
               </div>
               <div className="mt-1.5 text-sm leading-relaxed text-felt-200">
                 <TipRichText text={block.text} className="text-sm leading-relaxed" />
               </div>
-              <div className="mt-2 rounded border border-gold/20 bg-gold/10 px-2.5 py-1.5 text-xs leading-relaxed text-gold-soft">
+              <div className="mt-2 rounded-sm border border-gold/20 bg-gold/10 px-2.5 py-1.5 text-xs leading-relaxed text-gold-soft">
                 <span className="font-bold">Para você:</span> {block.takeaway}
               </div>
               {(block as { sources?: Array<{ label: string; url: string }> }).sources?.length ? (
@@ -51,7 +51,7 @@ export function PokerHistory({ variant }: { variant: Variant }) {
                       href={href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded border border-felt-600 bg-felt-800 px-1.5 py-0.5 text-[10px] leading-none text-felt-400 hover:border-gold/40 hover:text-gold-soft"
+                      className="rounded-sm border border-felt-600 bg-felt-800 px-1.5 py-0.5 text-[10px] leading-none text-felt-400 hover:border-gold/40 hover:text-gold-soft"
                       title={s.url}
                     >
                       Fonte: {s.label}

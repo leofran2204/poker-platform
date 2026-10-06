@@ -346,7 +346,7 @@ export function AdminUsersPage() {
             </div>
             <button
               type="button"
-              className="zt-btn-primary !py-1.5 !text-xs"
+              className="zt-btn-primary py-1.5! text-xs!"
               disabled={
                 backfillBusy || backfill.unlinked_accounts === 0 || backfill.root_has_sponsor
               }
@@ -371,7 +371,7 @@ export function AdminUsersPage() {
           <option value="banned">banned</option>
           <option value="pending_email_verification">pending_email_verification</option>
         </select>
-        <button type="button" className="zt-btn-secondary !py-1 !text-xs" onClick={() => void load()}>
+        <button type="button" className="zt-btn-secondary py-1! text-xs!" onClick={() => void load()}>
           Filtrar ({total})
         </button>
       </div>
@@ -392,14 +392,14 @@ export function AdminUsersPage() {
           </thead>
           <tbody>
             {users.map((u) => (
-              <tr key={u.id} className="!cursor-default align-top">
+              <tr key={u.id} className="cursor-default! align-top">
                 <td>
                   <div className="font-semibold text-cream">{u.username}</div>
                   <div className="text-[11px] text-felt-400">{u.email}</div>
                 </td>
                 <td>
                   <select
-                    className="zt-input !py-1 text-xs"
+                    className="zt-input py-1! text-xs"
                     value={u.role}
                     onChange={(e) => void onRole(u.id, e.target.value)}
                   >
@@ -411,13 +411,13 @@ export function AdminUsersPage() {
                 <td className="text-xs">
                   <div className="font-mono text-cream">{u.status}</div>
                   <div className="mt-1 flex flex-wrap gap-1">
-                    <button type="button" className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]" onClick={() => void onStatus(u.id, "active")}>
+                    <button type="button" className="zt-btn-secondary px-2! py-0.5! text-[10px]!" onClick={() => void onStatus(u.id, "active")}>
                       active
                     </button>
-                    <button type="button" className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]" onClick={() => void onStatus(u.id, "suspended")}>
+                    <button type="button" className="zt-btn-secondary px-2! py-0.5! text-[10px]!" onClick={() => void onStatus(u.id, "suspended")}>
                       suspend
                     </button>
-                    <button type="button" className="zt-btn-danger !px-2 !py-0.5 !text-[10px]" onClick={() => void onStatus(u.id, "banned")}>
+                    <button type="button" className="zt-btn-danger px-2! py-0.5! text-[10px]!" onClick={() => void onStatus(u.id, "banned")}>
                       ban
                     </button>
                   </div>
@@ -427,7 +427,7 @@ export function AdminUsersPage() {
                 <td className="min-w-[20rem] text-xs">
                   <div className="flex flex-wrap items-center gap-2">
                     <select
-                      className="zt-input !w-28 !py-1 text-xs"
+                      className="zt-input w-28! py-1! text-xs"
                       value={u.agent_status}
                       onChange={(e) => void onAgentStatus(
                         u.id,
@@ -444,23 +444,23 @@ export function AdminUsersPage() {
                   </div>
 
                   <form className="mt-2 flex flex-wrap items-end gap-1" onSubmit={(e) => void onAgentTarget(e, u.id)}>
-                    <select name="agent_mode" className="zt-input !w-20 !py-1 text-xs" defaultValue="play" onChange={(e) => {
+                    <select name="agent_mode" className="zt-input w-20! py-1! text-xs" defaultValue="play" onChange={(e) => {
                       const input = e.currentTarget.form?.elements.namedItem("agent_target");
                       if (input instanceof HTMLInputElement) input.step = e.target.value === "play" ? "1" : "0.01";
                     }}>
                       <option value="play">Play</option>
                       <option value="real">Real</option>
                     </select>
-                    <input aria-label="Mês da meta" name="agent_month" type="month" className="zt-input !w-32 !py-1 text-xs" defaultValue={monthInput(1)} min={monthInput(1)} required />
-                    <input aria-label="Meta em pontos Play ou reais" name="agent_target" type="number" min="0" step="1" placeholder="Meta" className="zt-input !w-24 !py-1 text-xs" required />
-                    <button type="submit" className="zt-btn-secondary !px-2 !py-1 !text-[10px]">Definir meta</button>
+                    <input aria-label="Mês da meta" name="agent_month" type="month" className="zt-input w-32! py-1! text-xs" defaultValue={monthInput(1)} min={monthInput(1)} required />
+                    <input aria-label="Meta em pontos Play ou reais" name="agent_target" type="number" min="0" step="1" placeholder="Meta" className="zt-input w-24! py-1! text-xs" required />
+                    <button type="submit" className="zt-btn-secondary px-2! py-1! text-[10px]!">Definir meta</button>
                   </form>
                   <p className="mt-1 text-felt-400">Valores: pontos inteiros no Play; reais no Jogo Real. Metas somente para meses futuros.</p>
 
-                  <details className="mt-2 rounded border border-felt-800 p-2">
+                  <details className="mt-2 rounded-sm border border-felt-800 p-2">
                     <summary className="cursor-pointer text-gold-soft">Conciliação e fechamento</summary>
                     <form className="mt-2 flex flex-wrap items-end gap-1" onSubmit={(e) => void onAgentAdjustment(e, u.id)}>
-                      <select name="adjustment_mode" className="zt-input !w-20 !py-1 text-xs" defaultValue="play" onChange={(e) => {
+                      <select name="adjustment_mode" className="zt-input w-20! py-1! text-xs" defaultValue="play" onChange={(e) => {
                         const input = e.currentTarget.form?.elements.namedItem("adjustment_amount");
                         if (input instanceof HTMLInputElement) {
                           input.step = e.target.value === "play" ? "1" : "0.01";
@@ -470,8 +470,8 @@ export function AdminUsersPage() {
                         <option value="play">Play</option>
                         <option value="real">Real</option>
                       </select>
-                      <input name="adjustment_month" type="month" className="zt-input !w-32 !py-1 text-xs" defaultValue={previousMonthInput()} required />
-                      <select name="adjustment_category" className="zt-input !w-28 !py-1 text-xs" defaultValue="reward">
+                      <input name="adjustment_month" type="month" className="zt-input w-32! py-1! text-xs" defaultValue={previousMonthInput()} required />
+                      <select name="adjustment_category" className="zt-input w-28! py-1! text-xs" defaultValue="reward">
                         <option value="reward">recompensa</option>
                         <option value="refund">estorno</option>
                         <option value="chargeback">chargeback</option>
@@ -479,31 +479,31 @@ export function AdminUsersPage() {
                         <option value="payment_cost">pagamento</option>
                         <option value="other">outro</option>
                       </select>
-                      <input name="adjustment_amount" type="number" min="1" step="1" placeholder="Valor" className="zt-input !w-20 !py-1 text-xs" required />
-                      <input name="adjustment_note" maxLength={240} placeholder="Motivo da dedução" className="zt-input !w-36 !py-1 text-xs" required />
-                      <button type="submit" disabled={agentBusy} className="zt-btn-secondary !px-2 !py-1 !text-[10px]">Deduzir</button>
+                      <input name="adjustment_amount" type="number" min="1" step="1" placeholder="Valor" className="zt-input w-20! py-1! text-xs" required />
+                      <input name="adjustment_note" maxLength={240} placeholder="Motivo da dedução" className="zt-input w-36! py-1! text-xs" required />
+                      <button type="submit" disabled={agentBusy} className="zt-btn-secondary px-2! py-1! text-[10px]!">Deduzir</button>
                     </form>
                     <form className="mt-2 flex flex-wrap items-end gap-1" onSubmit={(e) => void onAgentClose(e, u.id)}>
-                      <select name="close_mode" className="zt-input !w-20 !py-1 text-xs" defaultValue="play">
+                      <select name="close_mode" className="zt-input w-20! py-1! text-xs" defaultValue="play">
                         <option value="play">Play</option>
                         <option value="real">Real</option>
                       </select>
-                      <input name="close_month" type="month" className="zt-input !w-32 !py-1 text-xs" defaultValue={previousMonthInput()} required />
-                      <button type="submit" disabled={agentBusy} className="zt-btn-primary !px-2 !py-1 !text-[10px]">Conferir mês</button>
+                      <input name="close_month" type="month" className="zt-input w-32! py-1! text-xs" defaultValue={previousMonthInput()} required />
+                      <button type="submit" disabled={agentBusy} className="zt-btn-primary px-2! py-1! text-[10px]!">Conferir mês</button>
                       <span className="text-felt-400">Saldo real: {formatBrlFromCents(u.agent_commission_balance_cents)}</span>
                     </form>
                   </details>
                 </td>
                 <td>
                   <form className="flex flex-wrap items-end gap-1" onSubmit={(e) => void onAdjust(e, u.id)}>
-                    <select name="wallet" className="zt-input !w-28 !py-1 text-xs" defaultValue="pm_cash" required>
+                    <select name="wallet" className="zt-input w-28! py-1! text-xs" defaultValue="pm_cash" required>
                       <option value="pm_cash">PM cash</option>
                       <option value="pm_mtt">PM torneio</option>
                       <option value="real">Jogo Real</option>
                     </select>
-                    <input name="reais" type="number" step="0.01" placeholder="± R$" className="zt-input !w-20 !py-1 text-xs" required />
-                    <input name="reason" placeholder="motivo" className="zt-input !w-28 !py-1 text-xs" required maxLength={200} />
-                    <button type="submit" className="zt-btn-primary !px-2 !py-1 !text-[10px]">
+                    <input name="reais" type="number" step="0.01" placeholder="± R$" className="zt-input w-20! py-1! text-xs" required />
+                    <input name="reason" placeholder="motivo" className="zt-input w-28! py-1! text-xs" required maxLength={200} />
+                    <button type="submit" className="zt-btn-primary px-2! py-1! text-[10px]!">
                       Ajustar
                     </button>
                   </form>

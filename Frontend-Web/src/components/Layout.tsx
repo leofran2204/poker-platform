@@ -137,12 +137,12 @@ export function Layout() {
 
   const walletToggle = authed ? (
     <div
-      className="flex items-center gap-0.5 rounded border border-felt-600 bg-felt-950/70 p-0.5"
+      className="flex items-center gap-0.5 rounded-sm border border-felt-600 bg-felt-950/70 p-0.5"
       title="Play Money e Jogo Real são saldos separados — não se misturam"
     >
       <button
         type="button"
-        className={mode === "play" ? "zt-tab zt-tab-active !px-2 !py-1 !text-[11px]" : "zt-tab !px-2 !py-1 !text-[11px]"}
+        className={mode === "play" ? "zt-tab zt-tab-active px-2! py-1! text-[11px]!" : "zt-tab px-2! py-1! text-[11px]!"}
         aria-pressed={mode === "play"}
         onClick={() => void switchMode("play")}
       >
@@ -150,7 +150,7 @@ export function Layout() {
       </button>
       <button
         type="button"
-        className={mode === "real" ? "zt-tab zt-tab-active !px-2 !py-1 !text-[11px]" : "zt-tab !px-2 !py-1 !text-[11px]"}
+        className={mode === "real" ? "zt-tab zt-tab-active px-2! py-1! text-[11px]!" : "zt-tab px-2! py-1! text-[11px]!"}
         aria-pressed={mode === "real"}
         onClick={() => void switchMode("real")}
       >
@@ -163,7 +163,7 @@ export function Layout() {
     <div className={`zt-shell${homeBleed && !authed ? " zt-shell--home" : ""}`}>
       <a
         href="#main-content"
-        className="fixed left-3 top-3 z-[100] -translate-y-24 rounded bg-gold px-3 py-2 text-sm font-bold text-ink transition-transform focus:translate-y-0"
+        className="fixed left-3 top-3 z-100 -translate-y-24 rounded-sm bg-gold px-3 py-2 text-sm font-bold text-ink transition-transform focus:translate-y-0"
       >
         Pular para o conteúdo
       </a>
@@ -202,7 +202,7 @@ export function Layout() {
                     Mais
                   </button>
                   {moreOpen && (
-                    <div className="absolute right-0 z-50 mt-2 min-w-[11rem] rounded border border-felt-600 bg-felt-950 py-1 shadow-panel">
+                    <div className="absolute right-0 z-50 mt-2 min-w-44 rounded-sm border border-felt-600 bg-felt-950 py-1 shadow-panel">
                       <NavLink
                         to="/noticias"
                         className="block px-3 py-1.5 text-sm text-felt-200 hover:bg-felt-800 hover:text-cream"
@@ -274,7 +274,7 @@ export function Layout() {
                 <NavLink to="/login" className={linkClass}>
                   Entrar
                 </NavLink>
-                <NavLink to="/register" className="zt-btn-primary !py-1.5 !text-xs">
+                <NavLink to="/register" className="zt-btn-primary py-1.5! text-xs!">
                   Criar conta
                 </NavLink>
               </>
@@ -335,7 +335,7 @@ export function Layout() {
                 <NavLink to="/login" className={linkClass} onClick={() => setMenuOpen(false)}>
                   Entrar
                 </NavLink>
-                <NavLink to="/register" className="zt-btn-primary !py-1.5 !text-xs self-start">
+                <NavLink to="/register" className="zt-btn-primary py-1.5! text-xs! self-start">
                   Criar conta
                 </NavLink>
               </>

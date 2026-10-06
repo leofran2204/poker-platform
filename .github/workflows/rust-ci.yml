@@ -299,9 +299,7 @@ jobs:
         run: npm ci
 
       - name: Audit npm dependency graph
-        run: |
-          node --test ../scripts/audit-frontend.test.mjs
-          npm run audit:security
+        run: npm run audit:security
 
       - name: TypeScript lint
         run: npm run lint

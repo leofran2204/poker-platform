@@ -1,6 +1,94 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-felt-200: #a8d0a8;
+  --color-felt-300: #7ab87a;
+  --color-felt-400: #5a8a5a;
+  --color-felt-500: #3a6b3a;
+  --color-felt-600: #2d5a2d;
+  --color-felt-700: #1e4a1e;
+  --color-felt-800: #1a3a1a;
+  --color-felt-850: #132f13;
+  --color-felt-900: #0f2a0f;
+  --color-felt-950: #0a1f0a;
+
+  --color-rail: #8b6914;
+  --color-rail-light: #a07a20;
+  --color-rail-dark: #6b5010;
+
+  --color-gold: #c9a227;
+  --color-gold-bright: #d4a843;
+  --color-gold-dim: #8b6914;
+  --color-gold-soft: #e8d48b;
+
+  --color-cream: #e8e0d0;
+  --color-cream-muted: #c4bba8;
+
+  --color-ink: #0c0c0c;
+  --color-ink-panel: #121812;
+
+  --font-ui: Segoe UI, Tahoma, Geneva, Verdana, system-ui, sans-serif;
+  --font-mono: Consolas, ui-monospace, monospace;
+
+  --shadow-panel: 0 2px 0 rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-seat: 0 2px 8px rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.4);
+
+  --radius-table: 50%;
+
+  /* Keep line boxes stable when a component overrides a text utility's size. */
+  --text-xs--line-height: 1rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl--line-height: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+
+  /* Preserve existing named UI colors across the v4 palette change. */
+  --color-amber-100: #fef3c7;
+  --color-amber-200: #fde68a;
+  --color-amber-300: #fcd34d;
+  --color-amber-400: #fbbf24;
+  --color-amber-50: #fffbeb;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+  --color-amber-900: #78350f;
+  --color-amber-950: #451a03;
+  --color-emerald-100: #d1fae5;
+  --color-emerald-200: #a7f3d0;
+  --color-emerald-300: #6ee7b7;
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10b981;
+  --color-emerald-700: #047857;
+  --color-emerald-800: #065f46;
+  --color-emerald-900: #064e3b;
+  --color-emerald-950: #022c22;
+  --color-gray-900: #111827;
+  --color-gray-200: #e5e7eb;
+  --color-orange-200: #fed7aa;
+  --color-orange-400: #fb923c;
+  --color-orange-950: #431407;
+  --color-red-100: #fee2e2;
+  --color-red-200: #fecaca;
+  --color-red-300: #fca5a5;
+  --color-red-400: #f87171;
+  --color-red-50: #fef2f2;
+  --color-red-700: #b91c1c;
+  --color-red-800: #991b1b;
+  --color-red-900: #7f1d1d;
+  --color-red-950: #450a0a;
+  --color-sky-200: #bae6fd;
+  --color-sky-400: #38bdf8;
+  --color-sky-800: #075985;
+  --color-sky-950: #082f49;
+  --color-slate-300: #cbd5e1;
+  --color-teal-200: #99f6e4;
+  --color-teal-400: #2dd4bf;
+  --color-teal-950: #042f2e;
+}
 
 /* ─────────────────────────────────────────────────────────────
    Zero Tilt — identidade própria: sem tilt
@@ -9,6 +97,12 @@
    ───────────────────────────────────────────────────────────── */
 
 @layer base {
+  /* Preserve v3 borders and button affordances. */
+  *, ::before, ::after, ::backdrop, ::file-selector-button {
+    border-color: var(--color-gray-200, #e5e7eb);
+  }
+  button, [role="button"] { cursor: pointer; }
+
   html,
   body,
   #root {
@@ -66,6 +160,10 @@
   }
 }
 
+@utility zt-btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-sm border-2 px-4 py-2 text-sm font-bold transition-colors focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold;
+}
+
 @layer components {
   .zt-shell {
     @apply flex min-h-screen min-w-0 flex-col overflow-x-clip;
@@ -92,15 +190,11 @@
   }
 
   .zt-panel {
-    @apply rounded border-2 border-rail bg-felt-700 shadow-panel;
+    @apply rounded-sm border-2 border-rail bg-felt-700 shadow-panel;
   }
 
   .zt-panel-title {
     @apply border-b border-rail/60 px-4 py-2 text-sm font-bold uppercase tracking-wider text-gold-bright;
-  }
-
-  .zt-btn {
-    @apply inline-flex items-center justify-center gap-2 rounded border-2 px-4 py-2 text-sm font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold;
   }
 
   .zt-btn-primary {
@@ -120,7 +214,7 @@
   }
 
   .zt-input {
-    @apply w-full rounded border-2 border-felt-500 bg-felt-900 px-3 py-2 text-sm text-cream outline-none transition-colors placeholder:text-felt-400 focus:border-gold;
+    @apply w-full rounded-sm border-2 border-felt-500 bg-felt-900 px-3 py-2 text-sm text-cream outline-hidden transition-colors placeholder:text-felt-400 focus:border-gold;
   }
 
   .zt-label {
@@ -137,7 +231,7 @@
   }
 
   .zt-lobby-stake-tabs {
-    @apply flex max-w-full flex-nowrap gap-1 overflow-x-auto rounded border border-felt-600 bg-felt-950/60 p-0.5;
+    @apply flex max-w-full flex-nowrap gap-1 overflow-x-auto rounded-sm border border-felt-600 bg-felt-950/60 p-0.5;
   }
 
   .zt-lobby-stake-tabs .zt-tab {
@@ -170,7 +264,7 @@
   }
 
   .zt-chip {
-    @apply inline-flex items-center rounded border border-rail/50 bg-felt-900 px-2 py-0.5 font-mono text-xs text-gold-soft;
+    @apply inline-flex items-center rounded-sm border border-rail/50 bg-felt-900 px-2 py-0.5 font-mono text-xs text-gold-soft;
   }
 
   .zt-chip-accent {
@@ -190,11 +284,11 @@
   }
 
   .zt-occupancy-track {
-    @apply h-1.5 w-full overflow-hidden rounded-sm border border-felt-600 bg-felt-950;
+    @apply h-1.5 w-full overflow-hidden rounded-xs border border-felt-600 bg-felt-950;
   }
 
   .zt-occupancy-bar {
-    @apply h-full rounded-sm transition-[width] duration-300;
+    @apply h-full rounded-xs transition-[width] duration-300;
     background: #5a8a5a;
   }
 
@@ -234,7 +328,7 @@
   }
 
   .zt-online-hero {
-    @apply rounded border-2 px-4 py-4 shadow-panel;
+    @apply rounded-sm border-2 px-4 py-4 shadow-panel;
   }
 
   .zt-online-hero.waiting {
@@ -360,7 +454,7 @@
   }
 
   .zt-seat-card {
-    @apply min-w-[110px] rounded border-2 border-felt-500 bg-felt-950/90 px-2 py-1.5 text-center shadow-seat;
+    @apply min-w-[110px] rounded-sm border-2 border-felt-500 bg-felt-950/90 px-2 py-1.5 text-center shadow-seat;
   }
 
   .zt-seat-card.active {
@@ -534,7 +628,7 @@
   }
 
   .zt-action-bar {
-    @apply mt-6 flex flex-wrap items-center justify-center gap-2 rounded border-2 border-rail bg-felt-950 px-4 py-3;
+    @apply mt-6 flex flex-wrap items-center justify-center gap-2 rounded-sm border-2 border-rail bg-felt-950 px-4 py-3;
   }
 
   @media (max-width: 639px) {
@@ -553,7 +647,7 @@
   }
 
   .zt-tab {
-    @apply flex-1 rounded border border-transparent px-3 py-2 text-sm font-semibold text-felt-300 transition-all hover:text-cream hover:border-felt-500;
+    @apply flex-1 rounded-sm border border-transparent px-3 py-2 text-sm font-semibold text-felt-300 transition-all hover:text-cream hover:border-felt-500;
   }
 
   .zt-tab-active {
@@ -561,7 +655,7 @@
   }
 
   .zt-card {
-    @apply rounded border border-felt-600 bg-felt-800/60;
+    @apply rounded-sm border border-felt-600 bg-felt-800/60;
   }
 
   /* Foto inteira visível (sem cortar rosto/cena); letterbox no feltro */

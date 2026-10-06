@@ -101,7 +101,7 @@ export function AdminTablesPage() {
           <input name="max_players" type="number" min={2} max={9} className="zt-input" defaultValue={9} />
         </div>
         <div className="flex items-end sm:col-span-2">
-          <button type="submit" className="zt-btn-primary !text-xs">
+          <button type="submit" className="zt-btn-primary text-xs!">
             Criar mesa cash
           </button>
         </div>
@@ -135,7 +135,7 @@ export function AdminTablesPage() {
           <tbody>
             {visibleTables.map((t) => (
               <Fragment key={t.id}>
-                <tr className="!cursor-default">
+                <tr className="cursor-default!">
                   <td className="font-semibold text-cream">
                     {t.name}
                     <div className="text-[10px] text-felt-400">{t.visibility}</div>
@@ -151,25 +151,25 @@ export function AdminTablesPage() {
                     {t.current_players}/{t.max_players}
                   </td>
                   <td className="space-x-1">
-                    <button type="button" className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]" onClick={() => void setStatus(t.id, "OPEN")}>
+                    <button type="button" className="zt-btn-secondary px-2! py-0.5! text-[10px]!" onClick={() => void setStatus(t.id, "OPEN")}>
                       OPEN
                     </button>
-                    <button type="button" className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]" onClick={() => void setStatus(t.id, "PAUSED")}>
+                    <button type="button" className="zt-btn-secondary px-2! py-0.5! text-[10px]!" onClick={() => void setStatus(t.id, "PAUSED")}>
                       PAUSE
                     </button>
-                    <button type="button" className="zt-btn-danger !px-2 !py-0.5 !text-[10px]" onClick={() => void setStatus(t.id, "CLOSED")}>
+                    <button type="button" className="zt-btn-danger px-2! py-0.5! text-[10px]!" onClick={() => void setStatus(t.id, "CLOSED")}>
                       CLOSE
                     </button>
                   </td>
                 </tr>
-                <tr className="!cursor-default">
+                <tr className="cursor-default!">
                   <td colSpan={6} className="bg-felt-950/70 py-2">
                     {!(t.seats ?? []).length ? (
                       <p className="text-[11px] text-felt-400">Nenhum assento ocupado</p>
                     ) : (
                       <ul className="grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
                         {(t.seats as AdminTableSeat[]).map((s) => (
-                          <li key={`${t.id}-${s.seat}`} className="rounded border border-felt-700 px-2 py-1 text-[11px]">
+                          <li key={`${t.id}-${s.seat}`} className="rounded-sm border border-felt-700 px-2 py-1 text-[11px]">
                             <span className="font-mono text-gold-soft">#{s.seat}</span>{" "}
                             <span className="font-semibold text-cream">{s.username}</span>
                             <div className="truncate text-felt-300">{s.email}</div>

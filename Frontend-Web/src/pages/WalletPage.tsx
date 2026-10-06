@@ -297,10 +297,10 @@ export function WalletPage() {
       </div>
 
       {error && (
-        <p className="rounded border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200">{error}</p>
+        <p className="rounded-sm border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200">{error}</p>
       )}
       {msg && (
-        <p className="rounded border border-emerald-800 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-100">{msg}</p>
+        <p className="rounded-sm border border-emerald-800 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-100">{msg}</p>
       )}
 
       <div className="grid gap-3 sm:grid-cols-3">
@@ -378,7 +378,7 @@ export function WalletPage() {
                 <p className="text-sm text-amber-100">{info.instructions}</p>
               ) : info.automated_available ? (
                 <>
-                  <div className="rounded border border-sky-800 bg-sky-950/30 p-3">
+                  <div className="rounded-sm border border-sky-800 bg-sky-950/30 p-3">
                     <div className="text-xs font-semibold uppercase text-sky-200">
                       {info.automated_mode === "production" ? "DePix · Pagamento real" : "DePix Sandbox"}
                     </div>
@@ -397,7 +397,7 @@ export function WalletPage() {
                             <button
                               key={preset}
                               type="button"
-                              className={amountCents === preset ? "zt-tab zt-tab-active !flex-none" : "zt-tab !flex-none"}
+                              className={amountCents === preset ? "zt-tab zt-tab-active flex-none!" : "zt-tab flex-none!"}
                               onClick={() => setAmountCents(preset)}
                             >
                               {formatBrlFromCents(preset)}
@@ -438,7 +438,7 @@ export function WalletPage() {
                       </button>
                     </form>
                   ) : (
-                    <div className="space-y-3 rounded border border-rail/60 bg-felt-950 p-3">
+                    <div className="space-y-3 rounded-sm border border-rail/60 bg-felt-950 p-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
                           <div className="text-[10px] uppercase text-felt-400">Cobrança</div>
@@ -469,19 +469,19 @@ export function WalletPage() {
                         aria-label="PIX copia e cola"
                       />
                       <div className="flex flex-wrap gap-2">
-                        <button type="button" className="zt-btn-secondary !py-1 !text-xs" onClick={() => void copyChargePix()}>
+                        <button type="button" className="zt-btn-secondary py-1! text-xs!" onClick={() => void copyChargePix()}>
                           Copiar PIX
                         </button>
                         {pixCharge.payment_url && (
-                          <a className="zt-btn-secondary !py-1 !text-xs" href={pixCharge.payment_url} target="_blank" rel="noreferrer">
+                          <a className="zt-btn-secondary py-1! text-xs!" href={pixCharge.payment_url} target="_blank" rel="noreferrer">
                             Abrir pagamento
                           </a>
                         )}
-                        <button type="button" className="zt-btn-secondary !py-1 !text-xs" disabled={busy} onClick={() => void refreshChargeStatus(false)}>
+                        <button type="button" className="zt-btn-secondary py-1! text-xs!" disabled={busy} onClick={() => void refreshChargeStatus(false)}>
                           Atualizar status
                         </button>
                         {info.automated_mode === "sandbox" && pixStatus?.status !== "COMPLETED" && (
-                          <button type="button" className="zt-btn-primary !py-1 !text-xs" disabled={busy} onClick={() => void refreshChargeStatus(true)}>
+                          <button type="button" className="zt-btn-primary py-1! text-xs!" disabled={busy} onClick={() => void refreshChargeStatus(true)}>
                             Simular pagamento
                           </button>
                         )}
@@ -501,7 +501,7 @@ export function WalletPage() {
               ) : (
                 <>
                   <p className="text-xs text-felt-300">{info.instructions}</p>
-                  <div className="rounded border border-rail/60 bg-felt-950 p-3">
+                  <div className="rounded-sm border border-rail/60 bg-felt-950 p-3">
                     <div className="text-[10px] uppercase text-felt-400">Recebedor</div>
                     <div className="font-semibold text-cream">{info.receiver_name}</div>
                     <div className="mt-2 text-[10px] uppercase text-felt-400">Chave PIX</div>
@@ -509,10 +509,10 @@ export function WalletPage() {
                       {revealPix ? info.pix_key : maskedKey}
                     </div>
                     <div className="mt-2 flex flex-wrap gap-1">
-                      <button type="button" className="zt-btn-secondary !py-1 !text-xs" onClick={() => setRevealPix((value) => !value)}>
+                      <button type="button" className="zt-btn-secondary py-1! text-xs!" onClick={() => setRevealPix((value) => !value)}>
                         {revealPix ? "Ocultar" : "Mostrar chave"}
                       </button>
-                      <button type="button" className="zt-btn-secondary !py-1 !text-xs" onClick={() => void copyPix()}>
+                      <button type="button" className="zt-btn-secondary py-1! text-xs!" onClick={() => void copyPix()}>
                         Copiar chave
                       </button>
                     </div>
@@ -557,7 +557,7 @@ export function WalletPage() {
           {mode === "real" && (
             <div className="zt-panel p-4 space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-wide text-gold-bright">Saque Pix</h3>
-              <p className="text-xs text-amber-100 rounded border border-amber-700/60 bg-amber-950/30 px-3 py-2">
+              <p className="text-xs text-amber-100 rounded-sm border border-amber-700/60 bg-amber-950/30 px-3 py-2">
                 Recebimento em até 24h.
               </p>
               <form className="space-y-3" onSubmit={(e) => void onWithdraw(e)}>
@@ -607,7 +607,7 @@ export function WalletPage() {
             </div>
           )}
 
-          <div className="zt-panel overflow-hidden !border-0 !shadow-none">
+          <div className="zt-panel overflow-hidden border-0! shadow-none!">
             <div className="zt-panel-title">Extrato (Jogo Real)</div>
             <div className="zt-table-wrap">
               <table className="zt-lobby-table">
@@ -623,12 +623,12 @@ export function WalletPage() {
                 </thead>
                 <tbody>
                   {statement.length === 0 ? (
-                    <tr className="!cursor-default">
+                    <tr className="cursor-default!">
                       <td colSpan={6} className="text-felt-400">Nenhuma movimentação ainda</td>
                     </tr>
                   ) : (
                     statement.map((r) => (
-                      <tr key={r.key} className="!cursor-default">
+                      <tr key={r.key} className="cursor-default!">
                         <td className="text-xs text-felt-300">{formatDateTime(r.date)}</td>
                         <td className="text-xs">{r.kind}</td>
                         <td className="font-mono text-gold-soft">{formatBrlFromCents(r.amount)}</td>

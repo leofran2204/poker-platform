@@ -40,14 +40,14 @@ export function AdminPresencePage() {
           </thead>
           <tbody>
             {data.users.length === 0 ? (
-              <tr className="!cursor-default">
+              <tr className="cursor-default!">
                 <td colSpan={3} className="text-felt-400">
                   Ninguém online
                 </td>
               </tr>
             ) : (
               data.users.map((u) => (
-                <tr key={u.user_id} className="!cursor-default">
+                <tr key={u.user_id} className="cursor-default!">
                   <td className="font-semibold text-cream">{u.username}</td>
                   <td className="font-mono text-[11px] text-felt-400">{u.user_id}</td>
                   <td className="text-xs text-felt-300">

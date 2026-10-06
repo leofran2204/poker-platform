@@ -100,7 +100,7 @@ export function SessionConnectivity() {
 
   return (
     <div
-      className="fixed inset-x-0 top-0 z-[60] border-b border-amber-500/70 bg-amber-950 px-4 py-2 text-amber-50 shadow-xl"
+      className="fixed inset-x-0 top-0 z-60 border-b border-amber-500/70 bg-amber-950 px-4 py-2 text-amber-50 shadow-xl"
       role="status"
       aria-live="assertive"
     >

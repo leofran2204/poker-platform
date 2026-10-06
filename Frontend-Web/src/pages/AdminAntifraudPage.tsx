@@ -23,7 +23,7 @@ export function AdminAntifraudPage() {
 
   return (
     <div className="space-y-3">
-      <p className="rounded border border-amber-700/50 bg-amber-950/30 px-3 py-2 text-xs text-amber-100">
+      <p className="rounded-sm border border-amber-700/50 bg-amber-950/30 px-3 py-2 text-xs text-amber-100">
         Endpoint de alerts ainda é <strong>stub</strong> — útil para layout; detectors ao vivo vêm depois.
       </p>
       <div className="grid gap-3 sm:grid-cols-3">

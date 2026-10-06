@@ -68,7 +68,7 @@ export function AdminDepositsPage() {
           <option value="rejected">rejected</option>
           <option value="">todos</option>
         </select>
-        <button type="button" className="zt-btn-secondary !py-1 !text-xs" onClick={() => void load()}>
+        <button type="button" className="zt-btn-secondary py-1! text-xs!" onClick={() => void load()}>
           Atualizar
         </button>
       </div>
@@ -95,14 +95,14 @@ export function AdminDepositsPage() {
                   <div className="flex gap-1">
                     <button
                       type="button"
-                      className="zt-btn-primary !py-1 !text-xs"
+                      className="zt-btn-primary py-1! text-xs!"
                       onClick={() => void onApprove(r.id)}
                     >
                       Aprovar
                     </button>
                     <button
                       type="button"
-                      className="zt-btn-danger !py-1 !text-xs"
+                      className="zt-btn-danger py-1! text-xs!"
                       onClick={() => void onReject(r.id)}
                     >
                       Rejeitar
@@ -115,7 +115,7 @@ export function AdminDepositsPage() {
               )}
               <div>
                 <div className="text-[10px] uppercase text-felt-500">Comprovante</div>
-                <pre className="mt-1 max-h-40 overflow-auto whitespace-pre-wrap break-words rounded border border-felt-600 bg-felt-950 p-2 text-xs text-felt-200">
+                <pre className="mt-1 max-h-40 overflow-auto whitespace-pre-wrap wrap-break-word rounded-sm border border-felt-600 bg-felt-950 p-2 text-xs text-felt-200">
                   {r.proof_text}
                 </pre>
               </div>

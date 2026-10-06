@@ -162,10 +162,10 @@ export function AdminBotsPage() {
         eles jogam sozinhos até restar 1. Só mesas play money.
       </p>
       {error ? (
-        <p className="rounded border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200">{error}</p>
+        <p className="rounded-sm border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200">{error}</p>
       ) : null}
       {msg ? (
-        <p className="rounded border border-felt-700 bg-felt-800 px-3 py-2 text-sm text-felt-200">{msg}</p>
+        <p className="rounded-sm border border-felt-700 bg-felt-800 px-3 py-2 text-sm text-felt-200">{msg}</p>
       ) : null}
 
       <div className="zt-panel p-4 text-sm">
@@ -215,14 +215,14 @@ export function AdminBotsPage() {
           ))}
           <button
             type="button"
-            className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]"
+            className="zt-btn-secondary px-2! py-0.5! text-[10px]!"
             onClick={(e) => fillMix(e.currentTarget.closest("form"), { nit: 2, tag: 2, lag: 2, station: 2 })}
           >
             Mesa 2-2-2-2
           </button>
           <button
             type="button"
-            className="zt-btn-secondary !px-2 !py-0.5 !text-[10px]"
+            className="zt-btn-secondary px-2! py-0.5! text-[10px]!"
             onClick={(e) => fillMix(e.currentTarget.closest("form"), { nit: 0, tag: 0, lag: 0, station: 0 })}
           >
             Limpar
@@ -240,7 +240,7 @@ export function AdminBotsPage() {
               {t.table_name} · {t.variant} · {t.bots_alive}/{t.bots_total} vivos · {t.hands_played} mãos
               {t.leader ? ` · líder ${t.leader.username} (${formatBrlFromCents(t.leader.chips)})` : ""}
             </span>
-            <button className="zt-btn-secondary !text-xs" disabled={busy} onClick={() => onStop(t.table_id, t.table_name)}>
+            <button className="zt-btn-secondary text-xs!" disabled={busy} onClick={() => onStop(t.table_id, t.table_name)}>
               Desligar
             </button>
           </div>
@@ -309,7 +309,7 @@ export function AdminBotsPage() {
             <span>
               {t.tournament_name} · {t.strategy} · {t.bots_total} bots
             </span>
-            <button className="zt-btn-secondary !text-xs" disabled={busy} onClick={() => onStopTournament(t.tournament_id, t.tournament_name)}>
+            <button className="zt-btn-secondary text-xs!" disabled={busy} onClick={() => onStopTournament(t.tournament_id, t.tournament_name)}>
               Desligar (sit-out)
             </button>
           </div>
@@ -317,7 +317,7 @@ export function AdminBotsPage() {
             {t.players.map((p) => (
               <span
                 key={p.username}
-                className="rounded border border-felt-600 bg-felt-900 px-2 py-0.5 font-mono text-[11px] text-cream"
+                className="rounded-sm border border-felt-600 bg-felt-900 px-2 py-0.5 font-mono text-[11px] text-cream"
                 title={`Bot da casa${p.personality ? ` · perfil ${p.personality}` : ""}`}
               >
                 🤖 {p.username}{p.personality ? ` · ${p.personality}` : ""}

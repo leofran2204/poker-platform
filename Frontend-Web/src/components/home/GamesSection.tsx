@@ -25,7 +25,7 @@ export function GamesSection() {
         </p>
       </div>
 
-      <div className="flex gap-1 overflow-x-auto rounded border border-felt-600 bg-felt-950/60 p-1" role="tablist" aria-label="Variantes de poker">
+      <div className="flex gap-1 overflow-x-auto rounded-sm border border-felt-600 bg-felt-950/60 p-1" role="tablist" aria-label="Variantes de poker">
         {variants.map((v) => (
           <button
             key={v.id}
@@ -33,7 +33,7 @@ export function GamesSection() {
             role="tab"
             aria-selected={v.id === activeId}
             onClick={() => setActiveId(v.id)}
-            className={`zt-tab whitespace-nowrap !flex-none px-4 ${v.id === activeId ? "zt-tab-active" : ""}`}
+            className={`zt-tab whitespace-nowrap flex-none! px-4 ${v.id === activeId ? "zt-tab-active" : ""}`}
           >
             {v.name}
           </button>
@@ -54,7 +54,7 @@ export function GamesSection() {
             <dt className="zt-label">Como se forma o jogo</dt>
             <dd className="text-sm leading-relaxed text-felt-200">{active.make}</dd>
           </div>
-          <div className="rounded border border-gold/30 bg-gold/10 p-3">
+          <div className="rounded-sm border border-gold/30 bg-gold/10 p-3">
             <dt className="text-xs font-bold uppercase tracking-wider text-gold-soft">
               O pulo do gato
             </dt>

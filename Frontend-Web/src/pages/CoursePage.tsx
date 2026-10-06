@@ -50,7 +50,7 @@ export function CoursePage() {
             </Link>
           </p>
         </div>
-        <span className="rounded border border-gold-soft/30 bg-felt-900 px-3 py-1 text-xs font-mono text-gold-bright">
+        <span className="rounded-sm border border-gold-soft/30 bg-felt-900 px-3 py-1 text-xs font-mono text-gold-bright">
           Nota de Corte: {PASS_SCORE}%
         </span>
       </div>
@@ -58,7 +58,7 @@ export function CoursePage() {
       <PineappleFilm academy />
 
       {!authed && (
-        <p className="rounded border border-felt-700 bg-felt-800 px-3 py-2 text-xs text-felt-200">
+        <p className="rounded-sm border border-felt-700 bg-felt-800 px-3 py-2 text-xs text-felt-200">
           Você está navegando como visitante. <Link to="/login" className="text-gold-soft underline">Entre na sua conta</Link> para salvar
           seu progresso. As trilhas por modalidade ficam disponíveis após a aula de regras; história é opcional.
         </p>
@@ -72,8 +72,8 @@ export function CoursePage() {
               {done}/{total} aulas concluídas • {pct}%
             </span>
           </div>
-          <div className="mt-2 h-2 overflow-hidden rounded bg-felt-800">
-            <div className="h-full rounded bg-gold-bright transition-all duration-500" style={{ width: `${pct}%` }} />
+          <div className="mt-2 h-2 overflow-hidden rounded-sm bg-felt-800">
+            <div className="h-full rounded-sm bg-gold-bright transition-all duration-500" style={{ width: `${pct}%` }} />
           </div>
         </div>
       )}
@@ -86,7 +86,7 @@ export function CoursePage() {
               {m.title}
             </h2>
             <p className="text-xs text-felt-400 pl-4">{m.subtitle}</p>
-            <Link to={`/curso/mesa/${m.id}`} className="mt-3 ml-4 inline-flex zt-btn-primary !text-xs">Praticar na mesa deste módulo →</Link>
+            <Link to={`/curso/mesa/${m.id}`} className="mt-3 ml-4 inline-flex zt-btn-primary text-xs!">Praticar na mesa deste módulo →</Link>
           </div>
           <div className="grid gap-2 pl-2">
             {m.lessons.map((l, i) => {

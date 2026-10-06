@@ -11,7 +11,7 @@ export function BrandMark({ size = 28, className }: BrandMarkProps) {
       alt=""
       width={size}
       height={size}
-      className={className ?? "h-7 w-7 shrink-0 rounded-sm object-cover ring-1 ring-gold/40"}
+      className={className ?? "h-7 w-7 shrink-0 rounded-xs object-cover ring-1 ring-gold/40"}
       aria-hidden
     />
   );

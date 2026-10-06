@@ -233,7 +233,7 @@ export function LobbyPage() {
             {" · "}fichas Play Money e Jogo Real não se misturam
           </p>
         </div>
-        <div className="flex gap-1 rounded border border-felt-600 bg-felt-950/60 p-0.5">
+        <div className="flex gap-1 rounded-sm border border-felt-600 bg-felt-950/60 p-0.5">
           <button
             type="button"
             role="tab"
@@ -256,12 +256,12 @@ export function LobbyPage() {
       </div>
 
       {error && (
-        <p className="rounded border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200" role="alert">
+        <p className="rounded-sm border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200" role="alert">
           {error}
         </p>
       )}
       {info && (
-        <p className="rounded border border-emerald-800 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-100" role="status">
+        <p className="rounded-sm border border-emerald-800 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-100" role="status">
           {info}
         </p>
       )}
@@ -269,8 +269,8 @@ export function LobbyPage() {
       <div
         className={
           walletMode === "real"
-            ? "rounded border border-amber-600/60 bg-amber-950/40 px-3 py-2 text-xs text-amber-100"
-            : "rounded border border-emerald-700/50 bg-emerald-950/30 px-3 py-2 text-xs text-emerald-100"
+            ? "rounded-sm border border-amber-600/60 bg-amber-950/40 px-3 py-2 text-xs text-amber-100"
+            : "rounded-sm border border-emerald-700/50 bg-emerald-950/30 px-3 py-2 text-xs text-emerald-100"
         }
       >
         {walletMode === "real" ? (
@@ -330,7 +330,7 @@ export function LobbyPage() {
 
             <button
               type="button"
-              className="zt-btn-secondary !px-3 !py-1 !text-xs"
+              className="zt-btn-secondary px-3! py-1! text-xs!"
               onClick={() => void load()}
               disabled={loading}
             >
@@ -352,7 +352,7 @@ export function LobbyPage() {
                 const full = t.players >= t.max_players;
                 const pct = occupancyPct(t.players, t.max_players);
                 return (
-                  <div key={t.id} className="rounded border border-felt-600 bg-felt-950/50 p-3">
+                  <div key={t.id} className="rounded-sm border border-felt-600 bg-felt-950/50 p-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <p className="font-semibold text-cream">{gameNameLabel(t, "cash")}</p>
@@ -370,8 +370,8 @@ export function LobbyPage() {
                         type="button"
                         className={
                           full
-                            ? "zt-btn-secondary shrink-0 !px-3 !py-1.5 !text-xs"
-                            : "zt-btn-primary shrink-0 !px-3 !py-1.5 !text-xs"
+                            ? "zt-btn-secondary shrink-0 px-3! py-1.5! text-xs!"
+                            : "zt-btn-primary shrink-0 px-3! py-1.5! text-xs!"
                         }
                         disabled={joiningId === t.id}
                         onClick={() => (full ? void handleWaitlist(t) : void handleJoin(t))}
@@ -392,7 +392,7 @@ export function LobbyPage() {
               })}
             </div>
             <div className="zt-table-wrap hidden md:block">
-              <table className="zt-lobby-table min-w-[58rem] table-fixed">
+              <table className="zt-lobby-table min-w-232 table-fixed">
                 <colgroup>
                   <col className="w-[28%]" />
                   <col className="w-[16%]" />
@@ -479,8 +479,8 @@ export function LobbyPage() {
                             type="button"
                             className={
                               full
-                                ? "zt-btn-secondary !px-2.5 !py-1 !text-xs"
-                                : "zt-btn-primary !px-2.5 !py-1 !text-xs"
+                                ? "zt-btn-secondary px-2.5! py-1! text-xs!"
+                                : "zt-btn-primary px-2.5! py-1! text-xs!"
                             }
                             disabled={joiningId === t.id}
                             onClick={(e) => {
@@ -506,7 +506,7 @@ export function LobbyPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="rounded border border-gold/40 bg-felt-950/70 px-4 py-3">
+          <div className="rounded-sm border border-gold/40 bg-felt-950/70 px-4 py-3">
             <p className="text-xs font-bold uppercase tracking-wider text-gold-soft">
               Próximos torneios
             </p>
@@ -528,7 +528,7 @@ export function LobbyPage() {
             </div>
             <button
               type="button"
-              className="zt-btn-secondary !px-3 !py-1 !text-xs"
+              className="zt-btn-secondary px-3! py-1! text-xs!"
               onClick={() => void load()}
               disabled={loading}
             >
@@ -552,7 +552,7 @@ export function LobbyPage() {
                 return (
                   <article
                     key={t.id}
-                    className="flex flex-col gap-3 rounded border border-felt-600 bg-felt-950/50 p-3"
+                    className="flex flex-col gap-3 rounded-sm border border-felt-600 bg-felt-950/50 p-3"
                   >
                     <div>
                       <Link
@@ -596,14 +596,14 @@ export function LobbyPage() {
                       {live && tables.length > 0 && registered ? (
                         <Link
                           to={`/table/${tables[0]}`}
-                          className="zt-btn-primary !px-3 !py-1.5 !text-xs"
+                          className="zt-btn-primary px-3! py-1.5! text-xs!"
                         >
                           Sentar
                         </Link>
                       ) : registered && t.status === "registering" ? (
                         <button
                           type="button"
-                          className="zt-btn-secondary !px-3 !py-1.5 !text-xs"
+                          className="zt-btn-secondary px-3! py-1.5! text-xs!"
                           disabled={registeringId === t.id}
                           onClick={() => void handleUnregister(t)}
                         >
@@ -612,7 +612,7 @@ export function LobbyPage() {
                       ) : (
                         <button
                           type="button"
-                          className="zt-btn-primary !px-3 !py-1.5 !text-xs"
+                          className="zt-btn-primary px-3! py-1.5! text-xs!"
                           disabled={
                             registeringId === t.id ||
                             registered ||
@@ -626,7 +626,7 @@ export function LobbyPage() {
                       )}
                       <Link
                         to={`/tournament/${t.id}`}
-                        className="zt-btn-secondary !px-3 !py-1.5 !text-xs"
+                        className="zt-btn-secondary px-3! py-1.5! text-xs!"
                       >
                         Detalhes
                       </Link>

@@ -129,7 +129,7 @@ export function ShowcaseTable({ className = "" }: { className?: string }) {
           <button
             type="button"
             onClick={() => setPlaying((p) => !p)}
-            className="zt-btn-secondary !px-2 !py-0.5 !text-[11px]"
+            className="zt-btn-secondary px-2! py-0.5! text-[11px]!"
             aria-label={playing ? "Pausar vitrine" : "Continuar vitrine"}
           >
             {playing ? "⏸" : "▶"}
@@ -138,7 +138,7 @@ export function ShowcaseTable({ className = "" }: { className?: string }) {
       </div>
       <div className={`zt-felt-table zt-showcase-table ${className}`.trim()} aria-hidden>
         <div className="absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
-          <div className="rounded border border-gold/40 bg-black/40 px-3 py-1 text-center">
+          <div className="rounded-sm border border-gold/40 bg-black/40 px-3 py-1 text-center">
             <div className="text-[10px] uppercase tracking-wider text-gold-soft">Pot</div>
             <div className="font-mono text-base font-bold text-white">
               {formatChips(pot)}

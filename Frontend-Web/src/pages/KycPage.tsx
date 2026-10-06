@@ -91,7 +91,7 @@ export function KycPage() {
               <input id="kyc-birth-date" type="date" className="zt-input" required autoComplete="bday" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
             </div>
           </div>
-          {error && <p className="rounded border border-red-800 bg-red-950/50 p-3 text-sm text-red-200" role="alert">{error}</p>}
+          {error && <p className="rounded-sm border border-red-800 bg-red-950/50 p-3 text-sm text-red-200" role="alert">{error}</p>}
           <button type="submit" className="zt-btn-primary" disabled={loading}>{loading ? "Enviando…" : "Enviar para análise"}</button>
         </form>
       ) : (

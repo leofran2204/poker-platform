@@ -29,7 +29,7 @@ export function AdminAuditPage() {
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.id} className="!cursor-default align-top">
+              <tr key={r.id} className="cursor-default! align-top">
                 <td className="whitespace-nowrap text-xs text-felt-300">
                   {new Date(r.created_at).toLocaleString("pt-BR")}
                 </td>

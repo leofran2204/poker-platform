@@ -71,20 +71,20 @@ export function LoginPage() {
     <div className="zt-auth-split">
       <div className="zt-panel">
         <div className="zt-panel-title flex items-center gap-2">
-          <BrandMark size={24} className="h-6 w-6 rounded-sm object-cover ring-1 ring-gold/40" />
+          <BrandMark size={24} className="h-6 w-6 rounded-xs object-cover ring-1 ring-gold/40" />
           Entrar
         </div>
         <form className="space-y-4 p-5" onSubmit={onSubmit}>
           {sessionExpired && (
             <p
-              className="rounded border border-amber-600 bg-amber-950/60 px-3 py-2 text-sm text-amber-100"
+              className="rounded-sm border border-amber-600 bg-amber-950/60 px-3 py-2 text-sm text-amber-100"
               role="alert"
             >
               Sua sessão expirou ou foi encerrada. Entre novamente para continuar com segurança.
             </p>
           )}
           {passwordReset && (
-            <p className="rounded border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-sm text-emerald-100" role="status">
+            <p className="rounded-sm border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-sm text-emerald-100" role="status">
               Senha redefinida. Entre com a nova senha.
             </p>
           )}
@@ -150,7 +150,7 @@ export function LoginPage() {
             </>
           )}
           {error && (
-            <p className="rounded border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-200">
+            <p className="rounded-sm border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-200">
               {error}
             </p>
           )}

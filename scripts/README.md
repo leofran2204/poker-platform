@@ -2,7 +2,7 @@
 
 Automação operacional do monorepo.
 
-Auditoria frontend: `npm run audit:security` em `Frontend-Web/`; contratos em `node --test scripts/audit-frontend.test.mjs` na raiz. Script dedicado com um único propósito: manter o gate npm e uma exceção de build restrita e expirada automaticamente para `GHSA-vfj7-8cjw-p6xm`, descrita em [QUALITY](../Documentacao/QUALITY.md#exceção-temporária-de-build--05102026-a-18102026). Produção continua sem exceções.
+Auditoria frontend: `npm run audit:security` em `Frontend-Web/` executa `npm audit --audit-level=high`, sem exceções. O script temporário de exceção e seus testes foram retirados na revisão de 05–06/10/2026 após a remoção de `braces` na migração para Tailwind 4. Histórico em [QUALITY](../Documentacao/QUALITY.md#exceção-temporária-de-build--05102026-a-18102026).
 
 ## Ambiente local e permissões do Codex
 

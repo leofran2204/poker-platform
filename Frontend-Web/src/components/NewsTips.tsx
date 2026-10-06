@@ -989,7 +989,7 @@ export function NewsTips({ className, tab, compact, previewLimit = 3 }: NewsTips
               return (
                 <article
                   key={itemKey}
-                  className={`group zt-card min-w-0 w-[min(100%,380px)] max-w-full flex-shrink-0 snap-start overflow-hidden transition-colors hover:border-gold-soft/30 ${isExpanded ? "border-gold-soft/40" : ""}`}
+                  className={`group zt-card min-w-0 w-[min(100%,380px)] max-w-full shrink-0 snap-start overflow-hidden transition-colors hover:border-gold-soft/30 ${isExpanded ? "border-gold-soft/40" : ""}`}
                 >
                   {photo ? (
                     <NewsImage
@@ -1019,12 +1019,12 @@ export function NewsTips({ className, tab, compact, previewLimit = 3 }: NewsTips
                       type="button"
                       aria-expanded={isExpanded}
                       onClick={() => canExpand && toggleExpand(item)}
-                      className="flex w-full items-start justify-between gap-2 rounded text-left font-medium leading-snug text-cream transition-colors hover:text-gold-bright focus:outline-none focus:ring-2 focus:ring-gold-bright focus:ring-offset-2 focus:ring-offset-felt-800"
+                      className="flex w-full items-start justify-between gap-2 rounded-sm text-left font-medium leading-snug text-cream transition-colors hover:text-gold-bright focus:outline-hidden focus:ring-2 focus:ring-gold-bright focus:ring-offset-2 focus:ring-offset-felt-800"
                     >
                       <h3 className="text-base">{item.title}</h3>
                       {canExpand && (
                         <svg
-                          className={`mt-1 h-4 w-4 flex-shrink-0 text-felt-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                          className={`mt-1 h-4 w-4 shrink-0 text-felt-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -1043,7 +1043,7 @@ export function NewsTips({ className, tab, compact, previewLimit = 3 }: NewsTips
                           ) : body ? (
                             <TipRichText
                               text={body}
-                              className="mt-3 text-sm leading-relaxed text-felt-200 break-words"
+                              className="mt-3 text-sm leading-relaxed text-felt-200 wrap-break-word"
                             />
                           ) : (
                             <p className="mt-3 text-sm text-felt-400">
@@ -1109,7 +1109,7 @@ export function NewsTips({ className, tab, compact, previewLimit = 3 }: NewsTips
                 type="button"
                 aria-label="Anterior"
                 onClick={() => carouselRef.current?.scrollBy({ left: -380, behavior: "smooth" })}
-                className="rounded border border-felt-600 bg-felt-800 px-2 py-1 text-sm text-felt-300 hover:border-gold/40 hover:text-gold-soft"
+                className="rounded-sm border border-felt-600 bg-felt-800 px-2 py-1 text-sm text-felt-300 hover:border-gold/40 hover:text-gold-soft"
               >
                 ‹
               </button>
@@ -1117,7 +1117,7 @@ export function NewsTips({ className, tab, compact, previewLimit = 3 }: NewsTips
                 type="button"
                 aria-label="Próximo"
                 onClick={() => carouselRef.current?.scrollBy({ left: 380, behavior: "smooth" })}
-                className="rounded border border-felt-600 bg-felt-800 px-2 py-1 text-sm text-felt-300 hover:border-gold/40 hover:text-gold-soft"
+                className="rounded-sm border border-felt-600 bg-felt-800 px-2 py-1 text-sm text-felt-300 hover:border-gold/40 hover:text-gold-soft"
               >
                 ›
               </button>

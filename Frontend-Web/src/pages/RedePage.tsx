@@ -44,7 +44,7 @@ export function RedePage() {
             </div>
           </div>
 
-          <div className="rounded border border-gold/50 bg-felt-950/70 p-5">
+          <div className="rounded-sm border border-gold/50 bg-felt-950/70 p-5">
             <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-4 text-sm">
               <span className="zt-chip zt-chip-accent">30%</span>
               <div>
@@ -100,7 +100,7 @@ export function RedePage() {
             <li>Somente apelidos; dados pessoais e bancários não aparecem.</li>
           </ul>
         </div>
-        <div className="rounded border-2 border-amber-700/70 bg-amber-950/30 p-5">
+        <div className="rounded-sm border-2 border-amber-700/70 bg-amber-950/30 p-5">
           <h2 className="text-base font-bold text-amber-100">Regras do programa</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-amber-50/90">
             <li>Cadastro gratuito, sem kit e sem taxa de ativação.</li>
@@ -112,7 +112,7 @@ export function RedePage() {
         </div>
       </section>
 
-      <section className="rounded border border-felt-600 bg-felt-950/60 p-4 text-sm text-felt-200">
+      <section className="rounded-sm border border-felt-600 bg-felt-950/60 p-4 text-sm text-felt-200">
         <strong className="text-cream">Divulgação e jogo responsáveis:</strong> somente para maiores
         de 18 anos. Poker envolve risco de perda e não é investimento. A indicação não autoriza
         compartilhamento de conta, combinação de jogadas ou qualquer forma de conluio. Saiba mais

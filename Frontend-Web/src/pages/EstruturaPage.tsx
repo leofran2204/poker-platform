@@ -58,7 +58,7 @@ export function EstruturaPage() {
   }
 
   if (error) {
-    return <div className="space-y-3"><p role="alert" className="rounded border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200">{error}</p><button className="zt-btn-secondary" onClick={() => void load()}>Tentar novamente</button></div>;
+    return <div className="space-y-3"><p role="alert" className="rounded-sm border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200">{error}</p><button className="zt-btn-secondary" onClick={() => void load()}>Tentar novamente</button></div>;
   }
   if (!data) return <p className="text-felt-400">Carregando…</p>;
 
@@ -103,8 +103,8 @@ export function EstruturaPage() {
             <p className="text-xs text-felt-300">Ciclo consultado</p>
             <p className="font-semibold capitalize text-cream">{monthLabel(data.cycle_start)}</p>
             <div className="mt-2 flex items-center gap-2">
-              <input type="month" aria-label="Consultar mês" className="zt-input !w-40 !py-1 text-xs" value={selectedMonth || data.cycle_start.slice(0, 7)} onChange={(e) => setSelectedMonth(e.target.value)} />
-              <button className="zt-btn-secondary !py-1 !text-xs" disabled={loading} onClick={() => { if (selectedMonth) setSelectedMonth(""); else void load(); }}>Mês atual</button>
+              <input type="month" aria-label="Consultar mês" className="zt-input w-40! py-1! text-xs" value={selectedMonth || data.cycle_start.slice(0, 7)} onChange={(e) => setSelectedMonth(e.target.value)} />
+              <button className="zt-btn-secondary py-1! text-xs!" disabled={loading} onClick={() => { if (selectedMonth) setSelectedMonth(""); else void load(); }}>Mês atual</button>
             </div>
             {loading && <p role="status" className="mt-1 text-xs text-felt-400">Atualizando…</p>}
           </div>
@@ -115,7 +115,7 @@ export function EstruturaPage() {
                 type="button"
                 role="tab"
                 aria-selected={mode === item}
-                className={mode === item ? "zt-btn-primary !py-1.5 !text-xs" : "zt-btn-secondary !py-1.5 !text-xs"}
+                className={mode === item ? "zt-btn-primary py-1.5! text-xs!" : "zt-btn-secondary py-1.5! text-xs!"}
                 onClick={() => setMode(item)}
               >
                 {item === "play" ? "Play Money" : "Jogo Real"}
@@ -125,7 +125,7 @@ export function EstruturaPage() {
         </div>
 
         {data.agent_status !== "active" && (
-          <p className="mt-3 rounded border border-amber-700/70 bg-amber-950/30 p-3 text-xs text-amber-100">
+          <p className="mt-3 rounded-sm border border-amber-700/70 bg-amber-950/30 p-3 text-xs text-amber-100">
             A apuração começa quando o administrador aprovar o agente. O vínculo dos jogadores permanece preservado.
           </p>
         )}
@@ -137,7 +137,7 @@ export function EstruturaPage() {
           <Metric label="Comissão projetada" value={formatAmount(summary.projected_commission_cents, mode)} highlight />
         </div>
 
-        <div className="mt-4 rounded border border-felt-700 bg-felt-950/60 p-4">
+        <div className="mt-4 rounded-sm border border-felt-700 bg-felt-950/60 p-4">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-gold-soft">Meta mensal</p>
@@ -151,9 +151,9 @@ export function EstruturaPage() {
               {summary.target_reached ? "35% projetados" : `${targetProgress}%`}
             </strong>
           </div>
-          <div className="mt-3 h-2 overflow-hidden rounded bg-felt-900" aria-hidden>
+          <div className="mt-3 h-2 overflow-hidden rounded-sm bg-felt-900" aria-hidden>
             <div
-              className={`h-full rounded ${summary.target_reached ? "bg-emerald-500" : "bg-gold"}`}
+              className={`h-full rounded-sm ${summary.target_reached ? "bg-emerald-500" : "bg-gold"}`}
               style={{ width: `${targetProgress}%` }}
             />
           </div>
@@ -167,7 +167,7 @@ export function EstruturaPage() {
         </div>
         <p className="mt-2 text-xs text-felt-400">NGR é a receita atribuível menos as deduções. A comissão prevista pode mudar até a conciliação e o fechamento do mês.</p>
         {summary.adjustments.length > 0 && (
-          <details className="mt-4 rounded border border-felt-700 p-3">
+          <details className="mt-4 rounded-sm border border-felt-700 p-3">
             <summary className="cursor-pointer text-sm text-gold-soft">Deduções do período</summary>
             <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto text-xs text-felt-200">
               {summary.adjustments.map((item) => (
@@ -184,8 +184,8 @@ export function EstruturaPage() {
           <div className="mt-4 border-t border-felt-800 pt-4">
             <span className="text-xs text-felt-300">Seu convite direto</span>
             <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center">
-              <p className="min-w-0 flex-1 break-all rounded border border-felt-800 bg-felt-900/80 p-2 font-mono text-xs text-felt-200">{invite}</p>
-              <button type="button" className="zt-btn-primary shrink-0 !py-1.5 !text-xs" onClick={() => void copyInvite()}>
+              <p className="min-w-0 flex-1 break-all rounded-sm border border-felt-800 bg-felt-900/80 p-2 font-mono text-xs text-felt-200">{invite}</p>
+              <button type="button" className="zt-btn-primary shrink-0 py-1.5! text-xs!" onClick={() => void copyInvite()}>
                 {copyStatus === "copied" ? "Link copiado ✓" : "Copiar convite"}
               </button>
             </div>
@@ -202,7 +202,7 @@ export function EstruturaPage() {
           <p className="p-4 text-sm text-felt-300">Nenhum ciclo fechado ainda.</p>
         ) : (
           <div className="zt-table-wrap">
-            <table className="w-full min-w-[44rem] text-left text-sm">
+            <table className="w-full min-w-176 text-left text-sm">
               <thead>
                 <tr className="text-xs uppercase text-felt-300">
                   <th className="px-3 py-2">Ciclo</th>
@@ -240,7 +240,7 @@ export function EstruturaPage() {
 
 function Metric({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className={`rounded border p-3 ${highlight ? "border-gold/50 bg-gold/10" : "border-felt-700 bg-felt-950/60"}`}>
+    <div className={`rounded-sm border p-3 ${highlight ? "border-gold/50 bg-gold/10" : "border-felt-700 bg-felt-950/60"}`}>
       <p className="text-xs text-felt-300">{label}</p>
       <p className={`mt-1 font-mono text-lg font-bold ${highlight ? "text-gold-bright" : "text-cream"}`}>{value}</p>
     </div>
@@ -249,7 +249,7 @@ function Metric({ label, value, highlight = false }: { label: string; value: str
 
 function Breakdown({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded border border-felt-800 p-2">
+    <div className="rounded-sm border border-felt-800 p-2">
       <span className="text-felt-400">{label}</span>
       <strong className="mt-0.5 block font-mono text-felt-200">{value}</strong>
     </div>
@@ -264,7 +264,7 @@ function DirectPlayersTable({ rows, mode }: { rows: AgentDirectPlayer[]; mode: M
     <section className="zt-panel overflow-hidden">
       <div className="zt-panel-title">Jogadores diretos</div>
       <div className="zt-table-wrap">
-        <table className="w-full min-w-[38rem] text-left text-sm">
+        <table className="w-full min-w-152 text-left text-sm">
           <thead>
             <tr className="text-xs uppercase text-felt-300">
               <th className="px-3 py-2">Jogador</th>

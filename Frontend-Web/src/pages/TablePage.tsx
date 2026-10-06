@@ -434,7 +434,7 @@ export function TablePage() {
       </div>
 
       {actionError && (
-        <div className="rounded border-2 border-red-800 bg-red-950/40 px-4 py-3 text-sm text-red-200" role="alert">
+        <div className="rounded-sm border-2 border-red-800 bg-red-950/40 px-4 py-3 text-sm text-red-200" role="alert">
           {actionError}
           <button type="button" className="ml-3 text-xs underline" onClick={() => setActionError(null)}>
             fechar
@@ -443,13 +443,13 @@ export function TablePage() {
       )}
 
       {playLimitNotice && (
-        <div className="rounded border-2 border-amber-700 bg-amber-950/40 px-4 py-3 text-sm text-amber-100" role="alert">
+        <div className="rounded-sm border-2 border-amber-700 bg-amber-950/40 px-4 py-3 text-sm text-amber-100" role="alert">
           {playLimitNotice} <Link to="/jogo-responsavel" className="font-semibold underline">Ver meus limites</Link>
         </div>
       )}
 
       {deflatorMsg && (
-        <div className="rounded border-2 border-gold bg-felt-850 px-4 py-3 text-sm text-gold-soft">
+        <div className="rounded-sm border-2 border-gold bg-felt-850 px-4 py-3 text-sm text-gold-soft">
           {deflatorMsg}
           <button
             type="button"
@@ -464,7 +464,7 @@ export function TablePage() {
       {lastResult && resultOpen && (
         <div
           key={lastResult.key}
-          className="rounded border-2 border-gold-bright bg-gold/15 px-4 py-3 text-sm"
+          className="rounded-sm border-2 border-gold-bright bg-gold/15 px-4 py-3 text-sm"
           role="status"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">

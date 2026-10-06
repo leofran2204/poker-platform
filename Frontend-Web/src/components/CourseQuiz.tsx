@@ -81,12 +81,12 @@ export function CourseQuiz({
                     onClick={() => setAnswers((a) => ({ ...a, [q.id]: opt }))}
                     className={
                       good
-                        ? "zt-btn-primary !border-emerald-400 !text-xs"
+                        ? "zt-btn-primary border-emerald-400! text-xs!"
                         : bad
-                          ? "zt-btn-danger !text-xs"
+                          ? "zt-btn-danger text-xs!"
                           : active
-                            ? "zt-btn-primary !text-xs"
-                            : "zt-btn-secondary !text-xs"
+                            ? "zt-btn-primary text-xs!"
+                            : "zt-btn-secondary text-xs!"
                     }
                   >
                     {opt}
@@ -136,7 +136,7 @@ export function CourseQuiz({
               </p>
             </div>
             {!passed && (
-              <button type="button" onClick={retry} className="zt-btn-secondary !text-xs">
+              <button type="button" onClick={retry} className="zt-btn-secondary text-xs!">
                 🔄 Tentar novamente
               </button>
             )}

@@ -45,7 +45,7 @@ export function LossDeflatorSection() {
             {tiers.map((t) => (
               <li key={t.percent} className="flex items-center gap-3 px-4 py-2.5">
                 <span
-                  className={`shrink-0 rounded border px-2 py-1 font-mono text-sm font-bold ${TIER_STYLE[t.percent] ?? "border-felt-600 text-cream"}`}
+                  className={`shrink-0 rounded-sm border px-2 py-1 font-mono text-sm font-bold ${TIER_STYLE[t.percent] ?? "border-felt-600 text-cream"}`}
                 >
                   {t.percent}%
                 </span>

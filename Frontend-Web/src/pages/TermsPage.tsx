@@ -177,7 +177,7 @@ export function TermsPage() {
         </section>
 
         <div className="pt-4 border-t border-felt-800 text-center">
-          <Link to="/register" className="zt-btn-primary !py-2 !px-6 !text-xs inline-block">
+          <Link to="/register" className="zt-btn-primary py-2! px-6! text-xs! inline-block">
             Entendido, ir para o Cadastro →
           </Link>
         </div>

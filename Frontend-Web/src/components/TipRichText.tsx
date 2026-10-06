@@ -101,7 +101,7 @@ function renderBlock(block: Block, key: number): ReactNode {
       );
     case "table":
       return (
-        <div key={key} className="my-3 overflow-x-auto rounded border border-felt-600">
+        <div key={key} className="my-3 overflow-x-auto rounded-sm border border-felt-600">
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="bg-felt-700 text-gold-soft">

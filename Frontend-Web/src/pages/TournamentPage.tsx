@@ -115,7 +115,7 @@ export function TournamentPage() {
     return (
       <div className="zt-panel p-6">
         <p className="text-red-200">{error ?? "Torneio não encontrado"}</p>
-        <Link to="/lobby" className="zt-btn-secondary mt-4 inline-flex !text-xs">
+        <Link to="/lobby" className="zt-btn-secondary mt-4 inline-flex text-xs!">
           Voltar ao lobby
         </Link>
       </div>
@@ -153,14 +153,14 @@ export function TournamentPage() {
         {tables.length > 0 && (info.status === "running" || info.gameplay_ready) ? (
           <Link
             to={`/table/${tables[0]}`}
-            className="zt-btn-primary !px-3 !py-1.5 !text-xs"
+            className="zt-btn-primary px-3! py-1.5! text-xs!"
           >
             Sentar na mesa
           </Link>
         ) : (
           <button
             type="button"
-            className="zt-btn-primary !px-3 !py-1.5 !text-xs"
+            className="zt-btn-primary px-3! py-1.5! text-xs!"
             disabled={busy || info.status === "finished" || info.status === "cancelled" || registered}
             onClick={() => void handleRegister()}
           >
@@ -176,7 +176,7 @@ export function TournamentPage() {
         {registered && info.status === "registering" ? (
           <button
             type="button"
-            className="zt-btn-secondary !px-3 !py-1.5 !text-xs"
+            className="zt-btn-secondary px-3! py-1.5! text-xs!"
             disabled={busy}
             onClick={() => void handleUnregister()}
           >
@@ -186,7 +186,7 @@ export function TournamentPage() {
       </div>
 
       {info.scheduled_start_at ? (
-        <div className="rounded border border-gold/40 bg-felt-950/70 px-4 py-3">
+        <div className="rounded-sm border border-gold/40 bg-felt-950/70 px-4 py-3">
           <p className="text-xs font-bold uppercase tracking-wider text-gold-soft">Relógio</p>
           <p className="mt-1 text-lg font-semibold text-cream">
             {formatCountdown(info.scheduled_start_at, now)}
@@ -205,13 +205,13 @@ export function TournamentPage() {
       ) : null}
 
       {!info.gameplay_ready ? (
-        <div className="rounded border border-amber-700/60 bg-amber-950/30 px-3 py-2 text-xs text-amber-100">
+        <div className="rounded-sm border border-amber-700/60 bg-amber-950/30 px-3 py-2 text-xs text-amber-100">
           {info.status === "registering"
             ? "Aguardando início — as 3 mesas ligam sozinhas com ≥5 inscritos."
             : "Mesa ao vivo indisponível no momento — tente recarregar."}
         </div>
       ) : (
-        <div className="rounded border border-emerald-800/60 bg-emerald-950/30 px-3 py-2 text-xs text-emerald-100">
+        <div className="rounded-sm border border-emerald-800/60 bg-emerald-950/30 px-3 py-2 text-xs text-emerald-100">
           Mãos ao vivo nas mesas do torneio (mesmo WebSocket do cash). Rebalance, mesa final e
           premiação seguem o coordenador.
           {(info.live_table_ids?.length ? info.live_table_ids : info.live_table_id ? [info.live_table_id] : []).length >
@@ -233,12 +233,12 @@ export function TournamentPage() {
       )}
 
       {error && (
-        <p className="rounded border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200">
+        <p className="rounded-sm border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200">
           {error}
         </p>
       )}
       {registeredMsg && (
-        <p className="rounded border border-emerald-800 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-100">
+        <p className="rounded-sm border border-emerald-800 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-100">
           {registeredMsg}
         </p>
       )}
@@ -313,7 +313,7 @@ export function TournamentPage() {
             </thead>
             <tbody>
               {info.blind_levels.map((b) => (
-                <tr key={b.level} className="!cursor-default">
+                <tr key={b.level} className="cursor-default!">
                   <td className="font-mono text-cream">{b.level}</td>
                   <td className="font-mono text-gold-soft">
                     {b.small_blind}/{b.big_blind}

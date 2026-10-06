@@ -127,7 +127,7 @@ export function ResponsibleGamingPage() {
         </div>
       </section>
 
-      <section className="rounded border-2 border-amber-700/70 bg-amber-950/30 p-5">
+      <section className="rounded-sm border-2 border-amber-700/70 bg-amber-950/30 p-5">
         <h2 className="font-bold text-amber-100">Sinais para parar</h2>
         <p className="mt-2 text-sm leading-relaxed text-amber-50/90">
           Esconder perdas, quebrar o orçamento, jogar para aliviar ansiedade, pedir dinheiro para
@@ -160,11 +160,11 @@ export function ResponsibleGamingPage() {
               {([['loss_limit_daily_cents','Perda diária'],['loss_limit_weekly_cents','Perda semanal'],['loss_limit_monthly_cents','Perda mensal']] as const).map(([key,label]) => <div key={key}><label className="zt-label" htmlFor={key}>{label} (R$)</label><input id={key} className="zt-input" inputMode="decimal" min="0" step="0.01" value={limits[key]} onChange={(e) => setLimits((old) => ({...old,[key]:e.target.value}))} /></div>)}
             </div>
             <div className="max-w-xs"><label className="zt-label" htmlFor="play_time_limit_daily_minutes">Tempo diário de Jogo Real (minutos)</label><input id="play_time_limit_daily_minutes" className="zt-input" type="number" min="15" max="1440" value={limits.play_time_limit_daily_minutes} onChange={(e) => setLimits((old) => ({...old,play_time_limit_daily_minutes:e.target.value}))} /></div>
-            {status?.pending_limits_effective_at && <p className="rounded border border-amber-700 bg-amber-950/30 p-3 text-xs text-amber-100">Há uma flexibilização agendada para {new Date(status.pending_limits_effective_at).toLocaleString("pt-BR")}.</p>}
+            {status?.pending_limits_effective_at && <p className="rounded-sm border border-amber-700 bg-amber-950/30 p-3 text-xs text-amber-100">Há uma flexibilização agendada para {new Date(status.pending_limits_effective_at).toLocaleString("pt-BR")}.</p>}
             <button type="submit" className="zt-btn-primary" disabled={saving}>{saving ? "Salvando…" : "Salvar limites"}</button>
           </form>
 
-          <form className="rounded border-2 border-red-800 bg-red-950/30 p-5" onSubmit={exclude}>
+          <form className="rounded-sm border-2 border-red-800 bg-red-950/30 p-5" onSubmit={exclude}>
             <h3 className="font-bold text-red-100">Autoexclusão</h3>
             <p className="mt-1 text-sm text-red-50/90">Bloqueia imediatamente depósitos e novas entradas de Jogo Real. Não pode ser cancelada antes do prazo.</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
@@ -173,8 +173,8 @@ export function ResponsibleGamingPage() {
               <button type="submit" className="zt-btn-secondary border-red-700 text-red-100" disabled={saving || confirmation.toUpperCase() !== "AUTOEXCLUIR"}>Ativar</button>
             </div>
           </form>
-          {notice && <p className="rounded border border-emerald-700 bg-emerald-950/40 p-3 text-sm text-emerald-100" role="status">{notice}</p>}
-          {error && <p className="rounded border border-red-800 bg-red-950/50 p-3 text-sm text-red-200" role="alert">{error}</p>}
+          {notice && <p className="rounded-sm border border-emerald-700 bg-emerald-950/40 p-3 text-sm text-emerald-100" role="status">{notice}</p>}
+          {error && <p className="rounded-sm border border-red-800 bg-red-950/50 p-3 text-sm text-red-200" role="alert">{error}</p>}
         </section>
       ) : (
         <div className="zt-panel p-4 text-sm text-felt-200">Entre na conta para definir limites, iniciar autoexclusão e acompanhar seu uso. <Link to="/login?returnTo=/jogo-responsavel" className="font-semibold text-gold-soft underline">Entrar</Link></div>
@@ -183,15 +183,15 @@ export function ResponsibleGamingPage() {
       <section className="zt-panel p-5">
         <h2 className="font-bold text-gold-bright">Ferramentas da plataforma</h2>
         <div className="mt-3 grid gap-3 text-sm text-felt-200 sm:grid-cols-3">
-          <div className="rounded border border-felt-600 bg-felt-950/50 p-3">
+          <div className="rounded-sm border border-felt-600 bg-felt-950/50 p-3">
             <strong className="text-cream">Saldos separados</strong>
             <p className="mt-1 text-xs">Play Money nunca se mistura com Jogo Real.</p>
           </div>
-          <div className="rounded border border-felt-600 bg-felt-950/50 p-3">
+          <div className="rounded-sm border border-felt-600 bg-felt-950/50 p-3">
             <strong className="text-cream">Extrato visível</strong>
             <p className="mt-1 text-xs">Depósitos, créditos e saques ficam na carteira.</p>
           </div>
-          <div className="rounded border border-felt-600 bg-felt-950/50 p-3">
+          <div className="rounded-sm border border-felt-600 bg-felt-950/50 p-3">
             <strong className="text-cream">Pausa imediata</strong>
             <p className="mt-1 text-xs">Use Sit-out e Sair da mesa a qualquer momento.</p>
           </div>

@@ -38,7 +38,7 @@ export function DeflatorSimulator() {
             step={1}
             value={equity}
             onChange={(e) => setEquity(Number(e.target.value))}
-            className="w-full accent-[#c9a227]"
+            className="w-full accent-gold"
           />
           <div className="flex justify-between text-[11px] text-felt-400">
             <span>56% (mínimo)</span>
@@ -73,7 +73,7 @@ export function DeflatorSimulator() {
       </div>
 
       <div
-        className="mt-4 rounded border border-rail/50 bg-felt-950/80 p-3.5"
+        className="mt-4 rounded-sm border border-rail/50 bg-felt-950/80 p-3.5"
         aria-live="polite"
       >
         {result.tier ? (

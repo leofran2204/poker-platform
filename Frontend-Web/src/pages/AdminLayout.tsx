@@ -50,7 +50,7 @@ export function AdminLayout() {
       <div className="zt-panel p-6 text-center">
         <h1 className="text-lg font-bold text-gold-bright">Admin</h1>
         <p className="mt-2 text-sm text-red-200">{error ?? "Sem permissão"}</p>
-        <NavLink to="/" className="zt-btn-secondary mt-4 inline-flex !text-xs">
+        <NavLink to="/" className="zt-btn-secondary mt-4 inline-flex text-xs!">
           Voltar
         </NavLink>
       </div>
@@ -66,7 +66,7 @@ export function AdminLayout() {
         </h1>
         <p className="text-xs text-felt-300">Operação da plataforma · role admin</p>
       </div>
-      <div className="flex flex-wrap gap-1 rounded border border-felt-600 bg-felt-950/60 p-1">
+      <div className="flex flex-wrap gap-1 rounded-sm border border-felt-600 bg-felt-950/60 p-1">
         <NavLink to="/admin" end className={subLink}>
           Overview
         </NavLink>

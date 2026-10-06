@@ -275,7 +275,7 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
               return next;
             });
           }}
-          className="zt-btn-secondary !px-3 !py-1 !text-xs"
+          className="zt-btn-secondary px-3! py-1! text-xs!"
           aria-label={
             playing
               ? "Pausar replay"
@@ -319,8 +319,8 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
           onError={() => setAudioFailed(true)}
         />
         <div className="zt-felt-table zt-demo-table" aria-hidden={false}>
-          <div className="absolute left-1/2 top-[46%] z-[1] flex w-[72%] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 sm:w-[58%]">
-            <div className="rounded border border-gold/40 bg-black/40 px-3 py-1 text-center">
+          <div className="absolute left-1/2 top-[46%] z-1 flex w-[72%] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 sm:w-[58%]">
+            <div className="rounded-sm border border-gold/40 bg-black/40 px-3 py-1 text-center">
               <div className="text-[10px] uppercase tracking-wider text-gold-soft">Pote</div>
               <div className="font-mono text-base font-bold text-white">
                 {formatBrlFromCents(showWin && split ? hand.potCents - split.cashbackCents : hand.potCents)}
@@ -433,11 +433,11 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
 
         {showWin && (
           <div className="space-y-2">
-            <p className="rounded border-l-2 border-gold-bright bg-felt-950/80 p-2.5 text-xs leading-relaxed text-felt-100">
+            <p className="rounded-sm border-l-2 border-gold-bright bg-felt-950/80 p-2.5 text-xs leading-relaxed text-felt-100">
               {hand.result}
             </p>
             {split && (
-              <p className="rounded border border-rail/50 bg-felt-950/80 p-2.5 text-xs text-felt-200">
+              <p className="rounded-sm border border-rail/50 bg-felt-950/80 p-2.5 text-xs text-felt-200">
                 Pote de {formatBrlFromCents(hand.potCents)}: vencedor leva{" "}
                 <span className="font-mono font-bold text-cream">
                   {formatBrlFromCents(hand.potCents - split.cashbackCents)}
@@ -460,7 +460,7 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
               setStep((s) => Math.max(s - 1, 0));
             }}
             disabled={step === 0}
-            className="zt-btn-secondary !px-3 !py-1 !text-xs"
+            className="zt-btn-secondary px-3! py-1! text-xs!"
           >
             ← Anterior
           </button>
@@ -497,7 +497,7 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
               setPlaying(false);
               setStep((s) => Math.min(s + 1, last));
             }}
-            className="zt-btn-secondary !px-3 !py-1 !text-xs"
+            className="zt-btn-secondary px-3! py-1! text-xs!"
           >
             {finished ? "↺ Rever" : "Próxima →"}
           </button>

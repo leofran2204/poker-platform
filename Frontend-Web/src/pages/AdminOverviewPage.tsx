@@ -46,7 +46,7 @@ export function AdminOverviewPage() {
         <StatCard label="Inscrições MTT" value={stats.tournament_registrations} />
       </div>
       <div className="zt-panel p-4">
-        <div className="zt-panel-title !border-0 !px-0 !pt-0">Users por status</div>
+        <div className="zt-panel-title border-0! px-0! pt-0!">Users por status</div>
         <ul className="mt-2 space-y-1 text-sm">
           {Object.entries(stats.users_by_status).map(([k, v]) => (
             <li key={k} className="flex justify-between border-b border-felt-700/50 py-1">

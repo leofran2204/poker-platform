@@ -116,8 +116,8 @@ export function ForgotPasswordPage() {
               </div>
             </>
           )}
-          {message && <p className="rounded border border-felt-600 bg-felt-950/60 p-3 text-sm text-felt-200">{message}</p>}
-          {error && <p className="rounded border border-red-800 bg-red-950/50 p-3 text-sm text-red-200" role="alert">{error}</p>}
+          {message && <p className="rounded-sm border border-felt-600 bg-felt-950/60 p-3 text-sm text-felt-200">{message}</p>}
+          {error && <p className="rounded-sm border border-red-800 bg-red-950/50 p-3 text-sm text-red-200" role="alert">{error}</p>}
           <button type="submit" className="zt-btn-primary w-full" disabled={loading}>
             {loading ? "Processando…" : codeRequested ? "Redefinir senha" : "Enviar código"}
           </button>

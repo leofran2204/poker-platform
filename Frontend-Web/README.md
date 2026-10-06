@@ -15,7 +15,7 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 | UI | React 19 |
 | Linguagem | TypeScript |
 | Build | Vite 8 |
-| Estilo | Tailwind 3 + CSS de componentes `.zt-*` |
+| Estilo | Tailwind 4.3 + PostCSS e CSS de componentes `.zt-*` |
 | Rotas | React Router 8 (`react-router`) |
 | Presença | `components/OnlinePresence.tsx` → `/api/presence/*` |
 
@@ -66,6 +66,8 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 - Home pública: hero editorial e presença no header (GET público)
 
 ## Desenvolvimento local
+
+Tema em `src/index.css` (`@theme`), com cores, alturas de linha e camada de componentes preservadas na migração para Tailwind 4. O suporte de CSS segue [os requisitos do Tailwind 4](https://tailwindcss.com/docs/upgrade-guide#browser-requirements): Safari 16.4+, Chrome 111+ e Firefox 128+. `npm run audit:security` executa a auditoria npm integral, sem exceções. `braces` e sua cadeia antiga de build foram removidos.
 
 ```bash
 cd Frontend-Web

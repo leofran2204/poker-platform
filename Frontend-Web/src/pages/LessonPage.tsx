@@ -62,7 +62,7 @@ export function LessonPage() {
     return (
       <div className="space-y-4">
         <p className="text-sm text-red-200">Aula não encontrada.</p>
-        <Link to="/curso" className="zt-btn-secondary !text-xs">
+        <Link to="/curso" className="zt-btn-secondary text-xs!">
           Voltar ao curso
         </Link>
       </div>
@@ -85,7 +85,7 @@ export function LessonPage() {
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-4">
-      <Link to="/curso" className="text-xs text-gold-soft">
+      <Link to="/curso" className="block text-xs leading-6 text-gold-soft">
         ← {mod?.title ?? "Curso"}
       </Link>
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -94,7 +94,7 @@ export function LessonPage() {
           <p className="text-xs text-felt-400">{lessonFormat(lesson)}</p>
         </div>
         {isPassed && (
-          <span className="rounded bg-emerald-500/20 border border-emerald-500/40 px-2.5 py-1 text-xs font-semibold text-emerald-300">
+          <span className="rounded-sm bg-emerald-500/20 border border-emerald-500/40 px-2.5 py-1 text-xs font-semibold text-emerald-300">
             ✓ Aula Concluída ({currentProg?.best_score ?? lastScore ?? 100}%)
           </span>
         )}
@@ -102,7 +102,7 @@ export function LessonPage() {
 
       {lesson.video?.publicationStatus === "prior_rules" && <div className="zt-panel p-4 text-sm">Vídeo da regra anterior de apostas. Para jogar hoje: pré-flop em patamares de 1 a 4 BB; pós-flop com aumento limitado ao pote antes do call. As regras de cartas continuam válidas. A leitura e a mesa de treino abaixo já seguem a estrutura vigente.</div>}
 
-      {msg && <p className="text-sm text-emerald-200 rounded bg-felt-900/80 p-2 border border-felt-700">{msg}</p>}
+      {msg && <p className="text-sm text-emerald-200 rounded-sm bg-felt-900/80 p-2 border border-felt-700">{msg}</p>}
 
       {!unlocked ? (
         <div className="zt-panel space-y-3 p-4 text-center">
@@ -116,11 +116,11 @@ export function LessonPage() {
               : `Atinja ${PASS_SCORE}% no pré-requisito: ${missingPrerequisite?.title ?? "aula de fundamentos"}.`}
           </p>
           {missingPrerequisite ? (
-            <Link to={`/curso/${missingPrerequisite.id}`} className="zt-btn-primary !text-xs inline-block">
+            <Link to={`/curso/${missingPrerequisite.id}`} className="zt-btn-primary text-xs! inline-block">
               Ir para {missingPrerequisite.title} →
             </Link>
           ) : (
-            <Link to="/curso" className="zt-btn-secondary !text-xs inline-block">
+            <Link to="/curso" className="zt-btn-secondary text-xs! inline-block">
               Voltar ao curso
             </Link>
           )}
@@ -128,7 +128,7 @@ export function LessonPage() {
       ) : (
         <>
           {!authed && (
-            <p className="rounded border border-felt-700 bg-felt-800 px-3 py-2 text-xs text-felt-200">
+            <p className="rounded-sm border border-felt-700 bg-felt-800 px-3 py-2 text-xs text-felt-200">
               Você está lendo como visitante. <Link to="/login" className="text-gold-soft">Entre</Link> para
               salvar progresso e valer nota para desbloquear as próximas aulas.
             </p>
@@ -163,7 +163,7 @@ export function LessonPage() {
           {mod && <div className="zt-panel p-5 space-y-3 border-gold-soft/30">
             <h2 className="font-semibold text-gold-bright">Leve esta ideia para a mesa</h2>
             <p className="text-sm text-felt-200">Bots, ações reais e replay. Pratique com fichas sem valor e compare suas decisões.</p>
-            <Link className="zt-btn-primary inline-flex !text-xs" to={`/curso/mesa/${mod.id}?cenario=${TRAINING.scenarios.find(s => s.lesson === lesson.id)?.id ?? ""}`}>Abrir simulador desta aula →</Link>
+            <Link className="zt-btn-primary inline-flex text-xs!" to={`/curso/mesa/${mod.id}?cenario=${TRAINING.scenarios.find(s => s.lesson === lesson.id)?.id ?? ""}`}>Abrir simulador desta aula →</Link>
           </div>}
         </>
       )}
@@ -171,7 +171,7 @@ export function LessonPage() {
       {/* Navegação entre Aulas com Trava de Fixação */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-felt-800">
         {prev ? (
-          <Link to={`/curso/${prev.id}`} className="zt-btn-secondary !text-xs">
+          <Link to={`/curso/${prev.id}`} className="zt-btn-secondary text-xs!">
             ← {prev.title}
           </Link>
         ) : (
@@ -182,7 +182,7 @@ export function LessonPage() {
           isLessonUnlocked(next.id, { ...progress, ...(isPassed ? { [lesson.id]: { status: "completed", best_score: lastScore ?? PASS_SCORE } } : {}) }) ? (
             <Link
               to={`/curso/${next.id}`}
-              className="zt-btn-primary !text-xs animate-pulse shadow-lg shadow-gold-bright/10"
+              className="zt-btn-primary text-xs! animate-pulse shadow-lg shadow-gold-bright/10"
             >
               Próxima Aula: {next.title} →
             </Link>
@@ -191,13 +191,13 @@ export function LessonPage() {
               type="button"
               disabled
               title={`Atinja pelo menos ${PASS_SCORE}% no teste de fixação acima para desbloquear`}
-              className="zt-btn-secondary !text-xs opacity-50 cursor-not-allowed flex items-center gap-1.5"
+              className="zt-btn-secondary text-xs! opacity-50 cursor-not-allowed flex items-center gap-1.5"
             >
               <span>🔒</span> {next.title} (Requer {PASS_SCORE}%)
             </button>
           )
         ) : (
-          <Link to="/curso" className="zt-btn-primary !text-xs">
+          <Link to="/curso" className="zt-btn-primary text-xs!">
             🎉 Concluir Trilha
           </Link>
         )}
