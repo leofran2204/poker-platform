@@ -44,7 +44,13 @@ Regravação a partir do conteúdo canônico e das dependências de `ZeroTiltCur
 & 'C:\Users\leofr\AppData\Local\hermes\hermes-agent\venv\Scripts\python.exe' ZeroTiltCurso/editorial/render.py --episode pineapple
 ```
 
-O comando publica os arquivos somente no checkout local. Reutiliza cache de narração validado, confere a sequência completa de palavras, gera legendas/capítulos/transcrição e compara o hash da aula antes de atualizar o JSON. Um fluxo de voz truncado é repetido; após quatro falhas, o lote para. `courseAudit.test.ts` rejeita vídeo técnico anunciado como atual com hash diferente do texto, quiz, fontes ou cenários. Material mantido da regra anterior exige `prior_rules`, aviso na aula e `sourceSnapshot` auditável no manifesto; seus arquivos e hashes originais continuam verificados. Regravar a aula permite voltar a anunciá-la como atual.
+O comando publica os arquivos somente no checkout local. Reutiliza cache de narração validado, confere a sequência completa de palavras, gera legendas/capítulos/transcrição e compara o hash da aula antes de atualizar o JSON. Um fluxo de voz truncado é repetido; após quatro falhas, o lote para. `courseAudit.test.ts` rejeita vídeo técnico anunciado como atual com hash diferente do texto, quiz, fontes ou cenários. Material mantido da regra anterior exige `prior_rules`, aviso na aula e `sourceSnapshot` auditável no manifesto. Ao corrigir a voz dessas aulas, o renderizador usa o snapshot antigo e preserva o aviso, a versão da regra e o hash do conteúdo; `originalMediaSha256` identifica o MP4 anterior no histórico git. Corrigir a pronúncia não torna a regra antiga vigente.
+
+`PRONUNCIATIONS`, em `render.py`, aplica guias fonéticas apenas à síntese (por exemplo, `Pineapple` → `painépou`). A grafia original continua nas cenas, legendas e transcrições. Os tempos reais da voz são projetados de volta às palavras originais, inclusive quando um termo exige duas palavras faladas, como `all-in`. Voz, velocidade e texto fonético entram no hash do cache; `pronunciationVersion` e `narrationHash` vinculam o manifesto à produção. Alterar uma guia invalida as gravações que usam o termo. O player acrescenta esse hash às URLs para evitar cache de áudio/legenda anteriores.
+
+Regressões da síntese e da projeção temporal: `python -m unittest discover -s ZeroTiltCurso/editorial -p test_narration.py -v`. Para os cinco filmes editoriais, usar `--episode all`; para as 25 aulas técnicas, `--academy all`. Executar os dois lotes em sequência, pois atualizam o mesmo `courseContent.json`.
+
+O job frontend do Rust CI executa esses testes e `render.py --check` em ambiente Python isolado. Mudanças em `ZeroTiltCurso/editorial/` também disparam o workflow; a comparação com `narrationHash` bloqueia gravações desatualizadas em relação ao glossário.
 
 Validação audiovisual independente:
 

@@ -3,12 +3,15 @@
   "filename": "zt-academy-m2l3-v3",
   "contentHash": "3f40af47bc23b12cfd6bec9c8b4f1bd0c1dd6a6b81bf56f269cced1cc6400869",
   "rendererVersion": 3,
-  "durationSeconds": 360.73,
+  "durationSeconds": 360.8,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9181031,
+  "bytes": 9165002,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "74bcfa0065c8d4eb41582e0965b8dd0006f9b17f7cf8ac29fb57a923ab3ac2e1",
   "chapters": [
     {
       "start": 0.0,
@@ -19,53 +22,53 @@
       "title": "Potes multiway"
     },
     {
-      "start": 37.03,
+      "start": 37.3,
       "title": "Set mining"
     },
     {
-      "start": 74.1,
+      "start": 73.73,
       "title": "Exercício de valor"
     },
     {
-      "start": 94.1,
+      "start": 93.47,
       "title": "O blefe precisa passar por todos"
     },
     {
-      "start": 126.0,
+      "start": 125.43,
       "title": "Condição mínima de pagamento"
     },
     {
-      "start": 160.27,
+      "start": 159.73,
       "title": "Top set ainda exige planejamento"
     },
     {
-      "start": 192.23,
+      "start": 192.5,
       "title": "Laboratório: Top set contra dois bots"
     },
     {
-      "start": 229.6,
+      "start": 229.73,
       "title": "Laboratório: Top set contra dois bots"
     },
     {
-      "start": 238.67,
+      "start": 238.8,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 263.83,
+      "start": 264.73,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 279.93,
+      "start": 280.7,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 314.1,
+      "start": 314.67,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 326.5,
+      "start": 326.77,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "4a97b865e07aac33658a1be9dbd36053be4a88c1c9c860dc30547bedf5ba69ac"
+  "sha256": "f9ba6214e6b615f790cd5fd4cc5827a4facda7773572a02f65b53f19e4fcdf8d"
 }

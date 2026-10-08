@@ -3,79 +3,82 @@
   "filename": "zt-academy-m5l3-v3",
   "contentHash": "e5ec7715a31257544e4bb6aef637ab024254878110dff7c97c296ec99d95e3e0",
   "rendererVersion": 3,
-  "durationSeconds": 415.97,
+  "durationSeconds": 415.17,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 10701944,
+  "bytes": 10683149,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "a3b4379f83d2fbba39f3221089d466608fac39afbbd57fe6dd3f10f81ea0efff",
   "chapters": [
     {
       "start": 0.0,
       "title": "Brazilian Pineapple: 2 cartas e +1 por street"
     },
     {
-      "start": 20.77,
+      "start": 20.8,
       "title": "Modalidade exclusiva da ZT"
     },
     {
-      "start": 36.03,
+      "start": 36.27,
       "title": "Distribuição completa"
     },
     {
-      "start": 64.83,
+      "start": 64.93,
       "title": "Formação e ranking"
     },
     {
-      "start": 87.7,
+      "start": 87.67,
       "title": "Exemplo passo a passo"
     },
     {
-      "start": 128.87,
+      "start": 128.53,
       "title": "Exercício de recuperação"
     },
     {
-      "start": 150.57,
+      "start": 150.23,
       "title": "O momento da carta extra"
     },
     {
-      "start": 184.4,
+      "start": 183.93,
       "title": "Compare com o Texas"
     },
     {
-      "start": 213.63,
+      "start": 213.0,
       "title": "Planeje a revisão por street"
     },
     {
-      "start": 243.0,
+      "start": 242.37,
       "title": "Laboratório: Duas, três, quatro, cinco privadas"
     },
     {
-      "start": 281.17,
+      "start": 280.53,
       "title": "Laboratório: Duas, três, quatro, cinco privadas"
     },
     {
-      "start": 290.23,
+      "start": 289.6,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 311.83,
+      "start": 311.03,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 328.73,
+      "start": 327.93,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 366.2,
+      "start": 365.4,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 382.2,
+      "start": 381.4,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "1f1521a6797a46b59a436f64bcd8906eff05063ddc0e115fa3855faff5ca19c8",
+  "sha256": "ee2382bff05192bf188fc9ca150a58901f0e9499c8e16a7e4531ddf277d12700",
   "sourceSnapshot": {
     "id": "m5l3",
     "title": "Brazilian Pineapple: 2 cartas e +1 por street",
@@ -169,5 +172,6 @@
       }
     ]
   },
-  "bettingRuleVersion": "legacy_no_limit"
+  "bettingRuleVersion": "legacy_no_limit",
+  "originalMediaSha256": "1f1521a6797a46b59a436f64bcd8906eff05063ddc0e115fa3855faff5ca19c8"
 }

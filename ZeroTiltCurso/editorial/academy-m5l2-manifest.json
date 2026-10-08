@@ -3,12 +3,15 @@
   "filename": "zt-academy-m5l2-v3",
   "contentHash": "49b158e110719927259c375fb9def9ea47225e7c22b6979929105347d8d3e8f5",
   "rendererVersion": 3,
-  "durationSeconds": 365.9,
+  "durationSeconds": 363.97,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9366443,
+  "bytes": 9318805,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "3dbea737639cc92685886aa6e86051ba01d5bd61a5a2d519877e13e2b64674aa",
   "chapters": [
     {
       "start": 0.0,
@@ -19,49 +22,49 @@
       "title": "Omaha 4 (6-max)"
     },
     {
-      "start": 38.43,
+      "start": 38.23,
       "title": "Contagem e leitura"
     },
     {
-      "start": 80.17,
+      "start": 79.9,
       "title": "Escolha pares privados"
     },
     {
-      "start": 116.87,
+      "start": 116.43,
       "title": "Nuts e possibilidades de melhorar"
     },
     {
-      "start": 145.47,
+      "start": 145.07,
       "title": "Preço com quatro cartas"
     },
     {
-      "start": 175.47,
+      "start": 174.73,
       "title": "Laboratório: Quatro privadas, apenas duas escolhidas"
     },
     {
-      "start": 218.07,
+      "start": 217.33,
       "title": "Laboratório: Quatro privadas, apenas duas escolhidas"
     },
     {
-      "start": 227.13,
+      "start": 226.4,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 254.43,
+      "start": 253.67,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 272.87,
+      "start": 272.1,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 308.3,
+      "start": 306.43,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 330.73,
+      "start": 328.8,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "1d5467331967e976dc013b7e5156db3f839f09725de817aa8fab6133469a30d5"
+  "sha256": "acb5307860407d5a387a7e8c757cc127f8efdc7d38316b8eccb609c52d2bf3df"
 }

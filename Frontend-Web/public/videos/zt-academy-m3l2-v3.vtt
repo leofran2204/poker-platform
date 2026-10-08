@@ -1,232 +1,232 @@
 WEBVTT
 
-00:00:00.501 --> 00:00:06.792
-Zero Tilt Academy Pot Control vs. Apostas Polarizadas Nesta aula
+00:00:00.501 --> 00:00:07.939
+Zero Tilt Academy Pot Control vs Apostas Polarizadas Nesta aula
 
-00:00:07.050 --> 00:00:11.044
+00:00:08.209 --> 00:00:12.088
 nosso objetivo é Comparar check-back e aposta em board de
 
-00:00:11.057 --> 00:00:16.031
+00:00:12.101 --> 00:00:17.101
 três paus Vamos desenvolver a teoria resolver exemplos e aplicar
 
-00:00:16.044 --> 00:00:17.745
+00:00:17.114 --> 00:00:18.815
 a ideia na mesa deste módulo
 
-00:00:19.902 --> 00:00:24.723
+00:00:21.002 --> 00:00:25.720
 Pot control Dar check pode preservar mãos de força intermediária
 
-00:00:24.736 --> 00:00:29.130
+00:00:25.732 --> 00:00:30.114
 e evitar ampliar a exposição naquela rodada Isso não garante
 
-00:00:29.143 --> 00:00:32.210
+00:00:30.127 --> 00:00:33.181
 um showdown barato o rival pode apostar depois
 
-00:00:34.402 --> 00:00:39.223
+00:00:35.335 --> 00:00:40.092
 Polarização Um range polarizado reúne mãos fortes para valor e
 
-00:00:39.236 --> 00:00:44.145
-blefes Não se define apenas por apostar 75 por cento ou
+00:00:40.104 --> 00:00:44.937
+blefes Não se define apenas por apostar 75 por cento
 
-00:00:44.158 --> 00:00:47.315
-mais depende da composição do range e do contexto
+00:00:44.950 --> 00:00:48.210
+ou mais depende da composição do range e do contexto
 
-00:00:49.502 --> 00:00:53.781
+00:00:50.368 --> 00:00:54.648
 Exercício valete de copas dez de ouros em valete de
 
-00:00:53.794 --> 00:00:56.436
+00:00:54.661 --> 00:00:57.303
 paus oito de ouros quatro de paus nove de paus
 
-00:00:56.449 --> 00:00:59.168
+00:00:57.316 --> 00:01:00.099
 tem top pair e uma broca para sequência em um
 
-00:00:59.181 --> 00:01:03.730
+00:01:00.112 --> 00:01:04.635
 board com três paus Após check do rival check-back é
 
-00:01:03.743 --> 00:01:07.712
+00:01:04.648 --> 00:01:08.643
 o plano de controle do exercício Call exige uma aposta
 
-00:01:07.725 --> 00:01:08.305
+00:01:08.656 --> 00:01:09.236
 a enfrentar
 
-00:01:10.468 --> 00:01:15.006
+00:01:11.402 --> 00:01:15.939
 Relação entre stack e pote relação entre stack efetivo e
 
-00:01:15.019 --> 00:01:19.155
+00:01:15.952 --> 00:01:20.063
 pote é o stack efetivo dividido pelo pote Se restam
 
-00:01:19.168 --> 00:01:22.957
-60 big blinds efetivos e há 20 no pote o relação entre
+00:01:20.076 --> 00:01:23.156
+60 big blinds efetivos e há 20 no pote o
 
-00:01:22.970 --> 00:01:26.797
-stack efetivo e pote é três Esse número ajuda a
+00:01:23.169 --> 00:01:27.318
+relação entre stack efetivo e pote é três Esse número
 
-00:01:26.810 --> 00:01:30.573
-visualizar quantas apostas grandes ainda cabem mas não ordena
+00:01:27.331 --> 00:01:31.004
+ajuda a visualizar quantas apostas grandes ainda cabem mas não
 
-00:01:30.586 --> 00:01:35.186
-um all-in automaticamente A mesma relação pode exigir estratégias
+00:01:31.017 --> 00:01:36.248
+ordena um all-in automaticamente A mesma relação pode exigir estratégias
 
-00:01:35.199 --> 00:01:39.555
+00:01:36.261 --> 00:01:40.630
 diferentes conforme board modalidade posição e distribuição de
 
-00:01:39.568 --> 00:01:40.173
+00:01:40.643 --> 00:01:41.248
 forças
 
-00:01:42.368 --> 00:01:47.202
+00:01:43.402 --> 00:01:48.132
 Proteja a leitura do check Check não significa sempre desistência
 
-00:01:47.215 --> 00:01:51.700
+00:01:48.145 --> 00:01:52.604
 futura Um range de check pode incluir mãos fracas médias
 
-00:01:51.713 --> 00:01:56.055
+00:01:52.617 --> 00:01:56.921
 e fortes Se você presumir que todo check permite blefar
 
-00:01:56.068 --> 00:02:00.965
+00:01:56.934 --> 00:02:01.754
 sem resistência ficará vulnerável a calls e raises O bot
 
-00:02:00.978 --> 00:02:04.741
+00:02:01.767 --> 00:02:05.555
 de valor do treino demonstra uma dessas possibilidades pode dar
 
-00:02:04.754 --> 00:02:07.589
+00:02:05.568 --> 00:02:08.339
 check com uma mão forte e reagir à sua aposta
 
-00:02:09.768 --> 00:02:14.241
+00:02:10.502 --> 00:02:14.975
 A polarização é uma composição Uma aposta grande com apenas
 
-00:02:14.254 --> 00:02:17.476
+00:02:14.988 --> 00:02:18.209
 mãos médias não se torna polarizada por causa do tamanho
 
-00:02:18.365 --> 00:02:21.136
+00:02:19.098 --> 00:02:21.869
 A ideia envolve uma parte forte para valor e uma
 
-00:02:21.149 --> 00:02:26.161
+00:02:21.882 --> 00:02:26.895
 parte de blefes com proporções dependentes do modelo Com valete
 
-00:02:26.174 --> 00:02:28.700
+00:02:26.908 --> 00:02:29.446
 de copas dez de ouros em valete de paus oito
 
-00:02:28.713 --> 00:02:32.115
+00:02:29.459 --> 00:02:32.887
 de ouros quatro de paus nove de paus classifique top
 
-00:02:32.128 --> 00:02:35.388
+00:02:32.900 --> 00:02:36.186
 pair broca e riscos dos três paus antes de decidir
 
-00:02:36.277 --> 00:02:39.615
+00:02:37.075 --> 00:02:40.387
 Compare a preservação de showdown com a exposição criada por
 
-00:02:39.628 --> 00:02:40.440
+00:02:40.400 --> 00:02:41.225
 cada tamanho
 
-00:02:42.602 --> 00:02:48.234
+00:02:43.402 --> 00:02:49.047
 Laboratório Controlar com mão intermediária Objetivo Comparar
 
-00:02:48.247 --> 00:02:52.075
+00:02:49.060 --> 00:02:52.810
 check-back e aposta em board de três paus Abra a
 
-00:02:52.088 --> 00:02:56.160
+00:02:52.823 --> 00:02:56.934
 mesa deste módulo e comece pelo treino guiado Top pair
 
-00:02:56.173 --> 00:03:00.541
+00:02:56.947 --> 00:03:01.380
 e uma broca coexistem com possíveis flushes A composição do
 
-00:03:00.554 --> 00:03:04.381
+00:03:01.393 --> 00:03:05.246
 range importa mais que o nome da mão Depois repita
 
-00:03:04.394 --> 00:03:08.312
+00:03:05.259 --> 00:03:09.176
 no modo desafio respondendo à pergunta objetiva antes de cada
 
-00:03:08.325 --> 00:03:12.436
+00:03:09.189 --> 00:03:13.300
 ação Use o replay para comparar uma alternativa na mesma
 
-00:03:12.448 --> 00:03:17.178
+00:03:13.313 --> 00:03:18.042
 distribuição Uma nova distribuição preserva as cartas que definem
 
-00:03:17.191 --> 00:03:18.776
+00:03:18.055 --> 00:03:19.640
 o cenário e varia as demais
 
-00:03:20.935 --> 00:03:25.329
+00:03:21.802 --> 00:03:26.196
 Registre sua justificativa no caderno acertar a leitura e respeitar
 
-00:03:25.342 --> 00:03:27.829
+00:03:26.209 --> 00:03:28.696
 as hipóteses importam mais que ganhar esta mão
 
-00:03:30.002 --> 00:03:34.462
-Qual o principal objetivo do Pot Control no turn A.
+00:03:30.868 --> 00:03:34.903
+Qual o principal objetivo do Pot Control no turn A
 
-00:03:34.475 --> 00:03:37.052
-Fazer o vilão desistir na hora B. Evitar inflar o
+00:03:34.916 --> 00:03:37.455
+Fazer o vilão desistir na hora B Evitar inflar o
 
-00:03:37.065 --> 00:03:40.145
+00:03:37.468 --> 00:03:40.535
 pote com mãos de força intermediária e chegar barato ao
 
-00:03:40.158 --> 00:03:44.088
-showdown C. Aumentar o valor do rake Pause o vídeo
+00:03:40.548 --> 00:03:44.452
+showdown C Aumentar o valor do rake Pause o vídeo
 
-00:03:44.397 --> 00:03:47.787
+00:03:44.761 --> 00:03:48.189
 faça sua leitura e registre uma resposta antes de continuar
 
-00:03:49.968 --> 00:03:53.551
+00:03:50.335 --> 00:03:53.943
 Resposta do exercício Evitar inflar o pote com mãos de
 
-00:03:53.564 --> 00:03:57.831
+00:03:53.956 --> 00:03:58.262
 força intermediária e chegar barato ao showdown Mãos de força
 
-00:03:57.843 --> 00:04:02.006
+00:03:58.275 --> 00:04:02.437
 média jogam melhor em potes controlados evitando decisões difíceis
 
-00:04:02.019 --> 00:04:02.908
+00:04:02.450 --> 00:04:03.313
 contra raises
 
-00:04:05.068 --> 00:04:10.804
+00:04:05.502 --> 00:04:11.238
 Suas cartas valete de copas dez de ouros Cartas comunitárias
 
-00:04:10.998 --> 00:04:14.928
+00:04:11.431 --> 00:04:15.361
 valete de paus oito de ouros quatro de paus nove
 
-00:04:14.941 --> 00:04:18.884
+00:04:15.374 --> 00:04:19.253
 de paus Board valete de paus oito de ouros quatro
 
-00:04:18.897 --> 00:04:23.317
-de paus nove de paus Você tem J ♥ 10
+00:04:19.266 --> 00:04:24.562
+de paus nove de paus Você tem J 10 no
 
-00:04:23.330 --> 00:04:27.724
-♦ no botão Vilão no big blinds checa no turn
+00:04:24.575 --> 00:04:30.413
+botão Vilão no big blinds checa no turn Ação A
 
-00:04:28.614 --> 00:04:32.621
-Ação A. check B. bet Pause o vídeo faça sua
+00:04:30.426 --> 00:04:33.235
+check B bet Pause o vídeo faça sua leitura e
 
-00:04:32.634 --> 00:04:35.456
-leitura e registre uma resposta antes de continuar
+00:04:33.248 --> 00:04:35.490
+registre uma resposta antes de continuar
 
-00:04:37.635 --> 00:04:42.894
+00:04:37.668 --> 00:04:42.824
 Resposta do exercício check Check-back evita colocar mais fichas
 
-00:04:42.907 --> 00:04:47.134
+00:04:42.837 --> 00:04:47.051
 nesta rodada não há aposta para pagar A mão também
 
-00:04:47.147 --> 00:04:50.033
+00:04:47.064 --> 00:04:49.848
 tem uma broca mas o board já permite flush
 
-00:04:52.202 --> 00:04:55.088
+00:04:52.002 --> 00:04:54.888
 Abra o simulador da aula e escolha o cenário Controlar
 
-00:04:55.101 --> 00:04:59.999
+00:04:54.901 --> 00:04:59.799
 com mão intermediária Jogue uma mão completa responda às perguntas
 
-00:05:00.012 --> 00:05:04.097
+00:04:59.812 --> 00:05:03.897
 e registre seu plano Depois use o replay para comparar
 
-00:05:04.110 --> 00:05:08.311
+00:05:03.910 --> 00:05:08.111
 outra ação na mesma distribuição Volte em outra sessão no
 
-00:05:08.324 --> 00:05:13.157
+00:05:08.124 --> 00:05:12.957
 modo desafio Avalie o raciocínio com as informações disponíveis
 
-00:05:13.427 --> 00:05:17.551
+00:05:13.227 --> 00:05:17.351
 sem confundir uma vitória isolada com uma boa estratégia As
 
-00:05:17.564 --> 00:05:21.842
+00:05:17.364 --> 00:05:21.642
 fontes estão no material de apoio Este curso não promete
 
-00:05:21.855 --> 00:05:24.059
+00:05:21.655 --> 00:05:23.859
 lucro e o treino usa fichas sem valor

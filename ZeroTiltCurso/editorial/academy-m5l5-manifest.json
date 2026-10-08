@@ -3,95 +3,98 @@
   "filename": "zt-academy-m5l5-v3",
   "contentHash": "2d7906f0c7740f96bbc01188e85924b7ff5f9e333b59aa32e32508d329918b09",
   "rendererVersion": 3,
-  "durationSeconds": 492.57,
+  "durationSeconds": 491.67,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 12663412,
+  "bytes": 12613868,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "c7b20f817762b0c7b9383d62f161339c8623293db3de7416d886e90329e52b4a",
   "chapters": [
     {
       "start": 0.0,
       "title": "Pineapple: showdown, empates e leitura de equity"
     },
     {
-      "start": 20.4,
+      "start": 20.17,
       "title": "Método para classificar"
     },
     {
-      "start": 41.63,
+      "start": 41.33,
       "title": "O board não joga sozinho"
     },
     {
-      "start": 64.27,
+      "start": 63.9,
       "title": "Ranking não é equity"
     },
     {
-      "start": 96.17,
+      "start": 95.7,
       "title": "Auditoria de uma estimativa"
     },
     {
-      "start": 126.83,
+      "start": 126.53,
       "title": "Exercício comparativo"
     },
     {
-      "start": 156.47,
+      "start": 156.17,
       "title": "Faça a comparação inteira"
     },
     {
-      "start": 193.07,
+      "start": 192.77,
       "title": "Equity inclui frações de empate"
     },
     {
-      "start": 226.83,
+      "start": 226.43,
       "title": "Interprete precisão com cuidado"
     },
     {
-      "start": 259.27,
+      "start": 258.87,
       "title": "Laboratório: O board não joga sozinho"
     },
     {
-      "start": 298.1,
+      "start": 297.53,
       "title": "Laboratório: O board não joga sozinho"
     },
     {
-      "start": 307.17,
+      "start": 306.6,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 350.37,
+      "start": 349.87,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 365.13,
+      "start": 364.6,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 386.5,
+      "start": 385.83,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 402.13,
+      "start": 401.37,
       "title": "Exercício resolvido 3"
     },
     {
-      "start": 418.77,
+      "start": 417.93,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 431.07,
+      "start": 430.23,
       "title": "Exercício resolvido 4"
     },
     {
-      "start": 445.77,
+      "start": 444.93,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 458.77,
+      "start": 457.93,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "e672036f62f65d1ab7fb26177f86d38e00f7029d173dd8848a4013e517d483a6",
+  "sha256": "1a63d21f090cee73030c735ece226fcffe32f34c0287334e72e39f44bdd3baf5",
   "sourceSnapshot": {
     "id": "m5l5",
     "title": "Pineapple: showdown, empates e leitura de equity",
@@ -220,5 +223,6 @@
       }
     ]
   },
-  "bettingRuleVersion": "legacy_no_limit"
+  "bettingRuleVersion": "legacy_no_limit",
+  "originalMediaSha256": "e672036f62f65d1ab7fb26177f86d38e00f7029d173dd8848a4013e517d483a6"
 }

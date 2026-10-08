@@ -3,12 +3,15 @@
   "filename": "zt-academy-m6l3-v3",
   "contentHash": "52a14031e0b6351a744ba46691605dcf36c4cfc5088456e3173c8ed5a1cc4981",
   "rendererVersion": 3,
-  "durationSeconds": 353.77,
+  "durationSeconds": 353.87,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8994001,
+  "bytes": 8965220,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "d93bd61e4e3ab4c0d3cd615e38c6cd0f2b8a28d141aeacff071f3908fbc9fb61",
   "chapters": [
     {
       "start": 0.0,
@@ -19,53 +22,53 @@
       "title": "Método de revisão"
     },
     {
-      "start": 48.57,
+      "start": 48.5,
       "title": "Prática distribuída"
     },
     {
-      "start": 72.33,
+      "start": 72.27,
       "title": "Pratique e revise"
     },
     {
-      "start": 89.53,
+      "start": 89.47,
       "title": "Revise em duas passagens"
     },
     {
-      "start": 123.97,
+      "start": 123.8,
       "title": "Use os quatro jogos como teste de regras"
     },
     {
-      "start": 153.3,
+      "start": 153.2,
       "title": "Um ciclo de aprendizagem"
     },
     {
-      "start": 182.87,
+      "start": 182.77,
       "title": "Laboratório: Explique a decisão antes do river"
     },
     {
-      "start": 222.1,
+      "start": 222.0,
       "title": "Laboratório: Explique a decisão antes do river"
     },
     {
-      "start": 231.17,
+      "start": 231.07,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 253.93,
+      "start": 253.87,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 269.77,
+      "start": 269.7,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 303.03,
+      "start": 302.97,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 319.6,
+      "start": 319.7,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "fe048cfae3cbe489227a0d9c96d2b1dbd1c95f782b2c305704d3088ca2c80b12"
+  "sha256": "cf737e0ad037dcaa0009eaf681824b20423e03b9dc28e863f9de4d34fd48b0a5"
 }

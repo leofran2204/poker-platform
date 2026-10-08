@@ -3,65 +3,68 @@
   "filename": "zt-academy-m5l1-v3",
   "contentHash": "639a6a976d8eaa54e9be637fefb0f96f0651bce8f944e3ae69a84841c9e5ed3f",
   "rendererVersion": 3,
-  "durationSeconds": 359.1,
+  "durationSeconds": 357.63,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9060659,
+  "bytes": 9017499,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "34fcf5010366e00b64ae4dce82146133a89c29aa672045e38e13ba0ad05f250e",
   "chapters": [
     {
       "start": 0.0,
       "title": "Texas Hold'em Short Deck: 36 cartas"
     },
     {
-      "start": 21.87,
+      "start": 21.7,
       "title": "Texas Hold'em Short Deck (8-max)"
     },
     {
-      "start": 58.63,
+      "start": 58.03,
       "title": "Não importe probabilidades do Texas tradicional"
     },
     {
-      "start": 87.03,
+      "start": 86.37,
       "title": "Ranking que muda decisões"
     },
     {
-      "start": 121.73,
+      "start": 121.0,
       "title": "Refaça o denominador"
     },
     {
-      "start": 158.17,
+      "start": 157.5,
       "title": "Não misture modalidades"
     },
     {
-      "start": 183.9,
+      "start": 183.17,
       "title": "Laboratório: O ás abaixo do seis"
     },
     {
-      "start": 223.17,
+      "start": 222.27,
       "title": "Laboratório: O ás abaixo do seis"
     },
     {
-      "start": 232.23,
+      "start": 231.33,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 253.33,
+      "start": 252.17,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 271.7,
+      "start": 270.43,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 313.03,
+      "start": 311.67,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 325.4,
+      "start": 323.93,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "60f7bca39e62ac380c5bea1f8c430234c474e531f7ba06bb63a788952c5c3016"
+  "sha256": "97e5c22c289aeec57ddce626623b239e067b6de0282c8ce7c65c0db4dca61c0d"
 }

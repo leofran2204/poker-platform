@@ -3,73 +3,76 @@
   "filename": "zt-academy-m2l2-v3",
   "contentHash": "64295cc91a3ed18c636c108e633960f067950155cd98b46556309fe0fb527a3c",
   "rendererVersion": 3,
-  "durationSeconds": 331.67,
+  "durationSeconds": 330.33,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8201941,
+  "bytes": 8188750,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "79072b403ac50a9fc30d11a0069a954fe8d0cdc4a430d5782364985b57529f22",
   "chapters": [
     {
       "start": 0.0,
       "title": "Como responder a Check-Raise e a Arte do Float"
     },
     {
-      "start": 19.23,
+      "start": 19.2,
       "title": "Responder ao check-raise"
     },
     {
-      "start": 35.63,
+      "start": 35.27,
       "title": "Modelo explícito"
     },
     {
-      "start": 56.03,
+      "start": 55.67,
       "title": "Float"
     },
     {
-      "start": 72.0,
+      "start": 71.53,
       "title": "Refaça o preço após o raise"
     },
     {
-      "start": 105.5,
+      "start": 105.1,
       "title": "Refaça o preço após o raise"
     },
     {
-      "start": 109.93,
+      "start": 109.53,
       "title": "Força absoluta e força relativa"
     },
     {
-      "start": 140.8,
+      "start": 140.4,
       "title": "Um float precisa de plano"
     },
     {
-      "start": 166.8,
+      "start": 165.93,
       "title": "Laboratório: Responder ao check-raise"
     },
     {
-      "start": 204.17,
+      "start": 203.13,
       "title": "Laboratório: Responder ao check-raise"
     },
     {
-      "start": 213.23,
+      "start": 212.2,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 234.0,
+      "start": 232.87,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 248.33,
+      "start": 247.0,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 284.3,
+      "start": 282.8,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 297.87,
+      "start": 296.5,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "6121e69bfb1f5619a2caccb7b5c54d43fdbc60cab41c6fb4f97d32944be6dbcc"
+  "sha256": "1a1c239bc25fc3b8adb157c8d13883ee0fdd0782acfe20ca89422f3b5d8ee520"
 }

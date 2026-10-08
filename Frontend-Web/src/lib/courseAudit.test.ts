@@ -91,6 +91,8 @@ describe("integridade da Academy", () => {
       for (const id of lesson.sources ?? []) expect(sources, id).toHaveProperty(id);
       const video = lesson.video;
       if (!video?.url || video.publicationStatus === "review") continue;
+      expect(video.pronunciationVersion, lesson.id).toBe("pt-BR-poker-v1");
+      expect(video.narrationHash, lesson.id).toMatch(/^[a-f0-9]{64}$/);
       for (const asset of [video.url, video.captionsUrl, video.posterUrl]) {
         expect(asset, lesson.id).toBeTruthy();
         expect(assetExists(asset!), asset).toBe(true);
@@ -104,6 +106,8 @@ describe("integridade da Academy", () => {
     for (const ext of ["mp4", "vtt", "webp"]) expect(assetExists(`/videos/${homeFilm.filename}.${ext}`)).toBe(true);
     expect(homeFilm.transcript).toContain("Brazilian Pineapple");
     expect(homeFilm.transcript).toContain("Short Deck");
+    expect(homeFilm.pronunciationVersion).toBe("pt-BR-poker-v1");
+    expect(homeFilm.narrationHash).toMatch(/^[a-f0-9]{64}$/);
   });
 
   it("gabaritos completos passam e respostas vazias não passam", () => {
@@ -126,6 +130,7 @@ describe("integridade da Academy", () => {
         expect(lesson.video?.publicationStatus).toBe("prior_rules");
         expect(lesson.video?.bettingRuleVersion).toBe("legacy_no_limit");
         expect(manifest.bettingRuleVersion).toBe("legacy_no_limit");
+        expect(manifest.originalMediaSha256).toMatch(/^[a-f0-9]{64}$/);
         const originalHash = createHash("sha256").update(JSON.stringify(manifest.sourceSnapshot)).digest("hex");
         expect(manifest.contentHash).toBe(originalHash);
         expect(lesson.video?.contentHash).toBe(originalHash);
@@ -135,6 +140,10 @@ describe("integridade da Academy", () => {
         expect(lesson.video?.contentHash, lesson.id).toBe(hash);
         expect(manifest.contentHash, lesson.id).toBe(hash);
       }
+      expect(lesson.video?.pronunciationVersion, lesson.id).toBe("pt-BR-poker-v1");
+      expect(manifest.pronunciationVersion, lesson.id).toBe(lesson.video?.pronunciationVersion);
+      expect(manifest.narrationHash, lesson.id).toMatch(/^[a-f0-9]{64}$/);
+      expect(manifest.narrationHash, lesson.id).toBe(lesson.video?.narrationHash);
       expect(lesson.video?.rendererVersion, lesson.id).toBe(manifest.rendererVersion);
       const transcript = readFileSync(fileURLToPath(new URL(`../../../ZeroTiltCurso/editorial/academy-${lesson.id}-transcript.txt`, import.meta.url)), "utf8");
       expect(lesson.video?.transcript?.replace(/\r\n/g, "\n"), lesson.id).toBe(transcript.replace(/\r\n/g, "\n").trim());
@@ -157,6 +166,9 @@ describe("integridade da Academy", () => {
     expect(pineappleFilm.bettingRuleVersion).toBe(manifest.bettingRuleVersion);
     expect(createHash("sha256").update(JSON.stringify(episode)).digest("hex")).toBe(manifest.episodeHash);
     expect(pineappleFilm.episodeHash).toBe(manifest.episodeHash);
+    expect(pineappleFilm.pronunciationVersion).toBe("pt-BR-poker-v1");
+    expect(manifest.pronunciationVersion).toBe(pineappleFilm.pronunciationVersion);
+    expect(manifest.narrationHash).toBe(pineappleFilm.narrationHash);
     expect(pineappleFilm.chapters).toEqual(manifest.chapters);
     expect(pineappleFilm.chapters).toHaveLength(8);
     expect(pineappleFilm.chapters[0].start).toBe(0);

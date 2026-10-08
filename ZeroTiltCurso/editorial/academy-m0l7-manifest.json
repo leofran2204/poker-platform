@@ -3,12 +3,15 @@
   "filename": "zt-academy-m0l7-v3",
   "contentHash": "c110b4b14134a5f3379d1158ba34f05d588a805bbbfc60034433fafff6d03c7c",
   "rendererVersion": 3,
-  "durationSeconds": 325.13,
+  "durationSeconds": 324.23,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8032999,
+  "bytes": 7993162,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "663a26fd69123af82e24195f19248c963120690eca2990d2fd0172568ece45dd",
   "chapters": [
     {
       "start": 0.0,
@@ -19,53 +22,53 @@
       "title": "Agressão seletiva"
     },
     {
-      "start": 39.7,
+      "start": 39.57,
       "title": "Pratique com um cenário definido"
     },
     {
-      "start": 66.7,
+      "start": 66.33,
       "title": "Revisão"
     },
     {
-      "start": 78.37,
+      "start": 78.0,
       "title": "A decisão anterior à ação"
     },
     {
-      "start": 115.13,
+      "start": 114.5,
       "title": "Calcule o risco do roubo"
     },
     {
-      "start": 151.6,
+      "start": 150.9,
       "title": "Um resultado não corrige o plano"
     },
     {
-      "start": 177.13,
+      "start": 176.33,
       "title": "Laboratório: Abrir com um plano"
     },
     {
-      "start": 215.57,
+      "start": 214.77,
       "title": "Laboratório: Abrir com um plano"
     },
     {
-      "start": 224.63,
+      "start": 223.83,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 247.0,
+      "start": 246.2,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 261.0,
+      "start": 260.2,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 280.8,
+      "start": 279.9,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 291.77,
+      "start": 290.87,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "1561e9f275d40f8ddd7e150d3619808898ddb8bb6eff85b3a4e8dd69180d53a9"
+  "sha256": "35aa82f2afda66ae4f73b4a5a7fc429e678c7d396f7239ea0b0861681901df30"
 }

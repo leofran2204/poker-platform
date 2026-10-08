@@ -3,73 +3,76 @@
   "filename": "zt-academy-m3l3-v3",
   "contentHash": "8b64375f670a70f06556f0002279c4381480a3c1965aa179b7e1abd9801a11a6",
   "rendererVersion": 3,
-  "durationSeconds": 411.9,
+  "durationSeconds": 410.8,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 10467785,
+  "bytes": 10445428,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "34c439583db3fe539ebb12ea7e9509330ca62b181c4268e5a11f2f86630c51ae",
   "chapters": [
     {
       "start": 0.0,
       "title": "Draws, Outs e Matemática de Pot Odds no Turn"
     },
     {
-      "start": 20.27,
+      "start": 20.17,
       "title": "Preço do call"
     },
     {
-      "start": 47.77,
+      "start": 47.33,
       "title": "Outs não são garantia de vitória"
     },
     {
-      "start": 79.73,
+      "start": 79.13,
       "title": "Regra de bolso e limites"
     },
     {
-      "start": 103.73,
+      "start": 103.23,
       "title": "Exercício resolvido"
     },
     {
-      "start": 136.2,
+      "start": 135.83,
       "title": "Calcule uma chance sem atalhos"
     },
     {
-      "start": 163.9,
+      "start": 163.53,
       "title": "Outs contaminados e outras vitórias"
     },
     {
-      "start": 194.6,
+      "start": 193.93,
       "title": "Exemplo de EV condicionado"
     },
     {
-      "start": 229.5,
+      "start": 228.8,
       "title": "Laboratório: O preço de continuar"
     },
     {
-      "start": 269.8,
+      "start": 268.93,
       "title": "Laboratório: O preço de continuar"
     },
     {
-      "start": 278.87,
+      "start": 278.0,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 311.07,
+      "start": 309.97,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 328.83,
+      "start": 327.73,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 364.4,
+      "start": 363.3,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 378.53,
+      "start": 377.43,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "a1f3788cf91766a5962bb38544c30914f111731262638f1738e37f1006fd8db1"
+  "sha256": "58818769d41111ca2e67923892859d549d30a1118bd85181838893291a3984ef"
 }

@@ -3,23 +3,26 @@
   "filename": "zt-academy-m6l1-v3",
   "contentHash": "139c12cc83b549050af72c1bd9730ba076bd8e741011bd0ef19196493124e335",
   "rendererVersion": 3,
-  "durationSeconds": 352.63,
+  "durationSeconds": 352.13,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8620785,
+  "bytes": 8610486,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "7f8343945bd934e67caaa37c67c3f567c9df57c7bd3b27154ba9a2eaa1dded85",
   "chapters": [
     {
       "start": 0.0,
       "title": "EV e fold equity"
     },
     {
-      "start": 18.7,
+      "start": 18.63,
       "title": "Valor esperado"
     },
     {
-      "start": 39.27,
+      "start": 39.3,
       "title": "Fold equity e semi-blefe"
     },
     {
@@ -27,49 +30,49 @@
       "title": "Modelo simplificado"
     },
     {
-      "start": 84.7,
+      "start": 84.63,
       "title": "Exercício"
     },
     {
-      "start": 104.67,
+      "start": 104.53,
       "title": "Derive as parcelas do modelo"
     },
     {
-      "start": 135.0,
+      "start": 134.8,
       "title": "Compare duas hipóteses"
     },
     {
-      "start": 171.63,
+      "start": 171.4,
       "title": "Margem e incerteza"
     },
     {
-      "start": 199.2,
+      "start": 199.0,
       "title": "Laboratório: Preço, hipótese e resultado"
     },
     {
-      "start": 232.53,
+      "start": 232.0,
       "title": "Laboratório: Preço, hipótese e resultado"
     },
     {
-      "start": 247.1,
+      "start": 246.57,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 267.33,
+      "start": 266.83,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 282.5,
+      "start": 282.0,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 303.77,
+      "start": 303.27,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 318.33,
+      "start": 317.83,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "501861882dfce7c1562eb8f964ebe152d617363a0992761b2377b06c4085bac5"
+  "sha256": "fbfa46afadbaa8127ed496f80188a5393369888f624686f0b89064c8b100135a"
 }

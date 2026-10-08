@@ -6,6 +6,7 @@ on:
     paths:
       - 'Motor-Rust/**'
       - 'Frontend-Web/**'
+      - 'ZeroTiltCurso/editorial/**'
       - 'API-Axum/**'
       - 'Infraestrutura-Docker/**'
       - 'Documentacao/**'
@@ -20,6 +21,7 @@ on:
     paths:
       - 'Motor-Rust/**'
       - 'Frontend-Web/**'
+      - 'ZeroTiltCurso/editorial/**'
       - 'API-Axum/**'
       - 'Infraestrutura-Docker/**'
       - 'Documentacao/**'
@@ -306,6 +308,14 @@ jobs:
 
       - name: Frontend tests (Vitest)
         run: npm test
+
+      - name: Narration and publication integrity
+        working-directory: .
+        run: |
+          python3 -m venv "$RUNNER_TEMP/editorial"
+          "$RUNNER_TEMP/editorial/bin/python" -m pip install -r ZeroTiltCurso/editorial/requirements.txt
+          "$RUNNER_TEMP/editorial/bin/python" -m unittest discover -s ZeroTiltCurso/editorial -p test_narration.py -v
+          "$RUNNER_TEMP/editorial/bin/python" ZeroTiltCurso/editorial/render.py --check
 
       - name: Production build
         run: npm run build

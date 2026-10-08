@@ -17,7 +17,12 @@ export function CourseVideoPlayer({ video, lessonTitle }: Props) {
   const durationLabel = video?.durationSeconds
     ? formatLessonDuration(video.durationSeconds)
     : null;
-  const captionsUrl = video?.captionsUrl ?? video?.url?.replace(/\.mp4(?=$|\?)/i, ".vtt");
+  // A revised voice must not reuse a browser's cached MP4 or timed captions.
+  const mediaSource = (url?: string) => url && video?.narrationHash
+    ? `${url}${url.includes("?") ? "&" : "?"}n=${video.narrationHash}`
+    : url;
+  const videoUrl = mediaSource(video?.url);
+  const captionsUrl = mediaSource(video?.captionsUrl ?? video?.url?.replace(/\.mp4(?=$|\?)/i, ".vtt"));
 
   if (!video?.url || video.publicationStatus === "review") {
     return <p className="rounded-sm border border-felt-700 bg-felt-900 px-4 py-3 text-xs text-felt-300">
@@ -43,10 +48,10 @@ export function CourseVideoPlayer({ video, lessonTitle }: Props) {
       <div className="relative aspect-video w-full min-w-0 max-h-[420px] bg-felt-950">
         {video?.url ? (
           <video
-            key={video.url}
+            key={videoUrl}
             ref={player}
-            src={video.url}
-            poster={video.posterUrl}
+            src={videoUrl}
+            poster={mediaSource(video.posterUrl)}
             preload="none"
             controls
             playsInline

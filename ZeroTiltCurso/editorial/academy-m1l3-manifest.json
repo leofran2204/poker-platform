@@ -3,69 +3,72 @@
   "filename": "zt-academy-m1l3-v3",
   "contentHash": "470bc06a215489dcf6ea2a1b5cb73719f41d57f676c8b337baedb3fd78c8963a",
   "rendererVersion": 3,
-  "durationSeconds": 366.13,
+  "durationSeconds": 363.8,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9117027,
+  "bytes": 9067618,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "4370d2cee81c5418e64634699d82b723f957802910fb8a923b9676bf858d8da7",
   "chapters": [
     {
       "start": 0.0,
       "title": "3-bet por Valor e 3-bet Light com Blockers"
     },
     {
-      "start": 20.33,
+      "start": 19.67,
       "title": "Valor, blefe e bloqueadores"
     },
     {
-      "start": 44.57,
+      "start": 43.77,
       "title": "Contagem de combinações"
     },
     {
-      "start": 80.23,
+      "start": 79.43,
       "title": "Exercício"
     },
     {
-      "start": 104.07,
+      "start": 103.17,
       "title": "Três tamanhos diferentes"
     },
     {
-      "start": 135.87,
+      "start": 134.83,
       "title": "Bloqueadores têm dois lados"
     },
     {
-      "start": 167.6,
+      "start": 166.5,
       "title": "Planeje a próxima decisão"
     },
     {
-      "start": 198.93,
+      "start": 197.53,
       "title": "Laboratório: Reaumentar uma abertura"
     },
     {
-      "start": 238.63,
+      "start": 236.97,
       "title": "Laboratório: Reaumentar uma abertura"
     },
     {
-      "start": 247.7,
+      "start": 246.03,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 273.97,
+      "start": 271.77,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 290.77,
+      "start": 288.57,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 321.53,
+      "start": 319.17,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 332.47,
+      "start": 330.13,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "aa867bf1d93229bfd0315b6476374fefbc86af5999fd7066d119ddd757cdccf0"
+  "sha256": "06ce38865b0009c4bb9f0b5a631a40590a598bc7971db9f366bd689877bd19e4"
 }

@@ -3,69 +3,72 @@
   "filename": "zt-academy-m1l2-v3",
   "contentHash": "8ba3c88095f16ddc99acbbbed374ec75ca4475a3b662efc54038761ce656fb61",
   "rendererVersion": 3,
-  "durationSeconds": 325.5,
+  "durationSeconds": 321.4,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8011413,
+  "bytes": 7896623,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "fdee108f6e91d4d92db471afca8c346b207ad816629d6d241f12208370e31ce0",
   "chapters": [
     {
       "start": 0.0,
       "title": "Como punir o Limp do Small Blind"
     },
     {
-      "start": 18.13,
+      "start": 17.8,
       "title": "Limp do small blind"
     },
     {
-      "start": 36.53,
+      "start": 36.13,
       "title": "Plano do exercício"
     },
     {
-      "start": 62.57,
+      "start": 62.2,
       "title": "Revise a hipótese"
     },
     {
-      "start": 72.13,
+      "start": 71.57,
       "title": "A opção do big blind"
     },
     {
-      "start": 105.6,
+      "start": 104.13,
       "title": "O tamanho depende da resposta"
     },
     {
-      "start": 136.9,
+      "start": 135.33,
       "title": "Observe sem concluir cedo"
     },
     {
-      "start": 166.07,
+      "start": 164.5,
       "title": "Laboratório: O small blind completa"
     },
     {
-      "start": 203.63,
+      "start": 201.53,
       "title": "Laboratório: O small blind completa"
     },
     {
-      "start": 212.7,
+      "start": 210.6,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 233.07,
+      "start": 229.7,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 248.33,
+      "start": 244.7,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 279.97,
+      "start": 276.3,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 291.8,
+      "start": 287.9,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "232e855961396272f9cfc6a8c82a98dac0eb99bbacff0adaf7bcfa81a39a5fe1"
+  "sha256": "ad62adbe4076e70f314e4f45a025f26c3f904786c66a0545323b221a17cf5cbd"
 }

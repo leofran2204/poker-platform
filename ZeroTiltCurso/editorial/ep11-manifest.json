@@ -1,10 +1,10 @@
 {
   "filename": "ep11-cartas-historia-v2",
-  "durationSeconds": 124.83,
+  "durationSeconds": 124.97,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 3927468,
+  "bytes": 3921349,
   "voice": "pt-BR-AntonioNeural (synthetic)",
   "chapters": [
     {
@@ -24,16 +24,23 @@
       "title": "13 valores. 4 naipes."
     },
     {
-      "start": 68.07,
+      "start": 68.13,
       "title": "Você vê uma parte. Decide sobre o todo."
     },
     {
-      "start": 89.27,
+      "start": 89.4,
       "title": "Qual afirmação o objeto comprova?"
     },
     {
-      "start": 102.47,
+      "start": 102.6,
       "title": "Observe a evidência. Respeite a incerteza."
     }
-  ]
+  ],
+  "episodeHash": "9d3a23a5a98999e620666431e2fbc7613b60b710a2e217c48cdb4c89bc35a25a",
+  "sha256": "36dafd7df50e954c406e69e31c7fc9bac7241d23462b225bcabafd7167ff63e5",
+  "rendererVersion": 3,
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "d2c7266f8d1f67e5da208afc4d0aed9ee25e5cda65b435f5ee34a2f9b5d21086",
+  "contentHash": "6f0bf3ac51c89dec17d8482440a46da8c850b28b40696b23fe3cf12057ff7bb0"
 }

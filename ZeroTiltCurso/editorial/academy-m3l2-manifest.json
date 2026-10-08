@@ -3,69 +3,72 @@
   "filename": "zt-academy-m3l2-v3",
   "contentHash": "24a41a912452ab0e7f5bbb4c4500e7ce57a557a44bea4d31a18ac61514756868",
   "rendererVersion": 3,
-  "durationSeconds": 325.73,
+  "durationSeconds": 325.53,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8081658,
+  "bytes": 8066011,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "d48103962286e7e70a7323a3c9cd97dd985599ac9907952bb8786103070640af",
   "chapters": [
     {
       "start": 0.0,
       "title": "Pot Control vs. Apostas Polarizadas"
     },
     {
-      "start": 19.4,
+      "start": 20.5,
       "title": "Pot control"
     },
     {
-      "start": 33.9,
+      "start": 34.83,
       "title": "Polarização"
     },
     {
-      "start": 49.0,
+      "start": 49.87,
       "title": "Exercício"
     },
     {
-      "start": 69.97,
+      "start": 70.9,
       "title": "Relação entre stack e pote"
     },
     {
-      "start": 101.87,
+      "start": 102.9,
       "title": "Proteja a leitura do check"
     },
     {
-      "start": 129.27,
+      "start": 130.0,
       "title": "A polarização é uma composição"
     },
     {
-      "start": 162.1,
+      "start": 162.9,
       "title": "Laboratório: Controlar com mão intermediária"
     },
     {
-      "start": 200.43,
+      "start": 201.3,
       "title": "Laboratório: Controlar com mão intermediária"
     },
     {
-      "start": 209.5,
+      "start": 210.37,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 229.47,
+      "start": 229.83,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 244.57,
+      "start": 245.0,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 277.13,
+      "start": 277.17,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 291.7,
+      "start": 291.5,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "155e792623cb1bd8b187d69842ee588c8b1f26735b217662b74debee54acb1a6"
+  "sha256": "29fd140c5aec611e75167081e0cd57ac47e7cfb8783ff21563102839dd0ca57f"
 }

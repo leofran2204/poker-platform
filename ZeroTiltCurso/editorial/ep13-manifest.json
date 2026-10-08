@@ -1,10 +1,10 @@
 {
   "filename": "ep13-historia-pessoas-v2",
-  "durationSeconds": 79.97,
+  "durationSeconds": 80.1,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 2510109,
+  "bytes": 2517260,
   "voice": "pt-BR-AntonioNeural (synthetic)",
   "chapters": [
     {
@@ -20,12 +20,19 @@
       "title": "O público cresce. O Brasil aparece."
     },
     {
-      "start": 43.8,
+      "start": 43.9,
       "title": "Até a palavra “resolvido” tem limites."
     },
     {
-      "start": 62.8,
+      "start": 62.93,
       "title": "Estude a decisão. Revise o raciocínio."
     }
-  ]
+  ],
+  "episodeHash": "91cf9c96d0c6da63ed4146d82fa5c8cfd8979430057615035a555885da9b4a3f",
+  "sha256": "51f71cee24ea5a8fa889fa48397104aa1569e0e0c79cff588e03eb8ea3f31874",
+  "rendererVersion": 3,
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "148e4e5c1b3513670fd5cd9fa370bff02fbe1ad51ad071d54b84f119b120ec34",
+  "contentHash": "4e4c40ccadbc8b354ea2accb712d470218d8ad56f72b0ea25aafbfabebf9e8b0"
 }

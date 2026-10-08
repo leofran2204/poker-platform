@@ -3,69 +3,72 @@
   "filename": "zt-academy-m0l8-v3",
   "contentHash": "0b7accbe65f90f1c71a58ae6a26443db559ac49804385bf742a38d644e6a52e4",
   "rendererVersion": 3,
-  "durationSeconds": 312.0,
+  "durationSeconds": 310.77,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 7649975,
+  "bytes": 7596688,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "4d5954c9620f68f2243253c1aa251a46103f1cba2c4f89e2d93fe88fe9894b30",
   "chapters": [
     {
       "start": 0.0,
       "title": "Sizing: o tamanho certo"
     },
     {
-      "start": 17.93,
+      "start": 18.0,
       "title": "Declare o tamanho e a unidade"
     },
     {
-      "start": 36.07,
+      "start": 36.0,
       "title": "Exemplo de plano"
     },
     {
-      "start": 66.43,
+      "start": 66.47,
       "title": "Pratique"
     },
     {
-      "start": 78.9,
+      "start": 78.73,
       "title": "Preço produzido pela aposta"
     },
     {
-      "start": 111.93,
+      "start": 111.9,
       "title": "Incremento e mínimo"
     },
     {
-      "start": 145.43,
+      "start": 145.3,
       "title": "Compare respostas"
     },
     {
-      "start": 171.33,
+      "start": 171.1,
       "title": "Laboratório: O raise é um total"
     },
     {
-      "start": 211.0,
+      "start": 210.87,
       "title": "Laboratório: O raise é um total"
     },
     {
-      "start": 220.07,
+      "start": 219.93,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 236.4,
+      "start": 235.1,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 249.27,
+      "start": 248.07,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 266.67,
+      "start": 265.4,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 278.63,
+      "start": 277.4,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "cce0f2cf2a9f28b9e98bac696aaf821718ca08b9a24ededfc6ce6b5ec9fd5351"
+  "sha256": "67379122d2fdadbebf0ba3daec55fa7b317f499e537fe0025609bdf5d0733e10"
 }

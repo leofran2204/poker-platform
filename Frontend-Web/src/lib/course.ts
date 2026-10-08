@@ -27,6 +27,8 @@ export type CourseQuizQuestion = CourseTheoryQuestion | CourseEngineQuestion;
 export interface CourseVideoInfo {
   contentHash?: string;
   rendererVersion?: number;
+  pronunciationVersion?: string;
+  narrationHash?: string;
   publicationStatus?: "published" | "review" | "prior_rules";
   bettingRuleVersion?: string;
   url?: string;

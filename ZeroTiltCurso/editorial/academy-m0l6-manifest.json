@@ -3,61 +3,64 @@
   "filename": "zt-academy-m0l6-v3",
   "contentHash": "d7a0c0a20f425f79bb0f3a4d05e36f81131a7dc4d557c45bed0dd71e23e77d30",
   "rendererVersion": 3,
-  "durationSeconds": 283.8,
+  "durationSeconds": 283.33,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 7106690,
+  "bytes": 7031107,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "d263aa699ae62e6e01a4c36e2f0f9c77a169684a350540c656368c465cb5c976",
   "chapters": [
     {
       "start": 0.0,
       "title": "Primeiros passos aqui"
     },
     {
-      "start": 19.1,
+      "start": 18.93,
       "title": "Conheça o ambiente"
     },
     {
-      "start": 42.0,
+      "start": 41.77,
       "title": "Conta e acesso"
     },
     {
-      "start": 61.53,
+      "start": 61.27,
       "title": "Mesas com outros jogadores"
     },
     {
-      "start": 80.83,
+      "start": 80.57,
       "title": "Entre na Academy"
     },
     {
-      "start": 113.27,
+      "start": 113.07,
       "title": "Três modos de praticar"
     },
     {
-      "start": 146.8,
+      "start": 146.5,
       "title": "Guarde o processo"
     },
     {
-      "start": 176.8,
+      "start": 176.5,
       "title": "Laboratório: Sua primeira mão completa"
     },
     {
-      "start": 213.77,
+      "start": 213.3,
       "title": "Laboratório: Sua primeira mão completa"
     },
     {
-      "start": 222.83,
+      "start": 222.37,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 238.53,
+      "start": 238.07,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 250.2,
+      "start": 249.73,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "5127cc78399558a75a1024772a6787c22e91f2bcdcce02d6bfc1a1afe9a66743"
+  "sha256": "b2973804a0b6378dd3677c6ba6697d85453aad78995ff3c1e1d0d4b38e3de29a"
 }

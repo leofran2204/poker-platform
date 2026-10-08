@@ -3,107 +3,110 @@
   "filename": "zt-academy-m5l4-v3",
   "contentHash": "22fbad187494cfa09ac5d69e0a89227340b283bd147d6d5b0b05335ac5d7db47",
   "rendererVersion": 3,
-  "durationSeconds": 546.7,
+  "durationSeconds": 546.1,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 13811260,
+  "bytes": 13756021,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "c88c55d1333c042a9d86ebf7eac61c1d2230ffabd93d5a3610cf9c960d342df4",
   "chapters": [
     {
       "start": 0.0,
       "title": "Pineapple: combinações e probabilidades condicionais"
     },
     {
-      "start": 20.5,
+      "start": 20.6,
       "title": "Conte sem duplicar"
     },
     {
-      "start": 45.6,
+      "start": 45.7,
       "title": "Flop, turn e river"
     },
     {
-      "start": 91.37,
+      "start": 91.13,
       "title": "Uma probabilidade exata, com hipóteses"
     },
     {
-      "start": 133.03,
+      "start": 132.8,
       "title": "Uma probabilidade exata, com hipóteses"
     },
     {
-      "start": 141.0,
+      "start": 140.8,
       "title": "Amostragem sem reposição"
     },
     {
-      "start": 172.73,
+      "start": 172.53,
       "title": "Aplicação"
     },
     {
-      "start": 196.57,
+      "start": 196.37,
       "title": "Derive o número de pares"
     },
     {
-      "start": 231.63,
+      "start": 231.43,
       "title": "Dois eventos sem reposição"
     },
     {
-      "start": 271.77,
+      "start": 271.57,
       "title": "O que uma simulação precisa preservar"
     },
     {
-      "start": 304.0,
+      "start": 303.6,
       "title": "Laboratório: Da contagem à decisão"
     },
     {
-      "start": 343.97,
+      "start": 343.5,
       "title": "Laboratório: Da contagem à decisão"
     },
     {
-      "start": 353.03,
+      "start": 352.57,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 368.8,
+      "start": 368.33,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 386.47,
+      "start": 386.0,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 399.93,
+      "start": 399.37,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 414.73,
+      "start": 414.17,
       "title": "Exercício resolvido 3"
     },
     {
-      "start": 440.5,
+      "start": 439.97,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 453.3,
+      "start": 452.77,
       "title": "Exercício resolvido 4"
     },
     {
-      "start": 468.07,
+      "start": 467.53,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 477.83,
+      "start": 477.23,
       "title": "Exercício resolvido 5"
     },
     {
-      "start": 497.23,
+      "start": 496.63,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 513.13,
+      "start": 512.53,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "7c751aa36b080d1cd2e64a826a523bef4c46641124fbac0b025e655205563d3a",
+  "sha256": "1690a204e5411658fdac9e540bfc3bb57e3c63ebc7c374e582cb00635916a024",
   "sourceSnapshot": {
     "id": "m5l4",
     "title": "Pineapple: combinações e probabilidades condicionais",
@@ -203,5 +206,6 @@
       }
     ]
   },
-  "bettingRuleVersion": "legacy_no_limit"
+  "bettingRuleVersion": "legacy_no_limit",
+  "originalMediaSha256": "7c751aa36b080d1cd2e64a826a523bef4c46641124fbac0b025e655205563d3a"
 }

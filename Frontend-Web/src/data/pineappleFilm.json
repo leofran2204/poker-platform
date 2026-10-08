@@ -2,11 +2,11 @@
   "filename": "zt-brazilian-pineapple-hybrid-v1",
   "title": "Aprenda Brazilian Pineapple",
   "bettingRuleVersion": "brazilian_pineapple_hybrid_v1",
-  "durationSeconds": 477.67,
+  "durationSeconds": 475.37,
   "width": 1280,
   "height": 720,
   "fps": 30,
-  "bytes": 10394203,
+  "bytes": 10366461,
   "voice": "pt-BR-AntonioNeural (synthetic)",
   "voiceRate": "-3%",
   "chapters": [
@@ -15,40 +15,42 @@
       "title": "O jogo e o objetivo"
     },
     {
-      "start": 26.3,
+      "start": 26.23,
       "title": "As cartas: 2 → 5"
     },
     {
-      "start": 72.07,
+      "start": 71.83,
       "title": "Exatamente 2 + 3"
     },
     {
-      "start": 133.9,
+      "start": 133.4,
       "title": "Blinds e pré-flop"
     },
     {
-      "start": 192.77,
+      "start": 191.17,
       "title": "Pós-flop: o limite do pote"
     },
     {
-      "start": 267.3,
+      "start": 265.83,
       "title": "Mínimos, all-in e reabertura"
     },
     {
-      "start": 362.7,
+      "start": 360.97,
       "title": "Antes, potes e formatos"
     },
     {
-      "start": 441.33,
+      "start": 439.0,
       "title": "Recapitule e pratique"
     }
   ],
-  "sha256": "a533b0b947bb25d1c7fa45170fadc2e577d72a8d69559aedda1e49e6640208e5",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "cee0ddbe8c418fb1032ca1248f05a624d08fb711dab796e0f2f3d1b63ee83d30",
+  "sha256": "b6bdd31ee64dc56ef44739ce0f48881c52a4b47a78d9956ce3f17ac5034d4f57",
   "episodeHash": "d75e7d0fdae73107a284a7e6d5665d44290923dd0fda09366d648e073df25d85",
   "rendererVersion": 1,
   "assetHashes": {
-    "mp4": "a533b0b947bb25d1c7fa45170fadc2e577d72a8d69559aedda1e49e6640208e5",
-    "vtt": "38cbd2eefb2589292383ce4f286d1cde1f2e662b3cac250bd6cd474de3c58870",
+    "mp4": "b6bdd31ee64dc56ef44739ce0f48881c52a4b47a78d9956ce3f17ac5034d4f57",
+    "vtt": "e4da16067c217ba6b4db2c5d113217b29cf43ae2db4bd6579c83dd9db3eb7b70",
     "webp": "6fef7e84321d135d9a7d6657cd7c46b85fd67e28af3231be9c10bd7640fbaa08"
   },
   "transcriptHash": "2d6593b1436906ddbe270f1f2450ecf4c86c4a235e35fce5cb2b501cae5c2915",

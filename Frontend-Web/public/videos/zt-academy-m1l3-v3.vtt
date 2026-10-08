@@ -1,262 +1,271 @@
 WEBVTT
 
-00:00:00.501 --> 00:00:05.207
+00:00:00.501 --> 00:00:04.807
 Zero Tilt Academy 3-bet por Valor e 3-bet Light com
 
-00:00:05.220 --> 00:00:10.903
+00:00:04.820 --> 00:00:10.323
 Blockers Nesta aula nosso objetivo é Construir uma 3-bet e
 
-00:00:10.915 --> 00:00:15.825
+00:00:10.336 --> 00:00:15.194
 distinguir o total do incremento Vamos desenvolver a teoria resolver
 
-00:00:15.838 --> 00:00:18.647
+00:00:15.207 --> 00:00:18.016
 exemplos e aplicar a ideia na mesa deste módulo
 
-00:00:20.835 --> 00:00:25.824
+00:00:20.168 --> 00:00:25.041
 Valor blefe e bloqueadores Uma 3-bet é um aumento sobre
 
-00:00:25.836 --> 00:00:30.050
+00:00:25.054 --> 00:00:29.319
 o raise inicial Seu range e tamanho dependem das posições
 
-00:00:30.347 --> 00:00:34.651
+00:00:29.590 --> 00:00:33.855
 stack efetivo e respostas adversárias ás e rei do mesmo
 
-00:00:34.664 --> 00:00:37.602
+00:00:33.868 --> 00:00:36.806
 naipe pode integrar a parte de valor ás e cinco
 
-00:00:37.615 --> 00:00:41.210
+00:00:36.819 --> 00:00:40.415
 do mesmo naipe pode aparecer como blefe em determinados cenários
 
-00:00:41.455 --> 00:00:42.885
+00:00:40.659 --> 00:00:42.090
 mas não é uma obrigação
 
-00:00:45.068 --> 00:00:50.559
+00:00:44.268 --> 00:00:49.759
 Contagem de combinações Sem cartas conhecidas existem combinação
 
-00:00:50.572 --> 00:00:54.786
-de 4 elementos tomados 2 a 2 igual a 6 combinações de par de
+00:00:49.772 --> 00:00:52.587
+de 4 elementos tomados 2 a 2 igual a 6
 
-00:00:54.799 --> 00:00:58.897
-ases e 4 vezes 4 igual a 16 de ás e rei Ao
+00:00:52.587 --> 00:00:55.893
+combinações de par de ases e 4 vezes 4 igual
 
-00:00:58.910 --> 00:01:03.188
-segurar um ás sem conhecer outras cartas dessas classes restam
+00:00:55.906 --> 00:00:59.089
+a 16 de ás e rei Ao segurar um ás
 
-00:01:03.201 --> 00:01:07.402
-combinação de 3 elementos tomados 2 a 2 igual a 3 combinações
+00:00:59.321 --> 00:01:03.149
+sem conhecer outras cartas dessas classes restam combinação de
 
-00:01:07.415 --> 00:01:10.431
-de par de ases e 3 vezes 4 igual a 12 de ás
+00:01:03.161 --> 00:01:06.602
+3 elementos tomados 2 a 2 igual a 3 combinações
 
-00:01:10.443 --> 00:01:14.193
-e rei Reduzir combinações não prova que um blefe é
+00:01:06.615 --> 00:01:09.076
+de par de ases e 3 vezes 4 igual a
 
-00:01:14.206 --> 00:01:17.634
-lucrativo importam também as mãos que o rival paga e
+00:01:09.089 --> 00:01:12.865
+12 de ás e rei Reduzir combinações não prova que
 
-00:01:17.647 --> 00:01:18.588
-as que descarta
+00:01:12.878 --> 00:01:16.009
+um blefe é lucrativo importam também as mãos que o
 
-00:01:20.735 --> 00:01:26.986
-Exercício Texas cash 100 big blinds cutoff abre 2,5 big blinds
+00:01:16.022 --> 00:01:17.788
+rival paga e as que descarta
 
-00:01:26.999 --> 00:01:29.177
-e o botão tem ás e rei do mesmo naipe
+00:01:19.935 --> 00:01:25.838
+Exercício Texas cash 100 big blinds cutoff abre 2,5 big
 
-00:01:30.066 --> 00:01:34.306
-No plano de treino usamos 3-bet por valor com referência
+00:01:25.851 --> 00:01:27.991
+blinds e o botão tem ás e rei do mesmo
 
-00:01:34.319 --> 00:01:38.339
-de 7 5 8 big blinds Compare o plano com
+00:01:28.003 --> 00:01:32.784
+naipe No plano de treino usamos 3-bet por valor com
 
-00:01:38.352 --> 00:01:42.386
-um stack de 20 big blinds não transplante o tamanho automaticamente
+00:01:32.797 --> 00:01:37.514
+referência de 7,5 8 big blinds Compare o plano com
 
-00:01:44.568 --> 00:01:49.931
-Três tamanhos diferentes Se o rival abre para 2,5 big blinds
+00:01:37.527 --> 00:01:40.568
+um stack de 20 big blinds não transplante o tamanho
 
-00:01:49.943 --> 00:01:53.346
-e você aumenta para 8 sua 3-bet é de 8 big
+00:01:40.581 --> 00:01:41.496
+automaticamente
 
-00:01:53.358 --> 00:01:58.513
-blinds no total O incremento sobre a abertura foi 5,5 big
+00:01:43.668 --> 00:01:48.721
+Três tamanhos diferentes Se o rival abre para 2,5 big
 
-00:01:58.526 --> 00:02:03.139
-blinds Se você não tinha fichas investidas o custo inicial
+00:01:48.734 --> 00:01:51.814
+blinds e você aumenta para 8 sua 3-bet é de
 
-00:02:03.152 --> 00:02:06.683
-é 8 big blinds se era big blind parte já estava
+00:01:51.827 --> 00:01:55.925
+8 big blinds no total O incremento sobre a abertura
 
-00:02:06.696 --> 00:02:11.529
-comprometida A diferença importa para pot odds stack efetivo e
+00:01:55.938 --> 00:02:01.131
+foi 5,5 big blinds Se você não tinha fichas investidas
 
-00:02:11.541 --> 00:02:14.183
-planejamento de respostas a uma 4-bet
+00:02:01.427 --> 00:02:04.366
+o custo inicial é 8 big blinds se era big
 
-00:02:16.368 --> 00:02:21.499
+00:02:04.378 --> 00:02:09.172
+blind parte já estava comprometida A diferença importa para pot
+
+00:02:09.185 --> 00:02:13.167
+odds stack efetivo e planejamento de respostas a uma 4-bet
+
+00:02:15.335 --> 00:02:20.465
 Bloqueadores têm dois lados Segurar um ás reduz certas combinações
 
-00:02:21.511 --> 00:02:25.171
+00:02:20.478 --> 00:02:24.138
 fortes do adversário mas também pode reduzir mãos que ele
 
-00:02:25.184 --> 00:02:29.359
+00:02:24.151 --> 00:02:28.391
 desistiria Um blocker não fornece por si só a frequência
 
-00:02:29.372 --> 00:02:33.625
+00:02:28.403 --> 00:02:32.540
 de fold Liste primeiro o range de abertura depois quais
 
-00:02:33.638 --> 00:02:38.573
+00:02:32.553 --> 00:02:37.501
 mãos pagam e quais reaumentam Sem essa decomposição dizer que
 
-00:02:38.586 --> 00:02:41.524
+00:02:37.514 --> 00:02:40.452
 ás e cinco do mesmo naipe bloqueia ases é verdadeiro
 
-00:02:41.795 --> 00:02:45.158
+00:02:40.723 --> 00:02:44.086
 porém insuficiente para provar que o blefe tem valor esperado
 
-00:02:45.171 --> 00:02:45.919
+00:02:44.099 --> 00:02:44.847
 positivo
 
-00:02:48.102 --> 00:02:53.168
+00:02:47.002 --> 00:02:51.810
 Planeje a próxima decisão Ao escolher a 3-bet antecipe o
 
-00:02:53.180 --> 00:02:57.575
-stack que restará se houver call Com 100 big blinds você
+00:02:51.823 --> 00:02:55.676
+stack que restará se houver call Com 100 big blinds
 
-00:02:57.588 --> 00:03:02.317
-ainda pode enfrentar várias apostas pós-flop Com 20 big blinds
+00:02:55.921 --> 00:03:00.560
+você ainda pode enfrentar várias apostas pós-flop Com 20 big
 
-00:03:02.536 --> 00:03:06.570
-a relação entre pote e stack muda muito No exercício
+00:03:00.573 --> 00:03:04.516
+blinds a relação entre pote e stack muda muito No
 
-00:03:06.840 --> 00:03:10.100
-pratique o total legal do raise e descreva quais respostas
+00:03:04.529 --> 00:03:08.060
+exercício pratique o total legal do raise e descreva quais
 
-00:03:10.113 --> 00:03:13.747
-fariam você continuar Os bots não são um solver e
+00:03:08.073 --> 00:03:12.299
+respostas fariam você continuar Os bots não são um solver
 
-00:03:13.760 --> 00:03:17.253
-uma vitória contra eles não valida automaticamente o range escolhido
+00:03:12.312 --> 00:03:15.263
+e uma vitória contra eles não valida automaticamente o range
 
-00:03:19.435 --> 00:03:25.570
+00:03:15.276 --> 00:03:15.869
+escolhido
+
+00:03:18.035 --> 00:03:23.990
 Laboratório Reaumentar uma abertura Objetivo Construir uma 3-bet
 
-00:03:25.583 --> 00:03:29.204
+00:03:24.003 --> 00:03:27.676
 e distinguir o total do incremento Abra a mesa deste
 
-00:03:29.217 --> 00:03:33.689
+00:03:27.688 --> 00:03:32.160
 módulo e comece pelo treino guiado A abertura adversária foi
 
-00:03:33.702 --> 00:03:39.784
-para 2,5 big blinds No exercício compare uma 3-bet de valor
+00:03:32.173 --> 00:03:37.740
+para 2,5 big blinds No exercício compare uma 3-bet de
 
-00:03:39.797 --> 00:03:44.540
-com apenas pagar Depois repita no modo desafio respondendo à
+00:03:37.753 --> 00:03:42.830
+valor com apenas pagar Depois repita no modo desafio respondendo
 
-00:03:44.552 --> 00:03:48.779
-pergunta objetiva antes de cada ação Use o replay para
+00:03:42.843 --> 00:03:46.902
+à pergunta objetiva antes de cada ação Use o replay
 
-00:03:48.792 --> 00:03:53.676
-comparar uma alternativa na mesma distribuição Uma nova distribuição
+00:03:46.915 --> 00:03:52.005
+para comparar uma alternativa na mesma distribuição Uma nova distribuição
 
-00:03:53.689 --> 00:03:56.382
+00:03:52.018 --> 00:03:54.712
 preserva as cartas que definem o cenário e varia as
 
-00:03:56.395 --> 00:03:56.949
+00:03:54.725 --> 00:03:55.279
 demais
 
-00:03:59.135 --> 00:04:03.529
+00:03:57.468 --> 00:04:01.863
 Registre sua justificativa no caderno acertar a leitura e respeitar
 
-00:04:03.542 --> 00:04:06.029
+00:04:01.875 --> 00:04:04.363
 as hipóteses importam mais que ganhar esta mão
 
-00:04:08.202 --> 00:04:10.702
+00:04:06.535 --> 00:04:08.958
 O que significa dizer que ás e cinco suited é
 
-00:04:10.714 --> 00:04:15.020
-uma excelente mão para 3-bet light por ter blocker A.
+00:04:08.970 --> 00:04:12.864
+uma excelente mão para 3-bet light por ter blocker A
 
-00:04:15.909 --> 00:04:19.969
-Que você bloqueia o dealer de distribuir cartas B. Que
+00:04:13.753 --> 00:04:17.812
+Que você bloqueia o dealer de distribuir cartas B Que
 
-00:04:19.981 --> 00:04:22.752
+00:04:17.825 --> 00:04:20.596
 ter um Ás na sua mão reduz matematicamente as chances
 
-00:04:22.765 --> 00:04:24.956
+00:04:20.609 --> 00:04:22.799
 do rival ter par de ases ou ás e rei
 
-00:04:24.969 --> 00:04:28.641
-C. Que você não pode tomar raise Pause o vídeo
+00:04:22.812 --> 00:04:26.408
+C Que você não pode tomar raise Pause o vídeo
 
-00:04:28.950 --> 00:04:32.314
+00:04:26.717 --> 00:04:30.093
 faça sua leitura e registre uma resposta antes de continuar
 
-00:04:34.468 --> 00:04:37.471
+00:04:32.268 --> 00:04:35.271
 Resposta do exercício Que ter um Ás na sua mão
 
-00:04:37.484 --> 00:04:40.783
+00:04:35.284 --> 00:04:38.583
 reduz matematicamente as chances do rival ter par de ases
 
-00:04:40.796 --> 00:04:43.568
+00:04:38.596 --> 00:04:41.368
 ou ás e rei Ter um Ás na mão reduz
 
-00:04:43.581 --> 00:04:46.274
-em 50 por cento os combos de par de ases e
+00:04:41.381 --> 00:04:43.958
+em 50 por cento os combos de par de ases
 
-00:04:46.287 --> 00:04:48.697
-em 25 por cento os combos de ás e rei do
+00:04:43.971 --> 00:04:46.149
+e em 25 por cento os combos de ás e
 
-00:04:48.709 --> 00:04:49.096
-vilão
+00:04:46.161 --> 00:04:46.896
+rei do vilão
 
-00:04:51.268 --> 00:04:56.631
+00:04:49.068 --> 00:04:54.431
 Suas cartas ás de copas rei de copas Cartas comunitárias
 
-00:04:56.837 --> 00:05:04.092
-ainda não reveladas Texas cash 100 big blinds cutoff abre 2,5 big
+00:04:54.637 --> 00:05:00.500
+ainda não reveladas Texas cash 100 big blinds cutoff abre
 
-00:05:04.105 --> 00:05:08.692
-blinds No plano de 3-bet por valor desta aula você
+00:05:00.513 --> 00:05:05.487
+2,5 big blinds No plano de 3-bet por valor desta
 
-00:05:08.705 --> 00:05:14.543
-tem A ♥ K ♥ no botão Ação A. fold
+00:05:05.500 --> 00:05:12.201
+aula você tem A K no botão Ação A fold
 
-00:05:14.556 --> 00:05:17.546
-B. call C. raise Pause o vídeo faça sua leitura
+00:05:12.214 --> 00:05:15.178
+B call C raise Pause o vídeo faça sua leitura
 
-00:05:17.558 --> 00:05:19.878
+00:05:15.191 --> 00:05:17.498
 e registre uma resposta antes de continuar
 
-00:05:22.035 --> 00:05:26.560
+00:05:19.668 --> 00:05:24.270
 Resposta do exercício raise ás e rei do mesmo naipe
 
-00:05:26.572 --> 00:05:29.743
+00:05:24.283 --> 00:05:27.415
 é uma mão de valor premium 3-bete para construir o
 
-00:05:29.755 --> 00:05:30.799
+00:05:27.427 --> 00:05:28.471
 pote em posição
 
-00:05:32.968 --> 00:05:36.022
+00:05:30.635 --> 00:05:33.689
 Abra o simulador da aula e escolha o cenário Reaumentar
 
-00:05:36.035 --> 00:05:40.534
+00:05:33.702 --> 00:05:38.201
 uma abertura Jogue uma mão completa responda às perguntas e
 
-00:05:40.547 --> 00:05:44.813
+00:05:38.214 --> 00:05:42.479
 registre seu plano Depois use o replay para comparar outra
 
-00:05:44.825 --> 00:05:49.078
+00:05:42.492 --> 00:05:46.745
 ação na mesma distribuição Volte em outra sessão no modo
 
-00:05:49.091 --> 00:05:54.026
+00:05:46.758 --> 00:05:51.693
 desafio Avalie o raciocínio com as informações disponíveis sem
 
-00:05:54.039 --> 00:05:58.369
+00:05:51.706 --> 00:05:56.036
 confundir uma vitória isolada com uma boa estratégia As fontes
 
-00:05:58.382 --> 00:06:02.660
+00:05:56.049 --> 00:06:00.327
 estão no material de apoio Este curso não promete lucro
 
-00:06:02.673 --> 00:06:04.465
+00:06:00.340 --> 00:06:02.131
 e o treino usa fichas sem valor

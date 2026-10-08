@@ -36,6 +36,107 @@ W, H, FPS = 1920, 1080, 30
 BG, INK, GOLD, MUTED, GREEN = '#0b1413', '#f2eee4', '#d3b879', '#aabbb4', '#66c3a5'
 FONTDIR = Path('C:/Windows/Fonts')
 
+# Only synthesis receives these Portuguese phonetic guides. On-screen text,
+# transcripts, captions and animation cues retain the canonical poker spelling.
+VOICE = 'pt-BR-AntonioNeural'
+VOICE_RATE = '-3%'
+PRONUNCIATION_VERSION = 'pt-BR-poker-v1'
+PRONUNCIATIONS = {
+    'pineapple': 'painépou', 'brazilian': 'brazílian',
+    'poker': 'pôquer', 'academy': 'acádemi', 'tilt': 'tílt',
+    'texas': 'téksas', 'holdem': 'rôuldem', "hold'em": 'rôuldem',
+    'short': 'shórt', 'deck': 'dék', 'play': 'plêi', 'money': 'mâni',
+    'loss': 'lóss', 'deflator': 'diflêitor',
+    'flop': 'flóp', 'pré-flop': 'pré-flóp', 'pós-flop': 'pós-flóp',
+    'turn': 'târn', 'river': 'ríver',
+    'all-in': 'ól ín', 'all-ins': 'ól íns',
+    'check': 'tchék', 'checks': 'tchéks', 'call': 'cól', 'calls': 'cóls',
+    'caller': 'cóler', 'callers': 'cólers', 'fold': 'fôuld', 'folds': 'fôulds',
+    'raise': 'rêiz', 'raises': 'rêizes', 'reraise': 'ri rêiz',
+    'bet': 'bét', 'bets': 'béts', 'c-bet': 'cí bét',
+    'check-back': 'tchék bék', 'check-raise': 'tchék rêiz',
+    'check-raises': 'tchék rêizes', 'iso-raise': 'áiso rêiz',
+    'big': 'bígue', 'small': 'smól', 'blind': 'bláind', 'blinds': 'bláinds',
+    'flush': 'flâsh', 'flushes': 'flâshes', 'full': 'fúl', 'house': 'ráus',
+    'straight': 'strêit', 'royal': 'róial',
+    'cash': 'késh', 'rake': 'rêik', 'lobby': 'lóbi',
+    'pot': 'pót', 'pots': 'póts', 'limit': 'límit', 'side': 'sáid',
+    'stack': 'sték', 'stacks': 'stéks', 'showdown': 'shôudáun',
+    'heads-up': 'rédz âp', 'buy-in': 'bái ín', 'buy-ins': 'bái íns',
+    'range': 'rêindj', 'ranges': 'rêindjes', 'equity': 'éqüiti', 'equities': 'éqüitis',
+    'draw': 'dró', 'draws': 'drós', 'outs': 'áuts', 'odds': 'óds',
+    'board': 'bórd', 'boards': 'bórds', 'nut': 'nât', 'nuts': 'nâts',
+    'blocker': 'blóker', 'blockers': 'blókers', 'blocking': 'blókin',
+    'bluff-catcher': 'blâf kétcher', 'bluff-catchers': 'blâf kétchers',
+    'backdoor': 'bék dór', 'barrel': 'bérrel', 'double': 'dâbol',
+    'float': 'flôut', 'sizing': 'sáizin', 'overbet': 'ôuver bét',
+    'overpair': 'ôuver pér', 'pair': 'pér', 'top': 'tóp',
+    'thin': 'thín', 'value': 'véliu', 'light': 'láit',
+    'limp': 'límp', 'limper': 'límper', 'limpers': 'límpers',
+    'limp-reraise': 'límp ri rêiz', 'cutoff': 'cât óf',
+    'multiway': 'mâlti uêi', 'rainbow': 'rêinbou',
+    'kicker': 'kíker', 'kickers': 'kíkers', 'suited': 'sútid', 'offsuit': 'óf sút',
+    'street': 'strít', 'streets': 'stríts', 'set': 'sét', 'mining': 'máinin',
+    'scare': 'skéar', 'card': 'cárd', 'cards': 'cárds',
+    'replay': 'riplêi', 'dealer': 'díler', 'control': 'contrôul',
+    '3-bet': 'três bét', '4-bet': 'quatro bét', '5-bet': 'cinco bét',
+    '3-bets': 'três béts', '4-bets': 'quatro béts',
+    'sb': 'smól bláind', 'gto': 'gê tê ó', 'vs': 'versus',
+    'low': 'lôu', 'main': 'mêin', 'event': 'ivént',
+    'high': 'rái', 'world': 'uôrld', 'series': 'síries',
+    'deal': 'díl', 'wizard': 'uíizard', 'rank': 'rénk',
+    '3-bete': 'três béte', '6-max': 'seis méks', '8-max': 'oito méks', '9-max': 'nove méks',
+}
+SPEECH_TOKEN = re.compile(r"\d+(?:[.,]\d+)+|[^\W_]+(?:[-'’][^\W_]+)*", re.UNICODE)
+
+def pronunciation_plan(text):
+    """Return synthesis text and canonical words indexed in normalized speech."""
+    pieces, units, previous, cursor = [], [], 0, 0
+    for match in SPEECH_TOKEN.finditer(text):
+        pieces.append(text[previous:match.start()])
+        canonical = match.group()
+        spoken = PRONUNCIATIONS.get(canonical.casefold().replace('’', "'"), canonical)
+        pieces.append(spoken)
+        size = len(speech_text(spoken))
+        if size:
+            units.append({'text': canonical, 'start': cursor, 'end': cursor + size})
+            cursor += size
+        previous = match.end()
+    pieces.append(text[previous:])
+    return ''.join(pieces), units
+
+def canonical_boundaries(text, words):
+    """Project real TTS timing onto written words, including 1-to-many aliases."""
+    spoken, units = pronunciation_plan(text)
+    if not complete_speech(spoken, words):
+        raise ValueError('Word boundaries do not cover the complete synthesis text')
+    spans, cursor = [], 0
+    previous_end = 0
+    for word in words:
+        if word['offset'] < previous_end or word['duration'] <= 0:
+            raise ValueError('Invalid or overlapping TTS word timing')
+        previous_end = word['offset'] + word['duration']
+        size = len(speech_text(word['text']))
+        if size:
+            spans.append((cursor, cursor + size, word))
+            cursor += size
+    result = []
+    for unit in units:
+        covered = [(a, b, w) for a, b, w in spans if a < unit['end'] and b > unit['start']]
+        first_a, first_b, first = covered[0]
+        last_a, last_b, last = covered[-1]
+        start = first['offset'] + first['duration'] * max(0, unit['start'] - first_a) / (first_b - first_a)
+        end = last['offset'] + last['duration'] * min(last_b - last_a, unit['end'] - last_a) / (last_b - last_a)
+        result.append({'type': 'WordBoundary', 'text': unit['text'], 'offset': round(start), 'duration': round(end) - round(start)})
+    if not complete_speech(text, result):
+        raise ValueError('Canonical caption projection lost written words')
+    return result
+
+def narration_fingerprint(scenes):
+    payload = {'voice': VOICE, 'rate': VOICE_RATE, 'profile': PRONUNCIATION_VERSION,
+               'speech': [pronunciation_plan(s['voice'])[0] for s in scenes]}
+    return hashlib.sha256(json.dumps(payload, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+
 def font(size, bold=False, serif=False):
     name = 'georgia.ttf' if serif else ('segoeuib.ttf' if bold else 'segoeui.ttf')
     return ImageFont.truetype(str(FONTDIR / name), size)
@@ -75,12 +176,13 @@ def complete_speech(voice, words):
     return bool(actual) and actual == expected
 
 async def prepare_speech(key, i, scene, semaphore):
-    digest=hashlib.sha256(scene['voice'].encode()).hexdigest()[:10]
+    spoken, _ = pronunciation_plan(scene['voice'])
+    digest=hashlib.sha256(json.dumps([VOICE, VOICE_RATE, spoken],ensure_ascii=False).encode()).hexdigest()[:16]
     path=WORK / f'{key}-{i}-{digest}.mp3'
     bounds=path.with_suffix('.json')
     if path.exists() and bounds.exists():
         try:
-            if complete_speech(scene['voice'], json.loads(bounds.read_text(encoding='utf-8'))):
+            if complete_speech(spoken, json.loads(bounds.read_text(encoding='utf-8'))):
                 return path, bounds
         except (ValueError, KeyError):
             pass
@@ -88,13 +190,13 @@ async def prepare_speech(key, i, scene, semaphore):
         for attempt in range(4):
             try:
                 words=[]
-                tts=edge_tts.Communicate(scene['voice'], 'pt-BR-AntonioNeural', rate='-3%', boundary='WordBoundary')
+                tts=edge_tts.Communicate(spoken, VOICE, rate=VOICE_RATE, boundary='WordBoundary')
                 temporary=path.with_suffix('.partial')
                 with temporary.open('wb') as stream:
                     async for event in tts.stream():
                         if event['type']=='audio': stream.write(event['data'])
                         elif event['type']=='WordBoundary': words.append(event)
-                if not complete_speech(scene['voice'], words):
+                if not complete_speech(spoken, words):
                     raise RuntimeError(f'Incomplete narration: {key}/{i+1}')
                 temporary.replace(path)
                 bounds.write_text(json.dumps(words,ensure_ascii=False),encoding='utf-8')
@@ -111,7 +213,7 @@ async def narration(key, scenes):
     start=0.0
     for i, scene in enumerate(scenes):
         path,bounds=prepared[i]
-        words=json.loads(bounds.read_text(encoding='utf-8'))
+        words=canonical_boundaries(scene['voice'], json.loads(bounds.read_text(encoding='utf-8')))
         pcm=subprocess.check_output([FFMPEG,'-v','error','-i',str(path),'-f','s16le','-ac','1','-ar','48000','-'])
         samples=np.frombuffer(pcm,dtype='<i2').astype(np.float32)/32768
         lead=.25 if key=='pineapple' else .4
@@ -443,14 +545,28 @@ async def render_academy(lesson_id):
     course=json.loads(COURSE_FILE.read_text(encoding='utf-8'))
     training=json.loads(TRAINING_FILE.read_text(encoding='utf-8'))
     lesson=next(l for m in course['modules'] for l in m['lessons'] if l['id']==lesson_id)
-    fingerprint=lesson_fingerprint(lesson,training)
+    prior_rules=lesson.get('video',{}).get('publicationStatus')=='prior_rules'
     manifest_path=HERE/f'academy-{lesson_id}-manifest.json'
+    historical={}
+    if prior_rules:
+        old=json.loads(manifest_path.read_text(encoding='utf-8'))
+        snapshot=old['sourceSnapshot']
+        original_hash=hashlib.sha256(json.dumps(snapshot,ensure_ascii=False,separators=(',', ':')).encode()).hexdigest()
+        if original_hash!=old['contentHash'] or original_hash!=lesson['video']['contentHash']:
+            raise RuntimeError(f'Historical source mismatch: {lesson_id}')
+        historical={'sourceSnapshot':snapshot,'bettingRuleVersion':old['bettingRuleVersion'],
+                    'originalMediaSha256':old.get('originalMediaSha256',old['sha256'])}
+        # Correct the voice using the archived script, while retaining its rule label.
+        lesson={**lesson,**{k:v for k,v in snapshot.items() if k!='training'}}
+        training={'scenarios':snapshot['training']}
+    fingerprint=lesson_fingerprint(lesson,training)
+    scenes=academy_scenes(lesson,training)
+    narration_hash=narration_fingerprint(scenes)
     name=f'zt-academy-{lesson_id}-v3'
     if manifest_path.exists():
         old=json.loads(manifest_path.read_text(encoding='utf-8'))
-        if old.get('contentHash')==fingerprint and old.get('rendererVersion')==ACADEMY_RENDER_VERSION and all((OUT/f'{name}.{ext}').exists() for ext in ('mp4','vtt','webp')) and hashlib.sha256((OUT/f'{name}.mp4').read_bytes()).hexdigest()==old.get('sha256'):
+        if old.get('contentHash')==fingerprint and old.get('rendererVersion')==ACADEMY_RENDER_VERSION and old.get('narrationHash')==narration_hash and lesson.get('video',{}).get('narrationHash')==narration_hash and all((OUT/f'{name}.{ext}').exists() for ext in ('mp4','vtt','webp')) and hashlib.sha256((OUT/f'{name}.mp4').read_bytes()).hexdigest()==old.get('sha256'):
             print(f'Current: {lesson_id}',flush=True); return
-    scenes=academy_scenes(lesson,training)
     wav,captions,total=await narration(f'academy-{lesson_id}',scenes)
     frames=[]
     for i,scene in enumerate(scenes):
@@ -472,7 +588,8 @@ async def render_academy(lesson_id):
     current=json.loads(COURSE_FILE.read_text(encoding='utf-8'))
     current_lesson=next(l for m in current['modules'] for l in m['lessons'] if l['id']==lesson_id)
     current_training=json.loads(TRAINING_FILE.read_text(encoding='utf-8'))
-    if lesson_fingerprint(current_lesson,current_training)!=fingerprint:
+    expected_source=json.loads(manifest_path.read_text(encoding='utf-8')).get('sourceSnapshot') if prior_rules else None
+    if (prior_rules and (expected_source!=historical['sourceSnapshot'] or current_lesson['video'].get('publicationStatus')!='prior_rules')) or (not prior_rules and lesson_fingerprint(current_lesson,current_training)!=fingerprint):
         raise RuntimeError(f'Lesson {lesson_id} changed during rendering: publication cancelled')
     encoded.replace(target)
     (OUT/f'{name}.vtt').write_text('WEBVTT\n\n'+'\n\n'.join(f'{stamp(a)} --> {stamp(b)}\n{text}' for a,b,text in captions)+'\n',encoding='utf-8')
@@ -481,17 +598,20 @@ async def render_academy(lesson_id):
     (HERE/f'academy-{lesson_id}-transcript.txt').write_text(transcript+'\n',encoding='utf-8')
     manifest={'lessonId':lesson_id,'filename':name,'contentHash':fingerprint,'rendererVersion':ACADEMY_RENDER_VERSION,
         'durationSeconds':round(total,2),'width':W,'height':H,'fps':FPS,'bytes':target.stat().st_size,
-        'voice':'pt-BR-AntonioNeural (synthetic)','chapters':[{'start':round(s['start'],2),'title':s['title']} for s in scenes],
-        'sha256':hashlib.sha256(target.read_bytes()).hexdigest()}
+        'voice':f'{VOICE} (synthetic)','voiceRate':VOICE_RATE,'pronunciationVersion':PRONUNCIATION_VERSION,'narrationHash':narration_hash,
+        'chapters':[{'start':round(s['start'],2),'title':s['title']} for s in scenes],
+        'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),**historical}
     manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     # Read latest content so an interrupted batch cannot overwrite a later edit.
     current=json.loads(COURSE_FILE.read_text(encoding='utf-8'))
     current_lesson=next(l for m in current['modules'] for l in m['lessons'] if l['id']==lesson_id)
-    if lesson_fingerprint(current_lesson,training)!=fingerprint:
+    if (prior_rules and current_lesson['video'].get('contentHash')!=fingerprint) or (not prior_rules and lesson_fingerprint(current_lesson,training)!=fingerprint):
         raise RuntimeError(f'Lesson {lesson_id} changed during rendering: publication cancelled')
-    current_lesson['video']={'publicationStatus':'published','url':f'/videos/{name}.mp4','captionsUrl':f'/videos/{name}.vtt',
+    current_lesson['video']={'publicationStatus':'prior_rules' if prior_rules else 'published','url':f'/videos/{name}.mp4','captionsUrl':f'/videos/{name}.vtt',
         'posterUrl':f'/videos/{name}.webp','durationSeconds':manifest['durationSeconds'],'transcript':transcript,
-        'chapters':manifest['chapters'],'contentHash':fingerprint,'rendererVersion':ACADEMY_RENDER_VERSION}
+        'chapters':manifest['chapters'],'contentHash':fingerprint,'rendererVersion':ACADEMY_RENDER_VERSION,
+        'pronunciationVersion':PRONUNCIATION_VERSION,'narrationHash':narration_hash,
+        **({'bettingRuleVersion':historical['bettingRuleVersion']} if prior_rules else {})}
     COURSE_FILE.write_text(json.dumps(current,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(f'Published locally: {lesson_id} · {total:.2f}s · {target.stat().st_size} bytes',flush=True)
 
@@ -550,8 +670,9 @@ async def render(key):
     poster.save(OUT/f'{name}.webp',quality=88)
     transcript='\n\n'.join(s['voice'] for s in scenes)
     (HERE/f'{key}-transcript.txt').write_text(transcript+'\n',encoding='utf-8')
-    manifest={'filename':name,'durationSeconds':round(total,2),'width':W,'height':H,'fps':FPS,'bytes':target.stat().st_size,'voice':'pt-BR-AntonioNeural (synthetic)','chapters':[{'start':round(s['start'],2),'title':s['title'].replace('\n',' ')} for s in scenes],
-              'episodeHash':episode_hash,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'rendererVersion':3}
+    manifest={'filename':name,'durationSeconds':round(total,2),'width':W,'height':H,'fps':FPS,'bytes':target.stat().st_size,'voice':f'{VOICE} (synthetic)','chapters':[{'start':round(s['start'],2),'title':s['title'].replace('\n',' ')} for s in scenes],
+              'episodeHash':episode_hash,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'rendererVersion':3,
+              'voiceRate':VOICE_RATE,'pronunciationVersion':PRONUNCIATION_VERSION,'narrationHash':narration_fingerprint(scenes)}
     if lesson_id:
         manifest['contentHash']=content_hash
     (HERE/f'{key}-manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
@@ -562,7 +683,8 @@ async def render(key):
         lesson['video']={**lesson.get('video',{}),'publicationStatus':'published',
             'url':f'/videos/{name}.mp4','posterUrl':f'/videos/{name}.webp','captionsUrl':f'/videos/{name}.vtt',
             'durationSeconds':manifest['durationSeconds'],'chapters':manifest['chapters'],
-            'transcript':transcript,'contentHash':content_hash,'rendererVersion':manifest['rendererVersion']}
+            'transcript':transcript,'contentHash':content_hash,'rendererVersion':manifest['rendererVersion'],
+            'pronunciationVersion':PRONUNCIATION_VERSION,'narrationHash':manifest['narrationHash']}
         COURSE_FILE.write_text(json.dumps(course,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(manifest,ensure_ascii=False),flush=True)
 
@@ -607,6 +729,13 @@ async def render_pineapple(episode, episode_hash, wav, captions, total):
         '-map','0:v:0','-map','1:a:0','-map_metadata','2','-map_chapters','2','-c:v','copy',
         '-af','loudnorm=I=-16:TP=-1.5:LRA=9','-c:a','aac','-b:a','128k','-movflags','+faststart',
         '-t',str(total),str(encoded)],check=True)
+    publish_pineapple(episode, episode_hash, captions, total, chapter_list, encoded)
+
+
+def publish_pineapple(episode, episode_hash, captions, total, chapter_list, encoded):
+    """Publish a completed encode only after rechecking the canonical script."""
+    import pineapple
+    scenes=episode['scenes']; name=episode['filename']
     current=json.loads((HERE/'episodes.json').read_text(encoding='utf-8'))['pineapple']
     if episode_fingerprint(current)!=episode_hash: raise RuntimeError('Pineapple script changed during rendering')
     target=OUT/f'{name}.mp4'; encoded.replace(target)
@@ -616,7 +745,8 @@ async def render_pineapple(episode, episode_hash, wav, captions, total):
     transcript_path=HERE/'pineapple-transcript.txt'; transcript_path.write_text(transcript+'\n',encoding='utf-8',newline='\n')
     manifest={'filename':name,'title':episode['title'],'bettingRuleVersion':episode['bettingRuleVersion'],
         'durationSeconds':round(total,2),'width':1280,'height':720,'fps':30,'bytes':target.stat().st_size,
-        'voice':'pt-BR-AntonioNeural (synthetic)','voiceRate':'-3%','chapters':chapter_list,
+        'voice':f'{VOICE} (synthetic)','voiceRate':VOICE_RATE,'chapters':chapter_list,
+        'pronunciationVersion':PRONUNCIATION_VERSION,'narrationHash':narration_fingerprint(scenes),
         'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'episodeHash':episode_hash,'rendererVersion':1,
         'assetHashes':{ext:hashlib.sha256((OUT/f'{name}.{ext}').read_bytes()).hexdigest() for ext in ('mp4','vtt','webp')},
         'transcriptHash':hashlib.sha256(transcript_path.read_bytes()).hexdigest(),
@@ -648,8 +778,13 @@ def check_publications(decode=False, ready_only=False, only=None):
                     original=json.dumps(manifest['sourceSnapshot'], ensure_ascii=False, separators=(',', ':'))
                     assert video['contentHash']==hashlib.sha256(original.encode('utf-8')).hexdigest(), lesson['id']
                     assert video['contentHash']!=lesson_fingerprint(lesson,training), lesson['id']
+                    source_lesson={**lesson,**{k:v for k,v in manifest['sourceSnapshot'].items() if k!='training'}}
+                    expected_speech=narration_fingerprint(academy_scenes(source_lesson,{'scenarios':manifest['sourceSnapshot']['training']}))
                 else:
                     assert video['contentHash']==lesson_fingerprint(lesson,training), lesson['id']
+                    expected_speech=narration_fingerprint(academy_scenes(lesson,training))
+                assert manifest['pronunciationVersion']==video['pronunciationVersion']==PRONUNCIATION_VERSION, lesson['id']
+                assert manifest['narrationHash']==video['narrationHash']==expected_speech, lesson['id']
                 assert manifest['contentHash']==video['contentHash'], lesson['id']
                 assert manifest['rendererVersion']==video['rendererVersion']==ACADEMY_RENDER_VERSION, lesson['id']
             else:
@@ -659,13 +794,20 @@ def check_publications(decode=False, ready_only=False, only=None):
                     episode=json.loads((HERE/'episodes.json').read_text(encoding='utf-8'))[episode_key]
                     assert manifest['episodeHash']==episode_fingerprint(episode), lesson['id']
                     assert manifest['contentHash']==video['contentHash']==lesson_fingerprint(lesson,training), lesson['id']
+                    assert manifest['pronunciationVersion']==video['pronunciationVersion']==PRONUNCIATION_VERSION, lesson['id']
+                    assert manifest['narrationHash']==video['narrationHash']==narration_fingerprint(episode['scenes']), lesson['id']
             entries.append((lesson['id'],video,manifest))
     home=json.loads((ROOT/'Frontend-Web/src/data/homeFilm.json').read_text(encoding='utf-8'))
+    home_episode=json.loads((HERE/'episodes.json').read_text(encoding='utf-8'))['home']
+    assert home['pronunciationVersion']==PRONUNCIATION_VERSION
+    assert home['narrationHash']==narration_fingerprint(home_episode['scenes'])
     entries.append(('home',{'url':f"/videos/{home['filename']}.mp4",'captionsUrl':f"/videos/{home['filename']}.vtt",'posterUrl':f"/videos/{home['filename']}.webp",**home},home))
     pineapple=json.loads((ROOT/'Frontend-Web/src/data/pineappleFilm.json').read_text(encoding='utf-8'))
     manifest=json.loads((HERE/'pineapple-manifest.json').read_text(encoding='utf-8'))
     episode=json.loads((HERE/'episodes.json').read_text(encoding='utf-8'))['pineapple']
     assert manifest['episodeHash']==pineapple['episodeHash']==episode_fingerprint(episode)
+    assert manifest['pronunciationVersion']==pineapple['pronunciationVersion']==PRONUNCIATION_VERSION
+    assert manifest['narrationHash']==pineapple['narrationHash']==narration_fingerprint(episode['scenes'])
     assert manifest['bettingRuleVersion']==pineapple['bettingRuleVersion']==episode['bettingRuleVersion']=='brazilian_pineapple_hybrid_v1'
     assert 0<pineapple['durationSeconds']<=episode['maxDurationSeconds']==480
     assert manifest['transcriptHash']==hashlib.sha256((HERE/'pineapple-transcript.txt').read_bytes()).hexdigest()

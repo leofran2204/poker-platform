@@ -3,12 +3,15 @@
   "filename": "zt-academy-m0l4-v3",
   "contentHash": "c948aec0185d4e45307a9dd622159e762785e7484be729fc97822a3d922c0747",
   "rendererVersion": 3,
-  "durationSeconds": 410.47,
+  "durationSeconds": 409.77,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 10471445,
+  "bytes": 10425477,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "7501816c504a9bd1fbf6ddea22d4e39de08d3948213ff05d877d5f2d8622cf20",
   "chapters": [
     {
       "start": 0.0,
@@ -19,65 +22,65 @@
       "title": "O objetivo de uma mão"
     },
     {
-      "start": 44.2,
+      "start": 44.23,
       "title": "Ranking clássico, do maior para o menor"
     },
     {
-      "start": 75.73,
+      "start": 75.83,
       "title": "Quatro modalidades da ZT"
     },
     {
-      "start": 111.6,
+      "start": 111.43,
       "title": "Ações e ordem"
     },
     {
-      "start": 144.7,
+      "start": 144.2,
       "title": "Ações e ordem"
     },
     {
-      "start": 151.0,
+      "start": 150.53,
       "title": "Desempate sem uma sexta carta"
     },
     {
-      "start": 196.77,
+      "start": 196.27,
       "title": "Entenda os potes paralelos"
     },
     {
-      "start": 229.7,
+      "start": 229.2,
       "title": "Entenda os potes paralelos"
     },
     {
-      "start": 238.6,
+      "start": 238.1,
       "title": "Sua rotina de leitura"
     },
     {
-      "start": 265.17,
+      "start": 264.77,
       "title": "Laboratório: As cinco cartas que contam"
     },
     {
-      "start": 302.9,
+      "start": 302.5,
       "title": "Laboratório: As cinco cartas que contam"
     },
     {
-      "start": 311.97,
+      "start": 311.57,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 335.6,
+      "start": 335.0,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 349.5,
+      "start": 348.9,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 366.23,
+      "start": 365.43,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 376.6,
+      "start": 375.9,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "d13880e667d4636196d6e901133f8faaac544cd379e016083cfad8c5b4f8f6a1"
+  "sha256": "ed18292db3bca32330a77b71f169032a99f75e3c51fb59a288a24961360ae211"
 }

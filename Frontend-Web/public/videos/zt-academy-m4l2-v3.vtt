@@ -1,201 +1,201 @@
 WEBVTT
 
-00:00:00.501 --> 00:00:06.122
+00:00:00.501 --> 00:00:06.173
 Zero Tilt Academy Bluff-Catchers e a Força dos Blockers Nesta
 
-00:00:06.135 --> 00:00:10.026
+00:00:06.186 --> 00:00:10.078
 aula nosso objetivo é Calcular o preço e identificar o
 
-00:00:10.039 --> 00:00:14.653
+00:00:10.091 --> 00:00:14.704
 que par de ases bloqueia Vamos desenvolver a teoria resolver
 
-00:00:14.665 --> 00:00:17.475
+00:00:14.717 --> 00:00:17.526
 exemplos e aplicar a ideia na mesa deste módulo
 
-00:00:19.635 --> 00:00:23.902
+00:00:19.702 --> 00:00:23.969
 Bluff-catcher É uma mão que vence os blefes considerados e
 
-00:00:23.915 --> 00:00:28.348
+00:00:23.981 --> 00:00:28.402
 perde para as mãos de valor consideradas A categoria depende
 
-00:00:28.361 --> 00:00:32.111
+00:00:28.414 --> 00:00:32.164
 do range um overpair nem sempre é um bluff-catcher adequado
 
-00:00:34.302 --> 00:00:39.264
-Preço e frequência River heads-up pote 20 big blinds antes da
+00:00:34.335 --> 00:00:39.272
+Preço e frequência River heads-up pote 20 big blinds antes
 
-00:00:39.277 --> 00:00:43.504
-aposta rival aposta 20 pagar custa 20 para um pote final
+00:00:39.285 --> 00:00:42.958
+da aposta rival aposta 20 pagar custa 20 para um
 
-00:00:43.517 --> 00:00:49.239
-de 60 limiar de 33,33 por cento Se você vence todos
+00:00:42.970 --> 00:00:48.305
+pote final de 60 limiar de 33,33 por cento Se
 
-00:00:49.252 --> 00:00:52.563
-os blefes e perde para todo valor sem empates nem
+00:00:48.318 --> 00:00:51.450
+você vence todos os blefes e perde para todo valor
 
-00:00:52.576 --> 00:00:55.386
-rake precisa de mais de um terço de blefes no
+00:00:51.824 --> 00:00:54.852
+sem empates nem rake precisa de mais de um terço
 
-00:00:55.398 --> 00:00:58.014
-range de aposta para valor esperado positivo
+00:00:54.865 --> 00:00:58.177
+de blefes no range de aposta para valor esperado positivo
 
-00:01:00.202 --> 00:01:06.105
+00:01:00.335 --> 00:01:06.200
 Blockers Avalie quais combinações suas cartas removem Em valete
 
-00:01:06.350 --> 00:01:10.087
+00:01:06.445 --> 00:01:10.182
 dez cinco dois e nove par de ases não bloqueia
 
-00:01:10.100 --> 00:01:14.353
+00:01:10.195 --> 00:01:14.460
 rei e dama a sequência máxima Uma carta pode remover
 
-00:01:14.365 --> 00:01:17.432
+00:01:14.473 --> 00:01:17.682
 blefes e piorar um call ter blocker não é razão
 
-00:01:17.445 --> 00:01:18.206
+00:01:17.695 --> 00:01:18.468
 suficiente
 
-00:01:20.368 --> 00:01:24.635
-Derive o limite dos blefes Com pote de 20 big blinds
+00:01:20.635 --> 00:01:24.580
+Derive o limite dos blefes Com pote de 20 big
 
-00:01:24.648 --> 00:01:28.102
-e aposta rival de 20 você acrescenta 20 a um pote
+00:01:24.593 --> 00:01:27.956
+blinds e aposta rival de 20 você acrescenta 20 a
 
-00:01:28.115 --> 00:01:31.877
-que terminará em 60 Se sua mão perde para todo
+00:01:27.969 --> 00:01:31.732
+um pote que terminará em 60 Se sua mão perde
 
-00:01:31.890 --> 00:01:35.718
-valor e ganha de todo blefe sem empates precisa vencer
+00:01:31.745 --> 00:01:34.966
+para todo valor e ganha de todo blefe sem empates
 
-00:01:35.731 --> 00:01:37.857
-mais de um terço das vezes para o call ter
+00:01:35.224 --> 00:01:37.827
+precisa vencer mais de um terço das vezes para o
 
-00:01:37.870 --> 00:01:42.560
-expectativa positiva No limite de um terço a expectativa é
+00:01:37.840 --> 00:01:42.093
+call ter expectativa positiva No limite de um terço a
 
-00:01:42.573 --> 00:01:46.787
-zero A frequência relevante é a proporção de blefes dentro
+00:01:42.105 --> 00:01:46.242
+expectativa é zero A frequência relevante é a proporção de
 
-00:01:46.800 --> 00:01:49.816
-do range que apostou e não dentro de todas as
+00:01:46.255 --> 00:01:49.515
+blefes dentro do range que apostou e não dentro de
 
-00:01:49.828 --> 00:01:51.220
-mãos que o rival recebeu
+00:01:49.528 --> 00:01:51.474
+todas as mãos que o rival recebeu
 
-00:01:53.368 --> 00:01:57.674
+00:01:53.635 --> 00:01:57.941
 frequência mínima de defesa responde a outra pergunta Em um
 
-00:01:57.687 --> 00:02:01.553
+00:01:57.953 --> 00:02:01.819
 modelo simplificado de river a frequência mínima de defesa P
 
-00:02:01.566 --> 00:02:04.336
+00:02:01.832 --> 00:02:04.564
 dividido por P mais B torna um blefe sem equity
 
-00:02:04.349 --> 00:02:08.215
+00:02:04.577 --> 00:02:08.353
 indiferente considerando uma resposta adequada do range e as demais
 
-00:02:08.228 --> 00:02:12.816
-hipóteses Para uma aposta do pote o valor é 50 por
+00:02:08.366 --> 00:02:12.490
+hipóteses Para uma aposta do pote o valor é 50
 
-00:02:12.828 --> 00:02:16.849
-cento Isso não ordena pagar metade das suas mãos contra
+00:02:12.490 --> 00:02:16.652
+por cento Isso não ordena pagar metade das suas mãos
 
-00:02:16.862 --> 00:02:20.908
-qualquer pessoa um range sem blefes pode tornar muitos calls
+00:02:16.665 --> 00:02:20.582
+contra qualquer pessoa um range sem blefes pode tornar muitos
 
-00:02:20.921 --> 00:02:25.213
-ruins Pot odds avaliam o preço de uma mão frequência
+00:02:20.595 --> 00:02:24.191
+calls ruins Pot odds avaliam o preço de uma mão
 
-00:02:25.225 --> 00:02:28.151
-mínima de defesa é uma referência de defesa de range
+00:02:24.526 --> 00:02:27.605
+frequência mínima de defesa é uma referência de defesa de
 
-00:02:28.164 --> 00:02:28.808
-em um modelo
+00:02:27.618 --> 00:02:28.585
+range em um modelo
 
-00:02:30.968 --> 00:02:35.854
+00:02:30.768 --> 00:02:35.654
 Conte o que foi removido Em valete dez cinco dois
 
-00:02:35.867 --> 00:02:39.746
+00:02:35.667 --> 00:02:39.546
 e nove rei e dama forma sequência até rei par
 
-00:02:39.758 --> 00:02:44.114
+00:02:39.558 --> 00:02:43.914
 de ases não remove reis nem damas dessa combinação Se
 
-00:02:44.127 --> 00:02:47.709
+00:02:43.927 --> 00:02:47.509
 você tivesse uma dama removeria algumas combinações de rei e
 
-00:02:47.722 --> 00:02:52.658
+00:02:47.522 --> 00:02:52.458
 dama mas também poderia retirar blefes com dama Liste valor
 
-00:02:52.671 --> 00:02:55.867
+00:02:52.471 --> 00:02:55.718
 e blefes antes de atribuir um efeito favorável ao blocker
 
-00:02:56.756 --> 00:02:59.604
+00:02:56.607 --> 00:02:59.455
 No desafio faça a conta do preço sem ver a
 
-00:02:59.617 --> 00:03:02.271
+00:02:59.468 --> 00:03:02.123
 dica e explique a hipótese necessária para pagar
 
-00:03:04.435 --> 00:03:10.248
+00:03:04.302 --> 00:03:10.115
 Laboratório Pagar pelo motivo certo Objetivo Calcular o preço
 
-00:03:10.261 --> 00:03:13.728
+00:03:10.128 --> 00:03:13.594
 e identificar o que par de ases bloqueia Abra a
 
-00:03:13.741 --> 00:03:17.710
+00:03:13.607 --> 00:03:17.576
 mesa deste módulo e comece pelo treino guiado par de
 
-00:03:17.722 --> 00:03:21.447
+00:03:17.589 --> 00:03:21.301
 ases não bloqueia rei e dama Não use a força
 
-00:03:21.460 --> 00:03:26.189
+00:03:21.313 --> 00:03:26.056
 absoluta do overpair para inventar a frequência de blefes Depois
 
-00:03:26.202 --> 00:03:30.274
+00:03:26.069 --> 00:03:30.141
 repita no modo desafio respondendo à pergunta objetiva antes de
 
-00:03:30.287 --> 00:03:34.256
+00:03:30.154 --> 00:03:34.123
 cada ação Use o replay para comparar uma alternativa na
 
-00:03:34.269 --> 00:03:38.960
+00:03:34.136 --> 00:03:38.826
 mesma distribuição Uma nova distribuição preserva as cartas que
 
-00:03:38.972 --> 00:03:41.021
+00:03:38.839 --> 00:03:40.888
 definem o cenário e varia as demais
 
-00:03:43.202 --> 00:03:47.596
+00:03:43.068 --> 00:03:47.463
 Registre sua justificativa no caderno acertar a leitura e respeitar
 
-00:03:47.609 --> 00:03:50.096
+00:03:47.475 --> 00:03:49.963
 as hipóteses importam mais que ganhar esta mão
 
-00:03:52.268 --> 00:03:57.141
-O que é um Bluff-Catcher no poker A. Um jogador
+00:03:52.135 --> 00:03:57.059
+O que é um Bluff-Catcher no poker A Um jogador
 
-00:03:57.154 --> 00:04:00.659
-que só aposta quando blefa B. Uma mão que não
+00:03:57.072 --> 00:04:00.577
+que só aposta quando blefa B Uma mão que não
 
-00:04:00.672 --> 00:04:03.971
+00:04:00.590 --> 00:04:03.889
 bate nenhuma mão de valor do rival mas vence todos
 
-00:04:03.984 --> 00:04:08.546
-os blefes dele C. Um software para detectar trapaças Pause
+00:04:03.902 --> 00:04:08.464
+os blefes dele C Um software para detectar trapaças Pause
 
-00:04:08.558 --> 00:04:11.999
+00:04:08.477 --> 00:04:11.917
 o vídeo faça sua leitura e registre uma resposta antes
 
-00:04:12.012 --> 00:04:12.669
+00:04:11.930 --> 00:04:12.587
 de continuar
 
-00:04:14.835 --> 00:04:18.288
+00:04:14.768 --> 00:04:18.222
 Resposta do exercício Uma mão que não bate nenhuma mão
 
-00:04:18.301 --> 00:04:21.613
+00:04:18.235 --> 00:04:21.547
 de valor do rival mas vence todos os blefes dele
 
-00:04:22.504 --> 00:04:25.751
+00:04:22.437 --> 00:04:25.749
 Bluff-catcher é a mão que ganha exclusivamente das apostas de
 
-00:04:25.764 --> 00:04:26.911
+00:04:25.762 --> 00:04:26.896
 blefe do oponente
 
 00:04:29.068 --> 00:04:34.134
@@ -214,10 +214,10 @@ dez de espadas cinco de paus dois de ouros nove
 de copas Você tem ás de ouros ás de paus
 
 00:04:50.668 --> 00:04:55.848
-Seus ases bloqueiam combinações de rei e dama A. Sim
+Seus ases bloqueiam combinações de rei e dama A Sim
 
 00:04:55.861 --> 00:05:00.010
-B. Não Pause o vídeo faça sua leitura e registre
+B Não Pause o vídeo faça sua leitura e registre
 
 00:05:00.023 --> 00:05:01.724
 uma resposta antes de continuar
@@ -225,32 +225,32 @@ uma resposta antes de continuar
 00:05:03.902 --> 00:05:08.723
 Resposta do exercício Não par de ases não remove reis
 
-00:05:08.736 --> 00:05:12.872
+00:05:08.736 --> 00:05:12.949
 nem damas Precisamos analisar o range e o preço antes
 
-00:05:12.885 --> 00:05:13.929
+00:05:12.962 --> 00:05:14.006
 de recomendar call
 
-00:05:16.102 --> 00:05:18.808
+00:05:16.168 --> 00:05:18.874
 Abra o simulador da aula e escolha o cenário Pagar
 
-00:05:18.821 --> 00:05:23.680
+00:05:18.887 --> 00:05:23.747
 pelo motivo certo Jogue uma mão completa responda às perguntas
 
-00:05:23.693 --> 00:05:27.778
+00:05:23.760 --> 00:05:27.845
 e registre seu plano Depois use o replay para comparar
 
-00:05:27.791 --> 00:05:31.992
+00:05:27.858 --> 00:05:32.059
 outra ação na mesma distribuição Volte em outra sessão no
 
-00:05:32.005 --> 00:05:36.838
+00:05:32.072 --> 00:05:36.904
 modo desafio Avalie o raciocínio com as informações disponíveis
 
-00:05:37.108 --> 00:05:41.232
+00:05:37.175 --> 00:05:41.299
 sem confundir uma vitória isolada com uma boa estratégia As
 
-00:05:41.245 --> 00:05:45.523
+00:05:41.311 --> 00:05:45.590
 fontes estão no material de apoio Este curso não promete
 
-00:05:45.536 --> 00:05:47.740
+00:05:45.603 --> 00:05:47.806
 lucro e o treino usa fichas sem valor

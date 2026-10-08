@@ -3,12 +3,15 @@
   "filename": "zt-academy-m6l2-v3",
   "contentHash": "ff6e867684dba928b3bb94582e0b2624fd5b0b8a741980e1b29f36ac8acac10b",
   "rendererVersion": 3,
-  "durationSeconds": 347.47,
+  "durationSeconds": 347.3,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8594654,
+  "bytes": 8575419,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "03272389e96ea566499a2db85b7d80df0592d66aa3e9923a744c415bd9519437",
   "chapters": [
     {
       "start": 0.0,
@@ -23,53 +26,53 @@
       "title": "Limites pessoais"
     },
     {
-      "start": 72.93,
+      "start": 72.8,
       "title": "Decisão após perdas"
     },
     {
-      "start": 91.2,
+      "start": 91.07,
       "title": "Pesquisa sobre tilt"
     },
     {
-      "start": 113.87,
+      "start": 113.73,
       "title": "Defina o que pode ser perdido"
     },
     {
-      "start": 145.87,
+      "start": 145.73,
       "title": "Uma sessão de treino com começo e fim"
     },
     {
-      "start": 174.67,
+      "start": 174.53,
       "title": "Não converta exemplos em garantias"
     },
     {
-      "start": 206.8,
+      "start": 206.7,
       "title": "Laboratório: Uma sessão com limite"
     },
     {
-      "start": 245.27,
+      "start": 245.1,
       "title": "Laboratório: Uma sessão com limite"
     },
     {
-      "start": 254.33,
+      "start": 254.17,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 267.9,
+      "start": 267.73,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 281.37,
+      "start": 281.2,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 299.8,
+      "start": 299.63,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 313.93,
+      "start": 313.77,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "ba07b7f02873932eabf609e4b37cdabc371fe63784932ef9f3ecd13ee9ab6f35"
+  "sha256": "48e5662fc97928f55924d99692957f5faea18d5389bbf64c8fa7b42c47f673ab"
 }

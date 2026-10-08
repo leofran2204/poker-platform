@@ -1,361 +1,379 @@
 WEBVTT
 
-00:00:00.501 --> 00:00:06.006
+00:00:00.501 --> 00:00:06.122
 Zero Tilt Academy Pineapple combinações e probabilidades condicionais
 
-00:00:06.895 --> 00:00:11.405
+00:00:07.011 --> 00:00:11.521
 Nesta aula nosso objetivo é Contar candidatas legais e refazer
 
-00:00:11.418 --> 00:00:15.993
+00:00:11.534 --> 00:00:16.109
 a leitura depois da extra Vamos desenvolver a teoria resolver
 
-00:00:16.006 --> 00:00:18.815
+00:00:16.122 --> 00:00:18.931
 exemplos e aplicar a ideia na mesa deste módulo
 
-00:00:21.002 --> 00:00:26.003
+00:00:21.102 --> 00:00:26.103
 Conte sem duplicar A combinação combinação de n elementos tomados
 
-00:00:26.016 --> 00:00:29.147
+00:00:26.116 --> 00:00:29.247
 k a k igual a n k n menos k
 
-00:00:29.418 --> 00:00:33.967
+00:00:29.518 --> 00:00:34.067
 conta seleções sem considerar ordem Para h cartas privadas e
 
-00:00:33.980 --> 00:00:37.730
+00:00:34.080 --> 00:00:37.830
 b comunitárias o número de candidatas legais de cinco cartas
 
-00:00:37.743 --> 00:00:41.763
-é combinação de h elementos tomados 2 a 2 vezes combinação de
+00:00:37.843 --> 00:00:41.116
+é combinação de h elementos tomados 2 a 2 vezes
 
-00:00:41.776 --> 00:00:43.928
-b elementos tomados 3 a 3
+00:00:41.129 --> 00:00:44.028
+combinação de b elementos tomados 3 a 3
 
-00:00:46.102 --> 00:00:51.271
+00:00:46.202 --> 00:00:51.255
 Flop turn e river Depois da carta extra flop combinação
 
-00:00:51.284 --> 00:00:56.103
-de 3 elementos tomados 2 a 2 vezes combinação de 3 elementos tomados
+00:00:51.268 --> 00:00:54.682
+de 3 elementos tomados 2 a 2 vezes combinação de
 
-00:00:56.116 --> 00:01:00.858
-3 a 3 igual a 3 turn combinação de 4 elementos tomados 2 a
+00:00:54.695 --> 00:00:58.188
+3 elementos tomados 3 a 3 igual a 3 turn
 
-00:01:00.871 --> 00:01:06.232
-2 vezes combinação de 4 elementos tomados 3 a 3 igual a 24 river
+00:00:58.201 --> 00:01:02.118
+combinação de 4 elementos tomados 2 a 2 vezes combinação
 
-00:01:06.245 --> 00:01:11.296
-combinação de 5 elementos tomados 2 a 2 vezes combinação de 5 elementos
+00:01:02.131 --> 00:01:05.533
+de 4 elementos tomados 3 a 3 igual a 24
 
-00:01:11.309 --> 00:01:16.361
-tomados 3 a 3 igual a 100 A regra sempre continua 2 mais
+00:01:05.829 --> 00:01:09.489
+river combinação de 5 elementos tomados 2 a 2 vezes
 
-00:01:16.374 --> 00:01:21.850
-3 Essas candidatas compartilham cartas são correlacionadas não
+00:01:09.502 --> 00:01:12.904
+combinação de 5 elementos tomados 3 a 3 igual a
 
-00:01:21.863 --> 00:01:26.928
-cem apostas independentes nem cem vezes mais equity No pré-flop
+00:01:12.917 --> 00:01:18.574
+100 A regra sempre continua 2 mais 3 Essas candidatas
 
-00:01:26.941 --> 00:01:29.698
-ainda não há três comunitárias para uma mão completa
+00:01:18.587 --> 00:01:23.329
+compartilham cartas são correlacionadas não cem apostas independentes
 
-00:01:31.868 --> 00:01:36.792
+00:01:23.342 --> 00:01:27.221
+nem cem vezes mais equity No pré-flop ainda não há
+
+00:01:27.234 --> 00:01:29.476
+três comunitárias para uma mão completa
+
+00:01:31.635 --> 00:01:36.546
 Uma probabilidade exata com hipóteses Antes de receber a extra
 
-00:01:36.805 --> 00:01:39.563
+00:01:36.559 --> 00:01:39.304
 do flop você conhece ás de ouros rei de ouros
 
-00:01:39.576 --> 00:01:41.792
+00:01:39.317 --> 00:01:41.456
 e o board ás de copas dama de paus dois
 
-00:01:41.805 --> 00:01:47.089
+00:01:41.469 --> 00:01:46.791
 de espadas Sob embaralhamento uniforme sem outras cartas reveladas
 
-00:01:47.102 --> 00:01:52.205
+00:01:46.804 --> 00:01:51.984
 nem condicionamento por ranges adversários existem 47 cartas desconhecidas
 
-00:01:52.218 --> 00:01:56.032
+00:01:51.997 --> 00:01:55.825
 e dois ases restantes A chance de a carta extra
 
-00:01:56.045 --> 00:02:00.194
-designada a você ser um ás é 2 dividido por 47 aproximadamente
+00:01:55.837 --> 00:01:58.325
+designada a você ser um ás é 2 dividido por
 
-00:02:00.207 --> 00:02:06.496
-4,2553 por cento Cartas queimadas e mãos escondidas continuam
+00:01:58.337 --> 00:02:05.734
+47 aproximadamente 4,2553 por cento Cartas queimadas e mãos escondidas
 
-00:02:06.509 --> 00:02:10.530
-desconhecidas não invente seus valores nem as retire como cartas
+00:02:05.747 --> 00:02:09.665
+continuam desconhecidas não invente seus valores nem as retire
 
-00:02:10.542 --> 00:02:11.354
-conhecidas
+00:02:09.678 --> 00:02:11.147
+como cartas conhecidas
 
-00:02:13.535 --> 00:02:17.555
+00:02:13.302 --> 00:02:17.361
 Se outras cartas forem reveladas ou você modelar ranges condicionados
 
-00:02:17.568 --> 00:02:19.347
+00:02:17.374 --> 00:02:19.139
 à ação refaça a conta
 
-00:02:21.502 --> 00:02:27.122
+00:02:21.302 --> 00:02:26.922
 Amostragem sem reposição Se N cartas são desconhecidas K pertencem
 
-00:02:27.135 --> 00:02:31.336
+00:02:26.935 --> 00:02:31.136
 à classe desejada e observamos n posições aleatórias a chance
 
-00:02:31.348 --> 00:02:34.866
+00:02:31.148 --> 00:02:34.666
 de exatamente k sucessos é combinação de K elementos tomados
 
-00:02:34.879 --> 00:02:37.702
+00:02:34.679 --> 00:02:37.502
 k a k vezes combinação de N menos K elementos
 
-00:02:37.714 --> 00:02:40.988
+00:02:37.514 --> 00:02:40.788
 tomados n menos k a n menos k combinação de
 
-00:02:41.001 --> 00:02:44.222
-N elementos tomados n a n. O modelo exige posições
+00:02:40.800 --> 00:02:44.022
+N elementos tomados n a n O modelo exige posições
 
-00:02:44.235 --> 00:02:48.887
+00:02:44.035 --> 00:02:48.687
 uniformes e hipóteses explícitas Não multiplique chances como
 
-00:02:48.900 --> 00:02:51.052
+00:02:48.700 --> 00:02:50.852
 se as retiradas fossem independentes
 
-00:02:53.235 --> 00:02:58.262
+00:02:53.035 --> 00:02:58.024
 Aplicação Receber outro ás não garante vencer os rivais também
 
-00:02:58.275 --> 00:03:01.883
-recebem extras o board muda e o showdown exige 2 mais
+00:02:58.036 --> 00:03:01.235
+recebem extras o board muda e o showdown exige 2
 
-00:03:01.896 --> 00:03:06.458
-3 As regras aproximadas de outs do Texas não capturam
+00:03:01.235 --> 00:03:05.691
+mais 3 As regras aproximadas de outs do Texas não
 
-00:03:06.471 --> 00:03:11.780
-automaticamente esses eventos Registre sempre cartas conhecidas
+00:03:05.704 --> 00:03:10.781
+capturam automaticamente esses eventos Registre sempre cartas
 
-00:03:11.999 --> 00:03:14.925
-fase modalidade e evento que está calculando
+00:03:10.794 --> 00:03:14.699
+conhecidas fase modalidade e evento que está calculando
 
-00:03:17.068 --> 00:03:21.335
+00:03:16.868 --> 00:03:21.135
 Derive o número de pares Com três privadas escolha a
 
-00:03:21.348 --> 00:03:24.222
+00:03:21.148 --> 00:03:24.022
 primeira de três formas e a segunda de duas seis
 
-00:03:24.235 --> 00:03:29.596
+00:03:24.035 --> 00:03:29.396
 escolhas ordenadas Cada par foi contado duas vezes então existem
 
-00:03:29.608 --> 00:03:34.827
+00:03:29.408 --> 00:03:34.627
 três pares distintos Com cinco privadas são cinco vezes quatro
 
-00:03:34.840 --> 00:03:39.763
+00:03:34.640 --> 00:03:39.563
 dividido por dois isto é dez pares No river também
 
-00:03:39.776 --> 00:03:43.758
+00:03:39.576 --> 00:03:43.558
 há dez trios comunitários o produto é cem candidatas legais
 
-00:03:44.647 --> 00:03:47.817
+00:03:44.447 --> 00:03:47.617
 Escolher a melhor dessas candidatas é uma operação de ranking
 
-00:03:48.114 --> 00:03:49.969
+00:03:47.914 --> 00:03:49.769
 não uma soma de probabilidades
 
-00:03:52.135 --> 00:03:57.974
+00:03:51.935 --> 00:03:57.774
 Dois eventos sem reposição Suponha 47 cartas desconhecidas das
 
-00:03:57.987 --> 00:04:02.291
+00:03:57.787 --> 00:04:02.091
 quais duas são ases e observe duas posições futuras específicas
 
-00:04:02.575 --> 00:04:07.020
+00:04:02.375 --> 00:04:06.820
 uniformes sem outra informação A chance de nenhum ás é
 
-00:04:07.033 --> 00:04:14.082
-45 sobre 47 vezes 44 sobre 46 Portanto a chance de pelo menos
+00:04:06.833 --> 00:04:13.238
+45 sobre 47 vezes 44 sobre 46 Portanto a chance
 
-00:04:14.095 --> 00:04:18.837
-um ás é um menos esse produto aproximadamente 8,42 por cento
+00:04:13.251 --> 00:04:15.558
+de pelo menos um ás é um menos esse produto
 
-00:04:19.727 --> 00:04:24.752
-Não use duas vezes 2 sobre 47 como igualdade as retiradas dependem
+00:04:15.841 --> 00:04:21.498
+aproximadamente 8,42 por cento Não use duas vezes 2 sobre
 
-00:04:24.765 --> 00:04:28.270
-umas das outras A conta não informa se esse ás
+00:04:21.511 --> 00:04:26.524
+47 como igualdade as retiradas dependem umas das outras A
 
-00:04:28.283 --> 00:04:30.075
-produzirá a melhor mão no showdown
+00:04:26.537 --> 00:04:29.282
+conta não informa se esse ás produzirá a melhor mão
 
-00:04:32.268 --> 00:04:36.857
+00:04:29.295 --> 00:04:29.913
+no showdown
+
+00:04:32.068 --> 00:04:36.554
 O que uma simulação precisa preservar Para estimar equity um
 
-00:04:36.870 --> 00:04:41.071
+00:04:36.567 --> 00:04:40.691
 programa deve remover cartas conhecidas uma única vez amostrar
 
-00:04:41.084 --> 00:04:45.208
+00:04:40.704 --> 00:04:44.866
 mãos rivais compatíveis distribuir board e extras na ordem correta
 
-00:04:45.221 --> 00:04:49.409
+00:04:44.879 --> 00:04:49.067
 e dividir empates Se um jogador desistir ele para de
 
-00:04:49.422 --> 00:04:54.383
+00:04:49.080 --> 00:04:54.041
 receber isso muda quais posições do baralho são consumidas Este
 
-00:04:54.396 --> 00:04:57.450
+00:04:54.054 --> 00:04:57.096
 simulador ensina a distribuição e a decisão com o motor
 
-00:04:57.463 --> 00:05:00.788
+00:04:57.108 --> 00:05:00.407
 real mas não publica uma estimativa de equity baseada em
 
-00:05:00.801 --> 00:05:02.334
+00:05:00.420 --> 00:05:01.928
 um modelo adversário oculto
 
-00:05:04.502 --> 00:05:10.431
+00:05:04.102 --> 00:05:10.031
 Laboratório Da contagem à decisão Objetivo Contar candidatas legais
 
-00:05:10.444 --> 00:05:14.052
+00:05:10.044 --> 00:05:13.652
 e refazer a leitura depois da extra Abra a mesa
 
-00:05:14.065 --> 00:05:18.459
+00:05:13.665 --> 00:05:17.930
 deste módulo e comece pelo treino guiado No turn seis
 
-00:05:18.472 --> 00:05:24.078
+00:05:17.943 --> 00:05:23.588
 pares privados vezes quatro trios comunitários total 24 Não são
 
-00:05:24.091 --> 00:05:29.864
+00:05:23.600 --> 00:05:29.374
 24 eventos independentes Depois repita no modo desafio respondendo
 
-00:05:29.877 --> 00:05:33.936
+00:05:29.387 --> 00:05:33.446
 à pergunta objetiva antes de cada ação Use o replay
 
-00:05:33.949 --> 00:05:39.039
+00:05:33.459 --> 00:05:38.549
 para comparar uma alternativa na mesma distribuição Uma nova distribuição
 
-00:05:39.052 --> 00:05:41.745
+00:05:38.562 --> 00:05:41.255
 preserva as cartas que definem o cenário e varia as
 
-00:05:41.758 --> 00:05:42.312
+00:05:41.268 --> 00:05:41.822
 demais
 
-00:05:44.468 --> 00:05:48.863
+00:05:44.002 --> 00:05:48.396
 Registre sua justificativa no caderno acertar a leitura e respeitar
 
-00:05:48.875 --> 00:05:51.363
+00:05:48.409 --> 00:05:50.896
 as hipóteses importam mais que ganhar esta mão
 
-00:05:53.535 --> 00:05:57.336
+00:05:53.068 --> 00:05:56.870
 Quantas candidatas legais existem no river com cinco privadas
 
-00:05:57.349 --> 00:06:04.052
-e cinco comunitárias A. 25 B 100 C 252 Pause o vídeo faça
+00:05:56.883 --> 00:06:02.490
+e cinco comunitárias A 25 B 100 C 252 Pause
 
-00:06:04.065 --> 00:06:07.145
-sua leitura e registre uma resposta antes de continuar
+00:06:02.503 --> 00:06:05.969
+o vídeo faça sua leitura e registre uma resposta antes
 
-00:06:09.302 --> 00:06:15.076
-Resposta do exercício 100 combinação de 5 elementos tomados 2 a
+00:06:05.982 --> 00:06:06.678
+de continuar
 
-00:06:15.089 --> 00:06:19.986
-2 vezes combinação de 5 elementos tomados 3 a 3 igual a 10 vezes
+00:06:08.835 --> 00:06:14.442
+Resposta do exercício 100 combinação de 5 elementos tomados 2
 
-00:06:19.999 --> 00:06:24.819
-10 igual a 100 Cada candidata usa exatamente 2 mais 3
+00:06:14.442 --> 00:06:18.037
+a 2 vezes combinação de 5 elementos tomados 3 a
 
-00:06:26.968 --> 00:06:30.357
+00:06:18.050 --> 00:06:21.775
+3 igual a 10 vezes 10 igual a 100 Cada
+
+00:06:21.787 --> 00:06:24.352
+candidata usa exatamente 2 mais 3
+
+00:06:26.502 --> 00:06:29.762
 E no turn depois de receber a quarta carta privada
 
-00:06:31.248 --> 00:06:35.952
-A. 16 B 24 C 60 Pause o vídeo faça sua leitura e
+00:06:30.653 --> 00:06:34.622
+A 16 B 24 C 60 Pause o vídeo faça
 
-00:06:35.965 --> 00:06:38.284
-registre uma resposta antes de continuar
+00:06:34.635 --> 00:06:37.689
+sua leitura e registre uma resposta antes de continuar
 
-00:06:40.435 --> 00:06:46.519
-Resposta do exercício 24 combinação de 4 elementos tomados 2 a
+00:06:39.868 --> 00:06:45.791
+Resposta do exercício 24 combinação de 4 elementos tomados 2
 
-00:06:46.532 --> 00:06:51.506
-2 vezes combinação de 4 elementos tomados 3 a 3 igual a 6 vezes
+00:06:45.791 --> 00:06:49.432
+a 2 vezes combinação de 4 elementos tomados 3 a
 
-00:06:51.519 --> 00:06:53.065
-4 igual a 24
+00:06:49.444 --> 00:06:52.499
+3 igual a 6 vezes 4 igual a 24
 
-00:06:55.235 --> 00:06:57.889
+00:06:54.668 --> 00:06:57.323
 Antes da extra do flop ás de ouros rei de
 
-00:06:57.902 --> 00:07:00.042
+00:06:57.336 --> 00:06:59.475
 ouros e ás de copas dama de paus dois de
 
-00:07:00.054 --> 00:07:05.095
+00:06:59.488 --> 00:07:04.605
 espadas são as únicas cartas conhecidas Sem inferências de ranges
 
-00:07:05.327 --> 00:07:09.541
-qual chance de receber um ás nessa extra A. 2 dividido
+00:07:04.837 --> 00:07:08.234
+qual chance de receber um ás nessa extra A 2
 
-00:07:09.553 --> 00:07:15.095
-por 47 B 2 dividido por 52 C 3 dividido por 47 Pause o vídeo
+00:07:08.234 --> 00:07:12.243
+dividido por 47 B 2 dividido por 52 C 3
 
-00:07:15.417 --> 00:07:18.832
-faça sua leitura e registre uma resposta antes de continuar
+00:07:12.243 --> 00:07:15.920
+dividido por 47 Pause o vídeo faça sua leitura e
 
-00:07:21.002 --> 00:07:27.292
+00:07:15.933 --> 00:07:18.304
+registre uma resposta antes de continuar
+
+00:07:20.468 --> 00:07:26.758
 Resposta do exercício 2 dividido por 47 Conhecemos cinco cartas
 
-00:07:27.537 --> 00:07:31.635
+00:07:27.003 --> 00:07:31.101
 duas são ases restam 47 desconhecidas e dois ases
 
-00:07:33.802 --> 00:07:37.552
+00:07:33.268 --> 00:07:37.018
 Cem candidatas no river significam cem chances independentes de
 
-00:07:37.564 --> 00:07:43.610
-vitória A. Sim B. Não Pause o vídeo faça sua
+00:07:37.031 --> 00:07:43.076
+vitória A Sim B Não Pause o vídeo faça sua
 
-00:07:43.623 --> 00:07:46.380
+00:07:43.089 --> 00:07:45.847
 leitura e registre uma resposta antes de continuar
 
-00:07:48.568 --> 00:07:53.712
+00:07:48.035 --> 00:07:53.165
 Resposta do exercício Não Elas compartilham cartas e enfrentam
 
-00:07:53.724 --> 00:07:56.186
+00:07:53.178 --> 00:07:55.562
 o mesmo board e os mesmos adversários
 
-00:07:58.335 --> 00:08:01.776
+00:07:57.735 --> 00:08:01.176
 Como tratar uma carta queimada cujo valor não foi revelado
 
-00:08:02.033 --> 00:08:06.120
-neste modelo de informação A. Retirar um ás por precaução
+00:08:01.433 --> 00:08:05.520
+neste modelo de informação A Retirar um ás por precaução
 
-00:08:06.133 --> 00:08:10.617
-B. Continuar tratando seu valor como desconhecido C. Presumir
+00:08:05.533 --> 00:08:10.159
+B Continuar tratando seu valor como desconhecido C Presumir que
 
-00:08:10.630 --> 00:08:13.233
-que não é ás Pause o vídeo faça sua leitura
+00:08:10.172 --> 00:08:12.672
+não é ás Pause o vídeo faça sua leitura e
 
-00:08:13.246 --> 00:08:15.566
-e registre uma resposta antes de continuar
+00:08:12.685 --> 00:08:14.966
+registre uma resposta antes de continuar
 
-00:08:17.735 --> 00:08:22.271
+00:08:17.135 --> 00:08:21.671
 Resposta do exercício Continuar tratando seu valor como desconhecido
 
-00:08:23.162 --> 00:08:27.530
+00:08:22.562 --> 00:08:26.930
 O valor não observado não pode ser inventado O cálculo
 
-00:08:27.543 --> 00:08:31.474
+00:08:26.943 --> 00:08:30.874
 marginal continua condicionado apenas às informações declaradas
 
-00:08:33.635 --> 00:08:36.045
+00:08:33.035 --> 00:08:35.445
 Abra o simulador da aula e escolha o cenário Da
 
-00:08:36.058 --> 00:08:40.982
+00:08:35.458 --> 00:08:40.382
 contagem à decisão Jogue uma mão completa responda às perguntas
 
-00:08:40.995 --> 00:08:45.080
+00:08:40.395 --> 00:08:44.480
 e registre seu plano Depois use o replay para comparar
 
-00:08:45.093 --> 00:08:49.294
+00:08:44.493 --> 00:08:48.694
 outra ação na mesma distribuição Volte em outra sessão no
 
-00:08:49.307 --> 00:08:54.139
+00:08:48.707 --> 00:08:53.539
 modo desafio Avalie o raciocínio com as informações disponíveis
 
-00:08:54.410 --> 00:08:58.533
+00:08:53.810 --> 00:08:57.933
 sem confundir uma vitória isolada com uma boa estratégia As
 
-00:08:58.546 --> 00:09:02.825
+00:08:57.946 --> 00:09:02.225
 fontes estão no material de apoio Este curso não promete
 
-00:09:02.837 --> 00:09:05.041
+00:09:02.237 --> 00:09:04.441
 lucro e o treino usa fichas sem valor

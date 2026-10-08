@@ -2,11 +2,11 @@
   "filename": "zt-brazilian-pineapple-hybrid-v1",
   "title": "Aprenda Brazilian Pineapple",
   "bettingRuleVersion": "brazilian_pineapple_hybrid_v1",
-  "durationSeconds": 477.67,
+  "durationSeconds": 475.37,
   "width": 1280,
   "height": 720,
   "fps": 30,
-  "bytes": 10394203,
+  "bytes": 10366461,
   "voice": "pt-BR-AntonioNeural (synthetic)",
   "voiceRate": "-3%",
   "chapters": [
@@ -15,54 +15,56 @@
       "title": "O jogo e o objetivo"
     },
     {
-      "start": 26.3,
+      "start": 26.23,
       "title": "As cartas: 2 → 5"
     },
     {
-      "start": 72.07,
+      "start": 71.83,
       "title": "Exatamente 2 + 3"
     },
     {
-      "start": 133.9,
+      "start": 133.4,
       "title": "Blinds e pré-flop"
     },
     {
-      "start": 192.77,
+      "start": 191.17,
       "title": "Pós-flop: o limite do pote"
     },
     {
-      "start": 267.3,
+      "start": 265.83,
       "title": "Mínimos, all-in e reabertura"
     },
     {
-      "start": 362.7,
+      "start": 360.97,
       "title": "Antes, potes e formatos"
     },
     {
-      "start": 441.33,
+      "start": 439.0,
       "title": "Recapitule e pratique"
     }
   ],
-  "sha256": "a533b0b947bb25d1c7fa45170fadc2e577d72a8d69559aedda1e49e6640208e5",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "cee0ddbe8c418fb1032ca1248f05a624d08fb711dab796e0f2f3d1b63ee83d30",
+  "sha256": "b6bdd31ee64dc56ef44739ce0f48881c52a4b47a78d9956ce3f17ac5034d4f57",
   "episodeHash": "d75e7d0fdae73107a284a7e6d5665d44290923dd0fda09366d648e073df25d85",
   "rendererVersion": 1,
   "assetHashes": {
-    "mp4": "a533b0b947bb25d1c7fa45170fadc2e577d72a8d69559aedda1e49e6640208e5",
-    "vtt": "38cbd2eefb2589292383ce4f286d1cde1f2e662b3cac250bd6cd474de3c58870",
+    "mp4": "b6bdd31ee64dc56ef44739ce0f48881c52a4b47a78d9956ce3f17ac5034d4f57",
+    "vtt": "e4da16067c217ba6b4db2c5d113217b29cf43ae2db4bd6579c83dd9db3eb7b70",
     "webp": "6fef7e84321d135d9a7d6657cd7c46b85fd67e28af3231be9c10bd7640fbaa08"
   },
   "transcriptHash": "2d6593b1436906ddbe270f1f2450ecf4c86c4a235e35fce5cb2b501cae5c2915",
   "scenes": [
     {
       "start": 0.0,
-      "duration": 11.167,
+      "duration": 11.1,
       "title": "Brazilian Pineapple",
       "cueTime": 0.4,
       "finalCueTime": null,
       "highlights": []
     },
     {
-      "start": 11.167,
+      "start": 11.1,
       "duration": 15.133,
       "title": "A melhor combinação de cinco",
       "cueTime": 0.4,
@@ -70,7 +72,7 @@
       "highlights": []
     },
     {
-      "start": 26.3,
+      "start": 26.233,
       "duration": 13.933,
       "title": "Duas cartas para começar",
       "cueTime": 4.25775,
@@ -78,15 +80,15 @@
       "highlights": []
     },
     {
-      "start": 40.233,
-      "duration": 15.633,
+      "start": 40.167,
+      "duration": 15.467,
       "title": "A mão cresce, sem descarte",
-      "cueTime": 4.463916,
+      "cueTime": 4.309291,
       "finalCueTime": null,
       "highlights": []
     },
     {
-      "start": 55.867,
+      "start": 55.633,
       "duration": 16.2,
       "title": "All-in também recebe cartas",
       "cueTime": 0.4,
@@ -94,7 +96,7 @@
       "highlights": []
     },
     {
-      "start": 72.067,
+      "start": 71.833,
       "duration": 15.567,
       "title": "Duas suas. Três da mesa.",
       "cueTime": 0.4,
@@ -102,23 +104,23 @@
       "highlights": []
     },
     {
-      "start": 87.633,
-      "duration": 12.4,
+      "start": 87.4,
+      "duration": 12.467,
       "title": "Um ás sozinho não faz flush",
       "cueTime": 0.4,
       "finalCueTime": null,
       "highlights": []
     },
     {
-      "start": 100.033,
-      "duration": 17.533,
+      "start": 99.867,
+      "duration": 17.2,
       "title": "O ranking clássico",
       "cueTime": 0.4,
       "finalCueTime": null,
       "highlights": []
     },
     {
-      "start": 117.567,
+      "start": 117.067,
       "duration": 16.333,
       "title": "Ás baixo e empate",
       "cueTime": 0.4,
@@ -126,20 +128,20 @@
       "highlights": []
     },
     {
-      "start": 133.9,
-      "duration": 14.7,
+      "start": 133.4,
+      "duration": 13.867,
       "title": "Antes da sua primeira decisão",
       "cueTime": 0.4,
       "finalCueTime": null,
       "highlights": [
-        6.938125,
-        9.773208,
-        12.067
+        6.255166,
+        9.025791,
+        11.319583
       ]
     },
     {
-      "start": 148.6,
-      "duration": 15.8,
+      "start": 147.267,
+      "duration": 15.633,
       "title": "Quatro patamares de aposta",
       "cueTime": 0.4,
       "finalCueTime": null,
@@ -151,7 +153,7 @@
       ]
     },
     {
-      "start": 164.4,
+      "start": 162.9,
       "duration": 15.6,
       "title": "Total não é pagamento adicional",
       "cueTime": 0.4,
@@ -163,20 +165,20 @@
       ]
     },
     {
-      "start": 180.0,
-      "duration": 12.767,
+      "start": 178.5,
+      "duration": 12.667,
       "title": "Blind incompleto não reduz o nível",
       "cueTime": 0.4,
       "finalCueTime": null,
       "highlights": [
-        1.55,
-        8.29125,
-        10.623708
+        1.395375,
+        8.201041,
+        10.5335
       ]
     },
     {
-      "start": 192.767,
-      "duration": 14.933,
+      "start": 191.167,
+      "duration": 14.967,
       "title": "O pote antes do call",
       "cueTime": 0.4,
       "finalCueTime": null,
@@ -186,7 +188,7 @@
       ]
     },
     {
-      "start": 207.7,
+      "start": 206.133,
       "duration": 13.4,
       "title": "R$ 10 no pote. Abertura de R$ 5.",
       "cueTime": 1.55,
@@ -198,7 +200,7 @@
       ]
     },
     {
-      "start": 221.1,
+      "start": 219.533,
       "duration": 16.333,
       "title": "Beto aumenta para R$ 20",
       "cueTime": 0.351541,
@@ -210,8 +212,8 @@
       ]
     },
     {
-      "start": 237.433,
-      "duration": 16.233,
+      "start": 235.867,
+      "duration": 16.333,
       "title": "O mesmo total, mais participantes",
       "cueTime": 0.4,
       "finalCueTime": null,
@@ -222,7 +224,7 @@
       ]
     },
     {
-      "start": 253.667,
+      "start": 252.2,
       "duration": 13.633,
       "title": "O próximo pode aumentar para R$ 55",
       "cueTime": 0.4,
@@ -234,32 +236,32 @@
       ]
     },
     {
-      "start": 267.3,
-      "duration": 16.667,
+      "start": 265.833,
+      "duration": 16.467,
       "title": "O mínimo acompanha o aumento completo",
       "cueTime": 0.4,
       "finalCueTime": null,
       "highlights": [
-        5.030916,
-        8.948458,
-        13.072166
+        4.837625,
+        8.755166,
+        12.878875
       ]
     },
     {
-      "start": 283.967,
-      "duration": 15.1,
+      "start": 282.3,
+      "duration": 15.0,
       "title": "Pré-flop: um all-in entre patamares",
       "cueTime": 0.4,
       "finalCueTime": null,
       "highlights": [
-        2.671125,
-        4.8505,
-        7.89175,
-        10.481958
+        2.529375,
+        4.70875,
+        7.801541,
+        10.39175
       ]
     },
     {
-      "start": 299.067,
+      "start": 297.3,
       "duration": 16.067,
       "title": "A reabertura é individual",
       "cueTime": 0.4,
@@ -270,65 +272,65 @@
       ]
     },
     {
-      "start": 315.133,
-      "duration": 16.067,
+      "start": 313.367,
+      "duration": 16.1,
       "title": "Pós-flop: o curto não muda o mínimo",
       "cueTime": 0.4,
       "finalCueTime": null,
       "highlights": [
         3.00775,
-        4.154624999999999,
-        12.195875
+        4.180416,
+        12.247416
       ]
     },
     {
-      "start": 331.2,
-      "duration": 18.767,
+      "start": 329.467,
+      "duration": 18.8,
       "title": "Curtos podem somar uma reabertura",
       "cueTime": 0.4,
       "finalCueTime": null,
       "highlights": [
-        5.237125,
-        8.896916
+        5.288666,
+        8.948458
       ]
     },
     {
-      "start": 349.967,
-      "duration": 12.733,
+      "start": 348.267,
+      "duration": 12.7,
       "title": "Saldo grande não remove o teto",
       "cueTime": 0.4,
       "finalCueTime": null,
       "highlights": [
         0.351541,
-        7.737125
+        7.788666
       ]
     },
     {
-      "start": 362.7,
-      "duration": 12.433,
+      "start": 360.967,
+      "duration": 12.233,
       "title": "Ante entra no pote, não no call",
       "cueTime": 0.4,
       "finalCueTime": null,
       "highlights": [
         4.8505,
-        6.306708,
-        8.265458
+        6.113416,
+        8.072166
       ]
     },
     {
-      "start": 375.133,
-      "duration": 14.2,
+      "start": 373.2,
+      "duration": 13.8,
       "title": "Sem saldo para completar",
       "cueTime": 0.4,
       "finalCueTime": null,
       "highlights": [
-        0.609291,
+        0.596375,
         1.846375,
-        3.882458
+        3.869583
       ]
     },
     {
-      "start": 389.333,
+      "start": 387.0,
       "duration": 16.067,
       "title": "Potes paralelos",
       "cueTime": 0.4,
@@ -340,7 +342,7 @@
       ]
     },
     {
-      "start": 405.4,
+      "start": 403.067,
       "duration": 17.1,
       "title": "O que ninguém cobriu volta",
       "cueTime": 0.4,
@@ -352,19 +354,19 @@
       ]
     },
     {
-      "start": 422.5,
+      "start": 420.167,
       "duration": 18.833,
       "title": "Cash e torneio",
       "cueTime": 0.4,
       "finalCueTime": null,
       "highlights": [
         0.351541,
-        5.262875
+        5.237125
       ]
     },
     {
-      "start": 441.333,
-      "duration": 20.367,
+      "start": 439.0,
+      "duration": 20.433,
       "title": "Uma mão, quatro lembretes",
       "cueTime": 0.4,
       "finalCueTime": null,
@@ -375,8 +377,8 @@
       ]
     },
     {
-      "start": 461.7,
-      "duration": 15.967,
+      "start": 459.433,
+      "duration": 15.933,
       "title": "Sua próxima mão começa no treino",
       "cueTime": 0.4,
       "finalCueTime": null,

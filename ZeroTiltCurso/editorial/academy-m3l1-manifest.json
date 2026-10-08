@@ -3,27 +3,30 @@
   "filename": "zt-academy-m3l1-v3",
   "contentHash": "d819e4918375f26849341c76ef5dad18c34b78db36ddcf59f4c1373aa4fafcaa",
   "rendererVersion": 3,
-  "durationSeconds": 326.47,
+  "durationSeconds": 325.23,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8099959,
+  "bytes": 8066575,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "c373c81f8e132ef762e022867746f54981c130b1629f2452721ad8f1b6352641",
   "chapters": [
     {
       "start": 0.0,
       "title": "Double Barrel: Scare Cards e Sizing de Turn"
     },
     {
-      "start": 19.3,
+      "start": 19.27,
       "title": "O segundo barril"
     },
     {
-      "start": 36.77,
+      "start": 36.6,
       "title": "A carta favorece qual range?"
     },
     {
-      "start": 54.8,
+      "start": 54.63,
       "title": "Exercício"
     },
     {
@@ -31,41 +34,41 @@
       "title": "Atualize os ranges, não só o board"
     },
     {
-      "start": 108.9,
+      "start": 108.73,
       "title": "Aposta por valor, blefe ou proteção"
     },
     {
-      "start": 138.4,
+      "start": 137.97,
       "title": "Planeje dois tipos de river"
     },
     {
-      "start": 164.2,
+      "start": 163.6,
       "title": "Laboratório: Quando chega uma carta maior"
     },
     {
-      "start": 200.13,
+      "start": 199.37,
       "title": "Laboratório: Quando chega uma carta maior"
     },
     {
-      "start": 209.2,
+      "start": 208.43,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 231.27,
+      "start": 230.4,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 244.47,
+      "start": 243.6,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 281.0,
+      "start": 279.97,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 292.77,
+      "start": 291.53,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "56e7d2dc00b3ba2a8f7a7ef0910a804222017212d75a9325505e3e0b879cbb68"
+  "sha256": "b5e4d246db433f88b1f6cf2d9c55ea1899be4a1e76dd16058f4407b9ad32c705"
 }

@@ -3,51 +3,54 @@
   "filename": "zt-academy-m4l1-v3",
   "contentHash": "fcabbcdfad51fc9b566055795f7018c12ede93e40129c5f21b5b945a5667b99d",
   "rendererVersion": 3,
-  "durationSeconds": 329.9,
+  "durationSeconds": 329.37,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8246481,
+  "bytes": 8213502,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "58b4cc80d6d85dda973014aed9a3e03633df5687b96914e8c0b34a03c2b484d4",
   "chapters": [
     {
       "start": 0.0,
       "title": "Thin Value Bet vs. Blefe Puro"
     },
     {
-      "start": 18.83,
+      "start": 19.73,
       "title": "Valor no river"
     },
     {
-      "start": 36.7,
+      "start": 37.43,
       "title": "Exemplo com hipótese"
     },
     {
-      "start": 57.73,
+      "start": 58.43,
       "title": "Ações legais"
     },
     {
-      "start": 72.1,
+      "start": 72.6,
       "title": "O range que paga é o relevante"
     },
     {
-      "start": 99.53,
+      "start": 100.03,
       "title": "Compare com dar check"
     },
     {
-      "start": 128.53,
+      "start": 128.57,
       "title": "Exercício controlado"
     },
     {
-      "start": 159.57,
+      "start": 159.63,
       "title": "Laboratório: Receber de mãos piores"
     },
     {
-      "start": 198.03,
+      "start": 198.1,
       "title": "Laboratório: Receber de mãos piores"
     },
     {
-      "start": 207.1,
+      "start": 207.17,
       "title": "Exercício resolvido 1"
     },
     {
@@ -55,17 +58,17 @@
       "title": "Confira o raciocínio"
     },
     {
-      "start": 246.07,
+      "start": 245.93,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 284.0,
+      "start": 283.7,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 296.03,
+      "start": 295.5,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "a4f0581d840b717d20858ec71e9b5d79417a8eb53ddb013a87d2390c80d16c4c"
+  "sha256": "77b2325cfd2133b156f457f7eb7cf32f7954e5be01a41c833b14a6ccdb2e34b4"
 }

@@ -3,55 +3,58 @@
   "filename": "zt-academy-m4l2-v3",
   "contentHash": "5955e9ce2083e32baa482e9328828a7e702491e427c33ffbe7327e478ca910cd",
   "rendererVersion": 3,
-  "durationSeconds": 349.4,
+  "durationSeconds": 349.47,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8781650,
+  "bytes": 8755198,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "559b4114b4cad41b5980b0a59c7b858558d7e170fd3327e56fe3f3ceeb1063c6",
   "chapters": [
     {
       "start": 0.0,
       "title": "Bluff-Catchers e a Força dos Blockers"
     },
     {
-      "start": 19.13,
+      "start": 19.2,
       "title": "Bluff-catcher"
     },
     {
-      "start": 33.8,
+      "start": 33.83,
       "title": "Preço e frequência"
     },
     {
-      "start": 59.7,
+      "start": 59.83,
       "title": "Blockers"
     },
     {
-      "start": 79.87,
+      "start": 80.13,
       "title": "Derive o limite dos blefes"
     },
     {
-      "start": 112.87,
+      "start": 113.13,
       "title": "MDF responde a outra pergunta"
     },
     {
-      "start": 150.47,
+      "start": 150.27,
       "title": "Conte o que foi removido"
     },
     {
-      "start": 183.93,
+      "start": 183.8,
       "title": "Laboratório: Pagar pelo motivo certo"
     },
     {
-      "start": 222.7,
+      "start": 222.57,
       "title": "Laboratório: Pagar pelo motivo certo"
     },
     {
-      "start": 231.77,
+      "start": 231.63,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 254.33,
+      "start": 254.27,
       "title": "Confira o raciocínio"
     },
     {
@@ -63,9 +66,9 @@
       "title": "Confira o raciocínio"
     },
     {
-      "start": 315.6,
+      "start": 315.67,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "bef395899893900173fba519c649f12c341e9276a7ecfe7769aa2aff33e0c372"
+  "sha256": "2404e94e976db89eecb3d451c3d49270201a3a448466616007a693ebc4297a2e"
 }

@@ -3,69 +3,72 @@
   "filename": "zt-academy-m1l1-v3",
   "contentHash": "929d3352d266c3b7d3c6361ffa200629930871edfd8ae1296e272260834b8120",
   "rendererVersion": 3,
-  "durationSeconds": 347.93,
+  "durationSeconds": 347.47,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8695817,
+  "bytes": 8698366,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "b4621a966d12f0dd2531e3cdc8ba163da8f0f43620ab002589b89445806860f3",
   "chapters": [
     {
       "start": 0.0,
       "title": "Ranges de Abertura por Posição (9-max)"
     },
     {
-      "start": 20.53,
+      "start": 20.57,
       "title": "Range depende do cenário"
     },
     {
-      "start": 45.0,
+      "start": 44.9,
       "title": "Posição pós-flop"
     },
     {
-      "start": 62.33,
+      "start": 62.2,
       "title": "Exercício guiado"
     },
     {
-      "start": 83.57,
+      "start": 83.17,
       "title": "Conte combinações e frequências"
     },
     {
-      "start": 118.1,
+      "start": 117.9,
       "title": "Stack, rake e número de jogadores"
     },
     {
-      "start": 149.77,
+      "start": 149.43,
       "title": "Construa uma pergunta estudável"
     },
     {
-      "start": 180.5,
+      "start": 180.3,
       "title": "Laboratório: Posição e mãos de abertura"
     },
     {
-      "start": 220.67,
+      "start": 220.37,
       "title": "Laboratório: Posição e mãos de abertura"
     },
     {
-      "start": 229.73,
+      "start": 229.43,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 256.3,
+      "start": 256.0,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 273.87,
+      "start": 273.57,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 302.07,
+      "start": 301.5,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 313.97,
+      "start": 313.5,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "a3aed437f018553a7de44b1be020cecb04780326b623f16a90349a1d1084f019"
+  "sha256": "d9411a3cf9890c3e4e639c7cbcd067965c24b3ebc45d433e0de23edf2f711a71"
 }

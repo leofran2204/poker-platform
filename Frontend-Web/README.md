@@ -33,7 +33,7 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 
 ## Home
 
-- Visitante: Brazilian Pineapple é o destaque, com capa própria e “Aprenda Brazilian Pineapple”. Filme de 477,67 s (até oito minutos), exemplos da regra híbrida e acesso também no início da Academy. O institucional v3 de 81,70 s permanece como link secundário no fim da home.
+- Visitante: Brazilian Pineapple é o destaque, com capa própria e “Aprenda Brazilian Pineapple”. Filme de 475,37 s (até oito minutos), exemplos da regra híbrida e acesso também no início da Academy. O institucional v3 de 81,40 s permanece como link secundário no fim da home.
 - Logado em `/` redireciona para `/curso`
 - Notícias e Dica do Pró **não** ficam na home: `/noticias`, `/dicas`, rodapé e atalhos no Curso
 - Header logado: Curso · Lobby · Carteira (+ Mais). Visitante: Academy · Entrar · Criar conta
@@ -42,6 +42,7 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 
 - Grade: 28 aulas e 65 questões em `src/data/courseContent.json`; pré-requisitos explícitos, modalidades após fundamentos, história opcional com a difusão do Omaha. IDs/progresso anteriores preservados.
 - Player: MP4, poster, VTT em português, capítulos com indicação do atual e transcrição real. Carrega sob demanda, sem autoplay; saltos funcionam antes de carregar os metadados. O modal fecha por botão/Escape, desmonta o vídeo e devolve o foco. Estado do player e quiz reinicia ao mudar de aula.
+- Pronúncia: perfil `pt-BR-poker-v1` no renderizador editorial, com “Pineapple” sintetizado como “painépou” e guias para os demais termos ingleses. `narrationHash` versiona as URLs de mídia; texto, legenda e transcrição conservam a grafia original. O hash do conteúdo da aula continua separado da identidade da voz.
 - As 28 aulas preservam seus vídeos. `m5l3`, `m5l4` e `m5l5` continuam como material da regra anterior (`prior_rules` / `legacy_no_limit`), com aviso e fontes originais auditáveis. A pasta pública contém 90 arquivos: 28 aulas, o destaque Pineapple e o institucional preservado, cada um com MP4/VTT/WebP.
 - O novo Pineapple é 720p30 H.264/AAC, 31 cenas e oito capítulos; as 29 produções anteriores permanecem em 1080p30. Voz sintética brasileira `pt-BR-AntonioNeural`, sem aceleração. Fontes/renderizadores em `ZeroTiltCurso/editorial/`; finais em `public/videos/`.
 - `pineappleFilm.json` e `homeFilm.json` são gerados com duração/transcrição/capítulos reais; não duplicar o roteiro no JSX. O novo manifesto também registra `brazilian_pineapple_hybrid_v1`, SHA-256 do roteiro, MP4, VTT, capa e transcrição. Publicado em 05/10/2026 junto com a regra, sem mãos nem torneios em andamento; conferência pública em [QUALITY](../Documentacao/QUALITY.md#publicação-pineapple--05102026).

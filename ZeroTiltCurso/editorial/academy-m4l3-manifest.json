@@ -3,69 +3,72 @@
   "filename": "zt-academy-m4l3-v3",
   "contentHash": "5432467144ba836f676379ed782a0849d234ae9f1ce144acdc654ddce651166c",
   "rendererVersion": 3,
-  "durationSeconds": 357.77,
+  "durationSeconds": 357.73,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8994917,
+  "bytes": 8972240,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "6f9d82bb227c67585ba26639bc3116d813eeb83ccfd2faf171afd0dc5df8e743",
   "chapters": [
     {
       "start": 0.0,
       "title": "Overbet Polarizada vs. Blocking Bet"
     },
     {
-      "start": 19.37,
+      "start": 20.37,
       "title": "Overbet"
     },
     {
-      "start": 36.77,
+      "start": 37.77,
       "title": "Blocking bet"
     },
     {
-      "start": 51.33,
+      "start": 52.27,
       "title": "Primeiro classifique a mão"
     },
     {
-      "start": 76.53,
+      "start": 77.47,
       "title": "O preço de uma overbet"
     },
     {
-      "start": 110.57,
+      "start": 111.6,
       "title": "Uma aposta pequena não fecha a ação"
     },
     {
-      "start": 135.93,
+      "start": 136.9,
       "title": "Não confunda força com invulnerabilidade"
     },
     {
-      "start": 170.7,
+      "start": 171.7,
       "title": "Laboratório: Identifique o flush antes do sizing"
     },
     {
-      "start": 212.23,
+      "start": 213.33,
       "title": "Laboratório: Identifique o flush antes do sizing"
     },
     {
-      "start": 221.3,
+      "start": 222.4,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 250.53,
+      "start": 251.87,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 269.0,
+      "start": 270.73,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 304.4,
+      "start": 304.43,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 323.5,
+      "start": 323.47,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "97f69385248fd5382c2c42828eac424a163a6425b9d3873edd525f100af8589d"
+  "sha256": "336ccc86e15a3e5edd9e3701b97904a43bc8bfee7502e0e30056ea86b50ec779"
 }

@@ -3,31 +3,34 @@
   "filename": "zt-academy-m2l1-v3",
   "contentHash": "bd164b130b58838432e14d1517b35aebf399f1cad54587b94ad4c0ee506ebea6",
   "rendererVersion": 3,
-  "durationSeconds": 339.77,
+  "durationSeconds": 338.97,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8468114,
+  "bytes": 8458357,
   "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v1",
+  "narrationHash": "86bbe273986f8b1fcfcf0d4488b285ad7f6a85776c60800def516a890a689aa6",
   "chapters": [
     {
       "start": 0.0,
       "title": "C-bet no Flop: Boards Secos vs Molhados"
     },
     {
-      "start": 19.9,
+      "start": 19.57,
       "title": "Textura e ranges"
     },
     {
-      "start": 40.4,
+      "start": 40.23,
       "title": "Exemplo guiado"
     },
     {
-      "start": 69.0,
+      "start": 68.97,
       "title": "Tamanho como hipótese"
     },
     {
-      "start": 84.57,
+      "start": 84.47,
       "title": "Vantagem de range e vantagem de nuts"
     },
     {
@@ -35,37 +38,37 @@
       "title": "Um exemplo de textura"
     },
     {
-      "start": 149.47,
+      "start": 149.37,
       "title": "Check também constrói uma estratégia"
     },
     {
-      "start": 180.07,
+      "start": 179.5,
       "title": "Laboratório: Board conectado"
     },
     {
-      "start": 217.53,
+      "start": 216.97,
       "title": "Laboratório: Board conectado"
     },
     {
-      "start": 226.6,
+      "start": 226.03,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 245.9,
+      "start": 245.3,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 260.23,
+      "start": 259.67,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 294.8,
+      "start": 294.23,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 306.4,
+      "start": 305.67,
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "2df714c9e99e640e0f73ebe3b054b7ed9d23b9701b65278f2036d8ca19399ad8"
+  "sha256": "41b4a6e63670c529b25f03693228bfbd714d6008ba0a726b5bb03828acbf2c2b"
 }
