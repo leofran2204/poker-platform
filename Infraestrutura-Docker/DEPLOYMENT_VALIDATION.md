@@ -5,7 +5,7 @@ Procedimento de validação da plataforma em **Docker Compose**, **demo residenc
 **Domínio demo:** `zerotiltpoker.net`  
 **Não é certificação de produção.** Na demo VPS, o DePix está reconciliado conforme o `STATUS_OPERACIONAL.md`; laboratório e tunnel usam o modo configurado no `.env` e permanecem mock por padrão.
 
-Última publicação conferida: **06/10/2026, 06:20:18 UTC**, código `4c9541a3`: frontend com Tailwind 4.3.3 sem a cadeia vulnerável de `braces`, `source-map-js` 1.2.2 e base Debian da API com `perl-base` corrigido. Binário da API idêntico por SHA-256; regras e filme Pineapple preservados. Quatro serviços saudáveis, 60 migrations e 90 arquivos de mídia íntegros. Auditoria npm sem exceções; ambos os workflows aprovados antes da troca. [Evidências](../Documentacao/QUALITY.md#remoção-da-exceção-npm--06102026). Documentação posterior não exige reconstruir essas imagens.
+Última publicação conferida: **08/10/2026, 13:48:04 UTC**, frontend `75971a0c`: 30 vídeos regravados com guias fonéticas para os termos ingleses, legendas/capítulos sincronizados e URLs de mídia versionadas. API mantida na imagem de `4c9541a3` (06/10); API, PostgreSQL e Redis conservaram containers, imagens e horário de início. Quatro serviços saudáveis, 60 migrations e 90 arquivos de mídia íntegros. Ambos os workflows aprovados antes da troca, backup validado e `.env` preservado. [Evidências e limite da revisão auditiva](../Documentacao/QUALITY.md#pronúncia-dos-vídeos--08102026). Documentação posterior não exige reconstruir essas imagens.
 
 | Caminho | Guia | HTTPS |
 |---------|------|--------|
