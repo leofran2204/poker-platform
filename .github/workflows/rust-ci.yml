@@ -366,7 +366,7 @@ jobs:
     needs: api-check
     services:
       postgres:
-        image: postgres:15-alpine@sha256:3d0f7584ed7d04e27fa050d6683a74746608faf21f202be78460d679cc56461f
+        image: public.ecr.aws/docker/library/postgres:15-alpine@sha256:3d0f7584ed7d04e27fa050d6683a74746608faf21f202be78460d679cc56461f
         env:
           POSTGRES_USER: user
           POSTGRES_PASSWORD: password
@@ -379,7 +379,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       redis:
-        image: redis:7-alpine@sha256:e7723ff73d963f5cc6d9c4643ea3d989527a402a319239054e9472a7fb9219a2
+        image: public.ecr.aws/docker/library/redis:7-alpine@sha256:e7723ff73d963f5cc6d9c4643ea3d989527a402a319239054e9472a7fb9219a2
         ports:
           - 6379:6379
         options: >-
@@ -527,8 +527,27 @@ jobs:
         with:
           persist-credentials: false
 
+      # Docker Hub throttles shared runners; keep pinned digests and use its public cache.
+      - name: Configure Docker Hub cache
+        run: |
+          sudo python3 - <<'PYCONFIG'
+          import json
+          from pathlib import Path
+          config = Path('/etc/docker/daemon.json')
+          data = json.loads(config.read_text()) if config.exists() else {}
+          data['registry-mirrors'] = ['https://mirror.gcr.io']
+          config.parent.mkdir(parents=True, exist_ok=True)
+          config.write_text(json.dumps(data))
+          PYCONFIG
+          sudo systemctl restart docker
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+        with:
+          driver-opts: image=moby/buildkit:buildx-stable-1@sha256:cec9f139f45e93c5c69c60f8b07cfad9f43f4ef6b6a6cd917527fea5ff2e3dea
+          buildkitd-config-inline: |
+            [registry."docker.io"]
+              mirrors = ["mirror.gcr.io"]
 
       - name: Validate API-Axum Dockerfile builds
         run: docker build -f API-Axum/Dockerfile . --target builder
