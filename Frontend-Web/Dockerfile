@@ -23,7 +23,7 @@ RUN go install github.com/caddyserver/xcaddy/cmd/xcaddy@e0e8f68a0f4bef11bfd04c4f
         --replace google.golang.org/grpc=google.golang.org/grpc@v1.83.2
 
 # Stage 3: Caddy serves SPA + reverse_proxy API/WS
-FROM caddy:2.11.4-alpine@sha256:6aeddd44c3078b0f9a35206472a11420648a79c184603ef95957d0a20044cb2b
+FROM caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f
 
 WORKDIR /usr/share/caddy
 
