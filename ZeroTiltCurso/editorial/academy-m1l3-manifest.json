@@ -2,12 +2,12 @@
   "lessonId": "m1l3",
   "filename": "zt-academy-m1l3-v3",
   "contentHash": "470bc06a215489dcf6ea2a1b5cb73719f41d57f676c8b337baedb3fd78c8963a",
-  "rendererVersion": 3,
+  "rendererVersion": 5,
   "durationSeconds": 363.8,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9067618,
+  "bytes": 9537908,
   "voice": "pt-BR-AntonioNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v1",
@@ -70,5 +70,125 @@
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "06ce38865b0009c4bb9f0b5a631a40590a598bc7971db9f366bd689877bd19e4"
+  "scenes": [
+    {
+      "start": 0.0,
+      "duration": 19.666666666666668,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 19.666666666666668,
+      "duration": 24.1,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 43.766666666666666,
+      "duration": 35.666666666666664,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 79.43333333333334,
+      "duration": 23.733333333333334,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 103.16666666666667,
+      "duration": 31.666666666666668,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 134.83333333333334,
+      "duration": 31.666666666666668,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 166.5,
+      "duration": 31.033333333333335,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 197.53333333333333,
+      "duration": 39.43333333333333,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 236.96666666666667,
+      "duration": 9.066666666666666,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 246.03333333333333,
+      "duration": 25.733333333333334,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 271.76666666666665,
+      "duration": 16.8,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 288.56666666666666,
+      "duration": 30.6,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 319.1666666666667,
+      "duration": 10.966666666666667,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 330.1333333333333,
+      "duration": 33.666666666666664,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    }
+  ],
+  "sha256": "891d3265fa43144573104524162e2aa8be786f2a9b967ecac7f7f2f5da39564c",
+  "assetHashes": {
+    "mp4": "891d3265fa43144573104524162e2aa8be786f2a9b967ecac7f7f2f5da39564c",
+    "vtt": "c50300d240468b17da02fe3c77c6254268ff517902d2028d2b23c0ffb4a51e58",
+    "webp": "5b447e2db348efc92337966356008360429d94d65197c04a62d9ef10396a9564"
+  },
+  "mediaRevision": "55a32f9f5a08b53ba822bcef95f708489603a50567f80246cab42907f9f294e3"
 }

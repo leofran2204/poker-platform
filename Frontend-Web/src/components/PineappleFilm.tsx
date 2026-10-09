@@ -23,7 +23,7 @@ export function PineappleFilm({ academy = false }: { academy?: boolean }) {
   return <>
     <button ref={trigger} type="button" onClick={showFilm} aria-haspopup="dialog"
       className={academy ? "group grid w-full overflow-hidden rounded-lg border border-gold-soft/40 bg-felt-900 text-left focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-gold-soft sm:grid-cols-2" : "hp-button"}>
-      {academy && <img src={video.posterUrl} width="1280" height="720" alt="" className="h-full w-full object-cover" />}
+      {academy && <img src={`${video.posterUrl}?r=${film.mediaRevision}`} width="1280" height="720" alt="" className="h-full w-full object-cover" />}
       <span className={academy ? "flex flex-col justify-center gap-2 p-5" : undefined}>
         <span className={academy ? "text-lg font-bold text-cream" : undefined}>Aprenda Brazilian Pineapple</span>
         {academy && <span className="text-sm leading-relaxed text-felt-200">Das primeiras cartas aos potes paralelos. Regras de apostas, exemplos e capítulos para rever cada conta.</span>}

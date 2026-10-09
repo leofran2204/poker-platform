@@ -297,7 +297,7 @@
   "pineapple": {
     "filename": "zt-brazilian-pineapple-hybrid-v1",
     "title": "Aprenda Brazilian Pineapple",
-    "bettingRuleVersion": "brazilian_pineapple_hybrid_v1",
+    "bettingRuleVersion": "brazilian_pineapple_pot_before_call_v2",
     "maxDurationSeconds": 480,
     "scenes": [
       {
@@ -335,45 +335,93 @@
           1,
           2
         ],
-        "note": "PRIVADAS + COMUNITÁRIAS → MÃO DE 5"
+        "note": "PRIVADAS + COMUNITÁRIAS → MÃO DE 5",
+        "snapshot": true,
+        "example": "EXEMPLO DE SELEÇÃO · MÃO INDEPENDENTE",
+        "noTurn": true
       },
       {
         "kind": "pineapple",
         "chapter": "As cartas: 2 → 5",
         "title": "Duas cartas para começar",
-        "voice": "No pré-flop, você recebe duas privadas. Depois das apostas, vem o flop: três comunitárias. Quem continua na mão recebe mais uma privada e fica com três.",
+        "voice": "Você começa com duas privadas. Após as apostas, o flop chega fechado, abre e fica visível. Só depois da pausa cada jogador recebe a terceira privada.",
         "mode": "deal",
-        "stages": [
-          2,
-          3
-        ],
-        "cue": "Depois das apostas",
-        "note": "PRÉ-FLOP → FLOP"
+        "cue": "o flop",
+        "note": "COMUNITÁRIAS → REVELAÇÃO → PAUSA → PRIVADAS",
+        "before": 2,
+        "after": 3,
+        "example": "MÃO A · FLOP · 3 JOGADORES",
+        "noTurn": true
       },
       {
         "kind": "pineapple",
         "chapter": "As cartas: 2 → 5",
-        "title": "A mão cresce, sem descarte",
-        "voice": "O turn traz a quarta comunitária e sua quarta privada. O river traz a quinta de cada grupo. São duas, três, quatro e cinco privadas, sem descarte. Há apostas em cada etapa.",
+        "title": "Turn: primeiro a comunitária",
+        "voice": "No turn, a quarta comunitária chega fechada e vira. A mesa permanece visível. Após dois segundos, vem a quarta privada para cada jogador. Nenhuma carta anterior é redistribuída.",
         "mode": "deal",
-        "stages": [
-          4,
-          5
-        ],
-        "cue": "O river",
-        "note": "TURN → RIVER"
+        "cue": "a quarta comunitária",
+        "note": "TURN · APOSTAS APÓS A NOVA PRIVADA",
+        "before": 3,
+        "after": 4,
+        "example": "MÃO A · CONTINUAÇÃO",
+        "noTurn": true
+      },
+      {
+        "kind": "pineapple",
+        "chapter": "As cartas: 2 → 5",
+        "title": "River: cinco privadas, sem descarte",
+        "voice": "No river, a quinta comunitária abre. Depois da pausa, cada participante recebe a quinta privada. Não há descarte. Uma nova rodada de apostas termina a distribuição.",
+        "mode": "deal",
+        "cue": "a quinta comunitária",
+        "note": "RIVER · EXATAMENTE 2 PRIVADAS + 3 COMUNITÁRIAS",
+        "before": 4,
+        "after": 5,
+        "example": "MÃO A · CONTINUAÇÃO",
+        "noTurn": true
       },
       {
         "kind": "pineapple",
         "chapter": "As cartas: 2 → 5",
         "title": "All-in também recebe cartas",
-        "voice": "All-in é colocar todo o saldo permitido. Esse jogador continua recebendo cartas. Quem desistiu, dando fold, não recebe mais. Se os demais desistirem, você ganha sem comparar mãos.",
-        "mode": "status",
+        "voice": "All-in coloca todo o saldo permitido, mas continua na mão e recebe cartas. Quem desistiu não recebe mais. Aqui, Beto está all-in; Caio desistiu. Observe a distribuição.",
+        "mode": "deal",
         "lines": [
           "ALL-IN  →  continua recebendo",
           "FOLD  →  não recebe mais"
         ],
-        "note": "Sem descarte em nenhuma etapa"
+        "note": "BETO RECEBE · CAIO NÃO RECEBE",
+        "before": 2,
+        "after": 3,
+        "cue": "Observe",
+        "allin": [
+          1
+        ],
+        "folded": [
+          2
+        ],
+        "example": "EXEMPLO B · ALL-IN E FOLD",
+        "table": {
+          "pot": 350,
+          "actor": 0,
+          "players": [
+            {
+              "name": "Ana · você",
+              "stack": 9900,
+              "bet": 0
+            },
+            {
+              "name": "Beto",
+              "stack": 0,
+              "bet": 0
+            },
+            {
+              "name": "Caio",
+              "stack": 9950,
+              "bet": 0
+            }
+          ]
+        },
+        "noTurn": true
       },
       {
         "kind": "pineapple",
@@ -404,7 +452,11 @@
           1,
           2
         ],
-        "note": "VÁLIDA: A + K  |  Q + J + 10"
+        "note": "VÁLIDA: A + K  |  Q + J + 10",
+        "snapshot": true,
+        "example": "EXEMPLO DE SELEÇÃO · MÃO INDEPENDENTE",
+        "noTurn": true,
+        "cue": "Aqui"
       },
       {
         "kind": "pineapple",
@@ -436,7 +488,11 @@
           3
         ],
         "invalid": true,
-        "note": "INVÁLIDA: 1 privada + 4 comunitárias"
+        "note": "INVÁLIDA: 1 privada + 4 comunitárias",
+        "snapshot": true,
+        "example": "EXEMPLO DE SELEÇÃO · MÃO INDEPENDENTE",
+        "noTurn": true,
+        "cue": "Usar esse ás"
       },
       {
         "kind": "pineapple",
@@ -480,183 +536,324 @@
           1,
           2
         ],
-        "note": "A 2 3 4 5  •  NÃO EXISTE SEXTA CARTA"
+        "note": "A 2 3 4 5  •  NÃO EXISTE SEXTA CARTA",
+        "snapshot": true,
+        "example": "EXEMPLO DE SELEÇÃO · MÃO INDEPENDENTE",
+        "noTurn": true,
+        "cue": "Use duas privadas"
       },
       {
         "kind": "pineapple",
         "chapter": "Blinds e pré-flop",
-        "title": "Antes da sua primeira decisão",
-        "voice": "Small blind e big blind são apostas obrigatórias. Aqui, o big blind vale um real. Check é passar sem nada a completar. Call é pagar o que falta. Fold é desistir.",
-        "mode": "actions",
-        "lines": [
-          "CHECK  →  nada a completar",
-          "CALL  →  completar o valor",
-          "FOLD  →  desistir"
-        ],
-        "note": "BB ilustrativo: R$ 1",
-        "cues": [
-          "Check",
-          "Call",
-          "Fold"
-        ]
-      },
-      {
-        "kind": "pineapple",
-        "chapter": "Blinds e pré-flop",
-        "title": "Quatro patamares de aposta",
-        "voice": "Pré-flop: totais de um, dois, três e quatro reais. O big blind já é o primeiro patamar. Cada aumento normal vai ao seguinte. O teto de quatro também vale com dois jogadores.",
-        "mode": "levels",
-        "values": [
-          "R$ 1",
-          "R$ 2",
-          "R$ 3",
-          "R$ 4"
-        ],
-        "note": "TOTAL NA RODADA • TETO TAMBÉM COM 2 JOGADORES",
-        "cues": [
-          "um",
-          "dois",
-          "três",
-          "quatro"
-        ]
-      },
-      {
-        "kind": "pineapple",
-        "chapter": "Blinds e pré-flop",
-        "title": "Total não é pagamento adicional",
-        "voice": "Você já colocou um real e enfrenta um total de três. Para pagar, faltam dois. Seu total fica em três. Se puder aumentar, o próximo total é quatro: você acrescenta três.",
-        "mode": "money",
-        "metrics": [
-          [
-            "JÁ COLOCOU",
-            "R$ 1"
-          ],
-          [
-            "PAGAR AGORA",
-            "R$ 2"
-          ],
-          [
-            "TOTAL APÓS CALL",
-            "R$ 3"
+        "title": "Blinds e ante do big blind",
+        "voice": "Ana está no botão. Beto paga cinquenta centavos de small blind. Caio paga um real de big blind e mais um de ante. Pote inicial: dois e cinquenta.",
+        "mode": "bets",
+        "note": "BLINDS R$ 0,50 / R$ 1 · ANTE R$ 1",
+        "table": {
+          "pot": 0,
+          "actor": 0,
+          "players": [
+            {
+              "name": "Ana · você",
+              "stack": 10000,
+              "bet": 0
+            },
+            {
+              "name": "Beto",
+              "stack": 10000,
+              "bet": 0
+            },
+            {
+              "name": "Caio",
+              "stack": 10000,
+              "bet": 0
+            }
           ]
+        },
+        "actions": [
+          {
+            "player": 1,
+            "to": 50,
+            "cue": "Beto paga",
+            "label": "Small blind"
+          },
+          {
+            "player": 2,
+            "to": 100,
+            "cue": "Caio paga",
+            "label": "Big blind"
+          },
+          {
+            "player": 2,
+            "ante": 100,
+            "cue": "mais um de ante",
+            "label": "Ante: não abate o call",
+            "next": 0
+          }
         ],
-        "note": "Se puder aumentar: total R$ 4; paga mais R$ 3",
-        "cues": [
-          "já colocou um real",
-          "faltam dois",
-          "Seu total fica em três"
-        ]
+        "example": "MÃO C · INÍCIO · 3 JOGADORES"
       },
       {
         "kind": "pineapple",
         "chapter": "Blinds e pré-flop",
-        "title": "Blind incompleto não reduz o nível",
-        "voice": "Big blind com só setenta centavos entra all-in. O patamar continua em um real. Quem ainda não apostou paga um real. Próximo aumento normal: para dois.",
+        "title": "Se todos apenas acompanharem",
+        "voice": "Ana paga um real. Beto completa cinquenta centavos. Caio pode dar check. Cada jogador tem um real na rodada; com o ante, o pote fica em quatro reais.",
+        "mode": "bets",
+        "note": "R$ 1 + R$ 1 + R$ 1 + R$ 1 DE ANTE = R$ 4",
+        "table": {
+          "pot": 250,
+          "actor": 0,
+          "players": [
+            {
+              "name": "Ana · você",
+              "stack": 10000,
+              "bet": 0
+            },
+            {
+              "name": "Beto",
+              "stack": 9950,
+              "bet": 50
+            },
+            {
+              "name": "Caio",
+              "stack": 9800,
+              "bet": 100
+            }
+          ]
+        },
+        "actions": [
+          {
+            "player": 0,
+            "to": 100,
+            "cue": "Ana paga",
+            "label": "Call: paga R$ 1"
+          },
+          {
+            "player": 1,
+            "to": 100,
+            "cue": "Beto completa",
+            "label": "Call: paga R$ 0,50"
+          },
+          {
+            "player": 2,
+            "to": 100,
+            "cue": "dar check",
+            "label": "Check",
+            "next": null
+          }
+        ],
+        "example": "MÃO C · CONTINUAÇÃO SEM AUMENTO"
+      },
+      {
+        "kind": "pineapple",
+        "chapter": "Blinds e pré-flop",
+        "title": "Abertura máxima para R$ 3,50",
+        "voice": "Outra mão, mesmos blinds e ante. Ana deve um real e o pote tem dois e cinquenta. Pode aumentar para três e cinquenta. Beto e Caio pagam. Pote: onze e cinquenta.",
+        "mode": "bets",
+        "note": "3 × R$ 3,50 + R$ 1 DE ANTE = R$ 11,50",
+        "table": {
+          "pot": 250,
+          "actor": 0,
+          "players": [
+            {
+              "name": "Ana · você",
+              "stack": 10000,
+              "bet": 0
+            },
+            {
+              "name": "Beto",
+              "stack": 9950,
+              "bet": 50
+            },
+            {
+              "name": "Caio",
+              "stack": 9800,
+              "bet": 100
+            }
+          ]
+        },
+        "actions": [
+          {
+            "player": 0,
+            "to": 350,
+            "cue": "aumentar para",
+            "label": "Raise para R$ 3,50"
+          },
+          {
+            "player": 1,
+            "to": 350,
+            "cue": "Beto",
+            "label": "Call: paga R$ 3"
+          },
+          {
+            "player": 2,
+            "to": 350,
+            "cue": "Caio",
+            "label": "Call: paga R$ 2,50",
+            "next": null
+          }
+        ],
+        "example": "EXEMPLO D · NOVA MÃO, MESMOS SALDOS"
+      },
+      {
+        "kind": "pineapple",
+        "chapter": "Blinds e pré-flop",
+        "title": "Blind incompleto; ante parcial",
+        "voice": "Com setenta centavos, o big blind fica all-in e não paga ante. O call nominal continua um real. Com um e cinquenta, paga um de blind e cinquenta de ante, sem dívida.",
         "mode": "money",
         "metrics": [
           [
-            "BB PAGO",
-            "R$ 0,70"
+            "SALDO R$ 0,70",
+            "Ante R$ 0"
+          ],
+          [
+            "SALDO R$ 1,50",
+            "Ante R$ 0,50"
           ],
           [
             "CALL SEM APORTE",
             "R$ 1"
-          ],
-          [
-            "PRÓXIMO TOTAL",
-            "R$ 2"
           ]
         ],
-        "note": "BB nominal: R$ 1 • potes respeitam o que foi pago",
-        "cues": [
-          "setenta centavos",
-          "paga um real",
-          "para dois"
-        ]
+        "note": "EXEMPLOS INDEPENDENTES · BLIND PRIMEIRO"
       },
       {
         "kind": "pineapple",
-        "chapter": "Pós-flop: o limite do pote",
+        "chapter": "Todas as rodadas: limite do pote",
         "title": "O pote antes do call",
-        "voice": "No pós-flop, o aumento é limitado ao pote antes do call. Você paga o que falta e aumenta, no máximo, o pote já pago, respeitando seu saldo. Não é o Pot Limit tradicional.",
+        "voice": "Em todas as rodadas, o aumento é limitado ao pote antes do call. Some sua contribuição, o que falta pagar e o pote formado. Respeite também o saldo. Não há teto fixo de quatro blinds.",
         "mode": "formula",
         "lines": [
           "Pagar o que falta",
           "+ aumentar até o pote atual"
         ],
-        "note": "Pote medido ANTES do seu call",
+        "note": "MÁXIMO TOTAL = min(B + saldo, B + C + P)",
         "cues": [
-          "paga o que falta",
-          "aumenta"
+          "o que falta pagar",
+          "o pote formado"
         ]
       },
       {
         "kind": "pineapple",
-        "chapter": "Pós-flop: o limite do pote",
+        "chapter": "Todas as rodadas: limite do pote",
         "title": "R$ 10 no pote. Abertura de R$ 5.",
         "voice": "O pote começa em dez. Ana aposta cinco e ele passa a quinze. Beto ainda não apostou: seu call é cinco. Pode aumentar mais quinze, chegando ao total de vinte reais.",
-        "mode": "pot",
-        "before": 10,
-        "after": 15,
-        "cue": "Ana aposta cinco",
-        "metrics": [
-          [
-            "CALL DE BETO",
-            "R$ 5"
-          ],
-          [
-            "AUMENTO MÁXIMO",
-            "R$ 15"
-          ],
-          [
-            "TOTAL MÁXIMO",
-            "R$ 20"
+        "mode": "bets",
+        "before": 3,
+        "after": 3,
+        "note": "BETO: CALL R$ 5 + AUMENTO ATÉ R$ 15 = TOTAL R$ 20",
+        "table": {
+          "pot": 1000,
+          "actor": 0,
+          "players": [
+            {
+              "name": "Ana · você",
+              "stack": 9700,
+              "bet": 0
+            },
+            {
+              "name": "Beto",
+              "stack": 9600,
+              "bet": 0
+            },
+            {
+              "name": "Caio",
+              "stack": 9700,
+              "bet": 0
+            }
           ]
+        },
+        "actions": [
+          {
+            "player": 0,
+            "to": 500,
+            "cue": "Ana aposta cinco",
+            "label": "Bet R$ 5",
+            "next": 1
+          }
         ],
-        "note": "BETO: R$ 5 + R$ 15 = R$ 20",
-        "cues": [
-          "call é cinco",
-          "mais quinze",
-          "total de vinte"
-        ]
+        "example": "EXEMPLO E · NOVA MÃO · POTE ANTERIOR R$ 10",
+        "hole": [
+          "Ah",
+          "Kd",
+          "8c"
+        ],
+        "board": [
+          "Qc",
+          "Js",
+          "Th"
+        ],
+        "dealer": 2
       },
       {
         "kind": "pineapple",
-        "chapter": "Pós-flop: o limite do pote",
+        "chapter": "Todas as rodadas: limite do pote",
         "title": "Beto aumenta para R$ 20",
-        "voice": "Beto coloca vinte: o pote chega a trinta e cinco. Ana já colocou cinco e acrescenta quinze. Ambos terminam com vinte na rodada. Dez anteriores, mais vinte, mais vinte: pote de cinquenta.",
-        "mode": "pot",
-        "before": 15,
-        "after": 35,
-        "cue": "Beto coloca vinte",
-        "metrics": [
-          [
-            "ANA JÁ COLOCOU",
-            "R$ 5"
-          ],
-          [
-            "ANA PAGA AGORA",
-            "R$ 15"
-          ],
-          [
-            "ANA TERMINA COM",
-            "R$ 20"
+        "voice": "Beto coloca vinte: o pote chega a trinta e cinco. Caio paga vinte. Ana já colocou cinco e acrescenta quinze. Dez anteriores, mais vinte de cada um: pote de setenta.",
+        "mode": "bets",
+        "before": 3,
+        "after": 3,
+        "note": "R$ 10 + R$ 20 + R$ 20 + R$ 20 = R$ 70",
+        "table": {
+          "pot": 1500,
+          "actor": 1,
+          "players": [
+            {
+              "name": "Ana · você",
+              "stack": 9200,
+              "bet": 500
+            },
+            {
+              "name": "Beto",
+              "stack": 9600,
+              "bet": 0
+            },
+            {
+              "name": "Caio",
+              "stack": 9700,
+              "bet": 0
+            }
           ]
+        },
+        "actions": [
+          {
+            "player": 1,
+            "to": 2000,
+            "cue": "Beto coloca",
+            "label": "Raise para R$ 20"
+          },
+          {
+            "player": 2,
+            "to": 2000,
+            "cue": "Caio paga",
+            "label": "Call R$ 20"
+          },
+          {
+            "player": 0,
+            "to": 2000,
+            "cue": "acrescenta quinze",
+            "label": "Call R$ 15",
+            "next": null
+          }
         ],
-        "note": "DEPOIS DO CALL: 10 + 20 + 20 = R$ 50",
-        "cues": [
-          "Ana já colocou cinco",
-          "acrescenta quinze",
-          "terminam com vinte"
+        "example": "EXEMPLO E · CONTINUAÇÃO COM 3 JOGADORES",
+        "hole": [
+          "Ah",
+          "Kd",
+          "8c"
         ],
-        "final": 50,
-        "finalCue": "acrescenta quinze"
+        "board": [
+          "Qc",
+          "Js",
+          "Th"
+        ],
+        "dealer": 2
       },
       {
         "kind": "pineapple",
-        "chapter": "Pós-flop: o limite do pote",
+        "chapter": "Todas as rodadas: limite do pote",
         "title": "O mesmo total, mais participantes",
-        "voice": "Três participantes completando vinte: pote de setenta. Com quatro, noventa. Mantemos os dez iniciais, sem novos aumentos. Valores antes de eventual rake, a taxa do cash.",
+        "voice": "Exemplos independentes. Com dez anteriores e vinte por participante, dois jogadores formam cinquenta, três formam setenta e quatro formam noventa. Valores antes de eventual rake, a taxa do cash.",
         "mode": "totals",
         "metrics": [
           [
@@ -672,16 +869,11 @@
             "R$ 90"
           ]
         ],
-        "note": "R$ 10 anteriores + R$ 20 por participante",
-        "cues": [
-          "dez iniciais",
-          "Três participantes",
-          "Com quatro"
-        ]
+        "note": "EXEMPLOS INDEPENDENTES · R$ 10 + R$ 20 POR PARTICIPANTE"
       },
       {
         "kind": "pineapple",
-        "chapter": "Pós-flop: o limite do pote",
+        "chapter": "Todas as rodadas: limite do pote",
         "title": "O próximo pode aumentar para R$ 55",
         "voice": "Depois de Beto: pote de trinta e cinco. Caio ainda não apostou. O call é vinte; pode aumentar mais trinta e cinco. Total máximo: cinquenta e cinco.",
         "mode": "money",
@@ -699,12 +891,7 @@
             "R$ 55"
           ]
         ],
-        "note": "R$ 20 + R$ 35 = R$ 55 • antes do call de Caio",
-        "cues": [
-          "pote de trinta e cinco",
-          "call é vinte",
-          "cinquenta e cinco"
-        ]
+        "note": "RAMO ALTERNATIVO DO EXEMPLO E · ANTES DO CALL DE CAIO"
       },
       {
         "kind": "pineapple",
@@ -717,19 +904,14 @@
           "De 5 para 20 → incremento 15",
           "De 20 → próximo mínimo 35"
         ],
-        "note": "PÓS-FLOP • totais em reais",
-        "cues": [
-          "Depois de cinco",
-          "De cinco para vinte",
-          "O próximo mínimo"
-        ]
+        "note": "TODAS AS RODADAS · ÚLTIMO INCREMENTO COMPLETO"
       },
       {
         "kind": "pineapple",
         "chapter": "Mínimos, all-in e reabertura",
-        "title": "Pré-flop: um all-in entre patamares",
-        "voice": "Pré-flop, big blind de um real. Ana aumenta para dois. Beto vai all-in para dois e cinquenta. Caio paga dois e cinquenta. Dora ainda pode aumentar e completa o patamar de três.",
-        "mode": "reopen",
+        "title": "Pré-flop: all-ins curtos",
+        "voice": "Outro exemplo. Ana aumenta para dois. Beto vai all-in para dois e cinquenta. Caio paga. Dora vai all-in para três. O incremento completo continua em um real.",
+        "mode": "bets",
         "rows": [
           [
             "Ana",
@@ -749,22 +931,75 @@
           [
             "Dora",
             "R$ 3",
-            "completou"
+            "all-in curto"
           ]
         ],
-        "note": "PRÉ-FLOP • próximo patamar, não salto para R$ 3,50",
+        "note": "EXEMPLO F · 4 JOGADORES · SEM COMPLETAR PATAMARES",
         "cues": [
           "Ana aumenta",
           "Beto vai",
           "Caio paga",
-          "Dora"
+          "Dora vai"
+        ],
+        "dealer": 1,
+        "example": "EXEMPLO F · 4 JOGADORES · BLINDS R$ 1 / R$ 1",
+        "table": {
+          "pot": 300,
+          "players": [
+            {
+              "name": "Ana",
+              "stack": 10000,
+              "bet": 0
+            },
+            {
+              "name": "Beto",
+              "stack": 250,
+              "bet": 0
+            },
+            {
+              "name": "Caio",
+              "stack": 9900,
+              "bet": 100
+            },
+            {
+              "name": "Dora",
+              "stack": 200,
+              "bet": 100
+            }
+          ]
+        },
+        "actions": [
+          {
+            "player": 0,
+            "to": 200,
+            "cue": "Ana aumenta",
+            "label": "Raise para R$ 2"
+          },
+          {
+            "player": 1,
+            "to": 250,
+            "cue": "Beto vai",
+            "label": "All-in curto"
+          },
+          {
+            "player": 2,
+            "to": 250,
+            "cue": "Caio paga",
+            "label": "Call R$ 1,50"
+          },
+          {
+            "player": 3,
+            "to": 300,
+            "cue": "Dora vai",
+            "label": "All-in curto"
+          }
         ]
       },
       {
         "kind": "pineapple",
         "chapter": "Mínimos, all-in e reabertura",
         "title": "A reabertura é individual",
-        "voice": "Ana enfrenta um real adicional, de dois para três: pode aumentar até quatro. Caio enfrenta só cinquenta centavos, de dois e cinquenta para três: não reabriu. A referência é a última ação de cada jogador.",
+        "voice": "Ana enfrenta um real adicional, de dois para três: pode aumentar, respeitando o pote. Caio enfrenta só cinquenta centavos: não reabriu. A referência é a última ação de cada jogador. Curtos somados reabrem ao atingir o incremento completo; a mesma regra vale no pós-flop.",
         "mode": "reopen",
         "rows": [
           [
@@ -779,48 +1014,6 @@
           ]
         ],
         "note": "Referência: valor enfrentado na última ação de cada um",
-        "cues": [
-          "Ana enfrenta",
-          "Caio enfrenta"
-        ]
-      },
-      {
-        "kind": "pineapple",
-        "chapter": "Mínimos, all-in e reabertura",
-        "title": "Pós-flop: o curto não muda o mínimo",
-        "voice": "Outro exemplo, pós-flop. Ana aposta um real. Beto vai all-in para um e cinquenta. O mínimo continua em um de incremento. Quem ainda pode aumentar precisa chegar a dois e cinquenta, respeitando o pote.",
-        "mode": "steps",
-        "lines": [
-          "Ana: aposta R$ 1",
-          "Beto: all-in para R$ 1,50",
-          "Próximo mínimo: R$ 2,50"
-        ],
-        "note": "PÓS-FLOP • incremento completo continua R$ 1",
-        "cues": [
-          "Ana aposta",
-          "Beto vai",
-          "dois e cinquenta"
-        ]
-      },
-      {
-        "kind": "pineapple",
-        "chapter": "Mínimos, all-in e reabertura",
-        "title": "Curtos podem somar uma reabertura",
-        "voice": "Caio paga um e cinquenta. Dora vai all-in para dois. Ana enfrenta um real adicional: reabre. Caio enfrenta só cinquenta centavos: não. Curtos somados reabrem ao atingir um incremento completo desde sua última ação.",
-        "mode": "reopen",
-        "rows": [
-          [
-            "Ana",
-            "1 → 2",
-            "+ R$ 1: reabre"
-          ],
-          [
-            "Caio",
-            "1,50 → 2",
-            "+ R$ 0,50: não"
-          ]
-        ],
-        "note": "Dora all-in para R$ 2 • mínimo de novo aumento: R$ 3",
         "cues": [
           "Ana enfrenta",
           "Caio enfrenta"
@@ -846,34 +1039,29 @@
         "kind": "pineapple",
         "chapter": "Antes, potes e formatos",
         "title": "Ante entra no pote, não no call",
-        "voice": "Ante entra no pote, sem contar como aposta da rodada. Com big blind de um real e ante de cinquenta centavos, o call de quem ainda não apostou continua em um real.",
+        "voice": "O ante é sempre um big blind, pago apenas pelo big blind. Entra uma vez no pote principal e não abate o call nem amplia o direito aos potes paralelos.",
         "mode": "money",
         "metrics": [
           [
-            "BB NOMINAL",
-            "R$ 1"
+            "ANTE NOMINAL",
+            "1 BB"
           ],
           [
-            "ANTE NO POTE",
-            "R$ 0,50"
+            "PAGADOR",
+            "Só o BB"
           ],
           [
-            "CALL SEM APORTE",
-            "R$ 1"
+            "DESTINO",
+            "Principal"
           ]
         ],
-        "note": "Torneio: ante do big blind é pago após os blinds",
-        "cues": [
-          "big blind",
-          "ante de cinquenta",
-          "call"
-        ]
+        "note": "CASH E TORNEIO · PLAY MONEY E REAL · DESDE A PRIMEIRA MÃO"
       },
       {
         "kind": "pineapple",
         "chapter": "Antes, potes e formatos",
         "title": "Sem saldo para completar",
-        "voice": "Para pagar dez, com saldo de seis, você pode entrar all-in com seis e disputar a parte coberta. No torneio, o big blind paga primeiro o blind e depois o ante possível, sem dívida.",
+        "voice": "Para pagar dez, com saldo de seis, você pode entrar all-in com seis e disputar a parte coberta. O big blind paga primeiro o blind e depois o ante possível, inclusive heads-up.",
         "mode": "money",
         "metrics": [
           [
@@ -900,38 +1088,33 @@
         "kind": "pineapple",
         "chapter": "Antes, potes e formatos",
         "title": "Potes paralelos",
-        "voice": "Três jogadores contribuíram dez, vinte e vinte. O principal tem trinta, dez de cada um. Os outros vinte formam um pote paralelo entre quem colocou vinte. Quem colocou dez só disputa o principal.",
+        "voice": "Exemplo independente: contribuições vivas de dez, vinte e vinte, mais um de ante. O principal tem trinta e um. O paralelo tem vinte, disputados apenas por quem colocou vinte em apostas.",
         "mode": "sidepots",
         "metrics": [
           [
-            "CONTRIBUIÇÕES",
+            "APOSTAS VIVAS",
             "10 / 20 / 20"
           ],
           [
-            "PRINCIPAL",
-            "R$ 30"
+            "PRINCIPAL + ANTE",
+            "R$ 31"
           ],
           [
             "PARALELO",
             "R$ 20"
           ]
         ],
-        "note": "A: principal • B e C: principal + paralelo",
-        "cues": [
-          "contribuíram",
-          "principal tem trinta",
-          "pote paralelo"
-        ]
+        "note": "EXEMPLO G · ANTE R$ 1 NÃO AUMENTA ELEGIBILIDADE"
       },
       {
         "kind": "pineapple",
         "chapter": "Antes, potes e formatos",
         "title": "O que ninguém cobriu volta",
-        "voice": "Agora, contribuições de dez, vinte e trinta. Os dez que ninguém cobriu voltam ao último jogador. Restam trinta no principal e vinte no paralelo. Cada pote é disputado apenas pelos participantes elegíveis.",
+        "voice": "Agora, apostas vivas de dez, vinte e trinta, mais um de ante. Os dez não cobertos voltam ao último jogador. Restam trinta e um no principal e vinte no paralelo.",
         "mode": "sidepots",
         "metrics": [
           [
-            "CONTRIBUIÇÕES",
+            "APOSTAS VIVAS",
             "10 / 20 / 30"
           ],
           [
@@ -940,15 +1123,10 @@
           ],
           [
             "POTES EM DISPUTA",
-            "R$ 30 + R$ 20"
+            "R$ 31 + R$ 20"
           ]
         ],
-        "note": "Valores brutos, antes de eventual rake",
-        "cues": [
-          "contribuições",
-          "voltam",
-          "Restam"
-        ]
+        "note": "EXEMPLO H · VALORES BRUTOS ANTES DO RAKE"
       },
       {
         "kind": "pineapple",
@@ -970,19 +1148,15 @@
         "kind": "pineapple",
         "chapter": "Recapitule e pratique",
         "title": "Uma mão, quatro lembretes",
-        "voice": "Recapitulando: duas privadas, mais uma por etapa, sem descarte. Use duas privadas e três comunitárias. Pré-flop: até quatro big blinds. Depois: aumento limitado ao pote antes do call. Respeite mínimos e reabertura.",
+        "voice": "Recapitulando: comunitárias abertas, pausa e nova privada, sem descarte. Use duas privadas e três comunitárias. Ante de um big blind. Todas as rodadas limitam o aumento ao pote antes do call. Respeite mínimos e reabertura.",
         "mode": "recap",
         "lines": [
           "2 → 3 → 4 → 5 privadas",
           "Exatamente 2 privadas + 3 comunitárias",
-          "Pré-flop: até 4 BB • Pós-flop: limite do pote"
+          "Ante 1 BB, pago pelo big blind",
+          "Aumento até o pote antes do call"
         ],
-        "note": "Pense no que pagar agora e no total da rodada",
-        "cues": [
-          "duas privadas",
-          "Use duas",
-          "Pré-flop"
-        ]
+        "note": "Pense no que pagar agora e no total da rodada"
       },
       {
         "kind": "pineapple",
@@ -997,6 +1171,7 @@
         ],
         "note": "ZERO TILT ACADEMY"
       }
-    ]
+    ],
+    "targetDurationSeconds": 460
   }
 }

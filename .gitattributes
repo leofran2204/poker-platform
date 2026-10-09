@@ -16,6 +16,9 @@
 *.html text eol=lf
 *.md text eol=lf
 *.sh text eol=lf
+*.py text eol=lf
+*.vtt text eol=lf
+ZeroTiltCurso/editorial/*-transcript.txt text eol=lf
 Dockerfile text eol=lf
 Caddyfile text eol=lf
 

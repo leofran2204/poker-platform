@@ -1,12 +1,12 @@
 {
   "filename": "zt-brazilian-pineapple-hybrid-v1",
   "title": "Aprenda Brazilian Pineapple",
-  "bettingRuleVersion": "brazilian_pineapple_hybrid_v1",
-  "durationSeconds": 475.37,
+  "bettingRuleVersion": "brazilian_pineapple_pot_before_call_v2",
+  "durationSeconds": 455.4,
   "width": 1280,
   "height": 720,
   "fps": 30,
-  "bytes": 10366461,
+  "bytes": 10179373,
   "voice": "pt-BR-AntonioNeural (synthetic)",
   "voiceRate": "-3%",
   "chapters": [
@@ -19,40 +19,41 @@
       "title": "As cartas: 2 → 5"
     },
     {
-      "start": 71.83,
+      "start": 89.37,
       "title": "Exatamente 2 + 3"
     },
     {
-      "start": 133.4,
+      "start": 150.93,
       "title": "Blinds e pré-flop"
     },
     {
-      "start": 191.17,
-      "title": "Pós-flop: o limite do pote"
+      "start": 206.73,
+      "title": "Todas as rodadas: limite do pote"
     },
     {
-      "start": 265.83,
+      "start": 280.63,
       "title": "Mínimos, all-in e reabertura"
     },
     {
-      "start": 360.97,
+      "start": 346.8,
       "title": "Antes, potes e formatos"
     },
     {
-      "start": 439.0,
+      "start": 419.67,
       "title": "Recapitule e pratique"
     }
   ],
   "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "cee0ddbe8c418fb1032ca1248f05a624d08fb711dab796e0f2f3d1b63ee83d30",
-  "sha256": "b6bdd31ee64dc56ef44739ce0f48881c52a4b47a78d9956ce3f17ac5034d4f57",
-  "episodeHash": "d75e7d0fdae73107a284a7e6d5665d44290923dd0fda09366d648e073df25d85",
-  "rendererVersion": 1,
+  "narrationHash": "0a0898f13951b072a4a4299bb0ce93919d7c67d13d2e41afb0dc03df1637d726",
+  "sha256": "1b63b23730542a79f148e01313e488e6e3c7689010d1c737603f703bd3b351b1",
+  "episodeHash": "46454a1e188f391dace1b5548c3497442667461e6b9cf8dcfe0410dee0dd8def",
+  "rendererVersion": 4,
   "assetHashes": {
-    "mp4": "b6bdd31ee64dc56ef44739ce0f48881c52a4b47a78d9956ce3f17ac5034d4f57",
-    "vtt": "e4da16067c217ba6b4db2c5d113217b29cf43ae2db4bd6579c83dd9db3eb7b70",
-    "webp": "6fef7e84321d135d9a7d6657cd7c46b85fd67e28af3231be9c10bd7640fbaa08"
+    "mp4": "1b63b23730542a79f148e01313e488e6e3c7689010d1c737603f703bd3b351b1",
+    "vtt": "5ad11be9be9686bda8f5b7100670f6d4dbf6d7270acd3605be1c97a562180d6e",
+    "webp": "b574f5cb3beebb43cecd0e7a66888ac77cce154aac7bb68796e0acdebb3458db"
   },
-  "transcriptHash": "2d6593b1436906ddbe270f1f2450ecf4c86c4a235e35fce5cb2b501cae5c2915",
-  "transcript": "Brazilian Pineapple. Aprenda as cartas e as apostas. Os valores são ilustrativos. Comece com Play Money.\n\nPrivadas são só suas. Comunitárias servem a todos. As apostas formam o pote. Na disputa final, vence a melhor combinação de cinco cartas entre quem concorre ao pote.\n\nNo pré-flop, você recebe duas privadas. Depois das apostas, vem o flop: três comunitárias. Quem continua na mão recebe mais uma privada e fica com três.\n\nO turn traz a quarta comunitária e sua quarta privada. O river traz a quinta de cada grupo. São duas, três, quatro e cinco privadas, sem descarte. Há apostas em cada etapa.\n\nAll-in é colocar todo o saldo permitido. Esse jogador continua recebendo cartas. Quem desistiu, dando fold, não recebe mais. Se os demais desistirem, você ganha sem comparar mãos.\n\nA seleção é obrigatória: exatamente duas privadas e três comunitárias. Aqui, seu ás e seu rei, com dama, valete e dez da mesa, formam uma sequência. As outras cartas não entram.\n\nVocê tem só uma privada de copas. Usar esse ás com quatro copas da mesa é inválido. Flush exige duas privadas e três comunitárias do mesmo naipe.\n\nO ranking cresce assim: carta alta, par, dois pares, trinca, sequência, flush, full house, quadra e straight flush. O royal é o straight flush máximo. Sequência supera trinca; full house supera flush.\n\nÁs, dois, três, quatro e cinco é sequência baixa. Use duas privadas e três comunitárias. Mesma força nas cinco cartas válidas: empate. Sexta carta e naipe não desempatam.\n\nSmall blind e big blind são apostas obrigatórias. Aqui, o big blind vale um real. Check é passar sem nada a completar. Call é pagar o que falta. Fold é desistir.\n\nPré-flop: totais de um, dois, três e quatro reais. O big blind já é o primeiro patamar. Cada aumento normal vai ao seguinte. O teto de quatro também vale com dois jogadores.\n\nVocê já colocou um real e enfrenta um total de três. Para pagar, faltam dois. Seu total fica em três. Se puder aumentar, o próximo total é quatro: você acrescenta três.\n\nBig blind com só setenta centavos entra all-in. O patamar continua em um real. Quem ainda não apostou paga um real. Próximo aumento normal: para dois.\n\nNo pós-flop, o aumento é limitado ao pote antes do call. Você paga o que falta e aumenta, no máximo, o pote já pago, respeitando seu saldo. Não é o Pot Limit tradicional.\n\nO pote começa em dez. Ana aposta cinco e ele passa a quinze. Beto ainda não apostou: seu call é cinco. Pode aumentar mais quinze, chegando ao total de vinte reais.\n\nBeto coloca vinte: o pote chega a trinta e cinco. Ana já colocou cinco e acrescenta quinze. Ambos terminam com vinte na rodada. Dez anteriores, mais vinte, mais vinte: pote de cinquenta.\n\nTrês participantes completando vinte: pote de setenta. Com quatro, noventa. Mantemos os dez iniciais, sem novos aumentos. Valores antes de eventual rake, a taxa do cash.\n\nDepois de Beto: pote de trinta e cinco. Caio ainda não apostou. O call é vinte; pode aumentar mais trinta e cinco. Total máximo: cinquenta e cinco.\n\nSem aposta, a abertura mínima normal é um big blind. Depois de cinco, o aumento mínimo é para dez. De cinco para vinte, o incremento completo é quinze. O próximo mínimo será trinta e cinco.\n\nPré-flop, big blind de um real. Ana aumenta para dois. Beto vai all-in para dois e cinquenta. Caio paga dois e cinquenta. Dora ainda pode aumentar e completa o patamar de três.\n\nAna enfrenta um real adicional, de dois para três: pode aumentar até quatro. Caio enfrenta só cinquenta centavos, de dois e cinquenta para três: não reabriu. A referência é a última ação de cada jogador.\n\nOutro exemplo, pós-flop. Ana aposta um real. Beto vai all-in para um e cinquenta. O mínimo continua em um de incremento. Quem ainda pode aumentar precisa chegar a dois e cinquenta, respeitando o pote.\n\nCaio paga um e cinquenta. Dora vai all-in para dois. Ana enfrenta um real adicional: reabre. Caio enfrenta só cinquenta centavos: não. Curtos somados reabrem ao atingir um incremento completo desde sua última ação.\n\nSaldo acima do teto não autoriza all-in. O curto consome todo o saldo dentro das regras. Check antes da abertura preserva o direito de aumentar depois.\n\nAnte entra no pote, sem contar como aposta da rodada. Com big blind de um real e ante de cinquenta centavos, o call de quem ainda não apostou continua em um real.\n\nPara pagar dez, com saldo de seis, você pode entrar all-in com seis e disputar a parte coberta. No torneio, o big blind paga primeiro o blind e depois o ante possível, sem dívida.\n\nTrês jogadores contribuíram dez, vinte e vinte. O principal tem trinta, dez de cada um. Os outros vinte formam um pote paralelo entre quem colocou vinte. Quem colocou dez só disputa o principal.\n\nAgora, contribuições de dez, vinte e trinta. Os dez que ninguém cobriu voltam ao último jogador. Restam trinta no principal e vinte no paralelo. Cada pote é disputado apenas pelos participantes elegíveis.\n\nCash: entrada vira fichas; ao sair, retira o saldo. Torneio: inscrição dá fichas; colocação define prêmios. Confira taxas e reentradas no lobby. Mesma regra em Play Money e Jogo Real; saldos separados.\n\nRecapitulando: duas privadas, mais uma por etapa, sem descarte. Use duas privadas e três comunitárias. Pré-flop: até quatro big blinds. Depois: aumento limitado ao pote antes do call. Respeite mínimos e reabertura.\n\nO Loss Deflator não se aplica ao Brazilian Pineapple. Pratique com Play Money e reveja as contas. Poker envolve risco de perda e é para maiores de dezoito anos. Defina limites de tempo e dinheiro."
+  "mediaRevision": "a937f6acefe8a0575c4801053d312a79eef354b28eb233c70ce084d50dedd267",
+  "transcriptHash": "ba26545518bc21e14aed757ba82901563e89ea5d5f9aded4962100045bf56e77",
+  "transcript": "Brazilian Pineapple. Aprenda as cartas e as apostas. Os valores são ilustrativos. Comece com Play Money.\n\nPrivadas são só suas. Comunitárias servem a todos. As apostas formam o pote. Na disputa final, vence a melhor combinação de cinco cartas entre quem concorre ao pote.\n\nVocê começa com duas privadas. Após as apostas, o flop chega fechado, abre e fica visível. Só depois da pausa cada jogador recebe a terceira privada.\n\nNo turn, a quarta comunitária chega fechada e vira. A mesa permanece visível. Após dois segundos, vem a quarta privada para cada jogador. Nenhuma carta anterior é redistribuída.\n\nNo river, a quinta comunitária abre. Depois da pausa, cada participante recebe a quinta privada. Não há descarte. Uma nova rodada de apostas termina a distribuição.\n\nAll-in coloca todo o saldo permitido, mas continua na mão e recebe cartas. Quem desistiu não recebe mais. Aqui, Beto está all-in; Caio desistiu. Observe a distribuição.\n\nA seleção é obrigatória: exatamente duas privadas e três comunitárias. Aqui, seu ás e seu rei, com dama, valete e dez da mesa, formam uma sequência. As outras cartas não entram.\n\nVocê tem só uma privada de copas. Usar esse ás com quatro copas da mesa é inválido. Flush exige duas privadas e três comunitárias do mesmo naipe.\n\nO ranking cresce assim: carta alta, par, dois pares, trinca, sequência, flush, full house, quadra e straight flush. O royal é o straight flush máximo. Sequência supera trinca; full house supera flush.\n\nÁs, dois, três, quatro e cinco é sequência baixa. Use duas privadas e três comunitárias. Mesma força nas cinco cartas válidas: empate. Sexta carta e naipe não desempatam.\n\nAna está no botão. Beto paga cinquenta centavos de small blind. Caio paga um real de big blind e mais um de ante. Pote inicial: dois e cinquenta.\n\nAna paga um real. Beto completa cinquenta centavos. Caio pode dar check. Cada jogador tem um real na rodada; com o ante, o pote fica em quatro reais.\n\nOutra mão, mesmos blinds e ante. Ana deve um real e o pote tem dois e cinquenta. Pode aumentar para três e cinquenta. Beto e Caio pagam. Pote: onze e cinquenta.\n\nCom setenta centavos, o big blind fica all-in e não paga ante. O call nominal continua um real. Com um e cinquenta, paga um de blind e cinquenta de ante, sem dívida.\n\nEm todas as rodadas, o aumento é limitado ao pote antes do call. Some sua contribuição, o que falta pagar e o pote formado. Respeite também o saldo. Não há teto fixo de quatro blinds.\n\nO pote começa em dez. Ana aposta cinco e ele passa a quinze. Beto ainda não apostou: seu call é cinco. Pode aumentar mais quinze, chegando ao total de vinte reais.\n\nBeto coloca vinte: o pote chega a trinta e cinco. Caio paga vinte. Ana já colocou cinco e acrescenta quinze. Dez anteriores, mais vinte de cada um: pote de setenta.\n\nExemplos independentes. Com dez anteriores e vinte por participante, dois jogadores formam cinquenta, três formam setenta e quatro formam noventa. Valores antes de eventual rake, a taxa do cash.\n\nDepois de Beto: pote de trinta e cinco. Caio ainda não apostou. O call é vinte; pode aumentar mais trinta e cinco. Total máximo: cinquenta e cinco.\n\nSem aposta, a abertura mínima normal é um big blind. Depois de cinco, o aumento mínimo é para dez. De cinco para vinte, o incremento completo é quinze. O próximo mínimo será trinta e cinco.\n\nOutro exemplo. Ana aumenta para dois. Beto vai all-in para dois e cinquenta. Caio paga. Dora vai all-in para três. O incremento completo continua em um real.\n\nAna enfrenta um real adicional, de dois para três: pode aumentar, respeitando o pote. Caio enfrenta só cinquenta centavos: não reabriu. A referência é a última ação de cada jogador. Curtos somados reabrem ao atingir o incremento completo; a mesma regra vale no pós-flop.\n\nSaldo acima do teto não autoriza all-in. O curto consome todo o saldo dentro das regras. Check antes da abertura preserva o direito de aumentar depois.\n\nO ante é sempre um big blind, pago apenas pelo big blind. Entra uma vez no pote principal e não abate o call nem amplia o direito aos potes paralelos.\n\nPara pagar dez, com saldo de seis, você pode entrar all-in com seis e disputar a parte coberta. O big blind paga primeiro o blind e depois o ante possível, inclusive heads-up.\n\nExemplo independente: contribuições vivas de dez, vinte e vinte, mais um de ante. O principal tem trinta e um. O paralelo tem vinte, disputados apenas por quem colocou vinte em apostas.\n\nAgora, apostas vivas de dez, vinte e trinta, mais um de ante. Os dez não cobertos voltam ao último jogador. Restam trinta e um no principal e vinte no paralelo.\n\nCash: entrada vira fichas; ao sair, retira o saldo. Torneio: inscrição dá fichas; colocação define prêmios. Confira taxas e reentradas no lobby. Mesma regra em Play Money e Jogo Real; saldos separados.\n\nRecapitulando: comunitárias abertas, pausa e nova privada, sem descarte. Use duas privadas e três comunitárias. Ante de um big blind. Todas as rodadas limitam o aumento ao pote antes do call. Respeite mínimos e reabertura.\n\nO Loss Deflator não se aplica ao Brazilian Pineapple. Pratique com Play Money e reveja as contas. Poker envolve risco de perda e é para maiores de dezoito anos. Defina limites de tempo e dinheiro."
 }

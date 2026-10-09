@@ -144,6 +144,10 @@ describe("integridade da Academy", () => {
       expect(manifest.pronunciationVersion, lesson.id).toBe(lesson.video?.pronunciationVersion);
       expect(manifest.narrationHash, lesson.id).toMatch(/^[a-f0-9]{64}$/);
       expect(manifest.narrationHash, lesson.id).toBe(lesson.video?.narrationHash);
+      expect(lesson.video?.mediaRevision, lesson.id).toBe(manifest.mediaRevision);
+      const hashes = Object.fromEntries(["mp4", "vtt", "webp"].map(ext => [ext, createHash("sha256").update(readFileSync(new URL(`../../public/videos/${manifest.filename}.${ext}`, import.meta.url))).digest("hex")]));
+      expect(hashes, lesson.id).toEqual(manifest.assetHashes);
+      expect(createHash("sha256").update(JSON.stringify(hashes)).digest("hex"), lesson.id).toBe(manifest.mediaRevision);
       expect(lesson.video?.rendererVersion, lesson.id).toBe(manifest.rendererVersion);
       const transcript = readFileSync(fileURLToPath(new URL(`../../../ZeroTiltCurso/editorial/academy-${lesson.id}-transcript.txt`, import.meta.url)), "utf8");
       expect(lesson.video?.transcript?.replace(/\r\n/g, "\n"), lesson.id).toBe(transcript.replace(/\r\n/g, "\n").trim());
@@ -161,7 +165,7 @@ describe("integridade da Academy", () => {
     const episode = JSON.parse(readFileSync(new URL("episodes.json", editorial), "utf8")).pineapple;
     expect(pineappleFilm.durationSeconds).toBeGreaterThan(0);
     expect(pineappleFilm.durationSeconds).toBeLessThanOrEqual(480);
-    expect(pineappleFilm.bettingRuleVersion).toBe("brazilian_pineapple_hybrid_v1");
+    expect(pineappleFilm.bettingRuleVersion).toBe("brazilian_pineapple_pot_before_call_v2");
     expect(pineappleFilm.bettingRuleVersion).toBe(episode.bettingRuleVersion);
     expect(pineappleFilm.bettingRuleVersion).toBe(manifest.bettingRuleVersion);
     expect(createHash("sha256").update(JSON.stringify(episode)).digest("hex")).toBe(manifest.episodeHash);

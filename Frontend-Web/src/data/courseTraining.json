@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "reviewedAt": "2026-09-28",
   "scenarios": [
     {
@@ -155,7 +155,7 @@
       "board": [],
       "topic": "selection",
       "objective": "Acompanhar cada extra sem descartar cartas.",
-      "hint": "Cada participante ainda na mão recebe uma extra depois do flop, turn e river, inclusive em all-in. Pré-flop: patamares de 1 a 4 BB; pós-flop: aumento limitado ao pote antes do call.",
+      "hint": "Cada participante ainda na mão recebe uma extra depois do flop, turn e river, inclusive em all-in. Todas as rodadas: aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
       "profiles": [
         "caller",
         "passive"
@@ -182,7 +182,7 @@
       ],
       "topic": "selection",
       "objective": "Selecionar exatamente duas privadas e três comunitárias.",
-      "hint": "As e Ah formam trinca com Ad, Qc e 2s. O rei privado fica fora. Pré-flop: patamares de 1 a 4 BB; pós-flop: aumento limitado ao pote antes do call.",
+      "hint": "As e Ah formam trinca com Ad, Qc e 2s. O rei privado fica fora. Todas as rodadas: aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
       "profiles": [
         "caller"
       ],
@@ -210,7 +210,7 @@
       ],
       "topic": "combinations",
       "objective": "Contar candidatas legais e refazer a leitura depois da extra.",
-      "hint": "No turn: seis pares privados vezes quatro trios comunitários, total 24. Não são 24 eventos independentes. Pré-flop: patamares de 1 a 4 BB; pós-flop: aumento limitado ao pote antes do call.",
+      "hint": "No turn: seis pares privados vezes quatro trios comunitários, total 24. Não são 24 eventos independentes. Todas as rodadas: aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
       "profiles": [
         "pressure"
       ],
@@ -240,7 +240,7 @@
       ],
       "topic": "selection",
       "objective": "Encontrar a melhor mão sem usar cinco cartas do board.",
-      "hint": "Escolha duas privadas e três comunitárias. Nove e oito com dama, valete e dez formam sequência até dama. Pré-flop: patamares de 1 a 4 BB; pós-flop: aumento limitado ao pote antes do call.",
+      "hint": "Escolha duas privadas e três comunitárias. Nove e oito com dama, valete e dez formam sequência até dama. Todas as rodadas: aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
       "profiles": [
         "caller"
       ],
@@ -261,7 +261,7 @@
       "board": [],
       "topic": "selection",
       "objective": "Verificar a distribuição até o showdown após all-in.",
-      "hint": "Nenhuma carta extra é cancelada pelo all-in. A formação final continua exatamente 2+3. Pré-flop: patamares de 1 a 4 BB; pós-flop: aumento limitado ao pote antes do call.",
+      "hint": "Nenhuma carta extra é cancelada pelo all-in. A formação final continua exatamente 2+3. Todas as rodadas: aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
       "profiles": [
         "pressure"
       ],

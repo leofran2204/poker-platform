@@ -2,12 +2,12 @@
   "lessonId": "m3l2",
   "filename": "zt-academy-m3l2-v3",
   "contentHash": "24a41a912452ab0e7f5bbb4c4500e7ce57a557a44bea4d31a18ac61514756868",
-  "rendererVersion": 3,
+  "rendererVersion": 5,
   "durationSeconds": 325.53,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8066011,
+  "bytes": 8600760,
   "voice": "pt-BR-AntonioNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v1",
@@ -70,5 +70,224 @@
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "29fd140c5aec611e75167081e0cd57ac47e7cfb8783ff21563102839dd0ca57f"
+  "scenes": [
+    {
+      "start": 0.0,
+      "duration": 20.5,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        }
+      ]
+    },
+    {
+      "start": 20.5,
+      "duration": 14.333333333333334,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 34.833333333333336,
+      "duration": 15.033333333333333,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        }
+      ]
+    },
+    {
+      "start": 49.86666666666667,
+      "duration": 21.033333333333335,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        }
+      ]
+    },
+    {
+      "start": 70.9,
+      "duration": 32.0,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        }
+      ]
+    },
+    {
+      "start": 102.9,
+      "duration": 27.1,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        }
+      ]
+    },
+    {
+      "start": 130.0,
+      "duration": 32.9,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        }
+      ]
+    },
+    {
+      "start": 162.9,
+      "duration": 38.4,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 201.3,
+      "duration": 9.066666666666666,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 210.36666666666667,
+      "duration": 19.466666666666665,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        }
+      ]
+    },
+    {
+      "start": 229.83333333333334,
+      "duration": 15.166666666666666,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        }
+      ]
+    },
+    {
+      "start": 245.0,
+      "duration": 32.166666666666664,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        }
+      ]
+    },
+    {
+      "start": 277.1666666666667,
+      "duration": 14.333333333333334,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        }
+      ]
+    },
+    {
+      "start": 291.5,
+      "duration": 34.03333333333333,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        }
+      ]
+    }
+  ],
+  "sha256": "81393d88ad1c4a24088fa04c391166bf06a13ad65ae8de7b53f3b5e9af8a9da9",
+  "assetHashes": {
+    "mp4": "81393d88ad1c4a24088fa04c391166bf06a13ad65ae8de7b53f3b5e9af8a9da9",
+    "vtt": "2efe310f7bb0a0d8fbf46af2eaf18828761d040ddc935190ee0d6db89622256a",
+    "webp": "0d95212562e7540225ff59a4029443d7be2a11b03e6327ed116ca878be7e33c9"
+  },
+  "mediaRevision": "d0a2909278a3f9e4fff08c69c16f5b65fe28694a7e4b11b91dae07076940012a"
 }

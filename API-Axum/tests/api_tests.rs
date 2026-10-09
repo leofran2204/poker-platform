@@ -239,7 +239,7 @@ async fn agent_cycle_close_is_guarded_idempotent_and_separates_wallets() {
 #[tokio::test]
 async fn academy_public_route_works_without_database_or_wallet() {
     let app = poker_api::build_router(make_test_state());
-    let payload = serde_json::json!({"version":2,"scenario":"pine-allin","seed":7,"actions":[]});
+    let payload = serde_json::json!({"version":3,"scenario":"pine-allin","seed":7,"actions":[]});
     let (status, body) = send_request(
         app.clone(),
         Method::POST,
@@ -260,7 +260,7 @@ async fn academy_public_route_works_without_database_or_wallet() {
         initial["state"]["players"][1]["cards"],
         serde_json::json!([])
     );
-    let played = serde_json::json!({"version":2,"scenario":"pine-allin","seed":7,"actions":[{"action":"all_in","answer":"2"}]});
+    let played = serde_json::json!({"version":3,"scenario":"pine-allin","seed":7,"actions":[{"action":"all_in","answer":"2"}]});
     let (status, body) = send_request(
         app,
         Method::POST,
@@ -295,27 +295,27 @@ async fn academy_rejects_invalid_payloads_and_oversized_bodies() {
             StatusCode::BAD_REQUEST,
         ),
         (
-            serde_json::json!({"version":2,"scenario":"missing","seed":1}),
+            serde_json::json!({"version":3,"scenario":"missing","seed":1}),
             StatusCode::BAD_REQUEST,
         ),
         (
-            serde_json::json!({"version":2,"scenario":"pine-allin","seed":-1}),
+            serde_json::json!({"version":3,"scenario":"pine-allin","seed":-1}),
             StatusCode::UNPROCESSABLE_ENTITY,
         ),
         (
-            serde_json::json!({"version":2,"scenario":"pine-allin","seed":1,"balance":100}),
+            serde_json::json!({"version":3,"scenario":"pine-allin","seed":1,"balance":100}),
             StatusCode::UNPROCESSABLE_ENTITY,
         ),
         (
-            serde_json::json!({"version":2,"scenario":"pine-allin","seed":1,"actions":[{"action":"raise","amount":100.5}]}),
+            serde_json::json!({"version":3,"scenario":"pine-allin","seed":1,"actions":[{"action":"raise","amount":100.5}]}),
             StatusCode::UNPROCESSABLE_ENTITY,
         ),
         (
-            serde_json::json!({"version":2,"scenario":"primeira-mao","seed":1,"actions":[{"action":"raise","amount":101}]}),
+            serde_json::json!({"version":3,"scenario":"primeira-mao","seed":1,"actions":[{"action":"raise","amount":101}]}),
             StatusCode::BAD_REQUEST,
         ),
         (
-            serde_json::json!({"version":2,"scenario":"pine-allin","seed":1,"actions":[{"action":"call","answer":"x".repeat(17000)}]}),
+            serde_json::json!({"version":3,"scenario":"pine-allin","seed":1,"actions":[{"action":"call","answer":"x".repeat(17000)}]}),
             StatusCode::PAYLOAD_TOO_LARGE,
         ),
     ] {
@@ -335,7 +335,7 @@ async fn academy_rate_limit_does_not_exhaust_auth_quota() {
     let mut state = make_test_state();
     state.rate_limiter = poker_api::middleware::rate_limit::RateLimiter::new(2, 60);
     let app = poker_api::build_router(state.clone());
-    let payload = serde_json::json!({"version":2,"scenario":"primeira-mao","seed":1});
+    let payload = serde_json::json!({"version":3,"scenario":"primeira-mao","seed":1});
     for expected in [
         StatusCode::OK,
         StatusCode::OK,

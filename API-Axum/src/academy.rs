@@ -5,7 +5,6 @@ use poker_engine::{
     deck::{self, Card, HandRank, HandResult, Suit},
     game_loop::{GameLoop, PlayerMove},
     hand_history::GameType,
-    side_pots::{calculate_side_pots, PlayerForPots},
     types::{GamePhase, PokerVariant, TableConfig},
 };
 use serde::{Deserialize, Serialize};
@@ -91,6 +90,9 @@ pub struct StudySnapshot {
     board: Vec<String>,
     players: Vec<StudyPlayer>,
     pot: u64,
+    ante: u64,
+    ante_paid: u64,
+    ante_player_id: Option<String>,
     acting: usize,
     finished: bool,
 }
@@ -335,6 +337,9 @@ fn snapshot(game: &GameLoop, reveal: bool) -> StudySnapshot {
         phase: st.phase.as_str().into(),
         board: st.community_cards.iter().map(card_code).collect(),
         pot: st.total_pot(),
+        ante: game.nominal_ante(),
+        ante_paid: game.ante_paid(),
+        ante_player_id: game.ante_player_id().map(str::to_owned),
         acting: st.active_player_index,
         finished: st.is_finished,
         players: st
@@ -393,22 +398,7 @@ fn legal(game: &GameLoop) -> StudyLegal {
         .current_bet_to_match
         .saturating_sub(p.current_bet)
         .min(p.stack);
-    let contributions: Vec<_> = st
-        .players
-        .iter()
-        .enumerate()
-        .map(|(i, p)| PlayerForPots {
-            id: p.id.clone(),
-            total_bet: p.total_bet + if i == 0 { to_call } else { 0 },
-            has_folded: p.has_folded,
-            cards: vec![],
-        })
-        .collect();
-    let eligible_pot_after_call = calculate_side_pots(&contributions)
-        .iter()
-        .filter(|pot| pot.is_eligible("hero"))
-        .map(|p| p.amount)
-        .sum::<u64>();
+    let eligible_pot_after_call = game.eligible_pot_after_call("hero", to_call);
     let legal = game.legal_actions("hero");
     let min_total = legal.minimum_wager;
     let max_total = legal.maximum_wager;
@@ -1055,6 +1045,28 @@ mod tests {
                 answer: String::new()
             }]
         ))
+        .is_err());
+    }
+
+    #[test]
+    fn pineapple_v3_catalog_exposes_ante_and_rejects_previous_sessions() {
+        let response = replay(request("pine-distribuicao", 7, vec![])).unwrap();
+        assert_eq!(response.version, 3);
+        assert_eq!(response.state.ante, 100);
+        assert_eq!(response.state.ante_paid, 100);
+        assert_eq!(response.state.ante_player_id.as_deref(), Some("bot-2"));
+        assert_eq!(response.state.pot, 250);
+        assert_eq!(response.legal.to_call, 100);
+        assert_eq!(response.legal.max_total, 350);
+        assert_eq!(response.legal.eligible_pot_after_call, 350);
+        assert_eq!(
+            response.legal.betting_structure,
+            poker_engine::game_loop::PINEAPPLE_RULE_VERSION
+        );
+        assert!(replay(StudyRequest {
+            version: 2,
+            ..request("pine-distribuicao", 7, vec![])
+        })
         .is_err());
     }
 

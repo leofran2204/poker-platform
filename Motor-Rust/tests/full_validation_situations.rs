@@ -12,7 +12,7 @@ fn pineapple(stacks: &[u64], ante: u64) -> GameLoop {
         TableConfig::new(100, 0, 0)
             .with_small_blind(100)
             .with_poker_variant(poker_engine::types::PokerVariant::BrazilianPineapple),
-        "hybrid-v1".into(),
+        "pot-before-call-v2".into(),
         "Pineapple".into(),
         GameType::Tournament,
     )
@@ -43,8 +43,12 @@ fn rejected_unchanged(g: &mut GameLoop, action: PlayerMove) {
 }
 
 fn pineapple_flop(n: usize) -> GameLoop {
-    // BBA supplies the remainder: all paid contributions total exactly R$10.
-    let mut g = pineapple(&vec![10000; n], 1000 - 100 * n as u64);
+    // Legal live bets plus the mandatory R$1 BBA form exactly R$10.
+    let mut g = pineapple(&vec![10000; n], 0);
+    if n == 2 {
+        act(&mut g, PlayerMove::Raise(200));
+    }
+    act(&mut g, PlayerMove::Raise(900 / n as u64));
     while g.state.phase == poker_engine::types::GamePhase::Preflop {
         let p = g.state.active_player().unwrap();
         let mv = if p.current_bet < g.state.current_bet_to_match {
@@ -59,26 +63,31 @@ fn pineapple_flop(n: usize) -> GameLoop {
 }
 
 #[test]
-fn pineapple_fixed_levels_cap_heads_up_and_transition() {
+fn pineapple_pot_bounds_heads_up_and_transition() {
     for n in [2, 3, 6] {
         let mut g = pineapple(&vec![10000; n], 0);
-        for level in [200, 300, 400] {
-            let legal = g.legal_actions(&g.state.active_player().unwrap().id);
-            assert_eq!((legal.minimum_wager, legal.maximum_wager), (level, level));
-            assert!(!legal.allows("allin"));
-            rejected_unchanged(&mut g, PlayerMove::Raise(level + 1));
-            act(&mut g, PlayerMove::Raise(level));
-            assert_eq!(g.state.min_raise, 100);
-        }
-        rejected_unchanged(&mut g, PlayerMove::Raise(500));
+        assert_eq!(g.state.total_pot(), 300);
+        let first = g.state.active_player().unwrap().id.clone();
+        assert_eq!(
+            (
+                g.legal_actions(&first).minimum_wager,
+                g.legal_actions(&first).maximum_wager
+            ),
+            (200, 400)
+        );
+        rejected_unchanged(&mut g, PlayerMove::Raise(401));
         rejected_unchanged(&mut g, PlayerMove::AllIn);
+        act(&mut g, PlayerMove::Raise(350));
+        assert_eq!(g.state.min_raise, 250);
+        rejected_unchanged(&mut g, PlayerMove::Raise(599));
+        act(&mut g, PlayerMove::Raise(600)); // above the former 4 BB cap
         while g.state.phase == poker_engine::types::GamePhase::Preflop {
             act(&mut g, PlayerMove::Call);
         }
         let legal = g.legal_actions(&g.state.active_player().unwrap().id);
         assert_eq!(
             (legal.minimum_wager, legal.maximum_wager),
-            (100, 400 * n as u64)
+            (100, 100 + 600 * n as u64)
         );
         assert!(g.state.players.iter().all(|p| p.hole_cards.len() == 3));
     }
@@ -86,13 +95,13 @@ fn pineapple_fixed_levels_cap_heads_up_and_transition() {
 
 #[test]
 fn pineapple_short_allins_completion_and_individual_reopening() {
-    let mut g = pineapple(&[10000, 250, 10000, 10000], 0);
+    let mut g = pineapple(&[10000, 250, 10000, 400], 0);
     act(&mut g, PlayerMove::Raise(200));
     act(&mut g, PlayerMove::AllIn); // 2.5 BB
     act(&mut g, PlayerMove::Call); // p2 completed at 250
     let legal = g.legal_actions("p3");
-    assert_eq!((legal.minimum_wager, legal.maximum_wager), (300, 300));
-    act(&mut g, PlayerMove::Raise(300)); // complete the level, not a new 100 increment
+    assert_eq!((legal.minimum_wager, legal.maximum_wager), (0, 0));
+    act(&mut g, PlayerMove::AllIn); // second short all-in reaches 300 cumulatively
     assert!(g.can_raise("p0")); // faces a full BB cumulatively
     act(&mut g, PlayerMove::Call);
     assert!(!g.can_raise("p2")); // only 50 more than p2's last action
@@ -209,7 +218,7 @@ fn pineapple_rule_history_is_versioned_and_old_json_stays_unversioned() {
     let mut value = serde_json::to_value(g.history.unwrap()).unwrap();
     assert_eq!(
         value["betting_rule_version"],
-        "brazilian_pineapple_hybrid_v1"
+        "brazilian_pineapple_pot_before_call_v2"
     );
     value
         .as_object_mut()
@@ -241,7 +250,7 @@ fn pineapple_overflow_is_rejected_before_start_and_limits_saturate() {
     assert_eq!(
         g.legal_actions(&g.state.active_player().unwrap().id)
             .maximum_wager,
-        400
+        500
     );
 }
 

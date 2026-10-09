@@ -33,7 +33,7 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 
 ## Home
 
-- Visitante: Brazilian Pineapple é o destaque, com capa própria e “Aprenda Brazilian Pineapple”. Filme de 475,37 s (até oito minutos), exemplos da regra híbrida e acesso também no início da Academy. O institucional v3 de 81,40 s permanece como link secundário no fim da home.
+- Visitante: Brazilian Pineapple é o destaque, com capa própria e “Aprenda Brazilian Pineapple”. Filme de aproximadamente 7min40s (até oito minutos), exemplos da regra v2: ante 1 BB e limite do pote antes do call em todas as rodadas e acesso também no início da Academy. O institucional v3 de 81,40 s permanece como link secundário no fim da home.
 - Logado em `/` redireciona para `/curso`
 - Notícias e Dica do Pró **não** ficam na home: `/noticias`, `/dicas`, rodapé e atalhos no Curso
 - Header logado: Curso · Lobby · Carteira (+ Mais). Visitante: Academy · Entrar · Criar conta
@@ -89,3 +89,5 @@ O serviço `poker_frontend` no compose usa este Dockerfile: build Node → Caddy
 ## Legado
 
 O antigo `Frontend-Dioxus/` (WASM) foi **removido** do monorepo. O deploy canônico é **Frontend-Web**.
+
+A mesa e a Academy exibem ante nominal, valor pago e pagador. Todos os seletores seguem os limites enviados pelo motor. URLs dos players usam `mediaRevision` (MP4 + VTT + capa); reprodução continua sob demanda, sem autoplay, com transcrição, legendas e capítulos. O catálogo de treino é v3.

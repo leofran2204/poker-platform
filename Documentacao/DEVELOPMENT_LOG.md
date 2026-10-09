@@ -906,7 +906,7 @@
 - Eps 05-10 (~50-56s cada): sizing, roubos e 3-bets, pot odds, EV e fold equity, banca, revisão final. Série completa em `ZeroTiltCurso/`.
 - Sem botão no resultado: só as 5 cartas do jogo vencedor saltam com brilho dourado (board + mão do vencedor + painel), e o painel some sozinho em 7s.
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-05) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
@@ -1300,3 +1300,12 @@ Após o relato de que Pineapple era lido literalmente, aplicado um glossário fo
 Regravação local concluída: 437 trechos completos, 30 MP4 decodificados integralmente e 90 arquivos conferidos. Filme principal em 475,37 segundos, oito capítulos e 113 legendas. Passaram 87 testes frontend, seis regressões Python, lint/build, auditoria npm e 62 vistas em Chrome isolado. Os hashes de narração versionam as URLs para evitar áudio e legendas anteriores em cache; o CI confere o glossário contra as produções. Nenhuma alteração de apostas ou migration. Evidências e limite da escuta humana em [QUALITY](QUALITY.md#pronúncia-dos-vídeos--08102026).
 
 Publicado o frontend `75971a0c` às 13:48:04 UTC (10:48:04 em São Paulo), após os dois workflows aprovarem. Primeiro build interrompido por queda de SSH e retomado antes da publicação, mantendo o backup validado. A troca recriou apenas o frontend; API, banco e Redis preservaram containers/imagens, e o `.env` permaneceu idêntico. Janela ociosa, quatro serviços saudáveis, 60 migrations e 90 arquivos íntegros. HTTP público conferiu as 30 produções, e os players da home/Academy passaram em desktop/celular. A escuta humana integral permanece sem atestação; documentos posteriores não alteram as imagens publicadas. Detalhes em [QUALITY](QUALITY.md#pronúncia-dos-vídeos--08102026).
+
+
+## 2026-10-09 — Pineapple v2 e encenação sequencial
+
+Implementado o limite do pote antes do call em todas as rodadas e ante de 1 BB pago exclusivamente pelo big blind. Prioridade ao blind, ante parcial, elegibilidade dos potes e reabertura preservados; novas mãos recebem a versão v2. Atores, mesa, níveis MTT, Academy v3 e descrições vigentes atualizados, sem migration ou alteração de históricos/settlements antigos.
+
+Renderizadas as 30 produções com comunitárias fechadas, revelação, pausa de dois segundos e privadas extras. Mesa didática com nomes, botão, turno, saldos e pagamentos; contas pré/pós-flop verificadas contra o motor a partir do próprio roteiro. Filme principal em 7min35,4s, sem acelerar a voz, mantendo o guia “painépou”. Três aulas antigas preservam seus textos, avisos e snapshots. Revisão de URL considera vídeo, legenda e capa.
+
+Testes de código, 88 testes frontend, integridade das 30 produções e 65 vistas de player/treino aprovados. Decodificação integral e publicação coordenada em andamento; contagens, hashes e limites da revisão humana em QUALITY. Autorização de commit, push e deploy mantida conforme o plano do proprietário.

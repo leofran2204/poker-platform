@@ -4,7 +4,7 @@
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 3175049,
+  "bytes": 2654626,
   "voice": "pt-BR-AntonioNeural (synthetic)",
   "chapters": [
     {
@@ -29,8 +29,14 @@
     }
   ],
   "episodeHash": "3b923534a032791649bf7e5c38ebfe97ad30b9850d1092d3ec54e6dd83cafe88",
-  "sha256": "5839347315c3b77201fd1db0e345527720e6f19095ad2c4289d4c9b976bb2796",
-  "rendererVersion": 3,
+  "sha256": "694b74c043323a3561d368ecd601b29ce9b133285a2816fcd2c7e060d1d9771f",
+  "rendererVersion": 4,
+  "assetHashes": {
+    "mp4": "694b74c043323a3561d368ecd601b29ce9b133285a2816fcd2c7e060d1d9771f",
+    "vtt": "14f97f359c69876a275a4f4e08ff9d27b28615cc72bc52b104fb8328a2b67246",
+    "webp": "bf2e81e87f0cbd7059e2293eb1586a2ecac5a8e9b81b84b463016b3d70e78833"
+  },
+  "mediaRevision": "ff4e76348b924d13066e8279c1d773a1d2217b808559aca50ad40edf2e756306",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v1",
   "narrationHash": "115d4af553b5e69d99d1b3d593cdbc3d308fb9006914f4e1982619c461a7b4bf",

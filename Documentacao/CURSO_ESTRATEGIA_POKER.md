@@ -183,7 +183,7 @@ O coach será uma ferramenta opcional de **estudo de mãos encerradas**, não as
 Um caso de referência precisa ter resultado reproduzível, explicação revisada, link de lição válido e teste que impeça regressão matemática. Antes de liberar o produto, amostras devem ser revisadas por responsável de conteúdo identificado; o sistema continua sendo coach virtual, sem biografia ou credenciais humanas inventadas.
 
 
-## Pineapple híbrido — implementado em 04/10 e publicado em 05/10/2026
+## Histórico: Pineapple híbrido — implementado em 04/10 e publicado em 05/10/2026
 
 A mesa de estudo versão 2 usa os limites do motor: pré-flop 1–4 BB; pós-flop com aumento limitado ao pote antes do call. Bots, sizing e disponibilidade de all-in seguem o mesmo contrato. O cenário de extras em all-in usa stacks de 2 BB, legalmente consumidos no pré-flop. Registros de treino da versão anterior não são reproduzidos sob a nova regra.
 
@@ -198,6 +198,16 @@ Capítulos reais: 0:00 objetivo; 0:26 cartas 2→5; 1:11 seleção 2+3; 2:13 bli
 O mesmo filme abre por ação do visitante na home ou no início da Academy, com controles, legendas, transcrição e capítulos acessíveis por teclado. Não há autoplay nem busca do MP4 ao abrir a página ou apenas abrir o modal. Usuários conectados continuam redirecionados de `/` para `/curso`. O institucional anterior fica em acesso secundário. Publicado junto com a regra em 05/10/2026, após confirmar ausência de mãos e torneios em andamento. Verificações públicas e limites da revisão editorial em [QUALITY](QUALITY.md#publicação-pineapple--05102026).
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-05) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
+
+## Revisão Pineapple v2 — 08/10/2026
+
+A regra vigente no código é `brazilian_pineapple_pot_before_call_v2`: aumento limitado ao pote antes do call em todas as rodadas, ante de 1 BB somente do big blind, inclusive heads-up e desde a primeira mão em todos os formatos. Regras e exemplos normativos em `BUSINESS_RULES.md`; catálogo de treino v3. A leitura e os avisos das três aulas históricas foram atualizados; seus snapshots, narrações originais e classificação `prior_rules` permanecem como material da regra anterior.
+
+As 30 produções recebem revisão visual no renderizador compartilhado `timeline.py`. Comunitária: entrada 0,6s, permanência fechada 1s, virada 0,8s; flop escalonado em 0,35s. A privada extra começa somente dois segundos após a última revelação. Cartas anteriores permanecem na mesa, all-ins recebem e folds não. Exemplos principais têm três participantes, botão, nomes, saldo, turno e totais da rodada. Exemplos alternativos são identificados. Uma contabilidade em centavos anima pagamentos, totais e pote sem duplicar o ante.
+
+O filme principal foi reorganizado para cerca de 7min40s, limitado a 480 segundos, sem acelerar `pt-BR-AntonioNeural` (`-3%`) ou alterar “painépou”. Cenas e destaques acompanham os tempos reais da narração. A Academy usa segmentos temporais com retenção do quadro final e preserva cartas ao trocar páginas de texto. Legendas, transcrição, capítulos, duração e hashes são derivados da produção. `mediaRevision` inclui MP4, VTT e capa, invalidando URLs mesmo quando só a animação muda.
+
+Testes automáticos verificam sequência, cobertura da narração, contabilidade e integridade das mídias. Escuta editorial humana integral continua registrada separadamente; validação automática não a substitui. Resultados de renderização, players e publicação em `QUALITY.md`.

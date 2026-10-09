@@ -980,7 +980,7 @@ mod tests {
             g.start_hand().unwrap();
             g.player_action("me", PlayerMove::Raise(200)).unwrap();
             let expected = g.legal_actions("other");
-            assert_eq!((expected.minimum_wager, expected.maximum_wager), (300, 300));
+            assert_eq!((expected.minimum_wager, expected.maximum_wager), (300, 600));
             let (_, rx) = mpsc::channel(10);
             let (tx, mut messages) = broadcast::channel(10);
             let mut cash =
@@ -1050,7 +1050,13 @@ mod tests {
                 state = messages.try_recv().unwrap();
             }
             let view = filter_table_state(state.clone(), "other");
-            assert_eq!(view["betting_structure"], "brazilian_pineapple_hybrid_v1");
+            assert_eq!(
+                view["betting_structure"],
+                "brazilian_pineapple_pot_before_call_v2"
+            );
+            assert_eq!(view["ante"], 100);
+            assert_eq!(view["ante_paid"], 100);
+            assert_eq!(view["ante_player_id"], "other");
             let actual: poker_engine::game_loop::LegalActions =
                 serde_json::from_value(view.clone()).unwrap();
             assert_eq!(actual, expected);

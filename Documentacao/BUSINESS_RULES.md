@@ -81,18 +81,20 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 - Até **6 jogadores**; o baralho de 52 cobre cinco cartas fechadas por jogador, board e burns
 - Implementação: `create_deck` / `evaluate_hand_brazilian_pineapple` / deal extra em `advance_phase`
 
-#### Estrutura de apostas híbrida — `brazilian_pineapple_hybrid_v1`
+#### Aumento limitado ao pote antes do call — `brazilian_pineapple_pot_before_call_v2`
 
-Aplica-se por modalidade, em cash e torneios, Play Money e Jogo Real; não há opção administrativa nem migration.
+Regra da modalidade em cash e torneios, Play Money e Jogo Real, desde a primeira mão e inclusive heads-up. Sem opção administrativa ou migration. Não altera outras modalidades.
 
-- **Pré-flop:** Fixed Limit em totais de 1, 2, 3 e 4 big blinds. O BB é o primeiro patamar, mesmo se o blind for incompleto. Cada aumento normal vai ao próximo patamar; o teto de 4 BB também vale heads-up. All-in curto pode ficar entre o valor atual e o próximo patamar, se consumir todo o saldo. Quem tem direito de aumentar pode completar o próximo patamar. A conclusão só reabre para quem já agiu quando esse jogador enfrenta pelo menos 1 BB adicional, inclusive por incrementos curtos cumulativos.
-- **Flop, turn e river:** aumento limitado ao pote antes do call. Não é Pot Limit tradicional. Sendo `P` o pote atual (todas as contribuições pagas, uma vez), `C` o pagamento necessário e `B` a contribuição do jogador na rodada, o máximo total é `min(B + saldo, B + C + P)`. Antes entram em `P`, sem compor `C`.
-- O mínimo pós-flop mantém o último incremento completo. Reabertura exige 100% desse incremento, inclusive pela soma de aumentos curtos desde a última ação do jogador. All-in curto não altera o mínimo e saldo grande não autoriza ultrapassar o teto. Check em rua sem aposta preserva o direito de responder aumentando a uma abertura posterior.
-- Ações ilegais são rejeitadas antes de alterar fichas, turno ou histórico. Os limites são recalculados a cada ação em centavos inteiros, com aritmética protegida. Blinds, entradas, rake, distribuição progressiva, seleção 2+3 e premiação permanecem iguais. Demais modalidades mantêm sua estrutura.
+- **Todas as rodadas:** sendo `P` o pote efetivamente formado antes do call, `C` o pagamento necessário e `B` a contribuição do jogador na rodada, o máximo total é `min(B + saldo, B + C + P)`. Sem patamares pré-flop ou teto de 4 BB. O ante está em `P` uma única vez e não faz parte de `B` nem abate `C`. Não é o Pot Limit tradicional.
+- **Ante de 1 BB apenas do big blind:** o motor cobra o blind primeiro e depois o ante com o saldo restante. Blind incompleto não paga ante; ante parcial é permitido. O ante é dinheiro morto no pote principal e não aumenta a contribuição viva usada para elegibilidade aos potes paralelos. Nos torneios acompanha o BB do nível, sem cobrança adicional pelo ator.
+- O incremento mínimo começa em 1 BB e acompanha o último aumento completo. Reabertura exige um incremento completo desde a última ação daquele jogador, inclusive cumulativamente por all-ins curtos. O curto não muda o mínimo; all-in acima do máximo é rejeitado. Check em rodada sem aposta preserva o direito de aumentar após abertura.
+- Ações ilegais são rejeitadas antes de alterar fichas, turno ou histórico. Centavos inteiros, aritmética protegida, limites recalculados por ação. Distribuição progressiva continua: abrir comunitárias, depois distribuir a extra a cada jogador ainda na mão, incluindo all-in e excluindo fold.
 
-Exemplo: pote inicial R$ 10; abertura R$ 5 deixa `P=15`, `C=5`, `B=0`, portanto o aumento máximo é **para R$ 20**. Dois, três ou quatro jogadores contribuindo R$ 20 nessa rodada produzem potes finais de **R$ 50, R$ 70 e R$ 90**. Imediatamente após o aumento para R$ 20, `P=35`, `C=20`, `B=0` permitem ao próximo jogador aumentar **para R$ 55**.
+Exemplo aprovado, três jogadores: blinds **R$ 0,50/R$ 1**, ante **R$ 1**, pote inicial **R$ 2,50**. Todos acompanhando formam **R$ 4**. A primeira abertura máxima é **para R$ 3,50**; dois calls formam **R$ 11,50**. O incremento passa a R$ 2,50: o próximo aumento completo mínimo é para R$ 6, podendo ultrapassar os antigos 4 BB quando o pote permitir.
 
-Novos históricos e settlements JSON registram `betting_rule_version`; ausência significa a regra original. Históricos, assinaturas e liquidações antigos não são reescritos. Publicação futura exige ausência de mãos Pineapple abertas **e** de torneios Pineapple em andamento. Esta implementação é local até publicação explicitamente autorizada.
+Exemplo independente pós-flop: pote R$ 10, aposta R$ 5, `P=15`, `C=5`, `B=0`: máximo **para R$ 20**. Dois, três ou quatro participantes contribuindo R$ 20 na rodada formam **R$ 50, R$ 70 e R$ 90**. Após o aumento para R$ 20, `P=35`, `C=20`, `B=0`: próximo máximo **para R$ 55**.
+
+Novas mãos registram `betting_rule_version=brazilian_pineapple_pot_before_call_v2`. Históricos, assinaturas e settlements anteriores são preservados; `brazilian_pineapple_hybrid_v1` identifica a versão anterior e ausência de versão continua significando a regra original. Publicação conjunta de motor, frontend, Academy e mídia exige CI aprovado, backup validado e janela sem mãos ou torneios Pineapple em andamento, com novas entradas bloqueadas durante a troca. Evidência de publicação pertence a `QUALITY.md` e `DEVELOPMENT_LOG.md`.
 
 ### 2.6 🂡 Texas Hold’em Short Deck — `short_deck` (8-max cash + torneio)
 - Baralho de **36** cartas (ranks 6–A; sem 2–5)
@@ -442,6 +444,6 @@ Um exemplo de equity exata com cartas e regressão automatizada está em [`LOSS_
 **Próxima revisão:** Após implementação de side pots e split pot.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-05) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

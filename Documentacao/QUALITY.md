@@ -220,6 +220,20 @@ A campanha focada foi concluída dentro dos 15 minutos autorizados com dois trab
 - Home e Academy públicas aprovadas em 1440/390/320 px: oito capítulos, primeiro salto antes dos metadados, 113 legendas, transcrição, Enter/Escape, retorno do foco, ausência de autoplay e URLs da nova narração; sem overflow ou exceções JavaScript. Redirecionamento logado conferido com sessão sintética e APIs interceptadas; o smoke HTTP separado usou a API pública real. Evidências em `artifacts/narration-pronunciation/release/`.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-05) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
+
+
+## Pineapple v2 — regras e distribuição sequencial (09/10/2026)
+
+Todas as rodadas usam o pote antes do call; ante obrigatório de 1 BB exclusivamente do big blind, com prioridade ao blind e pagamento parcial. Motor, atores cash/MTT, campos públicos `ante`/`ante_paid`/`ante_player_id`, controles e Academy v3 seguem `brazilian_pineapple_pot_before_call_v2`. Sem migration, reescrita de históricos ou reliquidação. O executor de validação acompanha a nova regra; resultados massivos antigos permanecem evidência histórica, sem nova campanha implícita.
+
+- Motor: 1.859 testes de biblioteca, 31 ignorados, 19 situações dirigidas e sete testes dos exemplos audiovisuais. Verificados R$ 2,50 iniciais, R$ 4 com calls, abertura máxima R$ 3,50 e R$ 11,50 após os calls; pós-flop R$ 10 → R$ 15 → R$ 35 → R$ 70, botão, turno e saldos conferidos lendo o roteiro. Inclui mínimos, reabertura cumulativa, all-ins acima do limite, ante parcial, heads-up, níveis e potes paralelos/conservação.
+- API: rotina de biblioteca/HTTP/segurança aprovada; novo contrato dos níveis em Play Money/Jogo Real preserva os antes das outras modalidades. Rust fmt/clippy sem warnings. Frontend: 88 testes, TypeScript, ESLint, Vite e auditoria npm sem vulnerabilidades. Nove regressões editoriais e dez contratos do executor aprovados; documentação sincronizada em 22 arquivos.
+- As 30 produções foram renderizadas com a encenação compartilhada. Entrada comunitária de 0,6 s, 1 s fechada, virada de 0,8 s, flop escalonado em 0,35 s e pausa de 2 s antes da extra. Testes/manifestos conferem tempos, identidade das cartas e elegibilidade. Ante, pagamentos, totais e pote são distintos; exemplos independentes identificados. Renderer Academy v5/editorial v4; snapshots e avisos dos três vídeos `prior_rules` preservados.
+- Filme principal: 455,40 s, 30 cenas, oito capítulos nativos/HTML, 103 legendas, H.264/AAC 1280×720/30 fps. Voz `pt-BR-AntonioNeural`, taxa `-3%`, guia “painépou” preservado. Conferência das 30 cenas, 1.377 textos sem overflow e cobertura completa dos 30 segmentos falados. Áudio medido em -16,43 LUFS e pico -0,99 dBTP. SHA-256 MP4 `1b63b23730542a79f148e01313e488e6e3c7689010d1c737603f703bd3b351b1`.
+- `render.py --check` aprovou as 30 produções/90 arquivos, total 169,1 minutos. URLs usam revisão conjunta de MP4/VTT/WebP; VTT e transcrições em LF mantêm os hashes no Windows/Linux. A decodificação integral dos novos MP4 está em execução nesta preparação; resultado será registrado antes da publicação.
+- Chrome isolado: 56 vistas das 28 aulas (1440/390 px), seis da home/Academy (1440/390/320 px) e três do treino conectado à API local. Sem exceções/overflow; capítulos, salto sem metadados, legendas, transcrição, reprodução sob demanda e redirecionamento logado conferidos com sessão/progresso sintéticos. Treino confirmou ante R$ 1 e pote R$ 11,50. Medição dos textos das 376 cenas técnicas sem cortes. Evidências em `artifacts/pineapple-v2/` e logs `artifacts/pineapple-v2-*.log`.
+
+Commit/push/deploy autorizados no plano. A publicação depende de CI aprovado, decodificação concluída, backups validados e nova janela ociosa com bloqueio de entradas. A consulta preliminar encontrou zero assentos/jogos/snapshots e 60 migrations conferidas. **Escuta editorial humana integral permanece pendente**; inspeção visual, análise do sinal e cobertura das palavras não são atestação de audição humana.

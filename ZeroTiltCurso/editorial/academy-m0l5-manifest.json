@@ -2,12 +2,12 @@
   "lessonId": "m0l5",
   "filename": "zt-academy-m0l5-v3",
   "contentHash": "80e4bcc3deaf9b2fce6e2772a46f65680f62dbe68ebd81f2bf811bb9a8ca77b7",
-  "rendererVersion": 3,
+  "rendererVersion": 5,
   "durationSeconds": 431.07,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 10403466,
+  "bytes": 11132202,
   "voice": "pt-BR-AntonioNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v1",
@@ -94,5 +94,173 @@
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "faa346dbc9dbed2268c666ddfdcf951230380b716cf8fb5bb5f74f76fbcb6ffd"
+  "scenes": [
+    {
+      "start": 0.0,
+      "duration": 18.733333333333334,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 18.733333333333334,
+      "duration": 23.433333333333334,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 42.16666666666667,
+      "duration": 28.266666666666666,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 70.43333333333334,
+      "duration": 22.166666666666668,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 92.60000000000001,
+      "duration": 34.93333333333333,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 127.53333333333333,
+      "duration": 32.63333333333333,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 160.16666666666666,
+      "duration": 26.933333333333334,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 187.1,
+      "duration": 36.46666666666667,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 223.56666666666666,
+      "duration": 9.066666666666666,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 232.63333333333333,
+      "duration": 25.9,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 258.5333333333333,
+      "duration": 11.633333333333333,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 270.16666666666663,
+      "duration": 27.0,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 297.16666666666663,
+      "duration": 9.666666666666666,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 306.8333333333333,
+      "duration": 24.166666666666668,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 331.0,
+      "duration": 13.8,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 344.8,
+      "duration": 17.466666666666665,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 362.26666666666665,
+      "duration": 9.633333333333333,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 371.9,
+      "duration": 14.633333333333333,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 386.5333333333333,
+      "duration": 10.033333333333333,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 396.56666666666666,
+      "duration": 34.5,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    }
+  ],
+  "sha256": "31c7c79fe9ab9c420be45a9ac9cdfabb3169c886034c1d5fddbbdf06bc6a65ba",
+  "assetHashes": {
+    "mp4": "31c7c79fe9ab9c420be45a9ac9cdfabb3169c886034c1d5fddbbdf06bc6a65ba",
+    "vtt": "0d8d33ae5cf5d558f22971e6b64b3ea8dc727b7465cfefe6acda824abad2a4dc",
+    "webp": "5cce31126d58b142dc26b83a52546342b162553ee1eeea757e616719f67a4766"
+  },
+  "mediaRevision": "f30db3efa9ccdb0c944def58521b349303296da03e3e27e28bea7029df310df9"
 }

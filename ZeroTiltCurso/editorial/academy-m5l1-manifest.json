@@ -2,12 +2,12 @@
   "lessonId": "m5l1",
   "filename": "zt-academy-m5l1-v3",
   "contentHash": "639a6a976d8eaa54e9be637fefb0f96f0651bce8f944e3ae69a84841c9e5ed3f",
-  "rendererVersion": 3,
+  "rendererVersion": 5,
   "durationSeconds": 357.63,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9017499,
+  "bytes": 9897707,
   "voice": "pt-BR-AntonioNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v1",
@@ -66,5 +66,360 @@
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "97e5c22c289aeec57ddce626623b239e067b6de0282c8ce7c65c0db4dca61c0d"
+  "scenes": [
+    {
+      "start": 0.0,
+      "duration": 21.7,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 0,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "board",
+          "index": 1,
+          "start": 0.85,
+          "land": 1.45,
+          "flip": 2.45,
+          "end": 3.25
+        },
+        {
+          "kind": "board",
+          "index": 2,
+          "start": 1.2,
+          "land": 1.7999999999999998,
+          "flip": 2.8,
+          "end": 3.5999999999999996
+        }
+      ]
+    },
+    {
+      "start": 21.7,
+      "duration": 36.333333333333336,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 0,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "board",
+          "index": 1,
+          "start": 0.85,
+          "land": 1.45,
+          "flip": 2.45,
+          "end": 3.25
+        },
+        {
+          "kind": "board",
+          "index": 2,
+          "start": 1.2,
+          "land": 1.7999999999999998,
+          "flip": 2.8,
+          "end": 3.5999999999999996
+        }
+      ]
+    },
+    {
+      "start": 58.03333333333333,
+      "duration": 28.333333333333332,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 86.36666666666666,
+      "duration": 34.63333333333333,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 0,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "board",
+          "index": 1,
+          "start": 0.85,
+          "land": 1.45,
+          "flip": 2.45,
+          "end": 3.25
+        },
+        {
+          "kind": "board",
+          "index": 2,
+          "start": 1.2,
+          "land": 1.7999999999999998,
+          "flip": 2.8,
+          "end": 3.5999999999999996
+        }
+      ]
+    },
+    {
+      "start": 121.0,
+      "duration": 36.5,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 157.5,
+      "duration": 25.666666666666668,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 0,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "board",
+          "index": 1,
+          "start": 0.85,
+          "land": 1.45,
+          "flip": 2.45,
+          "end": 3.25
+        },
+        {
+          "kind": "board",
+          "index": 2,
+          "start": 1.2,
+          "land": 1.7999999999999998,
+          "flip": 2.8,
+          "end": 3.5999999999999996
+        }
+      ]
+    },
+    {
+      "start": 183.16666666666666,
+      "duration": 39.1,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 0,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "board",
+          "index": 1,
+          "start": 0.85,
+          "land": 1.45,
+          "flip": 2.45,
+          "end": 3.25
+        },
+        {
+          "kind": "board",
+          "index": 2,
+          "start": 1.2,
+          "land": 1.7999999999999998,
+          "flip": 2.8,
+          "end": 3.5999999999999996
+        }
+      ]
+    },
+    {
+      "start": 222.26666666666665,
+      "duration": 9.066666666666666,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 0,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "board",
+          "index": 1,
+          "start": 0.85,
+          "land": 1.45,
+          "flip": 2.45,
+          "end": 3.25
+        },
+        {
+          "kind": "board",
+          "index": 2,
+          "start": 1.2,
+          "land": 1.7999999999999998,
+          "flip": 2.8,
+          "end": 3.5999999999999996
+        }
+      ]
+    },
+    {
+      "start": 231.33333333333331,
+      "duration": 20.833333333333332,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 0,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "board",
+          "index": 1,
+          "start": 0.85,
+          "land": 1.45,
+          "flip": 2.45,
+          "end": 3.25
+        },
+        {
+          "kind": "board",
+          "index": 2,
+          "start": 1.2,
+          "land": 1.7999999999999998,
+          "flip": 2.8,
+          "end": 3.5999999999999996
+        }
+      ]
+    },
+    {
+      "start": 252.16666666666666,
+      "duration": 18.266666666666666,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 0,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "board",
+          "index": 1,
+          "start": 0.85,
+          "land": 1.45,
+          "flip": 2.45,
+          "end": 3.25
+        },
+        {
+          "kind": "board",
+          "index": 2,
+          "start": 1.2,
+          "land": 1.7999999999999998,
+          "flip": 2.8,
+          "end": 3.5999999999999996
+        }
+      ]
+    },
+    {
+      "start": 270.43333333333334,
+      "duration": 41.233333333333334,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 4,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        }
+      ]
+    },
+    {
+      "start": 311.6666666666667,
+      "duration": 12.266666666666667,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 4,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        }
+      ]
+    },
+    {
+      "start": 323.93333333333334,
+      "duration": 33.7,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 0,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "board",
+          "index": 1,
+          "start": 0.85,
+          "land": 1.45,
+          "flip": 2.45,
+          "end": 3.25
+        },
+        {
+          "kind": "board",
+          "index": 2,
+          "start": 1.2,
+          "land": 1.7999999999999998,
+          "flip": 2.8,
+          "end": 3.5999999999999996
+        }
+      ]
+    }
+  ],
+  "sha256": "622202da9a26ad8653ff8230e6cd1878de8a15c38796c0b420b4be8389078544",
+  "assetHashes": {
+    "mp4": "622202da9a26ad8653ff8230e6cd1878de8a15c38796c0b420b4be8389078544",
+    "vtt": "be0d5d57d3063f2ded9833db5fec290f77138d66826b061b4f54dce26fe78f4d",
+    "webp": "1247fcb900dfb06a0175ce9646eae45ca0a3bcde9a729fd3300a55b44dc43e8c"
+  },
+  "mediaRevision": "0f409ca496cdc601beb6351d23dc5b48cb248aff6d297039869981005accc799"
 }

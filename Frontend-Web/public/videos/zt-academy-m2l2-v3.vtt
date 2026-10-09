@@ -78,158 +78,158 @@ taxas e supondo que a decisão encerre as apostas
 00:01:45.602 --> 00:01:47.870
 Não use doze como custo adicional
 
-00:01:50.035 --> 00:01:54.289
+00:01:50.202 --> 00:01:54.456
 Força absoluta e força relativa Top pair pode ser uma
 
-00:01:54.302 --> 00:01:57.382
+00:01:54.469 --> 00:01:57.548
 mão forte contra um range amplo mas fraca contra um
 
-00:01:57.395 --> 00:02:01.737
+00:01:57.561 --> 00:02:01.904
 range composto apenas por dois pares trincas e combinações superiores
 
-00:02:02.627 --> 00:02:05.848
+00:02:02.793 --> 00:02:06.015
 No treino de check-raise o bot de valor só aumenta
 
-00:02:05.861 --> 00:02:10.384
+00:02:06.028 --> 00:02:10.551
 quando sua própria mão satisfaz a política declarada Isso torna
 
-00:02:10.397 --> 00:02:14.405
+00:02:10.564 --> 00:02:14.572
 a leitura estudável Contra um rival que também usa blefes
 
-00:02:14.418 --> 00:02:18.709
+00:02:14.585 --> 00:02:18.876
 e projetos você teria de reconstruir a composição de continuações
 
-00:02:20.902 --> 00:02:24.769
+00:02:21.068 --> 00:02:24.936
 Um float precisa de plano Pagar uma aposta pequena em
 
-00:02:24.782 --> 00:02:27.849
+00:02:24.949 --> 00:02:28.016
 posição pode preservar opções quando sua mão tem equity e
 
-00:02:27.862 --> 00:02:32.449
+00:02:28.029 --> 00:02:32.616
 o adversário abandona certas linhas futuras Mas você não sabe
 
-00:02:32.462 --> 00:02:36.702
+00:02:32.629 --> 00:02:36.869
 se ele dará check no turn Registre quais cartas permitem
 
-00:02:36.715 --> 00:02:41.084
+00:02:36.882 --> 00:02:41.250
 continuar e qual nova aposta tornaria o plano inadequado Não
 
-00:02:41.096 --> 00:02:44.266
+00:02:41.263 --> 00:02:44.433
 chame de float qualquer call feito apenas por curiosidade
 
-00:02:46.435 --> 00:02:52.274
+00:02:46.602 --> 00:02:52.441
 Laboratório Responder ao check-raise Objetivo Recalcular o preço
 
-00:02:52.287 --> 00:02:56.372
+00:02:52.454 --> 00:02:56.539
 após a agressão adversária Abra a mesa deste módulo e
 
-00:02:56.385 --> 00:03:00.547
+00:02:56.552 --> 00:03:00.714
 comece pelo treino guiado O bot de valor dá check-raise
 
-00:03:00.560 --> 00:03:04.439
+00:03:00.727 --> 00:03:04.606
 com dois pares ou melhor Uma aposta sua pode provocar
 
-00:03:04.452 --> 00:03:09.568
+00:03:04.619 --> 00:03:09.735
 essa resposta Depois repita no modo desafio respondendo à pergunta
 
-00:03:09.581 --> 00:03:13.769
+00:03:09.747 --> 00:03:13.936
 objetiva antes de cada ação Use o replay para comparar
 
-00:03:13.782 --> 00:03:18.679
+00:03:13.948 --> 00:03:18.845
 uma alternativa na mesma distribuição Uma nova distribuição preserva
 
-00:03:18.692 --> 00:03:21.462
+00:03:18.858 --> 00:03:21.629
 as cartas que definem o cenário e varia as demais
 
-00:03:23.635 --> 00:03:28.029
+00:03:23.802 --> 00:03:28.196
 Registre sua justificativa no caderno acertar a leitura e respeitar
 
-00:03:28.042 --> 00:03:30.529
+00:03:28.209 --> 00:03:30.696
 as hipóteses importam mais que ganhar esta mão
 
-00:03:32.702 --> 00:03:35.704
+00:03:32.868 --> 00:03:35.871
 O que é a jogada conhecida como Float no poker
 
-00:03:36.595 --> 00:03:39.765
+00:03:36.761 --> 00:03:39.932
 A Dar fold imediatamente no pré-flop B Pagar uma aposta
 
-00:03:39.778 --> 00:03:42.394
+00:03:39.944 --> 00:03:42.560
 no flop em posição com intenção de tomar o pote
 
-00:03:42.407 --> 00:03:46.118
+00:03:42.573 --> 00:03:46.285
 no turn quando o rival checar C Pedir tempo extra
 
-00:03:46.131 --> 00:03:49.378
+00:03:46.298 --> 00:03:49.545
 para pensar Pause o vídeo faça sua leitura e registre
 
-00:03:49.391 --> 00:03:51.182
+00:03:49.558 --> 00:03:51.349
 uma resposta antes de continuar
 
-00:03:53.368 --> 00:03:57.041
+00:03:53.535 --> 00:03:57.208
 Resposta do exercício Pagar uma aposta no flop em posição
 
-00:03:57.054 --> 00:03:59.296
+00:03:57.220 --> 00:03:59.463
 com intenção de tomar o pote no turn quando o
 
-00:03:59.309 --> 00:04:03.280
+00:03:59.476 --> 00:04:03.446
 rival checar Float é um call planejado em posição para
 
-00:04:03.292 --> 00:04:05.329
+00:04:03.459 --> 00:04:05.495
 explorar o check do agressor no turn
 
-00:04:07.502 --> 00:04:12.941
+00:04:07.668 --> 00:04:13.108
 Suas cartas rei de ouros nove de ouros Cartas comunitárias
 
-00:04:13.147 --> 00:04:17.761
+00:04:13.314 --> 00:04:17.927
 rei de paus oito de espadas três de copas Texas
 
-00:04:18.096 --> 00:04:21.008
+00:04:18.263 --> 00:04:21.175
 flop rei de paus oito de espadas três de copas
 
-00:04:21.897 --> 00:04:27.413
+00:04:22.064 --> 00:04:27.580
 Você tem K 9 No modelo desta aula o rival
 
-00:04:27.426 --> 00:04:30.080
+00:04:27.592 --> 00:04:30.247
 só dá check-raise grande com dois pares ou melhor e
 
-00:04:30.093 --> 00:04:36.060
+00:04:30.260 --> 00:04:36.226
 quase nunca blefa Qual decisão conservadora treinamos A fold B
 
-00:04:36.073 --> 00:04:38.856
+00:04:36.239 --> 00:04:39.023
 call C raise Pause o vídeo faça sua leitura e
 
-00:04:38.869 --> 00:04:41.137
+00:04:39.036 --> 00:04:41.304
 registre uma resposta antes de continuar
 
-00:04:43.302 --> 00:04:48.200
+00:04:43.468 --> 00:04:48.367
 Resposta do exercício fold Contra o range forte definido no
 
-00:04:48.213 --> 00:04:52.968
+00:04:48.380 --> 00:04:53.135
 enunciado descartamos top pair com kicker 9 Não é uma
 
-00:04:52.981 --> 00:04:54.837
+00:04:53.148 --> 00:04:55.003
 regra contra todo check-raise
 
-00:04:57.002 --> 00:05:00.004
+00:04:57.168 --> 00:05:00.171
 Abra o simulador da aula e escolha o cenário Responder
 
-00:05:00.017 --> 00:05:04.722
+00:05:00.184 --> 00:05:04.889
 ao check-raise Jogue uma mão completa responda às perguntas e
 
-00:05:04.735 --> 00:05:09.000
+00:05:04.902 --> 00:05:09.167
 registre seu plano Depois use o replay para comparar outra
 
-00:05:09.013 --> 00:05:13.266
+00:05:09.180 --> 00:05:13.433
 ação na mesma distribuição Volte em outra sessão no modo
 
-00:05:13.279 --> 00:05:18.214
+00:05:13.446 --> 00:05:18.381
 desafio Avalie o raciocínio com as informações disponíveis sem
 
-00:05:18.227 --> 00:05:22.557
+00:05:18.394 --> 00:05:22.724
 confundir uma vitória isolada com uma boa estratégia As fontes
 
-00:05:22.570 --> 00:05:26.848
+00:05:22.737 --> 00:05:27.015
 estão no material de apoio Este curso não promete lucro
 
-00:05:26.861 --> 00:05:28.653
+00:05:27.028 --> 00:05:28.819
 e o treino usa fichas sem valor

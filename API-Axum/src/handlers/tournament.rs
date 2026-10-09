@@ -134,7 +134,13 @@ fn to_info(store: &crate::tournament_store::TournamentStore) -> TournamentInfoRe
                 level: b.level,
                 small_blind: b.small_blind,
                 big_blind: b.big_blind,
-                ante: b.ante,
+                ante: if poker_engine::types::PokerVariant::parse(store.active_poker_variant())
+                    == poker_engine::types::PokerVariant::BrazilianPineapple
+                {
+                    b.big_blind
+                } else {
+                    b.ante
+                },
                 duration_minutes: b.duration_minutes,
             })
             .collect(),
@@ -167,6 +173,49 @@ mod response_tests {
 
         store.live_table_id = None;
         assert!(!gameplay_ready(&store));
+    }
+
+    #[test]
+    fn pineapple_ante_tracks_each_level_in_both_money_modes() {
+        for mode in ["play", "real"] {
+            for variant in ["holdem", "omaha", "short_deck", "brazilian_pineapple"] {
+                let config = TournamentConfig {
+                    blind_levels: [100, 200, 1000]
+                        .into_iter()
+                        .enumerate()
+                        .map(|(i, bb)| poker_engine::tournament_engine::BlindLevel {
+                            level: i as u32 + 1,
+                            small_blind: bb / 2,
+                            big_blind: bb,
+                            ante: if i == 0 { 0 } else { 50 },
+                            duration_minutes: 10,
+                        })
+                        .collect(),
+                    ..TournamentConfig::default()
+                };
+                let store = TournamentStore::with_mode_and_variant(
+                    "ante-levels".into(),
+                    config,
+                    mode.into(),
+                    variant.into(),
+                );
+                let response = to_info(&store);
+                for (actual, configured) in response
+                    .blind_levels
+                    .iter()
+                    .zip(&store.state.config.blind_levels)
+                {
+                    assert_eq!(
+                        actual.ante,
+                        if variant == "brazilian_pineapple" {
+                            configured.big_blind
+                        } else {
+                            configured.ante
+                        }
+                    );
+                }
+            }
+        }
     }
 }
 

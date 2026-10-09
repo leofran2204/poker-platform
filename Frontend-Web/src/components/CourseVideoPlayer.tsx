@@ -18,8 +18,8 @@ export function CourseVideoPlayer({ video, lessonTitle }: Props) {
     ? formatLessonDuration(video.durationSeconds)
     : null;
   // A revised voice must not reuse a browser's cached MP4 or timed captions.
-  const mediaSource = (url?: string) => url && video?.narrationHash
-    ? `${url}${url.includes("?") ? "&" : "?"}n=${video.narrationHash}`
+  const mediaSource = (url?: string) => url && (video?.mediaRevision ?? video?.narrationHash)
+    ? `${url}${url.includes("?") ? "&" : "?"}r=${video?.mediaRevision ?? video?.narrationHash}`
     : url;
   const videoUrl = mediaSource(video?.url);
   const captionsUrl = mediaSource(video?.captionsUrl ?? video?.url?.replace(/\.mp4(?=$|\?)/i, ".vtt"));

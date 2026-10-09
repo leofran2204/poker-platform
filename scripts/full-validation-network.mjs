@@ -63,19 +63,21 @@ async function open(table,user,onState){
         assert.equal(new Set(visible).size,visible.length,"impossible visible cards");
         if(!state.is_finished)counters.private_states++;
         if(table.variant==="brazilian_pineapple" && !state.is_finished){
-          assert.equal(state.betting_structure,"brazilian_pineapple_hybrid_v1");
+          assert.equal(state.betting_structure,"brazilian_pineapple_pot_before_call_v2");
+          assert.equal(state.ante,table.big_blind);
+          assert(state.ante_paid>=0&&state.ante_paid<=state.ante);
+          assert(state.players.some(p=>p.id===state.ante_player_id));
           const me=state.players.find(p=>p.id===user.id);
           const choices=state.available_actions||[];
           assert(state.players.every(p=>!("_legal_actions" in p)),"internal action contract leaked");
           if(me?.is_active && choices.length){
             const call=Math.max(0,state.current_bet_to_match-me.bet);
             assert.equal(state.call_amount,Math.min(call,me.chips));
-            const next=(Math.floor(state.current_bet_to_match/table.big_blind)+1)*table.big_blind;
             const pot=state.pots.reduce((sum,p)=>sum+p.amount,0);
-            const cap=state.stage==="preflop"?Math.min(4*table.big_blind,next):me.bet+call+pot;
+            const cap=me.bet+call+pot;
             if(choices.includes("raise")||choices.includes("bet")){
               assert.equal(state.maximum_wager,Math.min(me.bet+me.chips,cap));
-              assert.equal(state.minimum_wager,state.stage==="preflop"?next:state.current_bet_to_match+state.min_raise);
+              assert.equal(state.minimum_wager,state.current_bet_to_match+state.min_raise);
             }
             if(choices.includes("allin"))assert(me.bet+me.chips<=cap,"all-in exceeds cap");
           }

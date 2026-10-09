@@ -2,12 +2,12 @@
   "lessonId": "m5l4",
   "filename": "zt-academy-m5l4-v3",
   "contentHash": "22fbad187494cfa09ac5d69e0a89227340b283bd147d6d5b0b05335ac5d7db47",
-  "rendererVersion": 3,
+  "rendererVersion": 5,
   "durationSeconds": 546.1,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 13756021,
+  "bytes": 15255234,
   "voice": "pt-BR-AntonioNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v1",
@@ -106,7 +106,760 @@
       "title": "Agora, pratique"
     }
   ],
-  "sha256": "1690a204e5411658fdac9e540bfc3bb57e3c63ebc7c374e582cb00635916a024",
+  "scenes": [
+    {
+      "start": 0.0,
+      "duration": 20.6,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 20.6,
+      "duration": 25.1,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 45.7,
+      "duration": 45.43333333333333,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 91.13333333333333,
+      "duration": 41.666666666666664,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 132.79999999999998,
+      "duration": 8.0,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 140.79999999999998,
+      "duration": 31.733333333333334,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 172.5333333333333,
+      "duration": 23.833333333333332,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 196.36666666666665,
+      "duration": 35.06666666666667,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 231.4333333333333,
+      "duration": 40.13333333333333,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 271.56666666666666,
+      "duration": 32.03333333333333,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 303.6,
+      "duration": 39.9,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 343.5,
+      "duration": 9.066666666666666,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 352.56666666666666,
+      "duration": 15.766666666666667,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 368.3333333333333,
+      "duration": 17.666666666666668,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 386.0,
+      "duration": 13.366666666666667,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 399.3666666666667,
+      "duration": 14.8,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 414.1666666666667,
+      "duration": 25.8,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 439.9666666666667,
+      "duration": 12.8,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 452.7666666666667,
+      "duration": 14.766666666666667,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 467.53333333333336,
+      "duration": 9.7,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 477.23333333333335,
+      "duration": 19.4,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 496.6333333333333,
+      "duration": 15.9,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    },
+    {
+      "start": 512.5333333333333,
+      "duration": 33.56666666666667,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": [
+        {
+          "kind": "board",
+          "index": 3,
+          "start": 0.5,
+          "land": 1.1,
+          "flip": 2.1,
+          "end": 2.9000000000000004
+        },
+        {
+          "kind": "hole",
+          "player": 0,
+          "index": 3,
+          "start": 4.9,
+          "land": 5.5,
+          "end": 5.5
+        },
+        {
+          "kind": "hole",
+          "player": 1,
+          "index": 3,
+          "start": 5.25,
+          "land": 5.85,
+          "end": 5.85
+        },
+        {
+          "kind": "hole",
+          "player": 2,
+          "index": 3,
+          "start": 5.6,
+          "land": 6.199999999999999,
+          "end": 6.199999999999999
+        }
+      ]
+    }
+  ],
+  "sha256": "e583912ecf0ca5ce5689402fdb8e92147c9928c34ebb408eb292865ee7877790",
+  "assetHashes": {
+    "mp4": "e583912ecf0ca5ce5689402fdb8e92147c9928c34ebb408eb292865ee7877790",
+    "vtt": "deee5663e4c7d5df398b06face698fe519d78ef9bfbdb640d02d54f398d04f33",
+    "webp": "c2a053e9efbb4d2f5bf0f3a72577b305888a19e9a591ec6d91d92184034b747e"
+  },
+  "mediaRevision": "b7adf780f0cadef9f3af9fe784b8a6ca337c71816bdc9eaf3b8bc8483213c289",
   "sourceSnapshot": {
     "id": "m5l4",
     "title": "Pineapple: combinações e probabilidades condicionais",

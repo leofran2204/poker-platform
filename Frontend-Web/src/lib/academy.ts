@@ -8,6 +8,7 @@ export interface StudyPlayer {
   folded: boolean; all_in: boolean; cards: string[]; card_count: number; category: string | null; best_five: string[];
 }
 export interface StudySnapshot {
+  ante: number; ante_paid: number; ante_player_id: string | null;
   phase: string; board: string[]; players: StudyPlayer[]; pot: number; acting: number; finished: boolean;
 }
 export interface StudyReview {

@@ -2,7 +2,7 @@
 
 # Estado operacional — S26
 
-**S26** — Brazilian Pineapple híbrido, filme da home e Academy revisada. Revisado em **2026-10-05**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
+**S26** — Brazilian Pineapple: ante, limite do pote em todas as rodadas e vídeos sequenciais. Revisado em **2026-10-09**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
 
 **Limites:** sem certificação de produção · PIX automático ligado (DePix reconciliado) · mesas com dono **único por processo** (settlement HMAC).
 

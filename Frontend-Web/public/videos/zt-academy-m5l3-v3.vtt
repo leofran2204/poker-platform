@@ -24,266 +24,266 @@ materiais sobre Pineapple de três cartas com descarte descrevem
 00:00:33.919 --> 00:00:34.615
 outro jogo
 
-00:00:36.768 --> 00:00:43.058
+00:00:41.635 --> 00:00:47.925
 Distribuição completa Baralho de 52 cartas mesa até seis jogadores
 
-00:00:43.948 --> 00:00:48.651
+00:00:48.814 --> 00:00:53.518
 Receba duas privadas no pré-flop Depois de abrir cada street
 
-00:00:48.909 --> 00:00:52.118
+00:00:53.776 --> 00:00:56.984
 flop turn e river chega mais uma carta privada a
 
-00:00:52.131 --> 00:00:56.628
+00:00:56.997 --> 00:01:01.495
 cada participante ainda na mão inclusive all-in Quem desistiu
 
-00:00:56.641 --> 00:01:01.267
+00:01:01.508 --> 00:01:06.134
 não recebe Não há descarte são três privadas no flop
 
-00:01:01.512 --> 00:01:03.265
+00:01:06.379 --> 00:01:08.131
 quatro no turn e cinco no river
 
-00:01:05.435 --> 00:01:11.119
+00:01:10.302 --> 00:01:15.986
 Formação e ranking Escolha exatamente duas privadas e três comunitárias
 
-00:01:12.009 --> 00:01:16.003
+00:01:16.875 --> 00:01:20.870
 O ranking é clássico sequência supera trinca full house supera
 
-00:01:16.016 --> 00:01:20.823
+00:01:20.883 --> 00:01:25.690
 flush ás dois três quatro e cinco é a sequência
 
-00:01:20.836 --> 00:01:25.372
+00:01:25.703 --> 00:01:30.239
 baixa Nunca use três privadas para completar uma combinação ou
 
-00:01:25.385 --> 00:01:25.978
+00:01:30.252 --> 00:01:30.844
 seu kicker
 
-00:01:28.168 --> 00:01:32.281
+00:01:33.035 --> 00:01:37.147
 Exemplo passo a passo Você começou com ás de espadas
 
-00:01:32.293 --> 00:01:35.837
+00:01:37.160 --> 00:01:40.704
 rei de espadas Flop ás de ouros dama de paus
 
-00:01:35.850 --> 00:01:40.335
+00:01:40.717 --> 00:01:45.201
 dois de espadas recebeu ás de copas Os pares privados
 
-00:01:40.348 --> 00:01:43.866
+00:01:45.214 --> 00:01:48.732
 candidatos são ás de espadas-rei de espadas ás de espadas-ás
 
-00:01:43.879 --> 00:01:47.783
+00:01:48.745 --> 00:01:52.650
 de copas e rei de espadas-ás de copas Como existem
 
-00:01:47.796 --> 00:01:52.577
+00:01:52.663 --> 00:01:57.444
 só três comunitárias todas precisam entrar A melhor escolha é
 
-00:01:52.590 --> 00:01:55.154
+00:01:57.457 --> 00:02:00.021
 ás de espadas-ás de copas com ás de ouros-dama de
 
-00:01:55.167 --> 00:02:00.476
+00:02:00.034 --> 00:02:05.343
 paus-dois de espadas ás ás ás dama e dois O
 
-00:02:00.489 --> 00:02:04.781
+00:02:05.356 --> 00:02:09.647
 rei fica fora No turn outras combinações passam a ser
 
-00:02:04.793 --> 00:02:06.868
+00:02:09.660 --> 00:02:11.735
 possíveis e a análise deve ser refeita
 
-00:02:09.035 --> 00:02:14.384
+00:02:13.902 --> 00:02:19.251
 Exercício de recuperação Sem consultar o texto descreva a sequência
 
-00:02:14.397 --> 00:02:17.091
+00:02:19.264 --> 00:02:21.957
 2 para 3 para 4 para 5 e explique por
 
-00:02:17.103 --> 00:02:21.034
+00:02:21.970 --> 00:02:25.900
 que o all-in ainda recebe cartas Depois conte os pares
 
-00:02:21.047 --> 00:02:25.802
+00:02:25.913 --> 00:02:30.669
 privados possíveis no flop são três A próxima aula mostra
 
-00:02:25.815 --> 00:02:28.585
+00:02:30.681 --> 00:02:33.452
 como isso se transforma em uma base matemática
 
-00:02:30.735 --> 00:02:34.925
+00:02:35.602 --> 00:02:39.791
 O momento da carta extra A ordem importa a street
 
-00:02:34.937 --> 00:02:37.553
+00:02:39.804 --> 00:02:42.420
 abre e então cada jogador ainda na mão recebe sua
 
-00:02:37.566 --> 00:02:42.064
+00:02:42.433 --> 00:02:46.930
 nova privada No início do flop avalie as três privadas
 
-00:02:42.077 --> 00:02:46.780
+00:02:46.943 --> 00:02:51.647
 e as três comunitárias que realmente estão disponíveis Não use
 
-00:02:46.793 --> 00:02:50.711
+00:02:51.660 --> 00:02:55.577
 uma futura carta do turn na decisão anterior Se você
 
-00:02:50.724 --> 00:02:55.427
+00:02:55.590 --> 00:03:00.294
 desistir para de receber extras se ficar all-in continua recebendo
 
-00:02:55.440 --> 00:02:59.783
+00:03:00.307 --> 00:03:04.649
 enquanto disputar a mão O simulador conserva essa diferença e
 
-00:02:59.796 --> 00:03:02.270
+00:03:04.662 --> 00:03:07.137
 o replay mostra o crescimento da mão privada
 
-00:03:04.435 --> 00:03:08.766
+00:03:09.302 --> 00:03:13.633
 Compare com o Texas No Hold’em um ás privado pode
 
-00:03:08.779 --> 00:03:12.916
+00:03:13.646 --> 00:03:17.782
 combinar com quatro copas da mesa para formar flush No
 
-00:03:12.929 --> 00:03:16.395
+00:03:17.795 --> 00:03:21.262
 Brazilian Pineapple um único ás de copas não basta a
 
-00:03:16.408 --> 00:03:21.202
+00:03:21.275 --> 00:03:26.069
 combinação precisa de duas privadas Ter cinco privadas ao final
 
-00:03:21.215 --> 00:03:24.887
+00:03:26.081 --> 00:03:29.754
 amplia as escolhas mas não autoriza usar três quatro ou
 
-00:03:24.900 --> 00:03:28.728
+00:03:29.767 --> 00:03:33.594
 cinco delas no showdown A pergunta correta é qual par
 
-00:03:28.741 --> 00:03:31.344
+00:03:33.607 --> 00:03:36.210
 privado combina melhor com qual trio do board
 
-00:03:33.502 --> 00:03:38.452
+00:03:38.368 --> 00:03:43.318
 Planeje a revisão por street Separe três registros mão feita
 
-00:03:38.464 --> 00:03:42.395
+00:03:43.331 --> 00:03:47.261
 agora possibilidades condicionais de melhorar e custo para continuar
 
-00:03:43.284 --> 00:03:46.905
+00:03:48.151 --> 00:03:51.772
 Uma extra pode melhorar sua seleção também pode não mudar
 
-00:03:46.918 --> 00:03:50.964
+00:03:51.785 --> 00:03:55.831
 nada Os rivais recebem cartas e podem mudar de força
 
-00:03:50.977 --> 00:03:55.397
+00:03:55.844 --> 00:04:00.264
 ao mesmo tempo Por isso não reutilizamos charts de Pineapple
 
-00:03:55.410 --> 00:03:59.160
+00:04:00.277 --> 00:04:04.027
 com descarte nem porcentagens de Hold’em como se fossem resultados
 
-00:03:59.173 --> 00:04:00.707
+00:04:04.040 --> 00:04:05.573
 medidos desta modalidade
 
-00:04:02.868 --> 00:04:09.983
+00:04:07.735 --> 00:04:14.850
 Laboratório Duas três quatro cinco privadas Objetivo Acompanhar
 
-00:04:09.996 --> 00:04:14.455
+00:04:14.863 --> 00:04:19.321
 cada extra sem descartar cartas Abra a mesa deste módulo
 
-00:04:14.468 --> 00:04:18.553
+00:04:19.334 --> 00:04:23.419
 e comece pelo treino guiado Cada participante ainda na mão
 
-00:04:18.566 --> 00:04:22.200
+00:04:23.432 --> 00:04:27.066
 recebe uma extra depois do flop turn e river inclusive
 
-00:04:22.213 --> 00:04:26.968
+00:04:27.079 --> 00:04:31.834
 em all-in Depois repita no modo desafio respondendo à pergunta
 
-00:04:26.981 --> 00:04:31.169
+00:04:31.847 --> 00:04:36.035
 objetiva antes de cada ação Use o replay para comparar
 
-00:04:31.182 --> 00:04:36.078
+00:04:36.048 --> 00:04:40.945
 uma alternativa na mesma distribuição Uma nova distribuição preserva
 
-00:04:36.091 --> 00:04:38.862
+00:04:40.958 --> 00:04:43.729
 as cartas que definem o cenário e varia as demais
 
-00:04:41.035 --> 00:04:45.429
+00:04:45.902 --> 00:04:50.296
 Registre sua justificativa no caderno acertar a leitura e respeitar
 
-00:04:45.442 --> 00:04:47.929
+00:04:50.309 --> 00:04:52.796
 as hipóteses importam mais que ganhar esta mão
 
-00:04:50.102 --> 00:04:54.523
+00:04:54.968 --> 00:04:59.390
 Como chegam as cartas no Brazilian Pineapple A 3 cartas
 
-00:04:54.536 --> 00:04:57.410
+00:04:59.403 --> 00:05:02.276
 no pré-flop e você descarta uma depois do flop B
 
-00:04:57.423 --> 00:05:00.180
+00:05:02.289 --> 00:05:05.047
 2 no pré-flop e mais 1 depois do flop do
 
-00:05:00.193 --> 00:05:03.286
+00:05:05.060 --> 00:05:08.153
 turn e do river sem descarte C 5 cartas no
 
-00:05:03.299 --> 00:05:07.049
+00:05:08.166 --> 00:05:11.916
 pré-flop como no Omaha Pause o vídeo faça sua leitura
 
-00:05:07.062 --> 00:05:09.369
+00:05:11.928 --> 00:05:14.235
 e registre uma resposta antes de continuar
 
-00:05:11.535 --> 00:05:15.259
+00:05:16.402 --> 00:05:20.126
 Resposta do exercício 2 no pré-flop e mais 1 depois
 
-00:05:15.272 --> 00:05:19.848
+00:05:20.139 --> 00:05:24.715
 do flop do turn e do river sem descarte Começa
 
-00:05:19.861 --> 00:05:23.624
+00:05:24.728 --> 00:05:28.491
 com 2 Cada street entrega mais uma a quem ainda
 
-00:05:23.637 --> 00:05:26.279
+00:05:28.504 --> 00:05:31.145
 está na mão Não há descarte
 
-00:05:28.435 --> 00:05:32.133
+00:05:33.302 --> 00:05:37.000
 Suas cartas ás de espadas rei de espadas ás de
 
-00:05:32.146 --> 00:05:37.573
+00:05:37.013 --> 00:05:42.440
 copas Cartas comunitárias ás de ouros dama de paus dois
 
-00:05:37.586 --> 00:05:42.070
+00:05:42.453 --> 00:05:46.937
 de espadas Brazilian Pineapple após a carta extra do flop
 
-00:05:42.380 --> 00:05:45.253
+00:05:47.246 --> 00:05:50.120
 ás de espadas rei de espadas ás de copas board
 
-00:05:45.266 --> 00:05:48.720
+00:05:50.133 --> 00:05:53.587
 ás de ouros dama de paus dois de espadas Qual
 
-00:05:48.733 --> 00:05:53.320
+00:05:53.600 --> 00:05:58.187
 é a melhor mão legal A ás ás ás rei
 
-00:05:53.333 --> 00:05:56.800
+00:05:58.200 --> 00:06:01.666
 e dama B ás ás ás dama e dois C
 
-00:05:56.813 --> 00:06:00.743
+00:06:01.679 --> 00:06:05.610
 ás ás rei dama e dois Pause o vídeo faça
 
-00:06:00.756 --> 00:06:03.733
+00:06:05.623 --> 00:06:08.599
 sua leitura e registre uma resposta antes de continuar
 
-00:06:05.902 --> 00:06:11.934
+00:06:10.768 --> 00:06:16.801
 Resposta do exercício ás ás ás dama e dois Usamos
 
-00:06:11.947 --> 00:06:14.924
+00:06:16.814 --> 00:06:19.790
 ás de espadas ás de copas e as três comunitárias
 
-00:06:15.813 --> 00:06:19.743
+00:06:20.680 --> 00:06:24.610
 O rei seria uma terceira carta privada proibida nesta combinação
 
-00:06:21.902 --> 00:06:24.633
+00:06:26.768 --> 00:06:29.500
 Abra o simulador da aula e escolha o cenário Trinca
 
-00:06:24.646 --> 00:06:28.926
+00:06:29.513 --> 00:06:33.793
 com o kicker correto Jogue uma mão completa responda às
 
-00:06:28.939 --> 00:06:33.076
+00:06:33.806 --> 00:06:37.942
 perguntas e registre seu plano Depois use o replay para
 
-00:06:33.089 --> 00:06:37.650
+00:06:37.955 --> 00:06:42.517
 comparar outra ação na mesma distribuição Volte em outra sessão
 
-00:06:37.663 --> 00:06:42.599
+00:06:42.530 --> 00:06:47.466
 no modo desafio Avalie o raciocínio com as informações disponíveis
 
-00:06:42.870 --> 00:06:46.993
+00:06:47.736 --> 00:06:51.860
 sem confundir uma vitória isolada com uma boa estratégia As
 
-00:06:47.006 --> 00:06:51.285
+00:06:51.873 --> 00:06:56.151
 fontes estão no material de apoio Este curso não promete
 
-00:06:51.297 --> 00:06:53.501
+00:06:56.164 --> 00:06:58.368
 lucro e o treino usa fichas sem valor

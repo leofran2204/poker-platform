@@ -1,10 +1,11 @@
-"""Card/table animation for the hybrid-rule film; shared speech/publishing in render.py.
+"""Card/table animation for the Pineapple film; shared speech/publishing in render.py.
 
 Timing cues are resolved from the actual TTS word boundaries, never from word counts.
 The 720p artwork is drawn locally; no third-party images, music or footage.
 """
 from functools import lru_cache
 from PIL import Image, ImageDraw
+import timeline
 
 WIDTH, HEIGHT, SOURCE_FPS = 1280, 720, 15
 BG, INK, GOLD, MUTED = '#0b1715', '#f7f1e3', '#e1c17a', '#b5c9c1'
@@ -29,6 +30,15 @@ def prepare(scene, renderer):
     scene['cueTime'] = cue_time(scene, scene['cue'], renderer.speech_text) if scene.get('cue') else .4
     scene['finalCueTime'] = cue_time(scene, scene['finalCue'], renderer.speech_text) if scene.get('finalCue') else None
     scene['highlights'] = [cue_time(scene, phrase, renderer.speech_text) for phrase in scene.get('cues', [])]
+    if scene['mode']=='cards':
+        scene['highlightAt']=scene['cueTime']
+    if scene['mode']=='deal':
+        scene['dealEvents']=timeline.deal_timeline(scene['cueTime'],scene['before'],scene['after'],len(scene.get('table',{}).get('players',[0,1,2])),scene.get('folded',[]))
+    end=0
+    for action in scene.get('actions',[]):
+        action['at']=max(end,cue_time(scene,action['cue'],renderer.speech_text))
+        end=action['at']+timeline.ENTRY+.15
+    scene['visualEnd']=max([end]+[e['end']+.5 for e in scene.get('dealEvents',[])])
 
 
 def text(d, xy, value, size, renderer, color=INK, bold=False, width=1152):
@@ -72,7 +82,10 @@ def frame(scene,t,index,count,renderer):
     text(d,(48,82),scene['chapter'].upper(),18,renderer,GREEN,True)
     text(d,(45,115),scene['title'],47,renderer,bold=True)
     mode=scene['mode']; focus=max(((a,i) for i,a in enumerate(scene['highlights']) if t>=a),default=(0,-1))[1]
-    if mode in ('cards','deal'):
+    if mode in ('cards','deal','bets'):
+        panel=timeline.table_frame(scene,t,renderer)
+        im.paste(panel.resize((1184,407),Image.Resampling.LANCZOS),(48,196))
+    elif mode in ('cards_legacy','deal_legacy'):
         table(d)
         if mode=='deal':
             stage=scene['stages'][int(t>=scene['cueTime'])]
@@ -144,6 +157,6 @@ def frame(scene,t,index,count,renderer):
 def poster(renderer):
     scene={'chapter':'Do primeiro blind ao showdown','title':'Aprenda Brazilian Pineapple','mode':'intro',
            'lines':['2 privadas + 3 comunitárias','Cartas, apostas e potes • Regras da modalidade'],
-           'note':'SEM DESCARTE  •  PRÉ-FLOP ATÉ 4 BB  •  PÓS-FLOP LIMITADO AO POTE',
+           'note':'SEM DESCARTE  •  ANTE 1 BB  •  AUMENTO ATÉ O POTE ANTES DO CALL',
            'highlights':[],'duration':1}
     return frame(scene,3,0,1,renderer)

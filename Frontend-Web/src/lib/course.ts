@@ -29,6 +29,7 @@ export interface CourseVideoInfo {
   rendererVersion?: number;
   pronunciationVersion?: string;
   narrationHash?: string;
+  mediaRevision?: string;
   publicationStatus?: "published" | "review" | "prior_rules";
   bettingRuleVersion?: string;
   url?: string;

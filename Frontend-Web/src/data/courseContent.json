@@ -88,9 +88,10 @@
               }
             ],
             "contentHash": "c948aec0185d4e45307a9dd622159e762785e7484be729fc97822a3d922c0747",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "7501816c504a9bd1fbf6ddea22d4e39de08d3948213ff05d877d5f2d8622cf20"
+            "narrationHash": "7501816c504a9bd1fbf6ddea22d4e39de08d3948213ff05d877d5f2d8622cf20",
+            "mediaRevision": "a44a1aa81b4828153c0ef894902ebc391204b0feef0aa79cabdd28d5eb6c2a6f"
           },
           "handExample": {
             "title": "Showdown — Melhor Combinação de 5 Cartas",
@@ -237,9 +238,10 @@
               }
             ],
             "contentHash": "80e4bcc3deaf9b2fce6e2772a46f65680f62dbe68ebd81f2bf811bb9a8ca77b7",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "dc834c6126351fd6697475baebdebd2ff72870f915ec24d803324c84ca1c3577"
+            "narrationHash": "dc834c6126351fd6697475baebdebd2ff72870f915ec24d803324c84ca1c3577",
+            "mediaRevision": "f30db3efa9ccdb0c944def58521b349303296da03e3e27e28bea7029df310df9"
           },
           "handExample": {
             "title": "Abertura por Posição",
@@ -415,9 +417,10 @@
               }
             ],
             "contentHash": "d7a0c0a20f425f79bb0f3a4d05e36f81131a7dc4d557c45bed0dd71e23e77d30",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "d263aa699ae62e6e01a4c36e2f0f9c77a169684a350540c656368c465cb5c976"
+            "narrationHash": "d263aa699ae62e6e01a4c36e2f0f9c77a169684a350540c656368c465cb5c976",
+            "mediaRevision": "abf9b73d9a94a65729454285feb0833ae1a91a0bfaf774152a36affe561496b9"
           }
         },
         {
@@ -490,9 +493,10 @@
               }
             ],
             "contentHash": "c110b4b14134a5f3379d1158ba34f05d588a805bbbfc60034433fafff6d03c7c",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "663a26fd69123af82e24195f19248c963120690eca2990d2fd0172568ece45dd"
+            "narrationHash": "663a26fd69123af82e24195f19248c963120690eca2990d2fd0172568ece45dd",
+            "mediaRevision": "5181d44b99b92fc8e3501224957103aaa013799d01e5fc437df8e6b8134cc182"
           },
           "body": "## Agressão seletiva\nEm potes ainda fechados no Texas cash, um plano de raise ou fold pode simplificar as decisões iniciais. É uma estratégia didática com hipóteses, não uma lei do poker: completar no small blind e estratégias de limp podem existir em outros contextos.\n\n## Pratique com um cenário definido\nMesa 9-max, 100 BB, sem ante: abra AA no botão após folds; descarte 72o no UTG. Compare posição, jogadores por agir e custo da abertura. Ao enfrentar um raise, a decisão é outra: fold, call e 3-bet dependem do range, tamanho e stacks.\n\n## Revisão\nAnote o plano antes de ver o resultado. Ganhar uma mão não torna qualquer decisão correta; perder não prova um erro.\n\n## Aprofundamento aplicado\n### A decisão anterior à ação\nPergunte se o pote chegou fechado, se alguém completou ou se já houve aumento. Um plano de abertura não responde automaticamente a uma 3-bet. Com AA em pote fechado, a intenção comum é construir valor contra mãos piores; com 72o em posição inicial, a dificuldade de realizar equity contra muitos adversários sustenta o descarte do plano básico. Entre esses extremos existe uma região dependente das condições do jogo, e não uma fronteira universal.\n\n### Calcule o risco do roubo\nEm um modelo simplificado, há 1,5 BB nos blinds e você abre arriscando 2,5 BB, assumindo que perde a aposta sempre que houver continuação. O blefe puro equilibra quando todos desistem em 2,5 dividido por 4, ou 62,5% das vezes. Na mão real, você ainda pode ganhar após receber call; também pode enfrentar uma 3-bet. Esse modelo isola uma parte da decisão, não descreve toda a rentabilidade de abrir.\n\n### Um resultado não corrige o plano\nSe uma mão fraca ganhar após uma abertura ruim, o resultado não altera as informações que você tinha. Faça a revisão no ponto da decisão. No modo desafio, justifique posição, adversários por agir e tamanho antes de ver o flop. Depois compare uma linha com raise e outra com fold usando o mesmo cenário.\n\n## Laboratório: Abrir com um plano\nObjetivo: Distinguir uma mão de abertura de uma desistência disciplinada. Abra a mesa deste módulo e comece pelo treino guiado. O cenário tem três lugares. A política do treino é seletiva; não transforme duas cartas ruins em obrigação de blefar. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -597,9 +601,10 @@
               }
             ],
             "contentHash": "0b7accbe65f90f1c71a58ae6a26443db559ac49804385bf742a38d644e6a52e4",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "4d5954c9620f68f2243253c1aa251a46103f1cba2c4f89e2d93fe88fe9894b30"
+            "narrationHash": "4d5954c9620f68f2243253c1aa251a46103f1cba2c4f89e2d93fe88fe9894b30",
+            "mediaRevision": "3a2071d209d6b69ecfaaaaee618c2bb485303c3b14c6fdbe7deaad8f31c20c28"
           },
           "body": "## Declare o tamanho e a unidade\nUma abertura para 2,5 BB significa total de 2,5 big blinds, não acrescentar esse valor a uma aposta anterior. Quando houver aposta, confira o mínimo de raise e o stack efetivo.\n\n## Exemplo de plano\nPara estes exercícios, adotamos abertura de 2,5 BB no botão de uma mesa Texas cash 100 BB. Como heurística de isolamento, acrescentamos 1 BB por limper: dois limpers levam a 4,5 BB. Essa regra de treino não prova que o tamanho é ótimo. Posição, rake, stacks, adversários e estrutura de apostas mudam a análise.\n\n## Pratique\nAntes de clicar, diga se há uma aposta a enfrentar e quanto ficará o total investido nesta rodada. Bet e raise são ações diferentes.\n\n## Aprofundamento aplicado\n### Preço produzido pela aposta\nCom pote de 10 BB e aposta de 5, o rival paga 5 para um pote final de 20: precisa de 25% de equity em um call final sem taxas. Com aposta de 10, o pote final será 30 e o preço sobe para 33,33%. Apostar maior oferece preço pior ao caller, mas também arrisca mais e pode fazer mãos piores desistirem. Não escolha o tamanho apenas porque deseja ganhar um pote grande.\n\n### Incremento e mínimo\nSe a aposta vigente é 100 fichas e o último aumento completo foi de 100, o próximo raise completo precisa chegar a pelo menos 200. Depois de um raise de 100 para 300, o incremento é 200: o próximo total mínimo é 500. A interface mostra o total da rodada; subtraia o que você já investiu para saber o adicional. All-ins menores que o aumento completo exigem atenção às regras da mesa e não devem ser descritos como aumentos completos.\n\n### Compare respostas\nRepita uma distribuição e experimente dois tamanhos legais. Observe quais bots pagam, desistem ou aumentam. Uma única resposta não permite estimar a frequência real de um perfil; o exercício serve para compreender como o tamanho modifica a árvore de decisões. Registre também o stack que sobra para a próxima street.\n\n## Laboratório: O raise é um total\nObjetivo: Distinguir total da aposta e valor adicional. Abra a mesa deste módulo e comece pelo treino guiado. Para subir a 3 BB com 0,5 BB já investido, entram mais 2,5 BB. O controle mostra o total. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -652,7 +657,7 @@
             "url": "/videos/zt-academy-m5l3-v3.mp4",
             "captionsUrl": "/videos/zt-academy-m5l3-v3.vtt",
             "posterUrl": "/videos/zt-academy-m5l3-v3.webp",
-            "durationSeconds": 415.17,
+            "durationSeconds": 420.03,
             "transcript": "Zero Tilt Academy. Brazilian Pineapple: 2 cartas e mais 1 por street. Nesta aula, nosso objetivo é: Selecionar exatamente duas privadas e três comunitárias. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.\n\nModalidade exclusiva da Zê Tê. O Brazilian Pineapple estudado aqui é o da Zero Tilt Poker. Use as regras locais; materiais sobre Pineapple de três cartas com descarte descrevem outro jogo.\n\nDistribuição completa. Baralho de 52 cartas, mesa até seis jogadores. Receba duas privadas no pré-flop. Depois de abrir cada street — flop, turn e river — chega mais uma carta privada a cada participante ainda na mão, inclusive all-in. Quem desistiu não recebe. Não há descarte: são três privadas no flop, quatro no turn e cinco no river.\n\nFormação e ranking. Escolha exatamente duas privadas e três comunitárias. O ranking é clássico: sequência supera trinca; full house supera flush. ás, dois, três, quatro e cinco é a sequência baixa. Nunca use três privadas para completar uma combinação ou seu kicker.\n\nExemplo passo a passo. Você começou com ás de espadas rei de espadas. Flop ás de ouros dama de paus dois de espadas; recebeu ás de copas. Os pares privados candidatos são ás de espadas-rei de espadas, ás de espadas-ás de copas e rei de espadas-ás de copas. Como existem só três comunitárias, todas precisam entrar. A melhor escolha é ás de espadas-ás de copas com ás de ouros-dama de paus-dois de espadas: ás, ás, ás, dama e dois. O rei fica fora. No turn, outras combinações passam a ser possíveis e a análise deve ser refeita.\n\nExercício de recuperação. Sem consultar o texto, descreva a sequência 2 para 3 para 4 para 5 e explique por que o all-in ainda recebe cartas. Depois conte os pares privados possíveis no flop: são três. A próxima aula mostra como isso se transforma em uma base matemática.\n\nO momento da carta extra. A ordem importa: a street abre e então cada jogador ainda na mão recebe sua nova privada. No início do flop, avalie as três privadas e as três comunitárias que realmente estão disponíveis. Não use uma futura carta do turn na decisão anterior. Se você desistir, para de receber extras; se ficar all-in, continua recebendo enquanto disputar a mão. O simulador conserva essa diferença e o replay mostra o crescimento da mão privada.\n\nCompare com o Texas. No Hold’em, um ás privado pode combinar com quatro copas da mesa para formar flush. No Brazilian Pineapple, um único ás de copas não basta: a combinação precisa de duas privadas. Ter cinco privadas ao final amplia as escolhas, mas não autoriza usar três, quatro ou cinco delas no showdown. A pergunta correta é qual par privado combina melhor com qual trio do board.\n\nPlaneje a revisão por street. Separe três registros: mão feita agora, possibilidades condicionais de melhorar e custo para continuar. Uma extra pode melhorar sua seleção; também pode não mudar nada. Os rivais recebem cartas e podem mudar de força ao mesmo tempo. Por isso não reutilizamos charts de Pineapple com descarte nem porcentagens de Hold’em como se fossem resultados medidos desta modalidade.\n\nLaboratório: Duas, três, quatro, cinco privadas. Objetivo: Acompanhar cada extra sem descartar cartas. Abra a mesa deste módulo e comece pelo treino guiado. Cada participante ainda na mão recebe uma extra depois do flop, turn e river, inclusive em all-in. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.\n\nRegistre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.\n\nComo chegam as cartas no Brazilian Pineapple? A. 3 cartas no pré-flop e você descarta uma depois do flop B. 2 no pré-flop e mais 1 depois do flop, do turn e do river, sem descarte C. 5 cartas no pré-flop, como no Omaha Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.\n\nResposta do exercício: 2 no pré-flop e mais 1 depois do flop, do turn e do river, sem descarte. Começa com 2. Cada street entrega mais uma a quem ainda está na mão. Não há descarte.\n\nSuas cartas: ás de espadas, rei de espadas, ás de copas. Cartas comunitárias: ás de ouros, dama de paus, dois de espadas. Brazilian Pineapple após a carta extra do flop: ás de espadas rei de espadas ás de copas, board ás de ouros dama de paus dois de espadas. Qual é a melhor mão legal? A. ás, ás, ás, rei e dama B. ás, ás, ás, dama e dois C. ás, ás, rei, dama e dois Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.\n\nResposta do exercício: ás, ás, ás, dama e dois. Usamos ás de espadas ás de copas e as três comunitárias. O rei seria uma terceira carta privada, proibida nesta combinação.\n\nAbra o simulador da aula e escolha o cenário Trinca com o kicker correto. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.",
             "chapters": [
               {
@@ -664,66 +669,67 @@
                 "title": "Modalidade exclusiva da ZT"
               },
               {
-                "start": 36.27,
+                "start": 41.13,
                 "title": "Distribuição completa"
               },
               {
-                "start": 64.93,
+                "start": 69.8,
                 "title": "Formação e ranking"
               },
               {
-                "start": 87.67,
+                "start": 92.53,
                 "title": "Exemplo passo a passo"
               },
               {
-                "start": 128.53,
+                "start": 133.4,
                 "title": "Exercício de recuperação"
               },
               {
-                "start": 150.23,
+                "start": 155.1,
                 "title": "O momento da carta extra"
               },
               {
-                "start": 183.93,
+                "start": 188.8,
                 "title": "Compare com o Texas"
               },
               {
-                "start": 213.0,
+                "start": 217.87,
                 "title": "Planeje a revisão por street"
               },
               {
-                "start": 242.37,
+                "start": 247.23,
                 "title": "Laboratório: Duas, três, quatro, cinco privadas"
               },
               {
-                "start": 280.53,
+                "start": 285.4,
                 "title": "Laboratório: Duas, três, quatro, cinco privadas"
               },
               {
-                "start": 289.6,
+                "start": 294.47,
                 "title": "Exercício resolvido 1"
               },
               {
-                "start": 311.03,
+                "start": 315.9,
                 "title": "Confira o raciocínio"
               },
               {
-                "start": 327.93,
+                "start": 332.8,
                 "title": "Exercício resolvido 2"
               },
               {
-                "start": 365.4,
+                "start": 370.27,
                 "title": "Confira o raciocínio"
               },
               {
-                "start": 381.4,
+                "start": 386.27,
                 "title": "Agora, pratique"
               }
             ],
             "contentHash": "e5ec7715a31257544e4bb6aef637ab024254878110dff7c97c296ec99d95e3e0",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
             "narrationHash": "a3b4379f83d2fbba39f3221089d466608fac39afbbd57fe6dd3f10f81ea0efff",
+            "mediaRevision": "834e21f4531e08839f63f216b53ae5854e6c684691b4570e4ec2fa40e9610d92",
             "bettingRuleVersion": "legacy_no_limit"
           },
           "handExample": {
@@ -745,7 +751,7 @@
             "heroDecision": "Forme A-A-A-Q-2 com Ad Ac e Ah Qc 2s. O rei privado fica fora.",
             "keyTakeaway": "Você não começa com 3 cartas. A terceira chega depois do flop."
           },
-          "body": "## Estrutura vigente do Brazilian Pineapple\nPré-flop Fixed Limit: patamares de 1, 2, 3 e 4 BB. O big blind é o primeiro patamar; o teto de 4 BB também vale heads-up. All-ins curtos podem ficar entre patamares; completar um patamar só reabre a ação de quem já agiu quando essa pessoa enfrenta pelo menos 1 BB adicional.\n\nNo flop, turn e river, o aumento é limitado ao pote antes do call. Se P é o pote atual (incluindo contribuições e antes uma única vez), C é o pagamento necessário e B é sua contribuição na rodada, o máximo total é min(B + saldo, B + C + P). O mínimo segue o último incremento completo; reabertura exige 100%, incluindo incrementos curtos cumulativos. All-in respeita o teto.\n\nExemplo: pote R$ 10, abertura R$ 5, aumento máximo para R$ 20. Com dois, três ou quatro participantes contribuindo R$ 20 nessa rodada, os potes finais são R$ 50, R$ 70 e R$ 90. Após o aumento para R$ 20, o pote R$ 35 e o call R$ 20 permitem ao próximo jogador aumentar para R$ 55.\n\nVale em cash e torneios, Play Money e Jogo Real. Distribuição progressiva, escolha de duas privadas, blinds, entradas e premiação continuam iguais.\n\n## Modalidade exclusiva da ZT\nO Brazilian Pineapple estudado aqui é o da Zero Tilt Poker. Use as regras locais; materiais sobre Pineapple de três cartas com descarte descrevem outro jogo.\n\n## Distribuição completa\nBaralho de 52 cartas, mesa até seis jogadores. Receba duas privadas no pré-flop. Depois de abrir cada street — flop, turn e river — chega mais uma carta privada a cada participante ainda na mão, inclusive all-in. Quem desistiu não recebe. Não há descarte: são três privadas no flop, quatro no turn e cinco no river.\n\n## Formação e ranking\nEscolha exatamente duas privadas e três comunitárias. O ranking é clássico: sequência supera trinca; full house supera flush. A-2-3-4-5 é a sequência baixa. Nunca use três privadas para completar uma combinação ou seu kicker.\n\n## Exemplo passo a passo\nVocê começou com As Ks. Flop Ad Qc 2s; recebeu Ah. Os pares privados candidatos são As-Ks, As-Ah e Ks-Ah. Como existem só três comunitárias, todas precisam entrar. A melhor escolha é As-Ah com Ad-Qc-2s: A-A-A-Q-2. O rei fica fora. No turn, outras combinações passam a ser possíveis e a análise deve ser refeita.\n\n## Exercício de recuperação\nSem consultar o texto, descreva a sequência 2→3→4→5 e explique por que o all-in ainda recebe cartas. Depois conte os pares privados possíveis no flop: são três. A próxima aula mostra como isso se transforma em uma base matemática.\n\n## Aprofundamento aplicado\n### O momento da carta extra\nA ordem importa: a street abre e então cada jogador ainda na mão recebe sua nova privada. No início do flop, avalie as três privadas e as três comunitárias que realmente estão disponíveis. Não use uma futura carta do turn na decisão anterior. Se você desistir, para de receber extras; se ficar all-in, continua recebendo enquanto disputar a mão. O simulador conserva essa diferença e o replay mostra o crescimento da mão privada.\n\n### Compare com o Texas\nNo Hold’em, um ás privado pode combinar com quatro copas da mesa para formar flush. No Brazilian Pineapple, um único ás de copas não basta: a combinação precisa de duas privadas. Ter cinco privadas ao final amplia as escolhas, mas não autoriza usar três, quatro ou cinco delas no showdown. A pergunta correta é qual par privado combina melhor com qual trio do board.\n\n### Planeje a revisão por street\nSepare três registros: mão feita agora, possibilidades condicionais de melhorar e custo para continuar. Uma extra pode melhorar sua seleção; também pode não mudar nada. Os rivais recebem cartas e podem mudar de força ao mesmo tempo. Por isso não reutilizamos charts de Pineapple com descarte nem porcentagens de Hold’em como se fossem resultados medidos desta modalidade.\n\n## Laboratório: Duas, três, quatro, cinco privadas\nObjetivo: Acompanhar cada extra sem descartar cartas. Abra a mesa deste módulo e comece pelo treino guiado. Cada participante ainda na mão recebe uma extra depois do flop, turn e river, inclusive em all-in. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
+          "body": "## Estrutura vigente do Brazilian Pineapple\nTodas as rodadas, inclusive o pré-flop, limitam o aumento ao pote formado antes do call. Sem patamares fixos nem teto de 4 BB. Se P é o pote (incluindo o ante uma única vez), C o valor a pagar e B sua contribuição na rodada, o máximo total é min(B + saldo, B + C + P).\n\nO incremento mínimo começa em 1 BB e acompanha o último aumento completo. All-ins curtos não mudam esse mínimo; a reabertura é individual e pode resultar de curtos cumulativos. All-in acima do máximo é rejeitado.\n\nO big blind paga primeiro seu blind e depois um ante de 1 BB, com o saldo restante. Blind incompleto não paga ante; saldo insuficiente permite ante parcial. O ante entra no pote principal, não abate o call e não amplia a elegibilidade aos potes paralelos. Vale desde a primeira mão, inclusive heads-up, em cash, torneios, Play Money e Jogo Real. Nos torneios acompanha o BB do nível.\n\nExemplo com três jogadores: blinds R$ 0,50/R$ 1 e ante R$ 1 formam R$ 2,50 iniciais. Se todos acompanharem, o pote chega a R$ 4. A primeira abertura máxima é para R$ 3,50; dois calls formam R$ 11,50.\n\nOutro exemplo: pote R$ 10, aposta R$ 5, aumento máximo para R$ 20. Dois, três ou quatro participantes contribuindo R$ 20 nessa rodada formam R$ 50, R$ 70 e R$ 90. Após o aumento para R$ 20, o pote R$ 35 e o call R$ 20 permitem ao próximo aumentar para R$ 55.\n\n## Modalidade exclusiva da ZT\nO Brazilian Pineapple estudado aqui é o da Zero Tilt Poker. Use as regras locais; materiais sobre Pineapple de três cartas com descarte descrevem outro jogo.\n\n## Distribuição completa\nBaralho de 52 cartas, mesa até seis jogadores. Receba duas privadas no pré-flop. Depois de abrir cada street — flop, turn e river — chega mais uma carta privada a cada participante ainda na mão, inclusive all-in. Quem desistiu não recebe. Não há descarte: são três privadas no flop, quatro no turn e cinco no river.\n\n## Formação e ranking\nEscolha exatamente duas privadas e três comunitárias. O ranking é clássico: sequência supera trinca; full house supera flush. A-2-3-4-5 é a sequência baixa. Nunca use três privadas para completar uma combinação ou seu kicker.\n\n## Exemplo passo a passo\nVocê começou com As Ks. Flop Ad Qc 2s; recebeu Ah. Os pares privados candidatos são As-Ks, As-Ah e Ks-Ah. Como existem só três comunitárias, todas precisam entrar. A melhor escolha é As-Ah com Ad-Qc-2s: A-A-A-Q-2. O rei fica fora. No turn, outras combinações passam a ser possíveis e a análise deve ser refeita.\n\n## Exercício de recuperação\nSem consultar o texto, descreva a sequência 2→3→4→5 e explique por que o all-in ainda recebe cartas. Depois conte os pares privados possíveis no flop: são três. A próxima aula mostra como isso se transforma em uma base matemática.\n\n## Aprofundamento aplicado\n### O momento da carta extra\nA ordem importa: a street abre e então cada jogador ainda na mão recebe sua nova privada. No início do flop, avalie as três privadas e as três comunitárias que realmente estão disponíveis. Não use uma futura carta do turn na decisão anterior. Se você desistir, para de receber extras; se ficar all-in, continua recebendo enquanto disputar a mão. O simulador conserva essa diferença e o replay mostra o crescimento da mão privada.\n\n### Compare com o Texas\nNo Hold’em, um ás privado pode combinar com quatro copas da mesa para formar flush. No Brazilian Pineapple, um único ás de copas não basta: a combinação precisa de duas privadas. Ter cinco privadas ao final amplia as escolhas, mas não autoriza usar três, quatro ou cinco delas no showdown. A pergunta correta é qual par privado combina melhor com qual trio do board.\n\n### Planeje a revisão por street\nSepare três registros: mão feita agora, possibilidades condicionais de melhorar e custo para continuar. Uma extra pode melhorar sua seleção; também pode não mudar nada. Os rivais recebem cartas e podem mudar de força ao mesmo tempo. Por isso não reutilizamos charts de Pineapple com descarte nem porcentagens de Hold’em como se fossem resultados medidos desta modalidade.\n\n## Laboratório: Duas, três, quatro, cinco privadas\nObjetivo: Acompanhar cada extra sem descartar cartas. Abra a mesa deste módulo e comece pelo treino guiado. Cada participante ainda na mão recebe uma extra depois do flop, turn e river, inclusive em all-in. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
             {
               "id": "m5l3q1",
@@ -964,9 +970,10 @@
               }
             ],
             "contentHash": "22fbad187494cfa09ac5d69e0a89227340b283bd147d6d5b0b05335ac5d7db47",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
             "narrationHash": "c88c55d1333c042a9d86ebf7eac61c1d2230ffabd93d5a3610cf9c960d342df4",
+            "mediaRevision": "b7adf780f0cadef9f3af9fe784b8a6ca337c71816bdc9eaf3b8bc8483213c289",
             "bettingRuleVersion": "legacy_no_limit"
           }
         },
@@ -1135,9 +1142,10 @@
               }
             ],
             "contentHash": "2d7906f0c7740f96bbc01188e85924b7ff5f9e333b59aa32e32508d329918b09",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
             "narrationHash": "c7b20f817762b0c7b9383d62f161339c8623293db3de7416d886e90329e52b4a",
+            "mediaRevision": "121c417e0012a8de60c246dbc1a6a8df87e5810e75b3ae26c0d948cf11125f21",
             "bettingRuleVersion": "legacy_no_limit"
           }
         }
@@ -1214,9 +1222,10 @@
               }
             ],
             "contentHash": "639a6a976d8eaa54e9be637fefb0f96f0651bce8f944e3ae69a84841c9e5ed3f",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "34fcf5010366e00b64ae4dce82146133a89c29aa672045e38e13ba0ad05f250e"
+            "narrationHash": "34fcf5010366e00b64ae4dce82146133a89c29aa672045e38e13ba0ad05f250e",
+            "mediaRevision": "0f409ca496cdc601beb6351d23dc5b48cb248aff6d297039869981005accc799"
           },
           "handExample": {
             "title": "Trinca vence Sequência no Short Deck",
@@ -1356,9 +1365,10 @@
               }
             ],
             "contentHash": "49b158e110719927259c375fb9def9ea47225e7c22b6979929105347d8d3e8f5",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "3dbea737639cc92685886aa6e86051ba01d5bd61a5a2d519877e13e2b64674aa"
+            "narrationHash": "3dbea737639cc92685886aa6e86051ba01d5bd61a5a2d519877e13e2b64674aa",
+            "mediaRevision": "6e14192c7e84c900153767774f05168193171233705b8b20f5b2f753df9e3fbe"
           },
           "handExample": {
             "title": "Regra Obrigatória: 2 da Mão + 3 da Mesa",
@@ -1504,9 +1514,10 @@
               }
             ],
             "contentHash": "929d3352d266c3b7d3c6361ffa200629930871edfd8ae1296e272260834b8120",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "b4621a966d12f0dd2531e3cdc8ba163da8f0f43620ab002589b89445806860f3"
+            "narrationHash": "b4621a966d12f0dd2531e3cdc8ba163da8f0f43620ab002589b89445806860f3",
+            "mediaRevision": "2d1859f1370c8f48427a48ecf90e3f2b159cd19bc4ead1ed67c6ededbe76831a"
           },
           "body": "## Range depende do cenário\nUm range é um conjunto de mãos possíveis, podendo ter frequências diferentes. Na abertura 9-max, UTG enfrenta oito jogadores por agir; no botão, só os blinds. Isso costuma permitir mais aberturas no botão, sob hipóteses comparáveis de stacks, rake e respostas.\n\n## Posição pós-flop\nUTG fica fora de posição contra callers à sua esquerda, mas em posição contra os blinds. O botão age por último pós-flop. Não confunda a ordem pré-flop com a pós-flop.\n\n## Exercício guiado\nTexas cash 9-max, 100 BB, todos desistiram: no botão, inclua KQs na abertura do plano básico. Registre o tamanho e o que fará diante de uma 3-bet. Um quadro de ranges sem essas hipóteses é incompleto.\n\n## Aprofundamento aplicado\n### Conte combinações e frequências\nUma mão pareada possui seis combinações antes de cartas conhecidas. Uma mão não pareada suited possui quatro, e offsuit doze. O conjunto AK tem dezesseis: quatro suited mais doze offsuit. Um range com frequências mistas exige ponderar essas combinações. Abrir uma classe em metade das ocasiões não significa que cada carta individual apareceu metade das vezes. Primeiro defina quais classes entram e em que cenário.\n\n### Stack, rake e número de jogadores\nUma abertura pode receber call, raise ou folds. Stacks menores reduzem a profundidade das decisões seguintes; stacks maiores ampliam a importância de posição e de mãos capazes de formar combinações fortes. Rake e cap mudam o valor das continuações. Os treinos isolam o conceito com rake zero e stacks declarados, por isso seus resultados não são uma tabela pronta para qualquer mesa do lobby.\n\n### Construa uma pergunta estudável\nEm vez de perguntar se KQs é sempre abertura, defina posição, número de jogadores, stack efetivo e tamanho. Depois pergunte quais respostas dos blinds tornariam outra linha preferível. O artigo técnico do GTO Wizard consultado em 2026 reforça a necessidade de parametrizar esses elementos; não usamos tabelas proprietárias do fornecedor como gabarito deste treino.\n\n## Laboratório: Posição e mãos de abertura\nObjetivo: Relacionar jogadores por agir, posição e plano de abertura. Abra a mesa deste módulo e comece pelo treino guiado. A mesa didática começa com três jogadores. Ajuste o range ao número real de oponentes; não copie um chart 9-max. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -1620,9 +1631,10 @@
               }
             ],
             "contentHash": "8ba3c88095f16ddc99acbbbed374ec75ca4475a3b662efc54038761ce656fb61",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "fdee108f6e91d4d92db471afca8c346b207ad816629d6d241f12208370e31ce0"
+            "narrationHash": "fdee108f6e91d4d92db471afca8c346b207ad816629d6d241f12208370e31ce0",
+            "mediaRevision": "dc57c498499669efad16fba47973cf6071f83d03ec1382d6c1774d18ac3fe4a5"
           },
           "body": "## Limp do small blind\nQuando todos desistiram e o SB completa, o BB pode dar check se nada falta pagar, ou aumentar dentro dos limites legais. O limp pode conter mãos fracas e fortes; não identifica sozinho um jogador fraco.\n\n## Plano do exercício\nTexas cash 100 BB, blinds 0,5/1: o SB completa e tende a pagar isolamentos com mãos piores, sem muitas armadilhas. Treinamos raise com A5s, usando 3,5–4 BB como referência de tamanho. Contra outras frequências ou stacks, check pode integrar a estratégia.\n\n## Revise a hipótese\nObserve frequência de limp, fold para raise e limp-reraise antes de explorar uma tendência.\n\n## Aprofundamento aplicado\n### A opção do big blind\nCom blinds de 0,5 e 1 BB, o small blind já pagou meio blind. Ao completar mais meio, os dois jogadores têm 1 BB comprometido. O big blind não precisa pagar novamente para ver o flop: pode dar check. Aumentar para 4 BB exige mais 3 BB do big blind e oferece ao small blind a decisão de acrescentar 3 BB. Não confunda o custo adicional com o total da aposta.\n\n### O tamanho depende da resposta\nSe o rival paga aumentos com muitas mãos fracas, aumentar uma mão que joga bem contra essa faixa pode construir valor. Se ele inclui armadilhas e aumenta de volta, a avaliação muda. Um raise com A5s pode combinar força, bloqueadores e potencial de formar flush, mas não deve ser rotulado automaticamente como valor contra qualquer range de call. O perfil é uma hipótese do exercício.\n\n### Observe sem concluir cedo\nRegistre quantas vezes o rival completou, desistiu para aumento e fez limp-reraise. Amostras pequenas oscilam bastante. No simulador, o perfil é declarado para tornar o exercício reproduzível; em uma mesa real essa informação teria de ser inferida. Compare check e raise na mesma distribuição sem usar as cartas reveladas no final como justificativa retroativa.\n\n## Laboratório: O small blind completa\nObjetivo: Comparar check e isolamento após o limp. Abra a mesa deste módulo e comece pelo treino guiado. Você está no big blind. Se nada falta pagar, check é legal; o isolamento aumenta o total da aposta. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -1735,9 +1747,10 @@
               }
             ],
             "contentHash": "470bc06a215489dcf6ea2a1b5cb73719f41d57f676c8b337baedb3fd78c8963a",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "4370d2cee81c5418e64634699d82b723f957802910fb8a923b9676bf858d8da7"
+            "narrationHash": "4370d2cee81c5418e64634699d82b723f957802910fb8a923b9676bf858d8da7",
+            "mediaRevision": "55a32f9f5a08b53ba822bcef95f708489603a50567f80246cab42907f9f294e3"
           },
           "body": "## Valor, blefe e bloqueadores\nUma 3-bet é um aumento sobre o raise inicial. Seu range e tamanho dependem das posições, stack efetivo e respostas adversárias. AKs pode integrar a parte de valor; A5s pode aparecer como blefe em determinados cenários, mas não é uma obrigação.\n\n## Contagem de combinações\nSem cartas conhecidas, existem C(4,2)=6 combinações de AA e 4×4=16 de AK. Ao segurar um ás, sem conhecer outras cartas dessas classes, restam C(3,2)=3 combinações de AA e 3×4=12 de AK. Reduzir combinações não prova que um blefe é lucrativo: importam também as mãos que o rival paga e as que descarta.\n\n## Exercício\nTexas cash 100 BB: CO abre 2,5 BB e o botão tem AKs. No plano de treino, usamos 3-bet por valor, com referência de 7,5–8 BB. Compare o plano com um stack de 20 BB: não transplante o tamanho automaticamente.\n\n## Aprofundamento aplicado\n### Três tamanhos diferentes\nSe o rival abre para 2,5 BB e você aumenta para 8, sua 3-bet é de 8 BB no total. O incremento sobre a abertura foi 5,5 BB. Se você não tinha fichas investidas, o custo inicial é 8 BB; se era big blind, parte já estava comprometida. A diferença importa para pot odds, stack efetivo e planejamento de respostas a uma 4-bet.\n\n### Bloqueadores têm dois lados\nSegurar um ás reduz certas combinações fortes do adversário, mas também pode reduzir mãos que ele desistiria. Um blocker não fornece por si só a frequência de fold. Liste primeiro o range de abertura, depois quais mãos pagam e quais reaumentam. Sem essa decomposição, dizer que A5s bloqueia ases é verdadeiro, porém insuficiente para provar que o blefe tem valor esperado positivo.\n\n### Planeje a próxima decisão\nAo escolher a 3-bet, antecipe o stack que restará se houver call. Com 100 BB, você ainda pode enfrentar várias apostas pós-flop. Com 20 BB, a relação entre pote e stack muda muito. No exercício, pratique o total legal do raise e descreva quais respostas fariam você continuar. Os bots não são um solver e uma vitória contra eles não valida automaticamente o range escolhido.\n\n## Laboratório: Reaumentar uma abertura\nObjetivo: Construir uma 3-bet e distinguir o total do incremento. Abra a mesa deste módulo e comece pelo treino guiado. A abertura adversária foi para 2,5 BB. No exercício, compare uma 3-bet de valor com apenas pagar. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -1857,9 +1870,10 @@
               }
             ],
             "contentHash": "bd164b130b58838432e14d1517b35aebf399f1cad54587b94ad4c0ee506ebea6",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "86bbe273986f8b1fcfcf0d4488b285ad7f6a85776c60800def516a890a689aa6"
+            "narrationHash": "86bbe273986f8b1fcfcf0d4488b285ad7f6a85776c60800def516a890a689aa6",
+            "mediaRevision": "00aa422105d7289ece908021858c644d3eedef6801e5f66e135e206325b89acf"
           },
           "body": "## Textura e ranges\nUm flop seco oferece menos projetos diretos; um flop conectado e com duas cartas de um naipe oferece mais. A textura sozinha não determina frequência nem tamanho da c-bet: compare ranges, vantagem de nuts, posição e número de jogadores.\n\n## Exemplo guiado\nBTN abre Qs Js, BB paga, flop 9h 8h 7c e BB dá check. Você tem uma broca: um dez completa uma sequência. O board pode favorecer várias mãos do caller; treine check-back para observar uma continuação sem inflar o pote. Não há aposta para pagar: call é ilegal neste estado.\n\n## Tamanho como hipótese\n25–33% em certos boards secos é uma referência frequente de estudo, não uma regra para todo flop. Apostar maior também muda quais mãos podem continuar.\n\n## Aprofundamento aplicado\n### Vantagem de range e vantagem de nuts\nVantagem de range descreve uma comparação da distribuição de forças dos dois conjuntos de mãos. Vantagem de nuts se refere à presença relativa das combinações mais fortes. As duas coisas podem apontar em direções diferentes. Não conclua que quem abriu pré-flop sempre possui as duas vantagens. Pergunte quais pares, conectores e mãos suited poderiam chegar a esse board por cada linha.\n\n### Um exemplo de textura\nEm 9h 8h 7c, Qs Js tem uma broca: os dez completam sequência. Não é um projeto aberto com oito outs nominais. Mesmo a chegada de um dez precisa ser analisada: alguns adversários podem empatar ou fazer mãos diferentes conforme seus pares e naipes. Em um flop A72 rainbow, a textura oferece outros projetos e conecta de outra maneira com os ranges pré-flop.\n\n### Check também constrói uma estratégia\nDar check pode preservar equity, proteger parte do range de check e permitir uma decisão posterior. Apostar cobra de projetos e pode gerar folds, mas expõe a mão a check-raises. No simulador, observe o tamanho do pote que chega ao turn sob as duas linhas. A comparação serve para entender consequências, sem apresentar um único tamanho de c-bet como solução universal.\n\n## Laboratório: Board conectado\nObjetivo: Reconhecer a broca antes de apostar ou dar check. Abra a mesa deste módulo e comece pelo treino guiado. Um dez completa sequência; este flop permite diversas mãos fortes ao caller. Não há c-bet obrigatória. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -1914,7 +1928,7 @@
             "url": "/videos/zt-academy-m2l2-v3.mp4",
             "captionsUrl": "/videos/zt-academy-m2l2-v3.vtt",
             "posterUrl": "/videos/zt-academy-m2l2-v3.webp",
-            "durationSeconds": 330.33,
+            "durationSeconds": 330.5,
             "transcript": "Zero Tilt Academy. Como responder a Check-Raise e a Arte do Float. Nesta aula, nosso objetivo é: Recalcular o preço após a agressão adversária. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.\n\nResponder ao check-raise. Um check-raise pode conter valor e blefes. Compare o tamanho total a pagar, stacks, textura e range plausível do rival; top pair não exige sempre call nem sempre fold.\n\nModelo explícito. No exercício, o rival é definido como alguém que só dá check-raise grande com dois pares ou melhor e quase nunca blefa. rei e nove em rei, oito e três rainbow pode ser descartado contra esse modelo. Se as frequências mudarem, refaça a análise.\n\nFloat. É pagar com um plano de disputar o pote em uma rodada posterior, frequentemente em posição. Exige leitura das continuações adversárias e do preço; não é pagar qualquer mão esperando um check.\n\nRefaça o preço após o raise. Suponha um pote de 10 big blinds, sua aposta de 3 e um aumento rival para 12. Antes da sua decisão, há 25 big blinds: dez do pote, três seus e doze do rival. Você já colocou três e precisa acrescentar nove. O pote após call será 34, de modo que o limiar é nove sobre trinta e quatro, aproximadamente 26,47 por cento, sem taxas e supondo que a decisão encerre as apostas.\n\nNão use doze como custo adicional.\n\nForça absoluta e força relativa. Top pair pode ser uma mão forte contra um range amplo, mas fraca contra um range composto apenas por dois pares, trincas e combinações superiores. No treino de check-raise, o bot de valor só aumenta quando sua própria mão satisfaz a política declarada. Isso torna a leitura estudável. Contra um rival que também usa blefes e projetos, você teria de reconstruir a composição de continuações.\n\nUm float precisa de plano. Pagar uma aposta pequena em posição pode preservar opções quando sua mão tem equity e o adversário abandona certas linhas futuras. Mas você não sabe se ele dará check no turn. Registre quais cartas permitem continuar e qual nova aposta tornaria o plano inadequado. Não chame de float qualquer call feito apenas por curiosidade.\n\nLaboratório: Responder ao check-raise. Objetivo: Recalcular o preço após a agressão adversária. Abra a mesa deste módulo e comece pelo treino guiado. O bot de valor dá check-raise com dois pares ou melhor. Uma aposta sua pode provocar essa resposta. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.\n\nRegistre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.\n\nO que é a jogada conhecida como 'Float' no poker? A. Dar fold imediatamente no pré-flop B. Pagar uma aposta no flop em posição com intenção de tomar o pote no turn quando o rival checar C. Pedir tempo extra para pensar Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.\n\nResposta do exercício: Pagar uma aposta no flop em posição com intenção de tomar o pote no turn quando o rival checar. Float é um call planejado em posição para explorar o check do agressor no turn.\n\nSuas cartas: rei de ouros, nove de ouros. Cartas comunitárias: rei de paus, oito de espadas, três de copas. Texas, flop rei de paus oito de espadas três de copas. Você tem K♦ 9♦. No modelo desta aula, o rival só dá check-raise grande com dois pares ou melhor e quase nunca blefa. Qual decisão conservadora treinamos? A. fold B. call C. raise Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.\n\nResposta do exercício: fold. Contra o range forte definido no enunciado, descartamos top pair com kicker 9. Não é uma regra contra todo check-raise.\n\nAbra o simulador da aula e escolha o cenário Responder ao check-raise. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.",
             "chapters": [
               {
@@ -1942,46 +1956,47 @@
                 "title": "Refaça o preço após o raise"
               },
               {
-                "start": 109.53,
+                "start": 109.7,
                 "title": "Força absoluta e força relativa"
               },
               {
-                "start": 140.4,
+                "start": 140.57,
                 "title": "Um float precisa de plano"
               },
               {
-                "start": 165.93,
+                "start": 166.1,
                 "title": "Laboratório: Responder ao check-raise"
               },
               {
-                "start": 203.13,
+                "start": 203.3,
                 "title": "Laboratório: Responder ao check-raise"
               },
               {
-                "start": 212.2,
+                "start": 212.37,
                 "title": "Exercício resolvido 1"
               },
               {
-                "start": 232.87,
+                "start": 233.03,
                 "title": "Confira o raciocínio"
               },
               {
-                "start": 247.0,
+                "start": 247.17,
                 "title": "Exercício resolvido 2"
               },
               {
-                "start": 282.8,
+                "start": 282.97,
                 "title": "Confira o raciocínio"
               },
               {
-                "start": 296.5,
+                "start": 296.67,
                 "title": "Agora, pratique"
               }
             ],
             "contentHash": "64295cc91a3ed18c636c108e633960f067950155cd98b46556309fe0fb527a3c",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "79072b403ac50a9fc30d11a0069a954fe8d0cdc4a430d5782364985b57529f22"
+            "narrationHash": "79072b403ac50a9fc30d11a0069a954fe8d0cdc4a430d5782364985b57529f22",
+            "mediaRevision": "348e687e58a4605cff2ffca5bf32322740704d6d3acf95cf4d37c439f42641e2"
           },
           "body": "## Responder ao check-raise\nUm check-raise pode conter valor e blefes. Compare o tamanho total a pagar, stacks, textura e range plausível do rival; top pair não exige sempre call nem sempre fold.\n\n## Modelo explícito\nNo exercício, o rival é definido como alguém que só dá check-raise grande com dois pares ou melhor e quase nunca blefa. K9 em K83 rainbow pode ser descartado contra esse modelo. Se as frequências mudarem, refaça a análise.\n\n## Float\nÉ pagar com um plano de disputar o pote em uma rodada posterior, frequentemente em posição. Exige leitura das continuações adversárias e do preço; não é pagar qualquer mão esperando um check.\n\n## Aprofundamento aplicado\n### Refaça o preço após o raise\nSuponha um pote de 10 BB, sua aposta de 3 e um aumento rival para 12. Antes da sua decisão, há 25 BB: dez do pote, três seus e doze do rival. Você já colocou três e precisa acrescentar nove. O pote após call será 34, de modo que o limiar é nove sobre trinta e quatro, aproximadamente 26,47%, sem taxas e supondo que a decisão encerre as apostas. Não use doze como custo adicional.\n\n### Força absoluta e força relativa\nTop pair pode ser uma mão forte contra um range amplo, mas fraca contra um range composto apenas por dois pares, trincas e combinações superiores. No treino de check-raise, o bot de valor só aumenta quando sua própria mão satisfaz a política declarada. Isso torna a leitura estudável. Contra um rival que também usa blefes e projetos, você teria de reconstruir a composição de continuações.\n\n### Um float precisa de plano\nPagar uma aposta pequena em posição pode preservar opções quando sua mão tem equity e o adversário abandona certas linhas futuras. Mas você não sabe se ele dará check no turn. Registre quais cartas permitem continuar e qual nova aposta tornaria o plano inadequado. Não chame de float qualquer call feito apenas por curiosidade.\n\n## Laboratório: Responder ao check-raise\nObjetivo: Recalcular o preço após a agressão adversária. Abra a mesa deste módulo e comece pelo treino guiado. O bot de valor dá check-raise com dois pares ou melhor. Uma aposta sua pode provocar essa resposta. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -2098,9 +2113,10 @@
               }
             ],
             "contentHash": "3f40af47bc23b12cfd6bec9c8b4f1bd0c1dd6a6b81bf56f269cced1cc6400869",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "74bcfa0065c8d4eb41582e0965b8dd0006f9b17f7cf8ac29fb57a923ab3ac2e1"
+            "narrationHash": "74bcfa0065c8d4eb41582e0965b8dd0006f9b17f7cf8ac29fb57a923ab3ac2e1",
+            "mediaRevision": "3b6172eed979550b230daa812c542404f056bbe96e2c18fc94808a5bfde73186"
           },
           "body": "## Potes multiway\nPara ganhar por blefe, todos os adversários que ainda disputam precisam desistir. Frequências de defesa e valor das mãos mudam com mais jogadores; não presuma fold equity zero nem use automaticamente uma estratégia heads-up.\n\n## Set mining\nCom um par privado, a chance de o flop conter ao menos uma das duas cartas restantes desse rank é 1 − C(48,3)/C(50,3), aproximadamente 11,76%, se só as duas cartas próprias forem conhecidas. Acertar não garante vitória nem pagamento. Stack efetivo, posição, rake e risco de set maior entram na decisão. “20 vezes o call” é uma heurística, não uma prova de rentabilidade.\n\n## Exercício de valor\nEm 8h 7s 2c com 8c 8d, você tem top set. Após checks, treine bet por valor contra adversários que pagam com pares e projetos. Ajuste o tamanho às hipóteses do exercício.\n\n## Aprofundamento aplicado\n### O blefe precisa passar por todos\nCom dois adversários, ganhar imediatamente exige que ambos desistam. Se, em um modelo artificial, cada um desistisse com probabilidade de metade e os eventos fossem independentes, a chance conjunta seria um quarto. Em poker, as decisões podem ser correlacionadas e o segundo jogador observa a ação do primeiro. Portanto esse produto ilustra uma hipótese, não uma fórmula universal de fold equity multiway.\n\n### Condição mínima de pagamento\nSe você pagasse 1 BB apenas para buscar a trinca no flop, nunca ganhasse sem acertar e não tivesse custos posteriores, uma probabilidade de acerto de 11,76% exigiria ganhos líquidos médios superiores a aproximadamente 7,5 BB nos acertos para equilibrar as falhas. O modelo ignora derrotas após acertar, rake e ações futuras. Ele mostra por que a simples presença de um stack grande não garante pagamento suficiente.\n\n### Top set ainda exige planejamento\nEm 8h 7s 2c com 8c 8d, você tem top set. Pergunte quais pares e projetos pagariam uma aposta e quantas cartas podem alterar a força relativa no turn. Uma aposta por valor pode ser apropriada contra os perfis do cenário, porém o tamanho depende da continuidade desejada. Ao chegar ao showdown, se houver stacks diferentes, leia separadamente os jogadores elegíveis a cada pote.\n\n## Laboratório: Top set contra dois bots\nObjetivo: Buscar valor sem ignorar jogadores adicionais. Abra a mesa deste módulo e comece pelo treino guiado. Sua trinca é a maior possível neste flop. Pense em quais pares e projetos pagariam cada tamanho. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -2223,9 +2239,10 @@
               }
             ],
             "contentHash": "d819e4918375f26849341c76ef5dad18c34b78db36ddcf59f4c1373aa4fafcaa",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "c373c81f8e132ef762e022867746f54981c130b1629f2452721ad8f1b6352641"
+            "narrationHash": "c373c81f8e132ef762e022867746f54981c130b1629f2452721ad8f1b6352641",
+            "mediaRevision": "63427d91ffc392ecc7f644e2efecb7ca74d56a9da9f6d4426b0ad872577fc288"
           },
           "body": "## O segundo barril\nUma aposta no turn após apostar no flop precisa de uma razão: receber de pior, fazer melhor desistir ou combinar fold equity com possibilidade de melhorar. A iniciativa, sozinha, não é justificativa.\n\n## A carta favorece qual range?\nUm rei pode beneficiar parte do range de quem abriu, mas também melhorar o caller. Reconstrua ambos os ranges após as ações anteriores. Não transforme toda carta alta em “scare card automática”.\n\n## Exercício\nVocê tem AQ em Q83-K. Sua mão passou de top pair a segundo par. Se o objetivo declarado é controlar o pote e preservar valor de showdown após check adversário, check-back cumpre esse plano. Apostar AQ não é automaticamente um segundo barril polarizado.\n\n## Aprofundamento aplicado\n### Atualize os ranges, não só o board\nDepois de uma c-bet paga, o range do caller já não é o mesmo do pré-flop. Parte das mãos desistiu e parte continuou. A carta do turn interage com essa distribuição filtrada. Um rei pode favorecer alguns reis do agressor, mas também melhorar KQ ou outros reis do caller que estavam no modelo. A narrativa da iniciativa não substitui a enumeração das mãos plausíveis.\n\n### Aposta por valor, blefe ou proteção\nAo apostar, diga quais mãos piores pagam e quais melhores podem desistir. Negar equity a mãos com chances de melhorar pode fazer parte da razão, mas precisa ser comparado ao custo de enfrentar raises e ao valor de dar check. Uma mão intermediária pode preferir preservar showdown em algumas linhas e apostar em outras. A categoria da mão sozinha não resolve o problema.\n\n### Planeje dois tipos de river\nDepois de escolher uma aposta no turn, descreva o que fará em um river favorável e em um que complete um projeto adversário. Use stacks e pote para saber quais tamanhos ainda cabem. No replay do exercício, compare o que você sabia antes do river com o que apareceu depois; não use o resultado para reescrever sua hipótese original.\n\n## Laboratório: Quando chega uma carta maior\nObjetivo: Atualizar a força relativa e planejar o river. Abra a mesa deste módulo e comece pelo treino guiado. AQ passou a segundo par. Um rei no turn não obriga a apostar nem elimina seu valor de showdown. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -2342,9 +2359,10 @@
               }
             ],
             "contentHash": "24a41a912452ab0e7f5bbb4c4500e7ce57a557a44bea4d31a18ac61514756868",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "d48103962286e7e70a7323a3c9cd97dd985599ac9907952bb8786103070640af"
+            "narrationHash": "d48103962286e7e70a7323a3c9cd97dd985599ac9907952bb8786103070640af",
+            "mediaRevision": "d0a2909278a3f9e4fff08c69c16f5b65fe28694a7e4b11b91dae07076940012a"
           },
           "body": "## Pot control\nDar check pode preservar mãos de força intermediária e evitar ampliar a exposição naquela rodada. Isso não garante um showdown barato: o rival pode apostar depois.\n\n## Polarização\nUm range polarizado reúne mãos fortes para valor e blefes. Não se define apenas por apostar 75% ou mais: depende da composição do range e do contexto.\n\n## Exercício\nJh Td em Jc 8d 4c 9c tem top pair e uma broca para sequência, em um board com três paus. Após check do rival, check-back é o plano de controle do exercício. Call exige uma aposta a enfrentar.\n\n## Aprofundamento aplicado\n### Relação entre stack e pote\nSPR é o stack efetivo dividido pelo pote. Se restam 60 BB efetivos e há 20 no pote, o SPR é três. Esse número ajuda a visualizar quantas apostas grandes ainda cabem, mas não ordena um all-in automaticamente. A mesma relação pode exigir estratégias diferentes conforme board, modalidade, posição e distribuição de forças.\n\n### Proteja a leitura do check\nCheck não significa sempre desistência futura. Um range de check pode incluir mãos fracas, médias e fortes. Se você presumir que todo check permite blefar sem resistência, ficará vulnerável a calls e raises. O bot de valor do treino demonstra uma dessas possibilidades: pode dar check com uma mão forte e reagir à sua aposta.\n\n### A polarização é uma composição\nUma aposta grande com apenas mãos médias não se torna polarizada por causa do tamanho. A ideia envolve uma parte forte para valor e uma parte de blefes, com proporções dependentes do modelo. Com Jh Td em Jc 8d 4c 9c, classifique top pair, broca e riscos dos três paus antes de decidir. Compare a preservação de showdown com a exposição criada por cada tamanho.\n\n## Laboratório: Controlar com mão intermediária\nObjetivo: Comparar check-back e aposta em board de três paus. Abra a mesa deste módulo e comece pelo treino guiado. Top pair e uma broca coexistem com possíveis flushes. A composição do range importa mais que o nome da mão. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -2465,9 +2483,10 @@
               }
             ],
             "contentHash": "8b64375f670a70f06556f0002279c4381480a3c1965aa179b7e1abd9801a11a6",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "34c439583db3fe539ebb12ea7e9509330ca62b181c4268e5a11f2f86630c51ae"
+            "narrationHash": "34c439583db3fe539ebb12ea7e9509330ca62b181c4268e5a11f2f86630c51ae",
+            "mediaRevision": "05716269857aafd5bd9d62d745e77d8a40778250fb636e97d4085438c5ac59e7"
           },
           "handExample": {
             "title": "Calculando Pot Odds no Turn",
@@ -2612,9 +2631,10 @@
               }
             ],
             "contentHash": "fcabbcdfad51fc9b566055795f7018c12ede93e40129c5f21b5b945a5667b99d",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "58b4cc80d6d85dda973014aed9a3e03633df5687b96914e8c0b34a03c2b484d4"
+            "narrationHash": "58b4cc80d6d85dda973014aed9a3e03633df5687b96914e8c0b34a03c2b484d4",
+            "mediaRevision": "35aebf19768933474f0c526a12aa2f3bf35d0fd923c0cdd597fdda02a6595d61"
           },
           "body": "## Valor no river\nUma aposta por valor busca ser paga por mãos piores. Thin value descreve uma margem menor contra o range que paga. Ser forte contra o range inteiro do rival não basta: compare com a parte que continuará.\n\n## Exemplo com hipótese\nAJ em A9427 rainbow, rival dá check e sabemos, para este exercício, que pagará uma aposta pequena com vários ases menores. Treinamos bet por valor. Se ele só pagar mãos melhores, a conclusão muda.\n\n## Ações legais\nApós check, você pode dar check ou bet. Diante de aposta, as opções passam a fold, call ou raise, respeitando stacks e regras da mesa.\n\n## Aprofundamento aplicado\n### O range que paga é o relevante\nSuponha que o rival chegue ao river com muitos pares fracos, mas desista de todos diante de uma aposta grande. A força da sua mão contra o conjunto inicial não prova que a aposta grande seja por valor. Você precisa identificar mãos piores que continuem. Uma aposta pequena pode receber calls mais amplos; também oferece ao rival a opção de aumentar.\n\n### Compare com dar check\nO valor incremental de apostar deve ser comparado ao que aconteceria ao dar check. Se você já venceria o showdown contra uma mão fraca que sempre desiste para a aposta, o fold dessa mão não acrescenta o pagamento desejado. Em contrapartida, receber de mãos piores aumenta o ganho, e pagar raises de mãos melhores aumenta o custo. Não julgue uma value bet apenas pela ocorrência de um call.\n\n### Exercício controlado\nAJ em A9427 tem top pair com valete. O cenário fixa um pagador com um ás menor para estudar recebimento de valor. Isso é uma condição didática, não uma leitura garantida sobre usuários reais. Repita a mão com tamanhos distintos e registre em que ponto a política do bot deixa de continuar. Depois descreva por que uma única amostra não estima um range de população.\n\n## Laboratório: Receber de mãos piores\nObjetivo: Escolher valor fino de acordo com o perfil que paga. Abra a mesa deste módulo e comece pelo treino guiado. O bot pagador continua com pares a preços moderados. A hipótese de receber de pior precisa sustentar sua aposta. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -2732,9 +2752,10 @@
               }
             ],
             "contentHash": "5955e9ce2083e32baa482e9328828a7e702491e427c33ffbe7327e478ca910cd",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "559b4114b4cad41b5980b0a59c7b858558d7e170fd3327e56fe3f3ceeb1063c6"
+            "narrationHash": "559b4114b4cad41b5980b0a59c7b858558d7e170fd3327e56fe3f3ceeb1063c6",
+            "mediaRevision": "020a9dddd5c4f2d1d769afa6a94155d620e1a2cbb9e0ca0836223fcefe4cdaa1"
           },
           "body": "## Bluff-catcher\nÉ uma mão que vence os blefes considerados e perde para as mãos de valor consideradas. A categoria depende do range: um overpair nem sempre é um bluff-catcher adequado.\n\n## Preço e frequência\nRiver heads-up, pote 20 BB antes da aposta, rival aposta 20: pagar custa 20 para um pote final de 60, limiar de 33,33%. Se você vence todos os blefes e perde para todo valor, sem empates nem rake, precisa de mais de um terço de blefes no range de aposta para EV positivo.\n\n## Blockers\nAvalie quais combinações suas cartas removem. Em JT529, AA não bloqueia KQ, a sequência máxima. Uma carta pode remover blefes e piorar um call; “ter blocker” não é razão suficiente.\n\n## Aprofundamento aplicado\n### Derive o limite dos blefes\nCom pote de 20 BB e aposta rival de 20, você acrescenta 20 a um pote que terminará em 60. Se sua mão perde para todo valor e ganha de todo blefe, sem empates, precisa vencer mais de um terço das vezes para o call ter expectativa positiva. No limite de um terço, a expectativa é zero. A frequência relevante é a proporção de blefes dentro do range que apostou, e não dentro de todas as mãos que o rival recebeu.\n\n### MDF responde a outra pergunta\nEm um modelo simplificado de river, a frequência mínima de defesa P dividido por P mais B torna um blefe sem equity indiferente, considerando uma resposta adequada do range e as demais hipóteses. Para uma aposta do pote, o valor é 50%. Isso não ordena pagar metade das suas mãos contra qualquer pessoa: um range sem blefes pode tornar muitos calls ruins. Pot odds avaliam o preço de uma mão; MDF é uma referência de defesa de range em um modelo.\n\n### Conte o que foi removido\nEm JT529, KQ forma sequência até rei. AA não remove reis nem damas dessa combinação. Se você tivesse uma dama, removeria algumas combinações de KQ, mas também poderia retirar blefes com dama. Liste valor e blefes antes de atribuir um efeito favorável ao blocker. No desafio, faça a conta do preço sem ver a dica e explique a hipótese necessária para pagar.\n\n## Laboratório: Pagar pelo motivo certo\nObjetivo: Calcular o preço e identificar o que AA bloqueia. Abra a mesa deste módulo e comece pelo treino guiado. AA não bloqueia KQ. Não use a força absoluta do overpair para inventar a frequência de blefes. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -2852,9 +2873,10 @@
               }
             ],
             "contentHash": "5432467144ba836f676379ed782a0849d234ae9f1ce144acdc654ddce651166c",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "6f9d82bb227c67585ba26639bc3116d813eeb83ccfd2faf171afd0dc5df8e743"
+            "narrationHash": "6f9d82bb227c67585ba26639bc3116d813eeb83ccfd2faf171afd0dc5df8e743",
+            "mediaRevision": "ed14398768fed3f40f4e12fb4929acec0b190c78a973cc689e826cd62575915e"
           },
           "body": "## Overbet\nUma aposta maior que o pote pode integrar uma estratégia polarizada quando ranges e stacks sustentam valor forte e blefes apropriados. Não maximiza retorno em qualquer cenário; o rival pode responder com folds e raises.\n\n## Blocking bet\nUma aposta pequena fora de posição pode buscar valor fino ou induzir certas respostas. Ela não fixa o preço do showdown: o adversário continua podendo aumentar.\n\n## Primeiro classifique a mão\nJh Th no board 9h 8h 7c 2d Ah forma flush A-J-T-9-8, não apenas sequência. Também não é nut flush: Kh Qh forma um flush maior. Uma categoria errada contamina todo o plano de aposta.\n\n## Aprofundamento aplicado\n### O preço de uma overbet\nCom pote de 100 e aposta de 150, um call custa 150 para um total de 400: o limiar é 37,5%, sem taxas e sem futuras apostas. Quanto maior a aposta em relação ao pote, maior a equidade exigida para pagar nesse modelo e maior o risco financeiro do blefe. Um blefe puro que perde sempre ao ser pago precisa de folds acima de 150 dividido por 250, ou 60%, nesse modelo.\n\n### Uma aposta pequena não fecha a ação\nA blocking bet pode buscar pagamento de pior ou influenciar respostas, mas o rival pode aumentar. Se você aposta pequeno sem plano contra raise, apenas transfere a dificuldade para a próxima decisão. Registre antes se sua mão pretende pagar, desistir ou aumentar de volta contra diferentes tamanhos e ranges.\n\n### Não confunda força com invulnerabilidade\nJh Th em 9h 8h 7c 2d Ah forma flush de ás, valete, dez, nove e oito. Kh Qh permite flush de ás, rei, dama, nove e oito, que é maior. Portanto sua mão não é o nut flush. A leitura correta é o ponto de partida; escolher uma overbet ainda exige justificar quais mãos piores pagarão e quais melhores poderiam continuar ou aumentar.\n\n## Laboratório: Identifique o flush antes do sizing\nObjetivo: Reconhecer o flush e comparar diferentes tamanhos. Abra a mesa deste módulo e comece pelo treino guiado. Você tem flush A-J-T-9-8. Um adversário com Kh Qh tem um flush maior; sua mão não é o nuts. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -2984,9 +3006,10 @@
               }
             ],
             "contentHash": "139c12cc83b549050af72c1bd9730ba076bd8e741011bd0ef19196493124e335",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "7f8343945bd934e67caaa37c67c3f567c9df57c7bd3b27154ba9a2eaa1dded85"
+            "narrationHash": "7f8343945bd934e67caaa37c67c3f567c9df57c7bd3b27154ba9a2eaa1dded85",
+            "mediaRevision": "04d0faf858d2b056a86892065b6b6fee3ddffdf6a03553cc27a3e4471288e026"
           },
           "body": "## Valor esperado\nEV é a média ponderada dos resultados de um modelo. Para um call final, sem rake, EV=equity×pote final−custo do call. EV positivo não garante lucro em mil mãos nem em qualquer sequência finita.\n\n## Fold equity e semi-blefe\nUma aposta com projeto pode ganhar quando todos desistem ou no showdown. Ter duas formas de ganhar não prova que apostar é lucrativo. Considere frequência de folds, range que paga, tamanho, raises e futuras apostas.\n\n## Modelo simplificado\nSe o pote inicial é P, sua aposta é B, todos desistem com frequência F e, quando há um call, sua equity é e, sem raises, apostas posteriores ou rake: EV=F×P+(1−F)×[e×(P+2B)−B]. As hipóteses fazem parte da fórmula.\n\n## Exercício\nP=10, B=5, F=0, e=20%: EV=0,2×20−5=−1. Um projeto pode ter EV negativo se ninguém desiste e a equity não cobre o preço.\n\n## Aprofundamento aplicado\n### Derive as parcelas do modelo\nSe todos desistem, você ganha o pote que já existia. Se há um call e não existem outras ações, o pote final inclui sua aposta e a aposta que o rival igualou. Multiplique sua parcela esperada por esse pote e desconte seu investimento. Só então pondere o ramo de fold e o ramo de call. Se houver raise, mais de um caller ou novas streets, a árvore precisa ganhar esses ramos.\n\n### Compare duas hipóteses\nCom pote 10, aposta 5 e equity de 20% quando pago, o ramo de call vale menos 1. Se todos desistem 30% das vezes, o modelo resulta em 0,30 vezes 10 mais 0,70 vezes menos 1: 2,3 BB. Se ninguém desiste, vale menos 1. A mudança veio da hipótese de resposta, não de uma garantia embutida nas cartas. Não transporte esses 30% para o perfil do bot sem medição ou definição.\n\n### Margem e incerteza\nPequenas diferenças de EV podem desaparecer quando você altera rake, ranges ou frequências. Registre quais parâmetros mudariam sua decisão. Em uma sessão curta, a soma observada pode se afastar bastante da média prevista. O treino avalia contas e leituras no contexto declarado, e não premia a perseguição de resultados positivos.\n\n## Laboratório: Preço, hipótese e resultado\nObjetivo: Separar a conta exata do preço de uma hipótese de equity. Abra a mesa deste módulo e comece pelo treino guiado. A tela informa o preço. A equity depende do range; o resultado desta mão não prova a rentabilidade do call. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -3097,9 +3120,10 @@
               }
             ],
             "contentHash": "ff6e867684dba928b3bb94582e0b2624fd5b0b8a741980e1b29f36ac8acac10b",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "03272389e96ea566499a2db85b7d80df0592d66aa3e9923a744c415bd9519437"
+            "narrationHash": "03272389e96ea566499a2db85b7d80df0592d66aa3e9923a744c415bd9519437",
+            "mediaRevision": "d349fe621f81e71d4d422e200e6ca33ef8d4c08da38e8d150fddbc0dc82b2c47"
           },
           "body": "## Variância e orçamento\nEm cem situações independentes com 80% de chance de vitória, a média esperada é oitenta vitórias, não uma contagem garantida. Sequências desfavoráveis podem acontecer. Nenhuma quantidade fixa de buy-ins garante segurança, principalmente se a estratégia tiver expectativa negativa.\n\n## Limites pessoais\nSepare um orçamento que possa perder sem afetar despesas essenciais. Defina tempo e limite de perda antes de jogar. Pare ao atingir o limite; não aumente apostas para recuperar. Play Money permite praticar sem depósito. Recomendações como 30–50 buy-ins são heurísticas de determinadas situações de cash, não regra universal para variantes, torneios ou jogadores.\n\n## Decisão após perdas\nReduzir a exposição ou interromper a sessão são escolhas válidas. A necessidade de recuperar não é uma justificativa técnica. Consulte as ferramentas de limites e autoexclusão da plataforma quando necessário.\n\n## Pesquisa sobre tilt\nPalomäki e colaboradores analisaram narrativas de 60 jogadores finlandeses, associando indignação e perseguição de perdas em relatos. É evidência qualitativa, não prova causal nem tratamento. Nosso exercício é registrar estado emocional e decidir limites antes da sessão.\n\n## Aprofundamento aplicado\n### Defina o que pode ser perdido\nO orçamento de jogo deve ser separado de despesas essenciais, crédito e valores de terceiros. Um limite não é uma meta de perda: é uma barreira para encerrar a exposição. Defina também um horário de término. Esses limites têm função prática mesmo quando você acredita estar jogando bem, porque cansaço e pressão podem modificar decisões. Para estudar o curso, o simulador não exige saldo nem depósito.\n\n### Uma sessão de treino com começo e fim\nAntes de abrir a mesa, escreva: vou praticar este objetivo por um número limitado de mãos ou por este tempo. Ao finalizar, conte quais decisões conseguiu explicar. Se estiver repetindo apostas para recuperar fichas perdidas, encerre e reveja o registro depois. As fichas não têm valor, mas o hábito de respeitar o plano faz parte do exercício.\n\n### Não converta exemplos em garantias\nTer oitenta por cento de chance em um modelo não impede uma sequência de derrotas. Tampouco um número fixo de buy-ins elimina risco. Banca depende de variância, expectativa, formato e tolerância pessoal, que podem ser desconhecidos. Use as ferramentas de limites e autoexclusão da plataforma quando precisar restringir a atividade; uma aula de estratégia não substitui apoio apropriado para dificuldades com jogo.\n\n## Laboratório: Uma sessão com limite\nObjetivo: Decidir uma duração e um limite de treino antes de iniciar. Abra a mesa deste módulo e comece pelo treino guiado. Registre no caderno o limite da sessão. Ao atingi-lo, use Encerrar treino; não aumente o stack para recuperar. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -3203,9 +3227,10 @@
               }
             ],
             "contentHash": "52a14031e0b6351a744ba46691605dcf36c4cfc5088456e3173c8ed5a1cc4981",
-            "rendererVersion": 3,
+            "rendererVersion": 5,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "d93bd61e4e3ab4c0d3cd615e38c6cd0f2b8a28d141aeacff071f3908fbc9fb61"
+            "narrationHash": "d93bd61e4e3ab4c0d3cd615e38c6cd0f2b8a28d141aeacff071f3908fbc9fb61",
+            "mediaRevision": "f5618d4ad545ccb8cdcb8c4f844ee57917a4efa2a1d6ccff2d7be89cdaec16da"
           },
           "body": "## Método de revisão\n1. Identifique a modalidade e as regras de formação da mão.\n2. Registre fase, posição, stacks, ações e informações disponíveis.\n3. Defina ranges ou hipóteses; não atribua equity sem um modelo.\n4. Compare ações legais, preço e possíveis continuações.\n5. Respeite orçamento e tempo; avalie a decisão separadamente do resultado.\n\n## Prática distribuída\nResponda aos exercícios antes de abrir as explicações. Volte em outra sessão e explique o raciocínio com suas próprias palavras. Dunlosky e colaboradores classificam testes de prática e estudo distribuído como técnicas de alta utilidade em uma revisão educacional; ela não mediu ganhos financeiros neste curso.\n\n## Pratique e revise\nAs mesas de cada módulo oferecem treino guiado, desafio e prática variada, com bots e replay. Uma nota neste curso é registro de estudo, não certificação profissional ou prova de domínio estratégico.\n\n## Aprofundamento aplicado\n### Revise em duas passagens\nNa primeira passagem, esconda o resultado e reconstrua a informação disponível: modalidade, cartas próprias, board, posições, stacks e ações. Escreva pelo menos duas alternativas legais e a condição que faria preferir cada uma. Na segunda passagem, veja a continuação e identifique o que foi resultado aleatório, mudança de informação ou falha no raciocínio. Essa separação reduz a tendência de chamar toda vitória de boa decisão.\n\n### Use os quatro jogos como teste de regras\nNo Hold’em, pergunte se o board pode jogar sozinho. No Short Deck, refaça universo e ranking. No Omaha, confirme duas privadas entre quatro. No Brazilian Pineapple, acompanhe as extras e selecione duas entre as privadas disponíveis naquela street. Só depois de acertar essas bases avance para preço, ranges e tamanhos.\n\n### Um ciclo de aprendizagem\nAssista ao capítulo, resolva o exemplo sem ajuda e jogue o cenário correspondente. Salve a justificativa e volte em outra sessão no modo desafio. Se errar o preço ou a formação da mão, refaça a conta antes de aumentar a dificuldade. O registro de estudo mostra tentativas e respostas objetivas; ele não certifica habilidade profissional nem prevê lucro contra pessoas.\n\n## Laboratório: Explique a decisão antes do river\nObjetivo: Registrar informação, alternativas e justificativa em cada decisão. Abra a mesa deste módulo e comece pelo treino guiado. Use o modo desafio e escreva sua justificativa. Depois reveja a mesma distribuição com outra linha. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
@@ -3304,9 +3329,10 @@
             ],
             "publicationStatus": "published",
             "contentHash": "6f0bf3ac51c89dec17d8482440a46da8c850b28b40696b23fe3cf12057ff7bb0",
-            "rendererVersion": 3,
+            "rendererVersion": 4,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "d2c7266f8d1f67e5da208afc4d0aed9ee25e5cda65b435f5ee34a2f9b5d21086"
+            "narrationHash": "d2c7266f8d1f67e5da208afc4d0aed9ee25e5cda65b435f5ee34a2f9b5d21086",
+            "mediaRevision": "bfeb25d83b53ade1855c065dc468a5407078108bc21768ee3889eddb8a5d9345"
           },
           "handExample": {
             "title": "Informação Incompleta na Prática",
@@ -3428,9 +3454,10 @@
             ],
             "publicationStatus": "published",
             "contentHash": "a9a49ed16636a5e979a698e6d69613f80406e8f2877df727b172f7af19c2643b",
-            "rendererVersion": 3,
+            "rendererVersion": 4,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "1e648bd8d6c54d9c5dfc59817de4127b192fbcbe77e1ad3dd98c112ef838001b"
+            "narrationHash": "1e648bd8d6c54d9c5dfc59817de4127b192fbcbe77e1ad3dd98c112ef838001b",
+            "mediaRevision": "a1a79f947dd02208af5060f15036f316ab66fc1542add8d531e79e20c70f3e5b"
           },
           "body": "## Um relato publicado em 1844\n\nNa parte II, página 94, Joe Cowell descreve uma partida de poker em um barco: cartas escondidas, apostas e desistências. Ele já coloca o ás no topo dos valores. É uma memória autobiográfica publicada depois dos acontecimentos, não uma certidão de nascimento do jogo.\n\n## Cuidado com datas absolutas\n\nEsta aula não atribui a invenção do poker ou do blefe a 1829. Também não afirma uma origem comprovada do Hold’em em 1925 nem uma mudança do valor do ás em 1967. Essas afirmações do material anterior não tinham sustentação nas fontes consultadas.\n\n## 1970 e 1971: formatos diferentes\n\nSegundo a WSOP, Johnny Moss foi escolhido por voto em 1970 e venceu o torneio em 1971. Preservar essa diferença ajuda a entender a evolução da competição.\n\n## Omaha antes dos cassinos: relatos, não certidões\n\nBob Ciaffone recorda ter jogado no Michigan, nos anos 1970, uma variante chamada **two by three**, com comunitárias expostas uma a uma. Em 1982, encontrou Omaha no Golden Nugget de Las Vegas, promovido por Robert Turner e Gwen, de Seattle. Seu relato de 2007 também registra nomes regionais como nine-card.\n\n## 1982: Turner, Gwen e Bill Boyd\n\nEm memória publicada em 2014, Turner descreve a participação de Gwen e de Bill Boyd, responsável pela sala do Golden Nugget, na oferta do jogo de quatro cartas. Boyd o divulgou como **Nugget Hold’em**. Esse marco ajuda a documentar a difusão em cassinos; não determina a primeira partida da história.\n\n## O nome não comprova origem em Nebraska\n\nNa entrevista de janeiro de 2014, Turner disse não conhecer uma ligação do nome com Nebraska. Lembrou, com incerteza, um frequentador de Omaha. Isso não sustenta a afirmação de que a modalidade recebeu o nome porque nasceu naquela cidade. **A origem exata do nome permanece incerta nas fontes consultadas.**\n\n## 1983–1984: Omaha entra na WSOP\n\nA retrospectiva de Chad Holloway registra a estreia do **Limit Omaha em 1983**, com vitória de David Sklansky. Um relatório oficial da WSOP situa a primeira presença de **Pot-Limit Omaha em 1984**, com dois eventos. São formatos e marcos diferentes; não trocar essas datas.\n\n## O que muda entre os formatos\n\nNo Omaha 4, a identidade mecânica é receber quatro privadas e formar a mão com **exatamente duas privadas e três comunitárias**. Limit e pot-limit descrevem limites de aposta; high e hi-lo descrevem a disputa do pote. Esses nomes não são intercambiáveis. A modalidade da ZT segue suas regras próprias de Omaha 4; conhecer a história de outros formatos não os torna disponíveis na plataforma.\n\n## Da mesa à pesquisa: um modelo de 2015\n\nKenneth Ho estudou Omaha Hi-Lo em uma dissertação da Harvard Extension School. O modelo restringe a partida a dois jogadores e às escolhas all-in ou desistir. É um exemplo de pesquisa computacional com regras delimitadas, não uma solução de todo Omaha nem uma fonte para a origem do nome.\n\n## Como avaliar as fontes\n\nTestemunhos retrospectivos ajudam a reconstruir a circulação do jogo, mas podem divergir. Turner e Ciaffone diferem em detalhes da passagem para pot-limit. Registros de torneios documentam um evento; modelos matemáticos estudam decisões sob hipóteses. Nenhuma dessas evidências permite transformar popularização em prova de invenção ou prometer potes maiores em toda mão.\n\n## 2003: uma vitória de grande repercussão\n\nChris Moneymaker venceu o Main Event após se classificar em um satélite online. A organizadora associa sua vitória à expansão do público. Um caso excepcional não estima a chance de vitória nem o retorno financeiro de um iniciante.",
           "quiz": [
@@ -3533,9 +3560,10 @@
             ],
             "publicationStatus": "published",
             "contentHash": "4e4c40ccadbc8b354ea2accb712d470218d8ad56f72b0ea25aafbfabebf9e8b0",
-            "rendererVersion": 3,
+            "rendererVersion": 4,
             "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "148e4e5c1b3513670fd5cd9fa370bff02fbe1ad51ad071d54b84f119b120ec34"
+            "narrationHash": "148e4e5c1b3513670fd5cd9fa370bff02fbe1ad51ad071d54b84f119b120ec34",
+            "mediaRevision": "4e2bb950068cff1f237d0f092fde0704a298508281547da44e0c1c60c44a17b4"
           },
           "body": "## Leia o feito junto com o contexto\n\nJohnny Moss foi eleito campeão da WSOP em 1970 e venceu o torneio de 1971. Moneymaker marcou a expansão do público em 2003. Alexandre Gomes conquistou o primeiro bracelete brasileiro em 2008, conforme registro retrospectivo da WSOP.\n\n## A ciência também precisa de contexto\n\nBowling e colaboradores publicaram em 2015 um resultado para heads-up limit Hold’em: uma solução essencialmente fraca daquele jogo. Isso não significa resolver no-limit, mesas com mais jogadores ou ganhar toda mão. Consulte o resumo acadêmico nas fontes.\n\n## Resultado e processo\n\nUma vitória isolada não revela todo o processo de decisão. No exercício da Academy, registre as informações disponíveis, as alternativas consideradas e a justificativa da escolha. Essa é uma proposta de estudo; não é uma afirmação sobre a rotina pessoal dos campeões.",
           "quiz": [

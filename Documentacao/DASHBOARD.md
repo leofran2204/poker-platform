@@ -21,6 +21,7 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certif
 - [x] Implementar e concluir localmente a validação focada do Pineapple híbrido: matriz cash sem lacunas, MTT até campeão, rede 5/20 mesas com Node Linux e reinício controlado. Orçamento de 15 minutos/dois trabalhadores respeitado. Resultados Pineapple anteriores continuam como evidência da regra antiga; esta entrega não é uma nova campanha integral de todas as modalidades. [Evidências](FULL_VALIDATION.md#resultado-consolidado-da-estrutura-híbrida).
 - [x] Publicar Pineapple híbrido e filme na home/Academy em 05/10/2026, após autorização, gates e janela sem jogos ativos. Código `6b4d8cc0`, quatro serviços saudáveis, 60 migrations e 90 arquivos conferidos. [Conferência pública](QUALITY.md#publicação-pineapple--05102026).
 - [x] Regravar os 25 vídeos técnicos da grade atual; conferir os 28 vídeos de aula e o filme da home, com decodificação integral, cobertura das palavras da narração, legendas, capítulos, transcrições e vínculo com os cenários. Retirar mídias obsoletas da pasta pública.
+- [ ] Publicar conjuntamente Pineapple v2 (ante e limite do pote em todas as rodadas), Academy v3 e revisão visual das 30 produções após CI, backup e janela ociosa. Implementação/verificações em andamento; evidências em QUALITY.
 - [ ] Escuta editorial humana integral para avaliar prosódia, ritmo e pronúncia além das verificações automatizadas.
 - [x] Regravar os 30 vídeos com guias fonéticas para os termos ingleses, incluindo “Pineapple” → “painépou” e as três aulas da regra anterior. Legendas/capítulos sincronizados e cache versionado; publicado `75971a0c` em 08/10 após CI e verificações técnicas. A escuta humana integral permanece separada. [Evidências](QUALITY.md#pronúncia-dos-vídeos--08102026).
 - [x] Remover `braces` e sua cadeia de build na revisão de 05–06/10/2026, migrando para Tailwind 4.3/PostCSS. Auditoria npm integral sem exceções; tema e componentes preservados. Publicado `4c9541a3` em 06/10, incluindo `source-map-js` e base Debian corrigidos, após CI aprovado. [Conferência](QUALITY.md#remoção-da-exceção-npm--06102026).
@@ -223,6 +224,6 @@ Ambiente (WSL, Node, clippy): [`../AGENTS.md`](../AGENTS.md). Gates: [`QUALITY.m
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-05) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

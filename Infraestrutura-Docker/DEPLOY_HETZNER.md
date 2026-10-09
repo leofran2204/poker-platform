@@ -197,13 +197,13 @@ Smoke de mesa: register/login → lobby → join → WS (all-in pode demorar no 
 
 ---
 
-### Troca para `brazilian_pineapple_hybrid_v1`
+### Troca para `brazilian_pineapple_pot_before_call_v2`
 
 A regra, os treinos e o filme devem entrar juntos. Antes da troca da API, confirmar ausência de mãos Pineapple abertas e de torneios Pineapple em andamento. Nesta publicação, usar uma janela completamente ociosa: zero `cash_game_seats` com status `ACTIVE`, zero torneios `running`, nenhuma inscrição em torneio agendado e nenhum snapshot Redis `poker:table:state:*` com mão aberta ou jogadores. Contagem do lobby sozinha não é evidência suficiente.
 
 Preparar as imagens antes da janela. Bloquear temporariamente novas entradas de jogo no proxy (inscrições cash/MTT, início administrativo e WebSockets), mantendo leitura e callbacks financeiros; repetir as consultas após drenar requisições. Somente com os critérios atendidos, parar a API antiga, repetir a conferência estável e criar os containers novos. Se houver jogo em andamento, retirar o bloqueio e adiar a troca. Não cancelar torneios, expulsar jogadores nem alterar saldos para obter uma janela.
 
-Guardar dump PostgreSQL validado por `pg_restore --list`, volumes Caddy verificados e tags das imagens anteriores; preservar `.env`. Conferir o SHA aprovado antes de construir e antes de subir, as 60 migrations/checksums, os 90 arquivos de mídia, saúde dos quatro serviços, `/api/academy/play` na versão 2 e os capítulos do filme publicado. Restaurar a configuração normal do proxy ao terminar ou abortar.
+Guardar dump PostgreSQL validado por `pg_restore --list`, volumes Caddy verificados e tags das imagens anteriores; preservar `.env`. Conferir o SHA aprovado antes de construir e antes de subir, as 60 migrations/checksums, os 90 arquivos de mídia, saúde dos quatro serviços, `/api/academy/play` na versão 3, ante nominal/pago/pagador, versão da regra e os capítulos do filme publicado. Restaurar a configuração normal do proxy ao terminar ou abortar.
 
 ## 6. O que **não** fazer neste deploy
 

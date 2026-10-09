@@ -35,7 +35,7 @@ use crate::side_pots::{self, PlayerForPots, SidePotsResult};
 use crate::types::{GamePhase, Pot, TableConfig};
 use std::collections::HashMap;
 
-pub const PINEAPPLE_RULE_VERSION: &str = "brazilian_pineapple_hybrid_v1";
+pub const PINEAPPLE_RULE_VERSION: &str = "brazilian_pineapple_pot_before_call_v2";
 
 /// Public betting contract. Wagers are street totals; call_amount is the
 /// additional payment (capped by the stack). Only the active player has actions.
@@ -388,10 +388,41 @@ impl GameLoop {
         }
     }
 
-    /// Define o ante em centavos. Em torneios, é Big Blind Ante; em cash, ante individual legado.
+    /// Define o ante legado. Pineapple sempre usa 1 BB, independentemente do ator.
     pub fn with_ante(mut self, ante: u64) -> Self {
         self.ante = Some(ante);
         self
+    }
+
+    /// Ante nominal da modalidade/nível; nunca faz parte do call.
+    pub fn nominal_ante(&self) -> u64 {
+        if self.config.poker_variant == crate::types::PokerVariant::BrazilianPineapple {
+            self.state.big_blind
+        } else {
+            self.ante.unwrap_or(0)
+        }
+    }
+
+    pub fn ante_paid(&self) -> u64 {
+        self.big_blind_ante_amount
+    }
+
+    /// Pagador designado, mesmo quando o saldo não permite pagar o ante.
+    pub fn ante_player_id(&self) -> Option<&str> {
+        self.big_blind_ante_player_id.as_deref()
+    }
+
+    /// Potes elegíveis depois de um call hipotético, com o ante morto uma única vez.
+    pub fn eligible_pot_after_call(&self, player_id: &str, payment: u64) -> u64 {
+        let mut players = self.players_for_pots();
+        if let Some(player) = players.iter_mut().find(|p| p.id == player_id) {
+            player.total_bet = player.total_bet.saturating_add(payment);
+        }
+        self.pots_with_big_blind_ante(&players)
+            .iter()
+            .filter(|pot| pot.is_eligible(player_id))
+            .map(|pot| pot.amount)
+            .sum()
     }
     /// Define explicitamente a política de arredondamento do rake.
     pub fn with_rake_rounding(mut self, rounding: RakeRounding) -> Self {
@@ -518,12 +549,15 @@ impl GameLoop {
 
         let sb_index = self.small_blind_index();
         let bb_index = self.big_blind_index();
-        let uses_big_blind_ante = self.game_type == GameType::Tournament;
+        let uses_big_blind_ante = self.game_type == GameType::Tournament
+            || self.config.poker_variant == crate::types::PokerVariant::BrazilianPineapple;
+        let nominal_ante = self.nominal_ante();
 
-        self.big_blind_ante_player_id = None;
+        self.big_blind_ante_player_id = (uses_big_blind_ante && nominal_ante > 0)
+            .then(|| self.state.players[bb_index].id.clone());
         self.big_blind_ante_amount = 0;
 
-        // 2. Cash game mantém o ante individual legado. Torneios usam Big Blind Ante.
+        // 2. Outras modalidades cash mantêm o ante individual legado. Pineapple e torneios usam BBA.
         if !uses_big_blind_ante {
             if let Some(ante) = self.ante {
                 if ante > 0 {
@@ -555,7 +589,7 @@ impl GameLoop {
         // dinheiro morto no pote principal e não aumenta o limite de elegibilidade
         // do jogador nos side pots.
         if uses_big_blind_ante && bb_amount == self.state.big_blind {
-            if let Some(ante) = self.ante.filter(|ante| *ante > 0) {
+            if let Some(ante) = Some(nominal_ante).filter(|ante| *ante > 0) {
                 let ante_amount = ante.min(self.state.players[bb_index].stack);
                 if ante_amount > 0 {
                     let bb_player = &mut self.state.players[bb_index];
@@ -617,7 +651,7 @@ impl GameLoop {
             table_name: self.table_name.clone(),
             small_blind: self.state.small_blind,
             big_blind: self.state.big_blind,
-            ante: self.ante,
+            ante: (nominal_ante > 0).then_some(nominal_ante).or(self.ante),
             max_players: 9,
             game_type: self.game_type,
         };
@@ -695,33 +729,21 @@ impl GameLoop {
         }
     }
 
-    fn fixed_preflop(&self) -> bool {
-        self.betting_structure() == PINEAPPLE_RULE_VERSION && self.state.phase == GamePhase::Preflop
-    }
-
     fn wager_bounds(&self, player: &PlayerState) -> (u64, u64) {
         let st = &self.state;
         let stack_total = player.current_bet.saturating_add(player.stack);
-        if self.fixed_preflop() {
-            let bb = st.big_blind.max(1);
-            let next = (st.current_bet_to_match / bb)
-                .saturating_add(1)
-                .saturating_mul(bb);
-            (next, next.min(bb.saturating_mul(4)).min(stack_total))
+        let minimum = st.current_bet_to_match.saturating_add(st.min_raise);
+        let maximum = if self.betting_structure() == PINEAPPLE_RULE_VERSION {
+            // total_bet already includes the current street and antes once.
+            player
+                .current_bet
+                .saturating_add(st.current_bet_to_match.saturating_sub(player.current_bet))
+                .saturating_add(st.total_pot())
+                .min(stack_total)
         } else {
-            let minimum = st.current_bet_to_match.saturating_add(st.min_raise);
-            let maximum = if self.betting_structure() == PINEAPPLE_RULE_VERSION {
-                // total_bet already includes the current street and antes once.
-                player
-                    .current_bet
-                    .saturating_add(st.current_bet_to_match.saturating_sub(player.current_bet))
-                    .saturating_add(st.total_pot())
-                    .min(stack_total)
-            } else {
-                stack_total
-            };
-            (minimum, maximum)
-        }
+            stack_total
+        };
+        (minimum, maximum)
     }
 
     pub fn legal_actions(&self, player_id: &str) -> LegalActions {
@@ -802,7 +824,6 @@ impl GameLoop {
             ));
         }
 
-        let fixed_preflop = self.fixed_preflop();
         if self.betting_structure() == PINEAPPLE_RULE_VERSION {
             let legal = self.legal_actions(player_id);
             let valid = match move_type {
@@ -902,7 +923,7 @@ impl GameLoop {
                     ));
                 }
                 let raise_increment = amount.saturating_sub(current_bet_to_match);
-                if !fixed_preflop && raise_increment < self.state.min_raise {
+                if raise_increment < self.state.min_raise {
                     return Err(GameLoopError::RaiseTooSmall(format!(
                         "Aumento mínimo: {} (raise de {})",
                         self.state.min_raise, raise_increment
@@ -930,9 +951,7 @@ impl GameLoop {
                     self.state.players[active_idx].current_bet = amount;
                     self.state.players[active_idx].total_bet += total_needed;
                     self.state.current_bet_to_match = amount;
-                    if !fixed_preflop {
-                        self.state.min_raise = raise_increment;
-                    }
+                    self.state.min_raise = raise_increment;
                     if self.state.players[active_idx].stack == 0 {
                         self.mark_player_all_in(active_idx);
                     }
@@ -952,7 +971,7 @@ impl GameLoop {
 
                 if new_total_bet > current_bet_to_match {
                     let raise_increment = new_total_bet - current_bet_to_match;
-                    if !fixed_preflop && raise_increment >= self.state.min_raise {
+                    if raise_increment >= self.state.min_raise {
                         self.state.min_raise = raise_increment;
                     }
                     self.state.current_bet_to_match = new_total_bet;

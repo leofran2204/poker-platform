@@ -468,6 +468,9 @@ export type ServerMessage =
       stage: string;
       pots: PotWsData[];
       betting_structure?: string | null;
+      ante?: number;
+      ante_paid?: number;
+      ante_player_id?: string | null;
       hand_id?: string | null;
       available_actions: string[];
       call_amount: number;
