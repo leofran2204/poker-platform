@@ -198,7 +198,7 @@ Capítulos reais: 0:00 objetivo; 0:26 cartas 2→5; 1:11 seleção 2+3; 2:13 bli
 O mesmo filme abre por ação do visitante na home ou no início da Academy, com controles, legendas, transcrição e capítulos acessíveis por teclado. Não há autoplay nem busca do MP4 ao abrir a página ou apenas abrir o modal. Usuários conectados continuam redirecionados de `/` para `/curso`. O institucional anterior fica em acesso secundário. Publicado junto com a regra em 05/10/2026, após confirmar ausência de mãos e torneios em andamento. Verificações públicas e limites da revisão editorial em [QUALITY](QUALITY.md#publicação-pineapple--05102026).
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 

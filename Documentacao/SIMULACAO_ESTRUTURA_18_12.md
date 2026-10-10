@@ -50,6 +50,6 @@
 **Modelo sustentável e correto por construção:** margem da casa ≥ 98% no volume testado (pior caso teórico 70%), anti-pirâmide (VP) funcional, sem vazamento em ciclos/L3/bots. Aprovado para seguir operando a demo; revisitar com stakes maiores antes de qualquer alegação de receita real.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

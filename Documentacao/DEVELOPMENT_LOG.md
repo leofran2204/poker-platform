@@ -906,7 +906,7 @@
 - Eps 05-10 (~50-56s cada): sizing, roubos e 3-bets, pot odds, EV e fold equity, banca, revisão final. Série completa em `ZeroTiltCurso/`.
 - Sem botão no resultado: só as 5 cartas do jogo vencedor saltam com brilho dourado (board + mão do vencedor + painel), e o painel some sozinho em 7s.
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
@@ -1309,3 +1309,10 @@ Implementado o limite do pote antes do call em todas as rodadas e ante de 1 BB p
 Renderizadas as 30 produções com comunitárias fechadas, revelação, pausa de dois segundos e privadas extras. Mesa didática com nomes, botão, turno, saldos e pagamentos; contas pré/pós-flop verificadas contra o motor a partir do próprio roteiro. Filme principal em 7min35,4s, sem acelerar a voz, mantendo o guia “painépou”. Três aulas antigas preservam seus textos, avisos e snapshots. Revisão de URL considera vídeo, legenda e capa.
 
 Testes de código, 88 testes frontend, integridade das 30 produções e 65 vistas de player/treino aprovados. Decodificação integral e publicação coordenada em andamento; contagens, hashes e limites da revisão humana em QUALITY. Autorização de commit, push e deploy mantida conforme o plano do proprietário.
+
+
+## 2026-10-10 — Pineapple v2 publicado com ante e vídeos sequenciais
+
+Publicado `ff2f0b61` às 04:08:31 UTC (01:08:31 em São Paulo), após Rust CI e Container Supply Chain aprovarem. Na preparação, resolvidas falhas de disponibilidade do Docker Hub com cache oficial e digests preservados; o scan também exigiu recompilar Caddy com Go 1.26.9/x/net 0.60.0 para correções divulgadas em 08/10. Nenhum gate foi removido.
+
+API/frontend substituídos juntos com Academy v3 e 30 vídeos, após backup validado e bloqueio temporário de novas entradas. Três verificações da janela ociosa, novo dump antes da troca, banco/Redis e `.env` preservados, proxy reaberto. Quatro serviços saudáveis, 60 migrations inalteradas e 90 arquivos de mídia íntegros. HTTP público confirmou ante, limite inicial, pote final de R$ 11,50, rejeições e níveis Pineapple em Play Money/Jogo Real. Os players e o treino passaram em 65 vistas desktop/celular. Decodificação integral dos 30 MP4 concluída. Evidências e ressalva da escuta humana em [QUALITY](QUALITY.md#publicação-conjunta-pineapple-v2--10102026). O registro documental posterior não modifica as imagens publicadas.

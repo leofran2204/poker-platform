@@ -579,6 +579,6 @@ A avaliação datada da seção 13 permanece como retrato do conteúdo então ex
 O programa direto foi publicado na demo em 01/10 com a migration 060 e NGR mensal separado por PM/Real. A auditoria histórica 18/12 não valida esse modelo; evidências do deploy e dos testes de fechamento estão no `DEVELOPMENT_LOG.md` e em `QUALITY.md`. Critérios comerciais, assinatura, enquadramento e desempenho de retenção não são demonstrados por testes de software.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
