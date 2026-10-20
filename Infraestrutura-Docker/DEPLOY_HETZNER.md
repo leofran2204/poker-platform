@@ -33,6 +33,22 @@ Portas públicas na VPS: **apenas 22, 80, 443** (tráfego de produto em **HTTPS*
 Postgres e Redis ficam em `127.0.0.1` no compose (não exponha na internet).  
 Env de referência: `.env.staging.example` ou `../.env.production.example` (nunca commitar `.env` real).
 
+### Retomada após reinício da VPS
+
+Os quatro serviços usam `restart: unless-stopped`: o Docker retoma containers que estavam em execução quando o daemon/host reiniciou, respeitando paradas manuais. `depends_on` ordena a subida pelo Compose; não garante a ordem de reinício pelo daemon. A API deve conseguir reconectar ao banco/cache ou encerrar para permitir nova tentativa. Conferir os quatro healthchecks após a retomada. [Semântica da política no Docker](https://docs.docker.com/engine/containers/start-containers-automatically/).
+
+Em containers existentes criados antes dessa configuração, aplicar a política sem reconstruir imagens:
+
+```bash
+docker update --restart unless-stopped poker_postgres poker_redis poker_api poker_frontend
+docker inspect poker_postgres poker_redis poker_api poker_frontend \
+  --format '{{.Name}} restart={{.HostConfig.RestartPolicy.Name}} status={{.State.Status}}'
+```
+
+Se estiverem parados, conferir a causa e os volumes antes de iniciá-los: PostgreSQL/Redis primeiro, aguardar saúde, preservar um backup PostgreSQL conferido por `pg_restore --list`, depois API e frontend, aguardando saúde a cada etapa. Validar `/health`, `/caddy-health` e `/api/lobby/tables` pelo HTTPS público. Não usar `compose down -v`, recriar banco ou restaurar um dump como procedimento automático de recuperação.
+
+A atualização com `docker update` persiste nos containers atuais. Uma recriação exige que o Compose utilizado também contenha a política; conferir isso antes de qualquer publicação futura. Quando a única alteração operacional for essa política, sincronizar o Compose versionado e usar `docker update` preserva os containers e imagens em execução, sem necessidade de reconstrução ou reinício.
+
 ---
 
 ## 3. Checklist pré-voo

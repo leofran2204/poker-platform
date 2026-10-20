@@ -1,11 +1,13 @@
 # Stack canônica: Postgres + Redis + API Axum + Frontend-Web (TS/React) + Caddy.
 # Portas públicas na VPS: somente 80/443 (e 22 no host). Postgres/Redis em loopback.
 # Cadeia healthy: postgres → redis → poker_api → poker_frontend.
+# Retomar após reinício do Docker/VPS; paradas manuais continuam respeitadas.
 services:
   # --- Database Layer ---
   postgres:
     image: postgres:15-alpine@sha256:3d0f7584ed7d04e27fa050d6683a74746608faf21f202be78460d679cc56461f
     container_name: poker_postgres
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
@@ -27,6 +29,7 @@ services:
   redis:
     image: redis:7-alpine@sha256:e7723ff73d963f5cc6d9c4643ea3d989527a402a319239054e9472a7fb9219a2
     container_name: poker_redis
+    restart: unless-stopped
     ports:
       # Loopback only — session cache must not face the internet
       - "127.0.0.1:6379:6379"
@@ -47,6 +50,7 @@ services:
       context: ..
       dockerfile: API-Axum/Dockerfile
     container_name: poker_api
+    restart: unless-stopped
     env_file:
       - .env
     environment:
@@ -119,6 +123,7 @@ services:
       context: ..
       dockerfile: Frontend-Web/Dockerfile
     container_name: poker_frontend
+    restart: unless-stopped
     environment:
       # Caddyfile usa {$DOMAIN_NAME:localhost} — staging: zerotiltpoker.net
       - DOMAIN_NAME=${DOMAIN_NAME:-localhost}
