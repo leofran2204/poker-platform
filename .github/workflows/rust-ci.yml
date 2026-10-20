@@ -365,8 +365,10 @@ jobs:
     timeout-minutes: 60
     needs: api-check
     services:
+      # Service containers start before steps can configure a daemon mirror.
+      # Use the verified public cache with the original immutable digests.
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15-alpine@sha256:3d0f7584ed7d04e27fa050d6683a74746608faf21f202be78460d679cc56461f
+        image: mirror.gcr.io/library/postgres:15-alpine@sha256:3d0f7584ed7d04e27fa050d6683a74746608faf21f202be78460d679cc56461f
         env:
           POSTGRES_USER: user
           POSTGRES_PASSWORD: password
@@ -379,7 +381,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       redis:
-        image: public.ecr.aws/docker/library/redis:7-alpine@sha256:e7723ff73d963f5cc6d9c4643ea3d989527a402a319239054e9472a7fb9219a2
+        image: mirror.gcr.io/library/redis:7-alpine@sha256:e7723ff73d963f5cc6d9c4643ea3d989527a402a319239054e9472a7fb9219a2
         ports:
           - 6379:6379
         options: >-
