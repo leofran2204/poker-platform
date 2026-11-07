@@ -807,12 +807,28 @@ fn filter_table_state(mut state_json: serde_json::Value, for_player_id: &str) ->
     let mut legal = poker_engine::game_loop::LegalActions::default();
 
     // Showdown: mão terminada revela as cartas de quem pagou até o fim
-    // (não foldou) — regra do poker real. Fora disso, cartas alheias
-    // nunca vazam.
-    let showdown_reveal = state_json
+    // (não foldou) — regra do poker real. Só há showdown com 2+ jogadores
+    // vivos: quem vence porque todos foldaram nunca mostra as cartas
+    // (senão o blefe vaza). Fora disso, cartas alheias nunca vazam.
+    let is_finished = state_json
         .get("is_finished")
         .and_then(|value| value.as_bool())
         .unwrap_or(false);
+    let live_players = state_json
+        .get("players")
+        .and_then(|v| v.as_array())
+        .map(|players| {
+            players
+                .iter()
+                .filter(|p| !p.get("folded").and_then(|f| f.as_bool()).unwrap_or(false))
+                .count()
+        })
+        .unwrap_or(0);
+    let showdown_reveal = is_finished && live_players >= 2;
+    let has_public_player_shape = matches!(
+        state_json.get("type").and_then(|value| value.as_str()),
+        Some("table_state" | "table_info")
+    );
     if let Some(players) = state_json.get_mut("players").and_then(|v| v.as_array_mut()) {
         for player in players {
             let player_legal = player
@@ -826,13 +842,19 @@ fn filter_table_state(mut state_json: serde_json::Value, for_player_id: &str) ->
                 .get("folded")
                 .and_then(|value| value.as_bool())
                 .unwrap_or(false);
-            if pid == for_player_id && is_table_state {
-                if !showdown_reveal {
-                    legal = player_legal
-                        .and_then(|v| serde_json::from_value(v).ok())
-                        .unwrap_or_default();
-                }
-            } else if pid != for_player_id {
+            let is_self = !pid.is_empty() && pid == for_player_id;
+            if is_self && is_table_state && !is_finished {
+                legal = player_legal
+                    .and_then(|v| serde_json::from_value(v).ok())
+                    .unwrap_or_default();
+            }
+            if has_public_player_shape {
+                // Allowlist: o jogador sai só com campos públicos conhecidos.
+                // Campo novo no motor/ator não chega ao cliente até ser
+                // adicionado aqui de propósito.
+                let reveal_cards = is_self || (showdown_reveal && !folded);
+                *player = public_player_view(player, reveal_cards);
+            } else if !is_self {
                 // A broadcast state is shared by every socket; never leak an
                 // opponent's private cards even when a future state adds an
                 // alternative field name — EXCETO no showdown p/ quem não foldou.
@@ -857,6 +879,43 @@ fn filter_table_state(mut state_json: serde_json::Value, for_player_id: &str) ->
         state_json["maximum_wager"] = serde_json::json!(legal.maximum_wager);
     }
     state_json
+}
+
+/// Campos de jogador que podem ir para qualquer socket (`PlayerWsData` no
+/// frontend). `cards` é tratado à parte: só sai preenchido para o próprio
+/// jogador ou no showdown.
+const PUBLIC_PLAYER_FIELDS: [&str; 9] = [
+    "id",
+    "name",
+    "chips",
+    "bet",
+    "folded",
+    "is_active",
+    "is_dealer",
+    "seat",
+    "is_sitting",
+];
+
+fn public_player_view(player: &serde_json::Value, reveal_cards: bool) -> serde_json::Value {
+    let mut view = serde_json::Map::new();
+    let Some(source) = player.as_object() else {
+        return serde_json::Value::Object(view);
+    };
+    for key in PUBLIC_PLAYER_FIELDS {
+        if let Some(value) = source.get(key) {
+            view.insert(key.to_string(), value.clone());
+        }
+    }
+    // Mantém o formato (`cards` presente) sem expor cartas alheias.
+    if let Some(cards) = source.get("cards") {
+        let cards = if reveal_cards {
+            cards.clone()
+        } else {
+            serde_json::json!([])
+        };
+        view.insert("cards".to_string(), cards);
+    }
+    serde_json::Value::Object(view)
 }
 
 fn redact_global_sensitive_fields(value: &mut serde_json::Value) {
@@ -923,6 +982,75 @@ mod tests {
         assert_eq!(players[0]["cards"], json!(["Ah", "Kd"]));
         assert_eq!(players[1]["cards"], json!(["Qs", "Qc"]));
         assert_eq!(players[2]["cards"], json!([]));
+    }
+
+    #[test]
+    fn fold_win_never_reveals_winner_cards() {
+        // Todos foldaram para a aposta do vencedor: não houve showdown,
+        // então as cartas dele não podem ir para os outros sockets.
+        let state = json!({
+            "type": "table_state",
+            "is_finished": true,
+            "players": [
+                {"id": "me", "cards": ["7c", "2d"], "folded": true},
+                {"id": "bluffer", "cards": ["3s", "4h"], "folded": false},
+                {"id": "other", "cards": ["Jc", "Td"], "folded": true}
+            ],
+            "showdown": []
+        });
+
+        let filtered = filter_table_state(state.clone(), "me");
+        let players = filtered["players"].as_array().expect("players array");
+        assert_eq!(players[0]["cards"], json!(["7c", "2d"]));
+        assert_eq!(players[1]["cards"], json!([]));
+        assert_eq!(players[2]["cards"], json!([]));
+
+        // O próprio vencedor continua vendo as suas cartas.
+        let own = filter_table_state(state, "bluffer");
+        assert_eq!(own["players"][1]["cards"], json!(["3s", "4h"]));
+    }
+
+    #[test]
+    fn unknown_player_fields_never_reach_clients() {
+        // Simula um campo futuro adicionado ao estado do ator com outro nome.
+        let state = json!({
+            "type": "table_state",
+            "is_finished": false,
+            "players": [
+                {"id": "me", "name": "Eu", "chips": 100, "bet": 0, "cards": ["Ah", "Kd"],
+                 "folded": false, "is_active": true, "is_dealer": false, "seat": 1,
+                 "is_sitting": true, "pocket": ["Ah", "Kd"], "equity": 0.81},
+                {"id": "opp", "name": "Ele", "chips": 90, "bet": 10, "cards": ["Qs", "Qc"],
+                 "folded": false, "is_active": false, "is_dealer": true, "seat": 2,
+                 "is_sitting": true, "pocket": ["Qs", "Qc"], "equity": 0.19}
+            ]
+        });
+
+        let filtered = filter_table_state(state, "me");
+        let me = filtered["players"][0].as_object().unwrap();
+        let opp = filtered["players"][1].as_object().unwrap();
+
+        assert_eq!(me["cards"], json!(["Ah", "Kd"]));
+        assert_eq!(opp["cards"], json!([]));
+        for player in [me, opp] {
+            assert!(player.get("pocket").is_none());
+            assert!(player.get("equity").is_none());
+            assert!(player.get("_legal_actions").is_none());
+        }
+        assert_eq!(opp["chips"], json!(90));
+        assert_eq!(opp["seat"], json!(2));
+        assert_eq!(opp["is_dealer"], json!(true));
+    }
+
+    #[test]
+    fn table_info_players_keep_public_shape() {
+        let info = json!({
+            "type": "table_info",
+            "players": [{"id": "opp", "name": "Ele", "chips": 90, "seat": 2, "is_sitting": true}]
+        });
+
+        let filtered = filter_table_state(info.clone(), "me");
+        assert_eq!(filtered["players"], info["players"]);
     }
 
     #[test]
