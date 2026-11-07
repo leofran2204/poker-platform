@@ -149,8 +149,9 @@ where
              WHERE id = $2::uuid AND balance_pm_mtt >= $1 RETURNING balance_pm_mtt"
         }
         WalletKind::Real => {
+            // `NOT is_bot`: segunda barreira — bot nunca é debitado no Real.
             "UPDATE users SET balance_real = balance_real - $1 \
-             WHERE id = $2::uuid AND balance_real >= $1 RETURNING balance_real"
+             WHERE id = $2::uuid AND balance_real >= $1 AND NOT is_bot RETURNING balance_real"
         }
     };
     // Note: for PmCash the SET balance = balance_pm_cash - $1 uses NEW value in PostgreSQL?

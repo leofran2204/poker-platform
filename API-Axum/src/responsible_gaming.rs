@@ -596,11 +596,25 @@ pub async fn ensure_deposit_allowed(
     Ok(())
 }
 
+/// Bots da casa só existem para play money (treino/testes). Nenhuma conta
+/// `is_bot` pode sentar, se inscrever ou ser debitada no Jogo Real, mesmo que
+/// um caminho futuro esqueça a trava do painel de bots.
+pub fn ensure_not_house_bot(is_bot: bool) -> Result<(), ApiError> {
+    if is_bot {
+        return Err(ApiError::Forbidden(
+            "Contas de bot não podem jogar com dinheiro real.".into(),
+        ));
+    }
+    Ok(())
+}
+
 pub async fn ensure_real_money_allowed(pool: &PgPool, user_id: &str) -> Result<(), ApiError> {
-    let kyc: String = sqlx::query_scalar("SELECT kyc_status FROM users WHERE id=$1::uuid")
-        .bind(user_id)
-        .fetch_one(pool)
-        .await?;
+    let (kyc, is_bot): (String, bool) =
+        sqlx::query_as("SELECT kyc_status, is_bot FROM users WHERE id=$1::uuid")
+            .bind(user_id)
+            .fetch_one(pool)
+            .await?;
+    ensure_not_house_bot(is_bot)?;
     if kyc != "verified" {
         return Err(ApiError::Forbidden(
             "Conclua a verificação KYC antes de jogar com dinheiro real.".into(),
@@ -650,6 +664,15 @@ pub fn validate_adult(date: NaiveDate) -> Result<(), ApiError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn house_bots_are_never_allowed_in_real_money() {
+        assert!(matches!(
+            ensure_not_house_bot(true),
+            Err(ApiError::Forbidden(_))
+        ));
+        assert!(ensure_not_house_bot(false).is_ok());
+    }
 
     #[test]
     fn detects_only_limit_relaxations() {
