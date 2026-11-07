@@ -434,32 +434,52 @@ pub async fn adjust_balance(
         }
     };
 
-    if body.delta_cents > 0 {
-        crate::wallet::credit_wallet(&state.db, &user_id, body.delta_cents, kind).await?;
-    } else {
-        crate::wallet::debit_wallet(&state.db, &user_id, -body.delta_cents, kind).await?;
+    // Ajuste, saldo resultante e trilha de auditoria numa única transação:
+    // dinheiro nunca muda sem o registro BALANCE_ADJUST correspondente.
+    let mut tx = state.db.begin().await?;
+
+    // Reset diário PM antes do ajuste: aplicado depois, ele apagaria o crédito.
+    crate::wallet::ensure_pm_daily_reset(&mut *tx, &user_id).await?;
+
+    // Trava a linha e garante que o usuário existe (credit_wallet sozinho
+    // não falha para id inexistente).
+    let balance_sql = format!(
+        "SELECT {} FROM users WHERE id = $1::uuid FOR UPDATE",
+        kind.column()
+    );
+    let exists: Option<i64> = sqlx::query_scalar(&balance_sql)
+        .bind(&user_id)
+        .fetch_optional(&mut *tx)
+        .await?;
+    if exists.is_none() {
+        return Err(ApiError::NotFound("User not found".into()));
     }
 
-    let snap = crate::wallet::load_snapshot(&state.db, &user_id).await?;
-    let balance = match kind {
-        crate::wallet::WalletKind::PmCash => snap.balance_pm_cash,
-        crate::wallet::WalletKind::PmMtt => snap.balance_pm_mtt,
-        crate::wallet::WalletKind::Real => snap.balance_real,
-    };
+    if body.delta_cents > 0 {
+        crate::wallet::credit_wallet(&mut *tx, &user_id, body.delta_cents, kind).await?;
+    } else {
+        crate::wallet::debit_wallet(&mut *tx, &user_id, -body.delta_cents, kind).await?;
+    }
 
-    write_audit(
-        &state,
-        &auth_user.user_id,
-        "BALANCE_ADJUST",
-        serde_json::json!({
+    let balance: i64 = sqlx::query_scalar(&balance_sql)
+        .bind(&user_id)
+        .fetch_one(&mut *tx)
+        .await?;
+
+    sqlx::query("INSERT INTO audit_logs (user_id, action, metadata) VALUES ($1, $2, $3)")
+        .bind(&auth_user.user_id)
+        .bind("BALANCE_ADJUST")
+        .bind(serde_json::json!({
             "target_user_id": user_id,
             "delta_cents": body.delta_cents,
             "wallet": kind.seat_label(),
             "reason": reason,
             "new_balance": balance
-        }),
-    )
-    .await?;
+        }))
+        .execute(&mut *tx)
+        .await?;
+
+    tx.commit().await?;
 
     Ok(Json(AdjustBalanceResponse {
         user_id,
