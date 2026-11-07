@@ -5,7 +5,7 @@ Procedimento de validação da plataforma em **Docker Compose**, **demo residenc
 **Domínio demo:** `zerotiltpoker.net`  
 **Não é certificação de produção.** Na demo VPS, o DePix está reconciliado conforme o `STATUS_OPERACIONAL.md`; laboratório e tunnel usam o modo configurado no `.env` e permanecem mock por padrão.
 
-Última publicação conferida: **08/10/2026, 13:48:04 UTC**, frontend `75971a0c`: 30 vídeos regravados com guias fonéticas para os termos ingleses, legendas/capítulos sincronizados e URLs de mídia versionadas. API mantida na imagem de `4c9541a3` (06/10); API, PostgreSQL e Redis conservaram containers, imagens e horário de início. Quatro serviços saudáveis, 60 migrations e 90 arquivos de mídia íntegros. Ambos os workflows aprovados antes da troca, backup validado e `.env` preservado. [Evidências e limite da revisão auditiva](../Documentacao/QUALITY.md#pronúncia-dos-vídeos--08102026). Documentação posterior não exige reconstruir essas imagens.
+Última publicação conferida: **07/11/2026, 18:58:25 UTC**, API `36731d5c`, com correções de `rustls`/`quinn-proto` e política `restart: unless-stopped` incorporada ao Compose. Imagem aprovada no CI e atestação de origem verificada antes da troca. Frontend permanece na publicação `ff2f0b61` de 10/10 (Pineapple v2, Academy v3 e 30 produções); frontend, PostgreSQL e Redis conservaram containers, imagens e início. Quatro serviços saudáveis, 60 migrations, backup validado e `.env` preservado. [Evidências da publicação](../Documentacao/QUALITY.md#publicação-da-api-corrigida-e-retomada-automática--07112026). Documentação posterior não exige reconstruir essas imagens.
 
 | Caminho | Guia | HTTPS |
 |---------|------|--------|
