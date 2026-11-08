@@ -87,3 +87,6 @@ codex-*.tmp.ps1
 
 # Python validation-runner bytecode (source and reports have separate owners).
 scripts/__pycache__/
+
+# Claude Code: permissões locais desta máquina
+.claude/settings.local.json
