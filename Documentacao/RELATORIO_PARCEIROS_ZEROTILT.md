@@ -84,7 +84,7 @@ Isso é o contrário de “ liberamos PIX no grupo até legalizar”. O produto 
 
 ### 2.3 Integridade da mesa
 
-- Embaralhamento **Provably Fair**: o servidor publica o hash da semente, embaralha com ChaCha8 + HMAC-SHA256 (semente do servidor + semente do cliente + nonce), revela a semente no histórico. O jogador pode reconstruir o baralho.
+- Embaralhamento **Fisher-Yates com CSPRNG do sistema operacional** (`OsRng`) em toda mão; liquidação assinada com HMAC-SHA256. **Provably Fair** (hash da semente publicado antes, semente revelada no histórico, jogador reconstrói o baralho) já existe como módulo no motor (`provably_fair.rs`), mas **ainda não está ligado à mesa** — está no roadmap abaixo.
 - Antifraude em Rust, na mesa: **bots**, **chip dumping**, **colusão** (soft play / pares), **multi-conta**.
 - **Guarda de sub-rede /24:** dois jogadores no mesmo IP ou na mesma /24 **não sentam na mesma mesa**.
 - VPIP/PFR anômalos disparam revisão (amostra mínima; não é ban automático por “jogar loose”).
@@ -238,7 +238,7 @@ Saque de comissão de clube (`POST /api/admin/clubs/:id/withdraw`) existe no des
 | Autoexclusão / limites de depósito | Discurso ZeroTilt incompleto no real | Product + legal (RG) **antes** de abrir PIX |
 | KYC/AML | Exigência SPA | Parceiro de compliance + fluxo de documentos |
 | MTT ao vivo ainda em evolução | Torneio não é o carro-chefe | Acabar o ciclo de mãos MTT com a mesma disciplina do cash |
-| UI de Provably Fair no cliente TS | O motor prova; o jogador leigo não clica “auditar” | Modal de auditoria no histórico (o codec 0x30/0x31 já existe) |
+| Provably Fair ligado à mesa + UI | O módulo existe no motor, mas a mesa ainda embaralha só com CSPRNG; e o jogador leigo não clica “auditar” | Ligar `provably_fair.rs` ao início da mão (com semente do cliente) + modal de auditoria no histórico (o codec 0x30/0x31 já existe) |
 | Painel **Agente ZT** + ledger mensal | Convite `?ref=`, receita direta PM/Real, deduções, meta e fechamento com conciliação | 30% do NGR direto + 5 p.p. por meta; histórico 18/12 preservado |
 | Catálogo curto | Bom para liquidez; pouco para high roller | Só crescer stake **depois** de encher as três mesas |
 
@@ -280,7 +280,7 @@ Esta seção é o backlog que um parceiro **deveria exigir** no termo de investi
 
 | Melhoria | Por que | Base já existente |
 |----------|---------|-------------------|
-| **Botão “Auditar baralho”** no histórico da mão (mostrar hash, semente revelada, resultado ok/falha) | Provably Fair que o leigo não vê **não existe** para ele | Motor + codec binário 0x30/0x31 + `verify_provably_fair` no histórico |
+| **Botão “Auditar baralho”** no histórico da mão (mostrar hash, semente revelada, resultado ok/falha) | Provably Fair que o leigo não vê **não existe** para ele | Módulo `provably_fair.rs` no motor (ainda não ligado à mesa) + codec binário 0x30/0x31 |
 | **Recibo da mão** (pote, rake, split 15/85, Loss Deflator, odd cent) em linguagem humana | Acaba com “a casa comeu 4 centavos” | Ordem financeira já é normativa; falta UI |
 | **Selo de modo** enorme: Play Money vs Jogo Real, impossível de confundir no feltro | Evita o pior suporte: “pensei que era treino” | Header já troca modo; a mesa ainda pode gritar mais |
 | **Exportar histórico** estilo PokerStars (já citado na arquitetura) com 1 clique | HUD externo e conferência | Hand history JSON já nasce para auditoria |

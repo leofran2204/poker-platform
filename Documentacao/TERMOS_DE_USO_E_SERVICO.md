@@ -1,6 +1,6 @@
 # TERMOS DE USO E CONDIÇÕES DO SERVIÇO - PLATAFORMA DE POKER ONLINE
 
-**Última Atualização: 24 de setembro de 2026**
+**Última Atualização: 7 de novembro de 2026**
 
 Este contrato de Termos de Uso ("Contrato") rege o uso da plataforma de poker online ("Plataforma") por qualquer usuário cadastrado ("Jogador"). Ao criar uma conta ou utilizar os serviços da Plataforma, o Jogador aceita integralmente os termos aqui descritos.
 
@@ -56,8 +56,10 @@ Este contrato de Termos de Uso ("Contrato") rege o uso da plataforma de poker on
 
 ---
 
-## 7. TRANSPARÊNCIA E PROVABLY FAIR
-7.1. A Plataforma utiliza um sistema de embaralhamento criptograficamente justo (*Provably Fair*) baseado em sementes criptográficas seguras. Ao término de cada mão, a liquidação é assinada com HMAC-SHA256 auditável.
+## 7. TRANSPARÊNCIA E INTEGRIDADE DO BARALHO
+7.1. Cada mão é embaralhada com o algoritmo Fisher-Yates alimentado pelo gerador de números aleatórios criptograficamente seguro do sistema operacional do servidor. Nem a Plataforma nem os Jogadores escolhem ou conhecem a ordem das cartas antes de elas serem distribuídas.
+7.2. Ao término de cada mão, o histórico e a liquidação (potes, rake, eventual Loss Deflator e pagamentos) são gravados e assinados com HMAC-SHA256, para auditoria e resolução de disputas.
+7.3. A verificação pública do baralho pelo próprio Jogador (*Provably Fair*, com publicação prévia do hash da semente e revelação posterior) ainda não está disponível. Quando for disponibilizada, estes Termos serão atualizados.
 
 ---
 

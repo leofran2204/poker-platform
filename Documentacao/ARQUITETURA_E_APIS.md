@@ -150,7 +150,8 @@ Referências técnicas: [Documentação DePix](https://depixapp.com/docs/) e [Op
 
 #### Payout worker reconciliado (saques DePix)
 
-- `POST /api/payments/pix/withdraw` reserva o saldo atomicamente, cifra `{pix_key, tax_number}` (CPF derivado da chave quando ela é CPF; `tax_number` obrigatório nos demais tipos) e enfileira `QUEUED` — ou `HELD` acima de `DEPIX_LIVE_MAX_PAYOUT_CENTS` (padrão R$ 200) para aprovação manual em `POST /api/admin/payouts/:id/approve` (`/reject` recredita; `GET /api/admin/payouts/held` lista a fila).
+- `POST /api/payments/pix/withdraw` exige KYC `verified` e destino com o **mesmo CPF do KYC** (comparação pelo HMAC `kyc_tax_id_hash`; outro CPF ou CNPJ → `403`, sem débito), reserva o saldo atomicamente, cifra `{pix_key, tax_number}` (CPF derivado da chave quando ela é CPF; `tax_number` obrigatório nos demais tipos) e enfileira `QUEUED` — ou `HELD` acima de `DEPIX_LIVE_MAX_PAYOUT_CENTS` (padrão R$ 200) para aprovação manual em `POST /api/admin/payouts/:id/approve` (`/reject` recredita; `GET /api/admin/payouts/held` lista a fila).
+- `GET /api/admin/liabilities` (admin): passivo com jogadores em centavos num único snapshot — `wallet_balances_cents` (contas humanas), `cash_table_chips_cents` (assentos Real ativos), `open_tournament_prizes_cents` (`GREATEST(prize_pool, guaranteed_prize)` de MTT Real abertos), `pending_withdrawals_cents`, `total_owed_to_players_cents` (soma) e, à parte, `provisional_deposits_cents` (risco de crédito provisório). Comparar o total com o saldo da conta recebedora.
 - `payout_worker` (`tokio::spawn` no boot) reivindica uma linha por vez (`SKIP LOCKED`), envia `POST /api/withdraw` (`payoutAmountInCents` + `taxNumber`, `Idempotency-Key = tx_id`, escopo `wallet_write`) e reconcilia por polling + ramo `withdraw.*` do webhook (HMAC + dedup): `sent` → `COMPLETED`; `error/canceled/refunded/replaced` → recredita + `REJECTED`. Tentativas com backoff (10×) e recuperação de `SENDING` órfão.
 - Sem `DEPIX_PIXKEY_ENC_KEY` ou sem gateway DePix, tudo falha fechado sem tocar em saldo. `DEPIX_PAYOUT_DRYRUN=true` simula o envio sem HTTP externo (lab).
 
@@ -252,6 +253,8 @@ Fases: (1) MVP Hold’em com ações legais, sizing e pot odds; (2) equity/EV e 
 ---
 
 ## 🎲 4. Protocolo Criptográfico Provably Fair (Baralho Transparente)
+
+> **Status:** especificação, **não ligada à mesa**. Hoje cada mão embaralha com Fisher-Yates + `OsRng` (`Motor-Rust/src/game_loop.rs:504`, `shuffle_deck`). O módulo `Motor-Rust/src/provably_fair.rs` existe e tem testes, mas não é chamado pelo jogo, e deriva os índices direto do HMAC-SHA256 (não usa ChaCha8). Até ligar, nenhum texto voltado ao jogador pode prometer verificação pública.
 
 1. **Pré-Jogo:** O servidor gera a `ServerSeed` e envia o Hash comprometido:
    $$\text{ServerSeedHash} = \text{SHA256}(\text{ServerSeed})$$
