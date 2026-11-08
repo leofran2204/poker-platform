@@ -1346,3 +1346,7 @@ Janela ociosa conferida antes e depois de parar a API (zero online, assentos, to
 ## 2026-11-08 — saque Pix com CPF do titular e aviso de titularidade
 
 Publicado `182e13bd` às 03:01:58 UTC (00:01:58 em São Paulo) com `scripts/vps-release-attested.sh`, primeira publicação feita pelo script: assinaturas `cosign` conferidas antes da troca (supply-chain.yml/master/commit), janela ociosa, dois dumps e rollback retido. Corrige bug anterior em que o formulário de saque nunca enviava `tax_number`, fazendo falhar todo saque com chave aleatória (padrão), e-mail ou telefone; a carteira passa a avisar a regra de mesma titularidade (com o final do CPF do KYC), valida o CPF antes do envio e traduz erros da API. Evidências em [QUALITY](QUALITY.md#publicação-saque-pix-com-cpf-do-titular--08112026).
+
+## 2026-11-08 — painel de passivo no admin
+
+Publicado `4088a5f6` às 03:25:00 UTC (00:25:00 em São Paulo) com `scripts/vps-release-attested.sh`, encadeado ao CI: publicação só após Rust CI e Container Supply Chain verdes e `--verify-only` aprovado. A visão geral do admin passa a mostrar o passivo com jogadores no Jogo Real (carteiras, fichas em cash, prêmios de MTT abertos, saques pendentes, total devido e crédito provisório à parte) e compara, só na tela, com o saldo informado da conta recebedora. Evidências em [QUALITY](QUALITY.md#publicação-painel-de-passivo-no-admin--08112026).
