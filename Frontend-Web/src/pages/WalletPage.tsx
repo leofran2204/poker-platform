@@ -5,6 +5,7 @@ import {
   createPixDeposit,
   createPixWithdraw,
   fetchDepositInfo,
+  fetchKyc,
   fetchMe,
   getPixDepositStatus,
   listMyDepositRequests,
@@ -14,6 +15,7 @@ import {
 import type {
   DepositInfoResponse,
   DepositRequestResponse,
+  KycStatusResponse,
   MeResponse,
   PixDepositResponse,
   PixDepositStatusResponse,
@@ -23,6 +25,12 @@ import { NoIndex } from "@/components/NoIndex";
 import { isAuthenticated } from "@/lib/auth";
 import { clearMeCache } from "@/lib/me";
 import { formatBrlFromCents } from "@/lib/money";
+import {
+  buildWithdrawPayload,
+  PIX_KEY_TYPES,
+  translateWithdrawError,
+  type PixKeyType,
+} from "@/lib/pixWithdraw";
 import { getWalletMode } from "@/lib/walletMode";
 
 function maskPixKey(key: string): string {
@@ -56,7 +64,9 @@ export function WalletPage() {
   const [pixStatus, setPixStatus] = useState<PixDepositStatusResponse | null>(null);
   const [withdrawAmount, setWithdrawAmount] = useState(100_000);
   const [withdrawPixKey, setWithdrawPixKey] = useState("");
-  const [withdrawPixKeyType, setWithdrawPixKeyType] = useState("evp");
+  const [withdrawPixKeyType, setWithdrawPixKeyType] = useState<PixKeyType>("cpf");
+  const [withdrawHolderCpf, setWithdrawHolderCpf] = useState("");
+  const [kyc, setKyc] = useState<KycStatusResponse | null>(null);
   const idempotencyKey = useRef(crypto.randomUUID());
   const [error, setError] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -123,6 +133,10 @@ export function WalletPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erro ao carregar carteira");
     }
+    // KYC só orienta o saque (status e final do CPF); falha aqui não bloqueia a carteira.
+    fetchKyc()
+      .then(setKyc)
+      .catch(() => setKyc(null));
   }, []);
 
   useEffect(() => {
@@ -260,17 +274,25 @@ export function WalletPage() {
     setBusy(true);
     setError(null);
     setMsg(null);
+    const built = buildWithdrawPayload({
+      amountCents: withdrawAmount,
+      keyType: withdrawPixKeyType,
+      key: withdrawPixKey,
+      holderCpf: withdrawHolderCpf,
+    });
+    if (!built.ok) {
+      setError(built.error);
+      setBusy(false);
+      return;
+    }
     try {
-      await createPixWithdraw({
-        amount: withdrawAmount,
-        pix_key: withdrawPixKey,
-        pix_key_type: withdrawPixKeyType,
-      });
+      await createPixWithdraw(built.payload);
       setMsg(`Recebimento em até 24h.`);
       setWithdrawPixKey("");
+      setWithdrawHolderCpf("");
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Falha no saque");
+      setError(err instanceof Error ? translateWithdrawError(err.message) : "Falha no saque");
     } finally {
       setBusy(false);
     }
@@ -558,8 +580,18 @@ export function WalletPage() {
             <div className="zt-panel p-4 space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-wide text-gold-bright">Saque Pix</h3>
               <p className="text-xs text-amber-100 rounded-sm border border-amber-700/60 bg-amber-950/30 px-3 py-2">
-                Recebimento em até 24h.
+                O saque só pode ir para uma chave Pix <strong>do mesmo CPF do seu cadastro</strong>
+                {kyc?.tax_id_last4 ? <> (final {kyc.tax_id_last4})</> : null}. Chaves de outra pessoa ou de
+                CNPJ são recusadas. Recebimento em até 24h.
               </p>
+              {kyc && kyc.status !== "verified" && (
+                <p className="text-xs text-red-200 rounded-sm border border-red-700/60 bg-red-950/30 px-3 py-2">
+                  Para sacar, conclua a verificação de identidade.{" "}
+                  <Link to="/verificacao" className="underline">
+                    Ir para a verificação
+                  </Link>
+                </p>
+              )}
               <form className="space-y-3" onSubmit={(e) => void onWithdraw(e)}>
                 <div>
                   <label className="zt-label" htmlFor="withdraw-amount">Valor do saque</label>
@@ -580,26 +612,47 @@ export function WalletPage() {
                     id="withdraw-pix-type"
                     className="zt-input max-w-xs"
                     value={withdrawPixKeyType}
-                    onChange={(e) => setWithdrawPixKeyType(e.target.value)}
+                    onChange={(e) => setWithdrawPixKeyType(e.target.value as PixKeyType)}
                   >
-                    <option value="evp">Aleatória (EVP)</option>
-                    <option value="cpf">CPF</option>
-                    <option value="email">E-mail</option>
-                    <option value="phone">Telefone</option>
+                    {PIX_KEY_TYPES.map((t) => (
+                      <option key={t.value} value={t.value}>
+                        {t.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
-                  <label className="zt-label" htmlFor="withdraw-pix-key">Sua chave Pix (para receber)</label>
+                  <label className="zt-label" htmlFor="withdraw-pix-key">
+                    {withdrawPixKeyType === "cpf" ? "Seu CPF (chave Pix)" : "Sua chave Pix (para receber)"}
+                  </label>
                   <input
                     id="withdraw-pix-key"
                     className="zt-input max-w-sm"
                     value={withdrawPixKey}
                     onChange={(e) => setWithdrawPixKey(e.target.value)}
-                    placeholder="Cole sua chave Pix"
+                    placeholder={withdrawPixKeyType === "cpf" ? "000.000.000-00" : "Cole sua chave Pix"}
+                    inputMode={withdrawPixKeyType === "cpf" ? "numeric" : undefined}
                     required
                     minLength={5}
                   />
                 </div>
+                {withdrawPixKeyType !== "cpf" && (
+                  <div>
+                    <label className="zt-label" htmlFor="withdraw-holder-cpf">CPF do titular da chave</label>
+                    <input
+                      id="withdraw-holder-cpf"
+                      className="zt-input max-w-xs"
+                      value={withdrawHolderCpf}
+                      onChange={(e) => setWithdrawHolderCpf(e.target.value)}
+                      placeholder="000.000.000-00"
+                      inputMode="numeric"
+                      required
+                    />
+                    <p className="mt-1 text-xs text-felt-300">
+                      Precisa ser o CPF do seu cadastro; é enviado somente à DePix para o pagamento.
+                    </p>
+                  </div>
+                )}
                 <button type="submit" className="zt-btn-primary" disabled={busy}>
                   {busy ? "Enviando…" : "Solicitar saque"}
                 </button>

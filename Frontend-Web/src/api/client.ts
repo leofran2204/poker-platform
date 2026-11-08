@@ -838,6 +838,8 @@ export async function createPixWithdraw(body: {
   amount: number;
   pix_key: string;
   pix_key_type: string;
+  /** CPF do titular (o mesmo do KYC); a API recusa outro CPF ou CNPJ. */
+  tax_number: string;
 }): Promise<{ tx_id: string; amount: number; status: string; message: string }> {
   return request("/api/payments/pix/withdraw", {
     method: "POST",
