@@ -439,6 +439,9 @@ jobs:
       - name: Run PostgreSQL wallet contract tests
         run: cargo test --test payments_tests -- --ignored --nocapture
 
+      - name: Run PostgreSQL player journey (KYC, deposit, table, withdraw)
+        run: cargo test --test e2e_player_journey_tests -- --ignored --nocapture
+
       - name: Run PostgreSQL agent refund contract
         run: cargo test --lib estrutura::tests::refund_is_scoped_to_one_tournament_and_idempotent -- --ignored --nocapture
 

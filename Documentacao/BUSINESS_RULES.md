@@ -19,6 +19,7 @@ Cash exige **≥ 2 assentos** na mesma mesa. Registro com verificação de e-mai
 - **Formatação de Exibição:** O frontend TypeScript converte centavos apenas na camada visual (`formatBrlFromCents` em `Frontend-Web/src/lib/money.ts`).
 - **Depósito automatizado em Sandbox:** uma cobrança DePix exige usuário allowlisted, `Idempotency-Key`, valor entre 500 e 600.000 centavos e CPF/CNPJ enviado ao provedor sem armazenamento local.
 - **Regra de crédito:** `checkout.processing` autenticado, com identificador e valor coincidentes e face ≤ R$ 50 (`5000` centavos), credita `balance_real` de forma provisória (face) e trava saques da conta até a liquidação. `checkout.completed` confirma (ajusta para o líquido recebido, sem recrédito). Acima do teto, só o `completed` credita. Cancelamento/expiração de provisório reverte até o saldo disponível (sem negativo; falta vira auditoria). Eventos repetidos e `approved` não alteram o saldo.
+- **Regra de saque (AML):** saque de Jogo Real só com KYC aprovado e para chave PIX do **mesmo CPF do KYC** do titular; terceiros e CNPJ são recusados sem reservar saldo. Contas de bot nunca são debitadas nem jogam no Real.
 - **Separação de ambientes:** a demo/staging usa DePix reconciliado (HMAC, teto de crédito provisório R$ 50, payout worker com teto/`HELD`). CPF/CNPJ não persiste em claro. Sem certificação de produção.
 
 ---

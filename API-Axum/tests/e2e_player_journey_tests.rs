@@ -70,6 +70,12 @@ async fn cleanup_e2e_user(state: &AppState, user_id: &str) {
 #[tokio::test]
 #[ignore]
 async fn test_e2e_full_player_journey_deposit_lobby_splitpot_withdraw() {
+    // O saque cifra a chave PIX antes de reservar; sem chave de teste ele
+    // recusa com 500 (fail-closed), como em produção.
+    std::env::set_var(
+        "DEPIX_PIXKEY_ENC_KEY",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    );
     let state = make_test_state();
     let app = build_router(state.clone());
     let uid = uuid::Uuid::new_v4().simple().to_string();
@@ -121,7 +127,16 @@ async fn test_e2e_full_player_journey_deposit_lobby_splitpot_withdraw() {
     let login_json: serde_json::Value = serde_json::from_slice(&body_bytes).unwrap();
     let access_token = login_json["token"].as_str().unwrap().to_string();
 
-    // 3. Depósito PIX
+    // 3. KYC aprovado (exigido para depositar e sacar no Real) e depósito PIX
+    let cpf = format!("{:011}", uuid::Uuid::new_v4().as_u128() % 100_000_000_000);
+    sqlx::query(
+        "UPDATE users SET kyc_status = 'verified', kyc_tax_id_hash = $2 WHERE id = $1::uuid",
+    )
+    .bind(&user_id)
+    .bind(poker_api::kyc::tax_id_hash(&cpf))
+    .execute(&state.db)
+    .await
+    .unwrap();
     let deposit_payload = serde_json::json!({
         "amount": 10_000
     });
@@ -190,11 +205,11 @@ async fn test_e2e_full_player_journey_deposit_lobby_splitpot_withdraw() {
     assert_eq!(*payouts.get("alice").unwrap(), 503);
     assert_eq!(*payouts.get("bob").unwrap(), 502);
 
-    // 6. Saque PIX
+    // 6. Saque PIX — só para o CPF do KYC do próprio titular (passo 3).
     let withdraw_payload = serde_json::json!({
         "amount": 5_000,
         "pix_key_type": "cpf",
-        "pix_key": "123.456.789-00"
+        "pix_key": cpf
     });
     let req = Request::builder()
         .method("POST")

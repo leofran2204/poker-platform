@@ -1362,6 +1362,35 @@ pub async fn simulate_pix_deposit_handler(
 /// The raw PIX key travels only in memory here and rests encrypted
 /// (AES-256-GCM) in `wallet_transactions.pix_key_ciphertext`; somente sua
 /// impressão SHA-256 vai para logs e auditoria.
+/// Saque de Jogo Real exige KYC aprovado e destino com o mesmo CPF do KYC.
+/// Impede depositar por uma conta e sacar para a chave de terceiros.
+pub(crate) fn ensure_same_holder_payout(
+    kyc_status: &str,
+    stored_tax_id_hash: Option<&str>,
+    payout_tax_number: &str,
+) -> Result<(), ApiError> {
+    if kyc_status != "verified" {
+        return Err(ApiError::Forbidden(
+            "Conclua a verificação KYC antes de sacar.".to_string(),
+        ));
+    }
+    let digits: String = payout_tax_number
+        .chars()
+        .filter(|c| c.is_ascii_digit())
+        .collect();
+    let same_holder = digits.len() == 11
+        && stored_tax_id_hash.is_some_and(|stored| {
+            let expected = crate::kyc::tax_id_hash(&digits);
+            subtle::ConstantTimeEq::ct_eq(expected.as_bytes(), stored.as_bytes()).into()
+        });
+    if !same_holder {
+        return Err(ApiError::Forbidden(
+            "O saque só pode ir para uma chave PIX do mesmo CPF do seu cadastro (KYC).".to_string(),
+        ));
+    }
+    Ok(())
+}
+
 pub async fn create_pix_withdraw_handler(
     State(state): State<AppState>,
     RequireAuth(auth_user): RequireAuth,
@@ -1431,6 +1460,16 @@ pub async fn create_pix_withdraw_handler(
             "Saque indisponível enquanto um depósito provisório não liquidar".to_string(),
         ));
     }
+
+    // AML: saque só para o titular verificado (mesmo CPF do KYC). Trava a
+    // linha do usuário até o débito abaixo.
+    let (kyc_status, kyc_tax_id_hash): (String, Option<String>) = sqlx::query_as(
+        "SELECT kyc_status, kyc_tax_id_hash FROM users WHERE id = $1::uuid FOR UPDATE",
+    )
+    .bind(&auth_user.user_id)
+    .fetch_one(&mut *transaction)
+    .await?;
+    ensure_same_holder_payout(&kyc_status, kyc_tax_id_hash.as_deref(), &tax_number)?;
 
     let debited = sqlx::query(
         "UPDATE users SET balance_real = balance_real - $1 \
@@ -1532,6 +1571,26 @@ mod tests {
         assert!(!face_eligible_for_instant_credit(5_001));
         assert!(!face_eligible_for_instant_credit(0));
         assert!(!face_eligible_for_instant_credit(-1));
+    }
+
+    #[test]
+    fn payout_requires_verified_kyc_and_same_cpf() {
+        use super::ensure_same_holder_payout;
+        use crate::error::ApiError;
+        let holder = crate::kyc::tax_id_hash("12345678900");
+        assert!(ensure_same_holder_payout("verified", Some(&holder), "123.456.789-00").is_ok());
+        // Outro CPF (terceiro), CNPJ, KYC pendente ou sem hash: recusado.
+        for (status, stored, payout) in [
+            ("verified", Some(holder.as_str()), "98765432100"),
+            ("verified", Some(holder.as_str()), "12345678000199"),
+            ("pending", Some(holder.as_str()), "12345678900"),
+            ("verified", None, "12345678900"),
+        ] {
+            assert!(matches!(
+                ensure_same_holder_payout(status, stored, payout),
+                Err(ApiError::Forbidden(_))
+            ));
+        }
     }
 
     #[test]

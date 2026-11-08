@@ -115,6 +115,21 @@ async fn make_persistent_state(username: &str) -> (AppState, String, String) {
     (state, user.id, token)
 }
 
+/// KYC aprovado com CPF único por teste (hash tem índice único) — o saque só
+/// vai para o mesmo CPF. Retorna o CPF para usar como chave PIX.
+async fn verify_kyc_with_unique_cpf(state: &AppState, user_id: &str) -> String {
+    let cpf = format!("{:011}", uuid::Uuid::new_v4().as_u128() % 100_000_000_000);
+    sqlx::query(
+        "UPDATE users SET kyc_status = 'verified', kyc_tax_id_hash = $2 WHERE id = $1::uuid",
+    )
+    .bind(user_id)
+    .bind(poker_api::kyc::tax_id_hash(&cpf))
+    .execute(&state.db)
+    .await
+    .expect("test KYC must persist");
+    cpf
+}
+
 async fn cleanup_persistent_user(state: &AppState, user_id: &str) {
     let _ = sqlx::query("DELETE FROM outbox_events WHERE payload ->> 'user_id' = $1")
         .bind(user_id)
@@ -297,6 +312,7 @@ async fn concurrent_withdrawals_cannot_reserve_the_same_balance_twice() {
         .execute(&state.db)
         .await
         .unwrap();
+    let cpf = verify_kyc_with_unique_cpf(&state, &user_id).await;
     let request = || {
         Request::builder()
             .method(Method::POST)
@@ -304,7 +320,8 @@ async fn concurrent_withdrawals_cannot_reserve_the_same_balance_twice() {
             .header("Authorization", format!("Bearer {token}"))
             .header("Content-Type", "application/json")
             .body(Body::from(
-                r#"{"amount":8000,"pix_key_type":"cpf","pix_key":"12345678900"}"#,
+                serde_json::json!({"amount": 8000, "pix_key_type": "cpf", "pix_key": cpf})
+                    .to_string(),
             ))
             .unwrap()
     };
@@ -352,13 +369,14 @@ async fn provisional_deposit_blocks_withdrawals() {
     .execute(&state.db)
     .await
     .unwrap();
+    let cpf = verify_kyc_with_unique_cpf(&state, &user_id).await;
     let request = Request::builder()
         .method(Method::POST)
         .uri("/api/payments/pix/withdraw")
         .header("Authorization", format!("Bearer {token}"))
         .header("Content-Type", "application/json")
         .body(Body::from(
-            r#"{"amount":1000,"pix_key_type":"cpf","pix_key":"12345678900"}"#,
+            serde_json::json!({"amount": 1000, "pix_key_type": "cpf", "pix_key": cpf}).to_string(),
         ))
         .unwrap();
     let response = poker_api::build_router(state.clone())
@@ -366,6 +384,49 @@ async fn provisional_deposit_blocks_withdrawals() {
         .await
         .unwrap();
     assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    let balance: i64 = sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1::uuid")
+        .bind(&user_id)
+        .fetch_one(&state.db)
+        .await
+        .unwrap();
+    assert_eq!(balance, 10_000);
+    cleanup_persistent_user(&state, &user_id).await;
+}
+
+#[tokio::test]
+#[ignore = "Requires PostgreSQL ledger — run with DATABASE_URL"]
+async fn withdrawal_to_another_holder_is_refused_without_debit() {
+    let username = unique_username("wallet_3rd");
+    let (state, user_id, token) = make_persistent_state(&username).await;
+    sqlx::query("UPDATE users SET balance_real = 10000 WHERE id = $1::uuid")
+        .bind(&user_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+    let cpf = verify_kyc_with_unique_cpf(&state, &user_id).await;
+    // Chave de outro CPF (terceiro): mesmo comprimento, dígito final trocado.
+    let mut other = cpf.into_bytes();
+    other[10] = if other[10] == b'9' {
+        b'0'
+    } else {
+        other[10] + 1
+    };
+    let other = String::from_utf8(other).unwrap();
+    let request = Request::builder()
+        .method(Method::POST)
+        .uri("/api/payments/pix/withdraw")
+        .header("Authorization", format!("Bearer {token}"))
+        .header("Content-Type", "application/json")
+        .body(Body::from(
+            serde_json::json!({"amount": 1000, "pix_key_type": "cpf", "pix_key": other})
+                .to_string(),
+        ))
+        .unwrap();
+    let response = poker_api::build_router(state.clone())
+        .oneshot(request)
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::FORBIDDEN);
     let balance: i64 = sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1::uuid")
         .bind(&user_id)
         .fetch_one(&state.db)

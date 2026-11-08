@@ -100,7 +100,8 @@ fn normalize_tax_id(value: &str) -> Result<String, ApiError> {
     Ok(digits)
 }
 
-fn tax_id_hash(tax_id: &str) -> String {
+/// HMAC do CPF normalizado (só dígitos), o mesmo guardado em `kyc_tax_id_hash`.
+pub fn tax_id_hash(tax_id: &str) -> String {
     let pepper = std::env::var("KYC_DATA_PEPPER")
         .unwrap_or_else(|_| "development-kyc-data-pepper".to_string());
     let mut mac = HmacSha256::new_from_slice(pepper.as_bytes()).expect("HMAC accepts any key");
