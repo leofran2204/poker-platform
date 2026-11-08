@@ -50,6 +50,69 @@ pub struct AdminStatsResponse {
     pub wallet_balance_sum: i64,
 }
 
+// ─── Passivo com jogadores (Jogo Real) ───
+
+/// Quanto do caixa pertence aos jogadores, em centavos. Comparar
+/// `total_owed_to_players_cents` com o saldo disponível da conta recebedora:
+/// saldo abaixo do total = alerta de conciliação.
+#[derive(Debug, Serialize)]
+pub struct AdminLiabilitiesResponse {
+    /// Saldos `balance_real` (contas humanas).
+    pub wallet_balances_cents: i64,
+    /// Fichas em assentos ativos de cash Real (gravadas a cada mão).
+    pub cash_table_chips_cents: i64,
+    /// Torneios Real abertos: maior entre prêmio acumulado e garantido.
+    pub open_tournament_prizes_cents: i64,
+    /// Saques já reservados (debitados da carteira) e ainda não pagos.
+    pub pending_withdrawals_cents: i64,
+    pub total_owed_to_players_cents: i64,
+    /// Crédito provisório concedido antes da liquidação do PIX (risco, não passivo).
+    pub provisional_deposits_cents: i64,
+    pub generated_at: String,
+}
+
+pub async fn admin_liabilities(
+    RequireAuth(auth_user): RequireAuth,
+    State(state): State<AppState>,
+) -> Result<Json<AdminLiabilitiesResponse>, ApiError> {
+    require_admin(&auth_user)?;
+
+    // Uma única consulta = um único snapshot coerente do banco.
+    let row: (i64, i64, i64, i64, i64) = sqlx::query_as(
+        "SELECT \
+           (SELECT COALESCE(SUM(balance_real), 0)::BIGINT FROM users WHERE NOT is_bot), \
+           (SELECT COALESCE(SUM(chips), 0)::BIGINT FROM cash_game_seats \
+              WHERE status = 'ACTIVE' AND wallet_kind = 'real'), \
+           (SELECT COALESCE(SUM(GREATEST(prize_pool, guaranteed_prize)), 0)::BIGINT FROM tournaments \
+              WHERE money_mode = 'real' AND status IN ('registering', 'running', 'paused')), \
+           (SELECT COALESCE(SUM(amount), 0)::BIGINT FROM wallet_transactions \
+              WHERE transaction_type = 'WITHDRAW' AND status = 'PENDING'), \
+           (SELECT COALESCE(SUM(credited_amount_cents), 0)::BIGINT FROM wallet_transactions \
+              WHERE transaction_type = 'DEPOSIT' AND status = 'PENDING' \
+                AND credited_amount_cents IS NOT NULL)",
+    )
+    .fetch_one(&state.db)
+    .await?;
+    let (wallets, chips, prizes, withdrawals, provisional) = row;
+
+    Ok(Json(AdminLiabilitiesResponse {
+        wallet_balances_cents: wallets,
+        cash_table_chips_cents: chips,
+        open_tournament_prizes_cents: prizes,
+        pending_withdrawals_cents: withdrawals,
+        total_owed_to_players_cents: owed_total(wallets, chips, prizes, withdrawals)?,
+        provisional_deposits_cents: provisional,
+        generated_at: chrono::Utc::now().to_rfc3339(),
+    }))
+}
+
+fn owed_total(wallets: i64, chips: i64, prizes: i64, withdrawals: i64) -> Result<i64, ApiError> {
+    [chips, prizes, withdrawals]
+        .into_iter()
+        .try_fold(wallets, i64::checked_add)
+        .ok_or_else(|| ApiError::Internal("Liability total overflow".into()))
+}
+
 pub async fn admin_stats(
     RequireAuth(auth_user): RequireAuth,
     State(state): State<AppState>,
@@ -1122,4 +1185,16 @@ pub async fn list_audit_logs(
             })
             .collect(),
     ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::owed_total;
+
+    #[test]
+    fn liability_total_sums_every_player_bucket() {
+        assert_eq!(owed_total(10_000, 2_500, 15_000, 500).unwrap(), 28_000);
+        assert_eq!(owed_total(0, 0, 0, 0).unwrap(), 0);
+        assert!(owed_total(i64::MAX, 1, 0, 0).is_err());
+    }
 }

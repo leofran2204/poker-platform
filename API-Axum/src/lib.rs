@@ -469,6 +469,13 @@ pub fn build_router(state: AppState) -> Router {
                 )),
         )
         .route(
+            "/api/admin/liabilities",
+            get(admin_panel::admin_liabilities)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
             "/api/admin/stats",
             get(admin_panel::admin_stats)
                 .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
