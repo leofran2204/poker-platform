@@ -7,6 +7,18 @@ Procedimento de validação da plataforma em **Docker Compose**, **demo residenc
 
 Última publicação conferida: **08/11/2026, 01:38:11 UTC**, API e frontend `ecc79b81` (vazamento de fold-win, allowlist WS, bots fora do Real, ajuste admin atômico, saque por titularidade KYC, relatório de passivo e correções de dependências). Imagens do GHCR pelo digest, label de revisão conferido; quatro serviços saudáveis, 60 migrations, backup validado e `.env` preservado. [Evidências da publicação](../Documentacao/QUALITY.md#publicação-integridade-saque-por-titularidade-e-passivo--08112026).
 
+### Publicação com imagens assinadas (padrão)
+
+Depois de Rust CI e Container Supply Chain verdes no commit, na VPS:
+
+```bash
+cd /opt/poker-platform && git pull --ff-only origin master
+bash scripts/vps-release-attested.sh <commit-40-hex> --verify-only   # só confere
+bash scripts/vps-release-attested.sh <commit-40-hex>                 # publica
+```
+
+O script aborta sem tocar em nada se a assinatura `cosign` não for do `supply-chain.yml` deste repositório, na `master` e naquele commit, ou se o label de revisão divergir. Requer `cosign` (instalado em `/usr/local/bin/cosign`, v3.1.4, checksum conferido em 08/11/2026); ao atualizar, fixar a versão e conferir `cosign_checksums.txt` do release. `vps-redeploy-frontend.sh` (build na VPS) fica como alternativa sem atestação.
+
 | Caminho | Guia | HTTPS |
 |---------|------|--------|
 | Casa + Tunnel | [DEPLOY_HOME_CLOUDFLARE.md](DEPLOY_HOME_CLOUDFLARE.md) | E2E (CF + Origin CA) |

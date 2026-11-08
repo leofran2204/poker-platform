@@ -80,6 +80,7 @@ O filme `pineapple` usa cenas próprias em `episodes.json` e desenho em `pineapp
 | `deploy.ps1` / `deploy.sh` | Deploy assistido |
 | `verify-public-https.sh` | Checagem HTTPS/Caddy público |
 | `vps-redeploy-frontend.sh` | Redeploy na VPS (`REBUILD_API=1` para API+migration); exige fast-forward, containers saudáveis e API por HTTPS |
+| `vps-release-attested.sh` | Publicação na VPS com as imagens do CI, sem build: `cosign verify` (supply-chain.yml/master/commit) antes de qualquer troca, janela ociosa, dois dumps, rollback automático. `--verify-only` só confere |
 | `coverage.ps1` / `.sh` | Cobertura (quando autorizado) |
 | `ws-probe.mjs` | Sonda WS local pontual (`node scripts/ws-probe.mjs <email>`) |
 | `full-catalog-100.mjs` | Catálogo completo local: 100 contas (72 cash + 28 MTT) |
