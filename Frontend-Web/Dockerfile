@@ -25,7 +25,7 @@ RUN go install github.com/caddyserver/xcaddy/cmd/xcaddy@e0e8f68a0f4bef11bfd04c4f
         --replace github.com/klauspost/compress=github.com/klauspost/compress@v1.18.7
 
 # Stage 3: Caddy serves SPA + reverse_proxy API/WS
-FROM caddy:2.11.4-alpine@sha256:6aeddd44c3078b0f9a35206472a11420648a79c184603ef95957d0a20044cb2b
+FROM caddy:2.11.7-alpine@sha256:e70b164da81ef698b3ad19af799ea6086ce6d9e48ed4079eb9fe26f6fbf14ee5
 
 WORKDIR /usr/share/caddy
 
