@@ -160,6 +160,17 @@ export interface EstruturaBackfillResult {
   updated_accounts: number;
 }
 
+/** GET /api/admin/liabilities — passivo com jogadores no Jogo Real, em centavos. */
+export interface AdminLiabilitiesResponse {
+  wallet_balances_cents: number;
+  cash_table_chips_cents: number;
+  open_tournament_prizes_cents: number;
+  pending_withdrawals_cents: number;
+  total_owed_to_players_cents: number;
+  provisional_deposits_cents: number;
+  generated_at: string;
+}
+
 export interface AdminStatsResponse {
   users_total: number;
   users_by_status: Record<string, number>;

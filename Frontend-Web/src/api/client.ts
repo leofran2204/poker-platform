@@ -8,6 +8,7 @@ import {
 import type {
   AdminPresenceResponse,
   AdminKycItem,
+  AdminLiabilitiesResponse,
   AdminStatsResponse,
   AdminTableListItem,
   AdminTournamentItem,
@@ -555,6 +556,10 @@ export async function closeAgentCycle(
       expected_target_ngr_cents: preview.target_ngr_cents,
     }),
   });
+}
+
+export async function fetchAdminLiabilities(): Promise<AdminLiabilitiesResponse> {
+  return request<AdminLiabilitiesResponse>("/api/admin/liabilities");
 }
 
 export async function fetchAdminStats(): Promise<AdminStatsResponse> {
