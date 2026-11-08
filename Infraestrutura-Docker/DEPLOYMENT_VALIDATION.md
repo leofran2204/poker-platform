@@ -5,7 +5,7 @@ Procedimento de validação da plataforma em **Docker Compose**, **demo residenc
 **Domínio demo:** `zerotiltpoker.net`  
 **Não é certificação de produção.** Na demo VPS, o DePix está reconciliado conforme o `STATUS_OPERACIONAL.md`; laboratório e tunnel usam o modo configurado no `.env` e permanecem mock por padrão.
 
-Última publicação conferida: **08/11/2026, 01:38:11 UTC**, API e frontend `ecc79b81` (vazamento de fold-win, allowlist WS, bots fora do Real, ajuste admin atômico, saque por titularidade KYC, relatório de passivo e correções de dependências). Imagens do GHCR pelo digest, label de revisão conferido; quatro serviços saudáveis, 60 migrations, backup validado e `.env` preservado. [Evidências da publicação](../Documentacao/QUALITY.md#publicação-integridade-saque-por-titularidade-e-passivo--08112026).
+Última publicação conferida: **08/11/2026, 03:01:58 UTC**, API e frontend `182e13bd` (saque Pix com CPF do titular e aviso de titularidade), pela primeira vez com `scripts/vps-release-attested.sh`: assinaturas `cosign` verificadas antes da troca, quatro serviços saudáveis, 60 migrations, backup validado e `.env` preservado. [Evidências da publicação](../Documentacao/QUALITY.md#publicação-saque-pix-com-cpf-do-titular--08112026).
 
 ### Publicação com imagens assinadas (padrão)
 
