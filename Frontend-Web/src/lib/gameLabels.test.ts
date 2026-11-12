@@ -10,8 +10,12 @@ describe("gameNameLabel", () => {
     expect(gameNameLabel({ poker_variant: "omaha" }, "tournament")).toBe(
       "Omaha 4 Cartas — Torneio",
     );
-    expect(gameNameLabel({ poker_variant: "brazilian_pineapple" }, "cash")).toBe(
+    expect(gameNameLabel({ poker_variant: "pineapple_draw" }, "cash")).toBe(
       "Brazilian Pineapple — Cash Game",
+    );
+    // A modalidade retirada não ganha mais rótulo próprio.
+    expect(gameNameLabel({ poker_variant: "brazilian_pineapple" }, "cash")).toBe(
+      "Texas Hold’em — Cash Game",
     );
     expect(gameNameLabel({ poker_variant: "short_deck" }, "cash")).toBe(
       "Texas Hold’em Short Deck — Cash Game",

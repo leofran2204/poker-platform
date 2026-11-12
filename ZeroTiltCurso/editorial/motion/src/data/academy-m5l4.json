@@ -1,0 +1,263 @@
+{
+ "id": "academy-m5l4",
+ "title": "Aula m5l4 — Combinações, trocas e probabilidade",
+ "voice": "pt-BR-AntonioNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "bettingRuleVersion": "pineapple_draw_v1",
+ "lesson": "m5l4",
+ "scenes": [
+  {
+   "id": "m5l4-01",
+   "chapter": "Abertura",
+   "title": "Combinações, trocas e probabilidade",
+   "voice": "Zero Tilt Academy. Brazilian Pineapple, aula dois: combinações, trocas e probabilidade. O objetivo é contar as suas opções sem duplicar e calcular uma chance exata, com as hipóteses declaradas.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Brazilian Pineapple · Aula 2",
+    "lines": [
+     "Objetivo: contar opções e calcular uma chance exata"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m5l4-02",
+   "chapter": "Três duplas possíveis",
+   "title": "Três cartas, três duplas",
+   "voice": "Com três cartas na mão, existem três duplas possíveis para levar ao showdown. Aqui, no turn, Ana tem ás, rei e valete. O rei e o valete fecham a sequência com o ás, a dama e o dez da mesa. O ás da mão é a carta que sobra.",
+   "visual": {
+    "mode": "hand",
+    "dealer": 3,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Ana · você",
+      "stack": 9700,
+      "cards": [
+       "Ad",
+       "Kd",
+       "Js"
+      ]
+     },
+     {
+      "name": "Beto",
+      "stack": 9700,
+      "cards": [
+       "9c",
+       "8c",
+       "4d"
+      ]
+     },
+     {
+      "name": "Caio",
+      "stack": 9700,
+      "cards": [
+       "7h",
+       "7s",
+       "3c"
+      ]
+     },
+     {
+      "name": "Duda",
+      "stack": 9900,
+      "cards": [
+       "6d",
+       "5d",
+       "2h"
+      ],
+      "folded": true
+     }
+    ],
+    "board": [
+     "Ah",
+     "Qc",
+     "2s",
+     "Tc"
+    ],
+    "pot": 1400,
+    "events": [
+     {
+      "type": "highlight",
+      "cue": "O rei e o valete",
+      "player": 0,
+      "hole": [
+       1,
+       2
+      ],
+      "boardPick": [
+       0,
+       1,
+       3
+      ],
+      "text": "Sequência até o ás: rei e valete da mão"
+     }
+    ],
+    "banner": "Turn"
+   }
+  },
+  {
+   "id": "m5l4-03",
+   "chapter": "Três duplas possíveis",
+   "title": "Quantas mãos de cinco cartas?",
+   "voice": "Conte as mãos de cinco cartas que usam no máximo duas das suas três. No flop são três. No turn, quinze. No river, quarenta e seis. Elas compartilham cartas: não são quarenta e seis chances independentes.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Flop: 3 mãos possíveis",
+     "Turn: 15",
+     "River: 46",
+     "Compartilham cartas: não são chances independentes"
+    ],
+    "cues": [
+     "No flop",
+     "No turn",
+     "No river",
+     "compartilham cartas"
+    ]
+   }
+  },
+  {
+   "id": "m5l4-04",
+   "chapter": "Uma chance exata",
+   "title": "A carta que você recebe na troca",
+   "voice": "Agora uma chance exata. Você tem ás, rei e sete; na mesa, ás, dama e dois. Você conhece seis cartas, então restam quarenta e seis desconhecidas. Dois ases estão entre elas. Ao trocar o sete, a chance de receber um ás é de dois em quarenta e seis: cerca de quatro vírgula três por cento.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "6 cartas conhecidas → 46 desconhecidas",
+     "2 ases restantes",
+     "2 ÷ 46 ≈ 4,35%"
+    ],
+    "cues": [
+     "seis cartas",
+     "Dois ases",
+     "dois em quarenta e seis"
+    ],
+    "note": "Hipótese: baralho embaralhado, sem ler as mãos dos oponentes"
+   }
+  },
+  {
+   "id": "m5l4-05",
+   "chapter": "Uma chance exata",
+   "title": "O que a conta não diz",
+   "voice": "Essa conta não diz se você vai ganhar. Os oponentes também trocam, a mesa muda e, no fim, só duas das suas cartas contam. Cartas descartadas que você não viu continuam desconhecidas: não invente o valor delas.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Receber o ás não garante a vitória",
+     "Os oponentes também trocam",
+     "Carta não vista continua desconhecida"
+    ]
+   }
+  },
+  {
+   "id": "m5l4-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. Você tem ás de ouros, rei de ouros e sete de paus. Na mesa, ás de copas, dama de paus e dois de espadas. Você troca o sete. Qual a chance de receber um ás? A: dois em quarenta e seis. B: dois em cinquenta e dois. C: três em quarenta e seis. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Trocando o 7♣, qual a chance de receber um ás?",
+    "options": [
+     {
+      "key": "A",
+      "text": "2 em 46",
+      "cue": "A dois em quarenta e seis"
+     },
+     {
+      "key": "B",
+      "text": "2 em 52",
+      "cue": "B dois em cinquenta e dois"
+     },
+     {
+      "key": "C",
+      "text": "3 em 46",
+      "cue": "C três em quarenta e seis"
+     }
+    ],
+    "correct": "A",
+    "hole": [
+     "Ad",
+     "Kd",
+     "7c"
+    ],
+    "board": [
+     "Ah",
+     "Qc",
+     "2s"
+    ]
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m5l4-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: A, dois em quarenta e seis. Você conhece seis cartas, e duas delas são ases. Restam quarenta e seis cartas desconhecidas e dois ases.",
+   "visual": {
+    "mode": "answer",
+    "question": "Trocando o 7♣, qual a chance de receber um ás?",
+    "options": [
+     {
+      "key": "A",
+      "text": "2 em 46",
+      "cue": "A dois em quarenta e seis"
+     },
+     {
+      "key": "B",
+      "text": "2 em 52",
+      "cue": "B dois em cinquenta e dois"
+     },
+     {
+      "key": "C",
+      "text": "3 em 46",
+      "cue": "C três em quarenta e seis"
+     }
+    ],
+    "correct": "A",
+    "hole": [
+     "Ad",
+     "Kd",
+     "7c"
+    ],
+    "board": [
+     "Ah",
+     "Qc",
+     "2s"
+    ],
+    "cue": "Resposta",
+    "explanation": "6 cartas conhecidas, 2 ases já vistos · restam 46 cartas e 2 ases"
+   }
+  },
+  {
+   "id": "m5l4-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino da Academy. Comece pelo treino guiado e depois repita no modo desafio, respondendo à pergunta antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Treino guiado, depois modo desafio",
+     "Responda antes de agir",
+     "Use o replay para comparar"
+    ]
+   }
+  },
+  {
+   "id": "m5l4-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

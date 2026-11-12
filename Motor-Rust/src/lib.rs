@@ -22,6 +22,7 @@ pub mod game_loop;
 pub mod hand_history;
 pub mod lobby;
 pub mod loss_deflator;
+pub mod pineapple_draw;
 pub mod provably_fair;
 pub mod rake;
 pub mod rng_crypto;

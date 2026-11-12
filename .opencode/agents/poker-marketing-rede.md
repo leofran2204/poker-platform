@@ -1,5 +1,5 @@
 ---
-description: Use quando o pedido for marketing de rede, convites, programa em 2 níveis, campanhas ou posicionamento Zero Tilt.
+description: Use quando o pedido for marketing de rede, convites, programa Agente ZT de um nível, campanhas ou posicionamento Zero Tilt.
 mode: subagent
 permission:
   edit: deny

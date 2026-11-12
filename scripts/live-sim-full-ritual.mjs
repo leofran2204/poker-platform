@@ -273,6 +273,8 @@ async function ensureFunds(user) {
 function pickAction(actions, roll, msg, table) {
   const a = actions.map((x) => String(x).toLowerCase());
   const minW = Number(msg.minimum_wager ?? 0) || table.big_blind * 2;
+  // Brazilian Pineapple: na rodada de troca, troca a primeira carta às vezes e mantém nas demais.
+  if (a.includes("keep")) return roll < 30 && a.includes("swap") ? { action: "swap", amount: 0 } : { action: "keep", amount: 0 };
   if (a.includes("check") && roll < 64) return { action: "check", amount: 0 };
   if (a.includes("bet") && roll > 88) return { action: "bet", amount: minW };
   if (a.includes("raise") && roll > 90) return { action: "raise", amount: minW };

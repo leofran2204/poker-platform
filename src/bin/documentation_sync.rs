@@ -25,7 +25,7 @@ const CASH_END: &str = "<!-- DOCUMENTATION_SYNC:CASH_CATALOG:END -->";
 const MTT_START: &str = "<!-- DOCUMENTATION_SYNC:MTT_CATALOG:START -->";
 const MTT_END: &str = "<!-- DOCUMENTATION_SYNC:MTT_CATALOG:END -->";
 
-const ALLOWED_VARIANTS: &[&str] = &["holdem", "short_deck", "omaha", "brazilian_pineapple"];
+const ALLOWED_VARIANTS: &[&str] = &["holdem", "short_deck", "omaha", "pineapple_draw"];
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -82,6 +82,9 @@ struct CashTable {
     big_blind_cents: u64,
     max_players: u8,
     buy_in_cents: u64,
+    /// Ausente = Play Money e Jogo Real. `["play"]` = só Play Money.
+    #[serde(default)]
+    money_modes: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -124,6 +127,9 @@ struct TournamentEvent {
     final_table_variant: Option<String>,
     #[serde(default)]
     final_table_max: Option<u8>,
+    /// Ausente = todos os `tournament.modes`. `["play"]` = só Play Money.
+    #[serde(default)]
+    money_modes: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -381,6 +387,7 @@ fn validate_status(status: &OperationalStatus, root: &Path) -> Result<(), String
                 "cash_tables[{index}].max_players deve estar em 2..=10"
             ));
         }
+        validate_money_modes(&format!("cash_tables[{index}]"), &table.money_modes)?;
     }
 
     require_non_empty(
@@ -454,6 +461,7 @@ fn validate_status(status: &OperationalStatus, root: &Path) -> Result<(), String
                 ));
             }
         }
+        validate_money_modes(&format!("tournament.events[{index}]"), &event.money_modes)?;
     }
 
     if status.wallets.pm_cash_cents == 0 || status.wallets.pm_mtt_cents == 0 {
@@ -742,10 +750,15 @@ fn render_status_md(status: &OperationalStatus) -> String {
         "| Item | Play Money | Jogo Real |{n}|------|------------|-----------|{n}"
     ));
     out.push_str(&format!(
-        "| Cash | {} / {} ({}, sem rebuy) | Depósito manual PIX + aprovação |{n}",
+        "| Cash | {} / {} ({}, sem rebuy) | {} |{n}",
         format_reais(status.wallets.pm_cash_cents),
         reset_label(&status.wallets.reset),
-        status.wallets.timezone
+        status.wallets.timezone,
+        if status.pix.automatic_in_production {
+            "KYC aprovado; depósito PIX automático (DePix) ou manual com aprovação"
+        } else {
+            "KYC aprovado; depósito manual PIX + aprovação"
+        }
     ));
     out.push_str(&format!(
         "| Torneio | {} / {} | Buy-in com saldo real |{n}",
@@ -791,7 +804,7 @@ fn render_status_md(status: &OperationalStatus) -> String {
         status.pix.manual_receiver, status.pix.manual_key
     ));
     out.push_str(&format!(
-        "- Saque: informar chave própria; recebimento em até **{}h**{}{}",
+        "- Saque: KYC aprovado e chave PIX do **mesmo CPF do KYC** (terceiros e CNPJ recusados); recebimento em até **{}h**{}{}",
         status.pix.withdraw_sla_hours, n, n
     ));
 
@@ -843,7 +856,7 @@ fn render_status_md(status: &OperationalStatus) -> String {
         yes_no(status.email_verification)
     ));
     out.push_str(&format!(
-        "- Trilho de regulação/KYC: **{}**{}{}",
+        "- KYC básico/manual: exigido para depósito, entrada e saque no Jogo Real{n}- Trilho de regulação (licença e KYC/AML externos): **{}**{}{}",
         status.regulation_target, n, n
     ));
 
@@ -862,15 +875,44 @@ fn render_status_md(status: &OperationalStatus) -> String {
     out
 }
 
+/// Restrição opcional de modos: não vazia, só `play`/`real`, sem repetição.
+fn validate_money_modes(field: &str, modes: &Option<Vec<String>>) -> Result<(), String> {
+    let Some(modes) = modes else {
+        return Ok(());
+    };
+    if modes.is_empty() {
+        return Err(format!("{field}.money_modes não pode ser vazio"));
+    }
+    for (i, mode) in modes.iter().enumerate() {
+        if mode != "play" && mode != "real" {
+            return Err(format!("{field}.money_modes contém valor inválido: {mode}"));
+        }
+        if modes[..i].contains(mode) {
+            return Err(format!("{field}.money_modes repete {mode}"));
+        }
+    }
+    Ok(())
+}
+
+fn only_play_money(modes: &Option<Vec<String>>) -> bool {
+    modes
+        .as_ref()
+        .is_some_and(|modes| !modes.iter().any(|mode| mode == "real"))
+}
+
 fn render_cash_table(status: &OperationalStatus, newline: &str) -> String {
     let mut rows = vec![
         "| Mesa | Jogo | Blinds | Cap | Frente |".to_owned(),
         "|------|------|--------|-----|--------|".to_owned(),
     ];
     for table in &status.cash_tables {
+        let mut label = cash_short_label(table);
+        if only_play_money(&table.money_modes) {
+            label.push_str(" (só Play Money)");
+        }
         rows.push(format!(
             "| {} | {} | {} | {} | {} |",
-            cash_short_label(table),
+            label,
             variant_label(&table.variant),
             format_blinds(table.small_blind_cents, table.big_blind_cents),
             table.max_players,
@@ -910,6 +952,10 @@ fn render_mtt_table(status: &OperationalStatus, newline: &str) -> String {
         if let (Some(variant), Some(max)) = (&event.final_table_variant, event.final_table_max) {
             name.push_str(&format!(" (FT {} {max}-max)", variant_label(variant)));
         }
+        let play_only = only_play_money(&event.money_modes);
+        if play_only {
+            name.push_str(" (só Play Money)");
+        }
         rows.push(format!(
             "| {} | {} | {} | {} | {} | {} | {} | {} |",
             name,
@@ -919,7 +965,11 @@ fn render_mtt_table(status: &OperationalStatus, newline: &str) -> String {
             event.table_max,
             event.max_players,
             reentry_label(event.play_reentries.unwrap_or(event.reentries)),
-            reentry_label(event.reentries)
+            if play_only {
+                "—".to_owned()
+            } else {
+                reentry_label(event.reentries)
+            }
         ));
     }
     rows.join(newline)
@@ -939,7 +989,7 @@ fn cash_short_label(table: &CashTable) -> String {
         "holdem" => format!("NL {blinds}"),
         "short_deck" => format!("Texas Short Deck {blinds}"),
         "omaha" => format!("Omaha {blinds}"),
-        "brazilian_pineapple" => format!("Pineapple {blinds}"),
+        "pineapple_draw" => format!("Brazilian Pineapple {blinds}"),
         other => other.to_owned(),
     }
 }
@@ -949,7 +999,7 @@ fn variant_label(variant: &str) -> &'static str {
         "holdem" => "Texas Hold’em",
         "short_deck" => "Texas Hold’em Short Deck",
         "omaha" => "Omaha 4 Cartas",
-        "brazilian_pineapple" => "Brazilian Pineapple",
+        "pineapple_draw" => "Brazilian Pineapple",
         _ => "desconhecida",
     }
 }
@@ -1034,6 +1084,7 @@ mod tests {
                     big_blind_cents: 25,
                     max_players: 9,
                     buy_in_cents: 2500,
+                    money_modes: None,
                 },
                 CashTable {
                     name: "NL 0,75/1,50".to_owned(),
@@ -1042,6 +1093,7 @@ mod tests {
                     big_blind_cents: 150,
                     max_players: 9,
                     buy_in_cents: 15000,
+                    money_modes: None,
                 },
                 CashTable {
                     name: "Texas Short Deck".to_owned(),
@@ -1050,6 +1102,7 @@ mod tests {
                     big_blind_cents: 50,
                     max_players: 8,
                     buy_in_cents: 10000,
+                    money_modes: None,
                 },
                 CashTable {
                     name: "Omaha".to_owned(),
@@ -1058,14 +1111,16 @@ mod tests {
                     big_blind_cents: 50,
                     max_players: 6,
                     buy_in_cents: 10000,
+                    money_modes: None,
                 },
                 CashTable {
-                    name: "Pineapple".to_owned(),
-                    variant: "brazilian_pineapple".to_owned(),
+                    name: "Brazilian Pineapple".to_owned(),
+                    variant: "pineapple_draw".to_owned(),
                     small_blind_cents: 50,
                     big_blind_cents: 50,
-                    max_players: 5,
+                    max_players: 6,
                     buy_in_cents: 7500,
+                    money_modes: Some(vec!["play".to_owned()]),
                 },
             ],
             tournament: Tournament {
@@ -1087,6 +1142,7 @@ mod tests {
                     freeroll: false,
                     final_table_variant: None,
                     final_table_max: None,
+                    money_modes: None,
                 }],
             },
             agent_program: AgentProgram {
@@ -1256,7 +1312,7 @@ mod tests {
         assert!(md.contains("NL 0,75/1,50"));
         assert!(md.contains("Texas Short Deck 0,50"));
         assert!(md.contains("Omaha 0,50"));
-        assert!(md.contains("Pineapple 0,50"));
+        assert!(md.contains("Brazilian Pineapple 0,50 (só Play Money)"));
         assert!(md.contains("Agenda definida pelo **admin**"));
         assert!(md.contains("R$ 150"));
         assert!(!md.contains("Motor 1848"));
@@ -1392,7 +1448,9 @@ mod tests {
         assert!(status
             .cash_tables
             .iter()
-            .any(|table| table.variant == "brazilian_pineapple" && table.max_players == 6));
+            .any(|table| table.variant == "pineapple_draw"
+                && table.max_players == 6
+                && table.money_modes.as_deref() == Some(&["play".to_owned()][..])));
         assert!(status
             .cash_tables
             .iter()

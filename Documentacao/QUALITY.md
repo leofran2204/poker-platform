@@ -220,7 +220,7 @@ A campanha focada foi concluída dentro dos 15 minutos autorizados com dois trab
 - Home e Academy públicas aprovadas em 1440/390/320 px: oito capítulos, primeiro salto antes dos metadados, 113 legendas, transcrição, Enter/Escape, retorno do foco, ausência de autoplay e URLs da nova narração; sem overflow ou exceções JavaScript. Redirecionamento logado conferido com sessão sintética e APIs interceptadas; o smoke HTTP separado usou a API pública real. Evidências em `artifacts/narration-pronunciation/release/`.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
@@ -297,3 +297,67 @@ Frontend: lint, 95 testes Vitest (7 novos em `lib/pixWithdraw.test.ts`) e build 
 Publicado `4088a5f65c393f30908cf137c446d8e50eb09d77` às **03:25:00 UTC / 00:25:00 em São Paulo**, após [Rust CI](https://github.com/leofran2204/poker-platform/actions/runs/42441855964) e [Container Supply Chain](https://github.com/leofran2204/poker-platform/actions/runs/42441855921) verdes. Imagens `ghcr.io/leofran2204/poker-api@sha256:79845d5b72fc027aa12db854a4ae82e1a1e43f149a2c1f98f7e185bdb5599ad8` e `ghcr.io/leofran2204/poker-web@sha256:2bff0ebf36c4cd5b1be9dfeeeba2eab64631498eec432e2f737811b3a828a064`, assinatura `cosign` e label de revisão verificados na VPS antes da troca (em `--verify-only` e na publicação).
 
 Frontend: lint, 98 testes Vitest (3 novos em `lib/liabilities.test.ts`) e build aprovados. Janela ociosa, dois dumps em `/opt/poker-platform/backups/release-4088a5f65c39`, imagens anteriores retidas como `before-4088a5f65c39`. Quatro serviços saudáveis, 60 migrations, zero ERROR no boot, `.env` preservado. Externamente, `/`, `/health`, `/caddy-health`, `/api/lobby/tables` e `/admin` responderam HTTP 200 e `/api/admin/liabilities` 401 sem sessão; o chunk publicado `AdminOverviewPage-upcn987E.js` contém o painel e o bundle principal mantém o aviso de saque. O painel não foi aberto com sessão de admin em produção.
+
+## Guarda de rede e Loss Deflator em todos os jogos — verificação local de 08/11/2026
+
+Não publicado; sem commit. Escopo e decisões em [DEVELOPMENT_LOG](DEVELOPMENT_LOG.md#2026-11-08--varredura-documental-guarda-de-rede-e-loss-deflator-em-todos-os-jogos-local).
+
+- Motor: `fmt` e `clippy --all-targets -D warnings` limpos; 1.867 testes de biblioteca em debug (59 s, como a CI) e todas as suítes de integração em release, inclusive `short_deck_omaha_massive` e `short_deck_massive` (esta corrigida: o teste esperava sequência acima de trinca no Short Deck). Novos: equivalência da pontuação de 5 cartas com o avaliador oficial nas 2.598.960 mãos (`--ignored`, release, 9 s), equity exata do Omaha no flop contra força bruta, enumeração do Pineapple no turn (59.280 desfechos) contra referência independente, determinismo do Monte Carlo e mãos jogadas de Omaha (flop) e Pineapple (turn) com deflator auditado.
+- API: `fmt`, `clippy -D warnings`, 93 testes de biblioteca (5 da guarda de rede). PostgreSQL 15 descartável com as 61 migrations aplicadas uma por transação; a 061 reaplicada sem erro. Contratos: 13 de `api_tests` (inclusive `test_contract_cash_join_refuses_same_network_at_same_table`: mesma /24 recusada com 403, outra rede aceita, reentrada idempotente, impressões apagadas ao sair), 5 de `payments_tests` e a jornada e2e. O container foi removido ao final.
+- Frontend: 102 testes Vitest (4 novos em `pages/TermsPage.test.ts`, que confrontam a página com `TERMOS_DE_USO_E_SERVICO.md`), `tsc`, ESLint e build Vite, com o Node 24 do harness.
+- Mídia: filme do Pineapple regravado só na cena final (“O Loss Deflator também vale no Brazilian Pineapple…”), 457,43 s, 104 legendas. `render.py --check --decode --only pineapple` e `--check` das 30 publicações aprovados; 9 testes de `test_narration.py`. A síntese exigiu `edge-tts` 7.3.1: a 7.2.7 passou a receber 403 do serviço. Escuta humana integral continua pendente.
+- Documentação: `documentation-sync --check` (22 documentos), links locais e `git diff --check` aprovados.
+
+## Vídeos em Remotion — verificação local de 09/11/2026
+
+Escopo: filme completo das regras do Brazilian Pineapple, aula M2L2 completa e trailer, em `ZeroTiltCurso/editorial/motion/`. Finais em `artifacts/video-pilot/<id>/` (fora do git e do player até aprovação).
+
+- Código: `tsc --noEmit` (Node 24) aprovado. Conferência estática de todas as deixas `cue("…")` da aula e do trailer contra as palavras cronometradas da narração: nenhuma ausente. O filme de regras usa deixas tolerantes, com posição proporcional quando a frase não existe.
+- Narração: Azure Speech F0, voz `pt-BR-AntonioNeural`, tempos por palavra do serviço; 9.776 caracteres no mês, abaixo do limite de 400 mil do `narrate.py`.
+- Revisão visual: prévias em meia resolução, um quadro ao fim da fala de cada uma das 46 cenas e quadros isolados após cada correção. Nove defeitos de leiaute ou sincronia corrigidos (lista no [registro](DEVELOPMENT_LOG.md#2026-11-09--filme-completo-do-pineapple-e-aula-m2l2-completa-em-remotion-local)).
+- Mídia final, conferida com FFprobe e FFmpeg:
+
+| Vídeo | Duração | Formato | Volume integrado | Pico real | Capítulos |
+|---|---|---|---|---|---|
+| `pineapple-rules.mp4` | 460,6 s | 1080p30, H.264 + AAC | −16,0 LUFS | −1,4 dBTP | 8 |
+| `academy-m2l2.mp4` | 298,3 s | 1080p30, H.264 + AAC | −16,0 LUFS | −1,3 dBTP | 8 |
+| `pineapple-trailer.mp4` | 91,6 s | 1080p60, H.264 + AAC | −16,0 LUFS | −1,4 dBTP | 5 |
+
+- Decodificação integral dos três MP4 sem erro. O pico fica 0,1 a 0,2 dB acima do alvo de −1,5 dBTP por causa da codificação AAC, ainda abaixo de −1 dBTP.
+- Vocabulário nas transcrições: zero ocorrência de “rua”, “rival” ou “adversário”; “street” presente na aula e no trailer.
+- Não verificado: escuta editorial integral pelo proprietário e integração ao player (manifesto e auditoria no padrão de `courseAudit.test.ts`), que só ocorre após aprovação.
+
+## Pineapple Draw — verificação local de 09/11/2026
+
+Escopo: troca do Brazilian Pineapple pelo Pineapple Draw em motor, API, frontend, Academy, mídia, documentação e migration 062.
+
+- Motor: `fmt` e `clippy -D warnings` (todos os alvos); 1.875 testes de biblioteca; integração `full_validation_situations` (19), `pineapple_draw_betting_examples` (5), `loss_deflator_regressions` (9), `variant_audit_regressions` (9), `loss_deflator_seven_percent` e `pineapple_draw_simulation` (rápido em debug; referência de 20 mil mãos por modalidade em release com `massive-tests`). Os testes cobrem distribuição de 3 cartas, troca em cada street, ordem, rejeição de fold/aposta na troca, all-in sem troca, ausência de troca sem apostas possíveis, baralho de 6 jogadores trocando sempre (44 cartas únicas), equity exata no flop e no turn e deflator com troca antes do all-in.
+- API: `fmt`, `clippy -D warnings` e 97 testes de biblioteca, inclusive WebSocket com `drawing`/`draw_count` sem vazar cartas, ação automática `keep` na troca, `swap` por posição, bots na troca e laboratório v4 (pergunta da troca com empates aceitos).
+- Frontend: 102 testes, `tsc`, ESLint e build Vite. Mesa com seleção de carta e sem fold na troca; demonstração da home com 3 cartas e trocas conferida (vencedor declarado, 2 + 3, cartas únicas); auditoria do curso com 22 vídeos técnicos publicados, m5l3–m5l5 sem vídeo e 75 arquivos públicos sem mídia do jogo antigo.
+- Editorial: `test_narration` (9) e `render.py --check` com 25 publicações (135,9 minutos); m0l4, m5l1 e m6l3 renderizadas de novo e conferidas.
+- Documentação: `documentation-sync --write/--check` com o novo campo `money_modes`.
+- Migration 062 em PostgreSQL 16 descartável (cluster temporário, apagado ao fim): 001–062 aplicadas uma por transação e a 062 reaplicada sem erro; mesas Brazilian Pineapple fechadas e privadas, `PM · Pineapple Draw 0,50` aberta, nenhuma mesa Pineapple no Jogo Real, torneio Play Money convertido (6/18) e o de Jogo Real cancelado, auditoria `CATALOG_PINEAPPLE_DRAW_062` única. Versão sem reembolso: com um jogador sentado em cada mesa (Play Money e Jogo Real) e uma inscrição em cada torneio, a 062 aplica; a mesma devolução do início da API credita as fichas (R$ 90 em Play Money e R$ 64 no Jogo Real nas contas de teste) com dois `CASH_OUT`; o torneio Play Money vira Pineapple Draw com o inscrito; o de Jogo Real é cancelado com uma linha de auditoria sem reembolso, sem duplicar ao reaplicar. Com torneio Brazilian Pineapple em andamento, a 062 aborta e nada muda.
+- Não verificado: campanha `full-validation -Phase pineapple` (exige autorização de carga), jogo em navegador com pessoas reais e publicação.
+
+## Vídeos do Pineapple Draw — verificação local de 10/11/2026
+
+Escopo: filme completo das regras, trailer e aulas m5l3–m5l5, produzidos em `ZeroTiltCurso/editorial/motion/` e publicados localmente no site (`Frontend-Web/public/videos/`, `courseContent.json`, `pineappleDrawFilms.json`). Sem commit, push ou deploy.
+
+- Regras: `pineapple_draw_film_examples` (5 testes, motor em release) confere os cinco roteiros: melhor 2 + 3 ou invalidez declarada, ordem da rodada de troca e cartas únicas, descarte fora do melhor par, pagamentos antes e depois das trocas. Entrou no Rust CI.
+- Código: `tsc --noEmit` do projeto Remotion; frontend com 103 testes Vitest (novo: filmes contra manifesto, transcrição e mídia; 25 vídeos técnicos; 90 arquivos públicos), `tsc -b`, ESLint e build Vite (90 mídias em `dist/videos`), com o Node 24 do harness.
+- Revisão visual: prévias em meia resolução (93 quadros), quadros isolados após cada correção e quadros dos arquivos finais (um por capítulo do filme, aberturas, exercícios e fechamentos). Fontes Fraunces (com itálico verdadeiro) e Manrope carregadas do projeto, sem rede.
+- Mídia final, medida com FFprobe e o filtro EBU R128 do FFmpeg:
+
+| Vídeo | Duração | Formato | Tamanho | Volume integrado | Pico real | Capítulos | Legendas |
+|---|---|---|---|---|---|---|---|
+| `zt-pineapple-draw-rules-v1` | 587,3 s | 1080p30, H.264 + AAC | 36,9 MB | −16,0 LUFS | −1,5 dBTP | 10 | 174 |
+| `zt-pineapple-draw-trailer-v1` | 73,8 s | 1080p30, H.264 + AAC | 4,3 MB | −16,0 LUFS | −1,5 dBTP | 1 | 24 |
+| `zt-academy-m5l3-v4` | 244,9 s | 1080p30, H.264 + AAC | 16,6 MB | −16,0 LUFS | −1,5 dBTP | 7 | 77 |
+| `zt-academy-m5l4-v4` | 191,8 s | 1080p30, H.264 + AAC | 11,5 MB | −16,0 LUFS | −1,2 dBTP | 6 | 60 |
+| `zt-academy-m5l5-v4` | 194,4 s | 1080p30, H.264 + AAC | 11,7 MB | −16,0 LUFS | −1,5 dBTP | 6 | 60 |
+
+- Codificação web: CRF 26 escolhido após comparar 23, 26 e 28 em recorte 1:1 (sem diferença visível; 23 rendia 21 MB na m5l3). Capas WebP 1280×720.
+- Publicação: `render.py --check --decode` aprovou as 30 publicações (28 aulas e os 2 filmes, 157,4 minutos), com decodificação integral de todos os MP4, legendas dentro da duração e sem sobreposição, transcrição igual às legendas, capítulos e hashes de roteiro, narração, aula e mídia.
+- Player em Chrome headless (DevTools Protocol, build Vite servido localmente), em 1440 e 390 px: botão “Assistir ao trailer” visível; modal com abas trailer/regras; os dois MP4 carregaram em 1920×1080 com a duração prevista, 24 e 174 legendas, busca até o fim e capítulos; sem overflow horizontal nem exceção de JavaScript. Cartão do filme no topo da Academy presente. Ajustes após a captura: título do modal sem repetir o do player e abas com duração compacta (cabem numa linha a 390 px).
+- Vocabulário: zero ocorrência de “Brazilian”, “rua”, “rival” ou “adversário” nas cinco transcrições (o teste de auditoria cobre os filmes); “street” e “oponente” usados onde o roteiro precisa.
+- Não verificado: escuta editorial integral pelo proprietário; player das aulas m5l3–m5l5 em sessão logada (para visitante elas aparecem bloqueadas, como as demais trilhas; o componente é o mesmo do modal conferido).

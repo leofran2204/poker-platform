@@ -209,6 +209,11 @@ function openSocket(user, group, ticket, observer) {
       const me = (message.players ?? []).find((player) => player.id === user.playerId);
       if (!me?.is_active) return;
       const actions = (message.available_actions ?? []).map((action) => action.toLowerCase());
+      if (actions.includes("keep")) {
+        // Brazilian Pineapple: a rodada de troca não tem desistência.
+        ws.send(JSON.stringify({ type: "action", action: "keep", amount: 0 }));
+        return;
+      }
       if (!actions.includes("fold")) {
         group.fail(new Error(`Active player ${user.username} did not receive legal actions`));
         return;

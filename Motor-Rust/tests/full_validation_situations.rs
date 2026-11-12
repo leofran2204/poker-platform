@@ -11,9 +11,9 @@ fn pineapple(stacks: &[u64], ante: u64) -> GameLoop {
     let mut g = GameLoop::new(
         TableConfig::new(100, 0, 0)
             .with_small_blind(100)
-            .with_poker_variant(poker_engine::types::PokerVariant::BrazilianPineapple),
-        "pot-before-call-v2".into(),
-        "Pineapple".into(),
+            .with_poker_variant(poker_engine::types::PokerVariant::PineappleDraw),
+        "pineapple-draw-v1".into(),
+        "Brazilian Pineapple".into(),
         GameType::Tournament,
     )
     .with_ante(ante)
@@ -29,6 +29,21 @@ fn pineapple(stacks: &[u64], ante: u64) -> GameLoop {
 fn act(g: &mut GameLoop, action: PlayerMove) {
     let id = g.state.active_player().unwrap().id.clone();
     g.player_action(&id, action).unwrap();
+    keep_all(g);
+}
+
+/// Estas situações tratam só das apostas: cada rodada de troca do Pineapple
+/// Draw é concluída com todos mantendo as cartas.
+fn keep_all(g: &mut GameLoop) {
+    while (g.state.drawing || g.state.discarding) && !g.state.is_finished {
+        let id = g.state.active_player().unwrap().id.clone();
+        let mv = if g.state.discarding {
+            PlayerMove::Discard(None)
+        } else {
+            PlayerMove::Keep
+        };
+        g.player_action(&id, mv).unwrap();
+    }
 }
 
 fn rejected_unchanged(g: &mut GameLoop, action: PlayerMove) {
@@ -132,7 +147,8 @@ fn pineapple_short_blinds_and_ante_do_not_change_live_levels() {
         result.payouts.values().sum::<u64>() + g.state.players.iter().map(|p| p.stack).sum::<u64>(),
         10110
     );
-    assert!(g.state.players.iter().all(|p| p.hole_cards.len() == 5));
+    // Mesa completada sem apostas: cada um fica com as duas melhores privadas.
+    assert!(g.state.players.iter().all(|p| p.hole_cards.len() == 2));
 }
 
 #[test]
@@ -218,7 +234,7 @@ fn pineapple_rule_history_is_versioned_and_old_json_stays_unversioned() {
     let mut value = serde_json::to_value(g.history.unwrap()).unwrap();
     assert_eq!(
         value["betting_rule_version"],
-        "brazilian_pineapple_pot_before_call_v2"
+        poker_engine::game_loop::PINEAPPLE_DRAW_RULE_VERSION
     );
     value
         .as_object_mut()

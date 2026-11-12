@@ -1,6 +1,6 @@
 # TERMOS DE USO E CONDIÇÕES DO SERVIÇO - PLATAFORMA DE POKER ONLINE
 
-**Última Atualização: 7 de novembro de 2026**
+**Última Atualização: 8 de novembro de 2026**
 
 Este contrato de Termos de Uso ("Contrato") rege o uso da plataforma de poker online ("Plataforma") por qualquer usuário cadastrado ("Jogador"). Ao criar uma conta ou utilizar os serviços da Plataforma, o Jogador aceita integralmente os termos aqui descritos.
 
@@ -17,7 +17,7 @@ Este contrato de Termos de Uso ("Contrato") rege o uso da plataforma de poker on
 ## 2. REGRAS DE CONDUTA, ANTIFRAUDE E PROIBIÇÃO DE RTA
 2.1. **Proibição de Assistência em Tempo Real (RTA) e Bots:** É expressamente vedado o uso de robôs (*bots*), inteligência artificial em tempo real (RTA), softwares de automação ou assistência ilícita durante o jogo ao vivo em mesas com outros jogadores humanos. Ferramentas de estudo restringem-se à área de treino da Zero Tilt Academy (quiz e exercícios), nunca durante mãos ao vivo.
 2.2. **Proibição de Conluio (*Collusion*):** É proibida qualquer combinação prévia, compartilhamento de informações de cartas ou cooperação ilícita entre Jogadores na mesma mesa para obter vantagem indevida sobre terceiros.
-2.3. **Restrição de IP e Sub-Rede:** O sistema antifraude da Plataforma bloqueará automaticamente o assento simultâneo de Jogadores sob o mesmo endereço IP ou sub-rede na mesma mesa.
+2.3. **Restrição de IP e Sub-Rede:** Nas mesas cash, o sistema antifraude da Plataforma recusa automaticamente a entrada de um Jogador na mesa em que outra conta já tenha assento ativo a partir do mesmo endereço IP público ou da mesma sub-rede (/24 em IPv4; /64 em IPv6). Jogadores que compartilham a mesma rede, como o mesmo Wi-Fi, devem escolher mesas diferentes. A Plataforma guarda apenas impressões criptográficas desses endereços, e somente enquanto o assento estiver ativo.
 2.4. **Penalidades:** O descumprimento destas regras resultará na suspensão imediata da conta, perda do saldo de prêmios obtidos ilicitamente e congelamento dos fundos no Ledger imutável para investigação.
 
 ---
@@ -49,8 +49,8 @@ Este contrato de Termos de Uso ("Contrato") rege o uso da plataforma de poker on
 ## 6. TRANSAÇÕES FINANCEIRAS E SALDOS
 6.1. Todos os saldos e apostas são registrados de forma atômica no Ledger Financeiro Imutável em centavos de moeda corrente.
 6.2. Os depósitos e saques só serão processados após a verificação de segurança da conta.
-6.3. **Movimentação automática via DePix:** depósitos de até R$ 50 são creditados quando o provedor confirma o PIX (`processing`); o saque permanece bloqueado até a liquidação final (`completed`). Acima de R$ 50 o saldo só entra no `completed`. O crédito final corresponde ao **valor líquido recebido do provedor, deduzidas as taxas dele** (visível no extrato da carteira). Se o PIX for cancelado ou expirar depois do crédito provisório, a Plataforma estorna o que ainda estiver na carteira (sem saldo negativo). Saques automáticos vão exclusivamente para chave PIX de titularidade do próprio Jogador (CPF/CNPJ validado) até o teto publicado; acima dele, o saque aguarda revisão manual em até 24h. Falhas do provedor de saque recreditam o saldo reservado, sem estorno PIX.
-6.4. **Cashback e Loss Deflator:** No estágio atual, o benefício opera somente com fichas playmoney. Após a retirada do rake do main pot e de cada side pot, a Plataforma pode devolver ao perdedor all-in parte dos potes líquidos em que era elegível: 7% para equity de 56,0% a 65,9%; 15% de 66,0% a 75,9%; 25% de 76,0% a 85,9%; e 35% de 86,0% a 99,9% (abaixo de 56,0% não há devolução; 100% não tem perdedor possível). A equity considerada é a do instante em que o all-in é pago.
+6.3. **Movimentação automática via DePix:** depósitos de até R$ 50 são creditados quando o provedor confirma o PIX (`processing`); o saque permanece bloqueado até a liquidação final (`completed`). Acima de R$ 50 o saldo só entra no `completed`. O crédito final corresponde ao **valor líquido recebido do provedor, deduzidas as taxas dele** (visível no extrato da carteira). Se o PIX for cancelado ou expirar depois do crédito provisório, a Plataforma estorna o que ainda estiver na carteira (sem saldo negativo). Saques exigem verificação de identidade aprovada e vão exclusivamente para chave PIX do mesmo CPF informado nessa verificação; chaves de terceiros e de CNPJ são recusadas sem reservar saldo. Saques automáticos seguem até o teto publicado; acima dele, o saque aguarda revisão manual em até 24h. Falhas do provedor de saque recreditam o saldo reservado, sem estorno PIX.
+6.4. **Cashback e Loss Deflator:** O benefício vale em todas as modalidades (Texas Hold’em, Texas Hold’em Short Deck, Omaha 4 e Brazilian Pineapple), nas mesas cash e nos torneios, tanto em Play Money quanto em Jogo Real. Após a retirada do rake do main pot e de cada side pot (torneios não cobram rake por mão), a Plataforma devolve ao perdedor all-in parte dos potes líquidos em que era elegível: 7% para equity de 56,0% a 65,9%; 15% de 66,0% a 75,9%; 25% de 76,0% a 85,9%; e 35% de 86,0% a 99,9% (abaixo de 56,0% não há devolução; 100% não tem perdedor possível). A equity considerada é a do instante em que o all-in é pago; no Omaha 4 ela respeita a regra de exatamente 2 cartas privadas e 3 comunitárias; no Brazilian Pineapple, usa as cartas privadas que cada jogador tinha naquele instante (3 antes do descarte do river, 2 depois dele), conta no máximo 2 delas na melhor mão e não considera trocas futuras (quem está all-in não troca mais). Quando o número de desfechos possíveis é grande demais para contagem exata, a equity é estimada por simulação reproduzível: a mesma mão sempre produz o mesmo resultado. O valor devolvido sai do próprio pote, descontado de quem o venceu; nos torneios, é pago em fichas do torneio.
 6.5. O Jogador pode definir limites voluntários de depósito, perda e tempo diário. Reduções entram em vigor imediatamente; aumento ou remoção aguarda período de resfriamento de 24 horas.
 6.6. A autoexclusão temporária ou permanente bloqueia imediatamente depósitos, novas entradas e ações de Jogo Real. Não existe cancelamento antecipado pelo fluxo normal da Plataforma.
 
@@ -74,6 +74,6 @@ Este contrato de Termos de Uso ("Contrato") rege o uso da plataforma de poker on
 9.3. A Plataforma pode alterar este Contrato mediante publicação da versão atualizada com aviso prévio; o uso continuado implica aceite.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

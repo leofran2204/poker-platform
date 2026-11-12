@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { fetchCourseProgress, type CourseProgressItem } from "@/api/client";
 import { BrandMark } from "@/components/BrandMark";
-import { PineappleFilm } from "@/components/PineappleFilm";
+import { PineappleDrawFilm } from "@/components/PineappleDrawFilm";
 import { COURSE, isLessonUnlocked, lessonFormat, PASS_SCORE } from "@/lib/course";
 import { isAuthenticated } from "@/lib/auth";
 
@@ -55,7 +55,7 @@ export function CoursePage() {
         </span>
       </div>
 
-      <PineappleFilm academy />
+      <PineappleDrawFilm academy />
 
       {!authed && (
         <p className="rounded-sm border border-felt-700 bg-felt-800 px-3 py-2 text-xs text-felt-200">

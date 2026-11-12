@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "reviewedAt": "2026-09-28",
+  "version": 5,
+  "reviewedAt": "2026-11-11",
   "scenarios": [
     {
       "id": "regras-showdown",
@@ -145,17 +145,18 @@
       "id": "pine-distribuicao",
       "module": "pineapple",
       "lesson": "m5l3",
-      "title": "Duas, três, quatro, cinco privadas",
-      "variant": "brazilian_pineapple",
+      "title": "Três cartas no começo, duas no fim",
+      "variant": "pineapple_draw",
       "phase": "preflop",
       "hole": [
         "As",
-        "Ks"
+        "Ks",
+        "7d"
       ],
       "board": [],
       "topic": "selection",
-      "objective": "Acompanhar cada extra sem descartar cartas.",
-      "hint": "Cada participante ainda na mão recebe uma extra depois do flop, turn e river, inclusive em all-in. Todas as rodadas: aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
+      "objective": "Acompanhar a mão: três privadas, duas trocas possíveis e o descarte do river.",
+      "hint": "Você começa com três privadas. Depois das apostas do flop e do turn, pode trocar uma. No river, descarta uma e disputa a última rodada com duas. Troca opcional de uma carta depois das apostas do flop e do turn; no river, descarte obrigatório de uma carta antes da última rodada. Quem está all-in não troca. Aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
       "profiles": [
         "caller",
         "passive"
@@ -167,8 +168,8 @@
       "id": "pine-flop",
       "module": "pineapple",
       "lesson": "m5l3",
-      "title": "Trinca com o kicker correto",
-      "variant": "brazilian_pineapple",
+      "title": "Trinca: qual carta sobra",
+      "variant": "pineapple_draw",
       "phase": "flop",
       "hole": [
         "As",
@@ -181,8 +182,8 @@
         "2s"
       ],
       "topic": "selection",
-      "objective": "Selecionar exatamente duas privadas e três comunitárias.",
-      "hint": "As e Ah formam trinca com Ad, Qc e 2s. O rei privado fica fora. Todas as rodadas: aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
+      "objective": "Apostar no flop e decidir a troca, que vem depois das apostas.",
+      "hint": "As e Ah formam trinca com o Ad da mesa. O rei fica fora da melhor mão e é o candidato natural à troca. Troca opcional de uma carta depois das apostas do flop e do turn; no river, descarte obrigatório de uma carta antes da última rodada. Quem está all-in não troca. Aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
       "profiles": [
         "caller"
       ],
@@ -193,14 +194,13 @@
       "id": "pine-combinacoes",
       "module": "pineapple",
       "lesson": "m5l4",
-      "title": "Da contagem à decisão",
-      "variant": "brazilian_pineapple",
+      "title": "Três duplas possíveis",
+      "variant": "pineapple_draw",
       "phase": "turn",
       "hole": [
         "Ad",
         "Kd",
-        "Js",
-        "9s"
+        "Js"
       ],
       "board": [
         "Ah",
@@ -209,8 +209,8 @@
         "Tc"
       ],
       "topic": "combinations",
-      "objective": "Contar candidatas legais e refazer a leitura depois da extra.",
-      "hint": "No turn: seis pares privados vezes quatro trios comunitários, total 24. Não são 24 eventos independentes. Todas as rodadas: aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
+      "objective": "Contar as duplas que podem ficar no river e achar a carta que sobra.",
+      "hint": "Com três privadas há três duplas possíveis para o showdown. K e J fecham a sequência com Á, Q e T da mesa; o Ás da mão sobra. Troca opcional de uma carta depois das apostas do flop e do turn; no river, descarte obrigatório de uma carta antes da última rodada. Quem está all-in não troca. Aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
       "profiles": [
         "pressure"
       ],
@@ -221,26 +221,24 @@
       "id": "pine-board",
       "module": "pineapple",
       "lesson": "m5l5",
-      "title": "O board não joga sozinho",
-      "variant": "brazilian_pineapple",
+      "title": "Quatro na mesa, uma na mão",
+      "variant": "pineapple_draw",
       "phase": "river",
       "hole": [
-        "9c",
-        "9d",
-        "8c",
-        "7d",
-        "6s"
+        "Ah",
+        "7s",
+        "7d"
       ],
       "board": [
-        "Ah",
         "Kh",
-        "Qh",
-        "Jh",
-        "Th"
+        "9h",
+        "6h",
+        "3h",
+        "Jc"
       ],
       "topic": "selection",
-      "objective": "Encontrar a melhor mão sem usar cinco cartas do board.",
-      "hint": "Escolha duas privadas e três comunitárias. Nove e oito com dama, valete e dez formam sequência até dama. Todas as rodadas: aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
+      "objective": "Descartar no river e formar flush com uma só carta da mão.",
+      "hint": "Há quatro copas na mesa. O Ás de copas sozinho já forma o flush: guarde-o e descarte um dos setes. Troca opcional de uma carta depois das apostas do flop e do turn; no river, descarte obrigatório de uma carta antes da última rodada. Quem está all-in não troca. Aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
       "profiles": [
         "caller"
       ],
@@ -251,17 +249,18 @@
       "id": "pine-allin",
       "module": "pineapple",
       "lesson": "m5l5",
-      "title": "Extras até para quem está all-in",
-      "variant": "brazilian_pineapple",
+      "title": "All-in não troca",
+      "variant": "pineapple_draw",
       "phase": "preflop",
       "hole": [
         "Ac",
-        "Ad"
+        "Ad",
+        "7s"
       ],
       "board": [],
       "topic": "selection",
-      "objective": "Verificar a distribuição até o showdown após all-in.",
-      "hint": "Nenhuma carta extra é cancelada pelo all-in. A formação final continua exatamente 2+3. Todas as rodadas: aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
+      "objective": "Verificar que quem está all-in não troca e fica com as duas melhores cartas.",
+      "hint": "Quem está all-in não troca mais. Se ninguém mais pode apostar, não há troca nem escolha de descarte: a mesa é completada e cada jogador fica com as duas melhores cartas. Troca opcional de uma carta depois das apostas do flop e do turn; no river, descarte obrigatório de uma carta antes da última rodada. Quem está all-in não troca. Aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
       "profiles": [
         "pressure"
       ],

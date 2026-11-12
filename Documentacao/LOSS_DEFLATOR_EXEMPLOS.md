@@ -1,6 +1,6 @@
 # Exemplos reproduzíveis — Loss Deflator
 
-Atualizado em 27/09/2026. Regra normativa: [BUSINESS_RULES.md, seção 11](BUSINESS_RULES.md). Este documento explica contas; a disponibilidade operacional é definida no [STATUS](STATUS_OPERACIONAL.md).
+Atualizado em 08/11/2026. Regra normativa: [BUSINESS_RULES.md, seção 11](BUSINESS_RULES.md). Este documento explica contas; a disponibilidade operacional é definida no [STATUS](STATUS_OPERACIONAL.md).
 
 ## 1. Equity e base de cálculo
 
@@ -8,7 +8,12 @@ Equity é a parcela esperada do pote no showdown, incluindo a fração de empate
 
 A base financeira é o **pote líquido elegível**, após rake. Não é o aporte individual, o saldo da conta ou o valor perdido pelo jogador. Percentuais e teto compartilhado estão na regra normativa. A redistribuição sai das parcelas dos vencedores e conserva o total; não cria dinheiro nem usa caixa da plataforma.
 
-O motor habilita o mecanismo para Texas Hold’em e Short Deck. Omaha e Brazilian Pineapple continuam excluídos até existir o modelo específico validado. Não transferir probabilidades de Hold’em para essas modalidades.
+O motor habilita o mecanismo em todas as modalidades, no cash e nos torneios, em Play Money e Jogo Real. Omaha 4 e Brazilian Pineapple têm modelo próprio (exatamente 2 privadas + 3 comunitárias; no Brazilian Pineapple, as 3 privadas do instante do all-in, sem trocas futuras), descrito na seção 11 das regras. Não transferir probabilidades de Hold’em para essas modalidades.
+
+### Exemplos com Omaha 4 e Brazilian Pineapple (testes do motor)
+
+- **Omaha 4, all-in no flop:** herói Ah Ad Kc Qc contra 7s 6d 3c 2h, flop Ac 7h 6c. A equity exata percorre os C(41, 2) = 820 pares turn/river e fica acima de 86% (faixa de 35%). Turn 6h e river 6s dão quadra ao vilão; com pote líquido de 200 centavos, o herói recebe 70. Teste: `omaha_flop_all_in_bad_beat_pays_deflator`.
+- **Brazilian Pineapple, troca e all-in no turn:** na rodada de troca do turn, o herói descarta 7d e recebe Kd; depois vai all-in com As Ad Kd contra 6c 5s 9c, board Ah 7c 2d 3h. O snapshot usa exatamente essas três privadas e a equity exata percorre os 42 rivers possíveis; trocas futuras não entram, porque quem está all-in não troca. River 4h dá sequência ao vilão e o herói recebe o deflator. Teste: `pineapple_draw_turn_all_in_uses_cards_held_at_payment`.
 
 ## 2. Um exemplo exato com cartas
 
@@ -68,6 +73,6 @@ Pote líquido: 30.000. Um perdedor elegível tem faixa de 25%, recebendo 7.500. 
 Uma estimativa Monte Carlo não é uma garantia exata, sobretudo perto dos limites de faixa. Short Deck usa enumeração exata no código local corrigido. Em Hold’em, espaços maiores mantêm amostragem determinística. A auditoria de snapshots e de mãos históricas exige os registros reais de cada mão; esta documentação não recalcula nem movimenta saldos.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

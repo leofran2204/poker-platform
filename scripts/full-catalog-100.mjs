@@ -12,7 +12,7 @@ const BASE_URL = process.env.BASE_URL ?? "https://localhost";
 const TOTAL_ACCOUNTS = 100;
 const CASH_TOTAL = 72;
 const TOURNEY_TOTAL = 28;
-const CASH_TABLES_WANTED = 4; // PM only: NL 0,25 (9), SD 0,25/0,50 (8), SD Omaha 0,50 (5), Pineapple 0,50 (6) = 28 seats
+const CASH_TABLES_WANTED = 4; // PM only: NL 0,25 (9), SD 0,25/0,50 (8), SD Omaha 0,50 (5), Brazilian Pineapple 0,50 (6) = 28 seats
 const CASH_DURATION_MS = Number(process.env.CASH_DURATION_MS ?? 4 * 60 * 60 * 1000); // 4h
 const WAITING_PER_TABLE = 2;
 
@@ -96,7 +96,7 @@ async function ensureUsers(n) {
 async function prepareTables(users) {
   console.log(`[2/4] Preparando mesas cash (4 mesas PM) e torneios...`);
   const tables = await api("/api/lobby/tables?mode=play", { token: users[0].token });
-  const wantNames = ["PM · NL 0,25", "PM · SD 0,25/0,50", "PM · SD Omaha 0,50/0,50", "PM · Pineapple 0,50"];
+  const wantNames = ["PM · NL 0,25", "PM · SD 0,25/0,50", "PM · SD Omaha 0,50/0,50", "PM · Brazilian Pineapple 0,50"];
   let cashTables = tables.filter(t => wantNames.includes(t.name) && t.money_mode==="play");
   if (cashTables.length !== 4) {
     // fallback pega 4 primeiras play
@@ -162,6 +162,11 @@ async function runCash(cashTables, cashUsers) {
             if (!me?.is_active) return;
             const actions = (msg.available_actions||[]).map(a=>a.toLowerCase());
             if (actions.length===0) return;
+            // Brazilian Pineapple: na rodada de troca só existem manter e trocar.
+            if (actions.includes("keep")) {
+              if (ws.readyState===1) ws.send(JSON.stringify({ type:"action", action:"keep", amount:0 }));
+              return;
+            }
             // 70% check/call, 20% fold, 10% raise/allin se possível
             let action="fold";
             const r=Math.random();

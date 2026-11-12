@@ -106,7 +106,7 @@ pub(crate) fn row_to_store(row: TournamentRow) -> TournamentStore {
         .filter(|variant| {
             matches!(
                 variant.as_str(),
-                "holdem" | "short_deck" | "omaha" | "brazilian_pineapple"
+                "holdem" | "short_deck" | "omaha" | "pineapple_draw"
             )
         });
     let final_table_cap = match store.final_table_variant.as_deref() {

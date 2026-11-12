@@ -7,7 +7,7 @@ import { actionLabel, newStudySeed, phaseLabel, playStudy, profileLabel, readStu
 import "./training.css";
 
 const chips = (n: number) => n.toLocaleString("pt-BR");
-const variantName: Record<string, string> = { holdem: "Texas Hold’em", short_deck: "Texas Hold’em Short Deck", omaha: "Omaha 4", brazilian_pineapple: "Brazilian Pineapple" };
+const variantName: Record<string, string> = { holdem: "Texas Hold’em", short_deck: "Texas Hold’em Short Deck", omaha: "Omaha 4", pineapple_draw: "Brazilian Pineapple" };
 
 export function TrainingPage() {
   const { moduleId } = useParams();
@@ -33,6 +33,7 @@ function TrainingSession({ moduleTitle, scenarios, initialId }: { moduleTitle: s
   const [saved, setSaved] = useState("");
   const [closed, setClosed] = useState(false);
   const [replayIndex, setReplayIndex] = useState<number | null>(null);
+  const [swapPick, setSwapPick] = useState<number | null>(null);
   const [records, setRecords] = useState(readStudyRecords);
   const requestId = useRef(0);
   const controller = useRef<AbortController | null>(null);
@@ -46,7 +47,7 @@ function TrainingSession({ moduleTitle, scenarios, initialId }: { moduleTitle: s
     try {
       const result = await playStudy(nextScenario, nextSeed, nextActions, abort.signal);
       if (id !== requestId.current) return;
-      setData(result); setActions(nextActions); setAnswer(""); setAmount(result.legal.min_total); setReplayIndex(null);
+      setData(result); setActions(nextActions); setAnswer(""); setAmount(result.legal.min_total); setReplayIndex(null); setSwapPick(null);
     } catch (e) {
       if (id === requestId.current && !abort.signal.aborted) setError(e instanceof Error ? e.message : "Falha ao carregar treino.");
     } finally { if (id === requestId.current) setBusy(false); }
@@ -67,7 +68,7 @@ function TrainingSession({ moduleTitle, scenarios, initialId }: { moduleTitle: s
     else if (fresh) setSeed(newStudySeed());
     else void load([]);
   }
-  function act(action: string) { if (!data || busy || replayIndex !== null) return; void load([...actions, { action, amount, answer }]); }
+  function act(action: string, value = amount) { if (!data || busy || replayIndex !== null) return; void load([...actions, { action, amount: value, answer }]); }
   function save() {
     if (!data) return;
     const ok = saveStudyRecord({ version: TRAINING.version, id: `${scenario.id}:${seed}`, scenario: scenario.id, seed, when: new Date().toISOString(), decisions: data.reviews.filter(r => r.answer.trim()).length,
@@ -90,9 +91,11 @@ function TrainingSession({ moduleTitle, scenarios, initialId }: { moduleTitle: s
   const lesson = findLesson(scenario.lesson);
   const latestReview = data?.reviews[data.reviews.length - 1];
   const disabled = busy || !data || data.state.finished || closed || replayIndex !== null;
+  const discarding = !!data?.legal.discarding && replayIndex === null;
+  const drawing = (!!data?.legal.drawing || discarding) && replayIndex === null;
 
   return <div className="study-page">
-    <header className="study-heading"><div><Link className="text-gold-soft text-sm" to="/curso">← Zero Tilt Academy</Link><p className="study-eyebrow mt-4">MESA DO MÓDULO · {variantName[scenario.variant]}</p><h1>{moduleTitle}</h1><p>Experimente, acompanhe as respostas dos bots e reveja suas decisões.</p>{scenario.variant === "brazilian_pineapple" && <p>Todas as rodadas: aumento limitado ao pote antes do call. Ante de 1 BB pago apenas pelo big blind, inclusive heads-up.</p>}</div><span className="study-badge">Fichas de treino · sem valor</span></header>
+    <header className="study-heading"><div><Link className="text-gold-soft text-sm" to="/curso">← Zero Tilt Academy</Link><p className="study-eyebrow mt-4">MESA DO MÓDULO · {variantName[scenario.variant]}</p><h1>{moduleTitle}</h1><p>Experimente, acompanhe as respostas dos bots e reveja suas decisões.</p>{scenario.variant === "pineapple_draw" && <p>Troca opcional de uma carta depois das apostas do flop e do turn; no river, cada jogador descarta uma carta e joga a última rodada com duas. Quem está all-in não troca. Todas as rodadas: aumento limitado ao pote antes do call. Ante de 1 BB pago apenas pelo big blind, inclusive heads-up.</p>}</div><span className="study-badge">Fichas de treino · sem valor</span></header>
     <div className="study-toolbar">
       <label>Cenário<select value={scenarioId} disabled={busy} onChange={e => reset(e.target.value)}>{scenarios.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}</select></label>
       <label>Modo<select value={mode} onChange={e => setMode(e.target.value)}><option value="guided">Treino guiado</option><option value="challenge">Desafio sem dicas</option><option value="free">Prática variada do módulo</option></select></label>
@@ -110,17 +113,22 @@ function TrainingSession({ moduleTitle, scenarios, initialId }: { moduleTitle: s
             <div className="study-seat-top"><strong>{p.name}</strong><span>{p.position}</span></div><p>{profileLabel[scenario.profiles[index]]}</p>
             <div className="study-cards">{Array.from({ length: p.card_count }, (_, i) => <PlayingCard key={i} code={p.cards[i]} faceDown={!p.cards[i]} size="sm" />)}</div>
             <p><b>{chips(p.stack)}</b> fichas {p.all_in ? "· ALL-IN" : p.folded ? "· FOLD" : ""}</p>{p.bet > 0 && <span className="study-chip">Na rodada: {chips(p.bet)}</span>}
+            {typeof p.draw_count === "number" && <span className="study-chip">{p.draw_count === 0 ? "Manteve" : state.phase === "river" ? "Descartou" : `Trocou ${p.draw_count}`}</span>}
             {state.finished && p.category && <p>{p.category}</p>}
           </div>)}</div>
           <div className="study-board"><span className="study-pot">Pote {chips(state.pot)}</span>{state.ante > 0 && <small>Ante do BB {chips(state.ante)} · pago {chips(state.ante_paid)} por {state.players.find(p => p.id === state.ante_player_id)?.name}</small>}<div className="study-cards">{Array.from({ length: 5 }, (_, i) => state.board[i] ? <PlayingCard key={i} code={state.board[i]} /> : <span key={i} className="study-card-slot" />)}</div><span className="study-watermark">ZT / ACADEMY</span></div>
-          <div className="study-hero"><span className="study-hero-label">VOCÊ · {state.players[0].position}</span><div className="study-cards">{state.players[0].cards.map((c, i) => <PlayingCard key={i} code={c} highlight={state.finished && state.players[0].best_five.includes(c)} />)}</div><p><b>{chips(state.players[0].stack)}</b> fichas · investidas na rodada: {chips(state.players[0].bet)}</p>{(mode === "guided" || state.finished) && state.players[0].category && <p className="text-gold-bright">{state.players[0].category}</p>}</div>
+          <div className="study-hero"><span className="study-hero-label">VOCÊ · {state.players[0].position}</span><div className="study-cards">{state.players[0].cards.map((c, i) => drawing && !disabled
+            ? <button key={i} type="button" className={`rounded-sm p-0.5 ${swapPick === i ? "ring-2 ring-gold-bright" : "ring-1 ring-transparent"}`} aria-pressed={swapPick === i} aria-label={`Selecionar carta ${i + 1} para ${discarding ? "descartar" : "trocar"}`} onClick={() => setSwapPick(swapPick === i ? null : i)}><PlayingCard code={c} /></button>
+            : <PlayingCard key={i} code={c} highlight={state.finished && state.players[0].best_five.includes(c)} />)}</div><p><b>{chips(state.players[0].stack)}</b> fichas · investidas na rodada: {chips(state.players[0].bet)}</p>{(mode === "guided" || state.finished) && state.players[0].category && <p className="text-gold-bright">{state.players[0].category}</p>}</div>
         </div>}
         {!state && <div className="study-loading"><span className="zt-spinner" /> Carregando a distribuição…</div>}
         {data && !data.state.finished && !closed && replayIndex === null && <div className="study-controls">
           <div className="study-price"><span>Para pagar <b>{chips(data.legal.to_call)}</b></span><span>Seu stack <b>{chips(data.state.players[0].stack)}</b></span>{mode === "guided" && data.legal.to_call > 0 && <span>Preço do call <b>{data.legal.call_price_percent.toFixed(2).replace(".", ",")}%</b></span>}</div>
           {mode !== "free" && data.question && <div className="study-question"><label htmlFor="study-answer">{data.question.prompt}</label>{data.question.options.length ? <select id="study-answer" value={answer} onChange={e => setAnswer(e.target.value)}><option value="">Escolha sua leitura</option>{data.question.options.map(o => <option key={o}>{o}</option>)}</select> : <div className="flex items-center gap-2"><input id="study-answer" inputMode="decimal" autoComplete="off" value={answer} onChange={e => setAnswer(e.target.value)} placeholder="Sua resposta" /><span>{data.question.unit}</span></div>}<small>Responda antes de agir. O cálculo/leitura é avaliado separadamente do resultado da mão.</small></div>}
+          {discarding ? <div className="study-actions" aria-label="Descarte do river"><p className="w-full text-sm">Descarte do river: toque na carta que sai. Você joga a última rodada com duas.</p><button disabled={disabled || swapPick === null} onClick={() => swapPick !== null && act("discard", swapPick)}>Descartar a carta selecionada</button></div> : drawing ? <div className="study-actions" aria-label="Rodada de troca"><p className="w-full text-sm">Rodada de troca: toque numa carta para trocá-la ou mantenha as três.</p><button disabled={disabled} onClick={() => act("keep", 0)}>Manter as três</button><button disabled={disabled || swapPick === null} onClick={() => swapPick !== null && act("swap", swapPick)}>Trocar a carta selecionada</button></div> : <>
           <div className="study-actions"><button disabled={disabled} onClick={() => act("fold")} className="study-fold">Desistir</button><button disabled={disabled} onClick={() => act(data.legal.can_check ? "check" : "call")}>{data.legal.can_check ? "Check" : `Pagar ${chips(data.legal.to_call)}`}</button>{data.legal.can_all_in && <button disabled={disabled} onClick={() => act("all_in")}>All-in {chips(data.state.players[0].stack)}</button>}</div>
           {data.legal.can_raise && <div className="study-sizing"><label htmlFor="study-total">{data.legal.bet_exists ? "Aumentar para" : "Apostar"} · total na rodada</label><div>{<input id="study-total" type="number" min={data.legal.min_total} max={data.legal.max_total} step="1" value={amount} onChange={e => setAmount(Number(e.target.value))} />}<button disabled={disabled || !Number.isInteger(amount) || amount < data.legal.min_total || amount > data.legal.max_total} onClick={() => act(data.legal.bet_exists ? "raise" : "bet")}>{data.legal.bet_exists ? "Aumentar" : "Apostar"}</button></div><small>Mínimo {chips(data.legal.min_total)} · máximo {chips(data.legal.max_total)} fichas</small></div>}
+          </>}
           {busy && <p role="status">Bots respondendo…</p>}
         </div>}
         {closed && <div className="study-result"><h2>Treino encerrado</h2><p>Suas decisões continuam disponíveis no replay. Salve o caderno para revisar em outra sessão.</p><button className="zt-btn-secondary" onClick={() => setClosed(false)}>Retomar esta mão</button></div>}

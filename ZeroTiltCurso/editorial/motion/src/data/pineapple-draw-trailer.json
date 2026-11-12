@@ -1,0 +1,718 @@
+{
+ "id": "pineapple-draw-trailer",
+ "title": "Brazilian Pineapple — trailer",
+ "voice": "pt-BR-AntonioNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "bettingRuleVersion": "pineapple_draw_v1",
+ "scenes": [
+  {
+   "id": "t01",
+   "chapter": "Brazilian Pineapple",
+   "title": "Brazilian Pineapple",
+   "voice": "Brazilian Pineapple. Uma modalidade de pôquer criada no Brasil, na Zero Tilt. Três cartas na mão, duas trocas e um descarte.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Poker · modalidade criada no Brasil",
+    "lines": [
+     "Três cartas. Duas trocas. Um descarte."
+    ],
+    "badge": "Exclusivo ZT · primeiro no Play Money"
+   }
+  },
+  {
+   "id": "t-deal",
+   "chapter": "Brazilian Pineapple",
+   "title": "Três cartas para cada jogador",
+   "voice": "Quatro jogadores na mesa. Cada um recebe três cartas fechadas. Ana paga o small blind. Beto paga o big blind e o ante, que vai direto para o pote.",
+   "visual": {
+    "mode": "hand",
+    "dealer": 3,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Ana · você",
+      "stack": 10000,
+      "cards": [
+       "Ah",
+       "Kd",
+       "7c"
+      ]
+     },
+     {
+      "name": "Beto",
+      "stack": 10000,
+      "cards": [
+       "9s",
+       "9d",
+       "4h"
+      ]
+     },
+     {
+      "name": "Caio",
+      "stack": 10000,
+      "cards": [
+       "Qh",
+       "Jh",
+       "5s"
+      ]
+     },
+     {
+      "name": "Duda",
+      "stack": 10000,
+      "cards": [
+       "Tc",
+       "8c",
+       "2d"
+      ]
+     }
+    ],
+    "board": [],
+    "pot": 0,
+    "events": [
+     {
+      "type": "deal",
+      "cue": "recebe três cartas"
+     },
+     {
+      "type": "post",
+      "cue": "Ana paga",
+      "player": 0,
+      "to": 50,
+      "label": "Small blind"
+     },
+     {
+      "type": "post",
+      "cue": "Beto paga",
+      "player": 1,
+      "to": 100,
+      "label": "Big blind"
+     },
+     {
+      "type": "ante",
+      "cue": "o ante",
+      "player": 1,
+      "to": 100,
+      "label": "Big blind + ante"
+     }
+    ],
+    "banner": "Pré-flop"
+   }
+  },
+  {
+   "id": "t-pre",
+   "chapter": "Brazilian Pineapple",
+   "title": "Primeira rodada de apostas",
+   "voice": "Primeira rodada de apostas. Caio paga. Duda paga. Ana completa a aposta. Beto dá check. As fichas de todos vão para o pote. Não há troca antes do flop.",
+   "visual": {
+    "mode": "hand",
+    "dealer": 3,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Ana · você",
+      "stack": 9950,
+      "bet": 50,
+      "cards": [
+       "Ah",
+       "Kd",
+       "7c"
+      ]
+     },
+     {
+      "name": "Beto",
+      "stack": 9800,
+      "bet": 100,
+      "cards": [
+       "9s",
+       "9d",
+       "4h"
+      ]
+     },
+     {
+      "name": "Caio",
+      "stack": 10000,
+      "cards": [
+       "Qh",
+       "Jh",
+       "5s"
+      ]
+     },
+     {
+      "name": "Duda",
+      "stack": 10000,
+      "cards": [
+       "Tc",
+       "8c",
+       "2d"
+      ]
+     }
+    ],
+    "board": [],
+    "pot": 100,
+    "events": [
+     {
+      "type": "call",
+      "cue": "Caio paga",
+      "player": 2,
+      "to": 100
+     },
+     {
+      "type": "call",
+      "cue": "Duda paga",
+      "player": 3,
+      "to": 100
+     },
+     {
+      "type": "call",
+      "cue": "Ana completa",
+      "player": 0,
+      "to": 100,
+      "label": "Completa"
+     },
+     {
+      "type": "check",
+      "cue": "Beto dá check",
+      "player": 1
+     },
+     {
+      "type": "collect",
+      "cue": "vão para o pote"
+     }
+    ],
+    "banner": "Pré-flop · apostas"
+   }
+  },
+  {
+   "id": "t-flop",
+   "chapter": "Brazilian Pineapple",
+   "title": "Flop: primeiro as apostas",
+   "voice": "O flop abre três cartas na mesa. Primeiro vêm as apostas. Ana tem par de ases e aposta. Beto paga. Caio paga. Duda desiste. As apostas vão para o pote.",
+   "visual": {
+    "mode": "hand",
+    "dealer": 3,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Ana · você",
+      "stack": 9900,
+      "cards": [
+       "Ah",
+       "Kd",
+       "7c"
+      ]
+     },
+     {
+      "name": "Beto",
+      "stack": 9800,
+      "cards": [
+       "9s",
+       "9d",
+       "4h"
+      ]
+     },
+     {
+      "name": "Caio",
+      "stack": 9900,
+      "cards": [
+       "Qh",
+       "Jh",
+       "5s"
+      ]
+     },
+     {
+      "name": "Duda",
+      "stack": 9900,
+      "cards": [
+       "Tc",
+       "8c",
+       "2d"
+      ]
+     }
+    ],
+    "board": [],
+    "pot": 500,
+    "events": [
+     {
+      "type": "board",
+      "cue": "abre três cartas",
+      "cards": [
+       "As",
+       "Qd",
+       "6h"
+      ]
+     },
+     {
+      "type": "bet",
+      "cue": "e aposta",
+      "player": 0,
+      "to": 300
+     },
+     {
+      "type": "call",
+      "cue": "Beto paga",
+      "player": 1,
+      "to": 300
+     },
+     {
+      "type": "call",
+      "cue": "Caio paga",
+      "player": 2,
+      "to": 300
+     },
+     {
+      "type": "fold",
+      "cue": "Duda desiste",
+      "player": 3
+     },
+     {
+      "type": "collect",
+      "cue": "vão para o pote"
+     }
+    ],
+    "banner": "Flop · apostas"
+   }
+  },
+  {
+   "id": "t-swap1",
+   "chapter": "Brazilian Pineapple",
+   "title": "Depois das apostas, a troca",
+   "voice": "Só depois das apostas vem a troca. Cada jogador mantém as três cartas ou troca uma. Ana troca o sete e recebe outro ás: trinca. Beto troca uma carta. Caio também troca uma. Todos veem quantas cartas cada um trocou, mas não quais.",
+   "visual": {
+    "mode": "hand",
+    "dealer": 3,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Ana · você",
+      "stack": 9600,
+      "cards": [
+       "Ah",
+       "Kd",
+       "7c"
+      ]
+     },
+     {
+      "name": "Beto",
+      "stack": 9500,
+      "cards": [
+       "9s",
+       "9d",
+       "4h"
+      ]
+     },
+     {
+      "name": "Caio",
+      "stack": 9600,
+      "cards": [
+       "Qh",
+       "Jh",
+       "5s"
+      ]
+     },
+     {
+      "name": "Duda",
+      "stack": 9900,
+      "cards": [
+       "Tc",
+       "8c",
+       "2d"
+      ],
+      "folded": true
+     }
+    ],
+    "board": [
+     "As",
+     "Qd",
+     "6h"
+    ],
+    "pot": 1400,
+    "events": [
+     {
+      "type": "swap",
+      "cue": "Ana troca",
+      "player": 0,
+      "position": 2,
+      "receive": "Ac"
+     },
+     {
+      "type": "swap",
+      "cue": "Beto troca",
+      "player": 1,
+      "position": 2,
+      "receive": "3c"
+     },
+     {
+      "type": "swap",
+      "cue": "Caio também",
+      "player": 2,
+      "position": 2,
+      "receive": "Th"
+     }
+    ],
+    "banner": "Flop · troca"
+   }
+  },
+  {
+   "id": "t-turn",
+   "chapter": "Brazilian Pineapple",
+   "title": "Turn: apostas e nova troca",
+   "voice": "O turn abre a quarta carta. Nova rodada de apostas: Ana aposta com a trinca. Beto desiste. Caio paga. Depois das apostas, a segunda troca: Ana mantém as cartas e Caio também.",
+   "visual": {
+    "mode": "hand",
+    "dealer": 3,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Ana · você",
+      "stack": 9600,
+      "cards": [
+       "Ah",
+       "Kd",
+       "Ac"
+      ]
+     },
+     {
+      "name": "Beto",
+      "stack": 9500,
+      "cards": [
+       "9s",
+       "9d",
+       "3c"
+      ]
+     },
+     {
+      "name": "Caio",
+      "stack": 9600,
+      "cards": [
+       "Qh",
+       "Jh",
+       "Th"
+      ]
+     },
+     {
+      "name": "Duda",
+      "stack": 9900,
+      "cards": [
+       "Tc",
+       "8c",
+       "2d"
+      ],
+      "folded": true
+     }
+    ],
+    "board": [
+     "As",
+     "Qd",
+     "6h"
+    ],
+    "pot": 1400,
+    "events": [
+     {
+      "type": "board",
+      "cue": "quarta carta",
+      "cards": [
+       "Kh"
+      ]
+     },
+     {
+      "type": "bet",
+      "cue": "Ana aposta",
+      "player": 0,
+      "to": 700
+     },
+     {
+      "type": "fold",
+      "cue": "Beto desiste",
+      "player": 1
+     },
+     {
+      "type": "call",
+      "cue": "Caio paga",
+      "player": 2,
+      "to": 700
+     },
+     {
+      "type": "collect",
+      "cue": "Depois das apostas"
+     },
+     {
+      "type": "banner",
+      "cue": "a segunda troca",
+      "text": "Turn · troca"
+     },
+     {
+      "type": "keep",
+      "cue": "Ana mantém",
+      "player": 0
+     },
+     {
+      "type": "keep",
+      "cue": "Caio também",
+      "player": 2
+     }
+    ],
+    "banner": "Turn · apostas"
+   }
+  },
+  {
+   "id": "t-river",
+   "chapter": "Brazilian Pineapple",
+   "title": "River: cada um descarta uma carta",
+   "voice": "O river abre a quinta carta. Agora a regra muda: cada jogador descarta uma carta e fica com duas. Ana descarta o rei. Caio descarta a dama.",
+   "visual": {
+    "mode": "hand",
+    "dealer": 3,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Ana · você",
+      "stack": 8900,
+      "cards": [
+       "Ah",
+       "Kd",
+       "Ac"
+      ]
+     },
+     {
+      "name": "Beto",
+      "stack": 9500,
+      "cards": [
+       "9s",
+       "9d",
+       "3c"
+      ],
+      "folded": true
+     },
+     {
+      "name": "Caio",
+      "stack": 8900,
+      "cards": [
+       "Qh",
+       "Jh",
+       "Th"
+      ]
+     },
+     {
+      "name": "Duda",
+      "stack": 9900,
+      "cards": [
+       "Tc",
+       "8c",
+       "2d"
+      ],
+      "folded": true
+     }
+    ],
+    "board": [
+     "As",
+     "Qd",
+     "6h",
+     "Kh"
+    ],
+    "pot": 2800,
+    "events": [
+     {
+      "type": "board",
+      "cue": "quinta carta",
+      "cards": [
+       "6s"
+      ]
+     },
+     {
+      "type": "discard",
+      "cue": "Ana descarta",
+      "player": 0,
+      "position": 1
+     },
+     {
+      "type": "discard",
+      "cue": "Caio descarta",
+      "player": 2,
+      "position": 0
+     }
+    ],
+    "banner": "River · descarte"
+   }
+  },
+  {
+   "id": "t-last",
+   "chapter": "Brazilian Pineapple",
+   "title": "Última rodada, com duas cartas",
+   "voice": "Última rodada de apostas, com duas cartas na mão. Ana aposta. Caio paga. As fichas vão para o pote.",
+   "visual": {
+    "mode": "hand",
+    "dealer": 3,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Ana · você",
+      "stack": 8900,
+      "cards": [
+       "Ah",
+       "Ac"
+      ]
+     },
+     {
+      "name": "Beto",
+      "stack": 9500,
+      "cards": [
+       "9s",
+       "9d",
+       "3c"
+      ],
+      "folded": true
+     },
+     {
+      "name": "Caio",
+      "stack": 8900,
+      "cards": [
+       "Jh",
+       "Th"
+      ]
+     },
+     {
+      "name": "Duda",
+      "stack": 9900,
+      "cards": [
+       "Tc",
+       "8c",
+       "2d"
+      ],
+      "folded": true
+     }
+    ],
+    "board": [
+     "As",
+     "Qd",
+     "6h",
+     "Kh",
+     "6s"
+    ],
+    "pot": 2800,
+    "events": [
+     {
+      "type": "bet",
+      "cue": "Ana aposta",
+      "player": 0,
+      "to": 1500
+     },
+     {
+      "type": "call",
+      "cue": "Caio paga",
+      "player": 2,
+      "to": 1500
+     },
+     {
+      "type": "collect",
+      "cue": "vão para o pote"
+     }
+    ],
+    "banner": "River · apostas"
+   }
+  },
+  {
+   "id": "t-show",
+   "chapter": "Brazilian Pineapple",
+   "title": "Showdown",
+   "voice": "Showdown. Caio mostra uma sequência até o ás. Ana mostra full house: três ases e dois seis. O pote de cinquenta e oito reais vai para Ana.",
+   "visual": {
+    "mode": "hand",
+    "dealer": 3,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Ana · você",
+      "stack": 7400,
+      "cards": [
+       "Ah",
+       "Ac"
+      ]
+     },
+     {
+      "name": "Beto",
+      "stack": 9500,
+      "cards": [
+       "9s",
+       "9d",
+       "3c"
+      ],
+      "folded": true
+     },
+     {
+      "name": "Caio",
+      "stack": 7400,
+      "cards": [
+       "Jh",
+       "Th"
+      ]
+     },
+     {
+      "name": "Duda",
+      "stack": 9900,
+      "cards": [
+       "Tc",
+       "8c",
+       "2d"
+      ],
+      "folded": true
+     }
+    ],
+    "board": [
+     "As",
+     "Qd",
+     "6h",
+     "Kh",
+     "6s"
+    ],
+    "pot": 5800,
+    "events": [
+     {
+      "type": "reveal",
+      "cue": "Caio mostra",
+      "players": [
+       2
+      ]
+     },
+     {
+      "type": "highlight",
+      "cue": "Ana mostra",
+      "player": 0,
+      "hole": [
+       0,
+       1
+      ],
+      "boardPick": [
+       0,
+       2,
+       4
+      ],
+      "text": "Full house de ases com seis"
+     },
+     {
+      "type": "award",
+      "cue": "vai para Ana",
+      "player": 0
+     }
+    ],
+    "banner": "Showdown"
+   },
+   "padAfter": 1.6
+  },
+  {
+   "id": "t99",
+   "chapter": "Brazilian Pineapple",
+   "title": "Comece pelo treino",
+   "voice": "Aprenda as regras na Zero Tilt Academy e pratique com Play Money. Poker envolve risco. Só para maiores de dezoito anos.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Regras completas na Academy",
+     "Pratique com Play Money",
+     "18+ • Jogue com responsabilidade"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

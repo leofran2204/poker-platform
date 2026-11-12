@@ -62,8 +62,8 @@ async function open(table,user,onState){
         }
         assert.equal(new Set(visible).size,visible.length,"impossible visible cards");
         if(!state.is_finished)counters.private_states++;
-        if(table.variant==="brazilian_pineapple" && !state.is_finished){
-          assert.equal(state.betting_structure,"brazilian_pineapple_pot_before_call_v2");
+        if(table.variant==="pineapple_draw" && !state.is_finished){
+          assert.equal(state.betting_structure,"pineapple_draw_v1");
           assert.equal(state.ante,table.big_blind);
           assert(state.ante_paid>=0&&state.ante_paid<=state.ante);
           assert(state.players.some(p=>p.id===state.ante_player_id));
@@ -130,13 +130,13 @@ async function play(table){
       return;
     }
     if(!timeoutWitness.observed&&timeoutWitness.player===user.id)return;
-    const key=JSON.stringify([state.stage,state.community_cards,state.players.map(p=>[p.id,p.chips,p.bet,p.folded])]);
+    const key=JSON.stringify([state.stage,state.drawing===true,state.community_cards,state.players.map(p=>[p.id,p.chips,p.bet,p.folded,p.draw_count??null])]);
     if(acted.get(user.id)===key)return;
     acted.set(user.id,key);
     const choices=state.available_actions||[];
-    let action=choices.includes("check")?"check":choices.includes("call")?"call":"fold";
+    let action=choices.includes("keep")?"keep":choices.includes("check")?"check":choices.includes("call")?"call":"fold";
     let amount=0;
-    if(table.variant==="brazilian_pineapple" && retryWitness && !raised.has(state.stage) && (choices.includes("raise")||choices.includes("bet"))){
+    if(table.variant==="pineapple_draw" && retryWitness && !raised.has(state.stage) && (choices.includes("raise")||choices.includes("bet"))){
       action=choices.includes("raise")?"raise":"bet";
       amount=state.maximum_wager;
       raised.add(state.stage);

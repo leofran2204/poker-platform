@@ -22,6 +22,20 @@ use std::collections::HashMap;
 
 // ─── Tipos (enums + structs) ───
 
+/// Troca ou descarte do Brazilian Pineapple: a carta saiu da mão e não volta
+/// ao baralho.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct DrawRecord {
+    pub player_id: String,
+    pub phase: GamePhase,
+    /// Posição da privada trocada ou descartada (0 a 2).
+    pub position: u8,
+    pub discarded: Card,
+    /// Carta recebida na troca; ausente no descarte do river.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub received: Option<Card>,
+}
+
 /// Ação de um jogador durante uma mão
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlayerAction {
@@ -47,6 +61,12 @@ pub enum Action {
     Bet,
     Raise,
     AllIn,
+    /// Brazilian Pineapple: manteve as três privadas na rodada de troca.
+    Keep,
+    /// Brazilian Pineapple: trocou uma privada. A carta não aparece na ação pública.
+    Swap,
+    /// Brazilian Pineapple: descartou uma privada no river, sem receber outra.
+    Discard,
 }
 
 impl Action {
@@ -58,6 +78,9 @@ impl Action {
             Action::Bet => "bet",
             Action::Raise => "raise",
             Action::AllIn => "all_in",
+            Action::Keep => "keep",
+            Action::Swap => "swap",
+            Action::Discard => "discard",
         }
     }
 }
@@ -144,6 +167,10 @@ pub struct HandHistory {
     /// Eventos de Loss Deflator (equity, tier e cashback) para auditoria.
     #[serde(default)]
     pub loss_deflators: Vec<LossDeflatorAudit>,
+    /// Brazilian Pineapple: cartas descartadas e recebidas, só para auditoria.
+    /// Ausente nas demais modalidades, preservando o formato assinado anterior.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub draws: Vec<DrawRecord>,
     /// Assinatura digital criptográfica HMAC-SHA256 para auditoria (GLI-19)
     #[serde(default)]
     pub signature: Option<String>,
@@ -194,6 +221,7 @@ pub fn create_hand_history(
         end_phase: GamePhase::Preflop,
         end_reason: EndReason::AllFolded,
         loss_deflators: Vec::new(),
+        draws: Vec::new(),
         signature: None,
     }
 }

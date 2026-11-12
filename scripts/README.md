@@ -39,16 +39,14 @@ Regravação a partir do conteúdo canônico e das dependências de `ZeroTiltCur
 
 ```powershell
 & 'C:\Users\leofr\AppData\Local\hermes\hermes-agent\venv\Scripts\python.exe' ZeroTiltCurso/editorial/render.py --academy all
-# Ou uma aula: --academy m5l4
-# Filme de entrada da home e da Academy (regra híbrida, até oito minutos):
-& 'C:\Users\leofr\AppData\Local\hermes\hermes-agent\venv\Scripts\python.exe' ZeroTiltCurso/editorial/render.py --episode pineapple
+# Ou uma aula: --academy m6l3
 ```
 
-O comando publica os arquivos somente no checkout local. Reutiliza cache de narração validado, confere a sequência completa de palavras, gera legendas/capítulos/transcrição e compara o hash da aula antes de atualizar o JSON. Um fluxo de voz truncado é repetido; após quatro falhas, o lote para. `courseAudit.test.ts` rejeita vídeo técnico anunciado como atual com hash diferente do texto, quiz, fontes ou cenários. Material mantido da regra anterior exige `prior_rules`, aviso na aula e `sourceSnapshot` auditável no manifesto. Ao corrigir a voz dessas aulas, o renderizador usa o snapshot antigo e preserva o aviso, a versão da regra e o hash do conteúdo; `originalMediaSha256` identifica o MP4 anterior no histórico git. Corrigir a pronúncia não torna a regra antiga vigente.
+O comando publica os arquivos somente no checkout local. Reutiliza cache de narração validado, confere a sequência completa de palavras, gera legendas/capítulos/transcrição e compara o hash da aula antes de atualizar o JSON. Um fluxo de voz truncado é repetido; após quatro falhas, o lote para. `courseAudit.test.ts` rejeita vídeo técnico anunciado como atual com hash diferente do texto, quiz, fontes ou cenários. Desde 09/11/2026 nenhuma aula usa `prior_rules`. As três aulas do Brazilian Pineapple (m5l3–m5l5) têm vídeo do renderizador em Remotion (seção abaixo); `render.py` não as regrava (`MOTION_LESSONS`), e `--academy all` as ignora.
 
 `PRONUNCIATIONS`, em `render.py`, aplica guias fonéticas apenas à síntese (por exemplo, `Pineapple` → `painépou`). A grafia original continua nas cenas, legendas e transcrições. Os tempos reais da voz são projetados de volta às palavras originais, inclusive quando um termo exige duas palavras faladas, como `all-in`. Voz, velocidade e texto fonético entram no hash do cache; `pronunciationVersion` e `narrationHash` vinculam o manifesto à produção. Alterar uma guia invalida as gravações que usam o termo. O cache de síntese usa esse hash. As URLs dos players usam `mediaRevision`, derivada dos hashes do MP4, VTT e capa, para invalidar também alterações somente visuais.
 
-Regressões da síntese e da projeção temporal: `python -m unittest discover -s ZeroTiltCurso/editorial -p test_narration.py -v`. Para os cinco filmes editoriais, usar `--episode all`; para as 25 aulas técnicas, `--academy all`. Executar os dois lotes em sequência, pois atualizam o mesmo `courseContent.json`.
+Regressões da síntese e da projeção temporal: `python -m unittest discover -s ZeroTiltCurso/editorial -p test_narration.py -v`. Para os três filmes de história, usar `--episode all`; para as aulas técnicas, `--academy all` (as três do Brazilian Pineapple saem de `motion/produce.py`). Executar os dois lotes em sequência, pois atualizam o mesmo `courseContent.json`.
 
 O job frontend do Rust CI executa esses testes e `render.py --check` em ambiente Python isolado. Mudanças em `ZeroTiltCurso/editorial/` também disparam o workflow; a comparação com `narrationHash` bloqueia gravações desatualizadas em relação ao glossário.
 
@@ -56,16 +54,40 @@ Validação audiovisual independente:
 
 ```powershell
 & 'C:\Users\leofr\AppData\Local\hermes\hermes-agent\venv\Scripts\python.exe' ZeroTiltCurso/editorial/render.py --check
-# Acrescentar --decode para decodificar integralmente todos os MP4.
-# Para decodificar somente o filme novo, sem repetir os 29 anteriores:
-& 'C:\Users\leofr\AppData\Local\hermes\hermes-agent\venv\Scripts\python.exe' ZeroTiltCurso/editorial/render.py --check --decode --only pineapple
+# Acrescentar --decode para decodificar integralmente todos os MP4;
+# --only <aula> limita a auditoria a uma publicação (ex.: --only m6l3).
 ```
 
-O verificador exige todos os vídeos ativos, confere hashes, duração, capítulos, poster 1280×720, limites temporais de cada legenda e correspondência completa entre VTT e transcrição. A decodificação adicional verifica os fluxos de áudio/vídeo e produz evidência em `artifacts/academy-audit/media.json`. Interrupção de rede não invalida vídeos já concluídos: repetir `--academy all` retoma as aulas ainda pendentes ou alteradas.
+O verificador exige todos os vídeos ativos, confere hashes, duração, capítulos, poster 1280×720, limites temporais de cada legenda (inclusive as de duas linhas) e correspondência completa entre VTT e transcrição. Para as aulas e os filmes em Remotion, confere também o hash do roteiro (`scriptHash`), a narração recalculada do roteiro, o texto atual da aula (`contentHash`) e a regra `pineapple_draw_v1`. A decodificação adicional verifica os fluxos de áudio/vídeo e produz evidência em `artifacts/academy-audit/media.json`. Interrupção de rede não invalida vídeos já concluídos: repetir `--academy all` retoma as aulas ainda pendentes ou alteradas.
 
-O filme `pineapple` usa cenas próprias em `episodes.json` e desenho em `pineapple.py`; reutiliza a voz/cache de `render.py`. A renderização recusa duração superior a 480 segundos e cue visual sem palavra correspondente na narração. Produz capítulos HTML e nativos no MP4, hashes do roteiro/MP4/VTT/capa/transcrição e `pineappleFilm.json`, compartilhado pela home/Academy. O modo `--only pineapple` grava `media-pineapple.json` e preserva o relatório completo. Arquivos novos de legenda/transcrição têm LF fixo para manter seus hashes em Windows/Linux.
+O filme do Brazilian Pineapple, o institucional anterior (`home`) e o desenho `pineapple.py` foram retirados em 09/11/2026 com a troca de modalidade; o histórico git preserva as fontes. A função `cue_time` passou para `render.py`. Arquivos novos de legenda/transcrição têm LF fixo para manter seus hashes em Windows/Linux.
+
+### Produção em Remotion (Brazilian Pineapple desde 10/11/2026)
+
+`ZeroTiltCurso/editorial/motion/` é o renderizador novo: vídeo programado em React (Remotion 4.0.538), 1920×1080 a 30 quadros, com animações sincronizadas pelo tempo de cada palavra da narração. Roteiros em `src/data/*.json` (fala por extenso; valores em R$/BB só na tela); cenas em `src/videos/*.tsx`; composições em `src/Root.tsx`. Publicados com ele: o filme de regras (`pineapple-draw-rules.json`), o trailer (`pineapple-draw-trailer.json`) e as aulas m5l3–m5l5 (`academy-m5l3.json`… `academy-m5l5.json`). A aula M2L2 (`m2l2.json`) continua só como piloto de formato, fora do site. Os cinco roteiros do Brazilian Pineapple são gerados por `tools/build_scripts.py` a partir de uma mão-modelo (quatro jogadores, blinds R$ 0,50/R$ 1, ante do big blind), que calcula stacks, apostas e pote de cada cena; edite o gerador, não os JSON. A cena `hand` (`src/videos/HandTable.tsx`) desenha a mesa oval com quatro jogadores e anima os eventos do roteiro: apostas saem da pilha do jogador, são recolhidas para o pote, cartas são trocadas ou descartadas e o pote vai para o vencedor. Pronúncia aprovada pelo proprietário em 11/11/2026 (`MOTION_PRONUNCIATION_VERSION`): com a voz do Azure, os termos em inglês do glossário de `render.py` são lidos em inglês dentro de `<lang xml:lang="en-US">` (`render.speech_ssml`); o motor Edge não aceita esse SSML e fica só como reserva. Vocabulário: “street” (não “rua”) e “oponente” (não “rival”).
+
+Os cinco roteiros são conferidos no motor por `Motor-Rust/tests/pineapple_draw_film_examples.rs` (também no Rust CI): cartas sem repetição; a mão-modelo inteira jogada no motor na mesma ordem e com os mesmos valores (troca só depois das apostas do flop e do turn, descarte no river antes da última rodada, stacks e pote de cada cena); mãos destacadas, descartes e vencedores pelo avaliador; e os máximos da cena do limite do pote.
+
+```powershell
+cd ZeroTiltCurso/editorial/motion
+# Node 24 do harness + npm do sistema; cache em C:\tmp\poker-npm-cache
+node 'C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js' ci --cache C:\tmp\poker-npm-cache
+python narrate.py --engine azure src/data/pineapple-draw-rules.json src/data/pineapple-draw-trailer.json src/data/academy-m5l3.json src/data/academy-m5l4.json src/data/academy-m5l5.json
+python sound.py                                                         # efeitos e trilha originais
+python produce.py PineappleDrawRules src/data/pineapple-draw-rules.json --poster 84.62 --publish
+python produce.py PineappleDrawTrailer src/data/pineapple-draw-trailer.json --poster 5.58 --publish
+python produce.py AcademyM5L3 src/data/academy-m5l3.json --poster 67.32 --publish   # idem M5L4 e M5L5
+```
+
+Voz: `pt-BR-AntonioNeural` (Microsoft, neural) com as guias de pronúncia aproximadas de `render.py`; o Antonio não é multilíngue, então os termos em inglês saem aproximados (amostra 8 da comparação, escolhida pelo dono). `narrate.py --engine azure` usa o Azure Speech no nível gratuito F0 (recurso `zt-academy-speech`, grupo `rg-zerotilt-academy`, região eastus; chave só na variável de usuário `AZURE_SPEECH_KEY`, nunca em arquivo ou log). O script mantém um contador mensal em `public/narration/azure-usage.json` e recusa passar de 400 mil caracteres no mês (cota gratuita: 500 mil). Fala idêntica já sintetizada em outro vídeo é copiada, sem gastar cota. Atenção: a assinatura de avaliação do Azure é desativada após 30 dias se não for convertida para pagamento conforme o uso, e uso acima das quantidades gratuitas é cobrado; não há garantia documentada de que o F0 só bloqueie. Sem chave, `--engine edge` usa o Edge TTS (edge-tts 7.3.1), com a mesma voz e sem marcação de idioma. O cache de cada cena considera motor, voz, velocidade, texto falado e versão das guias.
+
+`narrate.py`, `sound.py` e `produce.py` rodam no Python do ambiente editorial (edge-tts 7.3.1, azure-cognitiveservices-speech 1.44.0, numpy, Pillow). `produce.py` renderiza (H.264 CRF 18), normaliza o áudio para −16 LUFS / −1,5 dBTP e gera VTT (até duas linhas de 42 caracteres, sem sobreposição), capítulos, transcrição e capa WebP 1280×720 no mestre em `artifacts/video-pilot/<id>/` (fora do git). Com `--publish`, grava a versão do site em `Frontend-Web/public/videos/` (1080p, H.264 CRF 26 ajustado para gráfico chapado (testado contra CRF 23 e 28 em recorte 1:1), GOP de 2 s, AAC 128 kbps, a partir do render bruto), o manifesto e a transcrição em `ZeroTiltCurso/editorial/` e o bloco de vídeo: aulas em `courseContent.json` (`renderer: "remotion"`, `contentHash` do texto da aula); filme e trailer em `Frontend-Web/src/data/pineappleDrawFilms.json`, lidos por `PineappleDrawFilm.tsx` (home e Academy). Aula alterada durante o render cancela a publicação. `--reuse-render` refaz só o pós-processamento. Cenas de troca recebem `padAfter` calculado sobre os tempos da narração para a animação terminar antes do corte. A página local `artifacts/video-pilot/index.html` reúne os cinco vídeos. Narração, efeitos, tempos e renders intermediários estão no `.gitignore`.
+
+Licença: o Remotion é gratuito para pessoas físicas e empresas com até 3 pessoas; acima disso exige licença da empresa. As fontes (Fraunces, Manrope) são OFL; trilha e efeitos são sintetizados no próprio projeto.
 
 ## Canônicos (usar)
+
+> **Guarda de rede (Termos 2.3, migration 061):** a API recusa uma segunda conta na mesma mesa cash quando ela usa o mesmo IP público ou a mesma sub-rede de quem já está sentado. Smokes que sentam várias contas da mesma máquina na mesma mesa da demo (`live-e2e-*`, `full-catalog-100-vps.mjs`, `live-sim-full-ritual.mjs`) só passam com o IP de saída listado em `SEAT_IP_GUARD_EXEMPT_IPS` no `.env` da VPS durante a janela autorizada, e removido depois. No laboratório local e na `full-validation`, os endereços de loopback e de rede privada já ficam fora da comparação.
 
 | Script | Uso |
 |--------|-----|
@@ -86,7 +108,12 @@ O filme `pineapple` usa cenas próprias em `episodes.json` e desenho em `pineapp
 | `full-catalog-100.mjs` | Catálogo completo local: 100 contas (72 cash + 28 MTT) |
 | `full-catalog-100-vps.mjs` | Catálogo completo contra a VPS (sessão longa real) |
 | `estrutura-rede-e2e.mjs` / `.py` | Histórico do modelo 18/12; não valida o programa Agente ZT v2 e não é gate da release atual |
+| `estrutura-auditoria.sql` | Histórico do modelo 18/12: gates da Fase D sobre `estrutura_ledger` (`program_version = 1`); não audita o Agente ZT v2 |
+| `estrutura-ws-hold.mjs` | Histórico da Fase D: mantém contas com WebSocket aberto em check/fold durante a simulação 18/12 |
 | `estrutura-bots-jogar.mjs` | Bots WS da Estrutura (fase VP + allin-fest) |
+| `setup-test-users.mjs` | Cria contas Play Money de teste no Docker local e imprime `BOT_USERS` para `strategy-bots.mjs` |
+| `strategy-bots.mjs` | Bots externos via WebSocket que decidem com `bot/dist` (`decideAction`); exige `cd bot && npx tsc` antes |
+| `stop_bots.py` | Ops pontual na VPS: para os bots da casa numa mesa pelo endpoint admin, lendo `JWT_SECRET` do `.env` local sem imprimi-lo |
 | `wipe-*.sql` / `wipe-emalupe-users.ps1` | Limpeza pontual de contas sintéticas/teste (ops, com backup antes) |
 | `wipe-all-test-accounts.sql` | Limpeza geral de contas de teste (ops, com backup antes) |
 

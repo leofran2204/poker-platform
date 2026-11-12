@@ -1,17 +1,17 @@
 {
   "lessonId": "m6l3",
   "filename": "zt-academy-m6l3-v3",
-  "contentHash": "52a14031e0b6351a744ba46691605dcf36c4cfc5088456e3173c8ed5a1cc4981",
+  "contentHash": "7d49c5b64bf57bbf8c40bb7fd538d78c4f42c8a027087a3a258da8070e022216",
   "rendererVersion": 5,
-  "durationSeconds": 353.87,
+  "durationSeconds": 355.37,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9752414,
+  "bytes": 9771424,
   "voice": "pt-BR-AntonioNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "d93bd61e4e3ab4c0d3cd615e38c6cd0f2b8a28d141aeacff071f3908fbc9fb61",
+  "narrationHash": "3c7074b8a54dc6bbba27c5c31f6bc2a58bc5dfe8c969af07488fdfc21130bd8b",
   "chapters": [
     {
       "start": 0.0,
@@ -38,35 +38,35 @@
       "title": "Use os quatro jogos como teste de regras"
     },
     {
-      "start": 153.2,
+      "start": 154.7,
       "title": "Um ciclo de aprendizagem"
     },
     {
-      "start": 182.77,
+      "start": 184.27,
       "title": "Laboratório: Explique a decisão antes do river"
     },
     {
-      "start": 222.0,
+      "start": 223.5,
       "title": "Laboratório: Explique a decisão antes do river"
     },
     {
-      "start": 231.07,
+      "start": 232.57,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 253.87,
+      "start": 255.37,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 269.7,
+      "start": 271.2,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 302.97,
+      "start": 304.47,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 319.7,
+      "start": 321.2,
       "title": "Agora, pratique"
     }
   ],
@@ -163,7 +163,7 @@
     },
     {
       "start": 123.80000000000001,
-      "duration": 29.4,
+      "duration": 30.9,
       "focusStarts": [
         0.0
       ],
@@ -195,7 +195,7 @@
       ]
     },
     {
-      "start": 153.20000000000002,
+      "start": 154.70000000000002,
       "duration": 29.566666666666666,
       "focusStarts": [
         0.0
@@ -228,7 +228,7 @@
       ]
     },
     {
-      "start": 182.76666666666668,
+      "start": 184.26666666666668,
       "duration": 39.233333333333334,
       "focusStarts": [
         0.0
@@ -261,7 +261,7 @@
       ]
     },
     {
-      "start": 222.0,
+      "start": 223.5,
       "duration": 9.066666666666666,
       "focusStarts": [
         0.0
@@ -294,7 +294,7 @@
       ]
     },
     {
-      "start": 231.06666666666666,
+      "start": 232.56666666666666,
       "duration": 22.8,
       "focusStarts": [
         0.0
@@ -327,7 +327,7 @@
       ]
     },
     {
-      "start": 253.86666666666667,
+      "start": 255.36666666666667,
       "duration": 15.833333333333334,
       "focusStarts": [
         0.0
@@ -360,7 +360,7 @@
       ]
     },
     {
-      "start": 269.7,
+      "start": 271.2,
       "duration": 33.266666666666666,
       "focusStarts": [
         0.0
@@ -393,7 +393,7 @@
       ]
     },
     {
-      "start": 302.96666666666664,
+      "start": 304.46666666666664,
       "duration": 16.733333333333334,
       "focusStarts": [
         0.0
@@ -426,7 +426,7 @@
       ]
     },
     {
-      "start": 319.7,
+      "start": 321.2,
       "duration": 34.166666666666664,
       "focusStarts": [
         0.0
@@ -459,11 +459,11 @@
       ]
     }
   ],
-  "sha256": "9a33fc93e474060b48bc78c3d5b0bcf50c95af008e5fb4299bdd038dc626ec1b",
+  "sha256": "583a2574107436e1bd09c145e281a435575e9374b09601dd1e353fecf5638d60",
   "assetHashes": {
-    "mp4": "9a33fc93e474060b48bc78c3d5b0bcf50c95af008e5fb4299bdd038dc626ec1b",
-    "vtt": "51e9ea4d38cd55f3b0f1f4aa816f833e32a6a42f9c9965fa4c5b58f5967c02f6",
+    "mp4": "583a2574107436e1bd09c145e281a435575e9374b09601dd1e353fecf5638d60",
+    "vtt": "0493121fadef5c78636c64160023cb09d24c993705e84da5d53e5545bf61428c",
     "webp": "487551c86f48e58bed1184a9f353ee9402b9c4068f7f2a6d18ef71b5e8d2ce8c"
   },
-  "mediaRevision": "f5618d4ad545ccb8cdcb8c4f844ee57917a4efa2a1d6ccff2d7be89cdaec16da"
+  "mediaRevision": "aa9b0a0363e3f6bf1501291b3f5df88737a31d0027bb497a691dad13c508beba"
 }

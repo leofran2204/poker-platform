@@ -33,11 +33,11 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 | `holdem` (Texas Hold’em) | 52 | 2 | até 9 |
 | `short_deck` (Texas Hold’em Short Deck) | 36 (6–A) | 2 | até 8 |
 | `omaha` (Omaha 4) | 52 | **4** (usa exatamente 2 hole + 3 board) | até 6 |
-| `brazilian_pineapple` | 52 | 2 no pré-flop; **+1** após flop, turn e river (usa exatamente 2 hole + 3 board) | até 6 |
+| `pineapple_draw` (Brazilian Pineapple) | 52 | **3**; troca opcional de uma depois das apostas do flop e do turn; no river, descarte de uma antes da última rodada (showdown com 2, como no Hold’em) | até 6 (só Play Money por enquanto) |
 
 **Carteiras:** Play Money (cash + MTT, reset diário) e Jogo Real (isolado). `money_mode` da mesa/torneio deve coincidir com o modo do cliente (`play` \| `real`).
 
-**Catálogo publicado (blinds, frentes, MTT, PIX):** [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md). A migração 059 publica as quatro modalidades e separa Texas tradicional de Texas Short Deck. Frentes cash **fixas** (`min_buy_in = max_buy_in`). Small blind pode **igualar** big blind.
+**Catálogo publicado (blinds, frentes, MTT, PIX):** [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md). A migração 059 publica as quatro modalidades e separa Texas tradicional de Texas Short Deck. A migration 062 tira do catálogo o formato antigo do Brazilian Pineapple (2 privadas + 1 por street) e abre o Brazilian Pineapple atual (`pineapple_draw`), primeiro só no Play Money. Frentes cash **fixas** (`min_buy_in = max_buy_in`). Small blind pode **igualar** big blind.
 
 ---
 
@@ -74,28 +74,40 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 - Ranking **clássico** (igual ao Hold’em: sequência > trinca, full house > flush; wheel A-2-3-4-5)
 - Implementação: `evaluate_hand_omaha`
 
-### 2.5 🍍 Brazilian Pineapple — `brazilian_pineapple` (6-max cash + torneio)
-- Baralho tradicional de **52** cartas (ranks 2–A)
-- Pré-flop: **2** hole cards. Depois de virar flop, turn e river: **+1** hole para quem ainda está na mão (incluindo all-in). Foldado não recebe. Sem descarte. No river: 5 hole.
-- No showdown: exatamente **2** hole + **3** community (melhor combo)
-- Ranking **clássico**: sequência > trinca, full house > flush; wheel A-2-3-4-5
-- Até **6 jogadores**; o baralho de 52 cobre cinco cartas fechadas por jogador, board e burns
-- Implementação: `create_deck` / `evaluate_hand_brazilian_pineapple` / deal extra em `advance_phase`
+### 2.5 🍍 Brazilian Pineapple — `pineapple_draw` (6-max cash + torneio; Play Money primeiro)
+- **Nome e identificador:** o jogador vê **Brazilian Pineapple** (decisão do proprietário em 11/11/2026: o nome marca uma modalidade criada no Brasil). No código, no banco e nos históricos o identificador é `pineapple_draw`. O identificador `brazilian_pineapple` pertence ao formato antigo (2 privadas + 1 a cada street, sem descarte), que saiu do catálogo e permanece só no histórico.
+- Substitui o formato antigo (decisão do proprietário em 09/11/2026). A migration 062 tira mesas e torneios do formato antigo do catálogo e abre o Brazilian Pineapple atual só no Play Money; o Jogo Real exige nova decisão e nova migration. Mãos, settlements e torneios antigos ficam preservados no histórico, identificados por `betting_rule_version`.
+- Baralho tradicional de **52** cartas (ranks 2–A); até **6 jogadores**.
+- **Ordem da mão (decisão do proprietário em 11/11/2026):**
+  1. Cada jogador recebe **3** cartas privadas. Rodada de apostas. Não há troca no pré-flop.
+  2. **Flop** (3 comunitárias). Rodada de apostas. Depois dela, **rodada de troca**.
+  3. **Turn**. Rodada de apostas. Depois dela, **rodada de troca**.
+  4. **River**. **Descarte obrigatório** de uma carta: cada jogador fica com **2**. Só então a última rodada de apostas.
+  5. Showdown.
+- **Rodada de troca:** quando as apostas do flop ou do turn fecham, cada jogador que ainda pode apostar decide **manter** as três cartas ou **trocar uma**. A carta descartada sai do jogo e outra vem do topo do baralho. Só depois a próxima comunitária é aberta.
+- A troca e o descarte seguem a ordem das apostas pós-flop (primeiro jogador à esquerda do botão). A quantidade trocada (0 ou 1) é pública; as cartas descartadas e recebidas, não. A rodada de troca só admite manter ou trocar: tempo esgotado, saída da mesa ou desconexão mantêm as cartas, e a desistência acontece na vez seguinte, nas apostas.
+- **Descarte do river:** obrigatório para quem ainda está na mão; a carta sai do jogo sem ser mostrada. Tempo esgotado, saída da mesa ou desconexão: o motor guarda as duas cartas que formam a melhor mão com a mesa (`pineapple_draw_best_discard`; em empate, descarta a carta mais baixa). Não há desistência nem aposta durante o descarte.
+- **All-in não troca.** Quando no máximo um jogador ainda tem fichas para apostar, não há rodada de troca nem escolha de descarte: o board é completado direto. Quem está all-in, ou chega ao showdown ainda com três cartas, fica automaticamente com as duas melhores.
+- **No showdown:** melhor mão de 5 entre as **2** privadas que restaram e as **5** comunitárias, como no Hold’em (duas, uma ou nenhuma privada). Quatro cartas do naipe na mesa e uma na mão formam flush. Ranking **clássico**: sequência > trinca, full house > flush; wheel A-2-3-4-5.
+- O baralho cobre o pior caso: 6 × 3 privadas + 3 queimadas + 5 comunitárias + 12 trocas = 38 cartas.
+- Histórico: ações públicas `keep`, `swap` e `discard`, sem a carta; `HandHistory.draws` guarda a carta descartada e a recebida (ausente no descarte do river) apenas para auditoria (campo ausente nas demais modalidades, preservando o formato assinado anterior).
+- Implementação: `PokerVariant::PineappleDraw`, `evaluate_hand_pineapple_draw`, `pineapple_draw_best_discard`; rodada de troca e descarte em `game_loop.rs` (`begin_draw_round`, `player_draw`, `begin_discard_round`, `player_discard`, `settle_pending_discards`). API: ações `keep`, `swap`, `discard` (posição 0 a 2 em `card` ou `amount`) e `auto_discard`; o estado da mesa publica `drawing` e `discarding`. A heurística pública de troca de bots, laboratório e simulações (`pineapple_draw::suggested_swap`) não participa da liquidação.
+- Referência de simulação (11/11/2026; 20 mil mãos por modalidade, 6 jogadores até o showdown, política passiva): a mão vencedora é sequência ou melhor em 73,0% das mãos no Brazilian Pineapple, 78,7% no Omaha 4 e 40,1% no Hold’em; trocas e descarte acrescentam até 18 decisões por mão. Teste `pineapple_draw_simulation` (feature `massive-tests`).
 
-#### Aumento limitado ao pote antes do call — `brazilian_pineapple_pot_before_call_v2`
+#### Aumento limitado ao pote antes do call — `pineapple_draw_v1`
 
-Regra da modalidade em cash e torneios, Play Money e Jogo Real, desde a primeira mão e inclusive heads-up. Sem opção administrativa ou migration. Não altera outras modalidades.
+Regra da modalidade em cash e torneios, desde a primeira mão e inclusive heads-up. Sem opção administrativa. Não altera outras modalidades.
 
 - **Todas as rodadas:** sendo `P` o pote efetivamente formado antes do call, `C` o pagamento necessário e `B` a contribuição do jogador na rodada, o máximo total é `min(B + saldo, B + C + P)`. Sem patamares pré-flop ou teto de 4 BB. O ante está em `P` uma única vez e não faz parte de `B` nem abate `C`. Não é o Pot Limit tradicional.
 - **Ante de 1 BB apenas do big blind:** o motor cobra o blind primeiro e depois o ante com o saldo restante. Blind incompleto não paga ante; ante parcial é permitido. O ante é dinheiro morto no pote principal e não aumenta a contribuição viva usada para elegibilidade aos potes paralelos. Nos torneios acompanha o BB do nível, sem cobrança adicional pelo ator.
 - O incremento mínimo começa em 1 BB e acompanha o último aumento completo. Reabertura exige um incremento completo desde a última ação daquele jogador, inclusive cumulativamente por all-ins curtos. O curto não muda o mínimo; all-in acima do máximo é rejeitado. Check em rodada sem aposta preserva o direito de aumentar após abertura.
-- Ações ilegais são rejeitadas antes de alterar fichas, turno ou histórico. Centavos inteiros, aritmética protegida, limites recalculados por ação. Distribuição progressiva continua: abrir comunitárias, depois distribuir a extra a cada jogador ainda na mão, incluindo all-in e excluindo fold.
+- Ações ilegais são rejeitadas antes de alterar fichas, turno ou histórico. Centavos inteiros, aritmética protegida, limites recalculados por ação. A rodada de troca acontece antes das apostas de cada street pós-flop e não mexe em fichas nem em limites.
 
 Exemplo aprovado, três jogadores: blinds **R$ 0,50/R$ 1**, ante **R$ 1**, pote inicial **R$ 2,50**. Todos acompanhando formam **R$ 4**. A primeira abertura máxima é **para R$ 3,50**; dois calls formam **R$ 11,50**. O incremento passa a R$ 2,50: o próximo aumento completo mínimo é para R$ 6, podendo ultrapassar os antigos 4 BB quando o pote permitir.
 
 Exemplo independente pós-flop: pote R$ 10, aposta R$ 5, `P=15`, `C=5`, `B=0`: máximo **para R$ 20**. Dois, três ou quatro participantes contribuindo R$ 20 na rodada formam **R$ 50, R$ 70 e R$ 90**. Após o aumento para R$ 20, `P=35`, `C=20`, `B=0`: próximo máximo **para R$ 55**.
 
-Novas mãos registram `betting_rule_version=brazilian_pineapple_pot_before_call_v2`. Históricos, assinaturas e settlements anteriores são preservados; `brazilian_pineapple_hybrid_v1` identifica a versão anterior e ausência de versão continua significando a regra original. Publicação conjunta de motor, frontend, Academy e mídia exige CI aprovado, backup validado e janela sem mãos ou torneios Pineapple em andamento, com novas entradas bloqueadas durante a troca. Evidência de publicação pertence a `QUALITY.md` e `DEVELOPMENT_LOG.md`.
+Novas mãos registram `betting_rule_version=pineapple_draw_v1`. Mãos do formato antigo do Brazilian Pineapple mantêm `brazilian_pineapple_pot_before_call_v2`, `brazilian_pineapple_hybrid_v1` ou ausência de versão para a regra original; históricos, assinaturas e settlements são preservados e nunca reliquidados. Publicação conjunta de motor, API, frontend, Academy e migration 062 exige CI aprovado, backup validado e nenhum torneio do formato antigo em andamento (a migration aborta nesse caso). Mesas ocupadas são fechadas e as fichas dos assentos voltam à carteira no início da API; inscrições do Jogo Real em torneio do formato antigo não iniciado são canceladas sem reembolso, por decisão do proprietário (09/11/2026), e ficam registradas em `audit_logs`; o torneio Play Money passa ao Brazilian Pineapple atual com os inscritos. Evidência de publicação pertence a `QUALITY.md` e `DEVELOPMENT_LOG.md`.
 
 ### 2.6 🂡 Texas Hold’em Short Deck — `short_deck` (8-max cash + torneio)
 - Baralho de **36** cartas (ranks 6–A; sem 2–5)
@@ -117,7 +129,7 @@ Novas mãos registram `betting_rule_version=brazilian_pineapple_pot_before_call_
 | `minBuyIn`    | number   | > 0 (cash oficial: = `maxBuyIn`)   |
 | `maxBuyIn`    | number   | > 0                                |
 | `maxPlayers`  | int      | 2–9 (Texas tradicional: 9; Texas Short Deck: 8; Omaha 4 e Brazilian Pineapple: 6) |
-| `poker_variant` | string | `holdem` \| `short_deck` \| `omaha` \| `brazilian_pineapple` |
+| `poker_variant` | string | `holdem` \| `short_deck` \| `omaha` \| `pineapple_draw` |
 | `money_mode`  | string   | `play` \| `real`                   |
 | `speed`       | enum     | `normal` \| `turbo` \| `hyper`     |
 | `ante`        | number?  | ≥ 0 (opcional)                     |
@@ -277,7 +289,7 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
 - **Proteção da margem:** bots e autoindicações ficam fora da apuração. Em mesas privadas B2B, apenas a parcela retida pela plataforma (15% do rake) compõe a receita atribuível aos agentes; a parcela do clube não é remunerada novamente. Em mesas públicas, a base é o rake atribuível aos participantes, dividido igualmente e com resíduo de centavos retido pela plataforma.
 - **Conciliação mensal:** metas só podem ser definidas para meses futuros. Sem meta positiva, vale 30%. Fechamento manual a partir do dia 25 do mês seguinte, em ordem cronológica por agente/carteira, exige confirmação da conciliação e dos totais apresentados. Comissão calculada em inteiros, com piso zero de NGR; deduções excedentes passam ao próximo ciclo. O saldo Real de comissões é separado da carteira do jogador; este fluxo não executa saques. Recompensas, tributos e custos atribuíveis devem ser conciliados pelo administrador antes de fechar.
 - **Torneios multi-mesa:** 3 mesas físicas por torneio e `max_players = 3×table_max`; Texas tradicional até 27, Texas Short Deck até 24, Omaha 4 e Brazilian Pineapple até 18. O admin pode criar Texas Short Deck com mesa até 8, definindo data e horário. Rebalance com desnível >1; consolidação na FT; gameplay WS ao vivo; run-out automático em all-in geral; halt auditável (`MTT_TABLE_HALTED`).
-- **Play-money**: operação atual permanece sem dinheiro real; saques de clube via admin são intenções mock/sandbox.
+- **Play Money × Jogo Real:** fichas Play Money não têm valor em dinheiro; o Jogo Real usa carteira separada com PIX DePix na demo (ver STATUS). O saque de saldo de clube (`POST /api/admin/clubs/:id/withdraw`, legado B2B) apenas debita `clubs.balance`: não envia PIX, não cria transação de carteira e não grava auditoria.
 
 ---
 
@@ -308,7 +320,18 @@ O **Loss Deflator** é um sistema de cashback automático que devolve parte das 
 
 O cashback é determinado pela **equity do perdedor no instante em que o all-in é pago**. O cálculo heads-up é determinístico: enumeração quando viável e Monte Carlo determinístico nos espaços maiores (`get_heads_up_win_probability()`). A fase da mão serve apenas para reconstruir quais cartas já estavam abertas; **preflop, flop, turn ou river nunca determinam o percentual**.
 
-**Modalidades implementadas:** Texas Hold’em e Texas Hold’em Short Deck. Omaha 4 e Brazilian Pineapple estão explicitamente excluídos do cálculo no motor. A entrada de liquidação é `get_multiway_win_probability_for_variant`: valida cartas e modalidade, usa 52 cartas/ranking clássico no Hold’em e 36 cartas/ranking específico no Short Deck. No Short Deck, enumera todos os boards possíveis (até 201.376 em heads-up pré-flop). Equity inclui frações de empate; não é apenas frequência de vitória isolada.
+**Onde vale (decisão do proprietário em 08/11/2026):** em **todas as modalidades** (Texas Hold’em, Texas Hold’em Short Deck, Omaha 4 e Brazilian Pineapple), nas mesas **cash e nos torneios**, em **Play Money e Jogo Real**. Só fica desligado (`skip_loss_deflator`) no laboratório da Academy, que usa fichas didáticas, e nas campanhas de estresse. Nos torneios não há rake por mão, então a base é o pote inteiro e o cashback sai em fichas do torneio. Termos 6.4 descrevem a mesma regra.
+
+**Cálculo por modalidade:** a entrada de liquidação é `get_multiway_win_probability_for_variant` (`Motor-Rust/src/loss_deflator.rs`), que valida baralho, cartas e modalidade.
+
+| Modalidade | Cartas no snapshot | Método |
+|---|---|---|
+| Texas Hold’em | 2 privadas por jogador | Ranking clássico; enumeração quando cabe, senão Monte Carlo determinístico de até 500.000 boards sem repetição |
+| Texas Hold’em Short Deck | 2 privadas, baralho de 36 | Ranking Short Deck; enumeração exata (até 201.376 boards heads-up pré-flop) |
+| Omaha 4 | 4 privadas | Exatamente 2 privadas + 3 comunitárias; exata até 250.000 desfechos (ex.: flop e turn), senão Monte Carlo determinístico de 120.000 amostras (pré-flop) |
+| Brazilian Pineapple | As privadas que cada jogador tinha no pagamento: 3 antes do descarte do river, 2 depois (quem está all-in não troca mais) | Melhor mão de 5 com no máximo 2 privadas; de 3 privadas contam as 2 melhores em cada desfecho (o descarte ótimo). Completa só o board. Trocas futuras de quem ainda pode apostar não entram no cálculo (regra pública e determinística). Exata até 250.000 desfechos (flop e turn heads-up), senão Monte Carlo de 120.000 amostras (pré-flop) |
+
+No Monte Carlo, a semente vem das cartas conhecidas: a mesma mão sempre gera a mesma equity, o que permite auditar a liquidação. Com 120.000 amostras independentes, a margem de três desvios no pior caso é de cerca de 0,43 ponto percentual; perto dos limites de faixa (56%, 66%, 76% e 86%), o tier depende dessa estimativa. A pontuação rápida de 5 cartas usada no Omaha/Brazilian Pineapple foi conferida contra o avaliador oficial nas 2.598.960 mãos possíveis (`classic_five_card_score_matches_evaluator_exhaustively`). Equity inclui frações de empate; não é apenas frequência de vitória isolada.
 
 | Tier  | Equity do Perdedor | Cashback | Perfil do Rango |
 |-------|---------------------|----------|-----------------|
@@ -324,9 +347,9 @@ O cashback é determinado pela **equity do perdedor no instante em que o all-in 
 
 - **Ordem financeira obrigatória:** formar main pot e side pots → retirar o rake de cada pote → calcular o Loss Deflator somente sobre os potes elegíveis já líquidos → concluir os pagamentos.
 - **Origem das Fichas:** O cashback sai dos potes líquidos da própria mão. É descontado da fatia do(s) vencedor(es) do pote elegível e entregue ao perdedor all-in; não cria fichas novas nem debita o caixa da plataforma.
-- **Modos de saldo:** o motor aplica a regra sem misturar Play Money e Jogo Real. Disponibilidade de carteiras e mesas é definida no STATUS, não por este exemplo financeiro.
-- **Múltiplos All-Ins e Fases Distintas:** Cada perdedor possui um snapshot individual de fase, board e cartas dos oponentes, fixado no primeiro pagamento do seu all-in (inclusive pagamento all-in menor). A fase não escolhe o tier.
-- **Equity multiway:** preserva todos os oponentes ainda na mão no instante do pagamento do all-in. Um fold posterior não retira esse oponente do snapshot nem altera retroativamente a equity. A elegibilidade financeira continua sendo apurada pelos potes finais; preservar cartas para equity não dá direito ao pote a quem desistiu. Hold’em usa enumeração/amostragem determinística; Short Deck usa enumeração exata. A parcela dos empates é dividida pelo número de vencedores.
+- **Modos de saldo:** a regra vale igualmente em Play Money e Jogo Real, sem misturar as carteiras: o cashback sai do pote da própria mesa, na moeda dela. Disponibilidade de carteiras e mesas é definida no STATUS, não por este exemplo financeiro.
+- **Múltiplos All-Ins e Fases Distintas:** Cada perdedor possui um snapshot individual de fase, board, das próprias privadas e das cartas dos oponentes, fixado no primeiro pagamento do seu all-in (inclusive pagamento all-in menor). No Brazilian Pineapple, o snapshot guarda as privadas do instante do pagamento (3 antes do descarte do river, 2 depois); quem está all-in não troca mais. A fase não escolhe o tier.
+- **Equity multiway:** preserva todos os oponentes ainda na mão no instante do pagamento do all-in. Um fold posterior não retira esse oponente do snapshot nem altera retroativamente a equity. A elegibilidade financeira continua sendo apurada pelos potes finais; preservar cartas para equity não dá direito ao pote a quem desistiu. Os métodos por modalidade estão na tabela acima. A parcela dos empates é dividida pelo número de vencedores.
 - **Isolamento de Side Pots:** O cashback de um perdedor é calculado e descontado APENAS dos potes líquidos pós-rake em que ele participou. Side pots nos quais não era elegível ficam intocados.
 - **Teto compartilhado por pote:** Quando vários perdedores all-in se qualificam no mesmo pote, a maior faixa elegível define o teto percentual único daquele pote líquido. Os perdedores dividem esse teto proporcionalmente aos pedidos individuais; faixas iguais dividem em partes iguais. Centavos residuais seguem a ordem dos assentos a partir do botão. Um side pot só entra no rateio dos perdedores elegíveis a ele.
 - **Limite Máximo:** o teto é de até 35% de cada pote líquido elegível, compartilhado conforme a regra acima. A base não é o aporte individual nem uma garantia de ressarcimento de 35% da perda pessoal.
@@ -366,7 +389,7 @@ Um exemplo de equity exata com cartas e regressão automatizada está em [`LOSS_
 | Regra               | Arquivo                          | Função/Local                    |
 |---------------------|----------------------------------|---------------------------------|
 | Baralho 52 cartas   | `Motor-Rust/src/deck.rs`         | `create_deck()`, `shuffle()`    |
-| Ranking de mãos     | `Motor-Rust/src/deck.rs`         | `evaluate_hand()` / `evaluate_hand_short_deck()` / `evaluate_hand_omaha()` / `evaluate_hand_brazilian_pineapple()` |
+| Ranking de mãos     | `Motor-Rust/src/deck.rs`         | `evaluate_hand()` / `evaluate_hand_short_deck()` / `evaluate_hand_omaha()` / `evaluate_hand_pineapple_draw()` |
 | Straight A-2-3-4-5  | `Motor-Rust/src/deck.rs`         | `is_straight()`                 |
 | Side pots           | `Motor-Rust/src/side_pots.rs`    | `calculate_side_pots()`         |
 | Loss Deflator       | `Motor-Rust/src/loss_deflator.rs`| `calculate_progressive_loss_deflator()` |
@@ -410,8 +433,10 @@ Um exemplo de equity exata com cartas e regressão automatizada está em [`LOSS_
 
 ## 15. 🕵️ Sistema Antifraude — Collusion, Bots e Chip Dumping
 
+> **Estado no código (08/11/2026):** ligados ao jogo estão o escore de bot por tempo de reação no ator de cash (15.3, pode bloquear a ação) e a guarda de rede na entrada da mesa cash (15.5). Colusão, chip dumping e multi-conta (15.1, 15.2, 15.4) existem como módulos testados em `Motor-Rust/src/antifraud/`, mas a API ainda não os consulta; os itens dessas seções são o objetivo, não comportamento ativo. Detalhes em `ARQUITETURA_E_APIS.md` § 5.
+
 ### 15.1 🤝 Detecção de Conluio — Collusion e Soft Play
-- **Soft Play**: Detectar quando dois ou mais jogadores evitam apostar/aumentar contra cada other, mesmo com mãos fortes.
+- **Soft Play**: Detectar quando dois ou mais jogadores evitam apostar/aumentar contra cada outro, mesmo com mãos fortes.
 - **Coordenação**: Identificar padrões onde um jogador "limpa" o caminho para outro jogador ganhar o pot.
 
 ### 15.2 💸 Chip Dumping — Transferência Fraudulenta
@@ -425,6 +450,12 @@ Um exemplo de equity exata com cartas e regressão automatizada está em [`LOSS_
 ### 15.4 👥 Multi-accounting — Fingerprinting e Duplicidade
 - **Fingerprinting**: Coleta de IP, User-Agent e Hardware ID.
 - **Alerta de Duplicidade**: Bloquear ou alertar administradores quando múltiplas contas ativas compartilham o mesmo identificador de hardware ou IP em mesas diferentes simultaneamente.
+
+### 15.5 🌐 Guarda de rede na mesa cash (Termos 2.3) — ativa
+- **Regra:** `POST /api/lobby/join` recusa com 403 a entrada quando outra conta tem assento `ACTIVE` na mesma mesa com o mesmo IP público ou a mesma sub-rede (/24 em IPv4, /64 em IPv6). Repetir a entrada da própria conta continua idempotente.
+- **Privacidade:** só impressões HMAC (`KYC_DATA_PEPPER`, domínio `zero-tilt-seat-network-v1`) ficam em `cash_game_seats` (migration 061) e são apagadas por gatilho quando o assento deixa de estar ativo. O endereço em claro não é gravado; a recusa gera `CASH_SEAT_SAME_NETWORK_BLOCKED` em `audit_logs` só com o id da mesa.
+- **Fora da comparação:** endereços não públicos (loopback, rede privada, link-local, CGNAT) e os listados em `SEAT_IP_GUARD_EXEMPT_IPS`. O IP vem da mesma regra do rate limit (cabeçalhos do proxy só com `TRUST_PROXY_HEADERS`).
+- **Limites conhecidos:** redes móveis e empresas podem colocar desconhecidos atrás do mesmo IP público (falso positivo: o jogador escolhe outra mesa). Torneios ainda não aplicam a guarda, porque o coordenador distribui os assentos.
 
 ---
 
@@ -445,6 +476,6 @@ Um exemplo de equity exata com cartas e regressão automatizada está em [`LOSS_
 **Próxima revisão:** Após implementação de side pots e split pot.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

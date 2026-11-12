@@ -9,7 +9,7 @@ Procedimento de verificação somente-leitura da demo em `https://zerotiltpoker.
 
 ## 1. Saúde da stack
 
-`GET /api/health` → esperado: API + frontend/Caddy + PostgreSQL + Redis **4/4 healthy**.
+`GET /api/health` → esperado: corpo `OK` (a resposta passa pelo Caddy e a API confere PostgreSQL e Redis antes de responder). `GET /caddy-health` → `OK` do gateway. Estado dos quatro containers só pode ser visto na VPS (`docker compose ps`).
 
 ## 2. Catálogo do lobby
 
@@ -27,7 +27,7 @@ Eventos, horário e auto-start: iguais a `Documentacao/STATUS_OPERACIONAL.md`.
 
 ## 5. Classificação
 
-- **Incidente (reportar):** API fora do ar, stack não-healthy, catálogo divergente, MTT 21:30 em risco.
+- **Incidente (reportar):** API fora do ar, stack não-healthy, catálogo divergente, MTT agendado pelo admin em risco no horário.
 - **Ruído (não reportar fora do digest):** flutuação momentânea de presença, mesa cheia, latência isolada.
 - **Saudável:** responda apenas `[SILENT]`.
 

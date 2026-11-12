@@ -75,6 +75,11 @@ ZeroTiltCurso/**/seg*.txt
 ZeroTiltCurso/**/seg*.mp3
 ZeroTiltCurso/**/narracao.txt
 ZeroTiltCurso/**/__pycache__/
+# Produção em Remotion: narração, efeitos, tempos e saídas são regenerados
+ZeroTiltCurso/editorial/motion/public/narration/
+ZeroTiltCurso/editorial/motion/public/sfx/
+ZeroTiltCurso/editorial/motion/src/generated/
+ZeroTiltCurso/editorial/motion/out/
 
 # Candidatos de marca (escolha local; o vencedor vai em Frontend-Web/public/brand/)
 brand-candidates/

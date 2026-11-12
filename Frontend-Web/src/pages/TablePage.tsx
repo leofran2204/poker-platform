@@ -41,6 +41,8 @@ export function TablePage() {
   const [actions, setActions] = useState<string[]>([]);
   const [raiseAmount, setRaiseAmount] = useState(200);
   const [bettingStructure, setBettingStructure] = useState<string | null>(null);
+  const [drawing, setDrawing] = useState(false);
+  const [discarding, setDiscarding] = useState(false);
   const [ante, setAnte] = useState({ nominal: 0, paid: 0, playerId: null as string | null });
   const [callAmount, setCallAmount] = useState(0);
   const [minimumWager, setMinimumWager] = useState(0);
@@ -151,6 +153,8 @@ export function TablePage() {
             setPots(msg.pots ?? []);
             setActions(msg.available_actions ?? []);
             setBettingStructure(msg.betting_structure ?? null);
+            setDrawing(msg.drawing === true);
+            setDiscarding(msg.discarding === true);
             setAnte({ nominal: msg.ante ?? 0, paid: msg.ante_paid ?? 0, playerId: msg.ante_player_id ?? null });
             setWinners(msg.winners ?? []);
             setShowdown(msg.showdown ?? []);
@@ -519,6 +523,8 @@ export function TablePage() {
         availableActions={actions}
         onAction={onAction}
         bettingStructure={bettingStructure}
+        drawing={drawing}
+        discarding={discarding}
         ante={ante.nominal}
         antePaid={ante.paid}
         antePlayerId={ante.playerId}

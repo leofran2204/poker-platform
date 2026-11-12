@@ -11,15 +11,9 @@ function isOmaha(game: GameDescriptor): boolean {
   return (game.game_type ?? "").toLowerCase().includes("omaha");
 }
 
-function isBrazilianPineapple(game: GameDescriptor): boolean {
-  const variant = game.poker_variant ?? "";
-  if (
-    variant === "brazilian_pineapple" ||
-    variant === "ultimate_pineapple"
-  ) {
-    return true;
-  }
-  return (game.game_type ?? "").toLowerCase().includes("pineapple");
+function isPineappleDraw(game: GameDescriptor): boolean {
+  if (game.poker_variant === "pineapple_draw") return true;
+  return (game.game_type ?? "").toLowerCase() === "pineappledraw";
 }
 
 export function gameNameLabel(
@@ -27,7 +21,7 @@ export function gameNameLabel(
   format: "cash" | "tournament",
 ): string {
   const formatName = format === "cash" ? "Cash Game" : "Torneio";
-  if (isBrazilianPineapple(game)) return `Brazilian Pineapple — ${formatName}`;
+  if (isPineappleDraw(game)) return `Brazilian Pineapple — ${formatName}`;
   if (isOmaha(game)) return `Omaha 4 Cartas — ${formatName}`;
   if (game.poker_variant === "short_deck") return `Texas Hold’em Short Deck — ${formatName}`;
   return `Texas Hold’em — ${formatName}`;
@@ -84,9 +78,8 @@ export function variantHint(variant?: string | null): string | null {
     case "omaha":
     case "short_deck_omaha":
       return "Omaha 4 cartas · baralho 52 · exatamente 2 hole + 3 board";
-    case "brazilian_pineapple":
-    case "ultimate_pineapple":
-      return "Brazilian Pineapple · baralho 52 · 2+1+1+1 · 2 da mão + 3 da mesa · ranking clássico · ante de 1 BB pago pelo big blind · todas as rodadas: aumento limitado ao pote antes do call";
+    case "pineapple_draw":
+      return "Brazilian Pineapple · baralho 52 · 3 cartas · troca opcional de uma depois das apostas do flop e do turn · no river, descarte de uma antes da última rodada · all-in não troca · showdown com 2 cartas, como no Hold’em · ranking clássico · ante de 1 BB pago pelo big blind · todas as rodadas: aumento limitado ao pote antes do call";
     case "short_deck":
       return "Texas Hold’em Short Deck · baralho 36 (6 a A) · flush vence full house";
     case "holdem":

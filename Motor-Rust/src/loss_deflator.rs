@@ -445,19 +445,34 @@ fn multiway_outcome_for_variant(
 }
 
 /// Equity para liquidação, com validação do baralho e ranking da modalidade.
-/// Omaha/Pineapple exigem outro modelo e continuam sem Loss Deflator.
-/// Short Deck é exato: até C(32, 5) = 201.376 boards heads-up pré-flop.
+///
+/// - Hold’em: 2 cartas privadas; Monte Carlo determinístico ou exato.
+/// - Short Deck: 2 cartas privadas, exato (até C(32, 5) = 201.376 boards HU pré-flop).
+/// - Omaha 4: 4 cartas privadas, exatamente 2 + 3 (`two_plus_three_equity`).
+/// - Brazilian Pineapple (`pineapple_draw`): 3 cartas privadas até o descarte do
+///   river e 2 depois dele; vale a melhor mão de 5 entre a mesa e no máximo 2
+///   privadas, com as cartas que cada jogador tinha no pagamento do all-in. Quem
+///   está all-in não troca; as trocas que outros ainda possam fazer não entram no
+///   cálculo (regra pública e determinística). Só o board é completado.
 pub fn get_multiway_win_probability_for_variant(
     hero_cards: &[Card],
     villain_hands: &[&[Card]],
     board_cards: &[Card],
     variant: PokerVariant,
 ) -> Option<f64> {
-    if !matches!(variant, PokerVariant::Holdem | PokerVariant::ShortDeck)
-        || hero_cards.len() != 2
-        || villain_hands.iter().any(|hand| hand.len() != 2)
-        || !matches!(board_cards.len(), 0 | 3 | 4 | 5)
-    {
+    if !matches!(board_cards.len(), 0 | 3 | 4 | 5) {
+        return None;
+    }
+    if matches!(variant, PokerVariant::Omaha | PokerVariant::PineappleDraw) {
+        return two_plus_three_equity_for_variant(
+            hero_cards,
+            villain_hands,
+            board_cards,
+            variant,
+            TWO_PLUS_THREE_MC_SAMPLES,
+        );
+    }
+    if hero_cards.len() != 2 || villain_hands.iter().any(|hand| hand.len() != 2) {
         return None;
     }
     let full_deck = if variant == PokerVariant::ShortDeck {
@@ -501,6 +516,395 @@ pub fn get_multiway_win_probability_for_variant(
         total += 1;
     });
     Some(equity / total as f64)
+}
+
+/// Amostras Monte Carlo das modalidades 2 + 3 quando a enumeração exata não cabe.
+///
+/// Com amostras independentes, o erro padrão no pior caso (p = 0,5) é
+/// 0,5 / √N: 120.000 amostras → margem de três desvios ≈ 0,43 ponto percentual.
+/// A semente vem das cartas conhecidas, então a mesma mão sempre gera o mesmo
+/// resultado auditável.
+pub const TWO_PLUS_THREE_MC_SAMPLES: u64 = 120_000;
+
+/// Até este número de desfechos equiprováveis, a equity 2 + 3 é exata.
+pub const TWO_PLUS_THREE_EXACT_LIMIT: u64 = 250_000;
+
+/// Valida cartas e calcula a equity de Omaha 4 ou Brazilian Pineapple.
+/// `mc_samples` só é usado quando a enumeração exata não cabe no limite.
+fn two_plus_three_equity_for_variant(
+    hero_cards: &[Card],
+    villain_hands: &[&[Card]],
+    board_cards: &[Card],
+    variant: PokerVariant,
+    mc_samples: u64,
+) -> Option<f64> {
+    let hole_count = hero_cards.len();
+    let extras = match variant {
+        PokerVariant::Omaha => {
+            if hole_count != 4 {
+                return None;
+            }
+            0
+        }
+        PokerVariant::PineappleDraw => {
+            if !matches!(hole_count, 2 | 3) {
+                return None;
+            }
+            0
+        }
+        _ => return None,
+    };
+    let same_shape = |hand: &&[Card]| match variant {
+        PokerVariant::PineappleDraw => matches!(hand.len(), 2 | 3),
+        _ => hand.len() == hole_count,
+    };
+    if !villain_hands.iter().all(same_shape) {
+        return None;
+    }
+    let score: HandScore = if variant == PokerVariant::PineappleDraw {
+        best_with_up_to_two_hole
+    } else {
+        best_two_plus_three_on_board
+    };
+
+    let full_deck = create_full_deck();
+    let mut known = hero_cards.to_vec();
+    for hand in villain_hands {
+        known.extend_from_slice(hand);
+    }
+    known.extend_from_slice(board_cards);
+    if known
+        .iter()
+        .enumerate()
+        .any(|(i, card)| !full_deck.contains(card) || known[..i].contains(card))
+    {
+        return None;
+    }
+    if villain_hands.is_empty() {
+        return Some(1.0);
+    }
+    let deck: Vec<Card> = full_deck
+        .into_iter()
+        .filter(|c| !known.contains(c))
+        .collect();
+    let players = 1 + villain_hands.len();
+    let board_needed = 5 - board_cards.len();
+    if deck.len() < board_needed + extras * players {
+        return None;
+    }
+
+    let mut hands: Vec<Vec<Card>> = Vec::with_capacity(players);
+    hands.push(hero_cards.to_vec());
+    hands.extend(villain_hands.iter().map(|hand| hand.to_vec()));
+    Some(two_plus_three_equity(
+        &hands,
+        board_cards,
+        extras,
+        &deck,
+        &known,
+        mc_samples.max(1),
+        score,
+    ))
+}
+
+/// Número de desfechos equiprováveis: completar o board e, depois, entregar
+/// `extras` cartas a cada jogador, sem reposição. `None` se exceder `u64`.
+pub fn two_plus_three_outcome_count(
+    deck_len: usize,
+    board_needed: usize,
+    extras: usize,
+    players: usize,
+) -> Option<u64> {
+    let mut remaining = deck_len;
+    let mut total = combinations_count(remaining, board_needed) as u64;
+    remaining = remaining.checked_sub(board_needed)?;
+    for _ in 0..players {
+        total = total.checked_mul(combinations_count(remaining, extras) as u64)?;
+        remaining = remaining.checked_sub(extras)?;
+    }
+    Some(total)
+}
+
+/// Equity do jogador `hands[0]` (vitória + fração dos empates) em uma
+/// modalidade de exatamente 2 privadas + 3 comunitárias com ranking clássico.
+fn two_plus_three_equity(
+    hands: &[Vec<Card>],
+    board_cards: &[Card],
+    extras: usize,
+    deck: &[Card],
+    known: &[Card],
+    mc_samples: u64,
+    score: HandScore,
+) -> f64 {
+    let players = hands.len();
+    let board_needed = 5 - board_cards.len();
+    let outcomes = two_plus_three_outcome_count(deck.len(), board_needed, extras, players);
+
+    if outcomes.is_some_and(|count| count <= TWO_PLUS_THREE_EXACT_LIMIT) {
+        let mut equity_sum = 0.0_f64;
+        let mut total = 0_u64;
+        let mut board = board_cards.to_vec();
+        let mut finals: Vec<Vec<Card>> = hands.to_vec();
+        let mut used = vec![false; deck.len()];
+        enumerate_board(
+            deck,
+            0,
+            board_needed,
+            &mut used,
+            &mut board,
+            &mut |board, used| {
+                let mut walk = ExtrasWalk { deck, used, extras };
+                walk.visit(0, 0, extras, &mut finals, &mut |finals| {
+                    equity_sum += two_plus_three_share(finals, board, score);
+                    total += 1;
+                });
+            },
+        );
+        return equity_sum / total as f64;
+    }
+
+    let mut rng = monte_carlo_rng(known);
+    let draw = board_needed + extras * players;
+    let mut pool = deck.to_vec();
+    let mut equity_sum = 0.0_f64;
+    let mut finals: Vec<Vec<Card>> = hands.to_vec();
+    let mut board = Vec::with_capacity(5);
+    for _ in 0..mc_samples {
+        // Fisher-Yates parcial: as `draw` primeiras posições formam uma
+        // amostra uniforme sem reposição do baralho restante.
+        for slot in 0..draw {
+            let pick = rand::Rng::gen_range(&mut rng, slot..pool.len());
+            pool.swap(slot, pick);
+        }
+        board.clear();
+        board.extend_from_slice(board_cards);
+        board.extend_from_slice(&pool[..board_needed]);
+        let mut cursor = board_needed;
+        for (final_hand, original) in finals.iter_mut().zip(hands) {
+            final_hand.truncate(original.len());
+            final_hand.extend_from_slice(&pool[cursor..cursor + extras]);
+            cursor += extras;
+        }
+        equity_sum += two_plus_three_share(&finals, &board, score);
+    }
+    equity_sum / mc_samples as f64
+}
+
+/// Enumera todas as combinações de cartas que completam o board.
+fn enumerate_board(
+    deck: &[Card],
+    start: usize,
+    needed: usize,
+    used: &mut [bool],
+    board: &mut Vec<Card>,
+    visit: &mut impl FnMut(&[Card], &mut [bool]),
+) {
+    if needed == 0 {
+        visit(board, used);
+        return;
+    }
+    for i in start..=deck.len() - needed {
+        used[i] = true;
+        board.push(deck[i]);
+        enumerate_board(deck, i + 1, needed - 1, used, board, visit);
+        board.pop();
+        used[i] = false;
+    }
+}
+
+/// Enumera, jogador a jogador, todas as combinações de `extras` cartas privadas
+/// ainda não usadas pelo board nem pelos jogadores anteriores.
+struct ExtrasWalk<'a> {
+    deck: &'a [Card],
+    used: &'a mut [bool],
+    extras: usize,
+}
+
+impl ExtrasWalk<'_> {
+    fn visit(
+        &mut self,
+        player: usize,
+        start: usize,
+        remaining: usize,
+        finals: &mut Vec<Vec<Card>>,
+        on_outcome: &mut impl FnMut(&[Vec<Card>]),
+    ) {
+        if player == finals.len() {
+            on_outcome(finals);
+            return;
+        }
+        if remaining == 0 {
+            // Próximo jogador recebe a mesma quantidade de extras.
+            self.visit(player + 1, 0, self.extras, finals, on_outcome);
+            return;
+        }
+        for i in start..self.deck.len() {
+            if self.used[i] {
+                continue;
+            }
+            self.used[i] = true;
+            finals[player].push(self.deck[i]);
+            self.visit(player, i + 1, remaining - 1, finals, on_outcome);
+            finals[player].pop();
+            self.used[i] = false;
+        }
+    }
+}
+
+/// Fração do pote do jogador `finals[0]`: 1 se for o único melhor, 1/k em empate
+/// entre k jogadores, 0 se perder.
+fn two_plus_three_share(finals: &[Vec<Card>], board: &[Card], score: HandScore) -> f64 {
+    let hero = score(&finals[0], board);
+    let mut tied = 1_u32;
+    for hand in &finals[1..] {
+        let rival = score(hand, board);
+        if rival > hero {
+            return 0.0;
+        }
+        if rival == hero {
+            tied += 1;
+        }
+    }
+    1.0 / f64::from(tied)
+}
+
+/// Pontuação da mão de um jogador com a mesa completa (5 cartas).
+type HandScore = fn(&[Card], &[Card]) -> u32;
+
+/// Omaha 4: exatamente 2 privadas + 3 comunitárias.
+fn best_two_plus_three_on_board(hole: &[Card], board: &[Card]) -> u32 {
+    best_two_plus_three(hole, &board_triples(board))
+}
+
+/// Brazilian Pineapple: melhor mão de 5 entre a mesa e no máximo 2 privadas.
+/// Com 3 privadas, vale o melhor par (o descarte ótimo do river).
+fn best_with_up_to_two_hole(hole: &[Card], board: &[Card]) -> u32 {
+    let mut best = 0;
+    let mut seven = [board[0]; 7];
+    seven[..5].copy_from_slice(&board[..5]);
+    let mut consider = |a: Card, b: Card| {
+        seven[5] = a;
+        seven[6] = b;
+        for skip_a in 0..7 {
+            for skip_b in (skip_a + 1)..7 {
+                let mut five = [seven[0]; 5];
+                let mut n = 0;
+                for (i, card) in seven.iter().enumerate() {
+                    if i != skip_a && i != skip_b {
+                        five[n] = *card;
+                        n += 1;
+                    }
+                }
+                let score = classic_five_card_score(&five);
+                if score > best {
+                    best = score;
+                }
+            }
+        }
+    };
+    for i in 0..hole.len() {
+        for j in (i + 1)..hole.len() {
+            consider(hole[i], hole[j]);
+        }
+    }
+    best
+}
+
+fn board_triples(board: &[Card]) -> [[Card; 3]; 10] {
+    let mut triples = [[board[0]; 3]; 10];
+    let mut n = 0;
+    for a in 0..5 {
+        for b in (a + 1)..5 {
+            for c in (b + 1)..5 {
+                triples[n] = [board[a], board[b], board[c]];
+                n += 1;
+            }
+        }
+    }
+    triples
+}
+
+/// Melhor pontuação usando exatamente 2 privadas e 3 comunitárias.
+fn best_two_plus_three(hole: &[Card], triples: &[[Card; 3]; 10]) -> u32 {
+    let mut best = 0;
+    for i in 0..hole.len() {
+        for j in (i + 1)..hole.len() {
+            for triple in triples {
+                let score =
+                    classic_five_card_score(&[hole[i], hole[j], triple[0], triple[1], triple[2]]);
+                if score > best {
+                    best = score;
+                }
+            }
+        }
+    }
+    best
+}
+
+/// Pontuação total de exatamente 5 cartas no ranking clássico: maior vence,
+/// igual empata. Coerente com `compare_hands(evaluate_hand(..), ..)` para 5
+/// cartas (teste `classic_five_card_score_matches_evaluator`).
+pub fn classic_five_card_score(cards: &[Card; 5]) -> u32 {
+    let mut ranks = [0_u8; 5];
+    for (slot, card) in ranks.iter_mut().zip(cards) {
+        *slot = card.rank as u8;
+    }
+    ranks.sort_unstable_by(|a, b| b.cmp(a));
+    let flush = cards.iter().all(|card| card.suit == cards[0].suit);
+    let distinct = ranks.windows(2).all(|pair| pair[0] != pair[1]);
+    let straight_high = if distinct && ranks[0] - ranks[4] == 4 {
+        Some(ranks[0])
+    } else if distinct && ranks == [14, 5, 4, 3, 2] {
+        Some(5)
+    } else {
+        None
+    };
+
+    // Grupos (quantidade, rank) sem alocação: os ranks já estão em ordem
+    // decrescente; a ordenação estável por quantidade preserva o rank maior
+    // primeiro entre grupos do mesmo tamanho.
+    let mut groups = [(0_u8, 0_u8); 5];
+    let mut group_count = 0;
+    for &rank in &ranks {
+        if group_count > 0 && groups[group_count - 1].1 == rank {
+            groups[group_count - 1].0 += 1;
+        } else {
+            groups[group_count] = (1, rank);
+            group_count += 1;
+        }
+    }
+    for i in 1..group_count {
+        let mut j = i;
+        while j > 0 && groups[j].0 > groups[j - 1].0 {
+            groups.swap(j, j - 1);
+            j -= 1;
+        }
+    }
+    let shape = (groups[0].0, groups[1].0);
+
+    let (category, by_group) = match (straight_high, flush) {
+        (Some(14), true) => return (10 << 20) | (14 << 16),
+        (Some(high), true) => return (9 << 20) | (u32::from(high) << 16),
+        _ if shape == (4, 1) => (8, true),
+        _ if shape == (3, 2) => (7, true),
+        (_, true) => (6, false),
+        (Some(high), false) => return (5 << 20) | (u32::from(high) << 16),
+        _ if shape == (3, 1) => (4, true),
+        _ if shape == (2, 2) => (3, true),
+        _ if shape == (2, 1) => (2, true),
+        _ => (1, false),
+    };
+    let mut score = category << 20;
+    if by_group {
+        for (position, (_, rank)) in groups[..group_count].iter().enumerate() {
+            score |= u32::from(*rank) << (16 - 4 * position as u32);
+        }
+    } else {
+        for (position, rank) in ranks.iter().enumerate() {
+            score |= u32::from(*rank) << (16 - 4 * position as u32);
+        }
+    }
+    score
 }
 
 fn visit_runouts(
@@ -927,5 +1331,369 @@ mod tests {
             b_large < b_small,
             "Mais amostras devem reduzir o bound: {b_large:.5} >= {b_small:.5}"
         );
+    }
+}
+
+#[cfg(test)]
+mod two_plus_three_tests {
+    use super::*;
+    use crate::deck::{
+        compare_hands, evaluate_hand, evaluate_hand_omaha, evaluate_hand_pineapple_draw, Rank, Suit,
+    };
+    use rand::seq::SliceRandom;
+    use rand::{Rng, SeedableRng};
+    use std::cmp::Ordering;
+
+    fn c(text: &str) -> Card {
+        let mut chars = text.chars();
+        let rank = match chars.next().unwrap() {
+            'A' => Rank::Ace,
+            'K' => Rank::King,
+            'Q' => Rank::Queen,
+            'J' => Rank::Jack,
+            'T' => Rank::Ten,
+            n => Rank::try_from(n.to_digit(10).unwrap() as u8).unwrap(),
+        };
+        let suit = match chars.next().unwrap() {
+            'h' => Suit::Hearts,
+            'd' => Suit::Diamonds,
+            'c' => Suit::Clubs,
+            _ => Suit::Spades,
+        };
+        Card { rank, suit }
+    }
+
+    fn cards(text: &str) -> Vec<Card> {
+        text.split_whitespace().map(c).collect()
+    }
+
+    fn five(text: &str) -> [Card; 5] {
+        cards(text).try_into().unwrap()
+    }
+
+    fn assert_same_order(a: &[Card; 5], b: &[Card; 5]) {
+        let fast = classic_five_card_score(a).cmp(&classic_five_card_score(b));
+        let slow = compare_hands(&evaluate_hand(a, &[]), &evaluate_hand(b, &[]));
+        assert_eq!(fast, slow, "{a:?} x {b:?}");
+    }
+
+    #[test]
+    fn classic_five_card_score_matches_evaluator_on_edge_cases() {
+        let samples = [
+            "As Ks Qs Js Ts", // royal
+            "Kh Qh Jh Th 9h", // straight flush
+            "6d 5d 4d 3d 2d", // straight flush 6-high
+            "5c 4c 3c 2c Ac", // steel wheel
+            "9s 9h 9d 9c Ah", // quadra com kicker
+            "9s 9h 9d 9c Kh",
+            "Ks Kh Kd 2c 2h", // full house
+            "Qs Qh Qd Ac Ah",
+            "Ah Jh 8h 6h 3h", // flush
+            "Ah Jh 8h 6h 2h",
+            "Ts 9h 8d 7c 6s", // sequência
+            "6s 5h 4d 3c 2s",
+            "5s 4h 3d 2c Ah", // wheel
+            "7s 7h 7d Ac 2h", // trinca
+            "Js Jh 4d 4c Ah", // dois pares
+            "Js Jh 4d 4c Kh",
+            "Js Jh 3d 3c Ah",
+            "As Ah Kd Qc 2h", // par
+            "As Ah Kd Qc Jh",
+            "Ks Qh 9d 5c 3h", // carta alta
+            "Ks Qh 9d 5c 2h",
+        ];
+        let hands: Vec<[Card; 5]> = samples.iter().map(|text| five(text)).collect();
+        for a in &hands {
+            for b in &hands {
+                assert_same_order(a, b);
+            }
+        }
+        // Naipes diferentes, mesmos ranks: empate.
+        assert_same_order(&five("As Kd Qh Jc 9s"), &five("Ad Ks Qc Jh 9d"));
+    }
+
+    #[test]
+    fn classic_five_card_score_matches_evaluator_on_random_hands() {
+        let mut rng = rand::rngs::StdRng::seed_from_u64(20_261_108);
+        let mut pool = create_full_deck();
+        let mut sample: Vec<[Card; 5]> = Vec::with_capacity(4_000);
+        for _ in 0..4_000 {
+            pool.shuffle(&mut rng);
+            sample.push(pool[..5].try_into().unwrap());
+        }
+        sample.sort_by_key(classic_five_card_score);
+        for pair in sample.windows(2) {
+            assert_same_order(&pair[0], &pair[1]);
+        }
+        for _ in 0..4_000 {
+            let a = &sample[rng.gen_range(0..sample.len())];
+            let b = &sample[rng.gen_range(0..sample.len())];
+            assert_same_order(a, b);
+        }
+    }
+
+    /// Conferência exaustiva das 2.598.960 mãos de 5 cartas (lenta em debug).
+    #[test]
+    #[ignore = "exaustivo: rodar com --release -- --ignored"]
+    fn classic_five_card_score_matches_evaluator_exhaustively() {
+        let deck = create_full_deck();
+        let mut all = Vec::with_capacity(2_598_960);
+        for a in 0..48 {
+            for b in (a + 1)..49 {
+                for x in (b + 1)..50 {
+                    for d in (x + 1)..51 {
+                        for e in (d + 1)..52 {
+                            all.push([deck[a], deck[b], deck[x], deck[d], deck[e]]);
+                        }
+                    }
+                }
+            }
+        }
+        assert_eq!(all.len(), 2_598_960);
+        all.sort_by_key(classic_five_card_score);
+        for pair in all.windows(2) {
+            assert_same_order(&pair[0], &pair[1]);
+        }
+    }
+
+    #[test]
+    fn best_two_plus_three_matches_variant_evaluators() {
+        let mut rng = rand::rngs::StdRng::seed_from_u64(7_031);
+        let mut pool = create_full_deck();
+        for round in 0..400 {
+            pool.shuffle(&mut rng);
+            // Omaha com 4 privadas; Brazilian Pineapple com 3 (antes do
+            // descarte) e com 2 (depois dele).
+            let holes = [4, 3, 2][round % 3];
+            let a = &pool[..holes];
+            let b = &pool[holes..2 * holes];
+            let board = &pool[2 * holes..2 * holes + 5];
+            let (fast, slow) = if holes == 4 {
+                let triples = board_triples(board);
+                (
+                    best_two_plus_three(a, &triples).cmp(&best_two_plus_three(b, &triples)),
+                    compare_hands(
+                        &evaluate_hand_omaha(a, board),
+                        &evaluate_hand_omaha(b, board),
+                    ),
+                )
+            } else {
+                (
+                    best_with_up_to_two_hole(a, board).cmp(&best_with_up_to_two_hole(b, board)),
+                    compare_hands(
+                        &evaluate_hand_pineapple_draw(a, board),
+                        &evaluate_hand_pineapple_draw(b, board),
+                    ),
+                )
+            };
+            assert_eq!(fast, slow, "rodada {round}");
+        }
+    }
+
+    #[test]
+    fn omaha_flop_equity_is_exact() {
+        let hero = cards("Ah Ad Kc Qc");
+        let villain = cards("Js Ts 9h 8h");
+        let board = cards("7h 6s 2d");
+        let known: Vec<Card> = hero.iter().chain(&villain).chain(&board).copied().collect();
+        let deck: Vec<Card> = create_full_deck()
+            .into_iter()
+            .filter(|card| !known.contains(card))
+            .collect();
+        let mut expected = 0.0;
+        let mut total = 0;
+        for i in 0..deck.len() {
+            for j in (i + 1)..deck.len() {
+                let mut full = board.clone();
+                full.push(deck[i]);
+                full.push(deck[j]);
+                expected += match compare_hands(
+                    &evaluate_hand_omaha(&hero, &full),
+                    &evaluate_hand_omaha(&villain, &full),
+                ) {
+                    Ordering::Greater => 1.0,
+                    Ordering::Equal => 0.5,
+                    Ordering::Less => 0.0,
+                };
+                total += 1;
+            }
+        }
+        // 52 − 11 cartas conhecidas = 41 restantes → C(41, 2) turn/river.
+        assert_eq!(total, 820);
+        let got = get_multiway_win_probability_for_variant(
+            &hero,
+            &[&villain],
+            &board,
+            PokerVariant::Omaha,
+        )
+        .unwrap();
+        assert!((got - expected / f64::from(total)).abs() < 1e-12);
+    }
+
+    #[test]
+    fn pineapple_draw_turn_equity_enumerates_only_the_river() {
+        let hero = cards("Ah Kh Qd");
+        let villain = cards("Js Jd 9c");
+        let board = cards("Jh 7h 3s 4d");
+        let known: Vec<Card> = hero.iter().chain(&villain).chain(&board).copied().collect();
+        let deck: Vec<Card> = create_full_deck()
+            .into_iter()
+            .filter(|card| !known.contains(card))
+            .collect();
+        // Sem extras: só o river completa o board (52 − 10 = 42 desfechos).
+        assert_eq!(two_plus_three_outcome_count(deck.len(), 1, 0, 2), Some(42));
+        let mut expected = 0.0;
+        for river in &deck {
+            let mut full = board.clone();
+            full.push(*river);
+            expected += match compare_hands(
+                &evaluate_hand_pineapple_draw(&hero, &full),
+                &evaluate_hand_pineapple_draw(&villain, &full),
+            ) {
+                Ordering::Greater => 1.0,
+                Ordering::Equal => 0.5,
+                Ordering::Less => 0.0,
+            };
+        }
+        let got = get_multiway_win_probability_for_variant(
+            &hero,
+            &[&villain],
+            &board,
+            PokerVariant::PineappleDraw,
+        )
+        .unwrap();
+        assert!((got - expected / 42.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn pineapple_draw_flop_equity_is_exact() {
+        let hero = cards("As Ad 7c");
+        let villain = cards("Ks Qs Js");
+        let board = cards("Ts 4h 2d");
+        let known: Vec<Card> = hero.iter().chain(&villain).chain(&board).copied().collect();
+        let deck: Vec<Card> = create_full_deck()
+            .into_iter()
+            .filter(|card| !known.contains(card))
+            .collect();
+        let mut expected = 0.0;
+        let mut total = 0;
+        for i in 0..deck.len() {
+            for j in (i + 1)..deck.len() {
+                let mut full = board.clone();
+                full.push(deck[i]);
+                full.push(deck[j]);
+                expected += match compare_hands(
+                    &evaluate_hand_pineapple_draw(&hero, &full),
+                    &evaluate_hand_pineapple_draw(&villain, &full),
+                ) {
+                    Ordering::Greater => 1.0,
+                    Ordering::Equal => 0.5,
+                    Ordering::Less => 0.0,
+                };
+                total += 1;
+            }
+        }
+        // 52 − 9 cartas conhecidas = 43 restantes → C(43, 2) turn/river.
+        assert_eq!(total, 903);
+        let got = get_multiway_win_probability_for_variant(
+            &hero,
+            &[&villain],
+            &board,
+            PokerVariant::PineappleDraw,
+        )
+        .unwrap();
+        assert!((got - expected / f64::from(total)).abs() < 1e-12);
+    }
+
+    /// Amostra reduzida para a rotina da CI (debug); a amostra cheia de
+    /// produção fica nos testes da feature `massive-tests` abaixo.
+    const QUICK_SAMPLES: u64 = 4_000;
+
+    fn quick_equity(hero: &[Card], villain: &[Card], variant: PokerVariant) -> f64 {
+        two_plus_three_equity_for_variant(hero, &[villain], &[], variant, QUICK_SAMPLES).unwrap()
+    }
+
+    #[test]
+    fn pineapple_draw_preflop_monte_carlo_is_deterministic_and_consistent() {
+        let hero = cards("As Ks 2c");
+        let villain = cards("Ad Kd 2h");
+        let pineapple = PokerVariant::PineappleDraw;
+        let first = quick_equity(&hero, &villain, pineapple);
+        assert_eq!(
+            first,
+            quick_equity(&hero, &villain, pineapple),
+            "mesma mão, mesma estimativa"
+        );
+        // Mãos espelhadas: cada lado perto de 50%, e os dois lados somam ~100%
+        // (margem de três desvios com 4.000 amostras ≈ 2,4 pontos).
+        assert!((first - 0.5).abs() < 0.03, "{first}");
+        assert!((first + quick_equity(&villain, &hero, pineapple) - 1.0).abs() < 0.05);
+    }
+
+    #[test]
+    fn omaha_preflop_favourite_is_clear() {
+        // AAKK de dois naipes contra mão baixa: favorito, mas longe do Hold’em
+        // (no Omaha as equities pré-flop são bem mais próximas).
+        let equity = quick_equity(
+            &cards("As Ah Ks Kh"),
+            &cards("7c 2d 8s 3c"),
+            PokerVariant::Omaha,
+        );
+        assert!(equity > 0.6 && equity < 0.8, "{equity}");
+    }
+
+    /// Amostra cheia (120.000), igual à liquidação. Lento em debug.
+    #[test]
+    #[cfg_attr(
+        not(feature = "massive-tests"),
+        ignore = "Monte Carlo pré-flop com amostra cheia; habilite a feature massive-tests"
+    )]
+    fn full_sample_preflop_equity_matches_quick_estimate() {
+        for (hero, villain, variant) in [
+            ("As Ah Ks Kh", "7c 2d 8s 3c", PokerVariant::Omaha),
+            ("As Ks 2c", "Ad Kd 2h", PokerVariant::PineappleDraw),
+        ] {
+            let (hero, villain) = (cards(hero), cards(villain));
+            let full =
+                get_multiway_win_probability_for_variant(&hero, &[&villain], &[], variant).unwrap();
+            let quick = quick_equity(&hero, &villain, variant);
+            assert!((full - quick).abs() < 0.03, "{variant:?}: {full} x {quick}");
+            if variant == PokerVariant::PineappleDraw {
+                assert!((full - 0.5).abs() < 0.01, "{full}");
+            }
+        }
+    }
+
+    #[test]
+    fn two_plus_three_rejects_invalid_shapes() {
+        let omaha = cards("As Ah Ks Kh");
+        let other = cards("7c 2d 8s 3c");
+        let flop = cards("Qd Jd Td");
+        let equity = |hero: &[Card], villain: &[Card], board: &[Card], variant| {
+            get_multiway_win_probability_for_variant(hero, &[villain], board, variant)
+        };
+        assert!(equity(&cards("As Ah"), &other, &[], PokerVariant::Omaha).is_none());
+        assert!(equity(&omaha, &omaha, &flop, PokerVariant::Omaha).is_none());
+        assert!(equity(&omaha, &other, &flop, PokerVariant::Omaha).is_some());
+        // Brazilian Pineapple: 3 privadas até o descarte do river, 2 depois.
+        let pineapple = PokerVariant::PineappleDraw;
+        assert!(equity(&cards("As"), &cards("7c 2d 9h"), &flop, pineapple).is_none());
+        assert!(equity(&cards("As Ah 5c"), &cards("7c"), &flop, pineapple).is_none());
+        assert!(equity(
+            &cards("As Ah 5c 6c"),
+            &cards("7c 2d 9h 8d"),
+            &flop,
+            pineapple
+        )
+        .is_none());
+        assert!(equity(&cards("As Ah 5c"), &cards("7c 2d 9h"), &flop, pineapple).is_some());
+        let river = cards("Qd Jd Td 4s 3s");
+        let at_river = equity(&cards("As Ah 5c"), &cards("Kc 9h Kh"), &river, pineapple);
+        // Vilão faz K-Q-J-T-9 (Kc 9h + Q J T); o herói fica com par de ases.
+        assert_eq!(at_river, Some(0.0));
+        // Depois do descarte: quatro ouros na mesa e um só na mão já é flush.
+        let four_diamonds = cards("Qd Jd Td 4d 3s");
+        let after_discard = equity(&cards("2d 9c"), &cards("As Ah"), &four_diamonds, pineapple);
+        assert_eq!(after_discard, Some(1.0));
     }
 }

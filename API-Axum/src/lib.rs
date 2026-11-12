@@ -24,6 +24,7 @@ pub mod payout_worker;
 pub mod pix_key_crypto;
 pub mod presence;
 pub mod responsible_gaming;
+pub mod seat_ip_guard;
 pub mod state;
 pub mod support;
 pub mod telemetry;

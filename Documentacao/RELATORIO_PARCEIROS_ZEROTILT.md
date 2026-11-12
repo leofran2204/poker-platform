@@ -1,6 +1,6 @@
 # Relatório para parceiros — Zero Tilt Poker
 
-**Avaliação crítica atualizada em 17/09/2026:** a [seção 13](#13-avaliação-crítica-do-produto-e-da-viabilidade--17092026) examina frontend, Academy, vídeos, rede e monetização para um fundador com orçamento restrito. Leia-a antes de usar o pitch abaixo: ela aponta limitações e contradições que impedem tratar as afirmações comerciais anteriores como comprovação de qualidade, segurança ou enquadramento jurídico. O STATUS continua sendo a fonte operacional; esta avaliação não altera o produto nem o plano de compensação.
+**Avaliação crítica atualizada em 17/09/2026:** a [seção 13](#13-avaliação-crítica-do-produto-e-da-viabilidade--17092026) examina frontend, Academy, vídeos, rede e monetização para um fundador com orçamento restrito. Leia-a antes de usar o pitch abaixo: ela aponta limitações e contradições que impedem tratar as afirmações comerciais anteriores como comprovação de qualidade, segurança ou enquadramento jurídico. O STATUS continua sendo a fonte operacional; esta avaliação não altera o produto nem o plano de compensação. **Fatos revisados contra o código em 08/11/2026** nas seções 0, 2.3, 6, 8, 9 e 11; as seções 13 e seguintes são avaliações datadas.
 
 **Como usar este texto:** leia o sumário em voz alta (3 minutos). As seções 2–8 são a prova. A seção 9 é o que ainda não somos — deixe visível; esconder gap é o que queima due diligence. A seção 10 é o pedido. A seção 11 é o mapa de melhorias (tecnologia e experiência) para o próximo ciclo de investimento.
 
@@ -19,13 +19,13 @@
 
 Zero Tilt não é um clone de sala gigante. É uma plataforma de pôquer **recreacional**, com motor próprio, sentada em três ideias que o mercado mainstream abandonou:
 
-1. **A mesa tem que ser honesta e rápida** — regras em Rust, dinheiro em centavos inteiros, baralho auditável, liquidação de mão assinada.
+1. **A mesa tem que ser honesta e rápida** — regras em Rust, dinheiro em centavos inteiros, embaralhamento com gerador criptográfico, liquidação de mão assinada.
 2. **O jogador não pode sair destroçado da sessão** — Loss Deflator (cashback de bad beat por matemática, não por “bônus de cassino”), frentes fixas, Play Money que renova, ensino no próprio lobby.
 3. **O crescimento é de convite, não de anúncio** — **Agente ZT Poker** em um nível: 30% do NGR dos jogadores diretos e mais 5 pontos percentuais por desempenho; o código usa ledger mensal de NGR e preserva o 18%/12% somente como histórico.
 
-O que já está no ar: demo HTTPS, e-mail verificado, MFA, mesas Play Money e Jogo Real **isoladas**, quatro variantes (Texas Hold’em tradicional, Texas Hold’em Short Deck, Omaha 4 e Brazilian Pineapple), torneios com Big Blind Ante em 26 níveis (inscrição + **mãos MTT ao vivo em 3 mesas**), admin de clubes, stack Docker **4/4 healthy** na VPS.
+O que já está no ar: demo HTTPS, e-mail verificado, MFA, mesas Play Money e Jogo Real **isoladas**, quatro variantes (Texas Hold’em tradicional, Texas Hold’em Short Deck, Omaha 4 e Brazilian Pineapple, este por enquanto só no Play Money), torneios com Big Blind Ante em 26 níveis (inscrição + **mãos MTT ao vivo em 3 mesas**), admin de clubes, stack Docker **4/4 healthy** na VPS.
 
-O que **não** está: certificação de produção, autoexclusão de produto, multi-servidor de mesas. PIX automático DePix **está ligado na demo** (crédito provisório até R$ 50 no `processing`, saque travado até liquidar). Isso não se esconde. O parceiro que entra agora compra **produto + liquidez Play Money + o trilho até 2027**, não um cassino “já legalizado”.
+O que **não** está: certificação de produção, Provably Fair ligado à mesa, antifraude de colusão/multi-conta ligado à API, multi-servidor de mesas. Limites voluntários, autoexclusão e KYC básico/manual já existem. PIX automático DePix **está ligado na demo** (crédito provisório até R$ 50 no `processing`, saque travado até liquidar). Isso não se esconde. O parceiro que entra agora compra **produto + liquidez Play Money + o trilho até 2027**, não um cassino “já legalizado”.
 
 **Pedido:** liquidez (gente na mesa) e, no futuro, capital de compliance. O programa remunera somente o jogador direto: **30% do NGR**, chegando a **35%** no mês da meta. A ativação de cada agente exige aprovação; dinheiro real permanece sujeito às condições operacionais aplicáveis.
 
@@ -54,9 +54,9 @@ Catálogo cash vigente (Play Money e Jogo Real, mesas espelhadas, **não** mistu
 | Hold’em NL 0,75/1,50 | 52 cartas, 2 hole | 0,75 / 1,50 | 9 | R$ 150 |
 | Texas Hold’em Short Deck | 36 cartas (sem 2–5); trinca > sequência; flush > full house; wheel A-6-7-8-9 | 0,50 / 0,50 | 8 | R$ 100 |
 | Omaha 4 | 52 cartas; 4 hole; showdown = exatamente 2 hole + 3 board; ranking clássico | 0,50 / 0,50 | 6 | R$ 100 |
-| Brazilian Pineapple | 52 cartas; 2 hole +1 após flop/turn/river; showdown = exatamente 2 hole + 3 board; ranking clássico | 0,50 / 0,50 | 6 | R$ 75 |
+| Brazilian Pineapple (só Play Money) | 52 cartas; 3 hole; troca opcional de uma depois das apostas do flop e do turn; no river, descarte de uma antes da última rodada; showdown com 2 hole, como no Hold’em; ranking clássico | 0,50 / 0,50 | 6 | R$ 75 |
 
-Texas Short Deck no Zero Tilt **não é um rótulo no lobby**: o motor troca baralho e avaliador (`create_short_deck`, `evaluate_hand_short_deck`). Omaha 4 e Brazilian Pineapple usam baralho de 52 e ranking clássico, com avaliadores próprios. Isso é o tipo de detalhe que um parceiro técnico testa em cinco minutos — e que uma operação “de fachada” não tem.
+Texas Short Deck no Zero Tilt **não é um rótulo no lobby**: o motor troca baralho e avaliador (`create_short_deck`, `evaluate_hand_short_deck`). Omaha 4 e Brazilian Pineapple usam baralho de 52 e ranking clássico, com avaliadores próprios; o Brazilian Pineapple tem ainda a rodada de troca no motor. Isso é o tipo de detalhe que um parceiro técnico testa em cinco minutos — e que uma operação “de fachada” não tem.
 
 ---
 
@@ -85,10 +85,10 @@ Isso é o contrário de “ liberamos PIX no grupo até legalizar”. O produto 
 ### 2.3 Integridade da mesa
 
 - Embaralhamento **Fisher-Yates com CSPRNG do sistema operacional** (`OsRng`) em toda mão; liquidação assinada com HMAC-SHA256. **Provably Fair** (hash da semente publicado antes, semente revelada no histórico, jogador reconstrói o baralho) já existe como módulo no motor (`provably_fair.rs`), mas **ainda não está ligado à mesa** — está no roadmap abaixo.
-- Antifraude em Rust, na mesa: **bots**, **chip dumping**, **colusão** (soft play / pares), **multi-conta**.
-- **Guarda de sub-rede /24:** dois jogadores no mesmo IP ou na mesma /24 **não sentam na mesma mesa**.
-- VPIP/PFR anômalos disparam revisão (amostra mínima; não é ban automático por “jogar loose”).
-- Admin pode banir e **congelar** saldo no ledger.
+- Cartas alheias só aparecem em showdown real; vitória por fold não revela a mão do vencedor, e o WebSocket envia cada jogador com uma lista fechada de campos públicos.
+- Antifraude ligado à mesa hoje: escore de **bot por tempo de reação**, que pode bloquear a ação, e **guarda de rede** na mesa cash: duas contas do mesmo IP público ou da mesma sub-rede (/24 IPv4, /64 IPv6) não sentam na mesma mesa (só impressões HMAC são gravadas). Os módulos de **chip dumping**, **colusão** e **multi-conta** existem no motor com testes, mas ainda não são consultados pela API, e não há alerta de VPIP/PFR ([estado detalhado](ARQUITETURA_E_APIS.md#️-5-módulo-antifraude--gestão-de-risco)).
+- Contas de bot da casa são recusadas no Jogo Real em qualquer caminho.
+- Admin pode suspender ou banir a conta (sessões revogadas por `token_version`, com auditoria); não há congelamento de saldo separado.
 
 ### 2.4 O que segurança **ainda não** é
 
@@ -176,15 +176,16 @@ Parceiro sério pergunta: “vocês não estão só profissionalizando o prejuí
 - Cashback de bad beat visível e auditável, não “bônus sujeito a 40×”.
 - Educação no produto (Dica do Pró, história, regras Short Deck/Omaha escritas).
 - PIX DePix na demo tem teto de crédito provisório (R$ 50) e trava de saque até liquidar: **não há loop livre de drenagem**, mas já há depósito automático.
+- Limites voluntários de depósito, perda e tempo diário (reduções imediatas; aumento só após 24h) e autoexclusão de 24h a permanente, que bloqueia na hora depósitos, entradas e ações de Jogo Real (migration 058, tela **Jogo Responsável**).
+- KYC básico/manual exigido para depósito, entrada e saque no Jogo Real; saque só para chave PIX do mesmo CPF do KYC.
 
-**O que ainda falta para merecer o discurso completo** (está no QUALITY.md como checklist, **não** como feature pronta):
+**O que ainda falta para merecer o discurso completo:**
 
-- Autoexclusão (6 meses → permanente) com bloqueio no login
-- Limites de depósito / perda / tempo de sessão **escolhidos pelo jogador**
 - Reality check na mesa (“você está há 3 horas”)
-- KYC/AML de verdade no trilho 2027
+- KYC/AML com parceiro externo e trilho regulatório de 2027
+- Auditoria externa do jogo responsável (os freios existem, mas não são certificados)
 
-Quem apresentar Zero Tilt como “já é jogo responsável certificado” está mentindo. Quem apresentar como **arquitetura pronta para receber esses freios** — e capital para construí-los **antes** do real — está alinhado com a marca.
+Quem apresentar Zero Tilt como “já é jogo responsável certificado” está mentindo. Quem apresentar como **freios básicos já ligados, ainda sem certificação** — e capital para completá-los **antes** de escalar o real — está alinhado com a marca.
 
 ---
 
@@ -220,10 +221,10 @@ Saque de comissão de clube (`POST /api/admin/clubs/:id/withdraw`) existe no des
 | Domínio | Demo HTTPS | Abrir zerotiltpoker.net |
 | Contas | Registro + e-mail + MFA | Fluxo `/register` → `/verify-email` |
 | Lobby | Filtros stake/variante, Play \| Real, online | Header + `/lobby` |
-| Motor | Hold’em, Short Deck, Omaha Short Deck, BBA 26 | Sentar e jogar; docs de variante |
-| Dinheiro | PM diário; Real isolado; PIX DePix na demo (provisório ≤ R$ 50) | Carteira + STATUS |
+| Motor | Texas Hold’em tradicional, Texas Hold’em Short Deck, Omaha 4 e Brazilian Pineapple (troca por street, ante 1 BB e limite do pote); BBA 26 nos torneios | Sentar e jogar; docs de variante |
+| Dinheiro | PM diário; Real isolado; PIX DePix na demo (provisório ≤ R$ 50); saque só para o CPF do KYC; passivo com jogadores no admin | Carteira + STATUS |
 | B2B + agentes | Convite `?ref=`; ledger v2 com 30% + 5 p.p. sobre NGR direto; 18/12 preservado como histórico | Plano Agente ZT, um nível |
-| Qualidade | Gate S20c verde; VPS 4/4 | `STATUS_OPERACIONAL.json` |
+| Qualidade | Rust CI + Container Supply Chain verdes; publicação com imagens assinadas (`cosign`) em 08/11; VPS 4/4 | `QUALITY.md` + `STATUS_OPERACIONAL.md` |
 | Conteúdo | Dica do Pró, história 8+7, PT-BR | Home / laterais da mesa |
 
 ---
@@ -235,11 +236,12 @@ Saque de comissão de clube (`POST /api/admin/clubs/:id/withdraw`) existe no des
 | Sem certificação de produção | Não se pode vender “Launch Ready” | Auditoria, pentest, processo de release |
 | PIX automático ligado na demo, sem certificação iGaming | Real não escala como produto legal | Aceite formal de iGaming + KYC 2027 |
 | Mesa = um processo | Teto de escala horizontal | Ownership distribuído de mesa (Redis hoje não basta) |
-| Autoexclusão / limites de depósito | Discurso ZeroTilt incompleto no real | Product + legal (RG) **antes** de abrir PIX |
-| KYC/AML | Exigência SPA | Parceiro de compliance + fluxo de documentos |
+| Jogo responsável sem auditoria externa | Limites e autoexclusão existem, mas sem reality check nem certificação | Revisão legal (RG) + reality check antes de escalar o real |
+| KYC/AML externo | KYC básico/manual existe; falta parceiro e fluxo exigidos pela SPA | Parceiro de compliance + fluxo de documentos |
+| Antifraude de colusão/multi-conta | Na mesa estão ligados o escore de bot por tempo de reação e a guarda de rede no cash; o painel de alertas ainda é demonstrativo e os torneios não aplicam a guarda | Ligar os módulos do motor ao join/ator, levar a guarda aos torneios e alimentar o painel com dados reais |
 | MTT ao vivo ainda em evolução | Torneio não é o carro-chefe | Acabar o ciclo de mãos MTT com a mesma disciplina do cash |
 | Provably Fair ligado à mesa + UI | O módulo existe no motor, mas a mesa ainda embaralha só com CSPRNG; e o jogador leigo não clica “auditar” | Ligar `provably_fair.rs` ao início da mão (com semente do cliente) + modal de auditoria no histórico (o codec 0x30/0x31 já existe) |
-| Painel **Agente ZT** + ledger mensal | Convite `?ref=`, receita direta PM/Real, deduções, meta e fechamento com conciliação | 30% do NGR direto + 5 p.p. por meta; histórico 18/12 preservado |
+| Agente ZT sem operação real | Painel e ledger mensal estão publicados desde 01/10, mas nenhum agente foi ativado pelo deploy e não houve fechamento conciliado | Ativar agentes piloto, registrar metas e fechar o primeiro mês com conciliação |
 | Catálogo curto | Bom para liquidez; pouco para high roller | Só crescer stake **depois** de encher as três mesas |
 
 Nenhum desses gaps é vergonha de staging. São a lista de compras do sócio.
@@ -270,8 +272,8 @@ Esta seção é o backlog que um parceiro **deveria exigir** no termo de investi
 
 | Melhoria | Por que | Base já existente |
 |----------|---------|-------------------|
-| **Autoexclusão** (6 meses / 1 ano / permanente) com bloqueio no login e no join | Sem isso, o discurso de saúde é incompleto no real | `token_version` já derruba sessão; falta tabela e UX |
-| **Limites de depósito, perda e tempo** definidos pelo jogador, com cooling-off de 24h para subir | Padrão UKGC/SPA; protege o clube também | Ledger em centavos já permite somar perda/dia |
+| **Autoexclusão** (6 meses / 1 ano / permanente) com bloqueio no login e no join | Sem isso, o discurso de saúde é incompleto no real | ✅ Entregue na migration 058 (24h, 7d, 30d, 180d ou permanente; bloqueia depósitos, entradas e ações de Jogo Real) |
+| **Limites de depósito, perda e tempo** definidos pelo jogador, com cooling-off de 24h para subir | Padrão UKGC/SPA; protege o clube também | ✅ Entregue na migration 058 (tela Jogo Responsável) |
 | **Reality check** na mesa a cada 60–90 min (“você está há X mãos / Y tempo”) | Quebra o piloto automático do tilt | Timer de ação e presence TTL 90s já existem |
 | **Painel “minha sessão”** (mãos, resultado, tempo, rake pago) ao cash-out | O jogador vê o filme, não só o último bad beat | Hand history sequencial por mesa |
 | **Atalho de “sair da mesa no próximo intervalo”** visível | Reduz all-in de raiva | Leave já só liquida entre mãos — falta o botão claro |
@@ -302,8 +304,8 @@ Esta seção é o backlog que um parceiro **deveria exigir** no termo de investi
 
 | Melhoria | Por que | Base já existente |
 |----------|---------|-------------------|
-| **Link de indicação no registro** (`?ref=`) gravado uma vez | Fase B do plano de mercado sem planilha | `club_agents.total_players_referred` |
-| **Dashboard do agente** (VP, VL, mãos da linha, tickets da sexta) | Ninguém evangeliza o que não vê | Admin de agentes já lista % e comissão |
+| **Link de indicação no registro** (`?ref=`) gravado uma vez | Fase B do plano de mercado sem planilha | ✅ Entregue: `/register?ref=` grava o patrocinador uma vez (`users.sponsored_by`) |
+| **Dashboard do agente** (diretos, NGR, meta, projeção) | Ninguém evangeliza o que não vê | ✅ Entregue em 01/10: `/estrutura` (Agente ZT) e aprovação/meta/fechamento no admin |
 | **Ranking semanal no lobby** (não “ganhos em R$” — mãos, VP, seats) | Status no lugar de renda | Badge de presença já no header |
 | **“Onde estão jogando agora”** — uma mesa destacada no horário âncora | Resolve o problema clássico do recreacional: 8 mesas vazias | Presence + OPEN tables |
 | **Convite in-app** (“chamar para esta mesa”) com deep link | Tira o combo WhatsApp + “qual mesa?” | Ticket WS por mesa |
@@ -316,8 +318,8 @@ Esta seção é o backlog que um parceiro **deveria exigir** no termo de investi
 | **Ownership distribuído de mesa** (a mesa sobrevive a dois pods) | Teto atual: 1 processo | Snapshot Redis já documentado; falta dono único eleito |
 | **Ligar o codec binário no cliente TS** no caminho quente | Menos JSON, menos jitter no celular | Opcodes na API |
 | **Zoom / fast-fold** (ao foldar, pula para nova mão) | Recreacional moderno; mais mãos/hora sem subir stake | Motor de mão já é rápido; falta o matcher |
-| **Omaha full ring 52 cartas** (além do Short Deck Omaha 5-max) | Pedido natural depois que o 5-max encher | Avaliador 2+3 já existe no SD Omaha |
-| **MTT: mãos ao vivo no mesmo nível do cash** | O lobby de torneio já existe; a mesa MTT ainda “em evolução” | BBA 26 níveis **já** no motor; balanceamento de mesas nas regras |
+| **Omaha 4 em mesa maior que 6** | Pedido natural depois que o 6-max encher | Omaha 4 com 52 cartas e avaliador 2+3 já no catálogo (6-max); Omaha Short Deck foi retirado |
+| **MTT: polimento das mãos ao vivo** | Mãos MTT ao vivo em 3 mesas desde S22; falta igualar a experiência do cash | BBA 26 níveis, rebalance e mesa final já no coordenador |
 | **Observabilidade para o clube** (mãos/hora, drop, rake, deflator pago) | Parceiro não opera no escuro | `/api/metrics` admin; financials do clube |
 | **CI de e2e catalog no PR** (seeded PM + Real) | Evita regressão de variante | Scripts `live-e2e-seeded-catalog.mjs` e 10k hands |
 
@@ -337,12 +339,12 @@ Não fazer tudo. Fazer nesta ordem, porque cada item **alimenta o próximo** e n
 
 1. Selo Play/Real inconfundível na mesa + sit-out + “sair no próximo intervalo”
 2. Waitlist + “mesa âncora agora” no lobby
-3. Link `?ref=` + dashboard cru do agente (mesmo que seja admin filtrado)
-4. Recibo da mão + botão auditar baralho
+3. ~~Link `?ref=` + dashboard cru do agente~~ — entregue (convite `?ref=` e `/estrutura`)
+4. Recibo da mão + botão auditar baralho (exige ligar o Provably Fair à mesa)
 5. Reality check de tempo + painel da sessão
 6. Time bank + sons de “sua vez”
 7. Replay + dica contextual de variante
-8. Autoexclusão e limites — **mesmo em Play Money**, para o músculo existir antes do real
+8. ~~Autoexclusão e limites~~ — entregues na migration 058
 
 Os itens 1–4 enchem mesa e constroem confiança. Os itens 5–8 são o que autoriza o nome **Zero Tilt** quando a porteira de dinheiro real abrir. Escala de pods, Zoom e Omaha 52 ficam no ciclo seguinte, com a liquidez já provada.
 
@@ -428,7 +430,7 @@ A organização por módulos, microaulas, leitura e quiz é um bom ponto de part
 | `ZeroTiltCurso/ep07-pot-odds/plan.md`, narração; `script.py:36` e `:41` | O exemplo mistura pagar 25, concorrer a 100, odds 4:1 e exigência de 20%. | Se 75 já inclui a aposta adversária, o pote final é 100 e a exigência é 25%. Se havia 75 antes da aposta adversária de 25, o pote final é 125 e a exigência é 20%. A aula precisa declarar qual pote está contando; a redação atual mistura os dois casos. |
 | Mesmo episódio, `script.py:69` e narração | Compara 36% do flop ao river com preço de um call no flop e conclui lucro de forma geral. | Pagar no flop normalmente compra a próxima carta, não acesso gratuito ao river. A comparação de duas cartas requer all-in ou hipótese explícita de ausência de custo posterior; considerar realização de equity e outs limpos. |
 | `Documentacao/CURSO_ESTRATEGIA_POKER.md:100` | Afirma que o limp reduz a taxa de vitória pela metade. | Não existe essa relação matemática universal. Uma recomendação simples para iniciantes precisa ser apresentada como heurística, com condições e exceções. |
-| `Frontend-Web/src/data/tipsContent.json`, dica de ranges também exposta na home | A tabela inclui `KTs+` em UTG, mas o exemplo diz que `KQs` está fora do range; descreve Q-high com KQ como segundo par. | `KQs` integra `KTs+`; em um flop não pareado cuja maior carta seja Q, KQ faz top pair. O texto se contradiz independentemente da escolha estratégica do range. |
+| `Frontend-Web/src/data/tipsContent.json` (retirado na S26; as dicas agora derivam de `courseContent.json`), dica de ranges também exposta na home | A tabela inclui `KTs+` em UTG, mas o exemplo diz que `KQs` está fora do range; descreve Q-high com KQ como segundo par. | `KQs` integra `KTs+`; em um flop não pareado cuja maior carta seja Q, KQ faz top pair. O texto se contradiz independentemente da escolha estratégica do range. |
 | Mesma dica | Define `KTs+` incluindo AKs e agrupa SB entre quem fala por último após o flop. | A notação usual mantém o K e varia o kicker até Q; AKs é outra categoria. O SB age primeiro após o flop quando permanece na mão. |
 | Dica contra limp do SB | Um raise para 4 BB pago por outro jogador é seguido de um pote de 4 BB no exemplo; recomenda c-bet em qualquer flop. | Sem outras contribuições ou rake, dois jogadores que colocaram 4 BB formam 8 BB. Frequência e tamanho de c-bet dependem de ranges, textura e adversário. |
 
@@ -579,6 +581,6 @@ A avaliação datada da seção 13 permanece como retrato do conteúdo então ex
 O programa direto foi publicado na demo em 01/10 com a migration 060 e NGR mensal separado por PM/Real. A auditoria histórica 18/12 não valida esse modelo; evidências do deploy e dos testes de fechamento estão no `DEVELOPMENT_LOG.md` e em `QUALITY.md`. Critérios comerciais, assinatura, enquadramento e desempenho de retenção não são demonstrados por testes de software.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

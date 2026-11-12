@@ -4,7 +4,9 @@ O objetivo de uma mão. Você disputa potes. Se todos os adversários desistirem
 
 Ranking clássico, do maior para o menor. Royal flush; straight flush; quadra; full house; flush; sequência; trinca; dois pares; um par; carta alta. Royal flush é a sequência de mesmo naipe de dez até ás. Na sequência ás, dois, três, quatro e cinco, o ás vale baixo: ela perde para dois, três, quatro, cinco e seis. Naipes não desempatarão mãos equivalentes.
 
-Quatro modalidades da Zê Tê. Texas Hold’em usa 52 cartas e duas privadas; no showdown pode usar zero, uma ou duas delas. Short Deck usa 36 cartas, do 6 ao ás; na Zê Tê, trinca supera sequência e flush supera full house, com ás, seis, sete, oito e nove como sequência baixa. Omaha 4 e Brazilian Pineapple usam o ranking clássico e exigem exatamente duas cartas privadas mais três comunitárias. Estude a trilha da modalidade antes de jogar.
+Quatro modalidades da Zê Tê. Texas Hold’em usa 52 cartas e duas privadas; no showdown pode usar zero, uma ou duas delas. Short Deck usa 36 cartas, do 6 ao ás; na Zê Tê, trinca supera sequência e flush supera full house, com ás, seis, sete, oito e nove como sequência baixa. Omaha 4 usa o ranking clássico e exige exatamente duas cartas privadas mais três comunitárias. Brazilian Pineapple também usa o ranking clássico: começa com três privadas, termina com duas e forma a mão como no Hold’em.
+
+Estude a trilha da modalidade antes de jogar.
 
 Ações e ordem. Check só existe quando não há valor a pagar. Call cobre a aposta; bet inicia uma aposta na rodada; raise aumenta uma aposta existente. Os limites e o valor mínimo são mostrados pela mesa. Pré-flop, com três ou mais participantes, a ação começa à esquerda do big blind; pós-flop, no primeiro jogador ainda ativo à esquerda do botão. Em heads-up, o botão é small blind e age primeiro pré-flop, depois age por último.
 

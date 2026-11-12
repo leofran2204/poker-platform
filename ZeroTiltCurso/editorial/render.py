@@ -43,6 +43,13 @@ FONTDIR = Path('C:/Windows/Fonts')
 VOICE = 'pt-BR-AntonioNeural'
 VOICE_RATE = '-3%'
 PRONUNCIATION_VERSION = 'pt-BR-poker-v1'
+# Vídeos em Remotion (voz Azure): termos em inglês lidos em inglês pela própria voz,
+# dentro de <lang xml:lang="en-US"> (amostra 6, aprovada pelo dono em 11/11/2026).
+MOTION_PRONUNCIATION_VERSION = 'pt-BR-poker-v2-lang-en'
+# Palavras fora do glossário antigo que esses vídeos também leem em inglês.
+MOTION_ENGLISH_EXTRA = {'game', 'games'}
+# Entradas do glossário que continuam em português mesmo nesses vídeos.
+PORTUGUESE_SPEECH = {'poker', 'tilt', 'texas', 'vs', 'gto', 'sb', '3-bete', 'pré-flop', 'pós-flop'}
 PRONUNCIATIONS = {
     'pineapple': 'painépou', 'brazilian': 'brazílian',
     'poker': 'pôquer', 'academy': 'acádemi', 'tilt': 'tílt',
@@ -91,13 +98,25 @@ PRONUNCIATIONS = {
 }
 SPEECH_TOKEN = re.compile(r"\d+(?:[.,]\d+)+|[^\W_]+(?:[-'’][^\W_]+)*", re.UNICODE)
 
-def pronunciation_plan(text):
-    """Return synthesis text and canonical words indexed in normalized speech."""
+def english_term(word):
+    """Termo do glossário lido em inglês nos vídeos em Remotion."""
+    key = word.casefold().replace('’', "'")
+    if key in MOTION_ENGLISH_EXTRA:
+        return True
+    return key in PRONUNCIATIONS and key not in PORTUGUESE_SPEECH and not key[0].isdigit()
+
+def pronunciation_plan(text, english=False):
+    """Return synthesis text and canonical words indexed in normalized speech.
+
+    Com `english`, os termos em inglês ficam com a grafia original: a voz os lê
+    em inglês (ver `speech_ssml`) e devolve os tempos com essa mesma grafia."""
     pieces, units, previous, cursor = [], [], 0, 0
     for match in SPEECH_TOKEN.finditer(text):
         pieces.append(text[previous:match.start()])
         canonical = match.group()
         spoken = PRONUNCIATIONS.get(canonical.casefold().replace('’', "'"), canonical)
+        if english and english_term(canonical):
+            spoken = canonical
         pieces.append(spoken)
         size = len(speech_text(spoken))
         if size:
@@ -107,9 +126,37 @@ def pronunciation_plan(text):
     pieces.append(text[previous:])
     return ''.join(pieces), units
 
-def canonical_boundaries(text, words):
+def speech_ssml(text):
+    """Corpo SSML da fala: termos em inglês vizinhos ficam juntos em um <lang en-US>."""
+    from xml.sax.saxutils import escape
+    out, previous, run = [], 0, []
+    def flush():
+        if run:
+            out.append('<lang xml:lang="en-US">' + escape(''.join(run)) + '</lang>')
+            run.clear()
+    for match in SPEECH_TOKEN.finditer(text):
+        gap, word = text[previous:match.start()], match.group()
+        previous = match.end()
+        if english_term(word):
+            if run and gap.strip():
+                flush()
+                out.append(escape(gap))
+            elif run:
+                run.append(gap)
+            else:
+                out.append(escape(gap))
+            run.append(word)
+        else:
+            flush()
+            out.append(escape(gap))
+            out.append(escape(PRONUNCIATIONS.get(word.casefold().replace('’', "'"), word)))
+    flush()
+    out.append(escape(text[previous:]))
+    return ''.join(out)
+
+def canonical_boundaries(text, words, english=False):
     """Project real TTS timing onto written words, including 1-to-many aliases."""
-    spoken, units = pronunciation_plan(text)
+    spoken, units = pronunciation_plan(text, english)
     if not complete_speech(spoken, words):
         raise ValueError('Word boundaries do not cover the complete synthesis text')
     spans, cursor = [], 0
@@ -138,6 +185,19 @@ def narration_fingerprint(scenes):
     payload = {'voice': VOICE, 'rate': VOICE_RATE, 'profile': PRONUNCIATION_VERSION,
                'speech': [pronunciation_plan(s['voice'])[0] for s in scenes]}
     return hashlib.sha256(json.dumps(payload, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+
+
+def motion_narration_fingerprint(script):
+    """Narração de um roteiro em Remotion (motion/src/data): mesma fórmula, voz do próprio roteiro."""
+    payload = {'voice': script['voice'], 'rate': script.get('rate', '+0%'), 'profile': MOTION_PRONUNCIATION_VERSION,
+               'speech': [speech_ssml(s['voice']) for s in script['scenes']]}
+    return hashlib.sha256(json.dumps(payload, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+
+
+def motion_script_fingerprint(script):
+    """Roteiro inteiro (falas, cenas e exemplos verificados no motor) em forma canônica."""
+    raw = json.dumps(script, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
+    return hashlib.sha256(raw.encode('utf-8')).hexdigest()
 
 
 def publication_assets(name):
@@ -225,16 +285,12 @@ async def narration(key, scenes):
         words=canonical_boundaries(scene['voice'], json.loads(bounds.read_text(encoding='utf-8')))
         pcm=subprocess.check_output([FFMPEG,'-v','error','-i',str(path),'-f','s16le','-ac','1','-ar','48000','-'])
         samples=np.frombuffer(pcm,dtype='<i2').astype(np.float32)/32768
-        lead=.25 if key=='pineapple' else .4
-        tail=.55 if key=='pineapple' else .75
+        lead=.4
+        tail=.75
         length=math.ceil((len(samples)/48000+lead+tail)*FPS)/FPS
         scene['speechLead']=lead
         scene['words']=words
-        if key=='pineapple':
-            import pineapple
-            pineapple.prepare(scene,sys.modules[__name__])
-            length=max(length,math.ceil((scene['visualEnd']+.5)*FPS)/FPS)
-        elif scene.get('animation'):
+        if scene.get('animation'):
             length=max(length,math.ceil((scene['visualEnd']+.5)*FPS)/FPS)
         scene.update(start=start,duration=length)
         track=np.zeros(round(length*48000),dtype=np.float32)
@@ -340,9 +396,6 @@ def animate(base,scene,t):
             d.text((x+35,y+20),value,font=font(94,True),fill=GOLD if i==2 else INK)
             d.text((x+38,y+155),label,font=font(25,True),fill=MUTED)
         d.text((105,845),'50 ÷ (150 + 50) = 25% · Decisão final, sem rake ou apostas futuras.',font=font(27),fill=MUTED)
-    if kind=='pineapple':
-        panel=timeline.table_frame({'before':2,'after':5,'noTurn':True,'example':'EXEMPLO DE DISTRIBUIÇÃO'},t,sys.modules[__name__])
-        im.paste(panel.resize((1088,374),Image.Resampling.LANCZOS),(720,550))
     if kind=='shortdeck':
         for i,value in enumerate(['6','7','8','9','10','J','Q','K','A']):
             c=card(value).resize((120,170),Image.Resampling.LANCZOS)
@@ -387,21 +440,30 @@ def encode_scene(path, duration, frame, visual_end, size=(W,H), start=0.):
         process.kill(); process.wait(); raise
 
 
+def cue_time(scene, phrase, normalize):
+    """Instante (s) em que a frase começa na narração da cena."""
+    words = scene['words']
+    needle = normalize(phrase)
+    for i in range(len(words)):
+        value = ''
+        for word in words[i:]:
+            value += normalize(word['text'])
+            if value == needle:
+                return scene.get('speechLead',.25) + words[i]['offset'] / 1e7
+            if not needle.startswith(value):
+                break
+    raise ValueError(f"Missing narration cue: {phrase!r} in {scene['title']}")
+
+
 def academy_animation(lesson, scene):
-    variant=lesson.get('variant','holdem')
-    pineapple=variant=='brazilian_pineapple'
     board=scene['board']; hole=scene['hole']
-    if scene['diagram']=='distribution' and pineapple:
-        # Full hand demonstration, with valid unique cards and all three streets.
-        hole=['Ah','Kd','8c','6s','2h']; board=['Qc','Js','Th','4d','3c']
     final=len(board) if len(board)>=3 else 2
     before=2 if scene['diagram']=='distribution' else max(2,final-1)
-    events=timeline.deal_timeline(.5,before,final)
-    if not pineapple: events=[e for e in events if e['kind']=='board']
-    return {'hole':hole,'board':board,'before':before,'after':final,'extra':pineapple,'compact':True,
-            'initialHole':before if pineapple else len(hole),'dealEvents':events,'noTurn':True,
+    events=[e for e in timeline.deal_timeline(.5,before,final) if e['kind']=='board']
+    return {'hole':hole,'board':board,'before':before,'after':final,'extra':False,'compact':True,
+            'initialHole':len(hole),'dealEvents':events,'noTurn':True,
             'example':'MÃO DO EXERCÍCIO' if scene.get('exerciseHand') else 'EXEMPLO INDEPENDENTE',
-            'table':{'pot':400 if pineapple else 300,'players':[{'name':'Você','stack':9900,'bet':0},{'name':'Beto','stack':9900,'bet':0},{'name':'Caio','stack':9800 if pineapple else 9900,'bet':0}]}}
+            'table':{'pot':300,'players':[{'name':'Você','stack':9900,'bet':0},{'name':'Beto','stack':9900,'bet':0},{'name':'Caio','stack':9900,'bet':0}]}}
 
 
 def academy_temporal_frame(lesson,scene,index,count,t,bases):
@@ -554,20 +616,21 @@ def academy_frame(lesson, scene, index, count, focus=0):
     d.multiline_text((90,y+30),'\n'.join(window),font=font(33),fill='#cad6cf',spacing=15)
     kind=scene['diagram']
     variant=lesson.get('variant','holdem')
-    variant_name={'holdem':'TEXAS HOLD’EM','short_deck':'TEXAS SHORT DECK','omaha':'OMAHA 4','brazilian_pineapple':'BRAZILIAN PINEAPPLE'}[variant]
+    variant_name={'holdem':'TEXAS HOLD’EM','short_deck':'TEXAS SHORT DECK','omaha':'OMAHA 4','pineapple_draw':'BRAZILIAN PINEAPPLE'}[variant]
     d.text((1200,175),variant_name,font=font(23,True),fill=GOLD)
-    if kind=='distribution' and variant=='brazilian_pineapple':
-        for i,(street,n) in enumerate([('PRÉ-FLOP',2),('FLOP',3),('TURN',4),('RIVER',5)]):
+    if kind=='distribution' and variant=='pineapple_draw':
+        for i,(street,swap) in enumerate([('PRÉ-FLOP',False),('FLOP',True),('TURN',True),('RIVER',True)]):
             sy=272+i*145
             d.text((1200,sy),street,font=font(24,True),fill=MUTED)
-            for j in range(n):
+            for j in range(3):
                 c=card('',back=True).resize((64,90),Image.Resampling.LANCZOS)
                 im.paste(c,(1400+j*69,sy-15),c)
-        d.text((1200,877),'SEM DESCARTE · EXATAMENTE 2 + 3',font=font(22,True),fill=GREEN)
+            if swap: d.text((1620,sy+10),'TROCA 0 OU 1',font=font(20,True),fill=GOLD)
+        d.text((1200,877),'3 PRIVADAS · EXATAMENTE 2 + 3',font=font(22,True),fill=GREEN)
     elif kind=='math':
-        if variant in ('brazilian_pineapple','omaha'):
+        if variant in ('pineapple_draw','omaha'):
             d.text((1200,330),'C(h, 2) × C(b, 3)',font=font(55,serif=True),fill=INK)
-            rows=[('FLOP','3'),('TURN','24'),('RIVER','100')] if variant=='brazilian_pineapple' else [('FLOP','6'),('TURN','24'),('RIVER','60')]
+            rows=[('FLOP','3'),('TURN','12'),('RIVER','30')] if variant=='pineapple_draw' else [('FLOP','6'),('TURN','24'),('RIVER','60')]
             for i,(label,value) in enumerate(rows):
                 sy=460+i*100
                 d.text((1210,sy),label,font=font(26),fill=MUTED)
@@ -595,7 +658,7 @@ def academy_frame(lesson, scene, index, count, focus=0):
                 code=board[i]; c=card('10' if code[0]=='T' else code[0],{'s':'♠','h':'♥','d':'♦','c':'♣'}[code[1]]).resize((106,151),Image.Resampling.LANCZOS)
                 im.paste(c,(1200+i*121,610),c)
             else: d.rounded_rectangle((1200+i*121,610,1306+i*121,761),radius=9,outline='#426b55',width=2)
-        rule='EXATAMENTE 2 PRIVADAS + 3 COMUNITÁRIAS' if variant in ('omaha','brazilian_pineapple') else 'MELHORES 5 · USE 0, 1 OU 2 PRIVADAS'
+        rule='EXATAMENTE 2 PRIVADAS + 3 COMUNITÁRIAS' if variant in ('omaha','pineapple_draw') else 'MELHORES 5 · USE 0, 1 OU 2 PRIVADAS'
         d.text((1200,828),rule,font=fit_text(d,rule,24,630,True),fill=GREEN)
         reference='MÃO DO EXERCÍCIO' if scene.get('exerciseHand') else 'REFERÊNCIA DA MESA DO MÓDULO'
         d.text((1200,885),reference,font=font(21),fill=MUTED)
@@ -643,11 +706,10 @@ async def render_academy(lesson_id):
         count=max(1,math.ceil(len(lines)/9))
         # Match text pages to narration, and quantize boundaries to output
         # frames to prevent cumulative audio/video drift between segments.
-        import pineapple
         starts=[0.]
         for focus in range(1,count):
             try:
-                at=pineapple.cue_time(scene,speak(lines[focus*9]),speech_text)
+                at=cue_time(scene,speak(lines[focus*9]),speech_text)
             except ValueError:
                 at=scene['duration']*focus/count
             starts.append(min(scene['duration']-(count-focus)/FPS,max(starts[-1]+1/FPS,round(at*FPS)/FPS)))
@@ -719,9 +781,6 @@ async def render(key):
         content_hash=lesson_fingerprint(lesson,training)
     scenes=episode['scenes']
     wav,captions,total=await narration(key,scenes)
-    if key == 'pineapple':
-        await render_pineapple(episode, episode_hash, wav, captions, total)
-        return
     name=episode['filename']
     silent=WORK/f'{name}-silent.mp4'
     cmd=[FFMPEG,'-y','-v','error','-f','rawvideo','-vcodec','rawvideo','-s',f'{W}x{H}','-pix_fmt','rgb24','-r','15','-i','-','-an','-vf','fps=30','-c:v','libx264','-preset','veryfast','-threads','2','-crf','22','-pix_fmt','yuv420p',str(silent)]
@@ -762,10 +821,7 @@ async def render(key):
     if lesson_id:
         manifest['contentHash']=content_hash
     (HERE/f'{key}-manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    if key == 'home':
-        public_info = {**manifest, 'transcript': transcript}
-        (ROOT/'Frontend-Web/src/data/homeFilm.json').write_text(json.dumps(public_info,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    elif lesson_id:
+    if lesson_id:
         lesson['video']={**lesson.get('video',{}),'publicationStatus':'published',
             'url':f'/videos/{name}.mp4','posterUrl':f'/videos/{name}.webp','captionsUrl':f'/videos/{name}.vtt',
             'durationSeconds':manifest['durationSeconds'],'chapters':manifest['chapters'],
@@ -774,76 +830,26 @@ async def render(key):
         COURSE_FILE.write_text(json.dumps(course,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(manifest,ensure_ascii=False),flush=True)
 
-async def render_pineapple(episode, episode_hash, wav, captions, total):
-    import pineapple
-    if total > episode['maxDurationSeconds']:
-        raise RuntimeError(f'Film is {total:.2f}s; revise script to fit 480s without speeding speech')
-    scenes=episode['scenes']; name=episode['filename']
-    # All cue phrases must exist before encoding starts.
-    for scene in scenes: pineapple.prepare(scene, sys.modules[__name__])
-    silent=WORK/f'{name}-silent.mp4'
-    cmd=[FFMPEG,'-y','-v','error','-f','rawvideo','-pix_fmt','rgb24','-s','1280x720',
-         '-r',str(pineapple.SOURCE_FPS),'-i','-','-an','-vf','fps=30','-c:v','libx264',
-         '-preset','veryfast','-threads','2','-crf','21','-pix_fmt','yuv420p',str(silent)]
-    process=subprocess.Popen(cmd,stdin=subprocess.PIPE)
-    chapter_list=[]; frame_count=0
-    audit=ROOT/'artifacts/pineapple-film'; audit.mkdir(parents=True,exist_ok=True)
-    try:
-        for i,scene in enumerate(scenes):
-            if not chapter_list or chapter_list[-1]['title']!=scene['chapter']:
-                chapter_list.append({'start':round(scene['start'],2),'title':scene['chapter']})
-            # Absolute frame edges prevent per-scene rounding drift.
-            last=round((scene['start']+scene['duration'])*pineapple.SOURCE_FPS)
-            while frame_count<last:
-                t=max(0,frame_count/pineapple.SOURCE_FPS-scene['start'])
-                process.stdin.write(pineapple.frame(scene,t,i,len(scenes),sys.modules[__name__]).tobytes())
-                frame_count+=1
-            for label,t in [('start',2.5),('end',scene['duration']-1)]:
-                pineapple.frame(scene,t,i,len(scenes),sys.modules[__name__]).save(audit/f'scene-{i+1:02}-{label}.png')
-            print(f'Rendered pineapple/{i+1}: {scene["title"]}',flush=True)
-        process.stdin.close()
-        if process.wait()!=0: raise RuntimeError('Pineapple video encoder failed')
-    except BaseException:
-        process.kill(); process.wait(); raise
-    encoded=WORK/f'{name}-encoded.mp4'
-    # Add native MP4 chapters in addition to accessible HTML chapter buttons.
-    metadata=WORK/f'{name}-chapters.txt'
-    metadata.write_text(';FFMETADATA1\n'+''.join(
-        f"[CHAPTER]\nTIMEBASE=1/1000\nSTART={round(c['start']*1000)}\nEND={round((chapter_list[j+1]['start'] if j+1<len(chapter_list) else total)*1000)}\ntitle={c['title']}\n"
-        for j,c in enumerate(chapter_list)),encoding='utf-8')
-    subprocess.run([FFMPEG,'-y','-v','error','-i',str(silent),'-i',str(wav),'-i',str(metadata),
-        '-map','0:v:0','-map','1:a:0','-map_metadata','2','-map_chapters','2','-c:v','copy',
-        '-af','loudnorm=I=-16:TP=-1.5:LRA=9','-c:a','aac','-b:a','128k','-movflags','+faststart',
-        '-t',str(total),str(encoded)],check=True)
-    publish_pineapple(episode, episode_hash, captions, total, chapter_list, encoded)
+# Aulas do Brazilian Pineapple: vídeo produzido em Remotion (`motion/produce.py --publish`).
+# Este renderizador não as regrava; `--check` confere o manifesto de lá.
+MOTION_LESSONS = ('m5l3', 'm5l4', 'm5l5')
+MOTION = HERE / 'motion'
+FILMS_FILE = ROOT / 'Frontend-Web/src/data/pineappleDrawFilms.json'
+MOTION_RENDER_VERSION = 2  # igual a motion/produce.py
 
 
-def publish_pineapple(episode, episode_hash, captions, total, chapter_list, encoded):
-    """Publish a completed encode only after rechecking the canonical script."""
-    import pineapple
-    scenes=episode['scenes']; name=episode['filename']
-    current=json.loads((HERE/'episodes.json').read_text(encoding='utf-8'))['pineapple']
-    if episode_fingerprint(current)!=episode_hash: raise RuntimeError('Pineapple script changed during rendering')
-    target=OUT/f'{name}.mp4'; encoded.replace(target)
-    (OUT/f'{name}.vtt').write_text('WEBVTT\n\n'+'\n\n'.join(f'{stamp(a)} --> {stamp(b)}\n{text}' for a,b,text in captions)+'\n',encoding='utf-8',newline='\n')
-    pineapple.poster(sys.modules[__name__]).save(OUT/f'{name}.webp',quality=92)
-    transcript='\n\n'.join(s['voice'] for s in scenes)
-    transcript_path=HERE/'pineapple-transcript.txt'; transcript_path.write_text(transcript+'\n',encoding='utf-8',newline='\n')
-    manifest={'filename':name,'title':episode['title'],'bettingRuleVersion':episode['bettingRuleVersion'],
-        'durationSeconds':round(total,2),'width':1280,'height':720,'fps':30,'bytes':target.stat().st_size,
-        'voice':f'{VOICE} (synthetic)','voiceRate':VOICE_RATE,'chapters':chapter_list,
-        'pronunciationVersion':PRONUNCIATION_VERSION,'narrationHash':narration_fingerprint(scenes),
-        'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'episodeHash':episode_hash,'rendererVersion':EDITORIAL_RENDER_VERSION,
-        **publication_assets(name),
-        'transcriptHash':hashlib.sha256(transcript_path.read_bytes()).hexdigest(),
-        'scenes':[{'start':round(s['start'],3),'duration':round(s['duration'],3),'title':s['title'],
-                   'cueTime':s['cueTime'],'finalCueTime':s['finalCueTime'],'highlights':s['highlights'],
-                   'dealEvents':s.get('dealEvents',[]),'actions':s.get('actions',[])} for s in scenes]}
-    (HERE/'pineapple-manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    # Scene timings belong to the production manifest, not the initial page bundle.
-    public={k:v for k,v in manifest.items() if k!='scenes'}
-    (ROOT/'Frontend-Web/src/data/pineappleFilm.json').write_text(json.dumps({**public,'transcript':transcript},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    print(f'Pineapple ready locally: {total:.2f}s / {target.stat().st_size} bytes',flush=True)
+def check_motion(manifest, video, key):
+    """Vídeo do Remotion: roteiro versionado, narração, regra de apostas e site em acordo."""
+    script=json.loads((MOTION/manifest['script']).read_text(encoding='utf-8'))
+    assert manifest['renderer']==video['renderer']=='remotion', key
+    assert manifest['rendererVersion']==video['rendererVersion']==MOTION_RENDER_VERSION, key
+    assert manifest['scriptHash']==motion_script_fingerprint(script), f'{key}: roteiro mudou depois da publicação'
+    assert manifest['narrationHash']==video['narrationHash']==motion_narration_fingerprint(script), key
+    assert manifest['pronunciationVersion']==video['pronunciationVersion']==MOTION_PRONUNCIATION_VERSION, key
+    assert manifest['bettingRuleVersion']==video['bettingRuleVersion']==script['bettingRuleVersion']=='pineapple_draw_v1', key
+    assert video['transcript']=='\n\n'.join(s['voice'] for s in script['scenes']), key
+    return script
+
 
 def check_publications(decode=False, ready_only=False, only=None):
     """Validate active media only. --decode also reads every audio/video frame."""
@@ -857,7 +863,12 @@ def check_publications(decode=False, ready_only=False, only=None):
             if video.get('publicationStatus') not in ('published', 'prior_rules'):
                 if ready_only: continue
                 raise RuntimeError(f"Lesson without current video: {lesson['id']}")
-            if module['id']!='m0':
+            if lesson['id'] in MOTION_LESSONS:
+                manifest=json.loads((HERE/f"academy-{lesson['id']}-manifest.json").read_text(encoding='utf-8'))
+                script=check_motion(manifest, video, lesson['id'])
+                assert script['lesson']==manifest['lessonId']==lesson['id'], lesson['id']
+                assert video['contentHash']==manifest['contentHash']==lesson_fingerprint(lesson,training), f"{lesson['id']}: texto da aula mudou depois do vídeo"
+            elif module['id']!='m0':
                 manifest=json.loads((HERE/f"academy-{lesson['id']}-manifest.json").read_text(encoding='utf-8'))
                 if prior_rules:
                     assert lesson['id'] in ('m5l3', 'm5l4', 'm5l5'), lesson['id']
@@ -884,24 +895,17 @@ def check_publications(decode=False, ready_only=False, only=None):
                     assert manifest['pronunciationVersion']==video['pronunciationVersion']==PRONUNCIATION_VERSION, lesson['id']
                     assert manifest['narrationHash']==video['narrationHash']==narration_fingerprint(episode['scenes']), lesson['id']
             entries.append((lesson['id'],video,manifest))
-    home=json.loads((ROOT/'Frontend-Web/src/data/homeFilm.json').read_text(encoding='utf-8'))
-    home_episode=json.loads((HERE/'episodes.json').read_text(encoding='utf-8'))['home']
-    assert home['pronunciationVersion']==PRONUNCIATION_VERSION
-    assert home['narrationHash']==narration_fingerprint(home_episode['scenes'])
-    entries.append(('home',{'url':f"/videos/{home['filename']}.mp4",'captionsUrl':f"/videos/{home['filename']}.vtt",'posterUrl':f"/videos/{home['filename']}.webp",**home},home))
-    pineapple=json.loads((ROOT/'Frontend-Web/src/data/pineappleFilm.json').read_text(encoding='utf-8'))
-    manifest=json.loads((HERE/'pineapple-manifest.json').read_text(encoding='utf-8'))
-    episode=json.loads((HERE/'episodes.json').read_text(encoding='utf-8'))['pineapple']
-    assert manifest['episodeHash']==pineapple['episodeHash']==episode_fingerprint(episode)
-    assert manifest['pronunciationVersion']==pineapple['pronunciationVersion']==PRONUNCIATION_VERSION
-    assert manifest['narrationHash']==pineapple['narrationHash']==narration_fingerprint(episode['scenes'])
-    assert manifest['bettingRuleVersion']==pineapple['bettingRuleVersion']==episode['bettingRuleVersion']=='brazilian_pineapple_pot_before_call_v2'
-    assert 0<pineapple['durationSeconds']<=episode['maxDurationSeconds']==480
-    assert manifest['transcriptHash']==hashlib.sha256((HERE/'pineapple-transcript.txt').read_bytes()).hexdigest()
-    assert pineapple['transcript']==(HERE/'pineapple-transcript.txt').read_text(encoding='utf-8').strip()
-    for ext,digest in manifest['assetHashes'].items():
-        assert digest==pineapple['assetHashes'][ext]==hashlib.sha256((OUT/f"{pineapple['filename']}.{ext}").read_bytes()).hexdigest()
-    entries.append(('pineapple',{'url':f"/videos/{pineapple['filename']}.mp4",'captionsUrl':f"/videos/{pineapple['filename']}.vtt",'posterUrl':f"/videos/{pineapple['filename']}.webp",**pineapple},manifest))
+    # Filme de regras e trailer do Brazilian Pineapple (home e Academy).
+    films=json.loads(FILMS_FILE.read_text(encoding='utf-8'))
+    assert sorted(films)==['pineapple-draw-rules','pineapple-draw-trailer'], sorted(films)
+    for film_id,film in films.items():
+        manifest=json.loads((HERE/f'{film_id}-manifest.json').read_text(encoding='utf-8'))
+        name=film['filename']
+        assert manifest['filmId']==film_id and manifest['filename']==name, film_id
+        video={**film,'url':f'/videos/{name}.mp4','captionsUrl':f'/videos/{name}.vtt','posterUrl':f'/videos/{name}.webp'}
+        check_motion(manifest, video, film_id)
+        assert (HERE/f'{film_id}-transcript.txt').read_text(encoding='utf-8').strip()==film['transcript'], film_id
+        entries.append((film_id,video,manifest))
     if only: entries=[entry for entry in entries if entry[0]==only]
     def seconds(value):
         h,m,s=value.split(':'); return int(h)*3600+int(m)*60+float(s)
@@ -938,7 +942,7 @@ def check_publications(decode=False, ready_only=False, only=None):
         poster=PUBLIC/video['posterUrl'].lstrip('/')
         with Image.open(poster) as im: assert im.size==(1280,720), key
         vtt=(PUBLIC/video['captionsUrl'].lstrip('/')).read_text(encoding='utf-8')
-        captions=re.findall(r'(\d{2}:\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}:\d{2}\.\d{3})\n([^\n]+)',vtt)
+        captions=re.findall(r'(\d{2}:\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}:\d{2}\.\d{3})\n([^\n]+(?:\n[^\n]+)*)',vtt)
         previous=0
         for a,b,_ in captions:
             assert previous<=seconds(a)<seconds(b)<=video['durationSeconds']+.05, key
@@ -958,19 +962,19 @@ def check_publications(decode=False, ready_only=False, only=None):
 if __name__=='__main__':
     parser=argparse.ArgumentParser()
     parser.add_argument('--prepare',action='store_true')
-    parser.add_argument('--episode',choices=('home','pineapple','ep11','ep12','ep13','all'))
+    parser.add_argument('--episode',choices=('ep11','ep12','ep13','all'))
     parser.add_argument('--academy',help='Lesson ID or all (25 technical lessons).')
-    parser.add_argument('--check',action='store_true',help='Validate all active lessons and the home film.')
+    parser.add_argument('--check',action='store_true',help='Validate all active lessons.')
     parser.add_argument('--decode',action='store_true',help='With --check, decode every media file completely.')
-    parser.add_argument('--only',choices=('pineapple',),help='With --check, limit the media audit to the new film.')
+    parser.add_argument('--only',help='With --check, limit the media audit to one lesson ID.')
     args=parser.parse_args()
     if args.prepare: prepare()
     if args.episode:
-        for key in (('home','pineapple','ep11','ep12','ep13') if args.episode=='all' else (args.episode,)):
+        for key in (('ep11','ep12','ep13') if args.episode=='all' else (args.episode,)):
             asyncio.run(render(key))
     if args.academy:
         course=json.loads(COURSE_FILE.read_text(encoding='utf-8'))
-        ids=[l['id'] for m in course['modules'] if m['id']!='m0' for l in m['lessons']]
+        ids=[l['id'] for m in course['modules'] if m['id']!='m0' for l in m['lessons'] if l['id'] not in MOTION_LESSONS]
         if args.academy!='all':
             if args.academy not in ids: parser.error('Unknown technical lesson')
             ids=[args.academy]

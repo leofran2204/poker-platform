@@ -165,7 +165,7 @@ export function AdminTournamentsPage() {
             }}>
               <option value="holdem">Texas Hold'em (9)</option>
               <option value="omaha">Omaha 4 (6)</option>
-              <option value="brazilian_pineapple">Brazilian Pineapple (6)</option>
+              <option value="pineapple_draw">Brazilian Pineapple (6)</option>
               <option value="short_deck">Texas Hold’em Short Deck (8)</option>
             </select>
           </label>

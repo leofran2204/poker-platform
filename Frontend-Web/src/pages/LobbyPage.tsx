@@ -25,7 +25,7 @@ const STAKE_OPTIONS: { id: StakeFilter; label: string }[] = [
   { id: "nl075150", label: "NL 0,75/1,50" },
   { id: "shortdeck050", label: "Short Deck 0,50/0,50" },
   { id: "omaha050", label: "Omaha 0,50/0,50" },
-  { id: "pineapple050", label: "Pineapple 0,50/0,50" },
+  { id: "pineapple050", label: "Brazilian Pineapple 0,50/0,50" },
 ];
 
 function formatBuyInRange(min: number, max: number): string {
@@ -122,8 +122,7 @@ export function LobbyPage() {
     return tables.filter((t) => {
       if (hideFull && t.players >= t.max_players) return false;
       const isOmaha = t.poker_variant === "omaha" || t.poker_variant === "short_deck_omaha";
-      const isPineapple =
-        t.poker_variant === "brazilian_pineapple" || t.poker_variant === "ultimate_pineapple";
+      const isPineapple = t.poker_variant === "pineapple_draw";
       const isHoldem = !t.poker_variant || t.poker_variant === "holdem";
       if (stake === "nl025")
         return isHoldem && t.small_blind === 25 && t.big_blind === 25;
@@ -299,7 +298,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({filtered.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                Texas tradicional, Texas Short Deck, Omaha 4 e Brazilian Pineapple · confira blinds, frente e vagas em cada mesa · ação automática em 15s
+                Texas tradicional, Texas Short Deck, Omaha 4 e Brazilian Pineapple (só Play Money por enquanto) · confira blinds, frente e vagas em cada mesa · ação automática em 15s
               </p>
             </div>
 
@@ -523,7 +522,7 @@ export function LobbyPage() {
                 <span className="ml-2 font-mono text-felt-300">({tournaments.length})</span>
               </div>
               <p className="text-[11px] text-felt-400">
-                Texas tradicional e Short Deck, freeroll, Omaha e Pineapple · taxa 15% por cima do buy-in
+                Texas tradicional e Short Deck, freeroll, Omaha e Brazilian Pineapple (só Play Money) · taxa 15% por cima do buy-in
               </p>
             </div>
             <button

@@ -603,6 +603,9 @@ mod hand_state_tests {
             small_blind: 5,
             big_blind: 10,
             is_finished: false,
+            drawing: false,
+            discarding: false,
+            discard_pile: Vec::new(),
         }
     }
 
@@ -4040,6 +4043,7 @@ mod resolve_showdown_errors_tests {
             all_in_phase: Some(GamePhase::Preflop),
             has_acted: true,
             seat_index: 0,
+            draw_count: None,
         };
         let p2 = PlayerState {
             id: "p2".to_string(),
@@ -4061,6 +4065,7 @@ mod resolve_showdown_errors_tests {
             all_in_phase: Some(GamePhase::Turn),
             has_acted: true,
             seat_index: 1,
+            draw_count: None,
         };
         let p3 = PlayerState {
             id: "p3".to_string(),
@@ -4082,6 +4087,7 @@ mod resolve_showdown_errors_tests {
             all_in_phase: None,
             has_acted: true,
             seat_index: 2,
+            draw_count: None,
         };
 
         let mut gl = GameLoop::new(

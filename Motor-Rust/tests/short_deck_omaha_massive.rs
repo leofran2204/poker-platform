@@ -5,7 +5,8 @@
 //! - 100.000 mãos de torneio 4-max no `GameLoop`;
 //! - somente cartas 6–A e quatro hole cards por jogador;
 //! - leitura independente dos vencedores, inclusive side pots e centavo ímpar;
-//! - conservação exata das fichas e ausência de rake/deflator na mão de torneio.
+//! - conservação exata das fichas e ausência de rake na mão de torneio; o
+//!   deflator é desligado aqui para conferir a distribuição pura dos potes.
 //!
 //! Rodar:
 //!   cargo test --release --test short_deck_omaha_massive -- --nocapture
@@ -236,12 +237,15 @@ fn short_deck_omaha_one_hundred_thousand_tournament_hands_are_exact() {
         }
         let chips_before: u64 = stacks.iter().map(|(_, stack)| *stack).sum();
 
+        // Esta suíte confere a distribuição exata dos potes; o Loss Deflator do
+        // Omaha (que agora vale também em torneio) tem testes dirigidos próprios.
         let mut game = GameLoop::new(
             config.clone(),
             format!("sdo-tournament-{hand_index}"),
             "Omaha Short Deck 100 GTD 4-max".to_string(),
             GameType::Tournament,
-        );
+        )
+        .with_skip_loss_deflator(true);
         for (player_id, stack) in &stacks {
             game.add_player(player_id.clone(), *stack);
         }
@@ -275,7 +279,7 @@ fn short_deck_omaha_one_hundred_thousand_tournament_hands_are_exact() {
         assert_eq!(resolution.rake, 0, "torneio não deve cobrar rake por mão");
         assert!(
             resolution.loss_deflator.is_none() && resolution.loss_deflators.is_empty(),
-            "Omaha não deve aplicar o loss deflator de Hold'em"
+            "suíte de distribuição roda com o deflator desligado explicitamente"
         );
 
         match resolution.end_reason {

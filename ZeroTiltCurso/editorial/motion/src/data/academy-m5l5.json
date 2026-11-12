@@ -1,0 +1,341 @@
+{
+ "id": "academy-m5l5",
+ "title": "Aula m5l5 — Showdown, empates e leitura de equity",
+ "voice": "pt-BR-AntonioNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "bettingRuleVersion": "pineapple_draw_v1",
+ "lesson": "m5l5",
+ "scenes": [
+  {
+   "id": "m5l5-01",
+   "chapter": "Abertura",
+   "title": "Showdown, empates e leitura de equity",
+   "voice": "Zero Tilt Academy. Brazilian Pineapple, aula três: showdown, empates e leitura de equity. O objetivo é formar a melhor mão com duas cartas, dividir potes corretamente e não confundir ranking com equity.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Brazilian Pineapple · Aula 3",
+    "lines": [
+     "Objetivo: formar a mão, dividir potes e ler equity"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m5l5-02",
+   "chapter": "Formação da mão",
+   "title": "Uma carta da mão já basta",
+   "voice": "Com duas cartas na mão, você forma a melhor mão de cinco como no Texas Hold’em: pode usar as duas, uma só ou nenhuma. Aqui há quatro copas na mesa. Ana descarta um sete e guarda o ás de copas. Uma carta da mão já basta para o flush.",
+   "visual": {
+    "mode": "hand",
+    "dealer": 3,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Ana · você",
+      "stack": 9700,
+      "cards": [
+       "Ah",
+       "7s",
+       "7d"
+      ]
+     },
+     {
+      "name": "Beto",
+      "stack": 9700,
+      "cards": [
+       "Kc",
+       "Qs",
+       "4d"
+      ]
+     },
+     {
+      "name": "Caio",
+      "stack": 9700,
+      "cards": [
+       "Jd",
+       "Td",
+       "2c"
+      ]
+     },
+     {
+      "name": "Duda",
+      "stack": 9900,
+      "cards": [
+       "8s",
+       "5c",
+       "3d"
+      ],
+      "folded": true
+     }
+    ],
+    "board": [
+     "Kh",
+     "9h",
+     "6h",
+     "3h",
+     "Jc"
+    ],
+    "pot": 1400,
+    "events": [
+     {
+      "type": "discard",
+      "cue": "Ana descarta",
+      "player": 0,
+      "position": 1
+     },
+     {
+      "type": "highlight",
+      "cue": "Uma carta da mão",
+      "player": 0,
+      "hole": [
+       0
+      ],
+      "boardPick": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "text": "Flush de copas com o ás"
+     }
+    ],
+    "banner": "River · descarte"
+   }
+  },
+  {
+   "id": "m5l5-03",
+   "chapter": "Formação da mão",
+   "title": "Quando a mesa é a melhor mão",
+   "voice": "A mesa também pode ser a melhor mão. Aqui o royal flush está inteiro nas cartas comunitárias. Ana e Caio chegam ao showdown, e nenhum dos dois tem nada melhor. O pote é dividido: dez reais para cada um.",
+   "visual": {
+    "mode": "hand",
+    "dealer": 3,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Ana · você",
+      "stack": 9000,
+      "cards": [
+       "9c",
+       "9d"
+      ]
+     },
+     {
+      "name": "Beto",
+      "stack": 9700,
+      "cards": [
+       "Kc",
+       "Qs",
+       "4d"
+      ],
+      "folded": true
+     },
+     {
+      "name": "Caio",
+      "stack": 9000,
+      "cards": [
+       "8s",
+       "8d"
+      ]
+     },
+     {
+      "name": "Duda",
+      "stack": 9900,
+      "cards": [
+       "7c",
+       "5c",
+       "3d"
+      ],
+      "folded": true
+     }
+    ],
+    "board": [
+     "Ah",
+     "Kh",
+     "Qh",
+     "Jh",
+     "Th"
+    ],
+    "pot": 2000,
+    "events": [
+     {
+      "type": "reveal",
+      "cue": "Ana e Caio",
+      "players": [
+       2
+      ]
+     },
+     {
+      "type": "highlight",
+      "cue": "nenhum dos dois",
+      "boardPick": [
+       0,
+       1,
+       2,
+       3,
+       4
+      ],
+      "hole": [],
+      "text": "Royal flush na mesa: pote dividido"
+     },
+     {
+      "type": "award",
+      "cue": "dez reais para cada um",
+      "players": [
+       0,
+       2
+      ],
+      "amounts": [
+       1000,
+       1000
+      ],
+      "label": "Divide o pote"
+     }
+    ],
+    "banner": "Showdown"
+   },
+   "padAfter": 1.4
+  },
+  {
+   "id": "m5l5-04",
+   "chapter": "Ranking não é equity",
+   "title": "Duas medidas diferentes",
+   "voice": "Ranking e equity são coisas diferentes. O ranking classifica a mão que você tem agora. A equity é a sua parcela esperada do pote, contando as frações de empate. Antes do river, ela também depende das trocas que ainda vão acontecer.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Ranking: a mão formada agora",
+     "Equity: sua parcela esperada do pote",
+     "Antes do river, depende das trocas futuras"
+    ],
+    "cues": [
+     "O ranking classifica",
+     "A equity é",
+     "Antes do river"
+    ]
+   }
+  },
+  {
+   "id": "m5l5-05",
+   "chapter": "Loss Deflator",
+   "title": "A equity do all-in",
+   "voice": "No all-in, o Loss Deflator usa uma regra fixa. Valem as cartas que cada jogador tinha naquele instante: três antes do descarte, duas depois. De três cartas, contam as duas melhores em cada desfecho. Trocas futuras não entram na conta.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Cartas do instante do all-in",
+     "De três cartas, contam as duas melhores",
+     "Trocas futuras não entram"
+    ],
+    "cues": [
+     "naquele instante",
+     "De três cartas",
+     "Trocas futuras"
+    ]
+   }
+  },
+  {
+   "id": "m5l5-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. No river, você tem ás de copas e dois setes. Na mesa, rei, nove, seis e três de copas, e o valete de paus. Qual carta você descarta? A: o ás de copas. B: um dos setes. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Qual carta você descarta?",
+    "options": [
+     {
+      "key": "A",
+      "text": "O ás de copas",
+      "cue": "A o ás de copas"
+     },
+     {
+      "key": "B",
+      "text": "Um dos setes",
+      "cue": "B um dos setes"
+     }
+    ],
+    "correct": "B",
+    "hole": [
+     "Ah",
+     "7s",
+     "7d"
+    ],
+    "board": [
+     "Kh",
+     "9h",
+     "6h",
+     "3h",
+     "Jc"
+    ]
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m5l5-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B, um dos setes. O ás de copas, com as quatro copas da mesa, forma o flush. Uma carta da mão já basta. O par de setes não melhora essa mão.",
+   "visual": {
+    "mode": "answer",
+    "question": "Qual carta você descarta?",
+    "options": [
+     {
+      "key": "A",
+      "text": "O ás de copas",
+      "cue": "A o ás de copas"
+     },
+     {
+      "key": "B",
+      "text": "Um dos setes",
+      "cue": "B um dos setes"
+     }
+    ],
+    "correct": "B",
+    "hole": [
+     "Ah",
+     "7s",
+     "7d"
+    ],
+    "board": [
+     "Kh",
+     "9h",
+     "6h",
+     "3h",
+     "Jc"
+    ],
+    "cue": "Resposta",
+    "explanation": "Quatro copas na mesa + ás de copas = flush · descarte um dos setes"
+   }
+  },
+  {
+   "id": "m5l5-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino da Academy. Comece pelo treino guiado e depois repita no modo desafio, respondendo à pergunta antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Treino guiado, depois modo desafio",
+     "Responda antes de agir",
+     "Use o replay para comparar"
+    ]
+   }
+  },
+  {
+   "id": "m5l5-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

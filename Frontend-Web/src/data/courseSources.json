@@ -63,7 +63,7 @@
     "title": "Statistics for Applications — Lecture 17",
     "credit": "MIT 18.443 · Dr. Kempthorne · 2015 · p. 10",
     "url": "https://ocw.mit.edu/courses/18-443-statistics-for-applications-spring-2015/c9f6cf548a6e918d3dc798fc0d7c8170_MIT18_443S15_LEC17.pdf",
-    "note": "Distribuição hipergeométrica para amostragem uniforme sem reposição. Os exemplos e derivações para Brazilian Pineapple são originais da ZT; a fonte não estuda nem endossa esta modalidade."
+    "note": "Distribuição hipergeométrica para amostragem uniforme sem reposição. Os exemplos e derivações para o Brazilian Pineapple são originais da ZT; a fonte não estuda nem endossa esta modalidade."
   },
   "nist-proportions": {
     "title": "Confidence intervals for proportions",

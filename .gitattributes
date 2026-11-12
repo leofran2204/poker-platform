@@ -38,5 +38,3 @@ Caddyfile text eol=lf
 *.pdf binary
 
 # The new film fingerprints these text assets as bytes on every platform.
-ZeroTiltCurso/editorial/pineapple-transcript.txt text eol=lf
-Frontend-Web/public/videos/zt-brazilian-pineapple-hybrid-v1.vtt text eol=lf

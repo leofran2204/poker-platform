@@ -6,7 +6,7 @@ import { formatBrlFromCents } from "@/lib/money";
 export interface AnimatedStreet {
   label: string;
   board: string[];
-  /** Cartas visíveis de cada assento neste passo (Pineapple cresce street a street). */
+  /** Cartas visíveis de cada assento neste passo (no Brazilian Pineapple, a troca muda uma carta). */
   holes?: string[][];
   /** Narração deste passo (MP3). */
   audio?: string;

@@ -1,8 +1,9 @@
 # Estrategia do bot Zero Tilt
 
 Baselines simplificados e auditaveis para cash 6-max/9-max, MTT ChipEV/ICM/PKO,
-pos-flop heuristico, ICM e BRM. Base: `poker.txt` + pesquisa (GTO Wizard, BBZ,
-RangeConverter, GTOLab, PokerCoaching, ThinkGTO).
+pos-flop heuristico, ICM e BRM. Base: `poker.txt` (referencia externa, nao versionada
+neste repositorio) + pesquisa (GTO Wizard, BBZ, RangeConverter,
+GTOLab, PokerCoaching, ThinkGTO).
 
 ## O que e / nao e
 

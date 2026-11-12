@@ -167,7 +167,8 @@ impl TournamentActor {
                 })
         });
         if let Some(pid) = away_active {
-            self.handle_action(pid, "fold".to_string(), 0).await;
+            let automatic = crate::game_actor::automatic_timeout_action(self.game_loop.as_ref());
+            self.handle_action(pid, automatic.to_string(), 0).await;
             return true;
         }
         // Mão travada: o da vez não pode agir (all-in geral, comum quando os
@@ -186,7 +187,7 @@ impl TournamentActor {
             }
             return true;
         }
-        // Timeout de turno = fold.
+        // Timeout de turno = fold; na rodada de troca, mantém as cartas.
         let timed_out = self.game_loop.as_ref().and_then(|gl| {
             (!gl.state.is_finished)
                 .then_some(())
@@ -195,7 +196,8 @@ impl TournamentActor {
                 .and_then(|_| gl.state.active_player().map(|p| p.id.clone()))
         });
         if let Some(pid) = timed_out {
-            self.handle_action(pid, "fold".to_string(), 0).await;
+            let automatic = crate::game_actor::automatic_timeout_action(self.game_loop.as_ref());
+            self.handle_action(pid, automatic.to_string(), 0).await;
             return true;
         }
         if let Some(next_at) = self.next_hand_at {
@@ -327,6 +329,12 @@ impl TournamentActor {
             "bet" => PlayerMove::Bet(amount),
             "raise" => PlayerMove::Raise(amount),
             "all-in" | "allin" => PlayerMove::AllIn,
+            "keep" => PlayerMove::Keep,
+            // Brazilian Pineapple: `amount` carrega a posição da carta (0 a 2).
+            "swap" => PlayerMove::Swap(amount as usize),
+            "discard" => PlayerMove::Discard(Some(amount as usize)),
+            // Descarte sem escolha: o motor guarda as duas melhores cartas.
+            "auto_discard" => PlayerMove::Discard(None),
             _ => {
                 error!("Ação inválida '{action}' na mesa {}", self.table_id);
                 return;
@@ -425,13 +433,14 @@ impl TournamentActor {
         let config = TableConfig::new(spec.big_blind, 0, 0)
             .with_small_blind(spec.small_blind)
             .with_poker_variant(PokerVariant::parse(&spec.variant));
+        // O Loss Deflator vale também nos torneios: o cashback sai das fichas do
+        // próprio pote (sem rake no MTT) e é auditado em `loss_deflators_json`.
         let mut gl = GameLoop::new(
             config,
             hand_id.to_string(),
             self.name.clone(),
             GameType::Tournament,
-        )
-        .with_skip_loss_deflator(true);
+        );
         for (pid, chips, _) in &active {
             gl.add_player(pid.clone(), *chips);
         }
@@ -737,6 +746,7 @@ impl TournamentActor {
                         "_legal_actions": gl.legal_actions(&gp.id),
                         "cards": gp.hole_cards.iter().map(crate::game_actor::card_to_string).collect::<Vec<String>>(),
                         "folded": gp.has_folded,
+                        "draw_count": gp.draw_count,
                         "is_active": gl.state.active_player().map(|ap| ap.id == gp.id).unwrap_or(false),
                         "is_dealer": gl.state.dealer_index == gp.seat_index,
                         "seat": tp.seat,
@@ -764,6 +774,8 @@ impl TournamentActor {
             "table_id": self.table_id,
             "tournament_id": self.tournament_id,
             "stage": stage,
+            "drawing": self.game_loop.as_ref().is_some_and(|g| g.state.drawing && !g.state.is_finished),
+            "discarding": self.game_loop.as_ref().is_some_and(|g| g.state.discarding && !g.state.is_finished),
             "betting_structure": self.game_loop.as_ref().map(|g| g.betting_structure()),
             "ante": self.game_loop.as_ref().map(|g| g.nominal_ante()).unwrap_or(0),
             "ante_paid": self.game_loop.as_ref().map(|g| g.ante_paid()).unwrap_or(0),

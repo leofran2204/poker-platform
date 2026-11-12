@@ -67,7 +67,7 @@ pub struct TournamentInfoResponse {
     pub gameplay_ready: bool,
     /// `play` | `real`
     pub money_mode: String,
-    /// `holdem` | `short_deck` | `omaha` | `brazilian_pineapple`
+    /// `holdem` | `short_deck` | `omaha` | `pineapple_draw`
     pub poker_variant: String,
     /// Variant activated when the final-table player threshold is reached.
     pub final_table_variant: Option<String>,
@@ -135,7 +135,7 @@ fn to_info(store: &crate::tournament_store::TournamentStore) -> TournamentInfoRe
                 small_blind: b.small_blind,
                 big_blind: b.big_blind,
                 ante: if poker_engine::types::PokerVariant::parse(store.active_poker_variant())
-                    == poker_engine::types::PokerVariant::BrazilianPineapple
+                    == poker_engine::types::PokerVariant::PineappleDraw
                 {
                     b.big_blind
                 } else {
@@ -178,7 +178,7 @@ mod response_tests {
     #[test]
     fn pineapple_ante_tracks_each_level_in_both_money_modes() {
         for mode in ["play", "real"] {
-            for variant in ["holdem", "omaha", "short_deck", "brazilian_pineapple"] {
+            for variant in ["holdem", "omaha", "short_deck", "pineapple_draw"] {
                 let config = TournamentConfig {
                     blind_levels: [100, 200, 1000]
                         .into_iter()
@@ -207,7 +207,7 @@ mod response_tests {
                 {
                     assert_eq!(
                         actual.ante,
-                        if variant == "brazilian_pineapple" {
+                        if variant == "pineapple_draw" {
                             configured.big_blind
                         } else {
                             configured.ante

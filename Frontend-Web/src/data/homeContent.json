@@ -1,6 +1,6 @@
 {
   "deflator": {
-    "intro": "No Texas Hold’em e no Short Deck da ZT, o Loss Deflator pode redistribuir parte de potes líquidos para perdedores de all-in elegíveis, conforme a equity e as regras do mecanismo. Não se aplica atualmente a Omaha 4 nem Brazilian Pineapple. Não elimina perdas e não usa saldo da casa.",
+    "intro": "Em todas as modalidades da ZT (Texas Hold’em, Short Deck, Omaha 4 e Brazilian Pineapple), no cash e nos torneios, em Play Money e Jogo Real, o Loss Deflator pode redistribuir parte de potes líquidos para perdedores de all-in elegíveis, conforme a equity e as regras do mecanismo. Não elimina perdas e não usa saldo da casa.",
     "steps": [
       {
         "title": "1. All-in pago",
@@ -209,76 +209,82 @@
       "id": "pineapple",
       "name": "Brazilian Pineapple",
       "deck": "52 cartas (baralho tradicional)",
-      "hole": "2 no pré-flop; +1 depois do flop, do turn e do river",
-      "make": "No showdown, exatamente 2 da mão + 3 da mesa. Sem descarte.",
-      "twist": "Ranking clássico: sequência vence trinca e full house vence flush. A diferença está na carta extra a cada street.",
-      "cap": "Mesas até 6 jogadores",
+      "hole": "3 no pré-flop; depois das apostas do flop e do turn, mantenha ou troque uma; no river, descarte uma",
+      "make": "No showdown, a melhor mão de 5 com as 2 cartas da mão e as 5 da mesa, como no Hold’em. Quem está all-in não troca.",
+      "twist": "Ranking clássico: sequência vence trinca e full house vence flush. A diferença está nas duas trocas e no descarte do river.",
+      "cap": "Mesas até 6 jogadores · primeiro no Play Money",
       "demoHand": {
         "id": "pineapple-demo",
-        "title": "Carta extra a cada street; sequência vence trinca",
+        "title": "Duas trocas, um descarte; sequência vence trinca",
         "heroLabel": "Você",
-        "heroCards": ["As", "Ks", "Qh", "8c", "Jc"],
+        "heroCards": ["As", "Qh"],
         "villainLabel": "Leo",
-        "villainCards": ["Kd", "Jd", "2c", "8d", "Ac"],
+        "villainCards": ["Kd", "Jd"],
         "seats": [
-          { "name": "Você", "cards": ["As", "Ks", "Qh", "8c", "Jc"], "isHero": true, "stack": "R$ 420", "showdownHand": "Trinca de Damas" },
-          { "name": "Leo", "cards": ["Kd", "Jd", "2c", "8d", "Ac"], "stack": "R$ 180", "showdownHand": "Par de Damas" },
-          { "name": "Mari", "cards": ["Jh", "Td", "8h", "7c", "6h"], "isWinner": true, "stack": "R$ 260", "showdownHand": "Sequência até Dez" }
+          { "name": "Você", "cards": ["As", "Qh"], "isHero": true, "stack": "R$ 420", "showdownHand": "Trinca de Damas" },
+          { "name": "Leo", "cards": ["Kd", "Jd"], "stack": "R$ 180", "showdownHand": "Par de Damas" },
+          { "name": "Mari", "cards": ["Td", "8h"], "isWinner": true, "stack": "R$ 260", "showdownHand": "Sequência até Dez" }
         ],
         "streets": [
           {
-            "label": "Pré-flóp: duas cartas para cada um",
+            "label": "Pré-flóp: três cartas para cada um",
             "board": [],
-            "holes": [["As", "Ks"], ["Kd", "Jd"], ["Jh", "Td"]],
-            "narration": "Brazilian Pineapple usa o baralho tradicional de cinquenta e duas cartas. Cada jogador começa com duas cartas fechadas e forma o jogo com exatamente duas da mão e três da mesa."
+            "holes": [["As", "Ks", "4d"], ["Kd", "Jd", "2c"], ["Jh", "Td", "4c"]],
+            "narration": "Brazilian Pineapple usa o baralho tradicional de cinquenta e duas cartas. Cada jogador recebe três cartas fechadas. No fim da mão, cada um fica com duas."
           },
           {
             "label": "Você aumenta. Leo paga. Mari paga.",
             "board": [],
-            "holes": [["As", "Ks"], ["Kd", "Jd"], ["Jh", "Td"]],
-            "narration": "Pré-flóp: você olha Ás e Rei e aumenta. Leo paga. Mari paga. Três jogadores na mão, pote formando."
+            "holes": [["As", "Ks", "4d"], ["Kd", "Jd", "2c"], ["Jh", "Td", "4c"]],
+            "narration": "Pré-flóp: você olha Ás, Rei e quatro e aumenta. Leo paga. Mari paga. Três jogadores na mão. Não há troca antes do flóp."
           },
           {
-            "label": "Flóp Dama Dama 7. Cada um recebe mais uma carta.",
+            "label": "Flóp Dama Dama 7. Leo aposta. Mari paga. Você paga.",
             "board": ["Qc", "Qs", "7h"],
-            "holes": [["As", "Ks", "Qh"], ["Kd", "Jd", "2c"], ["Jh", "Td", "8h"]],
-            "narration": "Flóp: Dama, Dama e sete na mesa. Cada um recebe a terceira carta fechada. A sua é outra Dama: você tem trinca, com duas Damas na mesa e uma na mão."
+            "holes": [["As", "Ks", "4d"], ["Kd", "Jd", "2c"], ["Jh", "Td", "4c"]],
+            "narration": "Flóp: Dama, Dama e sete. Primeiro vêm as apostas. Leo aposta com o par da mesa. Mari paga. Você paga com Ás e Rei."
           },
           {
-            "label": "Leo aposta. Mari paga. Você aumenta. Os dois pagam.",
+            "label": "Rodada de troca: os três trocam uma carta.",
             "board": ["Qc", "Qs", "7h"],
-            "holes": [["As", "Ks", "Qh"], ["Kd", "Jd", "2c"], ["Jh", "Td", "8h"]],
-            "narration": "Leo aposta com o par da mesa. Mari paga. Você aumenta com a Dama extra. Os dois pagam. O pote cresce."
+            "holes": [["As", "Ks", "Qh"], ["Kd", "Jd", "8d"], ["Jh", "Td", "8h"]],
+            "narration": "Com as apostas fechadas, cada um decide manter ou trocar uma carta. Você troca o quatro e recebe uma Dama: trinca. Leo e Mari também trocam uma. Todos veem quantas cartas cada um trocou, não quais."
           },
           {
-            "label": "Turn: 9 de espadas. Mais uma carta para cada um.",
+            "label": "Turn: 9 de espadas. Você aposta. Leo paga. Mari paga.",
             "board": ["Qc", "Qs", "7h", "9s"],
-            "holes": [["As", "Ks", "Qh", "8c"], ["Kd", "Jd", "2c", "8d"], ["Jh", "Td", "8h", "7c"]],
-            "narration": "Târn: nove de espadas. Mais uma carta fechada para cada um. Quatro na mão, quatro na mesa. Você aposta de novo. Leo paga. Mari paga."
+            "holes": [["As", "Ks", "Qh"], ["Kd", "Jd", "8d"], ["Jh", "Td", "8h"]],
+            "narration": "Târn: nove de espadas. Nova rodada de apostas: você aposta com a trinca. Leo paga. Mari paga com o projeto de sequência."
           },
           {
-            "label": "Você aposta. Leo paga. Mari paga.",
+            "label": "Rodada de troca: só Leo troca.",
             "board": ["Qc", "Qs", "7h", "9s"],
-            "holes": [["As", "Ks", "Qh", "8c"], ["Kd", "Jd", "2c", "8d"], ["Jh", "Td", "8h", "7c"]],
-            "narration": "Você aposta no târn. Leo paga. Mari paga. O pote engorda e falta só o ríver."
+            "holes": [["As", "Ks", "Qh"], ["Kd", "Jd", "3c"], ["Jh", "Td", "8h"]],
+            "narration": "Segunda rodada de troca: você mantém a trinca, Mari mantém o projeto de sequência e Leo troca uma carta."
           },
           {
-            "label": "Ríver: 6 de ouros. Última carta fechada.",
+            "label": "Ríver: 6 de ouros. Cada um descarta uma carta.",
             "board": ["Qc", "Qs", "7h", "9s", "6d"],
-            "holes": [["As", "Ks", "Qh", "8c", "Jc"], ["Kd", "Jd", "2c", "8d", "Ac"], ["Jh", "Td", "8h", "7c", "6h"]],
-            "narration": "Ríver: seis de ouros. Última carta fechada: cinco na mão. Última rodada de apostas antes de abrir."
+            "holes": [["As", "Qh"], ["Kd", "Jd"], ["Td", "8h"]],
+            "narration": "Ríver: seis de ouros. Agora o descarte é obrigatório: cada jogador descarta uma carta e fica com duas. Você guarda a Dama e o Ás. Mari guarda o dez e o oito."
           },
           {
-            "label": "Showdown: duas da mão e três da mesa. Sequência vence trinca.",
+            "label": "Última rodada de apostas, com duas cartas na mão.",
             "board": ["Qc", "Qs", "7h", "9s", "6d"],
-            "holes": [["As", "Ks", "Qh", "8c", "Jc"], ["Kd", "Jd", "2c", "8d", "Ac"], ["Jh", "Td", "8h", "7c", "6h"]],
-            "narration": "Showdown: você mostra trinca de Damas. Mari mostra sequência de seis a dez e vence no ranking tradicional. Leo tem só um par de Damas. Mari usa exatamente duas cartas da mão e três da mesa."
+            "holes": [["As", "Qh"], ["Kd", "Jd"], ["Td", "8h"]],
+            "narration": "Última rodada de apostas, com duas cartas na mão. Mari aposta. Você paga. Leo também paga."
+          },
+          {
+            "label": "Showdown: sequência vence trinca.",
+            "board": ["Qc", "Qs", "7h", "9s", "6d"],
+            "holes": [["As", "Qh"], ["Kd", "Jd"], ["Td", "8h"]],
+            "narration": "Showdown: você mostra trinca de Damas. Mari mostra sequência de seis a dez e vence no ranking tradicional. Leo tem só um par de Damas. A mão é formada como no Texas: as duas cartas da mão com as cinco da mesa."
           }
         ],
         "equity": 84,
         "potCents": 15000,
         "winningFive": { "hole": ["Td", "8h"], "board": ["9s", "7h", "6d"] },
-        "result": "Mari vence com sequência de seis a dez: T♦ 8♥ da mão + 9♠ 7♥ 6♦ da mesa. Sua trinca de Damas perde, porque Brazilian Pineapple usa o ranking tradicional. Leo termina com par de Damas."
+        "result": "Mari vence com sequência de seis a dez: T♦ 8♥ da mão + 9♠ 7♥ 6♦ da mesa. Sua trinca de Damas perde, porque o Brazilian Pineapple usa o ranking tradicional. Leo termina com par de Damas."
       }
     }
   ]

@@ -8,7 +8,7 @@
 > ⚠️ **Regra de Ouro:** Antes de codar, consultar `Arquitetura-Motor/ARQUITETURA_MOTOR.md` e `Documentacao/BUSINESS_RULES.md`.
 > 📐 Specs e regras de negócio em `Documentacao/BUSINESS_RULES.md`.
 > 📋 Acompanhamento tático em `DASHBOARD.md`.
-> 📌 Fonte canônica de estado: [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md) (prevalece sobre percentuais deste arquivo).
+> 📌 Fonte canônica de estado: [`STATUS_OPERACIONAL.md`](../STATUS_OPERACIONAL.md) (prevalece sobre percentuais deste arquivo).
 > **Importante:** os percentuais abaixo descrevem marcos de código/documentação e **não** certificam lançamento em produção. PIX mock; escala horizontal depende de ownership distribuído. Deploy demo: VPS Hostinger ou `DEPLOY_HOME_CLOUDFLARE.md` / `DEPLOY_HETZNER.md`.
 
 ---
@@ -200,5 +200,5 @@ FASE 7 ████████████████████████�
 
 <!-- DOCUMENTATION_SYNC:START -->
 > **S24** (2026-09-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático desligado.
-> Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
+> Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](../STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

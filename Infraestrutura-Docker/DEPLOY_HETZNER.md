@@ -205,15 +205,25 @@ Smoke de mesa: register/login → lobby → join → WS (all-in pode demorar no 
 
 | Ação | Como |
 |------|------|
-| Snapshot Hetzner | Console → Volume/Server → **Enable backups** ou snapshot semanal |
+| Snapshot do provedor | Painel do provedor (Hostinger na demo vigente; Hetzner: Console → Volume/Server → **Enable backups**) ou snapshot semanal |
 | Dump Postgres | `docker exec poker_postgres pg_dump -U poker_user poker_db > backup.sql` |
-| Atualizar código | Backup → `REBUILD_API=1 bash scripts/vps-redeploy-frontend.sh` na raiz → [validação](DEPLOYMENT_VALIDATION.md) |
+| Publicar versão (padrão) | Rust CI e Container Supply Chain verdes no commit → `bash scripts/vps-release-attested.sh <commit> --verify-only` → sem a flag para publicar (imagens do CI, `cosign verify`, janela ociosa, dois dumps e rollback) → [validação](DEPLOYMENT_VALIDATION.md) |
+| Atualizar com build na VPS (alternativa sem atestação) | Backup → `REBUILD_API=1 bash scripts/vps-redeploy-frontend.sh` na raiz → [validação](DEPLOYMENT_VALIDATION.md) |
 | Logs | `docker compose logs -f --tail=200` |
 | Disco | `df -h`; limpar `docker system prune` com cuidado |
 
 ---
 
-### Troca para `brazilian_pineapple_pot_before_call_v2`
+### Troca para o Brazilian Pineapple atual (migrations 061 e 062)
+
+O Brazilian Pineapple atual (`pineapple_draw`, regra de apostas `pineapple_draw_v1`) substitui o formato antigo (`brazilian_pineapple`, 2 privadas + 1 por street). Motor, API, frontend, Academy (catálogo v5) e a migration 062 entram juntos, com a 061 (guarda de rede) que ainda não foi publicada. Antes da troca:
+
+1. Esperar o fim de qualquer torneio do formato antigo em andamento: é o único caso em que a 062 aborta.
+2. Não é preciso esvaziar as mesas nem tratar inscrições (decisão do proprietário, 09/11/2026). A 062 fecha as mesas do formato antigo; no início da API, `reconcile_closed_table_seats` devolve à carteira as fichas de quem estava sentado (ledger `CASH_OUT`). O torneio Play Money ainda não iniciado vira Brazilian Pineapple com os inscritos; o de Jogo Real é cancelado **sem reembolso**, com uma linha `TOURNAMENT_REGISTRATION_CANCELLED_NO_REFUND_062` por inscrição em `audit_logs`.
+3. Backup validado; depois `SELECT version FROM _sqlx_migrations` deve listar 61 e 62, e `audit_logs` deve ter `CATALOG_PINEAPPLE_DRAW_062`. Conferir no log da API a linha “Cashed out orphaned seats” se havia jogadores sentados.
+4. Conferir no lobby: mesa `PM · Brazilian Pineapple 0,50` aberta, mesas do formato antigo fechadas e nenhuma mesa Pineapple no Jogo Real.
+
+### Troca para `brazilian_pineapple_pot_before_call_v2` (histórico)
 
 A regra, os treinos e o filme devem entrar juntos. Antes da troca da API, confirmar ausência de mãos Pineapple abertas e de torneios Pineapple em andamento. Nesta publicação, usar uma janela completamente ociosa: zero `cash_game_seats` com status `ACTIVE`, zero torneios `running`, nenhuma inscrição em torneio agendado e nenhum snapshot Redis `poker:table:state:*` com mão aberta ou jogadores. Contagem do lobby sozinha não é evidência suficiente.
 

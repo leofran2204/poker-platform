@@ -1,6 +1,7 @@
 use poker_engine::deck::evaluate_hand_short_deck;
 use poker_engine::game_loop::{GameLoop, PlayerMove};
 use poker_engine::hand_history::GameType;
+use poker_engine::pineapple_draw::suggested_swap;
 use poker_engine::tournament_engine::{
     create_tournament, eliminate_player, register_player, start_tournament, BlindLevel,
     TournamentConfig, TournamentSpeed,
@@ -16,6 +17,20 @@ fn auto_play(gl: &mut GameLoop, bb: u64) {
             Some(id) => id,
             None => break,
         };
+        if gl.state.drawing {
+            let player = gl.state.players.iter().find(|p| p.id == active).unwrap();
+            let mv = match suggested_swap(&player.hole_cards, &gl.state.community_cards) {
+                Some(position) => PlayerMove::Swap(position),
+                None => PlayerMove::Keep,
+            };
+            gl.player_action(&active, mv).expect("troca válida");
+            continue;
+        }
+        if gl.state.discarding {
+            gl.player_action(&active, PlayerMove::Discard(None))
+                .expect("descarte válido");
+            continue;
+        }
         let to_call = {
             let p = gl.state.players.iter().find(|p| p.id == active).unwrap();
             gl.state.current_bet_to_match.saturating_sub(p.current_bet)
@@ -52,7 +67,7 @@ fn main() {
     let t0 = Instant::now();
     println!("=== SIMULADO cash (100k/mesa x4) + MTT até campeão ===");
 
-    // 4 modalidades play money: NL 9, Short Deck 8, Omaha 6, Pineapple 6
+    // 4 modalidades play money: NL 9, Short Deck 8, Omaha 6, Brazilian Pineapple 6
     let configs = vec![
         (PokerVariant::Holdem, 9, 25, 25, 2500, "NL 0,25 9-max"),
         (
@@ -65,7 +80,7 @@ fn main() {
         ),
         (PokerVariant::Omaha, 6, 50, 50, 10000, "Omaha 4 6-max"),
         (
-            PokerVariant::BrazilianPineapple,
+            PokerVariant::PineappleDraw,
             6,
             50,
             50,
@@ -318,7 +333,7 @@ fn main() {
         ("Omaha 4 Cartas — Torneio", PokerVariant::Omaha, 6, 1000),
         (
             "Brazilian Pineapple — Torneio",
-            PokerVariant::BrazilianPineapple,
+            PokerVariant::PineappleDraw,
             6,
             1000,
         ),

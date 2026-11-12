@@ -1,17 +1,17 @@
 {
   "lessonId": "m5l1",
   "filename": "zt-academy-m5l1-v3",
-  "contentHash": "639a6a976d8eaa54e9be637fefb0f96f0651bce8f944e3ae69a84841c9e5ed3f",
+  "contentHash": "e7f0a57b7d2415a82e5f84c364ed3f952b2928ffbd3d3ffa927b11ad77727ca8",
   "rendererVersion": 5,
-  "durationSeconds": 357.63,
+  "durationSeconds": 363.0,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9897707,
+  "bytes": 10052551,
   "voice": "pt-BR-AntonioNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "34fcf5010366e00b64ae4dce82146133a89c29aa672045e38e13ba0ad05f250e",
+  "narrationHash": "463dea3a35846163be878330118eb1941fb7f702598721860d20464dfc378846",
   "chapters": [
     {
       "start": 0.0,
@@ -38,31 +38,31 @@
       "title": "Não misture modalidades"
     },
     {
-      "start": 183.17,
+      "start": 188.53,
       "title": "Laboratório: O ás abaixo do seis"
     },
     {
-      "start": 222.27,
+      "start": 227.63,
       "title": "Laboratório: O ás abaixo do seis"
     },
     {
-      "start": 231.33,
+      "start": 236.7,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 252.17,
+      "start": 257.53,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 270.43,
+      "start": 275.8,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 311.67,
+      "start": 317.03,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 323.93,
+      "start": 329.3,
       "title": "Agora, pratique"
     }
   ],
@@ -184,7 +184,7 @@
     },
     {
       "start": 157.5,
-      "duration": 25.666666666666668,
+      "duration": 31.033333333333335,
       "focusStarts": [
         0.0
       ],
@@ -216,7 +216,7 @@
       ]
     },
     {
-      "start": 183.16666666666666,
+      "start": 188.53333333333333,
       "duration": 39.1,
       "focusStarts": [
         0.0
@@ -249,7 +249,7 @@
       ]
     },
     {
-      "start": 222.26666666666665,
+      "start": 227.63333333333333,
       "duration": 9.066666666666666,
       "focusStarts": [
         0.0
@@ -282,7 +282,7 @@
       ]
     },
     {
-      "start": 231.33333333333331,
+      "start": 236.7,
       "duration": 20.833333333333332,
       "focusStarts": [
         0.0
@@ -315,7 +315,7 @@
       ]
     },
     {
-      "start": 252.16666666666666,
+      "start": 257.5333333333333,
       "duration": 18.266666666666666,
       "focusStarts": [
         0.0
@@ -348,7 +348,7 @@
       ]
     },
     {
-      "start": 270.43333333333334,
+      "start": 275.79999999999995,
       "duration": 41.233333333333334,
       "focusStarts": [
         0.0
@@ -365,7 +365,7 @@
       ]
     },
     {
-      "start": 311.6666666666667,
+      "start": 317.0333333333333,
       "duration": 12.266666666666667,
       "focusStarts": [
         0.0
@@ -382,7 +382,7 @@
       ]
     },
     {
-      "start": 323.93333333333334,
+      "start": 329.29999999999995,
       "duration": 33.7,
       "focusStarts": [
         0.0
@@ -415,11 +415,11 @@
       ]
     }
   ],
-  "sha256": "622202da9a26ad8653ff8230e6cd1878de8a15c38796c0b420b4be8389078544",
+  "sha256": "dfd77830b96f8324f678aa8bf0e23f61de87991fe2f7c2b2eb355135e5660b29",
   "assetHashes": {
-    "mp4": "622202da9a26ad8653ff8230e6cd1878de8a15c38796c0b420b4be8389078544",
-    "vtt": "be0d5d57d3063f2ded9833db5fec290f77138d66826b061b4f54dce26fe78f4d",
+    "mp4": "dfd77830b96f8324f678aa8bf0e23f61de87991fe2f7c2b2eb355135e5660b29",
+    "vtt": "ab5514b3be9c76faf4efe3ccbe523b14160f76cc0a80b4ab15c8c3ece77a160d",
     "webp": "1247fcb900dfb06a0175ce9646eae45ca0a3bcde9a729fd3300a55b44dc43e8c"
   },
-  "mediaRevision": "0f409ca496cdc601beb6351d23dc5b48cb248aff6d297039869981005accc799"
+  "mediaRevision": "787062664ef25ccf1a8730ac0ef347c24b912b32a921838cbc9d5bec1d53e353"
 }

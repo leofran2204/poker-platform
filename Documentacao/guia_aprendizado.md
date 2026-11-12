@@ -237,7 +237,7 @@ Quando você navega em um site de notícias, seu navegador faz uma pergunta segu
 
 Se enviássemos todas as informações da mesa de uma vez, um jogador mal-intencionado poderia abrir o console do navegador e ler as cartas de hole dos adversários.
 *   Para evitar isso, criamos o filtro de segurança `filter_table_state` no WebSocket.
-*   **A Regra:** O servidor lê o estado do jogo e apaga (torna `None` ou limpa o array) as cartas privadas de todos os outros jogadores. Você só recebe as suas próprias cartas no seu navegador. As cartas privadas alheias não são transmitidas pelo WebSocket, inclusive ao fim da mão; o cliente recebe apenas o resultado público necessário.
+*   **A Regra:** O servidor lê o estado do jogo e apaga (torna `None` ou limpa o array) as cartas privadas de todos os outros jogadores. Você só recebe as suas próprias cartas no seu navegador. As cartas alheias só são transmitidas quando a mão termina em **showdown real** (dois ou mais jogadores sem fold), e apenas de quem não foldou — como na mesa física. Se todos foldam para uma aposta, o vencedor não mostra a mão (o blefe não vaza). Além disso, cada jogador do `table_state` é montado com uma lista fechada de campos públicos: campo novo no servidor não chega ao navegador sem liberação explícita.
 
 ---
 
@@ -246,13 +246,15 @@ Se enviássemos todas as informações da mesa de uma vez, um jogador mal-intenc
 Imagine que você vai preparar um bolo para vender. Você usa batedeira, potes, formas, farinha e ovos. Mas o seu cliente só quer o bolo pronto em uma caixinha de papelão limpa, sem a sujeira da cozinha.
 
 O **Docker** cria essa "cozinha isolada" (o Container). E o **build multi-stage** faz exatamente a separação entre a cozinha e a caixa de entrega:
-1.  **Stage 1 (Builder - A Cozinha)**: Usamos uma imagem completa com o compilador do Rust (`rust:latest`). Baixamos todas as dependências, compilamos o código em modo release. Isso gera um binário executável e muita sujeira (pastas de build temporárias que ocupam gigabytes).
+1.  **Stage 1 (Builder - A Cozinha)**: Usamos uma imagem completa com o compilador do Rust, fixada por versão e digest (`rust:1.97.0-bookworm@sha256:…` em `API-Axum/Dockerfile`), para o build ser reproduzível. Baixamos todas as dependências, compilamos o código em modo release. Isso gera um binário executável e muita sujeira (pastas de build temporárias que ocupam gigabytes).
 2.  **Stage 2 (Runner - A Caixa de Entrega)**: Criamos uma imagem vazia e mínima (`debian:bookworm-slim`). Copiamos apenas o bolo pronto (o binário compilado `poker-api`) do Stage 1.
 *   **Resultado**: O container final fica incrivelmente pequeno (menos de 100MB em vez de 2GB), seguro (não tem compilador lá dentro para hackers usarem) e rápido.
 
 ---
 
-### 🛠️ 4. Bypassando o Dioxus CLI (O Pulo do Gato)
+### 🛠️ 4. Bypassando o Dioxus CLI (O Pulo do Gato) — histórico
+
+> Registro da época do frontend Dioxus/WASM, removido do monorepo. O frontend atual (`Frontend-Web`) é compilado com `npm run build` (Vite) dentro do `Frontend-Web/Dockerfile`; a lição sobre contornar ferramentas engessadas continua válida.
 
 Durante o desenvolvimento do Frontend no Docker, a ferramenta automática do Dioxus (`dx CLI`) travou por conflitos de versão do gerador de WebAssembly (`wasm-bindgen`).
 *   **O aprendizado prático**: Em programação, quando uma ferramenta automática falha ou é muito engessada, nós podemos fazer o processo **manualmente**.
@@ -268,7 +270,7 @@ Durante o desenvolvimento do Frontend no Docker, a ferramenta automática do Dio
 
 O **Caddy** funciona como a portaria de um condomínio de prédios:
 *   Ele escuta na `443` para HTTPS; se a porta `80` estiver publicada, ela apenas redireciona o navegador para HTTPS.
-*   Se alguém pede uma página do site, o Caddy lê o arquivo estático e entrega (o Frontend Dioxus).
+*   Se alguém pede uma página do site, o Caddy lê o arquivo estático e entrega (o build Vite do `Frontend-Web`).
 *   Se alguém pede uma chamada de API (`/api/*`) ou uma conexão em tempo real (`/ws/*`), o Caddy redireciona essa chamada silenciosamente para o container do backend Axum (`poker_api:3000`).
 *   Ele gera um certificado de segurança local automaticamente. Assim, rodamos o site em `https://localhost` com o cadeado verde ativo no navegador, que é um requisito de segurança real para proteger a senha e fichas dos jogadores.
 
@@ -466,6 +468,6 @@ Uma mão de Texas Hold'em segue um fluxo muito rígido (Preflop → Flop → Tur
 *   Ele monitora de quem é a vez (`current_turn`) e impede que um jogador aposte fora de hora ou realize ações impossíveis (como dar Check quando há uma aposta pendente).
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

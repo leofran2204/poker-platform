@@ -4544,5 +4544,5 @@ let players = sqlx::query_as::<_, Player>(
 
 <!-- DOCUMENTATION_SYNC:START -->
 > **S24** (2026-09-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático desligado.
-> Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
+> Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](../STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

@@ -44,7 +44,7 @@ async function ensureUsers(n){
 async function prepareTables(users){
   console.log(`[2/4] Mesas cash 4 + torneios...`);
   const tables=await api("/api/lobby/tables?mode=play",{token:users[0].token});
-  const want=["PM · NL 0,25","PM · SD 0,25/0,50","PM · SD Omaha 0,50/0,50","PM · Pineapple 0,50"];
+  const want=["PM · NL 0,25","PM · SD 0,25/0,50","PM · SD Omaha 0,50/0,50","PM · Brazilian Pineapple 0,50"];
   let cashTables=tables.filter(t=>want.includes(t.name) && t.money_mode==="play");
   if(cashTables.length!==4) cashTables=tables.filter(t=>t.money_mode==="play").slice(0,4);
   console.log(`  Cash: ${cashTables.map(t=>`${t.name} ${t.max_players}-max`).join(" | ")}`);
@@ -80,6 +80,7 @@ async function runCash(cashTables, cashUsers){
           if(!me?.is_active) return;
           const acts=(msg.available_actions||[]).map(a=>a.toLowerCase());
           if(!acts.length) return;
+          if(acts.includes("keep")){ if(ws.readyState===1) ws.send(JSON.stringify({type:"action", action:"keep", amount:0})); return; }
           let act="fold"; const r=Math.random();
           if(r<0.7) act=acts.includes("check")?"check":"call";
           else if(r<0.9) act="fold";

@@ -6,17 +6,23 @@ export interface StudyAction { action: string; amount?: number; answer?: string 
 export interface StudyPlayer {
   id: string; name: string; position: string; stack: number; bet: number; total: number;
   folded: boolean; all_in: boolean; cards: string[]; card_count: number; category: string | null; best_five: string[];
+  /** Brazilian Pineapple: cartas trocadas ou descartadas na rodada atual (0 ou 1); null enquanto não decidiu. */
+  draw_count?: number | null;
 }
 export interface StudySnapshot {
   ante: number; ante_paid: number; ante_player_id: string | null;
   phase: string; board: string[]; players: StudyPlayer[]; pot: number; acting: number; finished: boolean;
+  /** Brazilian Pineapple: rodada de troca em andamento. */
+  drawing?: boolean;
+  /** Brazilian Pineapple: descarte obrigatório do river em andamento. */
+  discarding?: boolean;
 }
 export interface StudyReview {
   decision: number; action: string; prompt: string; answer: string; expected: string; correct: boolean; explanation: string;
 }
 export interface StudyResponse {
   version: number; scenario: string; module: string; variant: string; state: StudySnapshot;
-  legal: { can_check: boolean; to_call: number; min_total: number; max_total: number; can_raise: boolean; can_all_in: boolean; betting_structure: string; bet_exists: boolean; call_price_percent: number; eligible_pot_after_call: number };
+  legal: { can_check: boolean; to_call: number; min_total: number; max_total: number; can_raise: boolean; can_all_in: boolean; betting_structure: string; drawing?: boolean; discarding?: boolean; bet_exists: boolean; call_price_percent: number; eligible_pot_after_call: number };
   question: { prompt: string; options: string[]; unit: string } | null;
   hint: string; events: { actor: string; action: string; amount: number; setup: boolean; state: StudySnapshot }[];
   reviews: StudyReview[]; payouts: Record<string, number>; pots: { amount: number; eligible_players: string[] }[];
@@ -30,7 +36,7 @@ export async function playStudy(scenario: string, seed: number, actions: StudyAc
   }
   return response.json() as Promise<StudyResponse>;
 }
-export const actionLabel: Record<string, string> = { fold: "Desistir", check: "Check", call: "Pagar", bet: "Apostar", raise: "Aumentar", all_in: "All-in", deal: "Distribuição e blinds", showdown: "Resultado" };
+export const actionLabel: Record<string, string> = { fold: "Desistir", check: "Check", call: "Pagar", bet: "Apostar", raise: "Aumentar", all_in: "All-in", keep: "Manteve as cartas", swap: "Trocou uma carta", discard: "Descartou uma carta", deal: "Distribuição e blinds", showdown: "Resultado" };
 export const phaseLabel: Record<string, string> = { preflop: "Pré-flop", flop: "Flop", turn: "Turn", river: "River", showdown: "Showdown" };
 export const profileLabel: Record<string, string> = { caller: "Pagador", passive: "Passivo", pressure: "Pressão com tamanhos variados", tight: "Seletivo", value: "Check-raise por valor", limper: "Limp no small blind", opener: "Abertura pré-flop" };
 export function newStudySeed(): number { return crypto.getRandomValues(new Uint32Array(1))[0]; }
@@ -48,7 +54,7 @@ function validRecord(value: unknown): value is StudyRecord {
     && Number.isInteger(r.decisions) && r.decisions! >= 0 && r.decisions! <= 64
     && Number.isInteger(r.correct) && r.correct! >= 0 && r.correct! <= r.decisions!
     && Array.isArray(r.actions) && r.actions.length <= 64 && r.actions.every(a => a && typeof a === "object"
-      && ["fold", "check", "call", "bet", "raise", "all_in"].includes(a.action)
+      && ["fold", "check", "call", "bet", "raise", "all_in", "keep", "swap", "discard"].includes(a.action)
       && (a.amount === undefined || Number.isInteger(a.amount) && a.amount >= 0 && a.amount <= 100000)
       && (a.answer === undefined || typeof a.answer === "string" && a.answer.length <= 80));
 }

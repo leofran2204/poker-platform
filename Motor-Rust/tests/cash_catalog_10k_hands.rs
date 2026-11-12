@@ -3,6 +3,7 @@
 use poker_engine::deck::{create_deck, create_short_deck, Card};
 use poker_engine::game_loop::{GameLoop, PlayerMove};
 use poker_engine::hand_history::GameType;
+use poker_engine::pineapple_draw::suggested_swap;
 use poker_engine::side_pots::{find_winners_for_pot, precompute_hands_for_variant, PlayerForPots};
 use poker_engine::types::{PokerVariant, RakeCapSchedule, TableConfig};
 use rand::{rngs::StdRng, seq::SliceRandom, Rng, SeedableRng};
@@ -26,7 +27,7 @@ fn variant(value: &str) -> PokerVariant {
         "holdem" => PokerVariant::Holdem,
         "short_deck" => PokerVariant::ShortDeck,
         "omaha" => PokerVariant::Omaha,
-        "brazilian_pineapple" => PokerVariant::BrazilianPineapple,
+        "pineapple_draw" => PokerVariant::PineappleDraw,
         _ => panic!("unknown variant"),
     }
 }
@@ -38,6 +39,7 @@ fn cards_valid(game: &GameLoop, short: bool) {
         .flat_map(|p| p.hole_cards.iter())
         .chain(&game.state.community_cards)
         .chain(&game.state.burn_pile)
+        .chain(&game.state.discard_pile)
         .chain(&game.state.deck)
         .copied()
         .collect();
@@ -184,9 +186,33 @@ fn cash_catalog_coverage_batches() {
                 }
             }
             let mut steps = 0;
+            let mut draw_steps = 0;
             let mut raises = 0;
             let mut checked = BTreeSet::new();
             while !game.state.is_finished {
+                if game.state.drawing || game.state.discarding {
+                    // Rodada de troca do Brazilian Pineapple: fora dos passos dirigidos.
+                    draw_steps += 1;
+                    assert!(draw_steps < 100, "draw round stalled: seed {seed}");
+                    let p = game.state.active_player().unwrap();
+                    let id = p.id.clone();
+                    let mv = if game.state.discarding {
+                        PlayerMove::Discard(None)
+                    } else {
+                        match suggested_swap(&p.hole_cards, &game.state.community_cards) {
+                            Some(position) => PlayerMove::Swap(position),
+                            None => PlayerMove::Keep,
+                        }
+                    };
+                    event(
+                        &mut trace,
+                        json!({"event":"draw","hand":hand,"player":id,
+                        "phase":format!("{:?}", game.state.phase),"move":format!("{mv:?}")}),
+                    );
+                    game.player_action(&id, mv).unwrap();
+                    cards_valid(&game, v.uses_short_deck());
+                    continue;
+                }
                 steps += 1;
                 assert!(steps < 500, "hand stalled: seed {seed}");
                 let p = game.state.active_player().unwrap();
@@ -207,9 +233,7 @@ fn cash_catalog_coverage_batches() {
                 let roll: u32 = rng.gen_range(0..100);
                 let min_total = game.state.current_bet_to_match + game.state.min_raise;
                 let legal = game.legal_actions(&id);
-                let mv = if v == PokerVariant::BrazilianPineapple
-                    && street == 0
-                    && legal.allows("allin")
+                let mv = if v == PokerVariant::PineappleDraw && street == 0 && legal.allows("allin")
                 {
                     // Evolved short stacks can now witness a preflop all-in;
                     // deep stacks remain limited to the next fixed level.
@@ -341,9 +365,9 @@ fn cash_catalog_coverage_batches() {
                     "financial divergence seed {seed}"
                 );
             }
-            if v == PokerVariant::BrazilianPineapple && game.state.community_cards.len() == 5 {
-                for p in game.state.players.iter().filter(|p| p.is_in_hand()) {
-                    assert_eq!(p.hole_cards.len(), 5);
+            if v == PokerVariant::PineappleDraw {
+                for p in &game.state.players {
+                    assert_eq!(p.hole_cards.len(), 3);
                 }
             }
             let result = game.resolve_hand().unwrap();

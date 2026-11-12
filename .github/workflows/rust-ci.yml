@@ -129,8 +129,8 @@ jobs:
         # individuais também permanecem ignored sem essa feature.
         run: cargo test --lib -- --nocapture
 
-      - name: Verify betting rules and published Pineapple examples
-        run: cargo test --locked --test full_validation_situations --test pineapple_film_examples
+      - name: Verify betting rules and Brazilian Pineapple examples (engine and video scripts)
+        run: cargo test --locked --test full_validation_situations --test pineapple_draw_betting_examples --test pineapple_draw_film_examples
 
   clippy:
     name: Cargo Clippy (Lint)

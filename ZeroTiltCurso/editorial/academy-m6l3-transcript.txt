@@ -8,7 +8,7 @@ Pratique e revise. As mesas de cada módulo oferecem treino guiado, desafio e pr
 
 Revise em duas passagens. Na primeira passagem, esconda o resultado e reconstrua a informação disponível: modalidade, cartas próprias, board, posições, stacks e ações. Escreva pelo menos duas alternativas legais e a condição que faria preferir cada uma. Na segunda passagem, veja a continuação e identifique o que foi resultado aleatório, mudança de informação ou falha no raciocínio. Essa separação reduz a tendência de chamar toda vitória de boa decisão.
 
-Use os quatro jogos como teste de regras. No Hold’em, pergunte se o board pode jogar sozinho. No Short Deck, refaça universo e ranking. No Omaha, confirme duas privadas entre quatro. No Brazilian Pineapple, acompanhe as extras e selecione duas entre as privadas disponíveis naquela street. Só depois de acertar essas bases avance para preço, ranges e tamanhos.
+Use os quatro jogos como teste de regras. No Hold’em, pergunte se o board pode jogar sozinho. No Short Deck, refaça universo e ranking. No Omaha, confirme duas privadas entre quatro. No Brazilian Pineapple, decida a troca depois das apostas do flop e do turn e, no river, escolha as duas privadas que ficam. Só depois de acertar essas bases avance para preço, ranges e tamanhos.
 
 Um ciclo de aprendizagem. Assista ao capítulo, resolva o exemplo sem ajuda e jogue o cenário correspondente. Salve a justificativa e volte em outra sessão no modo desafio. Se errar o preço ou a formação da mão, refaça a conta antes de aumentar a dificuldade. O registro de estudo mostra tentativas e respostas objetivas; ele não certifica habilidade profissional nem prevê lucro contra pessoas.
 

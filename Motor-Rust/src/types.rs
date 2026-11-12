@@ -61,13 +61,12 @@ pub enum PokerVariant {
     /// Omaha 4 (PLO): baralho 52, 4 hole, exatamente 2+3, ranking clássico.
     #[serde(alias = "short_deck_omaha", alias = "sd_omaha", alias = "omaha_four")]
     Omaha,
-    /// Brazilian Pineapple: 52 cartas, 2 hole +1 por street, 2+3, ranking clássico.
-    #[serde(
-        alias = "ultimate_pineapple",
-        alias = "pineapple",
-        alias = "pineapple_short_deck"
-    )]
-    BrazilianPineapple,
+    /// Brazilian Pineapple (identificador `pineapple_draw`): 52 cartas, 3 privadas,
+    /// troca opcional de uma carta depois das apostas do flop e do turn, descarte
+    /// de uma no river antes da última rodada; showdown com 2 privadas, como no
+    /// Hold'em (melhor mão de 5 entre as 2 privadas e as 5 comunitárias).
+    #[serde(alias = "pineapple", alias = "pineapple_triple_draw")]
+    PineappleDraw,
 }
 
 impl PokerVariant {
@@ -76,7 +75,7 @@ impl PokerVariant {
             Self::Holdem => "holdem",
             Self::ShortDeck => "short_deck",
             Self::Omaha => "omaha",
-            Self::BrazilianPineapple => "brazilian_pineapple",
+            Self::PineappleDraw => "pineapple_draw",
         }
     }
 
@@ -84,22 +83,26 @@ impl PokerVariant {
         match raw.trim().to_ascii_lowercase().as_str() {
             "omaha" | "omaha_4" | "omaha_four" | "plo" | "plo4" | "plo_4" | "short_deck_omaha"
             | "sd_omaha" | "omaha_sd" | "shortdeck_omaha" | "plo_sd" => Self::Omaha,
-            "brazilian_pineapple"
-            | "ultimate_pineapple"
-            | "pineapple"
-            | "pineapple_short_deck"
-            | "up_sd" => Self::BrazilianPineapple,
+            "pineapple_draw" | "pineapple" | "pineapple_triple_draw" => Self::PineappleDraw,
             "short_deck" | "shortdeck" | "sd" | "six_plus" => Self::ShortDeck,
             _ => Self::Holdem,
         }
     }
 
-    /// Cartas fechadas no deal inicial (Pineapple ganha +1 após flop/turn/river).
+    /// Cartas fechadas no deal inicial (o Brazilian Pineapple fica com 2 depois
+    /// do descarte do river).
     pub fn hole_card_count(self) -> usize {
         match self {
             Self::Omaha => 4,
-            Self::Holdem | Self::ShortDeck | Self::BrazilianPineapple => 2,
+            Self::PineappleDraw => 3,
+            Self::Holdem | Self::ShortDeck => 2,
         }
+    }
+
+    /// Modalidades com rodada de troca depois das apostas do flop e do turn e
+    /// descarte no river.
+    pub fn has_draw_rounds(self) -> bool {
+        matches!(self, Self::PineappleDraw)
     }
 
     pub fn uses_short_deck(self) -> bool {

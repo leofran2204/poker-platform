@@ -35,12 +35,12 @@ Motor e API em **Rust**, UI em **TypeScript** (React + Vite + Tailwind), marca *
 ## Deploy e lab
 
 - Casa + tunnel: [`Infraestrutura-Docker/DEPLOY_HOME_CLOUDFLARE.md`](Infraestrutura-Docker/DEPLOY_HOME_CLOUDFLARE.md)
-- VPS: [`Infraestrutura-Docker/DEPLOY_HETZNER.md`](Infraestrutura-Docker/DEPLOY_HETZNER.md)
-- Índice: [`DEPLOYMENT_VALIDATION.md`](Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md)
+- VPS (demo vigente na Hostinger; o nome do arquivo é histórico): [`Infraestrutura-Docker/DEPLOY_HETZNER.md`](Infraestrutura-Docker/DEPLOY_HETZNER.md)
+- Índice e publicação padrão com imagens assinadas (`scripts/vps-release-attested.sh`): [`DEPLOYMENT_VALIDATION.md`](Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md)
 - Lab: `cd Infraestrutura-Docker && docker compose up -d --build`
 
 Ambiente de build (WSL, Node): [`AGENTS.md`](AGENTS.md).
 
 ## Limites
 
-PIX automático DePix **ligado** na demo (crédito provisório ≤ R$ 50; saque travado até liquidar). Uma mesa = um processo. Regulação planejada **2027-01**.
+PIX automático DePix **ligado** na demo (crédito provisório ≤ R$ 50; saque travado até liquidar e só para o mesmo CPF do KYC). Uma mesa = um processo. Provably Fair ainda não ligado à mesa. Regulação planejada **2027-01**.

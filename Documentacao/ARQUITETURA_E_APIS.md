@@ -43,8 +43,8 @@ Catálogo compartilhado: `Frontend-Web/src/data/courseTraining.json`; serviço: 
 | `POST /api/admin/agentes/:id/adjustments` | Dedução em ciclo aberto: `request_id` UUID obrigatório e reutilizado em tentativas da mesma operação, `cycle_start`, `money_mode`, `category`, `amount_cents`, `note`; mesma chave/dados retorna a dedução existente; dados diferentes retornam conflito |
 | `POST /api/admin/agentes/:id/close` | Exige `cycle_start`, `money_mode`, `reconciled: true` e `expected_gross_revenue_cents`, `expected_deductions_cents`, `expected_target_ngr_cents` da prévia. A partir do dia 25 seguinte e em ordem cronológica; trava ciclo, rejeita totais alterados, credita uma vez; déficit vai ao ciclo seguinte |
 
-`poker_variant`: `holdem` (Texas Hold’em tradicional, 9-max) \| `short_deck` (Texas Hold’em Short Deck, baralho 36, 8-max) \| `omaha` (Omaha 4, baralho 52, 6-max) \| `brazilian_pineapple` (baralho 52, 2+1+1+1, 6-max).
-Motor: `TableConfig.small_blind` + `big_blind` (SB pode = BB); Omaha deal 4 hole (usa 2+3, ranking clássico); Brazilian Pineapple deal 2 hole +1 por street (usa 2+3, ranking clássico). Só Texas Short Deck usa o baralho de 36 cartas e o ranking **trinca > sequência** e **flush > full house**. Torneios: `scheduled_start_at` é definido exclusivamente pelo admin no cadastro ou em `PATCH /api/admin/tournaments/:id`; o coordenador não cria nem altera datas. Depois do horário definido, o auto-start ocorre ao atingir `auto_start_min_players` (5 no catálogo vigente). `tournament_seats` é separado (038); 3 mesas por torneio; coordenador a cada 30s + rebalance/consolidação FT + hidratação no boot (`tournament_coordinator.rs`); **ator MTT** (`tournament_actor.rs`, mesmo protocolo do cash: rake 0, sem deflator, eliminações, run-out all-in, halt auditável); fee 15% no register (`total_fees`, 049).
+`poker_variant`: `holdem` (Texas Hold’em tradicional, 9-max) \| `short_deck` (Texas Hold’em Short Deck, baralho 36, 8-max) \| `omaha` (Omaha 4, baralho 52, 6-max) \| `pineapple_draw` (Brazilian Pineapple: baralho 52, 3 privadas, troca opcional de uma depois das apostas do flop e do turn, descarte de uma no river, 6-max; só Play Money por enquanto).
+Motor: `TableConfig.small_blind` + `big_blind` (SB pode = BB); Omaha deal 4 hole (usa 2+3, ranking clássico); Brazilian Pineapple deal 3 hole, rodada de troca depois das apostas do flop e do turn e descarte de uma no river antes da última rodada (showdown com 2 privadas, como no Hold’em; ranking clássico). Só Texas Short Deck usa o baralho de 36 cartas e o ranking **trinca > sequência** e **flush > full house**. Torneios: `scheduled_start_at` é definido exclusivamente pelo admin no cadastro ou em `PATCH /api/admin/tournaments/:id`; o coordenador não cria nem altera datas. Depois do horário definido, o auto-start ocorre ao atingir `auto_start_min_players` (5 no catálogo vigente). `tournament_seats` é separado (038); 3 mesas por torneio; coordenador a cada 30s + rebalance/consolidação FT + hidratação no boot (`tournament_coordinator.rs`); **ator MTT** (`tournament_actor.rs`, mesmo protocolo do cash: rake 0, Loss Deflator em fichas do torneio, eliminações, run-out all-in, halt auditável); fee 15% no register (`total_fees`, 049).
 
 ---
 
@@ -58,14 +58,14 @@ graph TD
     Actor["TableActor/TournamentActor local ao processo"]
     Engine["Motor Core (GameLoop & SidePots)"]
     Ledger["Carteira PostgreSQL + outbox"]
-    Antifraud["Detector de Conluio & IP Guard"]
-    History["Serviço de Histórico & Provably Fair"]
+    Antifraud["Antifraude no ator (tempo de reação)"]
+    History["Histórico + settlement HMAC"]
 
     Client <-->|WSS JSON ou binário limitado| WS
     WS -->|Limite compartilhado por IP| Limiter
     WS -->|mpsc Async Message| Actor
     Actor -->|Executa Ação da Mão| Engine
-    Engine -->|Valida IP / Subnet / VPIP| Antifraud
+    Actor -->|Pontua tempo de reação| Antifraud
     WS -->|Intenções financeiras em centavos| Ledger
     Engine -->|Gravação da Rodada| History
     Actor -->|broadcast State Update| WS
@@ -171,18 +171,19 @@ Contador de usuários **logados** com heartbeat recente — distinto dos assento
 
 ### Operação de mesas cash
 
-- O assento ativo é a fonte de verdade no PostgreSQL: `POST /api/lobby/join` exige JWT e `buy_in` em centavos; débito de carteira, escrow, ledger e ocupação são atômicos.
+- O assento ativo é a fonte de verdade no PostgreSQL: `POST /api/lobby/join` exige JWT e `buy_in` em centavos; débito de carteira, escrow, ledger e ocupação são atômicos. Com a linha da mesa travada, a entrada é recusada com `403` (mensagem em PT-BR, sem débito) se outra conta ativa ali compartilhar o IP público ou a sub-rede do cliente (guarda de rede, § 5).
 - O contador público de jogadores **por mesa** é uma projeção mantida por gatilho dos assentos `ACTIVE`; o banco rejeita capacidade, blinds, buy-ins e estados de mesa inválidos.
 - `POST /api/lobby/leave` só liquida entre mãos, transferindo o stack persistido de volta à carteira e registrando o cash-out.
 - O WebSocket aceita apenas o dono de um assento ativo e financiado em mesa `OPEN`; não fornece stack de demonstração.
 - O navegador primeiro solicita `POST /api/lobby/tables/:id/ws-ticket` com Bearer JWT. O WebSocket recebe somente o ticket opaco, vinculado à mesa, com validade de 60 segundos e consumo único (Redis quando configurado).
 - `hand_id` identifica a mão no `table_state` para correlacionar ações com o histórico persistido, inclusive quando calls distintos têm o mesmo preço na mesma street.
 - `GameLoop::legal_actions(player_id)` é a fonte de ações e limites para cash, MTT, bots, treinos e geradores. Os atores carregam `_legal_actions` por jogador internamente; o filtro WS remove esse campo de todos e projeta somente o contrato do destinatário. Espectadores e mãos terminadas recebem ações vazias.
-- `available_actions` contém `fold`, `check`/`call`, `bet`/`raise` e `allin` apenas quando legais. `minimum_wager` e `maximum_wager` são **totais da rodada**, não incrementos; zero quando não há aposta/aumento completo disponível. `call_amount` mantém o contrato existente: **pagamento adicional** limitado ao saldo. `betting_structure` identifica `brazilian_pineapple_pot_before_call_v2` ou `no_limit_v1` na mão ativa.
-- No Pineapple, seletor e atalhos respeitam mínimo/máximo do servidor em todas as rodadas; “all-in” só aparece se permitido. Rótulo: **aumento limitado ao pote antes do call**. Fórmula e reabertura em [BUSINESS_RULES.md](BUSINESS_RULES.md#aumento-limitado-ao-pote-antes-do-call--brazilian_pineapple_pot_before_call_v2).
+- `available_actions` contém `fold`, `check`/`call`, `bet`/`raise` e `allin` apenas quando legais. `minimum_wager` e `maximum_wager` são **totais da rodada**, não incrementos; zero quando não há aposta/aumento completo disponível. `call_amount` mantém o contrato existente: **pagamento adicional** limitado ao saldo. `betting_structure` identifica `pineapple_draw_v1` ou `no_limit_v1` na mão ativa. Na rodada de troca do Brazilian Pineapple (`drawing: true` no `table_state`), o jogador da vez recebe só `keep` e `swap`; `swap` leva a posição da carta (0–2) em `card` (ou em `amount`). Cada jogador expõe `draw_count` (0 ou 1 na street atual; `null` antes de decidir), mas nunca as cartas trocadas.
+- No Brazilian Pineapple, seletor e atalhos respeitam mínimo/máximo do servidor em todas as rodadas; “all-in” só aparece se permitido. Rótulo: **aumento limitado ao pote antes do call**. Fórmula e reabertura em [BUSINESS_RULES.md](BUSINESS_RULES.md#aumento-limitado-ao-pote-antes-do-call--pineapple_draw_v1).
 - `betting_rule_version` é persistido no histórico do motor e no `settlement_json` assinado de cash/MTT, sem nova coluna. JSONs antigos sem o campo continuam originais; não há replay/reliquidação sob regra nova.
-- `table_state` inclui `is_sitting` e `time_bank` (segundos restantes do turno). Queda de socket envia `PlayerCommand::Disconnect` (reserva o assento ~45s, **não** fold imediato). Sit-out voluntário no meio da mão ainda folda. `POST /api/lobby/leave` é o cash-out explícito.
-- `POST /api/admin/users/:id/adjust-balance` exige `wallet`: `pm_cash` \| `pm_mtt` \| `real` (sem default para Real).
+- `table_state` inclui `is_sitting` e `time_bank` (segundos restantes do turno). Queda de socket envia `PlayerCommand::Disconnect` (reserva o assento ~45s, **não** fold imediato). Sit-out voluntário no meio da mão ainda folda. Tempo esgotado, saída e desconexão aplicam fold nas apostas e `keep` na rodada de troca. `POST /api/lobby/leave` é o cash-out explícito.
+- Cartas privadas: cada socket recebe as próprias cartas; as de outros jogadores só saem quando a mão termina em showdown real (dois ou mais jogadores sem fold), e apenas de quem não foldou. Vitória porque todos foldaram nunca revela as cartas do vencedor. `table_state`/`table_info` montam cada jogador por allowlist de campos públicos (`PUBLIC_PLAYER_FIELDS` em `handlers/websocket.rs`, espelhando `PlayerWsData`); os demais eventos seguem a redação por denylist.
+- `POST /api/admin/users/:id/adjust-balance` exige `wallet`: `pm_cash` \| `pm_mtt` \| `real` (sem default para Real); o ajuste e a auditoria entram na mesma transação.
 - Redis é obrigatório em produção para que tickets e snapshots de mesa não se dividam entre réplicas; o fallback em memória existe apenas para desenvolvimento/testes locais.
 - Administradores criam mesas com `POST /api/admin/tables` e alteram o estado com `PATCH /api/admin/tables/:id/status`. Uma mesa só fecha sem assentos ativos; `PAUSED` bloqueia novas entradas, e `OPEN` permite novas conexões. `GET /api/admin/tables` inclui `seats[]` (número, username, e-mail, chips). `GET /api/admin/tournaments/:id/players` inclui `email`.
 - O histórico recebe número sequencial atômico por mesa, blinds reais da configuração e participantes na mesma transação; a assinatura usa o segredo já validado pela aplicação, sem chave de fallback.
@@ -192,7 +193,7 @@ Contador de usuários **logados** com heartbeat recente — distinto dos assento
 - `POST /api/admin/clubs`: Criação de um novo clube na rede B2B com subdomínio dinâmico e tema inicial.
 - `GET /api/admin/clubs`: Lista todos os clubes registrados e seus status na plataforma.
 - `GET /api/admin/clubs/:id/financials`: Retorna o extrato financeiro do clube: saldo acumulado (`balance`), Rake Líquido do Clube (85%), Fee da Plataforma (15%) e Rake Bruto.
-- `POST /api/admin/clubs/:id/withdraw`: Solicita o saque das comissões do saldo acumulado do clube via chave PIX.
+- `POST /api/admin/clubs/:id/withdraw`: debita `clubs.balance` e responde com a chave informada; não envia PIX, não cria transação de carteira nem grava auditoria (legado B2B).
 - `PUT /api/admin/clubs/:id/theme`: Atualiza o JSON de personalização visual (`custom_theme_json`) para a injeção do tema White-Label no Frontend.
 - `GET /api/admin/clubs/:id/agents`: Lista agentes B2B do clube locatário (legado white-label).
 - `POST /api/admin/clubs/:id/agents`: legado B2B, separado do **Agente ZT Poker**. O programa novo usa `users.sponsored_by`, um nível e fechamento mensal de 30%/35% do NGR — ver `PLANO_GO_TO_MARKET_AGENTE_ZT.md`.
@@ -266,10 +267,13 @@ Fases: (1) MVP Hold’em com ações legais, sizing e pot odds; (2) equity/EV e 
 
 ## 🛡️ 5. Módulo Antifraude & Gestão de Risco
 
-1. **Subnet /24 Guard:** Impede que dois ou mais jogadores no mesmo IP estrito ou na mesma sub-rede IPv4 `/24` entrem na mesma mesa.
-2. **Análise de Anomalias (VPIP / PFR):** Rastreia métricas estatísticas comportamentais:
-   - Alerta disparado se $\text{VPIP} > 85\%$ ou $\text{PFR} > 70\%$ após amostragem mínima.
-3. **Bloqueio Administrativo:** O `AdminDashboard` permite o banimento instantâneo de contas suspeitas com congelamento de fundos no Ledger.
+Estado verificado no código em 08/11/2026:
+
+1. **No ator de cash:** `AntiFraudSuite::process_action` (`Motor-Rust/src/antifraud/mod.rs`) registra o tempo de reação de cada ação e pode bloqueá-la quando o escore de bot recomenda `BlockSession` (`API-Axum/src/game_actor.rs`, `handle_action`). O componente de colusão entra com peso zero nesse caminho.
+2. **Guarda de rede na entrada da mesa cash (Termos 2.3):** `POST /api/lobby/join` recusa com `403` quando outra conta tem assento ativo na mesma mesa com o mesmo IP público ou a mesma sub-rede (/24 IPv4, /64 IPv6). `API-Axum/src/seat_ip_guard.rs` calcula impressões HMAC; a migration 061 guarda as impressões em `cash_game_seats` e as apaga quando o assento deixa de estar ativo. Endereços não públicos e `SEAT_IP_GUARD_EXEMPT_IPS` ficam fora da comparação. Torneios ainda não aplicam a guarda. Regra completa em `BUSINESS_RULES.md` § 15.5.
+3. **Módulos do motor ainda não ligados à API:** `collusion`, `chip_dumping` e `multi_account` (pontuação por IP/dispositivo) têm testes no motor, mas o join e o ator não os consultam. Não há alerta automático de VPIP/PFR.
+4. **Painel:** `GET /api/admin/antifraud/alerts` devolve hoje um resumo fixo de demonstração (contadores zerados e um alerta de exemplo), não dados apurados.
+5. **Bloqueio administrativo:** `PATCH /api/admin/users/:id` suspende ou bane a conta, incrementa `token_version` (revoga sessões) e grava auditoria. Não existe congelamento de saldo separado.
 
 ---
 
@@ -280,10 +284,10 @@ Fases: (1) MVP Hold’em com ações legais, sizing e pot odds; (2) equity/EV e 
 - Não há benchmark de release certificado neste repositório. Throughput, latência e capacidade devem ser obtidos exclusivamente em uma execução autorizada da validação completa, com o TSV de evidência gerado pelos scripts.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
-### Ante e Academy v3 — Pineapple v2
+### Ante, troca, descarte e Academy v5 — Brazilian Pineapple
 
-`table_state` cash/MTT e cada snapshot da Academy expõem `ante` (nominal), `ante_paid` (efetivamente pago) e `ante_player_id` (BB designado, mesmo quando paga zero). Valores em centavos; `null` para pagador ausente. Pote inclui o ante uma vez; aposta individual da rodada não o inclui. `blind_levels[].ante` de torneio Pineapple informa o BB daquele nível. O catálogo da Academy passa à versão 3; requisições antigas são rejeitadas e registros locais antigos não são reexecutados silenciosamente. O preço do call usa contribuições vivas e adiciona o ante somente ao pote principal elegível.
+`table_state` cash/MTT e cada snapshot da Academy expõem `ante` (nominal), `ante_paid` (efetivamente pago) e `ante_player_id` (BB designado, mesmo quando paga zero). Valores em centavos; `null` para pagador ausente. Pote inclui o ante uma vez; aposta individual da rodada não o inclui. `blind_levels[].ante` de torneio Brazilian Pineapple informa o BB daquele nível. O catálogo da Academy passa à versão 4; requisições antigas são rejeitadas e registros locais antigos não são reexecutados silenciosamente. No laboratório, `legal.drawing` e `state.drawing` marcam a rodada de troca, cada jogador traz `draw_count`, e as ações `keep` e `swap` (posição 0–2 em `amount`) substituem as apostas nessa rodada; a pergunta objetiva passa a ser qual privada fica fora da melhor combinação 2 + 3 (empates aceitam qualquer uma das cartas equivalentes). O preço do call usa contribuições vivas e adiciona o ante somente ao pote principal elegível.

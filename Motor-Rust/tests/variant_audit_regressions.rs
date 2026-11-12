@@ -1,6 +1,6 @@
 use poker_engine::deck::{
-    compare_hands, create_short_deck, evaluate_hand, evaluate_hand_brazilian_pineapple,
-    evaluate_hand_omaha, evaluate_hand_short_deck, Card, HandRank, Rank, Suit,
+    compare_hands, create_short_deck, evaluate_hand, evaluate_hand_omaha,
+    evaluate_hand_pineapple_draw, evaluate_hand_short_deck, Card, HandRank, Rank, Suit,
 };
 use poker_engine::loss_deflator::get_multiway_win_probability_for_variant as equity;
 use poker_engine::types::PokerVariant;
@@ -69,7 +69,7 @@ fn low_straight_cannot_take_a_pot_from_a_higher_straight() {
 #[test]
 fn academy_examples_use_the_actual_omaha_and_pineapple_evaluators() {
     let result =
-        evaluate_hand_brazilian_pineapple(&cards(&["As", "Ks", "Ah"]), &cards(&["Ad", "Qc", "2s"]));
+        evaluate_hand_pineapple_draw(&cards(&["As", "Ks", "Ah"]), &cards(&["Ad", "Qc", "2s"]));
     assert_eq!(result.rank, HandRank::ThreeOfAKind);
     assert_eq!(
         result.kickers.iter().map(|c| c.rank).collect::<Vec<_>>(),
@@ -81,12 +81,19 @@ fn academy_examples_use_the_actual_omaha_and_pineapple_evaluators() {
     );
     assert_eq!(draw.rank, HandRank::Straight);
     assert_eq!(draw.cards[0].rank, Rank::Queen);
-    let royal_board = evaluate_hand_brazilian_pineapple(
-        &cards(&["9c", "9d", "8c", "7d", "6s"]),
+    // Brazilian Pineapple segue o Hold'em na formação da mão: o royal da mesa
+    // vale para todos, e quatro copas na mesa com uma na mão formam flush.
+    let royal_board = evaluate_hand_pineapple_draw(
+        &cards(&["9c", "9d", "8c"]),
         &cards(&["Ah", "Kh", "Qh", "Jh", "Th"]),
     );
-    assert_eq!(royal_board.rank, HandRank::Straight);
-    assert_eq!(royal_board.cards[0].rank, Rank::Queen);
+    assert_eq!(royal_board.rank, HandRank::RoyalFlush);
+    let one_heart = evaluate_hand_pineapple_draw(
+        &cards(&["Ah", "7s"]),
+        &cards(&["Kh", "9h", "6h", "3h", "Jc"]),
+    );
+    assert_eq!(one_heart.rank, HandRank::Flush);
+    assert_eq!(one_heart.cards[0].rank, Rank::Ace);
 }
 
 #[test]
@@ -140,9 +147,20 @@ fn wheel_order_applies_to_flush_omaha_and_pineapple() {
     assert_eq!(low.rank, HandRank::StraightFlush);
     assert_eq!(compare_hands(&low, &high), Ordering::Less);
     let board = cards(&["2c", "3d", "4s", "Kh", "Qh"]);
-    for evaluate in [evaluate_hand_omaha, evaluate_hand_brazilian_pineapple] {
-        let low = evaluate(&cards(&["Ah", "5d", "8c", "9s"]), &board);
-        let high = evaluate(&cards(&["6h", "5c", "8d", "9h"]), &board);
+    for (evaluate, low_hole, high_hole) in [
+        (
+            evaluate_hand_omaha as fn(&[Card], &[Card]) -> _,
+            vec!["Ah", "5d", "8c", "9s"],
+            vec!["6h", "5c", "8d", "9h"],
+        ),
+        (
+            evaluate_hand_pineapple_draw,
+            vec!["Ah", "5d", "9s"],
+            vec!["6h", "5c", "9h"],
+        ),
+    ] {
+        let low = evaluate(&cards(&low_hole), &board);
+        let high = evaluate(&cards(&high_hole), &board);
         assert_eq!(low.cards.len(), 5);
         assert_eq!(compare_hands(&low, &high), Ordering::Less);
     }
@@ -243,8 +261,19 @@ fn variant_equity_splits_three_way_ties_and_rejects_invalid_input() {
         equity(&hero, &[&a], &cards(&["Ah", "Kh"]), PokerVariant::ShortDeck),
         None
     );
+    // Brazilian Pineapple depois do descarte (2 privadas): o royal da mesa
+    // empata a mão. Quatro privadas não existem na modalidade.
     assert_eq!(
-        equity(&hero, &[&a], &board, PokerVariant::BrazilianPineapple),
+        equity(&hero, &[&a], &board, PokerVariant::PineappleDraw),
+        Some(0.5)
+    );
+    assert_eq!(
+        equity(
+            &cards(&["9c", "9d", "2c", "3c"]),
+            &[&a],
+            &board,
+            PokerVariant::PineappleDraw
+        ),
         None
     );
     assert_eq!(equity(&hero, &[&a], &board, PokerVariant::Omaha), None);

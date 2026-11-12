@@ -1,0 +1,100 @@
+{
+  "id": "academy-m2l2",
+  "title": "Como responder ao check-raise e a arte do float",
+  "lesson": "m2l2",
+  "voice": "pt-BR-AntonioNeural",
+  "rate": "-3%",
+  "fps": 30,
+  "ruleSources": [
+    "Frontend-Web/src/data/courseContent.json#m2l2",
+    "Frontend-Web/src/data/courseTraining.json"
+  ],
+  "scenes": [
+    {
+      "id": "hook",
+      "chapter": "Abertura",
+      "voice": "Você aposta no flop com top pair. O oponente, que tinha dado check, volta com um aumento grande. Pagar, desistir ou aumentar de novo?",
+      "padAfter": 1.1
+    },
+    {
+      "id": "title",
+      "chapter": "Abertura",
+      "voice": "Zero Tilt Academy. Como responder ao check-raise, e a arte do float. O objetivo é recalcular o preço depois da agressão do oponente: vamos à teoria, aos exemplos e à mesa deste módulo.",
+      "padAfter": 0.8
+    },
+    {
+      "id": "what",
+      "chapter": "O que é check-raise",
+      "voice": "Check-raise é isso: passar a vez e, depois da aposta do oponente, aumentar. Pode ser uma mão forte. Pode ser um blefe. Para responder, olhe quatro coisas: quanto custa continuar, o tamanho dos stacks, a textura do board e o range plausível do oponente."
+    },
+    {
+      "id": "price",
+      "chapter": "Refaça o preço",
+      "voice": "Primeiro, o preço. O pote tinha dez big blinds. Você apostou três. O oponente aumentou para doze. Agora há vinte e cinco no meio."
+    },
+    {
+      "id": "price2",
+      "chapter": "Refaça o preço",
+      "voice": "Você já colocou três, então faltam nove para pagar. Se pagar, o pote vai a trinta e quatro. Nove sobre trinta e quatro dá cerca de vinte e seis e meio por cento. Essa é a equity mínima para o call, sem taxas e supondo que as apostas terminem aqui.",
+      "padAfter": 0.9
+    },
+    {
+      "id": "trap",
+      "chapter": "Refaça o preço",
+      "voice": "O erro comum é usar doze como custo. Os três que você já apostou não voltam: eles fazem parte do pote."
+    },
+    {
+      "id": "relative",
+      "chapter": "Força absoluta e relativa",
+      "voice": "Agora, a força da mão. Top pair é forte contra um range amplo, cheio de mãos piores. Mas, contra um range só de dois pares, trincas e melhores, ele vira uma mão fraca. No treino, o bot de valor só aumenta quando a própria mão cumpre a política declarada, e isso torna a leitura estudável. Contra quem também blefa e joga projetos, você teria de reconstruir esse range."
+    },
+    {
+      "id": "model",
+      "chapter": "Exercício",
+      "voice": "Agora, um exercício. O oponente tem uma política declarada: só dá check-raise grande com dois pares ou melhor, e quase nunca blefa. Você tem rei e nove de ouros, num flop rei de paus, oito de espadas e três de copas."
+    },
+    {
+      "id": "ex2",
+      "chapter": "Exercício",
+      "voice": "Diante do check-raise grande, qual decisão conservadora treinamos contra esse modelo? A: fold. B: call. C: raise. Pause o vídeo e responda.",
+      "padAfter": 3.0
+    },
+    {
+      "id": "fold",
+      "chapter": "Exercício",
+      "voice": "Resposta: fold. Contra esse modelo, todas as mãos que ele aumenta vencem a sua. Mas atenção: não é regra contra todo check-raise. Se as frequências do oponente mudarem, refaça a análise."
+    },
+    {
+      "id": "float",
+      "chapter": "Float",
+      "voice": "E o float? Float é pagar com um plano: disputar o pote na street seguinte, geralmente em posição. Pagar uma aposta pequena em posição preserva opções quando sua mão tem equity. Mas você não sabe se o oponente vai dar check no turn."
+    },
+    {
+      "id": "floatplan",
+      "chapter": "Float",
+      "voice": "Por isso, antes de pagar, decida duas coisas: quais cartas do turn permitem continuar, e qual aposta do oponente encerra o plano. Se ele der check no turn, você pode apostar e disputar o pote. Se ele apostar forte, o plano acabou. Call por curiosidade não é float."
+    },
+    {
+      "id": "quiz",
+      "chapter": "Pergunta",
+      "voice": "Pergunta rápida. O que é float? A: dar fold no pré-flop. B: pagar uma aposta no flop, em posição, com a intenção de tomar o pote no turn quando o oponente checar. C: pedir tempo extra. Pause o vídeo e responda.",
+      "padAfter": 3.0
+    },
+    {
+      "id": "answer",
+      "chapter": "Pergunta",
+      "voice": "Resposta: letra B. Float é um call planejado em posição, para explorar o check do agressor no turn."
+    },
+    {
+      "id": "lab",
+      "chapter": "Laboratório",
+      "voice": "Laboratório. Abra a mesa deste módulo e escolha o cenário Responder ao check-raise. Comece pelo treino guiado: o bot de valor dá check-raise com dois pares ou melhor, e uma aposta sua pode provocar essa resposta. Depois, repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais."
+    },
+    {
+      "id": "practice",
+      "chapter": "Laboratório",
+      "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. Avalie o raciocínio sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. O treino usa fichas sem valor, e este curso não promete lucro.",
+      "padAfter": 2.0
+    }
+  ]
+}

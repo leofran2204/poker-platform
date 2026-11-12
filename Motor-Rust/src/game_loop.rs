@@ -9,6 +9,8 @@
 // Fluxo da mão:
 //   1. start_hand()     — coleta blinds, distribui hole cards, entra em Preflop
 //   2. player_action()  — processa fold/check/call/bet/raise/all-in
+//      (Brazilian Pineapple: keep/swap na rodada de troca depois das apostas do
+//      flop e do turn; discard no river, antes da última rodada de apostas)
 //   3. advance_phase()  — quando a rodada de apostas fecha, avança fase
 //      Preflop → Flop (burn + 3 cartas) → Turn (burn + 1) → River (burn + 1) → Showdown
 //   4. resolve_hand()    — calcula side pots, rake, loss deflator, distribui prêmios
@@ -21,12 +23,12 @@
 //   - O GameLoop NÃO toma decisões de IA — apenas executa ações solicitadas
 
 use crate::deck::{
-    compare_hands, create_deck, create_short_deck, deal_cards, evaluate_hand,
-    evaluate_hand_brazilian_pineapple, evaluate_hand_omaha, evaluate_hand_short_deck, shuffle_deck,
-    Card, HandResult,
+    compare_hands, create_deck, create_short_deck, deal_cards, evaluate_hand, evaluate_hand_omaha,
+    evaluate_hand_pineapple_draw, evaluate_hand_short_deck, pineapple_draw_best_discard,
+    shuffle_deck, Card, HandResult,
 };
 use crate::hand_history::{
-    self, Action, EndReason, GameType, HandHistory, PlayerAction, PlayerResult,
+    self, Action, DrawRecord, EndReason, GameType, HandHistory, PlayerAction, PlayerResult,
     TableConfig as HistoryTableConfig,
 };
 use crate::loss_deflator::{self, ProgressiveLossDeflatorParams};
@@ -35,7 +37,10 @@ use crate::side_pots::{self, PlayerForPots, SidePotsResult};
 use crate::types::{GamePhase, Pot, TableConfig};
 use std::collections::HashMap;
 
-pub const PINEAPPLE_RULE_VERSION: &str = "brazilian_pineapple_pot_before_call_v2";
+/// Brazilian Pineapple (`pineapple_draw`): aumento limitado ao pote antes do
+/// call, ante de 1 BB do big blind, rodada de troca depois das apostas do flop
+/// e do turn, e descarte de uma privada no river antes da última rodada.
+pub const PINEAPPLE_DRAW_RULE_VERSION: &str = "pineapple_draw_v1";
 
 /// Public betting contract. Wagers are street totals; call_amount is the
 /// additional payment (capped by the stack). Only the active player has actions.
@@ -55,6 +60,18 @@ impl LegalActions {
     /// Bound a bot/simulator's proposed sizing to this contract. Human actions
     /// are validated, never silently converted using this helper.
     pub fn constrain_move(&self, proposed: PlayerMove) -> PlayerMove {
+        if self.allows("discard") {
+            return match proposed {
+                PlayerMove::Discard(Some(position)) if position < 3 => proposed,
+                _ => PlayerMove::Discard(None),
+            };
+        }
+        if self.allows("keep") {
+            return match proposed {
+                PlayerMove::Swap(position) if self.allows("swap") => PlayerMove::Swap(position),
+                _ => PlayerMove::Keep,
+            };
+        }
         let passive = if self.allows("check") {
             PlayerMove::Check
         } else {
@@ -80,7 +97,11 @@ impl LegalActions {
                     passive
                 }
             }
-            PlayerMove::Check | PlayerMove::Call => passive,
+            PlayerMove::Check
+            | PlayerMove::Call
+            | PlayerMove::Keep
+            | PlayerMove::Swap(_)
+            | PlayerMove::Discard(_) => passive,
             PlayerMove::Fold => PlayerMove::Fold,
         }
     }
@@ -95,7 +116,8 @@ pub struct PlayerState {
     pub id: String,
     /// Fichas restantes (stack atual em centavos)
     pub stack: u64,
-    /// Hole cards (2 cartas)
+    /// Cartas privadas (2 no Hold'em, 4 no Omaha; no Brazilian Pineapple, 3 até o
+    /// descarte do river e 2 depois dele)
     pub hole_cards: Vec<Card>,
     /// Aposta da rodada atual (reseta a cada fase, em centavos)
     pub current_bet: u64,
@@ -111,6 +133,10 @@ pub struct PlayerState {
     pub has_acted: bool,
     /// Índice do assento (0-based)
     pub seat_index: usize,
+    /// Brazilian Pineapple: cartas trocadas ou descartadas na rodada atual (0 ou
+    /// 1); `None` enquanto o jogador ainda não decidiu. A quantidade é pública;
+    /// as cartas, não.
+    pub draw_count: Option<u8>,
 }
 
 impl PlayerState {
@@ -127,6 +153,7 @@ impl PlayerState {
             all_in_phase: None,
             has_acted: false,
             seat_index,
+            draw_count: None,
         }
     }
 
@@ -174,6 +201,13 @@ pub struct HandState {
     pub big_blind: u64,
     /// Se a mão já terminou
     pub is_finished: bool,
+    /// Brazilian Pineapple: rodada de troca em andamento, depois das apostas do
+    /// flop ou do turn e antes da próxima carta comunitária.
+    pub drawing: bool,
+    /// Brazilian Pineapple: descarte do river em andamento, antes das apostas.
+    pub discarding: bool,
+    /// Brazilian Pineapple: cartas descartadas; ficam fora do jogo até o fim da mão.
+    pub discard_pile: Vec<Card>,
 }
 
 impl HandState {
@@ -303,6 +337,14 @@ pub enum PlayerMove {
     Raise(u64),
     /// Vai all-in com todas as fichas restantes
     AllIn,
+    /// Brazilian Pineapple: mantém as três privadas nesta rodada de troca
+    Keep,
+    /// Brazilian Pineapple: descarta a privada nesta posição (0 a 2) e recebe outra
+    Swap(usize),
+    /// Brazilian Pineapple: no river, descarta a privada nesta posição (0 a 2) e
+    /// fica com duas. `None` deixa o motor guardar as duas melhores (tempo
+    /// esgotado, desconexão e bots sem escolha própria).
+    Discard(Option<usize>),
 }
 
 // ─── GameLoop principal ───
@@ -310,6 +352,9 @@ pub enum PlayerMove {
 struct AllInSnapshot {
     phase: GamePhase,
     board: Vec<Card>,
+    /// Privadas do jogador no pagamento do all-in. Quem está all-in não troca
+    /// mais cartas; a equity usa exatamente as privadas daquele instante.
+    hero: Vec<Card>,
     opponents: Vec<Vec<Card>>,
 }
 
@@ -370,6 +415,9 @@ impl GameLoop {
                 small_blind: config.effective_small_blind(),
                 big_blind: config.big_blind,
                 is_finished: false,
+                drawing: false,
+                discarding: false,
+                discard_pile: Vec::new(),
             },
             config,
             hand_id,
@@ -388,7 +436,7 @@ impl GameLoop {
         }
     }
 
-    /// Define o ante legado. Pineapple sempre usa 1 BB, independentemente do ator.
+    /// Define o ante legado. O Brazilian Pineapple sempre usa 1 BB, independentemente do ator.
     pub fn with_ante(mut self, ante: u64) -> Self {
         self.ante = Some(ante);
         self
@@ -396,7 +444,7 @@ impl GameLoop {
 
     /// Ante nominal da modalidade/nível; nunca faz parte do call.
     pub fn nominal_ante(&self) -> u64 {
-        if self.config.poker_variant == crate::types::PokerVariant::BrazilianPineapple {
+        if self.config.poker_variant == crate::types::PokerVariant::PineappleDraw {
             self.state.big_blind
         } else {
             self.ante.unwrap_or(0)
@@ -550,14 +598,14 @@ impl GameLoop {
         let sb_index = self.small_blind_index();
         let bb_index = self.big_blind_index();
         let uses_big_blind_ante = self.game_type == GameType::Tournament
-            || self.config.poker_variant == crate::types::PokerVariant::BrazilianPineapple;
+            || self.config.poker_variant == crate::types::PokerVariant::PineappleDraw;
         let nominal_ante = self.nominal_ante();
 
         self.big_blind_ante_player_id = (uses_big_blind_ante && nominal_ante > 0)
             .then(|| self.state.players[bb_index].id.clone());
         self.big_blind_ante_amount = 0;
 
-        // 2. Outras modalidades cash mantêm o ante individual legado. Pineapple e torneios usam BBA.
+        // 2. Outras modalidades cash mantêm o ante individual legado. Brazilian Pineapple e torneios usam BBA.
         if !uses_big_blind_ante {
             if let Some(ante) = self.ante {
                 if ante > 0 {
@@ -611,7 +659,7 @@ impl GameLoop {
             }
         }
 
-        // 4. Distribuir hole cards iniciais (2 Hold'em/Pineapple · 4 Omaha)
+        // 4. Distribuir hole cards iniciais (2 Hold'em · 3 Brazilian Pineapple · 4 Omaha)
         let hole_n = self.config.poker_variant.hole_card_count();
         for _ in 0..hole_n {
             for player in &mut self.state.players {
@@ -699,6 +747,7 @@ impl GameLoop {
                     AllInSnapshot {
                         phase: self.state.phase,
                         board: self.state.community_cards.clone(),
+                        hero: hero.hole_cards.clone(),
                         opponents: self
                             .state
                             .players
@@ -722,8 +771,8 @@ impl GameLoop {
     }
 
     pub fn betting_structure(&self) -> &'static str {
-        if self.config.poker_variant == crate::types::PokerVariant::BrazilianPineapple {
-            PINEAPPLE_RULE_VERSION
+        if self.config.poker_variant == crate::types::PokerVariant::PineappleDraw {
+            PINEAPPLE_DRAW_RULE_VERSION
         } else {
             "no_limit_v1"
         }
@@ -733,7 +782,7 @@ impl GameLoop {
         let st = &self.state;
         let stack_total = player.current_bet.saturating_add(player.stack);
         let minimum = st.current_bet_to_match.saturating_add(st.min_raise);
-        let maximum = if self.betting_structure() == PINEAPPLE_RULE_VERSION {
+        let maximum = if self.betting_structure() == PINEAPPLE_DRAW_RULE_VERSION {
             // total_bet already includes the current street and antes once.
             player
                 .current_bet
@@ -751,7 +800,24 @@ impl GameLoop {
         let Some(p) = self.state.active_player().filter(|p| p.id == player_id) else {
             return legal;
         };
-        if self.history.is_none() || self.state.is_finished || !p.can_act() || p.stack == 0 {
+        if self.history.is_none() || self.state.is_finished || !p.can_act() {
+            return legal;
+        }
+        if self.state.drawing {
+            // Rodada de troca: sem apostas nem desistência; só manter ou trocar.
+            if p.draw_count.is_none() {
+                legal.available_actions = vec!["keep".into(), "swap".into()];
+            }
+            return legal;
+        }
+        if self.state.discarding {
+            // Descarte do river: obrigatório, sem apostas nem desistência.
+            if p.draw_count.is_none() {
+                legal.available_actions = vec!["discard".into()];
+            }
+            return legal;
+        }
+        if p.stack == 0 {
             return legal;
         }
         let to_call = self
@@ -809,6 +875,21 @@ impl GameLoop {
             return Err(GameLoopError::PlayerCannotAct(player_id.to_string()));
         }
 
+        if self.state.drawing {
+            return self.player_draw(active_idx, move_type);
+        }
+        if self.state.discarding {
+            return self.player_discard(active_idx, move_type);
+        }
+        if matches!(
+            move_type,
+            PlayerMove::Keep | PlayerMove::Swap(_) | PlayerMove::Discard(_)
+        ) {
+            return Err(GameLoopError::InvalidActionForPhase(
+                "Troca só depois das apostas do flop e do turn; descarte só no river".into(),
+            ));
+        }
+
         let current_bet_to_match = self.state.current_bet_to_match;
         let player_current = self.state.players[active_idx].current_bet;
         let to_call = current_bet_to_match.saturating_sub(player_current);
@@ -824,7 +905,7 @@ impl GameLoop {
             ));
         }
 
-        if self.betting_structure() == PINEAPPLE_RULE_VERSION {
+        if self.betting_structure() == PINEAPPLE_DRAW_RULE_VERSION {
             let legal = self.legal_actions(player_id);
             let valid = match move_type {
                 PlayerMove::Fold => legal.allows("fold"),
@@ -839,6 +920,7 @@ impl GameLoop {
                     };
                     legal.allows(action) && n >= legal.minimum_wager && n <= legal.maximum_wager
                 }
+                PlayerMove::Keep | PlayerMove::Swap(_) | PlayerMove::Discard(_) => false,
             };
             if !valid {
                 return Err(GameLoopError::InvalidBetAmount(
@@ -979,6 +1061,9 @@ impl GameLoop {
                 }
                 self.record_history_action_id(active_idx, Action::AllIn, all_in_amount);
             }
+            PlayerMove::Keep | PlayerMove::Swap(_) | PlayerMove::Discard(_) => {
+                unreachable!("trocas e descarte tratados acima")
+            }
         }
 
         self.capture_paid_all_ins();
@@ -990,6 +1075,10 @@ impl GameLoop {
             // Se só sobrou 1 jogador, a mão termina
             if self.state.players_in_hand_count() <= 1 {
                 self.state.is_finished = true;
+            } else if self.opens_draw_round() {
+                // Brazilian Pineapple: apostas do flop ou do turn fechadas; a
+                // troca vem antes da próxima carta comunitária.
+                self.begin_draw_round();
             } else {
                 // Avançar para a próxima fase
                 self.advance_phase()?;
@@ -1002,31 +1091,190 @@ impl GameLoop {
         Ok(())
     }
 
-    /// Brazilian Pineapple: 1 hole extra para quem ainda está na mão, após virar a street.
-    fn deal_brazilian_pineapple_extra(&mut self) {
-        if self.config.poker_variant != crate::types::PokerVariant::BrazilianPineapple {
-            return;
-        }
-        let n = self.state.players.len();
-        for i in 0..n {
-            if !self.state.players[i].is_in_hand() {
-                continue;
+    /// Brazilian Pineapple: processa manter ou trocar na rodada de troca.
+    fn player_draw(&mut self, idx: usize, move_type: PlayerMove) -> Result<(), GameLoopError> {
+        match move_type {
+            PlayerMove::Keep => {
+                self.state.players[idx].draw_count = Some(0);
+                self.record_history_action_id(idx, Action::Keep, 0);
             }
-            let (cards, remaining) = deal_cards(&self.state.deck, 1);
-            self.state.players[i].hole_cards.extend(cards);
-            self.state.deck = remaining;
+            PlayerMove::Swap(position) => {
+                if position >= self.state.players[idx].hole_cards.len() {
+                    return Err(GameLoopError::InvalidActionForPhase(
+                        "Escolha uma das suas cartas para trocar".into(),
+                    ));
+                }
+                if self.state.deck.is_empty() {
+                    return Err(GameLoopError::InvalidActionForPhase(
+                        "Baralho sem cartas para a troca".into(),
+                    ));
+                }
+                let (cards, remaining) = deal_cards(&self.state.deck, 1);
+                self.state.deck = remaining;
+                let received = cards[0];
+                let discarded =
+                    std::mem::replace(&mut self.state.players[idx].hole_cards[position], received);
+                self.state.discard_pile.push(discarded);
+                self.state.players[idx].draw_count = Some(1);
+                self.record_history_action_id(idx, Action::Swap, 0);
+                let record = DrawRecord {
+                    player_id: self.state.players[idx].id.clone(),
+                    phase: self.state.phase,
+                    position: position as u8,
+                    discarded,
+                    received: Some(received),
+                };
+                if let Some(history) = &mut self.history {
+                    history.draws.push(record);
+                }
+            }
+            _ => {
+                return Err(GameLoopError::InvalidActionForPhase(
+                    "Rodada de troca: mantenha as três cartas ou troque uma".into(),
+                ));
+            }
         }
+        self.advance_draw_round()
     }
 
-    /// Avança para a próxima fase do jogo (flop, turn, river, showdown)
-    pub fn advance_phase(&mut self) -> Result<(), GameLoopError> {
-        // Resetar apostas e direitos de aumento da rodada.
+    /// Brazilian Pineapple: há rodada de troca quando as apostas do flop ou do
+    /// turn fecham com dois ou mais jogadores ainda capazes de apostar.
+    fn opens_draw_round(&self) -> bool {
+        self.config.poker_variant.has_draw_rounds()
+            && matches!(self.state.phase, GamePhase::Flop | GamePhase::Turn)
+            && self.state.active_players_count() >= 2
+    }
+
+    /// Recolhe as apostas da rodada que fechou e zera os direitos de aumento.
+    fn close_betting_round(&mut self) {
         self.acted_bets.clear();
         for player in &mut self.state.players {
             player.reset_round_bet();
         }
         self.state.current_bet_to_match = 0;
         self.state.min_raise = self.state.big_blind;
+    }
+
+    /// Abre a rodada de troca depois das apostas do flop ou do turn, na mesma
+    /// ordem das apostas pós-flop. Só acontece quando ainda há aposta possível
+    /// (dois ou mais jogadores com fichas fora do all-in); quem está all-in
+    /// nunca troca.
+    fn begin_draw_round(&mut self) {
+        self.close_betting_round();
+        for player in &mut self.state.players {
+            player.draw_count = None;
+        }
+        self.state.drawing = true;
+        self.set_first_to_act_postflop();
+    }
+
+    /// Passa a vez na rodada de troca; ao fim, abre a próxima carta comunitária.
+    fn advance_draw_round(&mut self) -> Result<(), GameLoopError> {
+        match self.next_undecided_player() {
+            Some(i) => {
+                self.state.active_player_index = i;
+                Ok(())
+            }
+            None => {
+                self.state.drawing = false;
+                self.advance_phase()
+            }
+        }
+    }
+
+    /// Próximo jogador que ainda precisa decidir na rodada de troca ou descarte.
+    fn next_undecided_player(&self) -> Option<usize> {
+        let n = self.state.players.len();
+        (1..=n)
+            .map(|offset| (self.state.active_player_index + offset) % n)
+            .find(|&i| {
+                self.state.players[i].can_act() && self.state.players[i].draw_count.is_none()
+            })
+    }
+
+    /// Brazilian Pineapple: abre o descarte do river. Quem ainda pode apostar
+    /// escolhe a carta; quem está all-in fica com as duas melhores.
+    fn begin_discard_round(&mut self) {
+        for i in 0..self.state.players.len() {
+            self.state.players[i].draw_count = None;
+            if self.state.players[i].is_in_hand() && self.state.players[i].is_all_in {
+                self.discard_card(i, None);
+            }
+        }
+        self.state.discarding = true;
+        self.set_first_to_act_postflop();
+    }
+
+    /// Brazilian Pineapple: processa o descarte do river.
+    fn player_discard(&mut self, idx: usize, move_type: PlayerMove) -> Result<(), GameLoopError> {
+        let PlayerMove::Discard(choice) = move_type else {
+            return Err(GameLoopError::InvalidActionForPhase(
+                "Descarte do river: escolha uma das suas três cartas para descartar".into(),
+            ));
+        };
+        if choice.is_some_and(|position| position >= self.state.players[idx].hole_cards.len()) {
+            return Err(GameLoopError::InvalidActionForPhase(
+                "Escolha uma das suas cartas para descartar".into(),
+            ));
+        }
+        self.discard_card(idx, choice);
+        self.record_history_action_id(idx, Action::Discard, 0);
+        match self.next_undecided_player() {
+            Some(i) => self.state.active_player_index = i,
+            None => {
+                self.state.discarding = false;
+                self.set_first_to_act_postflop();
+            }
+        }
+        Ok(())
+    }
+
+    /// Tira uma privada da mão de quem tem três. `None` descarta a carta que
+    /// deixa o jogador com as duas melhores para a mesa atual.
+    fn discard_card(&mut self, idx: usize, choice: Option<usize>) {
+        let player = &self.state.players[idx];
+        if player.hole_cards.len() != 3 {
+            return;
+        }
+        let Some(position) = choice.or_else(|| {
+            pineapple_draw_best_discard(&player.hole_cards, &self.state.community_cards)
+        }) else {
+            return;
+        };
+        let phase = self.state.phase;
+        let player = &mut self.state.players[idx];
+        let discarded = player.hole_cards.remove(position);
+        player.draw_count = Some(1);
+        let record = DrawRecord {
+            player_id: player.id.clone(),
+            phase,
+            position: position as u8,
+            discarded,
+            received: None,
+        };
+        self.state.discard_pile.push(discarded);
+        if let Some(history) = &mut self.history {
+            history.draws.push(record);
+        }
+    }
+
+    /// Brazilian Pineapple: no showdown todos têm duas privadas. Quem chegou
+    /// com três (mesa completada sem rodada de descarte) fica com as melhores.
+    fn settle_pending_discards(&mut self) {
+        if !self.config.poker_variant.has_draw_rounds() || self.state.community_cards.len() < 5 {
+            return;
+        }
+        for i in 0..self.state.players.len() {
+            if self.state.players[i].is_in_hand() {
+                self.discard_card(i, None);
+            }
+        }
+    }
+
+    /// Avança para a próxima fase do jogo (flop, turn, river, showdown)
+    pub fn advance_phase(&mut self) -> Result<(), GameLoopError> {
+        // Resetar apostas e direitos de aumento da rodada.
+        self.close_betting_round();
 
         let next_phase = self
             .state
@@ -1048,7 +1296,6 @@ impl GameLoop {
                 if let Some(h) = &mut self.history {
                     hand_history::set_community_cards(h, GamePhase::Flop, flop);
                 }
-                self.deal_brazilian_pineapple_extra();
             }
             GamePhase::Turn => {
                 let (burn, d1) = deal_cards(&self.state.deck, 1);
@@ -1060,7 +1307,6 @@ impl GameLoop {
                 if let Some(h) = &mut self.history {
                     hand_history::set_community_cards(h, GamePhase::Turn, turn_card);
                 }
-                self.deal_brazilian_pineapple_extra();
             }
             GamePhase::River => {
                 let (burn, d1) = deal_cards(&self.state.deck, 1);
@@ -1072,10 +1318,10 @@ impl GameLoop {
                 if let Some(h) = &mut self.history {
                     hand_history::set_community_cards(h, GamePhase::River, river_card);
                 }
-                self.deal_brazilian_pineapple_extra();
             }
             GamePhase::Showdown => {
                 // No showdown, não há mais apostas
+                self.settle_pending_discards();
                 self.state.is_finished = true;
             }
             GamePhase::Preflop => {
@@ -1096,6 +1342,8 @@ impl GameLoop {
         if self.state.active_players_count() <= 1 && !self.state.is_finished {
             // Se há apenas 1 ou 0 jogadores ativos, distribuir as cartas restantes e ir ao showdown
             self.run_out_board()?;
+        } else if next_phase == GamePhase::River && self.config.poker_variant.has_draw_rounds() {
+            self.begin_discard_round();
         }
 
         Ok(())
@@ -1237,6 +1485,9 @@ impl GameLoop {
 
     /// Distribui as cartas comunitárias restantes (quando todos estão all-in)
     fn run_out_board(&mut self) -> Result<(), GameLoopError> {
+        // Sem apostas possíveis também não há trocas nem escolha de descarte.
+        self.state.drawing = false;
+        self.state.discarding = false;
         // Avançar até showdown distribuindo todas as cartas
         while self.state.phase != GamePhase::Showdown {
             let next = self
@@ -1258,7 +1509,6 @@ impl GameLoop {
                     if let Some(h) = &mut self.history {
                         hand_history::set_community_cards(h, GamePhase::Flop, flop);
                     }
-                    self.deal_brazilian_pineapple_extra();
                 }
                 GamePhase::Turn => {
                     let (burn, d1) = deal_cards(&self.state.deck, 1);
@@ -1270,7 +1520,6 @@ impl GameLoop {
                     if let Some(h) = &mut self.history {
                         hand_history::set_community_cards(h, GamePhase::Turn, turn_card);
                     }
-                    self.deal_brazilian_pineapple_extra();
                 }
                 GamePhase::River => {
                     let (burn, d1) = deal_cards(&self.state.deck, 1);
@@ -1282,7 +1531,6 @@ impl GameLoop {
                     if let Some(h) = &mut self.history {
                         hand_history::set_community_cards(h, GamePhase::River, river_card);
                     }
-                    self.deal_brazilian_pineapple_extra();
                 }
                 _ => {}
             }
@@ -1290,6 +1538,7 @@ impl GameLoop {
             self.state.phase = next;
         }
 
+        self.settle_pending_discards();
         self.state.is_finished = true;
         Ok(())
     }
@@ -1547,13 +1796,9 @@ impl GameLoop {
         players_for_pots: &[PlayerForPots],
     ) -> Vec<loss_deflator::ProgressiveLossDeflatorResult> {
         let mut candidates = Vec::new();
-        // Equity MC do loss deflator: pula em Omaha/Pineapple e em stress (skip_loss_deflator).
-        if self.skip_loss_deflator
-            || matches!(
-                self.config.poker_variant,
-                crate::types::PokerVariant::Omaha | crate::types::PokerVariant::BrazilianPineapple
-            )
-        {
+        // Vale em todas as modalidades; só é desligado por `skip_loss_deflator`
+        // (laboratório da Academy e campanhas de estresse).
+        if self.skip_loss_deflator {
             return Vec::new();
         }
 
@@ -1687,8 +1932,11 @@ impl GameLoop {
                 .map(|h| h.as_slice())
                 .collect();
             let opponents_counted = villain_refs.len() as u8;
+            let hero_cards = snapshot
+                .map(|s| s.hero.as_slice())
+                .unwrap_or(player.hole_cards.as_slice());
             let Some(loser_equity) = loss_deflator::get_multiway_win_probability_for_variant(
-                &player.hole_cards,
+                hero_cards,
                 &villain_refs,
                 board_slice,
                 self.config.poker_variant,
@@ -1815,12 +2063,10 @@ impl GameLoop {
                     crate::types::PokerVariant::Omaha => {
                         evaluate_hand_omaha(&player.hole_cards, &self.state.community_cards)
                     }
-                    crate::types::PokerVariant::BrazilianPineapple => {
-                        evaluate_hand_brazilian_pineapple(
-                            &player.hole_cards,
-                            &self.state.community_cards,
-                        )
-                    }
+                    crate::types::PokerVariant::PineappleDraw => evaluate_hand_pineapple_draw(
+                        &player.hole_cards,
+                        &self.state.community_cards,
+                    ),
                     crate::types::PokerVariant::ShortDeck => {
                         evaluate_hand_short_deck(&player.hole_cards, &self.state.community_cards)
                     }
@@ -2062,62 +2308,366 @@ mod tests {
         assert!(gl.state.is_finished);
     }
 
-    #[test]
-    fn brazilian_pineapple_deals_extra_hole_each_street() {
-        let config =
-            make_config().with_poker_variant(crate::types::PokerVariant::BrazilianPineapple);
+    fn pineapple_draw_loop(id: &str, players: &[(&str, u64)]) -> GameLoop {
+        let config = make_config().with_poker_variant(crate::types::PokerVariant::PineappleDraw);
         let mut gl = GameLoop::new(
             config,
-            "bp-001".to_string(),
-            "Pineapple".to_string(),
+            id.to_string(),
+            "Brazilian Pineapple".to_string(),
             GameType::Cash,
         );
-        gl.add_player("alice".to_string(), 100000);
-        gl.add_player("bob".to_string(), 100000);
+        for (player, stack) in players {
+            gl.add_player((*player).to_string(), *stack);
+        }
         gl.set_dealer(0);
+        gl
+    }
+
+    #[test]
+    fn pineapple_draw_swaps_after_flop_and_turn_bets_and_discards_on_the_river() {
+        let mut gl = pineapple_draw_loop("pd-001", &[("alice", 100_000), ("bob", 100_000)]);
         gl.start_hand().unwrap();
-        assert_eq!(gl.state.players[0].hole_cards.len(), 2);
-        assert_eq!(gl.state.players[1].hole_cards.len(), 2);
-        assert_eq!(gl.state.deck.len(), 48);
+        assert_eq!(gl.state.players[0].hole_cards.len(), 3);
+        assert_eq!(gl.state.players[1].hole_cards.len(), 3);
+        assert_eq!(gl.state.deck.len(), 46);
+        assert!(!gl.state.drawing);
+        // Pré-flop não tem troca, nem antes nem depois das apostas.
+        assert!(gl.player_action("alice", PlayerMove::Swap(0)).is_err());
 
         gl.player_action("alice", PlayerMove::Call).unwrap();
         gl.player_action("bob", PlayerMove::Check).unwrap();
         assert_eq!(gl.state.phase, GamePhase::Flop);
-        assert_eq!(gl.state.players[0].hole_cards.len(), 3);
-        assert_eq!(gl.state.players[1].hole_cards.len(), 3);
+        assert_eq!(gl.state.community_cards.len(), 3);
+        // O flop abre direto nas apostas; a troca vem depois delas.
+        assert!(!gl.state.drawing);
+        assert_eq!(gl.state.active_player().unwrap().id, "bob");
+        assert!(gl.legal_actions("bob").allows("check"));
+        assert!(gl.player_action("bob", PlayerMove::Keep).is_err());
+
+        gl.player_action("bob", PlayerMove::Bet(1_000)).unwrap();
+        gl.player_action("alice", PlayerMove::Call).unwrap();
+        // Apostas do flop fechadas: troca antes do turn, com as fichas no pote.
+        assert_eq!(gl.state.phase, GamePhase::Flop);
+        assert_eq!(gl.state.community_cards.len(), 3);
+        assert!(gl.state.drawing);
+        assert!(gl.state.players.iter().all(|p| p.current_bet == 0));
+        assert_eq!(gl.state.active_player().unwrap().id, "bob");
+        assert_eq!(
+            gl.legal_actions("bob").available_actions,
+            vec!["keep", "swap"]
+        );
+        // Durante a troca não há aposta.
+        assert!(gl.player_action("bob", PlayerMove::Check).is_err());
+        assert!(gl.player_action("bob", PlayerMove::Swap(3)).is_err());
+        assert!(gl
+            .player_action("bob", PlayerMove::Discard(Some(0)))
+            .is_err());
+
+        let before = gl.state.players[1].hole_cards.clone();
+        let next_card = gl.state.deck[0];
+        gl.player_action("bob", PlayerMove::Swap(1)).unwrap();
+        let after = gl.state.players[1].hole_cards.clone();
+        assert_eq!(after[0], before[0]);
+        assert_eq!(after[1], next_card);
+        assert_eq!(after[2], before[2]);
+        assert_eq!(gl.state.discard_pile, vec![before[1]]);
+        assert_eq!(gl.state.players[1].draw_count, Some(1));
+        assert_eq!(gl.state.deck.len(), 46 - 4 - 1);
+
+        assert_eq!(gl.state.active_player().unwrap().id, "alice");
+        gl.player_action("alice", PlayerMove::Keep).unwrap();
+        assert_eq!(gl.state.players[0].draw_count, Some(0));
+        // Fim da troca: abre o turn e as apostas começam à esquerda do botão.
+        assert!(!gl.state.drawing);
+        assert_eq!(gl.state.phase, GamePhase::Turn);
+        assert_eq!(gl.state.community_cards.len(), 4);
+        assert_eq!(gl.state.active_player().unwrap().id, "bob");
+        assert!(gl.legal_actions("bob").allows("check"));
+        assert!(gl.player_action("bob", PlayerMove::Keep).is_err());
 
         gl.player_action("bob", PlayerMove::Check).unwrap();
         gl.player_action("alice", PlayerMove::Check).unwrap();
         assert_eq!(gl.state.phase, GamePhase::Turn);
-        assert_eq!(gl.state.players[0].hole_cards.len(), 4);
+        assert!(gl.state.drawing);
+        assert_eq!(gl.state.players[0].draw_count, None);
+        gl.player_action("bob", PlayerMove::Keep).unwrap();
+        gl.player_action("alice", PlayerMove::Swap(2)).unwrap();
+
+        // River na mesa: descarte obrigatório antes da última rodada de apostas.
+        assert_eq!(gl.state.phase, GamePhase::River);
+        assert_eq!(gl.state.community_cards.len(), 5);
+        assert!(!gl.state.drawing);
+        assert!(gl.state.discarding);
+        assert_eq!(gl.state.active_player().unwrap().id, "bob");
+        assert_eq!(gl.legal_actions("bob").available_actions, vec!["discard"]);
+        for mv in [
+            PlayerMove::Check,
+            PlayerMove::Fold,
+            PlayerMove::Keep,
+            PlayerMove::Swap(0),
+            PlayerMove::Discard(Some(3)),
+        ] {
+            assert!(gl.player_action("bob", mv).is_err());
+        }
+        let bob_three = gl.state.players[1].hole_cards.clone();
+        gl.player_action("bob", PlayerMove::Discard(Some(0)))
+            .unwrap();
+        assert_eq!(gl.state.players[1].hole_cards, bob_three[1..].to_vec());
+        assert!(gl.state.discarding);
+        // Sem escolha (tempo esgotado), o motor guarda as duas melhores.
+        let alice_three = gl.state.players[0].hole_cards.clone();
+        let expected =
+            crate::deck::pineapple_draw_best_discard(&alice_three, &gl.state.community_cards)
+                .unwrap();
+        gl.player_action("alice", PlayerMove::Discard(None))
+            .unwrap();
+        let mut alice_two = alice_three.clone();
+        alice_two.remove(expected);
+        assert_eq!(gl.state.players[0].hole_cards, alice_two);
+        assert!(!gl.state.discarding);
+        assert_eq!(gl.state.active_player().unwrap().id, "bob");
 
         gl.player_action("bob", PlayerMove::Check).unwrap();
         gl.player_action("alice", PlayerMove::Check).unwrap();
-        assert_eq!(gl.state.phase, GamePhase::River);
-        assert_eq!(gl.state.players[0].hole_cards.len(), 5);
-        assert_eq!(gl.state.players[1].hole_cards.len(), 5);
-        assert_eq!(gl.state.deck.len(), 34);
-        assert!(!gl.config.poker_variant.uses_short_deck());
+        assert!(gl.state.is_finished);
+        assert!(gl.state.players.iter().all(|p| p.hole_cards.len() == 2));
+
+        let history = gl.history.as_ref().unwrap();
+        assert_eq!(
+            history.betting_rule_version.as_deref(),
+            Some(PINEAPPLE_DRAW_RULE_VERSION)
+        );
+        assert_eq!(history.draws.len(), 4);
+        assert_eq!(history.draws[0].player_id, "bob");
+        assert_eq!(history.draws[0].phase, GamePhase::Flop);
+        assert_eq!(history.draws[0].discarded, before[1]);
+        assert_eq!(history.draws[0].received, Some(next_card));
+        assert_eq!(history.draws[2].phase, GamePhase::River);
+        assert_eq!(history.draws[2].discarded, bob_three[0]);
+        assert_eq!(history.draws[2].received, None);
+        let count = |wanted: Action| {
+            history
+                .actions
+                .iter()
+                .filter(|action| action.action == wanted)
+                .count()
+        };
+        assert_eq!(
+            (
+                count(Action::Swap),
+                count(Action::Keep),
+                count(Action::Discard)
+            ),
+            (2, 2, 2)
+        );
+        assert!(history
+            .actions
+            .iter()
+            .filter(|action| matches!(action.action, Action::Swap | Action::Keep | Action::Discard))
+            .all(|action| action.amount == 0));
     }
 
     #[test]
-    fn brazilian_pineapple_folded_skips_extra_card() {
-        let config =
-            make_config().with_poker_variant(crate::types::PokerVariant::BrazilianPineapple);
-        let mut gl = GameLoop::new(
-            config,
-            "bp-fold".to_string(),
-            "Pineapple".to_string(),
-            GameType::Cash,
+    fn pineapple_draw_all_in_player_never_swaps_and_keeps_the_best_two() {
+        let mut gl = pineapple_draw_loop(
+            "pd-allin",
+            &[("short", 3_000), ("sb", 100_000), ("bb", 100_000)],
         );
-        gl.add_player("alice".to_string(), 100000);
-        gl.add_player("bob".to_string(), 100000);
-        gl.set_dealer(0);
         gl.start_hand().unwrap();
+        let short_cards = gl.state.players[0].hole_cards.clone();
+        assert_eq!(gl.state.active_player().unwrap().id, "short");
+        gl.player_action("short", PlayerMove::AllIn).unwrap();
+        gl.player_action("sb", PlayerMove::Call).unwrap();
+        gl.player_action("bb", PlayerMove::Call).unwrap();
+        assert_eq!(gl.state.phase, GamePhase::Flop);
+        assert!(!gl.state.drawing);
+        assert!(gl.legal_actions("short").available_actions.is_empty());
+
+        while !gl.state.is_finished {
+            let id = gl.state.active_player().unwrap().id.clone();
+            assert_ne!(id, "short", "all-in não entra na troca nem nas apostas");
+            if gl.state.discarding {
+                // O all-in já ficou com duas cartas na abertura do descarte.
+                assert_eq!(gl.state.players[0].hole_cards.len(), 2);
+            }
+            let legal = gl.legal_actions(&id);
+            let mv = if legal.allows("swap") {
+                PlayerMove::Swap(0)
+            } else if legal.allows("discard") {
+                PlayerMove::Discard(Some(0))
+            } else {
+                PlayerMove::Check
+            };
+            gl.player_action(&id, mv).unwrap();
+        }
+        let board = gl.state.community_cards.clone();
+        let mut kept = short_cards.clone();
+        kept.remove(crate::deck::pineapple_draw_best_discard(&short_cards, &board).unwrap());
+        assert_eq!(gl.state.players[0].hole_cards, kept);
+        let history = gl.history.as_ref().unwrap();
+        // 4 trocas (flop e turn, dois jogadores) + 3 descartes no river.
+        assert_eq!(history.draws.len(), 7);
+        let short_draws: Vec<_> = history
+            .draws
+            .iter()
+            .filter(|draw| draw.player_id == "short")
+            .collect();
+        assert_eq!(short_draws.len(), 1);
+        assert_eq!(short_draws[0].phase, GamePhase::River);
+        assert_eq!(short_draws[0].received, None);
+    }
+
+    #[test]
+    fn pineapple_draw_has_no_swaps_once_betting_is_closed() {
+        let mut gl = pineapple_draw_loop("pd-runout", &[("alice", 3_000), ("bob", 100_000)]);
+        gl.start_hand().unwrap();
+        let cards: Vec<Vec<Card>> = gl
+            .state
+            .players
+            .iter()
+            .map(|p| p.hole_cards.clone())
+            .collect();
+        gl.player_action("alice", PlayerMove::AllIn).unwrap();
+        gl.player_action("bob", PlayerMove::Call).unwrap();
+        // Só um jogador ainda tem fichas: sem apostas possíveis, sem troca.
+        assert!(gl.state.is_finished);
+        assert!(!gl.state.drawing);
+        assert!(!gl.state.discarding);
+        assert_eq!(gl.state.community_cards.len(), 5);
+        let history = gl.history.as_ref().unwrap();
+        // Ninguém trocou; no showdown cada um ficou com as duas melhores.
+        assert_eq!(history.draws.len(), 2);
+        assert!(history.draws.iter().all(|draw| draw.received.is_none()));
+        for (player, original) in gl.state.players.iter().zip(cards) {
+            let mut kept = original.clone();
+            kept.remove(
+                crate::deck::pineapple_draw_best_discard(&original, &gl.state.community_cards)
+                    .unwrap(),
+            );
+            assert_eq!(player.hole_cards, kept);
+        }
+    }
+
+    #[test]
+    fn pineapple_draw_six_max_deck_covers_every_swap() {
+        let seats: Vec<(String, u64)> = (0..6).map(|i| (format!("p{i}"), 100_000)).collect();
+        let refs: Vec<(&str, u64)> = seats.iter().map(|(id, s)| (id.as_str(), *s)).collect();
+        let mut gl = pineapple_draw_loop("pd-6max", &refs);
+        gl.start_hand().unwrap();
+        while !gl.state.is_finished {
+            let id = gl.state.active_player().unwrap().id.clone();
+            let legal = gl.legal_actions(&id);
+            let mv = if legal.allows("swap") {
+                PlayerMove::Swap(0)
+            } else if legal.allows("discard") {
+                PlayerMove::Discard(Some(0))
+            } else if legal.allows("call") {
+                PlayerMove::Call
+            } else {
+                PlayerMove::Check
+            };
+            gl.player_action(&id, mv).unwrap();
+        }
+        // 18 privadas + 3 queimadas + 5 comunitárias + 12 trocas = 38 cartas.
+        assert_eq!(gl.state.deck.len(), 52 - 38);
+        // 12 cartas trocadas + 6 descartadas no river.
+        assert_eq!(gl.state.discard_pile.len(), 18);
+        let mut seen: Vec<Card> = gl.state.community_cards.clone();
+        seen.extend(gl.state.burn_pile.iter().copied());
+        seen.extend(gl.state.discard_pile.iter().copied());
+        seen.extend(gl.state.deck.iter().copied());
+        for player in &gl.state.players {
+            assert_eq!(player.hole_cards.len(), 2);
+            seen.extend(player.hole_cards.iter().copied());
+        }
+        assert_eq!(seen.len(), 52);
+        for (i, card) in seen.iter().enumerate() {
+            assert!(!seen[..i].contains(card), "carta duplicada: {card:?}");
+        }
+        let resolution = gl.resolve_hand().unwrap();
+        let stacks: u64 = gl.state.players.iter().map(|player| player.stack).sum();
+        assert_eq!(
+            stacks + resolution.payouts.values().sum::<u64>() + resolution.rake,
+            600_000
+        );
+    }
+
+    #[test]
+    fn pineapple_draw_round_rejects_fold_and_bets_without_changing_state() {
+        let mut gl = pineapple_draw_loop("pd-fold", &[("alice", 100_000), ("bob", 100_000)]);
+        gl.start_hand().unwrap();
+        gl.player_action("alice", PlayerMove::Call).unwrap();
+        gl.player_action("bob", PlayerMove::Check).unwrap();
+        gl.player_action("bob", PlayerMove::Check).unwrap();
+        gl.player_action("alice", PlayerMove::Check).unwrap();
+        assert!(gl.state.drawing);
+        let before = format!("{:?}", gl.state);
+        // Clientes que desistem por padrão não perdem a mão na troca.
+        for mv in [
+            PlayerMove::Fold,
+            PlayerMove::Check,
+            PlayerMove::Bet(1_000),
+            PlayerMove::AllIn,
+        ] {
+            assert!(gl.player_action("bob", mv).is_err());
+            assert_eq!(before, format!("{:?}", gl.state));
+        }
+        gl.player_action("bob", PlayerMove::Keep).unwrap();
+        gl.player_action("alice", PlayerMove::Keep).unwrap();
+        assert!(!gl.state.drawing);
+        assert_eq!(gl.state.phase, GamePhase::Turn);
+        // Desistir volta a valer nas apostas da street.
+        gl.player_action("bob", PlayerMove::Bet(1_000)).unwrap();
         gl.player_action("alice", PlayerMove::Fold).unwrap();
         assert!(gl.state.is_finished);
-        assert_eq!(gl.state.players[0].hole_cards.len(), 2);
-        assert_eq!(gl.state.players[1].hole_cards.len(), 2);
+        assert_eq!(gl.resolve_hand().unwrap().end_reason, EndReason::AllFolded);
+    }
+
+    #[test]
+    fn pineapple_draw_bots_are_kept_inside_the_draw_contract() {
+        let mut gl = pineapple_draw_loop("pd-bot", &[("alice", 100_000), ("bob", 100_000)]);
+        gl.start_hand().unwrap();
+        gl.player_action("alice", PlayerMove::Call).unwrap();
+        gl.player_action("bob", PlayerMove::Check).unwrap();
+        gl.player_action("bob", PlayerMove::Check).unwrap();
+        gl.player_action("alice", PlayerMove::Check).unwrap();
+        let legal = gl.legal_actions("bob");
+        assert!(matches!(
+            legal.constrain_move(PlayerMove::Bet(5_000)),
+            PlayerMove::Keep
+        ));
+        assert!(matches!(
+            legal.constrain_move(PlayerMove::Fold),
+            PlayerMove::Keep
+        ));
+        assert!(matches!(
+            legal.constrain_move(PlayerMove::Swap(2)),
+            PlayerMove::Swap(2)
+        ));
+        let betting = LegalActions {
+            available_actions: vec!["fold".into(), "check".into()],
+            ..LegalActions::default()
+        };
+        assert!(matches!(
+            betting.constrain_move(PlayerMove::Swap(1)),
+            PlayerMove::Check
+        ));
+        let discarding = LegalActions {
+            available_actions: vec!["discard".into()],
+            ..LegalActions::default()
+        };
+        assert!(matches!(
+            discarding.constrain_move(PlayerMove::Fold),
+            PlayerMove::Discard(None)
+        ));
+        assert!(matches!(
+            discarding.constrain_move(PlayerMove::Discard(Some(2))),
+            PlayerMove::Discard(Some(2))
+        ));
+        assert!(matches!(
+            discarding.constrain_move(PlayerMove::Discard(Some(7))),
+            PlayerMove::Discard(None)
+        ));
     }
 
     #[test]
@@ -2174,48 +2724,6 @@ mod tests {
                 seats as u64 * 100_000
             );
         }
-    }
-
-    #[test]
-    fn brazilian_pineapple_six_max_deck_lasts_to_river() {
-        let config =
-            make_config().with_poker_variant(crate::types::PokerVariant::BrazilianPineapple);
-        let mut gl = GameLoop::new(
-            config,
-            "bp-6max".to_string(),
-            "Pineapple 6-max".to_string(),
-            GameType::Cash,
-        );
-        for i in 0..6 {
-            gl.add_player(format!("p{i}"), 100000);
-        }
-        gl.set_dealer(0);
-        gl.start_hand().unwrap();
-        assert_eq!(gl.state.players[0].hole_cards.len(), 2);
-
-        loop {
-            if gl.state.is_finished {
-                break;
-            }
-            let Some(active) = gl.state.active_player().map(|p| p.id.clone()) else {
-                break;
-            };
-            let to_call = {
-                let p = gl.state.players.iter().find(|p| p.id == active).unwrap();
-                gl.state.current_bet_to_match.saturating_sub(p.current_bet)
-            };
-            let mv = if to_call == 0 {
-                PlayerMove::Check
-            } else {
-                PlayerMove::Call
-            };
-            gl.player_action(&active, mv).unwrap();
-        }
-        assert_eq!(gl.state.community_cards.len(), 5);
-        for player in &gl.state.players {
-            assert_eq!(player.hole_cards.len(), 5);
-        }
-        assert_eq!(gl.state.deck.len(), 14);
     }
 
     #[test]

@@ -35,7 +35,7 @@ fn catalog_mtts_to_champion() {
     let variant = match row["poker_variant"].as_str().unwrap() {
         "holdem" => PokerVariant::Holdem,
         "omaha" => PokerVariant::Omaha,
-        "brazilian_pineapple" => PokerVariant::BrazilianPineapple,
+        "pineapple_draw" => PokerVariant::PineappleDraw,
         _ => panic!("catalog variant"),
     };
     let cap = u("table_max_players") as usize;

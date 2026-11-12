@@ -463,12 +463,17 @@ impl TableActor {
             {
                 player.left_hand = false;
             }
+            // Na rodada de troca não há desistência: mantém as cartas e a
+            // desistência acontece na vez seguinte, já nas apostas.
+            let automatic = self.automatic_timeout_action();
             tracing::warn!(
                 table_id = %self.table_id,
                 player_id = %player_id,
-                "Player out of seat during active hand; applying automatic fold"
+                action = automatic,
+                "Player out of seat during active hand; applying automatic action"
             );
-            self.handle_action(player_id, "fold".to_string(), 0).await;
+            self.handle_action(player_id, automatic.to_string(), 0)
+                .await;
             return;
         }
         let disconnected_active_player = self.game_loop.as_ref().and_then(|game_loop| {
@@ -490,12 +495,15 @@ impl TableActor {
                 })
         });
         if let Some(player_id) = disconnected_active_player {
+            let automatic = self.automatic_timeout_action();
             tracing::warn!(
                 table_id = %self.table_id,
                 player_id = %player_id,
-                "Disconnected active player; applying automatic fold"
+                action = automatic,
+                "Disconnected active player; applying automatic action"
             );
-            self.handle_action(player_id, "fold".to_string(), 0).await;
+            self.handle_action(player_id, automatic.to_string(), 0)
+                .await;
             return;
         }
 
@@ -512,13 +520,17 @@ impl TableActor {
                 })
         });
         if let Some(player_id) = timed_out_player {
+            // Na rodada de troca do Brazilian Pineapple, o tempo esgotado mantém as cartas.
+            let automatic = self.automatic_timeout_action();
             tracing::warn!(
                 table_id = %self.table_id,
                 player_id = %player_id,
                 timeout_seconds = self.turn_timeout.as_secs(),
-                "Player action timed out; applying automatic fold"
+                action = automatic,
+                "Player action timed out; applying automatic action"
             );
-            self.handle_action(player_id, "fold".to_string(), 0).await;
+            self.handle_action(player_id, automatic.to_string(), 0)
+                .await;
             self.save_snapshot().await;
             return;
         }
@@ -803,6 +815,12 @@ impl TableActor {
             "bet" => PlayerMove::Bet(amount),
             "raise" => PlayerMove::Raise(amount),
             "all-in" | "allin" => PlayerMove::AllIn,
+            "keep" => PlayerMove::Keep,
+            // Brazilian Pineapple: `amount` carrega a posição da carta (0 a 2).
+            "swap" => PlayerMove::Swap(amount as usize),
+            "discard" => PlayerMove::Discard(Some(amount as usize)),
+            // Descarte sem escolha: o motor guarda as duas melhores cartas.
+            "auto_discard" => PlayerMove::Discard(None),
             _ => {
                 error!("Invalid action string: {}", action);
                 return;
@@ -1184,6 +1202,11 @@ impl TableActor {
         self.broadcast_state();
     }
 
+    /// Ação aplicada quando o tempo do jogador da vez acaba.
+    fn automatic_timeout_action(&self) -> &'static str {
+        automatic_timeout_action(self.game_loop.as_ref())
+    }
+
     fn get_table_info_json(&self) -> serde_json::Value {
         serde_json::json!({
             "type": "table_info",
@@ -1232,6 +1255,7 @@ impl TableActor {
                         "_legal_actions": gl.legal_actions(&gp.id),
                         "cards": gp.hole_cards.iter().map(card_to_string).collect::<Vec<String>>(),
                         "folded": gp.has_folded,
+                        "draw_count": gp.draw_count,
                         "is_active": gl.state.active_player().map(|ap| ap.id == gp.id).unwrap_or(false),
                         "is_dealer": gl.state.dealer_index == gp.seat_index,
                         "seat": tp.seat,
@@ -1260,6 +1284,8 @@ impl TableActor {
             "type": "table_state",
             "table_id": self.table_id,
             "stage": stage,
+            "drawing": self.game_loop.as_ref().is_some_and(|g| g.state.drawing && !g.state.is_finished),
+            "discarding": self.game_loop.as_ref().is_some_and(|g| g.state.discarding && !g.state.is_finished),
             "betting_structure": self.game_loop.as_ref().map(|g| g.betting_structure()),
             "ante": self.game_loop.as_ref().map(|g| g.nominal_ante()).unwrap_or(0),
             "ante_paid": self.game_loop.as_ref().map(|g| g.ante_paid()).unwrap_or(0),
@@ -1312,6 +1338,21 @@ impl TableActor {
                 let _: Result<(), _> = redis.set_ex(key, json_str, 3600).await;
             }
         }
+    }
+}
+
+/// Ação automática (tempo esgotado, saída ou desconexão): desiste nas apostas;
+/// mantém as cartas na rodada de troca e deixa o motor guardar as duas melhores
+/// no descarte do river, que não admitem desistência.
+pub(crate) fn automatic_timeout_action(
+    game_loop: Option<&poker_engine::game_loop::GameLoop>,
+) -> &'static str {
+    if game_loop.is_some_and(|gl| gl.state.drawing && !gl.state.is_finished) {
+        "keep"
+    } else if game_loop.is_some_and(|gl| gl.state.discarding && !gl.state.is_finished) {
+        "auto_discard"
+    } else {
+        "fold"
     }
 }
 

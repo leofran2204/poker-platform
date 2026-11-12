@@ -1,7 +1,7 @@
 # Zero Tilt — conversa com amigos (e um possível sócio)
 
 **Para quem:** amigos que jogam, entendem de produto, ou poderiam entrar como sócio de suor.  
-**Data do texto:** 2026-09-04 (tom e tese). **Números vigentes:** [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
+**Data do texto:** 2026-09-04 (tom e tese); fatos revisados em 2026-11-08. **Números vigentes:** [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 **Demo:** https://zerotiltpoker.net  
 **Situação de caixa:** zero recurso além da nuvem. Não há rodada, não há folha, não há mídia paga.
 
@@ -15,11 +15,11 @@ Zero Tilt é uma **sala de pôquer recreativa**, feita do zero (não é skin em 
 
 A tese tem três pernas:
 
-1. A mesa tem que ser honesta (centavos inteiros, baralho auditável, liquidação assinada).
+1. A mesa tem que ser honesta (centavos inteiros, embaralhamento com gerador criptográfico, liquidação assinada).
 2. O jogador não pode sair destroçado (Play Money que renova, frentes fixas, Loss Deflator de bad beat).
 3. O crescimento é de **clube**, não de anúncio: quem já está dentro chama quem joga.
 
-Hoje o jogo público que faz sentido é **Play Money** (fichas de treino). Dinheiro real na lei brasileira exige papelada que este projeto **ainda não tem** — e não vamos fingir que tem.
+A porta de entrada é **Play Money** (fichas de treino). O Jogo Real já roda na demo, com PIX automático DePix e KYC básico/manual, mas dinheiro real na lei brasileira exige licença e certificação que este projeto **ainda não tem** — e não vamos fingir que tem.
 
 ---
 
@@ -27,15 +27,17 @@ Hoje o jogo público que faz sentido é **Play Money** (fichas de treino). Dinhe
 
 Quem já tentou pôquer online no Brasil conhece duas dores: sala vazia e sala que trata o jogador como caixa eletrônico.
 
-Aqui o catálogo é **curto de propósito** (uma mesa por variante, frente fixa). Texas Short Deck troca baralho e ranking no motor; Brazilian Pineapple mantém baralho e ranking clássicos, com sua dinâmica 2+1+1+1. Parceiro técnico testa isso em cinco minutos.
+Aqui o catálogo é **curto de propósito** (uma mesa por variante, frente fixa). Texas Short Deck troca baralho e ranking no motor; Brazilian Pineapple mantém baralho e ranking clássicos, com três cartas, troca opcional de uma a cada street, ante de 1 BB e aumento limitado ao pote (primeiro só no Play Money). Parceiro técnico testa isso em cinco minutos.
 
 O que já está no ar e pode ser clicado:
 
 - HTTPS no domínio, e-mail verificado, MFA
-- Cash ao vivo: Hold’em tradicional 9-max (NL 0,25 e NL 0,75/1,50), Texas Short Deck 8-max, Omaha 4 6-max e Brazilian Pineapple 6-max
+- Cash ao vivo: Hold’em tradicional 9-max (NL 0,25 e NL 0,75/1,50), Texas Short Deck 8-max, Omaha 4 6-max e Brazilian Pineapple 6-max (Play Money)
 - Duas carteiras de treino (cash e torneio), R$ 150 cada, reset diário
-- Carteira Real **isolada** da de treino (não mistura salário com fichas de brincadeira)
-- Admin de clubes e agentes (split 15% casa / 85% clube no motor)
+- Carteira Real **isolada** da de treino (não mistura salário com fichas de brincadeira); saque só para chave PIX do mesmo CPF da verificação
+- Torneios com mãos ao vivo em 3 mesas, mesa final e prêmios
+- Jogo Responsável: limites de depósito, perda e tempo e autoexclusão
+- Convite `?ref=` e programa **Agente ZT** de um nível (painel publicado em 01/10)
 - Stress do motor na casa das dezenas/centenas de milhares de mãos simuladas
 
 Isso é produto. Não é pitch de PowerPoint.
@@ -48,12 +50,12 @@ Esconder gap queima sócio. Lista curta:
 
 | Ainda não | O que isso significa na prática |
 |-----------|----------------------------------|
-| Mãos de **torneio ao vivo** no site | Ligado (S22): 3 mesas por torneio, eliminações, mesa final e prêmios. Cash sim. |
 | Sala cheia | Sem 6 pessoas no Hold’em no mesmo horário, não existe rede nem “marca”. |
-| Licença / KYC / Pix automático de produção | O código **recusa** Pix de produção. Não vamos operar informalmente “valendo”. |
+| Licença / certificação de produção | O PIX automático (DePix) e o KYC básico já funcionam na demo, mas sem licença nem certificação. Trilho regulatório: 2027-01. |
 | Multi-servidor de mesas | Uma mesa = um processo. Aguenta demo e clube pequeno. Não é PokerStars. |
-| Link de indicação no cadastro | O plano de clube + agente está no papel e no banco; o `?ref=` ainda não. |
-| Autoexclusão e limites de tempo | O nome Zero Tilt cobra isso no real. No treino, ainda é cultura, não botão. |
+| Baralho verificável pelo jogador | O embaralhamento usa gerador criptográfico e a mão é assinada, mas o Provably Fair ainda não está ligado à mesa. |
+| Agente ZT operando | O programa está publicado, mas nenhum agente foi ativado pelo deploy e ainda não houve fechamento mensal. |
+| Reality check na mesa | Limites e autoexclusão já são botões; falta o lembrete de tempo durante a sessão. |
 
 Quem entrar agora não compra um cassino. Compra **um motor pronto + uma sala para encher**.
 
@@ -65,13 +67,13 @@ Não há folha. Não há mídia. A nuvem já está paga pelo fundador.
 
 Rake de 980 mãos de teste com contas sintéticas deu cerca de **R$ 135** de comissão da casa — prova de motor, não de negócio. Com humanos, no micro, 15% de uma mesa vazia continua **zero**.
 
-Por isso o sócio que este projeto precisa **agora** não é quem “põe dinheiro para ligar Pix”. É quem:
+Por isso o sócio que este projeto precisa **agora** não é quem “põe dinheiro no Pix”. É quem:
 
 - **senta e traz gente** (liquidez), ou
-- **fecha o produto** (torneio ao vivo, convite, mesa âncora), ou
-- **abre porta legal** no futuro (advogado / operador autorizado) — sem isso, o real não liga.
+- **fecha o produto** (Provably Fair na mesa, reality check, antifraude de colusão, mesa âncora), ou
+- **abre porta legal** no futuro (advogado / operador autorizado) — sem isso, o real não sai da demo nem escala.
 
-85% do rake para o clube só vira conversa de dinheiro **depois** de licença. Até lá, a moeda é **ticket de freeroll e mesa cheia**.
+Comissão de agente em dinheiro só vira conversa de escala **depois** de licença. Até lá, a moeda é **ticket de freeroll e mesa cheia**.
 
 ---
 
@@ -93,10 +95,10 @@ Isso é o máximo que dá para fazer com zero real e um servidor. Se a mesa das 
 Não pedimos cheque. Pedimos um dos três:
 
 **A — Sócio de liquidez**  
-Joga, chama 8–15 pessoas sérias, segura o horário âncora por 90 dias. Em troca: lugar de clube âncora na árvore (quando o real for legal, a mesma cadeira vira os 85% da liquidez **dessa** rede).
+Joga, chama 8–15 pessoas sérias, segura o horário âncora por 90 dias. Em troca: vaga de **Agente ZT** piloto — 30% do NGR dos jogadores que trouxer diretamente, 35% no mês da meta, após ativação administrativa (no Play Money, benefício só virtual). Um nível só, sem árvore.
 
 **B — Sócio de produto**  
-Quem fecha o torneio ao vivo no site, o convite `?ref=`, o painel do agente. Em troca: participação no software / operação, a combinar por escrito (simples, duas páginas).
+Quem liga o Provably Fair à mesa, o reality check, o antifraude de colusão/multi-conta e o recibo da mão. Em troca: participação no software / operação, a combinar por escrito (simples, duas páginas).
 
 **C — Sócio de porteira (depois)**  
 Capital de advogado, PSP e KYC. Só faz sentido **depois** da mesa âncora estar viva. Quem chega com dinheiro pedindo Pix no grupo não é o sócio certo.
@@ -120,13 +122,13 @@ Quem quiser os três chapéus, conversamos. Quem quiser atalho ilegal, não.
 
 O trabalho pesado de programa já foi feito: motor em Rust, regras de verdade, demo no ar, honestidade de staging. O trabalho de **sala** ainda não: gente no mesmo feltro, no mesmo horário.
 
-Zero caixa não é desculpa para mentir. É o motivo de o sócio certo ser quem **enche a cadeira** ou quem **liga o torneio** — não quem promete anúncio.
+Zero caixa não é desculpa para mentir. É o motivo de o sócio certo ser quem **enche a cadeira** ou quem **fecha o que falta no produto** — não quem promete anúncio.
 
 O nome Zero Tilt só vale se a mesa das 21h existir. O resto é conversa.
 
-*Fonte operacional: `STATUS_OPERACIONAL.json` (S21). Este texto não alega certificação de produção, Pix de produção, nem autoexclusão pronta.*
+*Fonte operacional: `STATUS_OPERACIONAL.json` (S27). Este texto não alega certificação de produção nem licença. PIX automático, KYC básico e autoexclusão existem na demo, sem certificação.*
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

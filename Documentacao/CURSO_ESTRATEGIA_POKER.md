@@ -11,7 +11,7 @@ O proprietário ampliou a solicitação: pesquisa histórica, acadêmica e técn
 
 Publicada na [demo](https://zerotiltpoker.net/curso) em 01/10/2026. Evidências de deploy e conferência pública em `QUALITY.md` e `DEVELOPMENT_LOG.md`.
 
-- Home reformulada; filme v3 de 81,70 segundos explica Brazilian Pineapple e Texas Hold’em Short Deck. Legendas, transcrição e duração são derivadas do mesmo roteiro/manifesto. Publicação e evidências operacionais são registradas em `DEVELOPMENT_LOG.md`.
+- Home reformulada; o filme institucional v3 (81,70 segundos, Brazilian Pineapple e Short Deck) foi retirado em 09/11/2026 com a troca de modalidade. Legendas, transcrição e duração são derivadas do mesmo roteiro/manifesto. Publicação e evidências operacionais são registradas em `DEVELOPMENT_LOG.md`.
 - Os 25 vídeos técnicos foram regravados e se somam aos três históricos: as 28 aulas atuais têm vídeo em 1080p30, legendas, transcrição e capítulos. Roteiros e renderizador em `ZeroTiltCurso/editorial/`; finais em `Frontend-Web/public/videos/`.
 - Vinte e uma referências vinculadas em `courseSources.json`. A grade tem 28 aulas, 65 questões e dez agrupamentos; os IDs existentes e o progresso concluído foram preservados. Os 25 textos técnicos foram ampliados com exemplos resolvidos, hipóteses e orientação de laboratório.
 - **História do Omaha — 30/09/2026:** a aula `m0l2` integra testemunhos de Ciaffone/Turner, Golden Nugget em 1982, a incerteza do nome, Limit Omaha na WSOP em 1983, Pot-Limit em 1984 e o modelo acadêmico de Ho (2015). Seis fontes e duas perguntas adicionadas; vídeo histórico de 253,93 segundos, com 13 capítulos. O curso específico de Omaha permanece para outro momento, conforme orientação do proprietário.
@@ -45,8 +45,8 @@ Esta é a arquitetura curricular da reformulação; não um catálogo de funcion
 | 9. Short Deck — estratégia | Combinatória própria, equidades, posição, draws, stacks e ajustes | Cenários recalculados com 36 cartas; não reutilizar percentuais de Hold’em de 52 cartas |
 | 10. Omaha 4 — fundamentos | Quatro privadas, exatamente 2+3, ranking clássico e estrutura de aposta aplicável | Bot explora erros de um único ás do naipe e falsas quadras; aluno seleciona 2+3 |
 | 11. Omaha 4 — estratégia | Conectividade, naipes, nut potential, blockers, redraws, wraps, SPR e multiway | Bots com draws dominados, nuts e redraws; cálculo com as quatro cartas conhecidas |
-| 12. Brazilian Pineapple — fundamentos | 2 privadas inicialmente, +1 após cada street, sem descarte, 2+3 e ranking clássico | Mesma mão progride com 2/3/4/5 privadas; foldados não recebem; all-in recebe |
-| 13. Brazilian Pineapple — estratégia | Atualização das possibilidades a cada carta privada, seleção 2+3 e incerteza futura | Bots e aluno recebem extras legais; reavaliar a mão em cada street sem antecipar as extras |
+| 12. Brazilian Pineapple — fundamentos | 3 privadas no começo e 2 no fim: troca opcional de uma depois das apostas do flop e do turn, descarte de uma no river, mão formada como no Hold’em e ranking clássico | Rodada de troca e descarte com bots; all-in não troca; sem troca quando as apostas acabaram |
+| 13. Brazilian Pineapple — estratégia | Qual carta trocar, valor de manter, leitura da quantidade trocada pelos oponentes, escolha das duas cartas que ficam e incerteza futura | Pergunta “qual privada fica fora da melhor mão” na troca e no descarte; reavaliar a mão a cada street |
 | 14. Cash, torneios e regras ZT | Rake, Loss Deflator, side pots, blinds, stacks; chip EV versus valor de premiação e introdução a ICM | Cenários específicos de cash/MTT; modelo econômico e premiação sempre explícitos |
 | 15. Estudo avançado e revisão | Equilíbrio, exploração, frequências, limites de solver, nodelocking, amostra e plano de estudo | Alternância de perfis; comparar decisões em cenários novos e revisar erros recorrentes |
 | Complemento: história e ciência | Fontes materiais, Cowell, WSOP, pesquisa em jogos de informação imperfeita | Experimento de informação privada e exercícios de evidência; não bloquear regras básicas por história |
@@ -60,9 +60,9 @@ Sequência: fundamentos comuns → trilha da modalidade escolhida → aprofundam
 | Texas Hold’em | 52 / 2 | Melhor cinco entre sete; pode usar 0, 1 ou 2 privadas; ranking clássico |
 | Texas Hold’em Short Deck | 36, de 6 a A / 2 | Melhor cinco; trinca > sequência; flush > full house; sequência baixa A-6-7-8-9 |
 | Omaha 4 | 52 / 4 | Exatamente 2 privadas + 3 comunitárias; ranking clássico |
-| Brazilian Pineapple | 52 / 2, depois 3/4/5 | Exatamente 2+3; ranking clássico; sem descarte; extras também para all-in |
+| Brazilian Pineapple | 52 / 3 | Showdown com 2 privadas, como no Hold’em; ranking clássico; troca opcional de uma depois das apostas do flop e do turn; descarte de uma no river; all-in não troca |
 
-Fontes normativas internas: `BUSINESS_RULES.md`, `Motor-Rust/src/deck.rs`, distribuição em `game.rs` e catálogo no STATUS. Referências externas de Omaha, Short Deck ou Pineapple precisam ser confrontadas com essas regras. Não anunciar Omaha Short Deck, não ensinar descarte no Brazilian Pineapple e não assumir que toda mesa Omaha implementa a estrutura de apostas de um site externo.
+Fontes normativas internas: `BUSINESS_RULES.md`, `Motor-Rust/src/deck.rs`, distribuição e rodada de troca em `Motor-Rust/src/game_loop.rs` (`advance_phase`, `begin_draw_round`, `player_draw`, `begin_discard_round`, `player_discard`) e catálogo no STATUS. Referências externas de Omaha, Short Deck ou Pineapple precisam ser confrontadas com essas regras. Não anunciar Omaha Short Deck, não confundir o Brazilian Pineapple com outros jogos chamados Pineapple e não assumir que toda mesa Omaha implementa a estrutura de apostas de um site externo.
 
 ### Arquitetura das mesas de estudo
 
@@ -71,7 +71,7 @@ Implementação de 28/09/2026: `courseTraining.json` define 35 cenários para os
 | Módulo | Cenários implementados |
 |---|---|
 | Fundamentos | Ranking/kickers, posição, primeira mão, raise/fold, total do aumento, potes paralelos |
-| Brazilian Pineapple | Distribuição progressiva, flop, combinações no turn, board que não pode ser usado inteiro, extras após all-in |
+| Brazilian Pineapple | Três privadas, trocas e descarte, trinca no flop, três duplas possíveis no turn, flush com quatro na mesa e uma na mão, all-in sem troca (catálogo v5) |
 | Texas Short Deck | A6789, flush no ranking ZT, denominador de 36 cartas |
 | Omaha 4 | Combinações 2+3, um único ás do naipe, mão feita e possibilidades futuras em pote multiway |
 | Pré-flop | Abertura, limp do small blind, resposta a uma abertura |
@@ -115,7 +115,7 @@ Consulta bibliográfica iniciada em 27/09/2026. Registrar autor, data, seção/p
 ### Correções aplicadas na auditoria de 27/09/2026
 
 - Gabaritos editoriais são identificados como critérios, sem alegar execução do motor. Showdowns pedem classificação ou vencedor.
-- Omaha exibe quatro privadas e diferencia draw de mão feita; o kicker da trinca de ases no exemplo Pineapple é Q/2, respeitando exatamente 2+3. Casos reproduzidos em testes do motor.
+- Omaha exibe quatro privadas e diferencia draw de mão feita; o kicker da trinca de ases no exemplo do Brazilian Pineapple é Q/2, porque só duas privadas entram na mão. Casos reproduzidos em testes do motor.
 - Removidas regras absolutas e promessas de lucro, corrigidos pot odds, posição, ações legais, blockers e leitura de flush. Exemplos estratégicos declaram hipóteses e objetivos.
 - Ranges dependem da modalidade, número de lugares, stacks, sizings, rake e oponentes. Tabelas ilustrativas não são chart universal nem política ótima do motor.
 - Legendas, cartazes numerados e chamadas “próximo episódio” precisam acompanhar a grade final. Não renumerar apenas a lista e manter áudio apontando para aula errada.
@@ -129,7 +129,7 @@ Teoria e fontes revisadas; exemplos e exercícios específicos da variante; víd
 | Grupo | Aulas | Acesso |
 |---|---|---|
 | Fundamentos | m0l4–m0l8 | Regras primeiro; primeiros passos disponível separadamente |
-| Brazilian Pineapple | m5l3, m5l4, m5l5 | Regras comuns → distribuição → combinações/probabilidades → showdown/equity |
+| Brazilian Pineapple | m5l3, m5l4, m5l5 | Regras comuns → três cartas, duas trocas e um descarte → combinações/probabilidades → showdown/equity (vídeos a refazer com as regras de 11/11/2026) |
 | Texas Short Deck | m5l1 | Após regras comuns |
 | Omaha 4 | m5l2 | Após regras comuns |
 | Texas pré-flop, flop, turn, river | m1–m4 | Progressão a partir dos fundamentos |
@@ -140,19 +140,19 @@ Conclusões anteriores mantêm acesso mesmo se a ordem mudar. IDs inexistentes n
 
 ### Base matemática do Brazilian Pineapple
 
-As aulas m5l4/m5l5 contêm derivações próprias: C(h,2)×C(b,3) dá 3 candidatas no flop, 24 no turn e 100 no river após as extras. São combinações correlacionadas, não probabilidades independentes de vitória. O exemplo de extra de ás usa 2/47 sob informação e distribuição explicitadas. A mesa atual distribui board e extras sem reposição, inclusive aos jogadores em all-in. Futuras estimativas de equity por amostragem precisam repetir essa distribuição para todos os participantes ativos e computar frações de empates. Nenhuma tabela de equity ou range ótimo foi publicada como validada.
+As aulas m5l4/m5l5 contêm derivações próprias: com três privadas, C(3,2)×C(b,3) dá 3 candidatas no flop, 12 no turn e 30 no river. São combinações correlacionadas, não probabilidades independentes de vitória. O exemplo de troca usa 2/46 para receber um ás, e 1 − (44/46)×(43/45) ≈ 8,60% para pelo menos um ás em duas posições, sob informação e distribuição explicitadas. Trocas futuras são decisões, não sorteios: qualquer estimativa de equity precisa declarar a política de troca; o Loss Deflator usa a regra fixa de completar só o board. Estimativas precisam computar frações de empates. Nenhuma tabela de equity ou range ótimo foi publicada como validada.
 
 Referências metodológicas: [MIT 18.443, aula 17, p. 10](https://ocw.mit.edu/courses/18-443-statistics-for-applications-spring-2015/c9f6cf548a6e918d3dc798fc0d7c8170_MIT18_443S15_LEC17.pdf) para amostragem sem reposição; [NIST, intervalos para proporções](https://itl.nist.gov/div898/handbook/prc/section2/prc241.htm) para os limites de estimativas. As fontes não estudam nem endossam o Brazilian Pineapple da ZT.
 
 ### Produção e rastreabilidade
 
 - Roteiros da home/história: `ZeroTiltCurso/editorial/episodes.json`. Os 25 roteiros técnicos são derivados de `courseContent.json` e `courseTraining.json`, incluindo teoria, exercícios resolvidos e orientação de prática. Renderizador: `render.py`; dependências: `requirements.txt`.
-- Finais 1080p30 H.264/AAC: home v3, ep11–ep13 v2 e 25 arquivos `zt-academy-*-v3` em `Frontend-Web/public/videos/`; VTT e WebP acompanham cada MP4. Manifestos de duração/tamanho/capítulos e transcrições ficam junto ao renderizador.
-- O destaque da home e da Academy lê `src/data/pineappleFilm.json`, gerado pelo renderizador. `homeFilm.json` preserva o institucional anterior como acesso secundário. Os vídeos históricos têm fontes e capítulos nas aulas. Marcos visuais de ep13 corrigidos para 1970/1971 e 2003/2008.
-- Voz sintética PT-BR AntonioNeural; efeitos sonoros originais, sem música de terceiros. Fontes locais atuais: Georgia e Segoe UI do Windows. Para reprodução em outro sistema, configurar fontes disponíveis/licenciadas e manter a inspeção visual.
+- Finais 1080p30 H.264/AAC em `Frontend-Web/public/videos/`: ep11–ep13 v2, 22 aulas `zt-academy-*-v3` (renderizador `render.py`) e, desde 10/11/2026, do renderizador em Remotion: aulas m5l3–m5l5 (`zt-academy-m5l3-v4` a `-m5l5-v4`; 4min16s, 2min51s e 2min43s), filme completo das regras (`zt-pineapple-draw-rules-v1`, 21 cenas, 6min05s, 13 capítulos) e trailer (`zt-pineapple-draw-trailer-v1`, 2min29s), refeitos em 12/11/2026 com as regras de 11/11 (os nomes de arquivo mantêm `pineapple-draw`, o identificador técnico da modalidade). VTT e WebP acompanham cada MP4. Manifestos de duração/tamanho/capítulos e transcrições ficam junto ao renderizador, em `ZeroTiltCurso/editorial/`.
+- Desde 10/11/2026, a home volta a ter vídeo: “Assistir ao trailer” abre o trailer e, na segunda aba, o filme completo das regras (`PineappleDrawFilm.tsx`, dados em `pineappleDrawFilms.json`, gerado pela produção); a Academy mostra o filme completo em destaque. O filme do Brazilian Pineapple e o institucional anterior foram retirados em 09/11/2026 com seus dados (`pineappleFilm.json`, `homeFilm.json`). Os vídeos históricos têm fontes e capítulos nas aulas. Marcos visuais de ep13 corrigidos para 1970/1971 e 2003/2008.
+- Voz sintética PT-BR AntonioNeural; efeitos sonoros originais, sem música de terceiros. Fontes locais atuais do `render.py`: Georgia e Segoe UI do Windows; para reprodução em outro sistema, configurar fontes disponíveis/licenciadas e manter a inspeção visual. Os vídeos em Remotion usam Fraunces (com itálico verdadeiro) e Manrope, fontes OFL copiadas com as licenças para `motion/public/fonts/`, de modo que o render não depende de rede; a voz é a mesma AntonioNeural, pelo Azure Speech.
 - Perfil de pronúncia `pt-BR-poker-v1`: guias fonéticas inglesas apenas na síntese, incluindo “Pineapple” → “painépou”. Legendas, transcrições e cenas mantêm a grafia canônica. `narrationHash` inclui voz, taxa original `-3%` e texto fonético; orienta o cache de síntese, o gate de mídia e as URLs do player. Alterar uma guia exige regenerar os vídeos afetados, com novos tempos de legendas e capítulos.
 - A imagem histórica do Met é de domínio público, objeto 1983.515.1–.52. Arte do hero gerada por IA e preservada em `editorial/assets/hero-source.png`; derivados WebP em `public/brand/home/`. Nenhum slide acadêmico foi reproduzido.
-- As 28 aulas preservam seus vídeos; as três Pineapple agora têm `publicationStatus: prior_rules`, com avisos e snapshots da regra anterior. Após a retirada dos 78 arquivos obsoletos, o novo destaque amplia a pasta pública para 90 arquivos/30 vídeos (incluindo o institucional preservado). Os arquivos-fonte anteriores continuam arquivados em `ZeroTiltCurso/epNN-*/` e no git.
+- Vinte e oito aulas têm vídeo publicado, mais o filme de regras e o trailer do Brazilian Pineapple (90 arquivos MP4/VTT/WebP). m5l3–m5l5 e os dois filmes saem de `ZeroTiltCurso/editorial/motion/produce.py --publish`; `render.py` não regrava essas aulas (`MOTION_LESSONS`), e `render.py --check` confere o hash do roteiro (`scriptHash`), a narração recalculada do roteiro, o texto atual da aula (`contentHash`) e a regra `pineapple_draw_v1`. As mãos, trocas e contas dos roteiros são conferidas no motor por `Motor-Rust/tests/pineapple_draw_film_examples.rs`, também no Rust CI. m0l4, m5l1 e m6l3 foram renderizadas de novo em 09/11/2026 porque citavam a modalidade antiga. Os arquivos-fonte anteriores continuam arquivados em `ZeroTiltCurso/epNN-*/` e no git.
 - Cada vídeo técnico guarda SHA-256 do conteúdo/cenários e do MP4. Alterar teoria, exercício ou cenário invalida o gate e exige regenerar as aulas afetadas. O renderizador valida a cobertura integral de palavras da voz, repete síntese incompleta e substitui o MP4 público somente após concluir a codificação e reconferir o conteúdo. `render.py --check` confere publicações, VTT/transcrição, capítulos, duração, imagens e hashes; `--decode` acrescenta decodificação integral por FFmpeg.
 - Auditoria de dados, gabaritos, cartas, arquivos e pré-requisitos: `Frontend-Web/src/lib/courseAudit.test.ts`. Regras e exemplos de mãos: `Motor-Rust/tests/variant_audit_regressions.rs`.
 
@@ -174,7 +174,7 @@ O coach será uma ferramenta opcional de **estudo de mãos encerradas**, não as
 - Nunca emitir recomendação enquanto a mão estiver ativa nem usar WebSocket de mesa para feedback; isso seria RTA e conflita com os Termos.
 - Nunca revelar cartas não mostradas, ranges privados ou dados de outro jogador. A análise reconstrói somente o que o aluno podia conhecer no ponto escolhido.
 - Não prometer solução “GTO”, ação universalmente ótima ou lucro. Cada resposta declara variante, número de jogadores, posições, stacks, tamanho do pote, rake/deflator aplicável e hipótese de range.
-- Hold’em é o primeiro escopo. Omaha 4 e Brazilian Pineapple só entram depois de fixtures específicos que garantam exatamente 2 hole + 3 board e o ranking correto de cada variante.
+- Hold’em é o primeiro escopo. Omaha 4 e Brazilian Pineapple só entram depois de fixtures específicos que garantam a formação da mão de cada variante (exatamente 2 hole + 3 board no Omaha; no máximo 2 privadas no Brazilian Pineapple) e o ranking correto.
 - Feedback deve ser curto e acionável: decisão → motivo → conta → alternativa → lição. Texto persuasivo não substitui evidência do motor.
 - Personalização futura usa apenas histórico do próprio aluno, com consentimento e possibilidade de exclusão; não inventa leitura psicológica ou perfil profissional.
 
@@ -198,7 +198,7 @@ Capítulos reais: 0:00 objetivo; 0:26 cartas 2→5; 1:11 seleção 2+3; 2:13 bli
 O mesmo filme abre por ação do visitante na home ou no início da Academy, com controles, legendas, transcrição e capítulos acessíveis por teclado. Não há autoplay nem busca do MP4 ao abrir a página ou apenas abrir o modal. Usuários conectados continuam redirecionados de `/` para `/curso`. O institucional anterior fica em acesso secundário. Publicado junto com a regra em 05/10/2026, após confirmar ausência de mãos e torneios em andamento. Verificações públicas e limites da revisão editorial em [QUALITY](QUALITY.md#publicação-pineapple--05102026).
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 

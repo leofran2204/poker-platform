@@ -16,6 +16,10 @@ interface Props {
   availableActions: string[];
   onAction: (action: string, amount?: number) => void;
   bettingStructure?: string | null;
+  /** Brazilian Pineapple: rodada de troca em andamento (depois das apostas do flop e do turn). */
+  drawing?: boolean;
+  /** Brazilian Pineapple: descarte obrigatório do river em andamento. */
+  discarding?: boolean;
   ante?: number;
   antePaid?: number;
   antePlayerId?: string | null;
@@ -43,6 +47,8 @@ export function PokerTable({
   availableActions,
   onAction,
   bettingStructure,
+  drawing = false,
+  discarding = false,
   ante = 0,
   antePaid = 0,
   antePlayerId,
@@ -58,7 +64,7 @@ export function PokerTable({
   maxPlayers = 9,
   boardStaggerFrom = 0,
 }: Props) {
-  const pineapple = bettingStructure === "brazilian_pineapple_pot_before_call_v2";
+  const pineapple = bettingStructure === "pineapple_draw_v1";
   const wager = raiseAmount;
   const streetBase = pineapple ? (players.find(p => p.id === localPlayerId)?.bet ?? 0) + callAmount : 0;
   const potTotal = pots.reduce((s, p) => s + p.amount, 0);
@@ -116,6 +122,15 @@ export function PokerTable({
     ?? showdown[0]?.hand_name
     ?? null;
   const normalizedActions = availableActions.map((action) => action.toLowerCase());
+  // Brazilian Pineapple: na minha vez da rodada de troca, escolho manter ou
+  // trocar uma carta; no river, escolho a carta que descarto.
+  const canDraw = normalizedActions.includes("keep");
+  const canDiscard = normalizedActions.includes("discard");
+  const myCards = players.find((p) => p.id === localPlayerId)?.cards ?? [];
+  const [swapPick, setSwapPick] = useState<number | null>(null);
+  useEffect(() => {
+    if (!canDraw && !canDiscard) setSwapPick(null);
+  }, [canDraw, canDiscard]);
   const wagerAction = normalizedActions.includes("bet")
     ? "bet"
     : normalizedActions.includes("raise")
@@ -162,8 +177,8 @@ export function PokerTable({
     };
   })();
   const holeSize = holeCount >= 3 ? "sm" : "md";
-  const holeClass =
-    holeCount >= 4 ? "zt-hole-grid" : "mt-1 flex flex-wrap justify-center gap-0.5";
+  // Mão em andamento: adversários que não desistiram aparecem com as cartas fechadas.
+  const inHand = ["preflop", "flop", "turn", "river"].includes(stage) && winners.length === 0;
 
   return (
     <div>
@@ -198,7 +213,7 @@ export function PokerTable({
             className={`font-mono font-bold ${turnLeft <= 10 ? "text-red-300" : "text-gold-soft"}`}
             aria-label={`Tempo para agir: ${turnLeft} segundos`}
           >
-            {turnLeft <= 0 ? "Fold automático…" : `Sua vez: ${turnLeft}s`}
+            {turnLeft <= 0 ? (drawing ? "Mantendo as cartas…" : discarding ? "Descartando a carta que sobra…" : "Fold automático…") : `Sua vez: ${turnLeft}s`}
           </span>
         )}
       </div>
@@ -206,9 +221,17 @@ export function PokerTable({
       <div className="zt-felt-table">
         {/* Center: pot + board */}
         <div className="absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
-          <div className="rounded-sm border border-gold/40 bg-black/40 px-3 py-1 text-center">
-            <div className="text-[10px] uppercase tracking-wider text-gold-soft">Pot</div>
-            <div className="font-mono text-base font-bold text-white">{formatChips(potTotal)}</div>
+          <div className="zt-pot">
+            {potTotal > 0 && (
+              <span className="zt-chip-stack gold" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+                <i />
+              </span>
+            )}
+            <span className="zt-pot-label">Pote</span>
+            <span className="zt-pot-value">{formatChips(potTotal)}</span>
           </div>
           <div className="flex gap-1.5">
             {communityCards.length === 0 ? (
@@ -239,6 +262,31 @@ export function PokerTable({
           </div>
         </div>
 
+        {/* Fichas apostadas na rodada: sobre o feltro, entre o jogador e o pote */}
+        {players.map((p) => {
+          if (p.bet <= 0) return null;
+          const layout = seatPosition(p.seat, heroSeat, cap);
+          return (
+            <div
+              key={`bet-${p.id}`}
+              className="zt-bet-spot"
+              style={{
+                top: `${layout.top + (50 - layout.top) * 0.42}%`,
+                // Assentos do meio (em cima e embaixo): as fichas ficam ao lado das cartas.
+                left: `${Math.abs(layout.left - 50) < 5 ? (layout.top < 45 ? 62 : 38) : layout.left + (50 - layout.left) * 0.36}%`,
+              }}
+              aria-label={`Aposta de ${p.name}: ${formatChips(p.bet)}`}
+            >
+              <span className="zt-chip-stack" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </span>
+              <span className="zt-bet-amount">{formatChips(p.bet)}</span>
+            </div>
+          );
+        })}
+
         {/* Seats */}
         {players.map((p) => {
           const layout = seatPosition(p.seat, heroSeat, cap);
@@ -247,101 +295,154 @@ export function PokerTable({
           const isWinner = winners.includes(p.id);
           const sittingOut = p.is_sitting === false;
           const classes = [
-            "zt-seat-card",
+            "zt-seat-plate",
             p.is_active ? "active" : "",
             p.folded === true ? "folded" : "",
             sittingOut ? "folded" : "",
             isWinner ? "winner" : "",
+            isLocal ? "local" : "",
           ]
             .filter(Boolean)
             .join(" ");
           const dealDx = `${((dealerPos.left - layout.left) * 6).toFixed(0)}px`;
           const dealDy = `${((dealerPos.top - layout.top) * 4).toFixed(0)}px`;
-          const blindTag =
-            p.is_dealer && blindIds.sb === p.id
-              ? "D/SB"
-              : p.is_dealer
-                ? "D"
-                : blindIds.sb === p.id
-                  ? "SB"
-                  : blindIds.bb === p.id
-                    ? "BB"
-                    : `S${p.seat}`;
+          const blindTag = blindIds.sb === p.id ? "SB" : blindIds.bb === p.id ? "BB" : null;
+          // Metade de cima da mesa: as cartas ficam abaixo da placa, viradas para o centro.
+          const upper = layout.top < 45;
+          const status = sittingOut
+            ? "Sit-out"
+            : isWinner
+              ? "Vencedor"
+              : typeof p.draw_count === "number" && stage !== "preflop"
+                ? p.draw_count === 0
+                  ? "Manteve"
+                  : stage === "river"
+                    ? "Descartou"
+                    : `Trocou ${p.draw_count}`
+                : null;
+          const cards = (
+            <>
+              {p.cards.length > 0 && (
+                <div className="zt-seat-cards">
+                  {p.cards.map((c, i) => (
+                    <span
+                      key={`${p.id}-${i}`}
+                      className="zt-deal"
+                      style={{
+                        animationDelay: `${(orderFromDealer.get(p.id) ?? 0) * 140 + i * 90}ms`,
+                        ["--deal-dx" as string]: dealDx,
+                        ["--deal-dy" as string]: dealDy,
+                      }}
+                    >
+                      <span className={winWrap(c)}>
+                        <PlayingCard code={c} size={holeSize} highlight={glowCards.has(c)} />
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              )}
+              {!dealing && !isLocal && p.cards.length === 0 && inHand && !p.folded && p.is_sitting !== false && holeCount > 0 && (
+                <div className="zt-seat-cards hidden-hand" aria-label={`${p.name} tem ${holeCount} cartas fechadas`}>
+                  {Array.from({ length: holeCount }).map((_, i) => (
+                    <PlayingCard key={`${p.id}-hidden-${i}`} faceDown size="sm" />
+                  ))}
+                </div>
+              )}
+              {dealing && p.cards.length === 0 && !p.folded && p.is_sitting !== false && holeCount > 0 && (
+                <div className="zt-seat-cards" aria-label="Cartas sendo distribuídas">
+                  {Array.from({ length: holeCount }).map((_, i) => (
+                    <span
+                      key={`${p.id}-back-${i}`}
+                      className="zt-deal"
+                      style={{
+                        animationDelay: `${(orderFromDealer.get(p.id) ?? 0) * 140 + i * 90}ms`,
+                        ["--deal-dx" as string]: dealDx,
+                        ["--deal-dy" as string]: dealDy,
+                      }}
+                    >
+                      <PlayingCard faceDown size={holeSize} />
+                    </span>
+                  ))}
+                </div>
+              )}
+            </>
+          );
 
           return (
             <div
               key={p.id}
-              className={`zt-seat ${holeCount >= 4 ? "wide" : ""}`}
+              className={`zt-seat zt-seat-ft ${upper ? "upper" : ""}`}
               style={{ top: `${layout.top}%`, left: `${layout.left}%` }}
             >
+              {!upper && cards}
               <div className={classes}>
-                <div className="flex items-center justify-between gap-1 text-[10px] text-felt-300">
-                  <span>{blindTag}</span>
-                  {isLocal && <span className="text-gold-bright">você</span>}
-                </div>
-                <div className="truncate text-xs font-semibold text-cream">
-                  {isHouseBot ? (
-                    <span title="Bot da casa — garante ação na mesa">🤖 {p.name}</span>
-                  ) : (
-                    p.name
-                  )}
-                </div>
-                {sittingOut && (
-                  <div className="text-[10px] font-bold uppercase tracking-wide text-felt-400">
-                    Sit-out
-                  </div>
+                <span className="zt-avatar" aria-hidden="true">
+                  {isHouseBot ? "🤖" : p.name.slice(0, 1).toUpperCase()}
+                </span>
+                <span className="zt-seat-info">
+                  <span className="zt-seat-name" title={isHouseBot ? "Bot da casa — garante ação na mesa" : p.name}>
+                    {p.name}
+                    {isLocal && <span className="zt-seat-you"> · você</span>}
+                  </span>
+                  <span className="zt-seat-chips">{formatChips(p.chips)}</span>
+                </span>
+                {p.is_dealer && (
+                  <span className="zt-dealer-button" title="Botão do dealer" aria-label="Dealer">
+                    D
+                  </span>
                 )}
-                {isWinner && <div className="text-[10px] font-bold text-gold-bright">VENCEDOR</div>}
-                <div className="font-mono text-[11px] text-gold-soft">{formatChips(p.chips)}</div>
-                {p.bet > 0 && (
-                  <div className="mt-0.5 text-[10px] text-felt-200">Aposta {formatChips(p.bet)}</div>
-                )}
-                {p.cards.length > 0 && (
-                  <div className={holeClass}>
-                    {p.cards.map((c, i) => (
-                      <span
-                        key={`${p.id}-${i}`}
-                        className="zt-deal"
-                        style={{
-                          animationDelay: `${(orderFromDealer.get(p.id) ?? 0) * 140 + i * 90}ms`,
-                          ["--deal-dx" as string]: dealDx,
-                          ["--deal-dy" as string]: dealDy,
-                        }}
-                      >
-                        <span className={winWrap(c)}>
-                          <PlayingCard code={c} size={holeSize} highlight={glowCards.has(c)} />
-                        </span>
-                      </span>
-                    ))}
-                  </div>
-                )}
-                {dealing && p.cards.length === 0 && !p.folded && p.is_sitting !== false && holeCount > 0 && (
-                  <div className={holeClass} aria-label="Cartas sendo distribuídas">
-                    {Array.from({ length: holeCount }).map((_, i) => (
-                      <span
-                        key={`${p.id}-back-${i}`}
-                        className="zt-deal"
-                        style={{
-                          animationDelay: `${(orderFromDealer.get(p.id) ?? 0) * 140 + i * 90}ms`,
-                          ["--deal-dx" as string]: dealDx,
-                          ["--deal-dy" as string]: dealDy,
-                        }}
-                      >
-                        <PlayingCard faceDown size={holeSize} />
-                      </span>
-                    ))}
-                  </div>
-                )}
+                {blindTag && <span className="zt-blind-tag">{blindTag}</span>}
               </div>
+              {status && <div className={`zt-seat-status ${isWinner ? "winner" : ""}`}>{status}</div>}
+              {upper && cards}
             </div>
           );
         })}
       </div>
 
-      {pineapple && <p className="text-center text-xs text-felt-200 mt-3">Todas as rodadas · aumento limitado ao pote antes do call</p>}
+      {pineapple && <p className="text-center text-xs text-felt-200 mt-3">Troca opcional de uma carta depois das apostas do flop e do turn · No river, cada jogador descarta uma carta e joga a última rodada com duas · Todas as rodadas: aumento limitado ao pote antes do call</p>}
+      {drawing && !canDraw && <p className="text-center text-xs font-semibold text-gold-soft" role="status">Rodada de troca: cada jogador mantém as cartas ou troca uma.</p>}
+      {discarding && !canDiscard && <p className="text-center text-xs font-semibold text-gold-soft" role="status">Descarte do river: cada jogador descarta uma carta e fica com duas.</p>}
       {ante > 0 && <p className="text-center text-xs text-felt-200">Ante do BB {formatChips(ante)} · pago {formatChips(antePaid)} por {players.find(p => p.id === antePlayerId)?.name ?? "big blind"}</p>}
       <div className="zt-action-bar">
-        {availableActions.length === 0 ? (
+        {canDraw || canDiscard ? (
+          <div className="flex flex-wrap items-end gap-3" aria-label={canDiscard ? "Descarte do river" : "Rodada de troca"}>
+            <div>
+              <p className="text-xs font-semibold text-felt-200">
+                {canDiscard
+                  ? "Descarte do river: escolha a carta que sai. Você joga a última rodada com duas."
+                  : "Rodada de troca: escolha uma carta para trocar ou mantenha as três."}
+              </p>
+              <div className="mt-1 flex gap-1.5">
+                {myCards.map((code, index) => (
+                  <button
+                    key={`${code}-${index}`}
+                    type="button"
+                    className={`rounded-sm p-0.5 ${swapPick === index ? "ring-2 ring-gold-bright" : "ring-1 ring-transparent"}`}
+                    aria-pressed={swapPick === index}
+                    aria-label={`Selecionar carta ${index + 1} para ${canDiscard ? "descartar" : "trocar"}`}
+                    onClick={() => setSwapPick(swapPick === index ? null : index)}
+                  >
+                    <PlayingCard code={code} size="md" />
+                  </button>
+                ))}
+              </div>
+            </div>
+            {canDraw && (
+              <button type="button" className="zt-btn-secondary" onClick={() => onAction("keep", 0)}>
+                Manter as três
+              </button>
+            )}
+            <button
+              type="button"
+              className="zt-btn-primary"
+              disabled={swapPick === null}
+              onClick={() => swapPick !== null && onAction(canDiscard ? "discard" : "swap", swapPick)}
+            >
+              {canDiscard ? "Descartar carta" : "Trocar carta"}
+            </button>
+          </div>
+        ) : availableActions.length === 0 ? (
           <span className="text-sm text-felt-400">
             {players.filter((p) => p.is_sitting !== false).length < 2
               ? "Aguardando ≥2 jogadores na mesa para começar a mão."

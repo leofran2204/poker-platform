@@ -1,0 +1,33 @@
+{
+  "filmId": "pineapple-draw-trailer",
+  "filename": "zt-pineapple-draw-trailer-v1",
+  "title": "Brazilian Pineapple — trailer",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "PineappleDrawTrailer",
+  "script": "src/data/pineapple-draw-trailer.json",
+  "scriptHash": "6abfd5ecdc6ef70e088914bd4765215831d5f014641ead368269e021a1d4bd20",
+  "bettingRuleVersion": "pineapple_draw_v1",
+  "durationSeconds": 149.2,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 10509530,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v2-lang-en",
+  "narrationHash": "dc95e052951aef07f05098281847237451f035c3d2f6db7278fb86646a8a1368",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Brazilian Pineapple"
+    }
+  ],
+  "sha256": "0762dfc21c28b9ccde639dbb7730ac2870ff71242805afc7d23212ad83bec595",
+  "assetHashes": {
+    "mp4": "0762dfc21c28b9ccde639dbb7730ac2870ff71242805afc7d23212ad83bec595",
+    "vtt": "2b4452b4cda041eb472729eac042048d4de350e3df4f8e930ecf4730aba5fa6a",
+    "webp": "3540912f8f600a2722755a68827b2544787444dcd3b1a1ebfe49de1be0dc0bde"
+  },
+  "mediaRevision": "a70630a1bffd0bd8b1f50c416614053e2a0771346218de74b222090b70b2fa55"
+}

@@ -1,18 +1,20 @@
 # Guia de Exemplos Práticos — Upgrades de Segurança e Arquitetura Enterprise
 
-**Atualizado:** 2026-08-01 | **Status:** Guia técnico; validação contínua, sem alegação de certificação de produção.
+**Atualizado:** 2026-11-08 (exemplos conferidos contra o código) | **Status:** Guia técnico; validação contínua, sem alegação de certificação de produção.
 
 
-Este documento é o guia prático e educacional para a utilização dos novos recursos de alta segurança adicionados ao projeto **Poker_Project**:
-1. **Sistema Provably Fair** (Baralho auditável por HMAC-SHA256)
-2. **Autenticação JWT HMAC-SHA256** (tokens curtos, refresh e MFA/TOTP)
-3. **Protocolo Binário WebSocket** (Codec de baixa latência)
-4. **Outbox Pattern & Audit Logs** (Consistência financeira e antifraude SQL)
-5. **Telemetria Estruturada** (Spans de auditoria com OpenTelemetry)
+Este documento é o guia prático e educacional dos recursos de segurança do projeto **Poker_Project**:
+1. **Provably Fair** (módulo do motor com HMAC-SHA256; **ainda não ligado à mesa**)
+2. **Autenticação JWT HMAC-SHA256** (tokens curtos, refresh, `token_version` e MFA/TOTP)
+3. **Protocolo Binário WebSocket** (codec aceito pela API; o Frontend-Web usa JSON em texto)
+4. **Outbox Pattern & Audit Logs** (consistência financeira em centavos)
+5. **Telemetria Estruturada** (spans de auditoria com `tracing`)
 
 ---
 
-## 1. 🃏 Sistema Provably Fair (Baralho Auditável)
+## 1. 🃏 Provably Fair (módulo do motor)
+
+> **Estado em 08/11/2026:** `Motor-Rust/src/provably_fair.rs` existe e tem testes, mas não é chamado pelo jogo. Cada mão real embaralha com Fisher-Yates + `OsRng` (`shuffle_deck` em `Motor-Rust/src/game_loop.rs`). Nenhum texto voltado ao jogador pode prometer verificação pública até a integração; ver Termos 7.3 e [`ARQUITETURA_E_APIS.md`](ARQUITETURA_E_APIS.md).
 
 ### 📐 Conceito:
 No início de cada mão, o servidor gera uma semente secreta (`Server Seed`) e publica apenas o seu hash SHA-256 (`Server Hash`). O jogador envia sua própria semente (`Client Seed`). O embaralhamento é 100% determinístico e auditável.
@@ -58,98 +60,33 @@ fn main() {
 }
 ```
 
-### 🦀 Exemplo de Auditoria no Cliente em 100% Rust (`Frontend-Dioxus` / WASM):
+### Verificação no cliente
 
-No frontend da plataforma, a auditoria é feita inteiramente em Rust nativo compondo um componente de interface Dioxus:
-
-```rust
-use dioxus::prelude::*;
-use poker_engine::provably_fair::verify_shuffle;
-
-#[component]
-pub fn ProvablyFairAuditModal(
-    server_seed: String,
-    client_seed: String,
-    nonce: u64,
-    final_deck: Vec<u8>,
-) -> Element {
-    let mut audit_result = use_signal(|| None::<bool>);
-
-    let handle_audit = move |_| {
-        let original_deck: Vec<u8> = (0..52).collect();
-        let is_valid = verify_shuffle(
-            &original_deck,
-            &final_deck,
-            &server_seed,
-            &client_seed,
-            nonce,
-        )
-        .unwrap_or(false);
-
-        audit_result.set(Some(is_valid));
-    };
-
-    rsx! {
-        div { class: "audit-modal",
-            h3 { "🔍 Auditoria Criptográfica de Mão (Provably Fair)" }
-            p { "Server Seed: {server_seed}" }
-            p { "Client Seed: {client_seed}" }
-            p { "Nonce: {nonce}" }
-
-            button { onclick: handle_audit, "Verificar Integridade da Mão" }
-
-            if let Some(valid) = *audit_result.read() {
-                if valid {
-                    div { class: "alert-success", "✅ Baralho 100% Autêntico e Auditado em Rust WASM!" }
-                } else {
-                    div { class: "alert-danger", "🚨 Alerta: Semente ou Baralho Incompatível!" }
-                }
-            }
-        }
-    }
-}
-```
+O exemplo antigo de modal em Dioxus/WASM foi retirado junto com o frontend Dioxus. Quando o Provably Fair for ligado à mesa, a verificação do jogador ficará no histórico da mão do `Frontend-Web` (TypeScript), usando a semente revelada e os opcodes `ProvablyFairHandStart`/`ProvablyFairHandEnd` (0x30/0x31) já definidos em `API-Axum/src/binary_codec.rs`.
 
 ---
 
-## 2. 🔑 Autenticação PASETO v4 (`API-Axum`)
+## 2. 🔑 Autenticação JWT (`Motor-Rust/src/auth.rs` + `API-Axum`)
 
-### 💻 Exemplo em Rust (`API-Axum`):
-
-```rust
-use poker_api::auth_paseto::{PasetoClaims, encode_paseto, decode_paseto};
-
-fn main() {
-    let secret_key = [42u8; 32]; // Chave de 256 bits
-
-    // 1. Criar Claims para o jogador (Validade de 1 hora = 3600s)
-    let claims = PasetoClaims::new("usr_99812", "jogador_pro", "player", 3600);
-
-    // 2. Gerar Token PASETO v4.local
-    let token = encode_paseto(&claims, &secret_key).unwrap();
-    println!("🔐 Token PASETO Gerado: {token}");
-    // Ex: v4.local.eyJzdWIiOiJ1c3JfOTk4MTIiLCJ1c2VybmFtZSI6...
-
-    // 3. Validar e Decodificar Token
-    let claims_decodificados = decode_paseto(&token, &secret_key).unwrap();
-    println!("👤 Usuário Autenticado: {}", claims_decodificados.username);
-}
-```
+O exemplo de PASETO v4 da versão anterior não corresponde ao código: não existe módulo PASETO no repositório. A autenticação vigente usa JWT HMAC-SHA256 emitido por `AuthManager::issue_tokens_for_user` e validado por `validate_token` (`Motor-Rust/src/auth.rs`), com refresh, MFA/TOTP e `token_version` persistente, que revoga sessões após mudança sensível (senha, papel, suspensão).
 
 ### 📡 Exemplo de Extrator no Handler Axum:
 
 ```rust
-use axum::{routing::get, Router};
-use poker_api::auth_paseto::PasetoClaims;
+use axum::Json;
+use poker_api::middleware::auth::RequireAuth;
 
-async fn get_user_profile(claims: PasetoClaims) -> String {
-    format!("Bem-vindo ao lobby, jogador {} (ID: {})!", claims.username, claims.sub)
+async fn perfil(RequireAuth(user): RequireAuth) -> Json<serde_json::Value> {
+    // RequireAuth valida o Bearer JWT (assinatura, expiração e token_version).
+    Json(serde_json::json!({ "user_id": user.user_id, "role": user.role }))
 }
 ```
 
 ---
 
-## 3. 🚀 Protocolo Binário WebSocket (`API-Axum` / `Frontend-Dioxus`)
+## 3. 🚀 Protocolo Binário WebSocket (`API-Axum`)
+
+A API aceita quadros binários para `Ping` e `PlayerAction`, com carga JSON dentro do pacote. O Frontend-Web atual envia somente texto JSON.
 
 ### 💻 Exemplo de Codificação e Decodificação de Pacote:
 
@@ -157,8 +94,8 @@ async fn get_user_profile(claims: PasetoClaims) -> String {
 use poker_api::binary_codec::{BinaryPacket, BinaryOpcode};
 
 fn main() {
-    // 1. Criar ação de aposta em formato binário
-    let payload = b"RAISE:5000".to_vec();
+    // 1. Criar ação de aposta em formato binário (carga JSON, valor em centavos)
+    let payload = br#"{"action":"raise","amount":5000}"#.to_vec();
     let packet = BinaryPacket::new(BinaryOpcode::PlayerAction, payload);
 
     // 2. Serializar para transmissão WebSocket (Opcode + Length + Payload)
@@ -174,33 +111,34 @@ fn main() {
 
 ---
 
-## 4. 💳 Outbox Pattern & Audit Trail (Migration 003)
+## 4. 💳 Outbox Pattern & Audit Trail
 
-### 🗄️ Exemplo SQL de Transação de Saque com Registro de Auditoria:
+### 🗄️ Exemplo SQL de Transação de Saque com Registro de Auditoria
+
+Forma simplificada do que `POST /api/payments/pix/withdraw` executa em uma única transação (`API-Axum/src/payments_routes.rs`), depois de conferir KYC aprovado e o mesmo CPF do KYC. Valores em **centavos inteiros**; a chave PIX nunca aparece em claro: só a impressão SHA-256 e o texto cifrado (AES-256-GCM) são gravados.
 
 ```sql
 BEGIN;
 
--- 1. Deduzir o saldo do jogador
-UPDATE users SET balance = balance - 100.00 WHERE id = 'usr_99812';
+-- 1. Reservar o saldo Real sem permitir saldo negativo (R$ 100,00 = 10000 centavos)
+UPDATE users SET balance_real = balance_real - 10000
+WHERE id = $1::uuid AND balance_real >= 10000
+RETURNING balance_real;
 
--- 2. Registrar o evento no Outbox (Transactional Outbox Pattern)
+-- 2. Registrar o saque pendente com a chave só como impressão + cifra
+INSERT INTO wallet_transactions
+    (user_id, amount, transaction_type, status, idempotency_key, provider,
+     pix_key_fingerprint, pix_key_ciphertext, provider_status)
+VALUES ($1::uuid, 10000, 'WITHDRAW', 'PENDING', $2, 'depix', $3, $4, 'QUEUED');
+
+-- 3. Evento no Outbox (Transactional Outbox Pattern), sem a chave em claro
 INSERT INTO outbox_events (aggregate_type, aggregate_id, event_type, payload)
-VALUES (
-    'USER_BALANCE',
-    'usr_99812',
-    'PIX_WITHDRAW_REQUESTED',
-    '{"user_id": "usr_99812", "amount": 100.00, "pix_key": "12345678900"}'::jsonb
-);
+VALUES ('wallet_transaction', $2, 'PIX_WITHDRAWAL_REQUESTED',
+        jsonb_build_object('tx_id', $2, 'amount_cents', 10000, 'pix_key_fingerprint', $3));
 
--- 3. Registrar a trilha de auditoria imutável (Audit Log)
-INSERT INTO audit_logs (user_id, action, ip_address, metadata)
-VALUES (
-    'usr_99812',
-    'WITHDRAW_PIX',
-    '203.0.113.195',
-    '{"amount": 100.00, "device": "Mobile Dioxus"}'::jsonb
-);
+-- 4. Trilha de auditoria na mesma transação
+INSERT INTO audit_logs (user_id, action, metadata)
+VALUES ($1, 'PIX_WITHDRAWAL_RESERVED', jsonb_build_object('tx_id', $2, 'amount_cents', 10000));
 
 COMMIT;
 ```
@@ -227,6 +165,6 @@ fn process_table_bet(user_id: &str, table_id: &str, amount: u64) {
 ```
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

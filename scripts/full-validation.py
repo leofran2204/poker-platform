@@ -119,7 +119,7 @@ class Campaign:
              seconds=None if self.started is None else round(time.monotonic()-self.started, 3),
              wall_seconds=None if self.started_wall is None else round(time.time()-self.started_wall, 3),
              max_seconds=self.args.minutes*60, simulation_workers=2,
-             betting_rule_version="brazilian_pineapple_pot_before_call_v2", phase=self.args.phase, stages=self.stages, gaps=self.gaps,
+             betting_rule_version="pineapple_draw_v1", phase=self.args.phase, stages=self.stages, gaps=self.gaps,
              redundancy_discarded=[
                  "No engine duplication for PM vs Real; isolation belongs to API/database tests.",
                  "Removed frontend legacy no-op and fictional two-million-input counter.",
@@ -511,7 +511,7 @@ class Campaign:
                     for row in rows:
                         settlement=row["settlement_json"]
                         if isinstance(settlement,str): settlement=json.loads(settlement)
-                        if table["variant"] == "brazilian_pineapple" and settlement.get("betting_rule_version") != "brazilian_pineapple_pot_before_call_v2":
+                        if table["variant"] == "pineapple_draw" and settlement.get("betting_rule_version") != "pineapple_draw_v1":
                             raise RuntimeError("missing Pineapple rule version in durable settlement")
                         payload=json.dumps(settlement,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()
                         expected=hmac.new(self.env["JWT_SECRET"].encode(),payload,hashlib.sha256).hexdigest()
@@ -536,14 +536,14 @@ class Campaign:
 
     def matrix(self):
         factors = {
-            "variant":["holdem","short_deck","omaha","brazilian_pineapple"],
+            "variant":["holdem","short_deck","omaha","pineapple_draw"],
             "occupancy":["hu","partial","full"],"position":["button","sb","bb","other"],
             "street":["Preflop","Flop","Turn","River"],"stack":["short","medium","deep"],
             "sequence":["passive","fold","fold_after_allin","allin","open","reraise","check_raise"],
             "allin":["none","single","multi"],"tie":["false","true"],"pots":["single","multiple"]}
         # Declared pair feasibility: no nonblind "other" position in HU; a fold
         # after all-in requires an all-in. Other structural uncertainty stays a gap.
-        if self.args.phase.startswith("pineapple"): factors["variant"] = ["brazilian_pineapple"]
+        if self.args.phase.startswith("pineapple"): factors["variant"] = ["pineapple_draw"]
         expected=set()
         exclusions=[]
         for (a,aa),(b,bb) in itertools.combinations(factors.items(),2):

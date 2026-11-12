@@ -1,14 +1,14 @@
 # 🏗️ Arquitetura do Motor Central da Plataforma de Poker Online
 
 **Versão:** 4.0  
-**Data:** 2026-09-22
+**Data:** 2026-09-22 (fatos de segurança e comunicação revisados em 2026-11-08)
 **Status:** Documento oficial — fonte da verdade para decisões de arquitetura de **motor e stack**
 
 > Este documento é a **fonte da verdade** sobre a arquitetura da plataforma (motor, API, frontend e camadas). Qualquer decisão de design, escolha de tecnologia ou nova pasta deve ser consultada aqui **antes** de iniciar a codificação.
 >
 > **Estado operacional** (ciclo, PIX, ownership, certificação, frontend TS): prevalece [`Documentacao/STATUS_OPERACIONAL.md`](../Documentacao/STATUS_OPERACIONAL.md). Transporte público: **HTTPS**.
 >
-> **Regulação / compliance de jogo e dinheiro real:** trilho planejado para **janeiro de 2027** (não bloqueia demo play-money).
+> **Regulação / compliance de jogo e dinheiro real:** trilho planejado para **janeiro de 2027**. A demo já opera Play Money e Jogo Real (PIX DePix, KYC básico/manual), sem licença nem certificação de produção.
 
 ---
 
@@ -75,7 +75,8 @@
 
 - **TypeScript (React) ↔ Rust (Axum):** HTTPS REST + WSS (eventos de jogo em tempo real), same-origin atrás do Caddy.
 - **Presença online:** `GET /api/presence/online` (público) + `POST /api/presence/heartbeat` (JWT); Redis ZSET com TTL 90s; UI badge no header e hero na home.
-- **Formato universal:** JSON em todas as fronteiras (schemas validados no servidor).
+- **Formato universal:** JSON em todas as fronteiras (schemas validados no servidor). O WebSocket também aceita quadros binários de `API-Axum/src/binary_codec.rs` para ping e ação (carga JSON dentro do pacote); o Frontend-Web atual envia somente texto JSON.
+- **Cartas privadas:** o filtro do WebSocket entrega a cada jogador só as próprias cartas; as alheias saem apenas em showdown real (dois ou mais jogadores sem fold). Contrato em `Documentacao/ARQUITETURA_E_APIS.md`.
 - **🔐 Segurança:** TODA comunicação usa TLS 1.3. TODO dado sensível é criptografado.
 
 ---
@@ -124,7 +125,7 @@
 
 | Componente | Responsabilidade | Linguagem |
 |------------|------------------|-----------|
-| **Antifraude** | Regras e sinais para bots, collusion e chip dumping | Rust |
+| **Antifraude** | Regras e sinais para bots, collusion, chip dumping e multi-conta no motor; no jogo estão ligados o escore de bot por tempo de reação no ator de cash (pode bloquear a ação) e a guarda de rede na entrada da mesa cash (`API-Axum/src/seat_ip_guard.rs`) | Rust |
 | **Telemetria da API** | Logs estruturados e métricas medidas pelo processo | `tracing` + endpoint administrativo |
 | **Saúde** | Readiness de API, PostgreSQL, Redis e gateway | healthchecks do Compose/Caddy |
 | **Auditoria financeira/administrativa** | Ações e metadados persistidos | PostgreSQL `audit_logs` |
@@ -139,7 +140,7 @@
 
 - A plataforma não processa cartões; PIX não elimina as obrigações legais aplicáveis.
 - **LGPD:** termos, privacidade e minimização de dados estão documentados, mas isso não equivale a certificação.
-- **Regulação/KYC:** trilho planejado para 2027-01; a demo atual não é certificada para produção.
+- **Regulação/KYC:** KYC básico/manual (migration 058) já é exigido para depósito, entrada e saque no Jogo Real, e o saque só vai para o mesmo CPF do KYC. Licença e KYC/AML externos seguem no trilho de 2027-01; a demo atual não é certificada para produção.
 - **JWT curtos** → tokens expiram rápido (15-30 min) para reduzir janela de ataque.
 
 ### 5.5 🔄 Diagrama de Fluxo Seguro — Login e Jogada

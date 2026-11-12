@@ -48,8 +48,8 @@ fn sd_value(rank: HandRank) -> u8 {
         HandRank::HighCard => 1,
         HandRank::OnePair => 2,
         HandRank::TwoPair => 3,
-        HandRank::ThreeOfAKind => 4,
-        HandRank::Straight => 5,
+        HandRank::Straight => 4,
+        HandRank::ThreeOfAKind => 5, // trinca vence sequência no Short Deck
         HandRank::FullHouse => 6,
         HandRank::Flush => 7,
         HandRank::FourOfAKind => 8,
@@ -174,17 +174,7 @@ fn short_deck_rules_ranking_ladder() {
                 c(Rank::Eight, Suit::Clubs),
             ],
         ),
-        (
-            HandRank::ThreeOfAKind,
-            vec![c(Rank::Ace, Suit::Hearts), c(Rank::Ace, Suit::Diamonds)],
-            vec![
-                c(Rank::Ace, Suit::Clubs),
-                c(Rank::King, Suit::Spades),
-                c(Rank::Queen, Suit::Hearts),
-                c(Rank::Nine, Suit::Diamonds),
-                c(Rank::Eight, Suit::Clubs),
-            ],
-        ),
+        // Short Deck: trinca vence sequência (BUSINESS_RULES, `short_deck_rank_value`).
         (
             HandRank::Straight,
             vec![c(Rank::Ten, Suit::Hearts), c(Rank::Nine, Suit::Diamonds)],
@@ -194,6 +184,17 @@ fn short_deck_rules_ranking_ladder() {
                 c(Rank::Six, Suit::Hearts),
                 c(Rank::Ace, Suit::Diamonds),
                 c(Rank::King, Suit::Clubs),
+            ],
+        ),
+        (
+            HandRank::ThreeOfAKind,
+            vec![c(Rank::Ace, Suit::Hearts), c(Rank::Ace, Suit::Diamonds)],
+            vec![
+                c(Rank::Ace, Suit::Clubs),
+                c(Rank::King, Suit::Spades),
+                c(Rank::Queen, Suit::Hearts),
+                c(Rank::Nine, Suit::Diamonds),
+                c(Rank::Eight, Suit::Clubs),
             ],
         ),
         (

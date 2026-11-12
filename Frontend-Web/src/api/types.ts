@@ -362,7 +362,7 @@ export interface TableResponse {
   max_buy_in: number;
   game_type: string;
   money_mode: string;
-  /** `holdem` | `short_deck` | `omaha` | `brazilian_pineapple` */
+  /** `holdem` | `short_deck` | `omaha` | `pineapple_draw` */
   poker_variant: string;
 }
 
@@ -398,7 +398,7 @@ export interface TournamentInfoResponse {
   blind_levels: BlindLevelDto[];
   gameplay_ready: boolean;
   money_mode: string;
-  /** `holdem` | `short_deck` | `omaha` | `brazilian_pineapple` */
+  /** `holdem` | `short_deck` | `omaha` | `pineapple_draw` */
   poker_variant: string;
   final_table_variant?: string | null;
   final_table_max_players?: number | null;
@@ -455,6 +455,8 @@ export interface PlayerWsData {
   is_dealer: boolean;
   seat: number;
   is_sitting?: boolean;
+  /** Brazilian Pineapple: cartas trocadas na street atual (0 ou 1); ausente/null = ainda não decidiu. */
+  draw_count?: number | null;
 }
 
 export interface PotWsData {
@@ -479,6 +481,10 @@ export type ServerMessage =
       stage: string;
       pots: PotWsData[];
       betting_structure?: string | null;
+      /** Brazilian Pineapple: rodada de troca em andamento (depois das apostas do flop e do turn). */
+      drawing?: boolean;
+      /** Brazilian Pineapple: descarte obrigatório do river em andamento (antes das apostas). */
+      discarding?: boolean;
       ante?: number;
       ante_paid?: number;
       ante_player_id?: string | null;

@@ -160,8 +160,10 @@
 .hp-pineapple-cover img { width:100%; height:auto; border:1px solid #668471; border-radius:10px; box-shadow:0 24px 70px #0008; }
 .hp-pineapple-cover figcaption { margin-top:22px; color:#e1c17a; font-size:16px; line-height:1.8; }
 .hp-pineapple-cover figcaption span { color:var(--hp-muted); font-size:12px; }
-.hp-archive { text-align:center; padding:12px 22px 32px; color:var(--hp-muted); font-size:11px; }
-.hp-archive a { text-decoration:underline; text-underline-offset:4px; }
+.hp-draw-cover { display:flex; flex-direction:column; align-items:center; gap:18px; padding:42px 24px; border:1px solid #668471; border-radius:10px; background:#0b1d17cc; box-shadow:0 24px 70px #0008; }
+.hp-draw-hand { display:flex; gap:14px; transform:scale(1.35); transform-origin:center; margin-block:22px; }
+.hp-draw-swap { display:inline-block; transform:translateY(-18px) rotate(6deg); outline:2px dashed #e1c17a; outline-offset:4px; border-radius:6px; }
+.hp-draw-board { display:flex; gap:8px; opacity:.9; }
 @media(max-width:850px) {
   .hp-pineapple .hp-hero-inner { grid-template-columns:1fr; gap:35px; padding-block:48px 90px; }
   .hp-pineapple .hp-hero-copy { max-width:640px; }

@@ -3,7 +3,7 @@
 // Refatorado em 2026-07-24: Arquitetura u64 centavos inteiros (Zero Float Errors)
 
 use crate::deck::{
-    compare_hands, evaluate_hand, evaluate_hand_brazilian_pineapple, evaluate_hand_omaha,
+    compare_hands, evaluate_hand, evaluate_hand_omaha, evaluate_hand_pineapple_draw,
     evaluate_hand_short_deck, Card, HandResult,
 };
 use crate::types::{PokerVariant, Pot};
@@ -175,8 +175,8 @@ pub fn precompute_hands_for_variant(
         if !player.has_folded {
             let hand = match variant {
                 PokerVariant::Omaha => evaluate_hand_omaha(&player.cards, community_cards),
-                PokerVariant::BrazilianPineapple => {
-                    evaluate_hand_brazilian_pineapple(&player.cards, community_cards)
+                PokerVariant::PineappleDraw => {
+                    evaluate_hand_pineapple_draw(&player.cards, community_cards)
                 }
                 PokerVariant::ShortDeck => evaluate_hand_short_deck(&player.cards, community_cards),
                 PokerVariant::Holdem => evaluate_hand(&player.cards, community_cards),

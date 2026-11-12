@@ -146,6 +146,8 @@ A tentativa final, [20261003T153704Z-ed6cd9](../artifacts/full-validation/202610
 
 ## Campanha focada da estrutura híbrida — 04/10/2026
 
+> Desde 09/11/2026 os perfis `pineapple` e `pineapple-cash` exercitam o Brazilian Pineapple atual (`pineapple_draw_v1`, com trocas e descarte no river); os resultados desta seção são da campanha do formato antigo (2 privadas + 1 por street), retirado do catálogo. O formato atual ainda não passou por campanha autorizada.
+
 Autorização: **15 minutos, dois trabalhadores**. Perfil `pineapple`: fixtures da regra, cash Pineapple, MTT Pineapple até campeão, contrato motor/atores/WS, HTTPS/WSS com 5/20 mesas Pineapple e reinício controlado. Compilação precede o orçamento, conforme o executor; preparação de infraestrutura e execução contam no teto. Deadline interrompe a carga e preserva etapas pendentes, sem iniciar outra campanha.
 
 ```powershell
@@ -166,6 +168,6 @@ Os geradores consultam `GameLoop::legal_actions` e registram a ação efetivamen
 Os hashes das fontes de produção da integração conferem com a entrega; apenas a política do gerador cash mudou no complemento. Bancos, dumps, traces e relatórios são locais e exclusivos. Containers temporários removidos; container preexistente preservado. A aprovação cobre esta regra e este perfil, sem certificação de produção ou nova campanha completa de equity/demais variantes. Publicação futura continua condicionada a não haver mãos Pineapple abertas nem torneios Pineapple em andamento.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

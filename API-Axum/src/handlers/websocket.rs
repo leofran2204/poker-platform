@@ -42,6 +42,21 @@ fn redis_ticket_key(ticket: &str, table_id: &str) -> String {
     format!("{WS_TICKET_REDIS_PREFIX}:{table_id}:{ticket}")
 }
 
+/// Valor numérico da ação: fichas nas apostas; na troca e no descarte do
+/// Brazilian Pineapple, a posição da carta (`card`, 0 a 2), com `amount` aceito
+/// como alternativa.
+fn action_amount(message: &serde_json::Value, action: &str) -> u64 {
+    let amount = message.get("amount").and_then(|value| value.as_u64());
+    if action.eq_ignore_ascii_case("swap") || action.eq_ignore_ascii_case("discard") {
+        return message
+            .get("card")
+            .and_then(|value| value.as_u64())
+            .or(amount)
+            .unwrap_or(u64::MAX);
+    }
+    amount.unwrap_or(0)
+}
+
 async fn forward_player_action(
     tx_cmd: &mpsc::Sender<PlayerCommand>,
     player_id: &str,
@@ -640,8 +655,7 @@ async fn handle_game_socket(
                                 }
                                 let action =
                                     parsed.get("action").and_then(|a| a.as_str()).unwrap_or("");
-                                let amount =
-                                    parsed.get("amount").and_then(|a| a.as_u64()).unwrap_or(0);
+                                let amount = action_amount(&parsed, action);
                                 forward_player_action(
                                     &tx_cmd,
                                     &user_id_for_recv,
@@ -730,10 +744,7 @@ async fn handle_game_socket(
                                         .get("action")
                                         .and_then(|value| value.as_str())
                                         .unwrap_or("");
-                                    let amount = action
-                                        .get("amount")
-                                        .and_then(|value| value.as_u64())
-                                        .unwrap_or(0);
+                                    let amount = action_amount(&action, name);
                                     forward_player_action(
                                         &tx_cmd,
                                         &user_id_for_recv,
@@ -884,12 +895,13 @@ fn filter_table_state(mut state_json: serde_json::Value, for_player_id: &str) ->
 /// Campos de jogador que podem ir para qualquer socket (`PlayerWsData` no
 /// frontend). `cards` é tratado à parte: só sai preenchido para o próprio
 /// jogador ou no showdown.
-const PUBLIC_PLAYER_FIELDS: [&str; 9] = [
+const PUBLIC_PLAYER_FIELDS: [&str; 10] = [
     "id",
     "name",
     "chips",
     "bet",
     "folded",
+    "draw_count",
     "is_active",
     "is_dealer",
     "seat",
@@ -945,7 +957,7 @@ fn redact_global_sensitive_fields(value: &mut serde_json::Value) {
 
 #[cfg(test)]
 mod tests {
-    use super::filter_table_state;
+    use super::{action_amount, filter_table_state};
     use serde_json::json;
 
     #[test]
@@ -1101,7 +1113,7 @@ mod tests {
         use tokio::sync::{broadcast, mpsc, RwLock};
         for game_type in [GameType::Cash, GameType::Tournament] {
             let config =
-                TableConfig::new(100, 0, 0).with_poker_variant(PokerVariant::BrazilianPineapple);
+                TableConfig::new(100, 0, 0).with_poker_variant(PokerVariant::PineappleDraw);
             let mut g = GameLoop::new(config.clone(), "rule".into(), "rule".into(), game_type);
             g.add_player("me".into(), 10000);
             g.add_player("other".into(), 10000);
@@ -1180,8 +1192,9 @@ mod tests {
             let view = filter_table_state(state.clone(), "other");
             assert_eq!(
                 view["betting_structure"],
-                "brazilian_pineapple_pot_before_call_v2"
+                poker_engine::game_loop::PINEAPPLE_DRAW_RULE_VERSION
             );
+            assert_eq!(view["drawing"], false);
             assert_eq!(view["ante"], 100);
             assert_eq!(view["ante_paid"], 100);
             assert_eq!(view["ante_player_id"], "other");
@@ -1198,6 +1211,145 @@ mod tests {
                 json!([])
             );
         }
+    }
+
+    #[tokio::test]
+    async fn pineapple_draw_round_is_public_and_cards_stay_private() {
+        use crate::game_actor::{automatic_timeout_action, TableActor, TablePlayer};
+        use poker_engine::{
+            game_loop::{GameLoop, PlayerMove},
+            hand_history::GameType,
+            types::{PokerVariant, TableConfig},
+        };
+        use tokio::sync::{broadcast, mpsc};
+        let config = TableConfig::new(100, 0, 0).with_poker_variant(PokerVariant::PineappleDraw);
+        let mut g = GameLoop::new(config.clone(), "draw".into(), "draw".into(), GameType::Cash);
+        g.add_player("me".into(), 10000);
+        g.add_player("other".into(), 10000);
+        g.set_dealer(0);
+        g.start_hand().unwrap();
+        g.player_action("me", PlayerMove::Call).unwrap();
+        g.player_action("other", PlayerMove::Check).unwrap();
+        // Flop: as apostas vêm antes da troca.
+        assert!(!g.state.drawing);
+        g.player_action("other", PlayerMove::Check).unwrap();
+        g.player_action("me", PlayerMove::Check).unwrap();
+        assert!(g.state.drawing);
+        assert_eq!(automatic_timeout_action(Some(&g)), "keep");
+        let (_, rx) = mpsc::channel(10);
+        let (tx, mut messages) = broadcast::channel(10);
+        let mut cash = TableActor::new("table".into(), "draw".into(), rx, tx).with_config(config);
+        cash.players = g
+            .state
+            .players
+            .iter()
+            .map(|p| TablePlayer {
+                id: p.id.clone(),
+                name: p.id.clone(),
+                chips: p.stack,
+                seat: p.seat_index,
+                is_sitting: true,
+                disconnected_since: None,
+                left_hand: false,
+            })
+            .collect();
+        cash.game_loop = Some(g);
+
+        // `other` troca primeiro; a posição da carta chega em `amount`.
+        let before = cash.game_loop.as_ref().unwrap().state.players[1]
+            .hole_cards
+            .clone();
+        cash.handle_action("other".into(), "swap".into(), 2).await;
+        let gl = cash.game_loop.as_ref().unwrap();
+        assert_eq!(gl.state.players[1].draw_count, Some(1));
+        assert_eq!(gl.state.players[1].hole_cards[..2], before[..2]);
+        assert_ne!(gl.state.players[1].hole_cards[2], before[2]);
+
+        cash.broadcast_state();
+        let state = messages.try_recv().unwrap();
+        let view = filter_table_state(state, "me");
+        assert_eq!(view["drawing"], true);
+        assert_eq!(view["available_actions"], json!(["keep", "swap"]));
+        let players = view["players"].as_array().unwrap();
+        let other = players.iter().find(|p| p["id"] == "other").unwrap();
+        assert_eq!(other["draw_count"], 1);
+        assert_eq!(other["cards"], json!([]));
+        let me = players.iter().find(|p| p["id"] == "me").unwrap();
+        assert_eq!(me["cards"].as_array().unwrap().len(), 3);
+        assert!(me["draw_count"].is_null());
+
+        // Tempo esgotado na troca mantém as cartas; nas apostas, desiste.
+        let automatic = automatic_timeout_action(cash.game_loop.as_ref());
+        cash.handle_action("me".into(), automatic.into(), 0).await;
+        let gl = cash.game_loop.as_ref().unwrap();
+        assert!(!gl.state.drawing);
+        assert_eq!(gl.state.players[0].draw_count, Some(0));
+        assert_eq!(automatic_timeout_action(Some(gl)), "fold");
+
+        // Turn: apostas e troca; depois o river abre o descarte obrigatório.
+        for (player, action) in [
+            ("other", "check"),
+            ("me", "check"),
+            ("other", "keep"),
+            ("me", "keep"),
+        ] {
+            cash.handle_action(player.into(), action.into(), 0).await;
+        }
+        let gl = cash.game_loop.as_ref().unwrap();
+        assert!(gl.state.discarding);
+        assert_eq!(automatic_timeout_action(Some(gl)), "auto_discard");
+        while messages.try_recv().is_ok() {}
+        cash.broadcast_state();
+        let view = filter_table_state(messages.try_recv().unwrap(), "other");
+        assert_eq!(view["discarding"], true);
+        assert_eq!(view["available_actions"], json!(["discard"]));
+
+        // `other` escolhe a carta; `me` estoura o tempo e fica com as melhores.
+        cash.handle_action("other".into(), "discard".into(), 7)
+            .await;
+        assert_eq!(
+            cash.game_loop.as_ref().unwrap().state.players[1]
+                .hole_cards
+                .len(),
+            3,
+            "posição inválida não descarta"
+        );
+        cash.handle_action("other".into(), "discard".into(), 0)
+            .await;
+        let automatic = automatic_timeout_action(cash.game_loop.as_ref());
+        cash.handle_action("me".into(), automatic.into(), 0).await;
+        let gl = cash.game_loop.as_ref().unwrap();
+        assert!(!gl.state.discarding);
+        assert!(gl.state.players.iter().all(|p| p.hole_cards.len() == 2));
+        assert_eq!(automatic_timeout_action(Some(gl)), "fold");
+    }
+
+    #[test]
+    fn swap_reads_the_card_position_and_rejects_a_missing_one() {
+        assert_eq!(
+            action_amount(&json!({"action": "swap", "card": 1}), "swap"),
+            1
+        );
+        assert_eq!(
+            action_amount(&json!({"action": "swap", "amount": 2}), "swap"),
+            2
+        );
+        assert_eq!(action_amount(&json!({"action": "swap"}), "swap"), u64::MAX);
+        assert_eq!(
+            action_amount(&json!({"action": "discard", "card": 2}), "discard"),
+            2
+        );
+        assert_eq!(
+            action_amount(&json!({"action": "discard"}), "discard"),
+            u64::MAX
+        );
+        assert_eq!(
+            action_amount(
+                &json!({"action": "raise", "amount": 900, "card": 1}),
+                "raise"
+            ),
+            900
+        );
     }
 
     fn with_engine_actions(mut state: serde_json::Value) -> serde_json::Value {

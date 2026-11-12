@@ -917,7 +917,7 @@ pub async fn create_tournament(
     let variant = body.poker_variant.trim().to_ascii_lowercase();
     if !matches!(
         variant.as_str(),
-        "holdem" | "short_deck" | "omaha" | "brazilian_pineapple"
+        "holdem" | "short_deck" | "omaha" | "pineapple_draw"
     ) {
         return Err(ApiError::BadRequest("poker_variant inválida".into()));
     }
@@ -940,7 +940,7 @@ pub async fn create_tournament(
         (Some(final_variant), Some(final_max)) => {
             if !matches!(
                 final_variant,
-                "holdem" | "short_deck" | "omaha" | "brazilian_pineapple"
+                "holdem" | "short_deck" | "omaha" | "pineapple_draw"
             ) {
                 return Err(ApiError::BadRequest("final_table_variant inválida".into()));
             }

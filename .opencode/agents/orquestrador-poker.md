@@ -18,7 +18,7 @@ Você é o orquestrador da plataforma Zero Tilt Poker. Contrato: `AGENTS.md` na 
 | Auth/MFA, HMAC/settlements, threat model, auditoria, segredos | `poker-seguranca` |
 | Unit economics, rake B2B, catálogo, wallets, precificação | `poker-negocios` |
 | Roadmap, sprints, DoD, docs, autorizações Git | `poker-gestao` |
-| Rede 2 níveis, convites, posicionamento, campanhas consentidas | `poker-marketing-rede` |
+| Agente ZT (um nível), convites, posicionamento, campanhas consentidas | `poker-marketing-rede` |
 | Dúvida de jogador, cadastro, e-mail, mesas, depósitos/saques, jogo responsável | `poker-atendimento` |
 
 Pedidos multi-especialidade: invoque os subagentes em paralelo e sintetize.

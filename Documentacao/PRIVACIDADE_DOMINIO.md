@@ -21,7 +21,7 @@ Não dá para esconder 100%: datas de registro, nameservers e IP do VPS continua
 
 - Data de nascimento e nome legal são usados para maioridade e análise manual da conta.
 - O CPF informado no KYC não é persistido em claro: o banco guarda HMAC com `KYC_DATA_PEPPER` exclusivo e somente os quatro últimos dígitos para conferência operacional.
-- Patrocinadores da rede de dois níveis não recebem CPF, e-mail, data de nascimento, nome legal nem conteúdo de chamados.
+- Agentes ZT (programa de um nível) e demais patrocinadores não recebem CPF, e-mail, data de nascimento, nome legal nem conteúdo de chamados dos indicados.
 - Chamados de suporte ficam vinculados à conta e não devem conter senha, códigos de verificação ou MFA.
 - A proteção técnica descrita aqui não substitui política de retenção, base legal, canal do titular e revisão jurídica LGPD antes de operação certificada.
 
@@ -43,6 +43,6 @@ Não dá para esconder 100%: datas de registro, nameservers e IP do VPS continua
 3. Não publicar CPF/telefone/endereço em páginas públicas
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

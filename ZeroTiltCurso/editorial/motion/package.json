@@ -1,0 +1,20 @@
+{
+  "name": "zero-tilt-motion",
+  "private": true,
+  "description": "Produção audiovisual da Zero Tilt Academy em Remotion (piloto de 08/11/2026).",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.538",
+    "@remotion/google-fonts": "4.0.538",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remotion": "4.0.538"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "typescript": "5.9.3"
+  }
+}

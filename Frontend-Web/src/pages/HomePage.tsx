@@ -1,11 +1,8 @@
 import { lazy, Suspense, useState } from "react";
 import { Navigate, Link } from "react-router";
 import { isAuthenticated } from "@/lib/auth";
+import { PineappleDrawFilm } from "@/components/PineappleDrawFilm";
 import { PlayingCard } from "@/components/PlayingCard";
-import homeFilm from "@/data/homeFilm.json";
-import pineappleFilm from "@/data/pineappleFilm.json";
-import { PineappleFilm } from "@/components/PineappleFilm";
-import { formatLessonDuration } from "@/lib/courseDuration";
 import "./home-premium.css";
 
 const Games = lazy(() => import("@/components/home/GamesSection").then(m => ({default: m.GamesSection})));
@@ -38,9 +35,9 @@ function VisitorHome() {
   const [deflatorOpen,setDeflatorOpen]=useState(false);
   return <div className="hp">
     <section className="hp-hero hp-pineapple" aria-labelledby="home-title">
-      <div className="hp-hero-inner"><div className="hp-hero-copy"><p className="hp-eyebrow"><span aria-hidden="true">♠</span> ZERO TILT POKER / COMECE PELAS REGRAS</p><h1 id="home-title">Brazilian<br /><em>Pineapple.</em></h1><p className="hp-description">Sua mão cresce. Sua decisão muda.<br />Aprenda as cartas, as apostas e os potes com uma mesa animada, exemplos e narração em português.</p>
-        <div className="hp-actions"><PineappleFilm /><Link to="/curso" className="hp-link">Explorar a Academy ↗</Link></div><p className="hp-note">Vídeo de {formatLessonDuration(pineappleFilm.durationSeconds)} · legendas e capítulos · 18+</p></div>
-        <figure className="hp-pineapple-cover"><img src={`/videos/${pineappleFilm.filename}.webp`} width="1280" height="720" alt="Cinco cartas privadas; duas destacadas para combinar com três comunitárias" fetchPriority="high" /><figcaption>2 → 3 → 4 → 5 privadas. Sem descarte.<br /><span>Pratique com Play Money, sem depósito para começar.</span></figcaption></figure><a className="hp-scroll" href="#desafio">A próxima decisão é sua <span aria-hidden="true">↓</span></a>
+      <div className="hp-hero-inner"><div className="hp-hero-copy"><p className="hp-eyebrow"><span aria-hidden="true">♠</span> ZERO TILT POKER / NOVA MODALIDADE</p><h1 id="home-title">Brazilian<br /><em>Pineapple.</em></h1><p className="hp-description">Três cartas. Duas trocas. Um descarte.<br />Depois das apostas do flop e do turn, você decide: manter ou trocar uma carta. No river, descarta uma e disputa o pote com duas, como no Hold’em.</p>
+        <div className="hp-actions"><Link to="/curso/m5l3" className="hp-button">Aprenda as regras <span aria-hidden="true">↗</span></Link><PineappleDrawFilm /></div><p className="hp-note">Vídeos com legendas e capítulos · primeiro no Play Money, sem depósito · 18+</p></div>
+        <figure className="hp-pineapple-cover hp-draw-cover"><div className="hp-draw-hand" role="img" aria-label="Três cartas na mão; o rei é trocado depois das apostas do flop"><PlayingCard code="As" /><span className="hp-draw-swap"><PlayingCard code="Ks" /></span><PlayingCard code="Ah" /></div><div className="hp-draw-board" aria-hidden="true"><PlayingCard code="Ad" size="sm" /><PlayingCard code="Qc" size="sm" /><PlayingCard code="2s" size="sm" /></div><figcaption>3 cartas · troca depois das apostas do flop e do turn · descarte no river.<br /><span>Quem está all-in não troca. O resto da regra está na Academy.</span></figcaption></figure><a className="hp-scroll" href="#desafio">A próxima decisão é sua <span aria-hidden="true">↓</span></a>
       </div>
     </section>
     <div className="hp-path" aria-label="Como começar">{[["01","Descubra o jogo","História, regras e possibilidades."],["02","Entenda a decisão","Aulas, exemplos e perguntas."],["03","Pratique no seu ritmo","Mesas de Play Money gratuitas."]].map(([n,title,body])=><div key={n}><span>{n}</span><p><strong>{title}</strong>{body}</p></div>)}</div>
@@ -50,7 +47,7 @@ function VisitorHome() {
     </section>
     <section className="hp-section hp-games" id="modalidades" aria-labelledby="games-title"><header className="hp-heading"><p className="hp-eyebrow">03 / Encontre a sua mesa</p><h2 id="games-title">Quatro jogos.<br className="hp-mobile-break" /> <em>Novas maneiras de pensar.</em></h2><p>Uma conta, diferentes desafios. Conheça as regras antes de entrar.</p></header>
       <div className="hp-variants">{[
-        ["Brazilian Pineapple","Exclusivo ZT Poker","♥","Comece com duas. Receba mais uma após flop, turn e river, sem descartar. Use duas privadas e três da mesa.","2 → 3 → 4 → 5 PRIVADAS"],
+        ["Brazilian Pineapple","Exclusivo ZT Poker","♥","Três cartas na mão. Depois das apostas do flop e do turn, mantenha ou troque uma. No river, descarte uma e jogue com duas.","3 CARTAS · 2 TROCAS · 1 DESCARTE"],
         ["Short Deck","Outra dinâmica","♦","Do 6 ao ás. Aqui, flush supera full house e trinca supera sequência.","36 CARTAS"],
         ["Omaha 4","Mais combinações","♣","Quatro cartas na mão. Use exatamente duas delas e três comunitárias.","2 + 3 NO SHOWDOWN"],
         ["Texas Hold’em","O clássico","♠","Duas cartas na mão, cinco na mesa. Forme a melhor combinação de cinco.","52 CARTAS"],
@@ -65,7 +62,6 @@ function VisitorHome() {
     </div><div id="home-deflator-details" className="hp-full" hidden={!deflatorOpen}>{deflatorOpen && <div className="hp-expanded"><Suspense fallback={<p role="status">Carregando explicação…</p>}><Deflator /></Suspense></div>}</div></section>
     <section className="hp-section hp-agent" aria-labelledby="agent-title"><div><p className="hp-eyebrow">Agente ZT Poker</p><h2 id="agent-title">Uma comunidade.<br /><em>Um único nível.</em></h2><p className="hp-body">Traga jogadores diretamente, acompanhe sua operação e desenvolva sua comunidade.</p><Link to="/rede" className="hp-link">Conhecer o programa ↗</Link></div><div className="hp-agent-numbers"><div><strong>30<small>%</small></strong><span>do NGR dos jogadores diretos</span></div><span className="hp-agent-arrow" aria-hidden="true">→</span><div><strong>35<small>%</small></strong><span>ao atingir a meta mensal</span></div><p>Sujeito à aprovação, às regras do programa e ao fechamento mensal conciliado. NGR é a receita líquida elegível, não o valor dos depósitos.</p></div></section>
     <section className="hp-section hp-final" aria-labelledby="final-title"><p className="hp-eyebrow">Zero Tilt Poker</p><h2 id="final-title">Sua próxima decisão?<br /><em>Começar a aprender.</em></h2><Link to="/register" className="hp-button">Criar conta grátis <span aria-hidden="true">↗</span></Link><p>18+ · Poker envolve risco de perda. Jogue com responsabilidade.</p></section>
-    <p className="hp-archive"><a href={`/videos/${homeFilm.filename}.mp4?r=${homeFilm.mediaRevision}`}>Filme institucional da ZT Poker · {formatLessonDuration(homeFilm.durationSeconds)}</a></p>
   </div>;
 }
 export function HomePage() { return isAuthenticated() ? <Navigate to="/curso" replace /> : <VisitorHome />; }

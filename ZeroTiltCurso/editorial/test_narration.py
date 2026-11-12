@@ -31,8 +31,7 @@ class PronunciationTests(unittest.TestCase):
         spoken, _ = render.pronunciation_plan(text)
         words = render.canonical_boundaries(text, self.boundaries(spoken))
         self.assertEqual([w['text'] for w in words], ['Hold’em', 'check-raise', 'para', '7,50'])
-        import pineapple
-        self.assertEqual(pineapple.cue_time({'words': words}, 'check-raise', render.speech_text), .25 + 200 / 1e7)
+        self.assertEqual(render.cue_time({'words': words}, 'check-raise', render.speech_text), .25 + 200 / 1e7)
 
     def test_incomplete_or_different_speech_is_rejected(self):
         with self.assertRaises(ValueError):
@@ -79,9 +78,13 @@ class TimelineTests(unittest.TestCase):
                         self.assertTrue(timeline.card_state(e,e['end'])['face'])
 
     def test_betting_animations_conserve_chips_at_every_frame(self):
-        scenes=json.loads((render.HERE/'episodes.json').read_text(encoding='utf-8'))['pineapple']['scenes']
+        # Blinds 0,50/1, ante de 1 BB do big blind e abertura para 3,50 com dois calls.
+        scenes=[{'table':{'pot':0,'players':[{'name':'Ana','stack':10000,'bet':0},
+                                             {'name':'Beto','stack':10000,'bet':0},
+                                             {'name':'Caio','stack':10000,'bet':0}]},
+                 'actions':[{'player':1,'to':50},{'player':2,'to':100},{'player':2,'ante':100},
+                            {'player':0,'to':350},{'player':1,'to':350},{'player':2,'to':350}]}]
         for scene in scenes:
-            if not scene.get('actions'): continue
             initial=scene['table']; expected=initial['pot']+sum(p['stack'] for p in initial['players'])
             actions=[{**a,'at':i*2} for i,a in enumerate(scene['actions'])]
             for f in range(150):

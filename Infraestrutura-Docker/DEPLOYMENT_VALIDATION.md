@@ -64,6 +64,8 @@ Antes de subir a API em `ENVIRONMENT=production`, configure `JWT_SECRET`, `EMAIL
 
 ### Publicação S26 — Academy e Agente ZT
 
+> Procedimento histórico da S26 (01/10/2026), com build na VPS. Desde 08/11/2026 o padrão é a publicação com imagens assinadas descrita acima; os passos de backup, janela ociosa e conferência continuam válidos.
+
 1. Conferir branch/commit, alterações locais na VPS e numeração/checksums das migrations. Não alterar SQL já aplicado.
 2. Criar e conferir backup PostgreSQL e dos volumes Caddy fora da árvore versionada, com acesso restrito, antes do primeiro boot da API nova. Preservar o `.env` do servidor.
 3. Executar `REBUILD_API=1 bash scripts/vps-redeploy-frontend.sh` a partir da raiz do clone. O script exige fast-forward, ajusta os dois volumes Caddy para uid 10001 (migração do frontend antigo root) e exige containers saudáveis e resposta da API por HTTPS. O ajuste usa um container transitório; o servidor permanece sem privilégios extras.

@@ -239,7 +239,7 @@ async fn agent_cycle_close_is_guarded_idempotent_and_separates_wallets() {
 #[tokio::test]
 async fn academy_public_route_works_without_database_or_wallet() {
     let app = poker_api::build_router(make_test_state());
-    let payload = serde_json::json!({"version":3,"scenario":"pine-allin","seed":7,"actions":[]});
+    let payload = serde_json::json!({"version":5,"scenario":"pine-allin","seed":7,"actions":[]});
     let (status, body) = send_request(
         app.clone(),
         Method::POST,
@@ -254,13 +254,13 @@ async fn academy_public_route_works_without_database_or_wallet() {
             .as_array()
             .unwrap()
             .len(),
-        2
+        3
     );
     assert_eq!(
         initial["state"]["players"][1]["cards"],
         serde_json::json!([])
     );
-    let played = serde_json::json!({"version":3,"scenario":"pine-allin","seed":7,"actions":[{"action":"all_in","answer":"2"}]});
+    let played = serde_json::json!({"version":5,"scenario":"pine-allin","seed":7,"actions":[{"action":"all_in","answer":"2"}]});
     let (status, body) = send_request(
         app,
         Method::POST,
@@ -276,7 +276,7 @@ async fn academy_public_route_works_without_database_or_wallet() {
             .as_array()
             .unwrap()
             .len(),
-        5
+        2
     );
     assert_eq!(final_state["reviews"][0]["correct"], true);
     assert!(final_state.get("balance").is_none());
@@ -299,15 +299,15 @@ async fn academy_rejects_invalid_payloads_and_oversized_bodies() {
             StatusCode::BAD_REQUEST,
         ),
         (
-            serde_json::json!({"version":3,"scenario":"pine-allin","seed":-1}),
+            serde_json::json!({"version":5,"scenario":"pine-allin","seed":-1}),
             StatusCode::UNPROCESSABLE_ENTITY,
         ),
         (
-            serde_json::json!({"version":3,"scenario":"pine-allin","seed":1,"balance":100}),
+            serde_json::json!({"version":5,"scenario":"pine-allin","seed":1,"balance":100}),
             StatusCode::UNPROCESSABLE_ENTITY,
         ),
         (
-            serde_json::json!({"version":3,"scenario":"pine-allin","seed":1,"actions":[{"action":"raise","amount":100.5}]}),
+            serde_json::json!({"version":5,"scenario":"pine-allin","seed":1,"actions":[{"action":"raise","amount":100.5}]}),
             StatusCode::UNPROCESSABLE_ENTITY,
         ),
         (
@@ -315,7 +315,7 @@ async fn academy_rejects_invalid_payloads_and_oversized_bodies() {
             StatusCode::BAD_REQUEST,
         ),
         (
-            serde_json::json!({"version":3,"scenario":"pine-allin","seed":1,"actions":[{"action":"call","answer":"x".repeat(17000)}]}),
+            serde_json::json!({"version":5,"scenario":"pine-allin","seed":1,"actions":[{"action":"call","answer":"x".repeat(17000)}]}),
             StatusCode::PAYLOAD_TOO_LARGE,
         ),
     ] {
@@ -1055,6 +1055,145 @@ async fn test_contract_lobby_join_with_valid_token() {
     assert_eq!(response.status(), StatusCode::NOT_FOUND);
 
     cleanup_contract_user(&state, &username).await;
+}
+
+/// Termos 2.3: na mesa cash, outra conta com assento ativo não pode ter o mesmo
+/// IP público nem a mesma sub-rede /24 de quem entra.
+#[tokio::test]
+#[ignore = "Requires PostgreSQL with migration 061 — set DATABASE_URL to run"]
+async fn test_contract_cash_join_refuses_same_network_at_same_table() {
+    use axum::extract::connect_info::ConnectInfo;
+    use std::net::SocketAddr;
+
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let uid = uuid::Uuid::new_v4().simple().to_string();
+    let table_id = uuid::Uuid::new_v4();
+    sqlx::query(
+        "INSERT INTO tables (id, name, game_type, small_blind, big_blind, min_buy_in, max_buy_in, \
+             max_players, current_players, visibility, status, rake_basis_points, rake_cap, \
+             rake_cap_heads_up, rake_cap_three_to_four, rake_cap_five_plus, poker_variant, money_mode) \
+         VALUES ($1, $2, 'cash', 25, 25, 2500, 2500, 6, 0, 'public', 'OPEN', 500, 500, 150, 300, 500, \
+             'holdem', 'play')",
+    )
+    .bind(table_id)
+    .bind(format!("Guarda de rede {}", &uid[..8]))
+    .execute(&state.db)
+    .await
+    .expect("mesa de contrato");
+
+    let mut usernames = Vec::new();
+    let mut tokens = Vec::new();
+    for index in 0..3 {
+        let username = format!("netguard{index}_{}", &uid[..10]);
+        let body = serde_json::json!({
+            "email": format!("{username}@example.com"),
+            "password": "StrongPass123!",
+            "username": username,
+        })
+        .to_string();
+        let (status, body) =
+            send_request(app.clone(), Method::POST, "/api/auth/register", Some(body)).await;
+        assert_eq!(status, StatusCode::OK, "cadastro: {body}");
+        let json: serde_json::Value = serde_json::from_str(&body).unwrap();
+        tokens.push(json["token"].as_str().unwrap().to_string());
+        usernames.push(username);
+    }
+
+    let join = |token: &str, peer: [u8; 4]| {
+        let mut request = Request::builder()
+            .method(Method::POST)
+            .uri("/api/lobby/join")
+            .header("Authorization", format!("Bearer {token}"))
+            .header("Content-Type", "application/json")
+            .body(Body::from(
+                serde_json::json!({
+                    "table_id": table_id.to_string(),
+                    "buy_in": 2500,
+                    "wallet_mode": "play",
+                })
+                .to_string(),
+            ))
+            .unwrap();
+        request
+            .extensions_mut()
+            .insert(ConnectInfo(SocketAddr::from((peer, 443))));
+        request
+    };
+
+    let first = app
+        .clone()
+        .oneshot(join(&tokens[0], [203, 0, 113, 10]))
+        .await
+        .unwrap();
+    assert_eq!(first.status(), StatusCode::OK);
+
+    // Mesma /24, outro endereço: recusado, sem débito nem assento.
+    let blocked = app
+        .clone()
+        .oneshot(join(&tokens[1], [203, 0, 113, 77]))
+        .await
+        .unwrap();
+    assert_eq!(blocked.status(), StatusCode::FORBIDDEN);
+    let body = blocked.into_body().collect().await.unwrap().to_bytes();
+    assert!(String::from_utf8_lossy(&body).contains("mesma rede"));
+
+    // Outra rede entra normalmente; repetir a entrada da primeira conta continua idempotente.
+    let other = app
+        .clone()
+        .oneshot(join(&tokens[2], [198, 51, 100, 10]))
+        .await
+        .unwrap();
+    assert_eq!(other.status(), StatusCode::OK);
+    let again = app
+        .clone()
+        .oneshot(join(&tokens[0], [203, 0, 113, 10]))
+        .await
+        .unwrap();
+    assert_eq!(again.status(), StatusCode::OK);
+
+    let (seats, stored_ips): (i64, i64) = sqlx::query_as(
+        "SELECT COUNT(*), COUNT(*) FILTER (WHERE ip_fingerprint LIKE '203.%' OR ip_fingerprint LIKE '198.%') \
+         FROM cash_game_seats WHERE table_id = $1 AND status = 'ACTIVE'",
+    )
+    .bind(table_id)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(seats, 2);
+    assert_eq!(stored_ips, 0, "o IP em claro nunca é gravado");
+
+    // Ao sair, as impressões são apagadas pelo gatilho da migration 061.
+    sqlx::query("UPDATE cash_game_seats SET status = 'CASHED_OUT' WHERE table_id = $1")
+        .bind(table_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+    let (left_with_fingerprint,): (i64,) = sqlx::query_as(
+        "SELECT COUNT(*) FROM cash_game_seats WHERE table_id = $1 \
+         AND (ip_fingerprint IS NOT NULL OR subnet_fingerprint IS NOT NULL)",
+    )
+    .bind(table_id)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(left_with_fingerprint, 0);
+
+    for statement in [
+        "DELETE FROM cash_game_ledger WHERE table_id = $1",
+        "DELETE FROM cash_game_seats WHERE table_id = $1",
+        "DELETE FROM table_waitlist WHERE table_id = $1",
+        "DELETE FROM tables WHERE id = $1",
+    ] {
+        sqlx::query(statement)
+            .bind(table_id)
+            .execute(&state.db)
+            .await
+            .unwrap();
+    }
+    for username in &usernames {
+        cleanup_contract_user(&state, username).await;
+    }
 }
 
 #[tokio::test]

@@ -1,0 +1,81 @@
+{
+  "filmId": "pineapple-draw-rules",
+  "filename": "zt-pineapple-draw-rules-v1",
+  "title": "Brazilian Pineapple — regras completas",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "PineappleDrawRules",
+  "script": "src/data/pineapple-draw-rules.json",
+  "scriptHash": "48a9c5bb82f8f12c46ea0bc84f25674761094ad6d3d64f36e9c887343879dbc1",
+  "bettingRuleVersion": "pineapple_draw_v1",
+  "durationSeconds": 364.7,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 24512858,
+  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v2-lang-en",
+  "narrationHash": "068d511f197ea87da54b88552a00d1c291c645fa1ca68322ae69390ff0939bc1",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "O jogo"
+    },
+    {
+      "start": 53.73,
+      "title": "Pré-flop"
+    },
+    {
+      "start": 84.53,
+      "title": "Flop: apostas e troca"
+    },
+    {
+      "start": 122.63,
+      "title": "Turn: apostas e troca"
+    },
+    {
+      "start": 140.03,
+      "title": "River: descarte e apostas"
+    },
+    {
+      "start": 164.57,
+      "title": "Showdown"
+    },
+    {
+      "start": 178.7,
+      "title": "A troca em detalhe"
+    },
+    {
+      "start": 198.93,
+      "title": "O descarte do river"
+    },
+    {
+      "start": 219.93,
+      "title": "Formação da mão"
+    },
+    {
+      "start": 252.63,
+      "title": "Apostas"
+    },
+    {
+      "start": 296.07,
+      "title": "All-in"
+    },
+    {
+      "start": 311.9,
+      "title": "Loss Deflator"
+    },
+    {
+      "start": 332.37,
+      "title": "Recapitule e pratique"
+    }
+  ],
+  "sha256": "acb3de9b21ee774af0733d2a76a06bfb9cb4af55cf338911b3b99d7ef67d80b3",
+  "assetHashes": {
+    "mp4": "acb3de9b21ee774af0733d2a76a06bfb9cb4af55cf338911b3b99d7ef67d80b3",
+    "vtt": "7ce50653c7fcc3c661ebcbf5835a610584beb2d2e7bd59b0fa4625eb159fc08a",
+    "webp": "2188820fc3c65a9b0068e1d2df72f3d06affe717c9a79a5fd6b768a4c2a9f613"
+  },
+  "mediaRevision": "f20ffe11c0ed5116ae0f96c3783cc62e49b8c03c356913fd85da0b97845bc478"
+}

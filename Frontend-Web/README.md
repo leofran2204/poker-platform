@@ -33,7 +33,7 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 
 ## Home
 
-- Visitante: Brazilian Pineapple é o destaque, com capa própria e “Aprenda Brazilian Pineapple”. Filme de aproximadamente 7min40s (até oito minutos), exemplos da regra v2: ante 1 BB e limite do pote antes do call em todas as rodadas e acesso também no início da Academy. O institucional v3 de 81,40 s permanece como link secundário no fim da home.
+- Visitante: o Brazilian Pineapple é o destaque (cartas desenhadas em código, link para a aula m5l3 e botão “Assistir ao trailer”). `PineappleDrawFilm.tsx` abre o trailer e o filme completo das regras num modal com abas, legendas e capítulos; a Academy mostra o mesmo componente como cartão do filme completo. Dados em `src/data/pineappleDrawFilms.json`, gerado por `ZeroTiltCurso/editorial/motion/produce.py --publish` (não editar à mão). O filme do Brazilian Pineapple e o institucional anterior foram retirados em 09/11/2026.
 - Logado em `/` redireciona para `/curso`
 - Notícias e Dica do Pró **não** ficam na home: `/noticias`, `/dicas`, rodapé e atalhos no Curso
 - Header logado: Curso · Lobby · Carteira (+ Mais). Visitante: Academy · Entrar · Criar conta
@@ -42,10 +42,8 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 
 - Grade: 28 aulas e 65 questões em `src/data/courseContent.json`; pré-requisitos explícitos, modalidades após fundamentos, história opcional com a difusão do Omaha. IDs/progresso anteriores preservados.
 - Player: MP4, poster, VTT em português, capítulos com indicação do atual e transcrição real. Carrega sob demanda, sem autoplay; saltos funcionam antes de carregar os metadados. O modal fecha por botão/Escape, desmonta o vídeo e devolve o foco. Estado do player e quiz reinicia ao mudar de aula.
-- Pronúncia: perfil `pt-BR-poker-v1` no renderizador editorial, com “Pineapple” sintetizado como “painépou” e guias para os demais termos ingleses. `narrationHash` versiona as URLs de mídia; texto, legenda e transcrição conservam a grafia original. O hash do conteúdo da aula continua separado da identidade da voz.
-- As 28 aulas preservam seus vídeos. `m5l3`, `m5l4` e `m5l5` continuam como material da regra anterior (`prior_rules` / `legacy_no_limit`), com aviso e fontes originais auditáveis. A pasta pública contém 90 arquivos: 28 aulas, o destaque Pineapple e o institucional preservado, cada um com MP4/VTT/WebP.
-- O novo Pineapple é 720p30 H.264/AAC, 31 cenas e oito capítulos; as 29 produções anteriores permanecem em 1080p30. Voz sintética brasileira `pt-BR-AntonioNeural`, sem aceleração. Fontes/renderizadores em `ZeroTiltCurso/editorial/`; finais em `public/videos/`.
-- `pineappleFilm.json` e `homeFilm.json` são gerados com duração/transcrição/capítulos reais; não duplicar o roteiro no JSX. O novo manifesto também registra `brazilian_pineapple_hybrid_v1`, SHA-256 do roteiro, MP4, VTT, capa e transcrição. Publicado em 05/10/2026 junto com a regra, sem mãos nem torneios em andamento; conferência pública em [QUALITY](../Documentacao/QUALITY.md#publicação-pineapple--05102026).
+- Pronúncia: perfil `pt-BR-poker-v1` no renderizador editorial (`render.py`), com grafias aproximadas dos termos ingleses; nos vídeos em Remotion, perfil `pt-BR-poker-v2-lang-en`, em que a voz lê os termos em inglês (escolha do proprietário em 11/11/2026). `narrationHash` versiona as URLs de mídia; texto, legenda e transcrição conservam a grafia original. O hash do conteúdo da aula continua separado da identidade da voz.
+- Vinte e oito aulas têm vídeo publicado; m5l3–m5l5 (Brazilian Pineapple) vêm do renderizador em Remotion (`renderer: "remotion"`). A pasta pública contém 90 arquivos (MP4/VTT/WebP das 28 aulas, do trailer e do filme de regras), e a auditoria rejeita mídia sem referência.
 - O quiz de aula usa gabarito editorial local. A mesa de estudo avalia regras e contas no servidor, sem certificar estratégia ótima.
 - `/curso/mesa/:moduleId`: dez mesas de módulo, 35 cenários nas quatro modalidades, bots com informação limitada, treino guiado/desafio/prática variada, replay, retorno de uma decisão e comparação. Caderno e até 50 sessões persistem apenas neste navegador; permitem reabrir e exportar JSON. Não há depósito nem vínculo com saldo.
 - Cliente em `src/lib/academy.ts`; catálogo único em `src/data/courseTraining.json`, também compilado na API. Alterar regras/cenários exige revisar versão, testes e vídeos afetados. Testes de persistência/contrato em `academy.test.ts`.
@@ -64,6 +62,8 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 - Cash: filtros alinhados ao catálogo em [`../Documentacao/STATUS_OPERACIONAL.md`](../Documentacao/STATUS_OPERACIONAL.md)
 - Badges: Tradicional / Short Deck + X-max
 - Torneios: lista por modo; buy-in + taxa 15%; cancelar inscrição
+- Carteira (`/wallet`): saque Real só com verificação aprovada e para chave PIX do mesmo CPF do KYC; o formulário mostra o final do CPF verificado, valida o CPF antes do envio, envia `tax_number` quando a chave não é CPF e traduz os erros da API (`src/lib/pixWithdraw.ts`)
+- Admin, visão geral: passivo com jogadores no Jogo Real (carteiras, fichas em cash, prêmios de MTT abertos, saques pendentes, total devido e crédito provisório à parte), comparado só na tela com o saldo informado da conta recebedora (`src/lib/liabilities.ts`, `GET /api/admin/liabilities`)
 - Home pública: hero editorial e presença no header (GET público)
 
 ## Desenvolvimento local

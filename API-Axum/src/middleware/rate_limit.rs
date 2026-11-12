@@ -151,6 +151,29 @@ where
     }
 }
 
+/// Endereço do cliente com a mesma regra do rate limit: cabeçalhos de proxy só
+/// valem com `TRUST_PROXY_HEADERS`; senão, o par TCP. Usado pela guarda de rede
+/// das mesas cash (`seat_ip_guard`).
+#[derive(Debug, Clone)]
+pub struct ClientIp(pub String);
+
+#[axum::async_trait]
+impl<S> FromRequestParts<S> for ClientIp
+where
+    S: Send + Sync,
+    AppState: FromRef<S>,
+{
+    type Rejection = ApiError;
+
+    async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+        let app_state = AppState::from_ref(state);
+        Ok(ClientIp(extract_client_ip(
+            parts,
+            app_state.rate_limiter.trust_proxy_headers,
+        )))
+    }
+}
+
 /// Uses a forwarded address only after deployment has explicitly declared a
 /// trusted proxy boundary. Otherwise caller-controlled forwarding headers are
 /// ignored and the transport peer address is used.

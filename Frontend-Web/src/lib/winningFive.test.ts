@@ -190,11 +190,11 @@ describe("winningFive — as 5 do jogo vencedor", () => {
     });
   }
 
-  it("pineapple-demo: usa exatamente 2 da mão + 3 da mesa", () => {
+  it("pineapple-demo: chega ao showdown com 2 cartas e forma a mão com a mesa", () => {
     const h = variantHands.find((x) => x.id === "pineapple-demo")!;
-    expect(h.heroCards).toHaveLength(5);
-    expect(h.winningFive!.hole).toHaveLength(2);
-    expect(h.winningFive!.board).toHaveLength(3);
+    expect(h.heroCards).toHaveLength(2);
+    expect(h.winningFive!.hole.length).toBeLessThanOrEqual(2);
+    expect(h.winningFive!.hole.length + h.winningFive!.board.length).toBe(5);
   });
 
   it("deflator: vencedor declarado vence no ranking clássico", () => {
@@ -233,8 +233,8 @@ describe("winningFive — as 5 do jogo vencedor", () => {
     const board = h.streets[h.streets.length - 1].board;
     const hero = h.seats!.find((s) => s.isHero)!;
     const mari = h.seats!.find((s) => s.isWinner)!;
-    const heroBest = bestFiveRuled(hero.cards!, board, true, false);
-    const mariBest = bestFiveRuled(mari.cards!, board, true, false);
+    const heroBest = bestFiveRuled(hero.cards!, board, false, false);
+    const mariBest = bestFiveRuled(mari.cards!, board, false, false);
     expect(cmpScore(mariBest, heroBest) > 0).toBe(true);
   });
 
@@ -245,7 +245,26 @@ describe("winningFive — as 5 do jogo vencedor", () => {
       if (!seats || withHoles.length === 0) continue;
       const lastHoles = withHoles[withHoles.length - 1].holes!;
       expect(lastHoles).toEqual(seats.map((s) => s.cards ?? []));
-      // Ninguém perde carta no caminho: 2 no pré-flop, +1 por street.
+      if (h.id === "pineapple-demo") {
+        // Brazilian Pineapple: 3 cartas até o river e 2 depois do descarte; cada rodada
+        // de troca muda no máximo uma por jogador; o descarte só tira uma carta;
+        // nenhuma carta aparece duas vezes na mão.
+        const used = new Set<string>();
+        withHoles.forEach((s, street) => {
+          s.holes!.forEach((hole, i) => {
+            const discarded = s.board.length === 5;
+            expect(hole).toHaveLength(discarded ? 2 : 3);
+            const prev = withHoles[Math.max(0, street - 1)].holes![i];
+            expect(hole.filter((card) => !prev.includes(card)).length).toBeLessThanOrEqual(discarded ? 0 : 1);
+            hole.forEach((card) => used.add(card));
+          });
+          s.board.forEach((card) => used.add(card));
+        });
+        const all = withHoles.flatMap((s) => s.holes!.flat()).concat(withHoles[withHoles.length - 1].board);
+        expect(used.size).toBe(new Set(all).size);
+        continue;
+      }
+      // Ninguém perde carta no caminho.
       for (const s of withHoles) {
         s.holes!.forEach((hole, i) => {
           const prev = withHoles[0].holes![i] ?? [];

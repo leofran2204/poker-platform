@@ -1,0 +1,88 @@
+{
+  "pineapple-draw-rules": {
+    "filename": "zt-pineapple-draw-rules-v1",
+    "title": "Brazilian Pineapple — regras completas",
+    "publicationStatus": "published",
+    "durationSeconds": 364.7,
+    "transcript": "Zero Tilt Academy. Brazilian Pineapple: as regras completas. Uma modalidade de pôquer criada no Brasil, com três cartas na mão, duas trocas e um descarte.\n\nEsta é a mesa do Brazilian Pineapple, com até seis jogadores. No centro ficam cinco cartas comunitárias, que valem para todos: as três do flop, a do turn e a do river. Cada jogador recebe três cartas só suas e, no fim, forma a melhor mão de cinco cartas.\n\nA ordem da mão é sempre a mesma. Três cartas e a primeira rodada de apostas. Flop, apostas e troca. Turn, apostas e troca. River, descarte e a última rodada de apostas. Por fim, o showdown.\n\nQuatro jogadores na mesa. Cada um recebe três cartas fechadas. Ana paga o small blind. Beto paga o big blind e o ante, que vai direto para o pote.\n\nPrimeira rodada de apostas. Caio paga. Duda paga. Ana completa a aposta. Beto dá check. As fichas de todos vão para o pote. Não há troca antes do flop.\n\nO flop abre três cartas na mesa. Primeiro vêm as apostas. Ana tem par de ases e aposta. Beto paga. Caio paga. Duda desiste. As apostas vão para o pote.\n\nSó depois das apostas vem a troca. Cada jogador mantém as três cartas ou troca uma. Ana troca o sete e recebe outro ás: trinca. Beto troca uma carta. Caio também troca uma. Todos veem quantas cartas cada um trocou, mas não quais.\n\nO turn abre a quarta carta. Nova rodada de apostas: Ana aposta com a trinca. Beto desiste. Caio paga. Depois das apostas, a segunda troca: Ana mantém as cartas e Caio também.\n\nO river abre a quinta carta. Agora a regra muda: cada jogador descarta uma carta e fica com duas. Ana descarta o rei. Caio descarta a dama.\n\nÚltima rodada de apostas, com duas cartas na mão. Ana aposta. Caio paga. As fichas vão para o pote.\n\nShowdown. Caio mostra uma sequência até o ás. Ana mostra full house: três ases e dois seis. O pote de cinquenta e oito reais vai para Ana.\n\nA troca é opcional e de uma carta por vez. A carta trocada sai do jogo e outra vem do baralho. Todos veem quantas cartas cada jogador trocou; ninguém vê quais. Se o tempo acabar, você mantém as cartas. E quem está all-in não troca mais.\n\nNo river, o descarte é obrigatório. A carta sai do jogo sem ser mostrada, e a última rodada de apostas é disputada com duas cartas. Se o tempo acabar, o sistema guarda as duas cartas que formam a sua melhor mão. Quem está all-in também fica com as duas melhores.\n\nCom duas cartas na mão, você forma a melhor mão de cinco como no Texas Hold’em: pode usar as duas, uma só ou nenhuma. Aqui há quatro copas na mesa. Ana descarta um sete e guarda o ás de copas. Uma carta da mão já basta para o flush.\n\nO ranking é o clássico. Sequência vence trinca. Full house vence flush. E ás, dois, três, quatro e cinco formam a sequência mais baixa.\n\nAs apostas seguem três regras. Há small blind e big blind. O big blind também paga um ante do mesmo valor, que vai direto para o pote. E, em todas as rodadas, o aumento máximo é o pote formado antes do call.\n\nVeja o limite na prática. O pote tem cinco reais, então Ana pode apostar até cinco reais. Ana aposta cinco. Agora o pote tem dez, e pagar custa cinco. Beto pode aumentar para até quinze reais. Beto aumenta. Caio desiste. Duda desiste. Ana paga.\n\nQuem está all-in não troca mais cartas. No river, fica automaticamente com as duas melhores. E, quando ninguém mais pode apostar, não há troca nem escolha de descarte: a mesa é completada direto.\n\nO Loss Deflator vale também aqui. Se você perde um all-in em que era favorito, com pelo menos cinquenta e seis por cento de chance, uma parte do pote volta para você: de sete a trinta e cinco por cento, conforme a sua vantagem. A conta usa as cartas que cada um tinha no instante do all-in.\n\nRecapitulando. Três cartas e a primeira rodada de apostas. Flop, apostas e troca. Turn, apostas e troca. River, descarte e a última rodada de apostas. Por fim, o showdown.\n\nPratique com Play Money e estude as três aulas do Brazilian Pineapple na Zero Tilt Academy. Poker envolve risco. Só para maiores de dezoito anos.",
+    "chapters": [
+      {
+        "start": 0.0,
+        "title": "O jogo"
+      },
+      {
+        "start": 53.73,
+        "title": "Pré-flop"
+      },
+      {
+        "start": 84.53,
+        "title": "Flop: apostas e troca"
+      },
+      {
+        "start": 122.63,
+        "title": "Turn: apostas e troca"
+      },
+      {
+        "start": 140.03,
+        "title": "River: descarte e apostas"
+      },
+      {
+        "start": 164.57,
+        "title": "Showdown"
+      },
+      {
+        "start": 178.7,
+        "title": "A troca em detalhe"
+      },
+      {
+        "start": 198.93,
+        "title": "O descarte do river"
+      },
+      {
+        "start": 219.93,
+        "title": "Formação da mão"
+      },
+      {
+        "start": 252.63,
+        "title": "Apostas"
+      },
+      {
+        "start": 296.07,
+        "title": "All-in"
+      },
+      {
+        "start": 311.9,
+        "title": "Loss Deflator"
+      },
+      {
+        "start": 332.37,
+        "title": "Recapitule e pratique"
+      }
+    ],
+    "renderer": "remotion",
+    "rendererVersion": 2,
+    "pronunciationVersion": "pt-BR-poker-v2-lang-en",
+    "narrationHash": "068d511f197ea87da54b88552a00d1c291c645fa1ca68322ae69390ff0939bc1",
+    "mediaRevision": "f20ffe11c0ed5116ae0f96c3783cc62e49b8c03c356913fd85da0b97845bc478",
+    "bettingRuleVersion": "pineapple_draw_v1"
+  },
+  "pineapple-draw-trailer": {
+    "filename": "zt-pineapple-draw-trailer-v1",
+    "title": "Brazilian Pineapple — trailer",
+    "publicationStatus": "published",
+    "durationSeconds": 149.2,
+    "transcript": "Brazilian Pineapple. Uma modalidade de pôquer criada no Brasil, na Zero Tilt. Três cartas na mão, duas trocas e um descarte.\n\nQuatro jogadores na mesa. Cada um recebe três cartas fechadas. Ana paga o small blind. Beto paga o big blind e o ante, que vai direto para o pote.\n\nPrimeira rodada de apostas. Caio paga. Duda paga. Ana completa a aposta. Beto dá check. As fichas de todos vão para o pote. Não há troca antes do flop.\n\nO flop abre três cartas na mesa. Primeiro vêm as apostas. Ana tem par de ases e aposta. Beto paga. Caio paga. Duda desiste. As apostas vão para o pote.\n\nSó depois das apostas vem a troca. Cada jogador mantém as três cartas ou troca uma. Ana troca o sete e recebe outro ás: trinca. Beto troca uma carta. Caio também troca uma. Todos veem quantas cartas cada um trocou, mas não quais.\n\nO turn abre a quarta carta. Nova rodada de apostas: Ana aposta com a trinca. Beto desiste. Caio paga. Depois das apostas, a segunda troca: Ana mantém as cartas e Caio também.\n\nO river abre a quinta carta. Agora a regra muda: cada jogador descarta uma carta e fica com duas. Ana descarta o rei. Caio descarta a dama.\n\nÚltima rodada de apostas, com duas cartas na mão. Ana aposta. Caio paga. As fichas vão para o pote.\n\nShowdown. Caio mostra uma sequência até o ás. Ana mostra full house: três ases e dois seis. O pote de cinquenta e oito reais vai para Ana.\n\nAprenda as regras na Zero Tilt Academy e pratique com Play Money. Poker envolve risco. Só para maiores de dezoito anos.",
+    "chapters": [
+      {
+        "start": 0.0,
+        "title": "Brazilian Pineapple"
+      }
+    ],
+    "renderer": "remotion",
+    "rendererVersion": 2,
+    "pronunciationVersion": "pt-BR-poker-v2-lang-en",
+    "narrationHash": "dc95e052951aef07f05098281847237451f035c3d2f6db7278fb86646a8a1368",
+    "mediaRevision": "a70630a1bffd0bd8b1f50c416614053e2a0771346218de74b222090b70b2fa55",
+    "bettingRuleVersion": "pineapple_draw_v1"
+  }
+}

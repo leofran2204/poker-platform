@@ -31,7 +31,7 @@ pub const BOT_PM_BALANCE: i64 = 1_000_000;
 /// motor por variante (Hold'em, Short Deck, Omaha 4 e Brazilian Pineapple).
 pub const STRATEGY_LAG_V2: &str = "lag_v2";
 
-pub const SUPPORTED_VARIANTS: &[&str] = &["holdem", "short_deck", "omaha", "brazilian_pineapple"];
+pub const SUPPORTED_VARIANTS: &[&str] = &["holdem", "short_deck", "omaha", "pineapple_draw"];
 
 pub fn all_strategies() -> Vec<String> {
     vec![STRATEGY_LAG_V2.to_string()]
@@ -1622,8 +1622,8 @@ fn postflop_tier(hole: &[Card], community: &[Card]) -> u8 {
 // ─── lag_v2: avaliacao com o proprio motor, por variante ───
 
 use poker_engine::deck::{
-    evaluate_hand, evaluate_hand_brazilian_pineapple, evaluate_hand_omaha,
-    evaluate_hand_short_deck, HandRank, Rank as EngineRank, Suit as EngineSuit,
+    evaluate_hand, evaluate_hand_omaha, evaluate_hand_pineapple_draw, evaluate_hand_short_deck,
+    HandRank, Rank as EngineRank, Suit as EngineSuit,
 };
 use poker_engine::types::PokerVariant;
 
@@ -1655,7 +1655,7 @@ fn to_engine_card(c: Card) -> Option<poker_engine::deck::Card> {
 }
 
 /// Categoria da melhor mao de 5 cartas, com as regras exatas da variante
-/// (Omaha/Pineapple: 2 da mao + 3 do bordo; Short Deck: flush>FH, trips>straight).
+/// (Omaha: 2 da mao + 3 do bordo; Brazilian Pineapple: no maximo 2 da mao; Short Deck: flush>FH, trips>straight).
 fn evaluate_rank_for_variant(variant: &str, hole: &[Card], community: &[Card]) -> Option<HandRank> {
     let eh: Vec<poker_engine::deck::Card> =
         hole.iter().filter_map(|c| to_engine_card(*c)).collect();
@@ -1668,14 +1668,14 @@ fn evaluate_rank_for_variant(variant: &str, hole: &[Card], community: &[Card]) -
     }
     let res = match PokerVariant::parse(variant) {
         PokerVariant::Omaha => evaluate_hand_omaha(&eh, &ec),
-        PokerVariant::BrazilianPineapple => evaluate_hand_brazilian_pineapple(&eh, &ec),
+        PokerVariant::PineappleDraw => evaluate_hand_pineapple_draw(&eh, &ec),
         PokerVariant::ShortDeck => evaluate_hand_short_deck(&eh, &ec),
         PokerVariant::Holdem => evaluate_hand(&eh, &ec),
     };
     Some(res.rank)
 }
 
-/// Pre-flop por quantidade de cartas: 2 = Hold'em/SD, 3 = Pineapple (melhor
+/// Pre-flop por quantidade de cartas: 2 = Hold'em/SD, 3 = Brazilian Pineapple (melhor
 /// par de 2), 4+ = Omaha (melhor par de 2 + bonus por coordenacao).
 fn preflop_tier_v2(hole: &[Card]) -> u8 {
     match hole.len() {
@@ -1747,7 +1747,7 @@ fn has_bot_draw(hole: &[Card], community: &[Card], short_deck: bool) -> bool {
 }
 
 /// Par simples (top pair/overpair/par medio): vale p/ Hold'em e Short Deck.
-/// Em Omaha/Pineapple um par isolado quase nao vale: retorna 0.
+/// Em Omaha/Brazilian Pineapple um par isolado quase nao vale: retorna 0.
 fn pair_tier_v2(variant: &str, hole: &[Card], community: &[Card]) -> u8 {
     if community.is_empty() {
         return 0;
@@ -1759,7 +1759,7 @@ fn pair_tier_v2(variant: &str, hole: &[Card], community: &[Card]) -> u8 {
         .any(|c| community.iter().any(|b| b.rank == c.rank));
     let pocket = hole.len() == 2 && hole[0].rank == hole[1].rank;
     match variant {
-        "omaha" | "short_deck_omaha" | "brazilian_pineapple" | "ultimate_pineapple" => 0,
+        "omaha" | "short_deck_omaha" | "pineapple_draw" | "pineapple" => 0,
         _ => {
             if (paired && (hole_hi >= board_hi || (pocket && hole_hi > board_hi)))
                 || paired
@@ -1782,21 +1782,15 @@ fn postflop_tier_v2(variant: &str, hole: &[Card], community: &[Card]) -> u8 {
         Some(FourOfAKind | StraightFlush | RoyalFlush) => return 2,
         Some(FullHouse | Flush) => return 2,
         Some(ThreeOfAKind) => {
-            // Em Omaha/Pineapple trips sem full é vulnerável; nas outras é forte.
-            if matches!(
-                parsed,
-                PokerVariant::Omaha | PokerVariant::BrazilianPineapple
-            ) {
+            // Em Omaha/Brazilian Pineapple trips sem full é vulnerável; nas outras é forte.
+            if matches!(parsed, PokerVariant::Omaha | PokerVariant::PineappleDraw) {
                 return 1;
             }
             return 2;
         }
         Some(Straight) => {
-            // Straight raramente é nuts em Omaha/Pineapple.
-            if matches!(
-                parsed,
-                PokerVariant::Omaha | PokerVariant::BrazilianPineapple
-            ) {
+            // Straight raramente é nuts em Omaha/Brazilian Pineapple.
+            if matches!(parsed, PokerVariant::Omaha | PokerVariant::PineappleDraw) {
                 return 1;
             }
             return if parsed == PokerVariant::Holdem { 2 } else { 1 };
@@ -1844,6 +1838,11 @@ fn decide_for(
     if legal.available_actions.is_empty() {
         return None;
     }
+    if legal.allows("keep") || legal.allows("discard") {
+        // Rodada de troca ou descarte do river do Brazilian Pineapple:
+        // heurística pública do motor.
+        return Some(draw_decision(state, me, legal.allows("discard")));
+    }
     let (action, amount) = propose_for(state, bot_id, variant, params, rnd)?;
     let proposed = match action.as_str() {
         "fold" => PlayerMove::Fold,
@@ -1860,8 +1859,46 @@ fn decide_for(
         PlayerMove::Bet(n) => ("bet", n),
         PlayerMove::Raise(n) => ("raise", n),
         PlayerMove::AllIn => ("allin", 0),
+        PlayerMove::Keep => ("keep", 0),
+        PlayerMove::Swap(position) => ("swap", position as u64),
+        PlayerMove::Discard(Some(position)) => ("discard", position as u64),
+        PlayerMove::Discard(None) => ("auto_discard", 0),
     };
     Some((result.0.into(), result.1))
+}
+
+/// Troca sugerida pelo motor (`suggested_swap`) com as cartas do bot e da mesa;
+/// no river, o descarte que deixa as duas melhores cartas.
+fn draw_decision(
+    state: &serde_json::Value,
+    me: &serde_json::Value,
+    discarding: bool,
+) -> (String, u64) {
+    let engine_cards = |value: Option<&serde_json::Value>| -> Vec<poker_engine::deck::Card> {
+        value
+            .and_then(|v| v.as_array())
+            .map(|cards| {
+                cards
+                    .iter()
+                    .filter_map(|card| card.as_str())
+                    .filter_map(parse_card)
+                    .filter_map(to_engine_card)
+                    .collect()
+            })
+            .unwrap_or_default()
+    };
+    let hole = engine_cards(me.get("cards"));
+    let board = engine_cards(state.get("community_cards"));
+    if discarding {
+        return match poker_engine::deck::pineapple_draw_best_discard(&hole, &board) {
+            Some(position) => ("discard".into(), position as u64),
+            None => ("auto_discard".into(), 0),
+        };
+    }
+    match poker_engine::pineapple_draw::suggested_swap(&hole, &board) {
+        Some(position) => ("swap".into(), position as u64),
+        None => ("keep".into(), 0),
+    }
 }
 
 fn propose_for(
@@ -2062,15 +2099,57 @@ mod tests {
     }
 
     #[test]
-    fn pineapple_does_not_inherit_short_deck_wheel() {
+    fn pineapple_draw_does_not_inherit_short_deck_wheel() {
         use poker_engine::deck::HandRank;
         assert_eq!(
             evaluate_rank_for_variant(
-                "brazilian_pineapple",
-                &[c("Ah"), c("6d"), c("2s"), c("3s"), c("4s")],
+                "pineapple_draw",
+                &[c("Ah"), c("6d"), c("2s")],
                 &[c("9c"), c("8d"), c("7h"), c("Ks"), c("Qc")]
             ),
             Some(HandRank::HighCard)
+        );
+    }
+
+    #[test]
+    fn pineapple_draw_bot_swaps_only_in_the_draw_round() {
+        let state = serde_json::json!({
+            "community_cards": ["As", "9h", "5d"],
+            "players": [{
+                "id": "bot",
+                "is_active": true,
+                "chips": 1000,
+                "cards": ["Ah", "Kd", "2c"],
+                "_legal_actions": {
+                    "available_actions": ["keep", "swap"],
+                    "call_amount": 0,
+                    "minimum_wager": 0,
+                    "maximum_wager": 0
+                }
+            }]
+        });
+        let mut rnd = seeded_rng(7);
+        let params = BotProfile::new(Personality::Tag, 7).params(&mut rnd);
+        assert_eq!(
+            decide_for(&state, "bot", "pineapple_draw", &params, &mut rnd),
+            Some(("swap".to_string(), 2))
+        );
+        let mut keep = state.clone();
+        keep["players"][0]["cards"] = serde_json::json!(["Ah", "Ad", "9c"]);
+        keep["community_cards"] = serde_json::json!(["9h", "5s", "2d"]);
+        assert_eq!(
+            decide_for(&keep, "bot", "pineapple_draw", &params, &mut rnd),
+            Some(("keep".to_string(), 0))
+        );
+        // River: descarte obrigatório; o bot guarda K e A e descarta o 4.
+        let mut discard = state.clone();
+        discard["players"][0]["cards"] = serde_json::json!(["4c", "Ks", "Ad"]);
+        discard["community_cards"] = serde_json::json!(["Kh", "9c", "7d", "5s", "2h"]);
+        discard["players"][0]["_legal_actions"]["available_actions"] =
+            serde_json::json!(["discard"]);
+        assert_eq!(
+            decide_for(&discard, "bot", "pineapple_draw", &params, &mut rnd),
+            Some(("discard".to_string(), 0))
         );
     }
 
@@ -2099,7 +2178,7 @@ mod tests {
 
     #[test]
     fn v2_preflop_hole_counts() {
-        // Pineapple: melhor par de 2 (AAx = forte).
+        // Brazilian Pineapple: melhor par de 2 (AAx = forte).
         assert_eq!(preflop_tier_v2(&[c("Ah"), c("Ad"), c("7c")]), 2);
         // Omaha: AA + coordenacao = forte.
         assert_eq!(preflop_tier_v2(&[c("Ah"), c("Ad"), c("Kh"), c("Qd")]), 2);

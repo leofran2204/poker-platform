@@ -3,7 +3,7 @@
 **Decisão comercial:** 2026-09-27
 
 **Público:** fundador e agentes aprovados
-**Estágio atual:** Play Money em demo; qualquer comissão em dinheiro depende da operação real autorizada e dos controles aplicáveis.
+**Estágio atual (08/11/2026):** programa publicado na demo em 01/10, com Play Money e Jogo Real separados; o deploy não ativou agentes e ainda não houve fechamento mensal. Qualquer comissão em dinheiro depende de ativação administrativa, fechamento conciliado, da operação real autorizada e dos controles aplicáveis; a demo não tem certificação de produção.
 
 ---
 
@@ -176,6 +176,6 @@ Indicadores mensais:
 *Regra comercial aprovada: 30% direto + 5 pontos percentuais por desempenho. Simples, mensal e limitado a um nível.*
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

@@ -499,25 +499,58 @@ pub fn evaluate_hand_omaha(hole_cards: &[Card], community_cards: &[Card]) -> Han
     evaluate_exactly_two_plus_three(hole_cards, community_cards, evaluate_hand)
 }
 
-/// Brazilian Pineapple: exatamente 2 hole + 3 board, ranking clássico.
-pub fn evaluate_hand_brazilian_pineapple(
-    hole_cards: &[Card],
-    community_cards: &[Card],
-) -> HandResult {
-    evaluate_exactly_two_plus_three(hole_cards, community_cards, evaluate_hand)
+/// Brazilian Pineapple (`pineapple_draw`): melhor mão de 5 entre as comunitárias
+/// e no máximo 2 privadas, ranking clássico. Depois do descarte do river o
+/// jogador tem 2 privadas e a conta é a do Hold'em (vale flush com 4 cartas do
+/// naipe na mesa e 1 na mão). Com 3 privadas (antes do descarte), vale o melhor
+/// par de privadas, que é o descarte ótimo quando a mesa está completa.
+pub fn evaluate_hand_pineapple_draw(hole_cards: &[Card], community_cards: &[Card]) -> HandResult {
+    if hole_cards.len() <= 2 {
+        return evaluate_hand(hole_cards, community_cards);
+    }
+    let mut best: Option<HandResult> = None;
+    for i in 0..hole_cards.len() {
+        for j in (i + 1)..hole_cards.len() {
+            let cand = evaluate_hand(&[hole_cards[i], hole_cards[j]], community_cards);
+            if best
+                .as_ref()
+                .is_none_or(|cur| compare_hands(&cand, cur) == Ordering::Greater)
+            {
+                best = Some(cand);
+            }
+        }
+    }
+    best.unwrap_or_else(|| evaluate_hand(hole_cards, community_cards))
+}
+
+/// Brazilian Pineapple: posição (0 a 2) da privada a descartar no river para
+/// ficar com o melhor par de privadas. Em empate, descarta a carta mais baixa.
+/// `None` quando o jogador não tem 3 privadas.
+pub fn pineapple_draw_best_discard(hole_cards: &[Card], community_cards: &[Card]) -> Option<usize> {
+    if hole_cards.len() != 3 {
+        return None;
+    }
+    let mut best: Option<(HandResult, usize)> = None;
+    for (i, j, spare) in [(0, 1, 2), (0, 2, 1), (1, 2, 0)] {
+        let cand = evaluate_hand(&[hole_cards[i], hole_cards[j]], community_cards);
+        let better = match &best {
+            None => true,
+            Some((cur, cur_spare)) => match compare_hands(&cand, cur) {
+                Ordering::Greater => true,
+                Ordering::Equal => hole_cards[spare].rank < hole_cards[*cur_spare].rank,
+                Ordering::Less => false,
+            },
+        };
+        if better {
+            best = Some((cand, spare));
+        }
+    }
+    best.map(|(_, spare)| spare)
 }
 
 /// Alias histórico: 2+3 com ranking Short Deck (testes de combo).
 pub fn evaluate_hand_short_deck_omaha(hole_cards: &[Card], community_cards: &[Card]) -> HandResult {
     evaluate_exactly_two_plus_three(hole_cards, community_cards, evaluate_hand_short_deck)
-}
-
-/// Alias histórico do Brazilian Pineapple 2+3.
-pub fn evaluate_hand_ultimate_pineapple(
-    hole_cards: &[Card],
-    community_cards: &[Card],
-) -> HandResult {
-    evaluate_hand_brazilian_pineapple(hole_cards, community_cards)
 }
 
 /// Verifica se uma carta está no slice
@@ -1425,24 +1458,24 @@ mod tests {
         assert_eq!(PokerVariant::Omaha.as_str(), "omaha");
 
         assert_eq!(
-            PokerVariant::parse("brazilian_pineapple"),
-            PokerVariant::BrazilianPineapple
-        );
-        assert_eq!(
-            PokerVariant::parse("ultimate_pineapple"),
-            PokerVariant::BrazilianPineapple
+            PokerVariant::parse("pineapple_draw"),
+            PokerVariant::PineappleDraw
         );
         assert_eq!(
             PokerVariant::parse("pineapple"),
-            PokerVariant::BrazilianPineapple
+            PokerVariant::PineappleDraw
         );
-        assert_eq!(PokerVariant::BrazilianPineapple.hole_card_count(), 2);
-        assert!(!PokerVariant::BrazilianPineapple.uses_short_deck());
+        // A modalidade anterior foi retirada: o nome antigo não abre mais mesa Pineapple.
+        assert_ne!(
+            PokerVariant::parse("brazilian_pineapple"),
+            PokerVariant::PineappleDraw
+        );
+        assert_eq!(PokerVariant::PineappleDraw.hole_card_count(), 3);
+        assert!(PokerVariant::PineappleDraw.has_draw_rounds());
+        assert!(!PokerVariant::Omaha.has_draw_rounds());
+        assert!(!PokerVariant::PineappleDraw.uses_short_deck());
         assert!(PokerVariant::ShortDeck.uses_short_deck());
-        assert_eq!(
-            PokerVariant::BrazilianPineapple.as_str(),
-            "brazilian_pineapple"
-        );
+        assert_eq!(PokerVariant::PineappleDraw.as_str(), "pineapple_draw");
     }
 
     #[test]
@@ -1501,9 +1534,9 @@ mod tests {
     }
 
     #[test]
-    fn test_ultimate_pineapple_uses_exactly_two_hole() {
+    fn test_pineapple_draw_uses_exactly_two_hole() {
         // 3 hole: Ah Kh Qd — board 9h 8h 7h 6c Tc
-        // Melhor 2+3: AhKh + 9h8h7h = flush. A Qd extra não entra sozinha.
+        // AhKh + 9h8h7h = flush. A Qd extra fica de fora.
         let hole = vec![
             c(Rank::Ace, Suit::Hearts),
             c(Rank::King, Suit::Hearts),
@@ -1516,13 +1549,14 @@ mod tests {
             c(Rank::Six, Suit::Clubs),
             c(Rank::Ten, Suit::Clubs),
         ];
-        let r = evaluate_hand_ultimate_pineapple(&hole, &board);
+        let r = evaluate_hand_pineapple_draw(&hole, &board);
         assert_eq!(r.rank, HandRank::Flush);
     }
 
     #[test]
-    fn test_ultimate_pineapple_cannot_use_three_hole_for_trips() {
-        // Três ases no hole + um ás no board: só 2 hole → trips, nunca quads.
+    fn test_pineapple_draw_uses_at_most_two_hole_cards() {
+        // Três ases no hole + um ás no board: só 2 privadas entram → trinca,
+        // nunca quadra.
         let hole = vec![
             c(Rank::Ace, Suit::Hearts),
             c(Rank::Ace, Suit::Diamonds),
@@ -1535,12 +1569,61 @@ mod tests {
             c(Rank::Seven, Suit::Clubs),
             c(Rank::Six, Suit::Hearts),
         ];
-        let r = evaluate_hand_ultimate_pineapple(&hole, &board);
+        let r = evaluate_hand_pineapple_draw(&hole, &board);
         assert_eq!(r.rank, HandRank::ThreeOfAKind);
     }
 
     #[test]
-    fn test_ultimate_pineapple_full_house_beats_flush() {
+    fn test_pineapple_draw_flush_with_four_on_board_and_one_in_hand() {
+        // Quatro copas na mesa e uma só na mão: é flush (regra do Hold'em).
+        let board = vec![
+            c(Rank::King, Suit::Hearts),
+            c(Rank::Nine, Suit::Hearts),
+            c(Rank::Six, Suit::Hearts),
+            c(Rank::Three, Suit::Hearts),
+            c(Rank::Jack, Suit::Clubs),
+        ];
+        let two = vec![c(Rank::Ace, Suit::Hearts), c(Rank::Seven, Suit::Spades)];
+        assert_eq!(
+            evaluate_hand_pineapple_draw(&two, &board).rank,
+            HandRank::Flush
+        );
+        // Antes do descarte vale o melhor par das três privadas.
+        let three = vec![
+            c(Rank::Seven, Suit::Spades),
+            c(Rank::Ace, Suit::Hearts),
+            c(Rank::Seven, Suit::Diamonds),
+        ];
+        assert_eq!(
+            evaluate_hand_pineapple_draw(&three, &board).rank,
+            HandRank::Flush
+        );
+        // O descarte automático guarda o ás de copas e descarta um dos setes.
+        let spare = pineapple_draw_best_discard(&three, &board).unwrap();
+        assert_ne!(three[spare], c(Rank::Ace, Suit::Hearts));
+        assert_eq!(pineapple_draw_best_discard(&two, &board), None);
+    }
+
+    #[test]
+    fn test_pineapple_draw_best_discard_drops_the_lowest_idle_card() {
+        // Par de reis com a mesa; ás e 4 sobram: guarda K e A, descarta o 4.
+        let hole = vec![
+            c(Rank::Four, Suit::Clubs),
+            c(Rank::King, Suit::Spades),
+            c(Rank::Ace, Suit::Diamonds),
+        ];
+        let board = vec![
+            c(Rank::King, Suit::Hearts),
+            c(Rank::Nine, Suit::Clubs),
+            c(Rank::Seven, Suit::Diamonds),
+            c(Rank::Five, Suit::Spades),
+            c(Rank::Two, Suit::Hearts),
+        ];
+        assert_eq!(pineapple_draw_best_discard(&hole, &board), Some(0));
+    }
+
+    #[test]
+    fn test_pineapple_draw_full_house_beats_flush() {
         let flush_hole = vec![
             c(Rank::Ace, Suit::Hearts),
             c(Rank::King, Suit::Hearts),
@@ -1565,8 +1648,8 @@ mod tests {
             c(Rank::Seven, Suit::Clubs),
             c(Rank::Six, Suit::Diamonds),
         ];
-        let flush = evaluate_hand_ultimate_pineapple(&flush_hole, &flush_board);
-        let boat = evaluate_hand_ultimate_pineapple(&boat_hole, &boat_board);
+        let flush = evaluate_hand_pineapple_draw(&flush_hole, &flush_board);
+        let boat = evaluate_hand_pineapple_draw(&boat_hole, &boat_board);
         assert_eq!(flush.rank, HandRank::Flush);
         assert_eq!(boat.rank, HandRank::FullHouse);
         assert_eq!(compare_hands(&boat, &flush), Ordering::Greater);

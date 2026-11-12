@@ -7,7 +7,11 @@ use serde::{Deserialize, Serialize};
 use crate::error::ApiError;
 use crate::game_actor::PlayerCommand;
 use crate::middleware::auth::RequireAuth;
+use crate::middleware::rate_limit::ClientIp;
 use crate::state::AppState;
+
+/// Mensagem ao jogador quando a guarda de rede recusa a entrada (Termos 2.3).
+pub const SAME_NETWORK_SEAT_MESSAGE: &str = "Já existe nesta mesa um jogador conectado pela mesma rede (mesmo IP ou sub-rede). Por regra antifraude, escolha outra mesa.";
 
 // ─── Response DTOs ───
 
@@ -24,7 +28,7 @@ pub struct TableResponse {
     pub game_type: String,
     /// `play` | `real` — fichas PM não servem em mesas real e vice-versa.
     pub money_mode: String,
-    /// `holdem` | `short_deck` | `omaha` | `brazilian_pineapple`
+    /// `holdem` | `short_deck` | `omaha` | `pineapple_draw`
     pub poker_variant: String,
 }
 
@@ -151,6 +155,7 @@ pub async fn list_tables(
 pub async fn join_table(
     State(state): State<AppState>,
     RequireAuth(auth_user): RequireAuth,
+    ClientIp(client_ip): ClientIp,
     Json(body): Json<JoinBody>,
 ) -> Result<Json<JoinResponse>, ApiError> {
     let table_id = uuid::Uuid::parse_str(&body.table_id)
@@ -245,6 +250,39 @@ pub async fn join_table(
         return Err(ApiError::BadRequest("Table is full".to_string()));
     }
 
+    // Guarda antifraude (Termos 2.3): outra conta com assento ativo nesta mesa
+    // não pode compartilhar o IP público nem a sub-rede de quem entra. A linha
+    // da mesa já está travada, então a checagem não sofre corrida com outra
+    // entrada simultânea.
+    let network = crate::seat_ip_guard::seat_network(&client_ip);
+    if let Some(network) = &network {
+        let (same_network,): (bool,) = sqlx::query_as(
+            "SELECT EXISTS ( \
+                 SELECT 1 FROM cash_game_seats \
+                 WHERE table_id = $1 AND status = 'ACTIVE' AND user_id <> $2::uuid \
+                   AND (ip_fingerprint = $3 OR subnet_fingerprint = $4) \
+             )",
+        )
+        .bind(table_id)
+        .bind(&auth_user.user_id)
+        .bind(&network.ip_fingerprint)
+        .bind(&network.subnet_fingerprint)
+        .fetch_one(&mut *tx)
+        .await?;
+        if same_network {
+            tx.rollback().await?;
+            let _ = sqlx::query(
+                "INSERT INTO audit_logs (user_id, action, metadata) \
+                 VALUES ($1, 'CASH_SEAT_SAME_NETWORK_BLOCKED', $2)",
+            )
+            .bind(&auth_user.user_id)
+            .bind(serde_json::json!({ "table_id": table_id.to_string() }))
+            .execute(&state.db)
+            .await;
+            return Err(ApiError::Forbidden(SAME_NETWORK_SEAT_MESSAGE.to_string()));
+        }
+    }
+
     let seat: Option<(i16,)> = sqlx::query_as(
         "SELECT candidate::SMALLINT \
          FROM generate_series(0, $2 - 1) AS candidate \
@@ -267,14 +305,17 @@ pub async fn join_table(
     crate::wallet::debit_wallet(&mut *tx, &auth_user.user_id, buy_in, kind).await?;
 
     let (seat_id,): (uuid::Uuid,) = sqlx::query_as(
-        "INSERT INTO cash_game_seats (table_id, user_id, seat, chips, buy_in, wallet_kind) \
-         VALUES ($1, $2::uuid, $3, $4, $4, $5) RETURNING id",
+        "INSERT INTO cash_game_seats \
+             (table_id, user_id, seat, chips, buy_in, wallet_kind, ip_fingerprint, subnet_fingerprint) \
+         VALUES ($1, $2::uuid, $3, $4, $4, $5, $6, $7) RETURNING id",
     )
     .bind(table_id)
     .bind(&auth_user.user_id)
     .bind(seat)
     .bind(buy_in)
     .bind(kind.seat_label())
+    .bind(network.as_ref().map(|n| n.ip_fingerprint.as_str()))
+    .bind(network.as_ref().map(|n| n.subnet_fingerprint.as_str()))
     .fetch_one(&mut *tx)
     .await?;
 

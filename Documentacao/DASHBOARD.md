@@ -6,7 +6,39 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certif
 
 ---
 
-## S26 — auditoria, Academy e Agente ZT (27/09–01/10/2026)
+## S27 — integridade da mesa, saque por titularidade e publicação assinada (19/10–08/11/2026)
+
+- [x] Recuperar a demo após o reinício da VPS de 17/10 e fixar `restart: unless-stopped` nos quatro serviços do Compose (19/10). [Registro](DEVELOPMENT_LOG.md#2026-10-19--recuperação-da-demo-após-reinício-da-vps).
+- [x] Corrigir advisories de dependências (TLS em 19/10; rustls-webpki, tokio, vite, zod, Go/Caddy e pacotes Alpine em 07/11) sem remover gates; API corrigida publicada em 07/11.
+- [x] Vitória por fold não revela as cartas do vencedor; `table_state`/`table_info` projetam jogadores por allowlist de campos públicos.
+- [x] Contas de bot recusadas no Jogo Real em qualquer caminho; ajuste de saldo do admin grava auditoria na mesma transação.
+- [x] Saque Real só com KYC aprovado e para chave PIX do mesmo CPF do KYC; a carteira envia o CPF do titular e avisa a regra.
+- [x] `GET /api/admin/liabilities` e painel de passivo com jogadores na visão geral do admin.
+- [x] Publicação padrão com imagens do CI assinadas (`scripts/vps-release-attested.sh`, `cosign verify` antes da troca). Publicados `ecc79b81`, `182e13bd` e `4088a5f6` em 08/11. [Evidências](QUALITY.md#publicação-painel-de-passivo-no-admin--08112026).
+- [x] Varredura documental de 08/11: STATUS revisado (S27), Termos alinhados ao código (saque só para o CPF do KYC, sem CNPJ), página `/termos` espelhando o documento legal com teste de divergência, relatórios e guias sem afirmações desatualizadas. Local, sem commit. [Registro](DEVELOPMENT_LOG.md#2026-11-08--varredura-documental-guarda-de-rede-e-loss-deflator-em-todos-os-jogos-local).
+- [x] Guarda de rede na mesa cash (Termos 2.3): entrada recusada quando outra conta ativa na mesma mesa usa o mesmo IP público ou a mesma sub-rede; só impressões HMAC, apagadas ao sair (migration 061). Contrato PostgreSQL aprovado localmente.
+- [x] Loss Deflator em todas as modalidades e nos torneios, em Play Money e Jogo Real (decisão do proprietário em 08/11): equity 2 + 3 para Omaha 4 e Brazilian Pineapple, incluindo as extras futuras do Pineapple; Termos 6.4, home e filme do Pineapple ajustados.
+- [x] Piloto de vídeos profissionais em Remotion (local, sem publicação): trailer do Brazilian Pineapple (83 s) e aula M2L2 refeita (≈3 min), 1080p60, voz gratuita Thalita Multilingual, trilha e efeitos originais, −16 LUFS, legendas e capítulos. Comparação em `artifacts/video-pilot/index.html`. [Registro](DEVELOPMENT_LOG.md#2026-11-08--piloto-de-vídeos-em-remotion-local).
+- [x] Pineapple Draw substitui o Brazilian Pineapple (decisão do proprietário em 09/11): 3 cartas, troca opcional de uma antes das apostas do flop, do turn e do river, all-in não troca, showdown 2 + 3, mesmas regras de aposta e ante. Motor, Loss Deflator (cartas do instante do all-in, sem trocas futuras), API/WebSocket, bots, laboratório (catálogo v4), mesa, home, aulas m5l3–m5l5 (sem vídeo até o novo), Termos 6.4 e migration 062 (catálogo só no Play Money). Mídia do jogo antigo retirada; m0l4, m5l1 e m6l3 renderizadas de novo. Local, sem commit. [Registro](DEVELOPMENT_LOG.md#2026-11-09--pineapple-draw-substitui-o-brazilian-pineapple-local).
+- [x] Filme completo das regras do Brazilian Pineapple (30 cenas, 7min41s, mesmos exemplos e contas do filme atual) e aula M2L2 completa (16 cenas, 4min58s: exercício do K♦9♦ com pausa, laboratório e fechamento) no novo renderizador; trailer refeito. Voz Antonio (Azure Speech F0) com guias aproximadas, “street” e “oponente”. Local, sem publicação. [Registro](DEVELOPMENT_LOG.md#2026-11-09--filme-completo-do-pineapple-e-aula-m2l2-completa-em-remotion-local).
+- [ ] Decidir a escala do formato Remotion para os demais vídeos (referências: aula M2L2 do piloto e os cinco vídeos do Pineapple Draw). Player, manifesto, `render.py --check` e `courseAudit.test.ts` já aceitam `renderer: "remotion"`.
+- [x] Vídeos do Pineapple Draw no renderizador novo (10/11): filme completo das regras (37 cenas, 9min47s, 10 capítulos), trailer (1min14s) e aulas m5l3–m5l5 (4min05s, 3min12s, 3min14s, com exercício, pausa e resposta comentada). Mãos e contas conferidas no motor (`pineapple_draw_film_examples`, agora no CI); home com trailer e regras num player com abas; Academy com o filme em destaque. Fontes locais (sem rede no render). Local, sem commit. [Registro](DEVELOPMENT_LOG.md#2026-11-10--vídeos-do-pineapple-draw-em-remotion-local).
+- [x] Escuta dos vídeos do Pineapple Draw pelo proprietário (11/11): pronúncia reprovada (“small blind”, “turn”, “cash”), visual pouco didático e regras a corrigir. Os cinco vídeos serão refeitos.
+- [x] Brazilian Pineapple nas regras de 11/11 (decisão do proprietário): o jogo volta a se chamar Brazilian Pineapple (identificador `pineapple_draw`); troca depois das apostas do flop e do turn; descarte obrigatório de uma carta no river antes da última rodada; showdown com 2 privadas, como no Hold’em. Motor, Loss Deflator, API (`discard`, `auto_discard`, `discarding`), bots, mesa, Academy (catálogo v5, aulas m5l3–m5l5), home, Termos 6.4 e migration 062 (nomes) atualizados localmente. Simulação de referência refeita (73,0% sequência ou melhor).
+- [x] Proprietário confirmou (11/11): no Brazilian Pineapple a mesa sozinha vale como mão, como no Hold’em.
+- [x] Proprietário escolheu a pronúncia (11/11): amostra 6, voz Antonio lendo os termos em inglês dentro de `<lang xml:lang="en-US">`.
+- [x] Vídeos do Brazilian Pineapple refeitos (12/11): filme de regras (6min05s, 13 capítulos, abre com as cinco comunitárias), trailer (2min29s) e aulas m5l3–m5l5 (4min16s, 2min51s, 2min43s), com mesa oval, quatro jogadores, fichas em movimento (aposta → pote → vencedor), trocas e descarte animados e a pronúncia aprovada. Roteiros gerados por `motion/tools/build_scripts.py`; mão-modelo jogada no motor (`pineapple_draw_film_examples`). m0l4, m5l1 e m6l3 regravadas (texto mudou).
+- [x] Mesa do jogo no site no layout pedido pelo proprietário (12/11): mesa oval com borda de madeira, placa com avatar, nome inteiro e fichas, cartas junto do jogador (fechadas para os adversários), fichas da aposta sobre o feltro, pote com fichas, botão do dealer e etiquetas SB/BB. Conferida em capturas no desktop (1280) e no celular (390), no flop e no descarte do river.
+- [ ] Proprietário assistir aos vídeos novos e validar a mesa nova numa mão real (não houve teste com o servidor e o banco ligados).
+- [ ] Levar o mesmo desenho de assentos às mesas de demonstração da home (`AnimatedHand`, `ShowcaseTable`) e ao treino da Academy, que ainda usam os cartões antigos.
+- [ ] Validar o Pineapple Draw no Play Money (campanha `full-validation -Phase pineapple` autorizada e jogo real de amigos) e decidir a abertura no Jogo Real, com nova migration.
+- [ ] Decidir a assinatura do Azure antes do fim da avaliação gratuita de 30 dias (criada em 08–09/11/2026): converter para pagamento conforme o uso mantendo o recurso F0 e o limite mensal do `narrate.py`, ou voltar ao Edge TTS.
+- [ ] Publicar as migrations 061 e 062 com o novo motor/API/frontend (exige ordem explícita de commit, push e deploy; só é preciso esperar o fim de torneio Brazilian Pineapple em andamento. Mesas fecham e devolvem as fichas; inscrições do Jogo Real são canceladas sem reembolso, conforme `DEPLOY_HETZNER.md`).
+- [ ] Levar a guarda de rede aos torneios (separar contas da mesma rede em mesas diferentes ou recusar a inscrição) — hoje só o cash aplica.
+- [ ] Exercitar com login em produção a tela de saque (CPF do titular) e o painel de passivo com sessão de admin; as publicações de 08/11 conferiram só rotas e bundles.
+- [ ] Executar o backfill da rede na demo (prévia + confirmação), já publicado como rota administrativa.
+
+## S26 — auditoria, Academy e Agente ZT (27/09–10/10/2026)
 
 - [x] Corrigir wheel clássico/Short Deck, equity por modalidade e exercícios inconsistentes; evidências em [QUALITY](QUALITY.md).
 - [x] Reordenar Academy com pré-requisitos, preservar progresso e aprofundar a base matemática de Pineapple.
@@ -26,14 +58,14 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certif
 - [x] Regravar os 30 vídeos com guias fonéticas para os termos ingleses, incluindo “Pineapple” → “painépou” e as três aulas da regra anterior. Legendas/capítulos sincronizados e cache versionado; publicado `75971a0c` em 08/10 após CI e verificações técnicas. A escuta humana integral permanece separada. [Evidências](QUALITY.md#pronúncia-dos-vídeos--08102026).
 - [x] Remover `braces` e sua cadeia de build na revisão de 05–06/10/2026, migrando para Tailwind 4.3/PostCSS. Auditoria npm integral sem exceções; tema e componentes preservados. Publicado `4c9541a3` em 06/10, incluindo `source-map-js` e base Debian corrigidos, após CI aprovado. [Conferência](QUALITY.md#remoção-da-exceção-npm--06102026).
 - [ ] Expandir a grade atual conforme as 15 etapas do [currículo](CURSO_ESTRATEGIA_POKER.md), incluindo aplicações cash/MTT/ICM e análise avançada com modelos declarados.
-- [ ] Validar a nota do quiz de aula no servidor (as perguntas da mesa de estudo já são corrigidas no backend) e a política de erro amostral nas fronteiras do Loss Deflator.
+- [ ] Validar a nota do quiz de aula no servidor (as perguntas da mesa de estudo já são corrigidas no backend) e a política de erro amostral nas fronteiras do Loss Deflator (Hold’em: 500.000 boards; Omaha 4 e Pineapple: 120.000 amostras, margem ≈ 0,43 p.p. no pior caso).
 
 ## 📅 Cadência de Sprints — Metodologia Ágil
 
 | # | Parâmetro | Valor |
 |---|-----------|-------|
 | 1 | **Duração** | 2 semanas (14 dias) |
-| 2 | **Sprint atual** | S26 — Pineapple v2, Academy v3 e vídeos sequenciais |
+| 2 | **Sprint atual** | S27 — integridade da mesa, saque por titularidade, passivo no admin e publicação assinada |
 | 3 | **Status** | 🟢 Demo/staging no ar; sem cert. produção |
 | 4 | **Cerimônias** | Planning + Review + Retrospectiva |
 | 5 | **Retrospectivas** | Registradas em `DEVELOPMENT_LOG.md` |
@@ -55,9 +87,9 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 
 ### 📊 Histórico de Sprints
 
-> Estes são registros datados. O status operacional atual prevalece: a
-> integração PIX real foi autorizada e está em ativação (DePix reconciliado,
-> payout worker, Fase 3) — ver `STATUS_OPERACIONAL.md` e `DEVELOPMENT_LOG.md`.
+> Estes são registros datados. O status operacional atual prevalece: o PIX
+> automático está ligado na demo (DePix reconciliado, payout worker, Fase 3),
+> sem certificação de produção — ver `STATUS_OPERACIONAL.md` e `DEVELOPMENT_LOG.md`.
 
 | Sprint | Período | Objetivo | Entregue | Status |
 |--------|---------|---------|----------|-------|
@@ -89,7 +121,8 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S23 | 2026-09-08 | Cancela inscrição + admin agenda/cria + textos | Unregister pré-start com reembolso total + anulação de fee; estado inscrito + botão Cancelar; datetime-local por linha; POST admin cria (max 3×, BBA 26); fallback por status; validado ao vivo fim a fim | 🟢 Fechado (demo) |
 | S24 | 2026-09-10 → 2026-09-24 | Academy, três modalidades, marca, lobby e proteção | Home Academy; login → `/curso`; lobby MTT em cards + cash no celular; Hold’em / Omaha 4 (52) / Brazilian Pineapple (057); marca ZT Poker; limites voluntários, autoexclusão, KYC manual, recuperação de senha e suporte (058) | 🟢 Fechado (demo) |
 | S25 | 2026-09-26 | Quatro modalidades, showdown completo e Loss Deflator com side pots | Texas tradicional + Texas Short Deck + Omaha 4 + Brazilian Pineapple; showdown da home; rateio do deflator por pote; migration 059 | 🟢 Publicado na demo |
-| S26 | 2026-09-27 → 2026-10-01 | Auditoria, Academy e Agente ZT direto | Wheel/equity corrigidos; 28 aulas, 35 cenários, 29 vídeos; história do Omaha; programa mensal NGR e migration 060 | 🟢 Publicado na demo; pendências de aprofundamento acima |
+| S26 | 2026-09-27 → 2026-10-10 | Auditoria, Academy, Agente ZT direto e Pineapple v2 | Wheel/equity corrigidos; 28 aulas, 35 cenários, 30 vídeos; história do Omaha; programa mensal NGR e migration 060 (01/10); Pineapple v2 com ante e limite do pote em todas as rodadas (10/10) | 🟢 Publicado na demo; pendências de aprofundamento acima |
+| S27 | 2026-10-19 → 2026-11-08 | Integridade da mesa, saque por titularidade e publicação assinada | Retomada automática na VPS; cartas não reveladas em vitória por fold; bots fora do Jogo Real; saque só para o CPF do KYC; passivo no admin; `vps-release-attested.sh` com `cosign` | 🟢 Publicado na demo em 08/11; conferências com login pendentes |
 
 Catálogo vigente: [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 
@@ -118,7 +151,7 @@ Pendências conscientes: ownership distribuído de mesa, integração externa de
 | Caminho | Quando usar | Guia |
 |---------|-------------|------|
 | **Casa + Cloudflare Tunnel (HTTPS E2E)** | Sem cartão / sem VPS; PC ligado | `Infraestrutura-Docker/DEPLOY_HOME_CLOUDFLARE.md` |
-| **VPS (Hetzner ou BR com PIX)** | Servidor 24/7 na nuvem | `Infraestrutura-Docker/DEPLOY_HETZNER.md` + `.env.staging.example` |
+| **VPS (demo vigente na Hostinger)** | Servidor 24/7 na nuvem | `Infraestrutura-Docker/DEPLOY_HETZNER.md` + `.env.staging.example`; publicação padrão com `scripts/vps-release-attested.sh` ([DEPLOYMENT_VALIDATION](../Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md)) |
 | **Lab local só na máquina** | Dev sem domínio | `docker compose up` + `DOMAIN_NAME=localhost` |
 
 **HTTPS obrigatório no browser:** tunnel com Origin CA + Cloudflare **Full (strict)**; VPS com Caddy + Let's Encrypt.  
@@ -134,7 +167,7 @@ Pendências conscientes: ownership distribuído de mesa, integração externa de
 | 1   | **Testes Massivos e de Estresse Extremo** — 1.000 iterações Ante/Blinds, 500 All-in multiway e desconexão  | `Motor-Rust/` & `API-Axum/`| ✅ Concluído |
 | 3   | **Suíte Antifraude Unificada & Avaliação no Ator** — Real-time risk scoring no TableActor                     | `Motor-Rust/` & `API-Axum/`| ✅ Concluído |
 | 4   | **Persistência Assíncrona do Hand History** — Gravação no PostgreSQL e endpoints REST                      | `API-Axum/`               | ✅ Concluído |
-| 5   | **Pipeline CI/CD GitHub Actions & Scripts de Deploy** — `.github/workflows/ci.yml` e `scripts/deploy.sh`     | `Infraestrutura-Docker/`  | ✅ Concluído |
+| 5   | **Pipeline CI/CD GitHub Actions & Scripts de Deploy** — `.github/workflows/rust-ci.yml`, `supply-chain.yml` e `scripts/deploy.sh`     | `Infraestrutura-Docker/`  | ✅ Concluído |
 
 ### ⏸️ Escopo deliberadamente adiado
 
@@ -142,7 +175,8 @@ Pendências conscientes: ownership distribuído de mesa, integração externa de
 |---|--------|-------|--------|
 | PIX | DePix reconciliado na demo: checkout HMAC, crédito provisório ≤ R$ 50, payout worker com cifra + fila admin | `API-Axum/` & `Frontend-Web/` | 🟢 Na demo (sem cert. produção) |
 | COACH | Especificação integrada: revisão somente pós-mão, um coach com analisadores por rua, fatos/hipóteses separados e tags para a Academy. MVP Hold’em → matemática/EV → variantes → personalização opt-in. Sem RTA e sem reutilizar bots jogadores como coach. | `Motor-Rust/`, `API-Axum/` & `Frontend-Web/` | 📐 Planejado; não implementado |
-| AGENTE | **Agente ZT Poker**: um nível, NGR por carteira, 30% + 5 p.p., metas futuras, estornos identificados, prévia de fechamento e novos painéis | `API-Axum/` & `Frontend-Web/` | Implementado localmente; dois testes financeiros e análise estática aprovados; validação integrada e deploy pendentes |
+| AGENTE | **Agente ZT Poker**: um nível, NGR por carteira, 30% + 5 p.p., metas futuras, estornos identificados, prévia de fechamento e novos painéis | `API-Axum/` & `Frontend-Web/` | 🟢 Publicado na demo em 01/10 (migration 060 e painéis); o deploy não ativou agentes. Pendentes: ativação administrativa, primeira meta e primeiro fechamento mensal conciliado |
+| PF | **Provably Fair ligado à mesa**: hash da semente antes da mão, revelação no histórico e verificação pelo jogador | `Motor-Rust/` & `API-Axum/` & `Frontend-Web/` | 📐 Módulo `provably_fair.rs` e opcodes 0x30/0x31 existem, mas a mesa embaralha só com Fisher-Yates + `OsRng`; Termos 7.3 não prometem verificação pública |
 
 ### ✅ Entregas recentes e históricas
 | #   | Tarefa                                                                                                                                                              | Data       |
@@ -209,7 +243,7 @@ Pendências conscientes: ownership distribuído de mesa, integração externa de
 | —   | **`Motor-Rust`**     | **Motor (deck, side_pots, loss_deflator, rake+B2B 15/85, rng, hand_history, tournament, auth, lobby, antifraude)**      | **✅ Ativo — suíte histórica ~1.904 (`--lib`)** |
 | —   | **`Frontend-Web`**   | **SPA React/Vite/Tailwind (canônico): home, lobby, mesa, admin lazy, Vitest + ESLint**                                    | **✅ Ativo** |
 | —   | `Frontend-Dioxus`    | WASM legado (rotas/mesa/lobby) — **removido do monorepo**; só histórico git                                              | 📦 Histórico |
-| —   | **`API-Axum`**       | **API HTTPS/WSS Axum; TableActor + TournamentActor; admin B2B; migrations até 060 local e na demo**                  | **✅ Ativo** |
+| —   | **`API-Axum`**       | **API HTTPS/WSS Axum; TableActor + TournamentActor; admin B2B; migrations até 060 na demo e 061 local (guarda de rede, pendente de publicação)**                  | **✅ Ativo** |
 
 > Contagens de testes: valores **históricos reportados** em logs/CI; revalidar com `cargo test` no WSL Ubuntu, conforme `AGENTS.md`.
 
@@ -224,6 +258,6 @@ Ambiente (WSL, Node, clippy): [`../AGENTS.md`](../AGENTS.md). Gates: [`QUALITY.m
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S26** (2026-10-10) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

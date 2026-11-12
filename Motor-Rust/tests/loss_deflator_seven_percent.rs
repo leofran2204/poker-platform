@@ -28,6 +28,7 @@ fn player(
         all_in_phase,
         has_acted: true,
         seat_index,
+        draw_count: None,
     }
 }
 

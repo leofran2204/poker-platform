@@ -27,6 +27,8 @@ export type CourseQuizQuestion = CourseTheoryQuestion | CourseEngineQuestion;
 export interface CourseVideoInfo {
   contentHash?: string;
   rendererVersion?: number;
+  /** "remotion": produzido em ZeroTiltCurso/editorial/motion (manifesto com roteiro e narração). */
+  renderer?: "remotion";
   pronunciationVersion?: string;
   narrationHash?: string;
   mediaRevision?: string;
@@ -62,7 +64,7 @@ export interface CourseHandExample {
 export interface CourseLesson {
   id: string;
   prerequisites?: string[];
-  variant?: "holdem" | "short_deck" | "omaha" | "brazilian_pineapple";
+  variant?: "holdem" | "short_deck" | "omaha" | "pineapple_draw";
   title: string;
   minutes: number;
   body: string;
