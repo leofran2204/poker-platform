@@ -1428,3 +1428,12 @@ Vídeos: cena nova `hand` (`motion/src/videos/HandTable.tsx`) com mesa oval, qua
 Site: `PokerTable.tsx` e `index.css` com a mesa oval, placas de assento, cartas fechadas dos adversários, fichas de aposta no feltro e pote com fichas.
 
 Verificação local: `render.py --check` (30 publicações, 154,6 min); `tsc`, ESLint e build limpos; Vitest 103/103; `cargo fmt`, `clippy -D warnings`, 1.877 testes do motor, 97 da API e as integrações do Brazilian Pineapple (inclusive `pineapple_draw_film_examples`, 4/4); `documentation-sync --check`. A renderização foi interrompida uma vez por falta de memória da máquina e retomada um vídeo por vez. Sem teste com API e banco ligados. Sem commit, push ou deploy.
+
+## 2026-11-12 — limpeza do repositório (local)
+
+Depois do checkup ([historico/CHECKUP_2026-11-12.md](historico/CHECKUP_2026-11-12.md)) e com autorização do proprietário: saíram do monorepo `legacy/engine-v1/` (motor antigo, sem dependentes), os avisos `Documentacao/CRONOGRAMA.md` e `Documentacao/TESTING_GOALS.md` (os originais seguem em `historico/`) e `Infraestrutura-Docker/DEPLOY_RENDER.md` com `render.yaml` (destino não usado, sem referências). Tudo continua no histórico do git. `bot/` ficou: `scripts/strategy-bots.mjs` depende dela.
+
+Fora do git: evidências antigas de `artifacts/` (menos `video-pilot` e `voz-pronuncia`) e `.codex-tmp/` foram para a Lixeira do Windows; `API-Axum/target`, `Motor-Rust/target` e `Frontend-Web/dist` foram apagadas (recompiláveis). A pasta do projeto caiu de cerca de 13 GB para 4,6 GB. `backups/` não foi tocada.
+
+Verificação: `documentation-sync --check` (20 documentos), `cargo check` do motor e da API, Vitest 103/103.
+

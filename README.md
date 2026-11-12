@@ -28,9 +28,8 @@ Motor e API em **Rust**, UI em **TypeScript** (React + Vite + Tailwind), marca *
 | `Arquitetura-Motor/` | Spec do motor/stack |
 | `scripts/` | Deploy, e2e, full-validation |
 | `src/bin/documentation_sync.rs` | Sync STATUS (CI `--check`) |
-| `legacy/engine-v1/` | Arquivo git |
 
-`Frontend-Dioxus/` foi removido do monorepo.
+`Frontend-Dioxus/` e o motor antigo (`legacy/engine-v1/`) foram removidos do monorepo; ficam no histórico do git. `bot/` é a biblioteca de estratégia usada por `scripts/strategy-bots.mjs`.
 
 ## Deploy e lab
 

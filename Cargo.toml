@@ -3,7 +3,7 @@ name = "poker-tooling"
 version = "0.1.0"
 edition = "2021"
 authors = ["Poker Platform Team"]
-description = "Ferramentas do monorepo Zero Tilt Poker (sincronização de documentação). O motor canônico vive em Motor-Rust; o engine legado foi arquivado em legacy/engine-v1."
+description = "Ferramentas do monorepo Zero Tilt Poker (sincronização de documentação). O motor canônico vive em Motor-Rust; o engine legado saiu do monorepo em 12/11/2026 (histórico git)."
 
 [[bin]]
 name = "documentation-sync"

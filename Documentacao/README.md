@@ -26,11 +26,9 @@ O `--check` é obrigatório na CI. Prosa histórica, legal e didática não é r
 | `ARQUITETURA_E_APIS.md` | Contratos REST/WS |
 | [`../Arquitetura-Motor/ARQUITETURA_MOTOR.md`](../Arquitetura-Motor/ARQUITETURA_MOTOR.md) | Arquitetura motor/stack |
 | `DASHBOARD.md` | Sprint, backlog, fases |
-| `CRONOGRAMA.md` | Redirect → DASHBOARD |
 | `DEVELOPMENT_LOG.md` | História (não prevalece) |
 | `DEMO_AMIGOS.md` | Convite operacional |
 | `FULL_VALIDATION.md` | Carga autorizada |
-| `TESTING_GOALS.md` | Redirect → FULL_VALIDATION / historico |
 | `guia_aprendizado.md` | Como aprender o código |
 | `RELATORIO_AMIGOS_SOCIO.md` | Pitch 4 min |
 | `RELATORIO_PARCEIROS_ZEROTILT.md` | Due diligence |
