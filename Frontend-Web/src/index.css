@@ -732,20 +732,75 @@
     }
   }
 
+  /* Carta no desenho dos vídeos da Academy: papel claro, valor no canto e naipe grande. */
   .zt-playing-card {
-    @apply relative flex flex-col justify-between rounded-md border border-black/20 bg-[#f4f0e6] p-1 shadow-card;
+    @apply relative flex flex-col justify-between rounded-md border border-black/15 p-1 shadow-card;
+    background: linear-gradient(160deg, #ffffff 0%, #fbf8f0 55%, #efe7d4 100%);
+    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 800;
   }
 
+  /* Verso da marca: feltro verde, treliça dourada e moldura clara. */
   .zt-playing-card.back {
     background:
-      repeating-linear-gradient(
-        45deg,
-        #1a2a5a,
-        #1a2a5a 4px,
-        #243a7a 4px,
-        #243a7a 8px
-      );
-    border-color: #c9a227;
+      repeating-linear-gradient(45deg, rgba(236, 217, 154, 0.2) 0 1.5px, transparent 1.5px 8px),
+      repeating-linear-gradient(-45deg, rgba(236, 217, 154, 0.2) 0 1.5px, transparent 1.5px 8px),
+      radial-gradient(circle at 50% 40%, #1d6b41 0%, #0f3d25 70%, #0a2a19 100%);
+    border: 2px solid #fbf8f0;
+    box-shadow: inset 0 0 0 1px rgba(236, 217, 154, 0.55), 0 2px 6px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Fichas voando entre jogador, aposta e pote. */
+  .zt-chip-flight {
+    position: absolute;
+    z-index: 25;
+    width: 20px;
+    height: 26px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .zt-chip-flight i {
+    position: absolute;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 9999px;
+    background: radial-gradient(circle at 50% 50%, #7d1a14 0 34%, #d8443a 36% 100%);
+    border: 2px dashed #fdf6e3;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
+  }
+  .zt-chip-flight i:nth-child(1) { bottom: 0; }
+  .zt-chip-flight i:nth-child(2) { bottom: 3px; }
+  .zt-chip-flight i:nth-child(3) { bottom: 6px; }
+  .zt-chip-flight.gold i {
+    background: radial-gradient(circle at 50% 50%, #8b6914 0 34%, #e3b94f 36% 100%);
+  }
+  .zt-sound-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    border: 1px solid rgba(236, 217, 154, 0.35);
+    background: rgba(5, 14, 9, 0.6);
+    font-size: 14px;
+    line-height: 1;
+  }
+  .zt-sound-toggle:hover {
+    border-color: #e8c35a;
+  }
+  /* Vez do jogador: anel pulsando em volta da placa. */
+  .zt-seat-plate.active {
+    animation: zt-turn-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes zt-turn-pulse {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(232, 195, 90, 0.35), 0 0 14px rgba(232, 195, 90, 0.4); }
+    50% { box-shadow: 0 0 0 4px rgba(232, 195, 90, 0.55), 0 0 26px rgba(232, 195, 90, 0.75); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zt-seat-plate.active {
+      animation: none;
+    }
   }
 
   /* Ritual do crupiê: carta entra voando do centro com stagger por assento. */

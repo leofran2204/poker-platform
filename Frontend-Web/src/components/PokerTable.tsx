@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import type { PlayerWsData, PotWsData, ShowdownEntry } from "@/api/types";
+import { buzz, playTableSound, setSoundEnabled, soundEnabled } from "@/lib/tableSounds";
 import { seatPosition } from "@/lib/cards";
 import { handNamePt, streetLabel } from "@/lib/gameLabels";
 import { formatChips } from "@/lib/money";
@@ -177,6 +179,68 @@ export function PokerTable({
     };
   })();
   const holeSize = holeCount >= 3 ? "sm" : "md";
+
+  /* ── Mesa viva: fichas em movimento e sons, deduzidos da mudança de estado ── */
+  type Flight = { id: string; from: { top: number; left: number }; to: { top: number; left: number }; gold?: boolean };
+  const [flights, setFlights] = useState<Flight[]>([]);
+  const [sound, setSound] = useState(soundEnabled);
+  const previous = useRef<{ bets: Map<string, number>; pot: number; board: number; myTurn: boolean; winners: string; cards: number } | null>(null);
+  const POT_SPOT = { top: 41, left: 44 };
+  const betSpot = (layout: { top: number; left: number }) => ({
+    top: layout.top + (50 - layout.top) * 0.42,
+    // Assentos do meio (em cima e embaixo): as fichas ficam ao lado das cartas.
+    left: Math.abs(layout.left - 50) < 5 ? (layout.top < 45 ? 62 : 38) : layout.left + (50 - layout.left) * 0.36,
+  });
+  const betsKey = players.map((p) => `${p.id}:${p.bet}`).join("|");
+  const winnersKey = winners.join("+");
+  const myTurn = availableActions.length > 0;
+  const myCardCount = myCards.length;
+  useEffect(() => {
+    const now = {
+      bets: new Map(players.map((p) => [p.id, p.bet])),
+      pot: potTotal,
+      board: communityCards.length,
+      myTurn,
+      winners: winnersKey,
+      cards: myCardCount,
+    };
+    const before = previous.current;
+    previous.current = now;
+    if (!before) return;
+    const launched: Flight[] = [];
+    const stamp = Date.now();
+    for (const p of players) {
+      const was = before.bets.get(p.id) ?? 0;
+      const layout = seatPosition(p.seat, heroSeat, cap);
+      if (p.bet > was) {
+        // Aposta: as fichas saem do jogador e param na frente dele.
+        launched.push({ id: `b-${p.id}-${stamp}`, from: layout, to: betSpot(layout) });
+      } else if (was > 0 && p.bet === 0 && now.pot >= before.pot) {
+        // Rodada fechada: as apostas são recolhidas para o pote.
+        launched.push({ id: `c-${p.id}-${stamp}`, from: betSpot(layout), to: POT_SPOT });
+      }
+    }
+    if (winnersKey && winnersKey !== before.winners) {
+      for (const id of winners) {
+        const winner = players.find((p) => p.id === id);
+        if (winner) launched.push({ id: `w-${id}-${stamp}`, from: POT_SPOT, to: seatPosition(winner.seat, heroSeat, cap), gold: true });
+      }
+    }
+    if (launched.length > 0) {
+      setFlights((current) => [...current, ...launched]);
+      playTableSound(launched.length > 1 || launched[0].gold ? "chips" : "chip");
+      const ids = new Set(launched.map((flight) => flight.id));
+      window.setTimeout(() => setFlights((current) => current.filter((flight) => !ids.has(flight.id))), 750);
+    }
+    if (now.board > before.board) playTableSound("flip");
+    if (now.cards > before.cards && before.cards === 0) playTableSound("deal");
+    if (now.myTurn && !before.myTurn) {
+      playTableSound("pop");
+      buzz();
+    }
+    // As dependências são chaves de valor: o efeito roda quando o estado muda de fato.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [betsKey, potTotal, communityCards.length, myTurn, winnersKey, myCardCount]);
   // Mão em andamento: adversários que não desistiram aparecem com as cartas fechadas.
   const inHand = ["preflop", "flop", "turn", "river"].includes(stage) && winners.length === 0;
 
@@ -204,7 +268,23 @@ export function PokerTable({
         </div>
       )}
       <div className="mb-3 flex items-center justify-between text-sm">
-        <span className="font-semibold text-gold-bright">Mesa ao vivo</span>
+        <span className="flex items-center gap-2 font-semibold text-gold-bright">
+          Mesa ao vivo
+          <button
+            type="button"
+            className="zt-sound-toggle"
+            aria-pressed={sound}
+            aria-label={sound ? "Desligar o som da mesa" : "Ligar o som da mesa"}
+            title={sound ? "Som ligado" : "Som desligado"}
+            onClick={() => {
+              setSoundEnabled(!sound);
+              setSound(!sound);
+              if (!sound) playTableSound("pop");
+            }}
+          >
+            {sound ? "🔊" : "🔇"}
+          </button>
+        </span>
         <span className="text-felt-300">
           Street: <strong className="text-cream">{streetLabel(stage)}</strong>
         </span>
@@ -231,7 +311,15 @@ export function PokerTable({
               </span>
             )}
             <span className="zt-pot-label">Pote</span>
-            <span className="zt-pot-value">{formatChips(potTotal)}</span>
+            <motion.span
+              key={potTotal}
+              className="zt-pot-value"
+              initial={{ scale: 1.22, color: "#fff3c4" }}
+              animate={{ scale: 1, color: "#ecd99a" }}
+              transition={{ duration: 0.35 }}
+            >
+              {formatChips(potTotal)}
+            </motion.span>
           </div>
           <div className="flex gap-1.5">
             {communityCards.length === 0 ? (
@@ -244,48 +332,66 @@ export function PokerTable({
               </span>
             ) : (
               communityCards.map((c, i) => (
-                <span
+                <motion.span
                   key={`${c}-${i}`}
-                  className="zt-deal"
-                  style={{
-                    animationDelay: `${Math.max(0, i - boardStaggerFrom) * 220}ms`,
-                    ["--deal-dx" as string]: "0px",
-                    ["--deal-dy" as string]: "-18px",
-                  }}
+                  initial={{ opacity: 0, y: -26, rotateY: 90, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, rotateY: 0, scale: 1 }}
+                  transition={{ delay: Math.max(0, i - boardStaggerFrom) * 0.18, duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+                  style={{ display: "inline-block", transformPerspective: 600 }}
                 >
                   <span className={winWrap(c)}>
                     <PlayingCard code={c} size="md" highlight={glowCards.has(c)} />
                   </span>
-                </span>
+                </motion.span>
               ))
             )}
           </div>
         </div>
 
         {/* Fichas apostadas na rodada: sobre o feltro, entre o jogador e o pote */}
-        {players.map((p) => {
-          if (p.bet <= 0) return null;
-          const layout = seatPosition(p.seat, heroSeat, cap);
-          return (
-            <div
-              key={`bet-${p.id}`}
-              className="zt-bet-spot"
-              style={{
-                top: `${layout.top + (50 - layout.top) * 0.42}%`,
-                // Assentos do meio (em cima e embaixo): as fichas ficam ao lado das cartas.
-                left: `${Math.abs(layout.left - 50) < 5 ? (layout.top < 45 ? 62 : 38) : layout.left + (50 - layout.left) * 0.36}%`,
-              }}
-              aria-label={`Aposta de ${p.name}: ${formatChips(p.bet)}`}
-            >
-              <span className="zt-chip-stack" aria-hidden="true">
-                <i />
-                <i />
-                <i />
-              </span>
-              <span className="zt-bet-amount">{formatChips(p.bet)}</span>
-            </div>
-          );
-        })}
+        <AnimatePresence>
+          {players.map((p) => {
+            if (p.bet <= 0) return null;
+            const spot = betSpot(seatPosition(p.seat, heroSeat, cap));
+            return (
+              <motion.div
+                key={`bet-${p.id}`}
+                className="zt-bet-spot"
+                style={{ top: `${spot.top}%`, left: `${spot.left}%` }}
+                initial={{ opacity: 0, scale: 0.6 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.7 }}
+                transition={{ duration: 0.22, delay: 0.25 }}
+                aria-label={`Aposta de ${p.name}: ${formatChips(p.bet)}`}
+              >
+                <span className="zt-chip-stack" aria-hidden="true">
+                  <i />
+                  <i />
+                  <i />
+                </span>
+                <motion.span key={p.bet} className="zt-bet-amount" initial={{ scale: 1.2 }} animate={{ scale: 1 }}>
+                  {formatChips(p.bet)}
+                </motion.span>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+
+        {/* Fichas em movimento: aposta, recolhimento para o pote e pote para o vencedor */}
+        {flights.map((flight) => (
+          <motion.span
+            key={flight.id}
+            className={`zt-chip-flight ${flight.gold ? "gold" : ""}`}
+            aria-hidden="true"
+            initial={{ top: `${flight.from.top}%`, left: `${flight.from.left}%`, opacity: 0.2, scale: 0.8 }}
+            animate={{ top: `${flight.to.top}%`, left: `${flight.to.left}%`, opacity: 1, scale: 1 }}
+            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <i />
+            <i />
+            <i />
+          </motion.span>
+        ))}
 
         {/* Seats */}
         {players.map((p) => {

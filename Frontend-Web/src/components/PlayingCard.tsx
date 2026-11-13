@@ -44,7 +44,8 @@ export function PlayingCard({ code, faceDown, size = "md", inline = false, highl
   }
 
   const color = card.red ? "text-red-700" : "text-gray-900";
-  const suitSize = size === "xs" ? "text-xs leading-none" : "self-center text-lg leading-none";
+  const corner = size === "md" ? "text-[11px]" : "text-[9px]";
+  const big = size === "md" ? "text-[30px]" : "text-[21px]";
 
   return (
     <div
@@ -52,10 +53,21 @@ export function PlayingCard({ code, faceDown, size = "md", inline = false, highl
       title={`${card.rank}${suitSymbol(card.suit)}`}
       aria-label={`${card.rank} de ${SUIT_PT[card.suit]}`}
     >
-      <span className="font-bold leading-none">{card.rank}</span>
-      <span className={suitSize}>{suitSymbol(card.suit)}</span>
-      {size !== "xs" && (
-        <span className="self-end rotate-180 font-bold leading-none">{card.rank}</span>
+      {size === "xs" ? (
+        <>
+          <span className="leading-none">{card.rank}</span>
+          <span className="text-xs leading-none">{suitSymbol(card.suit)}</span>
+        </>
+      ) : (
+        <>
+          <span className="flex flex-col items-start leading-none">
+            <span>{card.rank}</span>
+            <span className={`${corner} leading-none`}>{suitSymbol(card.suit)}</span>
+          </span>
+          <span className={`${big} self-end leading-none`} aria-hidden="true">
+            {suitSymbol(card.suit)}
+          </span>
+        </>
       )}
     </div>
   );

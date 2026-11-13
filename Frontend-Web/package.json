@@ -13,6 +13,7 @@
     "test": "vitest run --config vitest.config.ts"
   },
   "dependencies": {
+    "motion": "^12.43.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-router": "^8.4.0"
