@@ -40,6 +40,8 @@ interface Props {
   boardStaggerFrom?: number;
 }
 
+const winnersKeyEarly = (winners: string[]) => winners.join("+");
+
 export function PokerTable({
   players,
   communityCards,
@@ -179,6 +181,64 @@ export function PokerTable({
     };
   })();
   const holeSize = holeCount >= 3 ? "sm" : "md";
+
+  /* ── Ação antecipada: o jogador escolhe antes da vez e a mesa executa quando ela chega ── */
+  type PreAction = "check_fold" | "check" | "call";
+  const [preAction, setPreAction] = useState<{ kind: PreAction; call: number } | null>(null);
+  const me = players.find((p) => p.id === localPlayerId);
+  const betting = normalizedActions.some((a) => a === "fold" || a === "check" || a === "call");
+  const waitingInHand =
+    availableActions.length === 0 && !!me && !me.folded && me.cards.length > 0 && !drawing && !discarding
+    && ["preflop", "flop", "turn", "river"].includes(stage) && winners.length === 0;
+  // Quanto falta para o jogador igualar a maior aposta da rodada (estimativa enquanto espera).
+  const pendingCall = Math.max(0, Math.max(0, ...players.map((p) => p.bet)) - (me?.bet ?? 0));
+  useEffect(() => {
+    if (!preAction) return;
+    // A escolha vale só para esta rodada de apostas e só enquanto o jogador segue na mão.
+    if (!me || me.folded || drawing || discarding || winners.length > 0) {
+      setPreAction(null);
+      return;
+    }
+    if (!betting) return;
+    const canCheck = normalizedActions.includes("check");
+    if (preAction.kind === "check_fold") onAction(canCheck ? "check" : "fold");
+    else if (preAction.kind === "check" && canCheck) onAction("check");
+    // "Pagar" só vale pelo valor que o jogador viu; se alguém aumentou, ele decide de novo.
+    else if (preAction.kind === "call" && normalizedActions.includes("call") && callAmount === preAction.call) onAction("call");
+    setPreAction(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [betting, drawing, discarding, winnersKeyEarly(winners), me?.folded]);
+  useEffect(() => {
+    // Nova street ou nova mão: a ação antecipada não passa adiante.
+    setPreAction(null);
+  }, [stage, communityCards.length]);
+
+  /* ── Atalhos de teclado na vez do jogador ── */
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT" || target.isContentEditable)) return;
+      if (availableActions.length === 0) return;
+      const key = event.key.toLowerCase();
+      if (canDraw || canDiscard) {
+        if (["1", "2", "3"].includes(key) && Number(key) <= myCards.length) setSwapPick(Number(key) - 1);
+        else if (key === "m" && canDraw) onAction("keep", 0);
+        else if (key === "enter" && swapPick !== null) onAction(canDiscard ? "discard" : "swap", swapPick);
+        else return;
+        event.preventDefault();
+        return;
+      }
+      if (key === "f" && normalizedActions.includes("fold")) onAction("fold");
+      else if (key === "c" && normalizedActions.includes("check")) onAction("check");
+      else if (key === "c" && normalizedActions.includes("call")) onAction("call");
+      else if (key === "a" && wagerAction && Number.isInteger(wager) && wager >= minimumWager && wager <= maximumWager) onAction(wagerAction, wager);
+      else return;
+      event.preventDefault();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
 
   /* ── Mesa viva: fichas em movimento e sons, deduzidos da mudança de estado ── */
   type Flight = { id: string; from: { top: number; left: number }; to: { top: number; left: number }; gold?: boolean };
@@ -430,28 +490,42 @@ export function PokerTable({
             <>
               {p.cards.length > 0 && (
                 <div className="zt-seat-cards">
-                  {p.cards.map((c, i) => (
-                    <span
-                      key={`${p.id}-${i}`}
-                      className="zt-deal"
-                      style={{
-                        animationDelay: `${(orderFromDealer.get(p.id) ?? 0) * 140 + i * 90}ms`,
-                        ["--deal-dx" as string]: dealDx,
-                        ["--deal-dy" as string]: dealDy,
-                      }}
-                    >
-                      <span className={winWrap(c)}>
-                        <PlayingCard code={c} size={holeSize} highlight={glowCards.has(c)} />
-                      </span>
-                    </span>
-                  ))}
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    {p.cards.map((c) => (
+                      // A chave é a própria carta: na troca a antiga sai e a nova entra
+                      // virando; no descarte a carta sai e as outras duas se aproximam.
+                      <motion.span
+                        key={`${p.id}-${c}`}
+                        layout
+                        initial={{ opacity: 0, y: upper ? -22 : 22, rotateY: 90 }}
+                        animate={{ opacity: 1, y: 0, rotateY: 0 }}
+                        exit={{ opacity: 0, y: upper ? 26 : -26, scale: 0.7, rotate: 12 }}
+                        transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+                        style={{ display: "inline-block", transformPerspective: 600 }}
+                      >
+                        <span className={winWrap(c)}>
+                          <PlayingCard code={c} size={holeSize} highlight={glowCards.has(c)} />
+                        </span>
+                      </motion.span>
+                    ))}
+                  </AnimatePresence>
                 </div>
               )}
               {!dealing && !isLocal && p.cards.length === 0 && inHand && !p.folded && p.is_sitting !== false && holeCount > 0 && (
                 <div className="zt-seat-cards hidden-hand" aria-label={`${p.name} tem ${holeCount} cartas fechadas`}>
-                  {Array.from({ length: holeCount }).map((_, i) => (
-                    <PlayingCard key={`${p.id}-hidden-${i}`} faceDown size="sm" />
-                  ))}
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    {Array.from({ length: holeCount }).map((_, i) => (
+                      <motion.span
+                        key={`${p.id}-hidden-${i}`}
+                        layout
+                        exit={{ opacity: 0, y: upper ? 22 : -22, scale: 0.7 }}
+                        transition={{ duration: 0.3 }}
+                        style={{ display: "inline-block" }}
+                      >
+                        <PlayingCard faceDown size="sm" />
+                      </motion.span>
+                    ))}
+                  </AnimatePresence>
                 </div>
               )}
               {dealing && p.cards.length === 0 && !p.folded && p.is_sitting !== false && holeCount > 0 && (
@@ -549,6 +623,28 @@ export function PokerTable({
             </button>
           </div>
         ) : availableActions.length === 0 ? (
+          waitingInHand ? (
+            <div className="zt-preactions" role="group" aria-label="Ação antecipada">
+              <span className="text-xs text-felt-300">
+                Vez de {players.find((p) => p.is_active)?.name ?? "outro jogador"}. Deixe sua ação marcada:
+              </span>
+              {([
+                ["check_fold", pendingCall > 0 ? "Desistir" : "Check ou desistir"],
+                ...(pendingCall === 0 ? [["check", "Check"]] : []),
+                ...(pendingCall > 0 ? [["call", `Pagar ${formatChips(pendingCall)}`]] : []),
+              ] as [PreAction, string][]).map(([kind, label]) => (
+                <button
+                  key={kind}
+                  type="button"
+                  className={`zt-preaction ${preAction?.kind === kind ? "on" : ""}`}
+                  aria-pressed={preAction?.kind === kind}
+                  onClick={() => setPreAction(preAction?.kind === kind ? null : { kind, call: pendingCall })}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          ) : (
           <span className="text-sm text-felt-400">
             {players.filter((p) => p.is_sitting !== false).length < 2
               ? "Aguardando ≥2 jogadores na mesa para começar a mão."
@@ -560,6 +656,7 @@ export function PokerTable({
                     ? "Distribuindo…"
                     : "Aguardando sua vez…"}
           </span>
+          )
         ) : (
           <>
             {availableActions.map((raw) => {
@@ -567,12 +664,13 @@ export function PokerTable({
               if (a === "bet" || a === "raise" || a === "allin" || a === "all-in") return null;
               const label =
                 a === "fold"
-                  ? "Fold"
+                  ? "Desistir"
                   : a === "check"
                     ? "Check"
                     : a === "call"
-                      ? `Call ${formatChips(callAmount)}`
+                      ? `Pagar ${formatChips(callAmount)}`
                       : raw;
+              const hint = a === "fold" ? "F" : a === "check" || a === "call" ? "C" : null;
               const danger = a === "fold";
               return (
                 <button
@@ -582,6 +680,7 @@ export function PokerTable({
                   onClick={() => onAction(a)}
                 >
                   {label}
+                  {hint && <kbd className="zt-key">{hint}</kbd>}
                 </button>
               );
             })}
@@ -622,6 +721,7 @@ export function PokerTable({
                   onClick={() => onAction(wagerAction, wager)}
                 >
                   {wagerAction === "bet" ? `Apostar ${formatChips(wager)}` : `Aumentar para ${formatChips(wager)}`}
+                  <kbd className="zt-key">A</kbd>
                 </button>
               </div>
             )}

@@ -18,7 +18,7 @@ describe("contrato de apostas do Brazilian Pineapple na mesa", () => {
     const html = render({ ante: 100, antePaid: 50, antePlayerId: "me", availableActions: ["fold", "call"], callAmount: 100 });
     expect(html).toContain("Ante do BB R$ 1,00");
     expect(html).toContain("pago R$ 0,50 por Eu");
-    expect(html).toContain("Call R$ 1,00");
+    expect(html).toContain("Pagar R$ 1,00");
   });
   it("oferece o seletor pré-flop dentro dos limites enviados pelo motor", () => {
     const html = render();
