@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { motion } from "motion/react";
 import {
   fetchTournamentRegistration,
   joinTable,
@@ -11,6 +12,7 @@ import {
 } from "@/api/client";
 import type { TableResponse, TournamentInfoResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";
+import { layoutForCap } from "@/lib/cards";
 import { formatCountdown, liveTableIds, nextStartEpoch } from "@/lib/countdown";
 import { deckTypeLabel, gameNameLabel } from "@/lib/gameLabels";
 import { formatBrlFromCents } from "@/lib/money";
@@ -46,12 +48,38 @@ function buyInLabel(t: TournamentInfoResponse): string {
   return formatBrlFromCents(t.buy_in);
 }
 
-function occupancyBarClass(pct: number, full: boolean): string {
-  if (full || pct >= 100) return "zt-occupancy-bar full";
-  if (pct >= 75) return "zt-occupancy-bar high";
-  if (pct >= 50) return "zt-occupancy-bar mid";
-  return "zt-occupancy-bar";
+/** Identidade visual de cada modalidade no lobby. */
+function variantTheme(variant?: string | null): { tone: string; suit: string; tag: string } {
+  if (variant === "pineapple_draw") return { tone: "pineapple", suit: "♥", tag: "Criado no Brasil" };
+  if (variant === "omaha" || variant === "short_deck_omaha") return { tone: "omaha", suit: "♣", tag: "4 cartas" };
+  if (variant === "short_deck") return { tone: "shortdeck", suit: "♦", tag: "36 cartas" };
+  return { tone: "holdem", suit: "♠", tag: "Clássico" };
 }
+
+/** Mesa em miniatura: o oval com um ponto por lugar, aceso quando ocupado. */
+function MiniTable({ players, max }: { players: number; max: number }) {
+  const seats = layoutForCap(max).slice(0, max);
+  return (
+    <div className="zt-mini-table" role="img" aria-label={`${players} de ${max} lugares ocupados`}>
+      {seats.map((seat, index) => (
+        <span
+          key={index}
+          className={index < players ? "zt-mini-seat on" : "zt-mini-seat"}
+          style={{ top: `${seat.top}%`, left: `${seat.left}%` }}
+        />
+      ))}
+      <span className="zt-mini-count">
+        {players}/{max}
+      </span>
+    </div>
+  );
+}
+
+const cardMotion = {
+  initial: { opacity: 0, y: 14 },
+  animate: { opacity: 1, y: 0 },
+  whileHover: { y: -4 },
+};
 
 export function LobbyPage() {
   const navigate = useNavigate();
@@ -222,36 +250,64 @@ export function LobbyPage() {
     );
   }
 
+  const seated = tables.reduce((sum, t) => sum + t.players, 0);
+
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-end justify-between gap-2">
+    <div className="zt-lobby">
+      <header className="zt-lobby-head">
         <div>
-          <h1 className="text-xl font-bold uppercase tracking-wide text-gold-bright">Lobby</h1>
-          <p className="text-xs text-felt-300">
-            Listando apenas <span className="font-semibold text-gold-soft">{walletModeLabel}</span>
-            {" · "}fichas Play Money e Jogo Real não se misturam
+          <p className="zt-lobby-eyebrow">
+            <span className={walletMode === "real" ? "zt-mode-dot real" : "zt-mode-dot"} aria-hidden />
+            {walletModeLabel}
+          </p>
+          <h1>Lobby</h1>
+          <p className="zt-lobby-sub">
+            {walletMode === "real" ? (
+              <>
+                Só saldo real nestas mesas. Sem saldo? Vá em{" "}
+                <Link to="/wallet" className="underline text-gold-soft">
+                  Carteira
+                </Link>
+                .
+              </>
+            ) : (
+              <>Fichas de diversão, renovadas todo dia. Não têm valor real e não entram no Jogo Real.</>
+            )}
           </p>
         </div>
-        <div className="flex gap-1 rounded-sm border border-felt-600 bg-felt-950/60 p-0.5">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === "cash"}
-            className={tab === "cash" ? "zt-tab zt-tab-active" : "zt-tab"}
-            onClick={() => setTab("cash")}
-          >
-            Cash
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === "tournaments"}
-            className={tab === "tournaments" ? "zt-tab zt-tab-active" : "zt-tab"}
-            onClick={() => setTab("tournaments")}
-          >
-            Torneios
-          </button>
+        <div className="zt-lobby-stats" aria-label="Movimento agora">
+          <div>
+            <strong>{tables.length}</strong>
+            <span>mesas</span>
+          </div>
+          <div>
+            <strong>{seated}</strong>
+            <span>jogando</span>
+          </div>
+          <div>
+            <strong>{tournaments.length}</strong>
+            <span>torneios</span>
+          </div>
         </div>
+      </header>
+
+      <div className="zt-lobby-tabs" role="tablist" aria-label="Tipo de jogo">
+        {([["cash", "Mesas cash"], ["tournaments", "Torneios"]] as [LobbyTab, string][]).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={tab === id}
+            className={tab === id ? "zt-lobby-tab on" : "zt-lobby-tab"}
+            onClick={() => setTab(id)}
+          >
+            {label}
+            {tab === id && <motion.span layoutId="lobby-tab-line" className="zt-lobby-tab-line" />}
+          </button>
+        ))}
+        <button type="button" className="zt-lobby-refresh" onClick={() => void load()} disabled={loading}>
+          {loading ? "Atualizando…" : "Atualizar"}
+        </button>
       </div>
 
       {error && (
@@ -265,383 +321,201 @@ export function LobbyPage() {
         </p>
       )}
 
-      <div
-        className={
-          walletMode === "real"
-            ? "rounded-sm border border-amber-600/60 bg-amber-950/40 px-3 py-2 text-xs text-amber-100"
-            : "rounded-sm border border-emerald-700/50 bg-emerald-950/30 px-3 py-2 text-xs text-emerald-100"
-        }
-      >
-        {walletMode === "real" ? (
-          <>
-            <strong>Jogo Real:</strong> só saldo real. Fichas Play Money{" "}
-            <strong>não</strong> servem nestas mesas/torneios. Sem saldo? Vá em{" "}
-            <Link to="/wallet" className="underline text-gold-soft">
-              Carteira → Pedir fichas
-            </Link>
-            .
-          </>
-        ) : (
-          <>
-            <strong>Play Money:</strong> fichas de diversão (renovam todo dia).{" "}
-            <strong>Não têm valor real</strong> e não podem ser usadas no Jogo Real.
-          </>
-        )}
-      </div>
-
       {tab === "cash" ? (
-        <div className="zt-panel overflow-hidden">
-          <div className="zt-lobby-toolbar">
-            <div className="min-w-0 flex-1">
-              <div className="text-xs font-bold uppercase tracking-wider text-gold-bright">
-                Cash games
-                <span className="ml-2 font-mono text-felt-300">({filtered.length})</span>
-              </div>
-              <p className="text-[11px] text-felt-400">
-                Texas tradicional, Texas Short Deck, Omaha 4 e Brazilian Pineapple (só Play Money por enquanto) · confira blinds, frente e vagas em cada mesa · ação automática em 15s
-              </p>
-            </div>
-
-            <div className="zt-lobby-stake-tabs" role="tablist" aria-label="Filtro de stakes">
+        <section aria-label="Mesas cash">
+          <div className="zt-lobby-filters">
+            <div className="zt-lobby-chips" role="tablist" aria-label="Filtro de jogo">
               {STAKE_OPTIONS.map((opt) => (
                 <button
                   key={opt.id}
                   type="button"
                   role="tab"
                   aria-selected={stake === opt.id}
-                  className={stake === opt.id ? "zt-tab zt-tab-active" : "zt-tab"}
+                  className={stake === opt.id ? "zt-filter-chip on" : "zt-filter-chip"}
                   onClick={() => setStake(opt.id)}
                 >
                   {opt.label}
                 </button>
               ))}
             </div>
-
             <label className="flex items-center gap-2 text-xs text-cream">
-              <input
-                type="checkbox"
-                className="accent-gold"
-                checked={hideFull}
-                onChange={(e) => setHideFull(e.target.checked)}
-              />
+              <input type="checkbox" className="accent-gold" checked={hideFull} onChange={(e) => setHideFull(e.target.checked)} />
               Ocultar cheias
             </label>
-
-            <button
-              type="button"
-              className="zt-btn-secondary px-3! py-1! text-xs!"
-              onClick={() => void load()}
-              disabled={loading}
-            >
-              Atualizar
-            </button>
           </div>
 
           {loading && tables.length === 0 ? (
-            <div className="flex items-center justify-center gap-3 p-8 text-sm text-felt-300">
+            <div className="flex items-center justify-center gap-3 p-10 text-sm text-felt-300">
               <span className="zt-spinner" aria-hidden />
               Carregando mesas…
             </div>
           ) : filtered.length === 0 ? (
-            <p className="p-6 text-center text-sm text-felt-300">Nenhuma mesa com esses filtros.</p>
+            <p className="p-8 text-center text-sm text-felt-300">Nenhuma mesa com esses filtros.</p>
           ) : (
-            <>
-            <div className="space-y-2 p-3 md:hidden">
-              {filtered.map((t) => {
+            <div className="zt-lobby-grid">
+              {filtered.map((t, index) => {
                 const full = t.players >= t.max_players;
-                const pct = occupancyPct(t.players, t.max_players);
+                const theme = variantTheme(t.poker_variant);
                 return (
-                  <div key={t.id} className="rounded-sm border border-felt-600 bg-felt-950/50 p-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="font-semibold text-cream">{gameNameLabel(t, "cash")}</p>
-                        <p className="mt-1 font-mono text-sm text-gold-soft">
-                          {formatBrlFromCents(t.small_blind)}/{formatBrlFromCents(t.big_blind)}
-                          <span className="ml-2 text-felt-300">
-                            {formatBuyInRange(t.min_buy_in, t.max_buy_in)}
-                          </span>
-                        </p>
-                        <p className="mt-1 text-[11px] text-felt-400">
-                          {deckTypeLabel(t)} · {t.max_players}-max
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        className={
-                          full
-                            ? "zt-btn-secondary shrink-0 px-3! py-1.5! text-xs!"
-                            : "zt-btn-primary shrink-0 px-3! py-1.5! text-xs!"
-                        }
-                        disabled={joiningId === t.id}
-                        onClick={() => (full ? void handleWaitlist(t) : void handleJoin(t))}
-                      >
-                        {joiningId === t.id ? "…" : full ? "Fila" : "Entrar"}
-                      </button>
-                    </div>
-                    <div className="zt-occupancy mt-2">
-                      <span className={full ? "zt-occupancy-label full" : "zt-occupancy-label"}>
-                        {t.players}/{t.max_players}
+                  <motion.article
+                    key={t.id}
+                    {...cardMotion}
+                    transition={{ duration: 0.3, delay: Math.min(index, 8) * 0.04 }}
+                    className={`zt-table-card ${theme.tone} ${full ? "full" : ""} ${selectedId === t.id ? "selected" : ""}`}
+                    tabIndex={0}
+                    onClick={() => setSelectedId(t.id)}
+                    onDoubleClick={() => {
+                      if (!full) void handleJoin(t);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !full) void handleJoin(t);
+                    }}
+                  >
+                    <div className="zt-table-card-top">
+                      <span className="zt-variant-badge">
+                        <span aria-hidden>{theme.suit}</span> {theme.tag}
                       </span>
-                      <div className="zt-occupancy-track" aria-hidden>
-                        <div className={occupancyBarClass(pct, full)} style={{ width: `${pct}%` }} />
-                      </div>
+                      {t.players > 0 && !full && <span className="zt-live-dot">ao vivo</span>}
+                      {full && <span className="zt-full-tag">cheia</span>}
                     </div>
-                  </div>
+                    <h2>{gameNameLabel(t, "cash")}</h2>
+                    <MiniTable players={t.players} max={t.max_players} />
+                    <dl className="zt-table-card-facts">
+                      <div>
+                        <dt>Blinds</dt>
+                        <dd>
+                          {formatBrlFromCents(t.small_blind)}/{formatBrlFromCents(t.big_blind)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Entrada</dt>
+                        <dd>{formatBuyInRange(t.min_buy_in, t.max_buy_in)}</dd>
+                      </div>
+                      <div>
+                        <dt>Baralho</dt>
+                        <dd>{deckTypeLabel(t)}</dd>
+                      </div>
+                    </dl>
+                    <button
+                      type="button"
+                      className={full ? "zt-btn-secondary w-full" : "zt-btn-primary w-full"}
+                      disabled={joiningId === t.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (full) void handleWaitlist(t);
+                        else void handleJoin(t);
+                      }}
+                    >
+                      {joiningId === t.id ? "Entrando…" : full ? "Entrar na fila" : "Sentar na mesa"}
+                    </button>
+                  </motion.article>
                 );
               })}
             </div>
-            <div className="zt-table-wrap hidden md:block">
-              <table className="zt-lobby-table min-w-232 table-fixed">
-                <colgroup>
-                  <col className="w-[28%]" />
-                  <col className="w-[16%]" />
-                  <col className="w-[20%]" />
-                  <col className="w-[14%]" />
-                  <col className="w-[13%]" />
-                  <col className="w-[9%]" />
-                </colgroup>
-                <thead>
-                  <tr>
-                    <th>Nome</th>
-                    <th>Tipo</th>
-                    <th>Blinds</th>
-                    <th>Frente</th>
-                    <th>Jogadores</th>
-                    <th className="text-right">Ação</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((t) => {
-                    const full = t.players >= t.max_players;
-                    const pct = occupancyPct(t.players, t.max_players);
-                    const selected = selectedId === t.id;
-                    return (
-                      <tr
-                        key={t.id}
-                        tabIndex={0}
-                        className={[
-                          selected ? "zt-lobby-row-selected" : "",
-                          full ? "zt-lobby-row-full" : "",
-                        ]
-                          .filter(Boolean)
-                          .join(" ")}
-                        onClick={() => setSelectedId(t.id)}
-                        onDoubleClick={() => {
-                          if (!full) void handleJoin(t);
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            setSelectedId(t.id);
-                            if (e.key === "Enter" && !full) void handleJoin(t);
-                          }
-                        }}
-                      >
-                        <td className="font-semibold text-cream">
-                          {gameNameLabel(t, "cash")}
-                        </td>
-                        <td>
-                          <div className="flex flex-col items-center gap-1 text-center">
-                            <span
-                              className={
-                                deckTypeLabel(t) === "Short Deck"
-                                  ? "zt-chip zt-chip-accent"
-                                  : "zt-chip"
-                              }
-                            >
-                              {deckTypeLabel(t)}
-                            </span>
-                            <span className="zt-chip">{t.max_players}-max</span>
-                          </div>
-                        </td>
-                        <td className="font-mono text-gold-soft">
-                          {formatBrlFromCents(t.small_blind)}/{formatBrlFromCents(t.big_blind)}
-                        </td>
-                        <td className="font-mono text-felt-200">
-                          {formatBuyInRange(t.min_buy_in, t.max_buy_in)}
-                        </td>
-                        <td>
-                          <div className="zt-occupancy">
-                            <span className={full ? "zt-occupancy-label full" : "zt-occupancy-label"}>
-                              {t.players}/{t.max_players}
-                            </span>
-                            <div className="zt-occupancy-track" aria-hidden>
-                              <div
-                                className={occupancyBarClass(pct, full)}
-                                style={{ width: `${pct}%` }}
-                              />
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-right">
-                          <button
-                            type="button"
-                            className={
-                              full
-                                ? "zt-btn-secondary px-2.5! py-1! text-xs!"
-                                : "zt-btn-primary px-2.5! py-1! text-xs!"
-                            }
-                            disabled={joiningId === t.id}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (full) {
-                                void handleWaitlist(t);
-                              } else {
-                                void handleJoin(t);
-                              }
-                            }}
-                          >
-                            {joiningId === t.id ? "…" : full ? "Fila" : "Entrar"}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-            </>
           )}
-        </div>
+          <p className="mt-3 text-[11px] text-felt-400">
+            A mão começa com pelo menos 2 jogadores na mesma mesa. Ação automática em 15 segundos. No computador, duplo clique no cartão
+            também entra.
+          </p>
+        </section>
       ) : (
-        <div className="space-y-3">
-          <div className="rounded-sm border border-gold/40 bg-felt-950/70 px-4 py-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-gold-soft">
-              Próximos torneios
-            </p>
-            <p className="mt-1 text-sm text-cream">
-              Data e horário definidos pelo admin · auto-start com 5+ jogadores
-              {soonestStart ? ` · ${formatCountdown(soonestStart, now)}` : ""}
-            </p>
-          </div>
-          <div className="zt-panel overflow-hidden">
-          <div className="zt-lobby-toolbar">
-            <div className="min-w-0 flex-1">
-              <div className="text-xs font-bold uppercase tracking-wider text-gold-bright">
-                Torneios
-                <span className="ml-2 font-mono text-felt-300">({tournaments.length})</span>
-              </div>
-              <p className="text-[11px] text-felt-400">
-                Texas tradicional e Short Deck, freeroll, Omaha e Brazilian Pineapple (só Play Money) · taxa 15% por cima do buy-in
-              </p>
-            </div>
-            <button
-              type="button"
-              className="zt-btn-secondary px-3! py-1! text-xs!"
-              onClick={() => void load()}
-              disabled={loading}
-            >
-              Atualizar
-            </button>
+        <section aria-label="Torneios">
+          <div className="zt-next-tourney">
+            <span>Próximo torneio</span>
+            <strong>{soonestStart ? formatCountdown(soonestStart, now) : "sem horário marcado"}</strong>
+            <small>Data e horário definidos pela casa · começa sozinho com 5 ou mais inscritos · taxa de 15% por cima do buy-in</small>
           </div>
 
           {loading && tournaments.length === 0 ? (
-            <div className="flex items-center justify-center gap-3 p-8 text-sm text-felt-300">
+            <div className="flex items-center justify-center gap-3 p-10 text-sm text-felt-300">
               <span className="zt-spinner" aria-hidden />
               Carregando torneios…
             </div>
           ) : tournaments.length === 0 ? (
-            <p className="p-6 text-center text-sm text-felt-300">Nenhum torneio aberto.</p>
+            <p className="p-8 text-center text-sm text-felt-300">Nenhum torneio aberto.</p>
           ) : (
-            <div className="grid gap-3 p-3 sm:grid-cols-2">
-              {tournaments.map((t) => {
-                const tables = liveTableIds(t);
+            <div className="zt-lobby-grid">
+              {tournaments.map((t, index) => {
+                const liveTables = liveTableIds(t);
                 const registered = registeredIds.has(t.id);
                 const live = t.status === "running" || t.gameplay_ready;
+                const theme = variantTheme(t.poker_variant);
+                const pct = occupancyPct(t.registered_players, t.max_players);
                 return (
-                  <article
+                  <motion.article
                     key={t.id}
-                    className="flex flex-col gap-3 rounded-sm border border-felt-600 bg-felt-950/50 p-3"
+                    {...cardMotion}
+                    transition={{ duration: 0.3, delay: Math.min(index, 8) * 0.04 }}
+                    className={`zt-table-card tourney ${theme.tone} ${registered ? "selected" : ""}`}
                   >
-                    <div>
-                      <Link
-                        to={`/tournament/${t.id}`}
-                        className="font-semibold text-cream hover:text-gold-bright"
-                      >
-                        {gameNameLabel(t, "tournament")}
-                      </Link>
-                      <p className="mt-1 text-[11px] text-felt-400">
-                        {deckTypeLabel(t)} · {t.table_max_players}-max
-                        {t.scheduled_start_at
-                          ? ` · ${formatCountdown(t.scheduled_start_at, now)}`
-                          : ""}
-                      </p>
+                    <div className="zt-table-card-top">
+                      <span className="zt-variant-badge">
+                        <span aria-hidden>{theme.suit}</span> {theme.tag}
+                      </span>
+                      {live ? <span className="zt-live-dot">ao vivo</span> : registered ? <span className="zt-full-tag ok">inscrito</span> : null}
                     </div>
-                    <dl className="grid grid-cols-2 gap-2 text-xs">
+                    <h2>
+                      <Link to={`/tournament/${t.id}`}>{gameNameLabel(t, "tournament")}</Link>
+                    </h2>
+                    <p className="zt-tourney-when">
+                      {t.scheduled_start_at ? formatCountdown(t.scheduled_start_at, now) : "Aguardando horário"}
+                    </p>
+                    <div className="zt-tourney-prize">
+                      <span>{t.guaranteed_prize > 0 ? "Garantido" : "Buy-in"}</span>
+                      <strong>{t.guaranteed_prize > 0 ? formatBrlFromCents(t.guaranteed_prize) : buyInLabel(t)}</strong>
+                    </div>
+                    <dl className="zt-table-card-facts">
                       <div>
-                        <dt className="text-felt-400">Buy-in</dt>
-                        <dd className="font-mono text-gold-soft">{buyInLabel(t)}</dd>
+                        <dt>Buy-in</dt>
+                        <dd>{buyInLabel(t)}</dd>
                       </div>
                       <div>
-                        <dt className="text-felt-400">GTD</dt>
-                        <dd className="font-mono text-cream">
-                          {t.guaranteed_prize > 0 ? formatBrlFromCents(t.guaranteed_prize) : "—"}
-                        </dd>
+                        <dt>Mesa</dt>
+                        <dd>{t.table_max_players} lugares</dd>
                       </div>
                       <div>
-                        <dt className="text-felt-400">Inscritos</dt>
-                        <dd className="font-mono text-cream">
-                          {t.registered_players}/{t.max_players}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-felt-400">Rebuy</dt>
-                        <dd className="text-felt-200">
-                          {t.allow_rebuy ? `até niv. ${t.rebuy_max_level}` : "não"}
-                        </dd>
+                        <dt>Rebuy</dt>
+                        <dd>{t.allow_rebuy ? `até nív. ${t.rebuy_max_level}` : "não"}</dd>
                       </div>
                     </dl>
-                    <div className="mt-auto flex flex-wrap gap-2">
-                      {live && tables.length > 0 && registered ? (
-                        <Link
-                          to={`/table/${tables[0]}`}
-                          className="zt-btn-primary px-3! py-1.5! text-xs!"
-                        >
+                    <div className="zt-tourney-fill" aria-label={`${t.registered_players} de ${t.max_players} inscritos`}>
+                      <div className="zt-tourney-fill-track">
+                        <motion.div className="zt-tourney-fill-bar" initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.6 }} />
+                      </div>
+                      <span>
+                        {t.registered_players}/{t.max_players} inscritos
+                      </span>
+                    </div>
+                    <div className="mt-auto flex gap-2">
+                      {live && liveTables.length > 0 && registered ? (
+                        <Link to={`/table/${liveTables[0]}`} className="zt-btn-primary flex-1 text-center">
                           Sentar
                         </Link>
                       ) : registered && t.status === "registering" ? (
-                        <button
-                          type="button"
-                          className="zt-btn-secondary px-3! py-1.5! text-xs!"
-                          disabled={registeringId === t.id}
-                          onClick={() => void handleUnregister(t)}
-                        >
-                          {registeringId === t.id ? "…" : "Inscrito · Cancelar"}
+                        <button type="button" className="zt-btn-secondary flex-1" disabled={registeringId === t.id} onClick={() => void handleUnregister(t)}>
+                          {registeringId === t.id ? "…" : "Cancelar inscrição"}
                         </button>
                       ) : (
                         <button
                           type="button"
-                          className="zt-btn-primary px-3! py-1.5! text-xs!"
-                          disabled={
-                            registeringId === t.id ||
-                            registered ||
-                            t.status === "finished" ||
-                            t.status === "cancelled"
-                          }
+                          className="zt-btn-primary flex-1"
+                          disabled={registeringId === t.id || registered || t.status === "finished" || t.status === "cancelled"}
                           onClick={() => void handleRegister(t)}
                         >
                           {registeringId === t.id ? "…" : registered ? "Inscrito" : "Inscrever"}
                         </button>
                       )}
-                      <Link
-                        to={`/tournament/${t.id}`}
-                        className="zt-btn-secondary px-3! py-1.5! text-xs!"
-                      >
+                      <Link to={`/tournament/${t.id}`} className="zt-btn-secondary">
                         Detalhes
                       </Link>
                     </div>
-                  </article>
+                  </motion.article>
                 );
               })}
             </div>
           )}
-        </div>
-        </div>
+        </section>
       )}
-
-      <p className="text-[11px] text-felt-400">
-        Cash: mín. 2 na mesma mesa para iniciar a mão. No computador, duplo clique entra.
-      </p>
     </div>
   );
 }

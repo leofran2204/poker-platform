@@ -1,5 +1,29 @@
 @import "tailwindcss";
 
+/* Fontes dos vídeos da Academy (licença OFL em public/fonts): arquivos variáveis,
+   servidos pelo próprio site. */
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope-latin.woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("/fonts/fraunces-latin.woff2") format("woff2");
+  font-weight: 500 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("/fonts/fraunces-italic-latin.woff2") format("woff2");
+  font-weight: 600 700;
+  font-style: italic;
+  font-display: swap;
+}
+
 @theme {
   --color-felt-200: #a8d0a8;
   --color-felt-300: #7ab87a;
@@ -27,7 +51,8 @@
   --color-ink: #0c0c0c;
   --color-ink-panel: #121812;
 
-  --font-ui: Segoe UI, Tahoma, Geneva, Verdana, system-ui, sans-serif;
+  --font-ui: "Manrope", Segoe UI, Tahoma, Geneva, Verdana, system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --font-mono: Consolas, ui-monospace, monospace;
 
   --shadow-panel: 0 2px 0 rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.35);
@@ -775,6 +800,377 @@
   .zt-chip-flight.gold i {
     background: radial-gradient(circle at 50% 50%, #8b6914 0 34%, #e3b94f 36% 100%);
   }
+  /* ── Lobby: cartões de mesa e de torneio ── */
+  .zt-lobby {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .zt-lobby-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 24px;
+    border-radius: 14px;
+    border: 1px solid rgba(236, 217, 154, 0.22);
+    background:
+      radial-gradient(ellipse at 15% 0%, rgba(111, 208, 174, 0.14), transparent 55%),
+      linear-gradient(160deg, rgba(11, 33, 22, 0.95), rgba(5, 14, 9, 0.95));
+  }
+  .zt-lobby-head h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: clamp(30px, 5vw, 44px);
+    font-weight: 700;
+    line-height: 1.05;
+    color: #f7f1e3;
+  }
+  .zt-lobby-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #6fd0ae;
+  }
+  .zt-mode-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: #6fd0ae;
+    box-shadow: 0 0 10px #6fd0ae;
+  }
+  .zt-mode-dot.real {
+    background: #e8c35a;
+    box-shadow: 0 0 10px #e8c35a;
+  }
+  .zt-lobby-sub {
+    margin-top: 6px;
+    max-width: 520px;
+    font-size: 13px;
+    color: #a9bfb2;
+  }
+  .zt-lobby-stats {
+    display: flex;
+    gap: 22px;
+  }
+  .zt-lobby-stats div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.1;
+  }
+  .zt-lobby-stats strong {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 30px;
+    color: #ecd99a;
+    font-variant-numeric: tabular-nums;
+  }
+  .zt-lobby-stats span {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #a9bfb2;
+  }
+  .zt-lobby-tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid rgba(236, 217, 154, 0.18);
+  }
+  .zt-lobby-tab {
+    position: relative;
+    padding: 10px 16px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #a9bfb2;
+  }
+  .zt-lobby-tab.on {
+    color: #f7f1e3;
+  }
+  .zt-lobby-tab-line {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: -1px;
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #8b6914, #e8c35a);
+  }
+  .zt-lobby-refresh {
+    margin-left: auto;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #ecd99a;
+    opacity: 0.85;
+  }
+  .zt-lobby-refresh:hover {
+    opacity: 1;
+  }
+  .zt-lobby-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .zt-lobby-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .zt-filter-chip {
+    padding: 6px 13px;
+    border-radius: 9999px;
+    border: 1px solid rgba(236, 217, 154, 0.25);
+    background: rgba(5, 14, 9, 0.5);
+    font-size: 12px;
+    font-weight: 700;
+    color: #cfd8d1;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .zt-filter-chip:hover {
+    border-color: #e8c35a;
+  }
+  .zt-filter-chip.on {
+    background: #d4a843;
+    border-color: #ffe27a;
+    color: #101010;
+  }
+  .zt-lobby-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 14px;
+  }
+  .zt-table-card {
+    --accent: #d4a843;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(170deg, rgba(14, 30, 21, 0.96), rgba(6, 15, 10, 0.96));
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    overflow: hidden;
+    outline: none;
+  }
+  .zt-table-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--accent);
+  }
+  .zt-table-card:hover,
+  .zt-table-card:focus-visible,
+  .zt-table-card.selected {
+    border-color: var(--accent);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--accent);
+  }
+  .zt-table-card.pineapple { --accent: #6fd0ae; }
+  .zt-table-card.omaha { --accent: #b48be8; }
+  .zt-table-card.shortdeck { --accent: #6aa9ee; }
+  .zt-table-card.holdem { --accent: #d4a843; }
+  .zt-table-card.full {
+    opacity: 0.78;
+  }
+  .zt-table-card h2 {
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #f7f1e3;
+  }
+  .zt-table-card h2 a:hover {
+    color: #e8c35a;
+  }
+  .zt-table-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .zt-variant-badge {
+    padding: 3px 10px;
+    border-radius: 9999px;
+    border: 1px solid var(--accent);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+  }
+  .zt-live-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #5fd394;
+  }
+  .zt-live-dot::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    background: #5fd394;
+    animation: zt-live-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes zt-live-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(95, 211, 148, 0.6); }
+    50% { box-shadow: 0 0 0 6px rgba(95, 211, 148, 0); }
+  }
+  .zt-full-tag {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #ef6a5f;
+  }
+  .zt-full-tag.ok {
+    color: #e8c35a;
+  }
+  .zt-mini-table {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2.2 / 1;
+    margin: 2px 0;
+    border-radius: 9999px;
+    border: 5px solid #4a2f1a;
+    background: radial-gradient(ellipse at 50% 42%, #2f7a45 0%, #1c5630 55%, #123b20 100%);
+    box-shadow: 0 0 0 1.5px rgba(201, 162, 39, 0.7), inset 0 0 22px rgba(0, 0, 0, 0.45);
+  }
+  .zt-mini-seat {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    border-radius: 9999px;
+    transform: translate(-50%, -50%);
+    border: 2px solid rgba(236, 217, 154, 0.45);
+    background: rgba(5, 14, 9, 0.85);
+  }
+  .zt-mini-seat.on {
+    border-color: #fff3c4;
+    background: linear-gradient(160deg, #ecd99a, #d4a843);
+    box-shadow: 0 0 8px rgba(232, 195, 90, 0.8);
+  }
+  .zt-mini-count {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 15px;
+    font-weight: 800;
+    color: rgba(247, 241, 227, 0.85);
+  }
+  .zt-table-card-facts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .zt-table-card-facts dt {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #8fa598;
+  }
+  .zt-table-card-facts dd {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ecd99a;
+    white-space: nowrap;
+  }
+  .zt-next-tourney {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 14px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(232, 195, 90, 0.4);
+    background: linear-gradient(120deg, rgba(212, 168, 67, 0.16), rgba(5, 14, 9, 0.6));
+  }
+  .zt-next-tourney span {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ecd99a;
+  }
+  .zt-next-tourney strong {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 24px;
+    color: #f7f1e3;
+  }
+  .zt-next-tourney small {
+    font-size: 12px;
+    color: #a9bfb2;
+  }
+  .zt-table-card.tourney {
+    cursor: default;
+  }
+  .zt-tourney-when {
+    font-size: 13px;
+    font-weight: 700;
+    color: #6fd0ae;
+  }
+  .zt-tourney-prize {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(236, 217, 154, 0.18);
+  }
+  .zt-tourney-prize span {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #8fa598;
+  }
+  .zt-tourney-prize strong {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 24px;
+    color: #ecd99a;
+  }
+  .zt-tourney-fill {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 11px;
+    color: #a9bfb2;
+  }
+  .zt-tourney-fill-track {
+    height: 6px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+  }
+  .zt-tourney-fill-bar {
+    height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #8b6914, #e8c35a);
+  }
+  @media (max-width: 639px) {
+    .zt-lobby-head {
+      padding: 16px;
+    }
+    .zt-lobby-stats strong {
+      font-size: 22px;
+    }
+    .zt-lobby-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
   /* Ação antecipada e dica de tecla. */
   .zt-preactions {
     display: flex;
