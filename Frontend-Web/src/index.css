@@ -1171,6 +1171,24 @@
     }
   }
 
+  /* Mesas de demonstração: os cartões de assento ganham o acabamento das placas do jogo. */
+  .zt-demo-table .zt-seat-card,
+  .zt-showcase-table .zt-seat-card {
+    border-radius: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(180deg, rgba(14, 30, 21, 0.97), rgba(6, 15, 10, 0.97));
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5);
+  }
+  .zt-demo-table .zt-seat-card.active,
+  .zt-showcase-table .zt-seat-card.active {
+    border-color: #e8c35a;
+    box-shadow: 0 0 0 2px rgba(232, 195, 90, 0.35), 0 0 18px rgba(232, 195, 90, 0.5);
+  }
+  .zt-demo-table .zt-seat-card.winner,
+  .zt-showcase-table .zt-seat-card.winner {
+    border-color: #ffe27a;
+  }
+
   /* Ação antecipada e dica de tecla. */
   .zt-preactions {
     display: flex;

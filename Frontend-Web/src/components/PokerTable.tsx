@@ -22,6 +22,8 @@ interface Props {
   drawing?: boolean;
   /** Brazilian Pineapple: descarte obrigatório do river em andamento. */
   discarding?: boolean;
+  /** Vitrine (home): só a mesa, sem cabeçalho, barra de ações nem som. */
+  showcase?: boolean;
   ante?: number;
   antePaid?: number;
   antePlayerId?: string | null;
@@ -53,6 +55,7 @@ export function PokerTable({
   bettingStructure,
   drawing = false,
   discarding = false,
+  showcase = false,
   ante = 0,
   antePaid = 0,
   antePlayerId,
@@ -288,10 +291,11 @@ export function PokerTable({
     }
     if (launched.length > 0) {
       setFlights((current) => [...current, ...launched]);
-      playTableSound(launched.length > 1 || launched[0].gold ? "chips" : "chip");
+      if (!showcase) playTableSound(launched.length > 1 || launched[0].gold ? "chips" : "chip");
       const ids = new Set(launched.map((flight) => flight.id));
       window.setTimeout(() => setFlights((current) => current.filter((flight) => !ids.has(flight.id))), 750);
     }
+    if (showcase) return;
     if (now.board > before.board) playTableSound("flip");
     if (now.cards > before.cards && before.cards === 0) playTableSound("deal");
     if (now.myTurn && !before.myTurn) {
@@ -306,7 +310,7 @@ export function PokerTable({
 
   return (
     <div>
-      {dealing && (
+      {!showcase && dealing && (
         <div
           className="zt-deal-banner mb-3 rounded-sm border-2 border-gold-bright bg-gold/15 px-4 py-2 text-center text-sm font-bold text-gold-bright"
           role="status"
@@ -314,7 +318,7 @@ export function PokerTable({
           Embaralhando o baralho e distribuindo as cartas…
         </div>
       )}
-      {winners.length > 0 && (
+      {!showcase && winners.length > 0 && (
         <div
           className="zt-winner-banner mb-3 rounded-sm border-2 border-gold-bright bg-gold/15 px-4 py-2 text-center text-sm font-bold text-gold-bright"
           role="status"
@@ -327,7 +331,7 @@ export function PokerTable({
           )}
         </div>
       )}
-      <div className="mb-3 flex items-center justify-between text-sm">
+      <div className={showcase ? "hidden" : "mb-3 flex items-center justify-between text-sm"}>
         <span className="flex items-center gap-2 font-semibold text-gold-bright">
           Mesa ao vivo
           <button
@@ -361,7 +365,7 @@ export function PokerTable({
       <div className="zt-felt-table">
         {/* Center: pot + board */}
         <div className="absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
-          <div className="zt-pot">
+          <div className={showcase && potTotal === 0 ? "invisible zt-pot" : "zt-pot"}>
             {potTotal > 0 && (
               <span className="zt-chip-stack gold" aria-hidden="true">
                 <i />
@@ -580,11 +584,11 @@ export function PokerTable({
         })}
       </div>
 
-      {pineapple && <p className="text-center text-xs text-felt-200 mt-3">Troca opcional de uma carta depois das apostas do flop e do turn · No river, cada jogador descarta uma carta e joga a última rodada com duas · Todas as rodadas: aumento limitado ao pote antes do call</p>}
-      {drawing && !canDraw && <p className="text-center text-xs font-semibold text-gold-soft" role="status">Rodada de troca: cada jogador mantém as cartas ou troca uma.</p>}
-      {discarding && !canDiscard && <p className="text-center text-xs font-semibold text-gold-soft" role="status">Descarte do river: cada jogador descarta uma carta e fica com duas.</p>}
-      {ante > 0 && <p className="text-center text-xs text-felt-200">Ante do BB {formatChips(ante)} · pago {formatChips(antePaid)} por {players.find(p => p.id === antePlayerId)?.name ?? "big blind"}</p>}
-      <div className="zt-action-bar">
+      {!showcase && pineapple && <p className="text-center text-xs text-felt-200 mt-3">Troca opcional de uma carta depois das apostas do flop e do turn · No river, cada jogador descarta uma carta e joga a última rodada com duas · Todas as rodadas: aumento limitado ao pote antes do call</p>}
+      {!showcase && drawing && !canDraw && <p className="text-center text-xs font-semibold text-gold-soft" role="status">Rodada de troca: cada jogador mantém as cartas ou troca uma.</p>}
+      {!showcase && discarding && !canDiscard && <p className="text-center text-xs font-semibold text-gold-soft" role="status">Descarte do river: cada jogador descarta uma carta e fica com duas.</p>}
+      {!showcase && ante > 0 && <p className="text-center text-xs text-felt-200">Ante do BB {formatChips(ante)} · pago {formatChips(antePaid)} por {players.find(p => p.id === antePlayerId)?.name ?? "big blind"}</p>}
+      <div className={showcase ? "hidden" : "zt-action-bar"}>
         {canDraw || canDiscard ? (
           <div className="flex flex-wrap items-end gap-3" aria-label={canDiscard ? "Descarte do river" : "Rodada de troca"}>
             <div>

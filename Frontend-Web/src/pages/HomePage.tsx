@@ -1,18 +1,29 @@
 import { lazy, Suspense, useState } from "react";
 import { Navigate, Link } from "react-router";
+import { motion } from "motion/react";
 import { isAuthenticated } from "@/lib/auth";
 import { PineappleDrawFilm } from "@/components/PineappleDrawFilm";
 import { PlayingCard } from "@/components/PlayingCard";
+import { LiveHandShowcase } from "@/components/home/LiveHandShowcase";
 import "./home-premium.css";
 
 const Games = lazy(() => import("@/components/home/GamesSection").then(m => ({default: m.GamesSection})));
 const Deflator = lazy(() => import("@/components/home/LossDeflatorSection").then(m => ({default: m.LossDeflatorSection})));
 
+/** Entrada ao rolar a página: sobe e aparece uma vez. Sem movimento para quem pediu menos animação. */
+const reveal = {
+  initial: { opacity: 0, y: 26 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-12% 0px" },
+  transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
+};
+const VARIANT_TONE = ["pineapple", "shortdeck", "omaha", "holdem"];
+
 function DecisionChallenge() {
   const [answer, setAnswer] = useState<number | null>(null);
   return <section className="hp-section" id="desafio" aria-labelledby="decision-title">
-    <header className="hp-heading"><p className="hp-eyebrow">01 / Experimente pensar o jogo</p><h2 id="decision-title">Uma mão. <em>Uma boa pergunta.</em></h2><p>A decisão começa antes de clicar em pagar. Experimente um pouco da Academy.</p></header>
-    <div className="hp-challenge">
+    <motion.header className="hp-heading" {...reveal}><p className="hp-eyebrow">01 / Experimente pensar o jogo</p><h2 id="decision-title">Uma mão. <em>Uma boa pergunta.</em></h2><p>A decisão começa antes de clicar em pagar. Experimente um pouco da Academy.</p></motion.header>
+    <motion.div className="hp-challenge" {...reveal}>
       <div className="hp-table" aria-label="Exemplo fictício de Texas Hold’em no river">
         <div className="hp-table-top"><span>Texas Hold’em</span><span>RIVER · EXEMPLO</span></div>
         <div className="hp-opponent"><PlayingCard faceDown size="sm" /><PlayingCard faceDown size="sm" /><span>Adversário · aposta 50</span></div>
@@ -26,7 +37,7 @@ function DecisionChallenge() {
         <div className="hp-answer" aria-live="polite" aria-atomic="true">{answer===null ? <p>Escolha uma resposta para revelar o raciocínio.</p> : <><strong>{answer===25 ? "Isso: 25% para empatar em valor esperado." : "O ponto de equilíbrio é 25%. Veja por quê."}</strong><p>50 ÷ (150 + 50) = 25%. Seu call forma um pote final de 200. Acima desse limiar, o call tem EV positivo neste modelo. Isso não revela a sua equidade real nem garante o resultado da mão.</p></>}</div>
         <Link to="/curso/m0l4" className="hp-link">Começar pelos fundamentos na Academy ↗</Link><p className="hp-source">Conceito: <a href="https://ocw.mit.edu/courses/15-s50-poker-theory-and-analytics-january-iap-2015/resources/mit15_s50iap15_l3_basic/" target="_blank" rel="noreferrer">MIT · Poker Theory and Analytics, aula 3</a>. Exemplo original ZT.</p>
       </div>
-    </div>
+    </motion.div>
   </section>;
 }
 
@@ -37,7 +48,7 @@ function VisitorHome() {
     <section className="hp-hero hp-pineapple" aria-labelledby="home-title">
       <div className="hp-hero-inner"><div className="hp-hero-copy"><p className="hp-eyebrow"><span aria-hidden="true">♠</span> ZERO TILT POKER / NOVA MODALIDADE</p><h1 id="home-title">Brazilian<br /><em>Pineapple.</em></h1><p className="hp-description">Três cartas. Duas trocas. Um descarte.<br />Depois das apostas do flop e do turn, você decide: manter ou trocar uma carta. No river, descarta uma e disputa o pote com duas, como no Hold’em.</p>
         <div className="hp-actions"><Link to="/curso/m5l3" className="hp-button">Aprenda as regras <span aria-hidden="true">↗</span></Link><PineappleDrawFilm /></div><p className="hp-note">Vídeos com legendas e capítulos · primeiro no Play Money, sem depósito · 18+</p></div>
-        <figure className="hp-pineapple-cover hp-draw-cover"><div className="hp-draw-hand" role="img" aria-label="Três cartas na mão; o rei é trocado depois das apostas do flop"><PlayingCard code="As" /><span className="hp-draw-swap"><PlayingCard code="Ks" /></span><PlayingCard code="Ah" /></div><div className="hp-draw-board" aria-hidden="true"><PlayingCard code="Ad" size="sm" /><PlayingCard code="Qc" size="sm" /><PlayingCard code="2s" size="sm" /></div><figcaption>3 cartas · troca depois das apostas do flop e do turn · descarte no river.<br /><span>Quem está all-in não troca. O resto da regra está na Academy.</span></figcaption></figure><a className="hp-scroll" href="#desafio">A próxima decisão é sua <span aria-hidden="true">↓</span></a>
+        <figure className="hp-pineapple-cover hp-live-cover"><LiveHandShowcase /><figcaption>Uma mão inteira, do começo ao fim.<br /><span>Valores ilustrativos. Quem está all-in não troca. O resto da regra está na Academy.</span></figcaption></figure><a className="hp-scroll" href="#desafio">A próxima decisão é sua <span aria-hidden="true">↓</span></a>
       </div>
     </section>
     <div className="hp-path" aria-label="Como começar">{[["01","Descubra o jogo","História, regras e possibilidades."],["02","Entenda a decisão","Aulas, exemplos e perguntas."],["03","Pratique no seu ritmo","Mesas de Play Money gratuitas."]].map(([n,title,body])=><div key={n}><span>{n}</span><p><strong>{title}</strong>{body}</p></div>)}</div>
@@ -45,13 +56,13 @@ function VisitorHome() {
     <section className="hp-section hp-academy" aria-labelledby="academy-title"><div><p className="hp-eyebrow">02 / Zero Tilt Academy</p><h2 id="academy-title">Muito além<br />da próxima <em>carta.</em></h2><p className="hp-body">De um baralho do século XV à matemática de uma aposta. Explore o jogo com contexto, exemplos visuais e referências que você pode consultar.</p><Link to="/curso" className="hp-link">Explorar a Academy ↗</Link><div className="hp-topics"><span>História</span><span>Estratégia</span><span>Matemática</span><span>Autocontrole</span></div></div>
       <Link to="/curso/m0l1" className="hp-lesson"><div className="hp-lesson-image"><img src="/videos/ep11-cartas-historia-v2.webp" width="1280" height="720" loading="lazy" alt="As cartas antes do poker — nova aula de história" /><span aria-hidden="true">↗</span></div><div className="hp-lesson-info"><span className="hp-label">HISTÓRIA / AULA 01</span><h3>As cartas antes do poker</h3><p>Um objeto de museu. Muitas perguntas.<br />Veja o que a história realmente documenta.</p><span className="hp-link">Assistir à aula →</span></div></Link>
     </section>
-    <section className="hp-section hp-games" id="modalidades" aria-labelledby="games-title"><header className="hp-heading"><p className="hp-eyebrow">03 / Encontre a sua mesa</p><h2 id="games-title">Quatro jogos.<br className="hp-mobile-break" /> <em>Novas maneiras de pensar.</em></h2><p>Uma conta, diferentes desafios. Conheça as regras antes de entrar.</p></header>
+    <section className="hp-section hp-games" id="modalidades" aria-labelledby="games-title"><motion.header className="hp-heading" {...reveal}><p className="hp-eyebrow">03 / Encontre a sua mesa</p><h2 id="games-title">Quatro jogos.<br className="hp-mobile-break" /> <em>Novas maneiras de pensar.</em></h2><p>Uma conta, diferentes desafios. Conheça as regras antes de entrar.</p></motion.header>
       <div className="hp-variants">{[
         ["Brazilian Pineapple","Exclusivo ZT Poker","♥","Três cartas na mão. Depois das apostas do flop e do turn, mantenha ou troque uma. No river, descarte uma e jogue com duas.","3 CARTAS · 2 TROCAS · 1 DESCARTE"],
         ["Short Deck","Outra dinâmica","♦","Do 6 ao ás. Aqui, flush supera full house e trinca supera sequência.","36 CARTAS"],
         ["Omaha 4","Mais combinações","♣","Quatro cartas na mão. Use exatamente duas delas e três comunitárias.","2 + 3 NO SHOWDOWN"],
         ["Texas Hold’em","O clássico","♠","Duas cartas na mão, cinco na mesa. Forme a melhor combinação de cinco.","52 CARTAS"],
-      ].map(([name,detail,symbol,body,tag],i)=><article className="hp-variant" key={name}><div className="hp-variant-top"><span>0{i+1}</span><span aria-hidden="true">{symbol}</span></div><p className="hp-label">{detail}</p><h3>{name}</h3><p>{body}</p><span className="hp-tag">{tag}</span></article>)}</div>
+      ].map(([name,detail,symbol,body,tag],i)=><motion.article className={`hp-variant ${VARIANT_TONE[i]}`} key={name} {...reveal} transition={{ ...reveal.transition, delay: i * 0.08 }} whileHover={{ y: -6 }}><div className="hp-variant-top"><span>0{i+1}</span><span aria-hidden="true">{symbol}</span></div><p className="hp-label">{detail}</p><h3>{name}</h3><p>{body}</p><span className="hp-tag">{tag}</span></motion.article>)}</div>
       <button type="button" className="hp-disclosure" aria-expanded={gamesOpen} aria-controls="home-replays" onClick={()=>setGamesOpen(!gamesOpen)}>{gamesOpen ? "Fechar demonstrações" : "Ver uma mão de cada modalidade"}<span aria-hidden="true">{gamesOpen ? "−" : "+"}</span></button>
       <div id="home-replays" hidden={!gamesOpen}>{gamesOpen && <div className="hp-expanded"><Suspense fallback={<p role="status">Carregando demonstrações…</p>}><Games /></Suspense></div>}</div>
     </section>
