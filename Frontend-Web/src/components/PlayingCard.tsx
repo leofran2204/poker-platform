@@ -30,16 +30,16 @@ export function PlayingCard({ code, faceDown, size = "md", inline = false, highl
 
   if (faceDown || !code) {
     return (
-      <div className={`zt-playing-card back ${dim} ${wrap}`} aria-label="Carta fechada" />
+      <span className={`zt-playing-card back ${dim} ${wrap}`} aria-label="Carta fechada" />
     );
   }
 
   const card = parseCard(code);
   if (!card) {
     return (
-      <div className={`zt-playing-card ${dim} ${wrap} items-center justify-center text-xs text-ink`}>
+      <span className={`zt-playing-card ${dim} ${wrap} items-center justify-center text-xs text-ink`}>
         {code}
-      </div>
+      </span>
     );
   }
 
@@ -48,7 +48,7 @@ export function PlayingCard({ code, faceDown, size = "md", inline = false, highl
   const big = size === "md" ? "text-[30px]" : "text-[21px]";
 
   return (
-    <div
+    <span
       className={`zt-playing-card ${dim} ${wrap} ${glow} ${color}`}
       title={`${card.rank}${suitSymbol(card.suit)}`}
       aria-label={`${card.rank} de ${SUIT_PT[card.suit]}`}
@@ -69,6 +69,6 @@ export function PlayingCard({ code, faceDown, size = "md", inline = false, highl
           </span>
         </>
       )}
-    </div>
+    </span>
   );
 }

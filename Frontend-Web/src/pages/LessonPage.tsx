@@ -84,13 +84,13 @@ export function LessonPage() {
   const unlocked = isLessonUnlocked(lesson.id, progress);
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-4">
+    <div className="mx-auto w-full max-w-4xl space-y-4">
       <Link to="/curso" className="block text-xs leading-6 text-gold-soft">
         ← {mod?.title ?? "Curso"}
       </Link>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-xl font-bold text-gold-bright">{lesson.title}</h1>
+          <h1 className="zt-lesson-title">{lesson.title}</h1>
           <p className="text-xs text-felt-400">{lessonFormat(lesson)}</p>
         </div>
         {isPassed && (

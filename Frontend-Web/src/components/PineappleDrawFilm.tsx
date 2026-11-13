@@ -68,7 +68,7 @@ export function PineappleDrawFilm({ academy = false }: { academy?: boolean }) {
         <img src={`${rules.posterUrl}?r=${rules.mediaRevision}`} width="1280" height="720" alt="" className="h-full w-full object-cover" />
         <span className="flex flex-col justify-center gap-2 p-5">
           <span className="text-xs font-bold uppercase tracking-wider text-gold-soft">Nova modalidade · Brazilian Pineapple</span>
-          <span className="text-lg font-bold text-cream">Três cartas. Uma troca por street.</span>
+          <span className="text-lg font-bold text-cream">Três cartas. Duas trocas. Um descarte.</span>
           <span className="text-sm leading-relaxed text-felt-200">A ordem da mão, as trocas, o descarte do river, all-in, limite do pote e Loss Deflator, com mãos conferidas no motor do jogo e capítulos para rever cada conta.</span>
           <span className="text-xs text-gold-soft">▶ Assistir · {formatLessonDuration(rules.durationSeconds!)} · português com legendas</span>
         </span>

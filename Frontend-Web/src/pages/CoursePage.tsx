@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { motion } from "motion/react";
 import { fetchCourseProgress, type CourseProgressItem } from "@/api/client";
 import { BrandMark } from "@/components/BrandMark";
 import { PineappleDrawFilm } from "@/components/PineappleDrawFilm";
@@ -27,18 +28,24 @@ export function CoursePage() {
     .filter((l) => progress[l.id]?.status === "completed" || (progress[l.id]?.best_score ?? 0) >= PASS_SCORE).length;
   const pct = total === 0 ? 0 : Math.round((done / total) * 100);
 
+  const tone = (id: string) =>
+    id.includes("pineapple") ? "pineapple" : id.includes("short") ? "shortdeck" : id.includes("omaha") ? "omaha" : "holdem";
+  const minutes = (seconds?: number) => (seconds ? `${Math.max(1, Math.round(seconds / 60))} min` : null);
+
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+    <div className="zt-academy">
+      <header className="zt-academy-head">
         <div>
-          <h1 className="flex items-center gap-2 text-xl font-bold text-gold-bright">
-            <BrandMark />
-            Zero Tilt Academy
-          </h1>
-          <p className="text-sm text-felt-200">
-            Assista às aulas, resolva os exercícios e pratique na mesa de cada módulo.
+          <p className="zt-lobby-eyebrow">
+            <BrandMark /> Zero Tilt Academy
           </p>
-          <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+          <h1>
+            Aprenda o jogo. <em>Depois jogue.</em>
+          </h1>
+          <p className="zt-lobby-sub">
+            Assista às aulas, resolva os exercícios e pratique na mesa de cada módulo. Nota mínima para avançar: {PASS_SCORE}%.
+          </p>
+          <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs">
             <Link to="/lobby" className="text-gold-soft hover:underline">
               Ir ao lobby →
             </Link>
@@ -50,102 +57,87 @@ export function CoursePage() {
             </Link>
           </p>
         </div>
-        <span className="rounded-sm border border-gold-soft/30 bg-felt-900 px-3 py-1 text-xs font-mono text-gold-bright">
-          Nota de Corte: {PASS_SCORE}%
-        </span>
-      </div>
+        <div className="zt-academy-progress" aria-label={`${done} de ${total} aulas concluídas`}>
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle cx="60" cy="60" r="52" className="track" />
+            <motion.circle
+              cx="60"
+              cy="60"
+              r="52"
+              className="bar"
+              strokeDasharray={2 * Math.PI * 52}
+              initial={{ strokeDashoffset: 2 * Math.PI * 52 }}
+              animate={{ strokeDashoffset: 2 * Math.PI * 52 * (1 - pct / 100) }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            />
+          </svg>
+          <div>
+            <strong>{authed ? `${pct}%` : total}</strong>
+            <span>{authed ? `${done}/${total} aulas` : "aulas"}</span>
+          </div>
+        </div>
+      </header>
 
       <PineappleDrawFilm academy />
 
       {!authed && (
-        <p className="rounded-sm border border-felt-700 bg-felt-800 px-3 py-2 text-xs text-felt-200">
+        <p className="rounded-xl border border-felt-700 bg-felt-800/70 px-4 py-3 text-xs text-felt-200">
           Você está navegando como visitante. <Link to="/login" className="text-gold-soft underline">Entre na sua conta</Link> para salvar
           seu progresso. As trilhas por modalidade ficam disponíveis após a aula de regras; história é opcional.
         </p>
       )}
 
-      {authed && total > 0 && (
-        <div className="zt-panel p-3">
-          <div className="flex justify-between text-xs text-felt-300">
-            <span>Progresso da Trilha Oficial</span>
-            <span className="font-mono text-gold-bright">
-              {done}/{total} aulas concluídas • {pct}%
-            </span>
-          </div>
-          <div className="mt-2 h-2 overflow-hidden rounded-sm bg-felt-800">
-            <div className="h-full rounded-sm bg-gold-bright transition-all duration-500" style={{ width: `${pct}%` }} />
-          </div>
-        </div>
-      )}
-
       {COURSE.modules.map((m) => (
-        <div key={m.id} className="space-y-2 pt-2">
-          <div>
-            <h2 className="text-base font-bold text-cream flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-gold-bright inline-block" />
-              {m.title}
-            </h2>
-            <p className="text-xs text-felt-400 pl-4">{m.subtitle}</p>
-            <Link to={`/curso/mesa/${m.id}`} className="mt-3 ml-4 inline-flex zt-btn-primary text-xs!">Praticar na mesa deste módulo →</Link>
+        <section key={m.id} className={`zt-track ${tone(m.id)}`} aria-labelledby={`track-${m.id}`}>
+          <div className="zt-track-head">
+            <div>
+              <h2 id={`track-${m.id}`}>{m.title}</h2>
+              <p>{m.subtitle}</p>
+            </div>
+            <Link to={`/curso/mesa/${m.id}`} className="zt-track-practice">
+              Praticar na mesa →
+            </Link>
           </div>
-          <div className="grid gap-2 pl-2">
+          <div className="zt-lesson-grid">
             {m.lessons.map((l, i) => {
-              const p = progress[l.id];
-              const isPassed = p?.status === "completed" || (p?.best_score ?? 0) >= PASS_SCORE;
+              const item = progress[l.id];
+              const isPassed = item?.status === "completed" || (item?.best_score ?? 0) >= PASS_SCORE;
               const unlocked = isLessonUnlocked(l.id, progress);
-
-              if (!unlocked) {
-                return (
-                  <div
-                    key={l.id}
-                    className="zt-panel flex items-center justify-between gap-3 p-3 opacity-50 cursor-not-allowed border-felt-800 bg-felt-950/40"
-                    title={`Complete os pré-requisitos com nota mínima de ${PASS_SCORE}% para liberar`}
-                  >
-                    <span>
-                      <span className="font-mono text-[11px] text-felt-500">{String(i + 1).padStart(2, "0")}</span>{" "}
-                      <span className="text-sm font-semibold text-felt-400">{l.title}</span>
-                      <span className="block text-[11px] text-felt-500">
-                        {lessonFormat(l)} ({l.quiz.length} questões)
-                      </span>
-                    </span>
-                    <span className="shrink-0 font-mono text-xs text-felt-500 flex items-center gap-1">
-                      🔒 Bloqueada
+              const poster = l.video?.posterUrl;
+              const length = minutes(l.video?.durationSeconds);
+              const body = (
+                <>
+                  <div className="zt-lesson-cover">
+                    {poster ? <img src={poster} alt="" loading="lazy" width={640} height={360} /> : <span className="zt-lesson-nocover">♠</span>}
+                    <span className="zt-lesson-number">{String(i + 1).padStart(2, "0")}</span>
+                    {length && <span className="zt-lesson-length">{length}</span>}
+                    {unlocked ? <span className="zt-lesson-play" aria-hidden="true">▶</span> : <span className="zt-lesson-lock" aria-hidden="true">🔒</span>}
+                  </div>
+                  <div className="zt-lesson-info">
+                    <h3>{l.title}</h3>
+                    <p>
+                      {lessonFormat(l)} · {l.quiz.length} {l.quiz.length === 1 ? "questão" : "questões"}
+                    </p>
+                    <span className={`zt-lesson-status ${!unlocked ? "locked" : isPassed ? "done" : item ? "retry" : ""}`}>
+                      {!unlocked ? "Bloqueada" : isPassed ? `✓ Concluída · ${item?.best_score ?? 100}%` : item ? `${item.best_score}% · refazer` : "Disponível"}
                     </span>
                   </div>
-                );
-              }
-
-              return (
-                <Link
-                  key={l.id}
-                  to={`/curso/${l.id}`}
-                  className="zt-panel flex items-center justify-between gap-3 p-3 transition-all hover:border-gold-soft hover:bg-felt-900/90"
-                >
-                  <span>
-                    <span className="font-mono text-[11px] text-felt-400">{String(i + 1).padStart(2, "0")}</span>{" "}
-                    <span className="text-sm font-semibold text-cream">{l.title}</span>
-                    <span className="block text-[11px] text-felt-400">
-                      {lessonFormat(l)} ({l.quiz.length} questões)
-                    </span>
-                  </span>
-                  <span className="shrink-0 font-mono text-xs">
-                    {isPassed ? (
-                      <span className="text-emerald-400 font-bold flex items-center gap-1">
-                        ✓ {p?.best_score ?? 100}%
-                      </span>
-                    ) : p ? (
-                      <span className="text-amber-400 font-bold">
-                        {p.best_score}% (Refazer)
-                      </span>
-                    ) : (
-                      <span className="text-gold-soft">Disponível →</span>
-                    )}
-                  </span>
-                </Link>
+                </>
+              );
+              return unlocked ? (
+                <motion.div key={l.id} initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.3, delay: Math.min(i, 6) * 0.04 }} whileHover={{ y: -4 }}>
+                  <Link to={`/curso/${l.id}`} className="zt-lesson-card">
+                    {body}
+                  </Link>
+                </motion.div>
+              ) : (
+                <div key={l.id} className="zt-lesson-card locked" title={`Complete os pré-requisitos com nota mínima de ${PASS_SCORE}% para liberar`}>
+                  {body}
+                </div>
               );
             })}
           </div>
-        </div>
+        </section>
       ))}
     </div>
   );
