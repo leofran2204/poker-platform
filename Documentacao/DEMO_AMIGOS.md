@@ -119,6 +119,6 @@ No mesmo Wi-Fi não dá para sentar na mesma mesa: um de vocês usa o 4G.
 ```
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-14) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

@@ -15,6 +15,7 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certif
 - [x] Saque Real só com KYC aprovado e para chave PIX do mesmo CPF do KYC; a carteira envia o CPF do titular e avisa a regra.
 - [x] `GET /api/admin/liabilities` e painel de passivo com jogadores na visão geral do admin.
 - [x] Publicação padrão com imagens do CI assinadas (`scripts/vps-release-attested.sh`, `cosign verify` antes da troca). Publicados `ecc79b81`, `182e13bd` e `4088a5f6` em 08/11. [Evidências](QUALITY.md#publicação-painel-de-passivo-no-admin--08112026).
+- [x] Brazilian Pineapple com as regras novas (troca só depois do flop e do turn, descarte obrigatório no river), site reconstruído e vídeos novos publicados em 14/11 (`073d73aa`, migrations 061 e 062). [Evidências](QUALITY.md#publicação-brazilian-pineapple-site-reconstruído-e-vídeos-novos--14112026).
 - [x] Varredura documental de 08/11: STATUS revisado (S27), Termos alinhados ao código (saque só para o CPF do KYC, sem CNPJ), página `/termos` espelhando o documento legal com teste de divergência, relatórios e guias sem afirmações desatualizadas. Local, sem commit. [Registro](DEVELOPMENT_LOG.md#2026-11-08--varredura-documental-guarda-de-rede-e-loss-deflator-em-todos-os-jogos-local).
 - [x] Guarda de rede na mesa cash (Termos 2.3): entrada recusada quando outra conta ativa na mesma mesa usa o mesmo IP público ou a mesma sub-rede; só impressões HMAC, apagadas ao sair (migration 061). Contrato PostgreSQL aprovado localmente.
 - [x] Loss Deflator em todas as modalidades e nos torneios, em Play Money e Jogo Real (decisão do proprietário em 08/11): equity 2 + 3 para Omaha 4 e Brazilian Pineapple, incluindo as extras futuras do Pineapple; Termos 6.4, home e filme do Pineapple ajustados.
@@ -259,6 +260,6 @@ Ambiente (WSL, Node, clippy): [`../AGENTS.md`](../AGENTS.md). Gates: [`QUALITY.m
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-14) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

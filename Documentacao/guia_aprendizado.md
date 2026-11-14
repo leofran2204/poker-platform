@@ -468,6 +468,6 @@ Uma mão de Texas Hold'em segue um fluxo muito rígido (Preflop → Flop → Tur
 *   Ele monitora de quem é a vez (`current_turn`) e impede que um jogador aposte fora de hora ou realize ações impossíveis (como dar Check quando há uma aposta pendente).
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-14) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

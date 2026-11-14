@@ -906,7 +906,7 @@
 - Eps 05-10 (~50-56s cada): sizing, roubos e 3-bets, pot odds, EV e fold equity, banca, revisão final. Série completa em `ZeroTiltCurso/`.
 - Sem botão no resultado: só as 5 cartas do jogo vencedor saltam com brilho dourado (board + mão do vencedor + painel), e o painel some sozinho em 7s.
 <!-- DOCUMENTATION_SYNC:START -->
-> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-14) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
@@ -1450,3 +1450,6 @@ Teste local do Brazilian Pineapple com API e banco reais (cópia `poker_test_062
 
 Verificação: `tsc`, ESLint, build e Vitest 103/103; `render.py --check` (30 publicações). Enviado à `master` para o CI montar as imagens; a publicação na VPS segue `scripts/vps-release-attested.sh`.
 
+## 2026-11-14 — publicação na VPS
+
+`073d73aa` publicado às 16:02 (São Paulo) com `scripts/vps-release-attested.sh`: imagens assinadas, dois dumps, migrations 061 e 062 aplicadas, saldos iguais antes e depois. Para o CI ficar verde: versão do catálogo da Academy corrigida no teste de contrato, `quinn-proto`, `quinn-udp` e `rustix` atualizados, e a exceção de auditoria RUSTSEC-2026-0459 aprovada pelo proprietário (pacote do SQLite que a API não compila). Evidências em [QUALITY.md](QUALITY.md#publicação-brazilian-pineapple-site-reconstruído-e-vídeos-novos--14112026). Falta jogar mãos de Brazilian Pineapple no site publicado.

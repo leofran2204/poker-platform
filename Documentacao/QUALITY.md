@@ -220,7 +220,7 @@ A campanha focada foi concluída dentro dos 15 minutos autorizados com dois trab
 - Home e Academy públicas aprovadas em 1440/390/320 px: oito capítulos, primeiro salto antes dos metadados, 113 legendas, transcrição, Enter/Escape, retorno do foco, ausência de autoplay e URLs da nova narração; sem overflow ou exceções JavaScript. Redirecionamento logado conferido com sessão sintética e APIs interceptadas; o smoke HTTP separado usou a API pública real. Evidências em `artifacts/narration-pronunciation/release/`.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-14) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
@@ -361,3 +361,13 @@ Escopo: filme completo das regras, trailer e aulas m5l3–m5l5, produzidos em `Z
 - Player em Chrome headless (DevTools Protocol, build Vite servido localmente), em 1440 e 390 px: botão “Assistir ao trailer” visível; modal com abas trailer/regras; os dois MP4 carregaram em 1920×1080 com a duração prevista, 24 e 174 legendas, busca até o fim e capítulos; sem overflow horizontal nem exceção de JavaScript. Cartão do filme no topo da Academy presente. Ajustes após a captura: título do modal sem repetir o do player e abas com duração compacta (cabem numa linha a 390 px).
 - Vocabulário: zero ocorrência de “Brazilian”, “rua”, “rival” ou “adversário” nas cinco transcrições (o teste de auditoria cobre os filmes); “street” e “oponente” usados onde o roteiro precisa.
 - Não verificado: escuta editorial integral pelo proprietário; player das aulas m5l3–m5l5 em sessão logada (para visitante elas aparecem bloqueadas, como as demais trilhas; o componente é o mesmo do modal conferido).
+
+## Publicação: Brazilian Pineapple, site reconstruído e vídeos novos — 14/11/2026
+
+Publicado `073d73aa448af3e0b64bda1ab150ae4179706202` às **19:02:11 UTC / 16:02:11 em São Paulo**, com Rust CI e Container Supply Chain verdes. Imagens `ghcr.io/leofran2204/poker-api@sha256:ffb9aecd8e260a52d54f9a7b3b742f0e72c0e20414b00120588658b361c94631` e `ghcr.io/leofran2204/poker-web@sha256:ce79b9f9c6f1855a14cbd4231b224c5702be01671d088c641d5be4fb22c6dab1`, assinatura `cosign` e label de revisão verificados na VPS (em `--verify-only` e na publicação).
+
+Antes da troca, consulta só de leitura: 5 contas que não são bots, R$ 10,00 de saldo real no total, nenhum jogador sentado, nenhuma inscrição em torneio e nenhuma transação pendente. Dois dumps em `/opt/poker-platform/backups/release-073d73aa448a`. Depois: quatro serviços saudáveis, 62 migrations bem-sucedidas (061 e 062 aplicadas nesta troca), `Migrations applied` no boot, zero linhas ERROR, `.env` preservado, as mesmas 5 contas e os mesmos R$ 10,00. Externamente, `/` e `/api/health` responderam HTTP 200 e os vídeos `zt-pineapple-draw-rules-v1.mp4`, `zt-pineapple-draw-trailer-v1.mp4` e `zt-academy-m5l3-v4.mp4` responderam 200 como `video/mp4`.
+
+Auditoria de dependências: `rustix` do motor atualizado para 1.1.6 (RUSTSEC-2026-0486). RUSTSEC-2026-0459 (`libsqlite3-sys`, via `sqlx-sqlite`) entrou como exceção em `API-Axum/.cargo/audit.toml`, aprovada pelo proprietário em 14/11: o pacote fica só no `Cargo.lock`, `cargo tree -i libsqlite3-sys --target all` não acha caminho compilado e nem o `sqlx` 0.9.0 aceita a versão corrigida (`>=0.39`). Retirar a exceção quando o `sqlx` aceitar.
+
+Não verificado em produção: nenhuma mão de Brazilian Pineapple foi jogada no site publicado (o teste completo, 12 mãos com 4 jogadores, foi numa cópia local do banco); som e vibração da mesa não foram ouvidos.

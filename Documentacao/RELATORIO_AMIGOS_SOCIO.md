@@ -129,6 +129,6 @@ O nome Zero Tilt só vale se a mesa das 21h existir. O resto é conversa.
 *Fonte operacional: `STATUS_OPERACIONAL.json` (S27). Este texto não alega certificação de produção nem licença. PIX automático, KYC básico e autoexclusão existem na demo, sem certificação.*
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S27** (2026-11-09) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-14) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
