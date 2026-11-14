@@ -24,6 +24,8 @@ interface Props {
   discarding?: boolean;
   /** Vitrine (home): só a mesa, sem cabeçalho, barra de ações nem som. */
   showcase?: boolean;
+  /** Como escrever valores na mesa (padrão: reais a partir de centavos). */
+  formatAmount?: (value: number) => string;
   ante?: number;
   antePaid?: number;
   antePlayerId?: string | null;
@@ -56,6 +58,7 @@ export function PokerTable({
   drawing = false,
   discarding = false,
   showcase = false,
+  formatAmount,
   ante = 0,
   antePaid = 0,
   antePlayerId,
@@ -71,6 +74,7 @@ export function PokerTable({
   maxPlayers = 9,
   boardStaggerFrom = 0,
 }: Props) {
+  const money = formatAmount ?? formatChips;
   const pineapple = bettingStructure === "pineapple_draw_v1";
   const wager = raiseAmount;
   const streetBase = pineapple ? (players.find(p => p.id === localPlayerId)?.bet ?? 0) + callAmount : 0;
@@ -382,7 +386,7 @@ export function PokerTable({
               animate={{ scale: 1, color: "#ecd99a" }}
               transition={{ duration: 0.35 }}
             >
-              {formatChips(potTotal)}
+              {money(potTotal)}
             </motion.span>
           </div>
           <div className="flex gap-1.5">
@@ -426,7 +430,7 @@ export function PokerTable({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.7 }}
                 transition={{ duration: 0.22, delay: 0.25 }}
-                aria-label={`Aposta de ${p.name}: ${formatChips(p.bet)}`}
+                aria-label={`Aposta de ${p.name}: ${money(p.bet)}`}
               >
                 <span className="zt-chip-stack" aria-hidden="true">
                   <i />
@@ -434,7 +438,7 @@ export function PokerTable({
                   <i />
                 </span>
                 <motion.span key={p.bet} className="zt-bet-amount" initial={{ scale: 1.2 }} animate={{ scale: 1 }}>
-                  {formatChips(p.bet)}
+                  {money(p.bet)}
                 </motion.span>
               </motion.div>
             );
@@ -483,7 +487,7 @@ export function PokerTable({
             ? "Sit-out"
             : isWinner
               ? "Vencedor"
-              : typeof p.draw_count === "number" && stage !== "preflop"
+              : typeof p.draw_count === "number" && ["flop", "turn", "river"].includes(stage)
                 ? p.draw_count === 0
                   ? "Manteve"
                   : stage === "river"
@@ -555,7 +559,7 @@ export function PokerTable({
           return (
             <div
               key={p.id}
-              className={`zt-seat zt-seat-ft ${upper ? "upper" : ""}`}
+              className={`zt-seat zt-seat-ft ${upper ? "upper" : ""} ${layout.left < 20 ? "edge-left" : layout.left > 80 ? "edge-right" : ""}`}
               style={{ top: `${layout.top}%`, left: `${layout.left}%` }}
             >
               {!upper && cards}
@@ -566,9 +570,9 @@ export function PokerTable({
                 <span className="zt-seat-info">
                   <span className="zt-seat-name" title={isHouseBot ? "Bot da casa — garante ação na mesa" : p.name}>
                     {p.name}
-                    {isLocal && <span className="zt-seat-you"> · você</span>}
+                    {isLocal && p.name !== "Você" && <span className="zt-seat-you"> · você</span>}
                   </span>
-                  <span className="zt-seat-chips">{formatChips(p.chips)}</span>
+                  <span className="zt-seat-chips">{money(p.chips)}</span>
                 </span>
                 {p.is_dealer && (
                   <span className="zt-dealer-button" title="Botão do dealer" aria-label="Dealer">
@@ -587,7 +591,7 @@ export function PokerTable({
       {!showcase && pineapple && <p className="text-center text-xs text-felt-200 mt-3">Troca opcional de uma carta depois das apostas do flop e do turn · No river, cada jogador descarta uma carta e joga a última rodada com duas · Todas as rodadas: aumento limitado ao pote antes do call</p>}
       {!showcase && drawing && !canDraw && <p className="text-center text-xs font-semibold text-gold-soft" role="status">Rodada de troca: cada jogador mantém as cartas ou troca uma.</p>}
       {!showcase && discarding && !canDiscard && <p className="text-center text-xs font-semibold text-gold-soft" role="status">Descarte do river: cada jogador descarta uma carta e fica com duas.</p>}
-      {!showcase && ante > 0 && <p className="text-center text-xs text-felt-200">Ante do BB {formatChips(ante)} · pago {formatChips(antePaid)} por {players.find(p => p.id === antePlayerId)?.name ?? "big blind"}</p>}
+      {!showcase && ante > 0 && <p className="text-center text-xs text-felt-200">Ante do BB {money(ante)} · pago {money(antePaid)} por {players.find(p => p.id === antePlayerId)?.name ?? "big blind"}</p>}
       <div className={showcase ? "hidden" : "zt-action-bar"}>
         {canDraw || canDiscard ? (
           <div className="flex flex-wrap items-end gap-3" aria-label={canDiscard ? "Descarte do river" : "Rodada de troca"}>
@@ -635,7 +639,7 @@ export function PokerTable({
               {([
                 ["check_fold", pendingCall > 0 ? "Desistir" : "Check ou desistir"],
                 ...(pendingCall === 0 ? [["check", "Check"]] : []),
-                ...(pendingCall > 0 ? [["call", `Pagar ${formatChips(pendingCall)}`]] : []),
+                ...(pendingCall > 0 ? [["call", `Pagar ${money(pendingCall)}`]] : []),
               ] as [PreAction, string][]).map(([kind, label]) => (
                 <button
                   key={kind}
@@ -672,7 +676,7 @@ export function PokerTable({
                   : a === "check"
                     ? "Check"
                     : a === "call"
-                      ? `Pagar ${formatChips(callAmount)}`
+                      ? `Pagar ${money(callAmount)}`
                       : raw;
               const hint = a === "fold" ? "F" : a === "check" || a === "call" ? "C" : null;
               const danger = a === "fold";
@@ -724,7 +728,7 @@ export function PokerTable({
                   className="zt-btn-primary"
                   onClick={() => onAction(wagerAction, wager)}
                 >
-                  {wagerAction === "bet" ? `Apostar ${formatChips(wager)}` : `Aumentar para ${formatChips(wager)}`}
+                  {wagerAction === "bet" ? `Apostar ${money(wager)}` : `Aumentar para ${money(wager)}`}
                   <kbd className="zt-key">A</kbd>
                 </button>
               </div>

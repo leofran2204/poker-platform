@@ -663,6 +663,15 @@
     .zt-seat-cards > * + * {
       margin-left: -10px;
     }
+    /* Assentos das laterais: ancorados pela borda para a placa não sair da tela. */
+    .zt-seat.zt-seat-ft.edge-left {
+      align-items: flex-start;
+      translate: -24% -50%;
+    }
+    .zt-seat.zt-seat-ft.edge-right {
+      align-items: flex-end;
+      translate: -76% -50%;
+    }
   }
 
   .zt-felt-table.zt-demo-table {

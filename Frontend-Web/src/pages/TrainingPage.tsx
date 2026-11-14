@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 import { PlayingCard } from "@/components/PlayingCard";
+import { PokerTable } from "@/components/PokerTable";
 import { CourseSources } from "@/components/CourseSources";
 import { COURSE, findLesson } from "@/lib/course";
 import { actionLabel, newStudySeed, phaseLabel, playStudy, profileLabel, readStudyRecords, saveStudyRecord, TRAINING, type StudyAction, type StudyRecord, type StudyResponse, type TrainingScenario } from "@/lib/academy";
@@ -8,6 +9,9 @@ import "./training.css";
 
 const chips = (n: number) => n.toLocaleString("pt-BR");
 const variantName: Record<string, string> = { holdem: "Texas Hold’em", short_deck: "Texas Hold’em Short Deck", omaha: "Omaha 4", pineapple_draw: "Brazilian Pineapple" };
+
+/** Lugares na mesa de seis para 2, 3 ou 4 jogadores: herói embaixo, os outros no arco de cima. */
+const SEAT_ORDER: Record<number, number[]> = { 2: [0, 3], 3: [0, 2, 4], 4: [0, 2, 3, 4], 5: [0, 1, 2, 4, 5], 6: [0, 1, 2, 3, 4, 5] };
 
 export function TrainingPage() {
   const { moduleId } = useParams();
@@ -108,24 +112,51 @@ function TrainingSession({ moduleTitle, scenarios, initialId }: { moduleTitle: s
     <div className="study-workspace">
       <section className="study-main" aria-label="Mesa simuladora" aria-busy={busy}>
         <div className="study-table-head"><span>{state ? phaseLabel[state.phase] : "Preparando mesa…"}</span><span>{replayIndex !== null ? `Replay · passo ${replayIndex + 1}` : "Distribuição " + seed}</span></div>
-        {state && <div className="study-felt">
-          <div className="study-opponents">{state.players.slice(1).map((p, index) => <div key={p.id} className={`study-seat ${p.folded ? "is-folded" : ""}`}>
-            <div className="study-seat-top"><strong>{p.name}</strong><span>{p.position}</span></div><p>{profileLabel[scenario.profiles[index]]}</p>
-            <div className="study-cards">{Array.from({ length: p.card_count }, (_, i) => <PlayingCard key={i} code={p.cards[i]} faceDown={!p.cards[i]} size="sm" />)}</div>
-            <p><b>{chips(p.stack)}</b> fichas {p.all_in ? "· ALL-IN" : p.folded ? "· FOLD" : ""}</p>{p.bet > 0 && <span className="study-chip">Na rodada: {chips(p.bet)}</span>}
-            {typeof p.draw_count === "number" && <span className="study-chip">{p.draw_count === 0 ? "Manteve" : state.phase === "river" ? "Descartou" : `Trocou ${p.draw_count}`}</span>}
-            {state.finished && p.category && <p>{p.category}</p>}
-          </div>)}</div>
-          <div className="study-board"><span className="study-pot">Pote {chips(state.pot)}</span>{state.ante > 0 && <small>Ante do BB {chips(state.ante)} · pago {chips(state.ante_paid)} por {state.players.find(p => p.id === state.ante_player_id)?.name}</small>}<div className="study-cards">{Array.from({ length: 5 }, (_, i) => state.board[i] ? <PlayingCard key={i} code={state.board[i]} /> : <span key={i} className="study-card-slot" />)}</div><span className="study-watermark">ZT / ACADEMY</span></div>
-          <div className="study-hero"><span className="study-hero-label">VOCÊ · {state.players[0].position}</span><div className="study-cards">{state.players[0].cards.map((c, i) => drawing && !disabled
-            ? <button key={i} type="button" className={`rounded-sm p-0.5 ${swapPick === i ? "ring-2 ring-gold-bright" : "ring-1 ring-transparent"}`} aria-pressed={swapPick === i} aria-label={`Selecionar carta ${i + 1} para ${discarding ? "descartar" : "trocar"}`} onClick={() => setSwapPick(swapPick === i ? null : i)}><PlayingCard code={c} /></button>
-            : <PlayingCard key={i} code={c} highlight={state.finished && state.players[0].best_five.includes(c)} />)}</div><p><b>{chips(state.players[0].stack)}</b> fichas · investidas na rodada: {chips(state.players[0].bet)}</p>{(mode === "guided" || state.finished) && state.players[0].category && <p className="text-gold-bright">{state.players[0].category}</p>}</div>
+        {state && <div className="study-live">
+          <PokerTable
+            showcase
+            formatAmount={chips}
+            players={state.players.map((p, index) => ({
+              id: p.id,
+              name: index === 0 ? "Você" : `${p.name} · ${profileLabel[scenario.profiles[index - 1]] ?? ""}`,
+              chips: p.stack,
+              bet: p.bet,
+              cards: p.cards,
+              folded: p.folded,
+              is_active: !state.finished && state.acting === index,
+              is_dealer: p.position === "BTN" || p.position === "BTN/SB",
+              seat: SEAT_ORDER[state.players.length]?.[index] ?? index,
+              is_sitting: true,
+              draw_count: p.draw_count ?? null,
+            })) as never}
+            communityCards={state.board}
+            stage={state.phase}
+            pots={(state.pot > 0 ? [{ amount: state.pot - state.players.reduce((sum, p) => sum + p.bet, 0), eligible_players: [] }] : []) as never}
+            localPlayerId="hero"
+            availableActions={[]}
+            onAction={() => {}}
+            drawing={state.drawing}
+            discarding={state.discarding}
+            raiseAmount={0}
+            onRaiseChange={() => {}}
+            callAmount={0}
+            minimumWager={0}
+            maximumWager={0}
+            winners={state.finished && data ? Object.entries(data.payouts).filter(([, value]) => value > 0).map(([id]) => id) : []}
+            showdown={(state.finished ? state.players.filter((p) => !p.folded && p.best_five.length === 5).map((p) => ({ player_id: p.id, player_name: p.name, hand_name: p.category ?? "", cards: p.best_five })) : []) as never}
+            maxPlayers={6}
+          />
+          <div className="study-live-foot">
+            <span>VOCÊ · {state.players[0].position}</span>
+            {state.ante > 0 && <span>Ante do BB {chips(state.ante)} · pago {chips(state.ante_paid)} por {state.players.find(p => p.id === state.ante_player_id)?.name}</span>}
+            {(mode === "guided" || state.finished) && state.players[0].category && <strong>{state.players[0].category}</strong>}
+          </div>
         </div>}
         {!state && <div className="study-loading"><span className="zt-spinner" /> Carregando a distribuição…</div>}
         {data && !data.state.finished && !closed && replayIndex === null && <div className="study-controls">
           <div className="study-price"><span>Para pagar <b>{chips(data.legal.to_call)}</b></span><span>Seu stack <b>{chips(data.state.players[0].stack)}</b></span>{mode === "guided" && data.legal.to_call > 0 && <span>Preço do call <b>{data.legal.call_price_percent.toFixed(2).replace(".", ",")}%</b></span>}</div>
           {mode !== "free" && data.question && <div className="study-question"><label htmlFor="study-answer">{data.question.prompt}</label>{data.question.options.length ? <select id="study-answer" value={answer} onChange={e => setAnswer(e.target.value)}><option value="">Escolha sua leitura</option>{data.question.options.map(o => <option key={o}>{o}</option>)}</select> : <div className="flex items-center gap-2"><input id="study-answer" inputMode="decimal" autoComplete="off" value={answer} onChange={e => setAnswer(e.target.value)} placeholder="Sua resposta" /><span>{data.question.unit}</span></div>}<small>Responda antes de agir. O cálculo/leitura é avaliado separadamente do resultado da mão.</small></div>}
-          {discarding ? <div className="study-actions" aria-label="Descarte do river"><p className="w-full text-sm">Descarte do river: toque na carta que sai. Você joga a última rodada com duas.</p><button disabled={disabled || swapPick === null} onClick={() => swapPick !== null && act("discard", swapPick)}>Descartar a carta selecionada</button></div> : drawing ? <div className="study-actions" aria-label="Rodada de troca"><p className="w-full text-sm">Rodada de troca: toque numa carta para trocá-la ou mantenha as três.</p><button disabled={disabled} onClick={() => act("keep", 0)}>Manter as três</button><button disabled={disabled || swapPick === null} onClick={() => swapPick !== null && act("swap", swapPick)}>Trocar a carta selecionada</button></div> : <>
+          {discarding ? <div className="study-actions" aria-label="Descarte do river"><p className="w-full text-sm">Descarte do river: toque na carta que sai. Você joga a última rodada com duas.</p><div className="study-pick">{data.state.players[0].cards.map((c, i) => <button key={c} type="button" disabled={disabled} className={swapPick === i ? "on" : ""} aria-pressed={swapPick === i} aria-label={`Selecionar carta ${i + 1}`} onClick={() => setSwapPick(swapPick === i ? null : i)}><PlayingCard code={c} /></button>)}</div><button disabled={disabled || swapPick === null} onClick={() => swapPick !== null && act("discard", swapPick)}>Descartar a carta selecionada</button></div> : drawing ? <div className="study-actions" aria-label="Rodada de troca"><p className="w-full text-sm">Rodada de troca: toque numa carta para trocá-la ou mantenha as três.</p><div className="study-pick">{data.state.players[0].cards.map((c, i) => <button key={c} type="button" disabled={disabled} className={swapPick === i ? "on" : ""} aria-pressed={swapPick === i} aria-label={`Selecionar carta ${i + 1}`} onClick={() => setSwapPick(swapPick === i ? null : i)}><PlayingCard code={c} /></button>)}</div><button disabled={disabled} onClick={() => act("keep", 0)}>Manter as três</button><button disabled={disabled || swapPick === null} onClick={() => swapPick !== null && act("swap", swapPick)}>Trocar a carta selecionada</button></div> : <>
           <div className="study-actions"><button disabled={disabled} onClick={() => act("fold")} className="study-fold">Desistir</button><button disabled={disabled} onClick={() => act(data.legal.can_check ? "check" : "call")}>{data.legal.can_check ? "Check" : `Pagar ${chips(data.legal.to_call)}`}</button>{data.legal.can_all_in && <button disabled={disabled} onClick={() => act("all_in")}>All-in {chips(data.state.players[0].stack)}</button>}</div>
           {data.legal.can_raise && <div className="study-sizing"><label htmlFor="study-total">{data.legal.bet_exists ? "Aumentar para" : "Apostar"} · total na rodada</label><div>{<input id="study-total" type="number" min={data.legal.min_total} max={data.legal.max_total} step="1" value={amount} onChange={e => setAmount(Number(e.target.value))} />}<button disabled={disabled || !Number.isInteger(amount) || amount < data.legal.min_total || amount > data.legal.max_total} onClick={() => act(data.legal.bet_exists ? "raise" : "bet")}>{data.legal.bet_exists ? "Aumentar" : "Apostar"}</button></div><small>Mínimo {chips(data.legal.min_total)} · máximo {chips(data.legal.max_total)} fichas</small></div>}
           </>}
