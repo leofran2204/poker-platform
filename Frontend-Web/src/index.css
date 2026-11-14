@@ -1237,6 +1237,47 @@
     color: #8fa598;
   }
 
+  /* ── Carteira (Jogo Real): depósito e saque lado a lado, extrato embaixo ── */
+  .zt-wallet-real {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+  @media (min-width: 1000px) {
+    .zt-wallet-real {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+  .zt-wallet-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px;
+    border-radius: 14px;
+  }
+  .zt-wallet-card > button {
+    align-self: flex-start;
+  }
+  .zt-wallet-step {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #e8c35a;
+  }
+  .zt-wallet-title {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #f7f1e3;
+  }
+  .zt-wallet-statement {
+    grid-column: 1 / -1;
+    border-radius: 14px;
+  }
+
   /* ── Academy: trilhas e cartões de aula ── */
   .zt-academy {
     display: flex;

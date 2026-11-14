@@ -363,9 +363,11 @@ export function WalletPage() {
       </p>
 
       {mode === "real" ? (
-        <div className="zt-panel p-4 space-y-3">
+        <div className="zt-wallet-real">
+          <section className="zt-panel zt-wallet-card">
           <div>
-            <h2 className="font-bold text-gold-bright">Depositar via Pix</h2>
+            <p className="zt-wallet-step">Entrada</p>
+            <h2 className="zt-wallet-title">Depositar via Pix</h2>
             <p className="mt-1 max-w-3xl text-xs leading-relaxed text-felt-200">
               O depósito entra no saldo de Jogo Real. A cobrança informa o status e o valor
               efetivamente creditado; quando houver taxa do provedor, ela aparece no extrato.{" "}
@@ -573,9 +575,13 @@ export function WalletPage() {
               )}
             </div>
           )}
+          </section>
           {mode === "real" && (
-            <div className="zt-panel p-4 space-y-3">
-              <h3 className="text-sm font-bold uppercase tracking-wide text-gold-bright">Saque Pix</h3>
+            <section className="zt-panel zt-wallet-card">
+              <div>
+                <p className="zt-wallet-step">Saída</p>
+                <h2 className="zt-wallet-title">Saque Pix</h2>
+              </div>
               <p className="text-xs text-amber-100 rounded-sm border border-amber-700/60 bg-amber-950/30 px-3 py-2">
                 O saque só pode ir para uma chave Pix <strong>do mesmo CPF do seu cadastro</strong>
                 {kyc?.tax_id_last4 ? <> (final {kyc.tax_id_last4})</> : null}. Chaves de outra pessoa ou de
@@ -654,10 +660,10 @@ export function WalletPage() {
                   {busy ? "Enviando…" : "Solicitar saque"}
                 </button>
               </form>
-            </div>
+            </section>
           )}
 
-          <div className="zt-panel overflow-hidden border-0! shadow-none!">
+          <div className="zt-panel zt-wallet-statement overflow-hidden">
             <div className="zt-panel-title">Extrato (Jogo Real)</div>
             <div className="zt-table-wrap">
               <table className="zt-lobby-table">

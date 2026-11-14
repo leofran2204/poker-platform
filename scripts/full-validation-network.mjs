@@ -130,11 +130,11 @@ async function play(table){
       return;
     }
     if(!timeoutWitness.observed&&timeoutWitness.player===user.id)return;
-    const key=JSON.stringify([state.stage,state.drawing===true,state.community_cards,state.players.map(p=>[p.id,p.chips,p.bet,p.folded,p.draw_count??null])]);
+    const key=JSON.stringify([state.stage,state.drawing===true,state.discarding===true,state.community_cards,state.players.map(p=>[p.id,p.chips,p.bet,p.folded,p.draw_count??null])]);
     if(acted.get(user.id)===key)return;
     acted.set(user.id,key);
     const choices=state.available_actions||[];
-    let action=choices.includes("keep")?"keep":choices.includes("check")?"check":choices.includes("call")?"call":"fold";
+    let action=choices.includes("discard")?"discard":choices.includes("keep")?"keep":choices.includes("check")?"check":choices.includes("call")?"call":"fold";
     let amount=0;
     if(table.variant==="pineapple_draw" && retryWitness && !raised.has(state.stage) && (choices.includes("raise")||choices.includes("bet"))){
       action=choices.includes("raise")?"raise":"bet";
@@ -142,7 +142,7 @@ async function play(table){
       raised.add(state.stage);
     }
     counters.actions++;
-    const message=JSON.stringify({type:"action",action,amount});
+    const message=JSON.stringify(action==="discard"?{type:"action",action,card:0}:{type:"action",action,amount});
     ws.send(message);
     if(action==="call"&&!retryWitness){
       retryWitness={hand:state.hand_id,player:user.id,phase:state.stage,amount:state.call_amount,before_bet:p.bet};

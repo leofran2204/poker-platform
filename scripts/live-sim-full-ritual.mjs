@@ -273,7 +273,8 @@ async function ensureFunds(user) {
 function pickAction(actions, roll, msg, table) {
   const a = actions.map((x) => String(x).toLowerCase());
   const minW = Number(msg.minimum_wager ?? 0) || table.big_blind * 2;
-  // Brazilian Pineapple: na rodada de troca, troca a primeira carta às vezes e mantém nas demais.
+  // Brazilian Pineapple: descarte obrigatório no river; na rodada de troca, troca a primeira carta às vezes e mantém nas demais.
+  if (a.includes("discard")) return { action: "discard", card: roll % 3 };
   if (a.includes("keep")) return roll < 30 && a.includes("swap") ? { action: "swap", amount: 0 } : { action: "keep", amount: 0 };
   if (a.includes("check") && roll < 64) return { action: "check", amount: 0 };
   if (a.includes("bet") && roll > 88) return { action: "bet", amount: minW };
@@ -341,7 +342,7 @@ async function playTable(table, seated, waiters) {
       if (!user.playerId || msg.is_finished || settled) return;
       if (!me?.is_active) return;
       const actions = msg.available_actions ?? [];
-      const sig = JSON.stringify([msg.stage, msg.current_bet_to_match, me.chips, me.bet]);
+      const sig = JSON.stringify([msg.stage, msg.drawing === true, msg.discarding === true, msg.current_bet_to_match, me.chips, me.bet]);
       if (sig === user.lastSig) return;
       user.lastSig = sig;
       const act = pickAction(

@@ -142,10 +142,13 @@ async function playOneHand(table, players) {
                 const me = (msg.players ?? []).find((p) => p.id === user.playerId);
                 if (!me?.is_active) return;
                 const actions = (msg.available_actions ?? []).map((a) => String(a).toLowerCase());
-                const sig = JSON.stringify([msg.stage, msg.drawing === true, msg.current_bet_to_match, me.chips, me.bet]);
+                const sig = JSON.stringify([msg.stage, msg.drawing === true, msg.discarding === true, msg.current_bet_to_match, me.chips, me.bet]);
                 if (sig === user.lastSig) return;
                 user.lastSig = sig;
-                if (actions.includes("keep")) {
+                if (actions.includes("discard")) {
+                  // Descarte obrigatório do river no Brazilian Pineapple.
+                  ws.send(JSON.stringify({ type: "action", action: "discard", card: 0 }));
+                } else if (actions.includes("keep")) {
                   ws.send(JSON.stringify({ type: "action", action: "keep", amount: 0 }));
                 } else if (actions.includes("check")) {
                   ws.send(JSON.stringify({ type: "action", action: "check", amount: 0 }));
