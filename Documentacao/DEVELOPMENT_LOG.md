@@ -1437,3 +1437,16 @@ Fora do git: evidências antigas de `artifacts/` (menos `video-pilot` e `voz-pro
 
 Verificação: `documentation-sync --check` (20 documentos), `cargo check` do motor e da API, Vitest 103/103.
 
+## 2026-11-13/14 — reconstrução do site (local) e preparação do deploy
+
+A pedido do proprietário, o site foi reconstruído sobre a base existente (React, TypeScript, Vite, Tailwind), com a biblioteca Motion e os elementos visuais dos vídeos:
+
+- Mesa do jogo (`PokerTable.tsx`): fichas voando (aposta, recolhimento para o pote, pote para o vencedor), cartas comunitárias virando, troca e descarte animados, sons e vibração na vez do jogador (`lib/tableSounds.ts`, `public/sounds`), ações antecipadas, atalhos de teclado e rótulos em português. Modo `showcase` para vitrines e `formatAmount` para o treino.
+- Lobby em cartões com miniatura da mesa; home com mesa viva (`LiveHandShowcase.tsx`, a mão-modelo dos vídeos); Academy em cartões com a capa de cada vídeo; mesa de treino com a mesma mesa do jogo; carteira com cartões de saldo; login e cadastro com a mesa viva.
+- Acabamento geral das peças compartilhadas em `index.css` (painéis, botões, campos, tabelas, topo), que alcança conta, suporte, jogo responsável, agentes e admin. Manrope e Fraunces servidas pelo site.
+- Correções: HTML inválido das cartas dentro de parágrafos; dois textos com a regra antiga; capa da aula m5l3.
+
+Teste local do Brazilian Pineapple com API e banco reais (cópia `poker_test_062` no nível da produção): migrations 061 e 062 aplicadas, 12 mãos completas com 4 jogadores por WebSocket, ordem correta em todas, nenhuma carta alheia antes do showdown, fichas conservadas no centavo. Auditoria dirigida de login, sessão, carteira, PIX, saque e liquidação sem falha grave; achados no checkup de 12/11 e nesta entrada: token de renovação reutilizável e ausência de extrato único.
+
+Verificação: `tsc`, ESLint, build e Vitest 103/103; `render.py --check` (30 publicações). Enviado à `master` para o CI montar as imagens; a publicação na VPS segue `scripts/vps-release-attested.sh`.
+
