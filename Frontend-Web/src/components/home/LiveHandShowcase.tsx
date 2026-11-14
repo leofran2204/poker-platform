@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { PlayerWsData, PotWsData, ShowdownEntry } from "@/api/types";
 import { PokerTable } from "@/components/PokerTable";
+import "./live-hand.css";
 
 // Mesa viva da home: a mão-modelo dos vídeos do Brazilian Pineapple se jogando
 // sozinha, com a mesma mesa e as mesmas animações do jogo. Os valores e as cartas
@@ -67,11 +68,16 @@ export function LiveHandShowcase() {
   useEffect(() => {
     const node = frame.current;
     if (!node || typeof ResizeObserver === "undefined") return;
-    const fit = () => setScale(node.clientWidth < 480 ? null : Math.min(1, node.clientWidth / DESIGN_WIDTH));
+    // O formato de celular da mesa depende da largura da tela (mesmo critério do CSS do jogo).
+    const fit = () => setScale(window.innerWidth < 640 ? null : Math.min(1, node.clientWidth / DESIGN_WIDTH));
     fit();
     const observer = new ResizeObserver(fit);
     observer.observe(node);
-    return () => observer.disconnect();
+    window.addEventListener("resize", fit);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", fit);
+    };
   }, []);
   const step = STEPS[index];
   const players: PlayerWsData[] = NAMES.map((name, i) => ({ name, i })).map(({ name, i: seat }) => ({

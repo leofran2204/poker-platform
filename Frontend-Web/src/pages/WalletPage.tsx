@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
 import {
@@ -311,12 +312,18 @@ export function WalletPage() {
   return (
     <div className="space-y-4">
       <NoIndex />
-      <div>
-        <h1 className="text-xl font-bold uppercase tracking-wide text-gold-bright">Carteira</h1>
-        <p className="text-xs text-felt-300">
-          Modo ativo no header: <span className="text-gold-soft">{mode === "real" ? "Jogo Real" : "Play Money"}</span>
-        </p>
-      </div>
+      <header className="zt-lobby-head">
+        <div>
+          <p className="zt-lobby-eyebrow">
+            <span className={mode === "real" ? "zt-mode-dot real" : "zt-mode-dot"} aria-hidden />
+            {mode === "real" ? "Jogo Real" : "Play Money"}
+          </p>
+          <h1>Carteira</h1>
+          <p className="zt-lobby-sub">
+            Play Money e Jogo Real são saldos separados e nunca se misturam. O modo ativo é escolhido no topo da página.
+          </p>
+        </div>
+      </header>
 
       {error && (
         <p className="rounded-sm border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200">{error}</p>
@@ -325,38 +332,28 @@ export function WalletPage() {
         <p className="rounded-sm border border-emerald-800 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-100">{msg}</p>
       )}
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <div className="zt-card p-4">
-          <div className="text-[10px] uppercase text-felt-400">Play Money · Cash</div>
-          <div className="mt-1 font-mono text-xl text-gold-bright">
-            {me ? formatBrlFromCents(me.balance_pm_cash ?? me.balance) : "…"}
-          </div>
-          {me && (me.balance_pm_cash ?? 0) === 0 && (
-            <p className="mt-1 text-[11px] text-felt-400">
-              Zerou — aguarde a renovação diária à 00:00 (Brasília) para R$ 150.
-            </p>
-          )}
-        </div>
-        <div className="zt-card p-4">
-          <div className="text-[10px] uppercase text-felt-400">Play Money · Torneio</div>
-          <div className="mt-1 font-mono text-xl text-gold-bright">
-            {me ? formatBrlFromCents(me.balance_pm_mtt ?? 0) : "…"}
-          </div>
-          <p className="mt-1 text-[11px] text-felt-400">
-            Freerolls são grátis. Reentradas ilimitadas com saldo até o nível 6.
-          </p>
-          {me && (me.balance_pm_mtt ?? 0) === 0 && (
-            <p className="mt-1 text-[11px] text-felt-400">
-              Zerou — aguarde a renovação diária à 00:00 (Brasília) para R$ 150.
-            </p>
-          )}
-        </div>
-        <div className="zt-card p-4">
-          <div className="text-[10px] uppercase text-felt-400">Jogo Real</div>
-          <div className="mt-1 font-mono text-xl text-gold-bright">
-            {me ? formatBrlFromCents(me.balance_real ?? 0) : "…"}
-          </div>
-        </div>
+      <div className="zt-balance-grid">
+        {(
+          [
+            ["play", "Play Money · Mesas", me ? (me.balance_pm_cash ?? me.balance) : null, "Fichas de diversão para as mesas cash."],
+            ["play", "Play Money · Torneios", me ? (me.balance_pm_mtt ?? 0) : null, "Freerolls são grátis. Reentradas ilimitadas com saldo até o nível 6."],
+            ["real", "Jogo Real", me ? (me.balance_real ?? 0) : null, "Saldo em reais, usado só nas mesas e torneios de Jogo Real."],
+          ] as [string, string, number | null, string][]
+        ).map(([kind, label, value, note], index) => (
+          <motion.div
+            key={label}
+            className={`zt-balance-card ${kind} ${kind === mode ? "active" : ""}`}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.06 }}
+          >
+            <span className="zt-balance-label">{label}</span>
+            <strong className="zt-balance-value">{value === null ? "…" : formatBrlFromCents(value)}</strong>
+            <span className="zt-balance-note">
+              {kind === "play" && value === 0 ? "Zerou. Aguarde a renovação diária à 00:00 (Brasília) para R$ 150." : note}
+            </span>
+          </motion.div>
+        ))}
       </div>
 
       <p className="text-[11px] text-felt-500">

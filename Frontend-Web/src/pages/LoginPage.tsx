@@ -2,7 +2,7 @@ import { FormEvent, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { applyAuthTokens, login, verifyMfa } from "@/api/client";
 import { BrandMark } from "@/components/BrandMark";
-import { ShowcaseTable } from "@/components/ShowcaseTable";
+import { LiveHandShowcase } from "@/components/home/LiveHandShowcase";
 import { saveUsername } from "@/lib/auth";
 import { safeInternalPath } from "@/lib/safeUrl";
 
@@ -177,8 +177,8 @@ export function LoginPage() {
           </p>
         </form>
       </div>
-      <div className="hidden lg:flex lg:justify-center">
-        <ShowcaseTable />
+      <div className="hidden min-w-0 lg:block">
+        <LiveHandShowcase />
       </div>
     </div>
   );

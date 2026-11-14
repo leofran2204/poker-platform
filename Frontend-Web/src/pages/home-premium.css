@@ -171,20 +171,6 @@
   .hp-pineapple-cover figcaption { margin-top:14px; font-size:14px; }
 }
 
-/* Mesa viva do topo: a mesma mesa do jogo, se jogando sozinha. */
-.hp-live-cover { width:100%; }
-.hp-live { padding:18px 8px 14px; border:1px solid #66847155; border-radius:14px; background:radial-gradient(ellipse at 50% 30%, #12382755, #07140f99); box-shadow:0 24px 70px #0008; }
-.hp-live-frame { position:relative; width:100%; overflow:hidden; }
-.hp-live-stage { position:absolute; left:0; top:0; transform-origin:top left; padding:34px 10px 0; }
-.hp-live-stage.native { position:static; padding:26px 6px 34px; }
-.hp-live .zt-felt-table { width:100%; }
-.hp-live-caption { display:flex; align-items:baseline; gap:10px; min-height:44px; margin:14px 12px 0; color:#f3ead6; font-size:15px; line-height:1.45; }
-.hp-live-step { flex:none; color:#e1c17a; font-family:ui-monospace,Consolas,monospace; font-size:12px; font-weight:700; letter-spacing:.06em; }
-@media (max-width:860px) {
-  .hp-live { padding:12px 2px 10px; }
-  .hp-live-caption { font-size:14px; min-height:60px; }
-}
-
 /* Cor de cada modalidade (a mesma do lobby) e realce ao passar o mouse. */
 .hp-variant { --tone:#e1c17a; position:relative; transition:border-color .2s, box-shadow .2s; }
 .hp-variant::before { content:""; position:absolute; inset:0 0 auto 0; height:3px; background:var(--tone); opacity:.85; }

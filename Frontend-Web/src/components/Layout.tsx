@@ -146,7 +146,7 @@ export function Layout() {
         aria-pressed={mode === "play"}
         onClick={() => void switchMode("play")}
       >
-        Play Money
+        <span className="whitespace-nowrap">Play Money</span>
       </button>
       <button
         type="button"
@@ -154,7 +154,7 @@ export function Layout() {
         aria-pressed={mode === "real"}
         onClick={() => void switchMode("real")}
       >
-        Jogo Real
+        <span className="whitespace-nowrap">Jogo Real</span>
       </button>
     </div>
   ) : null;
