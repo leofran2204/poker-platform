@@ -371,3 +371,11 @@ Antes da troca, consulta só de leitura: 5 contas que não são bots, R$ 10,00 d
 Auditoria de dependências: `rustix` do motor atualizado para 1.1.6 (RUSTSEC-2026-0486). RUSTSEC-2026-0459 (`libsqlite3-sys`, via `sqlx-sqlite`) entrou como exceção em `API-Axum/.cargo/audit.toml`, aprovada pelo proprietário em 14/11: o pacote fica só no `Cargo.lock`, `cargo tree -i libsqlite3-sys --target all` não acha caminho compilado e nem o `sqlx` 0.9.0 aceita a versão corrigida (`>=0.39`). Retirar a exceção quando o `sqlx` aceitar.
 
 Não verificado em produção: nenhuma mão de Brazilian Pineapple foi jogada no site publicado (o teste completo, 12 mãos com 4 jogadores, foi numa cópia local do banco); som e vibração da mesa não foram ouvidos.
+
+## Publicação: carteira com depósito e saque em cartões — 14/11/2026
+
+Publicado `9dd61f7c41114ac1f40c5f8fb3e4ff5a12213b2c` às **19:26:40 UTC / 16:26:40 em São Paulo**, com Rust CI e Container Supply Chain verdes. Imagens `ghcr.io/leofran2204/poker-api@sha256:b7989ea45ce0301c819c17a6459aea0386fad9b5ca383386d73c5b55cda5b67b` e `ghcr.io/leofran2204/poker-web@sha256:284a8d8834d39968e27339fba1217e102dec0b5967e0a4c0e89bce273d7f7e4b`, assinatura `cosign` e label de revisão verificados na VPS (em `--verify-only` e na publicação). Dois dumps antes da troca; quatro serviços saudáveis, 62 migrations, zero linhas ERROR, `.env` preservado, as mesmas 5 contas e R$ 10,00 de saldo real. `/` e `/api/health` responderam HTTP 200 e o CSS publicado contém `zt-wallet-real`.
+
+Local: `tsc`, ESLint, build e Vitest 103/103; a carteira em Jogo Real foi vista no computador (1366 px) e no celular (390 px) numa cópia local do banco. Os scripts e2e que jogam Brazilian Pineapple passaram a responder ao descarte do river; só a sintaxe foi conferida (`node --check`), sem rodar a bateria.
+
+Não verificado em produção: a carteira em Jogo Real não foi aberta com sessão no site publicado.

@@ -1453,3 +1453,5 @@ Verificação: `tsc`, ESLint, build e Vitest 103/103; `render.py --check` (30 pu
 ## 2026-11-14 — publicação na VPS
 
 `073d73aa` publicado às 16:02 (São Paulo) com `scripts/vps-release-attested.sh`: imagens assinadas, dois dumps, migrations 061 e 062 aplicadas, saldos iguais antes e depois. Para o CI ficar verde: versão do catálogo da Academy corrigida no teste de contrato, `quinn-proto`, `quinn-udp` e `rustix` atualizados, e a exceção de auditoria RUSTSEC-2026-0459 aprovada pelo proprietário (pacote do SQLite que a API não compila). Evidências em [QUALITY.md](QUALITY.md#publicação-brazilian-pineapple-site-reconstruído-e-vídeos-novos--14112026). Falta jogar mãos de Brazilian Pineapple no site publicado.
+
+Mais tarde no mesmo dia, `9dd61f7c` foi publicado às 16:26: carteira em Jogo Real com depósito e saque em cartões separados (só aparência; a lógica do PIX não mudou) e scripts e2e com o descarte do river. Evidências em [QUALITY.md](QUALITY.md#publicação-carteira-com-depósito-e-saque-em-cartões--14112026).
