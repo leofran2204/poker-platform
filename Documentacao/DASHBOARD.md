@@ -6,6 +6,22 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certif
 
 ---
 
+## S28 — Brazilian Pineapple novo, site reconstruído e vídeos novos (09–14/11/2026)
+
+- [x] Brazilian Pineapple com as regras de 11/11 (troca só depois do flop e do turn, descarte obrigatório no river), site reconstruído e vídeos novos publicados em 14/11 (`073d73aa`, migrations 061 e 062). [Evidências](QUALITY.md#publicação-brazilian-pineapple-site-reconstruído-e-vídeos-novos--14112026).
+- [x] Carteira em Jogo Real com depósito e saque em cartões separados e extrato embaixo, publicada em 14/11 (`9dd61f7c`); só a aparência mudou. [Evidências](QUALITY.md#publicação-carteira-com-depósito-e-saque-em-cartões--14112026).
+- [x] Scripts e2e que jogam Brazilian Pineapple respondem ao descarte do river (sintaxe conferida; bateria não rodada).
+- [x] CI verde de novo: versão do catálogo da Academy no teste de contrato, `quinn-proto`, `quinn-udp` e `rustix` atualizados; RUSTSEC-2026-0459 (`libsqlite3-sys`, pacote que a API não compila) como exceção aprovada pelo proprietário em 14/11.
+- [ ] Retirar a exceção RUSTSEC-2026-0459 de `API-Axum/.cargo/audit.toml` quando o `sqlx` aceitar `libsqlite3-sys` `>=0.39` (o 0.9.0 ainda exige `<0.38`).
+- [ ] Proprietário jogar mãos de Brazilian Pineapple no site publicado (Play Money, computador e celular), ouvir som e vibração e assistir aos vídeos novos. Nenhuma mão foi jogada em produção; o teste completo foi numa cópia local do banco.
+- [ ] Abrir a carteira em Jogo Real com sessão no site publicado. Em 15/11 o login da conta do proprietário foi recusado três vezes (senha incorreta); falta ele redefinir a senha ou autorizar uma sessão temporária gerada no servidor.
+- [ ] Rodar os scripts e2e com o descarte numa campanha autorizada (`full-validation -Phase pineapple`).
+- [ ] Segurança do login, um item por vez: troca do refresh token a cada renovação (hoje reutilizável por 7 dias) e, depois, sessão por cookie no lugar do JWT em `localStorage`.
+- [ ] `credit_wallet` conferir linhas afetadas e avaliar um livro único do dinheiro (hoje em `wallet_transactions`, `cash_game_ledger`, `estrutura_ledger` e `audit_logs`).
+- [ ] Banco de tempo na mesa (precisa do servidor) e mesas de demonstração da home com a mecânica nova.
+- [ ] Regravar as 25 aulas que seguem com a pronúncia antiga (voz paga da Azure; depende da decisão sobre a assinatura).
+- [ ] Proprietário indicar para onde mover os dumps de banco em `backups/` no notebook.
+
 ## S27 — integridade da mesa, saque por titularidade e publicação assinada (19/10–08/11/2026)
 
 - [x] Recuperar a demo após o reinício da VPS de 17/10 e fixar `restart: unless-stopped` nos quatro serviços do Compose (19/10). [Registro](DEVELOPMENT_LOG.md#2026-10-19--recuperação-da-demo-após-reinício-da-vps).
@@ -15,7 +31,6 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certif
 - [x] Saque Real só com KYC aprovado e para chave PIX do mesmo CPF do KYC; a carteira envia o CPF do titular e avisa a regra.
 - [x] `GET /api/admin/liabilities` e painel de passivo com jogadores na visão geral do admin.
 - [x] Publicação padrão com imagens do CI assinadas (`scripts/vps-release-attested.sh`, `cosign verify` antes da troca). Publicados `ecc79b81`, `182e13bd` e `4088a5f6` em 08/11. [Evidências](QUALITY.md#publicação-painel-de-passivo-no-admin--08112026).
-- [x] Brazilian Pineapple com as regras novas (troca só depois do flop e do turn, descarte obrigatório no river), site reconstruído e vídeos novos publicados em 14/11 (`073d73aa`, migrations 061 e 062). [Evidências](QUALITY.md#publicação-brazilian-pineapple-site-reconstruído-e-vídeos-novos--14112026).
 - [x] Varredura documental de 08/11: STATUS revisado (S27), Termos alinhados ao código (saque só para o CPF do KYC, sem CNPJ), página `/termos` espelhando o documento legal com teste de divergência, relatórios e guias sem afirmações desatualizadas. Local, sem commit. [Registro](DEVELOPMENT_LOG.md#2026-11-08--varredura-documental-guarda-de-rede-e-loss-deflator-em-todos-os-jogos-local).
 - [x] Guarda de rede na mesa cash (Termos 2.3): entrada recusada quando outra conta ativa na mesma mesa usa o mesmo IP público ou a mesma sub-rede; só impressões HMAC, apagadas ao sair (migration 061). Contrato PostgreSQL aprovado localmente.
 - [x] Loss Deflator em todas as modalidades e nos torneios, em Play Money e Jogo Real (decisão do proprietário em 08/11): equity 2 + 3 para Omaha 4 e Brazilian Pineapple, incluindo as extras futuras do Pineapple; Termos 6.4, home e filme do Pineapple ajustados.
@@ -30,12 +45,12 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certif
 - [x] Proprietário escolheu a pronúncia (11/11): amostra 6, voz Antonio lendo os termos em inglês dentro de `<lang xml:lang="en-US">`.
 - [x] Vídeos do Brazilian Pineapple refeitos (12/11): filme de regras (6min05s, 13 capítulos, abre com as cinco comunitárias), trailer (2min29s) e aulas m5l3–m5l5 (4min16s, 2min51s, 2min43s), com mesa oval, quatro jogadores, fichas em movimento (aposta → pote → vencedor), trocas e descarte animados e a pronúncia aprovada. Roteiros gerados por `motion/tools/build_scripts.py`; mão-modelo jogada no motor (`pineapple_draw_film_examples`). m0l4, m5l1 e m6l3 regravadas (texto mudou).
 - [x] Mesa do jogo no site no layout pedido pelo proprietário (12/11): mesa oval com borda de madeira, placa com avatar, nome inteiro e fichas, cartas junto do jogador (fechadas para os adversários), fichas da aposta sobre o feltro, pote com fichas, botão do dealer e etiquetas SB/BB. Conferida em capturas no desktop (1280) e no celular (390), no flop e no descarte do river.
-- [ ] Proprietário assistir aos vídeos novos e validar a mesa nova numa mão real (não houve teste com o servidor e o banco ligados).
+- [x] Validação dos vídeos e da mesa pelo proprietário passou para a S28.
 - [x] Reconstrução do site (13 e 14/11, a pedido do proprietário): mesa do jogo com fichas em movimento, sons, ações antecipadas e atalhos; lobby em cartões; home com mesa viva; Academy em cartões com capa de vídeo; mesa de treino com a mesa do jogo; carteira nova; acabamento geral das telas de conta e do admin; fontes dos vídeos no site. Biblioteca Motion. Conferido em capturas (desktop e celular) e, no treino, com a API local.
-- [ ] Depois do deploy: som e vibração ouvidos pelo proprietário, mesa ao vivo com jogadores reais, formulários de PIX do Jogo Real e banco de tempo (precisa do servidor).
+- [x] Pendências do pós-deploy passaram para a S28.
 - [ ] Validar o Pineapple Draw no Play Money (campanha `full-validation -Phase pineapple` autorizada e jogo real de amigos) e decidir a abertura no Jogo Real, com nova migration.
 - [ ] Decidir a assinatura do Azure antes do fim da avaliação gratuita de 30 dias (criada em 08–09/11/2026): converter para pagamento conforme o uso mantendo o recurso F0 e o limite mensal do `narrate.py`, ou voltar ao Edge TTS.
-- [ ] Publicar as migrations 061 e 062 com o novo motor/API/frontend (exige ordem explícita de commit, push e deploy; só é preciso esperar o fim de torneio Brazilian Pineapple em andamento. Mesas fecham e devolvem as fichas; inscrições do Jogo Real são canceladas sem reembolso, conforme `DEPLOY_HETZNER.md`).
+- [x] Publicar as migrations 061 e 062 com o novo motor, API e frontend: feito em 14/11 (`073d73aa`), sem inscrição nem jogador sentado na hora da troca. Ver S28.
 - [ ] Levar a guarda de rede aos torneios (separar contas da mesma rede em mesas diferentes ou recusar a inscrição) — hoje só o cash aplica.
 - [ ] Exercitar com login em produção a tela de saque (CPF do titular) e o painel de passivo com sessão de admin; as publicações de 08/11 conferiram só rotas e bundles.
 - [ ] Executar o backfill da rede na demo (prévia + confirmação), já publicado como rota administrativa.
@@ -125,6 +140,7 @@ Uma tarefa só está **completa** quando TODOS os critérios abaixo são atendid
 | S25 | 2026-09-26 | Quatro modalidades, showdown completo e Loss Deflator com side pots | Texas tradicional + Texas Short Deck + Omaha 4 + Brazilian Pineapple; showdown da home; rateio do deflator por pote; migration 059 | 🟢 Publicado na demo |
 | S26 | 2026-09-27 → 2026-10-10 | Auditoria, Academy, Agente ZT direto e Pineapple v2 | Wheel/equity corrigidos; 28 aulas, 35 cenários, 30 vídeos; história do Omaha; programa mensal NGR e migration 060 (01/10); Pineapple v2 com ante e limite do pote em todas as rodadas (10/10) | 🟢 Publicado na demo; pendências de aprofundamento acima |
 | S27 | 2026-10-19 → 2026-11-08 | Integridade da mesa, saque por titularidade e publicação assinada | Retomada automática na VPS; cartas não reveladas em vitória por fold; bots fora do Jogo Real; saque só para o CPF do KYC; passivo no admin; `vps-release-attested.sh` com `cosign` | 🟢 Publicado na demo em 08/11; conferências com login pendentes |
+| S28 | 2026-11-09 → 2026-11-14 | Brazilian Pineapple novo, site reconstruído e vídeos novos | Troca depois do flop e do turn e descarte no river; mesa oval com fichas, sons e atalhos; lobby, home, Academy e carteira refeitos; vídeos do Brazilian Pineapple refeitos; migrations 061 e 062 | 🟢 Publicado na demo em 14/11 (`073d73aa`, `9dd61f7c`); mão real e carteira com login pendentes |
 
 Catálogo vigente: [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 
