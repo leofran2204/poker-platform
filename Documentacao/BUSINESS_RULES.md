@@ -300,9 +300,12 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
 - Continua elegível para ganhar o pot
 - Não precisa agir mais
 
-### 10.2 ⏰ Timeout — Auto-Fold
-- Após `timeLeft == 0`, jogador é auto-folded
-- Timer reinicia a cada ação
+### 10.2 ⏰ Timeout e banco de tempo
+- Cada jogada tem o tempo normal do turno (30 segundos nas mesas atuais). O timer reinicia a cada ação.
+- **Banco de tempo:** cada jogador senta com **30 segundos de reserva**. Quando o tempo normal acaba, a reserva começa a correr sozinha; ao agir, só o que passou do tempo normal é descontado. A cada **10 mãos recebidas** a reserva ganha **5 segundos**, até o teto de **60 segundos**.
+- A reserva vale para apostas, troca e descarte, em cash e torneio, em Play Money e Jogo Real. Quem está desconectado não usa a reserva: o turno dele acaba no tempo normal.
+- Acabados o tempo normal e a reserva, o servidor age pelo jogador: fold nas apostas, manter as cartas na troca e descarte automático no river.
+- A reserva é por mesa e fica na memória do servidor: volta a 30 segundos quando o jogador sai e senta de novo, quando a mesa é recriada e, no torneio, ao mudar de mesa.
 
 ### 10.3 🔌 Desconexão — Cash-out após graça
 - WebSocket cai: o jogador senta out (fold automático se for a vez); o assento fica reservado **45 s** para reconectar (F5).

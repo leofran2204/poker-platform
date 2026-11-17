@@ -146,7 +146,7 @@ A tentativa final, [20261003T153704Z-ed6cd9](../artifacts/full-validation/202610
 
 ## Campanha focada da estrutura híbrida — 04/10/2026
 
-> Desde 09/11/2026 os perfis `pineapple` e `pineapple-cash` exercitam o Brazilian Pineapple atual (`pineapple_draw_v1`, com trocas e descarte no river); os resultados desta seção são da campanha do formato antigo (2 privadas + 1 por street), retirado do catálogo. O formato atual ainda não passou por campanha autorizada.
+> Desde 09/11/2026 os perfis `pineapple` e `pineapple-cash` exercitam o Brazilian Pineapple atual (`pineapple_draw_v1`, com trocas e descarte no river); os resultados desta seção são da campanha do formato antigo (2 privadas + 1 por street), retirado do catálogo. O formato atual passou pela campanha de 16/11/2026, descrita no fim deste arquivo.
 
 Autorização: **15 minutos, dois trabalhadores**. Perfil `pineapple`: fixtures da regra, cash Pineapple, MTT Pineapple até campeão, contrato motor/atores/WS, HTTPS/WSS com 5/20 mesas Pineapple e reinício controlado. Compilação precede o orçamento, conforme o executor; preparação de infraestrutura e execução contam no teto. Deadline interrompe a carga e preserva etapas pendentes, sem iniciar outra campanha.
 
@@ -171,3 +171,25 @@ Os hashes das fontes de produção da integração conferem com a entrega; apena
 > **S28** (2026-11-14) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
+
+## Campanha do Brazilian Pineapple atual com banco de tempo — 16/11/2026
+
+Autorizada pelo proprietário em 16/11 (simulações locais com os bots e clientes da plataforma). Perfil `pineapple`, teto de 15 minutos, dois trabalhadores, banco e rede exclusivos, sobre o código local com as regras de 11/11 (troca depois do flop e do turn, descarte no river), o refresh token de uso único, o `credit_wallet` conferido e o banco de tempo.
+
+**Aprovada**: [campanha final](../artifacts/full-validation/20261117T010240Z-c65a8a/campaign.json), sete estágios, 282 segundos, nenhuma lacuna.
+
+- Regras dirigidas do Brazilian Pineapple e contratos de regra da API: aprovados.
+- Cash: 6.000 mãos até a saturação dos pares observados.
+- MTT até o campeão: 69 mãos, 17 reentradas, 8 mudanças de mesa, R$ 520 premiados integralmente.
+- HTTPS/WSS com 5 e 20 mesas: 85/340 requisições, 145/817 ações, 5/20 mesas completas, zero erro inesperado, p95 de 441 ms e 1.101 ms. Em todas as mesas o jogador que não agiu só foi foldado aos 60 s (30 s do turno + 30 s de reserva), agora exigido pelo cliente.
+- Reinício controlado da API: aprovado.
+
+Tentativas anteriores do mesmo dia, todas interrompidas por validadores desatualizados, não por defeito do produto (os artefatos de cada uma estão em `artifacts/full-validation/20261116T21*` e `20261117T00*`):
+
+1. Conferência de catálogo exigia mesa e torneio em Jogo Real para toda modalidade; o Brazilian Pineapple é só Play Money desde a migration 062. `full-validation.py` passou a respeitar `money_modes` do STATUS.
+2. `cash_catalog_10k_hands` exigia três cartas privadas no fim da mão; com o descarte do river são duas para quem chega ao river.
+3. `tournament_to_champion` lia "0 reentradas" como nenhuma; no catálogo, 0 é sem limite (Play Money).
+4. Faltava o Node nativo do Linux para os clientes de rede; instalado o oficial 24.22.1 em `~/node24` (checksum conferido). Rodar com `PATH="$HOME/node24/bin:$PATH"`.
+5. O cliente de rede (`full-validation-network.mjs`) supunha fold automático aos 30 s e, sob carga, deixava dois jogadores estourarem o tempo antes de registrar a espera. Passou a contar desde o instante real do turno, a exigir tempo normal + reserva e a esperar até 125 s por mesa.
+
+Os contratos do executor (`scripts/test_full_validation.py`) passam no Linux (10/10); no Windows dois deles não se aplicam (`os.killpg`, binário Linux).

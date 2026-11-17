@@ -119,6 +119,8 @@ async fn setup_mtt_table(
         antifraud: poker_engine::antifraud::AntiFraudSuite::new(),
         last_turn_start: Some(tokio::time::Instant::now()),
         turn_timeout: std::time::Duration::from_millis(200),
+        // Estes testes avançam as mãos pelo tempo esgotado: sem reserva.
+        time_banks: poker_api::time_bank::TimeBanks::disabled(),
         db: db.clone(),
         audit_secret: "test-secret-key-for-tests-32-chars".to_string(),
         tournaments: state.tournaments.clone(),

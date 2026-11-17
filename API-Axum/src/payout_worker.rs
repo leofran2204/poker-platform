@@ -69,10 +69,9 @@ async fn reject_and_recredit(
     amount: i64,
     reason: &str,
 ) -> Result<(), ApiError> {
-    sqlx::query("UPDATE users SET balance_real = balance_real + $1 WHERE id = $2::uuid")
-        .bind(amount)
-        .bind(user_id)
-        .execute(&mut **tx)
+    // Falha se o recrédito não alcançar a conta: o saque não vira REJECTED sem
+    // o dinheiro ter voltado.
+    crate::wallet::credit_wallet(&mut **tx, user_id, amount, crate::wallet::WalletKind::Real)
         .await?;
     sqlx::query(
         "UPDATE wallet_transactions SET status = 'REJECTED', provider_status = 'FAILED', updated_at = NOW() \

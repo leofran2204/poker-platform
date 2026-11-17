@@ -91,6 +91,7 @@ pub struct TableActor {
     pub antifraud: poker_engine::antifraud::AntiFraudSuite,
     pub last_turn_start: Option<tokio::time::Instant>,
     pub turn_timeout: tokio::time::Duration,
+    pub time_banks: crate::time_bank::TimeBanks,
     pub disconnect_cash_out_after: tokio::time::Duration,
     pub db: Option<sqlx::PgPool>,
     pub redis: Option<redis::aio::ConnectionManager>,
@@ -306,6 +307,7 @@ impl TableActor {
             antifraud: poker_engine::antifraud::AntiFraudSuite::new(),
             last_turn_start: Some(tokio::time::Instant::now()),
             turn_timeout: DEFAULT_TURN_TIMEOUT,
+            time_banks: crate::time_bank::TimeBanks::default(),
             disconnect_cash_out_after: DEFAULT_DISCONNECT_CASH_OUT_AFTER,
             db: None,
             redis: None,
@@ -326,6 +328,12 @@ impl TableActor {
     }
 
     #[cfg(test)]
+    /// Mesa sem banco de tempo: o turno acaba no tempo normal.
+    pub fn without_time_bank(mut self) -> Self {
+        self.time_banks = crate::time_bank::TimeBanks::disabled();
+        self
+    }
+
     pub fn with_turn_timeout(mut self, turn_timeout: tokio::time::Duration) -> Self {
         self.turn_timeout = turn_timeout;
         self
@@ -507,17 +515,20 @@ impl TableActor {
             return;
         }
 
+        // O turno vai até o tempo normal mais a reserva do banco de tempo de
+        // quem está conectado.
         let timed_out_player = self.game_loop.as_ref().and_then(|game_loop| {
-            (!game_loop.state.is_finished)
-                .then_some(())
-                .and(self.last_turn_start)
-                .filter(|started_at| started_at.elapsed() >= self.turn_timeout)
-                .and_then(|_| {
-                    game_loop
-                        .state
-                        .active_player()
-                        .map(|player| player.id.clone())
-                })
+            if game_loop.state.is_finished {
+                return None;
+            }
+            let started_at = self.last_turn_start?;
+            let player_id = game_loop.state.active_player()?.id.clone();
+            let limit = self.time_banks.turn_limit(
+                &player_id,
+                self.turn_timeout,
+                self.may_use_time_bank(&player_id),
+            );
+            (started_at.elapsed() >= limit).then_some(player_id)
         });
         if let Some(player_id) = timed_out_player {
             // Na rodada de troca do Brazilian Pineapple, o tempo esgotado mantém as cartas.
@@ -771,6 +782,7 @@ impl TableActor {
             .map(|player| player.chips);
         if chips.is_some() {
             self.players.retain(|player| player.id != player_id);
+            self.time_banks.forget(player_id);
             self.broadcast_state();
         }
         Ok(chips)
@@ -781,6 +793,8 @@ impl TableActor {
             .last_turn_start
             .map(|t| t.elapsed().as_millis() as u64)
             .unwrap_or(500);
+        let turn_elapsed = self.last_turn_start.map(|started| started.elapsed());
+        let uses_time_bank = self.may_use_time_bank(&player_id);
         let risk_score = self.antifraud.process_action(&player_id, elapsed_ms);
         if risk_score.recommendation == poker_engine::antifraud::RiskRecommendation::BlockSession {
             error!(
@@ -839,6 +853,11 @@ impl TableActor {
             }
         }
 
+        // O que passou do tempo normal sai da reserva de quem agiu.
+        if let Some(elapsed) = turn_elapsed.filter(|_| uses_time_bank) {
+            self.time_banks
+                .charge(&player_id, elapsed, self.turn_timeout);
+        }
         self.last_turn_start =
             (!game_loop.state.is_finished).then_some(tokio::time::Instant::now());
 
@@ -1179,6 +1198,8 @@ impl TableActor {
             return;
         }
 
+        self.time_banks
+            .hand_dealt(gl.state.players.iter().map(|player| player.id.as_str()));
         self.game_loop = Some(gl);
         self.last_winners.clear();
         self.last_turn_start = Some(tokio::time::Instant::now());
@@ -1203,6 +1224,31 @@ impl TableActor {
     }
 
     /// Ação aplicada quando o tempo do jogador da vez acaba.
+    /// Só quem está conectado à mesa usa a reserva do banco de tempo.
+    fn may_use_time_bank(&self, player_id: &str) -> bool {
+        self.players
+            .iter()
+            .find(|player| player.id == player_id)
+            .is_some_and(|player| player.is_sitting && player.disconnected_since.is_none())
+    }
+
+    /// Segundos de reserva que o jogador da vez ainda tem neste instante.
+    fn active_time_bank_reserve_secs(&self) -> u64 {
+        let Some(game_loop) = self.game_loop.as_ref().filter(|g| !g.state.is_finished) else {
+            return 0;
+        };
+        let (Some(player), Some(started)) = (game_loop.state.active_player(), self.last_turn_start)
+        else {
+            return 0;
+        };
+        if !self.may_use_time_bank(&player.id) {
+            return 0;
+        }
+        self.time_banks
+            .live(&player.id, started.elapsed(), self.turn_timeout)
+            .as_secs()
+    }
+
     fn automatic_timeout_action(&self) -> &'static str {
         automatic_timeout_action(self.game_loop.as_ref())
     }
@@ -1314,7 +1360,8 @@ impl TableActor {
             "is_finished": is_finished,
             "time_bank": self.last_turn_start.map(|started| {
                 self.turn_timeout.saturating_sub(started.elapsed()).as_secs()
-            }).unwrap_or(0)
+            }).unwrap_or(0),
+            "time_bank_reserve": self.active_time_bank_reserve_secs()
         });
 
         let _ = self.tx_broadcast.send(state_payload);
@@ -1455,7 +1502,8 @@ mod tests {
             rx_cmd,
             tx_broadcast,
         )
-        .with_turn_timeout(tokio::time::Duration::from_millis(1));
+        .with_turn_timeout(tokio::time::Duration::from_millis(1))
+        .without_time_bank();
         actor.players = vec![player("a", 0), player("b", 1), player("c", 2)];
         actor.start_new_hand().await;
         let active_before = actor
@@ -1486,6 +1534,121 @@ mod tests {
                     .active_player()
                     .is_some_and(|player| player.id != active_before)
         );
+    }
+
+    /// Mesa com mão iniciada e o turno do jogador da vez aberto há `turn_age` segundos.
+    async fn actor_mid_turn(turn_secs: u64, turn_age: u64) -> (TableActor, String) {
+        let (_tx_cmd, rx_cmd) = mpsc::channel(1);
+        let (tx_broadcast, _) = broadcast::channel(1);
+        let mut actor = TableActor::new(
+            "table".to_string(),
+            "Test".to_string(),
+            rx_cmd,
+            tx_broadcast,
+        )
+        .with_turn_timeout(tokio::time::Duration::from_secs(turn_secs));
+        actor.players = vec![player("a", 0), player("b", 1), player("c", 2)];
+        actor.start_new_hand().await;
+        let active = active_id(&actor).expect("hand should have an active player");
+        actor.last_turn_start = Some(
+            tokio::time::Instant::now()
+                .checked_sub(tokio::time::Duration::from_secs(turn_age))
+                .expect("instant supports the subtraction"),
+        );
+        (actor, active)
+    }
+
+    fn active_id(actor: &TableActor) -> Option<String> {
+        let game_loop = actor.game_loop.as_ref()?;
+        (!game_loop.state.is_finished)
+            .then(|| game_loop.state.active_player().map(|p| p.id.clone()))
+            .flatten()
+    }
+
+    #[tokio::test]
+    async fn time_bank_keeps_a_connected_player_in_the_hand_past_the_normal_time() {
+        // Turno de 10 s aberto há 15 s: 5 s além do normal, dentro da reserva de 30 s.
+        let (mut actor, active) = actor_mid_turn(10, 15).await;
+
+        actor.tick().await;
+
+        assert_eq!(active_id(&actor).as_deref(), Some(active.as_str()));
+        assert!((24..=25).contains(&actor.active_time_bank_reserve_secs()));
+
+        // Ao agir, só o que passou do tempo normal sai da reserva dele.
+        actor
+            .handle_action(active.clone(), "fold".to_string(), 0)
+            .await;
+        let left = actor.time_banks.remaining(&active).as_secs();
+        assert!((24..=25).contains(&left), "reserve left: {left}");
+        for other in ["a", "b", "c"].into_iter().filter(|id| *id != active) {
+            assert_eq!(actor.time_banks.remaining(other), crate::time_bank::INITIAL);
+        }
+    }
+
+    #[tokio::test]
+    async fn time_bank_runs_out_and_the_actor_acts_for_the_player() {
+        // 10 s normais + 30 s de reserva: aos 41 s o turno acabou.
+        let (mut actor, active) = actor_mid_turn(10, 41).await;
+
+        actor.tick().await;
+
+        assert_ne!(active_id(&actor).as_deref(), Some(active.as_str()));
+        assert_eq!(
+            actor.time_banks.remaining(&active),
+            std::time::Duration::ZERO
+        );
+
+        // Sem reserva, o próximo turno dele acaba no tempo normal.
+        assert_eq!(
+            actor.time_banks.turn_limit(
+                &active,
+                actor.turn_timeout,
+                actor.may_use_time_bank(&active)
+            ),
+            actor.turn_timeout
+        );
+    }
+
+    #[tokio::test]
+    async fn disconnected_player_does_not_use_the_time_bank() {
+        let (mut actor, active) = actor_mid_turn(10, 11).await;
+        let seat = actor
+            .players
+            .iter_mut()
+            .find(|p| p.id == active)
+            .expect("active player is seated");
+        seat.is_sitting = false;
+        seat.disconnected_since = Some(tokio::time::Instant::now());
+
+        actor.tick().await;
+
+        assert_ne!(active_id(&actor).as_deref(), Some(active.as_str()));
+        assert_eq!(
+            actor.time_banks.remaining(&active),
+            crate::time_bank::INITIAL
+        );
+    }
+
+    #[tokio::test]
+    async fn table_state_reports_the_turn_time_and_the_reserve() {
+        let (tx_cmd, rx_cmd) = mpsc::channel(1);
+        drop(tx_cmd);
+        let (tx_broadcast, mut rx_broadcast) = broadcast::channel(8);
+        let mut actor = TableActor::new(
+            "table".to_string(),
+            "Test".to_string(),
+            rx_cmd,
+            tx_broadcast,
+        );
+        actor.players = vec![player("a", 0), player("b", 1), player("c", 2)];
+        actor.start_new_hand().await;
+        let mut state = serde_json::Value::Null;
+        while let Ok(message) = rx_broadcast.try_recv() {
+            state = message;
+        }
+        assert!((29..=30).contains(&state["time_bank"].as_u64().unwrap()));
+        assert_eq!(state["time_bank_reserve"], 30);
     }
 
     #[test]

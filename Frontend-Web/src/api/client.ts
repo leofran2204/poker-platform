@@ -67,7 +67,24 @@ function connectionError(): ApiError {
   );
 }
 
-async function refreshAccessToken(): Promise<RefreshResult> {
+/**
+ * Cada refresh token vale uma única renovação, e as abas dividem o mesmo token
+ * no `localStorage`. A trava entre abas deixa uma renovar por vez; as demais
+ * reaproveitam o resultado em vez de reapresentar um token já gasto.
+ * Navegador sem Web Locks segue sem a trava: a API tolera a corrida curta.
+ */
+async function withRefreshLock(task: () => Promise<RefreshResult>): Promise<RefreshResult> {
+  const locks = typeof navigator !== "undefined" ? navigator.locks : undefined;
+  if (!locks) return task();
+  const result = await locks.request("zt-auth-refresh", task);
+  return result;
+}
+
+async function refreshAccessToken(staleToken: string | null): Promise<RefreshResult> {
+  // Outra aba renovou enquanto esta esperava a vez.
+  const currentToken = getToken();
+  if (staleToken && currentToken && currentToken !== staleToken) return "refreshed";
+
   const refreshToken = getRefreshToken();
   if (!refreshToken) return "invalid";
 
@@ -100,13 +117,33 @@ async function refreshAccessToken(): Promise<RefreshResult> {
   return "refreshed";
 }
 
-function tryRefreshAccessToken(): Promise<RefreshResult> {
+function tryRefreshAccessToken(staleToken: string | null): Promise<RefreshResult> {
   if (!refreshInFlight) {
-    refreshInFlight = refreshAccessToken().finally(() => {
+    refreshInFlight = withRefreshLock(() => refreshAccessToken(staleToken)).finally(() => {
       refreshInFlight = null;
     });
   }
   return refreshInFlight;
+}
+
+/**
+ * Encerra a sessão no servidor: o refresh token guardado deixa de renovar.
+ * Lê o token antes de qualquer `await`; quem chama pode limpar o
+ * `localStorage` logo em seguida. Sem rede, o token expira sozinho.
+ */
+export async function revokeSession(): Promise<void> {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) return;
+  try {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+      keepalive: true,
+    });
+  } catch {
+    /* O logout local já aconteceu. */
+  }
 }
 
 function expireSession(): void {
@@ -126,10 +163,8 @@ async function request<T>(
   if (!headers.has("Content-Type") && init.body) {
     headers.set("Content-Type", "application/json");
   }
-  if (auth) {
-    const token = getToken();
-    if (token) headers.set("Authorization", `Bearer ${token}`);
-  }
+  const token = auth ? getToken() : null;
+  if (token) headers.set("Authorization", `Bearer ${token}`);
 
   let res: Response;
   try {
@@ -142,7 +177,7 @@ async function request<T>(
   emitConnectionStatus("online");
   if (res.status === 401 && auth) {
     if (allowRefresh) {
-      const refreshed = await tryRefreshAccessToken();
+      const refreshed = await tryRefreshAccessToken(token);
       if (refreshed === "refreshed") {
         return request<T>(path, init, auth, false);
       }

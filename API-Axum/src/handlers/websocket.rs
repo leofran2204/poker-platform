@@ -1169,6 +1169,7 @@ mod tests {
                     antifraud: cash.antifraud,
                     last_turn_start: None,
                     turn_timeout: cash.turn_timeout,
+                    time_banks: cash.time_banks,
                     db: sqlx::postgres::PgPoolOptions::new()
                         .connect_lazy("postgres://unused:unused@127.0.0.1:1/unused")
                         .unwrap(),

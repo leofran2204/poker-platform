@@ -498,8 +498,10 @@ export type ServerMessage =
       /** jogos revelados no showdown (vazio fora dele). */
       showdown?: ShowdownEntry[];
       is_finished?: boolean;
-      /** Segundos restantes do turno (servidor). */
+      /** Segundos restantes do tempo normal do turno (servidor). */
       time_bank?: number;
+      /** Banco de tempo: segundos de reserva que o jogador da vez ainda tem. */
+      time_bank_reserve?: number;
       table_id?: string;
       current_bet_to_match?: number;
       min_raise?: number;

@@ -206,17 +206,27 @@ fn catalog_mtts_to_champion() {
         // harness; production coordinator tie-break remains separately audited.
         for id in busted {
             eliminate_player(&mut state, &id, None).unwrap();
-            if state.current_level <= cfg.rebuy_max_level
-                && state.players[&id].rebuys < cfg.rebuy_max_count
+            // No catálogo, 0 reentradas = sem limite (Play Money). O roteiro usa
+            // uma por jogador nesse caso, para o torneio chegar ao campeão.
+            let reentry_limit = if cfg.rebuy_max_count == 0 {
+                1
+            } else {
+                cfg.rebuy_max_count
+            };
+            if cfg.allow_rebuy
+                && state.current_level <= cfg.rebuy_max_level
+                && state.players[&id].rebuys < reentry_limit
             {
                 process_rebuy(&mut state, &id).unwrap();
                 stacks.insert(id.clone(), state.players[&id].stack);
                 chip_supply += state.players[&id].stack;
                 reentries += 1;
-                assert!(
-                    process_rebuy(&mut state, &id).is_err(),
-                    "more than catalogue reentry limit"
-                );
+                if cfg.rebuy_max_count > 0 {
+                    assert!(
+                        process_rebuy(&mut state, &id).is_err(),
+                        "more than catalogue reentry limit"
+                    );
+                }
                 if !tables.iter().any(|t| t.contains(&id)) {
                     let t = tables.iter().position(|t| t.len() < cap).unwrap();
                     tables[t].push(id.clone());

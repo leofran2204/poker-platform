@@ -1455,3 +1455,59 @@ Verificação: `tsc`, ESLint, build e Vitest 103/103; `render.py --check` (30 pu
 `073d73aa` publicado às 16:02 (São Paulo) com `scripts/vps-release-attested.sh`: imagens assinadas, dois dumps, migrations 061 e 062 aplicadas, saldos iguais antes e depois. Para o CI ficar verde: versão do catálogo da Academy corrigida no teste de contrato, `quinn-proto`, `quinn-udp` e `rustix` atualizados, e a exceção de auditoria RUSTSEC-2026-0459 aprovada pelo proprietário (pacote do SQLite que a API não compila). Evidências em [QUALITY.md](QUALITY.md#publicação-brazilian-pineapple-site-reconstruído-e-vídeos-novos--14112026). Falta jogar mãos de Brazilian Pineapple no site publicado.
 
 Mais tarde no mesmo dia, `9dd61f7c` foi publicado às 16:26: carteira em Jogo Real com depósito e saque em cartões separados (só aparência; a lógica do PIX não mudou) e scripts e2e com o descarte do river. Evidências em [QUALITY.md](QUALITY.md#publicação-carteira-com-depósito-e-saque-em-cartões--14112026).
+
+## 2026-11-16 — refresh token de uso único (local)
+
+Primeiro item de segurança do login apontado na auditoria de 13/11: o refresh token valia sete dias e podia ser reapresentado quantas vezes fosse. Agora cada um vale uma única renovação.
+
+- **Motor** (`Motor-Rust/src/auth.rs`): o refresh token ganha `jti`, um identificador único. Access tokens não mudam; refresh tokens antigos, sem o campo, continuam válidos na assinatura.
+- **Banco** (migration `063_auth_refresh_token_rotation.sql`): tabela `auth_refresh_tokens` com o SHA-256 de cada token, a conta, a família (um login = uma família), consumo e revogação. O JWT não é gravado.
+- **API** (`API-Axum/src/refresh_tokens.rs`, `handlers/auth.rs`): login, MFA, verificação de e-mail e cadastro abrem uma família. `POST /api/auth/refresh` consome o token e registra o substituto. O mesmo token aceito de novo em até 30 segundos recebe outro substituto (duas abas, resposta perdida na rede); depois disso a família é revogada, com `REFRESH_TOKEN_REUSE` em `audit_logs`. Token com `jti` sem registro é recusado. Token de sessão aberta antes da mudança é adotado na primeira apresentação, então ninguém é deslogado na publicação. Uma trava por família (`pg_advisory_xact_lock`) impede que uma renovação concorrente escape de uma revogação. `POST /api/auth/logout` revoga a família do token apresentado.
+- **Site** (`api/client.ts`, `Layout.tsx`): a renovação passa por uma trava entre abas (Web Locks); a aba que esperou reaproveita os tokens gravados pela outra em vez de reapresentar o token gasto. Sair da conta avisa o servidor.
+
+Limites conhecidos: o access token já emitido continua válido até expirar (15 minutos), inclusive depois de sair ou de uma revogação por reuso; dentro dos 30 segundos de tolerância, uma cópia do token ainda renova. Quem perder a resposta de uma renovação e só tentar de novo depois de 30 segundos precisa entrar outra vez. Tokens seguem em `localStorage` (item seguinte da S28).
+
+Verificação: banco novo `poker_test_063` com as 63 migrations aplicadas em ordem, e a 063 reaplicada sem erro. API: `fmt`, `clippy -D warnings`, testes determinísticos (102 na biblioteca, 17 em `api_tests`, 4 de red team), 17 contratos PostgreSQL de `api_tests` (quatro novos: troca e reuso, duas abas, token anterior à rotação, logout), carteira, jornada do jogador, reembolso, prêmio de torneio e limite por IP no Redis. Motor: `fmt`, `clippy -D warnings`, 1879 testes. Site: `tsc`, ESLint, build e Vitest 109/109 (seis novos em `api/client.test.ts`). A consulta a `_sqlx_migrations` na VPS não foi feita nesta sessão; o maior número publicado conhecido é 62 (publicação de 14/11). Sem commit.
+
+## 2026-11-16 — crédito na carteira confere a conta (local)
+
+Outro achado da auditoria de 13/11: `wallet::credit_wallet` executava o `UPDATE` e respondia sucesso mesmo quando nenhuma linha era alterada (conta inexistente), ou seja, um crédito podia se perder sem erro. Agora a função exige exatamente uma linha afetada e devolve erro interno no caso contrário; como todos os chamadores estão dentro de transação (cash-out da mesa, ajuste do admin, aprovação de depósito manual, cancelamento de inscrição em torneio), o erro desfaz a operação inteira. O recrédito do saque recusado em `payout_worker::reject_and_recredit` fazia o mesmo `UPDATE` direto e passou a usar `credit_wallet`: o saque não vira `REJECTED` sem o dinheiro ter voltado. Crédito de valor zero continua sendo ignorado.
+
+Não muda saldo de ninguém nem o caminho normal. A avaliação de um livro único do dinheiro segue pendente na S28.
+
+Verificação (banco `poker_test_063`): contrato novo `test_contract_wallet_credit_fails_when_no_account_receives_it` (as três carteiras, erro dentro de transação e crédito normal); `fmt`, `clippy -D warnings`, 102 testes da biblioteca, 18 contratos de `api_tests`, 5 de carteira/PIX, jornada do jogador, reembolso, prêmio de torneio e 4 de webhook DePix. Sem commit.
+
+## 2026-11-16 — mesas de demonstração da home com a mesa do jogo (local)
+
+As sete mãos de demonstração da parte de baixo da home (quatro jogos e três exemplos do Loss Deflator) ainda usavam os cartões de assento antigos. `AnimatedHand.tsx` passou a desenhar a própria mesa do jogo (`PokerTable` em modo vitrine): mesa oval, placas com avatar, nome e fichas, cartas fechadas dos adversários, "Trocou 1", "Manteve" e "Descartou" no Brazilian Pineapple, fichas do pote indo para o vencedor e as cinco cartas do jogo vencedor acesas. Controles, narração e textos não mudaram.
+
+- `lib/demoTable.ts` converte o roteiro de `homeContent.json` no estado da mesa. As fichas são ilustrativas e conservadas do primeiro passo ao pagamento; nos exemplos de all-in, a parte do Loss Deflator aparece voltando para quem perdeu (R$ 50 de R$ 200 no exemplo de 82%).
+- `home/ShowcaseFrame.tsx` reúne a moldura que reduz a mesa por escala, antes só da mesa viva do topo (`LiveHandShowcase`), que agora a reaproveita.
+- `PokerTable.tsx`: a placa não acrescenta "· você" a um nome que já começa por "Você".
+
+O CSS dos cartões antigos (`.zt-demo-table`, `.zt-showcase-table`, `.zt-seat-card`, `.zt-hole-row`, `.zt-hole-grid`, `.zt-board-row`, `.zt-chip-fly`, `.zt-seat.wide`) ficou sem uso e saiu de `index.css` no mesmo dia (20 regras, 94 linhas; nenhuma classe citada em `src/`). O banco de tempo segue pendente e depende de regra do proprietário.
+
+Verificação: `tsc`, ESLint, build e Vitest 133/133 (24 novos em `lib/demoTable.test.ts`: conservação de fichas, cartas fechadas até o showdown, vencedor e cinco cartas de cada roteiro, valores do Loss Deflator, trocas e descarte). Capturas no Chrome em 1280 e 390 de largura: Hold'em, Omaha e Brazilian Pineapple (início, troca, descarte, showdown), all-in AA × KK e a mesa viva do topo. Sem commit.
+
+## 2026-11-16 — banco de tempo (local)
+
+O proprietário autorizou o banco de tempo "conforme as melhores práticas do mercado". Regra adotada (BUSINESS_RULES 10.2): cada jogador senta com 30 s de reserva; quando o tempo normal do turno acaba, a reserva corre sozinha e só o excedente é descontado; a cada 10 mãos recebidas a reserva ganha 5 s, até 60 s; quem está desconectado não usa a reserva; acabados os dois, o servidor age pelo jogador como antes (fold, manter as cartas ou descarte automático).
+
+- **API:** `API-Axum/src/time_bank.rs` guarda as reservas; os atores de cash (`game_actor.rs`) e de torneio (`tournament_actor.rs`) estendem o prazo do turno, descontam o excedente de quem agiu e contam as mãos. O `table_state` ganhou `time_bank_reserve` (reserva do jogador da vez, em segundos); `time_bank` continua sendo o tempo normal restante.
+- **Site:** `lib/turnClock.ts` e a mesa mostram "Sua vez: 22s · reserva 30s", depois "Banco de tempo: 18s" e, no fim, a ação automática.
+
+Limites: a reserva fica na memória do ator; volta a 30 s se o jogador sair e sentar de novo, se a mesa for recriada e, no torneio, ao mudar de mesa. Os testes de torneio que avançam as mãos por tempo esgotado rodam com a reserva desligada (`TimeBanks::disabled()`).
+
+Verificação: `fmt`, `clippy -D warnings`, 115 testes da biblioteca da API (9 de `time_bank`, 4 novos do ator), 18 contratos PostgreSQL de `api_tests`, carteira, jornada do jogador, `tournament_actor_tests` e os contratos de reembolso e prêmio; site com `tsc`, ESLint e Vitest 137/137. Simulação numa API local sobre banco vazio (a própria API aplicou as 63 migrations pelo `sqlx`, como em produção): três bots da casa numa mesa Play Money e um jogador por WebSocket que demorou de propósito. Resultado: turno aberto com 29 s + 30 s de reserva; ação aceita aos 35 s sem fold automático; reserva seguinte em 25 s; sem agir, o servidor agiu aos 56 s (29 + 25, mais o passo do relógio); reserva zerada no turno seguinte; 9 mãos no histórico e nenhuma linha de erro no log da API. Sem commit.
+
+## 2026-11-16 — avaliação do livro único do dinheiro
+
+Levantamento em `API-Axum/src`: o dinheiro é registrado em quatro lugares. `wallet_transactions` só recebe depósito e saque PIX (dois pontos de inclusão, em `payments_routes.rs`) e é a única fonte do extrato que o jogador vê. `cash_game_ledger` guarda entrada e saída de mesa cash; `estrutura_ledger`, as comissões do Agente ZT; `audit_logs` (32 pontos de inclusão) é onde ficam inscrição, reembolso e prêmio de torneio, ajuste do admin e depósito manual. O saldo em `users` é alterado em 13 pontos de quatro arquivos (`wallet.rs`, `payments_routes.rs`, `tournament_coordinator.rs`, `bots.rs`).
+
+Consequências: o extrato do jogador não explica o saldo (faltam mesa, torneio, Loss Deflator, depósito manual e ajuste), e não existe uma conta única que prove "saldo = soma dos movimentos"; a conferência hoje exige cruzar quatro tabelas.
+
+Recomendação: adotar um livro único, só de inclusão, em que cada mudança de saldo grava uma linha na mesma transação (conta, carteira, valor com sinal, saldo resultante, motivo e referência da mesa, torneio ou PIX). `credit_wallet` e `debit_wallet` passam a ser a única porta e exigem o motivo; os sete pontos que alteram saldo fora delas migram para elas. Na virada, uma linha de saldo inicial por conta; a partir daí, uma conferência automática (saldo = soma do livro) no CI e na operação, e o extrato da carteira passa a ler do livro. Os registros atuais continuam como estão. É um projeto próprio: toca todos os caminhos de dinheiro e pede migration e campanha de validação; fazer depois de publicar as entregas de 16/11. Depende de decisão do proprietário.
+
+## 2026-11-16 — campanha local do Brazilian Pineapple com banco de tempo
+
+Campanha `full-validation` perfil `pineapple` (15 minutos, dois trabalhadores, banco e rede isolados) sobre o código local do dia: aprovada nos sete estágios em 282 s. Detalhes e números em [FULL_VALIDATION.md](FULL_VALIDATION.md#campanha-do-brazilian-pineapple-atual-com-banco-de-tempo--16112026). Antes de passar, cinco pontos dos próprios validadores precisaram de ajuste, todos por estarem presos a regras antigas: catálogo com modalidade só em Play Money (`scripts/full-validation.py`), duas cartas depois do descarte (`Motor-Rust/tests/cash_catalog_10k_hands.rs`), reentrada sem limite no Play Money (`Motor-Rust/tests/tournament_to_champion.rs`), Node do Linux ausente e o cliente de rede que contava 30 s para o fold automático (`scripts/full-validation-network.mjs`, agora 30 s + reserva). Nenhum defeito do produto apareceu. Sem commit.

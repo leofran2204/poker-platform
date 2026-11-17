@@ -90,6 +90,8 @@ export function TablePage() {
   const [lastJournal, setLastJournal] = useState<JournalHand | null>(null);
   const [journalCount, setJournalCount] = useState(0);
   const [turnLeft, setTurnLeft] = useState<number | null>(null);
+  /** Banco de tempo: reserva que corre depois do tempo normal do turno. */
+  const [reserveLeft, setReserveLeft] = useState(0);
   const [actionError, setActionError] = useState<string | null>(null);
   const [boardStaggerFrom, setBoardStaggerFrom] = useState(0);
   const prevBoardLen = useRef(0);
@@ -237,9 +239,11 @@ export function TablePage() {
               turnActiveRef.current = true;
               const bank = typeof msg.time_bank === "number" ? msg.time_bank : 30;
               setTurnLeft(bank);
+              setReserveLeft(typeof msg.time_bank_reserve === "number" ? msg.time_bank_reserve : 0);
             } else if (turnActiveRef.current) {
               turnActiveRef.current = false;
               setTurnLeft(null);
+              setReserveLeft(0);
             }
             setRaiseAmount((current) =>
               (msg.minimum_wager ?? 0) > 0
@@ -321,12 +325,17 @@ export function TablePage() {
       .catch(() => setMoneyMode(null));
   }, [id]);
 
-  // Regressiva de 1s do turno (servidor folda aos 30s).
+  // Regressiva de 1s: primeiro o tempo normal do turno, depois a reserva do banco
+  // de tempo. O servidor age pelo jogador quando os dois acabam.
   useEffect(() => {
-    if (turnLeft === null || turnLeft <= 0) return;
-    const t = window.setTimeout(() => setTurnLeft((v) => (v === null ? v : v - 1)), 1000);
+    if (turnLeft === null) return;
+    if (turnLeft <= 0 && reserveLeft <= 0) return;
+    const t = window.setTimeout(() => {
+      if (turnLeft > 0) setTurnLeft((v) => (v === null ? v : v - 1));
+      else setReserveLeft((v) => Math.max(0, v - 1));
+    }, 1000);
     return () => window.clearTimeout(t);
-  }, [turnLeft]);
+  }, [turnLeft, reserveLeft]);
 
   function onAction(action: string, amount = 0) {
     setActionError(null);
@@ -536,6 +545,7 @@ export function TablePage() {
         winners={winners}
         showdown={showdown}
         turnLeft={turnLeft}
+        reserveLeft={reserveLeft}
         dealing={dealing}
         maxPlayers={tableMeta?.max_players ?? 9}
         boardStaggerFrom={boardStaggerFrom}

@@ -31,7 +31,7 @@ const BCRYPT_COST: u32 = 12;
 const JWT_EXPIRATION_SECS: u64 = 900;
 
 /// Tempo de vida do refresh token em segundos (7 dias)
-const REFRESH_TOKEN_EXPIRATION_SECS: u64 = 604_800;
+pub const REFRESH_TOKEN_EXPIRATION_SECS: u64 = 604_800;
 
 /// Tamanho do segredo TOTP em bytes
 const TOTP_SECRET_SIZE: usize = 20;
@@ -117,6 +117,11 @@ pub struct JwtClaims {
     /// Tipo de token (access | refresh)
     #[serde(rename = "type")]
     pub token_type: String,
+    /// Identificador único do token. Só os refresh tokens o carregam: é o que
+    /// torna cada um distinto para a troca a cada renovação. Access tokens e
+    /// refresh tokens emitidos antes da rotação não têm o campo.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub jti: Option<String>,
 }
 
 /// Usuário do sistema
@@ -722,6 +727,7 @@ impl AuthManager {
             iat: now,
             exp: now + JWT_EXPIRATION_SECS,
             token_type: "access".to_string(),
+            jti: None,
         };
         jwt_encode(&claims, self.jwt_secret.as_bytes()).map_err(|_| AuthResult::TokenInvalid)
     }
@@ -737,6 +743,7 @@ impl AuthManager {
             iat: now,
             exp: now + REFRESH_TOKEN_EXPIRATION_SECS,
             token_type: "refresh".to_string(),
+            jti: Some(Self::generate_uuid_v4()),
         };
         jwt_encode(&claims, self.jwt_secret.as_bytes()).map_err(|_| AuthResult::TokenInvalid)
     }
@@ -1686,6 +1693,7 @@ mod tests {
             iat: 1000,
             exp: 2000,
             token_type: "access".into(),
+            jti: None,
         };
 
         let json = serde_json::to_string_pretty(&claims).unwrap();
@@ -1693,6 +1701,52 @@ mod tests {
         assert!(json.contains("Player1"));
         assert!(json.contains("player"));
         assert!(json.contains("access"));
+        assert!(!json.contains("jti"));
+    }
+
+    #[test]
+    fn refresh_tokens_carry_a_unique_id_and_access_tokens_do_not() {
+        let mut manager = create_test_manager();
+        let user = register_test_user(&mut manager);
+
+        // Emitidos no mesmo segundo, para o mesmo usuário: sem o identificador
+        // os dois JWTs seriam idênticos e a rotação não distinguiria um do outro.
+        let first = manager.issue_tokens_for_user(&user).unwrap();
+        let second = manager.issue_tokens_for_user(&user).unwrap();
+        assert_ne!(first.refresh_token, second.refresh_token);
+
+        let first_claims = manager
+            .validate_token(&first.refresh_token, "refresh")
+            .unwrap();
+        let second_claims = manager
+            .validate_token(&second.refresh_token, "refresh")
+            .unwrap();
+        assert!(first_claims.jti.is_some());
+        assert_ne!(first_claims.jti, second_claims.jti);
+
+        let access_claims = manager
+            .validate_token(&first.access_token, "access")
+            .unwrap();
+        assert!(access_claims.jti.is_none());
+    }
+
+    #[test]
+    fn refresh_token_issued_before_rotation_still_validates() {
+        let manager = create_test_manager();
+        // Formato anterior à rotação: mesmas claims, sem `jti`.
+        let legacy = serde_json::json!({
+            "sub": "uuid-1234",
+            "username": "Player1",
+            "role": "player",
+            "token_version": 0,
+            "iat": AuthManager::current_timestamp(),
+            "exp": AuthManager::current_timestamp() + 60,
+            "type": "refresh",
+        });
+        let token = jwt_encode(&legacy, manager.jwt_secret.as_bytes()).unwrap();
+
+        let claims = manager.validate_token(&token, "refresh").unwrap();
+        assert!(claims.jti.is_none());
     }
 
     // ─── Testes de Base32 ───

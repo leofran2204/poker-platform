@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { PlayerWsData, PotWsData, ShowdownEntry } from "@/api/types";
 import { PokerTable } from "@/components/PokerTable";
+import { ShowcaseFrame } from "@/components/home/ShowcaseFrame";
 import "./live-hand.css";
 
 // Mesa viva da home: a mão-modelo dos vídeos do Brazilian Pineapple se jogando
@@ -45,7 +46,7 @@ const NAMES = ["Ana", "Beto", "Caio", "Duda"];
 /** Lugares na mesa de seis: embaixo, alto à esquerda, topo e alto à direita. */
 const SEATS = [0, 2, 3, 4];
 const STEP_MS = 2600;
-/** A mesa é desenhada nesta largura e reduzida por escala para caber no espaço. */
+/** A mesa é desenhada nesta largura e reduzida por escala para caber no espaço (`ShowcaseFrame`). */
 const DESIGN_WIDTH = 940;
 const DESIGN_HEIGHT = 540;
 
@@ -61,23 +62,6 @@ export function LiveHandShowcase() {
     }
     const id = window.setInterval(() => setIndex((current) => (current + 1) % STEPS.length), STEP_MS);
     return () => window.clearInterval(id);
-  }, []);
-  const frame = useRef<HTMLDivElement>(null);
-  // Em telas estreitas a mesa usa o formato de celular do próprio jogo, sem escala.
-  const [scale, setScale] = useState<number | null>(0.6);
-  useEffect(() => {
-    const node = frame.current;
-    if (!node || typeof ResizeObserver === "undefined") return;
-    // O formato de celular da mesa depende da largura da tela (mesmo critério do CSS do jogo).
-    const fit = () => setScale(window.innerWidth < 640 ? null : Math.min(1, node.clientWidth / DESIGN_WIDTH));
-    fit();
-    const observer = new ResizeObserver(fit);
-    observer.observe(node);
-    window.addEventListener("resize", fit);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", fit);
-    };
   }, []);
   const step = STEPS[index];
   const players: PlayerWsData[] = NAMES.map((name, i) => ({ name, i })).map(({ name, i: seat }) => ({
@@ -101,11 +85,7 @@ export function LiveHandShowcase() {
     : [];
   return (
     <div className="hp-live" aria-label="Demonstração: uma mão de Brazilian Pineapple do começo ao fim">
-      <div ref={frame} className="hp-live-frame" style={scale === null ? undefined : { height: DESIGN_HEIGHT * scale }}>
-        <div
-          className={scale === null ? "hp-live-stage native" : "hp-live-stage"}
-          style={scale === null ? undefined : { width: DESIGN_WIDTH, transform: `scale(${scale})` }}
-        >
+      <ShowcaseFrame designWidth={DESIGN_WIDTH} designHeight={DESIGN_HEIGHT}>
       <PokerTable
         showcase
         players={players}
@@ -127,8 +107,7 @@ export function LiveHandShowcase() {
         showdown={showdown}
         maxPlayers={6}
       />
-        </div>
-      </div>
+      </ShowcaseFrame>
       <p className="hp-live-caption" aria-live={still ? undefined : "off"}>
         <span className="hp-live-step">
           {String(Math.min(index + 1, STEPS.length - 1)).padStart(2, "0")}/{STEPS.length - 1}

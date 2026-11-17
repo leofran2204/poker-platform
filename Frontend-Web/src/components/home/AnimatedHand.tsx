@@ -1,66 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { PlayingCard } from "@/components/PlayingCard";
+import { PokerTable } from "@/components/PokerTable";
+import { ShowcaseFrame } from "@/components/home/ShowcaseFrame";
 import { cashbackFor } from "@/lib/deflator";
+import { DEMO_TABLE_CAP, demoSeats, demoTableState, type AnimatedHandData } from "@/lib/demoTable";
 import { formatBrlFromCents } from "@/lib/money";
 
-export interface AnimatedStreet {
-  label: string;
-  board: string[];
-  /** Cartas visíveis de cada assento neste passo (no Brazilian Pineapple, a troca muda uma carta). */
-  holes?: string[][];
-  /** Narração deste passo (MP3). */
-  audio?: string;
-}
+export type { AnimatedHandData, AnimatedSeat, AnimatedStreet, WinningFive } from "@/lib/demoTable";
 
-export interface AnimatedSeat {
-  name: string;
-  cards?: string[];
-  showdownHand?: string;
-  folded?: boolean;
-  isHero?: boolean;
-  isWinner?: boolean;
-  stack?: string;
-}
-
-export interface WinningFive {
-  /** Cartas da mão do vencedor usadas no melhor jogo de 5. */
-  hole: string[];
-  /** Cartas do board usadas no melhor jogo de 5. */
-  board: string[];
-}
-
-export interface AnimatedHandData {
-  id: string;
-  title: string;
-  heroLabel: string;
-  heroCards: string[];
-  villainLabel: string;
-  villainCards: string[];
-  streets: AnimatedStreet[];
-  equity: number;
-  potCents: number;
-  result: string;
-  /** Índice da street em que o all-in foi pago. Ausente = exemplo sem all-in (variantes). */
-  allInStreetIndex?: number;
-  /** Assentos da mesa. Ausente = derivado de herói/vilão + 1 fictício foldado. */
-  seats?: AnimatedSeat[];
-  /** As 5 cartas do jogo vencedor. Ausente = destaca a mão do vencedor (legado). */
-  winningFive?: WinningFive;
-}
-
-/** Posições dos assentos no feltro (herói embaixo, como na mesa real). */
-const SEAT_POS = [
-  { top: 88, left: 50 },
-  { top: 16, left: 84 },
-  { top: 16, left: 16 },
-];
-
-/** Deslocamento das fichas do pote até o assento vencedor. */
-const CHIP_FLIGHT = [
-  { dx: "0px", dy: "72px" },
-  { dx: "110px", dy: "-56px" },
-  { dx: "-110px", dy: "-56px" },
-];
+/** A mesa do jogo é desenhada nesta largura e reduzida por escala (`ShowcaseFrame`). */
+const DESIGN_WIDTH = 840;
+const DESIGN_HEIGHT = 502;
+const noop = () => {};
 
 /** Pausa entre uma batida e a próxima — as streets se acumulam, nada some da tela.
  *  É o ritmo de fallback (sem narração, narração desligada ou áudio indisponível).
@@ -91,32 +41,11 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
       window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
 
-  const seats: AnimatedSeat[] = useMemo(() => {
-    if (hand.seats && hand.seats.length > 0) return hand.seats.slice(0, 3);
-    if (hand.villainCards.length === 0) {
-      return [
-        { name: hand.heroLabel, cards: hand.heroCards, isHero: true, isWinner: true },
-        { name: "Leo", folded: true },
-        { name: "Mari", folded: true },
-      ];
-    }
-    return [
-      { name: hand.heroLabel, cards: hand.heroCards, isHero: true },
-      { name: hand.villainLabel, cards: hand.villainCards, isWinner: true },
-      { name: "Ana", folded: true },
-    ];
-  }, [hand]);
-
+  const seats = useMemo(() => demoSeats(hand), [hand]);
   const winnerIdx = Math.max(
     0,
     seats.findIndex((s) => s.isWinner),
   );
-  const flight = CHIP_FLIGHT[Math.min(winnerIdx, CHIP_FLIGHT.length - 1)];
-
-  const win = hand.winningFive;
-  const useWinFive = !!win && win.hole.length + win.board.length === 5;
-  const winHole = useMemo(() => new Set(hand.winningFive?.hole ?? []), [hand]);
-  const winBoard = useMemo(() => new Set(hand.winningFive?.board ?? []), [hand]);
 
   const allInIdx = hand.allInStreetIndex;
   const hasAllIn = typeof allInIdx === "number";
@@ -239,7 +168,8 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
   // Board estável como nas plataformas famosas: o que já está na mesa fica
   // parado; só a carta nova anima. prevLen = cartas que já estavam no passo anterior.
   const prevLen = step > 0 ? hand.streets[step - 1].board.length : 0;
-  // Suspense do river: o board completa e só ~1s depois o jogo vencedor acende.
+  // Suspense do river: o board completa e só depois o showdown abre; a própria
+  // mesa acende as cinco cartas do jogo vencedor em seguida.
   const [showWin, setShowWin] = useState(false);
   useEffect(() => {
     setShowWin(false);
@@ -251,6 +181,11 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
     const id = window.setTimeout(() => setShowWin(true), 2000);
     return () => window.clearTimeout(id);
   }, [finished, hand.id, step, reducedMotion]);
+
+  const table = useMemo(() => demoTableState(hand, step, showWin), [hand, step, showWin]);
+  const showdownHands = seats
+    .map((seat, index) => ({ name: seat.name, hand: seat.showdownHand, won: index === winnerIdx, folded: seat.folded }))
+    .filter((entry) => entry.hand && !entry.folded);
 
   return (
     <div className="zt-card overflow-hidden">
@@ -318,114 +253,41 @@ export function AnimatedHand({ hand }: { hand: AnimatedHandData }) {
           onEnded={handleAudioEnded}
           onError={() => setAudioFailed(true)}
         />
-        <div className="zt-felt-table zt-demo-table" aria-hidden={false}>
-          <div className="absolute left-1/2 top-[46%] z-1 flex w-[72%] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 sm:w-[58%]">
-            <div className="rounded-sm border border-gold/40 bg-black/40 px-3 py-1 text-center">
-              <div className="text-[10px] uppercase tracking-wider text-gold-soft">Pote</div>
-              <div className="font-mono text-base font-bold text-white">
-                {formatBrlFromCents(showWin && split ? hand.potCents - split.cashbackCents : hand.potCents)}
-              </div>
-            </div>
-            <div className="zt-board-row flex min-h-[52px] flex-nowrap items-center justify-center gap-1.5">
-              {street.board.length > 0 ? (
-                street.board.map((c, i) => {
-                  const isWin = showWin && (!useWinFive || winBoard.has(c));
-                  const dim = showWin && useWinFive && !winBoard.has(c);
-                  const isNew = i >= prevLen;
-                  return (
-                    <span
-                      key={c}
-                      className={
-                        isWin
-                          ? "zt-win-pop zt-win-card"
-                          : dim
-                            ? "zt-dim"
-                            : isNew
-                              ? "zt-deal"
-                              : undefined
-                      }
-                      style={isNew && !showWin ? { animationDelay: `${(i - prevLen) * 350}ms` } : undefined}
-                    >
-                      <PlayingCard code={c} size="sm" highlight={isWin} />
-                    </span>
-                  );
-                })
-              ) : (
-                <span className="text-xs italic text-felt-400">sem cartas comunitárias ainda</span>
-              )}
-            </div>
-          </div>
+        <ShowcaseFrame designWidth={DESIGN_WIDTH} designHeight={DESIGN_HEIGHT}>
+          <PokerTable
+            showcase
+            players={table.players}
+            communityCards={table.communityCards}
+            stage={table.stage}
+            pots={table.pots}
+            localPlayerId={table.heroId}
+            availableActions={[]}
+            onAction={noop}
+            raiseAmount={0}
+            onRaiseChange={noop}
+            callAmount={0}
+            minimumWager={0}
+            maximumWager={0}
+            winners={table.winners}
+            showdown={table.showdown}
+            maxPlayers={DEMO_TABLE_CAP}
+            boardStaggerFrom={prevLen}
+          />
+        </ShowcaseFrame>
 
-          {seats.map((s, i) => {
-            const pos = SEAT_POS[Math.min(i, SEAT_POS.length - 1)];
-            const isWinnerSeat = showWin && i === winnerIdx;
-            const shown = street.holes?.[i] ?? s.cards ?? [];
-            const many = shown.length > 2;
-            return (
-              <div
-                key={s.name}
-                className={`zt-seat ${many ? "wide" : ""}`}
-                style={{ top: `${pos.top}%`, left: `${pos.left}%` }}
-              >
-                <div className={`zt-seat-card ${s.isHero ? "active" : ""} ${isWinnerSeat ? "winner" : ""} ${s.folded ? "folded" : ""}`}>
-                  <div className="truncate text-xs font-semibold text-cream">{s.name}</div>
-                  {s.stack && (
-                    <div className="font-mono text-[10px] text-gold-soft">{s.stack}</div>
-                  )}
-                  {s.folded ? (
-                    <div className={`mt-1 flex justify-center gap-0.5 ${showWin && useWinFive ? "zt-dim" : ""}`}>
-                      <PlayingCard faceDown size="sm" />
-                      <PlayingCard faceDown size="sm" />
-                    </div>
-                  ) : !s.isHero && !showWin ? (
-                    <div className={many ? "zt-hole-row" : "mt-1 flex justify-center gap-0.5"}>
-                      {Array.from({ length: shown.length || 2 }, (_, cardIndex) => (
-                        <PlayingCard key={cardIndex} faceDown size="sm" />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className={many ? "zt-hole-row" : "mt-1 flex justify-center gap-0.5"}>
-                      {shown.map((c) => {
-                        const inFive = i === winnerIdx && winHole.has(c);
-                        const isWin = showWin && (useWinFive ? inFive : i === winnerIdx);
-                        const dim = showWin && useWinFive && i === winnerIdx && !inFive;
-                        return (
-                          <span key={c} className={isWin ? "zt-win-pop zt-win-card" : dim ? "zt-dim" : undefined}>
-                            <PlayingCard code={c} size="sm" highlight={isWin} />
-                          </span>
-                        );
-                      })}
-                    </div>
-                  )}
-                  {s.folded && <div className="mt-0.5 text-[10px] text-felt-400">foldou</div>}
-                  {showWin && !s.folded && (
-                    <div className={`mt-0.5 text-[10px] font-bold ${isWinnerSeat ? "text-gold-bright" : "text-felt-300"}`}>
-                      {s.showdownHand ? `${s.showdownHand} · ` : ""}{isWinnerSeat ? "VENCEU" : "PERDEU"}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-
-          {showWin && !reducedMotion && (
-            <>
-              {[0, 1, 2].map((i) => (
-                <span
-                  key={`chip-${hand.id}-${i}`}
-                  className="zt-chip zt-chip-fly"
-                  style={{
-                    ["--chip-dx" as string]: flight.dx,
-                    ["--chip-dy" as string]: flight.dy,
-                    animationDelay: `${i * 180}ms`,
-                  }}
-                >
-                  ⛁
-                </span>
-              ))}
-            </>
-          )}
-        </div>
+        {showWin && showdownHands.length > 0 && (
+          <ul
+            className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs"
+            aria-label="Jogo de cada jogador no showdown"
+          >
+            {showdownHands.map((entry) => (
+              <li key={entry.name} className={entry.won ? "font-bold text-gold-bright" : "text-felt-300"}>
+                {entry.name}: {entry.hand}
+                {entry.won ? " · venceu" : ""}
+              </li>
+            ))}
+          </ul>
+        )}
 
         <p className="text-xs font-semibold text-gold-bright" aria-live="polite">
           {street.label}

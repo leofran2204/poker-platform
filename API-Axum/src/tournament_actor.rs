@@ -37,6 +37,7 @@ pub struct TournamentActor {
     pub antifraud: poker_engine::antifraud::AntiFraudSuite,
     pub last_turn_start: Option<tokio::time::Instant>,
     pub turn_timeout: tokio::time::Duration,
+    pub time_banks: crate::time_bank::TimeBanks,
     pub db: sqlx::PgPool,
     pub audit_secret: String,
     /// Ticks ociosos seguidos (encerra após ~60s sem jogo possível).
@@ -188,12 +189,20 @@ impl TournamentActor {
             return true;
         }
         // Timeout de turno = fold; na rodada de troca, mantém as cartas.
+        // O turno vai até o tempo normal mais a reserva do banco de tempo de
+        // quem está conectado.
         let timed_out = self.game_loop.as_ref().and_then(|gl| {
-            (!gl.state.is_finished)
-                .then_some(())
-                .and(self.last_turn_start)
-                .filter(|t| t.elapsed() >= self.turn_timeout)
-                .and_then(|_| gl.state.active_player().map(|p| p.id.clone()))
+            if gl.state.is_finished {
+                return None;
+            }
+            let started_at = self.last_turn_start?;
+            let player_id = gl.state.active_player()?.id.clone();
+            let limit = self.time_banks.turn_limit(
+                &player_id,
+                self.turn_timeout,
+                self.may_use_time_bank(&player_id),
+            );
+            (started_at.elapsed() >= limit).then_some(player_id)
         });
         if let Some(pid) = timed_out {
             let automatic = crate::game_actor::automatic_timeout_action(self.game_loop.as_ref());
@@ -308,11 +317,38 @@ impl TournamentActor {
         self.broadcast_state();
     }
 
+    /// Só quem está conectado à mesa usa a reserva do banco de tempo.
+    fn may_use_time_bank(&self, player_id: &str) -> bool {
+        self.players
+            .iter()
+            .find(|player| player.id == player_id)
+            .is_some_and(|player| player.is_sitting && player.disconnected_since.is_none())
+    }
+
+    /// Segundos de reserva que o jogador da vez ainda tem neste instante.
+    fn active_time_bank_reserve_secs(&self) -> u64 {
+        let Some(game_loop) = self.game_loop.as_ref().filter(|g| !g.state.is_finished) else {
+            return 0;
+        };
+        let (Some(player), Some(started)) = (game_loop.state.active_player(), self.last_turn_start)
+        else {
+            return 0;
+        };
+        if !self.may_use_time_bank(&player.id) {
+            return 0;
+        }
+        self.time_banks
+            .live(&player.id, started.elapsed(), self.turn_timeout)
+            .as_secs()
+    }
+
     pub(crate) async fn handle_action(&mut self, player_id: String, action: String, amount: u64) {
         let elapsed_ms = self
             .last_turn_start
             .map(|t| t.elapsed().as_millis() as u64)
             .unwrap_or(500);
+        let turn_elapsed = self.last_turn_start.map(|started| started.elapsed());
+        let uses_time_bank = self.may_use_time_bank(&player_id);
         let risk = self.antifraud.process_action(&player_id, elapsed_ms);
         if risk.recommendation == poker_engine::antifraud::RiskRecommendation::BlockSession {
             error!(
@@ -346,6 +382,11 @@ impl TournamentActor {
         };
         if gl.player_action(&player_id, mv).is_err() {
             return;
+        }
+        // O que passou do tempo normal sai da reserva de quem agiu.
+        if let Some(elapsed) = turn_elapsed.filter(|_| uses_time_bank) {
+            self.time_banks
+                .charge(&player_id, elapsed, self.turn_timeout);
         }
         self.last_turn_start = (!gl.state.is_finished).then_some(tokio::time::Instant::now());
         if gl.state.is_finished {
@@ -457,6 +498,8 @@ impl TournamentActor {
             self.halt("start_hand do motor falhou").await;
             return;
         }
+        self.time_banks
+            .hand_dealt(gl.state.players.iter().map(|player| player.id.as_str()));
         self.game_loop = Some(gl);
         self.last_winners.clear();
         self.last_turn_start = Some(tokio::time::Instant::now());
@@ -804,7 +847,8 @@ impl TournamentActor {
             "is_finished": is_finished,
             "time_bank": self.last_turn_start.map(|started| {
                 self.turn_timeout.saturating_sub(started.elapsed()).as_secs()
-            }).unwrap_or(0)
+            }).unwrap_or(0),
+            "time_bank_reserve": self.active_time_bank_reserve_secs()
         }));
     }
 }
@@ -841,6 +885,7 @@ pub async fn ensure_tournament_actor(
         antifraud: poker_engine::antifraud::AntiFraudSuite::new(),
         last_turn_start: Some(tokio::time::Instant::now()),
         turn_timeout: TURN_TIMEOUT,
+        time_banks: crate::time_bank::TimeBanks::default(),
         db: state.db.clone(),
         audit_secret: state.jwt_secret.clone(),
         idle_ticks: 0,

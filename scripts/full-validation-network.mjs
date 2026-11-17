@@ -111,12 +111,17 @@ async function play(table){
   const acted=new Map();
   const raised=new Set();
   const client=[];
-  const handler=(ws,state,user)=>{
+  // Último estado de cada jogador e a hora em que chegou: a mão pode começar
+  // antes de todos os clientes estarem prontos.
+  const lastSeen=new Map();
+  const handler=(ws,state,user,at=Date.now())=>{
+    lastSeen.set(user.id,{ws,state,user,at});
     if(!playing)return;
     if(timeoutWitness&&!timeoutWitness.observed&&state.players?.find(p=>p.id===timeoutWitness.player)?.folded){
       timeoutWitness.observed=true;
       timeoutWitness.elapsed_ms=Date.now()-timeoutWitness.started;
-      assert(timeoutWitness.elapsed_ms>=Math.max(0,timeoutWitness.time_bank-1)*1000,"fold before timeout");
+      // O fold automático só vem depois do tempo normal mais a reserva do banco de tempo.
+      assert(timeoutWitness.elapsed_ms>=Math.max(0,timeoutWitness.time_bank+timeoutWitness.reserve-1)*1000,"fold before timeout and time bank");
     }
     if(!state.is_finished)started=true;
     if(fixture.recovery&&started&&!state.is_finished){fs.writeFileSync(out+"-ready.json",JSON.stringify({table:table.id,active:true}));return;}
@@ -125,7 +130,7 @@ async function play(table){
     const p=state.players?.find(p=>p.id===user.id);
     if(!p?.is_active)return;
     if(!timeoutWitness){
-      timeoutWitness={player:user.id,started:Date.now(),time_bank:state.time_bank,observed:false};
+      timeoutWitness={player:user.id,started:at,time_bank:state.time_bank,reserve:state.time_bank_reserve??0,observed:false};
       event({type:"timeout_wait",table:table.id,...timeoutWitness});
       return;
     }
@@ -154,9 +159,14 @@ async function play(table){
   // Reconnect without explicit leave: the durable seat must remain.
   client[0].close();await new Promise(r=>setTimeout(r,100));
   client[0]=await open(table,active[0],handler);counters.reconnections++;
+  const reconnected=lastSeen.get(active[0].id);if(reconnected)reconnected.ws=client[0];
   playing=true;
+  // Reapresenta o estado já recebido: quem está na vez vira a testemunha do
+  // tempo esgotado desde o instante real, sem um segundo tempo esgotado às cegas.
+  for(const seen of [...lastSeen.values()])handler(seen.ws,seen.state,seen.user,seen.at);
   for(const ws of client)ws.send(JSON.stringify({type:"get_table_info"}));
-  const until=Date.now()+90000;
+  // 30 s de tempo normal + 30 s de banco de tempo na espera proposital, mais a mão.
+  const until=Date.now()+125000;
   while(!finished&&Date.now()<until&&errors.length===0)await new Promise(r=>setTimeout(r,50));
   assert.equal(errors.length,0,errors.join(";"));
   assert(finished,"table failed to complete an observed hand");

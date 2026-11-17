@@ -1508,3 +1508,378 @@ async fn test_contract_mfa_challenge_lifecycle_is_durable_and_single_use() {
 
     cleanup_contract_user(&state, &username).await;
 }
+
+#[tokio::test]
+#[ignore = "Requires PostgreSQL — set DATABASE_URL to run"]
+async fn test_contract_wallet_credit_fails_when_no_account_receives_it() {
+    use poker_api::wallet::{credit_wallet, WalletKind};
+
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let user = register_refresh_contract_user(&state, &app, "credit").await;
+
+    // Conta inexistente: o crédito não pode "dar certo" sem chegar a ninguém.
+    let missing = uuid::Uuid::new_v4().to_string();
+    for kind in [WalletKind::PmCash, WalletKind::PmMtt, WalletKind::Real] {
+        let result = credit_wallet(&state.db, &missing, 500, kind).await;
+        assert!(
+            matches!(result, Err(poker_api::error::ApiError::Internal(_))),
+            "{kind:?}: {result:?}"
+        );
+    }
+
+    // Dentro de uma transação, o erro desfaz o que veio antes dele.
+    let mut tx = state.db.begin().await.unwrap();
+    credit_wallet(&mut *tx, &user.user_id, 700, WalletKind::Real)
+        .await
+        .unwrap();
+    assert!(credit_wallet(&mut *tx, &missing, 700, WalletKind::Real)
+        .await
+        .is_err());
+    tx.rollback().await.unwrap();
+
+    // Conta existente recebe exatamente o valor.
+    credit_wallet(&state.db, &user.user_id, 500, WalletKind::Real)
+        .await
+        .unwrap();
+    let balance_real: i64 =
+        sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1::uuid")
+            .bind(&user.user_id)
+            .fetch_one(&state.db)
+            .await
+            .unwrap();
+    assert_eq!(balance_real, 500);
+
+    cleanup_contract_user(&state, &user.username).await;
+}
+
+// ─── Rotação do refresh token (migration 063) ───
+
+struct RefreshContractUser {
+    username: String,
+    user_id: String,
+    email: String,
+    password: &'static str,
+    refresh_token: String,
+}
+
+async fn register_refresh_contract_user(
+    state: &AppState,
+    app: &axum::Router,
+    prefix: &str,
+) -> RefreshContractUser {
+    let uid = uuid::Uuid::new_v4().simple().to_string();
+    let email = format!("{prefix}_{uid}@example.com");
+    let username = format!("{prefix}_{}", &uid[..12]);
+    let password = "StrongPass123!";
+    let body = serde_json::json!({
+        "email": email,
+        "password": password,
+        "username": username,
+    })
+    .to_string();
+    let (status, response) =
+        send_request(app.clone(), Method::POST, "/api/auth/register", Some(body)).await;
+    assert_eq!(status, StatusCode::OK, "{response}");
+    let refresh_token = serde_json::from_str::<serde_json::Value>(&response).unwrap()
+        ["refresh_token"]
+        .as_str()
+        .unwrap()
+        .to_string();
+    let user_id: String = sqlx::query_scalar("SELECT id::text FROM users WHERE username = $1")
+        .bind(&username)
+        .fetch_one(&state.db)
+        .await
+        .unwrap();
+    RefreshContractUser {
+        username,
+        user_id,
+        email,
+        password,
+        refresh_token,
+    }
+}
+
+async fn refresh_with(app: &axum::Router, refresh_token: &str) -> (StatusCode, serde_json::Value) {
+    let body = serde_json::json!({ "refresh_token": refresh_token }).to_string();
+    let (status, response) =
+        send_request(app.clone(), Method::POST, "/api/auth/refresh", Some(body)).await;
+    let json = serde_json::from_str(&response).unwrap_or(serde_json::Value::Null);
+    (status, json)
+}
+
+fn rotated_refresh_token(response: &serde_json::Value) -> String {
+    response["refresh_token"]
+        .as_str()
+        .expect("response carries a refresh token")
+        .to_string()
+}
+
+async fn login_refresh_contract_user(app: &axum::Router, user: &RefreshContractUser) -> String {
+    let body = serde_json::json!({ "email": user.email, "password": user.password }).to_string();
+    let (status, response) =
+        send_request(app.clone(), Method::POST, "/api/auth/login", Some(body)).await;
+    assert_eq!(status, StatusCode::OK, "{response}");
+    rotated_refresh_token(&serde_json::from_str(&response).unwrap())
+}
+
+/// Empurra o consumo do token para antes da tolerância de corrida, como se a
+/// troca tivesse acontecido há uma hora.
+async fn age_refresh_token_consumption(state: &AppState, refresh_token: &str) {
+    let updated = sqlx::query(
+        "UPDATE auth_refresh_tokens SET consumed_at = consumed_at - 3600 \
+         WHERE token_hash = $1 AND consumed_at IS NOT NULL",
+    )
+    .bind(poker_api::refresh_tokens::hash_token(refresh_token))
+    .execute(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(updated.rows_affected(), 1, "token should be consumed");
+}
+
+fn base64url(bytes: &[u8]) -> String {
+    const ALPHABET: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    let mut out = String::new();
+    for chunk in bytes.chunks(3) {
+        let n = (u32::from(chunk[0]) << 16)
+            | (u32::from(*chunk.get(1).unwrap_or(&0)) << 8)
+            | u32::from(*chunk.get(2).unwrap_or(&0));
+        out.push(ALPHABET[(n >> 18) as usize & 63] as char);
+        out.push(ALPHABET[(n >> 12) as usize & 63] as char);
+        if chunk.len() > 1 {
+            out.push(ALPHABET[(n >> 6) as usize & 63] as char);
+        }
+        if chunk.len() > 2 {
+            out.push(ALPHABET[n as usize & 63] as char);
+        }
+    }
+    out
+}
+
+/// Assina um JWT HS256 com o segredo dos testes. Serve para montar refresh
+/// tokens que a API não emite mais (formato anterior à rotação, sem `jti`) ou
+/// que ela nunca emitiu (com `jti`, mas sem registro).
+fn sign_test_refresh_token(user: &RefreshContractUser, jti: Option<&str>) -> String {
+    let now = test_epoch_now();
+    let mut claims = serde_json::json!({
+        "sub": user.user_id,
+        "username": user.username,
+        "role": "player",
+        "token_version": 0,
+        "iat": now - 3600,
+        "exp": now + 3600,
+        "type": "refresh",
+    });
+    if let Some(jti) = jti {
+        claims["jti"] = serde_json::Value::String(jti.to_string());
+    }
+    let header = base64url(br#"{"alg":"HS256","typ":"JWT"}"#);
+    let payload = base64url(claims.to_string().as_bytes());
+    let mut mac = Hmac::<Sha256>::new_from_slice(b"test-secret-key-for-tests").unwrap();
+    mac.update(format!("{header}.{payload}").as_bytes());
+    let signature = base64url(&mac.finalize().into_bytes());
+    format!("{header}.{payload}.{signature}")
+}
+
+#[tokio::test]
+#[ignore = "Requires PostgreSQL with migration 063 — set DATABASE_URL to run"]
+async fn test_contract_refresh_token_rotates_and_reuse_revokes_the_session() {
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let user = register_refresh_contract_user(&state, &app, "rotate").await;
+
+    let (status, first) = refresh_with(&app, &user.refresh_token).await;
+    assert_eq!(status, StatusCode::OK, "{first}");
+    assert!(first["token"].is_string());
+    let second_token = rotated_refresh_token(&first);
+    assert_ne!(second_token, user.refresh_token);
+
+    // O substituto renova normalmente e também é trocado.
+    let (status, second) = refresh_with(&app, &second_token).await;
+    assert_eq!(status, StatusCode::OK, "{second}");
+    let third_token = rotated_refresh_token(&second);
+    assert_ne!(third_token, second_token);
+
+    // Só os hashes ficam no banco, nunca o JWT.
+    let stored: Vec<String> =
+        sqlx::query_scalar("SELECT token_hash FROM auth_refresh_tokens WHERE user_id = $1::uuid")
+            .bind(&user.user_id)
+            .fetch_all(&state.db)
+            .await
+            .unwrap();
+    assert_eq!(stored.len(), 3);
+    assert!(stored.iter().all(|hash| hash.len() == 64));
+    assert!(stored.contains(&poker_api::refresh_tokens::hash_token(&third_token)));
+
+    // Passada a tolerância, o primeiro token (já trocado) reaparece: é cópia.
+    age_refresh_token_consumption(&state, &user.refresh_token).await;
+    let (status, _) = refresh_with(&app, &user.refresh_token).await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED);
+
+    // A família inteira caiu, inclusive o token mais novo, nunca usado.
+    let (status, _) = refresh_with(&app, &third_token).await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED);
+    let live: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM auth_refresh_tokens WHERE user_id = $1::uuid AND revoked_at IS NULL",
+    )
+    .bind(&user.user_id)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(live, 0);
+    let reuse_events: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM audit_logs WHERE user_id = $1 AND action = 'REFRESH_TOKEN_REUSE'",
+    )
+    .bind(&user.user_id)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(reuse_events, 1);
+
+    // Entrar de novo abre outra família, que funciona.
+    let fresh_login = login_refresh_contract_user(&app, &user).await;
+    let (status, _) = refresh_with(&app, &fresh_login).await;
+    assert_eq!(status, StatusCode::OK);
+
+    sqlx::query("DELETE FROM audit_logs WHERE user_id = $1")
+        .bind(&user.user_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+    cleanup_contract_user(&state, &user.username).await;
+}
+
+#[tokio::test]
+#[ignore = "Requires PostgreSQL with migration 063 — set DATABASE_URL to run"]
+async fn test_contract_refresh_token_tolerates_two_tabs_renewing_together() {
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let user = register_refresh_contract_user(&state, &app, "twotabs").await;
+
+    // Duas abas leem o mesmo token do navegador e renovam ao mesmo tempo.
+    let ((status_a, tab_a), (status_b, tab_b)) = tokio::join!(
+        refresh_with(&app, &user.refresh_token),
+        refresh_with(&app, &user.refresh_token)
+    );
+    assert_eq!(status_a, StatusCode::OK, "{tab_a}");
+    assert_eq!(status_b, StatusCode::OK, "{tab_b}");
+    let token_a = rotated_refresh_token(&tab_a);
+    let token_b = rotated_refresh_token(&tab_b);
+    assert_ne!(token_a, token_b);
+
+    // Uma nova tentativa logo depois (resposta perdida na rede) também passa.
+    let (status, retry) = refresh_with(&app, &user.refresh_token).await;
+    assert_eq!(status, StatusCode::OK, "{retry}");
+
+    // Nenhuma das abas perdeu a sessão.
+    let (status, _) = refresh_with(&app, &token_a).await;
+    assert_eq!(status, StatusCode::OK);
+    let (status, _) = refresh_with(&app, &token_b).await;
+    assert_eq!(status, StatusCode::OK);
+    let (revoked, families): (i64, i64) = sqlx::query_as(
+        "SELECT COUNT(*) FILTER (WHERE revoked_at IS NOT NULL), COUNT(DISTINCT family_id) \
+         FROM auth_refresh_tokens WHERE user_id = $1::uuid",
+    )
+    .bind(&user.user_id)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(revoked, 0);
+    assert_eq!(families, 1);
+
+    cleanup_contract_user(&state, &user.username).await;
+}
+
+#[tokio::test]
+#[ignore = "Requires PostgreSQL with migration 063 — set DATABASE_URL to run"]
+async fn test_contract_refresh_token_issued_before_rotation_is_adopted_once() {
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let user = register_refresh_contract_user(&state, &app, "legacy").await;
+
+    // Sessão aberta antes da rotação: token válido, sem `jti` e sem registro.
+    let legacy = sign_test_refresh_token(&user, None);
+    let (status, adopted) = refresh_with(&app, &legacy).await;
+    assert_eq!(status, StatusCode::OK, "{adopted}");
+    let replacement = rotated_refresh_token(&adopted);
+    let consumed_at: Option<i64> =
+        sqlx::query_scalar("SELECT consumed_at FROM auth_refresh_tokens WHERE token_hash = $1")
+            .bind(poker_api::refresh_tokens::hash_token(&legacy))
+            .fetch_one(&state.db)
+            .await
+            .unwrap();
+    assert!(consumed_at.is_some());
+
+    // Daí em diante ele segue a regra dos demais: reapresentado, derruba a sessão.
+    age_refresh_token_consumption(&state, &legacy).await;
+    let (status, _) = refresh_with(&app, &legacy).await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED);
+    let (status, _) = refresh_with(&app, &replacement).await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED);
+
+    // Token no formato novo que a API nunca registrou não renova nada.
+    let unknown = sign_test_refresh_token(&user, Some(&uuid::Uuid::new_v4().to_string()));
+    let (status, _) = refresh_with(&app, &unknown).await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED);
+    let unknown_rows: i64 =
+        sqlx::query_scalar("SELECT COUNT(*) FROM auth_refresh_tokens WHERE token_hash = $1")
+            .bind(poker_api::refresh_tokens::hash_token(&unknown))
+            .fetch_one(&state.db)
+            .await
+            .unwrap();
+    assert_eq!(unknown_rows, 0);
+
+    // O token do cadastro pertence a outra família e não foi afetado.
+    let (status, _) = refresh_with(&app, &user.refresh_token).await;
+    assert_eq!(status, StatusCode::OK);
+
+    sqlx::query("DELETE FROM audit_logs WHERE user_id = $1")
+        .bind(&user.user_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+    cleanup_contract_user(&state, &user.username).await;
+}
+
+#[tokio::test]
+#[ignore = "Requires PostgreSQL with migration 063 — set DATABASE_URL to run"]
+async fn test_contract_logout_revokes_only_that_session() {
+    async fn logout_with(app: &axum::Router, refresh_token: &str) -> (StatusCode, String) {
+        let body = serde_json::json!({ "refresh_token": refresh_token }).to_string();
+        send_request(app.clone(), Method::POST, "/api/auth/logout", Some(body)).await
+    }
+
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let user = register_refresh_contract_user(&state, &app, "logout").await;
+
+    // Segunda sessão da mesma conta (outro aparelho).
+    let other_device = login_refresh_contract_user(&app, &user).await;
+
+    let (status, renewed) = refresh_with(&app, &user.refresh_token).await;
+    assert_eq!(status, StatusCode::OK, "{renewed}");
+    let current = rotated_refresh_token(&renewed);
+
+    let (status, response) = logout_with(&app, &current).await;
+    assert_eq!(status, StatusCode::OK, "{response}");
+    assert_eq!(
+        serde_json::from_str::<serde_json::Value>(&response).unwrap()["ok"],
+        true
+    );
+
+    // A sessão encerrada não renova mais.
+    let (status, _) = refresh_with(&app, &current).await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED);
+
+    // Sair de novo, ou com um token qualquer, responde igual e não revoga nada.
+    let (status, _) = logout_with(&app, &current).await;
+    assert_eq!(status, StatusCode::OK);
+    let (status, _) = logout_with(&app, "not-a-token").await;
+    assert_eq!(status, StatusCode::OK);
+
+    // O outro aparelho continua logado.
+    let (status, _) = refresh_with(&app, &other_device).await;
+    assert_eq!(status, StatusCode::OK);
+
+    cleanup_contract_user(&state, &user.username).await;
+}

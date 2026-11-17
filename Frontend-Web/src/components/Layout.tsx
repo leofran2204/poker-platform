@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
-import { sendPresenceOffline, setWalletMode as apiSetWalletMode } from "@/api/client";
+import {
+  revokeSession,
+  sendPresenceOffline,
+  setWalletMode as apiSetWalletMode,
+} from "@/api/client";
 import type { MeResponse, WalletMode } from "@/api/types";
 import {
   OnlinePresenceNav,
@@ -117,6 +121,7 @@ export function Layout() {
       .catch(() => {
         /* O contador já foi reduzido localmente; o TTL cobre falhas de rede. */
       });
+    void revokeSession();
     clearTokens();
     clearMeCache();
     setIsAdmin(false);

@@ -239,15 +239,17 @@ class Campaign:
         events = json.loads(self.sql("SELECT coalesce(json_agg(t),'[]') FROM tournaments t WHERE status='registering';"))
         canonical = json.loads((ROOT/"Documentacao/STATUS_OPERACIONAL.json").read_text(encoding="utf-8"))
         cash, mtt, catalogue_differences = [], [], []
+        # Uma modalidade pode existir só numa carteira (`money_modes` no STATUS).
         for spec in canonical["cash_tables"]:
-            for mode in ("play","real"):
+            for mode in spec.get("money_modes",("play","real")):
                 match = [r for r in tables if r["money_mode"]==mode and r["poker_variant"]==spec["variant"]
                          and r["small_blind"]==spec["small_blind_cents"] and r["big_blind"]==spec["big_blind_cents"]
                          and r["min_buy_in"]==r["max_buy_in"]==spec["buy_in_cents"] and r["max_players"]==spec["max_players"]]
                 if len(match)!=1: raise RuntimeError("cash catalogue mismatch: "+str(spec))
                 if mode=="play": cash.append(match[0])
         for spec in canonical["tournament"]["events"]:
-            for mode in ("play","real"):
+            modes = spec.get("money_modes",("play","real"))
+            for mode in modes:
                 match = [r for r in events if r["money_mode"]==mode and r["poker_variant"]==spec["variant"]
                          and r["buy_in"]==spec["buy_in_cents"] and r["guaranteed_prize"]==spec["gtd_cents"]
                          and r["table_max_players"]==spec["table_max"] and r["max_players"]==spec["max_players"]]
@@ -257,7 +259,7 @@ class Campaign:
                     catalogue_differences.append(dict(event=spec["name"],mode=mode,field="rebuy_max_count",
                         expected=expected_reentries,actual=match[0]["rebuy_max_count"],
                         interpretation="0 means unlimited; PM and Real limits are explicit in the canonical catalogue"))
-                if mode=="real": mtt.append(match[0])
+                if mode==("real" if "real" in modes else "play"): mtt.append(match[0])
         save(self.out/"catalog-db.json",dict(cash=cash,mtt=mtt))
         save(self.out/"catalog-differences.json",catalogue_differences)
         if catalogue_differences: self.gaps.append("Canonical catalogue vs migrated PM reentry policy differs; see catalog-differences.json")
@@ -493,7 +495,7 @@ class Campaign:
                 save(self.out/"recovery.json",dict(status="passed",table=table_id,guard=guards,
                      contract="paused for review; active hands are not automatically replayed",escrow_unchanged=True))
             else:
-                code=client.wait(timeout=max(.01,min(150,self.deadline-time.monotonic())))
+                code=client.wait(timeout=max(.01,min(190,self.deadline-time.monotonic())))
                 result=json.loads((self.out/(stage["name"]+".json")).read_text())
                 if code or result["status"]!="passed": raise RuntimeError("HTTPS/WSS client failed")
                 self.gaps.extend(result.get("gaps",[]))

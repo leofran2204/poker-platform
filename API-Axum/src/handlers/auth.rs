@@ -1,5 +1,5 @@
 // Auth handlers — POST /api/auth/register, /login, /mfa/verify, /refresh,
-//                 /verify-email, /resend-verification
+//                 /logout, /verify-email, /resend-verification
 
 use axum::extract::State;
 use axum::Json;
@@ -133,6 +133,28 @@ fn role_db(role: &poker_engine::auth::UserRole) -> &'static str {
         poker_engine::auth::UserRole::Admin => "admin",
         poker_engine::auth::UserRole::Moderator => "moderator",
     }
+}
+
+/// Emite o par de tokens de uma entrada na conta (login, MFA, verificação de
+/// e-mail ou cadastro sem verificação) e abre a família do refresh token.
+async fn issue_session_tokens(
+    state: &AppState,
+    user: &poker_engine::auth::User,
+) -> Result<poker_engine::auth::TokenPair, ApiError> {
+    let tokens = state
+        .auth
+        .read()
+        .await
+        .issue_tokens_for_user(user)
+        .map_err(|error| ApiError::Internal(format!("Token issue failed: {error:?}")))?;
+    crate::refresh_tokens::open_family(
+        &state.db,
+        &user.id,
+        &tokens.refresh_token,
+        now_epoch() as i64,
+    )
+    .await?;
+    Ok(tokens)
 }
 
 fn passwords_match(password: &str, confirm: &Option<String>) -> bool {
@@ -577,12 +599,7 @@ pub async fn register(
     }
 
     // Generate token pair (modo legado / testes)
-    let tokens = state
-        .auth
-        .read()
-        .await
-        .issue_tokens_for_user(&user)
-        .map_err(|error| ApiError::Internal(format!("Token issue failed: {error:?}")))?;
+    let tokens = issue_session_tokens(&state, &user).await?;
 
     let expires_in = tokens.expires_at.saturating_sub(now_epoch());
 
@@ -721,12 +738,7 @@ pub async fn login(
         })));
     }
 
-    let tokens = state
-        .auth
-        .read()
-        .await
-        .issue_tokens_for_user(&user)
-        .map_err(|error| ApiError::Internal(format!("Token issue failed: {error:?}")))?;
+    let tokens = issue_session_tokens(&state, &user).await?;
     let expires_in = tokens.expires_at.saturating_sub(now_epoch());
     Ok(Json(json!({
         "token": tokens.access_token,
@@ -822,11 +834,7 @@ pub async fn verify_email(
     }
 
     // Emite tokens sem revalidar senha (prova de posse do e-mail + código)
-    let tokens = {
-        let auth = state.auth.read().await;
-        auth.issue_tokens_for_user(&active_user)
-            .map_err(|e| ApiError::Internal(format!("Token issue failed: {e:?}")))?
-    };
+    let tokens = issue_session_tokens(&state, &active_user).await?;
 
     let expires_in = tokens.expires_at.saturating_sub(now_epoch());
     Ok(Json(json!({
@@ -1108,12 +1116,7 @@ pub async fn mfa_verify(
     user.locked_until = None;
     user.last_login = Some(now as u64);
     state.auth.write().await.upsert_persisted_user(user.clone());
-    let tokens = state
-        .auth
-        .read()
-        .await
-        .issue_tokens_for_user(&user)
-        .map_err(|error| ApiError::Internal(format!("Token issue failed: {error:?}")))?;
+    let tokens = issue_session_tokens(&state, &user).await?;
     let expires_in = tokens.expires_at.saturating_sub(now_epoch());
 
     Ok(Json(json!({
@@ -1126,11 +1129,15 @@ pub async fn mfa_verify(
 }
 
 /// POST /api/auth/refresh
-/// Request: `{refresh_token}` → Response: `{token, expires_in}`
+/// Request: `{refresh_token}` → Response: `{token, refresh_token, expires_in}`
+///
+/// O refresh token recebido deixa de valer: a resposta traz o substituto, e o
+/// cliente deve guardá-lo. Ver `refresh_tokens.rs`.
 pub async fn refresh(
     State(state): State<AppState>,
     Json(body): Json<RefreshBody>,
 ) -> Result<Json<TokenResponse>, ApiError> {
+    let invalid = || ApiError::Unauthorized("Invalid refresh token".to_string());
     let request = poker_engine::auth::RefreshRequest {
         refresh_token: body.refresh_token,
     };
@@ -1143,11 +1150,14 @@ pub async fn refresh(
             poker_engine::auth::AuthResult::TokenExpired => {
                 ApiError::Unauthorized("Refresh token expired".to_string())
             }
-            _ => ApiError::Unauthorized("Invalid refresh token".to_string()),
+            _ => invalid(),
         })?;
+    let presented =
+        crate::refresh_tokens::PresentedToken::from_claims(&request.refresh_token, &claims)
+            .ok_or_else(invalid)?;
     let user = load_persisted_user(&state, "id::text", &claims.sub)
         .await?
-        .ok_or_else(|| ApiError::Unauthorized("Invalid refresh token".to_string()))?;
+        .ok_or_else(invalid)?;
     let tokens = {
         let mut auth = state.auth.write().await;
         auth.upsert_persisted_user(user);
@@ -1157,11 +1167,23 @@ pub async fn refresh(
         poker_engine::auth::AuthResult::TokenExpired => {
             ApiError::Unauthorized("Refresh token expired".to_string())
         }
-        poker_engine::auth::AuthResult::TokenInvalid => {
-            ApiError::Unauthorized("Invalid refresh token".to_string())
-        }
+        poker_engine::auth::AuthResult::TokenInvalid => invalid(),
         _ => ApiError::Internal(format!("Refresh error: {e:?}")),
     })?;
+
+    // O par novo só sai daqui se o token apresentado ainda podia ser trocado.
+    match crate::refresh_tokens::rotate(
+        &state.db,
+        &presented,
+        &tokens.refresh_token,
+        now_epoch() as i64,
+    )
+    .await?
+    {
+        crate::refresh_tokens::Rotation::Rotated => {}
+        crate::refresh_tokens::Rotation::Rejected
+        | crate::refresh_tokens::Rotation::ReuseDetected => return Err(invalid()),
+    }
 
     let expires_in = tokens.expires_at.saturating_sub(now_epoch());
 
@@ -1170,6 +1192,37 @@ pub async fn refresh(
         refresh_token: tokens.refresh_token,
         expires_in,
     }))
+}
+
+/// POST /api/auth/logout
+/// Request: `{refresh_token}` → Response: `{ok}`
+///
+/// Encerra a sessão no servidor: o refresh token apresentado e os demais da
+/// mesma família deixam de renovar. Responde `ok` também para token inválido
+/// ou vencido, que já não renova nada.
+pub async fn logout(
+    State(state): State<AppState>,
+    Json(body): Json<RefreshBody>,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    let claims = state
+        .auth
+        .read()
+        .await
+        .validate_token(&body.refresh_token, "refresh")
+        .ok();
+    if let Some(presented) = claims.as_ref().and_then(|claims| {
+        crate::refresh_tokens::PresentedToken::from_claims(&body.refresh_token, claims)
+    }) {
+        let account_exists: bool =
+            sqlx::query_scalar("SELECT EXISTS (SELECT 1 FROM users WHERE id = $1)")
+                .bind(presented.user_id)
+                .fetch_one(&state.db)
+                .await?;
+        if account_exists {
+            crate::refresh_tokens::revoke_family(&state.db, &presented, now_epoch() as i64).await?;
+        }
+    }
+    Ok(Json(json!({ "ok": true })))
 }
 
 /// GET /api/auth/me — current authenticated user profile (no secrets).

@@ -5,6 +5,7 @@ import { buzz, playTableSound, setSoundEnabled, soundEnabled } from "@/lib/table
 import { seatPosition } from "@/lib/cards";
 import { handNamePt, streetLabel } from "@/lib/gameLabels";
 import { formatChips } from "@/lib/money";
+import { turnClock } from "@/lib/turnClock";
 import { PlayingCard } from "./PlayingCard";
 
 export { HAND_NAME_PT, handNamePt } from "@/lib/gameLabels";
@@ -36,6 +37,8 @@ interface Props {
   maximumWager: number;
   winners?: string[];
   turnLeft?: number | null;
+  /** Banco de tempo: segundos de reserva do jogador, usados depois do tempo normal. */
+  reserveLeft?: number;
   showdown?: ShowdownEntry[];
   /** Ritual do crupiê: embaralhando + distribuindo carta por carta. */
   dealing?: boolean;
@@ -69,6 +72,7 @@ export function PokerTable({
   maximumWager,
   winners = [],
   turnLeft = null,
+  reserveLeft = 0,
   showdown = [],
   dealing = false,
   maxPlayers = 9,
@@ -312,6 +316,9 @@ export function PokerTable({
   // Mão em andamento: adversários que não desistiram aparecem com as cartas fechadas.
   const inHand = ["preflop", "flop", "turn", "river"].includes(stage) && winners.length === 0;
 
+  const clock =
+    turnLeft === null ? null : turnClock(turnLeft, reserveLeft, drawing ? "draw" : discarding ? "discard" : "bet");
+
   return (
     <div>
       {!showcase && dealing && (
@@ -356,12 +363,12 @@ export function PokerTable({
         <span className="text-felt-300">
           Street: <strong className="text-cream">{streetLabel(stage)}</strong>
         </span>
-        {turnLeft !== null && (
+        {clock && (
           <span
-            className={`font-mono font-bold ${turnLeft <= 10 ? "text-red-300" : "text-gold-soft"}`}
-            aria-label={`Tempo para agir: ${turnLeft} segundos`}
+            className={`font-mono font-bold ${clock.urgent ? "text-red-300" : "text-gold-soft"}`}
+            aria-label={clock.aria}
           >
-            {turnLeft <= 0 ? (drawing ? "Mantendo as cartas…" : discarding ? "Descartando a carta que sobra…" : "Fold automático…") : `Sua vez: ${turnLeft}s`}
+            {clock.text}
           </span>
         )}
       </div>
@@ -570,7 +577,7 @@ export function PokerTable({
                 <span className="zt-seat-info">
                   <span className="zt-seat-name" title={isHouseBot ? "Bot da casa — garante ação na mesa" : p.name}>
                     {p.name}
-                    {isLocal && p.name !== "Você" && <span className="zt-seat-you"> · você</span>}
+                    {isLocal && !/^você(\s|$)/i.test(p.name) && <span className="zt-seat-you"> · você</span>}
                   </span>
                   <span className="zt-seat-chips">{money(p.chips)}</span>
                 </span>

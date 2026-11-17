@@ -366,8 +366,15 @@ fn cash_catalog_coverage_batches() {
                 );
             }
             if v == PokerVariant::PineappleDraw {
+                // Três cartas até o river; quem chega ao river sem desistir
+                // descarta uma e termina a mão com duas.
+                let river_dealt = game.state.community_cards.len() == 5;
                 for p in &game.state.players {
-                    assert_eq!(p.hole_cards.len(), 3);
+                    if river_dealt && !p.has_folded {
+                        assert_eq!(p.hole_cards.len(), 2, "river discard seed {seed}");
+                    } else {
+                        assert!(matches!(p.hole_cards.len(), 2 | 3));
+                    }
                 }
             }
             let result = game.resolve_hand().unwrap();

@@ -23,11 +23,13 @@ pub mod payments_routes;
 pub mod payout_worker;
 pub mod pix_key_crypto;
 pub mod presence;
+pub mod refresh_tokens;
 pub mod responsible_gaming;
 pub mod seat_ip_guard;
 pub mod state;
 pub mod support;
 pub mod telemetry;
+pub mod time_bank;
 pub mod tournament_actor;
 pub mod tournament_catalog;
 pub mod tournament_coordinator;
@@ -73,6 +75,7 @@ pub fn track_websocket_connection() -> WebSocketConnectionGuard {
 ///   - POST /api/auth/login
 ///   - POST /api/auth/mfa/verify
 ///   - POST /api/auth/refresh
+///   - POST /api/auth/logout
 ///   - GET  /api/lobby/tables
 ///   - GET  /api/lobby/tables/:id
 ///   - GET  /api/tournament/:id
@@ -123,6 +126,12 @@ pub fn build_router(state: AppState) -> Router {
         .route(
             "/api/auth/refresh",
             post(auth::refresh).route_layer(
+                from_extractor_with_state::<EnforceRateLimit, AppState>(state.clone()),
+            ),
+        )
+        .route(
+            "/api/auth/logout",
+            post(auth::logout).route_layer(
                 from_extractor_with_state::<EnforceRateLimit, AppState>(state.clone()),
             ),
         )

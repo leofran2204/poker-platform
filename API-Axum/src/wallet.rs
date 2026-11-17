@@ -197,11 +197,19 @@ where
             "UPDATE users SET balance_real = balance_real + $1 WHERE id = $2::uuid"
         }
     };
-    sqlx::query(sql)
+    let credited = sqlx::query(sql)
         .bind(amount)
         .bind(user_id)
         .execute(executor)
-        .await?;
+        .await?
+        .rows_affected();
+    // Crédito que não alcança conta nenhuma é dinheiro perdido em silêncio:
+    // o erro faz a transação de quem chamou ser desfeita.
+    if credited != 1 {
+        return Err(ApiError::Internal(format!(
+            "Wallet credit reached {credited} accounts instead of 1"
+        )));
+    }
     Ok(())
 }
 
