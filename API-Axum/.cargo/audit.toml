@@ -9,6 +9,13 @@
 # no active path. No upgrade removes it: sqlx-sqlite 0.9.0 (latest) still
 # requires libsqlite3-sys <0.38.0 and the fix is >=0.39.0. Exception approved by
 # the owner on 2026-11-14; remove it when sqlx accepts libsqlite3-sys >=0.39.
+#
+# RUSTSEC-2026-0543 is informational (chrono is unmaintained), not a
+# vulnerability, and has no patched version. chrono is used directly in 13 API
+# files and through the sqlx "chrono" feature, so replacing it with time or jiff
+# is a separate project with its own tests (DASHBOARD S28). Temporary exception
+# approved by the owner on 2026-11-19, after both options were presented
+# ("pode proceder como for a forma mais eficaz"); remove it with that work.
 
 [advisories]
-ignore = ["RUSTSEC-2023-0071", "RUSTSEC-2026-0459"]
+ignore = ["RUSTSEC-2023-0071", "RUSTSEC-2026-0459", "RUSTSEC-2026-0543"]
