@@ -1,6 +1,6 @@
 {
     "schema_version": 3,
-    "reviewed_on": "2026-11-14",
+    "reviewed_on": "2026-11-19",
     "cycle": {
         "id": "S28",
         "title": "Brazilian Pineapple com as regras novas, site reconstruído e vídeos novos publicados"
@@ -172,7 +172,7 @@
         "showdown_sticky": true,
         "disconnect_not_leave": true
     },
-    "migrations_latest": 62,
+    "migrations_latest": 63,
     "email_verification": true,
     "regulation_target": "2027-01"
 }

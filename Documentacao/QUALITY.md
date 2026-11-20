@@ -220,7 +220,7 @@ A campanha focada foi concluída dentro dos 15 minutos autorizados com dois trab
 - Home e Academy públicas aprovadas em 1440/390/320 px: oito capítulos, primeiro salto antes dos metadados, 113 legendas, transcrição, Enter/Escape, retorno do foco, ausência de autoplay e URLs da nova narração; sem overflow ou exceções JavaScript. Redirecionamento logado conferido com sessão sintética e APIs interceptadas; o smoke HTTP separado usou a API pública real. Evidências em `artifacts/narration-pronunciation/release/`.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S28** (2026-11-14) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-19) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
@@ -379,3 +379,13 @@ Publicado `9dd61f7c41114ac1f40c5f8fb3e4ff5a12213b2c` às **19:26:40 UTC / 16:26:
 Local: `tsc`, ESLint, build e Vitest 103/103; a carteira em Jogo Real foi vista no computador (1366 px) e no celular (390 px) numa cópia local do banco. Os scripts e2e que jogam Brazilian Pineapple passaram a responder ao descarte do river; só a sintaxe foi conferida (`node --check`), sem rodar a bateria.
 
 Não verificado em produção: a carteira em Jogo Real não foi aberta com sessão no site publicado.
+
+## Publicação: refresh token de uso único, banco de tempo e mesas da home — 19/11/2026
+
+Publicado `17211d39947f0637856c4f7642c258cd46f5b79a` às **00:01:18 UTC de 20/11 / 21:01:18 de 19/11 em São Paulo**, com Rust CI e Container Supply Chain verdes. Imagens `ghcr.io/leofran2204/poker-api@sha256:0215b3ec33ea70e2aa15b64079f201fb6ce378a4b593a5e4ef1441e2457d5676` e `ghcr.io/leofran2204/poker-web@sha256:97bc298d36c25eacb687da12bcd70d5e99ab8111186202a818dc01f575fe2984`, assinatura `cosign` (v3.1.4) e label de revisão verificados na VPS (em `--verify-only` e na publicação). A VPS estava em `9dd61f7` com 62 migrations; depois da troca, 63 (tabela `auth_refresh_tokens` criada), um "Migrations applied", zero linhas ERROR, `.env` preservado, quatro serviços saudáveis, as mesmas 77 contas e R$ 10,00 de saldo real. `/` e `/api/health` responderam HTTP 200; `POST /api/auth/logout` existe (415 sem corpo JSON, em vez de 404) e o JavaScript publicado chama essa rota.
+
+Até o CI ficar verde: o `75c08475` reprovou em dois avisos publicados depois de 14/11, alheios às mudanças. A CVE-2026-97054 (HIGH, `net/http`) no Go 1.26.10 que compila o Caddy da imagem web foi corrigida com o Go 1.26.11 (`1df99174`, Trivy local limpo). O RUSTSEC-2026-0543 (`chrono` sem manutenção, só aviso, sem versão corrigida) virou exceção temporária aprovada pelo proprietário (`17211d39`); a troca do `chrono` está na S28.
+
+Local: site com `tsc`, ESLint, Vitest 137/137 e build; API com fmt, clippy `-D warnings` e testes (os de banco rodaram no CI); motor com 1.951 testes, nenhuma falha; `documentation-sync --check`.
+
+Não verificado em produção: nenhuma mão foi jogada com o banco de tempo no site publicado, e o refresh token de uso único não foi exercitado com uma sessão real.

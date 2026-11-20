@@ -2,7 +2,7 @@
 
 # Estado operacional — S28
 
-**S28** — Brazilian Pineapple com as regras novas, site reconstruído e vídeos novos publicados. Revisado em **2026-11-14**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
+**S28** — Brazilian Pineapple com as regras novas, site reconstruído e vídeos novos publicados. Revisado em **2026-11-19**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
 
 **Limites:** sem certificação de produção · PIX automático ligado (DePix reconciliado) · mesas com dono **único por processo** (settlement HMAC).
 
@@ -25,7 +25,7 @@ Fonte máquina: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificaç
 | Omaha 0,50 | Omaha 4 Cartas | 0,50 / 0,50 | 6 | R$ 100 |
 | Brazilian Pineapple 0,50 (só Play Money) | Brazilian Pineapple | 0,50 / 0,50 | 6 | R$ 75 |
 
-Frentes fixas (`min_buy_in = max_buy_in`). Migrations até **062**.
+Frentes fixas (`min_buy_in = max_buy_in`). Migrations até **063**.
 
 ## Torneios
 
