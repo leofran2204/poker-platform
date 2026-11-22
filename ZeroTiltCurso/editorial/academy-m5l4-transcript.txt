@@ -1,12 +1,12 @@
-Zero Tilt Academy. Brazilian Pineapple, aula dois: combinações, trocas e probabilidade. O objetivo é contar as suas opções sem duplicar e calcular uma chance exata, com as hipóteses declaradas.
+Esta é a Zero Tilt Academy. Na aula dois do Brazilian Pineapple, vamos estudar combinações, trocas e probabilidade. O objetivo é contar as suas opções sem duplicar e calcular uma chance exata, com as hipóteses declaradas.
 
 Com três cartas na mão, existem três duplas possíveis para levar ao showdown. Aqui, no turn, Ana tem ás, rei e valete. O rei e o valete fecham a sequência com o ás, a dama e o dez da mesa. O ás da mão é a carta que sobra.
 
-Conte as mãos de cinco cartas que usam no máximo duas das suas três. No flop são três. No turn, quinze. No river, quarenta e seis. Elas compartilham cartas: não são quarenta e seis chances independentes.
+Conte as mãos de cinco cartas que usam no máximo duas das suas três. Com o flop na mesa, são três. Com o turn, já são quinze. E com o river, chegam a quarenta e seis. Elas compartilham cartas: não são quarenta e seis chances independentes.
 
 Agora uma chance exata. Você tem ás, rei e sete; na mesa, ás, dama e dois. Você conhece seis cartas, então restam quarenta e seis desconhecidas. Dois ases estão entre elas. Ao trocar o sete, a chance de receber um ás é de dois em quarenta e seis: cerca de quatro vírgula três por cento.
 
-Essa conta não diz se você vai ganhar. Os oponentes também trocam, a mesa muda e, no fim, só duas das suas cartas contam. Cartas descartadas que você não viu continuam desconhecidas: não invente o valor delas.
+Essa conta não diz se você vai ganhar. Os oponentes também trocam, a mesa muda e, no fim, só duas das suas cartas contam. As cartas que eles trocaram continuam desconhecidas: não invente o valor delas. Só o descarte do river aparece aberto.
 
 Exercício. Você tem ás de ouros, rei de ouros e sete de paus. Na mesa, ás de copas, dama de paus e dois de espadas. Você troca o sete. Qual a chance de receber um ás? A: dois em quarenta e seis. B: dois em cinquenta e dois. C: três em quarenta e seis. Pause o vídeo e responda.
 

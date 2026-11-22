@@ -79,7 +79,7 @@ export function variantHint(variant?: string | null): string | null {
     case "short_deck_omaha":
       return "Omaha 4 cartas · baralho 52 · exatamente 2 hole + 3 board";
     case "pineapple_draw":
-      return "Brazilian Pineapple · baralho 52 · 3 cartas · troca opcional de uma depois das apostas do flop e do turn · no river, descarte de uma antes da última rodada · all-in não troca · showdown com 2 cartas, como no Hold’em · ranking clássico · ante de 1 BB pago pelo big blind · todas as rodadas: aumento limitado ao pote antes do call";
+      return "Brazilian Pineapple · baralho 52 · 3 cartas · na sua vez no flop, no turn e no river, troca opcional de uma antes de apostar · no river, depois da troca, descarte de uma · all-in não troca · showdown com 2 cartas, como no Hold’em · ranking clássico · sem ante, só small e big blind · todas as rodadas: aumento limitado ao pote antes do call";
     case "short_deck":
       return "Texas Hold’em Short Deck · baralho 36 (6 a A) · flush vence full house";
     case "holdem":

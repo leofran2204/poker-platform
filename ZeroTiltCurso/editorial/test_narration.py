@@ -44,13 +44,16 @@ class PronunciationTests(unittest.TestCase):
             render.canonical_boundaries('Call', [{'text': 'cól', 'offset': -1, 'duration': 100}])
 
     def test_changed_guide_or_voice_invalidates_narration(self):
-        scenes = [{'voice': 'Pineapple.'}]
+        # "poker" continua lido em português ("pôquer"); termos em inglês usam a grafia original.
+        scenes = [{'voice': 'Poker e Pineapple.'}]
         before = render.narration_fingerprint(scenes)
-        with patch.dict(render.PRONUNCIATIONS, {'pineapple': 'outra pronúncia'}):
+        with patch.dict(render.PRONUNCIATIONS, {'poker': 'outra pronúncia'}):
             self.assertNotEqual(before, render.narration_fingerprint(scenes))
         with patch.object(render, 'VOICE_RATE', '+0%'):
             self.assertNotEqual(before, render.narration_fingerprint(scenes))
-        self.assertEqual(scenes, [{'voice': 'Pineapple.'}])
+        with patch.object(render, 'VOICE', 'outra-voz'):
+            self.assertNotEqual(before, render.narration_fingerprint(scenes))
+        self.assertEqual(scenes, [{'voice': 'Poker e Pineapple.'}])
 
 
 class TimelineTests(unittest.TestCase):
@@ -104,6 +107,45 @@ class TimelineTests(unittest.TestCase):
             old=render.publication_assets('film')
             (Path(directory)/'film.mp4').write_bytes(b'new frames, same voice')
             self.assertNotEqual(old['mediaRevision'],render.publication_assets('film')['mediaRevision'])
+
+
+class NarrationStandardTests(unittest.TestCase):
+    """Padrão de narração de todos os vídeos da plataforma (dono, 19/11/2026)."""
+
+    def test_portuguese_and_english_are_both_marked(self):
+        body = render.speech_ssml('Bem-vindo à aula de hoje sobre o Brazilian Pineapple. Antes, o small blind paga.')
+        self.assertEqual(body, '<lang xml:lang="pt-BR">Bem-vindo à aula de hoje sobre o</lang> '
+                               '<lang xml:lang="en-US">Brazilian Pineapple</lang>. '
+                               '<lang xml:lang="pt-BR">Antes, o</lang> <lang xml:lang="en-US">small blind</lang> '
+                               '<lang xml:lang="pt-BR">paga.</lang>')
+
+    def test_short_english_heavy_sentences_are_flagged(self):
+        self.assertEqual(render.heavy_english_sentences('Float. Um float precisa de um plano claro. Custa 2.5 big blinds no total.'),
+                         ['Float.'])
+
+    def test_bb_reads_as_unit_or_seat(self):
+        self.assertEqual(render.speak('Vilão no BB paga 1 BB e depois 3 BB.'), 'Vilão no big blind paga 1 big blind e depois 3 big blinds.')
+
+    def test_every_published_narration_follows_the_standard(self):
+        from pathlib import Path
+        here = Path(render.__file__).resolve().parent
+        course = json.loads(render.COURSE_FILE.read_text(encoding='utf-8'))
+        training = json.loads(render.TRAINING_FILE.read_text(encoding='utf-8'))
+        voices = {}
+        for module in course['modules']:
+            for lesson in module['lessons']:
+                if module['id'] != 'm0' and lesson['id'] not in render.MOTION_LESSONS:
+                    voices[lesson['id']] = [s['voice'] for s in render.academy_scenes(lesson, training)]
+        episodes = json.loads((here / 'episodes.json').read_text(encoding='utf-8'))
+        for key in ('ep11', 'ep12', 'ep13'):
+            voices[key] = [s['voice'] for s in episodes[key]['scenes']]
+        for name in ('pineapple-draw-rules', 'pineapple-draw-trailer', 'academy-m5l3', 'academy-m5l4', 'academy-m5l5'):
+            script = json.loads((here / 'motion/src/data' / f'{name}.json').read_text(encoding='utf-8'))
+            self.assertEqual(script['voice'], render.NARRATION_VOICE, name)
+            voices[name] = [s['voice'] for s in script['scenes']]
+        self.assertEqual(len(voices), 30)
+        for key, texts in voices.items():
+            self.assertEqual([s for t in texts for s in render.heavy_english_sentences(t)], [], key)
 
 
 if __name__ == '__main__':

@@ -2,10 +2,10 @@
 // O navegador só libera áudio depois de um gesto do jogador; até lá, tocar falha
 // em silêncio. A preferência de som fica guardada neste navegador.
 
-export type TableSound = "chip" | "chips" | "deal" | "flip" | "pop";
+export type TableSound = "alert" | "chip" | "chips" | "deal" | "flip" | "pop";
 
 const STORAGE_KEY = "zt-table-sound";
-const VOLUME: Record<TableSound, number> = { chip: 0.5, chips: 0.5, deal: 0.45, flip: 0.5, pop: 0.6 };
+const VOLUME: Record<TableSound, number> = { alert: 0.55, chip: 0.5, chips: 0.5, deal: 0.45, flip: 0.5, pop: 0.6 };
 const cache = new Map<TableSound, HTMLAudioElement>();
 
 export function soundEnabled(): boolean {

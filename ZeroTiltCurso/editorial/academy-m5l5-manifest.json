@@ -1,58 +1,58 @@
 {
   "lessonId": "m5l5",
-  "contentHash": "8aff534f967b313b7a83a3beae9463f1bf3a33802f2208c7003a68063a91a8e0",
+  "contentHash": "7a4156ec80e092e4fb9b5fed4f6e441adb10754860a562e6dc750330e19922fc",
   "filename": "zt-academy-m5l5-v4",
   "title": "Aula m5l5 — Showdown, empates e leitura de equity",
   "renderer": "remotion",
   "rendererVersion": 2,
   "composition": "AcademyM5L5",
   "script": "src/data/academy-m5l5.json",
-  "scriptHash": "d4321b8d1560b5f49e4587056d8df49c46edf3d79a412b07fa36825579c85141",
-  "bettingRuleVersion": "pineapple_draw_v1",
-  "durationSeconds": 163.2,
+  "scriptHash": "3e2ceb96fb538a7113f1976af7aeb99c21eef0082cea6633b1395699af7732b1",
+  "bettingRuleVersion": "pineapple_draw_v4",
+  "durationSeconds": 158.34,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 10335157,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 10214991,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v2-lang-en",
-  "narrationHash": "5b6b7ef699e3f4d4d14d10b19cabdd0f767697a07736cf75b5a6275842572985",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "1e453490358656456431aae26d0f7ff095207b8bc6bdb25fc9a7302330b5888a",
   "chapters": [
     {
       "start": 0.0,
       "title": "Abertura"
     },
     {
-      "start": 16.83,
+      "start": 16.97,
       "title": "Formação da mão"
     },
     {
-      "start": 53.6,
+      "start": 55.63,
       "title": "Ranking não é equity"
     },
     {
-      "start": 72.13,
+      "start": 72.93,
       "title": "Loss Deflator"
     },
     {
-      "start": 91.63,
+      "start": 91.43,
       "title": "Exercício"
     },
     {
-      "start": 131.33,
+      "start": 128.73,
       "title": "Laboratório"
     },
     {
-      "start": 147.93,
+      "start": 144.27,
       "title": "Fechamento"
     }
   ],
-  "sha256": "ad6f68626c94141ece1876efcd084e63f73acea3d31462ab5fb4fef93b434480",
+  "sha256": "3fdd81a9c8dd9e9064a9835b0adf1c8dcc81b45c78f42ff95b5ff1b9534c1a3e",
   "assetHashes": {
-    "mp4": "ad6f68626c94141ece1876efcd084e63f73acea3d31462ab5fb4fef93b434480",
-    "vtt": "b9b5d352252b5e4e1bc273470c9b627c9993ea739c9bae81d7ce26b19c19cbf0",
-    "webp": "0de06340cd037b19bd2f9147533893dbc2e1cb96c6c8aac02e3779b3ef6fb35f"
+    "mp4": "3fdd81a9c8dd9e9064a9835b0adf1c8dcc81b45c78f42ff95b5ff1b9534c1a3e",
+    "vtt": "caeac26761d4ea2a192d4f78aaf63ba108dc9f5c10f77d70e3612c6c9c823492",
+    "webp": "1f719dd1bde38df8350e407d6b8f0d909e484b0f7825b2149226966984a7e7ff"
   },
-  "mediaRevision": "146987099aa352c7b8c1c7746f1c5c55ae16bc3ba13d7dda3d800a8ded97d6ba"
+  "mediaRevision": "90d519e7469191721d624f32d58ee713f6999e91e1b46108a965a7539fb4b3c3"
 }

@@ -1,170 +1,174 @@
 WEBVTT
 
-00:00:00.518 --> 00:00:01.867
-Zero Tilt Academy.
+00:00:00.517 --> 00:00:02.832
+Esta é a Zero Tilt Academy.
 
-00:00:02.606 --> 00:00:04.960
-Brazilian Pineapple, aula dois:
+00:00:03.030 --> 00:00:07.656
+Na aula dois do Brazilian Pineapple,
+vamos estudar combinações, trocas
 
-00:00:05.068 --> 00:00:07.627
-combinações, trocas e probabilidade.
+00:00:07.656 --> 00:00:08.979
+e probabilidade.
 
-00:00:08.366 --> 00:00:12.962
+00:00:09.177 --> 00:00:13.528
 O objetivo é contar as suas opções sem
 duplicar e calcular uma chance exata,
 
-00:00:13.083 --> 00:00:14.921
+00:00:13.752 --> 00:00:15.731
 com as hipóteses declaradas.
 
-00:00:16.785 --> 00:00:21.561
+00:00:17.083 --> 00:00:22.091
 Com três cartas na mão, existem três
 duplas possíveis para levar ao showdown.
 
-00:00:22.300 --> 00:00:25.929
+00:00:22.289 --> 00:00:26.228
 Aqui, no turn, Ana tem ás, rei e valete.
 
-00:00:26.669 --> 00:00:30.904
+00:00:26.426 --> 00:00:30.996
 O rei e o valete fecham a sequência
 com o ás, a dama e o dez da mesa.
 
-00:00:31.643 --> 00:00:33.648
+00:00:31.194 --> 00:00:33.444
 O ás da mão é a carta que sobra.
 
-00:00:35.519 --> 00:00:39.702
+00:00:34.783 --> 00:00:39.095
 Conte as mãos de cinco cartas que
 usam no máximo duas das suas três.
 
-00:00:40.441 --> 00:00:41.880
-No flop são três.
+00:00:39.293 --> 00:00:41.982
+Com o flop na mesa, são três.
 
-00:00:42.619 --> 00:00:44.174
-No turn, quinze.
+00:00:42.180 --> 00:00:44.649
+Com o turn, já são quinze.
 
-00:00:44.913 --> 00:00:46.919
-No river, quarenta e seis.
+00:00:44.847 --> 00:00:47.936
+E com o river, chegam a quarenta e seis.
 
-00:00:47.658 --> 00:00:49.341
+00:00:48.134 --> 00:00:49.894
 Elas compartilham cartas:
 
-00:00:49.423 --> 00:00:52.125
+00:00:50.041 --> 00:00:52.871
 não são quarenta e seis
 chances independentes.
 
-00:00:53.985 --> 00:00:55.629
+00:00:54.217 --> 00:00:56.171
 Agora uma chance exata.
 
-00:00:56.369 --> 00:01:01.132
+00:00:56.369 --> 00:01:01.261
 Você tem ás, rei e sete;
 na mesa, ás, dama e dois.
 
-00:01:01.871 --> 00:01:06.261
+00:01:01.459 --> 00:01:06.403
 Você conhece seis cartas, então
 restam quarenta e seis desconhecidas.
 
-00:01:07.000 --> 00:01:09.019
+00:01:06.601 --> 00:01:09.019
 Dois ases estão entre elas.
 
-00:01:09.758 --> 00:01:14.083
+00:01:09.217 --> 00:01:13.620
 Ao trocar o sete, a chance de receber
 um ás é de dois em quarenta e seis:
 
-00:01:14.255 --> 00:01:16.635
+00:01:13.805 --> 00:01:16.081
 cerca de quatro vírgula três por cento.
 
-00:01:18.519 --> 00:01:20.898
+00:01:17.417 --> 00:01:19.990
 Essa conta não diz se você vai ganhar.
 
-00:01:21.637 --> 00:01:26.830
+00:01:20.188 --> 00:01:25.291
 Os oponentes também trocam, a mesa muda
 e, no fim, só duas das suas cartas
 
-00:01:26.830 --> 00:01:27.393
+00:01:25.291 --> 00:01:25.982
 contam.
 
-00:01:28.132 --> 00:01:31.852
-Cartas descartadas que você não
-viu continuam desconhecidas:
+00:01:26.180 --> 00:01:29.332
+As cartas que eles trocaram
+continuam desconhecidas:
 
-00:01:31.959 --> 00:01:33.746
+00:01:29.518 --> 00:01:31.369
 não invente o valor delas.
 
-00:01:35.619 --> 00:01:36.671
+00:01:31.566 --> 00:01:34.345
+Só o descarte do river aparece aberto.
+
+00:01:35.683 --> 00:01:36.941
 Exercício.
 
-00:01:37.410 --> 00:01:40.807
+00:01:37.139 --> 00:01:40.794
 Você tem ás de ouros, rei
 de ouros e sete de paus.
 
-00:01:41.546 --> 00:01:45.537
+00:01:40.992 --> 00:01:45.318
 Na mesa, ás de copas, dama
 de paus e dois de espadas.
 
-00:01:46.276 --> 00:01:47.689
+00:01:45.515 --> 00:01:47.263
 Você troca o sete.
 
-00:01:48.428 --> 00:01:50.459
+00:01:47.461 --> 00:01:49.712
 Qual a chance de receber um ás?
 
-00:01:51.198 --> 00:01:51.619
+00:01:49.910 --> 00:01:50.356
 A:
 
-00:01:51.637 --> 00:01:53.243
+00:01:50.490 --> 00:01:52.315
 dois em quarenta e seis.
 
-00:01:53.982 --> 00:01:54.467
+00:01:52.513 --> 00:01:53.049
 B:
 
-00:01:54.575 --> 00:01:56.129
+00:01:53.196 --> 00:01:55.098
 dois em cinquenta e dois.
 
-00:01:56.869 --> 00:01:57.508
+00:01:55.296 --> 00:01:55.910
 C:
 
-00:01:57.513 --> 00:01:59.080
+00:01:56.134 --> 00:01:57.934
 três em quarenta e seis.
 
-00:01:59.820 --> 00:02:01.529
+00:01:58.131 --> 00:02:00.124
 Pause o vídeo e responda.
 
-00:02:05.752 --> 00:02:06.688
+00:02:03.817 --> 00:02:04.792
 Resposta:
 
-00:02:06.718 --> 00:02:08.801
+00:02:05.003 --> 00:02:07.279
 A, dois em quarenta e seis.
 
-00:02:09.540 --> 00:02:13.170
+00:02:07.477 --> 00:02:11.390
 Você conhece seis cartas,
 e duas delas são ases.
 
-00:02:13.909 --> 00:02:17.409
+00:02:11.588 --> 00:02:15.436
 Restam quarenta e seis cartas
 desconhecidas e dois ases.
 
-00:02:19.285 --> 00:02:22.424
+00:02:16.783 --> 00:02:20.090
 Agora leve a aula para a
 mesa de treino da Academy.
 
-00:02:23.163 --> 00:02:27.480
+00:02:20.288 --> 00:02:24.734
 Comece pelo treino guiado e depois
 repita no modo desafio, respondendo
 
-00:02:27.480 --> 00:02:29.422
+00:02:24.734 --> 00:02:26.662
 à pergunta antes de cada ação.
 
-00:02:30.161 --> 00:02:34.009
+00:02:26.860 --> 00:02:30.992
 Use o replay para comparar uma
 alternativa na mesma distribuição.
 
-00:02:35.885 --> 00:02:38.431
+00:02:32.317 --> 00:02:34.799
 Registre sua justificativa no caderno:
 
-00:02:38.668 --> 00:02:42.457
+00:02:34.997 --> 00:02:38.644
 acertar a leitura e respeitar as
 hipóteses importa mais do que ganhar a
 
-00:02:42.457 --> 00:02:42.903
+00:02:38.644 --> 00:02:39.142
 mão.
 
-00:02:43.642 --> 00:02:47.839
+00:02:39.340 --> 00:02:43.704
 O treino usa fichas sem valor,
 e este curso não promete lucro.

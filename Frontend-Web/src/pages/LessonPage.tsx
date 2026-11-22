@@ -100,7 +100,7 @@ export function LessonPage() {
         )}
       </div>
 
-      {lesson.video?.publicationStatus === "prior_rules" && <div className="zt-panel p-4 text-sm">Vídeo da regra anterior de apostas. Para jogar hoje: todas as rodadas limitam o aumento ao pote antes do call; ante de 1 BB pago apenas pelo big blind. As regras de cartas continuam válidas. A leitura e a mesa de treino abaixo já seguem a estrutura vigente.</div>}
+      {lesson.video?.publicationStatus === "prior_rules" && <div className="zt-panel p-4 text-sm">Vídeo da regra anterior de apostas. Para jogar hoje: todas as rodadas limitam o aumento ao pote antes do call; sem ante; no Brazilian Pineapple, a troca e o descarte vêm na vez de cada jogador, antes da aposta. As regras de cartas continuam válidas. A leitura e a mesa de treino abaixo já seguem a estrutura vigente.</div>}
 
       {msg && <p className="text-sm text-emerald-200 rounded-sm bg-felt-900/80 p-2 border border-felt-700">{msg}</p>}
 

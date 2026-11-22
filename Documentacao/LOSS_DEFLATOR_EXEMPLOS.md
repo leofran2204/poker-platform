@@ -13,7 +13,7 @@ O motor habilita o mecanismo em todas as modalidades, no cash e nos torneios, em
 ### Exemplos com Omaha 4 e Brazilian Pineapple (testes do motor)
 
 - **Omaha 4, all-in no flop:** herói Ah Ad Kc Qc contra 7s 6d 3c 2h, flop Ac 7h 6c. A equity exata percorre os C(41, 2) = 820 pares turn/river e fica acima de 86% (faixa de 35%). Turn 6h e river 6s dão quadra ao vilão; com pote líquido de 200 centavos, o herói recebe 70. Teste: `omaha_flop_all_in_bad_beat_pays_deflator`.
-- **Brazilian Pineapple, troca e all-in no turn:** na rodada de troca do turn, o herói descarta 7d e recebe Kd; depois vai all-in com As Ad Kd contra 6c 5s 9c, board Ah 7c 2d 3h. O snapshot usa exatamente essas três privadas e a equity exata percorre os 42 rivers possíveis; trocas futuras não entram, porque quem está all-in não troca. River 4h dá sequência ao vilão e o herói recebe o deflator. Teste: `pineapple_draw_turn_all_in_uses_cards_held_at_payment`.
+- **Brazilian Pineapple, troca no flop e all-in no turn:** na vez dele no flop, o herói troca 7d e recebe Kd; no turn, mantém e vai all-in com As Ad Kd contra 6c 5s 9c, board Ah 7c 2d 3h. O snapshot usa exatamente essas três privadas e a equity exata percorre os 42 rivers possíveis; trocas futuras não entram, porque quem está all-in não troca. River 4h dá sequência ao vilão e o herói recebe o deflator. Teste: `pineapple_draw_turn_all_in_uses_cards_held_at_payment`.
 
 ## 2. Um exemplo exato com cartas
 

@@ -33,7 +33,7 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 | `holdem` (Texas Hold’em) | 52 | 2 | até 9 |
 | `short_deck` (Texas Hold’em Short Deck) | 36 (6–A) | 2 | até 8 |
 | `omaha` (Omaha 4) | 52 | **4** (usa exatamente 2 hole + 3 board) | até 6 |
-| `pineapple_draw` (Brazilian Pineapple) | 52 | **3**; troca opcional de uma depois das apostas do flop e do turn; no river, descarte de uma antes da última rodada (showdown com 2, como no Hold’em) | até 6 (só Play Money por enquanto) |
+| `pineapple_draw` (Brazilian Pineapple) | 52 | **3**; na vez de cada jogador no flop, no turn e no river, troca opcional de uma antes de apostar; no river, depois da troca, descarte de uma (showdown com 2, como no Hold’em); sem ante | até 6 (só Play Money por enquanto) |
 
 **Carteiras:** Play Money (cash + MTT, reset diário) e Jogo Real (isolado). `money_mode` da mesa/torneio deve coincidir com o modo do cliente (`play` \| `real`).
 
@@ -78,36 +78,38 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 - **Nome e identificador:** o jogador vê **Brazilian Pineapple** (decisão do proprietário em 11/11/2026: o nome marca uma modalidade criada no Brasil). No código, no banco e nos históricos o identificador é `pineapple_draw`. O identificador `brazilian_pineapple` pertence ao formato antigo (2 privadas + 1 a cada street, sem descarte), que saiu do catálogo e permanece só no histórico.
 - Substitui o formato antigo (decisão do proprietário em 09/11/2026). A migration 062 tira mesas e torneios do formato antigo do catálogo e abre o Brazilian Pineapple atual só no Play Money; o Jogo Real exige nova decisão e nova migration. Mãos, settlements e torneios antigos ficam preservados no histórico, identificados por `betting_rule_version`.
 - Baralho tradicional de **52** cartas (ranks 2–A); até **6 jogadores**.
-- **Ordem da mão (decisão do proprietário em 11/11/2026):**
+- **Ordem da mão (decisões do proprietário em 20 e 21/11/2026, que substituem a de 11/11):**
   1. Cada jogador recebe **3** cartas privadas. Rodada de apostas. Não há troca no pré-flop.
-  2. **Flop** (3 comunitárias). Rodada de apostas. Depois dela, **rodada de troca**.
-  3. **Turn**. Rodada de apostas. Depois dela, **rodada de troca**.
-  4. **River**. **Descarte obrigatório** de uma carta: cada jogador fica com **2**. Só então a última rodada de apostas.
+  2. **Flop** (3 comunitárias). Rodada de apostas com **troca na vez do jogador**.
+  3. **Turn**. Rodada de apostas com **troca na vez do jogador**.
+  4. **River**. Rodada de apostas com **troca e descarte na vez do jogador**: cada um fica com **2**.
   5. Showdown.
-- **Rodada de troca:** quando as apostas do flop ou do turn fecham, cada jogador que ainda pode apostar decide **manter** as três cartas ou **trocar uma**. A carta descartada sai do jogo e outra vem do topo do baralho. Só depois a próxima comunitária é aberta.
-- A troca e o descarte seguem a ordem das apostas pós-flop (primeiro jogador à esquerda do botão). A quantidade trocada (0 ou 1) é pública; as cartas descartadas e recebidas, não. A rodada de troca só admite manter ou trocar: tempo esgotado, saída da mesa ou desconexão mantêm as cartas, e a desistência acontece na vez seguinte, nas apostas.
-- **Descarte do river:** obrigatório para quem ainda está na mão; a carta sai do jogo sem ser mostrada. Tempo esgotado, saída da mesa ou desconexão: o motor guarda as duas cartas que formam a melhor mão com a mesa (`pineapple_draw_best_discard`; em empate, descarta a carta mais baixa). Não há desistência nem aposta durante o descarte.
-- **All-in não troca.** Quando no máximo um jogador ainda tem fichas para apostar, não há rodada de troca nem escolha de descarte: o board é completado direto. Quem está all-in, ou chega ao showdown ainda com três cartas, fica automaticamente com as duas melhores.
+- **Sem ante:** só small e big blind, em cash e em torneio (decisão do proprietário em 20/11/2026).
+- **Troca na vez do jogador (flop, turn e river):** na **primeira** vez que age na street, o jogador primeiro decide **manter** as três cartas ou **trocar uma** e só então age (check, aposta, call, aumento ou desistência). A carta trocada sai do jogo e outra vem do topo do baralho. Se a vez volta para ele por aumento, ele só aposta. Pode **desistir sem trocar**. Não há rodada de troca separada.
+- A quantidade trocada (0 ou 1) é pública; a carta que sai e a que entra na troca, não. A troca e a aposta formam uma vez só, com um relógio só: o tempo normal e o tempo extra correm da troca até a aposta (10.2). **Tempo esgotado, saída da mesa ou desconexão:** com aposta a pagar, desiste; sem aposta, mantém as cartas e dá check.
+- **Descarte na vez do jogador (river; decisão de 21/11/2026):** na primeira vez que age no river, o jogador primeiro **troca ou mantém** (como no flop e no turn), depois **descarta** uma carta e só então age; também pode desistir sem trocar nem descartar. O descarte é escolha do jogador. No tempo esgotado sem aposta a pagar, mantém as cartas, o motor guarda as duas que formam a melhor mão com a mesa (`pineapple_draw_best_discard`; em empate, descarta a carta mais baixa) e dá check; com aposta a pagar, desiste. Slogan: "Três cartas. Três trocas. Um descarte."
+- **Descarte aberto (decisão de 21/11/2026, `pineapple_draw_v4`):** a carta descartada no river é **pública**: aparece virada para cima na frente do jogador para toda a mesa por cerca de 2 segundos e depois vai fechada para o muck. Vale também para o descarte automático (tempo esgotado e all-in) e para o que o motor faz no showdown quando a mesa é completada. A **troca continua oculta**: todos veem só quantas cartas cada um trocou.
+- **All-in não troca.** Quem está all-in não age, logo não troca; quando o river abre, fica automaticamente com as duas melhores. Quando no máximo um jogador ainda tem fichas para apostar, o board é completado direto e quem chega ao showdown com três cartas fica com as duas melhores.
 - **No showdown:** melhor mão de 5 entre as **2** privadas que restaram e as **5** comunitárias, como no Hold’em (duas, uma ou nenhuma privada). Quatro cartas do naipe na mesa e uma na mão formam flush. Ranking **clássico**: sequência > trinca, full house > flush; wheel A-2-3-4-5.
-- O baralho cobre o pior caso: 6 × 3 privadas + 3 queimadas + 5 comunitárias + 12 trocas = 38 cartas.
-- Histórico: ações públicas `keep`, `swap` e `discard`, sem a carta; `HandHistory.draws` guarda a carta descartada e a recebida (ausente no descarte do river) apenas para auditoria (campo ausente nas demais modalidades, preservando o formato assinado anterior).
-- Implementação: `PokerVariant::PineappleDraw`, `evaluate_hand_pineapple_draw`, `pineapple_draw_best_discard`; rodada de troca e descarte em `game_loop.rs` (`begin_draw_round`, `player_draw`, `begin_discard_round`, `player_discard`, `settle_pending_discards`). API: ações `keep`, `swap`, `discard` (posição 0 a 2 em `card` ou `amount`) e `auto_discard`; o estado da mesa publica `drawing` e `discarding`. A heurística pública de troca de bots, laboratório e simulações (`pineapple_draw::suggested_swap`) não participa da liquidação.
+- O baralho cobre o pior caso: 6 × 3 privadas + 3 queimadas + 5 comunitárias + 18 trocas = 44 cartas.
+- Histórico: ações públicas `keep`, `swap` e `discard`, sem a carta; no river, a troca (`keep`/`swap`) vem antes do `discard`. A carta descartada no river sai no estado da mesa (`river_discard` de cada jogador, para todos os sockets, até o fim da mão). `HandHistory.draws` guarda a carta descartada e a recebida (ausente no descarte do river) para auditoria (campo ausente nas demais modalidades, preservando o formato assinado anterior).
+- Implementação: `PokerVariant::PineappleDraw`, `evaluate_hand_pineapple_draw`, `pineapple_draw_best_discard`; troca e descarte em `game_loop.rs` (`refresh_draw_step`, `player_draw`, `open_draw_street`, `player_discard`, `settle_pending_discards`). API: ações `keep`, `swap`, `discard` (posição 0 a 2 em `card` ou `amount`) e `auto_discard`; o estado da mesa publica `drawing` (o jogador da vez ainda não trocou na street), `discarding` (no river, já trocou e ainda tem três cartas) e, por jogador, `river_discard` (`PlayerState::river_discard`, a carta descartada no river, pública). `draw_count` conta só as trocas da street (0 ou 1); o descarte não entra. A heurística pública de troca de bots, laboratório e simulações (`pineapple_draw::suggested_swap`) não participa da liquidação.
 - Referência de simulação (11/11/2026; 20 mil mãos por modalidade, 6 jogadores até o showdown, política passiva): a mão vencedora é sequência ou melhor em 73,0% das mãos no Brazilian Pineapple, 78,7% no Omaha 4 e 40,1% no Hold’em; trocas e descarte acrescentam até 18 decisões por mão. Teste `pineapple_draw_simulation` (feature `massive-tests`).
 
-#### Aumento limitado ao pote antes do call — `pineapple_draw_v1`
+#### Aumento limitado ao pote antes do call — `pineapple_draw_v3`
 
 Regra da modalidade em cash e torneios, desde a primeira mão e inclusive heads-up. Sem opção administrativa. Não altera outras modalidades.
 
-- **Todas as rodadas:** sendo `P` o pote efetivamente formado antes do call, `C` o pagamento necessário e `B` a contribuição do jogador na rodada, o máximo total é `min(B + saldo, B + C + P)`. Sem patamares pré-flop ou teto de 4 BB. O ante está em `P` uma única vez e não faz parte de `B` nem abate `C`. Não é o Pot Limit tradicional.
-- **Ante de 1 BB apenas do big blind:** o motor cobra o blind primeiro e depois o ante com o saldo restante. Blind incompleto não paga ante; ante parcial é permitido. O ante é dinheiro morto no pote principal e não aumenta a contribuição viva usada para elegibilidade aos potes paralelos. Nos torneios acompanha o BB do nível, sem cobrança adicional pelo ator.
+- **Todas as rodadas:** sendo `P` o pote efetivamente formado antes do call, `C` o pagamento necessário e `B` a contribuição do jogador na rodada, o máximo total é `min(B + saldo, B + C + P)`. Sem patamares pré-flop ou teto de 4 BB. Não é o Pot Limit tradicional.
+- **Sem ante** (v2, 20/11/2026): só small e big blind. Um ante configurado no nível do torneio ou na mesa é ignorado nesta modalidade. A v1 tinha ante de 1 BB pago pelo big blind.
 - O incremento mínimo começa em 1 BB e acompanha o último aumento completo. Reabertura exige um incremento completo desde a última ação daquele jogador, inclusive cumulativamente por all-ins curtos. O curto não muda o mínimo; all-in acima do máximo é rejeitado. Check em rodada sem aposta preserva o direito de aumentar após abertura.
-- Ações ilegais são rejeitadas antes de alterar fichas, turno ou histórico. Centavos inteiros, aritmética protegida, limites recalculados por ação. A rodada de troca acontece antes das apostas de cada street pós-flop e não mexe em fichas nem em limites.
+- Ações ilegais são rejeitadas antes de alterar fichas, turno ou histórico. Centavos inteiros, aritmética protegida, limites recalculados por ação. A troca e o descarte não mexem em fichas nem em limites.
 
-Exemplo aprovado, três jogadores: blinds **R$ 0,50/R$ 1**, ante **R$ 1**, pote inicial **R$ 2,50**. Todos acompanhando formam **R$ 4**. A primeira abertura máxima é **para R$ 3,50**; dois calls formam **R$ 11,50**. O incremento passa a R$ 2,50: o próximo aumento completo mínimo é para R$ 6, podendo ultrapassar os antigos 4 BB quando o pote permitir.
+Exemplo, três jogadores: blinds **R$ 0,50/R$ 1**, sem ante, pote inicial **R$ 1,50**. Todos acompanhando formam **R$ 3**. A primeira abertura máxima é **para R$ 2,50**; dois calls formam **R$ 7,50**. O incremento passa a R$ 1,50: o próximo aumento completo mínimo é para R$ 4, e o máximo do small blind é para R$ 6,50.
 
 Exemplo independente pós-flop: pote R$ 10, aposta R$ 5, `P=15`, `C=5`, `B=0`: máximo **para R$ 20**. Dois, três ou quatro participantes contribuindo R$ 20 na rodada formam **R$ 50, R$ 70 e R$ 90**. Após o aumento para R$ 20, `P=35`, `C=20`, `B=0`: próximo máximo **para R$ 55**.
 
-Novas mãos registram `betting_rule_version=pineapple_draw_v1`. Mãos do formato antigo do Brazilian Pineapple mantêm `brazilian_pineapple_pot_before_call_v2`, `brazilian_pineapple_hybrid_v1` ou ausência de versão para a regra original; históricos, assinaturas e settlements são preservados e nunca reliquidados. Publicação conjunta de motor, API, frontend, Academy e migration 062 exige CI aprovado, backup validado e nenhum torneio do formato antigo em andamento (a migration aborta nesse caso). Mesas ocupadas são fechadas e as fichas dos assentos voltam à carteira no início da API; inscrições do Jogo Real em torneio do formato antigo não iniciado são canceladas sem reembolso, por decisão do proprietário (09/11/2026), e ficam registradas em `audit_logs`; o torneio Play Money passa ao Brazilian Pineapple atual com os inscritos. Evidência de publicação pertence a `QUALITY.md` e `DEVELOPMENT_LOG.md`.
+Novas mãos registram `betting_rule_version=pineapple_draw_v4` (desde 21/11/2026, descarte do river aberto para a mesa; `pineapple_draw_v3`, também de 21/11/2026, marca as mãos com troca no river e descarte fechado; `pineapple_draw_v2`, de 20/11/2026, marca as mãos sem troca no river; `pineapple_draw_v1`, as com ante de 1 BB e rodada de troca depois das apostas). As apostas e os limites são os mesmos nas quatro. Mãos do formato antigo do Brazilian Pineapple mantêm `brazilian_pineapple_pot_before_call_v2`, `brazilian_pineapple_hybrid_v1` ou ausência de versão para a regra original; históricos, assinaturas e settlements são preservados e nunca reliquidados. Publicação conjunta de motor, API, frontend, Academy e migration 062 exige CI aprovado, backup validado e nenhum torneio do formato antigo em andamento (a migration aborta nesse caso). Mesas ocupadas são fechadas e as fichas dos assentos voltam à carteira no início da API; inscrições do Jogo Real em torneio do formato antigo não iniciado são canceladas sem reembolso, por decisão do proprietário (09/11/2026), e ficam registradas em `audit_logs`; o torneio Play Money passa ao Brazilian Pineapple atual com os inscritos. Evidência de publicação pertence a `QUALITY.md` e `DEVELOPMENT_LOG.md`.
 
 ### 2.6 🂡 Texas Hold’em Short Deck — `short_deck` (8-max cash + torneio)
 - Baralho de **36** cartas (ranks 6–A; sem 2–5)
@@ -135,13 +137,9 @@ Novas mãos registram `betting_rule_version=pineapple_draw_v1`. Mãos do formato
 | `ante`        | number?  | ≥ 0 (opcional)                     |
 
 ### 3.2 ⏱️ Velocidades e Timeouts — Normal, Turbo e Hyper
-| Speed    | Timeout por ação |
-|----------|------------------|
-| `normal` | 30 segundos      |
-| `turbo`  | 15 segundos      |
-| `hyper`  | 8 segundos       |
+- O tempo por ação é o mesmo em todas as mesas e velocidades: **15 segundos + 5 de tempo extra** por jogada (10.2, desde 21/11/2026). A velocidade (`normal`, `turbo`, `slow` no torneio) muda a estrutura de blinds, não o relógio.
 
-**Timeout = auto-fold** automático.
+**Timeout = auto-fold** automático (no Brazilian Pineapple sem aposta a pagar: mantém e dá check; 10.2).
 
 ### 3.3 💵 Buy-in — Entrada e Cash-out
 - Jogador deve ter saldo suficiente para o buy-in
@@ -300,12 +298,12 @@ Em conformidade estrita com as regras oficiais do Poker Internacional Live (WSOP
 - Continua elegível para ganhar o pot
 - Não precisa agir mais
 
-### 10.2 ⏰ Timeout e banco de tempo
-- Cada jogada tem o tempo normal do turno (30 segundos nas mesas atuais). O timer reinicia a cada ação.
-- **Banco de tempo:** cada jogador senta com **30 segundos de reserva**. Quando o tempo normal acaba, a reserva começa a correr sozinha; ao agir, só o que passou do tempo normal é descontado. A cada **10 mãos recebidas** a reserva ganha **5 segundos**, até o teto de **60 segundos**.
-- A reserva vale para apostas, troca e descarte, em cash e torneio, em Play Money e Jogo Real. Quem está desconectado não usa a reserva: o turno dele acaba no tempo normal.
-- Acabados o tempo normal e a reserva, o servidor age pelo jogador: fold nas apostas, manter as cartas na troca e descarte automático no river.
-- A reserva é por mesa e fica na memória do servidor: volta a 30 segundos quando o jogador sai e senta de novo, quando a mesa é recriada e, no torneio, ao mudar de mesa.
+### 10.2 ⏰ Timeout e tempo extra
+- **Relógio (decisão do proprietário em 21/11/2026):** cada jogada tem **15 segundos** de tempo normal e, acabados eles, **5 segundos de tempo extra**. O relógio reinicia a cada ação e o tempo extra **renova a cada jogada**: não acumula, não é descontado de uma jogada para a outra e não depende de quantas mãos o jogador recebeu. Substitui os 30 s com reserva de 30 s (+5 s a cada 10 mãos, teto de 60 s) publicados em 19/11/2026.
+- Vale para **todos os jogos**, em cash e torneio, em Play Money e Jogo Real, e para apostas, troca e descarte (no Brazilian Pineapple, a troca, o descarte e a aposta formam uma vez só: os 15 + 5 s correm da troca até a aposta). Quem está desconectado não ganha o tempo extra: o turno dele acaba nos 15 s.
+- Acabados o tempo normal e o tempo extra, o servidor age pelo jogador: fold nas apostas. No Brazilian Pineapple: com aposta a pagar, fold (também antes da troca); sem aposta, mantém as cartas (no river, mantém e faz o descarte automático, que fica aberto como os demais) e dá check. A acompanhar no Play Money: quantas mãos acabam por tempo esgotado, sobretudo no river do Pineapple.
+- **Avisos na mesa do site:** som e vibração quando chega a vez; título da aba piscando "Sua vez!" enquanto for a vez do jogador; barra de tempo sob a placa de quem está na vez e, no tempo extra, barra vermelha com "TEMPO EXTRA" e a contagem dos 5 s, mais um som curto (`public/sounds/alert.wav`). O som segue o botão de som da mesa.
+- Estado da mesa: `time_bank` = segundos restantes do tempo normal; `time_bank_reserve` = segundos de tempo extra que o jogador da vez ainda tem (5 até o tempo normal acabar). Implementação: `API-Axum/src/time_bank.rs` (`TURN`, `EXTRA`).
 
 ### 10.3 🔌 Desconexão — Cash-out após graça
 - WebSocket cai: o jogador senta out (fold automático se for a vez); o assento fica reservado **45 s** para reconectar (F5).

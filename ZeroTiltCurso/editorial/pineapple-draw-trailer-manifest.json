@@ -1,33 +1,33 @@
 {
   "filmId": "pineapple-draw-trailer",
   "filename": "zt-pineapple-draw-trailer-v1",
-  "title": "Brazilian Pineapple — trailer",
+  "title": "Brazilian Pineapple — teaser",
   "renderer": "remotion",
   "rendererVersion": 2,
   "composition": "PineappleDrawTrailer",
   "script": "src/data/pineapple-draw-trailer.json",
-  "scriptHash": "6abfd5ecdc6ef70e088914bd4765215831d5f014641ead368269e021a1d4bd20",
-  "bettingRuleVersion": "pineapple_draw_v1",
-  "durationSeconds": 149.2,
+  "scriptHash": "b51649fda2a84b3e02c8e7870ca36b8f668a17a34fe28282a662a74142e1195a",
+  "bettingRuleVersion": "pineapple_draw_v4",
+  "durationSeconds": 64.34,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 10509530,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 4621388,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v2-lang-en",
-  "narrationHash": "dc95e052951aef07f05098281847237451f035c3d2f6db7278fb86646a8a1368",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "2e55f8f7cff000052d67bd8812324d93a582e3ed7b2c7394efbb87a8fa79d0c5",
   "chapters": [
     {
       "start": 0.0,
       "title": "Brazilian Pineapple"
     }
   ],
-  "sha256": "0762dfc21c28b9ccde639dbb7730ac2870ff71242805afc7d23212ad83bec595",
+  "sha256": "b0df03a90793d30f861fb582d31a0dc7faeec65bc95faaeec034d6f0c153bbb7",
   "assetHashes": {
-    "mp4": "0762dfc21c28b9ccde639dbb7730ac2870ff71242805afc7d23212ad83bec595",
-    "vtt": "2b4452b4cda041eb472729eac042048d4de350e3df4f8e930ecf4730aba5fa6a",
-    "webp": "3540912f8f600a2722755a68827b2544787444dcd3b1a1ebfe49de1be0dc0bde"
+    "mp4": "b0df03a90793d30f861fb582d31a0dc7faeec65bc95faaeec034d6f0c153bbb7",
+    "vtt": "9d98f5447df9fb7d4403a39175ed4e6f55a588ed62f4c525b3a06a83cb62f409",
+    "webp": "b8f0737de517f9320e71ed7e8f2b2dc3df54793d8221a68e7e5d5c4eb51daf79"
   },
-  "mediaRevision": "a70630a1bffd0bd8b1f50c416614053e2a0771346218de74b222090b70b2fa55"
+  "mediaRevision": "5a7305f69ced55659dcbbc6a02c4cab0e814cfb55da3312e5b32159d06892459"
 }

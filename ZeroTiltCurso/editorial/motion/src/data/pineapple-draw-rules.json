@@ -1,21 +1,21 @@
 {
  "id": "pineapple-draw-rules",
- "title": "Brazilian Pineapple — regras completas",
- "voice": "pt-BR-AntonioNeural",
+ "title": "Brazilian Pineapple — Regras na prática",
+ "voice": "pt-BR-MacerioMultilingualNeural",
  "rate": "-3%",
  "fps": 30,
- "bettingRuleVersion": "pineapple_draw_v1",
+ "bettingRuleVersion": "pineapple_draw_v4",
  "scenes": [
   {
    "id": "r01",
    "chapter": "O jogo",
    "title": "Brazilian Pineapple",
-   "voice": "Zero Tilt Academy. Brazilian Pineapple: as regras completas. Uma modalidade de pôquer criada no Brasil, com três cartas na mão, duas trocas e um descarte.",
+   "voice": "Esta é a Zero Tilt Academy. Neste vídeo, você aprende as regras do Brazilian Pineapple acompanhando uma mão inteira, comentada ação por ação. É uma modalidade de pôquer criada no Brasil, com três cartas na mão, três trocas e um descarte.",
    "visual": {
     "mode": "intro",
-    "kicker": "Zero Tilt Academy · regras completas",
+    "kicker": "Zero Tilt Academy · regras na prática",
     "lines": [
-     "Três cartas. Duas trocas. Um descarte."
+     "Três cartas. Três trocas. Um descarte."
     ],
     "badge": "Valores ilustrativos · comece com Play Money"
    }
@@ -101,22 +101,22 @@
    "id": "r03",
    "chapter": "O jogo",
    "title": "A ordem da mão",
-   "voice": "A ordem da mão é sempre a mesma. Três cartas e a primeira rodada de apostas. Flop, apostas e troca. Turn, apostas e troca. River, descarte e a última rodada de apostas. Por fim, o showdown.",
+   "voice": "A ordem da mão é sempre a mesma. Três cartas e a primeira rodada de apostas, ainda sem troca. No flop, cada jogador, na sua vez, troca ou mantém e depois aposta. No turn, de novo: troca na sua vez e depois aposta. No river, cada um, na sua vez, troca ou mantém, descarta uma carta e só então aposta. Por fim, as cartas são mostradas no showdown.",
    "visual": {
     "mode": "steps",
     "lines": [
-     "Três cartas · apostas",
-     "Flop · apostas · troca",
-     "Turn · apostas · troca",
-     "River · descarte · apostas",
+     "Três cartas · apostas, sem troca",
+     "Flop · na sua vez, troca e aposta",
+     "Turn · na sua vez, troca e aposta",
+     "River · na sua vez, troca, descarte e aposta",
      "Showdown"
     ],
     "cues": [
      "Três cartas",
-     "Flop apostas",
-     "Turn apostas",
-     "River descarte",
-     "o showdown"
+     "No flop",
+     "No turn",
+     "No river",
+     "Por fim"
     ]
    }
   },
@@ -124,7 +124,7 @@
    "id": "r-deal",
    "chapter": "Pré-flop",
    "title": "Três cartas para cada jogador",
-   "voice": "Quatro jogadores na mesa. Cada um recebe três cartas fechadas. Ana paga o small blind. Beto paga o big blind e o ante, que vai direto para o pote.",
+   "voice": "Agora, uma mão completa, passo a passo. Neste exemplo, a mesa tem quatro jogadores, mas o Brazilian Pineapple aceita até seis. Duda está no botão, que marca a posição do dealer. Cada jogador recebe três cartas fechadas, que só ele vê. Ana, a primeira à esquerda do botão, paga o small blind de cinquenta centavos. Beto, o seguinte, paga o big blind de um real. Não há ante: são só essas duas apostas obrigatórias.",
    "visual": {
     "mode": "hand",
     "dealer": 3,
@@ -176,24 +176,17 @@
      },
      {
       "type": "post",
-      "cue": "Ana paga",
+      "cue": "paga o small blind",
       "player": 0,
       "to": 50,
       "label": "Small blind"
      },
      {
       "type": "post",
-      "cue": "Beto paga",
+      "cue": "paga o big blind",
       "player": 1,
       "to": 100,
       "label": "Big blind"
-     },
-     {
-      "type": "ante",
-      "cue": "o ante",
-      "player": 1,
-      "to": 100,
-      "label": "Big blind + ante"
      }
     ],
     "banner": "Pré-flop"
@@ -203,7 +196,7 @@
    "id": "r-pre",
    "chapter": "Pré-flop",
    "title": "Primeira rodada de apostas",
-   "voice": "Primeira rodada de apostas. Caio paga. Duda paga. Ana completa a aposta. Beto dá check. As fichas de todos vão para o pote. Não há troca antes do flop.",
+   "voice": "Começa a primeira rodada de apostas, ainda sem troca. Quem fala primeiro é Caio, o jogador à esquerda do big blind. Repare na barra verde sob a placa dele: é o relógio. Cada jogada tem quinze segundos e, se eles acabarem, ainda há cinco segundos de tempo extra. No canto da tela ficam os botões da vez: como há uma aposta a pagar, as opções de Caio são Fold, Call ou Raise. Para continuar na mão, ele precisa pelo menos pagar um real, o valor do big blind. Caio faz mais: dá raise, ou seja, aumenta a aposta. O máximo é o valor a pagar mais o pote antes do pagamento: um real mais um real e cinquenta, ou seja, dois reais e cinquenta. Caio vai ao máximo. Duda paga os dois reais e cinquenta. Agora Ana, que está no small blind, dá reraise, que é aumentar de novo depois de um aumento. Pela mesma conta, dois reais a pagar mais seis e cinquenta de pote, ela pode ir até nove reais, e vai. Como já tinha cinquenta centavos na mesa, ela completa com oito e cinquenta. Para seguir na mão, cada um precisa igualar os nove reais. Beto paga mais oito, porque o big blind de um real já conta. Caio paga mais seis e cinquenta. Duda também paga mais seis e cinquenta. Todos igualaram a aposta, então a rodada termina e as fichas vão para o pote: trinta e seis reais.",
    "visual": {
     "mode": "hand",
     "dealer": 3,
@@ -221,7 +214,7 @@
      },
      {
       "name": "Beto",
-      "stack": 9800,
+      "stack": 9900,
       "bet": 100,
       "cards": [
        "9s",
@@ -249,35 +242,51 @@
      }
     ],
     "board": [],
-    "pot": 100,
+    "pot": 0,
     "events": [
      {
-      "type": "call",
-      "cue": "Caio paga",
+      "type": "raise",
+      "cue": "Caio vai ao máximo",
       "player": 2,
-      "to": 100
+      "to": 250,
+      "max": 250,
+      "label": "Raise"
      },
      {
       "type": "call",
-      "cue": "Duda paga",
+      "cue": "Duda paga os dois",
       "player": 3,
-      "to": 100
+      "to": 250
+     },
+     {
+      "type": "raise",
+      "cue": "ir até nove reais",
+      "player": 0,
+      "to": 900,
+      "max": 900,
+      "label": "Reraise"
      },
      {
       "type": "call",
-      "cue": "Ana completa",
-      "player": 0,
-      "to": 100,
-      "label": "Completa"
+      "cue": "Beto paga mais oito",
+      "player": 1,
+      "to": 900
      },
      {
-      "type": "check",
-      "cue": "Beto dá check",
-      "player": 1
+      "type": "call",
+      "cue": "Caio paga mais seis",
+      "player": 2,
+      "to": 900
+     },
+     {
+      "type": "call",
+      "cue": "Duda também paga",
+      "player": 3,
+      "to": 900
      },
      {
       "type": "collect",
-      "cue": "vão para o pote"
+      "cue": "as fichas vão para o pote"
      }
     ],
     "banner": "Pré-flop · apostas"
@@ -285,9 +294,9 @@
   },
   {
    "id": "r-flop",
-   "chapter": "Flop: apostas e troca",
-   "title": "Flop: primeiro as apostas",
-   "voice": "O flop abre três cartas na mesa. Primeiro vêm as apostas. Ana tem par de ases e aposta. Beto paga. Caio paga. Duda desiste. As apostas vão para o pote.",
+   "chapter": "Flop: troca e aposta na vez",
+   "title": "Flop: na sua vez, troca e depois aposta",
+   "voice": "O flop abre três cartas comunitárias: ás, dama e seis. Daqui em diante, quem fala primeiro é o jogador mais à esquerda do botão que ainda está na mão: aqui, Ana. No Brazilian Pineapple, a troca acontece na vez de cada jogador. Primeiro, ele decide se troca uma carta ou mantém as três; só depois aposta, paga, passa ou desiste. Por isso, os botões de Ana começam por Trocar e Manter; depois da troca, aparecem Check e Aposta. Ana troca o sete. A carta trocada sai do jogo, e outra vem do baralho: um ás. Agora Ana tem trinca de ases. Com a troca feita, ela aposta doze reais. Pelo limite do pote, poderia apostar até trinta e seis.",
    "visual": {
     "mode": "hand",
     "dealer": 3,
@@ -295,7 +304,7 @@
     "players": [
      {
       "name": "Ana · você",
-      "stack": 9900,
+      "stack": 9100,
       "cards": [
        "Ah",
        "Kd",
@@ -304,7 +313,7 @@
      },
      {
       "name": "Beto",
-      "stack": 9800,
+      "stack": 9100,
       "cards": [
        "9s",
        "9d",
@@ -313,7 +322,7 @@
      },
      {
       "name": "Caio",
-      "stack": 9900,
+      "stack": 9100,
       "cards": [
        "Qh",
        "Jh",
@@ -322,7 +331,7 @@
      },
      {
       "name": "Duda",
-      "stack": 9900,
+      "stack": 9100,
       "cards": [
        "Tc",
        "8c",
@@ -331,7 +340,7 @@
      }
     ],
     "board": [],
-    "pot": 500,
+    "pot": 3600,
     "events": [
      {
       "type": "board",
@@ -343,41 +352,28 @@
       ]
      },
      {
-      "type": "bet",
-      "cue": "e aposta",
+      "type": "swap",
+      "cue": "Ana troca o sete",
       "player": 0,
-      "to": 300
+      "position": 2,
+      "receive": "Ac"
      },
      {
-      "type": "call",
-      "cue": "Beto paga",
-      "player": 1,
-      "to": 300
-     },
-     {
-      "type": "call",
-      "cue": "Caio paga",
-      "player": 2,
-      "to": 300
-     },
-     {
-      "type": "fold",
-      "cue": "Duda desiste",
-      "player": 3
-     },
-     {
-      "type": "collect",
-      "cue": "vão para o pote"
+      "type": "bet",
+      "cue": "ela aposta doze",
+      "player": 0,
+      "to": 1200,
+      "max": 3600
      }
     ],
-    "banner": "Flop · apostas"
+    "banner": "Flop · troca e aposta"
    }
   },
   {
-   "id": "r-swap1",
-   "chapter": "Flop: apostas e troca",
-   "title": "Depois das apostas, a troca",
-   "voice": "Só depois das apostas vem a troca. Cada jogador mantém as três cartas ou troca uma. Ana troca o sete e recebe outro ás: trinca. Beto troca uma carta. Caio também troca uma. Todos veem quantas cartas cada um trocou, mas não quais.",
+   "id": "r-flopcall",
+   "chapter": "Flop: troca e aposta na vez",
+   "title": "Cada um troca na sua vez",
+   "voice": "Agora é a vez de Beto, com doze reais a pagar. Ele também troca uma carta e depois paga os doze. Caio troca uma e paga. Duda não acertou nada e desiste sem trocar: quem vai desistir não precisa decidir a troca. Todos veem quantas cartas cada um trocou, mas não quais. As apostas vão para o pote, que chega a setenta e dois reais.",
    "visual": {
     "mode": "hand",
     "dealer": 3,
@@ -385,16 +381,18 @@
     "players": [
      {
       "name": "Ana · você",
-      "stack": 9600,
+      "stack": 7900,
+      "bet": 1200,
       "cards": [
        "Ah",
        "Kd",
-       "7c"
-      ]
+       "Ac"
+      ],
+      "drawn": "Trocou 1"
      },
      {
       "name": "Beto",
-      "stack": 9500,
+      "stack": 9100,
       "cards": [
        "9s",
        "9d",
@@ -403,7 +401,7 @@
      },
      {
       "name": "Caio",
-      "stack": 9600,
+      "stack": 9100,
       "cards": [
        "Qh",
        "Jh",
@@ -412,13 +410,12 @@
      },
      {
       "name": "Duda",
-      "stack": 9900,
+      "stack": 9100,
       "cards": [
        "Tc",
        "8c",
        "2d"
-      ],
-      "folded": true
+      ]
      }
     ],
     "board": [
@@ -426,38 +423,53 @@
      "Qd",
      "6h"
     ],
-    "pot": 1400,
+    "pot": 3600,
     "events": [
      {
       "type": "swap",
-      "cue": "Ana troca",
-      "player": 0,
-      "position": 2,
-      "receive": "Ac"
-     },
-     {
-      "type": "swap",
-      "cue": "Beto troca",
+      "cue": "Ele também troca",
       "player": 1,
       "position": 2,
       "receive": "3c"
      },
      {
+      "type": "call",
+      "cue": "depois paga os doze",
+      "player": 1,
+      "to": 1200
+     },
+     {
       "type": "swap",
-      "cue": "Caio também",
+      "cue": "Caio troca uma",
       "player": 2,
       "position": 2,
       "receive": "Th"
+     },
+     {
+      "type": "call",
+      "cue": "uma e paga",
+      "player": 2,
+      "to": 1200,
+      "delay": 0.4
+     },
+     {
+      "type": "fold",
+      "cue": "desiste sem trocar",
+      "player": 3
+     },
+     {
+      "type": "collect",
+      "cue": "As apostas vão para o pote"
      }
     ],
-    "banner": "Flop · troca"
+    "banner": "Flop · troca e aposta"
    }
   },
   {
    "id": "r-turn",
-   "chapter": "Turn: apostas e troca",
-   "title": "Turn: apostas e nova troca",
-   "voice": "O turn abre a quarta carta. Nova rodada de apostas: Ana aposta com a trinca. Beto desiste. Caio paga. Depois das apostas, a segunda troca: Ana mantém as cartas e Caio também.",
+   "chapter": "Turn: troca e aposta na vez",
+   "title": "Turn: manter também é uma escolha",
+   "voice": "O turn abre a quarta carta, o rei de copas. Nova rodada, de novo a partir de Ana, e de novo cada um decide a troca na sua vez. Ana mantém as três cartas. Com trinca, ela prefere dar check, ou seja, passar a vez sem apostar, para deixar os outros apostarem. O check só é possível quando ninguém apostou ainda na rodada. Beto também mantém e dá check. Caio mantém e aposta trinta reais. Com uma aposta na mesa, a vez volta para Ana. Ela já decidiu a troca nesta rodada, então agora só escolhe a aposta: paga os trinta. Beto desiste. O pote chega a cento e trinta e dois reais.",
    "visual": {
     "mode": "hand",
     "dealer": 3,
@@ -465,34 +477,37 @@
     "players": [
      {
       "name": "Ana · você",
-      "stack": 9600,
+      "stack": 7900,
       "cards": [
        "Ah",
        "Kd",
        "Ac"
-      ]
+      ],
+      "drawn": "Trocou 1"
      },
      {
       "name": "Beto",
-      "stack": 9500,
+      "stack": 7900,
       "cards": [
        "9s",
        "9d",
        "3c"
-      ]
+      ],
+      "drawn": "Trocou 1"
      },
      {
       "name": "Caio",
-      "stack": 9600,
+      "stack": 7900,
       "cards": [
        "Qh",
        "Jh",
        "Th"
-      ]
+      ],
+      "drawn": "Trocou 1"
      },
      {
       "name": "Duda",
-      "stack": 9900,
+      "stack": 9100,
       "cards": [
        "Tc",
        "8c",
@@ -506,40 +521,14 @@
      "Qd",
      "6h"
     ],
-    "pot": 1400,
+    "pot": 7200,
     "events": [
      {
       "type": "board",
-      "cue": "quarta carta",
+      "cue": "a quarta carta",
       "cards": [
        "Kh"
       ]
-     },
-     {
-      "type": "bet",
-      "cue": "Ana aposta",
-      "player": 0,
-      "to": 700
-     },
-     {
-      "type": "fold",
-      "cue": "Beto desiste",
-      "player": 1
-     },
-     {
-      "type": "call",
-      "cue": "Caio paga",
-      "player": 2,
-      "to": 700
-     },
-     {
-      "type": "collect",
-      "cue": "Depois das apostas"
-     },
-     {
-      "type": "banner",
-      "cue": "a segunda troca",
-      "text": "Turn · troca"
      },
      {
       "type": "keep",
@@ -547,19 +536,56 @@
       "player": 0
      },
      {
+      "type": "check",
+      "cue": "prefere dar check",
+      "player": 0
+     },
+     {
       "type": "keep",
-      "cue": "Caio também",
+      "cue": "Beto também mantém",
+      "player": 1
+     },
+     {
+      "type": "check",
+      "cue": "mantém e dá check",
+      "player": 1,
+      "delay": 0.5
+     },
+     {
+      "type": "keep",
+      "cue": "Caio mantém",
       "player": 2
+     },
+     {
+      "type": "bet",
+      "cue": "aposta trinta",
+      "player": 2,
+      "to": 3000
+     },
+     {
+      "type": "call",
+      "cue": "paga os trinta",
+      "player": 0,
+      "to": 3000
+     },
+     {
+      "type": "fold",
+      "cue": "Beto desiste",
+      "player": 1
+     },
+     {
+      "type": "collect",
+      "cue": "O pote chega"
      }
     ],
-    "banner": "Turn · apostas"
+    "banner": "Turn · troca e aposta"
    }
   },
   {
    "id": "r-river",
-   "chapter": "River: descarte e apostas",
-   "title": "River: cada um descarta uma carta",
-   "voice": "O river abre a quinta carta. Agora a regra muda: cada jogador descarta uma carta e fica com duas. Ana descarta o rei. Caio descarta a dama.",
+   "chapter": "River: troca, descarte e aposta",
+   "title": "River: troca, descarte e aposta",
+   "voice": "O river abre a quinta carta, o seis de espadas. No river, a vez de cada jogador tem três passos: primeiro troca uma carta ou mantém as três, depois descarta uma e fica com duas, e só então age. Ana troca o rei. Ela ia descartar o rei de qualquer jeito, então trocar antes não custa nada: se a carta nova não ajudar, é ela que vai embora. Vem um dois de paus, que não ajuda. Ana descarta o dois e fica com os dois ases. O descarte é obrigatório para quem segue na mão, e a carta descartada fica aberta por dois segundos, para todos verem, antes de ir para a pilha de descarte. A carta trocada, não: essa ninguém vê. Depois, Ana aposta trinta e cinco reais. Ela poderia apostar até quarenta e nove, tudo o que ainda tem. O pote, de cento e trinta e dois, permitiria mais, mas ninguém aposta mais fichas do que tem na mesa.",
    "visual": {
     "mode": "hand",
     "dealer": 3,
@@ -567,35 +593,38 @@
     "players": [
      {
       "name": "Ana · você",
-      "stack": 8900,
+      "stack": 4900,
       "cards": [
        "Ah",
        "Kd",
        "Ac"
-      ]
+      ],
+      "drawn": "Manteve"
      },
      {
       "name": "Beto",
-      "stack": 9500,
+      "stack": 7900,
       "cards": [
        "9s",
        "9d",
        "3c"
       ],
-      "folded": true
+      "folded": true,
+      "drawn": "Manteve"
      },
      {
       "name": "Caio",
-      "stack": 8900,
+      "stack": 4900,
       "cards": [
        "Qh",
        "Jh",
        "Th"
-      ]
+      ],
+      "drawn": "Manteve"
      },
      {
       "name": "Duda",
-      "stack": 9900,
+      "stack": 9100,
       "cards": [
        "Tc",
        "8c",
@@ -610,7 +639,7 @@
      "6h",
      "Kh"
     ],
-    "pot": 2800,
+    "pot": 13200,
     "events": [
      {
       "type": "board",
@@ -620,26 +649,34 @@
       ]
      },
      {
+      "type": "swap",
+      "cue": "Ana troca o rei",
+      "player": 0,
+      "position": 1,
+      "receive": "2c"
+     },
+     {
       "type": "discard",
-      "cue": "Ana descarta",
+      "cue": "Ana descarta o dois",
       "player": 0,
       "position": 1
      },
      {
-      "type": "discard",
-      "cue": "Caio descarta",
-      "player": 2,
-      "position": 0
+      "type": "bet",
+      "cue": "Ana aposta trinta e cinco",
+      "player": 0,
+      "to": 3500,
+      "max": 4900
      }
     ],
-    "banner": "River · descarte"
+    "banner": "River · troca, descarte e aposta"
    }
   },
   {
    "id": "r-last",
-   "chapter": "River: descarte e apostas",
-   "title": "Última rodada, com duas cartas",
-   "voice": "Última rodada de apostas, com duas cartas na mão. Ana aposta. Caio paga. As fichas vão para o pote.",
+   "chapter": "River: troca, descarte e aposta",
+   "title": "Caio troca, descarta e paga",
+   "voice": "Agora é a vez de Caio, com trinta e cinco reais a pagar. Ele segue a mesma lógica: troca a dama, que também ia descartar, e recebe um quatro de espadas. Descarta o quatro, que todos veem aberto, e fica com valete e dez, que fecham a sequência, e paga. As apostas se igualaram, e as fichas vão para o pote: duzentos e dois reais.",
    "visual": {
     "mode": "hand",
     "dealer": 3,
@@ -647,15 +684,17 @@
     "players": [
      {
       "name": "Ana · você",
-      "stack": 8900,
+      "stack": 1400,
+      "bet": 3500,
       "cards": [
        "Ah",
        "Ac"
-      ]
+      ],
+      "drawn": "Descartou"
      },
      {
       "name": "Beto",
-      "stack": 9500,
+      "stack": 7900,
       "cards": [
        "9s",
        "9d",
@@ -665,15 +704,16 @@
      },
      {
       "name": "Caio",
-      "stack": 8900,
+      "stack": 4900,
       "cards": [
+       "Qh",
        "Jh",
        "Th"
       ]
      },
      {
       "name": "Duda",
-      "stack": 9900,
+      "stack": 9100,
       "cards": [
        "Tc",
        "8c",
@@ -689,33 +729,41 @@
      "Kh",
      "6s"
     ],
-    "pot": 2800,
+    "pot": 13200,
     "events": [
      {
-      "type": "bet",
-      "cue": "Ana aposta",
-      "player": 0,
-      "to": 1500
+      "type": "swap",
+      "cue": "troca a dama",
+      "player": 2,
+      "position": 0,
+      "receive": "4s"
+     },
+     {
+      "type": "discard",
+      "cue": "Descarta o quatro",
+      "player": 2,
+      "position": 0
      },
      {
       "type": "call",
-      "cue": "Caio paga",
+      "cue": "fecham a sequência",
       "player": 2,
-      "to": 1500
+      "to": 3500,
+      "delay": 0.3
      },
      {
       "type": "collect",
-      "cue": "vão para o pote"
+      "cue": "as fichas vão para o pote"
      }
     ],
-    "banner": "River · apostas"
+    "banner": "River · troca, descarte e aposta"
    }
   },
   {
    "id": "r-show",
    "chapter": "Showdown",
    "title": "Showdown",
-   "voice": "Showdown. Caio mostra uma sequência até o ás. Ana mostra full house: três ases e dois seis. O pote de cinquenta e oito reais vai para Ana.",
+   "voice": "Agora é o showdown, a hora de mostrar as cartas. Caio mostra valete e dez: com o ás, o rei e a dama da mesa, forma uma sequência até o ás. Ana mostra os dois ases: com o ás e os dois seis da mesa, forma um full house, três ases e dois seis. Repare que cada um usou as duas cartas da mão. Full house vence sequência, e o pote de duzentos e dois reais vai para Ana.",
    "visual": {
     "mode": "hand",
     "dealer": 3,
@@ -723,15 +771,16 @@
     "players": [
      {
       "name": "Ana · você",
-      "stack": 7400,
+      "stack": 1400,
       "cards": [
        "Ah",
        "Ac"
-      ]
+      ],
+      "drawn": "Descartou"
      },
      {
       "name": "Beto",
-      "stack": 9500,
+      "stack": 7900,
       "cards": [
        "9s",
        "9d",
@@ -741,15 +790,16 @@
      },
      {
       "name": "Caio",
-      "stack": 7400,
+      "stack": 1400,
       "cards": [
        "Jh",
        "Th"
-      ]
+      ],
+      "drawn": "Descartou"
      },
      {
       "name": "Duda",
-      "stack": 9900,
+      "stack": 9100,
       "cards": [
        "Tc",
        "8c",
@@ -765,7 +815,7 @@
      "Kh",
      "6s"
     ],
-    "pot": 5800,
+    "pot": 20200,
     "events": [
      {
       "type": "reveal",
@@ -802,48 +852,119 @@
   {
    "id": "r20",
    "chapter": "A troca em detalhe",
-   "title": "Manter ou trocar uma carta",
-   "voice": "A troca é opcional e de uma carta por vez. A carta trocada sai do jogo e outra vem do baralho. Todos veem quantas cartas cada jogador trocou; ninguém vê quais. Se o tempo acabar, você mantém as cartas. E quem está all-in não troca mais.",
+   "title": "Trocar ou manter, na sua vez",
+   "voice": "Resumindo a troca. Ela acontece na sua vez, no flop, no turn e no river: primeiro você troca uma carta ou mantém as três, e depois age. No river, entre a troca e a aposta, vem o descarte, e a carta descartada aparece aberta para todos. A troca vale só na primeira vez que você age na rodada; se a vez voltar por causa de um aumento, você só decide a aposta. Quem vai desistir pode desistir sem trocar. Todos veem quantas cartas cada jogador trocou; ninguém vê quais.",
    "visual": {
     "mode": "steps",
     "lines": [
-     "Opcional: uma carta por vez",
-     "Quantas, todos veem. Quais, ninguém vê",
-     "Tempo esgotado: você mantém as cartas",
-     "All-in não troca"
+     "Flop, turn e river: troca ou mantém, depois age",
+     "River: troca, descarte aberto e só então age",
+     "Só na primeira vez de cada rodada",
+     "Dá para desistir sem trocar",
+     "Troca: todos veem quantas, ninguém vê quais"
     ],
     "cues": [
-     "opcional",
-     "Todos veem",
-     "Se o tempo acabar",
-     "all-in não troca"
+     "acontece na sua vez",
+     "No river, entre",
+     "A troca vale só",
+     "pode desistir sem trocar",
+     "Todos veem"
     ]
    }
   },
   {
    "id": "r21",
-   "chapter": "O descarte do river",
-   "title": "Três cartas viram duas",
-   "voice": "No river, o descarte é obrigatório. A carta sai do jogo sem ser mostrada, e a última rodada de apostas é disputada com duas cartas. Se o tempo acabar, o sistema guarda as duas cartas que formam a sua melhor mão. Quem está all-in também fica com as duas melhores.",
+   "chapter": "Tempo para agir",
+   "title": "O relógio da vez",
+   "voice": "Agora, o relógio. Cada jogada tem quinze segundos, marcados pela barra sob a placa. Quando eles acabam, a barra fica vermelha, aparece o aviso de tempo extra e toca um som curto: são mais cinco segundos. O relógio recomeça a cada jogada, e a troca e a aposta usam o mesmo tempo. Quando chega a sua vez, também toca um som, e o título da aba do navegador pisca com o aviso. Ana mantém e passa a vez. Agora é a vez de Beto, e ele demora. O tempo normal acaba, depois o tempo extra, e o sistema age por ele: sem aposta a pagar, mantém as cartas e dá check. Com aposta a pagar, seria fold, mesmo antes da troca. No river, o sistema também faz o descarte, guardando as duas melhores cartas, e a descartada aparece aberta.",
    "visual": {
-    "mode": "steps",
-    "lines": [
-     "Descarte obrigatório, antes das apostas",
-     "Tempo esgotado: ficam as duas melhores",
-     "All-in: ficam as duas melhores"
+    "mode": "hand",
+    "dealer": 3,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Ana · você",
+      "stack": 9900,
+      "cards": [
+       "Kc",
+       "Qd",
+       "5h"
+      ]
+     },
+     {
+      "name": "Beto",
+      "stack": 9900,
+      "cards": [
+       "9h",
+       "9c",
+       "2s"
+      ]
+     },
+     {
+      "name": "Caio",
+      "stack": 9900,
+      "cards": [
+       "Ad",
+       "7d",
+       "4c"
+      ]
+     },
+     {
+      "name": "Duda",
+      "stack": 9900,
+      "cards": [
+       "Th",
+       "6s",
+       "6c"
+      ]
+     }
     ],
-    "cues": [
-     "obrigatório",
-     "Se o tempo acabar",
-     "Quem está all-in"
-    ]
+    "board": [
+     "Jc",
+     "8d",
+     "3s"
+    ],
+    "pot": 400,
+    "events": [
+     {
+      "type": "keep",
+      "cue": "Ana mantém",
+      "player": 0
+     },
+     {
+      "type": "check",
+      "cue": "e passa a vez",
+      "player": 0
+     },
+     {
+      "type": "turn",
+      "cue": "ele demora",
+      "player": 1,
+      "elapsed": 8,
+      "timeout": true
+     },
+     {
+      "type": "keep",
+      "cue": "o sistema age por ele",
+      "player": 1,
+      "label": "Tempo esgotado"
+     },
+     {
+      "type": "check",
+      "cue": "mantém as cartas e dá check",
+      "player": 1,
+      "label": "Check automático"
+     }
+    ],
+    "banner": "Flop · tempo esgotado",
+    "note": "15 s por jogada + 5 s de tempo extra"
    }
   },
   {
    "id": "r22",
    "chapter": "Formação da mão",
    "title": "Uma carta da mão já basta",
-   "voice": "Com duas cartas na mão, você forma a melhor mão de cinco como no Texas Hold’em: pode usar as duas, uma só ou nenhuma. Aqui há quatro copas na mesa. Ana descarta um sete e guarda o ás de copas. Uma carta da mão já basta para o flush.",
+   "voice": "Com duas cartas na mão, você forma a melhor mão de cinco como no Texas Hold’em: pode usar as duas, uma só ou nenhuma. Aqui há quatro copas na mesa, e Ana tem o ás de copas: o flush mais alto possível. Não há o que melhorar, então ela mantém as três e descarta um sete. Uma carta da mão já basta para o flush.",
    "visual": {
     "mode": "hand",
     "dealer": 3,
@@ -897,8 +1018,13 @@
     "pot": 1400,
     "events": [
      {
+      "type": "keep",
+      "cue": "ela mantém as três",
+      "player": 0
+     },
+     {
       "type": "discard",
-      "cue": "Ana descarta",
+      "cue": "descarta um sete",
       "player": 0,
       "position": 1
      },
@@ -925,7 +1051,7 @@
    "id": "r23",
    "chapter": "Formação da mão",
    "title": "Ranking clássico",
-   "voice": "O ranking é o clássico. Sequência vence trinca. Full house vence flush. E ás, dois, três, quatro e cinco formam a sequência mais baixa.",
+   "voice": "O ranking é o clássico. Sequência vence trinca. Já o full house fica acima de qualquer flush, mesmo do mais alto. E ás, dois, três, quatro e cinco formam a sequência mais baixa.",
    "visual": {
     "mode": "steps",
     "lines": [
@@ -935,7 +1061,7 @@
     ],
     "cues": [
      "Sequência vence",
-     "Full house vence",
+     "o full house",
      "sequência mais baixa"
     ]
    }
@@ -943,18 +1069,18 @@
   {
    "id": "r24",
    "chapter": "Apostas",
-   "title": "Blinds, ante e limite do pote",
-   "voice": "As apostas seguem três regras. Há small blind e big blind. O big blind também paga um ante do mesmo valor, que vai direto para o pote. E, em todas as rodadas, o aumento máximo é o pote formado antes do call.",
+   "title": "Blinds e limite do pote",
+   "voice": "As apostas seguem poucas regras. Antes das cartas, há só duas apostas obrigatórias, o small blind e o big blind. Nesta modalidade, ninguém paga ante antes das cartas. E, em todas as rodadas, o aumento máximo é o pote formado antes do call.",
    "visual": {
     "mode": "steps",
     "lines": [
      "Small blind e big blind",
-     "Ante de 1 big blind, pago só pelo big blind",
+     "Sem ante",
      "Aumento máximo: o pote antes do call"
     ],
     "cues": [
-     "small blind e big blind",
-     "um ante",
+     "o small blind",
+     "ninguém paga ante",
      "aumento máximo"
     ]
    }
@@ -963,7 +1089,7 @@
    "id": "r25",
    "chapter": "Apostas",
    "title": "O limite do pote, na prática",
-   "voice": "Veja o limite na prática. O pote tem cinco reais, então Ana pode apostar até cinco reais. Ana aposta cinco. Agora o pote tem dez, e pagar custa cinco. Beto pode aumentar para até quinze reais. Beto aumenta. Caio desiste. Duda desiste. Ana paga.",
+   "voice": "Veja o limite na prática. O pote tem quatro reais, então Ana pode apostar até quatro reais. Ana mantém as cartas e aposta quatro. Agora o pote tem oito, e pagar custa quatro. Beto pode aumentar para até doze reais: quatro para pagar mais os oito do pote. Beto mantém as cartas e aumenta. Caio desiste. Duda desiste. Ana paga.",
    "visual": {
     "mode": "hand",
     "dealer": 3,
@@ -980,7 +1106,7 @@
      },
      {
       "name": "Beto",
-      "stack": 9800,
+      "stack": 9900,
       "cards": [
        "9s",
        "9d",
@@ -1011,21 +1137,31 @@
      "Qd",
      "6h"
     ],
-    "pot": 500,
+    "pot": 400,
     "events": [
      {
+      "type": "keep",
+      "cue": "Ana mantém as cartas",
+      "player": 0
+     },
+     {
       "type": "bet",
-      "cue": "Ana aposta cinco",
+      "cue": "e aposta quatro",
       "player": 0,
-      "to": 500,
-      "label": "Aposta o máximo"
+      "to": 400,
+      "label": "Aposta máxima"
+     },
+     {
+      "type": "keep",
+      "cue": "Beto mantém as cartas",
+      "player": 1
      },
      {
       "type": "raise",
-      "cue": "Beto aumenta",
+      "cue": "cartas e aumenta",
       "player": 1,
-      "to": 1500,
-      "label": "Aumenta para o máximo"
+      "to": 1200,
+      "label": "Raise máximo"
      },
      {
       "type": "fold",
@@ -1055,12 +1191,12 @@
    "id": "r26",
    "chapter": "All-in",
    "title": "Quando alguém aposta tudo",
-   "voice": "Quem está all-in não troca mais cartas. No river, fica automaticamente com as duas melhores. E, quando ninguém mais pode apostar, não há troca nem escolha de descarte: a mesa é completada direto.",
+   "voice": "Quem está all-in não age mais, então não troca cartas. No river, fica automaticamente com as duas melhores, e a carta descartada aparece aberta, como a de todos. E, quando ninguém mais pode apostar, não há troca nem escolha de descarte: a mesa é completada direto.",
    "visual": {
     "mode": "steps",
     "lines": [
      "All-in não troca",
-     "No river, ficam as duas melhores",
+     "No river, ficam as duas melhores; o descarte é aberto",
      "Sem apostas possíveis: a mesa é completada"
     ],
     "cues": [
@@ -1093,22 +1229,22 @@
    "id": "r28",
    "chapter": "Recapitule e pratique",
    "title": "O jogo em cinco passos",
-   "voice": "Recapitulando. Três cartas e a primeira rodada de apostas. Flop, apostas e troca. Turn, apostas e troca. River, descarte e a última rodada de apostas. Por fim, o showdown.",
+   "voice": "Recapitulando. Três cartas e a primeira rodada de apostas, ainda sem troca. No flop, cada jogador, na sua vez, troca ou mantém e depois aposta. No turn, de novo: troca na sua vez e depois aposta. No river, cada um, na sua vez, troca ou mantém, descarta uma carta e só então aposta. Por fim, as cartas são mostradas no showdown.",
    "visual": {
     "mode": "steps",
     "lines": [
-     "Três cartas · apostas",
-     "Flop · apostas · troca",
-     "Turn · apostas · troca",
-     "River · descarte · apostas",
+     "Três cartas · apostas, sem troca",
+     "Flop · na sua vez, troca e aposta",
+     "Turn · na sua vez, troca e aposta",
+     "River · na sua vez, troca, descarte e aposta",
      "Showdown"
     ],
     "cues": [
      "Três cartas",
-     "Flop apostas",
-     "Turn apostas",
-     "River descarte",
-     "o showdown"
+     "No flop",
+     "No turn",
+     "No river",
+     "Por fim"
     ]
    }
   },
@@ -1116,7 +1252,7 @@
    "id": "r99",
    "chapter": "Recapitule e pratique",
    "title": "Comece pelo treino",
-   "voice": "Pratique com Play Money e estude as três aulas do Brazilian Pineapple na Zero Tilt Academy. Poker envolve risco. Só para maiores de dezoito anos.",
+   "voice": "Agora, pratique com Play Money e estude as três aulas do Brazilian Pineapple na Zero Tilt Academy. Poker envolve risco. Só para maiores de dezoito anos.",
    "visual": {
     "mode": "outro",
     "lines": [

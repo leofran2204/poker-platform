@@ -209,13 +209,13 @@
       "id": "pineapple",
       "name": "Brazilian Pineapple",
       "deck": "52 cartas (baralho tradicional)",
-      "hole": "3 no pré-flop; depois das apostas do flop e do turn, mantenha ou troque uma; no river, descarte uma",
+      "hole": "3 no pré-flop; no flop, no turn e no river, na sua vez, mantenha ou troque uma antes de apostar; no river, depois da troca, descarte uma, que fica aberta para todos",
       "make": "No showdown, a melhor mão de 5 com as 2 cartas da mão e as 5 da mesa, como no Hold’em. Quem está all-in não troca.",
-      "twist": "Ranking clássico: sequência vence trinca e full house vence flush. A diferença está nas duas trocas e no descarte do river.",
+      "twist": "Ranking clássico: sequência vence trinca e full house vence flush. A diferença está nas três trocas e no descarte do river.",
       "cap": "Mesas até 6 jogadores · primeiro no Play Money",
       "demoHand": {
         "id": "pineapple-demo",
-        "title": "Duas trocas, um descarte; sequência vence trinca",
+        "title": "Três trocas, um descarte; sequência vence trinca",
         "heroLabel": "Você",
         "heroCards": ["As", "Qh"],
         "villainLabel": "Leo",
@@ -239,40 +239,22 @@
             "narration": "Pré-flóp: você olha Ás, Rei e quatro e aumenta. Leo paga. Mari paga. Três jogadores na mão. Não há troca antes do flóp."
           },
           {
-            "label": "Flóp Dama Dama 7. Leo aposta. Mari paga. Você paga.",
-            "board": ["Qc", "Qs", "7h"],
-            "holes": [["As", "Ks", "4d"], ["Kd", "Jd", "2c"], ["Jh", "Td", "4c"]],
-            "narration": "Flóp: Dama, Dama e sete. Primeiro vêm as apostas. Leo aposta com o par da mesa. Mari paga. Você paga com Ás e Rei."
-          },
-          {
-            "label": "Rodada de troca: os três trocam uma carta.",
+            "label": "Flóp Dama Dama 7. Na sua vez, cada um troca e depois age.",
             "board": ["Qc", "Qs", "7h"],
             "holes": [["As", "Ks", "Qh"], ["Kd", "Jd", "8d"], ["Jh", "Td", "8h"]],
-            "narration": "Com as apostas fechadas, cada um decide manter ou trocar uma carta. Você troca o quatro e recebe uma Dama: trinca. Leo e Mari também trocam uma. Todos veem quantas cartas cada um trocou, não quais."
+            "narration": "Flóp: Dama, Dama e sete. Agora, na sua vez, cada jogador troca uma carta ou mantém as três e só depois age. Leo troca uma e aposta com o par da mesa. Mari troca uma e paga. Você troca o quatro, recebe uma Dama, fica com trinca e paga. Todos veem quantas cartas cada um trocou, não quais."
           },
           {
-            "label": "Turn: 9 de espadas. Você aposta. Leo paga. Mari paga.",
-            "board": ["Qc", "Qs", "7h", "9s"],
-            "holes": [["As", "Ks", "Qh"], ["Kd", "Jd", "8d"], ["Jh", "Td", "8h"]],
-            "narration": "Târn: nove de espadas. Nova rodada de apostas: você aposta com a trinca. Leo paga. Mari paga com o projeto de sequência."
-          },
-          {
-            "label": "Rodada de troca: só Leo troca.",
+            "label": "Tûrn: 9 de espadas. Leo troca e passa. Mari mantém e passa. Você mantém e aposta.",
             "board": ["Qc", "Qs", "7h", "9s"],
             "holes": [["As", "Ks", "Qh"], ["Kd", "Jd", "3c"], ["Jh", "Td", "8h"]],
-            "narration": "Segunda rodada de troca: você mantém a trinca, Mari mantém o projeto de sequência e Leo troca uma carta."
+            "narration": "Tûrn: nove de espadas. De novo, a troca acontece na vez de cada um. Leo troca uma carta e passa. Mari mantém o projeto de sequência e passa. Você mantém a trinca e aposta. Leo paga. Mari paga."
           },
           {
-            "label": "Ríver: 6 de ouros. Cada um descarta uma carta.",
+            "label": "Ríver: 6 de ouros. Na sua vez, cada um troca, descarta e depois age.",
             "board": ["Qc", "Qs", "7h", "9s", "6d"],
             "holes": [["As", "Qh"], ["Kd", "Jd"], ["Td", "8h"]],
-            "narration": "Ríver: seis de ouros. Agora o descarte é obrigatório: cada jogador descarta uma carta e fica com duas. Você guarda a Dama e o Ás. Mari guarda o dez e o oito."
-          },
-          {
-            "label": "Última rodada de apostas, com duas cartas na mão.",
-            "board": ["Qc", "Qs", "7h", "9s", "6d"],
-            "holes": [["As", "Qh"], ["Kd", "Jd"], ["Td", "8h"]],
-            "narration": "Última rodada de apostas, com duas cartas na mão. Mari aposta. Você paga. Leo também paga."
+            "narration": "Ríver: seis de ouros. Agora, na sua vez, cada jogador troca ou mantém, descarta uma carta, que fica aberta para todos, fica com duas e só então age. Leo mantém, descarta e passa. Mari mantém, descarta, guarda o dez e o oito, e aposta. Você ia descartar o Rei, então troca o Rei antes: a carta nova não ajuda, você a descarta, guarda a Dama e o Ás e paga. Leo também paga."
           },
           {
             "label": "Showdown: sequência vence trinca.",

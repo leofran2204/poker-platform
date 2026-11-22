@@ -1,79 +1,79 @@
 {
   "lessonId": "m6l3",
   "filename": "zt-academy-m6l3-v3",
-  "contentHash": "7d49c5b64bf57bbf8c40bb7fd538d78c4f42c8a027087a3a258da8070e022216",
+  "contentHash": "db96b2a0c4185fd6f5099a6a81bbf0fa333d84cbdae2597603a44adff63b7eee",
   "rendererVersion": 5,
-  "durationSeconds": 355.37,
+  "durationSeconds": 348.3,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9771424,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 9979829,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "3c7074b8a54dc6bbba27c5c31f6bc2a58bc5dfe8c969af07488fdfc21130bd8b",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "e6f73952a249f7ed6a1d98cd64aa81aa199dd651808ab3433781e37e70629c4c",
   "chapters": [
     {
       "start": 0.0,
       "title": "Revisão final: o método completo"
     },
     {
-      "start": 19.93,
+      "start": 20.17,
       "title": "Método de revisão"
     },
     {
-      "start": 48.5,
+      "start": 46.93,
       "title": "Prática distribuída"
     },
     {
-      "start": 72.27,
+      "start": 68.87,
       "title": "Pratique e revise"
     },
     {
-      "start": 89.47,
+      "start": 85.23,
       "title": "Revise em duas passagens"
     },
     {
-      "start": 123.8,
+      "start": 117.0,
       "title": "Use os quatro jogos como teste de regras"
     },
     {
-      "start": 154.7,
+      "start": 148.53,
       "title": "Um ciclo de aprendizagem"
     },
     {
-      "start": 184.27,
+      "start": 175.63,
       "title": "Laboratório: Explique a decisão antes do river"
     },
     {
-      "start": 223.5,
+      "start": 213.0,
       "title": "Laboratório: Explique a decisão antes do river"
     },
     {
-      "start": 232.57,
+      "start": 221.3,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 255.37,
+      "start": 246.2,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 271.2,
+      "start": 263.9,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 304.47,
+      "start": 297.87,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 321.2,
+      "start": 316.5,
       "title": "Agora, pratique"
     }
   ],
   "scenes": [
     {
       "start": 0.0,
-      "duration": 19.933333333333334,
+      "duration": 20.166666666666668,
       "focusStarts": [
         0.0
       ],
@@ -105,16 +105,16 @@
       ]
     },
     {
-      "start": 19.933333333333334,
-      "duration": 28.566666666666666,
+      "start": 20.166666666666668,
+      "duration": 26.766666666666666,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 48.5,
-      "duration": 23.766666666666666,
+      "start": 46.93333333333334,
+      "duration": 21.933333333333334,
       "focusStarts": [
         0.0
       ],
@@ -146,24 +146,24 @@
       ]
     },
     {
-      "start": 72.26666666666667,
-      "duration": 17.2,
+      "start": 68.86666666666667,
+      "duration": 16.366666666666667,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 89.46666666666667,
-      "duration": 34.333333333333336,
+      "start": 85.23333333333335,
+      "duration": 31.766666666666666,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 123.80000000000001,
-      "duration": 30.9,
+      "start": 117.00000000000001,
+      "duration": 31.533333333333335,
       "focusStarts": [
         0.0
       ],
@@ -195,8 +195,8 @@
       ]
     },
     {
-      "start": 154.70000000000002,
-      "duration": 29.566666666666666,
+      "start": 148.53333333333336,
+      "duration": 27.1,
       "focusStarts": [
         0.0
       ],
@@ -228,8 +228,8 @@
       ]
     },
     {
-      "start": 184.26666666666668,
-      "duration": 39.233333333333334,
+      "start": 175.63333333333335,
+      "duration": 37.36666666666667,
       "focusStarts": [
         0.0
       ],
@@ -261,8 +261,8 @@
       ]
     },
     {
-      "start": 223.5,
-      "duration": 9.066666666666666,
+      "start": 213.00000000000003,
+      "duration": 8.3,
       "focusStarts": [
         0.0
       ],
@@ -294,8 +294,8 @@
       ]
     },
     {
-      "start": 232.56666666666666,
-      "duration": 22.8,
+      "start": 221.30000000000004,
+      "duration": 24.9,
       "focusStarts": [
         0.0
       ],
@@ -327,8 +327,8 @@
       ]
     },
     {
-      "start": 255.36666666666667,
-      "duration": 15.833333333333334,
+      "start": 246.20000000000005,
+      "duration": 17.7,
       "focusStarts": [
         0.0
       ],
@@ -360,8 +360,8 @@
       ]
     },
     {
-      "start": 271.2,
-      "duration": 33.266666666666666,
+      "start": 263.90000000000003,
+      "duration": 33.96666666666667,
       "focusStarts": [
         0.0
       ],
@@ -393,8 +393,8 @@
       ]
     },
     {
-      "start": 304.46666666666664,
-      "duration": 16.733333333333334,
+      "start": 297.8666666666667,
+      "duration": 18.633333333333333,
       "focusStarts": [
         0.0
       ],
@@ -426,8 +426,8 @@
       ]
     },
     {
-      "start": 321.2,
-      "duration": 34.166666666666664,
+      "start": 316.5,
+      "duration": 31.8,
       "focusStarts": [
         0.0
       ],
@@ -459,11 +459,11 @@
       ]
     }
   ],
-  "sha256": "583a2574107436e1bd09c145e281a435575e9374b09601dd1e353fecf5638d60",
+  "sha256": "6e9435ff4971fd78665c8de1888fd40f128c71722cde028efce8b17885bfbf00",
   "assetHashes": {
-    "mp4": "583a2574107436e1bd09c145e281a435575e9374b09601dd1e353fecf5638d60",
-    "vtt": "0493121fadef5c78636c64160023cb09d24c993705e84da5d53e5545bf61428c",
+    "mp4": "6e9435ff4971fd78665c8de1888fd40f128c71722cde028efce8b17885bfbf00",
+    "vtt": "4fb3b600719a8a2edfbbb732e5746006f4d4ebdabc6c6f3518892e878480b645",
     "webp": "487551c86f48e58bed1184a9f353ee9402b9c4068f7f2a6d18ef71b5e8d2ce8c"
   },
-  "mediaRevision": "aa9b0a0363e3f6bf1501291b3f5df88737a31d0027bb497a691dad13c508beba"
+  "mediaRevision": "d76eaf4423afb3d1c82fd95f61c9be033824ce7f6fd5b0eaaa8c2977edbe3eb0"
 }

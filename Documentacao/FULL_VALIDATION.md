@@ -146,7 +146,7 @@ A tentativa final, [20261003T153704Z-ed6cd9](../artifacts/full-validation/202610
 
 ## Campanha focada da estrutura híbrida — 04/10/2026
 
-> Desde 09/11/2026 os perfis `pineapple` e `pineapple-cash` exercitam o Brazilian Pineapple atual (`pineapple_draw_v1`, com trocas e descarte no river); os resultados desta seção são da campanha do formato antigo (2 privadas + 1 por street), retirado do catálogo. O formato atual passou pela campanha de 16/11/2026, descrita no fim deste arquivo.
+> De 09/11 a 19/11/2026 os perfis `pineapple` e `pineapple-cash` exercitaram a regra `pineapple_draw_v1` (troca depois das apostas do flop e do turn, descarte no river). A regra local desde 21/11/2026 é a `pineapple_draw_v4` e **ainda não passou por campanha**: os validadores em `scripts/` ainda esperam a `pineapple_draw_v2` e o relógio de 30 + 30 s, e precisam ser atualizados antes da próxima. os resultados desta seção são da campanha do formato antigo (2 privadas + 1 por street), retirado do catálogo. A v1 passou pela campanha de 16/11/2026, descrita no fim deste arquivo.
 
 Autorização: **15 minutos, dois trabalhadores**. Perfil `pineapple`: fixtures da regra, cash Pineapple, MTT Pineapple até campeão, contrato motor/atores/WS, HTTPS/WSS com 5/20 mesas Pineapple e reinício controlado. Compilação precede o orçamento, conforme o executor; preparação de infraestrutura e execução contam no teto. Deadline interrompe a carga e preserva etapas pendentes, sem iniciar outra campanha.
 

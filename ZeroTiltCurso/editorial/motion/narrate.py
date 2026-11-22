@@ -121,6 +121,12 @@ def synthesize_azure(spoken: str, voice: str, rate: str, wav: Path, body: str | 
     if result.reason != speechsdk.ResultReason.SynthesizingAudioCompleted:
         details = result.cancellation_details
         raise RuntimeError(f"Azure: {details.reason} {details.error_details}")
+    # A duração chega em microssegundos e o início em ticks de 100 ns: o arredondamento
+    # pode sobrepor palavras vizinhas em 1 tick. Apara só sobreposições de até 1 ms.
+    for current, following in zip(words, words[1:]):
+        overlap = current["offset"] + current["duration"] - following["offset"]
+        if 0 < overlap <= TICKS_PER_MS:
+            current["duration"] -= overlap
     return words
 
 

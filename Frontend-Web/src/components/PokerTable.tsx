@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import type { PlayerWsData, PotWsData, ShowdownEntry } from "@/api/types";
 import { buzz, playTableSound, setSoundEnabled, soundEnabled } from "@/lib/tableSounds";
-import { seatPosition } from "@/lib/cards";
+import { parseCard, seatPosition, suitSymbol } from "@/lib/cards";
 import { handNamePt, streetLabel } from "@/lib/gameLabels";
 import { formatChips } from "@/lib/money";
-import { turnClock } from "@/lib/turnClock";
+import { DISCARD_MUCK_MS, DISCARD_OPEN_MS, freshRiverDiscards } from "@/lib/riverDiscard";
+import { EXTRA_SECONDS, TURN_SECONDS, turnClock, turnTabTitle } from "@/lib/turnClock";
 import { PlayingCard } from "./PlayingCard";
 
 export { HAND_NAME_PT, handNamePt } from "@/lib/gameLabels";
@@ -19,7 +20,7 @@ interface Props {
   availableActions: string[];
   onAction: (action: string, amount?: number) => void;
   bettingStructure?: string | null;
-  /** Brazilian Pineapple: rodada de troca em andamento (depois das apostas do flop e do turn). */
+  /** Brazilian Pineapple: o jogador da vez troca ou mantém (flop, turn e river) antes de apostar. */
   drawing?: boolean;
   /** Brazilian Pineapple: descarte obrigatório do river em andamento. */
   discarding?: boolean;
@@ -37,8 +38,12 @@ interface Props {
   maximumWager: number;
   winners?: string[];
   turnLeft?: number | null;
-  /** Banco de tempo: segundos de reserva do jogador, usados depois do tempo normal. */
+  /** Tempo extra do jogador (5 s por jogada), usado depois do tempo normal. */
   reserveLeft?: number;
+  /** Relógio de quem está na vez (qualquer assento): vira a barra sob a placa. */
+  seatClock?: { left: number; reserve: number } | null;
+  /** Tempo normal de cada jogada, em segundos (BUSINESS_RULES 10.2). */
+  turnSeconds?: number;
   showdown?: ShowdownEntry[];
   /** Ritual do crupiê: embaralhando + distribuindo carta por carta. */
   dealing?: boolean;
@@ -73,13 +78,15 @@ export function PokerTable({
   winners = [],
   turnLeft = null,
   reserveLeft = 0,
+  seatClock = null,
+  turnSeconds = TURN_SECONDS,
   showdown = [],
   dealing = false,
   maxPlayers = 9,
   boardStaggerFrom = 0,
 }: Props) {
   const money = formatAmount ?? formatChips;
-  const pineapple = bettingStructure === "pineapple_draw_v1";
+  const pineapple = bettingStructure?.startsWith("pineapple_draw") ?? false;
   const wager = raiseAmount;
   const streetBase = pineapple ? (players.find(p => p.id === localPlayerId)?.bet ?? 0) + callAmount : 0;
   const potTotal = pots.reduce((s, p) => s + p.amount, 0);
@@ -137,14 +144,16 @@ export function PokerTable({
     ?? showdown[0]?.hand_name
     ?? null;
   const normalizedActions = availableActions.map((action) => action.toLowerCase());
-  // Brazilian Pineapple: na minha vez da rodada de troca, escolho manter ou
-  // trocar uma carta; no river, escolho a carta que descarto.
+  // Brazilian Pineapple: na minha vez, antes de apostar, escolho manter ou
+  // trocar uma carta (flop, turn e river) e, no river, depois disso, a carta
+  // que descarto; também posso desistir sem trocar.
   const canDraw = normalizedActions.includes("keep");
   const canDiscard = normalizedActions.includes("discard");
   const myCards = players.find((p) => p.id === localPlayerId)?.cards ?? [];
   const [swapPick, setSwapPick] = useState<number | null>(null);
+  // A escolha da troca não passa para o descarte do river: cada passo começa vazio.
   useEffect(() => {
-    if (!canDraw && !canDiscard) setSwapPick(null);
+    setSwapPick(null);
   }, [canDraw, canDiscard]);
   const wagerAction = normalizedActions.includes("bet")
     ? "bet"
@@ -197,16 +206,19 @@ export function PokerTable({
   type PreAction = "check_fold" | "check" | "call";
   const [preAction, setPreAction] = useState<{ kind: PreAction; call: number } | null>(null);
   const me = players.find((p) => p.id === localPlayerId);
-  const betting = normalizedActions.some((a) => a === "fold" || a === "check" || a === "call");
+  // A troca (ou o descarte) vem antes da aposta na mesma vez: a ação
+  // antecipada só é aplicada quando chegam as opções de aposta.
+  const betting = !canDraw && !canDiscard
+    && normalizedActions.some((a) => a === "fold" || a === "check" || a === "call");
   const waitingInHand =
-    availableActions.length === 0 && !!me && !me.folded && me.cards.length > 0 && !drawing && !discarding
+    availableActions.length === 0 && !!me && !me.folded && me.cards.length > 0
     && ["preflop", "flop", "turn", "river"].includes(stage) && winners.length === 0;
   // Quanto falta para o jogador igualar a maior aposta da rodada (estimativa enquanto espera).
   const pendingCall = Math.max(0, Math.max(0, ...players.map((p) => p.bet)) - (me?.bet ?? 0));
   useEffect(() => {
     if (!preAction) return;
     // A escolha vale só para esta rodada de apostas e só enquanto o jogador segue na mão.
-    if (!me || me.folded || drawing || discarding || winners.length > 0) {
+    if (!me || me.folded || winners.length > 0) {
       setPreAction(null);
       return;
     }
@@ -218,7 +230,7 @@ export function PokerTable({
     else if (preAction.kind === "call" && normalizedActions.includes("call") && callAmount === preAction.call) onAction("call");
     setPreAction(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [betting, drawing, discarding, winnersKeyEarly(winners), me?.folded]);
+  }, [betting, winnersKeyEarly(winners), me?.folded]);
   useEffect(() => {
     // Nova street ou nova mão: a ação antecipada não passa adiante.
     setPreAction(null);
@@ -235,6 +247,7 @@ export function PokerTable({
       if (canDraw || canDiscard) {
         if (["1", "2", "3"].includes(key) && Number(key) <= myCards.length) setSwapPick(Number(key) - 1);
         else if (key === "m" && canDraw) onAction("keep", 0);
+        else if (key === "f" && normalizedActions.includes("fold")) onAction("fold");
         else if (key === "enter" && swapPick !== null) onAction(canDiscard ? "discard" : "swap", swapPick);
         else return;
         event.preventDefault();
@@ -262,6 +275,41 @@ export function PokerTable({
     // Assentos do meio (em cima e embaixo): as fichas ficam ao lado das cartas.
     left: Math.abs(layout.left - 50) < 5 ? (layout.top < 45 ? 62 : 38) : layout.left + (50 - layout.left) * 0.36,
   });
+  // Descarte do river aberto (v4): a carta fica virada para cima na frente do
+  // jogador por 2 s e depois vai fechada para o muck, ao lado do pote.
+  const MUCK_SPOT = { top: 44, left: 57 };
+  const discardSpot = (layout: { top: number; left: number }) => {
+    const bet = betSpot(layout);
+    // Assentos do meio: do lado oposto às fichas; laterais: logo acima delas.
+    return Math.abs(layout.left - 50) < 5
+      ? { top: bet.top + (layout.top > 50 ? 4 : 0), left: 100 - bet.left }
+      : { top: bet.top - 8, left: bet.left };
+  };
+  type DiscardShow = { id: string; playerId: string; code: string; muck: boolean };
+  const [discardShows, setDiscardShows] = useState<DiscardShow[]>([]);
+  const seenDiscards = useRef(new Map<string, string>());
+  const discardKey = players.map((p) => `${p.id}:${p.river_discard ?? ""}`).join("|");
+  useEffect(() => {
+    const fresh = freshRiverDiscards(seenDiscards.current, players).map((d) => ({
+      ...d,
+      id: `d-${d.playerId}-${d.code}-${Date.now()}`,
+      muck: false,
+    }));
+    if (fresh.length === 0) return;
+    if (!showcase) playTableSound("flip");
+    setDiscardShows((current) => [...current, ...fresh]);
+    const ids = new Set(fresh.map((d) => d.id));
+    window.setTimeout(
+      () => setDiscardShows((current) => current.map((d) => (ids.has(d.id) ? { ...d, muck: true } : d))),
+      DISCARD_OPEN_MS,
+    );
+    window.setTimeout(
+      () => setDiscardShows((current) => current.filter((d) => !ids.has(d.id))),
+      DISCARD_OPEN_MS + DISCARD_MUCK_MS,
+    );
+    // A chave resume os descartes de todos: o efeito roda quando um muda de fato.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [discardKey]);
   const betsKey = players.map((p) => `${p.id}:${p.bet}`).join("|");
   const winnersKey = winners.join("+");
   const myTurn = availableActions.length > 0;
@@ -318,6 +366,31 @@ export function PokerTable({
 
   const clock =
     turnLeft === null ? null : turnClock(turnLeft, reserveLeft, drawing ? "draw" : discarding ? "discard" : "bet");
+
+  // Tempo extra: som curto e vibração quando os 5 s começam a correr.
+  const extraTime = !showcase && clock?.extraTime === true;
+  useEffect(() => {
+    if (!extraTime) return;
+    playTableSound("alert");
+    buzz();
+  }, [extraTime]);
+
+  // Na vez do jogador, o título da aba pisca "Sua vez!" (volta ao original fora da vez).
+  const heroTurn = myTurn && !showcase;
+  useEffect(() => {
+    if (!heroTurn || typeof document === "undefined") return;
+    const original = document.title;
+    let tick = 0;
+    document.title = turnTabTitle(original, true, tick);
+    const blink = window.setInterval(() => {
+      tick += 1;
+      document.title = turnTabTitle(original, true, tick);
+    }, 1000);
+    return () => {
+      window.clearInterval(blink);
+      document.title = original;
+    };
+  }, [heroTurn]);
 
   return (
     <div>
@@ -385,7 +458,7 @@ export function PokerTable({
                 <i />
               </span>
             )}
-            <span className="zt-pot-label">Pote</span>
+            <span className="zt-pot-label">Pote total</span>
             <motion.span
               key={potTotal}
               className="zt-pot-value"
@@ -396,7 +469,7 @@ export function PokerTable({
               {money(potTotal)}
             </motion.span>
           </div>
-          <div className="flex gap-1.5">
+          <div className="zt-board flex gap-1.5">
             {communityCards.length === 0 ? (
               <span className="text-xs italic text-felt-200/60">
                 {players.filter((p) => p.is_sitting !== false).length < 2
@@ -415,7 +488,7 @@ export function PokerTable({
                   style={{ display: "inline-block", transformPerspective: 600 }}
                 >
                   <span className={winWrap(c)}>
-                    <PlayingCard code={c} size="md" highlight={glowCards.has(c)} />
+                    <PlayingCard code={c} size="lg" highlight={glowCards.has(c)} />
                   </span>
                 </motion.span>
               ))
@@ -447,6 +520,33 @@ export function PokerTable({
                 <motion.span key={p.bet} className="zt-bet-amount" initial={{ scale: 1.2 }} animate={{ scale: 1 }}>
                   {money(p.bet)}
                 </motion.span>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+
+        {/* Descarte do river: aberto por 2 s na frente do jogador, depois fechado para o muck */}
+        <AnimatePresence>
+          {discardShows.map((d) => {
+            const owner = players.find((p) => p.id === d.playerId);
+            if (!owner) return null;
+            const layout = seatPosition(owner.seat, heroSeat, cap);
+            const spot = d.muck ? MUCK_SPOT : discardSpot(layout);
+            const parsed = parseCard(d.code);
+            const label = parsed ? `${parsed.rank}${suitSymbol(parsed.suit)}` : d.code;
+            return (
+              <motion.div
+                key={d.id}
+                className={`zt-discard-reveal${d.muck ? " muck" : ""}`}
+                role="status"
+                aria-label={`${owner.name} descartou ${label}`}
+                initial={{ x: "-50%", y: "-50%", top: `${layout.top}%`, left: `${layout.left}%`, opacity: 0, scale: 0.7 }}
+                animate={{ x: "-50%", y: "-50%", top: `${spot.top}%`, left: `${spot.left}%`, opacity: d.muck ? 0.75 : 1, scale: d.muck ? 0.6 : 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: d.muck ? DISCARD_MUCK_MS / 1000 : 0.4, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <PlayingCard code={d.code} faceDown={d.muck} size="sm" />
+                {!d.muck && <span className="zt-discard-reveal-label">Descarte</span>}
               </motion.div>
             );
           })}
@@ -488,8 +588,9 @@ export function PokerTable({
           const dealDx = `${((dealerPos.left - layout.left) * 6).toFixed(0)}px`;
           const dealDy = `${((dealerPos.top - layout.top) * 4).toFixed(0)}px`;
           const blindTag = blindIds.sb === p.id ? "SB" : blindIds.bb === p.id ? "BB" : null;
-          // Metade de cima da mesa: as cartas ficam abaixo da placa, viradas para o centro.
-          const upper = layout.top < 45;
+          // Layout das mesas (20/11/2026): as cartas saem de trás da placa, em cima dela;
+          // as do herói em leque, mostrando o canto; as dos adversários, pequenas e sobrepostas.
+          const fanAngle = (i: number) => (isLocal ? (i - (p.cards.length - 1) / 2) * 6 : 0);
           const status = sittingOut
             ? "Sit-out"
             : isWinner
@@ -497,29 +598,35 @@ export function PokerTable({
               : typeof p.draw_count === "number" && ["flop", "turn", "river"].includes(stage)
                 ? p.draw_count === 0
                   ? "Manteve"
-                  : stage === "river"
-                    ? "Descartou"
-                    : `Trocou ${p.draw_count}`
+                  : `Trocou ${p.draw_count}`
                 : null;
+          // Barra de tempo de quem está na vez: tempo normal e, depois, o tempo
+          // extra (barra vermelha com "TEMPO EXTRA" e a contagem dos 5 s).
+          const timer =
+            p.is_active && seatClock && inHand
+              ? seatClock.left > 0
+                ? { pct: Math.min(100, (seatClock.left / turnSeconds) * 100), extra: false, secs: seatClock.left }
+                : { pct: Math.min(100, (seatClock.reserve / EXTRA_SECONDS) * 100), extra: true, secs: seatClock.reserve }
+              : null;
           const cards = (
             <>
               {p.cards.length > 0 && (
-                <div className="zt-seat-cards">
+                <div className={`zt-seat-cards ${isLocal ? "hero-fan" : "open-hand"}`}>
                   <AnimatePresence mode="popLayout" initial={false}>
-                    {p.cards.map((c) => (
+                    {p.cards.map((c, i) => (
                       // A chave é a própria carta: na troca a antiga sai e a nova entra
                       // virando; no descarte a carta sai e as outras duas se aproximam.
                       <motion.span
                         key={`${p.id}-${c}`}
                         layout
-                        initial={{ opacity: 0, y: upper ? -22 : 22, rotateY: 90 }}
-                        animate={{ opacity: 1, y: 0, rotateY: 0 }}
-                        exit={{ opacity: 0, y: upper ? 26 : -26, scale: 0.7, rotate: 12 }}
+                        initial={{ opacity: 0, y: 22, rotateY: 90 }}
+                        animate={{ opacity: 1, y: Math.abs(fanAngle(i)) / 2, rotateY: 0, rotate: fanAngle(i) }}
+                        exit={{ opacity: 0, y: -26, scale: 0.7, rotate: 12 }}
                         transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
                         style={{ display: "inline-block", transformPerspective: 600 }}
                       >
                         <span className={winWrap(c)}>
-                          <PlayingCard code={c} size={holeSize} highlight={glowCards.has(c)} />
+                          <PlayingCard code={c} size={isLocal ? "lg" : holeSize} highlight={glowCards.has(c)} />
                         </span>
                       </motion.span>
                     ))}
@@ -533,7 +640,7 @@ export function PokerTable({
                       <motion.span
                         key={`${p.id}-hidden-${i}`}
                         layout
-                        exit={{ opacity: 0, y: upper ? 22 : -22, scale: 0.7 }}
+                        exit={{ opacity: 0, y: -22, scale: 0.7 }}
                         transition={{ duration: 0.3 }}
                         style={{ display: "inline-block" }}
                       >
@@ -566,10 +673,10 @@ export function PokerTable({
           return (
             <div
               key={p.id}
-              className={`zt-seat zt-seat-ft ${upper ? "upper" : ""} ${layout.left < 20 ? "edge-left" : layout.left > 80 ? "edge-right" : ""}`}
+              className={`zt-seat zt-seat-ft ${layout.left < 20 ? "edge-left" : layout.left > 80 ? "edge-right" : ""}`}
               style={{ top: `${layout.top}%`, left: `${layout.left}%` }}
             >
-              {!upper && cards}
+              {cards}
               <div className={classes}>
                 <span className="zt-avatar" aria-hidden="true">
                   {isHouseBot ? "🤖" : p.name.slice(0, 1).toUpperCase()}
@@ -588,25 +695,37 @@ export function PokerTable({
                 )}
                 {blindTag && <span className="zt-blind-tag">{blindTag}</span>}
               </div>
+              {timer && (
+                <div
+                  className={`zt-seat-timer${timer.extra ? " extra" : ""}${!timer.extra && timer.secs <= 5 ? " urgent" : ""}`}
+                  role="timer"
+                  aria-label={`${p.name}: ${timer.secs} segundos${timer.extra ? " de tempo extra" : " para agir"}`}
+                >
+                  <span style={{ width: `${timer.pct}%` }} />
+                  {timer.extra && <em>TEMPO EXTRA {timer.secs}s</em>}
+                </div>
+              )}
               {status && <div className={`zt-seat-status ${isWinner ? "winner" : ""}`}>{status}</div>}
-              {upper && cards}
             </div>
           );
         })}
       </div>
 
-      {!showcase && pineapple && <p className="text-center text-xs text-felt-200 mt-3">Troca opcional de uma carta depois das apostas do flop e do turn · No river, cada jogador descarta uma carta e joga a última rodada com duas · Todas as rodadas: aumento limitado ao pote antes do call</p>}
-      {!showcase && drawing && !canDraw && <p className="text-center text-xs font-semibold text-gold-soft" role="status">Rodada de troca: cada jogador mantém as cartas ou troca uma.</p>}
-      {!showcase && discarding && !canDiscard && <p className="text-center text-xs font-semibold text-gold-soft" role="status">Descarte do river: cada jogador descarta uma carta e fica com duas.</p>}
+      {!showcase && pineapple && <p className="text-center text-xs text-felt-200 mt-3">Sem ante · Na sua vez no flop, no turn e no river, troque uma carta ou mantenha as três · No river, depois da troca, descarte uma · Só então aposte · Dá para desistir sem trocar · Todas as rodadas: aumento limitado ao pote antes do call</p>}
+      {!showcase && drawing && !canDraw && <p className="text-center text-xs font-semibold text-gold-soft" role="status">{players.find((p) => p.is_active)?.name ?? "O jogador da vez"} decide a troca antes de apostar.</p>}
+      {!showcase && discarding && !canDiscard && <p className="text-center text-xs font-semibold text-gold-soft" role="status">{players.find((p) => p.is_active)?.name ?? "O jogador da vez"} descarta uma carta antes de apostar.</p>}
       {!showcase && ante > 0 && <p className="text-center text-xs text-felt-200">Ante do BB {money(ante)} · pago {money(antePaid)} por {players.find(p => p.id === antePlayerId)?.name ?? "big blind"}</p>}
       <div className={showcase ? "hidden" : "zt-action-bar"}>
         {canDraw || canDiscard ? (
-          <div className="flex flex-wrap items-end gap-3" aria-label={canDiscard ? "Descarte do river" : "Rodada de troca"}>
+          <div className="flex flex-wrap items-end gap-3" aria-label={canDiscard ? "Descarte do river" : "Troca antes da aposta"}>
             <div>
               <p className="text-xs font-semibold text-felt-200">
                 {canDiscard
-                  ? "Descarte do river: escolha a carta que sai. Você joga a última rodada com duas."
-                  : "Rodada de troca: escolha uma carta para trocar ou mantenha as três."}
+                  ? "Agora o descarte do river: escolha a carta que sai; depois você aposta com duas."
+                  : stage === "river"
+                    ? "Sua vez no river: troque uma carta ou mantenha as três; depois você descarta uma e aposta."
+                    : "Sua vez: escolha uma carta para trocar ou mantenha as três; depois você aposta."}
+                {callAmount > 0 && ` A pagar: ${money(callAmount)}.`}
               </p>
               <div className="mt-1 flex gap-1.5">
                 {myCards.map((code, index) => (
@@ -636,6 +755,11 @@ export function PokerTable({
             >
               {canDiscard ? "Descartar carta" : "Trocar carta"}
             </button>
+            {normalizedActions.includes("fold") && (
+              <button type="button" className="zt-btn-secondary" onClick={() => onAction("fold")}>
+                Desistir
+              </button>
+            )}
           </div>
         ) : availableActions.length === 0 ? (
           waitingInHand ? (

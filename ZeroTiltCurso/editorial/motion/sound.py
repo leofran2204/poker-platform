@@ -116,6 +116,16 @@ def pop() -> np.ndarray:
     return np.sin(phase) * np.minimum(t / 0.004, 1) * np.exp(-t / 0.05)
 
 
+def alert() -> np.ndarray:
+    """Aviso de tempo extra na mesa: dois bipes curtos descendo (sem ruído, não usa a semente)."""
+    beep = t_axis(0.09)
+    envelope = np.minimum(beep / 0.004, 1) * np.minimum((0.09 - beep) / 0.02, 1)
+    first = np.sin(2 * np.pi * 988 * beep) * envelope
+    second = np.sin(2 * np.pi * 740 * beep) * envelope
+    gap = np.zeros(int(0.05 * RATE))
+    return np.concatenate([first, gap, second])
+
+
 def stamp() -> np.ndarray:
     """Carimbo de decisão: impacto grave e estalo."""
     t = t_axis(0.4)
@@ -202,7 +212,7 @@ def music(seconds: float = 300.0) -> np.ndarray:
 
 if __name__ == "__main__":
     for name, maker in [("deal", deal), ("flip", flip), ("chips", chips), ("chip", chip_hit),
-                        ("whoosh", whoosh), ("pop", pop), ("stamp", stamp)]:
+                        ("whoosh", whoosh), ("pop", pop), ("alert", alert), ("stamp", stamp)]:
         write(name, maker())
         print(f"sfx: {name}")
     write("music", music(), peak=0.7)

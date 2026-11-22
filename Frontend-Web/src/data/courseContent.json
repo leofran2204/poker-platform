@@ -650,11 +650,11 @@
     {
       "id": "pineapple",
       "title": "Brazilian Pineapple",
-      "subtitle": "Criado no Brasil: três cartas, duas trocas e um descarte no river.",
+      "subtitle": "Criado no Brasil: três cartas, três trocas e um descarte. Comece por Regras na prática e siga para as aulas 1, 2 e 3.",
       "lessons": [
         {
           "id": "m5l3",
-          "title": "Brazilian Pineapple: três cartas, duas trocas e um descarte",
+          "title": "Brazilian Pineapple: três cartas, três trocas e um descarte",
           "minutes": 8,
           "handExample": {
             "title": "Trinca no flop: o que trocar?",
@@ -671,11 +671,11 @@
               "2s"
             ],
             "potBb": "14",
-            "actionText": "Pré-flop você recebe As Ks Ah. O flop traz Ad Qc 2s. Depois das apostas do flop, começa a rodada de troca.",
+            "actionText": "Pré-flop você recebe As Ks Ah. O flop traz Ad Qc 2s. Na sua vez no flop, antes de apostar, você decide se troca uma carta.",
             "heroDecision": "A melhor mão usa As Ah com Ad Qc 2s: A-A-A-Q-2. O Ks fica fora; trocá-lo ou mantê-lo não muda a trinca já formada.",
-            "keyTakeaway": "Três cartas no começo, duas no fim: duas trocas possíveis e um descarte obrigatório no river."
+            "keyTakeaway": "Três cartas no começo, duas no fim: três trocas possíveis, no flop, no turn e no river, e um descarte obrigatório no river."
           },
-          "body": "## Modalidade criada no Brasil\nO Brazilian Pineapple é uma modalidade criada no Brasil pela Zero Tilt Poker. Baralho de 52 cartas, mesa até seis jogadores. Cada jogador recebe três cartas privadas no pré-flop e chega ao showdown com duas. Materiais sobre outros jogos chamados Pineapple descrevem regras diferentes; use as regras locais.\n\n## A ordem da mão\nPré-flop: cada jogador recebe três cartas e acontece a primeira rodada de apostas. Não há troca no pré-flop.\n\nFlop: três cartas comunitárias, rodada de apostas e, depois dela, a rodada de troca.\n\nTurn: quarta carta comunitária, rodada de apostas e, depois dela, nova rodada de troca.\n\nRiver: quinta carta comunitária. Cada jogador descarta uma carta e fica com duas. Só então vem a última rodada de apostas, seguida do showdown.\n\n## A rodada de troca\nQuando as apostas do flop fecham, cada jogador ainda na mão decide: manter as três cartas ou trocar uma delas. Quem troca descarta a carta escolhida, que sai do jogo, e recebe outra do baralho. Só depois o turn é aberto. O mesmo acontece depois das apostas do turn, antes do river.\n\nA troca segue a ordem das apostas pós-flop, começando pelo primeiro jogador à esquerda do botão. Todos veem quantas cartas cada um trocou, zero ou uma; ninguém vê quais cartas saíram ou entraram. Se o tempo acabar durante a troca, você mantém as cartas.\n\n## O descarte do river\nCom as cinco comunitárias na mesa, cada jogador escolhe uma carta para descartar. O descarte é obrigatório e a carta sai do jogo sem ser mostrada. A última rodada de apostas é disputada com duas cartas na mão. Se o tempo acabar, o sistema guarda as duas cartas que formam sua melhor mão.\n\nQuem está all-in não troca mais e, no river, fica automaticamente com as duas melhores cartas. Quando não há mais apostas possíveis, porque sobra no máximo um jogador com fichas, não há rodada de troca nem escolha de descarte: a mesa é completada direto.\n\n## Formação e ranking\nNo showdown você tem duas cartas privadas e forma a melhor mão de cinco com elas e as cinco comunitárias, como no Texas Hold’em: pode usar as duas, uma só ou, quando a mesa já é a melhor mão, nenhuma. Quatro copas na mesa e uma copa na mão já formam flush. O ranking é clássico: sequência supera trinca; full house supera flush. A-2-3-4-5 é a sequência baixa.\n\n## Apostas\nTodas as rodadas, inclusive o pré-flop, limitam o aumento ao pote formado antes do call. Sem patamares fixos nem teto de 4 BB. Se P é o pote (incluindo o ante uma única vez), C o valor a pagar e B sua contribuição na rodada, o máximo total é min(B + saldo, B + C + P).\n\nO incremento mínimo começa em 1 BB e acompanha o último aumento completo. All-ins curtos não mudam esse mínimo; a reabertura é individual e pode resultar de curtos cumulativos. All-in acima do máximo é rejeitado.\n\nO big blind paga primeiro seu blind e depois um ante de 1 BB, com o saldo restante. Blind incompleto não paga ante; saldo insuficiente permite ante parcial. O ante entra no pote principal, não abate o call e não amplia a elegibilidade aos potes paralelos. Vale desde a primeira mão, inclusive heads-up, no cash e nos torneios. Nos torneios acompanha o BB do nível.\n\nExemplo com três jogadores: blinds R$ 0,50/R$ 1 e ante R$ 1 formam R$ 2,50 iniciais. Se todos acompanharem, o pote chega a R$ 4. A primeira abertura máxima é para R$ 3,50; dois calls formam R$ 11,50.\n\nOutro exemplo: pote R$ 10, aposta R$ 5, aumento máximo para R$ 20. Dois, três ou quatro participantes contribuindo R$ 20 nessa rodada formam R$ 50, R$ 70 e R$ 90. Após o aumento para R$ 20, o pote R$ 35 e o call R$ 20 permitem ao próximo aumentar para R$ 55.\n\n## Exemplo passo a passo\nVocê recebeu As Ks Ah. O flop é Ad Qc 2s. As e Ah formam trinca com o Ad da mesa: A-A-A-Q-2. O rei fica fora, porque só duas privadas chegam ao showdown. Depois das apostas do flop, ele é o candidato natural à troca. Manter também é legítimo: a quantidade trocada é pública, e manter pode sinalizar força.\n\n## Exercício de recuperação\nSem consultar o texto, descreva a mão do começo ao fim: três cartas e apostas; flop, apostas e troca; turn, apostas e troca; river, descarte e última rodada de apostas. Depois explique por que um jogador all-in não troca e o que acontece com as cartas dele no river.\n\n## Aprofundamento aplicado\n### Mão feita e troca\nAntes de trocar, encontre as duas cartas que formam sua melhor mão com a mesa atual. A terceira é a candidata natural. Ela ainda pode valer se formar par com a mesa ou fizer parte de um projeto de flush ou de sequência. Decida com a informação disponível naquele momento, sem contar cartas futuras.\n\n### Compare com o Texas\nDepois do descarte, a formação da mão é a do Hold’em: um ás de copas na mão combina com quatro copas da mesa e forma flush. A diferença está no caminho: você viu três cartas, pôde trocar duas vezes e escolheu qual dupla levar ao showdown. Por isso as mãos vencedoras costumam ser mais fortes que no Texas tradicional.\n\n### Informação pública\nTrocar uma carta mostra que você quis melhorar; manter pode indicar mão pronta, um projeto que você não quer desfazer ou um blefe. Anote quantas cartas cada oponente trocou depois do flop e do turn: isso faz parte da leitura, sem garantir nada sobre a mão escondida. No river todos descartam uma carta, então o descarte em si não revela nada.\n\n## Laboratório: Três cartas no começo, duas no fim\nObjetivo: Acompanhar a mão: três privadas, duas trocas possíveis e o descarte do river. Abra a mesa deste módulo e comece pelo treino guiado. Na rodada de troca, responda qual privada fica fora da sua melhor mão e decida manter ou trocar; no river, escolha a carta que sai. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
+          "body": "## Modalidade criada no Brasil\nO Brazilian Pineapple é uma modalidade criada no Brasil pela Zero Tilt Poker. Baralho de 52 cartas, mesa até seis jogadores. Cada jogador recebe três cartas privadas no pré-flop e chega ao showdown com duas. Materiais sobre outros jogos chamados Pineapple descrevem regras diferentes; use as regras locais.\n\n## A ordem da mão\nPré-flop: cada jogador recebe três cartas e acontece a primeira rodada de apostas. Não há troca no pré-flop.\n\nFlop: três cartas comunitárias e uma rodada de apostas. Na sua vez, você primeiro troca uma carta ou mantém as três e só depois age.\n\nTurn: quarta carta comunitária e nova rodada de apostas, com a mesma regra: troca na sua vez, antes de agir.\n\nRiver: quinta carta comunitária e última rodada de apostas. Na sua vez, você troca uma carta ou mantém as três, depois descarta uma, fica com duas e só então age. Depois vem o showdown.\n\n## A troca, na sua vez\nNo flop, no turn e no river não existe uma rodada de troca separada. Quando chega a sua vez de agir, você primeiro decide: manter as três cartas ou trocar uma delas. Quem troca descarta a carta escolhida, que sai do jogo, e recebe outra do baralho. Só então você dá check, aposta, paga, aumenta ou desiste.\n\nA troca vale só na primeira vez que você age em cada street: se a vez voltar por causa de um aumento, você só decide a aposta. Quem vai desistir pode desistir sem trocar. Todos veem quantas cartas cada um trocou, zero ou uma; ninguém vê quais cartas saíram ou entraram. Cada jogada tem 15 segundos e mais 5 de tempo extra. Se o tempo acabar, você mantém as cartas e dá check; com aposta a pagar, desiste.\n\n## O descarte do river\nCom as cinco comunitárias na mesa, na primeira vez que age no river, cada jogador primeiro troca uma carta ou mantém as três, como no flop e no turn; depois escolhe uma carta para descartar e só então age. Para seguir na mão, o descarte é obrigatório; a carta descartada fica aberta para todos por cerca de dois segundos e depois sai do jogo. Isso vale também para o descarte automático. A carta trocada continua escondida. A última rodada de apostas é disputada com duas cartas na mão. Se o tempo acabar, o sistema mantém as cartas, guarda as duas que formam sua melhor mão e dá check; com aposta a pagar, desiste.\n\nTrocar antes do descarte não custa cartas. Se você já sabe qual carta vai descartar, troque essa carta primeiro: se a nova não ajudar, é ela que sai, e você fica com as mesmas duas de antes. O custo é a informação, porque todos veem que você trocou uma.\n\nQuem está all-in não troca mais e, no river, fica automaticamente com as duas melhores cartas. Quando não há mais apostas possíveis, porque sobra no máximo um jogador com fichas, não há rodada de troca nem escolha de descarte: a mesa é completada direto.\n\n## Formação e ranking\nNo showdown você tem duas cartas privadas e forma a melhor mão de cinco com elas e as cinco comunitárias, como no Texas Hold’em: pode usar as duas, uma só ou, quando a mesa já é a melhor mão, nenhuma. Quatro copas na mesa e uma copa na mão já formam flush. O ranking é clássico: sequência supera trinca; full house supera flush. A-2-3-4-5 é a sequência baixa.\n\n## Apostas\nTodas as rodadas, inclusive o pré-flop, limitam o aumento ao pote formado antes do call. Sem patamares fixos nem teto de 4 BB. Se P é o pote, C o valor a pagar e B sua contribuição na rodada, o máximo total é min(B + saldo, B + C + P).\n\nO incremento mínimo começa em 1 BB e acompanha o último aumento completo. All-ins curtos não mudam esse mínimo; a reabertura é individual e pode resultar de curtos cumulativos. All-in acima do máximo é rejeitado.\n\nNão há ante: as únicas apostas obrigatórias são o small blind e o big blind, no cash e nos torneios.\n\nExemplo com quatro jogadores: blinds R$ 0,50/R$ 1 formam R$ 1,50 iniciais. O primeiro a falar paga R$ 1 e pode somar o pote de R$ 1,50, então a abertura máxima é para R$ 2,50. Se um jogador paga, o small blind pode aumentar até R$ 9: já tem R$ 0,50 na mesa, paga mais R$ 2 e soma o pote de R$ 6,50.\n\nOutro exemplo: pote R$ 10, aposta R$ 5, aumento máximo para R$ 20. Dois, três ou quatro participantes contribuindo R$ 20 nessa rodada formam R$ 50, R$ 70 e R$ 90. Após o aumento para R$ 20, o pote R$ 35 e o call R$ 20 permitem ao próximo aumentar para R$ 55.\n\n## Exemplo passo a passo\nVocê recebeu As Ks Ah. O flop é Ad Qc 2s. As e Ah formam trinca com o Ad da mesa: A-A-A-Q-2. O rei fica fora, porque só duas privadas chegam ao showdown. Na sua vez no flop, antes de apostar, ele é o candidato natural à troca. Manter também é legítimo: a quantidade trocada é pública, e manter pode sinalizar força.\n\n## Exercício de recuperação\nSem consultar o texto, descreva a mão do começo ao fim: três cartas e apostas; no flop e no turn, troca na vez de cada um e apostas; no river, troca e descarte na vez de cada um e última rodada de apostas. Depois explique por que um jogador all-in não troca e o que acontece com as cartas dele no river.\n\n## Aprofundamento aplicado\n### Mão feita e troca\nAntes de trocar, encontre as duas cartas que formam sua melhor mão com a mesa atual. A terceira é a candidata natural. Ela ainda pode valer se formar par com a mesa ou fizer parte de um projeto de flush ou de sequência. Decida com a informação disponível naquele momento, sem contar cartas futuras.\n\n### Quando manter as três\nManter faz sentido quando as três cartas trabalham e cada dupla é um plano diferente. Com Ah Kh Kc e mesa Kd 7h 2h, os dois reis formam trinca, e o ás e o rei de copas buscam o flush mais alto. Trocar qualquer carta mataria um dos planos; o descarte do river escolhe qual deles vai ao showdown.\n\n### Compare com o Texas\nDepois do descarte, a formação da mão é a do Hold’em: um ás de copas na mão combina com quatro copas da mesa e forma flush. A diferença está no caminho: você viu três cartas, pôde trocar três vezes e escolheu qual dupla levar ao showdown. Por isso as mãos vencedoras costumam ser mais fortes que no Texas tradicional.\n\n### Informação pública\nTrocar uma carta mostra que você quis melhorar; manter pode indicar mão pronta, um projeto que você não quer desfazer ou um blefe. Anote quantas cartas cada oponente trocou no flop, no turn e no river: isso faz parte da leitura, sem garantir nada sobre a mão escondida. No river, o descarte é aberto: mostra uma carta que o jogador não quis e que os outros não podem ter. Já a troca revela só a quantidade.\n\n## Laboratório: Três cartas no começo, duas no fim\nObjetivo: Acompanhar a mão: três privadas, três trocas possíveis e o descarte do river. Abra a mesa deste módulo e comece pelo treino guiado. Na sua vez de trocar, responda qual privada fica fora da sua melhor mão e decida manter ou trocar; no river, decida a troca e depois escolha a carta que sai. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
             {
               "id": "m5l3q1",
@@ -683,11 +683,11 @@
               "prompt": "Como funcionam as cartas no Brazilian Pineapple?",
               "options": [
                 "Duas cartas e mais uma a cada street, sem descarte",
-                "Três cartas; troca opcional depois das apostas do flop e do turn; no river, descarte de uma",
+                "Três cartas; no flop, no turn e no river, troca opcional na sua vez, antes de agir; no river, depois da troca, descarte de uma",
                 "Cinco cartas no pré-flop e descarte de duas"
               ],
               "expectedIndex": 1,
-              "explanation": "Três privadas no começo e duas no fim. A troca vem depois das apostas do flop e do turn; no river, o descarte vem antes da última rodada. Não há troca no pré-flop."
+              "explanation": "Três privadas no começo e duas no fim. No flop, no turn e no river, cada jogador troca ou mantém na sua vez; no river, depois da troca, descarta uma; só então age. Não há troca no pré-flop nem ante."
             },
             {
               "id": "m5l3q2",
@@ -729,12 +729,24 @@
               "kind": "theory",
               "prompt": "O que os outros jogadores veem quando você troca uma carta?",
               "options": [
-                "A carta descartada",
+                "A carta que saiu na troca",
                 "Quantas cartas você trocou, zero ou uma",
                 "A carta recebida"
               ],
               "expectedIndex": 1,
-              "explanation": "A quantidade trocada é pública. As cartas descartadas e recebidas continuam privadas."
+              "explanation": "A quantidade trocada é pública. A carta que sai e a que entra na troca continuam privadas; só a descartada no river aparece aberta."
+            },
+            {
+              "id": "m5l3q5",
+              "kind": "theory",
+              "prompt": "No river, você vai descartar o 5c. Trocar o 5c antes do descarte pode piorar a sua mão final?",
+              "options": [
+                "Sim, a carta nova pode ser pior",
+                "Não: se a nova não ajudar, é ela que você descarta",
+                "Só se o oponente vir a carta"
+              ],
+              "expectedIndex": 1,
+              "explanation": "Depois da troca, você ainda descarta uma das três cartas. Se a nova não ajudar, ela sai e você fica com as mesmas duas de antes. O custo é só a informação: todos veem que você trocou uma."
             }
           ],
           "variant": "pineapple_draw",
@@ -747,45 +759,49 @@
             "url": "/videos/zt-academy-m5l3-v4.mp4",
             "captionsUrl": "/videos/zt-academy-m5l3-v4.vtt",
             "posterUrl": "/videos/zt-academy-m5l3-v4.webp",
-            "durationSeconds": 256.3,
-            "transcript": "Zero Tilt Academy. Brazilian Pineapple, aula um: três cartas, duas trocas e um descarte. O objetivo é acompanhar a mão do começo ao fim e decidir quando manter, trocar e descartar.\n\nA ordem da mão é sempre a mesma. Três cartas e a primeira rodada de apostas. Flop, apostas e troca. Turn, apostas e troca. River, descarte e a última rodada de apostas. Por fim, o showdown.\n\nQuatro jogadores na mesa. Cada um recebe três cartas fechadas. Ana paga o small blind. Beto paga o big blind e o ante, que vai direto para o pote.\n\nPrimeira rodada de apostas. Caio paga. Duda paga. Ana completa a aposta. Beto dá check. As fichas de todos vão para o pote. Não há troca antes do flop.\n\nO flop abre três cartas na mesa. Primeiro vêm as apostas. Ana tem par de ases e aposta. Beto paga. Caio paga. Duda desiste. As apostas vão para o pote.\n\nSó depois das apostas vem a troca. Cada jogador mantém as três cartas ou troca uma. Ana troca o sete e recebe outro ás: trinca. Beto troca uma carta. Caio também troca uma. Todos veem quantas cartas cada um trocou, mas não quais.\n\nO turn abre a quarta carta. Nova rodada de apostas: Ana aposta com a trinca. Beto desiste. Caio paga. Depois das apostas, a segunda troca: Ana mantém as cartas e Caio também.\n\nO river abre a quinta carta. Agora a regra muda: cada jogador descarta uma carta e fica com duas. Ana descarta o rei. Caio descarta a dama.\n\nÚltima rodada de apostas, com duas cartas na mão. Ana aposta. Caio paga. As fichas vão para o pote.\n\nShowdown. Caio mostra uma sequência até o ás. Ana mostra full house: três ases e dois seis. O pote de cinquenta e oito reais vai para Ana.\n\nTrês casos especiais. Quem está all-in não troca e, no river, fica com as duas melhores cartas. Se o tempo acabar na troca, você mantém as cartas. Se acabar no descarte, o sistema guarda as duas melhores.\n\nExercício. Você tem ás e rei de espadas e ás de copas. Na mesa, ás de ouros, dama de paus e dois de espadas. Qual privada fica fora da sua melhor mão? A: ás de espadas. B: rei de espadas. C: ás de copas. Pause o vídeo e responda.\n\nResposta: B, o rei de espadas. Os dois ases da mão, com o ás da mesa, formam trinca de ases. Só duas cartas chegam ao showdown, então o rei é o candidato natural à troca. Manter também é legítimo, porque a quantidade trocada é pública.\n\nAgora leve a aula para a mesa de treino da Academy. Comece pelo treino guiado e depois repita no modo desafio, respondendo à pergunta antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição.\n\nRegistre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+            "durationSeconds": 332.78,
+            "transcript": "Esta é a Zero Tilt Academy. Na aula um do Brazilian Pineapple, vamos treinar as decisões da sua vez: o que trocar, quando manter, o que descartar e o que a troca dos outros revela. As regras completas estão no vídeo Regras na prática.\n\nA ordem da mão é sempre a mesma. Três cartas e a primeira rodada de apostas, ainda sem troca. No flop, cada jogador, na sua vez, troca ou mantém e depois aposta. No turn, de novo: troca na sua vez e depois aposta. No river, cada um, na sua vez, troca ou mantém, descarta uma carta e só então aposta. Por fim, as cartas são mostradas no showdown.\n\nAntes de trocar, faça sempre a mesma pergunta: quais duas cartas eu levaria ao showdown agora? Só duas chegam ao fim, então a terceira é a candidata natural à troca. Depois, pergunte se essa terceira carta ainda tem um papel, como um segundo plano de mão. Se tiver, pense em manter.\n\nNo flop, Ana tem ás e dama de espadas e o quatro de ouros. Na mesa, dama de copas, oito e três de espadas. A dupla que ela levaria ao showdown é clara: ás e dama de espadas, com par de damas e quatro espadas para o flush. O quatro de ouros não entra em nenhum plano. Ana troca o quatro e recebe um sete de paus, que não ajuda. Ela não perdeu nada: a dupla boa continua na mão. Depois da troca, Ana aposta três reais.\n\nAgora, Ana tem ás e rei de copas e o rei de paus. Na mesa, rei de ouros, sete e dois de copas. Os dois reis da mão formam trinca. E o ás e o rei de copas, com as duas copas da mesa, buscam o flush mais alto. São dois planos, e cada um usa uma dupla diferente: trocar qualquer carta mataria um deles. Ana mantém as três e aposta quatro reais. No river, o descarte escolhe o plano que vai ao showdown. E todos veem que ela não trocou nenhuma.\n\nNo river, Ana tem ás de paus, rei de ouros e cinco de copas. Na mesa, ás, rei, oito, três e dois. Ás e rei formam dois pares, e o cinco vai para o descarte. Mas, no river, a troca vem antes do descarte, e trocar a carta que você ia descartar não custa nada: se a carta nova não ajudar, é ela que vai embora. Ana troca o cinco. Um ás ou um rei daria trinca: são quatro cartas boas entre as quarenta e quatro que ela não vê, cerca de nove por cento. Vem um seis de ouros, que não ajuda. Ana descarta o seis e fica com os mesmos dois pares de antes. Depois, ela passa a vez. O único custo é a informação: todos veem que ela trocou uma carta e veem o seis que ela descartou.\n\nAgora, Ana está no botão e fala por último. Beto mantém as três e aposta quatro reais. Caio troca uma e paga. Duda desiste sem trocar. Ana vê quantas cartas cada um trocou, mas não quais. Quem mantém no flop costuma gostar das três cartas: uma mão feita, ou dois planos ao mesmo tempo, como Ana no exemplo dos reis. Quem troca uma ainda tem uma carta sobrando e talvez procure melhorar. É uma pista, não uma prova: manter também pode ser blefe. Ana tem par de noves com ás. Contra quem manteve e apostou, ela não aumenta: troca o quatro e só paga.\n\nResumindo a leitura. Manter as três costuma indicar uma mão feita ou dois planos, mas pode ser blefe. Trocar uma indica que sobrava uma carta, e a carta trocada nunca aparece. No river, a carta descartada aparece aberta: ela mostra o que o jogador não quis e deixa de ser uma carta que os outros podem ter. Junte essas pistas às apostas antes de decidir.\n\nExercício. No river, você tem dama de espadas, dama de ouros e cinco de paus. Na mesa, dama de copas, dez de ouros, oito de espadas, três de paus e dois de copas. Você vai descartar o cinco. Trocar o cinco antes do descarte pode piorar a sua mão final? A: sim, a carta nova pode ser pior. B: não, se ela não ajudar, você a descarta. C: só se o oponente vir a carta. Pause o vídeo e responda.\n\nResposta: B. Depois da troca, você ainda descarta uma das três cartas. Se a nova não ajudar, ela sai, e você fica com as duas damas, a mesma trinca de antes. O que a troca entrega é informação: todos veem que você trocou uma carta, mas ninguém vê qual. Só a carta descartada aparece aberta.\n\nAgora leve a aula para a mesa de treino da Academy. Comece pelo treino guiado e depois repita no modo desafio, respondendo à pergunta antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição.\n\nRegistre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
             "chapters": [
               {
                 "start": 0.0,
                 "title": "Abertura"
               },
               {
-                "start": 15.33,
+                "start": 16.63,
                 "title": "A ordem da mão"
               },
               {
-                "start": 34.7,
-                "title": "A mão completa"
+                "start": 44.87,
+                "title": "O que trocar"
               },
               {
-                "start": 159.67,
-                "title": "All-in e tempo"
+                "start": 130.7,
+                "title": "O que descartar"
               },
               {
-                "start": 177.5,
+                "start": 179.73,
+                "title": "O que a troca revela"
+              },
+              {
+                "start": 244.27,
                 "title": "Exercício"
               },
               {
-                "start": 224.5,
+                "start": 303.17,
                 "title": "Laboratório"
               },
               {
-                "start": 241.1,
+                "start": 318.7,
                 "title": "Fechamento"
               }
             ],
             "renderer": "remotion",
             "rendererVersion": 2,
-            "pronunciationVersion": "pt-BR-poker-v2-lang-en",
-            "narrationHash": "9ec9f58c6d71d44bc2c69f467c8c9ef67264907c3968269e6b9de3669cc8ba77",
-            "mediaRevision": "e5df26e374352f5b2eee90b49c1c7e3ced08347e76c06c07a0fe5307f92b1223",
-            "bettingRuleVersion": "pineapple_draw_v1",
-            "contentHash": "a7f7dca1bbf426287464c7cb9ff2682a0a9d81477f895c0fc253e50d86611291"
+            "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+            "narrationHash": "295130ca354512dec9b41de610e0b32ff7fc49b2dcd012ae1114f02a781aadda",
+            "mediaRevision": "491631dfe32bcbd2792ad5b26f8ace44a48a8fd2e7111211ea457dc17b13c63c",
+            "bettingRuleVersion": "pineapple_draw_v4",
+            "contentHash": "915df801480d05aca8d7d55431409140eb15104655b972a2dbaae55115ae50a2"
           }
         },
         {
@@ -796,7 +812,7 @@
           "prerequisites": [
             "m5l3"
           ],
-          "body": "## Conte sem duplicar\nA combinação C(n,k)=n!/[k!(n−k)!] conta seleções sem considerar ordem. Com três cartas privadas, existem C(3,2)=3 duplas possíveis para levar ao showdown. Cada descarte deixa uma dupla diferente.\n\n## Flop, turn e river\nConte as mãos de cinco cartas que usam no máximo duas privadas. No flop, só há uma forma por dupla: as duas privadas e as três comunitárias, total 3. No turn, somam-se as mãos com duas privadas, C(3,2)×C(4,3)=12, e as com uma privada, 3×C(4,4)=3: total 15. No river, 30 com duas privadas, 15 com uma e 1 só com a mesa: total 46. Essas candidatas compartilham cartas: são correlacionadas, não 46 apostas independentes nem 46 vezes mais equity. A troca muda quais cartas formam as duplas, não a quantidade de duplas.\n\n## Uma probabilidade exata, com hipóteses\nNo flop, você tem Ad Kd 7c, o board é Ah Qc 2s e, depois das apostas, você decide trocar o 7c. Sob embaralhamento uniforme, sem outras cartas reveladas nem condicionamento por ranges dos oponentes, existem 46 cartas desconhecidas e dois ases restantes. A chance de a carta recebida ser um ás é 2/46≈4,3478%. Cartas queimadas, descartes dos oponentes e mãos escondidas continuam desconhecidos; não invente seus valores nem as retire como cartas conhecidas. Se outras cartas forem reveladas ou você modelar ranges condicionados à ação, refaça a conta.\n\n## Amostragem sem reposição\nSe N cartas são desconhecidas, K pertencem à classe desejada e observamos n posições aleatórias, a chance de exatamente k sucessos é C(K,k)×C(N−K,n−k)/C(N,n). O modelo exige posições uniformes e hipóteses explícitas. Não multiplique chances como se as retiradas fossem independentes.\n\n## Aplicação\nReceber outro ás não garante vencer: os oponentes também trocam, a mesa muda e no fim só duas das suas cartas contam. As regras aproximadas de outs do Texas não capturam automaticamente as trocas. Registre sempre: cartas conhecidas, fase, modalidade e evento que está calculando.\n\n## Aprofundamento aplicado\n### Derive o número de duplas\nCom três privadas, escolha a primeira de três formas e a segunda de duas: seis escolhas ordenadas. Cada dupla foi contada duas vezes, então existem três duplas distintas. No river, compare a melhor mão de cada dupla com a mesa e descarte a carta que fica fora da melhor. Escolher a melhor dessas candidatas é uma operação de ranking, não uma soma de probabilidades.\n\n### Dois eventos sem reposição\nSuponha 46 cartas desconhecidas, das quais duas são ases, e observe duas posições específicas do baralho restante, uniformes, sem outra informação. A chance de nenhum ás é 44 sobre 46 vezes 43 sobre 45. Portanto, a chance de pelo menos um ás é um menos esse produto, aproximadamente 8,60%. Não use duas vezes 2 sobre 46 como igualdade: as retiradas dependem umas das outras. A conta não informa se esse ás produzirá a melhor mão no showdown.\n\n### O que uma simulação precisa preservar\nPara estimar equity, um programa deve remover cartas conhecidas uma única vez, amostrar mãos dos oponentes compatíveis, completar o board na ordem correta e dividir empates. Trocas futuras são decisões, não sorteios: a simulação precisa declarar a política de troca que adota. Este simulador ensina a distribuição e a decisão com o motor real, mas não publica uma estimativa de equity baseada em um modelo de oponente oculto.\n\n## Laboratório: Três duplas possíveis\nObjetivo: Contar as duplas que podem ficar no river e achar a carta que sobra. Abra a mesa deste módulo e comece pelo treino guiado. Com três privadas há três duplas possíveis para o showdown. K e J fecham a sequência com Á, Q e T da mesa; o Ás da mão sobra. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
+          "body": "## Conte sem duplicar\nA combinação C(n,k)=n!/[k!(n−k)!] conta seleções sem considerar ordem. Com três cartas privadas, existem C(3,2)=3 duplas possíveis para levar ao showdown. Cada descarte deixa uma dupla diferente.\n\n## Flop, turn e river\nConte as mãos de cinco cartas que usam no máximo duas privadas. No flop, só há uma forma por dupla: as duas privadas e as três comunitárias, total 3. No turn, somam-se as mãos com duas privadas, C(3,2)×C(4,3)=12, e as com uma privada, 3×C(4,4)=3: total 15. No river, 30 com duas privadas, 15 com uma e 1 só com a mesa: total 46. Essas candidatas compartilham cartas: são correlacionadas, não 46 apostas independentes nem 46 vezes mais equity. A troca muda quais cartas formam as duplas, não a quantidade de duplas.\n\n## Uma probabilidade exata, com hipóteses\nNo flop, você tem Ad Kd 7c, o board é Ah Qc 2s e, na sua vez, antes de apostar, você decide trocar o 7c. Sob embaralhamento uniforme, sem outras cartas reveladas nem condicionamento por ranges dos oponentes, existem 46 cartas desconhecidas e dois ases restantes. A chance de a carta recebida ser um ás é 2/46≈4,3478%. Cartas queimadas, cartas trocadas pelos oponentes e mãos escondidas continuam desconhecidas; não invente seus valores nem as retire como cartas conhecidas. Já a carta descartada no river aparece aberta e passa a ser conhecida. Se outras cartas forem reveladas ou você modelar ranges condicionados à ação, refaça a conta.\n\n## Amostragem sem reposição\nSe N cartas são desconhecidas, K pertencem à classe desejada e observamos n posições aleatórias, a chance de exatamente k sucessos é C(K,k)×C(N−K,n−k)/C(N,n). O modelo exige posições uniformes e hipóteses explícitas. Não multiplique chances como se as retiradas fossem independentes.\n\n## Aplicação\nReceber outro ás não garante vencer: os oponentes também trocam, a mesa muda e no fim só duas das suas cartas contam. As regras aproximadas de outs do Texas não capturam automaticamente as trocas. Registre sempre: cartas conhecidas, fase, modalidade e evento que está calculando.\n\n## Aprofundamento aplicado\n### Derive o número de duplas\nCom três privadas, escolha a primeira de três formas e a segunda de duas: seis escolhas ordenadas. Cada dupla foi contada duas vezes, então existem três duplas distintas. No river, compare a melhor mão de cada dupla com a mesa e descarte a carta que fica fora da melhor. Escolher a melhor dessas candidatas é uma operação de ranking, não uma soma de probabilidades.\n\n### Dois eventos sem reposição\nSuponha 46 cartas desconhecidas, das quais duas são ases, e observe duas posições específicas do baralho restante, uniformes, sem outra informação. A chance de nenhum ás é 44 sobre 46 vezes 43 sobre 45. Portanto, a chance de pelo menos um ás é um menos esse produto, aproximadamente 8,60%. Não use duas vezes 2 sobre 46 como igualdade: as retiradas dependem umas das outras. A conta não informa se esse ás produzirá a melhor mão no showdown.\n\n### O que uma simulação precisa preservar\nPara estimar equity, um programa deve remover cartas conhecidas uma única vez, amostrar mãos dos oponentes compatíveis, completar o board na ordem correta e dividir empates. Trocas futuras são decisões, não sorteios: a simulação precisa declarar a política de troca que adota. Este simulador ensina a distribuição e a decisão com o motor real, mas não publica uma estimativa de equity baseada em um modelo de oponente oculto.\n\n## Laboratório: Três duplas possíveis\nObjetivo: Contar as duplas que podem ficar no river e achar a carta que sobra. Abra a mesa deste módulo e comece pelo treino guiado. Com três privadas há três duplas possíveis para o showdown. K e J fecham a sequência com Á, Q e T da mesa; o Ás da mão sobra. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
             {
               "id": "m5l4q1",
@@ -825,7 +841,7 @@
             {
               "id": "m5l4q3",
               "kind": "theory",
-              "prompt": "No flop, você tem Ad Kd 7c, o board é Ah Qc 2s e, depois das apostas, você troca o 7c. Sem inferências de ranges, qual a chance de receber um ás?",
+              "prompt": "No flop, você tem Ad Kd 7c, o board é Ah Qc 2s e, na sua vez, antes de apostar, você troca o 7c. Sem inferências de ranges, qual a chance de receber um ás?",
               "options": [
                 "2/46",
                 "2/52",
@@ -848,7 +864,7 @@
             {
               "id": "m5l4q5",
               "kind": "theory",
-              "prompt": "Como tratar uma carta descartada por um oponente, sem que você a veja?",
+              "prompt": "Como tratar uma carta trocada por um oponente, sem que você a veja?",
               "options": [
                 "Retirar um ás por precaução",
                 "Continuar tratando seu valor como desconhecido",
@@ -866,41 +882,41 @@
             "url": "/videos/zt-academy-m5l4-v4.mp4",
             "captionsUrl": "/videos/zt-academy-m5l4-v4.vtt",
             "posterUrl": "/videos/zt-academy-m5l4-v4.webp",
-            "durationSeconds": 170.6,
-            "transcript": "Zero Tilt Academy. Brazilian Pineapple, aula dois: combinações, trocas e probabilidade. O objetivo é contar as suas opções sem duplicar e calcular uma chance exata, com as hipóteses declaradas.\n\nCom três cartas na mão, existem três duplas possíveis para levar ao showdown. Aqui, no turn, Ana tem ás, rei e valete. O rei e o valete fecham a sequência com o ás, a dama e o dez da mesa. O ás da mão é a carta que sobra.\n\nConte as mãos de cinco cartas que usam no máximo duas das suas três. No flop são três. No turn, quinze. No river, quarenta e seis. Elas compartilham cartas: não são quarenta e seis chances independentes.\n\nAgora uma chance exata. Você tem ás, rei e sete; na mesa, ás, dama e dois. Você conhece seis cartas, então restam quarenta e seis desconhecidas. Dois ases estão entre elas. Ao trocar o sete, a chance de receber um ás é de dois em quarenta e seis: cerca de quatro vírgula três por cento.\n\nEssa conta não diz se você vai ganhar. Os oponentes também trocam, a mesa muda e, no fim, só duas das suas cartas contam. Cartas descartadas que você não viu continuam desconhecidas: não invente o valor delas.\n\nExercício. Você tem ás de ouros, rei de ouros e sete de paus. Na mesa, ás de copas, dama de paus e dois de espadas. Você troca o sete. Qual a chance de receber um ás? A: dois em quarenta e seis. B: dois em cinquenta e dois. C: três em quarenta e seis. Pause o vídeo e responda.\n\nResposta: A, dois em quarenta e seis. Você conhece seis cartas, e duas delas são ases. Restam quarenta e seis cartas desconhecidas e dois ases.\n\nAgora leve a aula para a mesa de treino da Academy. Comece pelo treino guiado e depois repita no modo desafio, respondendo à pergunta antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição.\n\nRegistre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+            "durationSeconds": 165.89,
+            "transcript": "Esta é a Zero Tilt Academy. Na aula dois do Brazilian Pineapple, vamos estudar combinações, trocas e probabilidade. O objetivo é contar as suas opções sem duplicar e calcular uma chance exata, com as hipóteses declaradas.\n\nCom três cartas na mão, existem três duplas possíveis para levar ao showdown. Aqui, no turn, Ana tem ás, rei e valete. O rei e o valete fecham a sequência com o ás, a dama e o dez da mesa. O ás da mão é a carta que sobra.\n\nConte as mãos de cinco cartas que usam no máximo duas das suas três. Com o flop na mesa, são três. Com o turn, já são quinze. E com o river, chegam a quarenta e seis. Elas compartilham cartas: não são quarenta e seis chances independentes.\n\nAgora uma chance exata. Você tem ás, rei e sete; na mesa, ás, dama e dois. Você conhece seis cartas, então restam quarenta e seis desconhecidas. Dois ases estão entre elas. Ao trocar o sete, a chance de receber um ás é de dois em quarenta e seis: cerca de quatro vírgula três por cento.\n\nEssa conta não diz se você vai ganhar. Os oponentes também trocam, a mesa muda e, no fim, só duas das suas cartas contam. As cartas que eles trocaram continuam desconhecidas: não invente o valor delas. Só o descarte do river aparece aberto.\n\nExercício. Você tem ás de ouros, rei de ouros e sete de paus. Na mesa, ás de copas, dama de paus e dois de espadas. Você troca o sete. Qual a chance de receber um ás? A: dois em quarenta e seis. B: dois em cinquenta e dois. C: três em quarenta e seis. Pause o vídeo e responda.\n\nResposta: A, dois em quarenta e seis. Você conhece seis cartas, e duas delas são ases. Restam quarenta e seis cartas desconhecidas e dois ases.\n\nAgora leve a aula para a mesa de treino da Academy. Comece pelo treino guiado e depois repita no modo desafio, respondendo à pergunta antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição.\n\nRegistre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
             "chapters": [
               {
                 "start": 0.0,
                 "title": "Abertura"
               },
               {
-                "start": 16.27,
+                "start": 16.57,
                 "title": "Três duplas possíveis"
               },
               {
-                "start": 53.47,
+                "start": 53.7,
                 "title": "Uma chance exata"
               },
               {
-                "start": 95.1,
+                "start": 95.17,
                 "title": "Exercício"
               },
               {
-                "start": 138.77,
+                "start": 136.27,
                 "title": "Laboratório"
               },
               {
-                "start": 155.37,
+                "start": 151.8,
                 "title": "Fechamento"
               }
             ],
             "renderer": "remotion",
             "rendererVersion": 2,
-            "pronunciationVersion": "pt-BR-poker-v2-lang-en",
-            "narrationHash": "fdb57fc2de39d9c4755e268ec54e1aa1773d9e2fc81468a4910cb177f6358cbe",
-            "mediaRevision": "af45972474a1f0c6984b7fb1fe365bbe634129710a58b45a912cd8bfee7d9bdd",
-            "bettingRuleVersion": "pineapple_draw_v1",
-            "contentHash": "9ba7576b31a67fc707fe580e90dfdc94c8e39b24ceb1fd96f011859bbded5c3c"
+            "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+            "narrationHash": "418d16a74646bbdd684fa5198e03a692abf0ea86227405c17742ebf7dbea59dc",
+            "mediaRevision": "d93a74e98b46a2d37d6e04f383b7e258fb0f919ddc7d777060a3e9fc0f43eedd",
+            "bettingRuleVersion": "pineapple_draw_v4",
+            "contentHash": "2b3d33fbc307d1653513a6d77f4933909bfb4acd7a3a8f662afadc139804e3bf"
           }
         },
         {
@@ -981,45 +997,45 @@
             "url": "/videos/zt-academy-m5l5-v4.mp4",
             "captionsUrl": "/videos/zt-academy-m5l5-v4.vtt",
             "posterUrl": "/videos/zt-academy-m5l5-v4.webp",
-            "durationSeconds": 163.2,
-            "transcript": "Zero Tilt Academy. Brazilian Pineapple, aula três: showdown, empates e leitura de equity. O objetivo é formar a melhor mão com duas cartas, dividir potes corretamente e não confundir ranking com equity.\n\nCom duas cartas na mão, você forma a melhor mão de cinco como no Texas Hold’em: pode usar as duas, uma só ou nenhuma. Aqui há quatro copas na mesa. Ana descarta um sete e guarda o ás de copas. Uma carta da mão já basta para o flush.\n\nA mesa também pode ser a melhor mão. Aqui o royal flush está inteiro nas cartas comunitárias. Ana e Caio chegam ao showdown, e nenhum dos dois tem nada melhor. O pote é dividido: dez reais para cada um.\n\nRanking e equity são coisas diferentes. O ranking classifica a mão que você tem agora. A equity é a sua parcela esperada do pote, contando as frações de empate. Antes do river, ela também depende das trocas que ainda vão acontecer.\n\nNo all-in, o Loss Deflator usa uma regra fixa. Valem as cartas que cada jogador tinha naquele instante: três antes do descarte, duas depois. De três cartas, contam as duas melhores em cada desfecho. Trocas futuras não entram na conta.\n\nExercício. No river, você tem ás de copas e dois setes. Na mesa, rei, nove, seis e três de copas, e o valete de paus. Qual carta você descarta? A: o ás de copas. B: um dos setes. Pause o vídeo e responda.\n\nResposta: B, um dos setes. O ás de copas, com as quatro copas da mesa, forma o flush. Uma carta da mão já basta. O par de setes não melhora essa mão.\n\nAgora leve a aula para a mesa de treino da Academy. Comece pelo treino guiado e depois repita no modo desafio, respondendo à pergunta antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição.\n\nRegistre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+            "durationSeconds": 158.34,
+            "transcript": "Esta é a Zero Tilt Academy. Na aula três do Brazilian Pineapple, vamos estudar o showdown, os empates e a leitura de equity. O objetivo é formar a melhor mão com duas cartas, dividir potes corretamente e não confundir ranking com equity.\n\nCom duas cartas na mão, você forma a melhor mão de cinco como no Texas Hold’em: pode usar as duas, uma só ou nenhuma. Aqui há quatro copas na mesa, e Ana tem o ás de copas: o flush mais alto possível. Não há o que melhorar, então ela mantém as três e descarta um sete. Uma carta da mão já basta para o flush.\n\nA mesa também pode ser a melhor mão. Aqui o royal flush está inteiro nas cartas comunitárias. Ana e Caio chegam ao showdown, e nenhum dos dois tem nada melhor. O pote é dividido: dez reais para cada um.\n\nRanking e equity são coisas diferentes. O ranking classifica a mão que você tem agora. A equity é a sua parcela esperada do pote, contando as frações de empate. Antes do river, ela também depende das trocas que ainda vão acontecer.\n\nNo all-in, o Loss Deflator usa uma regra fixa. Valem as cartas que cada jogador tinha naquele instante: três antes do descarte, duas depois. De três cartas, contam as duas melhores em cada desfecho. Trocas futuras não entram na conta.\n\nExercício. No river, você tem ás de copas e dois setes. Na mesa, rei, nove, seis e três de copas, e o valete de paus. Qual carta você descarta? A: o ás de copas. B: um dos setes. Pause o vídeo e responda.\n\nResposta: B, um dos setes. O ás de copas, com as quatro copas da mesa, forma o flush. Uma carta da mão já basta. O par de setes não melhora essa mão.\n\nAgora leve a aula para a mesa de treino da Academy. Comece pelo treino guiado e depois repita no modo desafio, respondendo à pergunta antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição.\n\nRegistre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
             "chapters": [
               {
                 "start": 0.0,
                 "title": "Abertura"
               },
               {
-                "start": 16.83,
+                "start": 16.97,
                 "title": "Formação da mão"
               },
               {
-                "start": 53.6,
+                "start": 55.63,
                 "title": "Ranking não é equity"
               },
               {
-                "start": 72.13,
+                "start": 72.93,
                 "title": "Loss Deflator"
               },
               {
-                "start": 91.63,
+                "start": 91.43,
                 "title": "Exercício"
               },
               {
-                "start": 131.33,
+                "start": 128.73,
                 "title": "Laboratório"
               },
               {
-                "start": 147.93,
+                "start": 144.27,
                 "title": "Fechamento"
               }
             ],
             "renderer": "remotion",
             "rendererVersion": 2,
-            "pronunciationVersion": "pt-BR-poker-v2-lang-en",
-            "narrationHash": "5b6b7ef699e3f4d4d14d10b19cabdd0f767697a07736cf75b5a6275842572985",
-            "mediaRevision": "146987099aa352c7b8c1c7746f1c5c55ae16bc3ba13d7dda3d800a8ded97d6ba",
-            "bettingRuleVersion": "pineapple_draw_v1",
-            "contentHash": "8aff534f967b313b7a83a3beae9463f1bf3a33802f2208c7003a68063a91a8e0"
+            "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+            "narrationHash": "1e453490358656456431aae26d0f7ff095207b8bc6bdb25fc9a7302330b5888a",
+            "mediaRevision": "90d519e7469191721d624f32d58ee713f6999e91e1b46108a965a7539fb4b3c3",
+            "bettingRuleVersion": "pineapple_draw_v4",
+            "contentHash": "7a4156ec80e092e4fb9b5fed4f6e441adb10754860a562e6dc750330e19922fc"
           }
         }
       ]
@@ -3039,73 +3055,73 @@
             "url": "/videos/zt-academy-m6l3-v3.mp4",
             "captionsUrl": "/videos/zt-academy-m6l3-v3.vtt",
             "posterUrl": "/videos/zt-academy-m6l3-v3.webp",
-            "durationSeconds": 355.37,
-            "transcript": "Zero Tilt Academy. Revisão final: o método completo. Nesta aula, nosso objetivo é: Registrar informação, alternativas e justificativa em cada decisão. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.\n\nMétodo de revisão. 1. Identifique a modalidade e as regras de formação da mão. Registre fase, posição, stacks, ações e informações disponíveis. Defina ranges ou hipóteses; não atribua equity sem um modelo. Compare ações legais, preço e possíveis continuações. Respeite orçamento e tempo; avalie a decisão separadamente do resultado.\n\nPrática distribuída. Responda aos exercícios antes de abrir as explicações. Volte em outra sessão e explique o raciocínio com suas próprias palavras. Dunlosky e colaboradores classificam testes de prática e estudo distribuído como técnicas de alta utilidade em uma revisão educacional; ela não mediu ganhos financeiros neste curso.\n\nPratique e revise. As mesas de cada módulo oferecem treino guiado, desafio e prática variada, com bots e replay. Uma nota neste curso é registro de estudo, não certificação profissional ou prova de domínio estratégico.\n\nRevise em duas passagens. Na primeira passagem, esconda o resultado e reconstrua a informação disponível: modalidade, cartas próprias, board, posições, stacks e ações. Escreva pelo menos duas alternativas legais e a condição que faria preferir cada uma. Na segunda passagem, veja a continuação e identifique o que foi resultado aleatório, mudança de informação ou falha no raciocínio. Essa separação reduz a tendência de chamar toda vitória de boa decisão.\n\nUse os quatro jogos como teste de regras. No Hold’em, pergunte se o board pode jogar sozinho. No Short Deck, refaça universo e ranking. No Omaha, confirme duas privadas entre quatro. No Brazilian Pineapple, decida a troca depois das apostas do flop e do turn e, no river, escolha as duas privadas que ficam. Só depois de acertar essas bases avance para preço, ranges e tamanhos.\n\nUm ciclo de aprendizagem. Assista ao capítulo, resolva o exemplo sem ajuda e jogue o cenário correspondente. Salve a justificativa e volte em outra sessão no modo desafio. Se errar o preço ou a formação da mão, refaça a conta antes de aumentar a dificuldade. O registro de estudo mostra tentativas e respostas objetivas; ele não certifica habilidade profissional nem prevê lucro contra pessoas.\n\nLaboratório: Explique a decisão antes do river. Objetivo: Registrar informação, alternativas e justificativa em cada decisão. Abra a mesa deste módulo e comece pelo treino guiado. Use o modo desafio e escreva sua justificativa. Depois reveja a mesma distribuição com outra linha. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.\n\nRegistre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.\n\nQual sequência resume o método Zero Tilt? A. Blefar muito, pagar tudo, subir de nível rápido B. Objetivo, posição, agressão seletiva, conta e banca C. Decorar ranges, ignorar posição, jogar qualquer pote Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.\n\nResposta do exercício: Objetivo, posição, agressão seletiva, conta e banca. As 5 regras cobrem objetivo, posição, agressão, conta e banca — o curso inteiro em uma linha.\n\nSuas cartas: ás de espadas, rei de ouros. Cartas comunitárias: dama de copas, valete de espadas, dois de ouros. Texas: ás de espadas rei de ouros no flop dama de copas valete de espadas dois de ouros. Qual projeto de sequência você já tem? A. Nenhum projeto direto B. Broca: um dez completa sequência C. Sequência pronta Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.\n\nResposta do exercício: Broca: um dez completa sequência. Um dez permite dez, valete, dama, rei e ás. Não é apenas um backdoor; a decisão de apostar depende de ranges e contexto.\n\nAbra o simulador da aula e escolha o cenário Explique a decisão antes do river. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.",
+            "durationSeconds": 348.3,
+            "transcript": "Esta é a Zero Tilt Academy, e a aula de hoje é: Revisão final: o método completo. Nesta aula, nosso objetivo é: Registrar informação, alternativas e justificativa em cada decisão. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.\n\nMétodo de revisão. 1. Identifique a modalidade e as regras de formação da mão. Registre fase, posição, stacks, ações e informações disponíveis. Defina ranges ou hipóteses; não atribua equity sem um modelo. Compare ações legais, preço e possíveis continuações. Respeite orçamento e tempo; avalie a decisão separadamente do resultado.\n\nPrática distribuída. Responda aos exercícios antes de abrir as explicações. Volte em outra sessão e explique o raciocínio com suas próprias palavras. Dunlosky e colaboradores classificam testes de prática e estudo distribuído como técnicas de alta utilidade em uma revisão educacional; ela não mediu ganhos financeiros neste curso.\n\nPratique e revise. As mesas de cada módulo oferecem treino guiado, desafio e prática variada, com bots e replay. Uma nota neste curso é registro de estudo, não certificação profissional ou prova de domínio estratégico.\n\nRevise em duas passagens. Na primeira passagem, esconda o resultado e reconstrua a informação disponível: modalidade, cartas próprias, board, posições, stacks e ações. Escreva pelo menos duas alternativas legais e a condição que faria preferir cada uma. Na segunda passagem, veja a continuação e identifique o que foi resultado aleatório, mudança de informação ou falha no raciocínio. Essa separação reduz a tendência de chamar toda vitória de boa decisão.\n\nUse os quatro jogos como teste de regras. No Hold’em, pergunte se o board pode jogar sozinho. No Short Deck, refaça universo e ranking. No Omaha, confirme duas privadas entre quatro. No Brazilian Pineapple, decida a troca na sua vez, antes de agir, no flop, no turn e no river; no river, depois da troca, escolha as duas privadas que ficam. Só depois de acertar essas bases avance para preço, ranges e tamanhos.\n\nUm ciclo de aprendizagem. Assista ao capítulo, resolva o exemplo sem ajuda e jogue o cenário correspondente. Salve a justificativa e volte em outra sessão no modo desafio. Se errar o preço ou a formação da mão, refaça a conta antes de aumentar a dificuldade. O registro de estudo mostra tentativas e respostas objetivas; ele não certifica habilidade profissional nem prevê lucro contra pessoas.\n\nLaboratório: Explique a decisão antes do river. Objetivo: Registrar informação, alternativas e justificativa em cada decisão. Abra a mesa deste módulo e comece pelo treino guiado. Use o modo desafio e escreva sua justificativa. Depois reveja a mesma distribuição com outra linha. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.\n\nRegistre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.\n\nQual sequência resume o método Zero Tilt? As alternativas são: A, Blefar muito, pagar tudo, subir de nível rápido; B, Objetivo, posição, agressão seletiva, conta e banca; C, Decorar ranges, ignorar posição, jogar qualquer pote. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.\n\nVamos à resposta. A alternativa certa deste exercício é: Objetivo, posição, agressão seletiva, conta e banca. As 5 regras cobrem objetivo, posição, agressão, conta e banca — o curso inteiro em uma linha.\n\nSuas cartas: ás de espadas, rei de ouros. Cartas comunitárias: dama de copas, valete de espadas, dois de ouros. Texas: ás de espadas rei de ouros no flop dama de copas valete de espadas dois de ouros. Qual projeto de sequência você já tem? As alternativas são: A, Nenhum projeto direto; B, Broca: um dez completa sequência; C, Sequência pronta. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.\n\nVamos à resposta. A alternativa certa deste exercício é: Broca: um dez completa sequência. Um dez permite dez, valete, dama, rei e ás. Não é apenas um backdoor; a decisão de apostar depende de ranges e contexto.\n\nAbra o simulador da aula e escolha o cenário Explique a decisão antes do river. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.",
             "chapters": [
               {
                 "start": 0.0,
                 "title": "Revisão final: o método completo"
               },
               {
-                "start": 19.93,
+                "start": 20.17,
                 "title": "Método de revisão"
               },
               {
-                "start": 48.5,
+                "start": 46.93,
                 "title": "Prática distribuída"
               },
               {
-                "start": 72.27,
+                "start": 68.87,
                 "title": "Pratique e revise"
               },
               {
-                "start": 89.47,
+                "start": 85.23,
                 "title": "Revise em duas passagens"
               },
               {
-                "start": 123.8,
+                "start": 117.0,
                 "title": "Use os quatro jogos como teste de regras"
               },
               {
-                "start": 154.7,
+                "start": 148.53,
                 "title": "Um ciclo de aprendizagem"
               },
               {
-                "start": 184.27,
+                "start": 175.63,
                 "title": "Laboratório: Explique a decisão antes do river"
               },
               {
-                "start": 223.5,
+                "start": 213.0,
                 "title": "Laboratório: Explique a decisão antes do river"
               },
               {
-                "start": 232.57,
+                "start": 221.3,
                 "title": "Exercício resolvido 1"
               },
               {
-                "start": 255.37,
+                "start": 246.2,
                 "title": "Confira o raciocínio"
               },
               {
-                "start": 271.2,
+                "start": 263.9,
                 "title": "Exercício resolvido 2"
               },
               {
-                "start": 304.47,
+                "start": 297.87,
                 "title": "Confira o raciocínio"
               },
               {
-                "start": 321.2,
+                "start": 316.5,
                 "title": "Agora, pratique"
               }
             ],
-            "contentHash": "7d49c5b64bf57bbf8c40bb7fd538d78c4f42c8a027087a3a258da8070e022216",
+            "contentHash": "db96b2a0c4185fd6f5099a6a81bbf0fa333d84cbdae2597603a44adff63b7eee",
             "rendererVersion": 5,
-            "pronunciationVersion": "pt-BR-poker-v1",
-            "narrationHash": "3c7074b8a54dc6bbba27c5c31f6bc2a58bc5dfe8c969af07488fdfc21130bd8b",
-            "mediaRevision": "aa9b0a0363e3f6bf1501291b3f5df88737a31d0027bb497a691dad13c508beba"
+            "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+            "narrationHash": "e6f73952a249f7ed6a1d98cd64aa81aa199dd651808ab3433781e37e70629c4c",
+            "mediaRevision": "d76eaf4423afb3d1c82fd95f61c9be033824ce7f6fd5b0eaaa8c2977edbe3eb0"
           },
-          "body": "## Método de revisão\n1. Identifique a modalidade e as regras de formação da mão.\n2. Registre fase, posição, stacks, ações e informações disponíveis.\n3. Defina ranges ou hipóteses; não atribua equity sem um modelo.\n4. Compare ações legais, preço e possíveis continuações.\n5. Respeite orçamento e tempo; avalie a decisão separadamente do resultado.\n\n## Prática distribuída\nResponda aos exercícios antes de abrir as explicações. Volte em outra sessão e explique o raciocínio com suas próprias palavras. Dunlosky e colaboradores classificam testes de prática e estudo distribuído como técnicas de alta utilidade em uma revisão educacional; ela não mediu ganhos financeiros neste curso.\n\n## Pratique e revise\nAs mesas de cada módulo oferecem treino guiado, desafio e prática variada, com bots e replay. Uma nota neste curso é registro de estudo, não certificação profissional ou prova de domínio estratégico.\n\n## Aprofundamento aplicado\n### Revise em duas passagens\nNa primeira passagem, esconda o resultado e reconstrua a informação disponível: modalidade, cartas próprias, board, posições, stacks e ações. Escreva pelo menos duas alternativas legais e a condição que faria preferir cada uma. Na segunda passagem, veja a continuação e identifique o que foi resultado aleatório, mudança de informação ou falha no raciocínio. Essa separação reduz a tendência de chamar toda vitória de boa decisão.\n\n### Use os quatro jogos como teste de regras\nNo Hold’em, pergunte se o board pode jogar sozinho. No Short Deck, refaça universo e ranking. No Omaha, confirme duas privadas entre quatro. No Brazilian Pineapple, decida a troca depois das apostas do flop e do turn e, no river, escolha as duas privadas que ficam. Só depois de acertar essas bases avance para preço, ranges e tamanhos.\n\n### Um ciclo de aprendizagem\nAssista ao capítulo, resolva o exemplo sem ajuda e jogue o cenário correspondente. Salve a justificativa e volte em outra sessão no modo desafio. Se errar o preço ou a formação da mão, refaça a conta antes de aumentar a dificuldade. O registro de estudo mostra tentativas e respostas objetivas; ele não certifica habilidade profissional nem prevê lucro contra pessoas.\n\n## Laboratório: Explique a decisão antes do river\nObjetivo: Registrar informação, alternativas e justificativa em cada decisão. Abra a mesa deste módulo e comece pelo treino guiado. Use o modo desafio e escreva sua justificativa. Depois reveja a mesma distribuição com outra linha. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
+          "body": "## Método de revisão\n1. Identifique a modalidade e as regras de formação da mão.\n2. Registre fase, posição, stacks, ações e informações disponíveis.\n3. Defina ranges ou hipóteses; não atribua equity sem um modelo.\n4. Compare ações legais, preço e possíveis continuações.\n5. Respeite orçamento e tempo; avalie a decisão separadamente do resultado.\n\n## Prática distribuída\nResponda aos exercícios antes de abrir as explicações. Volte em outra sessão e explique o raciocínio com suas próprias palavras. Dunlosky e colaboradores classificam testes de prática e estudo distribuído como técnicas de alta utilidade em uma revisão educacional; ela não mediu ganhos financeiros neste curso.\n\n## Pratique e revise\nAs mesas de cada módulo oferecem treino guiado, desafio e prática variada, com bots e replay. Uma nota neste curso é registro de estudo, não certificação profissional ou prova de domínio estratégico.\n\n## Aprofundamento aplicado\n### Revise em duas passagens\nNa primeira passagem, esconda o resultado e reconstrua a informação disponível: modalidade, cartas próprias, board, posições, stacks e ações. Escreva pelo menos duas alternativas legais e a condição que faria preferir cada uma. Na segunda passagem, veja a continuação e identifique o que foi resultado aleatório, mudança de informação ou falha no raciocínio. Essa separação reduz a tendência de chamar toda vitória de boa decisão.\n\n### Use os quatro jogos como teste de regras\nNo Hold’em, pergunte se o board pode jogar sozinho. No Short Deck, refaça universo e ranking. No Omaha, confirme duas privadas entre quatro. No Brazilian Pineapple, decida a troca na sua vez, antes de agir, no flop, no turn e no river; no river, depois da troca, escolha as duas privadas que ficam. Só depois de acertar essas bases avance para preço, ranges e tamanhos.\n\n### Um ciclo de aprendizagem\nAssista ao capítulo, resolva o exemplo sem ajuda e jogue o cenário correspondente. Salve a justificativa e volte em outra sessão no modo desafio. Se errar o preço ou a formação da mão, refaça a conta antes de aumentar a dificuldade. O registro de estudo mostra tentativas e respostas objetivas; ele não certifica habilidade profissional nem prevê lucro contra pessoas.\n\n## Laboratório: Explique a decisão antes do river\nObjetivo: Registrar informação, alternativas e justificativa em cada decisão. Abra a mesa deste módulo e comece pelo treino guiado. Use o modo desafio e escreva sua justificativa. Depois reveja a mesma distribuição com outra linha. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.",
           "quiz": [
             {
               "id": "m6l3q1",

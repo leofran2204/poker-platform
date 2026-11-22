@@ -1,14 +1,14 @@
 //! Brazilian Pineapple: exemplos de aposta ensinados na Academy (aumento limitado ao
-//! pote antes do call e ante de 1 BB pago pelo big blind), conferidos contra o
-//! motor com a rodada de troca no caminho.
+//! pote antes do call, só small e big blind, sem ante), conferidos contra o
+//! motor com a troca na vez de cada jogador no caminho.
 use poker_engine::deck::create_deck;
 use poker_engine::game_loop::{GameLoop, PlayerMove};
 use poker_engine::hand_history::GameType;
 use poker_engine::side_pots::{calculate_side_pots, PlayerForPots};
 use poker_engine::types::{GamePhase, PokerVariant, TableConfig};
 
-/// As situações abaixo tratam só das apostas: cada rodada de troca é concluída
-/// com todos mantendo as cartas.
+/// As situações abaixo tratam só das apostas: os passos de troca (flop, turn
+/// e river) e de descarte (river) da vez de cada jogador são concluídos sem trocar.
 fn keep_all(game: &mut GameLoop) {
     while (game.state.drawing || game.state.discarding) && !game.state.is_finished {
         let id = game.state.active_player().unwrap().id.clone();
@@ -22,6 +22,7 @@ fn keep_all(game: &mut GameLoop) {
 }
 
 fn act(game: &mut GameLoop, id: &str, action: PlayerMove) {
+    keep_all(game);
     game.player_action(id, action).unwrap();
     keep_all(game);
 }
@@ -39,7 +40,7 @@ fn postflop_short_allins_reopen_ana_but_not_caio() {
     // Dealer Dora: ordem pós-flop Ana, Beto, Caio, Dora.
     for (id, stack) in [
         ("Ana", 10000),
-        ("Beto", 350),
+        ("Beto", 250),
         ("Caio", 10000),
         ("Dora", 300),
     ] {
@@ -108,7 +109,7 @@ fn draw_game(game_type: GameType, stacks: &[u64], bb: u64) -> GameLoop {
         game_type,
     )
     .with_ante(999)
-    .with_skip_loss_deflator(true); // o ator não duplica nem altera o ante da modalidade
+    .with_skip_loss_deflator(true); // o ante legado do ator é ignorado: a modalidade não tem ante
     for (i, stack) in stacks.iter().enumerate() {
         game.add_player(format!("p{i}"), *stack);
     }
@@ -118,42 +119,39 @@ fn draw_game(game_type: GameType, stacks: &[u64], bb: u64) -> GameLoop {
 
 #[test]
 fn approved_preflop_examples_cash_and_tournament() {
-    // Blinds R$ 0,50/R$ 1, ante R$ 1: pote inicial R$ 2,50; todos acompanhando
-    // formam R$ 4; abertura máxima para R$ 3,50; dois calls formam R$ 11,50.
+    // Blinds R$ 0,50/R$ 1, sem ante: pote inicial R$ 1,50; todos acompanhando
+    // formam R$ 3; abertura máxima para R$ 2,50; dois calls formam R$ 7,50.
     for kind in [GameType::Cash, GameType::Tournament] {
         let mut calls = draw_game(kind, &[10000; 3], 100);
-        assert_eq!(calls.nominal_ante(), 100);
-        assert_eq!(calls.ante_paid(), 100);
-        assert_eq!(calls.ante_player_id(), Some("p2"));
-        assert_eq!(calls.state.total_pot(), 250);
+        assert_eq!(calls.nominal_ante(), 0);
+        assert_eq!(calls.ante_paid(), 0);
+        assert_eq!(calls.ante_player_id(), None);
+        assert_eq!(calls.state.total_pot(), 150);
         assert_eq!(calls.legal_actions("p0").call_amount, 100);
-        assert_eq!(calls.legal_actions("p0").maximum_wager, 350);
+        assert_eq!(calls.legal_actions("p0").maximum_wager, 250);
         assert_eq!(calls.state.players[2].current_bet, 100);
         calls.player_action("p0", PlayerMove::Call).unwrap();
         calls.player_action("p1", PlayerMove::Call).unwrap();
         calls.player_action("p2", PlayerMove::Check).unwrap();
-        assert_eq!(calls.state.total_pot(), 400);
+        assert_eq!(calls.state.total_pot(), 300);
         assert_eq!(calls.state.phase, GamePhase::Flop);
-        assert!(!calls.state.drawing, "o flop abre direto nas apostas");
+        assert!(calls.state.drawing, "no flop, a vez começa pela troca");
 
         let mut raised = draw_game(kind, &[10000; 3], 100);
-        assert!(raised.player_action("p0", PlayerMove::Raise(351)).is_err());
-        raised.player_action("p0", PlayerMove::Raise(350)).unwrap();
-        assert_eq!(raised.state.min_raise, 250);
-        assert_eq!(raised.legal_actions("p1").minimum_wager, 600);
-        assert_eq!(raised.legal_actions("p1").maximum_wager, 950);
+        assert!(raised.player_action("p0", PlayerMove::Raise(251)).is_err());
+        raised.player_action("p0", PlayerMove::Raise(250)).unwrap();
+        assert_eq!(raised.state.min_raise, 150);
+        assert_eq!(raised.legal_actions("p1").minimum_wager, 400);
+        assert_eq!(raised.legal_actions("p1").maximum_wager, 650);
         raised.player_action("p1", PlayerMove::Call).unwrap();
         raised.player_action("p2", PlayerMove::Call).unwrap();
-        assert_eq!(raised.state.total_pot(), 1150);
-        assert_eq!(
-            raised.history.as_ref().unwrap().table_config.ante,
-            Some(100)
-        );
+        assert_eq!(raised.state.total_pot(), 750);
+        assert_eq!(raised.history.as_ref().unwrap().table_config.ante, None);
     }
 }
 
 #[test]
-fn postflop_pot_before_call_example_after_the_draw_round() {
+fn postflop_pot_before_call_example_with_the_swap_on_each_turn() {
     // Pote de R$ 10 no flop; aposta de R$ 5; aumento máximo para R$ 20;
     // três participantes com R$ 20 na rodada formam R$ 70.
     let mut game = GameLoop::new(
@@ -164,18 +162,20 @@ fn postflop_pot_before_call_example_after_the_draw_round() {
         "Examples".into(),
         GameType::Tournament,
     );
-    for i in 0..3 {
+    for i in 0..4 {
         game.add_player(format!("p{i}"), 10000);
     }
-    game.set_dealer(2);
+    game.set_dealer(3);
     game.start_hand_with_deck(create_deck()).unwrap();
-    act(&mut game, "p2", PlayerMove::Raise(300));
+    // Sem ante: quatro jogadores com R$ 2,50 cada formam os R$ 10.
+    act(&mut game, "p2", PlayerMove::Raise(250));
+    act(&mut game, "p3", PlayerMove::Call);
     act(&mut game, "p0", PlayerMove::Call);
     act(&mut game, "p1", PlayerMove::Call);
     assert_eq!(game.state.phase, GamePhase::Flop);
-    assert!(!game.state.drawing);
     assert_eq!(game.state.total_pot(), 1000);
     assert_eq!(game.state.active_player().unwrap().id, "p0");
+    assert_eq!(game.state.players[0].draw_count, Some(0));
     act(&mut game, "p0", PlayerMove::Bet(500));
     let legal = game.legal_actions("p1");
     assert_eq!(
@@ -184,18 +184,20 @@ fn postflop_pot_before_call_example_after_the_draw_round() {
     );
     act(&mut game, "p1", PlayerMove::Raise(2000));
     act(&mut game, "p2", PlayerMove::Call);
+    act(&mut game, "p3", PlayerMove::Fold);
     act(&mut game, "p0", PlayerMove::Call);
     assert_eq!(game.state.total_pot(), 7000);
     assert_eq!(game.state.phase, GamePhase::Turn);
 }
 
 #[test]
-fn partial_ante_heads_up_levels_sidepots_and_refund_conserve_chips() {
+fn short_big_blind_heads_up_levels_sidepots_and_refund_conserve_chips() {
     for kind in [GameType::Cash, GameType::Tournament] {
-        for (stack, paid) in [(70, 0), (100, 0), (150, 50), (200, 100)] {
+        // Big blind curto fica all-in só com o blind; não há ante a pagar.
+        for stack in [70, 100] {
             let mut game = draw_game(kind, &[10000, 10000, stack], 100);
-            assert_eq!(game.ante_paid(), paid);
-            assert_eq!(game.ante_player_id(), Some("p2"));
+            assert_eq!(game.ante_paid(), 0);
+            assert_eq!(game.ante_player_id(), None);
             assert_eq!(game.state.total_pot(), 50 + stack);
             let call = game.legal_actions("p0").call_amount;
             assert_eq!(game.eligible_pot_after_call("p0", call), 50 + stack + call);
@@ -206,7 +208,7 @@ fn partial_ante_heads_up_levels_sidepots_and_refund_conserve_chips() {
             act(&mut game, "p0", PlayerMove::Fold);
             game.run_out_stalled_hand();
             let result = game.resolve_hand().unwrap();
-            assert_eq!(result.pots[0].amount, 3 * stack.min(100) + paid);
+            assert_eq!(result.pots[0].amount, 3 * stack);
             assert_eq!(result.pots[0].eligible_players.len(), 3);
             assert_eq!(result.payouts.get("p0").copied().unwrap_or(0), 0);
             assert!(result.pots.iter().skip(1).all(|p| !p.is_eligible("p2")));
@@ -218,10 +220,10 @@ fn partial_ante_heads_up_levels_sidepots_and_refund_conserve_chips() {
         }
         for bb in [100, 200, 1000] {
             let game = draw_game(kind, &[10000; 2], bb);
-            assert_eq!(game.nominal_ante(), bb);
-            assert_eq!(game.ante_paid(), bb);
-            assert_eq!(game.ante_player_id(), Some("p1"));
-            assert_eq!(game.state.total_pot(), bb * 5 / 2);
+            assert_eq!(game.nominal_ante(), 0);
+            assert_eq!(game.ante_paid(), 0);
+            assert_eq!(game.ante_player_id(), None);
+            assert_eq!(game.state.total_pot(), bb * 3 / 2);
             assert_eq!(game.legal_actions("p0").call_amount, bb / 2);
         }
     }

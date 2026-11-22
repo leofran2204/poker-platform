@@ -1,17 +1,17 @@
 {
  "id": "academy-m5l4",
  "title": "Aula m5l4 — Combinações, trocas e probabilidade",
- "voice": "pt-BR-AntonioNeural",
+ "voice": "pt-BR-MacerioMultilingualNeural",
  "rate": "-3%",
  "fps": 30,
- "bettingRuleVersion": "pineapple_draw_v1",
+ "bettingRuleVersion": "pineapple_draw_v4",
  "lesson": "m5l4",
  "scenes": [
   {
    "id": "m5l4-01",
    "chapter": "Abertura",
    "title": "Combinações, trocas e probabilidade",
-   "voice": "Zero Tilt Academy. Brazilian Pineapple, aula dois: combinações, trocas e probabilidade. O objetivo é contar as suas opções sem duplicar e calcular uma chance exata, com as hipóteses declaradas.",
+   "voice": "Esta é a Zero Tilt Academy. Na aula dois do Brazilian Pineapple, vamos estudar combinações, trocas e probabilidade. O objetivo é contar as suas opções sem duplicar e calcular uma chance exata, com as hipóteses declaradas.",
    "visual": {
     "mode": "intro",
     "kicker": "Zero Tilt Academy · Brazilian Pineapple · Aula 2",
@@ -100,7 +100,7 @@
    "id": "m5l4-03",
    "chapter": "Três duplas possíveis",
    "title": "Quantas mãos de cinco cartas?",
-   "voice": "Conte as mãos de cinco cartas que usam no máximo duas das suas três. No flop são três. No turn, quinze. No river, quarenta e seis. Elas compartilham cartas: não são quarenta e seis chances independentes.",
+   "voice": "Conte as mãos de cinco cartas que usam no máximo duas das suas três. Com o flop na mesa, são três. Com o turn, já são quinze. E com o river, chegam a quarenta e seis. Elas compartilham cartas: não são quarenta e seis chances independentes.",
    "visual": {
     "mode": "steps",
     "lines": [
@@ -110,9 +110,9 @@
      "Compartilham cartas: não são chances independentes"
     ],
     "cues": [
-     "No flop",
-     "No turn",
-     "No river",
+     "o flop",
+     "o turn",
+     "o river",
      "compartilham cartas"
     ]
    }
@@ -141,13 +141,13 @@
    "id": "m5l4-05",
    "chapter": "Uma chance exata",
    "title": "O que a conta não diz",
-   "voice": "Essa conta não diz se você vai ganhar. Os oponentes também trocam, a mesa muda e, no fim, só duas das suas cartas contam. Cartas descartadas que você não viu continuam desconhecidas: não invente o valor delas.",
+   "voice": "Essa conta não diz se você vai ganhar. Os oponentes também trocam, a mesa muda e, no fim, só duas das suas cartas contam. As cartas que eles trocaram continuam desconhecidas: não invente o valor delas. Só o descarte do river aparece aberto.",
    "visual": {
     "mode": "steps",
     "lines": [
      "Receber o ás não garante a vitória",
      "Os oponentes também trocam",
-     "Carta não vista continua desconhecida"
+     "Carta trocada continua desconhecida"
     ]
    }
   },

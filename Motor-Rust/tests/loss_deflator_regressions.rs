@@ -29,6 +29,7 @@ fn player(
         has_acted: true,
         seat_index,
         draw_count: None,
+        river_discard: None,
     }
 }
 
@@ -349,30 +350,34 @@ fn omaha_flop_all_in_bad_beat_pays_deflator() {
     );
 }
 
-/// Brazilian Pineapple: o perdedor troca uma carta depois das apostas do flop
-/// e vai all-in no turn. O snapshot usa exatamente as 3 privadas que ele tinha
-/// no pagamento; depois do all-in ele não troca mais, e a equity exata só
+/// Brazilian Pineapple: o perdedor troca uma carta na vez dele no flop e vai
+/// all-in no turn. O snapshot usa exatamente as 3 privadas que ele tinha no
+/// pagamento; depois do all-in ele não troca mais, e a equity exata só
 /// completa o river. No showdown ele fica com as duas melhores.
 #[test]
 fn pineapple_draw_turn_all_in_uses_cards_held_at_payment() {
     // Privadas em rodízio p0/p1 (3 cada); queima + flop; carta recebida na
-    // troca de p0; queima + turn; queima + river.
+    // troca de p0; queima + turn; queima + river. Sem ante, o pote do turn
+    // (20) cobre o all-in de p0 (20) no limite do pote.
     let mut game = variant_game(
         PokerVariant::PineappleDraw,
-        &[40, 100],
+        &[30, 100],
         "As 6c Ad 5s 7d 9c Tc Ah 7c 2d Kd Td 3h Th 4h",
     );
     game.player_action("p0", PlayerMove::Call).unwrap();
     game.player_action("p1", PlayerMove::Check).unwrap();
-    // Flop: apostas (p1, p0) e depois a troca; p0 troca o 7♦ e recebe o K♦.
-    game.player_action("p1", PlayerMove::Check).unwrap();
-    game.player_action("p0", PlayerMove::Check).unwrap();
+    // Flop: na sua vez, cada um troca ou mantém e só então aposta; p0 troca o
+    // 7♦ e recebe o K♦.
     game.player_action("p1", PlayerMove::Keep).unwrap();
+    game.player_action("p1", PlayerMove::Check).unwrap();
     game.player_action("p0", PlayerMove::Swap(2)).unwrap();
     assert_eq!(game.state.players[0].hole_cards, cards("As Ad Kd"));
-    // Turn: p0 vai all-in com as três cartas que tem agora.
+    game.player_action("p0", PlayerMove::Check).unwrap();
+    // Turn: p0 mantém e vai all-in com as três cartas que tem agora.
     assert_eq!(game.state.phase, GamePhase::Turn);
+    game.player_action("p1", PlayerMove::Keep).unwrap();
     game.player_action("p1", PlayerMove::Check).unwrap();
+    game.player_action("p0", PlayerMove::Keep).unwrap();
     game.player_action("p0", PlayerMove::AllIn).unwrap();
     game.player_action("p1", PlayerMove::Call).unwrap();
     assert!(game.state.is_finished);

@@ -251,6 +251,7 @@ def main() -> None:
     parser.add_argument("--poster", type=float, default=None, help="segundo da capa")
     parser.add_argument("--reuse-render", action="store_true", help="reaproveita out/<id>-raw.mp4")
     parser.add_argument("--publish", action="store_true", help="grava a versão web, o manifesto e o bloco do site")
+    parser.add_argument("--concurrency", type=int, default=6, help="abas do Chrome em paralelo (menos = menos memória)")
     args = parser.parse_args()
 
     script = json.loads((HERE / args.script).read_text(encoding="utf-8"))
@@ -266,7 +267,7 @@ def main() -> None:
         subprocess.run(
             [NODE, str(REMOTION), "render", "src/index.ts", args.composition, str(raw),
              "--codec=h264", "--crf=18", "--x264-preset=slow", "--audio-bitrate=320k",
-             "--concurrency=6", "--log=error"],
+             f"--concurrency={args.concurrency}", "--log=error"],
             cwd=HERE, check=True,
         )
     final = out / f"{script['id']}.mp4"

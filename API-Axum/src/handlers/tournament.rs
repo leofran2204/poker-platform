@@ -134,10 +134,11 @@ fn to_info(store: &crate::tournament_store::TournamentStore) -> TournamentInfoRe
                 level: b.level,
                 small_blind: b.small_blind,
                 big_blind: b.big_blind,
+                // Brazilian Pineapple não tem ante: só small e big blind.
                 ante: if poker_engine::types::PokerVariant::parse(store.active_poker_variant())
                     == poker_engine::types::PokerVariant::PineappleDraw
                 {
-                    b.big_blind
+                    0
                 } else {
                     b.ante
                 },
@@ -176,7 +177,7 @@ mod response_tests {
     }
 
     #[test]
-    fn pineapple_ante_tracks_each_level_in_both_money_modes() {
+    fn pineapple_has_no_ante_in_any_level_or_money_mode() {
         for mode in ["play", "real"] {
             for variant in ["holdem", "omaha", "short_deck", "pineapple_draw"] {
                 let config = TournamentConfig {
@@ -208,7 +209,7 @@ mod response_tests {
                     assert_eq!(
                         actual.ante,
                         if variant == "pineapple_draw" {
-                            configured.big_blind
+                            0
                         } else {
                             configured.ante
                         }

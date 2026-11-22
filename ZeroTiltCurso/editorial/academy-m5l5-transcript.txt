@@ -1,6 +1,6 @@
-Zero Tilt Academy. Brazilian Pineapple, aula três: showdown, empates e leitura de equity. O objetivo é formar a melhor mão com duas cartas, dividir potes corretamente e não confundir ranking com equity.
+Esta é a Zero Tilt Academy. Na aula três do Brazilian Pineapple, vamos estudar o showdown, os empates e a leitura de equity. O objetivo é formar a melhor mão com duas cartas, dividir potes corretamente e não confundir ranking com equity.
 
-Com duas cartas na mão, você forma a melhor mão de cinco como no Texas Hold’em: pode usar as duas, uma só ou nenhuma. Aqui há quatro copas na mesa. Ana descarta um sete e guarda o ás de copas. Uma carta da mão já basta para o flush.
+Com duas cartas na mão, você forma a melhor mão de cinco como no Texas Hold’em: pode usar as duas, uma só ou nenhuma. Aqui há quatro copas na mesa, e Ana tem o ás de copas: o flush mais alto possível. Não há o que melhorar, então ela mantém as três e descarta um sete. Uma carta da mão já basta para o flush.
 
 A mesa também pode ser a melhor mão. Aqui o royal flush está inteiro nas cartas comunitárias. Ana e Caio chegam ao showdown, e nenhum dos dois tem nada melhor. O pote é dividido: dez reais para cada um.
 

@@ -35,7 +35,7 @@ Casa: **ZT Poker** (header **Zero Tilt**). Slogan: **Estude. Jogue. Sem tilt.** 
 
 - **Omaha 4:** baralho 52; 4 cartas na mão; showdown exatamente 2 hole + 3 board; ranking clássico
 - **Texas Hold’em Short Deck:** baralho 36; 2 cartas; até 8 jogadores; **trinca > sequência** e **flush > full house**
-- **Brazilian Pineapple (só Play Money por enquanto):** baralho 52; 3 cartas; depois das apostas do flop e do turn cada jogador mantém as cartas ou troca uma (all-in não troca); no river, cada um descarta uma carta antes da última rodada; showdown com 2 cartas, como no Hold’em; ranking clássico; até 6 jogadores; ante de 1 BB pago só pelo big blind; aumento limitado ao pote antes do call em todas as rodadas ([regra](BUSINESS_RULES.md#aumento-limitado-ao-pote-antes-do-call--pineapple_draw_v1)).
+- **Brazilian Pineapple (só Play Money por enquanto; regra de 21/11/2026, que entra na próxima publicação: até lá a demo segue com a regra anterior):** baralho 52; 3 cartas; sem ante; no flop, no turn e no river, na sua vez, cada jogador mantém as cartas ou troca uma e só então aposta (all-in não troca); no river, depois da troca, descarta uma, que fica aberta para todos; showdown com 2 cartas, como no Hold’em; ranking clássico; até 6 jogadores; aumento limitado ao pote antes do call em todas as rodadas ([regra](BUSINESS_RULES.md#aumento-limitado-ao-pote-antes-do-call--pineapple_draw_v3)).
 
 ## Carteiras
 

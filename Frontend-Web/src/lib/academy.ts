@@ -8,11 +8,13 @@ export interface StudyPlayer {
   folded: boolean; all_in: boolean; cards: string[]; card_count: number; category: string | null; best_five: string[];
   /** Brazilian Pineapple: cartas trocadas ou descartadas na rodada atual (0 ou 1); null enquanto não decidiu. */
   draw_count?: number | null;
+  /** Brazilian Pineapple (v4): carta descartada no river, aberta para a mesa. */
+  river_discard?: string | null;
 }
 export interface StudySnapshot {
   ante: number; ante_paid: number; ante_player_id: string | null;
   phase: string; board: string[]; players: StudyPlayer[]; pot: number; acting: number; finished: boolean;
-  /** Brazilian Pineapple: rodada de troca em andamento. */
+  /** Brazilian Pineapple: o jogador da vez ainda não trocou ou manteve (flop, turn e river). */
   drawing?: boolean;
   /** Brazilian Pineapple: descarte obrigatório do river em andamento. */
   discarding?: boolean;

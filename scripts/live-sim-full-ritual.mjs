@@ -273,9 +273,15 @@ async function ensureFunds(user) {
 function pickAction(actions, roll, msg, table) {
   const a = actions.map((x) => String(x).toLowerCase());
   const minW = Number(msg.minimum_wager ?? 0) || table.big_blind * 2;
-  // Brazilian Pineapple: descarte obrigatório no river; na rodada de troca, troca a primeira carta às vezes e mantém nas demais.
-  if (a.includes("discard")) return { action: "discard", card: roll % 3 };
-  if (a.includes("keep")) return roll < 30 && a.includes("swap") ? { action: "swap", amount: 0 } : { action: "keep", amount: 0 };
+  // Brazilian Pineapple (pineapple_draw_v4): na vez, troca ou mantém antes de apostar no flop,
+  // no turn e no river; no river, depois da troca, descarta uma (a posição vai em `amount`).
+  // Desistir sem trocar também vale quando há aposta a pagar.
+  const toCall = Number(msg.call_amount ?? 0) > 0;
+  if (a.includes("discard")) return toCall && a.includes("fold") && roll > 96 ? { action: "fold", amount: 0 } : { action: "discard", amount: roll % 3 };
+  if (a.includes("keep")) {
+    if (toCall && a.includes("fold") && roll > 96) return { action: "fold", amount: 0 };
+    return roll < 30 && a.includes("swap") ? { action: "swap", amount: roll % 3 } : { action: "keep", amount: 0 };
+  }
   if (a.includes("check") && roll < 64) return { action: "check", amount: 0 };
   if (a.includes("bet") && roll > 88) return { action: "bet", amount: minW };
   if (a.includes("raise") && roll > 90) return { action: "raise", amount: minW };

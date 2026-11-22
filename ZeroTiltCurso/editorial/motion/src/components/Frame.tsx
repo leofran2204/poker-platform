@@ -109,7 +109,7 @@ export const Chrome: React.FC<{ chapter: string; chapterStart: number; label: st
 };
 
 /** Efeito sonoro posicionado num quadro local da cena. */
-export const Sfx: React.FC<{ at: number; name: "deal" | "flip" | "chips" | "chip" | "whoosh" | "pop" | "stamp"; volume?: number }> = ({
+export const Sfx: React.FC<{ at: number; name: "deal" | "flip" | "chips" | "chip" | "whoosh" | "pop" | "stamp" | "alert"; volume?: number }> = ({
   at,
   name,
   volume = 0.45,

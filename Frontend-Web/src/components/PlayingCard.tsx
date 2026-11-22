@@ -3,7 +3,7 @@ import { parseCard, suitSymbol } from "@/lib/cards";
 interface Props {
   code?: string;
   faceDown?: boolean;
-  size?: "xs" | "sm" | "md";
+  size?: "xs" | "sm" | "md" | "lg";
   /** Inline no texto de tips — mesmo visual da mesa, menor. */
   inline?: boolean;
   /** Realce dourado (carta usada no jogo vencedor do showdown). */
@@ -21,6 +21,8 @@ const SIZE_CLASS: Record<NonNullable<Props["size"]>, string> = {
   xs: "h-7 w-5 text-[9px] p-0.5",
   sm: "h-[52px] w-[36px] text-[11px]",
   md: "h-[72px] w-[50px] text-sm",
+  /** Comunitárias em destaque no centro da mesa. */
+  lg: "h-[94px] w-[66px] text-lg",
 };
 
 export function PlayingCard({ code, faceDown, size = "md", inline = false, highlight = false }: Props) {
@@ -44,8 +46,8 @@ export function PlayingCard({ code, faceDown, size = "md", inline = false, highl
   }
 
   const color = card.red ? "text-red-700" : "text-gray-900";
-  const corner = size === "md" ? "text-[11px]" : "text-[9px]";
-  const big = size === "md" ? "text-[30px]" : "text-[21px]";
+  const corner = size === "lg" ? "text-[14px]" : size === "md" ? "text-[11px]" : "text-[9px]";
+  const big = size === "lg" ? "zt-card-pip text-[40px]" : size === "md" ? "text-[30px]" : "text-[21px]";
 
   return (
     <span

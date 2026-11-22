@@ -5,6 +5,7 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 ## Direção visual
 
 - Inspiração **Full Tilt** clássico: feltro verde, rail dourado, lobby tabular denso
+- Mesa (decisão do proprietário em 20/11/2026, inspirada nas mesas de app atuais, sem copiar marca): placa do jogador com avatar, nome e fichas; cartas dos adversários pequenas e sobrepostas saindo de trás da placa; cartas do herói em leque, maiores, mostrando o canto; comunitárias em destaque; barra de tempo sob a placa de quem está na vez (verde no tempo normal, dourada na reserva, vermelha nos últimos 10 s; decisão de 21/11/2026) com o "Pote total" (pote + apostas da rodada) acima; selo de troca ("Trocou 1", "Manteve", "Descartou") abaixo da placa. Os vídeos da Academy (`ZeroTiltCurso/editorial/motion/src/videos/HandTable.tsx`) seguem o mesmo desenho.
 - Acabamento **moderno** (espaçamento, tipografia Segoe/Tahoma, botões sólidos)
 - Evitar estética “IA genérica” (glassmorphism excessivo, gradientes neon, emojis de marketing)
 
@@ -33,7 +34,7 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 
 ## Home
 
-- Visitante: o Brazilian Pineapple é o destaque (cartas desenhadas em código, link para a aula m5l3 e botão “Assistir ao trailer”). `PineappleDrawFilm.tsx` abre o trailer e o filme completo das regras num modal com abas, legendas e capítulos; a Academy mostra o mesmo componente como cartão do filme completo. Dados em `src/data/pineappleDrawFilms.json`, gerado por `ZeroTiltCurso/editorial/motion/produce.py --publish` (não editar à mão). O filme do Brazilian Pineapple e o institucional anterior foram retirados em 09/11/2026.
+- Visitante: o Brazilian Pineapple é o destaque (cartas desenhadas em código, “Aprenda as regras” leva a `/curso#trilha-pineapple` e o botão “Assistir ao teaser”). `PineappleDrawFilm.tsx` abre o teaser e, na segunda aba, “Regras na prática”, com legendas e capítulos; na Academy o mesmo componente é o primeiro cartão da trilha do Brazilian Pineapple (Regras na prática → aulas 1, 2 e 3) e abre só esse vídeo. O id técnico `pineapple-draw-trailer` (arquivo `zt-pineapple-draw-trailer-v1`) guarda o teaser desde 21/11/2026; o trailer antigo foi retirado. Dados em `src/data/pineappleDrawFilms.json`, gerado por `ZeroTiltCurso/editorial/motion/produce.py --publish` (não editar à mão). O filme do Brazilian Pineapple e o institucional anterior foram retirados em 09/11/2026.
 - Logado em `/` redireciona para `/curso`
 - Notícias e Dica do Pró **não** ficam na home: `/noticias`, `/dicas`, rodapé e atalhos no Curso
 - Header logado: Curso · Lobby · Carteira (+ Mais). Visitante: Academy · Entrar · Criar conta
@@ -43,7 +44,7 @@ Interface do jogador e painel B2B em **TypeScript + React + Vite + Tailwind CSS*
 - Grade: 28 aulas e 65 questões em `src/data/courseContent.json`; pré-requisitos explícitos, modalidades após fundamentos, história opcional com a difusão do Omaha. IDs/progresso anteriores preservados.
 - Player: MP4, poster, VTT em português, capítulos com indicação do atual e transcrição real. Carrega sob demanda, sem autoplay; saltos funcionam antes de carregar os metadados. O modal fecha por botão/Escape, desmonta o vídeo e devolve o foco. Estado do player e quiz reinicia ao mudar de aula.
 - Pronúncia: perfil `pt-BR-poker-v1` no renderizador editorial (`render.py`), com grafias aproximadas dos termos ingleses; nos vídeos em Remotion, perfil `pt-BR-poker-v2-lang-en`, em que a voz lê os termos em inglês (escolha do proprietário em 11/11/2026). `narrationHash` versiona as URLs de mídia; texto, legenda e transcrição conservam a grafia original. O hash do conteúdo da aula continua separado da identidade da voz.
-- Vinte e oito aulas têm vídeo publicado; m5l3–m5l5 (Brazilian Pineapple) vêm do renderizador em Remotion (`renderer: "remotion"`). A pasta pública contém 90 arquivos (MP4/VTT/WebP das 28 aulas, do trailer e do filme de regras), e a auditoria rejeita mídia sem referência.
+- Vinte e oito aulas têm vídeo publicado; m5l3–m5l5 (Brazilian Pineapple) vêm do renderizador em Remotion (`renderer: "remotion"`). A pasta pública contém 90 arquivos (MP4/VTT/WebP das 28 aulas, do teaser e de "Regras na prática"), e a auditoria rejeita mídia sem referência.
 - O quiz de aula usa gabarito editorial local. A mesa de estudo avalia regras e contas no servidor, sem certificar estratégia ótima.
 - `/curso/mesa/:moduleId`: dez mesas de módulo, 35 cenários nas quatro modalidades, bots com informação limitada, treino guiado/desafio/prática variada, replay, retorno de uma decisão e comparação. Caderno e até 50 sessões persistem apenas neste navegador; permitem reabrir e exportar JSON. Não há depósito nem vínculo com saldo.
 - Cliente em `src/lib/academy.ts`; catálogo único em `src/data/courseTraining.json`, também compilado na API. Alterar regras/cenários exige revisar versão, testes e vídeos afetados. Testes de persistência/contrato em `academy.test.ts`.

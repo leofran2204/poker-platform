@@ -20,7 +20,7 @@ use crate::game_actor::{sign_settlement, PlayerCommand, TablePlayer};
 use crate::state::{AppState, TableActorHandle};
 use crate::tournament_store::TournamentStore;
 
-const TURN_TIMEOUT: tokio::time::Duration = tokio::time::Duration::from_secs(30);
+const TURN_TIMEOUT: tokio::time::Duration = crate::time_bank::TURN;
 
 pub struct TournamentActor {
     pub table_id: String,
@@ -168,8 +168,7 @@ impl TournamentActor {
                 })
         });
         if let Some(pid) = away_active {
-            let automatic = crate::game_actor::automatic_timeout_action(self.game_loop.as_ref());
-            self.handle_action(pid, automatic.to_string(), 0).await;
+            self.handle_automatic_action(pid).await;
             return true;
         }
         // Mão travada: o da vez não pode agir (all-in geral, comum quando os
@@ -188,25 +187,23 @@ impl TournamentActor {
             }
             return true;
         }
-        // Timeout de turno = fold; na rodada de troca, mantém as cartas.
-        // O turno vai até o tempo normal mais a reserva do banco de tempo de
-        // quem está conectado.
+        // Timeout de turno = fold. No Brazilian Pineapple, sem aposta a pagar,
+        // mantém as cartas e dá check.
+        // O turno vai até o tempo normal mais o tempo extra de quem está
+        // conectado.
         let timed_out = self.game_loop.as_ref().and_then(|gl| {
             if gl.state.is_finished {
                 return None;
             }
             let started_at = self.last_turn_start?;
             let player_id = gl.state.active_player()?.id.clone();
-            let limit = self.time_banks.turn_limit(
-                &player_id,
-                self.turn_timeout,
-                self.may_use_time_bank(&player_id),
-            );
+            let limit = self
+                .time_banks
+                .turn_limit(self.turn_timeout, self.may_use_time_bank(&player_id));
             (started_at.elapsed() >= limit).then_some(player_id)
         });
         if let Some(pid) = timed_out {
-            let automatic = crate::game_actor::automatic_timeout_action(self.game_loop.as_ref());
-            self.handle_action(pid, automatic.to_string(), 0).await;
+            self.handle_automatic_action(pid).await;
             return true;
         }
         if let Some(next_at) = self.next_hand_at {
@@ -317,7 +314,7 @@ impl TournamentActor {
         self.broadcast_state();
     }
 
-    /// Só quem está conectado à mesa usa a reserva do banco de tempo.
+    /// Só quem está conectado à mesa ganha o tempo extra.
     fn may_use_time_bank(&self, player_id: &str) -> bool {
         self.players
             .iter()
@@ -325,7 +322,7 @@ impl TournamentActor {
             .is_some_and(|player| player.is_sitting && player.disconnected_since.is_none())
     }
 
-    /// Segundos de reserva que o jogador da vez ainda tem neste instante.
+    /// Segundos de tempo extra que o jogador da vez ainda tem neste instante.
     fn active_time_bank_reserve_secs(&self) -> u64 {
         let Some(game_loop) = self.game_loop.as_ref().filter(|g| !g.state.is_finished) else {
             return 0;
@@ -338,8 +335,27 @@ impl TournamentActor {
             return 0;
         }
         self.time_banks
-            .live(&player.id, started.elapsed(), self.turn_timeout)
+            .live(started.elapsed(), self.turn_timeout)
             .as_secs()
+    }
+
+    /// Ação automática completa da vez (ver `game_actor::automatic_timeout_action`):
+    /// no Brazilian Pineapple, o passo de troca, no river o descarte, e logo depois
+    /// o check ou a desistência.
+    async fn handle_automatic_action(&mut self, player_id: String) {
+        // Até três passos na mesma vez: manter, descartar (river) e check.
+        for _ in 0..3 {
+            let automatic = crate::game_actor::automatic_timeout_action(self.game_loop.as_ref());
+            self.handle_action(player_id.clone(), automatic.to_string(), 0)
+                .await;
+            if !crate::game_actor::needs_second_automatic_step(
+                self.game_loop.as_ref(),
+                &player_id,
+                automatic,
+            ) {
+                break;
+            }
+        }
     }
 
     pub(crate) async fn handle_action(&mut self, player_id: String, action: String, amount: u64) {
@@ -347,8 +363,6 @@ impl TournamentActor {
             .last_turn_start
             .map(|t| t.elapsed().as_millis() as u64)
             .unwrap_or(500);
-        let turn_elapsed = self.last_turn_start.map(|started| started.elapsed());
-        let uses_time_bank = self.may_use_time_bank(&player_id);
         let risk = self.antifraud.process_action(&player_id, elapsed_ms);
         if risk.recommendation == poker_engine::antifraud::RiskRecommendation::BlockSession {
             error!(
@@ -380,15 +394,17 @@ impl TournamentActor {
             Some(gl) => gl,
             None => return,
         };
+        let draw_step = matches!(
+            mv,
+            PlayerMove::Keep | PlayerMove::Swap(_) | PlayerMove::Discard(_)
+        );
         if gl.player_action(&player_id, mv).is_err() {
             return;
         }
-        // O que passou do tempo normal sai da reserva de quem agiu.
-        if let Some(elapsed) = turn_elapsed.filter(|_| uses_time_bank) {
-            self.time_banks
-                .charge(&player_id, elapsed, self.turn_timeout);
+        // Depois da troca (ou do descarte) o relógio do mesmo jogador segue correndo.
+        if !crate::game_actor::continues_same_turn(gl, &player_id, draw_step) {
+            self.last_turn_start = (!gl.state.is_finished).then_some(tokio::time::Instant::now());
         }
-        self.last_turn_start = (!gl.state.is_finished).then_some(tokio::time::Instant::now());
         if gl.state.is_finished {
             self.resolve_and_schedule().await;
         } else {
@@ -498,8 +514,6 @@ impl TournamentActor {
             self.halt("start_hand do motor falhou").await;
             return;
         }
-        self.time_banks
-            .hand_dealt(gl.state.players.iter().map(|player| player.id.as_str()));
         self.game_loop = Some(gl);
         self.last_winners.clear();
         self.last_turn_start = Some(tokio::time::Instant::now());
@@ -790,6 +804,7 @@ impl TournamentActor {
                         "cards": gp.hole_cards.iter().map(crate::game_actor::card_to_string).collect::<Vec<String>>(),
                         "folded": gp.has_folded,
                         "draw_count": gp.draw_count,
+                        "river_discard": gp.river_discard.as_ref().map(crate::game_actor::card_to_string),
                         "is_active": gl.state.active_player().map(|ap| ap.id == gp.id).unwrap_or(false),
                         "is_dealer": gl.state.dealer_index == gp.seat_index,
                         "seat": tp.seat,

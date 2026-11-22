@@ -84,15 +84,15 @@ describe("demoTableState — mãos da home na mesa do jogo", () => {
   it("Brazilian Pineapple: a mesa mostra quem trocou, quem manteve e o descarte", () => {
     const hand = byId("pineapple-demo");
     const draws = (step: number) => demoTableState(hand, step, false).players.map((p) => p.draw_count);
-    expect(draws(2)).toEqual([null, null, null]); // apostas do flop
-    expect(draws(3)).toEqual([1, 1, 1]); // os três trocam
-    expect(draws(4)).toEqual([null, null, null]); // apostas do turn
-    expect(draws(5)).toEqual([0, 1, 0]); // só Leo troca
-    expect(draws(6)).toEqual([1, 1, 1]); // descarte do river
-    expect(demoTableState(hand, 6, false).stage).toBe("river");
-    expect(draws(7)).toEqual([null, null, null]); // última rodada de apostas
+    // Troca e descarte na vez de cada jogador, no mesmo passo das apostas da street.
+    expect(draws(1)).toEqual([null, null, null]); // pré-flop: sem troca
+    expect(draws(2)).toEqual([1, 1, 1]); // flop: os três trocam na sua vez
+    expect(draws(3)).toEqual([0, 1, 0]); // turn: só Leo troca
+    expect(draws(4)).toEqual([1, 1, 1]); // river: descarte na vez de cada um
+    expect(demoTableState(hand, 4, false).stage).toBe("river");
+    expect(draws(5)).toEqual([null, null, null]); // showdown
     // Três cartas até o river, duas depois do descarte.
-    expect(demoTableState(hand, 5, false).players[0].cards).toHaveLength(3);
-    expect(demoTableState(hand, 6, false).players[0].cards).toHaveLength(2);
+    expect(demoTableState(hand, 3, false).players[0].cards).toHaveLength(3);
+    expect(demoTableState(hand, 4, false).players[0].cards).toHaveLength(2);
   });
 });

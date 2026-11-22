@@ -61,7 +61,7 @@ pub enum Action {
     Bet,
     Raise,
     AllIn,
-    /// Brazilian Pineapple: manteve as três privadas na rodada de troca.
+    /// Brazilian Pineapple: manteve as três privadas no passo de troca da vez.
     Keep,
     /// Brazilian Pineapple: trocou uma privada. A carta não aparece na ação pública.
     Swap,

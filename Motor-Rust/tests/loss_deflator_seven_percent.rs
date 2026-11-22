@@ -29,6 +29,7 @@ fn player(
         has_acted: true,
         seat_index,
         draw_count: None,
+        river_discard: None,
     }
 }
 

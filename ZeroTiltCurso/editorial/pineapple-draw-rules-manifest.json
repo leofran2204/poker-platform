@@ -1,81 +1,81 @@
 {
   "filmId": "pineapple-draw-rules",
   "filename": "zt-pineapple-draw-rules-v1",
-  "title": "Brazilian Pineapple — regras completas",
+  "title": "Brazilian Pineapple — Regras na prática",
   "renderer": "remotion",
   "rendererVersion": 2,
   "composition": "PineappleDrawRules",
   "script": "src/data/pineapple-draw-rules.json",
-  "scriptHash": "48a9c5bb82f8f12c46ea0bc84f25674761094ad6d3d64f36e9c887343879dbc1",
-  "bettingRuleVersion": "pineapple_draw_v1",
-  "durationSeconds": 364.7,
+  "scriptHash": "167bd872d2783d3a32d5fa6543ce77f4c2127e4186e62f72bd06d7100581d957",
+  "bettingRuleVersion": "pineapple_draw_v4",
+  "durationSeconds": 664.68,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 24512858,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 45509192,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v2-lang-en",
-  "narrationHash": "068d511f197ea87da54b88552a00d1c291c645fa1ca68322ae69390ff0939bc1",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "68353f6c3b4f82ef1db1ae1f5ab02b54c774041cecc4f38040d669dfad166e54",
   "chapters": [
     {
       "start": 0.0,
       "title": "O jogo"
     },
     {
-      "start": 53.73,
+      "start": 64.53,
       "title": "Pré-flop"
     },
     {
-      "start": 84.53,
-      "title": "Flop: apostas e troca"
+      "start": 187.3,
+      "title": "Flop: troca e aposta na vez"
     },
     {
-      "start": 122.63,
-      "title": "Turn: apostas e troca"
+      "start": 261.23,
+      "title": "Turn: troca e aposta na vez"
     },
     {
-      "start": 140.03,
-      "title": "River: descarte e apostas"
+      "start": 305.33,
+      "title": "River: troca, descarte e aposta"
     },
     {
-      "start": 164.57,
+      "start": 387.0,
       "title": "Showdown"
     },
     {
-      "start": 178.7,
+      "start": 414.83,
       "title": "A troca em detalhe"
     },
     {
-      "start": 198.93,
-      "title": "O descarte do river"
+      "start": 448.17,
+      "title": "Tempo para agir"
     },
     {
-      "start": 219.93,
+      "start": 500.93,
       "title": "Formação da mão"
     },
     {
-      "start": 252.63,
+      "start": 538.63,
       "title": "Apostas"
     },
     {
-      "start": 296.07,
+      "start": 585.97,
       "title": "All-in"
     },
     {
-      "start": 311.9,
+      "start": 605.4,
       "title": "Loss Deflator"
     },
     {
-      "start": 332.37,
+      "start": 623.83,
       "title": "Recapitule e pratique"
     }
   ],
-  "sha256": "acb3de9b21ee774af0733d2a76a06bfb9cb4af55cf338911b3b99d7ef67d80b3",
+  "sha256": "0064167d3584cd66ade02f1db9fcc108fbe0f255a8ea26799457fc35c488d1c2",
   "assetHashes": {
-    "mp4": "acb3de9b21ee774af0733d2a76a06bfb9cb4af55cf338911b3b99d7ef67d80b3",
-    "vtt": "7ce50653c7fcc3c661ebcbf5835a610584beb2d2e7bd59b0fa4625eb159fc08a",
-    "webp": "2188820fc3c65a9b0068e1d2df72f3d06affe717c9a79a5fd6b768a4c2a9f613"
+    "mp4": "0064167d3584cd66ade02f1db9fcc108fbe0f255a8ea26799457fc35c488d1c2",
+    "vtt": "ebd98a1c27e3cb8e3976834776169addc6cb83d2fcb8be05c7b43671b79cbe7e",
+    "webp": "f575cddf4f16f7455656298c3b3cde18f2e13619ef7e94d0f2fe33f81acb6437"
   },
-  "mediaRevision": "f20ffe11c0ed5116ae0f96c3783cc62e49b8c03c356913fd85da0b97845bc478"
+  "mediaRevision": "af4aef28d77d0bf6ac6ee9e09cad715b1c61966263b1adf0283a912ff1ad3983"
 }

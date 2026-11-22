@@ -1,58 +1,62 @@
 {
   "lessonId": "m5l3",
-  "contentHash": "a7f7dca1bbf426287464c7cb9ff2682a0a9d81477f895c0fc253e50d86611291",
+  "contentHash": "915df801480d05aca8d7d55431409140eb15104655b972a2dbaae55115ae50a2",
   "filename": "zt-academy-m5l3-v4",
-  "title": "Aula m5l3 — Três cartas, duas trocas e um descarte",
+  "title": "Aula m5l3 — Três cartas, três trocas e um descarte",
   "renderer": "remotion",
   "rendererVersion": 2,
   "composition": "AcademyM5L3",
   "script": "src/data/academy-m5l3.json",
-  "scriptHash": "4e316425c5ac4044dfce6cbe32632d961d454b94c5b2ed3f4f8a11f3094aa932",
-  "bettingRuleVersion": "pineapple_draw_v1",
-  "durationSeconds": 256.3,
+  "scriptHash": "9280df83d8d61d79a98cff7ef7888819606a1313024dc2b941b18b273ccbfc44",
+  "bettingRuleVersion": "pineapple_draw_v4",
+  "durationSeconds": 332.78,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 17724507,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 22912050,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v2-lang-en",
-  "narrationHash": "9ec9f58c6d71d44bc2c69f467c8c9ef67264907c3968269e6b9de3669cc8ba77",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "295130ca354512dec9b41de610e0b32ff7fc49b2dcd012ae1114f02a781aadda",
   "chapters": [
     {
       "start": 0.0,
       "title": "Abertura"
     },
     {
-      "start": 15.33,
+      "start": 16.63,
       "title": "A ordem da mão"
     },
     {
-      "start": 34.7,
-      "title": "A mão completa"
+      "start": 44.87,
+      "title": "O que trocar"
     },
     {
-      "start": 159.67,
-      "title": "All-in e tempo"
+      "start": 130.7,
+      "title": "O que descartar"
     },
     {
-      "start": 177.5,
+      "start": 179.73,
+      "title": "O que a troca revela"
+    },
+    {
+      "start": 244.27,
       "title": "Exercício"
     },
     {
-      "start": 224.5,
+      "start": 303.17,
       "title": "Laboratório"
     },
     {
-      "start": 241.1,
+      "start": 318.7,
       "title": "Fechamento"
     }
   ],
-  "sha256": "daf9c8c40a672af09824891bd3a606468065b1215ef2d8e5d4eefeb9ebe9cb67",
+  "sha256": "b9521b034cd6f04a7d530c3faa183323aa0a5bc3bff0cf8622a21faab767e281",
   "assetHashes": {
-    "mp4": "daf9c8c40a672af09824891bd3a606468065b1215ef2d8e5d4eefeb9ebe9cb67",
-    "vtt": "2e4b989ab0af25d10c11be9b1bda3b5e04b22251fa6be82730dd2bd9f55a41fa",
-    "webp": "81c5bed53cbbdb98b84013ddfa406fd116dda6218e7a48e968b87cc5ae1cc360"
+    "mp4": "b9521b034cd6f04a7d530c3faa183323aa0a5bc3bff0cf8622a21faab767e281",
+    "vtt": "7c29a45e1d4fc14115a1dacf8e0d384fe109516add8467a722e72f25fdf7a2bc",
+    "webp": "cdd60828c4073bd01592689e439f4bd76460d6371b37bd337e0b949b06253fb0"
   },
-  "mediaRevision": "e5df26e374352f5b2eee90b49c1c7e3ced08347e76c06c07a0fe5307f92b1223"
+  "mediaRevision": "491631dfe32bcbd2792ad5b26f8ace44a48a8fd2e7111211ea457dc17b13c63c"
 }

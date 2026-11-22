@@ -1,28 +1,22 @@
-Zero Tilt Academy. Brazilian Pineapple, aula um: três cartas, duas trocas e um descarte. O objetivo é acompanhar a mão do começo ao fim e decidir quando manter, trocar e descartar.
+Esta é a Zero Tilt Academy. Na aula um do Brazilian Pineapple, vamos treinar as decisões da sua vez: o que trocar, quando manter, o que descartar e o que a troca dos outros revela. As regras completas estão no vídeo Regras na prática.
 
-A ordem da mão é sempre a mesma. Três cartas e a primeira rodada de apostas. Flop, apostas e troca. Turn, apostas e troca. River, descarte e a última rodada de apostas. Por fim, o showdown.
+A ordem da mão é sempre a mesma. Três cartas e a primeira rodada de apostas, ainda sem troca. No flop, cada jogador, na sua vez, troca ou mantém e depois aposta. No turn, de novo: troca na sua vez e depois aposta. No river, cada um, na sua vez, troca ou mantém, descarta uma carta e só então aposta. Por fim, as cartas são mostradas no showdown.
 
-Quatro jogadores na mesa. Cada um recebe três cartas fechadas. Ana paga o small blind. Beto paga o big blind e o ante, que vai direto para o pote.
+Antes de trocar, faça sempre a mesma pergunta: quais duas cartas eu levaria ao showdown agora? Só duas chegam ao fim, então a terceira é a candidata natural à troca. Depois, pergunte se essa terceira carta ainda tem um papel, como um segundo plano de mão. Se tiver, pense em manter.
 
-Primeira rodada de apostas. Caio paga. Duda paga. Ana completa a aposta. Beto dá check. As fichas de todos vão para o pote. Não há troca antes do flop.
+No flop, Ana tem ás e dama de espadas e o quatro de ouros. Na mesa, dama de copas, oito e três de espadas. A dupla que ela levaria ao showdown é clara: ás e dama de espadas, com par de damas e quatro espadas para o flush. O quatro de ouros não entra em nenhum plano. Ana troca o quatro e recebe um sete de paus, que não ajuda. Ela não perdeu nada: a dupla boa continua na mão. Depois da troca, Ana aposta três reais.
 
-O flop abre três cartas na mesa. Primeiro vêm as apostas. Ana tem par de ases e aposta. Beto paga. Caio paga. Duda desiste. As apostas vão para o pote.
+Agora, Ana tem ás e rei de copas e o rei de paus. Na mesa, rei de ouros, sete e dois de copas. Os dois reis da mão formam trinca. E o ás e o rei de copas, com as duas copas da mesa, buscam o flush mais alto. São dois planos, e cada um usa uma dupla diferente: trocar qualquer carta mataria um deles. Ana mantém as três e aposta quatro reais. No river, o descarte escolhe o plano que vai ao showdown. E todos veem que ela não trocou nenhuma.
 
-Só depois das apostas vem a troca. Cada jogador mantém as três cartas ou troca uma. Ana troca o sete e recebe outro ás: trinca. Beto troca uma carta. Caio também troca uma. Todos veem quantas cartas cada um trocou, mas não quais.
+No river, Ana tem ás de paus, rei de ouros e cinco de copas. Na mesa, ás, rei, oito, três e dois. Ás e rei formam dois pares, e o cinco vai para o descarte. Mas, no river, a troca vem antes do descarte, e trocar a carta que você ia descartar não custa nada: se a carta nova não ajudar, é ela que vai embora. Ana troca o cinco. Um ás ou um rei daria trinca: são quatro cartas boas entre as quarenta e quatro que ela não vê, cerca de nove por cento. Vem um seis de ouros, que não ajuda. Ana descarta o seis e fica com os mesmos dois pares de antes. Depois, ela passa a vez. O único custo é a informação: todos veem que ela trocou uma carta e veem o seis que ela descartou.
 
-O turn abre a quarta carta. Nova rodada de apostas: Ana aposta com a trinca. Beto desiste. Caio paga. Depois das apostas, a segunda troca: Ana mantém as cartas e Caio também.
+Agora, Ana está no botão e fala por último. Beto mantém as três e aposta quatro reais. Caio troca uma e paga. Duda desiste sem trocar. Ana vê quantas cartas cada um trocou, mas não quais. Quem mantém no flop costuma gostar das três cartas: uma mão feita, ou dois planos ao mesmo tempo, como Ana no exemplo dos reis. Quem troca uma ainda tem uma carta sobrando e talvez procure melhorar. É uma pista, não uma prova: manter também pode ser blefe. Ana tem par de noves com ás. Contra quem manteve e apostou, ela não aumenta: troca o quatro e só paga.
 
-O river abre a quinta carta. Agora a regra muda: cada jogador descarta uma carta e fica com duas. Ana descarta o rei. Caio descarta a dama.
+Resumindo a leitura. Manter as três costuma indicar uma mão feita ou dois planos, mas pode ser blefe. Trocar uma indica que sobrava uma carta, e a carta trocada nunca aparece. No river, a carta descartada aparece aberta: ela mostra o que o jogador não quis e deixa de ser uma carta que os outros podem ter. Junte essas pistas às apostas antes de decidir.
 
-Última rodada de apostas, com duas cartas na mão. Ana aposta. Caio paga. As fichas vão para o pote.
+Exercício. No river, você tem dama de espadas, dama de ouros e cinco de paus. Na mesa, dama de copas, dez de ouros, oito de espadas, três de paus e dois de copas. Você vai descartar o cinco. Trocar o cinco antes do descarte pode piorar a sua mão final? A: sim, a carta nova pode ser pior. B: não, se ela não ajudar, você a descarta. C: só se o oponente vir a carta. Pause o vídeo e responda.
 
-Showdown. Caio mostra uma sequência até o ás. Ana mostra full house: três ases e dois seis. O pote de cinquenta e oito reais vai para Ana.
-
-Três casos especiais. Quem está all-in não troca e, no river, fica com as duas melhores cartas. Se o tempo acabar na troca, você mantém as cartas. Se acabar no descarte, o sistema guarda as duas melhores.
-
-Exercício. Você tem ás e rei de espadas e ás de copas. Na mesa, ás de ouros, dama de paus e dois de espadas. Qual privada fica fora da sua melhor mão? A: ás de espadas. B: rei de espadas. C: ás de copas. Pause o vídeo e responda.
-
-Resposta: B, o rei de espadas. Os dois ases da mão, com o ás da mesa, formam trinca de ases. Só duas cartas chegam ao showdown, então o rei é o candidato natural à troca. Manter também é legítimo, porque a quantidade trocada é pública.
+Resposta: B. Depois da troca, você ainda descarta uma das três cartas. Se a nova não ajudar, ela sai, e você fica com as duas damas, a mesma trinca de antes. O que a troca entrega é informação: todos veem que você trocou uma carta, mas ninguém vê qual. Só a carta descartada aparece aberta.
 
 Agora leve a aula para a mesa de treino da Academy. Comece pelo treino guiado e depois repita no modo desafio, respondendo à pergunta antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição.
 

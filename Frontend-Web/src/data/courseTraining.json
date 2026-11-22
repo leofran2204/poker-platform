@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 7,
   "reviewedAt": "2026-11-11",
   "scenarios": [
     {
@@ -155,8 +155,8 @@
       ],
       "board": [],
       "topic": "selection",
-      "objective": "Acompanhar a mão: três privadas, duas trocas possíveis e o descarte do river.",
-      "hint": "Você começa com três privadas. Depois das apostas do flop e do turn, pode trocar uma. No river, descarta uma e disputa a última rodada com duas. Troca opcional de uma carta depois das apostas do flop e do turn; no river, descarte obrigatório de uma carta antes da última rodada. Quem está all-in não troca. Aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
+      "objective": "Acompanhar a mão: três privadas, três trocas possíveis e o descarte do river.",
+      "hint": "Você começa com três privadas. No flop, no turn e no river, na sua vez, pode trocar uma antes de apostar. No river, depois da troca, descarta uma e disputa a última rodada com duas. Na sua vez no flop, no turn e no river, você troca uma carta ou mantém as três; no river, depois da troca, descarta uma; só então aposta. Dá para desistir sem trocar. Quem está all-in não troca. Aumento limitado ao pote antes do call; sem ante, só small e big blind.",
       "profiles": [
         "caller",
         "passive"
@@ -182,8 +182,8 @@
         "2s"
       ],
       "topic": "selection",
-      "objective": "Apostar no flop e decidir a troca, que vem depois das apostas.",
-      "hint": "As e Ah formam trinca com o Ad da mesa. O rei fica fora da melhor mão e é o candidato natural à troca. Troca opcional de uma carta depois das apostas do flop e do turn; no river, descarte obrigatório de uma carta antes da última rodada. Quem está all-in não troca. Aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
+      "objective": "Decidir a troca no flop, que vem antes da sua aposta, e depois apostar.",
+      "hint": "As e Ah formam trinca com o Ad da mesa. O rei fica fora da melhor mão e é o candidato natural à troca. Na sua vez no flop, no turn e no river, você troca uma carta ou mantém as três; no river, depois da troca, descarta uma; só então aposta. Dá para desistir sem trocar. Quem está all-in não troca. Aumento limitado ao pote antes do call; sem ante, só small e big blind.",
       "profiles": [
         "caller"
       ],
@@ -210,7 +210,7 @@
       ],
       "topic": "combinations",
       "objective": "Contar as duplas que podem ficar no river e achar a carta que sobra.",
-      "hint": "Com três privadas há três duplas possíveis para o showdown. K e J fecham a sequência com Á, Q e T da mesa; o Ás da mão sobra. Troca opcional de uma carta depois das apostas do flop e do turn; no river, descarte obrigatório de uma carta antes da última rodada. Quem está all-in não troca. Aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
+      "hint": "Com três privadas há três duplas possíveis para o showdown. K e J fecham a sequência com Á, Q e T da mesa; o Ás da mão sobra. Na sua vez no flop, no turn e no river, você troca uma carta ou mantém as três; no river, depois da troca, descarta uma; só então aposta. Dá para desistir sem trocar. Quem está all-in não troca. Aumento limitado ao pote antes do call; sem ante, só small e big blind.",
       "profiles": [
         "pressure"
       ],
@@ -237,8 +237,8 @@
         "Jc"
       ],
       "topic": "selection",
-      "objective": "Descartar no river e formar flush com uma só carta da mão.",
-      "hint": "Há quatro copas na mesa. O Ás de copas sozinho já forma o flush: guarde-o e descarte um dos setes. Troca opcional de uma carta depois das apostas do flop e do turn; no river, descarte obrigatório de uma carta antes da última rodada. Quem está all-in não troca. Aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
+      "objective": "Trocar e descartar no river e formar flush com uma só carta da mão.",
+      "hint": "Há quatro copas na mesa. O Ás de copas sozinho já forma o flush: guarde-o. Um dos setes sobra: troque-o (ele sairia de qualquer jeito) ou mantenha, e depois descarte a carta que não melhora a mão. Na sua vez no flop, no turn e no river, você troca uma carta ou mantém as três; no river, depois da troca, descarta uma; só então aposta. Dá para desistir sem trocar. Quem está all-in não troca. Aumento limitado ao pote antes do call; sem ante, só small e big blind.",
       "profiles": [
         "caller"
       ],
@@ -260,7 +260,7 @@
       "board": [],
       "topic": "selection",
       "objective": "Verificar que quem está all-in não troca e fica com as duas melhores cartas.",
-      "hint": "Quem está all-in não troca mais. Se ninguém mais pode apostar, não há troca nem escolha de descarte: a mesa é completada e cada jogador fica com as duas melhores cartas. Troca opcional de uma carta depois das apostas do flop e do turn; no river, descarte obrigatório de uma carta antes da última rodada. Quem está all-in não troca. Aumento limitado ao pote antes do call; ante de 1 BB apenas do big blind.",
+      "hint": "Quem está all-in não troca mais. Se ninguém mais pode apostar, não há troca nem escolha de descarte: a mesa é completada e cada jogador fica com as duas melhores cartas. Na sua vez no flop, no turn e no river, você troca uma carta ou mantém as três; no river, depois da troca, descarta uma; só então aposta. Dá para desistir sem trocar. Quem está all-in não troca. Aumento limitado ao pote antes do call; sem ante, só small e big blind.",
       "profiles": [
         "pressure"
       ],

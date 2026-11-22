@@ -1839,7 +1839,7 @@ fn decide_for(
         return None;
     }
     if legal.allows("keep") || legal.allows("discard") {
-        // Rodada de troca ou descarte do river do Brazilian Pineapple:
+        // Passo de troca ou de descarte do river do Brazilian Pineapple:
         // heurística pública do motor.
         return Some(draw_decision(state, me, legal.allows("discard")));
     }

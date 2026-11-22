@@ -1,22 +1,22 @@
 {
  "id": "academy-m5l3",
- "title": "Aula m5l3 — Três cartas, duas trocas e um descarte",
- "voice": "pt-BR-AntonioNeural",
+ "title": "Aula m5l3 — Três cartas, três trocas e um descarte",
+ "voice": "pt-BR-MacerioMultilingualNeural",
  "rate": "-3%",
  "fps": 30,
- "bettingRuleVersion": "pineapple_draw_v1",
+ "bettingRuleVersion": "pineapple_draw_v4",
  "lesson": "m5l3",
  "scenes": [
   {
    "id": "m5l3-01",
    "chapter": "Abertura",
-   "title": "Três cartas, duas trocas e um descarte",
-   "voice": "Zero Tilt Academy. Brazilian Pineapple, aula um: três cartas, duas trocas e um descarte. O objetivo é acompanhar a mão do começo ao fim e decidir quando manter, trocar e descartar.",
+   "title": "Três cartas, três trocas e um descarte",
+   "voice": "Esta é a Zero Tilt Academy. Na aula um do Brazilian Pineapple, vamos treinar as decisões da sua vez: o que trocar, quando manter, o que descartar e o que a troca dos outros revela. As regras completas estão no vídeo Regras na prática.",
    "visual": {
     "mode": "intro",
     "kicker": "Zero Tilt Academy · Brazilian Pineapple · Aula 1",
     "lines": [
-     "Objetivo: acompanhar a mão e decidir a troca"
+     "Objetivo: decidir a troca e o descarte com critério"
     ],
     "badge": "Fichas sem valor · este curso não promete lucro"
    }
@@ -25,193 +25,49 @@
    "id": "m5l3-02",
    "chapter": "A ordem da mão",
    "title": "A ordem da mão",
-   "voice": "A ordem da mão é sempre a mesma. Três cartas e a primeira rodada de apostas. Flop, apostas e troca. Turn, apostas e troca. River, descarte e a última rodada de apostas. Por fim, o showdown.",
+   "voice": "A ordem da mão é sempre a mesma. Três cartas e a primeira rodada de apostas, ainda sem troca. No flop, cada jogador, na sua vez, troca ou mantém e depois aposta. No turn, de novo: troca na sua vez e depois aposta. No river, cada um, na sua vez, troca ou mantém, descarta uma carta e só então aposta. Por fim, as cartas são mostradas no showdown.",
    "visual": {
     "mode": "steps",
     "lines": [
-     "Três cartas · apostas",
-     "Flop · apostas · troca",
-     "Turn · apostas · troca",
-     "River · descarte · apostas",
+     "Três cartas · apostas, sem troca",
+     "Flop · na sua vez, troca e aposta",
+     "Turn · na sua vez, troca e aposta",
+     "River · na sua vez, troca, descarte e aposta",
      "Showdown"
     ],
     "cues": [
      "Três cartas",
-     "Flop apostas",
-     "Turn apostas",
-     "River descarte",
-     "o showdown"
+     "No flop",
+     "No turn",
+     "No river",
+     "Por fim"
     ]
    }
   },
   {
-   "id": "m5l3-deal",
-   "chapter": "A mão completa",
-   "title": "Três cartas para cada jogador",
-   "voice": "Quatro jogadores na mesa. Cada um recebe três cartas fechadas. Ana paga o small blind. Beto paga o big blind e o ante, que vai direto para o pote.",
+   "id": "m5l3-03",
+   "chapter": "O que trocar",
+   "title": "A pergunta de cada vez",
+   "voice": "Antes de trocar, faça sempre a mesma pergunta: quais duas cartas eu levaria ao showdown agora? Só duas chegam ao fim, então a terceira é a candidata natural à troca. Depois, pergunte se essa terceira carta ainda tem um papel, como um segundo plano de mão. Se tiver, pense em manter.",
    "visual": {
-    "mode": "hand",
-    "dealer": 3,
-    "hero": 0,
-    "players": [
-     {
-      "name": "Ana · você",
-      "stack": 10000,
-      "cards": [
-       "Ah",
-       "Kd",
-       "7c"
-      ]
-     },
-     {
-      "name": "Beto",
-      "stack": 10000,
-      "cards": [
-       "9s",
-       "9d",
-       "4h"
-      ]
-     },
-     {
-      "name": "Caio",
-      "stack": 10000,
-      "cards": [
-       "Qh",
-       "Jh",
-       "5s"
-      ]
-     },
-     {
-      "name": "Duda",
-      "stack": 10000,
-      "cards": [
-       "Tc",
-       "8c",
-       "2d"
-      ]
-     }
+    "mode": "steps",
+    "lines": [
+     "Quais duas eu levaria ao showdown agora?",
+     "A terceira é a candidata à troca",
+     "Ela ainda tem um papel? Pense em manter"
     ],
-    "board": [],
-    "pot": 0,
-    "events": [
-     {
-      "type": "deal",
-      "cue": "recebe três cartas"
-     },
-     {
-      "type": "post",
-      "cue": "Ana paga",
-      "player": 0,
-      "to": 50,
-      "label": "Small blind"
-     },
-     {
-      "type": "post",
-      "cue": "Beto paga",
-      "player": 1,
-      "to": 100,
-      "label": "Big blind"
-     },
-     {
-      "type": "ante",
-      "cue": "o ante",
-      "player": 1,
-      "to": 100,
-      "label": "Big blind + ante"
-     }
-    ],
-    "banner": "Pré-flop"
+    "cues": [
+     "faça sempre a mesma pergunta",
+     "a terceira é a candidata",
+     "Depois, pergunte"
+    ]
    }
   },
   {
-   "id": "m5l3-pre",
-   "chapter": "A mão completa",
-   "title": "Primeira rodada de apostas",
-   "voice": "Primeira rodada de apostas. Caio paga. Duda paga. Ana completa a aposta. Beto dá check. As fichas de todos vão para o pote. Não há troca antes do flop.",
-   "visual": {
-    "mode": "hand",
-    "dealer": 3,
-    "hero": 0,
-    "players": [
-     {
-      "name": "Ana · você",
-      "stack": 9950,
-      "bet": 50,
-      "cards": [
-       "Ah",
-       "Kd",
-       "7c"
-      ]
-     },
-     {
-      "name": "Beto",
-      "stack": 9800,
-      "bet": 100,
-      "cards": [
-       "9s",
-       "9d",
-       "4h"
-      ]
-     },
-     {
-      "name": "Caio",
-      "stack": 10000,
-      "cards": [
-       "Qh",
-       "Jh",
-       "5s"
-      ]
-     },
-     {
-      "name": "Duda",
-      "stack": 10000,
-      "cards": [
-       "Tc",
-       "8c",
-       "2d"
-      ]
-     }
-    ],
-    "board": [],
-    "pot": 100,
-    "events": [
-     {
-      "type": "call",
-      "cue": "Caio paga",
-      "player": 2,
-      "to": 100
-     },
-     {
-      "type": "call",
-      "cue": "Duda paga",
-      "player": 3,
-      "to": 100
-     },
-     {
-      "type": "call",
-      "cue": "Ana completa",
-      "player": 0,
-      "to": 100,
-      "label": "Completa"
-     },
-     {
-      "type": "check",
-      "cue": "Beto dá check",
-      "player": 1
-     },
-     {
-      "type": "collect",
-      "cue": "vão para o pote"
-     }
-    ],
-    "banner": "Pré-flop · apostas"
-   }
-  },
-  {
-   "id": "m5l3-flop",
-   "chapter": "A mão completa",
-   "title": "Flop: primeiro as apostas",
-   "voice": "O flop abre três cartas na mesa. Primeiro vêm as apostas. Ana tem par de ases e aposta. Beto paga. Caio paga. Duda desiste. As apostas vão para o pote.",
+   "id": "m5l3-04",
+   "chapter": "O que trocar",
+   "title": "Troque a carta que fica fora",
+   "voice": "No flop, Ana tem ás e dama de espadas e o quatro de ouros. Na mesa, dama de copas, oito e três de espadas. A dupla que ela levaria ao showdown é clara: ás e dama de espadas, com par de damas e quatro espadas para o flush. O quatro de ouros não entra em nenhum plano. Ana troca o quatro e recebe um sete de paus, que não ajuda. Ela não perdeu nada: a dupla boa continua na mão. Depois da troca, Ana aposta três reais.",
    "visual": {
     "mode": "hand",
     "dealer": 3,
@@ -220,487 +76,50 @@
      {
       "name": "Ana · você",
       "stack": 9900,
-      "cards": [
-       "Ah",
-       "Kd",
-       "7c"
-      ]
-     },
-     {
-      "name": "Beto",
-      "stack": 9800,
-      "cards": [
-       "9s",
-       "9d",
-       "4h"
-      ]
-     },
-     {
-      "name": "Caio",
-      "stack": 9900,
-      "cards": [
-       "Qh",
-       "Jh",
-       "5s"
-      ]
-     },
-     {
-      "name": "Duda",
-      "stack": 9900,
-      "cards": [
-       "Tc",
-       "8c",
-       "2d"
-      ]
-     }
-    ],
-    "board": [],
-    "pot": 500,
-    "events": [
-     {
-      "type": "board",
-      "cue": "abre três cartas",
       "cards": [
        "As",
-       "Qd",
-       "6h"
-      ]
-     },
-     {
-      "type": "bet",
-      "cue": "e aposta",
-      "player": 0,
-      "to": 300
-     },
-     {
-      "type": "call",
-      "cue": "Beto paga",
-      "player": 1,
-      "to": 300
-     },
-     {
-      "type": "call",
-      "cue": "Caio paga",
-      "player": 2,
-      "to": 300
-     },
-     {
-      "type": "fold",
-      "cue": "Duda desiste",
-      "player": 3
-     },
-     {
-      "type": "collect",
-      "cue": "vão para o pote"
-     }
-    ],
-    "banner": "Flop · apostas"
-   }
-  },
-  {
-   "id": "m5l3-swap1",
-   "chapter": "A mão completa",
-   "title": "Depois das apostas, a troca",
-   "voice": "Só depois das apostas vem a troca. Cada jogador mantém as três cartas ou troca uma. Ana troca o sete e recebe outro ás: trinca. Beto troca uma carta. Caio também troca uma. Todos veem quantas cartas cada um trocou, mas não quais.",
-   "visual": {
-    "mode": "hand",
-    "dealer": 3,
-    "hero": 0,
-    "players": [
-     {
-      "name": "Ana · você",
-      "stack": 9600,
-      "cards": [
-       "Ah",
-       "Kd",
-       "7c"
+       "Qs",
+       "4d"
       ]
      },
      {
       "name": "Beto",
-      "stack": 9500,
+      "stack": 9900,
       "cards": [
-       "9s",
-       "9d",
-       "4h"
+       "Kh",
+       "Jc",
+       "9d"
       ]
      },
      {
       "name": "Caio",
-      "stack": 9600,
+      "stack": 9900,
       "cards": [
-       "Qh",
-       "Jh",
-       "5s"
+       "Tc",
+       "Td",
+       "5c"
       ]
      },
      {
       "name": "Duda",
       "stack": 9900,
       "cards": [
-       "Tc",
-       "8c",
-       "2d"
-      ],
-      "folded": true
+       "7h",
+       "6h",
+       "2c"
+      ]
      }
     ],
     "board": [
-     "As",
-     "Qd",
-     "6h"
+     "Qh",
+     "8s",
+     "3s"
     ],
-    "pot": 1400,
+    "pot": 400,
     "events": [
-     {
-      "type": "swap",
-      "cue": "Ana troca",
-      "player": 0,
-      "position": 2,
-      "receive": "Ac"
-     },
-     {
-      "type": "swap",
-      "cue": "Beto troca",
-      "player": 1,
-      "position": 2,
-      "receive": "3c"
-     },
-     {
-      "type": "swap",
-      "cue": "Caio também",
-      "player": 2,
-      "position": 2,
-      "receive": "Th"
-     }
-    ],
-    "banner": "Flop · troca"
-   }
-  },
-  {
-   "id": "m5l3-turn",
-   "chapter": "A mão completa",
-   "title": "Turn: apostas e nova troca",
-   "voice": "O turn abre a quarta carta. Nova rodada de apostas: Ana aposta com a trinca. Beto desiste. Caio paga. Depois das apostas, a segunda troca: Ana mantém as cartas e Caio também.",
-   "visual": {
-    "mode": "hand",
-    "dealer": 3,
-    "hero": 0,
-    "players": [
-     {
-      "name": "Ana · você",
-      "stack": 9600,
-      "cards": [
-       "Ah",
-       "Kd",
-       "Ac"
-      ]
-     },
-     {
-      "name": "Beto",
-      "stack": 9500,
-      "cards": [
-       "9s",
-       "9d",
-       "3c"
-      ]
-     },
-     {
-      "name": "Caio",
-      "stack": 9600,
-      "cards": [
-       "Qh",
-       "Jh",
-       "Th"
-      ]
-     },
-     {
-      "name": "Duda",
-      "stack": 9900,
-      "cards": [
-       "Tc",
-       "8c",
-       "2d"
-      ],
-      "folded": true
-     }
-    ],
-    "board": [
-     "As",
-     "Qd",
-     "6h"
-    ],
-    "pot": 1400,
-    "events": [
-     {
-      "type": "board",
-      "cue": "quarta carta",
-      "cards": [
-       "Kh"
-      ]
-     },
-     {
-      "type": "bet",
-      "cue": "Ana aposta",
-      "player": 0,
-      "to": 700
-     },
-     {
-      "type": "fold",
-      "cue": "Beto desiste",
-      "player": 1
-     },
-     {
-      "type": "call",
-      "cue": "Caio paga",
-      "player": 2,
-      "to": 700
-     },
-     {
-      "type": "collect",
-      "cue": "Depois das apostas"
-     },
-     {
-      "type": "banner",
-      "cue": "a segunda troca",
-      "text": "Turn · troca"
-     },
-     {
-      "type": "keep",
-      "cue": "Ana mantém",
-      "player": 0
-     },
-     {
-      "type": "keep",
-      "cue": "Caio também",
-      "player": 2
-     }
-    ],
-    "banner": "Turn · apostas"
-   }
-  },
-  {
-   "id": "m5l3-river",
-   "chapter": "A mão completa",
-   "title": "River: cada um descarta uma carta",
-   "voice": "O river abre a quinta carta. Agora a regra muda: cada jogador descarta uma carta e fica com duas. Ana descarta o rei. Caio descarta a dama.",
-   "visual": {
-    "mode": "hand",
-    "dealer": 3,
-    "hero": 0,
-    "players": [
-     {
-      "name": "Ana · você",
-      "stack": 8900,
-      "cards": [
-       "Ah",
-       "Kd",
-       "Ac"
-      ]
-     },
-     {
-      "name": "Beto",
-      "stack": 9500,
-      "cards": [
-       "9s",
-       "9d",
-       "3c"
-      ],
-      "folded": true
-     },
-     {
-      "name": "Caio",
-      "stack": 8900,
-      "cards": [
-       "Qh",
-       "Jh",
-       "Th"
-      ]
-     },
-     {
-      "name": "Duda",
-      "stack": 9900,
-      "cards": [
-       "Tc",
-       "8c",
-       "2d"
-      ],
-      "folded": true
-     }
-    ],
-    "board": [
-     "As",
-     "Qd",
-     "6h",
-     "Kh"
-    ],
-    "pot": 2800,
-    "events": [
-     {
-      "type": "board",
-      "cue": "quinta carta",
-      "cards": [
-       "6s"
-      ]
-     },
-     {
-      "type": "discard",
-      "cue": "Ana descarta",
-      "player": 0,
-      "position": 1
-     },
-     {
-      "type": "discard",
-      "cue": "Caio descarta",
-      "player": 2,
-      "position": 0
-     }
-    ],
-    "banner": "River · descarte"
-   }
-  },
-  {
-   "id": "m5l3-last",
-   "chapter": "A mão completa",
-   "title": "Última rodada, com duas cartas",
-   "voice": "Última rodada de apostas, com duas cartas na mão. Ana aposta. Caio paga. As fichas vão para o pote.",
-   "visual": {
-    "mode": "hand",
-    "dealer": 3,
-    "hero": 0,
-    "players": [
-     {
-      "name": "Ana · você",
-      "stack": 8900,
-      "cards": [
-       "Ah",
-       "Ac"
-      ]
-     },
-     {
-      "name": "Beto",
-      "stack": 9500,
-      "cards": [
-       "9s",
-       "9d",
-       "3c"
-      ],
-      "folded": true
-     },
-     {
-      "name": "Caio",
-      "stack": 8900,
-      "cards": [
-       "Jh",
-       "Th"
-      ]
-     },
-     {
-      "name": "Duda",
-      "stack": 9900,
-      "cards": [
-       "Tc",
-       "8c",
-       "2d"
-      ],
-      "folded": true
-     }
-    ],
-    "board": [
-     "As",
-     "Qd",
-     "6h",
-     "Kh",
-     "6s"
-    ],
-    "pot": 2800,
-    "events": [
-     {
-      "type": "bet",
-      "cue": "Ana aposta",
-      "player": 0,
-      "to": 1500
-     },
-     {
-      "type": "call",
-      "cue": "Caio paga",
-      "player": 2,
-      "to": 1500
-     },
-     {
-      "type": "collect",
-      "cue": "vão para o pote"
-     }
-    ],
-    "banner": "River · apostas"
-   }
-  },
-  {
-   "id": "m5l3-show",
-   "chapter": "A mão completa",
-   "title": "Showdown",
-   "voice": "Showdown. Caio mostra uma sequência até o ás. Ana mostra full house: três ases e dois seis. O pote de cinquenta e oito reais vai para Ana.",
-   "visual": {
-    "mode": "hand",
-    "dealer": 3,
-    "hero": 0,
-    "players": [
-     {
-      "name": "Ana · você",
-      "stack": 7400,
-      "cards": [
-       "Ah",
-       "Ac"
-      ]
-     },
-     {
-      "name": "Beto",
-      "stack": 9500,
-      "cards": [
-       "9s",
-       "9d",
-       "3c"
-      ],
-      "folded": true
-     },
-     {
-      "name": "Caio",
-      "stack": 7400,
-      "cards": [
-       "Jh",
-       "Th"
-      ]
-     },
-     {
-      "name": "Duda",
-      "stack": 9900,
-      "cards": [
-       "Tc",
-       "8c",
-       "2d"
-      ],
-      "folded": true
-     }
-    ],
-    "board": [
-     "As",
-     "Qd",
-     "6h",
-     "Kh",
-     "6s"
-    ],
-    "pot": 5800,
-    "events": [
-     {
-      "type": "reveal",
-      "cue": "Caio mostra",
-      "players": [
-       2
-      ]
-     },
      {
       "type": "highlight",
-      "cue": "Ana mostra",
+      "cue": "A dupla que ela levaria",
       "player": 0,
       "hole": [
        0,
@@ -708,37 +127,301 @@
       ],
       "boardPick": [
        0,
-       2,
-       4
+       1,
+       2
       ],
-      "text": "Full house de ases com seis"
+      "text": "Par de damas e quatro espadas"
      },
      {
-      "type": "award",
-      "cue": "vai para Ana",
+      "type": "swap",
+      "cue": "Ana troca o quatro",
+      "player": 0,
+      "position": 2,
+      "receive": "7c"
+     },
+     {
+      "type": "bet",
+      "cue": "Ana aposta três reais",
+      "player": 0,
+      "to": 300
+     }
+    ],
+    "banner": "Flop · troca e aposta"
+   }
+  },
+  {
+   "id": "m5l3-05",
+   "chapter": "O que trocar",
+   "title": "Quando manter: as três trabalham",
+   "voice": "Agora, Ana tem ás e rei de copas e o rei de paus. Na mesa, rei de ouros, sete e dois de copas. Os dois reis da mão formam trinca. E o ás e o rei de copas, com as duas copas da mesa, buscam o flush mais alto. São dois planos, e cada um usa uma dupla diferente: trocar qualquer carta mataria um deles. Ana mantém as três e aposta quatro reais. No river, o descarte escolhe o plano que vai ao showdown. E todos veem que ela não trocou nenhuma.",
+   "visual": {
+    "mode": "hand",
+    "dealer": 3,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Ana · você",
+      "stack": 9900,
+      "cards": [
+       "Ah",
+       "Kh",
+       "Kc"
+      ]
+     },
+     {
+      "name": "Beto",
+      "stack": 9900,
+      "cards": [
+       "Qd",
+       "Js",
+       "9c"
+      ]
+     },
+     {
+      "name": "Caio",
+      "stack": 9900,
+      "cards": [
+       "8d",
+       "8c",
+       "4s"
+      ]
+     },
+     {
+      "name": "Duda",
+      "stack": 9900,
+      "cards": [
+       "Ts",
+       "5d",
+       "3c"
+      ]
+     }
+    ],
+    "board": [
+     "Kd",
+     "7h",
+     "2h"
+    ],
+    "pot": 400,
+    "events": [
+     {
+      "type": "keep",
+      "cue": "Ana mantém as três",
+      "player": 0
+     },
+     {
+      "type": "bet",
+      "cue": "aposta quatro reais",
+      "player": 0,
+      "to": 400
+     }
+    ],
+    "banner": "Flop · manter também é escolha"
+   }
+  },
+  {
+   "id": "m5l3-06",
+   "chapter": "O que descartar",
+   "title": "Troque o que você ia descartar",
+   "voice": "No river, Ana tem ás de paus, rei de ouros e cinco de copas. Na mesa, ás, rei, oito, três e dois. Ás e rei formam dois pares, e o cinco vai para o descarte. Mas, no river, a troca vem antes do descarte, e trocar a carta que você ia descartar não custa nada: se a carta nova não ajudar, é ela que vai embora. Ana troca o cinco. Um ás ou um rei daria trinca: são quatro cartas boas entre as quarenta e quatro que ela não vê, cerca de nove por cento. Vem um seis de ouros, que não ajuda. Ana descarta o seis e fica com os mesmos dois pares de antes. Depois, ela passa a vez. O único custo é a informação: todos veem que ela trocou uma carta e veem o seis que ela descartou.",
+   "visual": {
+    "mode": "hand",
+    "dealer": 3,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Ana · você",
+      "stack": 9300,
+      "cards": [
+       "Ac",
+       "Kd",
+       "5h"
+      ]
+     },
+     {
+      "name": "Beto",
+      "stack": 9300,
+      "cards": [
+       "Qh",
+       "Jh",
+       "9c"
+      ]
+     },
+     {
+      "name": "Caio",
+      "stack": 9900,
+      "cards": [
+       "Td",
+       "7s",
+       "4h"
+      ],
+      "folded": true
+     },
+     {
+      "name": "Duda",
+      "stack": 9900,
+      "cards": [
+       "9h",
+       "6c",
+       "2c"
+      ],
+      "folded": true
+     }
+    ],
+    "board": [
+     "As",
+     "Kc",
+     "8d",
+     "3s"
+    ],
+    "pot": 1600,
+    "events": [
+     {
+      "type": "board",
+      "cue": "três e dois",
+      "cards": [
+       "2h"
+      ]
+     },
+     {
+      "type": "swap",
+      "cue": "Ana troca o cinco",
+      "player": 0,
+      "position": 2,
+      "receive": "6d"
+     },
+     {
+      "type": "discard",
+      "cue": "Ana descarta o seis",
+      "player": 0,
+      "position": 2
+     },
+     {
+      "type": "check",
+      "cue": "ela passa a vez",
       "player": 0
      }
     ],
-    "banner": "Showdown"
-   },
-   "padAfter": 1.6
+    "banner": "River · troca, descarte e aposta"
+   }
   },
   {
-   "id": "m5l3-20",
-   "chapter": "All-in e tempo",
-   "title": "Casos especiais",
-   "voice": "Três casos especiais. Quem está all-in não troca e, no river, fica com as duas melhores cartas. Se o tempo acabar na troca, você mantém as cartas. Se acabar no descarte, o sistema guarda as duas melhores.",
+   "id": "m5l3-07",
+   "chapter": "O que a troca revela",
+   "title": "Quantas trocou, não quais",
+   "voice": "Agora, Ana está no botão e fala por último. Beto mantém as três e aposta quatro reais. Caio troca uma e paga. Duda desiste sem trocar. Ana vê quantas cartas cada um trocou, mas não quais. Quem mantém no flop costuma gostar das três cartas: uma mão feita, ou dois planos ao mesmo tempo, como Ana no exemplo dos reis. Quem troca uma ainda tem uma carta sobrando e talvez procure melhorar. É uma pista, não uma prova: manter também pode ser blefe. Ana tem par de noves com ás. Contra quem manteve e apostou, ela não aumenta: troca o quatro e só paga.",
+   "visual": {
+    "mode": "hand",
+    "dealer": 0,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Ana · você",
+      "stack": 9900,
+      "cards": [
+       "Ad",
+       "9d",
+       "4c"
+      ]
+     },
+     {
+      "name": "Beto",
+      "stack": 9900,
+      "cards": [
+       "8h",
+       "8c",
+       "Kd"
+      ]
+     },
+     {
+      "name": "Caio",
+      "stack": 9900,
+      "cards": [
+       "Ts",
+       "7c",
+       "3h"
+      ]
+     },
+     {
+      "name": "Duda",
+      "stack": 9900,
+      "cards": [
+       "Kc",
+       "5d",
+       "2h"
+      ]
+     }
+    ],
+    "board": [
+     "9s",
+     "8s",
+     "2d"
+    ],
+    "pot": 400,
+    "events": [
+     {
+      "type": "keep",
+      "cue": "Beto mantém as três",
+      "player": 1
+     },
+     {
+      "type": "bet",
+      "cue": "aposta quatro reais",
+      "player": 1,
+      "to": 400
+     },
+     {
+      "type": "swap",
+      "cue": "Caio troca uma",
+      "player": 2,
+      "position": 2,
+      "receive": "Qd"
+     },
+     {
+      "type": "call",
+      "player": 2,
+      "to": 400,
+      "delay": 0.5
+     },
+     {
+      "type": "fold",
+      "cue": "Duda desiste",
+      "player": 3
+     },
+     {
+      "type": "swap",
+      "cue": "troca o quatro",
+      "player": 0,
+      "position": 2,
+      "receive": "Jc"
+     },
+     {
+      "type": "call",
+      "cue": "e só paga",
+      "player": 0,
+      "to": 400
+     }
+    ],
+    "banner": "Flop · leitura da troca"
+   }
+  },
+  {
+   "id": "m5l3-08",
+   "chapter": "O que a troca revela",
+   "title": "O que a quantidade conta",
+   "voice": "Resumindo a leitura. Manter as três costuma indicar uma mão feita ou dois planos, mas pode ser blefe. Trocar uma indica que sobrava uma carta, e a carta trocada nunca aparece. No river, a carta descartada aparece aberta: ela mostra o que o jogador não quis e deixa de ser uma carta que os outros podem ter. Junte essas pistas às apostas antes de decidir.",
    "visual": {
     "mode": "steps",
     "lines": [
-     "All-in: não troca e fica com as duas melhores",
-     "Tempo esgotado na troca: mantém",
-     "Tempo esgotado no descarte: ficam as duas melhores"
+     "Manteve: mão feita, dois planos ou blefe",
+     "Trocou uma: sobrava uma carta, que nunca aparece",
+     "Descarte do river: aberto, mostra o que ele não quis",
+     "Junte as pistas às apostas"
     ],
     "cues": [
-     "all-in não troca",
-     "na troca",
-     "no descarte"
+     "Manter as três",
+     "Trocar uma",
+     "No river, a carta descartada",
+     "Junte essas pistas"
     ]
    }
   },
@@ -746,37 +429,39 @@
    "id": "m5l3-quiz",
    "chapter": "Exercício",
    "title": "Sua vez",
-   "voice": "Exercício. Você tem ás e rei de espadas e ás de copas. Na mesa, ás de ouros, dama de paus e dois de espadas. Qual privada fica fora da sua melhor mão? A: ás de espadas. B: rei de espadas. C: ás de copas. Pause o vídeo e responda.",
+   "voice": "Exercício. No river, você tem dama de espadas, dama de ouros e cinco de paus. Na mesa, dama de copas, dez de ouros, oito de espadas, três de paus e dois de copas. Você vai descartar o cinco. Trocar o cinco antes do descarte pode piorar a sua mão final? A: sim, a carta nova pode ser pior. B: não, se ela não ajudar, você a descarta. C: só se o oponente vir a carta. Pause o vídeo e responda.",
    "visual": {
     "mode": "quiz",
-    "question": "Qual privada fica fora da sua melhor mão?",
+    "question": "Trocar o 5♣ antes do descarte pode piorar a sua mão final?",
     "options": [
      {
       "key": "A",
-      "text": "Ás de espadas",
-      "cue": "A ás de espadas"
+      "text": "Sim, a carta nova pode ser pior",
+      "cue": "A sim, a carta nova"
      },
      {
       "key": "B",
-      "text": "Rei de espadas",
-      "cue": "B rei de espadas"
+      "text": "Não: se ela não ajudar, você a descarta",
+      "cue": "B não, se ela"
      },
      {
       "key": "C",
-      "text": "Ás de copas",
-      "cue": "C ás de copas"
+      "text": "Só se o oponente vir a carta",
+      "cue": "C só se o oponente"
      }
     ],
     "correct": "B",
     "hole": [
-     "As",
-     "Ks",
-     "Ah"
+     "Qs",
+     "Qd",
+     "5c"
     ],
     "board": [
-     "Ad",
-     "Qc",
-     "2s"
+     "Qh",
+     "Td",
+     "8s",
+     "3c",
+     "2h"
     ]
    },
    "padAfter": 3.0
@@ -785,40 +470,42 @@
    "id": "m5l3-answer",
    "chapter": "Exercício",
    "title": "Resposta",
-   "voice": "Resposta: B, o rei de espadas. Os dois ases da mão, com o ás da mesa, formam trinca de ases. Só duas cartas chegam ao showdown, então o rei é o candidato natural à troca. Manter também é legítimo, porque a quantidade trocada é pública.",
+   "voice": "Resposta: B. Depois da troca, você ainda descarta uma das três cartas. Se a nova não ajudar, ela sai, e você fica com as duas damas, a mesma trinca de antes. O que a troca entrega é informação: todos veem que você trocou uma carta, mas ninguém vê qual. Só a carta descartada aparece aberta.",
    "visual": {
     "mode": "answer",
-    "question": "Qual privada fica fora da sua melhor mão?",
+    "question": "Trocar o 5♣ antes do descarte pode piorar a sua mão final?",
     "options": [
      {
       "key": "A",
-      "text": "Ás de espadas",
-      "cue": "A ás de espadas"
+      "text": "Sim, a carta nova pode ser pior",
+      "cue": "A sim, a carta nova"
      },
      {
       "key": "B",
-      "text": "Rei de espadas",
-      "cue": "B rei de espadas"
+      "text": "Não: se ela não ajudar, você a descarta",
+      "cue": "B não, se ela"
      },
      {
       "key": "C",
-      "text": "Ás de copas",
-      "cue": "C ás de copas"
+      "text": "Só se o oponente vir a carta",
+      "cue": "C só se o oponente"
      }
     ],
     "correct": "B",
     "hole": [
-     "As",
-     "Ks",
-     "Ah"
+     "Qs",
+     "Qd",
+     "5c"
     ],
     "board": [
-     "Ad",
-     "Qc",
-     "2s"
+     "Qh",
+     "Td",
+     "8s",
+     "3c",
+     "2h"
     ],
     "cue": "Resposta",
-    "explanation": "Trinca de ases com dama e dois · o rei fica fora e é o candidato à troca"
+    "explanation": "Se a carta nova não ajudar, ela vai para o descarte · o custo é só a informação"
    }
   },
   {

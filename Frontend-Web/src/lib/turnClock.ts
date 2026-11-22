@@ -1,36 +1,41 @@
+/** Tempo normal de cada jogada (BUSINESS_RULES 10.2). */
+export const TURN_SECONDS = 15;
+/** Tempo extra de cada jogada, depois do tempo normal; renova a cada jogada. */
+export const EXTRA_SECONDS = 5;
+
 export interface TurnClock {
   text: string;
   aria: string;
   /** Pouco tempo: o relógio fica vermelho. */
   urgent: boolean;
-  /** O tempo normal acabou e a reserva do banco de tempo está correndo. */
-  usingReserve: boolean;
+  /** O tempo normal acabou e o tempo extra está correndo. */
+  extraTime: boolean;
 }
 
 /**
- * Relógio do turno do jogador: primeiro o tempo normal, depois a reserva do
- * banco de tempo e, quando os dois acabam, a ação automática do servidor.
+ * Relógio do turno do jogador: primeiro o tempo normal, depois o tempo extra
+ * e, quando os dois acabam, a ação automática do servidor.
  */
 export function turnClock(
   turnLeft: number,
-  reserveLeft: number,
+  extraLeft: number,
   round: "bet" | "draw" | "discard",
 ): TurnClock {
   if (turnLeft > 0) {
-    const hasReserve = reserveLeft > 0;
+    const hasExtra = extraLeft > 0;
     return {
-      text: `Sua vez: ${turnLeft}s${hasReserve ? ` · reserva ${reserveLeft}s` : ""}`,
-      aria: `Tempo para agir: ${turnLeft} segundos${hasReserve ? `, mais ${reserveLeft} de reserva` : ""}`,
-      urgent: turnLeft <= 10 && !hasReserve,
-      usingReserve: false,
+      text: `Sua vez: ${turnLeft}s${hasExtra ? ` + ${extraLeft}s` : ""}`,
+      aria: `Tempo para agir: ${turnLeft} segundos${hasExtra ? `, mais ${extraLeft} de tempo extra` : ""}`,
+      urgent: turnLeft <= 5 && !hasExtra,
+      extraTime: false,
     };
   }
-  if (reserveLeft > 0) {
+  if (extraLeft > 0) {
     return {
-      text: `Banco de tempo: ${reserveLeft}s`,
-      aria: `Banco de tempo: ${reserveLeft} segundos de reserva`,
-      urgent: reserveLeft <= 10,
-      usingReserve: true,
+      text: `TEMPO EXTRA: ${extraLeft}s`,
+      aria: `Tempo extra: ${extraLeft} segundos`,
+      urgent: true,
+      extraTime: true,
     };
   }
   const text =
@@ -39,5 +44,16 @@ export function turnClock(
       : round === "discard"
         ? "Descartando a carta que sobra…"
         : "Fold automático…";
-  return { text, aria: text, urgent: true, usingReserve: false };
+  return { text, aria: text, urgent: true, extraTime: false };
+}
+
+const TURN_TITLE = "Sua vez!";
+
+/**
+ * Título da aba na vez do jogador: alterna "Sua vez!" e o título original a
+ * cada segundo (`tick` conta os segundos do turno). Fora da vez, o original.
+ */
+export function turnTabTitle(original: string, myTurn: boolean, tick: number): string {
+  if (!myTurn) return original;
+  return tick % 2 === 0 ? TURN_TITLE : original;
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { motion } from "motion/react";
 import { fetchCourseProgress, type CourseProgressItem } from "@/api/client";
 import { BrandMark } from "@/components/BrandMark";
@@ -10,6 +10,12 @@ import { isAuthenticated } from "@/lib/auth";
 export function CoursePage() {
   const [progress, setProgress] = useState<Record<string, CourseProgressItem>>({});
   const authed = isAuthenticated();
+  const { hash } = useLocation();
+
+  // Links como /curso#trilha-pineapple (botão "Aprenda as regras" da home) abrem na trilha.
+  useEffect(() => {
+    if (hash) document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView();
+  }, [hash]);
 
   useEffect(() => {
     if (!authed) return;
@@ -78,8 +84,6 @@ export function CoursePage() {
         </div>
       </header>
 
-      <PineappleDrawFilm academy />
-
       {!authed && (
         <p className="rounded-xl border border-felt-700 bg-felt-800/70 px-4 py-3 text-xs text-felt-200">
           Você está navegando como visitante. <Link to="/login" className="text-gold-soft underline">Entre na sua conta</Link> para salvar
@@ -88,7 +92,7 @@ export function CoursePage() {
       )}
 
       {COURSE.modules.map((m) => (
-        <section key={m.id} className={`zt-track ${tone(m.id)}`} aria-labelledby={`track-${m.id}`}>
+        <section key={m.id} id={`trilha-${m.id}`} className={`zt-track ${tone(m.id)} scroll-mt-20`} aria-labelledby={`track-${m.id}`}>
           <div className="zt-track-head">
             <div>
               <h2 id={`track-${m.id}`}>{m.title}</h2>
@@ -98,6 +102,8 @@ export function CoursePage() {
               Praticar na mesa →
             </Link>
           </div>
+          {/* Ordem do Brazilian Pineapple: Regras na prática → aulas 1, 2 e 3. */}
+          {m.id === "pineapple" && <div className="mb-4"><PineappleDrawFilm academy /></div>}
           <div className="zt-lesson-grid">
             {m.lessons.map((l, i) => {
               const item = progress[l.id];

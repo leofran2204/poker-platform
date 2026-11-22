@@ -46,8 +46,8 @@ function VisitorHome() {
   const [deflatorOpen,setDeflatorOpen]=useState(false);
   return <div className="hp">
     <section className="hp-hero hp-pineapple" aria-labelledby="home-title">
-      <div className="hp-hero-inner"><div className="hp-hero-copy"><p className="hp-eyebrow"><span aria-hidden="true">♠</span> ZERO TILT POKER / NOVA MODALIDADE</p><h1 id="home-title">Brazilian<br /><em>Pineapple.</em></h1><p className="hp-description">Três cartas. Duas trocas. Um descarte.<br />Depois das apostas do flop e do turn, você decide: manter ou trocar uma carta. No river, descarta uma e disputa o pote com duas, como no Hold’em.</p>
-        <div className="hp-actions"><Link to="/curso/m5l3" className="hp-button">Aprenda as regras <span aria-hidden="true">↗</span></Link><PineappleDrawFilm /></div><p className="hp-note">Vídeos com legendas e capítulos · primeiro no Play Money, sem depósito · 18+</p></div>
+      <div className="hp-hero-inner"><div className="hp-hero-copy"><p className="hp-eyebrow"><span aria-hidden="true">♠</span> ZERO TILT POKER / NOVA MODALIDADE</p><h1 id="home-title">Brazilian<br /><em>Pineapple.</em></h1><p className="hp-description">Três cartas. Três trocas. Um descarte.<br />No flop, no turn e no river, na sua vez, você decide antes de apostar: manter ou trocar uma carta. No river, depois da troca, descarta uma e disputa o pote com duas, como no Hold’em.</p>
+        <div className="hp-actions"><Link to="/curso#trilha-pineapple" className="hp-button">Aprenda as regras <span aria-hidden="true">↗</span></Link><PineappleDrawFilm /></div><p className="hp-note">Vídeos com legendas e capítulos · primeiro no Play Money, sem depósito · 18+</p></div>
         <figure className="hp-pineapple-cover hp-live-cover"><LiveHandShowcase /><figcaption>Uma mão inteira, do começo ao fim.<br /><span>Valores ilustrativos. Quem está all-in não troca. O resto da regra está na Academy.</span></figcaption></figure><a className="hp-scroll" href="#desafio">A próxima decisão é sua <span aria-hidden="true">↓</span></a>
       </div>
     </section>
@@ -58,7 +58,7 @@ function VisitorHome() {
     </section>
     <section className="hp-section hp-games" id="modalidades" aria-labelledby="games-title"><motion.header className="hp-heading" {...reveal}><p className="hp-eyebrow">03 / Encontre a sua mesa</p><h2 id="games-title">Quatro jogos.<br className="hp-mobile-break" /> <em>Novas maneiras de pensar.</em></h2><p>Uma conta, diferentes desafios. Conheça as regras antes de entrar.</p></motion.header>
       <div className="hp-variants">{[
-        ["Brazilian Pineapple","Exclusivo ZT Poker","♥","Três cartas na mão. Depois das apostas do flop e do turn, mantenha ou troque uma. No river, descarte uma e jogue com duas.","3 CARTAS · 2 TROCAS · 1 DESCARTE"],
+        ["Brazilian Pineapple","Exclusivo ZT Poker","♥","Três cartas na mão. No flop, no turn e no river, na sua vez, mantenha ou troque uma antes de apostar. No river, depois da troca, descarte uma, aberta para a mesa, e jogue com duas.","3 CARTAS · 3 TROCAS · 1 DESCARTE"],
         ["Short Deck","Outra dinâmica","♦","Do 6 ao ás. Aqui, flush supera full house e trinca supera sequência.","36 CARTAS"],
         ["Omaha 4","Mais combinações","♣","Quatro cartas na mão. Use exatamente duas delas e três comunitárias.","2 + 3 NO SHOWDOWN"],
         ["Texas Hold’em","O clássico","♠","Duas cartas na mão, cinco na mesa. Forme a melhor combinação de cinco.","52 CARTAS"],

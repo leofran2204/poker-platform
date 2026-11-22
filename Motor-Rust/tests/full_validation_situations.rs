@@ -32,8 +32,8 @@ fn act(g: &mut GameLoop, action: PlayerMove) {
     keep_all(g);
 }
 
-/// Estas situações tratam só das apostas: cada rodada de troca do Pineapple
-/// Draw é concluída com todos mantendo as cartas.
+/// Estas situações tratam só das apostas: os passos de troca (flop, turn e
+/// river) e de descarte (river) da vez de cada jogador são concluídos sem trocar.
 fn keep_all(g: &mut GameLoop) {
     while (g.state.drawing || g.state.discarding) && !g.state.is_finished {
         let id = g.state.active_player().unwrap().id.clone();
@@ -58,12 +58,12 @@ fn rejected_unchanged(g: &mut GameLoop, action: PlayerMove) {
 }
 
 fn pineapple_flop(n: usize) -> GameLoop {
-    // Legal live bets plus the mandatory R$1 BBA form exactly R$10.
+    // Sem ante: apostas legais formam exatamente R$10 (2 x 5, 4 x 2,50, 5 x 2).
     let mut g = pineapple(&vec![10000; n], 0);
     if n == 2 {
         act(&mut g, PlayerMove::Raise(200));
     }
-    act(&mut g, PlayerMove::Raise(900 / n as u64));
+    act(&mut g, PlayerMove::Raise(1000 / n as u64));
     while g.state.phase == poker_engine::types::GamePhase::Preflop {
         let p = g.state.active_player().unwrap();
         let mv = if p.current_bet < g.state.current_bet_to_match {
@@ -81,28 +81,33 @@ fn pineapple_flop(n: usize) -> GameLoop {
 fn pineapple_pot_bounds_heads_up_and_transition() {
     for n in [2, 3, 6] {
         let mut g = pineapple(&vec![10000; n], 0);
-        assert_eq!(g.state.total_pot(), 300);
+        // Sem ante: só small e big blind no pote.
+        assert_eq!(g.state.total_pot(), 200);
+        assert_eq!((g.nominal_ante(), g.ante_paid()), (0, 0));
         let first = g.state.active_player().unwrap().id.clone();
         assert_eq!(
             (
                 g.legal_actions(&first).minimum_wager,
                 g.legal_actions(&first).maximum_wager
             ),
-            (200, 400)
+            (200, 300)
         );
-        rejected_unchanged(&mut g, PlayerMove::Raise(401));
+        rejected_unchanged(&mut g, PlayerMove::Raise(301));
         rejected_unchanged(&mut g, PlayerMove::AllIn);
-        act(&mut g, PlayerMove::Raise(350));
-        assert_eq!(g.state.min_raise, 250);
-        rejected_unchanged(&mut g, PlayerMove::Raise(599));
-        act(&mut g, PlayerMove::Raise(600)); // above the former 4 BB cap
+        act(&mut g, PlayerMove::Raise(250));
+        assert_eq!(g.state.min_raise, 150);
+        rejected_unchanged(&mut g, PlayerMove::Raise(399));
+        // Heads-up o big blind já tem 100 no pote: 100 + 150 + 350 = 600.
+        let max = if n == 2 { 600 } else { 700 };
+        rejected_unchanged(&mut g, PlayerMove::Raise(max + 1));
+        act(&mut g, PlayerMove::Raise(max)); // above the former 4 BB cap
         while g.state.phase == poker_engine::types::GamePhase::Preflop {
             act(&mut g, PlayerMove::Call);
         }
         let legal = g.legal_actions(&g.state.active_player().unwrap().id);
         assert_eq!(
             (legal.minimum_wager, legal.maximum_wager),
-            (100, 100 + 600 * n as u64)
+            (100, max * n as u64)
         );
         assert!(g.state.players.iter().all(|p| p.hole_cards.len() == 3));
     }
@@ -110,7 +115,7 @@ fn pineapple_pot_bounds_heads_up_and_transition() {
 
 #[test]
 fn pineapple_short_allins_completion_and_individual_reopening() {
-    let mut g = pineapple(&[10000, 250, 10000, 400], 0);
+    let mut g = pineapple(&[10000, 250, 10000, 300], 0);
     act(&mut g, PlayerMove::Raise(200));
     act(&mut g, PlayerMove::AllIn); // 2.5 BB
     act(&mut g, PlayerMove::Call); // p2 completed at 250
@@ -136,7 +141,7 @@ fn pineapple_short_allins_completion_and_individual_reopening() {
 fn pineapple_short_blinds_and_ante_do_not_change_live_levels() {
     let mut g = pineapple(&[10000, 40, 70], 500);
     assert_eq!(g.state.current_bet_to_match, 100);
-    assert_eq!(g.state.total_pot(), 110); // incomplete BB has priority, no ante collected
+    assert_eq!(g.state.total_pot(), 110); // sem ante no Brazilian Pineapple, só os blinds
     assert_eq!(g.legal_actions("p0").call_amount, 100);
     assert_eq!(g.legal_actions("p0").minimum_wager, 200);
     act(&mut g, PlayerMove::Call);
@@ -153,7 +158,7 @@ fn pineapple_short_blinds_and_ante_do_not_change_live_levels() {
 
 #[test]
 fn pineapple_pot_before_call_required_examples_and_reraise() {
-    for n in [2, 3, 4] {
+    for n in [2, 4, 5] {
         let mut g = pineapple_flop(n);
         act(&mut g, PlayerMove::Bet(500));
         assert_eq!(g.state.total_pot(), 1500);
@@ -176,9 +181,9 @@ fn pineapple_pot_before_call_required_examples_and_reraise() {
         while g.state.phase == poker_engine::types::GamePhase::Flop {
             act(&mut g, PlayerMove::Call);
         }
-        assert_eq!(g.state.total_pot(), 1000 + 2000 * n as u64); // 50, 70, 90 reais
+        assert_eq!(g.state.total_pot(), 1000 + 2000 * n as u64); // 50, 90, 110 reais
     }
-    let mut g = pineapple_flop(3);
+    let mut g = pineapple_flop(4);
     act(&mut g, PlayerMove::Bet(500));
     act(&mut g, PlayerMove::Raise(2000));
     rejected_unchanged(&mut g, PlayerMove::Raise(5501));
@@ -266,7 +271,7 @@ fn pineapple_overflow_is_rejected_before_start_and_limits_saturate() {
     assert_eq!(
         g.legal_actions(&g.state.active_player().unwrap().id)
             .maximum_wager,
-        500
+        400
     );
 }
 

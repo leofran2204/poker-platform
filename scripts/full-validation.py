@@ -119,7 +119,7 @@ class Campaign:
              seconds=None if self.started is None else round(time.monotonic()-self.started, 3),
              wall_seconds=None if self.started_wall is None else round(time.time()-self.started_wall, 3),
              max_seconds=self.args.minutes*60, simulation_workers=2,
-             betting_rule_version="pineapple_draw_v1", phase=self.args.phase, stages=self.stages, gaps=self.gaps,
+             betting_rule_version="pineapple_draw_v4", phase=self.args.phase, stages=self.stages, gaps=self.gaps,
              redundancy_discarded=[
                  "No engine duplication for PM vs Real; isolation belongs to API/database tests.",
                  "Removed frontend legacy no-op and fictional two-million-input counter.",
@@ -513,7 +513,7 @@ class Campaign:
                     for row in rows:
                         settlement=row["settlement_json"]
                         if isinstance(settlement,str): settlement=json.loads(settlement)
-                        if table["variant"] == "pineapple_draw" and settlement.get("betting_rule_version") != "pineapple_draw_v1":
+                        if table["variant"] == "pineapple_draw" and settlement.get("betting_rule_version") != "pineapple_draw_v4":
                             raise RuntimeError("missing Pineapple rule version in durable settlement")
                         payload=json.dumps(settlement,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()
                         expected=hmac.new(self.env["JWT_SECRET"].encode(),payload,hashlib.sha256).hexdigest()

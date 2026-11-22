@@ -1,8 +1,9 @@
-// pineapple_draw.rs — Apoio de decisão para a rodada de troca do Brazilian
-// Pineapple (identificador `pineapple_draw`).
+// pineapple_draw.rs — Apoio de decisão para a troca do Brazilian Pineapple
+// (identificador `pineapple_draw`).
 //
-// A regra do jogo vive em `game_loop.rs` (troca depois das apostas do flop e do
-// turn, descarte no river, all-in não troca). Este módulo só sugere uma troca
+// A regra do jogo vive em `game_loop.rs` (troca na vez do jogador, antes da
+// aposta, no flop, no turn e no river; no river, descarte depois da troca;
+// all-in não troca). Este módulo só sugere uma troca
 // para bots, simulações e o laboratório
 // da Academy. É uma heurística simples, pública e determinística; não é
 // estratégia ótima e não participa da liquidação nem do Loss Deflator.
@@ -12,18 +13,21 @@ use std::cmp::Ordering;
 
 /// Sugere qual privada trocar (posição 0 a 2) ou `None` para manter as três.
 ///
-/// A troca só existe com o flop ou o turn na mesa (3 ou 4 comunitárias).
+/// A troca existe com o flop, o turn ou o river na mesa (3, 4 ou 5
+/// comunitárias).
 ///
 /// 1. Encontra o par de privadas que forma a melhor mão com a mesa agora; a
 ///    terceira carta é a candidata à troca.
 /// 2. Mantém quando a mão já é sequência ou melhor.
-/// 3. Mantém quando a candidata ainda trabalha: forma par com a mesa ou com
-///    outra privada, ou completa quatro cartas do mesmo naipe.
-/// 4. Caso contrário, troca a candidata.
+/// 3. No river, troca a candidata: ela seria descartada de qualquer jeito, e a
+///    carta nova só pode somar (o descarte vem depois da troca).
+/// 4. No flop e no turn, mantém quando a candidata ainda trabalha: forma par
+///    com a mesa ou com outra privada, ou completa quatro cartas do mesmo naipe.
+/// 5. Caso contrário, troca a candidata.
 ///
 /// O descarte do river é `deck::pineapple_draw_best_discard`.
 pub fn suggested_swap(hole: &[Card], board: &[Card]) -> Option<usize> {
-    if hole.len() != 3 || !matches!(board.len(), 3 | 4) {
+    if hole.len() != 3 || !matches!(board.len(), 3..=5) {
         return None;
     }
     let mut best: Option<(HandResult, usize)> = None;
@@ -39,6 +43,9 @@ pub fn suggested_swap(hole: &[Card], board: &[Card]) -> Option<usize> {
     let (hand, spare_index) = best?;
     if hand.rank >= HandRank::Straight {
         return None;
+    }
+    if board.len() == 5 {
+        return Some(spare_index);
     }
     let spare = hole[spare_index];
     let others = hole
@@ -125,9 +132,23 @@ mod tests {
             suggested_swap(&cards("Ah Kd 7c"), &cards("Qh 5h 2c Js")),
             Some(2)
         );
-        // Com o river na mesa não há troca, só descarte.
+    }
+
+    #[test]
+    fn on_the_river_swaps_the_card_that_would_be_discarded() {
+        // No river a sobra seria descartada depois da troca; trocar só soma.
         assert_eq!(
             suggested_swap(&cards("Ah Kd 7h"), &cards("Qh 5h 2c Js 3d")),
+            Some(2)
+        );
+        // Mesmo o 9 que forma par com a mesa: AA é a dupla e o 9 sobraria.
+        assert_eq!(
+            suggested_swap(&cards("Ah Ad 9c"), &cards("9h 5s 2d Kc 3h")),
+            Some(2)
+        );
+        // Sequência feita: mantém.
+        assert_eq!(
+            suggested_swap(&cards("9h 8d 2c"), &cards("7s 6h 5d Kc Qh")),
             None
         );
     }

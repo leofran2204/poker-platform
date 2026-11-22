@@ -1,54 +1,54 @@
 {
   "lessonId": "m5l4",
-  "contentHash": "9ba7576b31a67fc707fe580e90dfdc94c8e39b24ceb1fd96f011859bbded5c3c",
+  "contentHash": "2b3d33fbc307d1653513a6d77f4933909bfb4acd7a3a8f662afadc139804e3bf",
   "filename": "zt-academy-m5l4-v4",
   "title": "Aula m5l4 — Combinações, trocas e probabilidade",
   "renderer": "remotion",
   "rendererVersion": 2,
   "composition": "AcademyM5L4",
   "script": "src/data/academy-m5l4.json",
-  "scriptHash": "84083d2cc3d5c47c0092c14c3f2dbf3813bcdda6303fc6325523d4a79afd4b7e",
-  "bettingRuleVersion": "pineapple_draw_v1",
-  "durationSeconds": 170.6,
+  "scriptHash": "ea49c57b79d6bb2a41f428fb037a835d872fab6b91a9783be3a6ef651014587d",
+  "bettingRuleVersion": "pineapple_draw_v4",
+  "durationSeconds": 165.89,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 10359000,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 10085984,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v2-lang-en",
-  "narrationHash": "fdb57fc2de39d9c4755e268ec54e1aa1773d9e2fc81468a4910cb177f6358cbe",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "418d16a74646bbdd684fa5198e03a692abf0ea86227405c17742ebf7dbea59dc",
   "chapters": [
     {
       "start": 0.0,
       "title": "Abertura"
     },
     {
-      "start": 16.27,
+      "start": 16.57,
       "title": "Três duplas possíveis"
     },
     {
-      "start": 53.47,
+      "start": 53.7,
       "title": "Uma chance exata"
     },
     {
-      "start": 95.1,
+      "start": 95.17,
       "title": "Exercício"
     },
     {
-      "start": 138.77,
+      "start": 136.27,
       "title": "Laboratório"
     },
     {
-      "start": 155.37,
+      "start": 151.8,
       "title": "Fechamento"
     }
   ],
-  "sha256": "c9c96f776b3a2d6e261403e59b4d0fb58a759d2c403418aa2754889897a4e2f5",
+  "sha256": "a75af1942ea0f6ce17e43ca21f1650e0740f5b31c195dd7f41f31c468abad242",
   "assetHashes": {
-    "mp4": "c9c96f776b3a2d6e261403e59b4d0fb58a759d2c403418aa2754889897a4e2f5",
-    "vtt": "c2e0140cbd052257db6309eef2bc3ac80a4242417edb16f5453855bf239e3b3a",
-    "webp": "cbefa39c9c179de19a7e0e5f1bfec67f6a1bb98627f61d2baf91fef91149482a"
+    "mp4": "a75af1942ea0f6ce17e43ca21f1650e0740f5b31c195dd7f41f31c468abad242",
+    "vtt": "ac8feb9623a5683e18a174583778dd959b53e752a5f95a6ae654e37b2a5b3d50",
+    "webp": "7efc0a096310e59b38c215c5cfec6eb175d264a9667fa3a8fd02da19e13c9fd7"
   },
-  "mediaRevision": "af45972474a1f0c6984b7fb1fe365bbe634129710a58b45a912cd8bfee7d9bdd"
+  "mediaRevision": "d93a74e98b46a2d37d6e04f383b7e258fb0f919ddc7d777060a3e9fc0f43eedd"
 }

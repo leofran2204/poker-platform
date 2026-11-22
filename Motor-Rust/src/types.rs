@@ -62,8 +62,10 @@ pub enum PokerVariant {
     #[serde(alias = "short_deck_omaha", alias = "sd_omaha", alias = "omaha_four")]
     Omaha,
     /// Brazilian Pineapple (identificador `pineapple_draw`): 52 cartas, 3 privadas,
-    /// troca opcional de uma carta depois das apostas do flop e do turn, descarte
-    /// de uma no river antes da última rodada; showdown com 2 privadas, como no
+    /// sem ante; no flop, no turn e no river, troca opcional de uma carta na
+    /// vez do jogador, antes de apostar; no river, depois da troca, descarte
+    /// de uma, aberta para a mesa, antes de apostar;
+    /// showdown com 2 privadas, como no
     /// Hold'em (melhor mão de 5 entre as 2 privadas e as 5 comunitárias).
     #[serde(alias = "pineapple", alias = "pineapple_triple_draw")]
     PineappleDraw,
@@ -99,8 +101,7 @@ impl PokerVariant {
         }
     }
 
-    /// Modalidades com rodada de troca depois das apostas do flop e do turn e
-    /// descarte no river.
+    /// Modalidades com troca na vez do jogador (flop, turn e river) e descarte no river.
     pub fn has_draw_rounds(self) -> bool {
         matches!(self, Self::PineappleDraw)
     }

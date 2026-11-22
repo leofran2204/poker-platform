@@ -457,6 +457,8 @@ export interface PlayerWsData {
   is_sitting?: boolean;
   /** Brazilian Pineapple: cartas trocadas na street atual (0 ou 1); ausente/null = ainda não decidiu. */
   draw_count?: number | null;
+  /** Brazilian Pineapple (v4): carta descartada no river, pública para toda a mesa. */
+  river_discard?: string | null;
 }
 
 export interface PotWsData {
@@ -481,7 +483,7 @@ export type ServerMessage =
       stage: string;
       pots: PotWsData[];
       betting_structure?: string | null;
-      /** Brazilian Pineapple: rodada de troca em andamento (depois das apostas do flop e do turn). */
+      /** Brazilian Pineapple: o jogador da vez troca ou mantém (flop, turn e river) antes de apostar. */
       drawing?: boolean;
       /** Brazilian Pineapple: descarte obrigatório do river em andamento (antes das apostas). */
       discarding?: boolean;
@@ -500,7 +502,7 @@ export type ServerMessage =
       is_finished?: boolean;
       /** Segundos restantes do tempo normal do turno (servidor). */
       time_bank?: number;
-      /** Banco de tempo: segundos de reserva que o jogador da vez ainda tem. */
+      /** Tempo extra (5 s por jogada) que o jogador da vez ainda tem. */
       time_bank_reserve?: number;
       table_id?: string;
       current_bet_to_match?: number;

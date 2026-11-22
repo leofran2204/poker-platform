@@ -1,17 +1,17 @@
 {
  "id": "academy-m5l5",
  "title": "Aula m5l5 — Showdown, empates e leitura de equity",
- "voice": "pt-BR-AntonioNeural",
+ "voice": "pt-BR-MacerioMultilingualNeural",
  "rate": "-3%",
  "fps": 30,
- "bettingRuleVersion": "pineapple_draw_v1",
+ "bettingRuleVersion": "pineapple_draw_v4",
  "lesson": "m5l5",
  "scenes": [
   {
    "id": "m5l5-01",
    "chapter": "Abertura",
    "title": "Showdown, empates e leitura de equity",
-   "voice": "Zero Tilt Academy. Brazilian Pineapple, aula três: showdown, empates e leitura de equity. O objetivo é formar a melhor mão com duas cartas, dividir potes corretamente e não confundir ranking com equity.",
+   "voice": "Esta é a Zero Tilt Academy. Na aula três do Brazilian Pineapple, vamos estudar o showdown, os empates e a leitura de equity. O objetivo é formar a melhor mão com duas cartas, dividir potes corretamente e não confundir ranking com equity.",
    "visual": {
     "mode": "intro",
     "kicker": "Zero Tilt Academy · Brazilian Pineapple · Aula 3",
@@ -25,7 +25,7 @@
    "id": "m5l5-02",
    "chapter": "Formação da mão",
    "title": "Uma carta da mão já basta",
-   "voice": "Com duas cartas na mão, você forma a melhor mão de cinco como no Texas Hold’em: pode usar as duas, uma só ou nenhuma. Aqui há quatro copas na mesa. Ana descarta um sete e guarda o ás de copas. Uma carta da mão já basta para o flush.",
+   "voice": "Com duas cartas na mão, você forma a melhor mão de cinco como no Texas Hold’em: pode usar as duas, uma só ou nenhuma. Aqui há quatro copas na mesa, e Ana tem o ás de copas: o flush mais alto possível. Não há o que melhorar, então ela mantém as três e descarta um sete. Uma carta da mão já basta para o flush.",
    "visual": {
     "mode": "hand",
     "dealer": 3,
@@ -79,8 +79,13 @@
     "pot": 1400,
     "events": [
      {
+      "type": "keep",
+      "cue": "ela mantém as três",
+      "player": 0
+     },
+     {
       "type": "discard",
-      "cue": "Ana descarta",
+      "cue": "descarta um sete",
       "player": 0,
       "position": 1
      },

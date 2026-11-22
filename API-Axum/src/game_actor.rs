@@ -14,7 +14,7 @@ use poker_engine::game_loop::{GameLoop, GameLoopError, PlayerMove};
 use poker_engine::hand_history::GameType;
 use poker_engine::types::TableConfig;
 
-const DEFAULT_TURN_TIMEOUT: tokio::time::Duration = tokio::time::Duration::from_secs(30);
+const DEFAULT_TURN_TIMEOUT: tokio::time::Duration = crate::time_bank::TURN;
 /// After the socket drops, keep the seat briefly so a refresh can reconnect.
 /// Then cash out so the lobby cannot stay full of ghost players.
 const DEFAULT_DISCONNECT_CASH_OUT_AFTER: tokio::time::Duration =
@@ -471,8 +471,6 @@ impl TableActor {
             {
                 player.left_hand = false;
             }
-            // Na rodada de troca não há desistência: mantém as cartas e a
-            // desistência acontece na vez seguinte, já nas apostas.
             let automatic = self.automatic_timeout_action();
             tracing::warn!(
                 table_id = %self.table_id,
@@ -480,8 +478,7 @@ impl TableActor {
                 action = automatic,
                 "Player out of seat during active hand; applying automatic action"
             );
-            self.handle_action(player_id, automatic.to_string(), 0)
-                .await;
+            self.handle_automatic_action(player_id).await;
             return;
         }
         let disconnected_active_player = self.game_loop.as_ref().and_then(|game_loop| {
@@ -510,28 +507,26 @@ impl TableActor {
                 action = automatic,
                 "Disconnected active player; applying automatic action"
             );
-            self.handle_action(player_id, automatic.to_string(), 0)
-                .await;
+            self.handle_automatic_action(player_id).await;
             return;
         }
 
-        // O turno vai até o tempo normal mais a reserva do banco de tempo de
-        // quem está conectado.
+        // O turno vai até o tempo normal mais o tempo extra de quem está
+        // conectado.
         let timed_out_player = self.game_loop.as_ref().and_then(|game_loop| {
             if game_loop.state.is_finished {
                 return None;
             }
             let started_at = self.last_turn_start?;
             let player_id = game_loop.state.active_player()?.id.clone();
-            let limit = self.time_banks.turn_limit(
-                &player_id,
-                self.turn_timeout,
-                self.may_use_time_bank(&player_id),
-            );
+            let limit = self
+                .time_banks
+                .turn_limit(self.turn_timeout, self.may_use_time_bank(&player_id));
             (started_at.elapsed() >= limit).then_some(player_id)
         });
         if let Some(player_id) = timed_out_player {
-            // Na rodada de troca do Brazilian Pineapple, o tempo esgotado mantém as cartas.
+            // Brazilian Pineapple: o tempo esgotado mantém as cartas e dá check
+            // (ou desiste, se houver aposta a pagar).
             let automatic = self.automatic_timeout_action();
             tracing::warn!(
                 table_id = %self.table_id,
@@ -540,8 +535,7 @@ impl TableActor {
                 action = automatic,
                 "Player action timed out; applying automatic action"
             );
-            self.handle_action(player_id, automatic.to_string(), 0)
-                .await;
+            self.handle_automatic_action(player_id).await;
             self.save_snapshot().await;
             return;
         }
@@ -782,7 +776,6 @@ impl TableActor {
             .map(|player| player.chips);
         if chips.is_some() {
             self.players.retain(|player| player.id != player_id);
-            self.time_banks.forget(player_id);
             self.broadcast_state();
         }
         Ok(chips)
@@ -793,8 +786,6 @@ impl TableActor {
             .last_turn_start
             .map(|t| t.elapsed().as_millis() as u64)
             .unwrap_or(500);
-        let turn_elapsed = self.last_turn_start.map(|started| started.elapsed());
-        let uses_time_bank = self.may_use_time_bank(&player_id);
         let risk_score = self.antifraud.process_action(&player_id, elapsed_ms);
         if risk_score.recommendation == poker_engine::antifraud::RiskRecommendation::BlockSession {
             error!(
@@ -841,6 +832,10 @@ impl TableActor {
             }
         };
 
+        let draw_step = matches!(
+            player_move,
+            PlayerMove::Keep | PlayerMove::Swap(_) | PlayerMove::Discard(_)
+        );
         if let Err(e) = game_loop.player_action(&player_id, player_move) {
             // Mão travada all-in (comum quando blinds superam stacks): quem não
             // pode agir nunca completa fold — corre o board e cai no fluxo de
@@ -853,13 +848,12 @@ impl TableActor {
             }
         }
 
-        // O que passou do tempo normal sai da reserva de quem agiu.
-        if let Some(elapsed) = turn_elapsed.filter(|_| uses_time_bank) {
-            self.time_banks
-                .charge(&player_id, elapsed, self.turn_timeout);
+        // Depois da troca (ou do descarte) a vez continua com o mesmo jogador
+        // e o relógio segue correndo até a aposta.
+        if !continues_same_turn(game_loop, &player_id, draw_step) {
+            self.last_turn_start =
+                (!game_loop.state.is_finished).then_some(tokio::time::Instant::now());
         }
-        self.last_turn_start =
-            (!game_loop.state.is_finished).then_some(tokio::time::Instant::now());
 
         if game_loop.state.is_finished {
             // Resolver a mão
@@ -1198,8 +1192,6 @@ impl TableActor {
             return;
         }
 
-        self.time_banks
-            .hand_dealt(gl.state.players.iter().map(|player| player.id.as_str()));
         self.game_loop = Some(gl);
         self.last_winners.clear();
         self.last_turn_start = Some(tokio::time::Instant::now());
@@ -1224,7 +1216,7 @@ impl TableActor {
     }
 
     /// Ação aplicada quando o tempo do jogador da vez acaba.
-    /// Só quem está conectado à mesa usa a reserva do banco de tempo.
+    /// Só quem está conectado à mesa ganha o tempo extra.
     fn may_use_time_bank(&self, player_id: &str) -> bool {
         self.players
             .iter()
@@ -1232,7 +1224,7 @@ impl TableActor {
             .is_some_and(|player| player.is_sitting && player.disconnected_since.is_none())
     }
 
-    /// Segundos de reserva que o jogador da vez ainda tem neste instante.
+    /// Segundos de tempo extra que o jogador da vez ainda tem neste instante.
     fn active_time_bank_reserve_secs(&self) -> u64 {
         let Some(game_loop) = self.game_loop.as_ref().filter(|g| !g.state.is_finished) else {
             return 0;
@@ -1245,12 +1237,27 @@ impl TableActor {
             return 0;
         }
         self.time_banks
-            .live(&player.id, started.elapsed(), self.turn_timeout)
+            .live(started.elapsed(), self.turn_timeout)
             .as_secs()
     }
 
     fn automatic_timeout_action(&self) -> &'static str {
         automatic_timeout_action(self.game_loop.as_ref())
+    }
+
+    /// Aplica a ação automática completa da vez: no Brazilian Pineapple, o
+    /// passo de troca (manter ou descarte automático) e logo depois o check ou
+    /// a desistência, sem esperar outro tempo esgotado.
+    pub(crate) async fn handle_automatic_action(&mut self, player_id: String) {
+        // Até três passos na mesma vez: manter, descartar (river) e check.
+        for _ in 0..3 {
+            let automatic = self.automatic_timeout_action();
+            self.handle_action(player_id.clone(), automatic.to_string(), 0)
+                .await;
+            if !needs_second_automatic_step(self.game_loop.as_ref(), &player_id, automatic) {
+                break;
+            }
+        }
     }
 
     fn get_table_info_json(&self) -> serde_json::Value {
@@ -1302,6 +1309,7 @@ impl TableActor {
                         "cards": gp.hole_cards.iter().map(card_to_string).collect::<Vec<String>>(),
                         "folded": gp.has_folded,
                         "draw_count": gp.draw_count,
+                        "river_discard": gp.river_discard.as_ref().map(card_to_string),
                         "is_active": gl.state.active_player().map(|ap| ap.id == gp.id).unwrap_or(false),
                         "is_dealer": gl.state.dealer_index == gp.seat_index,
                         "seat": tp.seat,
@@ -1388,19 +1396,55 @@ impl TableActor {
     }
 }
 
-/// Ação automática (tempo esgotado, saída ou desconexão): desiste nas apostas;
-/// mantém as cartas na rodada de troca e deixa o motor guardar as duas melhores
-/// no descarte do river, que não admitem desistência.
+/// Ação automática (tempo esgotado, saída ou desconexão). Desiste nas apostas.
+/// No Brazilian Pineapple, com aposta a pagar, desiste já no passo de troca;
+/// sem aposta, mantém as cartas, no river descarta deixando as duas melhores
+/// (o motor escolhe) e em seguida dá check.
 pub(crate) fn automatic_timeout_action(
     game_loop: Option<&poker_engine::game_loop::GameLoop>,
 ) -> &'static str {
-    if game_loop.is_some_and(|gl| gl.state.drawing && !gl.state.is_finished) {
+    let Some(gl) = game_loop.filter(|gl| !gl.state.is_finished) else {
+        return "fold";
+    };
+    let bet_to_pay = gl
+        .state
+        .active_player()
+        .is_some_and(|p| gl.state.current_bet_to_match > p.current_bet);
+    if bet_to_pay || !gl.config.poker_variant.has_draw_rounds() {
+        "fold"
+    } else if gl.state.drawing {
         "keep"
-    } else if game_loop.is_some_and(|gl| gl.state.discarding && !gl.state.is_finished) {
+    } else if gl.state.discarding {
         "auto_discard"
     } else {
-        "fold"
+        "check"
     }
+}
+
+/// Brazilian Pineapple: depois da troca (ou do descarte) a vez continua com o
+/// mesmo jogador, agora nas apostas.
+pub(crate) fn continues_same_turn(
+    game_loop: &poker_engine::game_loop::GameLoop,
+    player_id: &str,
+    draw_step: bool,
+) -> bool {
+    draw_step
+        && !game_loop.state.is_finished
+        && game_loop
+            .state
+            .active_player()
+            .is_some_and(|p| p.id == player_id)
+}
+
+/// A ação automática foi só o passo de troca (ou de descarte) e o jogador
+/// ainda tem a vez: falta o descarte do river ou o check (ou a desistência).
+pub(crate) fn needs_second_automatic_step(
+    game_loop: Option<&poker_engine::game_loop::GameLoop>,
+    player_id: &str,
+    automatic: &str,
+) -> bool {
+    matches!(automatic, "keep" | "auto_discard")
+        && game_loop.is_some_and(|gl| continues_same_turn(gl, player_id, true))
 }
 
 pub(crate) fn card_to_string(card: &poker_engine::deck::Card) -> String {
@@ -1566,52 +1610,44 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn time_bank_keeps_a_connected_player_in_the_hand_past_the_normal_time() {
-        // Turno de 10 s aberto há 15 s: 5 s além do normal, dentro da reserva de 30 s.
-        let (mut actor, active) = actor_mid_turn(10, 15).await;
+    async fn extra_time_keeps_a_connected_player_in_the_hand_past_the_normal_time() {
+        // Turno de 10 s aberto há 13 s: 3 s além do normal, dentro dos 5 s extras.
+        let (mut actor, active) = actor_mid_turn(10, 13).await;
 
         actor.tick().await;
 
         assert_eq!(active_id(&actor).as_deref(), Some(active.as_str()));
-        assert!((24..=25).contains(&actor.active_time_bank_reserve_secs()));
+        assert!((1..=2).contains(&actor.active_time_bank_reserve_secs()));
 
-        // Ao agir, só o que passou do tempo normal sai da reserva dele.
+        // Ao agir, a próxima vez começa com os 5 s extras inteiros: não acumula
+        // nem é descontado.
         actor
             .handle_action(active.clone(), "fold".to_string(), 0)
             .await;
-        let left = actor.time_banks.remaining(&active).as_secs();
-        assert!((24..=25).contains(&left), "reserve left: {left}");
-        for other in ["a", "b", "c"].into_iter().filter(|id| *id != active) {
-            assert_eq!(actor.time_banks.remaining(other), crate::time_bank::INITIAL);
-        }
+        let next = active_id(&actor).expect("hand continues with two players");
+        assert_ne!(next, active);
+        assert_eq!(actor.active_time_bank_reserve_secs(), 5);
     }
 
     #[tokio::test]
-    async fn time_bank_runs_out_and_the_actor_acts_for_the_player() {
-        // 10 s normais + 30 s de reserva: aos 41 s o turno acabou.
-        let (mut actor, active) = actor_mid_turn(10, 41).await;
+    async fn extra_time_runs_out_and_the_actor_acts_for_the_player() {
+        // 10 s normais + 5 s extras: aos 16 s o turno acabou.
+        let (mut actor, active) = actor_mid_turn(10, 16).await;
 
         actor.tick().await;
 
         assert_ne!(active_id(&actor).as_deref(), Some(active.as_str()));
+        // O tempo extra renova: a próxima vez dele volta a ter 10 + 5 s.
         assert_eq!(
-            actor.time_banks.remaining(&active),
-            std::time::Duration::ZERO
-        );
-
-        // Sem reserva, o próximo turno dele acaba no tempo normal.
-        assert_eq!(
-            actor.time_banks.turn_limit(
-                &active,
-                actor.turn_timeout,
-                actor.may_use_time_bank(&active)
-            ),
-            actor.turn_timeout
+            actor
+                .time_banks
+                .turn_limit(actor.turn_timeout, actor.may_use_time_bank(&active)),
+            actor.turn_timeout + crate::time_bank::EXTRA
         );
     }
 
     #[tokio::test]
-    async fn disconnected_player_does_not_use_the_time_bank() {
+    async fn disconnected_player_does_not_get_extra_time() {
         let (mut actor, active) = actor_mid_turn(10, 11).await;
         let seat = actor
             .players
@@ -1624,14 +1660,10 @@ mod tests {
         actor.tick().await;
 
         assert_ne!(active_id(&actor).as_deref(), Some(active.as_str()));
-        assert_eq!(
-            actor.time_banks.remaining(&active),
-            crate::time_bank::INITIAL
-        );
     }
 
     #[tokio::test]
-    async fn table_state_reports_the_turn_time_and_the_reserve() {
+    async fn table_state_reports_the_turn_time_and_the_extra_time() {
         let (tx_cmd, rx_cmd) = mpsc::channel(1);
         drop(tx_cmd);
         let (tx_broadcast, mut rx_broadcast) = broadcast::channel(8);
@@ -1647,8 +1679,8 @@ mod tests {
         while let Ok(message) = rx_broadcast.try_recv() {
             state = message;
         }
-        assert!((29..=30).contains(&state["time_bank"].as_u64().unwrap()));
-        assert_eq!(state["time_bank_reserve"], 30);
+        assert!((14..=15).contains(&state["time_bank"].as_u64().unwrap()));
+        assert_eq!(state["time_bank_reserve"], 5);
     }
 
     #[test]

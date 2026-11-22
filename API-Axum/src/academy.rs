@@ -81,6 +81,8 @@ pub struct StudyPlayer {
     all_in: bool,
     /// Brazilian Pineapple: cartas trocadas ou descartadas na rodada atual (público).
     draw_count: Option<u8>,
+    /// Brazilian Pineapple: carta descartada no river, aberta para a mesa.
+    river_discard: Option<String>,
     cards: Vec<String>,
     card_count: usize,
     category: Option<String>,
@@ -98,7 +100,7 @@ pub struct StudySnapshot {
     ante_player_id: Option<String>,
     acting: usize,
     finished: bool,
-    /// Brazilian Pineapple: rodada de troca em andamento.
+    /// Brazilian Pineapple: o herói ainda precisa trocar ou manter antes de apostar.
     drawing: bool,
     /// Brazilian Pineapple: descarte obrigatório do river em andamento.
     discarding: bool,
@@ -372,6 +374,7 @@ fn snapshot(game: &GameLoop, reveal: bool) -> StudySnapshot {
                     folded: p.has_folded,
                     all_in: p.is_all_in,
                     draw_count: p.draw_count,
+                    river_discard: p.river_discard.as_ref().map(card_code),
                     card_count: p.hole_cards.len(),
                     cards: if visible {
                         p.hole_cards.iter().map(card_code).collect()
@@ -459,7 +462,12 @@ fn question(game: &GameLoop, s: &Scenario) -> (StudyQuestion, String, String) {
         let (prompt, explanation) = if limits.discarding {
             (
                 "Qual privada você descarta para ficar com a melhor mão?",
-                "No river o descarte é obrigatório: você fica com duas privadas e forma a melhor mão de cinco com elas e as cinco comunitárias, como no Hold’em. Pode usar as duas, uma só ou nenhuma. Descarte a carta que não melhora a mão.",
+                "No river, depois da troca, o descarte é obrigatório: você fica com duas privadas e forma a melhor mão de cinco com elas e as cinco comunitárias, como no Hold’em. Pode usar as duas, uma só ou nenhuma. Descarte a carta que não melhora a mão.",
+            )
+        } else if board.len() == 5 {
+            (
+                "Qual privada fica fora da sua melhor mão agora?",
+                "No river a troca vem antes do descarte: a carta que fica fora da melhor mão sairia de qualquer jeito, então trocá-la só pode somar. Depois você descarta uma e fica com duas. A quantidade trocada é vista por todos.",
             )
         } else {
             (
@@ -484,7 +492,7 @@ fn question(game: &GameLoop, s: &Scenario) -> (StudyQuestion, String, String) {
             let result = evaluate(s.variant,&p.hole_cards,board);
             ("Qual é a categoria da sua melhor mão agora?".into(),category(result.rank).into(),"".into(),"A categoria foi calculada pelo avaliador da modalidade usando somente suas cartas e o board atual. Ela não mede equity contra um range.".into())
         },
-        "selection" if s.variant == PokerVariant::PineappleDraw => ("Com quantas cartas privadas você chega ao showdown nesta modalidade?".into(),"2".into(),"cartas".into(),"O Brazilian Pineapple começa com três privadas e termina com duas: no river, uma é descartada antes da última rodada de apostas. A mão é a melhor de cinco entre as duas privadas e as cinco comunitárias, como no Hold’em.".into()),
+        "selection" if s.variant == PokerVariant::PineappleDraw => ("Com quantas cartas privadas você chega ao showdown nesta modalidade?".into(),"2".into(),"cartas".into(),"O Brazilian Pineapple começa com três privadas e termina com duas: no river, depois da troca, uma é descartada antes da última rodada de apostas. A mão é a melhor de cinco entre as duas privadas e as cinco comunitárias, como no Hold’em.".into()),
         "selection" => ("Quantas cartas privadas você deve usar no showdown desta modalidade?".into(),"2".into(),"cartas".into(),"O Omaha 4 exige exatamente duas privadas e três comunitárias. Nenhuma sexta carta desempata a mão.".into()),
         "combinations" if s.variant == PokerVariant::PineappleDraw && p.hole_cards.len() == 3 => ("De quantas formas você pode escolher as duas privadas que ficam depois do descarte do river?".into(),"3".into(),"duplas".into(),"C(3,2) = 3: cada carta descartada deixa uma dupla diferente. As três duplas compartilham cartas; compare a melhor mão de cada uma com a mesa antes de decidir.".into()),
         "combinations" if board.len()>=3 => {
@@ -1024,7 +1032,7 @@ mod tests {
                         break;
                     }
                     assert!(actions.len() < 40, "scenario stalled: {}", s.id);
-                    // Na rodada de troca, alterna manter e trocar a primeira carta;
+                    // No passo de troca, alterna manter e trocar a primeira carta;
                     // no river, descarta a primeira.
                     let (action, amount) = if result.legal.discarding {
                         ("discard", 0)
@@ -1053,24 +1061,43 @@ mod tests {
     fn every_scenario_accepts_fold_and_only_legal_all_ins_without_financial_side_effects() {
         for s in &catalog().scenarios {
             for action in ["fold", "all_in"] {
-                // Brazilian Pineapple: a primeira decisão pode ser o descarte do
-                // river, que não aceita desistência nem aposta; descarta e testa
-                // nas apostas.
+                // Brazilian Pineapple: a primeira decisão é a troca (flop, turn e
+                // river); no river, depois dela, o descarte. Desistir sem trocar
+                // vale; aposta não. Depois de manter (e descartar), testa nas apostas.
                 let mut prefix = vec![];
                 let opening = replay(request(&s.id, 7, vec![])).unwrap().legal;
+                let mut river_discard = false;
                 if opening.drawing || opening.discarding {
                     let keep = StudyAction {
                         action: if opening.drawing { "keep" } else { "discard" }.into(),
                         amount: 0,
                         answer: String::new(),
                     };
-                    let rejected = vec![StudyAction {
+                    let direct = vec![StudyAction {
                         action: action.into(),
                         amount: 0,
                         answer: String::new(),
                     }];
-                    assert!(replay(request(&s.id, 7, rejected)).is_err(), "{}", s.id);
+                    if action == "fold" {
+                        let folded = replay(request(&s.id, 7, direct)).unwrap();
+                        assert!(folded.state.finished, "{}", s.id);
+                        assert_eq!(folded.state.players[0].cards.len(), 3, "{}", s.id);
+                    } else {
+                        assert!(replay(request(&s.id, 7, direct)).is_err(), "{}", s.id);
+                    }
                     prefix.push(keep);
+                    if replay(request(&s.id, 7, prefix.clone()))
+                        .unwrap()
+                        .legal
+                        .discarding
+                    {
+                        prefix.push(StudyAction {
+                            action: "discard".into(),
+                            amount: 0,
+                            answer: String::new(),
+                        });
+                        river_discard = true;
+                    }
                 }
                 let first = replay(request(&s.id, 7, prefix.clone())).unwrap();
                 if first.state.finished {
@@ -1091,8 +1118,9 @@ mod tests {
                 if s.variant == PokerVariant::PineappleDraw {
                     // Três privadas até o descarte do river; duas depois dele.
                     // Quem desiste antes do river fica com as três.
-                    let discarded =
-                        opening.discarding || (action == "all_in" && result.state.board.len() == 5);
+                    let discarded = river_discard
+                        || opening.discarding
+                        || (action == "all_in" && result.state.board.len() == 5);
                     let expected = if discarded { 2 } else { 3 };
                     assert_eq!(result.state.players[0].cards.len(), expected, "{}", s.id);
                 }
@@ -1119,20 +1147,35 @@ mod tests {
 
     #[test]
     fn objective_answers_are_graded_on_server_and_bad_inputs_rejected() {
-        // Brazilian Pineapple no turn: primeiro as apostas, com a contagem das
-        // três duplas possíveis; depois a troca (o Á fica fora do K-J que faz
-        // sequência com a mesa).
+        // Brazilian Pineapple no turn: na vez do herói, primeiro a troca (o Á
+        // fica fora do K-J que faz sequência com a mesa); depois, na mesma vez,
+        // as apostas, com a contagem das três duplas possíveis.
         let first = replay(request("pine-combinacoes", 5, vec![])).unwrap();
-        assert!(!first.legal.drawing);
+        assert_eq!(first.state.phase, "turn");
+        assert!(first.legal.drawing);
+        assert!(!first.legal.can_check);
         let passive = |legal: &StudyLegal| if legal.can_check { "check" } else { "call" };
         let mut actions = vec![StudyAction {
-            action: passive(&first.legal).into(),
+            action: "keep".into(),
+            amount: 0,
+            answer: "Ad".into(),
+        }];
+        let after_draw = replay(request("pine-combinacoes", 5, actions.clone())).unwrap();
+        assert!(
+            after_draw.reviews[0].correct,
+            "{}",
+            after_draw.reviews[0].expected
+        );
+        assert!(!after_draw.legal.drawing);
+        assert_eq!(after_draw.state.phase, "turn");
+        actions.push(StudyAction {
+            action: passive(&after_draw.legal).into(),
             amount: 0,
             answer: "3".into(),
-        }];
+        });
         let mut state = replay(request("pine-combinacoes", 5, actions.clone())).unwrap();
-        assert!(state.reviews[0].correct, "{}", state.reviews[0].expected);
-        while !state.legal.drawing {
+        assert!(state.reviews[1].correct, "{}", state.reviews[1].expected);
+        while state.state.phase == "turn" {
             assert!(!state.state.finished && actions.len() < 6);
             actions.push(StudyAction {
                 action: passive(&state.legal).into(),
@@ -1141,19 +1184,21 @@ mod tests {
             });
             state = replay(request("pine-combinacoes", 5, actions.clone())).unwrap();
         }
-        assert_eq!(state.state.phase, "turn");
+        // River: primeiro a troca (ou manter), depois o descarte e só então a
+        // aposta; a pergunta do descarte é a carta que sai.
+        assert_eq!(state.state.phase, "river");
+        assert!(state.legal.drawing);
+        assert!(!state.legal.discarding);
+        assert!(!state.legal.can_check);
         actions.push(StudyAction {
             action: "keep".into(),
             amount: 0,
-            answer: "Ad".into(),
+            answer: String::new(),
         });
-        let after_draw = replay(request("pine-combinacoes", 5, actions.clone())).unwrap();
-        assert!(after_draw.reviews.last().unwrap().correct);
-        assert!(!after_draw.legal.drawing);
-        // River: o descarte é obrigatório e a pergunta é a carta que sai.
-        assert_eq!(after_draw.state.phase, "river");
-        assert!(after_draw.legal.discarding);
-        assert!(!after_draw.legal.can_check);
+        let after_keep = replay(request("pine-combinacoes", 5, actions.clone())).unwrap();
+        assert!(after_keep.legal.discarding);
+        assert!(!after_keep.legal.can_check);
+        assert_eq!(after_keep.state.players[0].cards.len(), 3);
         actions.push(StudyAction {
             action: "discard".into(),
             amount: 0,
@@ -1162,7 +1207,8 @@ mod tests {
         let after_discard = replay(request("pine-combinacoes", 5, actions)).unwrap();
         assert!(!after_discard.legal.discarding);
         assert_eq!(after_discard.state.players[0].cards.len(), 2);
-        assert_eq!(after_discard.state.players[0].draw_count, Some(1));
+        // `draw_count` conta só as trocas da street; o descarte não entra.
+        assert_eq!(after_discard.state.players[0].draw_count, Some(0));
         let a = replay(request(
             "omaha-2mais3",
             5,
@@ -1203,26 +1249,30 @@ mod tests {
     }
 
     #[test]
-    fn pineapple_draw_catalog_exposes_ante_and_rejects_previous_sessions() {
+    fn pineapple_draw_catalog_has_no_ante_and_rejects_previous_sessions() {
         let response = replay(request("pine-distribuicao", 7, vec![])).unwrap();
-        assert_eq!(response.version, 5);
+        // v6 (20/11/2026): sem ante e troca na vez do jogador; v7 (21/11/2026):
+        // troca também no river, antes do descarte.
+        assert_eq!(response.version, 7);
         assert_eq!(response.state.players[0].card_count, 3);
-        assert_eq!(response.state.ante, 100);
-        assert_eq!(response.state.ante_paid, 100);
-        assert_eq!(response.state.ante_player_id.as_deref(), Some("bot-2"));
-        assert_eq!(response.state.pot, 250);
+        assert_eq!(response.state.ante, 0);
+        assert_eq!(response.state.ante_paid, 0);
+        assert_eq!(response.state.ante_player_id, None);
+        assert_eq!(response.state.pot, 150);
         assert_eq!(response.legal.to_call, 100);
-        assert_eq!(response.legal.max_total, 350);
-        assert_eq!(response.legal.eligible_pot_after_call, 350);
+        assert_eq!(response.legal.max_total, 250);
+        assert_eq!(response.legal.eligible_pot_after_call, 250);
         assert_eq!(
             response.legal.betting_structure,
             poker_engine::game_loop::PINEAPPLE_DRAW_RULE_VERSION
         );
-        assert!(replay(StudyRequest {
-            version: 4,
-            ..request("pine-distribuicao", 7, vec![])
-        })
-        .is_err());
+        for version in [5, 6] {
+            assert!(replay(StudyRequest {
+                version,
+                ..request("pine-distribuicao", 7, vec![])
+            })
+            .is_err());
+        }
     }
 
     #[test]
@@ -1250,25 +1300,10 @@ mod tests {
             ),
             vec!["7c", "7d"]
         );
-        // No flop as apostas vêm primeiro; a troca abre quando elas fecham.
-        let start = replay(request("pine-flop", 3, vec![])).unwrap();
-        assert!(!start.legal.drawing);
-        let mut actions = vec![];
-        let mut state = start;
-        while !state.legal.drawing {
-            assert!(!state.state.finished && actions.len() < 6);
-            actions.push(StudyAction {
-                action: if state.legal.can_check {
-                    "check"
-                } else {
-                    "call"
-                }
-                .into(),
-                amount: 0,
-                answer: String::new(),
-            });
-            state = replay(request("pine-flop", 3, actions.clone())).unwrap();
-        }
+        // No flop, a vez do herói começa pela troca; a aposta vem depois.
+        let state = replay(request("pine-flop", 3, vec![])).unwrap();
+        let actions: Vec<StudyAction> = vec![];
+        assert!(state.legal.drawing);
         assert_eq!(state.state.phase, "flop");
         assert!(!state.legal.can_check);
         let mut swap = actions.clone();
@@ -1293,23 +1328,35 @@ mod tests {
                 "{action}"
             );
         }
-        // Quatro copas na mesa e uma na mão: o descarte certo é um dos setes.
+        // Quatro copas na mesa e uma na mão: no river, a troca vem antes; a
+        // carta que sobra (e o descarte certo) é um dos setes.
         let river = replay(request("pine-board", 3, vec![])).unwrap();
-        assert!(river.legal.discarding);
+        assert!(river.legal.drawing);
+        let keep = StudyAction {
+            action: "keep".into(),
+            amount: 0,
+            answer: "7s".into(),
+        };
+        let kept = replay(request("pine-board", 3, vec![keep.clone()])).unwrap();
+        assert!(kept.reviews[0].correct, "{}", kept.reviews[0].expected);
+        assert!(kept.legal.discarding);
         let discarded = replay(request(
             "pine-board",
             3,
-            vec![StudyAction {
-                action: "discard".into(),
-                amount: 1,
-                answer: "7s".into(),
-            }],
+            vec![
+                keep,
+                StudyAction {
+                    action: "discard".into(),
+                    amount: 1,
+                    answer: "7s".into(),
+                },
+            ],
         ))
         .unwrap();
         assert!(
-            discarded.reviews[0].correct,
+            discarded.reviews[1].correct,
             "{}",
-            discarded.reviews[0].expected
+            discarded.reviews[1].expected
         );
         assert_eq!(discarded.state.players[0].cards, vec!["Ah", "7d"]);
     }

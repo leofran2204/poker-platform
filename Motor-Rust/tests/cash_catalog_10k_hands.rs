@@ -191,7 +191,7 @@ fn cash_catalog_coverage_batches() {
             let mut checked = BTreeSet::new();
             while !game.state.is_finished {
                 if game.state.drawing || game.state.discarding {
-                    // Rodada de troca do Brazilian Pineapple: fora dos passos dirigidos.
+                    // Troca e descarte do Brazilian Pineapple: fora dos passos dirigidos.
                     draw_steps += 1;
                     assert!(draw_steps < 100, "draw round stalled: seed {seed}");
                     let p = game.state.active_player().unwrap();

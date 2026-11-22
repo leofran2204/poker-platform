@@ -16,6 +16,7 @@ import {
 import { isAuthenticated } from "@/lib/auth";
 import { formatBrlFromCents } from "@/lib/money";
 import { variantHint } from "@/lib/gameLabels";
+import { TURN_SECONDS } from "@/lib/turnClock";
 
 function connectionLabel(status: string): string {
   if (status === "connected") return "estável";
@@ -90,8 +91,10 @@ export function TablePage() {
   const [lastJournal, setLastJournal] = useState<JournalHand | null>(null);
   const [journalCount, setJournalCount] = useState(0);
   const [turnLeft, setTurnLeft] = useState<number | null>(null);
-  /** Banco de tempo: reserva que corre depois do tempo normal do turno. */
+  /** Tempo extra (5 s por jogada) que corre depois do tempo normal do turno. */
   const [reserveLeft, setReserveLeft] = useState(0);
+  /** Relógio de quem está na vez (qualquer jogador), para a barra sob a placa. */
+  const [seatClock, setSeatClock] = useState<{ left: number; reserve: number } | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [boardStaggerFrom, setBoardStaggerFrom] = useState(0);
   const prevBoardLen = useRef(0);
@@ -234,10 +237,15 @@ export function TablePage() {
                 });
               }
             }
-            // Relógio do servidor: reconectar não ganha 30s novos.
+            // Relógio do servidor: reconectar não ganha 15 s novos.
+            setSeatClock(
+              !msg.is_finished && (msg.players ?? []).some((p) => p.is_active) && typeof msg.time_bank === "number"
+                ? { left: msg.time_bank, reserve: typeof msg.time_bank_reserve === "number" ? msg.time_bank_reserve : 0 }
+                : null,
+            );
             if ((msg.available_actions ?? []).length > 0) {
               turnActiveRef.current = true;
-              const bank = typeof msg.time_bank === "number" ? msg.time_bank : 30;
+              const bank = typeof msg.time_bank === "number" ? msg.time_bank : TURN_SECONDS;
               setTurnLeft(bank);
               setReserveLeft(typeof msg.time_bank_reserve === "number" ? msg.time_bank_reserve : 0);
             } else if (turnActiveRef.current) {
@@ -325,8 +333,8 @@ export function TablePage() {
       .catch(() => setMoneyMode(null));
   }, [id]);
 
-  // Regressiva de 1s: primeiro o tempo normal do turno, depois a reserva do banco
-  // de tempo. O servidor age pelo jogador quando os dois acabam.
+  // Regressiva de 1s: primeiro o tempo normal do turno, depois o tempo extra.
+  // O servidor age pelo jogador quando os dois acabam.
   useEffect(() => {
     if (turnLeft === null) return;
     if (turnLeft <= 0 && reserveLeft <= 0) return;
@@ -336,6 +344,15 @@ export function TablePage() {
     }, 1000);
     return () => window.clearTimeout(t);
   }, [turnLeft, reserveLeft]);
+  useEffect(() => {
+    if (!seatClock || (seatClock.left <= 0 && seatClock.reserve <= 0)) return;
+    const t = window.setTimeout(() => {
+      setSeatClock((c) =>
+        c && (c.left > 0 ? { ...c, left: c.left - 1 } : { ...c, reserve: Math.max(0, c.reserve - 1) }),
+      );
+    }, 1000);
+    return () => window.clearTimeout(t);
+  }, [seatClock]);
 
   function onAction(action: string, amount = 0) {
     setActionError(null);
@@ -546,6 +563,7 @@ export function TablePage() {
         showdown={showdown}
         turnLeft={turnLeft}
         reserveLeft={reserveLeft}
+        seatClock={seatClock}
         dealing={dealing}
         maxPlayers={tableMeta?.max_players ?? 9}
         boardStaggerFrom={boardStaggerFrom}

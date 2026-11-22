@@ -63,10 +63,11 @@ async function open(table,user,onState){
         assert.equal(new Set(visible).size,visible.length,"impossible visible cards");
         if(!state.is_finished)counters.private_states++;
         if(table.variant==="pineapple_draw" && !state.is_finished){
-          assert.equal(state.betting_structure,"pineapple_draw_v1");
-          assert.equal(state.ante,table.big_blind);
-          assert(state.ante_paid>=0&&state.ante_paid<=state.ante);
-          assert(state.players.some(p=>p.id===state.ante_player_id));
+          assert.equal(state.betting_structure,"pineapple_draw_v4");
+          // Sem ante desde 20/11/2026: só small e big blind.
+          assert.equal(state.ante,0);
+          assert.equal(state.ante_paid,0);
+          assert.equal(state.ante_player_id??null,null);
           const me=state.players.find(p=>p.id===user.id);
           const choices=state.available_actions||[];
           assert(state.players.every(p=>!("_legal_actions" in p)),"internal action contract leaked");
@@ -120,7 +121,7 @@ async function play(table){
     if(timeoutWitness&&!timeoutWitness.observed&&state.players?.find(p=>p.id===timeoutWitness.player)?.folded){
       timeoutWitness.observed=true;
       timeoutWitness.elapsed_ms=Date.now()-timeoutWitness.started;
-      // O fold automático só vem depois do tempo normal mais a reserva do banco de tempo.
+      // O fold automático só vem depois do tempo normal mais o tempo extra (15 + 5 s).
       assert(timeoutWitness.elapsed_ms>=Math.max(0,timeoutWitness.time_bank+timeoutWitness.reserve-1)*1000,"fold before timeout and time bank");
     }
     if(!state.is_finished)started=true;
@@ -147,7 +148,7 @@ async function play(table){
       raised.add(state.stage);
     }
     counters.actions++;
-    const message=JSON.stringify(action==="discard"?{type:"action",action,card:0}:{type:"action",action,amount});
+    const message=JSON.stringify(action==="discard"?{type:"action",action,amount:0}:{type:"action",action,amount});
     ws.send(message);
     if(action==="call"&&!retryWitness){
       retryWitness={hand:state.hand_id,player:user.id,phase:state.stage,amount:state.call_amount,before_bet:p.bet};
@@ -165,7 +166,7 @@ async function play(table){
   // tempo esgotado desde o instante real, sem um segundo tempo esgotado às cegas.
   for(const seen of [...lastSeen.values()])handler(seen.ws,seen.state,seen.user,seen.at);
   for(const ws of client)ws.send(JSON.stringify({type:"get_table_info"}));
-  // 30 s de tempo normal + 30 s de banco de tempo na espera proposital, mais a mão.
+  // 15 s de tempo normal + 5 s de tempo extra na espera proposital, mais a mão.
   const until=Date.now()+125000;
   while(!finished&&Date.now()<until&&errors.length===0)await new Promise(r=>setTimeout(r,50));
   assert.equal(errors.length,0,errors.join(";"));

@@ -148,8 +148,9 @@ fn pineapple_draw_reference_simulation() {
     print("Hold'em", &holdem);
     print("Omaha 4", &omaha);
     print("Brazilian Pineapple", &draw);
-    // Referência medida em 11/11/2026, com troca depois das apostas do flop e
-    // do turn e descarte no river (20 mil mãos por modalidade, sementes fixas):
+    // Referência medida em 11/11/2026, ainda com troca depois das apostas do
+    // flop e do turn e descarte no river (20 mil mãos por modalidade, sementes
+    // fixas; a troca na vez do jogador, de 20/11, não muda as cartas vistas):
     // vencedora sequência ou melhor em 40,1% (Hold'em), 78,7% (Omaha 4) e 73,0%
     // (Brazilian Pineapple); flush ou melhor em 22,9%, 52,4% e 55,0%. Três
     // privadas com trocas ficam perto do Omaha, bem acima do Hold'em.

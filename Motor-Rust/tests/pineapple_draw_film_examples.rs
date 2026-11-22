@@ -1,4 +1,4 @@
-//! Roteiros dos vídeos do Brazilian Pineapple (filme de regras, trailer e aulas
+//! Roteiros dos vídeos do Brazilian Pineapple (Regras na prática, teaser e aulas
 //! m5l3–m5l5) conferidos contra o motor: cartas sem repetição, apostas, trocas e
 //! descartes na ordem e nos limites do jogo, stacks e pote de cada cena, mãos
 //! destacadas e vencedores.
@@ -121,7 +121,7 @@ fn play(game: &mut GameLoop, event: &Value, scene: &str) {
     );
     game.player_action(&id, mv)
         .unwrap_or_else(|e| panic!("{scene}: {kind} de {id} recusado pelo motor: {e}"));
-    if matches!(kind, "bet" | "raise" | "call") && !game.state.drawing {
+    if matches!(kind, "bet" | "raise" | "call") {
         // O total do jogador na rodada é o que a tela mostra na frente dele
         // (zero quando a ação fechou a rodada e as fichas foram ao pote).
         let bet = game.state.players[player as usize].current_bet;
@@ -191,9 +191,9 @@ fn every_hand_scene_uses_each_card_once() {
     }
 }
 
-/// A mão-modelo (trailer, filme de regras e aula 1) inteira no motor: mesma ordem
-/// de ações, mesmos valores, troca só depois das apostas do flop e do turn e
-/// descarte no river antes da última rodada.
+/// A mão-modelo (vídeo Regras na prática) inteira no motor: mesma ordem de ações,
+/// mesmos valores, sem ante, troca na vez de cada jogador no flop, no turn e no
+/// river (antes da ação dele) e, no river, descarte depois da troca.
 #[test]
 fn model_hand_is_legal_in_the_engine_from_deal_to_showdown() {
     let mut found = 0;
@@ -215,7 +215,7 @@ fn model_hand_is_legal_in_the_engine_from_deal_to_showdown() {
             }
             for event in events(scene) {
                 match event["type"].as_str().unwrap() {
-                    // Blinds e ante são cobrados pelo motor no início da mão.
+                    // Os blinds são cobrados pelo motor no início da mão.
                     "post" => {
                         let player = index(&event["player"]);
                         assert_eq!(
@@ -224,35 +224,61 @@ fn model_hand_is_legal_in_the_engine_from_deal_to_showdown() {
                             "{id}: blind"
                         );
                     }
-                    "ante" => {
-                        assert_eq!(
-                            game.ante_paid(),
-                            event["to"].as_u64().unwrap(),
-                            "{id}: ante"
-                        );
-                        assert_eq!(game.ante_player_id(), Some("p1"), "{id}: ante do big blind");
-                    }
+                    "ante" => panic!("{id}: o Brazilian Pineapple não tem ante"),
                     "board" => {
                         let total =
                             cards(&scene["visual"]["board"]).len() + cards(&event["cards"]).len();
                         assert!(
                             game.state.community_cards.len() >= total,
-                            "{id}: a mesa só abre depois das apostas e da troca"
+                            "{id}: a mesa só abre depois das apostas"
                         );
+                        assert_eq!(game.ante_paid(), 0, "{id}: sem ante");
                         if total == 5 {
-                            assert!(game.state.discarding, "{id}: o river abre o descarte");
+                            assert!(game.state.drawing, "{id}: o river abre com a troca");
                         }
                     }
                     "swap" | "keep" => {
-                        assert!(game.state.drawing, "{id}: troca só depois das apostas");
+                        assert!(
+                            game.state.drawing,
+                            "{id}: troca só na primeira vez do jogador na street, antes da ação"
+                        );
                         play(&mut game, &event, &id);
+                        assert!(
+                            !game.state.drawing,
+                            "{id}: depois da troca, o mesmo jogador age"
+                        );
                     }
                     "discard" => {
-                        assert!(game.state.discarding, "{id}: descarte só no river");
+                        assert!(
+                            game.state.discarding,
+                            "{id}: descarte na vez do jogador no river, depois da troca"
+                        );
                         assert_eq!(game.state.phase, GamePhase::River);
                         play(&mut game, &event, &id);
                     }
-                    _ => play(&mut game, &event, &id),
+                    _ => {
+                        // Quando a narração cita o limite do pote, o motor precisa concordar.
+                        if let Some(max) = event["max"].as_u64() {
+                            let player = format!("p{}", index(&event["player"]));
+                            assert_eq!(
+                                game.legal_actions(&player).maximum_wager,
+                                max,
+                                "{id}: limite do pote narrado"
+                            );
+                        }
+                        // Desistir sem trocar é permitido; apostar, pagar ou passar, não.
+                        let wager = matches!(
+                            event["type"].as_str().unwrap(),
+                            "bet" | "raise" | "call" | "check"
+                        );
+                        if wager && game.state.phase != GamePhase::Preflop {
+                            assert!(
+                                !game.state.drawing && !game.state.discarding,
+                                "{id}: o jogador age só depois de trocar ou descartar"
+                            );
+                        }
+                        play(&mut game, &event, &id);
+                    }
                 }
             }
             if scene["id"].as_str().unwrap().ends_with("show") {
@@ -260,7 +286,7 @@ fn model_hand_is_legal_in_the_engine_from_deal_to_showdown() {
             }
         }
         assert!(game.state.is_finished, "{name}: a mão vai até o showdown");
-        assert_eq!(game.state.total_pot(), 5800, "{name}: pote final");
+        assert_eq!(game.state.total_pot(), 20200, "{name}: pote final");
         assert!(game
             .state
             .players
@@ -269,8 +295,8 @@ fn model_hand_is_legal_in_the_engine_from_deal_to_showdown() {
             .all(|p| p.hole_cards.len() == 2));
     }
     assert_eq!(
-        found, 3,
-        "trailer, filme de regras e aula 1 mostram a mão-modelo"
+        found, 1,
+        "o vídeo Regras na prática mostra a mão-modelo inteira"
     );
 }
 
@@ -302,8 +328,8 @@ fn highlighted_hands_winners_and_discards_match_the_evaluator() {
                     "swap" => {
                         let player = index(&event["player"]);
                         assert!(
-                            matches!(board.len(), 3 | 4),
-                            "{id}: troca no flop ou no turn"
+                            matches!(board.len(), 3..=5),
+                            "{id}: troca no flop, no turn ou no river"
                         );
                         assert_eq!(holes[player].len(), 3);
                         holes[player][index(&event["position"])] =
@@ -432,7 +458,9 @@ fn pot_limit_scene_matches_engine_limits() {
         }
         play(&mut game, &event, "limite do pote");
     }
-    // Apostas fechadas no flop com dois jogadores: abre a troca, com R$ 35 no pote.
+    // Apostas fechadas no flop com dois jogadores: o turn abre com a troca na vez
+    // de Ana, com R$ 28 no pote.
+    assert_eq!(game.state.phase, GamePhase::Turn);
     assert!(game.state.drawing);
-    assert_eq!(game.state.total_pot(), 3500);
+    assert_eq!(game.state.total_pot(), 2800);
 }

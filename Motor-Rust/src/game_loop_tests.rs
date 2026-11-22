@@ -4044,6 +4044,7 @@ mod resolve_showdown_errors_tests {
             has_acted: true,
             seat_index: 0,
             draw_count: None,
+            river_discard: None,
         };
         let p2 = PlayerState {
             id: "p2".to_string(),
@@ -4066,6 +4067,7 @@ mod resolve_showdown_errors_tests {
             has_acted: true,
             seat_index: 1,
             draw_count: None,
+            river_discard: None,
         };
         let p3 = PlayerState {
             id: "p3".to_string(),
@@ -4088,6 +4090,7 @@ mod resolve_showdown_errors_tests {
             has_acted: true,
             seat_index: 2,
             draw_count: None,
+            river_discard: None,
         };
 
         let mut gl = GameLoop::new(

@@ -14,6 +14,15 @@ const assetExists = (url: string) => existsSync(fileURLToPath(new URL(`../../pub
 const MOTION_LESSONS = ["m5l3", "m5l4", "m5l5"];
 const editorial = (file: string) => fileURLToPath(new URL(`../../../ZeroTiltCurso/editorial/${file}`, import.meta.url));
 const sha256 = (data: string | Buffer) => createHash("sha256").update(data).digest("hex");
+/**
+ * Exceção temporária aprovada pelo proprietário em 22/11/2026 (DASHBOARD S28): estes
+ * vídeos já publicados seguem com a narração anterior (`pt-BR-poker-v1`) até serem
+ * regravados com a voz padrão. A lista só pode diminuir: quem for regravado sai dela
+ * (o teste falha se um vídeo da lista já estiver na voz nova). Mesma lista em
+ * `ZeroTiltCurso/editorial/render.py` (`LEGACY_VOICE_LESSONS`).
+ */
+const LEGACY_VOICE_LESSONS = ["m0l1", "m0l2", "m0l3", "m0l4", "m0l5", "m0l6", "m0l7", "m0l8", "m1l1", "m1l2", "m1l3", "m2l1", "m2l2", "m2l3", "m3l1", "m3l2", "m3l3", "m4l1", "m4l2", "m4l3", "m5l1", "m5l2", "m6l1", "m6l2"];
+const expectedVoice = (id: string) => LEGACY_VOICE_LESSONS.includes(id) ? "pt-BR-poker-v1" : "pt-BR-poker-v3-multilingual";
 
 describe("integridade da Academy", () => {
   it("preserva os IDs antigos sem duplicar aulas ou perguntas", () => {
@@ -89,12 +98,22 @@ describe("integridade da Academy", () => {
     expect(lessonFormat(findLesson("m0l1")!)).toContain("Vídeo");
   });
 
+  it("a exceção de voz antiga só cobre vídeos publicados que ainda não foram regravados", () => {
+    expect(new Set(LEGACY_VOICE_LESSONS).size).toBe(LEGACY_VOICE_LESSONS.length);
+    for (const id of LEGACY_VOICE_LESSONS) {
+      const video = findLesson(id)?.video;
+      expect(video?.publicationStatus, id).toBe("published");
+      expect(video?.pronunciationVersion, id).toBe("pt-BR-poker-v1");
+    }
+    expect(LEGACY_VOICE_LESSONS.some(id => MOTION_LESSONS.includes(id))).toBe(false);
+  });
+
   it("fontes e arquivos de vídeos publicados existem", () => {
     for (const lesson of lessons) {
       for (const id of lesson.sources ?? []) expect(sources, id).toHaveProperty(id);
       const video = lesson.video;
       if (!video?.url || video.publicationStatus === "review") continue;
-      expect(video.pronunciationVersion, lesson.id).toBe(MOTION_LESSONS.includes(lesson.id) ? "pt-BR-poker-v2-lang-en" : "pt-BR-poker-v1");
+      expect(video.pronunciationVersion, lesson.id).toBe(expectedVoice(lesson.id));
       expect(video.narrationHash, lesson.id).toMatch(/^[a-f0-9]{64}$/);
       for (const asset of [video.url, video.captionsUrl, video.posterUrl]) {
         expect(asset, lesson.id).toBeTruthy();
@@ -126,8 +145,8 @@ describe("integridade da Academy", () => {
         expect(manifest.renderer, lesson.id).toBe("remotion");
         expect(manifest.lessonId, lesson.id).toBe(lesson.id);
         expect(manifest.scriptHash, lesson.id).toMatch(/^[a-f0-9]{64}$/);
-        expect(lesson.video?.bettingRuleVersion, lesson.id).toBe("pineapple_draw_v1");
-        expect(manifest.bettingRuleVersion, lesson.id).toBe("pineapple_draw_v1");
+        expect(lesson.video?.bettingRuleVersion, lesson.id).toBe("pineapple_draw_v4");
+        expect(manifest.bettingRuleVersion, lesson.id).toBe("pineapple_draw_v4");
         expect(lesson.video?.url, lesson.id).toBe(`/videos/zt-academy-${lesson.id}-v4.mp4`);
       }
       const payload = { id: lesson.id, title: lesson.title, body: lesson.body, quiz: lesson.quiz,
@@ -138,7 +157,7 @@ describe("integridade da Academy", () => {
       expect(lesson.video?.contentHash, lesson.id).toBe(hash);
       expect(manifest.contentHash, lesson.id).toBe(hash);
       // Vídeos em Remotion: termos em inglês lidos em inglês (pronúncia aprovada em 11/11/2026).
-      expect(lesson.video?.pronunciationVersion, lesson.id).toBe(MOTION_LESSONS.includes(lesson.id) ? "pt-BR-poker-v2-lang-en" : "pt-BR-poker-v1");
+      expect(lesson.video?.pronunciationVersion, lesson.id).toBe(expectedVoice(lesson.id));
       expect(manifest.pronunciationVersion, lesson.id).toBe(lesson.video?.pronunciationVersion);
       expect(manifest.narrationHash, lesson.id).toMatch(/^[a-f0-9]{64}$/);
       expect(manifest.narrationHash, lesson.id).toBe(lesson.video?.narrationHash);
@@ -158,7 +177,7 @@ describe("integridade da Academy", () => {
     }
   }, 30_000); // Lê e calcula SHA-256 dos 25 MP4, inclusive em discos mais lentos.
 
-  it("filme de regras e trailer do Brazilian Pineapple batem com manifesto, transcrição e mídia", () => {
+  it("Regras na prática e teaser do Brazilian Pineapple batem com manifesto, transcrição e mídia", () => {
     expect(Object.keys(films).sort()).toEqual(["pineapple-draw-rules", "pineapple-draw-trailer"]);
     for (const [id, film] of Object.entries(films)) {
       const manifest = JSON.parse(readFileSync(editorial(`${id}-manifest.json`), "utf8"));
@@ -169,9 +188,9 @@ describe("integridade da Academy", () => {
       expect(film.renderer).toBe("remotion");
       expect(manifest.renderer).toBe("remotion");
       expect(film.rendererVersion).toBe(manifest.rendererVersion);
-      expect(film.bettingRuleVersion).toBe("pineapple_draw_v1");
-      expect(manifest.bettingRuleVersion).toBe("pineapple_draw_v1");
-      expect(film.pronunciationVersion).toBe("pt-BR-poker-v2-lang-en");
+      expect(film.bettingRuleVersion).toBe("pineapple_draw_v4");
+      expect(manifest.bettingRuleVersion).toBe("pineapple_draw_v4");
+      expect(film.pronunciationVersion).toBe("pt-BR-poker-v3-multilingual");
       expect(film.narrationHash).toBe(manifest.narrationHash);
       expect(film.chapters).toEqual(manifest.chapters);
       expect(film.durationSeconds).toBe(manifest.durationSeconds);
@@ -184,9 +203,15 @@ describe("integridade da Academy", () => {
       expect(film.mediaRevision).toBe(manifest.mediaRevision);
       expect(hashes.mp4).toBe(manifest.sha256);
     }
-    // O trailer mostra uma mão inteira (apostas, trocas, descarte e showdown).
-    expect(films["pineapple-draw-trailer"].durationSeconds).toBeLessThanOrEqual(160);
+    // Decisão do dono em 21/11/2026: o filme de regras vira "Regras na prática" (~10 min, a mão comentada
+    // ensina cada regra) e o trailer vira um teaser de ~60 s para a home e as redes.
+    expect(films["pineapple-draw-rules"].title).toBe("Brazilian Pineapple — Regras na prática");
+    expect(films["pineapple-draw-rules"].durationSeconds).toBeGreaterThanOrEqual(540);
+    expect(films["pineapple-draw-rules"].durationSeconds).toBeLessThanOrEqual(720);
     expect(films["pineapple-draw-rules"].chapters).toHaveLength(13);
+    expect(films["pineapple-draw-trailer"].title).toBe("Brazilian Pineapple — teaser");
+    expect(films["pineapple-draw-trailer"].durationSeconds).toBeLessThanOrEqual(75);
+    expect(films["pineapple-draw-rules"].transcript).toContain("três trocas");
   }, 30_000);
 
   it("a pasta pública contém só a grade vigente, sem mídia de formatos retirados", () => {

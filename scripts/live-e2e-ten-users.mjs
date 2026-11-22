@@ -210,7 +210,8 @@ function openSocket(user, group, ticket, observer) {
       if (!me?.is_active) return;
       const actions = (message.available_actions ?? []).map((action) => action.toLowerCase());
       if (actions.includes("keep")) {
-        // Brazilian Pineapple: a rodada de troca não tem desistência.
+        // Brazilian Pineapple: na vez, primeiro troca ou mantém (desistir também vale);
+        // no river, depois da troca, vem o descarte. Este roteiro mantém e desiste na aposta.
         ws.send(JSON.stringify({ type: "action", action: "keep", amount: 0 }));
         return;
       }

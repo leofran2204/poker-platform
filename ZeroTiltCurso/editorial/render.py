@@ -24,7 +24,6 @@ import timeline
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / '.codex-tmp/media-deps'))
-import edge_tts
 import imageio_ffmpeg
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageOps
@@ -40,16 +39,21 @@ FONTDIR = Path('C:/Windows/Fonts')
 
 # Only synthesis receives these Portuguese phonetic guides. On-screen text,
 # transcripts, captions and animation cues retain the canonical poker spelling.
-VOICE = 'pt-BR-AntonioNeural'
 VOICE_RATE = '-3%'
-PRONUNCIATION_VERSION = 'pt-BR-poker-v1'
-# Vídeos em Remotion (voz Azure): termos em inglês lidos em inglês pela própria voz,
-# dentro de <lang xml:lang="en-US"> (amostra 6, aprovada pelo dono em 11/11/2026).
-MOTION_PRONUNCIATION_VERSION = 'pt-BR-poker-v2-lang-en'
+# Padrão de narração de todos os vídeos da plataforma (dono, 19/11/2026): voz multilíngue
+# da Azure, termos em inglês em <lang en-US>, o resto em <lang pt-BR> (ver `speech_ssml`).
+# O pt-BR-AntonioNeural não é multilíngue: ignora o <lang> e lê "pineapple" como se escreve.
+NARRATION_VOICE = 'pt-BR-MacerioMultilingualNeural'
+MOTION_PRONUNCIATION_VERSION = 'pt-BR-poker-v3-multilingual'
+# As aulas antigas (slides) seguem o mesmo padrão e a mesma voz.
+VOICE = NARRATION_VOICE
+PRONUNCIATION_VERSION = MOTION_PRONUNCIATION_VERSION
 # Palavras fora do glossário antigo que esses vídeos também leem em inglês.
 MOTION_ENGLISH_EXTRA = {'game', 'games'}
 # Entradas do glossário que continuam em português mesmo nesses vídeos.
-PORTUGUESE_SPEECH = {'poker', 'tilt', 'texas', 'vs', 'gto', 'sb', '3-bete', 'pré-flop', 'pós-flop'}
+# 'flop' e 'river' em português ("flóp", "ríver" com R forte): em inglês a voz dizia "flap" e um R de interior; decisão do dono em 20/11/2026.
+PORTUGUESE_SPEECH = {'poker', 'tilt', 'texas', 'vs', 'gto', 'sb', '3-bete', 'pré-flop', 'pós-flop', 'flop', 'river',
+                     'sete', 'setes', 'dezessete'}
 PRONUNCIATIONS = {
     'pineapple': 'painépou', 'brazilian': 'brazílian',
     'poker': 'pôquer', 'academy': 'acádemi', 'tilt': 'tílt',
@@ -95,6 +99,48 @@ PRONUNCIATIONS = {
     'high': 'rái', 'world': 'uôrld', 'series': 'síries',
     'deal': 'díl', 'wizard': 'uíizard', 'rank': 'rénk',
     '3-bete': 'três béte', '6-max': 'seis méks', '8-max': 'oito méks', '9-max': 'nove méks',
+    # 21/11/2026: o dono ouviu as amostras e escolheu "séti" (a voz lia "sête", com e fechado).
+    'sete': 'séti', 'setes': 'sétis', 'dezessete': 'dezesséti',
+}
+# Só na fala das aulas antigas (o texto da aula no site não muda): frases que a voz
+# lia com sotaque estrangeiro, reescritas com mais português. Chave = frase já normalizada.
+VOICE_REWRITES = {
+    "Royal flush; straight flush; quadra; full house; flush; sequência; trinca; dois pares; um par; carta alta.":
+        "Da mais forte para a mais fraca, a ordem é esta: royal flush; straight flush; quadra; full house; flush; sequência; trinca; dois pares; um par; e, por último, carta alta.",
+    "Considere três lugares: botão, small blind e big blind.":
+        "Considere três lugares na mesa: o botão, o small blind e o big blind.",
+    "Pagar custa 5 big blinds.":
+        "Para pagar, você precisa colocar 5 big blinds no pote.",
+    "Isso não calcula sua equity.":
+        "Essa conta não mostra a sua equity, que é outra coisa.",
+    "Ranking Short Deck: trinca vence sequência; flush vence full house.":
+        "No ranking do Short Deck, a trinca vence a sequência, e o flush vence o full house.",
+    "Texas cash 9-max, 100 big blinds, todos deram fold.":
+        "O cenário é uma mesa de Texas cash 9-max, com 100 big blinds, e todos deram fold até você.",
+    "Com blinds de 0,5 e 1 big blind, o small blind já pagou meio blind.":
+        "Com os blinds de 0,5 e 1 big blind, quem está no small blind já pagou a metade de um blind.",
+    "Aumentar para 4 big blinds exige mais 3 big blinds do big blind e oferece ao small blind a decisão de acrescentar 3 big blinds.":
+        "Aumentar para 4 big blinds exige que o jogador do big blind coloque mais 3 big blinds e oferece ao jogador do small blind a decisão de acrescentar outros 3 big blinds.",
+    "Você está no big blind.":
+        "Nesta mão, você está sentado no big blind.",
+    "Texas cash 100 big blinds.":
+        "O cenário é uma mesa de Texas cash, com 100 big blinds.",
+    "cutoff abre 2,5 big blinds.":
+        "o jogador do cutoff abre a ação com 2,5 big blinds.",
+    "Não há c-bet obrigatória.":
+        "Ninguém é obrigado a fazer uma c-bet.",
+    "Flop 9♥ 8♥ 7♣, big blind dá check.":
+        "O flop vem 9♥ 8♥ 7♣, e o jogador do big blind dá check.",
+    "Check-back controla o pote.":
+        "Dar check-back ajuda a controlar o tamanho do pote.",
+    "Vilão no big blind checa no turn.":
+        "O vilão, que está no big blind, checa quando chega o turn.",
+    "Rival aposta 3 big blinds; pagar forma 18 big blinds.":
+        "O rival aposta 3 big blinds; se você pagar, o pote passa a ter 18 big blinds.",
+    "Treinamos bet por valor.":
+        "Aqui, o que treinamos é a bet por valor.",
+    "As alternativas são: A, Nut straight absoluto; B, Flush, mas não nut flush; C, Straight flush.":
+        "As alternativas são: A, um nut straight absoluto; B, um flush, mas não o nut flush; C, um straight flush.",
 }
 SPEECH_TOKEN = re.compile(r"\d+(?:[.,]\d+)+|[^\W_]+(?:[-'’][^\W_]+)*", re.UNICODE)
 
@@ -126,8 +172,41 @@ def pronunciation_plan(text, english=False):
     pieces.append(text[previous:])
     return ''.join(pieces), units
 
+SENTENCE = re.compile(r'(?:\d[.,]\d|[^.!?])+[.!?]*')
+PT_SEGMENT = re.compile(r'^(\W*)(.*?)(\W*)$', re.DOTALL)
+EN_SEGMENT = re.compile(r'(<lang xml:lang="en-US">.*?</lang>)', re.DOTALL)
+
 def speech_ssml(text):
-    """Corpo SSML da fala: termos em inglês vizinhos ficam juntos em um <lang en-US>."""
+    """Corpo SSML da fala no padrão de narração da plataforma (aprovado pelo dono em 19/11/2026).
+
+    A voz multilíngue (`NARRATION_VOICE`) decide o sotaque frase a frase: os termos em
+    inglês vizinhos ficam juntos em um <lang en-US> e todo o resto vai marcado como
+    <lang pt-BR>, para ela não adivinhar o idioma. Frases curtas com muito inglês ainda
+    saem com sotaque estrangeiro; `heavy_english_sentences` barra essas no roteiro."""
+    out = []
+    for part in EN_SEGMENT.split(_speech_ssml_en(text)):
+        lead, body, trail = PT_SEGMENT.match(part).groups()
+        if part.startswith('<lang') or not body:
+            out.append(part)
+        else:
+            out.append(f'{lead}<lang xml:lang="pt-BR">{body}{trail.rstrip()}</lang>{trail[len(trail.rstrip()):]}')
+    return ''.join(out)
+
+def heavy_english_sentences(text):
+    """Frases que a voz lê com sotaque estrangeiro: ≥ 40% das palavras em inglês,
+    ou até 5 palavras com algum termo em inglês. Reescreva com mais português."""
+    found = []
+    for sentence in SENTENCE.findall(text):
+        words = SPEECH_TOKEN.findall(sentence)
+        if not words:
+            continue
+        english = sum(english_term(word) for word in words)
+        if english and (english / len(words) >= 0.4 or len(words) <= 5):
+            found.append(sentence.strip())
+    return found
+
+def _speech_ssml_en(text):
+    """Marca só os termos em inglês (vizinhos juntos em um <lang en-US>)."""
     from xml.sax.saxutils import escape
     out, previous, run = [], 0, []
     def flush():
@@ -183,7 +262,7 @@ def canonical_boundaries(text, words, english=False):
 
 def narration_fingerprint(scenes):
     payload = {'voice': VOICE, 'rate': VOICE_RATE, 'profile': PRONUNCIATION_VERSION,
-               'speech': [pronunciation_plan(s['voice'])[0] for s in scenes]}
+               'speech': [speech_ssml(s['voice']) for s in scenes]}
     return hashlib.sha256(json.dumps(payload, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
 
 
@@ -245,9 +324,10 @@ def complete_speech(voice, words):
     return bool(actual) and actual == expected
 
 async def prepare_speech(key, i, scene, semaphore):
-    spoken, _ = pronunciation_plan(scene['voice'])
-    digest=hashlib.sha256(json.dumps([VOICE, VOICE_RATE, spoken],ensure_ascii=False).encode()).hexdigest()[:16]
-    path=WORK / f'{key}-{i}-{digest}.mp3'
+    spoken, _ = pronunciation_plan(scene['voice'], True)
+    body = speech_ssml(scene['voice'])
+    digest=hashlib.sha256(json.dumps([VOICE, VOICE_RATE, body, PRONUNCIATION_VERSION],ensure_ascii=False).encode()).hexdigest()[:16]
+    path=WORK / f'{key}-{i}-{digest}.wav'
     bounds=path.with_suffix('.json')
     if path.exists() and bounds.exists():
         try:
@@ -256,33 +336,32 @@ async def prepare_speech(key, i, scene, semaphore):
         except (ValueError, KeyError):
             pass
     async with semaphore:
-        for attempt in range(4):
+        sys.path.insert(0, str(Path(__file__).resolve().parent / 'motion'))
+        import narrate  # cota mensal e chamada à Azure num lugar só
+        for attempt in range(6):
             try:
-                words=[]
-                tts=edge_tts.Communicate(spoken, VOICE, rate=VOICE_RATE, boundary='WordBoundary')
-                temporary=path.with_suffix('.partial')
-                with temporary.open('wb') as stream:
-                    async for event in tts.stream():
-                        if event['type']=='audio': stream.write(event['data'])
-                        elif event['type']=='WordBoundary': words.append(event)
+                temporary=path.with_suffix('.partial.wav')
+                words=await asyncio.to_thread(narrate.synthesize_azure, spoken, VOICE, VOICE_RATE, temporary, body)
                 if not complete_speech(spoken, words):
                     raise RuntimeError(f'Incomplete narration: {key}/{i+1}')
                 temporary.replace(path)
                 bounds.write_text(json.dumps(words,ensure_ascii=False),encoding='utf-8')
                 return path, bounds
+            except SystemExit:
+                raise
             except Exception:
-                if attempt == 3: raise
-                await asyncio.sleep(1 + attempt)
+                if attempt == 5: raise
+                await asyncio.sleep(5 * 2 ** attempt)  # nível F0: poucas sínteses por minuto
 
 async def narration(key, scenes):
-    semaphore=asyncio.Semaphore(3)
+    semaphore=asyncio.Semaphore(1)
     prepared=await asyncio.gather(*(prepare_speech(key,i,scene,semaphore) for i,scene in enumerate(scenes)))
     tracks=[]
     captions=[]
     start=0.0
     for i, scene in enumerate(scenes):
         path,bounds=prepared[i]
-        words=canonical_boundaries(scene['voice'], json.loads(bounds.read_text(encoding='utf-8')))
+        words=canonical_boundaries(scene['voice'], json.loads(bounds.read_text(encoding='utf-8')), True)
         pcm=subprocess.check_output([FFMPEG,'-v','error','-i',str(path),'-f','s16le','-ac','1','-ar','48000','-'])
         samples=np.frombuffer(pcm,dtype='<i2').astype(np.float32)/32768
         lead=.4
@@ -521,12 +600,18 @@ def speak(text):
         return value+({'s':' do mesmo naipe','o':' de naipes diferentes'}.get(style,''))
     text = re.sub(r'\b(?=[AKQJT2-9]*[AKQJTso])([AKQJT2-9])([AKQJT2-9])([so])?\b',expand_hand,text)
     text = re.sub(r'\bC\(([^,]+),([^\)]+)\)', r'combinação de \1 elementos tomados \2 a \2', text)
-    for token, value in {'BB':'big blinds','BTN':'botão','UTG':'posição inicial','CO':'cutoff','SPR':'relação entre stack efetivo e pote','EV':'valor esperado','MDF':'frequência mínima de defesa','ZT':'Zê Tê'}.items():
+    text = re.sub(r'\bvs\.', 'versus', text)  # o ponto de "vs." encerrava a frase na fala
+    text = re.sub(r'(?<![\d.,])1\s*BB\b', '1 big blind', text)
+    text = re.sub(r'(?<=\d)\s*BB\b', ' big blinds', text)
+    for token, value in {'BB':'big blind','SB':'small blind','BTN':'botão','UTG':'posição inicial','CO':'cutoff','SPR':'relação entre stack efetivo e pote','EV':'valor esperado','MDF':'frequência mínima de defesa','ZT':'Zê Tê'}.items():
         text = re.sub(r'\b'+token+r'\b', value, text)
     for token, value in [('→',' para '),('×',' vezes '),('÷',' dividido por '),('≈',' aproximadamente '),('=',' igual a '),('−',' menos '),('>',' maior que '),('+',' mais '),('%',' por cento'),('½',' meio ')]:
         text=text.replace(token,value)
     text = re.sub(r'(?<=\d)/(?=\d)', ' dividido por ', text)
-    return re.sub(r'\s+', ' ', text).strip()
+    text = re.sub(r'\s+', ' ', text).strip()
+    for written, spoken in VOICE_REWRITES.items():
+        text = text.replace(written, spoken)
+    return text
 
 def wrap(draw, text, chosen_font, width, max_lines=None):
     lines=[]
@@ -545,11 +630,32 @@ def wrap(draw, text, chosen_font, width, max_lines=None):
         lines[-1]+='…'
     return '\n'.join(lines)
 
+def spoken_heading(heading):
+    """Título da seção na fala ("Float." sozinho sai com sotaque estrangeiro)."""
+    if not heavy_english_sentences(heading + '.'):
+        return heading + '. '
+    if heading.startswith('Laboratório:'):
+        return 'Agora vamos para o laboratório: ' + heading.split(':', 1)[1].strip() + '. '
+    return 'Agora, o próximo tema é: ' + heading + '. '
+
+def require_narration_standard(key, scenes):
+    """Trava do padrão de narração: nenhuma frase curta carregada de inglês."""
+    heavy = [s for scene in scenes for s in heavy_english_sentences(scene['voice'])]
+    if heavy:
+        raise ValueError(f'{key}: frases com muito inglês; reescreva (VOICE_REWRITES ou roteiro): {heavy}')
+    return scenes
+
+def spoken_options(options):
+    """Alternativas numa frase só ("A, check; B, fold"), para a voz não ler "check B." solto."""
+    if not options:
+        return ''
+    return ' As alternativas são: ' + '; '.join(f'{chr(65+j)}, {o.rstrip(".")}' for j, o in enumerate(options)) + '.'
+
 def academy_scenes(lesson, training):
     related=[s for s in training['scenarios'] if s['lesson']==lesson['id']]
     scenario = next((s for s in related if s['board']),related[0])
     scenes=[{'title':lesson['title'],'label':'OBJETIVO DA AULA','text':scenario['objective'],
-             'voice':speak(f"Zero Tilt Academy. {lesson['title']}. Nesta aula, nosso objetivo é: {scenario['objective']} Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo."),
+             'voice':speak(f"Esta é a Zero Tilt Academy, e a aula de hoje é: {lesson['title']}. Nesta aula, nosso objetivo é: {scenario['objective']} Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo."),
              'diagram':'objective','hole':scenario['hole'],'board':scenario['board']}]
     sections = re.split(r'(?m)^#{2,3}\s+',lesson['body'])
     for section in sections:
@@ -575,7 +681,7 @@ def academy_scenes(lesson, training):
             if any(word in heading.lower() for word in ['probabil','cont','denominador','preço','ev','combinaç','matemática']): diagram='math'
             if 'distribui' in heading.lower() or lesson['id']=='m5l3' and part==0: diagram='distribution'
             scenes.append({'title':heading,'label':label,'text':chunk,
-                           'voice':speak((heading+'. ' if part==0 else '')+chunk),
+                           'voice':speak((spoken_heading(heading) if part==0 else '')+chunk),
                            'diagram':diagram,'hole':scenario['hole'],'board':scenario['board']})
     for i,q in enumerate(lesson['quiz']):
         correct=q['options'][q['expectedIndex']] if q['kind']=='theory' else q['expected']
@@ -585,16 +691,16 @@ def academy_scenes(lesson, training):
         options = '\n'.join(f'{chr(65+j)}. {option}' for j,option in enumerate(q.get('options', [])))
         prompt = q['prompt'] + ('\n\n' + options if options else '')
         scenes.append({'title':f'Exercício resolvido {i+1}','label':'PENSE ANTES DA RESPOSTA',
-            'text':prompt,'voice':speak(context+prompt+' Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.'),
+            'text':prompt,'voice':speak(context+q['prompt']+spoken_options(q.get('options', []))+' Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.'),
             'diagram':'question','exerciseHand':q['kind']=='engine','hole':q.get('hole',scenario['hole']),'board':q.get('board',scenario['board'])})
         scenes.append({'title':'Confira o raciocínio','label':f'RESOLUÇÃO · EXERCÍCIO {i+1}',
-            'text':correct+'\n\n'+explanation,'voice':speak('Resposta do exercício: '+correct+'. '+explanation),
+            'text':correct+'\n\n'+explanation,'voice':speak('Vamos à resposta. A alternativa certa deste exercício é: '+correct.rstrip('.')+'. '+explanation),
             'diagram':'answer','exerciseHand':q['kind']=='engine','hole':q.get('hole',scenario['hole']),'board':q.get('board',scenario['board'])})
     scenes.append({'title':'Agora, pratique','label':'TEORIA → DECISÃO → REVISÃO',
         'text':f"{scenario['title']}\n\n1. Treino guiado\n2. Desafio sem dicas\n3. Replay e comparação\n4. Revisão em outra sessão",
         'voice':speak(f"Abra o simulador da aula e escolha o cenário {scenario['title']}. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor."),
         'diagram':'practice','hole':scenario['hole'],'board':scenario['board']})
-    return scenes
+    return require_narration_standard(lesson['id'], scenes)
 
 def academy_frame(lesson, scene, index, count, focus=0):
     im=Image.new('RGB',(W,H),BG)
@@ -748,7 +854,7 @@ async def render_academy(lesson_id):
         'scenes':[{'start':s['start'],'duration':s['duration'],'focusStarts':s['focusStarts'],
                    'dealEvents':s['animation']['dealEvents'] if s['diagram']!='math' else []} for s in scenes],
         'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),**publication_assets(name),**historical}
-    manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     # Read latest content so an interrupted batch cannot overwrite a later edit.
     current=json.loads(COURSE_FILE.read_text(encoding='utf-8'))
     current_lesson=next(l for m in current['modules'] for l in m['lessons'] if l['id']==lesson_id)
@@ -760,7 +866,7 @@ async def render_academy(lesson_id):
         'pronunciationVersion':PRONUNCIATION_VERSION,'narrationHash':narration_hash,
         'mediaRevision':manifest['mediaRevision'],
         **({'bettingRuleVersion':historical['bettingRuleVersion']} if prior_rules else {})}
-    COURSE_FILE.write_text(json.dumps(current,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    COURSE_FILE.write_text(json.dumps(current,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print(f'Published locally: {lesson_id} · {total:.2f}s · {target.stat().st_size} bytes',flush=True)
 
 def episode_fingerprint(episode):
@@ -820,19 +926,24 @@ async def render(key):
               'voiceRate':VOICE_RATE,'pronunciationVersion':PRONUNCIATION_VERSION,'narrationHash':narration_fingerprint(scenes)}
     if lesson_id:
         manifest['contentHash']=content_hash
-    (HERE/f'{key}-manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    (HERE/f'{key}-manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     if lesson_id:
         lesson['video']={**lesson.get('video',{}),'publicationStatus':'published',
             'url':f'/videos/{name}.mp4','posterUrl':f'/videos/{name}.webp','captionsUrl':f'/videos/{name}.vtt',
             'durationSeconds':manifest['durationSeconds'],'chapters':manifest['chapters'],
             'transcript':transcript,'contentHash':content_hash,'rendererVersion':manifest['rendererVersion'],
             'pronunciationVersion':PRONUNCIATION_VERSION,'narrationHash':manifest['narrationHash'],'mediaRevision':manifest['mediaRevision']}
-        COURSE_FILE.write_text(json.dumps(course,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+        COURSE_FILE.write_text(json.dumps(course,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print(json.dumps(manifest,ensure_ascii=False),flush=True)
 
 # Aulas do Brazilian Pineapple: vídeo produzido em Remotion (`motion/produce.py --publish`).
 # Este renderizador não as regrava; `--check` confere o manifesto de lá.
 MOTION_LESSONS = ('m5l3', 'm5l4', 'm5l5')
+# Exceção temporária aprovada pelo proprietário em 22/11/2026 (DASHBOARD S28): vídeos já
+# publicados que seguem com a narração anterior até serem regravados. Só pode diminuir;
+# mesma lista em Frontend-Web/src/lib/courseAudit.test.ts.
+LEGACY_VOICE_VERSION = 'pt-BR-poker-v1'
+LEGACY_VOICE_LESSONS = ('m0l1', 'm0l2', 'm0l3', 'm0l4', 'm0l5', 'm0l6', 'm0l7', 'm0l8', 'm1l1', 'm1l2', 'm1l3', 'm2l1', 'm2l2', 'm2l3', 'm3l1', 'm3l2', 'm3l3', 'm4l1', 'm4l2', 'm4l3', 'm5l1', 'm5l2', 'm6l1', 'm6l2')
 MOTION = HERE / 'motion'
 FILMS_FILE = ROOT / 'Frontend-Web/src/data/pineappleDrawFilms.json'
 MOTION_RENDER_VERSION = 2  # igual a motion/produce.py
@@ -846,7 +957,7 @@ def check_motion(manifest, video, key):
     assert manifest['scriptHash']==motion_script_fingerprint(script), f'{key}: roteiro mudou depois da publicação'
     assert manifest['narrationHash']==video['narrationHash']==motion_narration_fingerprint(script), key
     assert manifest['pronunciationVersion']==video['pronunciationVersion']==MOTION_PRONUNCIATION_VERSION, key
-    assert manifest['bettingRuleVersion']==video['bettingRuleVersion']==script['bettingRuleVersion']=='pineapple_draw_v1', key
+    assert manifest['bettingRuleVersion']==video['bettingRuleVersion']==script['bettingRuleVersion']=='pineapple_draw_v4', key
     assert video['transcript']=='\n\n'.join(s['voice'] for s in script['scenes']), key
     return script
 
@@ -881,8 +992,12 @@ def check_publications(decode=False, ready_only=False, only=None):
                 else:
                     assert video['contentHash']==lesson_fingerprint(lesson,training), lesson['id']
                     expected_speech=narration_fingerprint(academy_scenes(lesson,training))
-                assert manifest['pronunciationVersion']==video['pronunciationVersion']==PRONUNCIATION_VERSION, lesson['id']
-                assert manifest['narrationHash']==video['narrationHash']==expected_speech, lesson['id']
+                if lesson['id'] in LEGACY_VOICE_LESSONS:
+                    assert manifest['pronunciationVersion']==video['pronunciationVersion']==LEGACY_VOICE_VERSION, lesson['id']
+                    assert manifest['narrationHash']==video['narrationHash'], lesson['id']
+                else:
+                    assert manifest['pronunciationVersion']==video['pronunciationVersion']==PRONUNCIATION_VERSION, lesson['id']
+                    assert manifest['narrationHash']==video['narrationHash']==expected_speech, lesson['id']
                 assert manifest['contentHash']==video['contentHash'], lesson['id']
                 assert manifest['rendererVersion']==video['rendererVersion']==ACADEMY_RENDER_VERSION, lesson['id']
             else:
@@ -890,10 +1005,17 @@ def check_publications(decode=False, ready_only=False, only=None):
                 manifest=json.loads((HERE/f'{episode_key}-manifest.json').read_text(encoding='utf-8'))
                 if manifest.get('episodeHash'):
                     episode=json.loads((HERE/'episodes.json').read_text(encoding='utf-8'))[episode_key]
-                    assert manifest['episodeHash']==episode_fingerprint(episode), lesson['id']
+                    # Na exceção de voz antiga, o roteiro já foi ajustado para a voz nova
+                    # (test_narration) e o vídeo publicado ainda é o da gravação anterior.
+                    if lesson['id'] not in LEGACY_VOICE_LESSONS:
+                        assert manifest['episodeHash']==episode_fingerprint(episode), lesson['id']
                     assert manifest['contentHash']==video['contentHash']==lesson_fingerprint(lesson,training), lesson['id']
-                    assert manifest['pronunciationVersion']==video['pronunciationVersion']==PRONUNCIATION_VERSION, lesson['id']
-                    assert manifest['narrationHash']==video['narrationHash']==narration_fingerprint(episode['scenes']), lesson['id']
+                    if lesson['id'] in LEGACY_VOICE_LESSONS:
+                        assert manifest['pronunciationVersion']==video['pronunciationVersion']==LEGACY_VOICE_VERSION, lesson['id']
+                        assert manifest['narrationHash']==video['narrationHash'], lesson['id']
+                    else:
+                        assert manifest['pronunciationVersion']==video['pronunciationVersion']==PRONUNCIATION_VERSION, lesson['id']
+                        assert manifest['narrationHash']==video['narrationHash']==narration_fingerprint(episode['scenes']), lesson['id']
             entries.append((lesson['id'],video,manifest))
     # Filme de regras e trailer do Brazilian Pineapple (home e Academy).
     films=json.loads(FILMS_FILE.read_text(encoding='utf-8'))
