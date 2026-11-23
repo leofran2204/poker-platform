@@ -146,7 +146,7 @@ A tentativa final, [20261003T153704Z-ed6cd9](../artifacts/full-validation/202610
 
 ## Campanha focada da estrutura híbrida — 04/10/2026
 
-> De 09/11 a 19/11/2026 os perfis `pineapple` e `pineapple-cash` exercitaram a regra `pineapple_draw_v1` (troca depois das apostas do flop e do turn, descarte no river). A regra local desde 21/11/2026 é a `pineapple_draw_v4` e **ainda não passou por campanha**: os validadores em `scripts/` ainda esperam a `pineapple_draw_v2` e o relógio de 30 + 30 s, e precisam ser atualizados antes da próxima. os resultados desta seção são da campanha do formato antigo (2 privadas + 1 por street), retirado do catálogo. A v1 passou pela campanha de 16/11/2026, descrita no fim deste arquivo.
+> De 09/11 a 19/11/2026 os perfis `pineapple` e `pineapple-cash` exercitaram a regra `pineapple_draw_v1` (troca depois das apostas do flop e do turn, descarte no river). A `pineapple_draw_v4` (21/11/2026) passou pela campanha de 22/11/2026, descrita no fim deste arquivo. Os resultados desta seção são da campanha do formato antigo (2 privadas + 1 por street), retirado do catálogo. A v1 passou pela campanha de 16/11/2026, descrita no fim deste arquivo.
 
 Autorização: **15 minutos, dois trabalhadores**. Perfil `pineapple`: fixtures da regra, cash Pineapple, MTT Pineapple até campeão, contrato motor/atores/WS, HTTPS/WSS com 5/20 mesas Pineapple e reinício controlado. Compilação precede o orçamento, conforme o executor; preparação de infraestrutura e execução contam no teto. Deadline interrompe a carga e preserva etapas pendentes, sem iniciar outra campanha.
 
@@ -193,3 +193,20 @@ Tentativas anteriores do mesmo dia, todas interrompidas por validadores desatual
 5. O cliente de rede (`full-validation-network.mjs`) supunha fold automático aos 30 s e, sob carga, deixava dois jogadores estourarem o tempo antes de registrar a espera. Passou a contar desde o instante real do turno, a exigir tempo normal + reserva e a esperar até 125 s por mesa.
 
 Os contratos do executor (`scripts/test_full_validation.py`) passam no Linux (10/10); no Windows dois deles não se aplicam (`os.killpg`, binário Linux).
+
+## Campanha do Brazilian Pineapple v4 com relógio de 15 + 5 s — 22/11/2026
+
+Autorizada pelo proprietário em 22/11 (15 minutos, dois trabalhadores, banco e rede exclusivos), antes da publicação da `pineapple_draw_v4`: troca na vez do jogador no flop, no turn e no river, descarte aberto no river depois da troca, sem ante, relógio de 15 s + 5 s de tempo extra.
+
+**Aprovada**: [campanha final](../artifacts/full-validation/20261123T021105Z-d510a8/campaign.json), sete estágios, 193 segundos, 356 de 356 pares da matriz, nenhuma lacuna.
+
+- Regras dirigidas do Brazilian Pineapple e contratos de regra da API: aprovados.
+- Cash: 5.000 mãos até a saturação dos pares observados.
+- MTT até o campeão: 69 mãos, 16 reentradas, 8 mudanças de mesa, R$ 500 premiados integralmente.
+- HTTPS/WSS com 5 e 20 mesas: 85/340 requisições, 165/662 ações, 5/20 mesas completas, zero erro inesperado, p95 de 389 ms e 1.191 ms. Em todas as mesas o jogador que não agiu foi foldado entre 19,9 e 20,2 s (15 s + 5 s de tempo extra), o que o cliente exige.
+- Reinício controlado da API: aprovado.
+
+Antes dela, os quatro validadores foram atualizados para a v4 e o relógio novo. A carta da troca e do descarte passou a ir em `amount`, o campo que a API lê; antes ia em `card` e a API trocava ou descartava sempre a primeira carta. Tentativas do mesmo dia:
+
+1. [20261122T223029Z-2f137a](../artifacts/full-validation/20261122T223029Z-2f137a/): interrompida na compilação pelo Claude Code, por falta de memória no notebook (sem mão jogada).
+2. [20261123T015059Z-07eab4](../artifacts/full-validation/20261123T015059Z-07eab4/campaign.json) e [20261123T015714Z-f01488](../artifacts/full-validation/20261123T015714Z-f01488/campaign.json): sete estágios aprovados, mas "incomplete" por um par sem testemunha, `check_raise × stack short`. No gerador `cash_catalog_10k_hands`, todo stack curto do Pineapple que podia ir all-in pré-flop ia, e nunca chegava a dar check-raise. Enquanto esse par falta, o gerador agora deixa o stack curto ver o flop e dar check-raise do tamanho mínimo legal. Não é defeito do produto.

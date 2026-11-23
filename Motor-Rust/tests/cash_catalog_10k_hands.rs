@@ -233,11 +233,28 @@ fn cash_catalog_coverage_batches() {
                 let roll: u32 = rng.gen_range(0..100);
                 let min_total = game.state.current_bet_to_match + game.state.min_raise;
                 let legal = game.legal_actions(&id);
-                let mv = if v == PokerVariant::PineappleDraw && street == 0 && legal.allows("allin")
+                // While check_raise × short is missing, short stacks skip the
+                // Pineapple preflop shove and check-raise the minimum legal size.
+                let seeking_short_check_raise =
+                    p.stack <= 20 * bb && !coverage.contains("sequence=check_raise|stack=short");
+                let mv = if v == PokerVariant::PineappleDraw
+                    && street == 0
+                    && legal.allows("allin")
+                    && policy != 2
+                    && !seeking_short_check_raise
                 {
                     // Evolved short stacks can now witness a preflop all-in;
-                    // deep stacks remain limited to the next fixed level.
+                    // deep stacks remain limited to the next fixed level. The
+                    // check-raise policy lets short stacks see the flop, or the
+                    // pair check_raise × short could never be witnessed.
                     PlayerMove::AllIn
+                } else if seeking_short_check_raise
+                    && to_call > 0
+                    && checked.contains(&(phase.clone(), seat))
+                    && game.can_raise(&id)
+                    && p.current_bet + p.stack > min_total
+                {
+                    PlayerMove::Raise(min_total)
                 } else if hand == 0 && n == 2 && index != 4 {
                     // Two legal HU hands witness medium/short stacks and a
                     // check-raise followed by one covered all-in. No chip injection.
