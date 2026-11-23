@@ -54,7 +54,7 @@ Catálogo cash vigente (Play Money e Jogo Real, mesas espelhadas, **não** mistu
 | Hold’em NL 0,75/1,50 | 52 cartas, 2 hole | 0,75 / 1,50 | 9 | R$ 150 |
 | Texas Hold’em Short Deck | 36 cartas (sem 2–5); trinca > sequência; flush > full house; wheel A-6-7-8-9 | 0,50 / 0,50 | 8 | R$ 100 |
 | Omaha 4 | 52 cartas; 4 hole; showdown = exatamente 2 hole + 3 board; ranking clássico | 0,50 / 0,50 | 6 | R$ 100 |
-| Brazilian Pineapple (só Play Money) | 52 cartas; 3 hole; showdown com 2 hole, como no Hold’em; ranking clássico. **No ar na demo (v1):** ante de 1 BB; troca opcional de uma depois das apostas do flop e do turn; no river, descarte de uma antes da última rodada. **Pronto localmente, ainda não publicado (v4, 21/11/2026):** sem ante; troca na vez do jogador no flop, no turn e no river; descarte aberto no river, depois da troca | 0,50 / 0,50 | 6 | R$ 75 |
+| Brazilian Pineapple (só Play Money) | 52 cartas; 3 hole; showdown com 2 hole, como no Hold’em; ranking clássico. **No ar na demo desde 22/11/2026 (v4):** sem ante; troca na vez do jogador no flop, no turn e no river; descarte aberto no river, depois da troca | 0,50 / 0,50 | 6 | R$ 75 |
 
 Texas Short Deck no Zero Tilt **não é um rótulo no lobby**: o motor troca baralho e avaliador (`create_short_deck`, `evaluate_hand_short_deck`). Omaha 4 e Brazilian Pineapple usam baralho de 52 e ranking clássico, com avaliadores próprios; o Brazilian Pineapple tem ainda a troca e o descarte no motor. Isso é o tipo de detalhe que um parceiro técnico testa em cinco minutos — e que uma operação “de fachada” não tem.
 
@@ -120,7 +120,7 @@ Limite honesto de arquitetura: **uma mesa tem um dono por processo**. Não vende
 ## 4. Agilidade — a sessão não pode parecer 2006 com ping de 2010
 
 - Motor e API em **Rust + Tokio + Axum**: o caminho quente (ação da vez → validação → broadcast) não passa por interpretador nem por ORM preguiçoso no flop.
-- Timeouts de ação, iguais em cash e torneio. **No ar na demo:** 30 s por jogada + reserva de 30 s (+5 s a cada 10 mãos, teto de 60 s). **Pronto localmente, ainda não publicado (21/11/2026):** 15 s + 5 s de tempo extra por jogada. Acabado o tempo, o servidor age pelo jogador ([regra](BUSINESS_RULES.md), seção 10.2). A mesa não espera o jogador “pensar no WhatsApp”.
+- Timeouts de ação, iguais em cash e torneio. **No ar na demo desde 22/11/2026:** 15 s + 5 s de tempo extra por jogada. Acabado o tempo, o servidor age pelo jogador ([regra](BUSINESS_RULES.md), seção 10.2). A mesa não espera o jogador “pensar no WhatsApp”.
 - Ticket WS de **60 s** evita fila zumbi de conexões.
 - Codec binário já existe na API (`ProvablyFairHandStart/End` e opcodes de jogo) — base para o próximo salto de latência percebida (seção 11).
 - Frontend leve (324 KB de módulos no build do gate): o celular médio brasileiro abre o lobby sem baixar um jogo da Steam.
@@ -581,6 +581,6 @@ A avaliação datada da seção 13 permanece como retrato do conteúdo então ex
 O programa direto foi publicado na demo em 01/10 com a migration 060 e NGR mensal separado por PM/Real. A auditoria histórica 18/12 não valida esse modelo; evidências do deploy e dos testes de fechamento estão no `DEVELOPMENT_LOG.md` e em `QUALITY.md`. Critérios comerciais, assinatura, enquadramento e desempenho de retenção não são demonstrados por testes de software.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S28** (2026-11-19) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-22) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

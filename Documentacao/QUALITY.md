@@ -220,7 +220,7 @@ A campanha focada foi concluída dentro dos 15 minutos autorizados com dois trab
 - Home e Academy públicas aprovadas em 1440/390/320 px: oito capítulos, primeiro salto antes dos metadados, 113 legendas, transcrição, Enter/Escape, retorno do foco, ausência de autoplay e URLs da nova narração; sem overflow ou exceções JavaScript. Redirecionamento logado conferido com sessão sintética e APIs interceptadas; o smoke HTTP separado usou a API pública real. Evidências em `artifacts/narration-pronunciation/release/`.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S28** (2026-11-19) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-22) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
@@ -389,3 +389,17 @@ Até o CI ficar verde: o `75c08475` reprovou em dois avisos publicados depois de
 Local: site com `tsc`, ESLint, Vitest 137/137 e build; API com fmt, clippy `-D warnings` e testes (os de banco rodaram no CI); motor com 1.951 testes, nenhuma falha; `documentation-sync --check`.
 
 Não verificado em produção: nenhuma mão foi jogada com o banco de tempo no site publicado, e o refresh token de uso único não foi exercitado com uma sessão real.
+
+## Publicação: Brazilian Pineapple v4, relógio de 15 + 5 s e suíte massiva — 22/11/2026
+
+Publicado `195ae908b0ba588c6da06f7465a49a52b11905c5` às **02:32:38 UTC de 23/11 / 23:32:38 de 22/11 em São Paulo**, por ordem do proprietário, com Rust CI e Container Supply Chain verdes. Imagens `ghcr.io/leofran2204/poker-api@sha256:1e9057d317702170a12f6cecee28ceb558b7d284680f9fc84411f57f1843e452` e `ghcr.io/leofran2204/poker-web@sha256:95553b8bdcd1212278ee226b617c30c0fd4e577136c9fc6ceec02b9fa9882d9b`, assinatura e revisão conferidas pelo `vps-release-attested.sh`. Dois backups (o segundo com a API parada), migrations 63 (sem migration nova), boot com 1 "Migrations applied" e nenhuma linha ERROR, `.env` preservado, os 4 serviços saudáveis. No site publicado, conferido que o código serve a `pineapple_draw_v4`, o cartão "3 CARTAS · 3 TROCAS · 1 DESCARTE" e o "TEMPO EXTRA", e que o vídeo novo da m6l3 tem o tamanho do arquivo local (9.979.829 bytes).
+
+Até o CI ficar verde: o `121837b7` reprovou só na API, pelo aviso RUSTSEC-2026-0592 (`url` 2.5.8, publicado em 20/11; atualizado para 2.5.9) e por dois testes de `api_tests.rs` presos ao catálogo da Academy na versão 6. Os dois foram corrigidos no `195ae908`.
+
+Antes da publicação:
+- suíte massiva `pineapple_draw_massive` em release: 100 mil avaliações e 100 mil mãos com o Loss Deflator ligado, nenhuma divergência;
+- campanha do Brazilian Pineapple v4 aprovada ([FULL_VALIDATION](FULL_VALIDATION.md#campanha-do-brazilian-pineapple-v4-com-relógio-de-15--5-s--22112026));
+- site com `tsc`, ESLint, Vitest 150/150 e build; `test_narration` 13/13 e `render.py --check` com 30 publicações (24 delas na exceção temporária de voz antiga aprovada pelo proprietário);
+- motor com fmt e clippy `-D warnings`; API com fmt e os testes do CI; `documentation-sync --check`.
+
+Não verificado em produção: nenhuma mão de Brazilian Pineapple v4 foi jogada no site publicado, nem o relógio de 15 + 5 s com jogador real.

@@ -15,6 +15,7 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certif
 - [ ] Retirar a exceção RUSTSEC-2026-0459 de `API-Axum/.cargo/audit.toml` quando o `sqlx` aceitar `libsqlite3-sys` `>=0.39` (o 0.9.0 ainda exige `<0.38`).
 - [x] Caddy da imagem web compilado com Go 1.26.11 (19/11): o Go 1.26.10 trazia a CVE-2026-97054 (HIGH, `net/http`), que reprovou a varredura da imagem no CI do `75c08475`. Varredura local do Trivy limpa (vulnerabilidades, configuração e segredos).
 - [ ] Trocar o `chrono` da API por `time` ou `jiff` e retirar a exceção RUSTSEC-2026-0543 de `API-Axum/.cargo/audit.toml`. O aviso (`chrono` sem manutenção; sem falha de segurança conhecida nem versão corrigida) reprovou o CI do `75c08475`; a exceção temporária foi aprovada pelo proprietário em 19/11. São 13 arquivos da API mais a feature `chrono` do `sqlx`; conferir o formato das datas no JSON e no banco.
+- [x] Brazilian Pineapple v4 (troca no flop, turn e river; descarte aberto), relógio de 15 + 5 s, vídeos e m6l3 publicados em 22/11 (`195ae908`, sem migration nova), por ordem do proprietário, depois da suíte massiva e da campanha aprovadas. [Evidências](QUALITY.md#publicação-brazilian-pineapple-v4-relógio-de-15--5-s-e-suíte-massiva--22112026).
 - [ ] Proprietário jogar mãos de Brazilian Pineapple no site publicado (Play Money, computador e celular), ouvir som e vibração e assistir aos vídeos novos. Nenhuma mão foi jogada em produção; o teste completo foi numa cópia local do banco.
 - [ ] Abrir a carteira em Jogo Real com sessão no site publicado. Em 15/11 o login da conta do proprietário foi recusado três vezes (senha incorreta); falta ele redefinir a senha ou autorizar uma sessão temporária gerada no servidor.
 - [x] Campanha `full-validation -Phase pineapple` com o descarte do river e o banco de tempo (16/11, local, autorizada pelo proprietário): aprovada nos sete estágios, incluindo rede com 5 e 20 mesas. Os validadores estavam desatualizados e foram corrigidos. [Resultado](FULL_VALIDATION.md#campanha-do-brazilian-pineapple-atual-com-banco-de-tempo--16112026).
@@ -297,6 +298,6 @@ Ambiente (WSL, Node, clippy): [`../AGENTS.md`](../AGENTS.md). Gates: [`QUALITY.m
 > 💡 **Dica:** Ao voltar e dizer "vamos continuar", este painel será carregado automaticamente com o status mais recente.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S28** (2026-11-19) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-22) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

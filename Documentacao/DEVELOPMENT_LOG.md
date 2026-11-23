@@ -906,7 +906,7 @@
 - Eps 05-10 (~50-56s cada): sizing, roubos e 3-bets, pot odds, EV e fold equity, banca, revisão final. Série completa em `ZeroTiltCurso/`.
 - Sem botão no resultado: só as 5 cartas do jogo vencedor saltam com brilho dourado (board + mão do vencedor + painel), e o painel some sozinho em 7s.
 <!-- DOCUMENTATION_SYNC:START -->
-> **S28** (2026-11-19) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-22) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
@@ -1606,3 +1606,4 @@ Por ordem do proprietário: criar e rodar a suíte massiva, depois concluir as p
 - CI do `121837b7`: reprovou só na API. Aviso RUSTSEC-2026-0592 (`url` 2.5.8, estouro de pilha em `Url::origin()` com `blob:` aninhado; atualizado para 2.5.9 no `Cargo.lock`) e dois testes de `api_tests.rs` que ainda mandavam o catálogo da Academy na versão 6 (ele está na 7 desde a regra v3). Os outros sete testes com versão 6 passavam pelo motivo errado (a recusa da versão); com a 7, conferem o que pretendem. API local: `--lib` 111, binário, `api_tests` 17, `payments_tests` e `red_team_simulation_tests` aprovados.
 - Campanha do Pineapple v4 aprovada na terceira rodada (sete estágios, 356/356 pares); ver FULL_VALIDATION. Ajuste dirigido no gerador `cash_catalog_10k_hands` para testemunhar `check_raise × stack short`.
 - Notebook: a pedido do proprietário, tarefa agendada do Windows "Zero Tilt - liberar memoria do WSL" (a cada 15 min e ao entrar, só com o WSL ligado) libera o cache de disco do WSL; duas tarefas longas tinham sido interrompidas por falta de memória.
+- Publicado na VPS em 22/11 às 23:32 (São Paulo): `195ae908`, com CI verde e imagens assinadas; migrations 63, 4 serviços saudáveis. Ver QUALITY.

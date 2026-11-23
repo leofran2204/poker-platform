@@ -168,7 +168,7 @@ Os geradores consultam `GameLoop::legal_actions` e registram a ação efetivamen
 Os hashes das fontes de produção da integração conferem com a entrega; apenas a política do gerador cash mudou no complemento. Bancos, dumps, traces e relatórios são locais e exclusivos. Containers temporários removidos; container preexistente preservado. A aprovação cobre esta regra e este perfil, sem certificação de produção ou nova campanha completa de equity/demais variantes. Publicação futura continua condicionada a não haver mãos Pineapple abertas nem torneios Pineapple em andamento.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S28** (2026-11-19) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-22) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 

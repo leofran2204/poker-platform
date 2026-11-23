@@ -35,7 +35,7 @@ Casa: **ZT Poker** (header **Zero Tilt**). Slogan: **Estude. Jogue. Sem tilt.** 
 
 - **Omaha 4:** baralho 52; 4 cartas na mão; showdown exatamente 2 hole + 3 board; ranking clássico
 - **Texas Hold’em Short Deck:** baralho 36; 2 cartas; até 8 jogadores; **trinca > sequência** e **flush > full house**
-- **Brazilian Pineapple (só Play Money por enquanto; regra de 21/11/2026, que entra na próxima publicação: até lá a demo segue com a regra anterior):** baralho 52; 3 cartas; sem ante; no flop, no turn e no river, na sua vez, cada jogador mantém as cartas ou troca uma e só então aposta (all-in não troca); no river, depois da troca, descarta uma, que fica aberta para todos; showdown com 2 cartas, como no Hold’em; ranking clássico; até 6 jogadores; aumento limitado ao pote antes do call em todas as rodadas ([regra](BUSINESS_RULES.md#aumento-limitado-ao-pote-antes-do-call--pineapple_draw_v3)).
+- **Brazilian Pineapple (só Play Money por enquanto; regra de 21/11/2026, no ar desde 22/11/2026):** baralho 52; 3 cartas; sem ante; no flop, no turn e no river, na sua vez, cada jogador mantém as cartas ou troca uma e só então aposta (all-in não troca); no river, depois da troca, descarta uma, que fica aberta para todos; showdown com 2 cartas, como no Hold’em; ranking clássico; até 6 jogadores; aumento limitado ao pote antes do call em todas as rodadas ([regra](BUSINESS_RULES.md#aumento-limitado-ao-pote-antes-do-call--pineapple_draw_v3)).
 
 ## Carteiras
 
@@ -119,6 +119,6 @@ No mesmo Wi-Fi não dá para sentar na mesma mesa: um de vocês usa o 4G.
 ```
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S28** (2026-11-19) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-22) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
