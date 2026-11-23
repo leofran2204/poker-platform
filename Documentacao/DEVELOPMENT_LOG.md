@@ -1628,3 +1628,4 @@ Etapa 1 do plano do proprietário de 23/11: rebuy e add-on configurados por even
 - Site: botões de rebuy e add-on na página do torneio, regras do evento no resumo, aviso com link na mesa de torneio, coluna e editor no admin, lobby com rebuy e add-on.
 - Teste com banco `mtt_rebuy_and_addon_deliver_chips_and_charge_wallet` (carteira sem taxa, entrega na mão seguinte, volta na cadeira de uma linha eliminada, conservação das fichas, totais) entrou no CI.
 - Conferência: API `fmt`, `clippy --all-targets -D warnings`, testes determinísticos e contratos PostgreSQL (como o CI) e os três testes do ator MTT; motor `fmt`, `clippy --all-targets -D warnings` e 976 testes de torneio; site tsc, eslint, Vitest 154/154 e build; `documentation-sync --check`.
+- Publicado na VPS em 23/11 às 18:02 (São Paulo), por ordem do proprietário: `73d0ab99`, com Rust CI e Container Supply Chain verdes e imagens assinadas; migrations 64, 4 serviços saudáveis. Ver QUALITY.

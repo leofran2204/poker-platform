@@ -411,3 +411,11 @@ Publicado `3f1ac1155ade3b62fd1dda334842acb997528276` às **08:41:41 UTC / 05:41:
 Mudança: no Omaha 4 e no Brazilian Pineapple, perdedores da mesma foto do all-in dividem um único cálculo de equity, com o mesmo valor do cálculo individual; o fechamento da mão roda em `spawn_blocking` (cash e torneio). Antes da publicação: suíte completa do motor, `pineapple_draw_massive` em release (mesmas 140 devoluções de 22/11; mão mais lenta 12,2 s → 4,2 s), `short_deck_omaha_massive` em release, 111 testes da lib da API, `fmt` e `clippy -D warnings` nos dois.
 
 Não verificado em produção: nenhuma mão com all-in multiway de Omaha ou Pineapple foi jogada no site publicado.
+
+## Publicação: rebuy e add-on nos torneios — 23/11/2026
+
+Publicado `73d0ab998c43435ca740429dd12ea04085d96a3c` às **21:02:18 UTC / 18:02:18 em São Paulo de 23/11**, por ordem do proprietário ("pode publicar"), com Rust CI e Container Supply Chain verdes. Imagens `ghcr.io/leofran2204/poker-api@sha256:c91751d826b9e7d8e0fd043a03f83df784f72a6b82d5a454a0e0988009808a55` e `ghcr.io/leofran2204/poker-web@sha256:c885e1d6ca1f73f707fb3ce503fcf2ca3db54d290bd730c09f8a8f51572e1340`, assinatura e revisão conferidas pelo `vps-release-attested.sh`. Dois backups (o segundo com a API parada), migrations 64 (nova: `064_tournament_rebuy_addon`), boot com 1 "Migrations applied" e nenhuma linha ERROR, `.env` preservado, os 4 serviços saudáveis. Por fora: `/api/lobby/tournaments` traz `allow_addon` e `current_level`; `POST /api/tournament/rebuy` sem login responde 401.
+
+Mudança: rebuy e add-on configurados por evento no admin, rotas do jogador, fichas entregues no começo da mão seguinte, volta à mesa de quem foi eliminado, unicidade de `tournament_seats` só para assentos ativos. Gate novo no CI: `mtt_rebuy_and_addon_deliver_chips_and_charge_wallet` (PostgreSQL). Antes da publicação: API `fmt`, `clippy -D warnings`, testes determinísticos e contratos PostgreSQL; motor `fmt`, `clippy -D warnings` e 976 testes de torneio (suíte completa no CI); site tsc, eslint, Vitest 154/154 e build.
+
+Não verificado em produção: nenhum rebuy ou add-on foi comprado no site publicado; nenhum torneio do catálogo tem add-on ligado (fica para o admin ou para a etapa 2, com bots).
