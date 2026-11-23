@@ -548,3 +548,34 @@ async fn mtt_rebuy_and_addon_deliver_chips_and_charge_wallet() {
         .await
         .unwrap();
 }
+
+/// A entrada pelo WebSocket numa mesa de torneio lê o assento ativo no banco.
+/// A consulta devolvia BIGINT onde a linha espera SMALLINT e falhava sempre
+/// (05/09–23/11/2026): o jogador recebia "Não foi possível validar o assento do
+/// torneio" e o servidor desistia por ele a cada vez.
+#[tokio::test]
+#[ignore = "Requires scratch PostgreSQL (migrated) via DATABASE_URL"]
+async fn mtt_websocket_admission_reads_the_tournament_seat() {
+    use poker_api::handlers::websocket::tournament_seat_admission;
+
+    let db = scratch_pool();
+    wipe_tact_leftovers(&db).await;
+    let (_state, _tx, t) = setup_mtt_table(&db, "wsadmit", 5000).await;
+    let table_id = t.table_id.to_string();
+
+    let seat = tournament_seat_admission(&db, &table_id, &t.u1.to_string())
+        .await
+        .expect("a consulta do assento do torneio precisa ler a linha")
+        .expect("assento ativo do jogador");
+    assert_eq!(seat.2, 50, "big blind da mesa");
+    assert_eq!((seat.3, seat.4), (0, 0), "torneio sem rake por mão");
+    assert_eq!(seat.8, 5000, "fichas do assento");
+    assert_eq!(seat.10, "holdem");
+
+    let stranger = tournament_seat_admission(&db, &table_id, &uuid::Uuid::new_v4().to_string())
+        .await
+        .expect("consulta sem assento");
+    assert!(stranger.is_none(), "quem não está sentado não entra");
+
+    cleanup_mtt_table(&db, &t).await;
+}

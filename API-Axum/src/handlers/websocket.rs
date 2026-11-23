@@ -138,6 +138,47 @@ async fn consume_ws_ticket(
     }
 }
 
+/// Linha de admissão na mesa: nome, blinds, rake (pontos-base, teto e tetos por
+/// número de jogadores), fichas, cadeira e variante.
+pub type SeatAdmissionRow = (
+    String,
+    i64,
+    i64,
+    i16,
+    i64,
+    Option<i64>,
+    Option<i64>,
+    Option<i64>,
+    i64,
+    i16,
+    String,
+);
+
+/// Assento ativo do jogador numa mesa de torneio, no mesmo formato do cash
+/// (torneio não tem rake por mão). Os tipos seguem as colunas do cash:
+/// `rake_basis_points` é SMALLINT. Entre 05/09 e 23/11/2026 esta consulta
+/// devolvia BIGINT nessa posição, a leitura falhava e ninguém entrava na mesa.
+pub async fn tournament_seat_admission(
+    db: &sqlx::PgPool,
+    table_id: &str,
+    user_id: &str,
+) -> Result<Option<SeatAdmissionRow>, sqlx::Error> {
+    sqlx::query_as(
+        "SELECT t.name, t.small_blind, t.big_blind, 0::smallint, 0::bigint, \
+                NULL::bigint, NULL::bigint, NULL::bigint, s.stack, s.seat, \
+                COALESCE(t.poker_variant, 'holdem') \
+         FROM tournament_seats s \
+         JOIN tables t ON t.id = s.table_id \
+         WHERE s.table_id = $1::uuid AND s.player_id = $2 \
+           AND s.status = 'ACTIVE' AND t.status = 'OPEN' \
+           AND t.game_type = 'tournament'",
+    )
+    .bind(table_id)
+    .bind(user_id)
+    .fetch_optional(db)
+    .await
+}
+
 /// POST /api/lobby/tables/:id/ws-ticket
 /// Issues a short-lived, single-use ticket for the browser WebSocket handshake.
 pub async fn create_ws_ticket(
@@ -278,19 +319,6 @@ async fn handle_game_socket(
 
     // Admission is authorized by a persisted, funded escrow seat. A valid JWT
     // alone is not enough to create a table or receive demo chips.
-    type SeatAdmissionRow = (
-        String,
-        i64,
-        i64,
-        i16,
-        i64,
-        Option<i64>,
-        Option<i64>,
-        Option<i64>,
-        i64,
-        i16,
-        String,
-    );
     let seat: Option<SeatAdmissionRow> = match sqlx::query_as(
         "SELECT t.name, t.small_blind, t.big_blind, t.rake_basis_points, t.rake_cap, t.rake_cap_heads_up, t.rake_cap_three_to_four, t.rake_cap_five_plus, s.chips, s.seat, \
                 COALESCE(t.poker_variant, 'holdem') \
@@ -322,21 +350,7 @@ async fn handle_game_socket(
     let seat: Option<SeatAdmissionRow> = if seat.is_some() {
         seat
     } else {
-        match sqlx::query_as(
-            "SELECT t.name, t.small_blind, t.big_blind, 0::bigint, 0::bigint, \
-                    NULL::bigint, NULL::bigint, NULL::bigint, s.stack, s.seat, \
-                    COALESCE(t.poker_variant, 'holdem') \
-             FROM tournament_seats s \
-             JOIN tables t ON t.id = s.table_id \
-             WHERE s.table_id = $1::uuid AND s.player_id = $2 \
-               AND s.status = 'ACTIVE' AND t.status = 'OPEN' \
-               AND t.game_type = 'tournament'",
-        )
-        .bind(&table_id)
-        .bind(&user_id)
-        .fetch_optional(&state.db)
-        .await
-        {
+        match tournament_seat_admission(&state.db, &table_id, &user_id).await {
             Ok(seat) => seat,
             Err(database_error) => {
                 error!(?database_error, "WebSocket tournament seat query failed");
