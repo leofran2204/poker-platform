@@ -451,6 +451,9 @@ jobs:
       - name: Run tournament rebuy and add-on contract
         run: cargo test --test tournament_actor_tests mtt_rebuy_and_addon_deliver_chips_and_charge_wallet -- --ignored --nocapture
 
+      - name: Run tournament registration fee contract
+        run: cargo test --test tournament_actor_tests mtt_registration_records_entry_fee -- --ignored --nocapture
+
       - name: Run tournament WebSocket admission contract
         run: cargo test --test tournament_actor_tests mtt_websocket_admission_reads_the_tournament_seat -- --ignored --nocapture
 

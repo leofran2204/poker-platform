@@ -579,3 +579,88 @@ async fn mtt_websocket_admission_reads_the_tournament_seat() {
 
     cleanup_mtt_table(&db, &t).await;
 }
+
+/// A inscrição grava no torneio a contagem de entradas e o fee de 15% cobrado,
+/// como já faziam o cancelamento e os bots da casa. Antes o fee das inscrições
+/// pelo site ficava fora de `tournaments.total_fees` e o painel do admin mostrava
+/// zero (achado na etapa 2 de 23/11/2026: R$ 101,25 cobrados, R$ 0 registrados).
+#[tokio::test]
+#[ignore = "Requires scratch PostgreSQL (migrated) via DATABASE_URL"]
+async fn mtt_registration_records_entry_fee() {
+    use axum::extract::State;
+    use axum::Json;
+    use poker_api::handlers::tournament::{register_player, RegisterBody};
+    use poker_api::middleware::auth::{AuthUser, RequireAuth};
+
+    let db = scratch_pool();
+    wipe_tact_leftovers(&db).await;
+    let tid = uuid::Uuid::new_v4();
+    let uid = uuid::Uuid::new_v4();
+    let name = "tact-fee-1".to_string();
+    sqlx::query("INSERT INTO users (id, username, email, password_hash, role, status) VALUES ($1, $2, $2, 'x', 'player', 'active')")
+        .bind(uid).bind(&name).execute(&db).await.unwrap();
+    poker_api::wallet::ensure_pm_daily_reset_pool(&db, &uid.to_string())
+        .await
+        .unwrap();
+    sqlx::query("INSERT INTO tournaments (id, name, buy_in, starting_stack, max_players) VALUES ($1, 'MTT teste fee', 2500, 5000, 27)")
+        .bind(tid).execute(&db).await.unwrap();
+
+    let state = test_state(db.clone());
+    let tkey = tid.to_string();
+    {
+        let mut stores = state.tournaments.write().await;
+        let store = TournamentStore::with_mode_and_variant(
+            tkey.clone(),
+            poker_engine::tournament_engine::TournamentConfig {
+                buy_in: 2500,
+                max_players: 27,
+                ..Default::default()
+            },
+            "play".into(),
+            "holdem".into(),
+        );
+        stores.insert(tkey.clone(), store);
+    }
+
+    let response = register_player(
+        State(state.clone()),
+        RequireAuth(AuthUser {
+            user_id: uid.to_string(),
+            username: name.clone(),
+            role: "player".to_string(),
+        }),
+        Json(RegisterBody {
+            tournament_id: tkey.clone(),
+            player_id: None,
+            player_name: None,
+            wallet_mode: Some("play".into()),
+        }),
+    )
+    .await
+    .expect("inscrição em Play Money");
+    let fee = poker_engine::tournament_engine::entry_fee_cents(2500) as i64;
+    assert_eq!(response.0.fee_cents, fee);
+
+    let (entries, fees): (i32, i64) =
+        sqlx::query_as("SELECT total_buyins, total_fees FROM tournaments WHERE id = $1")
+            .bind(tid)
+            .fetch_one(&db)
+            .await
+            .unwrap();
+    assert_eq!(entries, 1, "total_buyins conta as entradas");
+    assert_eq!(
+        fees, fee,
+        "o fee cobrado na inscrição fica registrado no torneio"
+    );
+
+    sqlx::query("DELETE FROM tournament_players WHERE tournament_id = $1")
+        .bind(tid)
+        .execute(&db)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM tournaments WHERE id = $1")
+        .bind(tid)
+        .execute(&db)
+        .await
+        .unwrap();
+}

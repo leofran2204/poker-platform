@@ -456,7 +456,8 @@ pub async fn register_player(
         UPDATE tournaments
         SET prize_pool = $2,
             players_remaining = $3,
-            total_buyins = $4
+            total_buyins = $4,
+            total_fees = $5
         WHERE id = $1::uuid
         "#,
     )
@@ -464,6 +465,7 @@ pub async fn register_player(
     .bind(store.state.prize_pool as i64)
     .bind(store.state.players_remaining as i32)
     .bind(store.state.players.len() as i32)
+    .bind(i64::try_from(store.state.total_fees).unwrap_or(i64::MAX))
     .execute(&mut *tx)
     .await
     .inspect_err(|_| {
