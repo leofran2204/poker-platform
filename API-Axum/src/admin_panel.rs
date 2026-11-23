@@ -671,6 +671,181 @@ pub struct AdminTournamentItem {
     pub max_players: u32,
     pub table_max_players: u8,
     pub scheduled_start_at: Option<i64>,
+    pub current_level: u32,
+    pub allow_rebuy: bool,
+    pub rebuy_cost: u64,
+    pub rebuy_chips: u64,
+    /// 0 = sem limite de quantidade.
+    pub rebuy_max_count: u32,
+    pub rebuy_max_level: u32,
+    pub rebuy_stack_threshold: u64,
+    pub allow_addon: bool,
+    pub addon_cost: u64,
+    pub addon_chips: u64,
+    pub addon_max_level: u32,
+    pub total_rebuys: u64,
+    pub total_addons: u64,
+}
+
+fn admin_item(store: &crate::tournament_store::TournamentStore) -> AdminTournamentItem {
+    let cfg = &store.state.config;
+    AdminTournamentItem {
+        id: store.id.clone(),
+        name: cfg.name.clone(),
+        buy_in: cfg.buy_in,
+        guaranteed_prize: cfg.guaranteed_prize,
+        prize_pool: store.state.prize_pool.max(cfg.guaranteed_prize),
+        status: format!("{:?}", store.state.status).to_lowercase(),
+        is_freeroll: cfg.is_freeroll,
+        registered_players: store.state.players.len() as u32,
+        max_players: cfg.max_players,
+        table_max_players: store.table_max_players,
+        scheduled_start_at: store.scheduled_start_at,
+        current_level: store.state.current_level,
+        allow_rebuy: cfg.allow_rebuy,
+        rebuy_cost: store.rebuy_cost(),
+        rebuy_chips: store.rebuy_chips(),
+        rebuy_max_count: cfg.rebuy_max_count,
+        rebuy_max_level: cfg.rebuy_max_level,
+        rebuy_stack_threshold: cfg.rebuy_stack_threshold,
+        allow_addon: cfg.allow_addon,
+        addon_cost: store.addon_cost(),
+        addon_chips: store.addon_chips(),
+        addon_max_level: store.addon_max_level(),
+        total_rebuys: store.state.total_rebuys,
+        total_addons: store.state.total_addons,
+    }
+}
+
+/// Rebuy e add-on de um evento, já validados (centavos e fichas inteiros).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct RebuyAddonTerms {
+    pub allow_rebuy: bool,
+    pub rebuy_cost: i64,
+    pub rebuy_chips: i64,
+    pub rebuy_max_count: i32,
+    pub rebuy_max_level: i32,
+    pub rebuy_stack_threshold: i64,
+    pub allow_addon: bool,
+    pub addon_cost: i64,
+    pub addon_chips: i64,
+    pub addon_max_level: i32,
+}
+
+/// Maior nível aceito para rebuy e add-on (a estrutura padrão tem 26).
+const REBUY_ADDON_LEVEL_CAP: i32 = 26;
+
+/// Campos opcionais de rebuy e add-on vindos do admin (criação ou edição).
+#[derive(Debug, Default, Deserialize)]
+pub struct RebuyAddonBody {
+    pub allow_rebuy: Option<bool>,
+    pub rebuy_cost_cents: Option<i64>,
+    pub rebuy_chips: Option<i64>,
+    pub rebuy_max_count: Option<i32>,
+    pub rebuy_max_level: Option<i32>,
+    pub rebuy_stack_threshold: Option<i64>,
+    pub allow_addon: Option<bool>,
+    pub addon_cost_cents: Option<i64>,
+    pub addon_chips: Option<i64>,
+    pub addon_max_level: Option<i32>,
+}
+
+impl RebuyAddonBody {
+    fn touches_anything(&self) -> bool {
+        self.allow_rebuy.is_some()
+            || self.rebuy_cost_cents.is_some()
+            || self.rebuy_chips.is_some()
+            || self.rebuy_max_count.is_some()
+            || self.rebuy_max_level.is_some()
+            || self.rebuy_stack_threshold.is_some()
+            || self.allow_addon.is_some()
+            || self.addon_cost_cents.is_some()
+            || self.addon_chips.is_some()
+            || self.addon_max_level.is_some()
+    }
+
+    /// Aplica os campos informados sobre `base` e valida o resultado.
+    pub(crate) fn merge(&self, base: RebuyAddonTerms) -> Result<RebuyAddonTerms, ApiError> {
+        let terms = RebuyAddonTerms {
+            allow_rebuy: self.allow_rebuy.unwrap_or(base.allow_rebuy),
+            rebuy_cost: self.rebuy_cost_cents.unwrap_or(base.rebuy_cost),
+            rebuy_chips: self.rebuy_chips.unwrap_or(base.rebuy_chips),
+            rebuy_max_count: self.rebuy_max_count.unwrap_or(base.rebuy_max_count),
+            rebuy_max_level: self.rebuy_max_level.unwrap_or(base.rebuy_max_level),
+            rebuy_stack_threshold: self
+                .rebuy_stack_threshold
+                .unwrap_or(base.rebuy_stack_threshold),
+            allow_addon: self.allow_addon.unwrap_or(base.allow_addon),
+            addon_cost: self.addon_cost_cents.unwrap_or(base.addon_cost),
+            addon_chips: self.addon_chips.unwrap_or(base.addon_chips),
+            addon_max_level: self.addon_max_level.unwrap_or(base.addon_max_level),
+        };
+        if terms.rebuy_cost < 0 || terms.addon_cost < 0 {
+            return Err(ApiError::BadRequest(
+                "preço de rebuy e add-on não pode ser negativo".into(),
+            ));
+        }
+        if terms.rebuy_chips < 0 || terms.addon_chips < 0 || terms.rebuy_stack_threshold < 0 {
+            return Err(ApiError::BadRequest(
+                "fichas de rebuy e add-on não podem ser negativas".into(),
+            ));
+        }
+        if !(0..=100).contains(&terms.rebuy_max_count) {
+            return Err(ApiError::BadRequest(
+                "quantidade de rebuys deve ser 0 (sem limite) a 100".into(),
+            ));
+        }
+        if !(0..=REBUY_ADDON_LEVEL_CAP).contains(&terms.rebuy_max_level)
+            || !(0..=REBUY_ADDON_LEVEL_CAP).contains(&terms.addon_max_level)
+        {
+            return Err(ApiError::BadRequest(format!(
+                "nível de rebuy e add-on deve ser 0..{REBUY_ADDON_LEVEL_CAP}"
+            )));
+        }
+        if terms.allow_rebuy && terms.rebuy_max_level < 1 {
+            return Err(ApiError::BadRequest(
+                "rebuy ligado exige o último nível (1 ou mais)".into(),
+            ));
+        }
+        if terms.allow_addon && terms.addon_max_level < 1 && terms.rebuy_max_level < 1 {
+            return Err(ApiError::BadRequest(
+                "add-on ligado exige o último nível (1 ou mais)".into(),
+            ));
+        }
+        Ok(terms)
+    }
+}
+
+fn store_terms(store: &crate::tournament_store::TournamentStore) -> RebuyAddonTerms {
+    let cfg = &store.state.config;
+    RebuyAddonTerms {
+        allow_rebuy: cfg.allow_rebuy,
+        rebuy_cost: cfg.rebuy_cost as i64,
+        rebuy_chips: cfg.rebuy_chips as i64,
+        rebuy_max_count: cfg.rebuy_max_count as i32,
+        rebuy_max_level: cfg.rebuy_max_level as i32,
+        rebuy_stack_threshold: cfg.rebuy_stack_threshold as i64,
+        allow_addon: cfg.allow_addon,
+        addon_cost: store.addon.cost as i64,
+        addon_chips: store.addon.chips as i64,
+        addon_max_level: store.addon.max_level as i32,
+    }
+}
+
+fn apply_terms(store: &mut crate::tournament_store::TournamentStore, terms: RebuyAddonTerms) {
+    let cfg = &mut store.state.config;
+    cfg.allow_rebuy = terms.allow_rebuy;
+    cfg.rebuy_cost = terms.rebuy_cost.max(0) as u64;
+    cfg.rebuy_chips = terms.rebuy_chips.max(0) as u64;
+    cfg.rebuy_max_count = terms.rebuy_max_count.max(0) as u32;
+    cfg.rebuy_max_level = terms.rebuy_max_level.max(0) as u32;
+    cfg.rebuy_stack_threshold = terms.rebuy_stack_threshold.max(0) as u64;
+    cfg.allow_addon = terms.allow_addon;
+    store.addon = crate::tournament_store::AddonTerms {
+        cost: terms.addon_cost.max(0) as u64,
+        chips: terms.addon_chips.max(0) as u64,
+        max_level: terms.addon_max_level.max(0) as u32,
+    };
 }
 
 pub async fn list_admin_tournaments(
@@ -679,25 +854,7 @@ pub async fn list_admin_tournaments(
 ) -> Result<Json<Vec<AdminTournamentItem>>, ApiError> {
     require_admin(&auth_user)?;
     let tournaments = state.tournaments.read().await;
-    let mut list: Vec<_> = tournaments
-        .values()
-        .map(|store| AdminTournamentItem {
-            id: store.id.clone(),
-            name: store.state.config.name.clone(),
-            buy_in: store.state.config.buy_in,
-            guaranteed_prize: store.state.config.guaranteed_prize,
-            prize_pool: store
-                .state
-                .prize_pool
-                .max(store.state.config.guaranteed_prize),
-            status: format!("{:?}", store.state.status).to_lowercase(),
-            is_freeroll: store.state.config.is_freeroll,
-            registered_players: store.state.players.len() as u32,
-            max_players: store.state.config.max_players,
-            table_max_players: store.table_max_players,
-            scheduled_start_at: store.scheduled_start_at,
-        })
-        .collect();
+    let mut list: Vec<_> = tournaments.values().map(admin_item).collect();
     list.sort_by(|a, b| a.name.cmp(&b.name));
     Ok(Json(list))
 }
@@ -758,6 +915,9 @@ pub async fn list_tournament_players(
 pub struct PatchTournamentBody {
     pub status: Option<String>,
     pub scheduled_start_at: Option<i64>,
+    /// Rebuy e add-on: só antes do início (inscrições abertas).
+    #[serde(flatten)]
+    pub rebuy_addon: RebuyAddonBody,
 }
 
 pub async fn patch_tournament(
@@ -767,9 +927,12 @@ pub async fn patch_tournament(
     Json(body): Json<PatchTournamentBody>,
 ) -> Result<Json<AdminTournamentItem>, ApiError> {
     require_admin(&auth_user)?;
-    if body.status.is_none() && body.scheduled_start_at.is_none() {
+    if body.status.is_none()
+        && body.scheduled_start_at.is_none()
+        && !body.rebuy_addon.touches_anything()
+    {
         return Err(ApiError::BadRequest(
-            "Provide status and/or scheduled_start_at".into(),
+            "Provide status, scheduled_start_at and/or rebuy/add-on fields".into(),
         ));
     }
     if body.scheduled_start_at.is_some_and(|sched| sched <= 0) {
@@ -780,6 +943,58 @@ pub async fn patch_tournament(
 
     let tid = uuid::Uuid::parse_str(&tournament_id)
         .map_err(|_| ApiError::BadRequest("Invalid tournament id".into()))?;
+
+    if body.rebuy_addon.touches_anything() {
+        let mut tournaments = state.tournaments.write().await;
+        let store = tournaments
+            .get_mut(&tournament_id)
+            .ok_or_else(|| ApiError::NotFound("Tournament not found".into()))?;
+        if store.state.status != poker_engine::tournament_engine::TournamentStatus::Registering {
+            return Err(ApiError::BadRequest(
+                "rebuy e add-on só mudam antes do início do torneio".into(),
+            ));
+        }
+        let before = store_terms(store);
+        let terms = body.rebuy_addon.merge(before)?;
+        let updated = sqlx::query(
+            "UPDATE tournaments SET allow_rebuy=$2, rebuy_cost=$3, rebuy_chips=$4, \
+             rebuy_max_count=$5, rebuy_max_level=$6, rebuy_stack_threshold=$7, \
+             allow_addon=$8, addon_cost=$9, addon_chips=$10, addon_max_level=$11 \
+             WHERE id=$1 AND status='registering'",
+        )
+        .bind(tid)
+        .bind(terms.allow_rebuy)
+        .bind(terms.rebuy_cost)
+        .bind(terms.rebuy_chips)
+        .bind(terms.rebuy_max_count)
+        .bind(terms.rebuy_max_level)
+        .bind(terms.rebuy_stack_threshold)
+        .bind(terms.allow_addon)
+        .bind(terms.addon_cost)
+        .bind(terms.addon_chips)
+        .bind(terms.addon_max_level)
+        .execute(&state.db)
+        .await?
+        .rows_affected();
+        if updated != 1 {
+            return Err(ApiError::BadRequest(
+                "rebuy e add-on só mudam antes do início do torneio".into(),
+            ));
+        }
+        apply_terms(store, terms);
+        drop(tournaments);
+        write_audit(
+            &state,
+            &auth_user.user_id,
+            "TOURNAMENT_REBUY_ADDON",
+            serde_json::json!({
+                "tournament_id": tournament_id,
+                "before": format!("{before:?}"),
+                "after": format!("{terms:?}"),
+            }),
+        )
+        .await?;
+    }
 
     if let Some(ref status_raw) = body.status {
         let status = status_raw.trim().to_ascii_lowercase();
@@ -837,22 +1052,7 @@ pub async fn patch_tournament(
     let store = tournaments
         .get(&tournament_id)
         .ok_or_else(|| ApiError::NotFound("Tournament not found".into()))?;
-    Ok(Json(AdminTournamentItem {
-        id: store.id.clone(),
-        name: store.state.config.name.clone(),
-        buy_in: store.state.config.buy_in,
-        guaranteed_prize: store.state.config.guaranteed_prize,
-        prize_pool: store
-            .state
-            .prize_pool
-            .max(store.state.config.guaranteed_prize),
-        status: format!("{:?}", store.state.status).to_lowercase(),
-        is_freeroll: store.state.config.is_freeroll,
-        registered_players: store.state.players.len() as u32,
-        max_players: store.state.config.max_players,
-        table_max_players: store.table_max_players,
-        scheduled_start_at: store.scheduled_start_at,
-    }))
+    Ok(Json(admin_item(store)))
 }
 
 #[derive(Debug, Deserialize)]
@@ -870,10 +1070,8 @@ pub struct CreateTournamentBody {
     pub speed: Option<String>,
     pub late_registration: Option<bool>,
     pub late_reg_max_level: Option<i32>,
-    pub allow_rebuy: Option<bool>,
-    pub rebuy_cost_cents: Option<i64>,
-    pub rebuy_max_count: Option<i32>,
-    pub rebuy_max_level: Option<i32>,
+    #[serde(flatten)]
+    pub rebuy_addon: RebuyAddonBody,
     pub final_table_variant: Option<String>,
     pub final_table_max_players: Option<i16>,
 }
@@ -974,6 +1172,20 @@ pub async fn create_tournament(
         return Err(ApiError::BadRequest("speed inválida".into()));
     }
     let is_freeroll = body.buy_in_cents == 0;
+    // Padrões: rebuy desligado (1×, até o nível 6, preço do buy-in, stack inicial);
+    // add-on desligado (preço do buy-in, stack inicial, mesmo nível do rebuy).
+    let terms = body.rebuy_addon.merge(RebuyAddonTerms {
+        allow_rebuy: false,
+        rebuy_cost: body.buy_in_cents,
+        rebuy_chips: body.starting_stack,
+        rebuy_max_count: 1,
+        rebuy_max_level: 6,
+        rebuy_stack_threshold: 0,
+        allow_addon: false,
+        addon_cost: body.buy_in_cents,
+        addon_chips: body.starting_stack,
+        addon_max_level: 0,
+    })?;
     let id = uuid::Uuid::new_v4();
     sqlx::query(
         r#"INSERT INTO tournaments
@@ -984,16 +1196,18 @@ pub async fn create_tournament(
              rebuy_max_level, allow_rebuy, game_type, money_mode,
              poker_variant, final_table_variant, final_table_max_players,
              scheduled_start_at, auto_start_min_players,
-             prize_pool, current_level, players_remaining, total_buyins, total_fees)
+             prize_pool, current_level, players_remaining, total_buyins, total_fees,
+             allow_addon, addon_cost, addon_chips, addon_max_level)
          VALUES
             ($1, $2, $3, $4, $5, $6,
              $7, $8, $9, 'registering',
              $10, $11,
-             $12, $13, $14, 0,
+             $12, $13, $14, $23,
              $15, $16, 'Holdem', $17,
              $18, $19, $20,
              $21, $22,
-             0, 0, 0, 0, 0)"#,
+             0, 0, 0, 0, 0,
+             $24, $25, $26, $27)"#,
     )
     .bind(id)
     .bind(&name)
@@ -1006,17 +1220,22 @@ pub async fn create_tournament(
     .bind(&speed)
     .bind(body.guaranteed_prize_cents)
     .bind(is_freeroll)
-    .bind(body.rebuy_cost_cents.unwrap_or(body.buy_in_cents))
-    .bind(body.starting_stack)
-    .bind(body.rebuy_max_count.unwrap_or(1))
-    .bind(body.rebuy_max_level.unwrap_or(6))
-    .bind(body.allow_rebuy.unwrap_or(false))
+    .bind(terms.rebuy_cost)
+    .bind(terms.rebuy_chips)
+    .bind(terms.rebuy_max_count)
+    .bind(terms.rebuy_max_level)
+    .bind(terms.allow_rebuy)
     .bind(money_mode)
     .bind(&variant)
     .bind(final_table_variant)
     .bind(body.final_table_max_players)
     .bind(scheduled_start_at)
     .bind(body.auto_start_min_players.unwrap_or(5))
+    .bind(terms.rebuy_stack_threshold)
+    .bind(terms.allow_addon)
+    .bind(terms.addon_cost)
+    .bind(terms.addon_chips)
+    .bind(terms.addon_max_level)
     .execute(&state.db)
     .await
     .map_err(|e| ApiError::BadRequest(format!("create tournament: {e}")))?;
@@ -1027,7 +1246,7 @@ pub async fn create_tournament(
                 prize_pool, current_level, players_remaining, total_buyins, \
                 guaranteed_prize, is_freeroll, \
                 rebuy_cost, rebuy_chips, rebuy_max_count, rebuy_stack_threshold, \
-                rebuy_max_level, allow_rebuy, blind_levels, game_type, money_mode, \
+                rebuy_max_level, allow_rebuy, allow_addon, addon_cost, addon_chips,                 addon_max_level, total_rebuys, total_addons, blind_levels, game_type, money_mode, \
                 poker_variant, final_table_variant, final_table_max_players, \
                 scheduled_start_at, auto_start_min_players, live_table_id, live_table_ids \
          FROM tournaments WHERE id = $1",
@@ -1036,19 +1255,7 @@ pub async fn create_tournament(
     .fetch_one(&state.db)
     .await?;
     let store = crate::tournament_catalog::row_to_store(created);
-    let item = AdminTournamentItem {
-        id: store.id.clone(),
-        name: store.state.config.name.clone(),
-        buy_in: store.state.config.buy_in,
-        guaranteed_prize: store.state.config.guaranteed_prize,
-        prize_pool: store.state.config.guaranteed_prize,
-        status: "registering".to_string(),
-        is_freeroll: store.state.config.is_freeroll,
-        registered_players: 0,
-        max_players: store.state.config.max_players,
-        table_max_players: store.table_max_players,
-        scheduled_start_at: store.scheduled_start_at,
-    };
+    let item = admin_item(&store);
     state
         .tournaments
         .write()

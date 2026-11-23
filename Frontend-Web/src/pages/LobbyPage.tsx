@@ -474,8 +474,11 @@ export function LobbyPage() {
                         <dd>{t.table_max_players} lugares</dd>
                       </div>
                       <div>
-                        <dt>Rebuy</dt>
-                        <dd>{t.allow_rebuy ? `até nív. ${t.rebuy_max_level}` : "não"}</dd>
+                        <dt>Rebuy · Add-on</dt>
+                        <dd>
+                          {t.allow_rebuy ? `nív. ${t.rebuy_max_level}` : "não"} ·{" "}
+                          {t.allow_addon ? `nív. ${t.addon_max_level}` : "não"}
+                        </dd>
                       </div>
                     </dl>
                     <div className="zt-tourney-fill" aria-label={`${t.registered_players} de ${t.max_players} inscritos`}>

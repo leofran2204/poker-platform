@@ -43,6 +43,13 @@ Demo: [zerotiltpoker.net](https://zerotiltpoker.net) — staging, **sem** certif
   - [x] Desempenho do Loss Deflator no fechamento da mão (achado de 22/11; opção escolhida pelo proprietário em 23/11: cálculo único por foto e fora das threads assíncronas; publicado na VPS em 23/11, `3f1ac115`). [Registro](DEVELOPMENT_LOG.md#2026-11-23--loss-deflator-um-cálculo-por-foto-do-all-in). Achado original: no Omaha e no Brazilian Pineapple, o all-in pré-flop usa Monte Carlo de 120 mil amostras por perdedor, dentro do ator da mesa. Na suíte massiva, a mão mais lenta levou 12,2 s para fechar (all-in pré-flop de muitos jogadores, modo pressão); com jogo comum, até cerca de 2 s. Opções: calcular fora do ator (`spawn_blocking`), reaproveitar o cálculo entre perdedores da mesma foto ou reduzir amostras no multiway, sempre mantendo a equity auditável.
   - [ ] Acompanhar no Play Money quantas mãos acabam por tempo esgotado, sobretudo no river do Pineapple.
 - [ ] Proprietário indicar para onde mover os dumps de banco em `backups/` no notebook.
+- [ ] Plano do proprietário de 23/11 ("pode fazer tudo você mesmo"), uma sessão por etapa; cada etapa publica na VPS depois dos testes e do CI verde (livro único só depois da campanha):
+  - [x] 1) Rebuy e add-on nos torneios (23/11). [Registro](DEVELOPMENT_LOG.md#2026-11-23--rebuy-e-add-on-nos-torneios). Pedido original: O motor tem `process_rebuy`/`process_addon` (`tournament_engine.rs`), mas a API não os chama e o catálogo tem `allow_addon: false`. A plataforma (admin) decide por evento: ligar ou não, preço, fichas, quantidade e até qual nível. Rotas, ator do torneio, carteira, prêmio e taxa, tela, testes, BUSINESS_RULES.
+  - [ ] 2) Bots no site publicado (Play Money): nas 4 modalidades, mesa cheia (Hold'em 9, Short Deck 8, Omaha 6, Pineapple 6), um torneio com 1 rebuy e 1 add-on por bot e uma sessão de cash com a compra atual do catálogo (500 BB descartado pelo proprietário). Máximo de situações distintas por mão (all-in multiway, potes paralelos, aumento e reaumento, check-raise, empate, tempo esgotado e tempo extra, Loss Deflator; no Pineapple, troca, manutenção e descarte). Contas de teste com e-mail temporário; IP do notebook em `SEAT_IP_GUARD_EXEMPT_IPS` só durante a janela. Conferir pagamentos e relatório de cobertura. Junto: carteira em Jogo Real com conta de teste, sem dinheiro.
+  - [ ] 3) Troca do `chrono` (item acima) e destino dos dumps de `backups/`.
+  - [ ] 4) Login por cookie (item 2 de segurança).
+  - [ ] 5) Regravar os 24 vídeos de voz antiga (aprovado; amostra curta antes).
+  - [ ] 6) Livro único do dinheiro, com campanha de validação.
 
 ## S27 — integridade da mesa, saque por titularidade e publicação assinada (19/10–08/11/2026)
 

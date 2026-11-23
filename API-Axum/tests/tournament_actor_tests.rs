@@ -129,6 +129,14 @@ async fn setup_mtt_table(
         idle_ticks: 0,
         last_winners: Vec::new(),
     };
+    // Como em produção: a mesa viva fica no mapa de atores (WS e rotas a acham).
+    state.active_tables.write().await.insert(
+        table_id.to_string(),
+        poker_api::state::TableActorHandle {
+            tx_cmd: tx_cmd.clone(),
+            tx_broadcast: actor.tx_broadcast.clone(),
+        },
+    );
     tokio::spawn(actor.run());
 
     for (uid, name, seat) in [(u1, n1, 0usize), (u2, n2, 1usize)] {
@@ -305,4 +313,238 @@ async fn mtt_actor_runs_out_allin_stall() {
     );
 
     cleanup_mtt_table(&db, &t).await;
+}
+
+/// Rebuy e add-on pelas rotas do jogador: carteira debitada sem taxa, fichas do
+/// add-on entregues no começo da mão seguinte, eliminado volta a sentar (no
+/// mesmo número de cadeira de uma linha eliminada) e as fichas se conservam.
+#[tokio::test]
+#[ignore = "Requires scratch PostgreSQL (migrated) via DATABASE_URL"]
+async fn mtt_rebuy_and_addon_deliver_chips_and_charge_wallet() {
+    use axum::extract::{Path, State};
+    use axum::Json;
+    use poker_api::handlers::tournament::{
+        addon_player, my_registration, rebuy_player, ChipPurchaseBody,
+    };
+    use poker_api::middleware::auth::{AuthUser, RequireAuth};
+    use poker_engine::tournament_engine::PlayerTournamentEntry;
+
+    let db = scratch_pool();
+    wipe_tact_leftovers(&db).await;
+    let (state, _tx, t) = setup_mtt_table(&db, "rebuy", 5000).await;
+    let u3 = uuid::Uuid::new_v4();
+    let n3 = "tact-rebuy-3".to_string();
+    let tkey = t.tid.to_string();
+
+    sqlx::query("INSERT INTO users (id, username, email, password_hash, role, status) VALUES ($1, $2, $2, 'x', 'player', 'active')")
+        .bind(u3).bind(&n3).execute(&db).await.unwrap();
+    // Renovação diária do Play Money antes, para o débito ser a única mudança.
+    for uid in [t.u1, t.u2, u3] {
+        poker_api::wallet::ensure_pm_daily_reset_pool(&db, &uid.to_string())
+            .await
+            .unwrap();
+    }
+    sqlx::query("UPDATE users SET balance_pm_mtt = 100000 WHERE id IN ($1, $2, $3)")
+        .bind(t.u1)
+        .bind(t.u2)
+        .bind(u3)
+        .execute(&db)
+        .await
+        .unwrap();
+    sqlx::query("UPDATE tournaments SET status = 'running', allow_rebuy = TRUE, allow_addon = TRUE WHERE id = $1")
+        .bind(t.tid).execute(&db).await.unwrap();
+    for (uid, name) in [
+        (t.u1, "tact-rebuy-1"),
+        (t.u2, "tact-rebuy-2"),
+        (u3, "tact-rebuy-3"),
+    ] {
+        sqlx::query("INSERT INTO tournament_players (tournament_id, player_id, player_name, stack) VALUES ($1, $2, $3, 5000)")
+            .bind(t.tid).bind(uid.to_string()).bind(name).execute(&db).await.unwrap();
+    }
+    // u3 já foi eliminado no assento 2: a linha antiga não pode travar a cadeira.
+    sqlx::query("INSERT INTO tournament_seats (tournament_id, table_id, seat, player_id, player_name, stack, status) VALUES ($1, $2, 2, $3, $4, 0, 'ELIMINATED')")
+        .bind(t.tid).bind(t.table_id).bind(u3.to_string()).bind(&n3).execute(&db).await.unwrap();
+    {
+        let mut stores = state.tournaments.write().await;
+        let store = stores.get_mut(&tkey).unwrap();
+        let cfg = &mut store.state.config;
+        cfg.allow_rebuy = true;
+        cfg.allow_addon = true;
+        cfg.rebuy_max_level = 5;
+        cfg.rebuy_cost = 1_000;
+        cfg.rebuy_chips = 5_000;
+        store.addon = poker_api::tournament_store::AddonTerms {
+            cost: 2_000,
+            chips: 3_000,
+            max_level: 5,
+        };
+        for (uid, name, eliminated) in [
+            (t.u1, "tact-rebuy-1", false),
+            (t.u2, "tact-rebuy-2", false),
+            (u3, "tact-rebuy-3", true),
+        ] {
+            store.state.players.insert(
+                uid.to_string(),
+                PlayerTournamentEntry {
+                    player_id: uid.to_string(),
+                    player_name: name.to_string(),
+                    stack: if eliminated { 0 } else { 5_000 },
+                    table_id: (!eliminated).then_some(0),
+                    seat: None,
+                    rebuys: 0,
+                    addon_done: false,
+                    final_position: None,
+                    prize: None,
+                    registered_at: 0,
+                    eliminated_at: eliminated.then_some(1),
+                },
+            );
+        }
+        store.state.players_remaining = 2;
+        store.state.eliminated_order = vec![u3.to_string()];
+    }
+    let auth = |uid: uuid::Uuid, name: &str| {
+        RequireAuth(AuthUser {
+            user_id: uid.to_string(),
+            username: name.to_string(),
+            role: "player".to_string(),
+        })
+    };
+    let body = || {
+        Json(ChipPurchaseBody {
+            tournament_id: tkey.clone(),
+        })
+    };
+
+    // Add-on de quem está na mesa: fica pendente e entra na próxima mão.
+    let addon = addon_player(State(state.clone()), auth(t.u1, "tact-rebuy-1"), body())
+        .await
+        .expect("add-on aceito")
+        .0;
+    assert_eq!(addon.delivery, "next_hand");
+    assert_eq!((addon.chips, addon.cost_cents), (3_000, 2_000));
+    assert!(
+        addon_player(State(state.clone()), auth(t.u1, "tact-rebuy-1"), body())
+            .await
+            .is_err(),
+        "add-on é uma compra por jogador"
+    );
+    assert!(
+        rebuy_player(State(state.clone()), auth(t.u2, "tact-rebuy-2"), body())
+            .await
+            .is_err(),
+        "sem limiar de stack, rebuy só para eliminado"
+    );
+
+    // Rebuy do eliminado: volta a sentar já, com stack novo.
+    let rebuy = rebuy_player(State(state.clone()), auth(u3, "tact-rebuy-3"), body())
+        .await
+        .expect("rebuy aceito")
+        .0;
+    assert_eq!(rebuy.delivery, "seated");
+    assert_eq!(
+        rebuy.table_id.as_deref(),
+        Some(t.table_id.to_string().as_str())
+    );
+    assert_eq!(
+        rebuy.prize_pool, 3_000,
+        "rebuy e add-on vão inteiros para o prêmio"
+    );
+
+    let reg = my_registration(
+        State(state.clone()),
+        auth(u3, "tact-rebuy-3"),
+        Path(tkey.clone()),
+    )
+    .await
+    .unwrap()
+    .0;
+    assert!(reg.registered && !reg.eliminated);
+    assert_eq!(reg.rebuys, 1);
+    assert!(reg.can_addon, "quem voltou pode comprar o add-on");
+
+    // Mãos seguem com 6 s de pausa entre elas: espera a entrega do add-on e
+    // uma mão completa com quem voltou, conferindo o banco a cada meio segundo.
+    let deadline = tokio::time::Instant::now() + std::time::Duration::from_secs(30);
+    loop {
+        let (pending_now, u3_hands): (i64, i64) = sqlx::query_as(
+            "SELECT (SELECT COALESCE(SUM(pending_chips),0)::BIGINT FROM tournament_seats WHERE tournament_id = $1), \
+                    (SELECT COUNT(*) FROM hand_participants WHERE user_id = $2)",
+        )
+        .bind(t.tid)
+        .bind(u3)
+        .fetch_one(&db)
+        .await
+        .unwrap();
+        if (pending_now == 0 && u3_hands >= 1) || tokio::time::Instant::now() >= deadline {
+            break;
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+    }
+
+    let balances: Vec<(i64,)> = sqlx::query_as(
+        "SELECT balance_pm_mtt FROM users WHERE id IN ($1, $2, $3) ORDER BY id = $1 DESC, id = $3 DESC",
+    )
+    .bind(t.u1).bind(t.u2).bind(u3)
+    .fetch_all(&db).await.unwrap();
+    assert_eq!(
+        balances,
+        vec![(98_000,), (99_000,), (100_000,)],
+        "sem taxa em rebuy e add-on"
+    );
+
+    let (pending, active_u3, chips): (i64, i64, i64) = sqlx::query_as(
+        "SELECT COALESCE(SUM(pending_chips),0)::BIGINT, \
+                COUNT(*) FILTER (WHERE player_id = $2 AND status = 'ACTIVE'), \
+                COALESCE(SUM(stack + pending_chips),0)::BIGINT \
+         FROM tournament_seats WHERE tournament_id = $1",
+    )
+    .bind(t.tid)
+    .bind(u3.to_string())
+    .fetch_one(&db)
+    .await
+    .unwrap();
+    assert_eq!(pending, 0, "fichas do add-on entregues no começo da mão");
+    assert_eq!(active_u3, 1);
+    assert_eq!(
+        chips,
+        t.total_chips + 3_000 + 5_000,
+        "fichas se conservam com rebuy e add-on"
+    );
+
+    let played: i64 =
+        sqlx::query_scalar("SELECT COUNT(*) FROM hand_participants WHERE user_id = $1")
+            .bind(u3)
+            .fetch_one(&db)
+            .await
+            .unwrap();
+    assert!(played >= 1, "quem fez rebuy volta a receber cartas");
+
+    let totals: (i64, i64, i64) = sqlx::query_as(
+        "SELECT total_rebuys, total_addons, prize_pool FROM tournaments WHERE id = $1",
+    )
+    .bind(t.tid)
+    .fetch_one(&db)
+    .await
+    .unwrap();
+    assert_eq!(totals, (1_000, 2_000, 3_000));
+    let paid: (i64, i64) = sqlx::query_as(
+        "SELECT COALESCE(SUM(rebuy_paid),0)::BIGINT, COALESCE(SUM(addon_paid),0)::BIGINT FROM tournament_players WHERE tournament_id = $1",
+    )
+    .bind(t.tid).fetch_one(&db).await.unwrap();
+    assert_eq!(paid, (1_000, 2_000));
+
+    sqlx::query("DELETE FROM hand_participants WHERE user_id = $1")
+        .bind(u3)
+        .execute(&db)
+        .await
+        .unwrap();
+    sqlx::query("DELETE FROM audit_logs WHERE action IN ('MTT_REBUY', 'MTT_ADDON') AND metadata->>'tournament_id' = $1")
+        .bind(&tkey).execute(&db).await.unwrap();
+    cleanup_mtt_table(&db, &t).await;
+    sqlx::query("DELETE FROM users WHERE id = $1")
+        .bind(u3)
+        .execute(&db)
+        .await
+        .unwrap();
 }

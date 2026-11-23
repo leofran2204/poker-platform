@@ -30,9 +30,12 @@ Catálogo compartilhado: `Frontend-Web/src/data/courseTraining.json`; serviço: 
 | `GET /api/lobby/tournaments?mode=…` | Catálogo com `money_mode`, `poker_variant`, agenda, mínimo, mesas vivas e `gameplay_ready` somente em `running/paused` com ator físico associado |
 | `POST /api/tournament/register` | Debita buy-in + **fee 15%** (freeroll zero) conforme modo; fee compõe o NGR mensal do agente direto; resposta traz `fee_cents` + `total_debited_cents` |
 | `POST /api/tournament/unregister` | Cancela pré-start com reembolso total + anulação do fee (S23) |
+| `POST /api/tournament/rebuy` | `{tournament_id}`. Debita o preço do rebuy (sem fee) da carteira do torneio; eliminado volta a sentar já (`delivery: "seated"`), stack no limiar recebe as fichas na próxima mão (`next_hand`). Prize pool, `total_rebuys` e `rebuy_paid` na mesma transação (064) |
+| `POST /api/tournament/addon` | `{tournament_id}`. Uma compra por jogador ainda no torneio, até `addon_max_level`; fichas em `tournament_seats.pending_chips` entram no começo da mão seguinte (064) |
+| `GET /api/tournament/:id/registration` | `registered`, `eliminated`, `rebuys`, `addon_done`, `can_rebuy`, `can_addon` (o que o motor aceitaria agora) |
 | `GET /api/tournament/:id/registration` | Diz se o autenticado está inscrito (S23) |
 | `POST /api/admin/tournaments` | Cria torneio em `registering` (valida max = 3× mesa; S23) |
-| `PATCH /api/admin/tournaments/:id` | `status` e/ou `scheduled_start_at` (admin) |
+| `PATCH /api/admin/tournaments/:id` | `status`, `scheduled_start_at` e/ou rebuy e add-on (`allow_rebuy`, `rebuy_cost_cents`, `rebuy_chips`, `rebuy_max_count`, `rebuy_max_level`, `rebuy_stack_threshold`, `allow_addon`, `addon_cost_cents`, `addon_chips`, `addon_max_level`; só em `registering`). Os mesmos campos valem no `POST` |
 | `POST /api/admin/bots/start-tournament` | Inscreve N bots `lag_v2` no torneio play (admin) |
 | `POST /api/admin/bots/stop-tournament` | Desliga bots do torneio — sit-out, sem cash-out (admin) |
 | `GET /api/admin/estrutura/backfill` | Prévia administrativa da raiz e das contas antigas sem patrocinador |

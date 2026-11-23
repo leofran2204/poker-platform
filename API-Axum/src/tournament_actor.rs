@@ -67,6 +67,63 @@ impl TournamentActor {
         })
     }
 
+    async fn chip_purchases_enabled(&self) -> bool {
+        let t = self.tournaments.read().await;
+        t.get(&self.tournament_id)
+            .is_some_and(|s| s.state.config.allow_rebuy || s.state.config.allow_addon)
+    }
+
+    /// Entrega as fichas compradas (add-on e rebuy de quem está na mesa) antes
+    /// de a mão começar. Banco e memória mudam juntos; erro deixa pendente.
+    async fn apply_pending_chips(&mut self) {
+        let rows: Vec<(String, String, i16, i64, i64)> = match sqlx::query_as(
+            "WITH due AS ( \
+                 SELECT player_id, pending_chips FROM tournament_seats \
+                  WHERE tournament_id = $1::uuid AND table_id = $2::uuid \
+                    AND status = 'ACTIVE' AND pending_chips > 0 \
+                  FOR UPDATE) \
+             UPDATE tournament_seats s \
+                SET stack = s.stack + due.pending_chips, pending_chips = 0 \
+               FROM due \
+              WHERE s.tournament_id = $1::uuid AND s.table_id = $2::uuid \
+                AND s.status = 'ACTIVE' AND s.player_id = due.player_id \
+             RETURNING s.player_id, s.player_name, s.seat, s.stack, due.pending_chips",
+        )
+        .bind(&self.tournament_id)
+        .bind(&self.table_id)
+        .fetch_all(&self.db)
+        .await
+        {
+            Ok(rows) => rows,
+            Err(error) => {
+                error!(?error, table_id = %self.table_id, "fichas pendentes do torneio não entregues");
+                return;
+            }
+        };
+        if rows.is_empty() {
+            return;
+        }
+        for (pid, name, seat, stack, added) in rows {
+            let added = added.max(0) as u64;
+            if let Some(p) = self.players.iter_mut().find(|p| p.id == pid) {
+                p.chips += added;
+                p.is_sitting = true;
+            } else {
+                self.players.push(TablePlayer {
+                    id: pid.clone(),
+                    name,
+                    chips: stack.max(0) as u64,
+                    seat: seat.max(0) as usize,
+                    is_sitting: true,
+                    disconnected_since: None,
+                    left_hand: false,
+                });
+            }
+            info!(table_id = %self.table_id, player = %pid, added, "fichas de rebuy/add-on entregues");
+        }
+        self.broadcast_state();
+    }
+
     async fn table_still_live(&self) -> bool {
         let t = self.tournaments.read().await;
         t.get(&self.tournament_id)
@@ -234,6 +291,10 @@ impl TournamentActor {
         {
             // Espera ~60s (rebalance pode trazer gente) antes de sair.
             self.idle_ticks += 1;
+            // Add-on pago por quem zerou na última mão ainda pode reabrir o jogo.
+            if self.idle_ticks % 8 == 1 && self.chip_purchases_enabled().await {
+                self.apply_pending_chips().await;
+            }
             if self.idle_ticks > 240 {
                 self.idle_ticks = 0;
                 info!(
@@ -463,6 +524,9 @@ impl TournamentActor {
     async fn start_new_hand(&mut self) {
         if self.persistence_halted {
             return;
+        }
+        if self.chip_purchases_enabled().await {
+            self.apply_pending_chips().await;
         }
         let mut active: Vec<(String, u64, usize)> = self
             .players
@@ -700,24 +764,34 @@ impl TournamentActor {
                 self.halt("falha irrecuperável (ver error! anterior)").await;
                 return;
             }
-            if *chips == 0 {
-                eliminated.push(pid.clone());
-            }
-            if let Err(error) = sqlx::query(
-                "UPDATE tournament_seats SET stack = $1, status = CASE WHEN $1 = 0 THEN 'ELIMINATED' ELSE status END \
-                 WHERE tournament_id = $2::uuid AND table_id = $3 AND player_id = $4",
+            // Zerou, mas tem add-on ou rebuy pago esperando: continua no torneio.
+            let seat_status: Option<(String,)> = match sqlx::query_as(
+                "UPDATE tournament_seats SET stack = $1, \
+                        status = CASE WHEN $1 = 0 AND pending_chips = 0 THEN 'ELIMINATED' ELSE status END \
+                 WHERE tournament_id = $2::uuid AND table_id = $3 AND player_id = $4 AND status = 'ACTIVE' \
+                 RETURNING status",
             )
             .bind(chips_i)
             .bind(&self.tournament_id)
             .bind(table_uuid)
             .bind(pid)
-            .execute(&mut *tx)
+            .fetch_optional(&mut *tx)
             .await
             {
-                error!(?error, table_id = %self.table_id, "settle MTT: stacks falhou; pausando");
-                let _ = tx.rollback().await;
-                self.halt("falha irrecuperável (ver error! anterior)").await;
-                return;
+                Ok(status) => status,
+                Err(error) => {
+                    error!(?error, table_id = %self.table_id, "settle MTT: stacks falhou; pausando");
+                    let _ = tx.rollback().await;
+                    self.halt("falha irrecuperável (ver error! anterior)").await;
+                    return;
+                }
+            };
+            let busted = match seat_status {
+                Some((status,)) => status == "ELIMINATED",
+                None => *chips == 0,
+            };
+            if busted {
+                eliminated.push(pid.clone());
             }
         }
         if let Err(error) = sqlx::query(
@@ -748,6 +822,14 @@ impl TournamentActor {
                         pid,
                         None,
                     );
+                }
+                // Stack real no motor: o limiar do rebuy usa este valor.
+                for (pid, chips) in &memory_stacks {
+                    if let Some(entry) = store.state.players.get_mut(pid) {
+                        if entry.eliminated_at.is_none() {
+                            entry.stack = *chips;
+                        }
+                    }
                 }
             }
         }

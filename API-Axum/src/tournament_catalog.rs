@@ -33,6 +33,12 @@ pub(crate) struct TournamentRow {
     rebuy_stack_threshold: i64,
     rebuy_max_level: i32,
     allow_rebuy: bool,
+    allow_addon: bool,
+    addon_cost: i64,
+    addon_chips: i64,
+    addon_max_level: i32,
+    total_rebuys: i64,
+    total_addons: i64,
     blind_levels: serde_json::Value,
     game_type: String,
     money_mode: String,
@@ -82,7 +88,7 @@ pub(crate) fn row_to_store(row: TournamentRow) -> TournamentStore {
         late_registration: row.late_registration,
         late_registration_max_level: row.late_reg_max_level.max(0) as u32,
         allow_rebuy: row.allow_rebuy,
-        allow_addon: false,
+        allow_addon: row.allow_addon,
         rebuy_max_level: row.rebuy_max_level.max(0) as u32,
         guaranteed_prize: row.guaranteed_prize.max(0) as u64,
         is_freeroll: row.is_freeroll,
@@ -140,6 +146,13 @@ pub(crate) fn row_to_store(row: TournamentRow) -> TournamentStore {
     // DB `total_buyins` is entry count; engine tracks money collected.
     let entries = row.total_buyins.max(0) as u64;
     store.state.total_buyins = entries.saturating_mul(store.state.config.buy_in);
+    store.state.total_rebuys = row.total_rebuys.max(0) as u64;
+    store.state.total_addons = row.total_addons.max(0) as u64;
+    store.addon = crate::tournament_store::AddonTerms {
+        cost: row.addon_cost.max(0) as u64,
+        chips: row.addon_chips.max(0) as u64,
+        max_level: row.addon_max_level.max(0) as u32,
+    };
     store.state.prize_pool =
         (row.prize_pool.max(0) as u64).max(store.state.config.guaranteed_prize);
     store
@@ -150,8 +163,8 @@ pub(crate) fn row_to_store(row: TournamentRow) -> TournamentStore {
 /// "Jogador não encontrado" e `players_remaining` congela.
 async fn hydrate_players(pool: &PgPool, store: &mut TournamentStore) -> Result<(), sqlx::Error> {
     use poker_engine::tournament_engine::PlayerTournamentEntry;
-    let entries: Vec<(String, String, i64)> = sqlx::query_as(
-        "SELECT player_id, player_name, registered_at FROM tournament_players WHERE tournament_id = $1::uuid",
+    let entries: Vec<(String, String, i64, i32, bool)> = sqlx::query_as(
+        "SELECT player_id, player_name, registered_at, rebuys, addon_done          FROM tournament_players WHERE tournament_id = $1::uuid",
     )
     .bind(&store.id)
     .fetch_all(pool)
@@ -159,8 +172,10 @@ async fn hydrate_players(pool: &PgPool, store: &mut TournamentStore) -> Result<(
     if entries.is_empty() {
         return Ok(());
     }
+    // Quem voltou por rebuy tem o assento ativo e linhas antigas eliminadas:
+    // o ativo vem por último e prevalece. Fichas pendentes contam no stack.
     let seats: Vec<(String, String, i16, i64, String)> = sqlx::query_as(
-        "SELECT player_id, table_id::text, seat, stack, status FROM tournament_seats WHERE tournament_id = $1::uuid",
+        "SELECT player_id, table_id::text, seat, stack + pending_chips, status FROM tournament_seats          WHERE tournament_id = $1::uuid ORDER BY (status = 'ACTIVE')",
     )
     .bind(&store.id)
     .fetch_all(pool)
@@ -170,7 +185,7 @@ async fn hydrate_players(pool: &PgPool, store: &mut TournamentStore) -> Result<(
         seat_of.insert(pid, (table_id, seat, stack, status));
     }
     let mut remaining = 0u32;
-    for (pid, pname, registered_at) in entries {
+    for (pid, pname, registered_at, rebuys, addon_done) in entries {
         let (table_idx, seat, stack, eliminated) = match seat_of.get(&pid) {
             Some((table_id, seat, stack, status)) => (
                 store
@@ -195,8 +210,8 @@ async fn hydrate_players(pool: &PgPool, store: &mut TournamentStore) -> Result<(
                 stack,
                 table_id: table_idx,
                 seat,
-                rebuys: 0,
-                addon_done: false,
+                rebuys: rebuys.max(0) as u32,
+                addon_done,
                 final_position: None,
                 prize: None,
                 registered_at: registered_at.max(0) as u64,
@@ -219,7 +234,8 @@ pub async fn load_tournaments_from_db(
                prize_pool, current_level, players_remaining, total_buyins,
                guaranteed_prize, is_freeroll,
                rebuy_cost, rebuy_chips, rebuy_max_count, rebuy_stack_threshold,
-               rebuy_max_level, allow_rebuy, blind_levels, game_type,
+               rebuy_max_level, allow_rebuy, allow_addon, addon_cost, addon_chips,
+               addon_max_level, total_rebuys, total_addons, blind_levels, game_type,
                COALESCE(money_mode, 'play') AS money_mode,
                 COALESCE(poker_variant, 'holdem') AS poker_variant,
                  final_table_variant, final_table_max_players,

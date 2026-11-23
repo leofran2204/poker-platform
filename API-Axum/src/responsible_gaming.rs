@@ -287,7 +287,7 @@ async fn loss_totals(pool: &PgPool, user_id: &str) -> Result<(i64, i64, i64), Ap
                FROM cash_game_seats s JOIN tables t ON t.id=s.table_id \
               WHERE s.user_id=$1::uuid AND s.status='CASHED_OUT' AND t.money_mode='real' \
              UNION ALL \
-             SELECT GREATEST(((t.buy_in + (t.buy_in*15/100)) * (1+tp.rebuys))-COALESCE(tp.prize,0),0)::bigint, \
+             SELECT GREATEST(t.buy_in + (t.buy_in*15/100) + tp.rebuy_paid + tp.addon_paid - COALESCE(tp.prize,0),0)::bigint, \
                     to_timestamp(tp.registered_at) \
                FROM tournament_players tp JOIN tournaments t ON t.id=tp.tournament_id \
               WHERE tp.player_id=$1 AND t.money_mode='real' \

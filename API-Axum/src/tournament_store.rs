@@ -29,6 +29,19 @@ pub struct TournamentStore {
     pub live_table_id: Option<String>,
     /// As 3 mesas físicas do torneio, na ordem dos índices do motor (0, 1, 2).
     pub live_table_ids: Vec<String>,
+    /// Termos do add-on do evento (o motor guarda só `allow_addon`).
+    pub addon: AddonTerms,
+}
+
+/// Add-on configurado pelo admin. Zeros caem nos valores do próprio evento.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct AddonTerms {
+    /// Preço em centavos (0 = buy-in).
+    pub cost: u64,
+    /// Fichas entregues (0 = stack inicial).
+    pub chips: u64,
+    /// Último nível em que pode ser comprado (0 = mesmo limite do rebuy).
+    pub max_level: u32,
 }
 
 impl TournamentStore {
@@ -69,6 +82,54 @@ impl TournamentStore {
             auto_start_min_players: Some(5),
             live_table_id: None,
             live_table_ids: Vec::new(),
+            addon: AddonTerms::default(),
+        }
+    }
+
+    /// Preço efetivo do rebuy em centavos.
+    pub fn rebuy_cost(&self) -> u64 {
+        let cfg = &self.state.config;
+        if cfg.rebuy_cost > 0 {
+            cfg.rebuy_cost
+        } else {
+            cfg.buy_in
+        }
+    }
+
+    /// Fichas efetivas do rebuy.
+    pub fn rebuy_chips(&self) -> u64 {
+        let cfg = &self.state.config;
+        if cfg.rebuy_chips > 0 {
+            cfg.rebuy_chips
+        } else {
+            cfg.starting_stack
+        }
+    }
+
+    /// Preço efetivo do add-on em centavos.
+    pub fn addon_cost(&self) -> u64 {
+        if self.addon.cost > 0 {
+            self.addon.cost
+        } else {
+            self.state.config.buy_in
+        }
+    }
+
+    /// Fichas efetivas do add-on.
+    pub fn addon_chips(&self) -> u64 {
+        if self.addon.chips > 0 {
+            self.addon.chips
+        } else {
+            self.state.config.starting_stack
+        }
+    }
+
+    /// Último nível (inclusive) em que o add-on pode ser comprado.
+    pub fn addon_max_level(&self) -> u32 {
+        if self.addon.max_level > 0 {
+            self.addon.max_level
+        } else {
+            self.state.config.rebuy_max_level
         }
     }
 

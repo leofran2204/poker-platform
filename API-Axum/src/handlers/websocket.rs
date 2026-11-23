@@ -160,7 +160,7 @@ pub async fn create_ws_ticket(
              SELECT 1 FROM tournament_seats ts \
              JOIN tables t ON t.id = ts.table_id \
              WHERE ts.table_id = $1::uuid AND ts.player_id = $3 \
-               AND ts.status = 'ACTIVE' AND ts.stack > 0 AND t.status = 'OPEN' \
+               AND ts.status = 'ACTIVE' AND ts.stack + ts.pending_chips > 0 AND t.status = 'OPEN' \
                AND t.game_type = 'tournament' \
          )",
     )

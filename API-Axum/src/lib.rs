@@ -87,6 +87,8 @@ pub fn track_websocket_connection() -> WebSocketConnectionGuard {
 ///   - POST /api/lobby/leave
 ///   - POST /api/lobby/tables/:id/ws-ticket (short-lived WebSocket ticket)
 ///   - POST /api/tournament/register
+///   - POST /api/tournament/rebuy
+///   - POST /api/tournament/addon
 ///   - GET  /api/hand-history/:hand_id
 ///   - POST /api/payments/pix/deposit
 ///   - POST /api/payments/pix/withdraw
@@ -374,6 +376,20 @@ pub fn build_router(state: AppState) -> Router {
                 )),
         )
         .route("/api/tournament/:id", get(tournament::get_tournament))
+        .route(
+            "/api/tournament/rebuy",
+            post(tournament::rebuy_player)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/tournament/addon",
+            post(tournament::addon_player)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
         .route(
             "/api/tournament/unregister",
             post(tournament::unregister_player)

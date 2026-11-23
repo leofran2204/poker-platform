@@ -51,6 +51,7 @@ export function TablePage() {
   const [deflatorMsg, setDeflatorMsg] = useState<string | null>(null);
   const [tableName, setTableName] = useState(id);
   const [moneyMode, setMoneyMode] = useState<string | null>(null);
+  const [tournamentId, setTournamentId] = useState<string | null>(null);
   const [tableMeta, setTableMeta] = useState<TableResponse | null>(null);
   const [playLimitNotice, setPlayLimitNotice] = useState<string | null>(null);
   const [sittingOut, setSittingOut] = useState(false);
@@ -126,6 +127,7 @@ export function TablePage() {
             break;
           case "table_state":
             setPlayers(msg.players ?? []);
+            setTournamentId(msg.tournament_id ?? null);
             {
               const board = msg.community_cards ?? [];
               const prev = prevBoardLen.current;
@@ -473,6 +475,15 @@ export function TablePage() {
           </button>
         </div>
       )}
+
+      {tournamentId ? (
+        <div className="rounded-sm border border-felt-700 bg-felt-950/60 px-3 py-2 text-xs text-felt-200">
+          Mesa de torneio.{" "}
+          <Link to={`/tournament/${tournamentId}`} className="font-semibold text-gold-soft underline">
+            Rebuy, add-on e premiação na página do torneio
+          </Link>
+        </div>
+      ) : null}
 
       {playLimitNotice && (
         <div className="rounded-sm border-2 border-amber-700 bg-amber-950/40 px-4 py-3 text-sm text-amber-100" role="alert">

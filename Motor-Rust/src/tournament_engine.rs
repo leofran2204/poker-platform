@@ -550,13 +550,19 @@ pub fn process_rebuy(state: &mut TournamentState, player_id: &str) -> Result<(),
     };
 
     let was_eliminated = eliminated;
-    entry.stack = chips;
-    entry.eliminated_at = None;
     entry.rebuys += 1;
-    entry.table_id = None;
-    entry.seat = None;
-    entry.final_position = None;
-    entry.prize = None;
+    if was_eliminated {
+        // Volta ao torneio com um stack novo; a API escolhe a mesa e o assento.
+        entry.stack = chips;
+        entry.eliminated_at = None;
+        entry.table_id = None;
+        entry.seat = None;
+        entry.final_position = None;
+        entry.prize = None;
+    } else {
+        // Stack baixo: as fichas do rebuy somam ao que o jogador já tem na mesa.
+        entry.stack += chips;
+    }
 
     state.total_rebuys += cost;
     if was_eliminated {
@@ -569,12 +575,24 @@ pub fn process_rebuy(state: &mut TournamentState, player_id: &str) -> Result<(),
     Ok(())
 }
 
-/// Processa um add-on para um jogador
+/// Processa um add-on para um jogador (até o último nível de re-buy).
 pub fn process_addon(
     state: &mut TournamentState,
     player_id: &str,
     addon_chips: u64,
     addon_cost: u64,
+) -> Result<(), String> {
+    let max_level = state.config.rebuy_max_level;
+    process_addon_until(state, player_id, addon_chips, addon_cost, max_level)
+}
+
+/// Processa um add-on com nível-limite próprio do evento (inclusive).
+pub fn process_addon_until(
+    state: &mut TournamentState,
+    player_id: &str,
+    addon_chips: u64,
+    addon_cost: u64,
+    max_level: u32,
 ) -> Result<(), String> {
     if !state.config.allow_addon {
         return Err("Add-on não permitido neste torneio".to_string());
@@ -584,7 +602,7 @@ pub fn process_addon(
         return Err("Torneio não está em andamento".to_string());
     }
 
-    if state.current_level > state.config.rebuy_max_level {
+    if state.current_level > max_level {
         return Err("Período de add-on encerrado".to_string());
     }
 
@@ -905,7 +923,8 @@ mod tests {
         state.players.get_mut("p1").unwrap().stack = 4_000;
         process_rebuy(&mut state, "p1").unwrap();
         let p1 = state.players.get("p1").unwrap();
-        assert_eq!(p1.stack, 25_000);
+        // As fichas do rebuy somam às 4.000 que continuam na mesa.
+        assert_eq!(p1.stack, 29_000);
         assert_eq!(p1.rebuys, 1);
         assert_eq!(state.total_rebuys, 3_000);
         assert!(process_rebuy(&mut state, "p1").is_err());
@@ -1139,6 +1158,33 @@ mod tests {
         assert_eq!(entry.stack, old_stack + 5000);
         assert!(entry.addon_done);
         assert_eq!(state.total_addons, 500);
+    }
+
+    #[test]
+    fn test_addon_until_uses_event_level_once_and_feeds_prize_pool() {
+        let mut config = default_config();
+        config.rebuy_max_level = 2;
+        let mut state = create_tournament(config);
+        register_player(&mut state, "p1", "P1").unwrap();
+        register_player(&mut state, "p2", "P2").unwrap();
+        start_tournament(&mut state).unwrap();
+        assert_eq!(state.prize_pool, 1_800);
+
+        // Nível 3 passa do limite do rebuy, mas o evento libera add-on até o 4.
+        state.current_level = 3;
+        assert!(process_addon(&mut state, "p1", 5_000, 700).is_err());
+        process_addon_until(&mut state, "p1", 5_000, 700, 4).unwrap();
+        assert_eq!(state.total_addons, 700);
+        // 90% de (2 buy-ins + 1 add-on) neste config de teste.
+        assert_eq!(state.prize_pool, 2_430);
+        assert!(process_addon_until(&mut state, "p1", 5_000, 700, 4).is_err());
+
+        state.current_level = 5;
+        assert!(process_addon_until(&mut state, "p2", 5_000, 700, 4).is_err());
+
+        eliminate_player(&mut state, "p2", None).unwrap();
+        state.current_level = 4;
+        assert!(process_addon_until(&mut state, "p2", 5_000, 700, 4).is_err());
     }
 
     #[test]

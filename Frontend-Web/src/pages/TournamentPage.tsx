@@ -1,12 +1,36 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { getTournament, registerTournament, unregisterTournament, fetchTournamentRegistration } from "@/api/client";
+import {
+  buyTournamentChips,
+  getTournament,
+  registerTournament,
+  unregisterTournament,
+  fetchTournamentRegistration,
+  type TournamentRegistration,
+} from "@/api/client";
 import type { TournamentInfoResponse } from "@/api/types";
 import { isAuthenticated } from "@/lib/auth";
 import { formatCountdown, liveTableIds } from "@/lib/countdown";
 import { deckTypeLabel, gameNameLabel, tournamentStatusLabel } from "@/lib/gameLabels";
 import { formatBrlFromCents } from "@/lib/money";
 import { getWalletMode } from "@/lib/walletMode";
+
+/** Texto da regra de rebuy do evento (0 na quantidade = sem limite). */
+export function rebuyRuleText(info: TournamentInfoResponse): string {
+  if (!info.allow_rebuy) return "Não";
+  const times = info.rebuy_max_count > 0 ? `${info.rebuy_max_count}×` : "Sem limite de vezes";
+  const when =
+    info.rebuy_stack_threshold > 0
+      ? `após eliminação ou com stack até ${info.rebuy_stack_threshold.toLocaleString("pt-BR")}`
+      : "após eliminação";
+  return `${times}, até o nível ${info.rebuy_max_level}, ${when}: ${formatBrlFromCents(info.rebuy_cost)} → ${info.rebuy_chips.toLocaleString("pt-BR")} fichas, sem taxa`;
+}
+
+/** Texto da regra de add-on do evento (uma compra por jogador). */
+export function addonRuleText(info: TournamentInfoResponse): string {
+  if (!info.allow_addon) return "Não";
+  return `1× por jogador, até o nível ${info.addon_max_level}: ${formatBrlFromCents(info.addon_cost)} → ${info.addon_chips.toLocaleString("pt-BR")} fichas, sem taxa`;
+}
 
 export function TournamentPage() {
   const { id = "" } = useParams();
@@ -15,6 +39,7 @@ export function TournamentPage() {
   const [busy, setBusy] = useState(false);
   const [registeredMsg, setRegisteredMsg] = useState<string | null>(null);
   const [registered, setRegistered] = useState(false);
+  const [registration, setRegistration] = useState<TournamentRegistration | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
   const load = useCallback(async () => {
@@ -24,8 +49,11 @@ export function TournamentPage() {
       setInfo(await getTournament(id));
       if (isAuthenticated()) {
         try {
-          setRegistered((await fetchTournamentRegistration(id)).registered);
+          const reg = await fetchTournamentRegistration(id);
+          setRegistration(reg);
+          setRegistered(reg.registered);
         } catch {
+          setRegistration(null);
           setRegistered(false);
         }
       }
@@ -102,6 +130,35 @@ export function TournamentPage() {
     }
   }
 
+  async function handleBuy(kind: "rebuy" | "addon") {
+    if (!info) return;
+    const cost = kind === "rebuy" ? info.rebuy_cost : info.addon_cost;
+    const chips = kind === "rebuy" ? info.rebuy_chips : info.addon_chips;
+    const label = kind === "rebuy" ? "Rebuy" : "Add-on";
+    if (
+      !window.confirm(
+        `${label}: ${formatBrlFromCents(cost)} por ${chips.toLocaleString("pt-BR")} fichas, sem taxa. O valor vai inteiro para a premiação. Confirmar?`,
+      )
+    )
+      return;
+    setBusy(true);
+    setError(null);
+    setRegisteredMsg(null);
+    try {
+      const res = await buyTournamentChips(id, kind);
+      setRegisteredMsg(
+        res.delivery === "seated"
+          ? `${label} feito: você voltou ao torneio com ${res.chips.toLocaleString("pt-BR")} fichas. Abra a mesa para jogar.`
+          : `${label} feito: ${res.chips.toLocaleString("pt-BR")} fichas entram no começo da sua próxima mão.`,
+      );
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : `Falha no ${label.toLowerCase()}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (!info && !error) {
     return (
       <div className="flex items-center gap-3 p-8 text-sm text-felt-300">
@@ -173,6 +230,26 @@ export function TournamentPage() {
                   : `Inscrever (${formatBrlFromCents(info.buy_in + (info.fee_cents ?? 0))})`}
           </button>
         )}
+        {registration?.can_rebuy ? (
+          <button
+            type="button"
+            className="zt-btn-primary px-3! py-1.5! text-xs!"
+            disabled={busy}
+            onClick={() => void handleBuy("rebuy")}
+          >
+            {`Rebuy (${formatBrlFromCents(info.rebuy_cost)} → ${info.rebuy_chips.toLocaleString("pt-BR")} fichas)`}
+          </button>
+        ) : null}
+        {registration?.can_addon ? (
+          <button
+            type="button"
+            className="zt-btn-secondary px-3! py-1.5! text-xs!"
+            disabled={busy}
+            onClick={() => void handleBuy("addon")}
+          >
+            {`Add-on (${formatBrlFromCents(info.addon_cost)} → ${info.addon_chips.toLocaleString("pt-BR")} fichas)`}
+          </button>
+        ) : null}
         {registered && info.status === "registering" ? (
           <button
             type="button"
@@ -285,17 +362,24 @@ export function TournamentPage() {
             </dd>
           </div>
           <div>
-            <dt className="text-xs uppercase text-felt-400">Reentrada</dt>
-            <dd className="text-felt-200">
-              {info.allow_rebuy
-                ? `1× até nível ${info.rebuy_max_level}: ${formatBrlFromCents(info.rebuy_cost)} → ${info.rebuy_chips.toLocaleString("pt-BR")} fichas${
-                    info.rebuy_stack_threshold > 0
-                      ? ` (stack ≤ ${info.rebuy_stack_threshold.toLocaleString("pt-BR")})`
-                      : " após eliminação"
-                  }`
-                : "Não"}
-            </dd>
+            <dt className="text-xs uppercase text-felt-400">Rebuy</dt>
+            <dd className="text-felt-200">{rebuyRuleText(info)}</dd>
           </div>
+          <div>
+            <dt className="text-xs uppercase text-felt-400">Add-on</dt>
+            <dd className="text-felt-200">{addonRuleText(info)}</dd>
+          </div>
+          {info.status === "running" && (info.allow_rebuy || info.allow_addon) ? (
+            <div>
+              <dt className="text-xs uppercase text-felt-400">Nível atual</dt>
+              <dd className="font-mono text-cream">
+                {info.current_level}
+                {registration?.registered
+                  ? ` · seus rebuys: ${registration.rebuys ?? 0}${registration.addon_done ? " · add-on feito" : ""}`
+                  : ""}
+              </dd>
+            </div>
+          ) : null}
         </dl>
       </div>
 

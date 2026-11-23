@@ -448,6 +448,9 @@ jobs:
       - name: Run atomic tournament payout contract
         run: cargo test --lib tournament_coordinator::tests::tournament_prizes_are_atomic_idempotent_and_wallet_isolated -- --ignored --nocapture
 
+      - name: Run tournament rebuy and add-on contract
+        run: cargo test --test tournament_actor_tests mtt_rebuy_and_addon_deliver_chips_and_charge_wallet -- --ignored --nocapture
+
       - name: Run shared Redis rate-limit contract test
         run: cargo test --test rate_limit_tests -- --ignored --nocapture
 

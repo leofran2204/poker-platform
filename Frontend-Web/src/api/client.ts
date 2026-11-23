@@ -422,8 +422,45 @@ export async function unregisterTournament(tournamentId: string): Promise<{
   });
 }
 
-export async function fetchTournamentRegistration(tournamentId: string): Promise<{ registered: boolean }> {
-  return request<{ registered: boolean }>(`/api/tournament/${tournamentId}/registration`);
+export interface TournamentRegistration {
+  registered: boolean;
+  eliminated?: boolean;
+  rebuys?: number;
+  addon_done?: boolean;
+  /** O servidor aceitaria um rebuy agora. */
+  can_rebuy?: boolean;
+  /** O servidor aceitaria o add-on agora. */
+  can_addon?: boolean;
+}
+
+export async function fetchTournamentRegistration(
+  tournamentId: string,
+): Promise<TournamentRegistration> {
+  return request<TournamentRegistration>(`/api/tournament/${tournamentId}/registration`);
+}
+
+export interface ChipPurchaseResult {
+  tournament_id: string;
+  player_id: string;
+  kind: "rebuy" | "addon";
+  chips: number;
+  cost_cents: number;
+  /** `seated` = voltou a uma mesa agora; `next_hand` = fichas na próxima mão. */
+  delivery: "seated" | "next_hand";
+  table_id: string | null;
+  rebuys: number;
+  addon_done: boolean;
+  prize_pool: number;
+}
+
+export async function buyTournamentChips(
+  tournamentId: string,
+  kind: "rebuy" | "addon",
+): Promise<ChipPurchaseResult> {
+  return request(`/api/tournament/${kind}`, {
+    method: "POST",
+    body: JSON.stringify({ tournament_id: tournamentId }),
+  });
 }
 
 export async function setWalletMode(mode: "play" | "real"): Promise<{
@@ -800,6 +837,31 @@ export async function patchAdminTournament(
   });
 }
 
+/** Rebuy e add-on do evento (centavos e fichas). Só antes do início. */
+export interface RebuyAddonInput {
+  allow_rebuy?: boolean;
+  rebuy_cost_cents?: number;
+  rebuy_chips?: number;
+  /** 0 = sem limite. */
+  rebuy_max_count?: number;
+  rebuy_max_level?: number;
+  rebuy_stack_threshold?: number;
+  allow_addon?: boolean;
+  addon_cost_cents?: number;
+  addon_chips?: number;
+  addon_max_level?: number;
+}
+
+export async function updateAdminTournamentRebuyAddon(
+  id: string,
+  input: RebuyAddonInput,
+): Promise<AdminTournamentItem> {
+  return request(`/api/admin/tournaments/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}
+
 export async function rescheduleAdminTournament(
   id: string,
   scheduledStartAt: number,
@@ -821,8 +883,10 @@ export interface CreateTournamentInput {
   scheduled_start_at: number;
 }
 
+export type CreateTournamentRequest = CreateTournamentInput & RebuyAddonInput;
+
 export async function createAdminTournament(
-  input: CreateTournamentInput,
+  input: CreateTournamentRequest,
 ): Promise<AdminTournamentItem> {
   return request<AdminTournamentItem>("/api/admin/tournaments", {
     method: "POST",

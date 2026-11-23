@@ -5,6 +5,8 @@ import {
   listAdminTournaments,
   patchAdminTournament,
   rescheduleAdminTournament,
+  updateAdminTournamentRebuyAddon,
+  type RebuyAddonInput,
 } from "@/api/client";
 import type { AdminTournamentItem, AdminTournamentPlayer } from "@/api/types";
 import { formatBrlFromCents } from "@/lib/money";
@@ -20,6 +22,92 @@ function formatAdminSchedule(epoch: number | null): string {
     dateStyle: "short",
     timeStyle: "short",
   });
+}
+
+/** Campos vazios ficam de fora: o servidor usa o padrão (criação) ou mantém o valor (edição). */
+export function readRebuyAddon(fd: FormData): RebuyAddonInput {
+  const num = (key: string) => {
+    const raw = String(fd.get(key) ?? "").trim();
+    return raw === "" ? undefined : Number(raw);
+  };
+  const cents = (key: string) => {
+    const value = num(key);
+    return value === undefined ? undefined : Math.round(value * 100);
+  };
+  return {
+    allow_rebuy: fd.get("allow_rebuy") === "on",
+    rebuy_cost_cents: cents("rebuy_cost"),
+    rebuy_chips: num("rebuy_chips"),
+    rebuy_max_count: num("rebuy_max_count"),
+    rebuy_max_level: num("rebuy_max_level"),
+    rebuy_stack_threshold: num("rebuy_stack_threshold"),
+    allow_addon: fd.get("allow_addon") === "on",
+    addon_cost_cents: cents("addon_cost"),
+    addon_chips: num("addon_chips"),
+    addon_max_level: num("addon_max_level"),
+  };
+}
+
+function rebuyAddonSummary(t: AdminTournamentItem): string {
+  const rebuy = t.allow_rebuy
+    ? `R ${t.rebuy_max_count > 0 ? `${t.rebuy_max_count}×` : "∞"} nív.${t.rebuy_max_level}`
+    : "R —";
+  const addon = t.allow_addon ? `A nív.${t.addon_max_level}` : "A —";
+  return `${rebuy} · ${addon}`;
+}
+
+function RebuyAddonFields({ item }: { item?: AdminTournamentItem }) {
+  return (
+    <div className="space-y-2 border-t border-felt-800 pt-3">
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="allow_rebuy" defaultChecked={item?.allow_rebuy ?? false} />
+          Rebuy
+        </label>
+        <label className="flex flex-col gap-1 text-sm">
+          Preço R$
+          <input name="rebuy_cost" type="number" min={0} step="0.01" placeholder="= buy-in" defaultValue={item ? item.rebuy_cost / 100 : undefined} className="zt-input w-24" />
+        </label>
+        <label className="flex flex-col gap-1 text-sm">
+          Fichas
+          <input name="rebuy_chips" type="number" min={0} step={100} placeholder="= stack" defaultValue={item?.rebuy_chips} className="zt-input w-24" />
+        </label>
+        <label className="flex flex-col gap-1 text-sm">
+          Vezes (0 = sem limite)
+          <input name="rebuy_max_count" type="number" min={0} max={100} defaultValue={item?.rebuy_max_count ?? 1} className="zt-input w-20" />
+        </label>
+        <label className="flex flex-col gap-1 text-sm">
+          Até o nível
+          <input name="rebuy_max_level" type="number" min={0} max={26} defaultValue={item?.rebuy_max_level ?? 6} className="zt-input w-20" />
+        </label>
+        <label className="flex flex-col gap-1 text-sm">
+          Stack-limite (0 = só eliminado)
+          <input name="rebuy_stack_threshold" type="number" min={0} step={100} defaultValue={item?.rebuy_stack_threshold ?? 0} className="zt-input w-28" />
+        </label>
+      </div>
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="allow_addon" defaultChecked={item?.allow_addon ?? false} />
+          Add-on (1 por jogador)
+        </label>
+        <label className="flex flex-col gap-1 text-sm">
+          Preço R$
+          <input name="addon_cost" type="number" min={0} step="0.01" placeholder="= buy-in" defaultValue={item ? item.addon_cost / 100 : undefined} className="zt-input w-24" />
+        </label>
+        <label className="flex flex-col gap-1 text-sm">
+          Fichas
+          <input name="addon_chips" type="number" min={0} step={100} placeholder="= stack" defaultValue={item?.addon_chips} className="zt-input w-24" />
+        </label>
+        <label className="flex flex-col gap-1 text-sm">
+          Até o nível
+          <input name="addon_max_level" type="number" min={0} max={26} placeholder="= rebuy" defaultValue={item?.addon_max_level} className="zt-input w-20" />
+        </label>
+      </div>
+      <p className="text-[11px] text-felt-400">
+        Sem taxa em rebuy e add-on: o valor vai inteiro para a premiação. As fichas de quem está na mesa entram no começo da mão seguinte.
+      </p>
+    </div>
+  );
 }
 
 function scheduleInputValue(epoch: number | null): string {
@@ -46,6 +134,7 @@ export function AdminTournamentsPage() {
   const [busy, setBusy] = useState(false);
   const [newVariant, setNewVariant] = useState("holdem");
   const [newTableMax, setNewTableMax] = useState(9);
+  const [editing, setEditing] = useState<AdminTournamentItem | null>(null);
 
   const load = useCallback(async () => {
     setError(null);
@@ -94,6 +183,25 @@ export function AdminTournamentsPage() {
     }
   }
 
+  async function onSaveRebuyAddon(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editing) return;
+    const input = readRebuyAddon(new FormData(e.currentTarget));
+    setBusy(true);
+    setError(null);
+    setMsg(null);
+    try {
+      await updateAdminTournamentRebuyAddon(editing.id, input);
+      setMsg(`Rebuy e add-on de "${editing.name}" salvos.`);
+      setEditing(null);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao salvar rebuy e add-on");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function onCreate(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
@@ -127,6 +235,7 @@ export function AdminTournamentsPage() {
         money_mode: mode,
         guaranteed_prize_cents: Math.round(gtdReais * 100),
         scheduled_start_at: scheduledStartAt,
+        ...readRebuyAddon(fd),
       });
       setMsg("Torneio criado (max = 3x por mesa).");
       await load();
@@ -189,6 +298,7 @@ export function AdminTournamentsPage() {
             <input name="when" type="datetime-local" className="zt-input" required />
           </label>
         </div>
+        <RebuyAddonFields />
         <button type="submit" className="zt-btn-primary" disabled={busy}>
           Criar torneio
         </button>
@@ -202,6 +312,7 @@ export function AdminTournamentsPage() {
               <th>GTD</th>
               <th>Inscritos</th>
               <th>Status</th>
+              <th>Rebuy · Add-on</th>
               <th>Início (São Paulo)</th>
               <th>Ações</th>
             </tr>
@@ -218,6 +329,14 @@ export function AdminTournamentsPage() {
                   {t.registered_players}/{t.max_players} · {t.table_max_players}-max
                 </td>
                 <td className="font-mono text-xs">{t.status}</td>
+                <td className="font-mono text-xs">
+                  {rebuyAddonSummary(t)}
+                  {t.total_rebuys + t.total_addons > 0 ? (
+                    <span className="block text-felt-400">
+                      {formatBrlFromCents(t.total_rebuys)} · {formatBrlFromCents(t.total_addons)}
+                    </span>
+                  ) : null}
+                </td>
                 <td className="font-mono text-xs">{formatAdminSchedule(t.scheduled_start_at)}</td>
                 <td className="space-x-1">
                   <input
@@ -230,6 +349,11 @@ export function AdminTournamentsPage() {
                   <button type="button" className="zt-btn-secondary px-2! py-0.5! text-[10px]!" onClick={() => void openPlayers(t.id)}>
                     Inscritos
                   </button>
+                  {t.status === "registering" ? (
+                    <button type="button" className="zt-btn-secondary px-2! py-0.5! text-[10px]!" onClick={() => setEditing(t)}>
+                      Rebuy/Add-on
+                    </button>
+                  ) : null}
                   <button type="button" className="zt-btn-secondary px-2! py-0.5! text-[10px]!" onClick={() => void setStatus(t.id, "registering")}>
                     Open
                   </button>
@@ -245,6 +369,21 @@ export function AdminTournamentsPage() {
           </tbody>
         </table>
       </div>
+
+      {editing && (
+        <form key={editing.id} onSubmit={onSaveRebuyAddon} className="zt-panel space-y-3 p-4">
+          <div className="zt-panel-title">Rebuy e add-on · {editing.name}</div>
+          <RebuyAddonFields item={editing} />
+          <div className="flex gap-2">
+            <button type="submit" className="zt-btn-primary" disabled={busy}>
+              Salvar
+            </button>
+            <button type="button" className="zt-btn-secondary" onClick={() => setEditing(null)}>
+              Fechar
+            </button>
+          </div>
+        </form>
+      )}
 
       {selected && (
         <div className="zt-panel overflow-hidden">

@@ -256,6 +256,20 @@ export interface AdminTournamentItem {
   max_players: number;
   table_max_players: number;
   scheduled_start_at: number | null;
+  current_level: number;
+  allow_rebuy: boolean;
+  rebuy_cost: number;
+  rebuy_chips: number;
+  /** 0 = sem limite de quantidade. */
+  rebuy_max_count: number;
+  rebuy_max_level: number;
+  rebuy_stack_threshold: number;
+  allow_addon: boolean;
+  addon_cost: number;
+  addon_chips: number;
+  addon_max_level: number;
+  total_rebuys: number;
+  total_addons: number;
 }
 
 export interface AdminTournamentPlayer {
@@ -395,6 +409,13 @@ export interface TournamentInfoResponse {
   rebuy_max_count: number;
   rebuy_stack_threshold: number;
   rebuy_max_level: number;
+  allow_addon: boolean;
+  addon_cost: number;
+  addon_chips: number;
+  /** Último nível (inclusive) para comprar o add-on. */
+  addon_max_level: number;
+  /** Nível de blinds em jogo (0 antes do início). */
+  current_level: number;
   blind_levels: BlindLevelDto[];
   gameplay_ready: boolean;
   money_mode: string;
@@ -478,6 +499,8 @@ export type ServerMessage =
   | { type: "welcome"; player_id: string; seat: number }
   | {
       type: "table_state";
+      /** Presente nas mesas de torneio. */
+      tournament_id?: string;
       players: PlayerWsData[];
       community_cards: string[];
       stage: string;

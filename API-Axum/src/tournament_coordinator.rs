@@ -305,8 +305,8 @@ async fn consolidate_final_tables(state: &AppState) {
         let first = tables[0].clone();
         // DELETE + re-INSERT evita colisão de PK (tournament, table, seat)
         // ao trazer assentos ocupados para a mesa 0.
-        let actives: Vec<(String, String, i64)> = sqlx::query_as(
-            "SELECT player_id, player_name, stack FROM tournament_seats \
+        let actives: Vec<(String, String, i64, i64)> = sqlx::query_as(
+            "SELECT player_id, player_name, stack, pending_chips FROM tournament_seats \
              WHERE tournament_id=$1::uuid AND status='ACTIVE' ORDER BY seat",
         )
         .bind(&tid)
@@ -319,10 +319,10 @@ async fn consolidate_final_tables(state: &AppState) {
         .bind(&tid)
         .execute(&state.db)
         .await;
-        for (idx, (pid, pname, stack)) in actives.iter().enumerate() {
+        for (idx, (pid, pname, stack, pending)) in actives.iter().enumerate() {
             let _ = sqlx::query(
-                "INSERT INTO tournament_seats (tournament_id, table_id, seat, player_id, player_name, stack) \
-                 VALUES ($1::uuid,$2::uuid,$3,$4,$5,$6) ON CONFLICT DO NOTHING",
+                "INSERT INTO tournament_seats (tournament_id, table_id, seat, player_id, player_name, stack, pending_chips) \
+                 VALUES ($1::uuid,$2::uuid,$3,$4,$5,$6,$7) ON CONFLICT DO NOTHING",
             )
             .bind(&tid)
             .bind(&first)
@@ -330,13 +330,14 @@ async fn consolidate_final_tables(state: &AppState) {
             .bind(pid)
             .bind(pname)
             .bind(stack)
+            .bind(pending)
             .execute(&state.db)
             .await;
         }
         {
             let mut tournaments = state.tournaments.write().await;
             if let Some(store) = tournaments.get_mut(&tid) {
-                for (idx, (pid, _, _)) in actives.iter().enumerate() {
+                for (idx, (pid, _, _, _)) in actives.iter().enumerate() {
                     if let Some(entry) = store.state.players.get_mut(pid) {
                         entry.table_id = Some(0);
                         entry.seat = Some(idx as u32);

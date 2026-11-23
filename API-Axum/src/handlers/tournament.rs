@@ -63,6 +63,13 @@ pub struct TournamentInfoResponse {
     pub rebuy_max_count: u32,
     pub rebuy_stack_threshold: u64,
     pub rebuy_max_level: u32,
+    pub allow_addon: bool,
+    pub addon_cost: u64,
+    pub addon_chips: u64,
+    /// Último nível (inclusive) para comprar o add-on.
+    pub addon_max_level: u32,
+    /// Nível de blinds em jogo (0 antes do início).
+    pub current_level: u32,
     pub blind_levels: Vec<BlindLevelDto>,
     pub gameplay_ready: bool,
     /// `play` | `real`
@@ -114,19 +121,16 @@ fn to_info(store: &crate::tournament_store::TournamentStore) -> TournamentInfoRe
         guaranteed_prize: cfg.guaranteed_prize,
         is_freeroll: cfg.is_freeroll,
         allow_rebuy: cfg.allow_rebuy,
-        rebuy_cost: if cfg.rebuy_cost > 0 {
-            cfg.rebuy_cost
-        } else {
-            cfg.buy_in
-        },
-        rebuy_chips: if cfg.rebuy_chips > 0 {
-            cfg.rebuy_chips
-        } else {
-            cfg.starting_stack
-        },
+        rebuy_cost: store.rebuy_cost(),
+        rebuy_chips: store.rebuy_chips(),
         rebuy_max_count: cfg.rebuy_max_count,
         rebuy_stack_threshold: cfg.rebuy_stack_threshold,
         rebuy_max_level: cfg.rebuy_max_level,
+        allow_addon: cfg.allow_addon,
+        addon_cost: store.addon_cost(),
+        addon_chips: store.addon_chips(),
+        addon_max_level: store.addon_max_level(),
+        current_level: store.state.current_level,
         blind_levels: cfg
             .blind_levels
             .iter()
@@ -256,19 +260,62 @@ pub async fn list_tournaments(
     Ok(Json(list))
 }
 
-/// GET /api/tournament/:id/registration — diz se o autenticado está inscrito.
+#[derive(Debug, Serialize)]
+pub struct MyRegistrationResponse {
+    pub registered: bool,
+    pub eliminated: bool,
+    pub rebuys: u32,
+    pub addon_done: bool,
+    /// O motor aceitaria um rebuy agora (período, limite e elegibilidade).
+    pub can_rebuy: bool,
+    /// O motor aceitaria o add-on agora.
+    pub can_addon: bool,
+}
+
+/// GET /api/tournament/:id/registration — inscrição do autenticado e o que ele
+/// pode comprar agora (rebuy e add-on), sem alterar nada.
 pub async fn my_registration(
     State(state): State<AppState>,
     RequireAuth(auth_user): RequireAuth,
     Path(tournament_id): Path<String>,
-) -> Result<Json<serde_json::Value>, ApiError> {
+) -> Result<Json<MyRegistrationResponse>, ApiError> {
     let tournaments = state.tournaments.read().await;
     let store = tournaments
         .get(&tournament_id)
         .ok_or_else(|| ApiError::NotFound(format!("Tournament {tournament_id} not found")))?;
-    Ok(Json(
-        serde_json::json!({"registered": store.state.players.contains_key(&auth_user.user_id)}),
-    ))
+    let Some(entry) = store.state.players.get(&auth_user.user_id) else {
+        return Ok(Json(MyRegistrationResponse {
+            registered: false,
+            eliminated: false,
+            rebuys: 0,
+            addon_done: false,
+            can_rebuy: false,
+            can_addon: false,
+        }));
+    };
+    let can_rebuy = store.state.config.allow_rebuy && {
+        let mut probe = store.state.clone();
+        poker_engine::tournament_engine::process_rebuy(&mut probe, &auth_user.user_id).is_ok()
+    };
+    let can_addon = store.state.config.allow_addon && {
+        let mut probe = store.state.clone();
+        poker_engine::tournament_engine::process_addon_until(
+            &mut probe,
+            &auth_user.user_id,
+            store.addon_chips(),
+            store.addon_cost(),
+            store.addon_max_level(),
+        )
+        .is_ok()
+    };
+    Ok(Json(MyRegistrationResponse {
+        registered: true,
+        eliminated: entry.eliminated_at.is_some(),
+        rebuys: entry.rebuys,
+        addon_done: entry.addon_done,
+        can_rebuy,
+        can_addon,
+    }))
 }
 
 /// GET /api/tournament/{id}
@@ -551,4 +598,352 @@ pub async fn unregister_player(
         refunded_buy_in_cents: buy_in_i,
         refunded_fee_cents: fee_i,
     }))
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ChipPurchaseBody {
+    pub tournament_id: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct ChipPurchaseResponse {
+    pub tournament_id: String,
+    pub player_id: String,
+    /// `rebuy` | `addon`
+    pub kind: &'static str,
+    pub chips: u64,
+    /// Valor debitado da carteira do torneio (sem taxa em rebuy e add-on).
+    pub cost_cents: i64,
+    /// `seated` = voltou a uma mesa agora; `next_hand` = fichas entram no começo
+    /// da próxima mão em que o jogador estiver.
+    pub delivery: &'static str,
+    pub table_id: Option<String>,
+    pub rebuys: u32,
+    pub addon_done: bool,
+    pub prize_pool: u64,
+}
+
+/// Assento novo (índice da mesa viva, cadeira) de quem voltou e a mesa do jogador.
+type Delivered = (Option<(usize, i16)>, Option<String>);
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ChipPurchase {
+    Rebuy,
+    Addon,
+}
+
+impl ChipPurchase {
+    fn as_str(self) -> &'static str {
+        match self {
+            ChipPurchase::Rebuy => "rebuy",
+            ChipPurchase::Addon => "addon",
+        }
+    }
+}
+
+/// Onde o jogador eliminado volta a sentar: a mesa viva com menos jogadores e
+/// o menor assento livre. Mesa final cheia recusa o rebuy.
+async fn choose_return_seat(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    tournament_id: &str,
+    live_table_ids: &[String],
+    seat_cap: i16,
+) -> Result<(usize, i16), ApiError> {
+    let occupied: Vec<(String, i16)> = sqlx::query_as(
+        "SELECT table_id::text, seat FROM tournament_seats \
+         WHERE tournament_id = $1::uuid AND status = 'ACTIVE' FOR UPDATE",
+    )
+    .bind(tournament_id)
+    .fetch_all(&mut **tx)
+    .await?;
+    let mut best: Option<(usize, usize, i16)> = None;
+    for (idx, table_id) in live_table_ids.iter().enumerate() {
+        let taken: Vec<i16> = occupied
+            .iter()
+            .filter(|(t, _)| t == table_id)
+            .map(|(_, seat)| *seat)
+            .collect();
+        let Some(free) = (0..seat_cap).find(|s| !taken.contains(s)) else {
+            continue;
+        };
+        if best.is_none_or(|(_, count, _)| taken.len() < count) {
+            best = Some((idx, taken.len(), free));
+        }
+    }
+    best.map(|(idx, _, seat)| (idx, seat)).ok_or_else(|| {
+        ApiError::BadRequest("Sem assento livre nas mesas do torneio para o rebuy".into())
+    })
+}
+
+/// Rebuy ou add-on: valida no motor, debita a carteira do torneio, entrega as
+/// fichas (assento novo para quem foi eliminado; pendentes para a próxima mão
+/// de quem está na mesa) e grava totais e auditoria numa transação só.
+async fn purchase_chips(
+    state: &AppState,
+    user_id: &str,
+    tournament_id: String,
+    kind: ChipPurchase,
+) -> Result<ChipPurchaseResponse, ApiError> {
+    use poker_engine::tournament_engine as engine;
+
+    let mut tournaments = state.tournaments.write().await;
+    let store = tournaments
+        .get_mut(&tournament_id)
+        .ok_or_else(|| ApiError::NotFound(format!("Tournament {tournament_id} not found")))?;
+    let mode = if store.money_mode.eq_ignore_ascii_case("real") {
+        crate::wallet::WalletMode::Real
+    } else {
+        crate::wallet::WalletMode::Play
+    };
+    let (player_name, was_eliminated) = store
+        .state
+        .players
+        .get(user_id)
+        .map(|e| (e.player_name.clone(), e.eliminated_at.is_some()))
+        .ok_or_else(|| ApiError::BadRequest("Você não está inscrito neste torneio".into()))?;
+    if matches!(mode, crate::wallet::WalletMode::Real) {
+        crate::responsible_gaming::ensure_real_money_allowed(&state.db, user_id).await?;
+    }
+    let (chips, cost, addon_max_level) = match kind {
+        ChipPurchase::Rebuy => (store.rebuy_chips(), store.rebuy_cost(), 0),
+        ChipPurchase::Addon => (
+            store.addon_chips(),
+            store.addon_cost(),
+            store.addon_max_level(),
+        ),
+    };
+    let chips_i =
+        i64::try_from(chips).map_err(|_| ApiError::BadRequest("Fichas inválidas".into()))?;
+    let cost_i = i64::try_from(cost).map_err(|_| ApiError::BadRequest("Preço inválido".into()))?;
+    let seat_cap = i16::from(if store.live_table_ids.len() > 1 {
+        store.table_max_players
+    } else {
+        store
+            .final_table_max_players
+            .unwrap_or(store.table_max_players)
+    });
+    let live_table_ids = store.live_table_ids.clone();
+    let tournament_name = store.state.config.name.clone();
+
+    let before = store.state.clone();
+    let engine_result = match kind {
+        ChipPurchase::Rebuy => engine::process_rebuy(&mut store.state, user_id),
+        ChipPurchase::Addon => {
+            engine::process_addon_until(&mut store.state, user_id, chips, cost, addon_max_level)
+        }
+    };
+    engine_result.map_err(ApiError::BadRequest)?;
+
+    let persisted: Result<Delivered, ApiError> = async {
+        let mut tx = state.db.begin().await?;
+        if cost_i > 0 {
+            if matches!(mode, crate::wallet::WalletMode::Play) {
+                crate::wallet::ensure_pm_daily_reset(&mut *tx, user_id).await?;
+            }
+            crate::wallet::debit_wallet(
+                &mut *tx,
+                user_id,
+                cost_i,
+                crate::wallet::mtt_kind_for_mode(mode),
+            )
+            .await?;
+        }
+        let (seat, table_id) = if was_eliminated {
+            let (idx, seat) =
+                choose_return_seat(&mut tx, &tournament_id, &live_table_ids, seat_cap).await?;
+            sqlx::query(
+                "INSERT INTO tournament_seats (tournament_id, table_id, seat, player_id, player_name, stack) \
+                 VALUES ($1::uuid, $2::uuid, $3, $4, $5, $6)",
+            )
+            .bind(&tournament_id)
+            .bind(&live_table_ids[idx])
+            .bind(seat)
+            .bind(user_id)
+            .bind(&player_name)
+            .bind(chips_i)
+            .execute(&mut *tx)
+            .await?;
+            (Some((idx, seat)), Some(live_table_ids[idx].clone()))
+        } else {
+            // Ainda na mesa: as fichas esperam o começo da próxima mão.
+            let table: Option<(String,)> = sqlx::query_as(
+                "UPDATE tournament_seats SET pending_chips = pending_chips + $3 \
+                 WHERE tournament_id = $1::uuid AND player_id = $2 AND status = 'ACTIVE' \
+                 RETURNING table_id::text",
+            )
+            .bind(&tournament_id)
+            .bind(user_id)
+            .bind(chips_i)
+            .fetch_optional(&mut *tx)
+            .await?;
+            let Some((table_id,)) = table else {
+                return Err(ApiError::BadRequest(
+                    "Você acabou de ser eliminado: aguarde um instante e use o rebuy".into(),
+                ));
+            };
+            (None, Some(table_id))
+        };
+        let player_rows = match kind {
+            ChipPurchase::Rebuy => sqlx::query(
+                "UPDATE tournament_players SET rebuys = rebuys + 1, rebuy_paid = rebuy_paid + $3 \
+                 WHERE tournament_id = $1::uuid AND player_id = $2",
+            ),
+            ChipPurchase::Addon => sqlx::query(
+                "UPDATE tournament_players SET addon_done = TRUE, addon_paid = addon_paid + $3 \
+                 WHERE tournament_id = $1::uuid AND player_id = $2 AND addon_done = FALSE",
+            ),
+        }
+        .bind(&tournament_id)
+        .bind(user_id)
+        .bind(cost_i)
+        .execute(&mut *tx)
+        .await?
+        .rows_affected();
+        if player_rows != 1 {
+            return Err(ApiError::BadRequest(
+                "Inscrição não encontrada para esta compra".into(),
+            ));
+        }
+        let tournament_rows = sqlx::query(
+            "UPDATE tournaments SET prize_pool = $2, players_remaining = $3, \
+                    total_rebuys = $4, total_addons = $5 \
+             WHERE id = $1::uuid AND status = 'running'",
+        )
+        .bind(&tournament_id)
+        .bind(i64::try_from(store.state.prize_pool).unwrap_or(i64::MAX))
+        .bind(store.state.players_remaining as i32)
+        .bind(i64::try_from(store.state.total_rebuys).unwrap_or(i64::MAX))
+        .bind(i64::try_from(store.state.total_addons).unwrap_or(i64::MAX))
+        .execute(&mut *tx)
+        .await?
+        .rows_affected();
+        if tournament_rows != 1 {
+            return Err(ApiError::BadRequest("Torneio não está em andamento".into()));
+        }
+        sqlx::query("INSERT INTO audit_logs (user_id, action, metadata) VALUES ($1, $2, $3)")
+            .bind(user_id)
+            .bind(match kind {
+                ChipPurchase::Rebuy => "MTT_REBUY",
+                ChipPurchase::Addon => "MTT_ADDON",
+            })
+            .bind(serde_json::json!({
+                "tournament_id": tournament_id,
+                "cost": cost_i,
+                "chips": chips_i,
+                "level": store.state.current_level,
+                "was_eliminated": was_eliminated,
+                "money_mode": mode.as_str(),
+            }))
+            .execute(&mut *tx)
+            .await?;
+        tx.commit().await?;
+        Ok((seat, table_id))
+    }
+    .await;
+
+    let (seat, table_id) = match persisted {
+        Ok(done) => done,
+        Err(error) => {
+            // O banco desfez a transação; o motor volta ao estado anterior.
+            store.state = before;
+            return Err(error);
+        }
+    };
+    if let (Some((idx, seat)), Some(entry)) = (seat, store.state.players.get_mut(user_id)) {
+        entry.table_id = Some(idx as u32);
+        entry.seat = Some(seat.max(0) as u32);
+    }
+    let (rebuys, addon_done) = store
+        .state
+        .players
+        .get(user_id)
+        .map(|e| (e.rebuys, e.addon_done))
+        .unwrap_or((0, false));
+    let prize_pool = store
+        .state
+        .prize_pool
+        .max(store.state.config.guaranteed_prize);
+    drop(tournaments);
+
+    // Quem voltou do zero senta já; a mão em andamento segue sem ele.
+    if let (Some((idx, seat)), Some(table_id)) = (seat, table_id.as_ref()) {
+        let handle = state.active_tables.read().await.get(table_id).cloned();
+        match handle {
+            Some(handle) => {
+                let (tx_resp, rx_resp) = tokio::sync::oneshot::channel();
+                let _ = handle
+                    .tx_cmd
+                    .send(crate::game_actor::PlayerCommand::Sit {
+                        player_id: user_id.to_string(),
+                        username: player_name.clone(),
+                        seat: Some(seat.max(0) as usize),
+                        chips,
+                        respond_to: tx_resp,
+                    })
+                    .await;
+                let _ = tokio::time::timeout(std::time::Duration::from_secs(5), rx_resp).await;
+            }
+            None => {
+                crate::tournament_actor::ensure_tournament_actor(
+                    state,
+                    &tournament_id,
+                    table_id,
+                    idx as u32,
+                    format!("{tournament_name} mesa {}", idx + 1),
+                )
+                .await;
+            }
+        }
+    }
+
+    Ok(ChipPurchaseResponse {
+        tournament_id,
+        player_id: user_id.to_string(),
+        kind: kind.as_str(),
+        chips,
+        cost_cents: cost_i,
+        delivery: if seat.is_some() {
+            "seated"
+        } else {
+            "next_hand"
+        },
+        table_id,
+        rebuys,
+        addon_done,
+        prize_pool,
+    })
+}
+
+/// POST /api/tournament/rebuy — eliminado volta com stack novo; stack baixo
+/// (limiar do evento) soma as fichas na próxima mão.
+pub async fn rebuy_player(
+    State(state): State<AppState>,
+    RequireAuth(auth_user): RequireAuth,
+    Json(body): Json<ChipPurchaseBody>,
+) -> Result<Json<ChipPurchaseResponse>, ApiError> {
+    purchase_chips(
+        &state,
+        &auth_user.user_id,
+        body.tournament_id,
+        ChipPurchase::Rebuy,
+    )
+    .await
+    .map(Json)
+}
+
+/// POST /api/tournament/addon — uma compra por jogador ainda no torneio, até o
+/// nível definido no evento; as fichas entram na próxima mão.
+pub async fn addon_player(
+    State(state): State<AppState>,
+    RequireAuth(auth_user): RequireAuth,
+    Json(body): Json<ChipPurchaseBody>,
+) -> Result<Json<ChipPurchaseResponse>, ApiError> {
+    purchase_chips(
+        &state,
+        &auth_user.user_id,
+        body.tournament_id,
+        ChipPurchase::Addon,
+    )
+    .await
+    .map(Json)
 }
