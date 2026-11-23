@@ -1390,7 +1390,7 @@ impl TableActor {
                 "dealer_index": self.dealer_index,
                 "players": self.players,
                 "is_finished": self.game_loop.as_ref().map(|g| g.state.is_finished).unwrap_or(true),
-                "updated_at": chrono::Utc::now().to_rfc3339()
+                "updated_at": crate::clock::now_rfc3339()
             });
 
             if let Ok(json_str) = serde_json::to_string(&snapshot) {

@@ -1,7 +1,8 @@
+use crate::clock::MonthsExt;
 use axum::extract::{Path, Query, State};
 use axum::Json;
-use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
+use time::Date as NaiveDate;
 
 use crate::error::ApiError;
 use crate::middleware::auth::RequireAuth;
@@ -39,7 +40,8 @@ pub struct AgentAdjustmentDetail {
     pub category: String,
     pub amount_cents: i64,
     pub note: String,
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    #[serde(with = "time::serde::rfc3339")]
+    pub created_at: time::OffsetDateTime,
 }
 
 #[derive(Debug, Deserialize)]
@@ -366,7 +368,6 @@ fn validate_money_mode(mode: &str) -> Result<&str, ApiError> {
 }
 
 fn validate_cycle_start(cycle_start: NaiveDate) -> Result<NaiveDate, ApiError> {
-    use chrono::Datelike;
     if cycle_start.day() != 1 {
         return Err(ApiError::BadRequest(
             "cycle_start must be the first day of a month".into(),
@@ -631,8 +632,8 @@ pub async fn close_agent_cycle(
         ));
     }
     let closing_day = cycle_start
-        .checked_add_months(chrono::Months::new(1))
-        .and_then(|d| d.checked_add_signed(chrono::Duration::days(24)))
+        .checked_add_months(1)
+        .and_then(|d| d.checked_add(time::Duration::days(24)))
         .ok_or_else(|| ApiError::BadRequest("Invalid cycle".into()))?;
     let today: NaiveDate =
         sqlx::query_scalar("SELECT timezone('America/Sao_Paulo', clock_timestamp())::date")
@@ -720,7 +721,7 @@ pub async fn close_agent_cycle(
     let deficit = calculation.carry_forward;
     if deficit > 0 {
         let next = cycle_start
-            .checked_add_months(chrono::Months::new(1))
+            .checked_add_months(1)
             .ok_or_else(|| ApiError::BadRequest("Invalid cycle".into()))?;
         if crate::estrutura::lock_cycle(&mut tx, uid, next, money_mode).await? != "open" {
             return Err(ApiError::Conflict(

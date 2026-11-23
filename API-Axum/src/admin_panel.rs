@@ -5,6 +5,7 @@ use axum::Json;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+use crate::clock::Rfc3339Ext;
 use crate::error::ApiError;
 use crate::middleware::auth::RequireAuth;
 use crate::state::AppState;
@@ -102,7 +103,7 @@ pub async fn admin_liabilities(
         pending_withdrawals_cents: withdrawals,
         total_owed_to_players_cents: owed_total(wallets, chips, prizes, withdrawals)?,
         provisional_deposits_cents: provisional,
-        generated_at: chrono::Utc::now().to_rfc3339(),
+        generated_at: crate::clock::now_rfc3339(),
     }))
 }
 
@@ -1337,7 +1338,8 @@ struct AuditRow {
     user_id: String,
     action: String,
     metadata: serde_json::Value,
-    created_at: chrono::DateTime<chrono::Utc>,
+    #[serde(with = "time::serde::rfc3339")]
+    created_at: time::OffsetDateTime,
 }
 
 #[derive(Debug, Serialize)]

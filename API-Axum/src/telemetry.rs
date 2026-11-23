@@ -31,7 +31,7 @@ macro_rules! audit_span {
             "audit_event",
             user_id = %$user_id,
             action = %$action,
-            timestamp = %chrono::Utc::now().to_rfc3339()
+            timestamp = %$crate::clock::now_rfc3339()
         )
     };
 }

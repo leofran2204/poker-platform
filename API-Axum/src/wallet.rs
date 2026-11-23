@@ -1,6 +1,5 @@
 //! Multi-wallet: Play Money cash / Play Money MTT / Real.
 
-use chrono::{FixedOffset, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{PgExecutor, PgPool};
 
@@ -65,10 +64,11 @@ impl WalletKind {
     }
 }
 
-pub fn today_sao_paulo() -> chrono::NaiveDate {
+pub fn today_sao_paulo() -> time::Date {
     // UTC−3 (no DST in BR since 2019)
-    let offset = FixedOffset::west_opt(3 * 3600).expect("offset");
-    Utc::now().with_timezone(&offset).date_naive()
+    crate::clock::now()
+        .to_offset(time::macros::offset!(-3))
+        .date()
 }
 
 /// Reset PM wallets to full daily grant if the SP calendar day rolled.
@@ -231,9 +231,9 @@ pub async fn load_snapshot(pool: &PgPool, user_id: &str) -> Result<WalletSnapsho
         i64,
         i64,
         String,
-        Option<chrono::NaiveDate>,
-        Option<chrono::NaiveDate>,
-        Option<chrono::NaiveDate>,
+        Option<time::Date>,
+        Option<time::Date>,
+        Option<time::Date>,
     ) = sqlx::query_as(
         r#"
         SELECT balance_pm_cash, balance_pm_mtt, balance_real, preferred_wallet_mode,

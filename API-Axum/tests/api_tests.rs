@@ -51,9 +51,9 @@ async fn agent_cycle_close_is_guarded_idempotent_and_separates_wallets() {
             .bind(id).bind(&name).bind(format!("{name}@test.invalid")).bind(sponsor)
             .execute(&state.db).await.unwrap();
     }
-    let cycle: chrono::NaiveDate = sqlx::query_scalar("SELECT (date_trunc('month', timezone('America/Sao_Paulo', now())) - INTERVAL '3 months')::date")
+    let cycle: time::Date = sqlx::query_scalar("SELECT (date_trunc('month', timezone('America/Sao_Paulo', now())) - INTERVAL '3 months')::date")
         .fetch_one(&state.db).await.unwrap();
-    let next = cycle.checked_add_months(chrono::Months::new(1)).unwrap();
+    let next = poker_api::clock::MonthsExt::checked_add_months(cycle, 1).unwrap();
     let before: (i64, i64, i64) = sqlx::query_as(
         "SELECT estrutura_points, agent_commission_balance_cents, balance_real FROM users WHERE id = $1",
     )

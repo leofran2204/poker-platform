@@ -6,6 +6,7 @@
 //! execute the queued payout only after provider reconciliation and an
 //! encrypted payment-instrument reference are implemented.
 
+use crate::clock::Rfc3339Ext;
 use crate::error::ApiError;
 use crate::middleware::auth::RequireAuth;
 use crate::payment_gateway::get_payment_gateway;
@@ -1121,8 +1122,8 @@ type WalletTransactionRow = (
     String,
     Option<String>,
     String,
-    chrono::DateTime<chrono::Utc>,
-    Option<chrono::DateTime<chrono::Utc>>,
+    time::OffsetDateTime,
+    Option<time::OffsetDateTime>,
 );
 
 /// GET /api/wallet/transactions — extrato próprio (até 50, recentes primeiro).

@@ -11,7 +11,7 @@ use tokio::sync::RwLock;
 use tower::ServiceExt;
 
 fn depix_signature(body: &[u8], secret: &str) -> String {
-    let timestamp = chrono::Utc::now().timestamp().to_string();
+    let timestamp = time::OffsetDateTime::now_utc().unix_timestamp().to_string();
     let mut mac = Hmac::<Sha256>::new_from_slice(secret.as_bytes()).unwrap();
     mac.update(timestamp.as_bytes());
     mac.update(b".");

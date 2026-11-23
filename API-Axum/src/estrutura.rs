@@ -40,7 +40,7 @@ pub fn calculate_cycle(gross: i64, deductions: i64, target: i64) -> CycleCalcula
 pub async fn lock_cycle(
     tx: &mut Transaction<'_, Postgres>,
     agent: Uuid,
-    cycle: chrono::NaiveDate,
+    cycle: time::Date,
     mode: &str,
 ) -> Result<String, sqlx::Error> {
     // Serializa todos os ciclos do mesmo agente. Isto impede que um ciclo antigo
@@ -178,7 +178,7 @@ async fn insert_line(
     if line.source_rake <= 0 {
         return Ok(());
     }
-    let cycle: chrono::NaiveDate = sqlx::query_scalar(
+    let cycle: time::Date = sqlx::query_scalar(
         "SELECT date_trunc('month', timezone('America/Sao_Paulo', clock_timestamp()))::date",
     )
     .fetch_one(&mut **tx)
@@ -216,7 +216,7 @@ pub async fn refund_fee(
     payer: Uuid,
     tournament: Uuid,
 ) -> Result<(), sqlx::Error> {
-    let lines: Vec<(Uuid, Uuid, chrono::NaiveDate, String, i64)> = sqlx::query_as(
+    let lines: Vec<(Uuid, Uuid, time::Date, String, i64)> = sqlx::query_as(
         "SELECT el.id, el.beneficiary_user_id, el.cycle_start, el.money_mode, el.source_rake_cents \
          FROM estrutura_ledger el WHERE el.source_type = 'fee' AND el.source_user_id = $1 \
            AND el.source_reference_id = $2 AND el.program_version = 2 \
@@ -303,7 +303,7 @@ mod tests {
             .await
             .expect("retry refund");
 
-        let previous_cycle: chrono::NaiveDate = sqlx::query_scalar(
+        let previous_cycle: time::Date = sqlx::query_scalar(
             "SELECT (date_trunc('month', timezone('America/Sao_Paulo', now())) - INTERVAL '1 month')::date",
         ).fetch_one(&mut *tx).await.expect("previous month");
         sqlx::query("INSERT INTO agent_monthly_cycles (agent_user_id, cycle_start, money_mode, status) VALUES ($1, $2, 'play', 'closed')")

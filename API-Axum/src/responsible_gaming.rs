@@ -1,9 +1,10 @@
+use crate::clock::{MonthsExt, Rfc3339Ext};
 use axum::extract::State;
 use axum::Json;
-use chrono::{Datelike, Months, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::{PgPool, Postgres, Transaction};
+use time::{Date as NaiveDate, OffsetDateTime};
 
 use crate::error::ApiError;
 use crate::middleware::auth::RequireAuth;
@@ -32,10 +33,10 @@ type SettingsRow = (
     Option<i64>,
     Option<i32>,
     Option<serde_json::Value>,
-    Option<chrono::DateTime<Utc>>,
-    Option<chrono::DateTime<Utc>>,
+    Option<OffsetDateTime>,
+    Option<OffsetDateTime>,
     bool,
-    Option<chrono::DateTime<Utc>>,
+    Option<OffsetDateTime>,
 );
 
 #[derive(Debug, Serialize)]
@@ -217,7 +218,10 @@ async fn load_settings(pool: &PgPool, user_id: &str) -> Result<SettingsRow, ApiE
     .fetch_one(pool)
     .await?;
 
-    if row.8.is_some_and(|effective| effective <= Utc::now()) {
+    if row
+        .8
+        .is_some_and(|effective| effective <= crate::clock::now())
+    {
         if let Some(value) = row.7.clone() {
             let pending: Limits = serde_json::from_value(value)
                 .map_err(|_| ApiError::Internal("Invalid pending limits".into()))?;
@@ -436,10 +440,10 @@ pub async fn self_exclude(
         }
     };
     let until = interval.map(|value| match value {
-        "24 hours" => Utc::now() + chrono::Duration::hours(24),
-        "7 days" => Utc::now() + chrono::Duration::days(7),
-        "30 days" => Utc::now() + chrono::Duration::days(30),
-        _ => Utc::now() + chrono::Duration::days(180),
+        "24 hours" => crate::clock::now() + time::Duration::hours(24),
+        "7 days" => crate::clock::now() + time::Duration::days(7),
+        "30 days" => crate::clock::now() + time::Duration::days(30),
+        _ => crate::clock::now() + time::Duration::days(180),
     });
     sqlx::query(
         "UPDATE responsible_gaming_settings SET self_excluded_until=$2, self_excluded_permanently=$3, \
@@ -491,7 +495,7 @@ pub async fn ensure_real_money_action_allowed(
     pool: &PgPool,
     user_id: &str,
 ) -> Result<(), ApiError> {
-    let row: (String, Option<chrono::DateTime<Utc>>, bool, Option<i32>) = sqlx::query_as(
+    let row: (String, Option<OffsetDateTime>, bool, Option<i32>) = sqlx::query_as(
         "SELECT u.kyc_status,s.self_excluded_until,COALESCE(s.self_excluded_permanently,FALSE),s.play_time_limit_daily_minutes \
          FROM users u LEFT JOIN responsible_gaming_settings s ON s.user_id=u.id WHERE u.id=$1::uuid",
     )
@@ -501,7 +505,7 @@ pub async fn ensure_real_money_action_allowed(
     if row.0 != "verified" {
         return Err(ApiError::Forbidden("Verificação KYC necessária".into()));
     }
-    if row.2 || row.1.is_some_and(|until| until > Utc::now()) {
+    if row.2 || row.1.is_some_and(|until| until > crate::clock::now()) {
         return Err(ApiError::Forbidden("Autoexclusão ativa".into()));
     }
     if let Some(minutes) = row.3 {
@@ -541,12 +545,12 @@ pub async fn ensure_deposit_allowed(
     let Some(settings) = settings else {
         return Ok(());
     };
-    if settings.10 || settings.9.is_some_and(|until| until > Utc::now()) {
+    if settings.10 || settings.9.is_some_and(|until| until > crate::clock::now()) {
         return Err(ApiError::Forbidden(
             "Depósitos bloqueados durante a autoexclusão.".into(),
         ));
     }
-    let effective_limits = if settings.8.is_some_and(|at| at <= Utc::now()) {
+    let effective_limits = if settings.8.is_some_and(|at| at <= crate::clock::now()) {
         settings
             .7
             .clone()
@@ -621,7 +625,7 @@ pub async fn ensure_real_money_allowed(pool: &PgPool, user_id: &str) -> Result<(
         ));
     }
     let settings = load_settings(pool, user_id).await?;
-    if settings.10 || settings.9.is_some_and(|until| until > Utc::now()) {
+    if settings.10 || settings.9.is_some_and(|until| until > crate::clock::now()) {
         return Err(ApiError::Forbidden(
             "Jogo Real bloqueado durante a autoexclusão.".into(),
         ));
@@ -649,9 +653,9 @@ pub async fn ensure_real_money_allowed(pool: &PgPool, user_id: &str) -> Result<(
 }
 
 pub fn validate_adult(date: NaiveDate) -> Result<(), ApiError> {
-    let today = Utc::now().date_naive();
+    let today = crate::clock::now().date();
     let cutoff = today
-        .checked_sub_months(Months::new(18 * 12))
+        .checked_sub_months(18 * 12)
         .ok_or_else(|| ApiError::Internal("Age validation failed".into()))?;
     if date > cutoff || date.year() < 1900 {
         return Err(ApiError::Forbidden(
@@ -684,8 +688,11 @@ mod tests {
 
     #[test]
     fn rejects_underage_birth_date() {
-        let today = Utc::now().date_naive();
+        let today = crate::clock::now().date();
         assert!(validate_adult(today).is_err());
-        assert!(validate_adult(NaiveDate::from_ymd_opt(1990, 1, 1).unwrap()).is_ok());
+        assert!(validate_adult(
+            NaiveDate::from_calendar_date(1990, time::Month::January, 1).unwrap()
+        )
+        .is_ok());
     }
 }

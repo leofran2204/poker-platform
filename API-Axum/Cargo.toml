@@ -24,7 +24,7 @@ sqlx = { version = "0.8", default-features = false, features = [
     "runtime-tokio-rustls",
     "postgres",
     "uuid",
-    "chrono",
+    "time",
     "migrate",
     "derive",
     "macros",
@@ -37,7 +37,7 @@ serde_json = "1"
 
 # ── Utilities ──
 uuid = { version = "1", features = ["v4", "serde"] }
-chrono = { version = "0.4", features = ["serde"] }
+time = { version = "0.3", features = ["serde", "serde-well-known", "serde-human-readable", "macros", "formatting", "parsing"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 dotenvy = "0.15"

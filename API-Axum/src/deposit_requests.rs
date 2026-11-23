@@ -4,6 +4,7 @@ use axum::extract::{Path, Query, State};
 use axum::Json;
 use serde::{Deserialize, Serialize};
 
+use crate::clock::Rfc3339Ext;
 use crate::error::ApiError;
 use crate::middleware::auth::RequireAuth;
 use crate::state::AppState;
@@ -149,8 +150,10 @@ struct DepositRow {
     proof_text: String,
     admin_note: Option<String>,
     reviewed_by: Option<uuid::Uuid>,
-    created_at: chrono::DateTime<chrono::Utc>,
-    reviewed_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(with = "time::serde::rfc3339")]
+    created_at: time::OffsetDateTime,
+    #[serde(with = "time::serde::rfc3339::option")]
+    reviewed_at: Option<time::OffsetDateTime>,
     username: Option<String>,
 }
 

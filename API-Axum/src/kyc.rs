@@ -1,9 +1,10 @@
+use crate::clock::Rfc3339Ext;
 use axum::extract::{Path, Query, State};
 use axum::Json;
-use chrono::{DateTime, NaiveDate, Utc};
 use hmac::{Hmac, Mac};
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;
+use time::{Date as NaiveDate, OffsetDateTime};
 
 use crate::error::ApiError;
 use crate::middleware::auth::RequireAuth;
@@ -15,8 +16,8 @@ type KycStatusRow = (
     Option<String>,
     Option<String>,
     Option<NaiveDate>,
-    Option<DateTime<Utc>>,
-    Option<DateTime<Utc>>,
+    Option<OffsetDateTime>,
+    Option<OffsetDateTime>,
 );
 
 #[derive(Debug, Deserialize)]
@@ -140,7 +141,7 @@ pub async fn submit_kyc(
             "Informe seu nome civil completo".into(),
         ));
     }
-    let date = NaiveDate::parse_from_str(body.date_of_birth.trim(), "%Y-%m-%d")
+    let date = crate::clock::parse_date(body.date_of_birth.trim())
         .map_err(|_| ApiError::BadRequest("Data de nascimento inválida".into()))?;
     crate::responsible_gaming::validate_adult(date)?;
     let tax_id = normalize_tax_id(&body.tax_id)?;
@@ -199,7 +200,7 @@ pub async fn list_kyc(
         Option<String>,
         Option<String>,
         Option<NaiveDate>,
-        Option<chrono::DateTime<chrono::Utc>>,
+        Option<OffsetDateTime>,
     );
     let rows: Vec<Row> = sqlx::query_as(
         "SELECT id::text,username,email,kyc_status,kyc_legal_name,kyc_tax_id_last4,date_of_birth,kyc_submitted_at \

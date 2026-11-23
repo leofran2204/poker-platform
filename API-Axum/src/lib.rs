@@ -10,6 +10,7 @@ pub mod admin_routes;
 pub mod binary_codec;
 pub mod bots;
 pub mod cash_seats;
+pub mod clock;
 pub mod deposit_requests;
 pub mod email_service;
 pub mod error;

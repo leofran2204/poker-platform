@@ -481,7 +481,7 @@ pub async fn register(
 ) -> Result<Json<serde_json::Value>, ApiError> {
     let birth_date = match body.date_of_birth.as_deref() {
         Some(value) => {
-            let date = chrono::NaiveDate::parse_from_str(value.trim(), "%Y-%m-%d")
+            let date = crate::clock::parse_date(value.trim())
                 .map_err(|_| ApiError::BadRequest("Data de nascimento inválida".into()))?;
             crate::responsible_gaming::validate_adult(date)?;
             Some(date)

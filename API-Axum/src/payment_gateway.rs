@@ -216,7 +216,7 @@ impl PixGateway for AsaasPixGateway {
             "customer": self.customer_id,
             "billingType": "PIX",
             "value": Self::value_number(amount_centavos)?,
-            "dueDate": chrono::Utc::now().date_naive().to_string(),
+            "dueDate": crate::clock::now().date().to_string(),
             "description": "Poker_Project sandbox deposit",
             "externalReference": tx_id,
         });
@@ -697,7 +697,7 @@ fn verify_depix_hmac(body: &[u8], signature_header: Option<&str>, secret: &str) 
         Ok(sent_at) => sent_at,
         Err(_) => return false,
     };
-    if (chrono::Utc::now().timestamp() - sent_at).unsigned_abs() > 300 {
+    if (crate::clock::unix_now() - sent_at).unsigned_abs() > 300 {
         return false;
     }
 
@@ -1085,7 +1085,7 @@ mod tests {
     fn depix_webhook_requires_timestamped_raw_body_hmac() {
         let secret = "depix-test-webhook-secret-32-bytes";
         let body = br#"{"event":"checkout.completed","data":{"id":"chk_1"}}"#;
-        let timestamp = chrono::Utc::now().timestamp().to_string();
+        let timestamp = crate::clock::unix_now().to_string();
         let mut mac = Hmac::<Sha256>::new_from_slice(secret.as_bytes()).unwrap();
         mac.update(timestamp.as_bytes());
         mac.update(b".");
@@ -1115,7 +1115,7 @@ mod tests {
     fn depix_webhook_rejects_a_stale_signed_delivery() {
         let secret = "depix-test-webhook-secret-32-bytes";
         let body = br#"{"event":"checkout.completed","data":{"id":"chk_1"}}"#;
-        let timestamp = (chrono::Utc::now().timestamp() - 301).to_string();
+        let timestamp = (crate::clock::unix_now() - 301).to_string();
         let mut mac = Hmac::<Sha256>::new_from_slice(secret.as_bytes()).unwrap();
         mac.update(timestamp.as_bytes());
         mac.update(b".");

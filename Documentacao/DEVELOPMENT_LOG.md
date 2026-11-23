@@ -1642,3 +1642,12 @@ Etapa 2 do plano do proprietário de 23/11: bots em Play Money no site publicado
 - Defeito encontrado e publicado (`42551d90`): desde 05/09/2026 a entrada pelo WebSocket numa mesa de torneio falhava sempre (BIGINT onde a linha lê SMALLINT); o jogador recebia "Não foi possível validar o assento do torneio" e o servidor desistia por ele. Teste de contrato no PostgreSQL no CI.
 - Achados para o proprietário: (1) em mesa cheia o Loss Deflator quase não dispara no all-in pré-flop, porque a regra conta como oponentes todos os que ainda estão na mão no pagamento do all-in, inclusive quem ainda não agiu e depois desiste (BUSINESS_RULES, "Equity multiway"); 1 disparo em 60 all-ins heads-up no NL. (2) Fora do Pineapple, o tempo esgotado sem aposta a pagar dá fold, não check (regra 10.2).
 - Ajustes do script no caminho: saída da mesa com novas tentativas (durante a mão o servidor recusa), procura da mesa nova depois da fusão no torneio, e-mails em paralelo, convite em cadeia, potes paralelos e empates pela liquidação (o estado da mesa mostra só o pote total).
+
+
+## 2026-11-23 — Troca do chrono e destino dos dumps (etapa 3)
+
+Etapa 3 do plano do proprietário de 23/11.
+
+- API sem `chrono` (RUSTSEC-2026-0543, sem manutenção): `time` 0.3 no lugar, inclusive no recurso do sqlx (`TIMESTAMPTZ` ↔ `OffsetDateTime`, `DATE` ↔ `Date`). Módulo `clock.rs` com as operações de antes: agora em UTC, segundos Unix, RFC 3339 (`to_rfc3339`), data `AAAA-MM-DD` e soma de meses com a regra do `chrono` (31/01 + 1 mês = último dia de fevereiro), com testes. Campos serializados direto (`created_at`, `reviewed_at`) usam `time::serde::rfc3339`; datas seguem `AAAA-MM-DD`. A única diferença visível é o fuso no texto: `Z` no lugar de `+00:00`, os dois em RFC 3339. O `chrono` saiu do `Cargo.lock` e a exceção saiu de `API-Axum/.cargo/audit.toml`; `cargo audit` passa.
+- Dumps de `backups/`: os 9 dumps de setembro (SQL puro com dados de contas) foram para `C:\Users\leofr\Backups\ZeroTilt\dumps-2026-09.tar.gz.dpapi`, fora do repositório, num `.tar.gz` cifrado com DPAPI do Windows (só este usuário abre), com `LEIA-ME.txt` e o SHA-256. Cifra e extração conferidas byte a byte antes de apagar os originais; a pasta `backups/` saiu do projeto. Os backups vigentes continuam na VPS (um dump por publicação).
+- Conferência: API `fmt`, `clippy --all-targets -D warnings`, 113 testes da biblioteca, integração e todos os contratos PostgreSQL do CI (api, payments, e2e, estrutura, prêmios atômicos, 5 do ator MTT, rate limit), `cargo audit` e `documentation-sync --check`.

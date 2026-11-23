@@ -2,6 +2,7 @@ use axum::extract::{Path, Query, State};
 use axum::Json;
 use serde::{Deserialize, Serialize};
 
+use crate::clock::Rfc3339Ext;
 use crate::error::ApiError;
 use crate::middleware::auth::RequireAuth;
 use crate::state::AppState;
@@ -45,8 +46,8 @@ type TicketRow = (
     String,
     String,
     Option<String>,
-    chrono::DateTime<chrono::Utc>,
-    chrono::DateTime<chrono::Utc>,
+    time::OffsetDateTime,
+    time::OffsetDateTime,
     Option<String>,
 );
 
