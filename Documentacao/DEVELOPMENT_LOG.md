@@ -906,7 +906,7 @@
 - Eps 05-10 (~50-56s cada): sizing, roubos e 3-bets, pot odds, EV e fold equity, banca, revisão final. Série completa em `ZeroTiltCurso/`.
 - Sem botão no resultado: só as 5 cartas do jogo vencedor saltam com brilho dourado (board + mão do vencedor + painel), e o painel some sozinho em 7s.
 <!-- DOCUMENTATION_SYNC:START -->
-> **S28** (2026-11-22) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-23) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
@@ -1610,9 +1610,10 @@ Por ordem do proprietário: criar e rodar a suíte massiva, depois concluir as p
 
 ## 2026-11-23 — Loss Deflator: um cálculo por foto do all-in
 
-Decisão do proprietário (23/11): calcular uma vez por foto e fora das threads assíncronas, sem reduzir amostras. Local, sem commit.
+Decisão do proprietário (23/11): calcular uma vez por foto e fora das threads assíncronas, sem reduzir amostras.
 
 - Motor (`loss_deflator.rs`): no Omaha 4 e no Brazilian Pineapple, uma passada pelos desfechos dá a equity de todos os jogadores da foto (`two_plus_three_equities_for_variant`). `SnapshotEquityCache` reaproveita o resultado entre perdedores com o mesmo board e as mesmas mãos vivas; `calculate_loss_deflators` (`game_loop.rs`) usa o cache. A semente do Monte Carlo passou a usar as cartas conhecidas em ordem fixa, então o cálculo individual e o da foto dão o mesmo valor, bit a bit (testes `one_pass_equities_match_each_individual_calculation` e `snapshot_cache_reuses_the_snapshot_and_matches_the_individual_call`). Hold’em e Short Deck seguem como antes.
 - API: `resolve_hand_off_runtime` (`game_actor.rs`) roda `resolve_hand` em `spawn_blocking`, na mesa de cash e no torneio; as outras mesas e conexões não esperam o cálculo. A própria mesa espera o resultado para pagar a mão.
 - Resultado: suíte massiva do Pineapple em release passou com o mesmo Loss Deflator de 22/11 (140 devoluções, faixas 7/15/25/35% = 54/50/23/13); a mão mais lenta para fechar caiu de 12,2 s para 4,2 s. A rodada inteira levou 30 min (24,7 min em 22/11), quase tudo na conferência externa; o tempo de fechamento do motor somou 763 s.
 - Conferência: motor `fmt`, `clippy --all-targets -D warnings`, suíte completa (1.882 da lib e integrações, todos ok) e `short_deck_omaha_massive` em release (147 s); API `fmt`, `clippy --all-targets -D warnings` e 111 testes da lib. BUSINESS_RULES 11.1 (semente e cálculo por foto).
+- Publicado na VPS em 23/11 às 05:41 (São Paulo), por ordem do proprietário: `3f1ac115`, com Rust CI e Container Supply Chain verdes e imagens assinadas; migrations 63, 4 serviços saudáveis. Ver QUALITY.

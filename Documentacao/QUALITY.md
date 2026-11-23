@@ -220,7 +220,7 @@ A campanha focada foi concluída dentro dos 15 minutos autorizados com dois trab
 - Home e Academy públicas aprovadas em 1440/390/320 px: oito capítulos, primeiro salto antes dos metadados, 113 legendas, transcrição, Enter/Escape, retorno do foco, ausência de autoplay e URLs da nova narração; sem overflow ou exceções JavaScript. Redirecionamento logado conferido com sessão sintética e APIs interceptadas; o smoke HTTP separado usou a API pública real. Evidências em `artifacts/narration-pronunciation/release/`.
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S28** (2026-11-22) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-23) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->
 
@@ -403,3 +403,11 @@ Antes da publicação:
 - motor com fmt e clippy `-D warnings`; API com fmt e os testes do CI; `documentation-sync --check`.
 
 Não verificado em produção: nenhuma mão de Brazilian Pineapple v4 foi jogada no site publicado, nem o relógio de 15 + 5 s com jogador real.
+
+## Publicação: Loss Deflator com um cálculo por foto do all-in — 23/11/2026
+
+Publicado `3f1ac1155ade3b62fd1dda334842acb997528276` às **08:41:41 UTC / 05:41:41 em São Paulo de 23/11**, por ordem do proprietário, com Rust CI e Container Supply Chain verdes. Imagens `ghcr.io/leofran2204/poker-api@sha256:8389a5ea56932aa49ff70c5750640e2cda22302693b88648566ab943d7d56cf1` e `ghcr.io/leofran2204/poker-web@sha256:a9ed2dd141e9ec65f454d0a7da8e2f80d3d8528cd5924434112a39f294a1e577`, assinatura e revisão conferidas pelo `vps-release-attested.sh`. Dois backups (o segundo com a API parada), migrations 63 (sem migration nova), boot com 1 "Migrations applied" e nenhuma linha ERROR, `.env` preservado, os 4 serviços saudáveis; `/api/health` e a home responderam 200 por fora.
+
+Mudança: no Omaha 4 e no Brazilian Pineapple, perdedores da mesma foto do all-in dividem um único cálculo de equity, com o mesmo valor do cálculo individual; o fechamento da mão roda em `spawn_blocking` (cash e torneio). Antes da publicação: suíte completa do motor, `pineapple_draw_massive` em release (mesmas 140 devoluções de 22/11; mão mais lenta 12,2 s → 4,2 s), `short_deck_omaha_massive` em release, 111 testes da lib da API, `fmt` e `clippy -D warnings` nos dois.
+
+Não verificado em produção: nenhuma mão com all-in multiway de Omaha ou Pineapple foi jogada no site publicado.

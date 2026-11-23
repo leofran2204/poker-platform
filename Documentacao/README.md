@@ -44,6 +44,6 @@ O `--check` é obrigatório na CI. Prosa histórica, legal e didática não é r
 Deploy: [`../Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md`](../Infraestrutura-Docker/DEPLOYMENT_VALIDATION.md).
 
 <!-- DOCUMENTATION_SYNC:START -->
-> **S28** (2026-11-22) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
+> **S28** (2026-11-23) — demo `zerotiltpoker.net` · sem certificação de produção · PIX automático ligado (DePix reconciliado).
 > Fatos (catálogo, carteiras, limites): [`STATUS_OPERACIONAL.md`](STATUS_OPERACIONAL.md).
 <!-- DOCUMENTATION_SYNC:END -->

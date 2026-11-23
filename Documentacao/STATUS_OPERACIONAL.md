@@ -2,7 +2,7 @@
 
 # Estado operacional — S28
 
-**S28** — Brazilian Pineapple com as regras novas, site reconstruído e vídeos novos publicados. Revisado em **2026-11-22**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
+**S28** — Brazilian Pineapple com as regras novas, site reconstruído e vídeos novos publicados. Revisado em **2026-11-23**. Ambiente: **demo/staging** em [zerotiltpoker.net](https://zerotiltpoker.net) (VPS Hostinger).
 
 **Limites:** sem certificação de produção · PIX automático ligado (DePix reconciliado) · mesas com dono **único por processo** (settlement HMAC).
 
