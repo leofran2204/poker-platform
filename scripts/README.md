@@ -94,7 +94,7 @@ Licença: o Remotion é gratuito para pessoas físicas e empresas com até 3 pes
 | `live-e2e-ten-users.mjs` | Smoke demo: 10 users / 100 hands + settlement assinado (`ALLOW_TEMP_MAIL=true`) |
 | `live-e2e-seeded-catalog.mjs` | Smoke mesa a mesa (Real ou Play): login seed → join → ≥1 mão → leave; torneios |
 | `live-e2e-real-catalog.mjs` | Variante com Mail.tm + crédito admin opcional (`ADMIN_TOKEN`) |
-| `live-sim-full-ritual.mjs` | Ritual Play Money: 1 jogador/e-mail por assento + 2 reservas/mesa; `HANDS_PER_TABLE` (default 2000); Mail.tm (`ALLOW_TEMP_MAIL=true`) |
+| `live-sim-full-ritual.mjs` | Ritual Play Money no site (etapa 2 de 23/11/2026). Fases `PHASES` (`cleanup`, `cash`, `mtt`, `real`): cash nas 4 modalidades com mesa cheia e reservas (`CASH_TABLES`, `HANDS_PER_TABLE`, padrão 150), roteiro por mão (all-in multiway e heads-up, aumento e reaumento, check-raise, showdown, tempo esgotado, tempo extra; troca e descarte no Pineapple; `SCENARIO_ONLY` fixa roteiros), torneio `MTT_ID` com 1 rebuy e 1 add-on por bot (`MTT_RESUME=1` retoma), carteira Jogo Real sem dinheiro. Confere carteira (variação = −rake) e liquidação (pagamentos + rake = pote; potes paralelos e empates). Contas Mail.tm com convite em cadeia (`INVITE_CODE`) em `artifacts/ritual/accounts.json` |
 | `clear-zombie-play-seats.sql` | Ops: cash-out de assentos Play Money `ACTIVE` órfãos (fallback; o actor S20f faz isso sozinho) |
 | `full-validation.ps1` / `.sh` / `.py` | Campanha isolada por situações, até 60 minutos após compilação e dois trabalhadores; método/resultado em Documentacao/FULL_VALIDATION.md |
 | `full-validation-network.mjs` | Cliente interno HTTPS/WSS local; não usar contra a demo |

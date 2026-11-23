@@ -419,3 +419,17 @@ Publicado `73d0ab998c43435ca740429dd12ea04085d96a3c` às **21:02:18 UTC / 18:02:
 Mudança: rebuy e add-on configurados por evento no admin, rotas do jogador, fichas entregues no começo da mão seguinte, volta à mesa de quem foi eliminado, unicidade de `tournament_seats` só para assentos ativos. Gate novo no CI: `mtt_rebuy_and_addon_deliver_chips_and_charge_wallet` (PostgreSQL). Antes da publicação: API `fmt`, `clippy -D warnings`, testes determinísticos e contratos PostgreSQL; motor `fmt`, `clippy -D warnings` e 976 testes de torneio (suíte completa no CI); site tsc, eslint, Vitest 154/154 e build.
 
 Não verificado em produção: nenhum rebuy ou add-on foi comprado no site publicado; nenhum torneio do catálogo tem add-on ligado (fica para o admin ou para a etapa 2, com bots).
+
+
+## Publicação: entrada na mesa de torneio e bots no site publicado — 23/11/2026
+
+Publicado `42551d906a74890f4a376644dd32ebbbfef803f2` às **23:02:50 UTC / 20:02:50 em São Paulo de 23/11**, dentro da etapa 2 autorizada pelo proprietário (testes e CI verdes), com Rust CI e Container Supply Chain verdes. Imagens `ghcr.io/leofran2204/poker-api@sha256:3305ab6cee4fc54aaf4f2ae69474e8074cb80f5fbb4981bb81e1771e6172dc54` e `ghcr.io/leofran2204/poker-web@sha256:84c8c4fab90e4b9ec6cc2334bb4e2553bc2fdb6a5b906d94ee54d9c85a77e220`, assinatura conferida; migrations 64; boot sem `ERROR`; `.env` preservado.
+
+Mudança: a consulta do assento na entrada pelo WebSocket da mesa de torneio devolvia BIGINT onde a linha lê SMALLINT; desde 05/09/2026 ninguém entrava na mesa e o servidor desistia por todos. Gate novo no CI: `mtt_websocket_admission_reads_the_tournament_seat` (reproduz o `ColumnDecode` com a consulta antiga).
+
+Verificado em produção com bots (Play Money, contas de teste com e-mail temporário, relatórios em `artifacts/ritual/`):
+- Cash nas 4 modalidades com mesa cheia: 580 mãos; pagamentos + rake = pote e liquidação assinada em todas; soma das carteiras das contas = −rake ao centavo (31.761 + 14.524 + 9.910); potes paralelos, empates, all-in multiway, tempo esgotado e tempo extra, Loss Deflator (4 disparos), troca, manutenção e descarte. Nenhum jogador de fora sentou e nenhum assento ficou ativo depois.
+- Torneio "PM · Texas R$25" depois da correção: 27 inscritos, 26 rebuys, 27 add-ons, mesa final, campeão; prêmios 100.000/60.000/40.000 = pool 200.000.
+- Jogo Real sem dinheiro: saldo 0; mesa, torneio e saque recusados.
+
+Não fechado: `tournaments.total_fees` não registrava o fee das inscrições pelo site (corrigido localmente com teste, entra na próxima publicação). Loss Deflator raro em mesa cheia por causa da regra de oponentes no pagamento do all-in (decisão do proprietário).
