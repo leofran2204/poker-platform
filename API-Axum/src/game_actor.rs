@@ -856,8 +856,12 @@ impl TableActor {
         }
 
         if game_loop.state.is_finished {
-            // Resolver a mão
-            if let Ok(res) = game_loop.resolve_hand() {
+            // Resolver a mão fora das threads assíncronas (ver `resolve_hand_off_runtime`).
+            let resolution = resolve_hand_off_runtime(&mut self.game_loop).await;
+            let Some(game_loop) = self.game_loop.as_mut() else {
+                return;
+            };
+            if let Some(Ok(res)) = resolution {
                 game_loop.finalize_history(&res);
 
                 // The hand history, resulting stacks, and recovery guard are
@@ -1393,6 +1397,33 @@ impl TableActor {
                 let _: Result<(), _> = redis.set_ex(key, json_str, 3600).await;
             }
         }
+    }
+}
+
+/// Resolve a mão numa thread de bloqueio (`spawn_blocking`). No Omaha e no
+/// Brazilian Pineapple, o Loss Deflator de um all-in pré-flop multiway pode levar
+/// segundos; assim o cálculo não ocupa as threads que atendem as outras mesas e
+/// as conexões. A própria mesa espera o resultado para pagar a mão. `None` só se
+/// não houver mão ou se o servidor estiver desligando.
+pub(crate) async fn resolve_hand_off_runtime(
+    slot: &mut Option<GameLoop>,
+) -> Option<Result<poker_engine::game_loop::HandResolution, GameLoopError>> {
+    let mut game_loop = slot.take()?;
+    let joined = tokio::task::spawn_blocking(move || {
+        let resolution = game_loop.resolve_hand();
+        (game_loop, resolution)
+    })
+    .await;
+    match joined {
+        Ok((game_loop, resolution)) => {
+            *slot = Some(game_loop);
+            Some(resolution)
+        }
+        // Mesmo comportamento de antes: um pânico no motor derruba o ator.
+        Err(error) => match error.try_into_panic() {
+            Ok(panic) => std::panic::resume_unwind(panic),
+            Err(_) => None,
+        },
     }
 }
 

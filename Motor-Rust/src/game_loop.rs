@@ -1832,6 +1832,9 @@ impl GameLoop {
                 )
             })
             .collect();
+        // Perdedores com a mesma foto do all-in (mesmo board e mesmas mãos vivas)
+        // dividem um único cálculo de equity.
+        let mut equity_cache = loss_deflator::SnapshotEquityCache::default();
 
         for player in &self.state.players {
             if player.has_folded || !player.is_in_hand() || !player.is_all_in {
@@ -1942,7 +1945,7 @@ impl GameLoop {
             let hero_cards = snapshot
                 .map(|s| s.hero.as_slice())
                 .unwrap_or(player.hole_cards.as_slice());
-            let Some(loser_equity) = loss_deflator::get_multiway_win_probability_for_variant(
+            let Some(loser_equity) = equity_cache.equity(
                 hero_cards,
                 &villain_refs,
                 board_slice,

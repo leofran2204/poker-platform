@@ -538,7 +538,25 @@ fn two_plus_three_equity_for_variant(
     variant: PokerVariant,
     mc_samples: u64,
 ) -> Option<f64> {
-    let hole_count = hero_cards.len();
+    let mut hands: Vec<&[Card]> = Vec::with_capacity(1 + villain_hands.len());
+    hands.push(hero_cards);
+    hands.extend_from_slice(villain_hands);
+    two_plus_three_equities_for_variant(&hands, board_cards, variant, mc_samples)
+        .map(|equities| equities[0])
+}
+
+/// Equity de cada jogador de `hands`, na mesma ordem, numa única passada pelos
+/// desfechos (Omaha 4 ou Brazilian Pineapple). O resultado de cada jogador é
+/// idêntico ao do cálculo feito só para ele: os desfechos e a semente do Monte
+/// Carlo dependem do conjunto de cartas conhecidas, não da ordem dos jogadores.
+fn two_plus_three_equities_for_variant(
+    hands: &[&[Card]],
+    board_cards: &[Card],
+    variant: PokerVariant,
+    mc_samples: u64,
+) -> Option<Vec<f64>> {
+    let first = hands.first()?;
+    let hole_count = first.len();
     let extras = match variant {
         PokerVariant::Omaha => {
             if hole_count != 4 {
@@ -558,7 +576,7 @@ fn two_plus_three_equity_for_variant(
         PokerVariant::PineappleDraw => matches!(hand.len(), 2 | 3),
         _ => hand.len() == hole_count,
     };
-    if !villain_hands.iter().all(same_shape) {
+    if !hands.iter().all(same_shape) {
         return None;
     }
     let score: HandScore = if variant == PokerVariant::PineappleDraw {
@@ -568,10 +586,7 @@ fn two_plus_three_equity_for_variant(
     };
 
     let full_deck = create_full_deck();
-    let mut known = hero_cards.to_vec();
-    for hand in villain_hands {
-        known.extend_from_slice(hand);
-    }
+    let mut known: Vec<Card> = hands.iter().flat_map(|hand| hand.iter().copied()).collect();
     known.extend_from_slice(board_cards);
     if known
         .iter()
@@ -580,23 +595,21 @@ fn two_plus_three_equity_for_variant(
     {
         return None;
     }
-    if villain_hands.is_empty() {
-        return Some(1.0);
+    if hands.len() == 1 {
+        return Some(vec![1.0]);
     }
     let deck: Vec<Card> = full_deck
         .into_iter()
         .filter(|c| !known.contains(c))
         .collect();
-    let players = 1 + villain_hands.len();
+    let players = hands.len();
     let board_needed = 5 - board_cards.len();
     if deck.len() < board_needed + extras * players {
         return None;
     }
 
-    let mut hands: Vec<Vec<Card>> = Vec::with_capacity(players);
-    hands.push(hero_cards.to_vec());
-    hands.extend(villain_hands.iter().map(|hand| hand.to_vec()));
-    Some(two_plus_three_equity(
+    let hands: Vec<Vec<Card>> = hands.iter().map(|hand| hand.to_vec()).collect();
+    Some(two_plus_three_equities(
         &hands,
         board_cards,
         extras,
@@ -605,6 +618,97 @@ fn two_plus_three_equity_for_variant(
         mc_samples.max(1),
         score,
     ))
+}
+
+/// Equity de cada perdedor all-in, reaproveitada entre perdedores da mesma foto.
+///
+/// No Omaha 4 e no Brazilian Pineapple, perdedores cujo all-in foi pago no mesmo
+/// instante têm a mesma foto (mesmo board e mesmas mãos vivas). Uma passada pelos
+/// desfechos dá a equity de todos, com o mesmo valor que o cálculo individual
+/// daria. Nas outras modalidades, cada perdedor é calculado à parte, como antes.
+#[derive(Default)]
+pub struct SnapshotEquityCache {
+    entries: Vec<SnapshotEquities>,
+}
+
+struct SnapshotEquities {
+    board: Vec<CardKey>,
+    /// Mãos normalizadas (cartas e lista em ordem), com a equity de cada uma.
+    hands: Vec<(Vec<CardKey>, f64)>,
+}
+
+type CardKey = (crate::deck::Rank, crate::deck::Suit);
+
+fn card_keys(cards: &[Card]) -> Vec<CardKey> {
+    let mut keys: Vec<CardKey> = cards.iter().map(|card| (card.rank, card.suit)).collect();
+    keys.sort_unstable();
+    keys
+}
+
+impl SnapshotEquityCache {
+    /// Equity de `hero_cards` contra `villain_hands`, como
+    /// [`get_multiway_win_probability_for_variant`].
+    pub fn equity(
+        &mut self,
+        hero_cards: &[Card],
+        villain_hands: &[&[Card]],
+        board_cards: &[Card],
+        variant: PokerVariant,
+    ) -> Option<f64> {
+        if !matches!(variant, PokerVariant::Omaha | PokerVariant::PineappleDraw) {
+            return get_multiway_win_probability_for_variant(
+                hero_cards,
+                villain_hands,
+                board_cards,
+                variant,
+            );
+        }
+        if !matches!(board_cards.len(), 0 | 3 | 4 | 5) {
+            return None;
+        }
+        let board = card_keys(board_cards);
+        let hero = card_keys(hero_cards);
+        let mut wanted: Vec<Vec<CardKey>> = villain_hands.iter().map(|h| card_keys(h)).collect();
+        wanted.push(hero.clone());
+        wanted.sort_unstable();
+        let found = self.entries.iter().find(|entry| {
+            entry.board == board
+                && entry.hands.len() == wanted.len()
+                && entry
+                    .hands
+                    .iter()
+                    .zip(&wanted)
+                    .all(|((hand, _), w)| hand == w)
+        });
+        if let Some(entry) = found {
+            return entry
+                .hands
+                .iter()
+                .find(|(hand, _)| *hand == hero)
+                .map(|(_, equity)| *equity);
+        }
+
+        let mut hands: Vec<&[Card]> = Vec::with_capacity(1 + villain_hands.len());
+        hands.push(hero_cards);
+        hands.extend_from_slice(villain_hands);
+        let equities = two_plus_three_equities_for_variant(
+            &hands,
+            board_cards,
+            variant,
+            TWO_PLUS_THREE_MC_SAMPLES,
+        )?;
+        let mut normalized: Vec<(Vec<CardKey>, f64)> = hands
+            .iter()
+            .map(|hand| card_keys(hand))
+            .zip(equities.iter().copied())
+            .collect();
+        normalized.sort_by(|a, b| a.0.cmp(&b.0));
+        self.entries.push(SnapshotEquities {
+            board,
+            hands: normalized,
+        });
+        Some(equities[0])
+    }
 }
 
 /// Número de desfechos equiprováveis: completar o board e, depois, entregar
@@ -625,9 +729,9 @@ pub fn two_plus_three_outcome_count(
     Some(total)
 }
 
-/// Equity do jogador `hands[0]` (vitória + fração dos empates) em uma
-/// modalidade de exatamente 2 privadas + 3 comunitárias com ranking clássico.
-fn two_plus_three_equity(
+/// Equity de cada jogador de `hands` (vitória + fração dos empates) em Omaha 4
+/// ou Brazilian Pineapple, com ranking clássico.
+fn two_plus_three_equities(
     hands: &[Vec<Card>],
     board_cards: &[Card],
     extras: usize,
@@ -635,13 +739,14 @@ fn two_plus_three_equity(
     known: &[Card],
     mc_samples: u64,
     score: HandScore,
-) -> f64 {
+) -> Vec<f64> {
     let players = hands.len();
     let board_needed = 5 - board_cards.len();
     let outcomes = two_plus_three_outcome_count(deck.len(), board_needed, extras, players);
+    let mut equity_sums = vec![0.0_f64; players];
+    let mut scores = vec![0_u32; players];
 
     if outcomes.is_some_and(|count| count <= TWO_PLUS_THREE_EXACT_LIMIT) {
-        let mut equity_sum = 0.0_f64;
         let mut total = 0_u64;
         let mut board = board_cards.to_vec();
         let mut finals: Vec<Vec<Card>> = hands.to_vec();
@@ -655,18 +760,21 @@ fn two_plus_three_equity(
             &mut |board, used| {
                 let mut walk = ExtrasWalk { deck, used, extras };
                 walk.visit(0, 0, extras, &mut finals, &mut |finals| {
-                    equity_sum += two_plus_three_share(finals, board, score);
+                    add_two_plus_three_shares(finals, board, score, &mut scores, &mut equity_sums);
                     total += 1;
                 });
             },
         );
-        return equity_sum / total as f64;
+        return equity_sums.iter().map(|sum| sum / total as f64).collect();
     }
 
-    let mut rng = monte_carlo_rng(known);
+    // Semente das cartas conhecidas em ordem canônica: o mesmo conjunto de mãos
+    // gera as mesmas amostras, seja qual for o jogador calculado primeiro.
+    let mut canonical = known.to_vec();
+    canonical.sort_unstable_by_key(|card| (card.rank, card.suit));
+    let mut rng = monte_carlo_rng(&canonical);
     let draw = board_needed + extras * players;
     let mut pool = deck.to_vec();
-    let mut equity_sum = 0.0_f64;
     let mut finals: Vec<Vec<Card>> = hands.to_vec();
     let mut board = Vec::with_capacity(5);
     for _ in 0..mc_samples {
@@ -685,9 +793,12 @@ fn two_plus_three_equity(
             final_hand.extend_from_slice(&pool[cursor..cursor + extras]);
             cursor += extras;
         }
-        equity_sum += two_plus_three_share(&finals, &board, score);
+        add_two_plus_three_shares(&finals, &board, score, &mut scores, &mut equity_sums);
     }
-    equity_sum / mc_samples as f64
+    equity_sums
+        .iter()
+        .map(|sum| sum / mc_samples as f64)
+        .collect()
 }
 
 /// Enumera todas as combinações de cartas que completam o board.
@@ -751,21 +862,27 @@ impl ExtrasWalk<'_> {
     }
 }
 
-/// Fração do pote do jogador `finals[0]`: 1 se for o único melhor, 1/k em empate
-/// entre k jogadores, 0 se perder.
-fn two_plus_three_share(finals: &[Vec<Card>], board: &[Card], score: HandScore) -> f64 {
-    let hero = score(&finals[0], board);
-    let mut tied = 1_u32;
-    for hand in &finals[1..] {
-        let rival = score(hand, board);
-        if rival > hero {
-            return 0.0;
-        }
-        if rival == hero {
-            tied += 1;
+/// Soma a fração do pote de cada jogador neste desfecho: 1 para o único melhor,
+/// 1/k para cada um dos k empatados no topo, 0 para os demais. `scores` é só
+/// espaço de trabalho, do tamanho de `finals`.
+fn add_two_plus_three_shares(
+    finals: &[Vec<Card>],
+    board: &[Card],
+    score: HandScore,
+    scores: &mut [u32],
+    equity_sums: &mut [f64],
+) {
+    for (slot, hand) in scores.iter_mut().zip(finals) {
+        *slot = score(hand, board);
+    }
+    let best = scores.iter().copied().max().unwrap_or(0);
+    let tied = scores.iter().filter(|value| **value == best).count() as u32;
+    let share = 1.0 / f64::from(tied);
+    for (sum, value) in equity_sums.iter_mut().zip(scores.iter()) {
+        if *value == best {
+            *sum += share;
         }
     }
-    1.0 / f64::from(tied)
 }
 
 /// Pontuação da mão de um jogador com a mesa completa (5 cartas).
@@ -1628,6 +1745,92 @@ mod two_plus_three_tests {
         // (margem de três desvios com 4.000 amostras ≈ 2,4 pontos).
         assert!((first - 0.5).abs() < 0.03, "{first}");
         assert!((first + quick_equity(&villain, &hero, pineapple) - 1.0).abs() < 0.05);
+    }
+
+    /// Uma passada para todos dá, bit a bit, a equity do cálculo individual de
+    /// cada jogador, em qualquer ordem (Monte Carlo pré-flop e enumeração exata).
+    #[test]
+    fn one_pass_equities_match_each_individual_calculation() {
+        let cases = [
+            (
+                PokerVariant::PineappleDraw,
+                vec!["As Ks 2c", "Ad Kd 2h", "9h 9c 4d", "Th Jh 7s"],
+                "",
+            ),
+            (
+                PokerVariant::Omaha,
+                vec!["As Ah Ks Kh", "7c 2d 8s 3c", "Qd Jd Tc 9c"],
+                "6h 5h 2s",
+            ),
+        ];
+        for (variant, hands, board) in cases {
+            let hands: Vec<Vec<Card>> = hands.into_iter().map(cards).collect();
+            let board = if board.is_empty() {
+                Vec::new()
+            } else {
+                cards(board)
+            };
+            let refs: Vec<&[Card]> = hands.iter().map(|h| h.as_slice()).collect();
+            let all =
+                two_plus_three_equities_for_variant(&refs, &board, variant, QUICK_SAMPLES).unwrap();
+            assert!(
+                (all.iter().sum::<f64>() - 1.0).abs() < 1e-9,
+                "{variant:?}: {all:?}"
+            );
+            for (index, hero) in refs.iter().enumerate() {
+                // Vilões em ordem invertida, para provar que a ordem não importa.
+                let villains: Vec<&[Card]> = refs
+                    .iter()
+                    .enumerate()
+                    .rev()
+                    .filter(|(other, _)| *other != index)
+                    .map(|(_, hand)| *hand)
+                    .collect();
+                let alone = two_plus_three_equity_for_variant(
+                    hero,
+                    &villains,
+                    &board,
+                    variant,
+                    QUICK_SAMPLES,
+                )
+                .unwrap();
+                assert_eq!(alone, all[index], "{variant:?} jogador {index}");
+            }
+        }
+    }
+
+    #[test]
+    fn snapshot_cache_reuses_the_snapshot_and_matches_the_individual_call() {
+        let variant = PokerVariant::Omaha;
+        let hands: Vec<Vec<Card>> = ["As Ah Ks Kh", "7c 2d 8s 3c", "Qd Jd Tc 9c"]
+            .into_iter()
+            .map(cards)
+            .collect();
+        let board = cards("6h 5h 2s");
+        let mut cache = SnapshotEquityCache::default();
+        for (index, hero) in hands.iter().enumerate() {
+            let villains: Vec<&[Card]> = hands
+                .iter()
+                .enumerate()
+                .filter(|(other, _)| *other != index)
+                .map(|(_, hand)| hand.as_slice())
+                .collect();
+            let cached = cache.equity(hero, &villains, &board, variant).unwrap();
+            let direct =
+                get_multiway_win_probability_for_variant(hero, &villains, &board, variant).unwrap();
+            assert_eq!(cached, direct, "jogador {index}");
+        }
+        assert_eq!(cache.entries.len(), 1, "uma foto, um cálculo");
+        // Outra foto (um jogador a menos) gera um cálculo novo.
+        let heads_up = cache
+            .equity(&hands[0], &[hands[1].as_slice()], &board, variant)
+            .unwrap();
+        assert_eq!(
+            heads_up,
+            get_multiway_win_probability_for_variant(&hands[0], &[&hands[1]], &board, variant)
+                .unwrap()
+        );
+        assert_eq!(cache.entries.len(), 2);
     }
 
     #[test]

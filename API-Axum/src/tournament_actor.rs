@@ -415,9 +415,17 @@ impl TournamentActor {
     /// Resolve a mão atual, liquida e agenda a próxima. Fluxo único de término,
     /// usado após ação válida e após run-out de mão travada.
     async fn resolve_and_schedule(&mut self) {
-        let res = match self.game_loop.as_mut() {
-            Some(gl) if gl.state.is_finished => gl.resolve_hand(),
-            _ => return,
+        if !self
+            .game_loop
+            .as_ref()
+            .is_some_and(|gl| gl.state.is_finished)
+        {
+            return;
+        }
+        // Fora das threads assíncronas, como na mesa de cash.
+        let Some(res) = crate::game_actor::resolve_hand_off_runtime(&mut self.game_loop).await
+        else {
+            return;
         };
         if let Ok(res) = res {
             if let Some(gl) = self.game_loop.as_mut() {
