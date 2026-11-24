@@ -470,3 +470,15 @@ Mudança: episódios ep11–ep13 e 21 aulas regravados no padrão de narração 
 Verificado em produção: `zt-academy-m1l1-v3.mp4`, `zt-academy-m2l3-v3.mp4` e `ep12-mississippi-omaha-v3.mp4` servidos com o mesmo tamanho dos arquivos renderizados.
 
 Não verificado: escuta dos vídeos pelo proprietário (amostra m1l1 de 60 s em `artifacts/voz-pronuncia/2026-11-23/`).
+
+## Publicação: sqlx 0.9.1 e cargo audit sem exceções — 24/11/2026
+
+Publicado `02f9ec2992ec10840902a6ab75fa3afd2bcee54c` às **23:28:58 UTC / 20:28 em São Paulo de 24/11** (pedido do proprietário: "pode fazer a troca do sqlx e publicar"), com imagens assinadas e conferidas (Container Supply Chain verde), dois dumps, migrations 66, boot com um "Migrations applied" e sem `ERROR`, `.env` preservado e health HTTPS 200.
+
+Rust CI: no `02f9ec29`, só o job de cobertura do motor falhou, na segunda rodada dos mesmos testes (exit 101), com o motor igual ao do `c14c82c1`. Quatro rodadas locais de `cargo test --lib` passaram. O Rust CI completo ficou verde no `e00f7d59`, que só muda docs em cima do mesmo código. O teste instável ficou na DASHBOARD S28.
+
+Mudança: `sqlx` 0.8.6 → 0.9.1; `AssertSqlSafe` nos três SQL montados com partes fixas; `libsqlite3-sys` 0.40.0 e `rsa` fora do `Cargo.lock`; `API-Axum/.cargo/audit.toml` apagado, `cargo audit --deny warnings` sem nenhuma exceção.
+
+Verificado em produção: a API nova aceitou as 66 migrations gravadas pela versão antiga (mesmo checksum), como já tinha feito antes numa cópia local de `poker_ritual_local`.
+
+Não verificado: login e mãos jogadas no site depois da publicação.
