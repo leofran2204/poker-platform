@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { applyAuthTokens, register } from "@/api/client";
+import { applyAuthTokens, hasSession, register } from "@/api/client";
 import { BrandMark } from "@/components/BrandMark";
 import { LiveHandShowcase } from "@/components/home/LiveHandShowcase";
 import { saveUsername } from "@/lib/auth";
@@ -62,12 +62,8 @@ export function RegisterPage() {
         navigate(`/verify-email?email=${encodeURIComponent(res.email ?? email.trim())}`);
         return;
       }
-      if (res.token) {
-        applyAuthTokens({
-          token: res.token,
-          refresh_token: res.refresh_token,
-          expires_in: res.expires_in,
-        });
+      if (hasSession(res)) {
+        applyAuthTokens(res);
         saveUsername(username.trim());
         navigate("/curso");
         return;

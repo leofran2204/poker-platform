@@ -2,6 +2,8 @@
 //                 /logout, /verify-email, /resend-verification
 
 use axum::extract::State;
+use axum::http::HeaderMap;
+use axum::response::{IntoResponse, Response};
 use axum::Json;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -77,8 +79,10 @@ pub struct MfaVerifyBody {
     pub code: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 pub struct RefreshBody {
+    /// Vazio quando o site usa a sessão por cookie (`zt_refresh`).
+    #[serde(default)]
     pub refresh_token: String,
 }
 
@@ -155,6 +159,141 @@ async fn issue_session_tokens(
     )
     .await?;
     Ok(tokens)
+}
+
+/// Resposta de entrada na conta: quando traz o par de tokens, grava também os
+/// cookies da sessão (ver `session_cookie`); o site pede o corpo sem tokens.
+fn session_response(headers: &HeaderMap, body: serde_json::Value) -> Response {
+    let token = body
+        .get("token")
+        .and_then(|v| v.as_str())
+        .map(str::to_owned);
+    let refresh = body
+        .get("refresh_token")
+        .and_then(|v| v.as_str())
+        .map(str::to_owned);
+    match (token, refresh) {
+        (Some(token), Some(refresh)) => {
+            let ttl = body
+                .get("expires_in")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(900);
+            crate::session_cookie::with_session(headers, body, &token, ttl, &refresh)
+        }
+        _ => Json(body).into_response(),
+    }
+}
+
+/// Refresh token do corpo (scripts) ou do cookie (site). Do cookie, o pedido
+/// precisa do cabeçalho anti-CSRF.
+fn presented_refresh_token(
+    headers: &HeaderMap,
+    body: Option<Json<RefreshBody>>,
+) -> Result<Option<String>, ApiError> {
+    let from_body = body
+        .map(|Json(body)| body.refresh_token)
+        .filter(|token| !token.is_empty());
+    if from_body.is_some() {
+        return Ok(from_body);
+    }
+    let from_cookie =
+        crate::session_cookie::read_cookie(headers, crate::session_cookie::REFRESH_COOKIE);
+    if from_cookie.is_some() && !crate::session_cookie::csrf_ok(&axum::http::Method::POST, headers)
+    {
+        return Err(ApiError::Forbidden("Missing CSRF header".to_string()));
+    }
+    Ok(from_cookie)
+}
+
+/// POST /api/auth/register
+pub async fn register(
+    state: State<AppState>,
+    headers: HeaderMap,
+    body: Json<RegisterBody>,
+) -> Result<Response, ApiError> {
+    let Json(value) = register_inner(state, body).await?;
+    Ok(session_response(&headers, value))
+}
+
+/// POST /api/auth/login
+pub async fn login(
+    state: State<AppState>,
+    headers: HeaderMap,
+    body: Json<LoginBody>,
+) -> Result<Response, ApiError> {
+    let Json(value) = login_inner(state, body).await?;
+    Ok(session_response(&headers, value))
+}
+
+/// POST /api/auth/verify-email
+pub async fn verify_email(
+    state: State<AppState>,
+    headers: HeaderMap,
+    body: Json<VerifyEmailBody>,
+) -> Result<Response, ApiError> {
+    let Json(value) = verify_email_inner(state, body).await?;
+    Ok(session_response(&headers, value))
+}
+
+/// POST /api/auth/mfa/verify
+pub async fn mfa_verify(
+    state: State<AppState>,
+    headers: HeaderMap,
+    body: Json<MfaVerifyBody>,
+) -> Result<Response, ApiError> {
+    let Json(value) = mfa_verify_inner(state, body).await?;
+    Ok(session_response(&headers, value))
+}
+
+/// POST /api/auth/refresh — refresh token no corpo ou no cookie `zt_refresh`.
+/// Recusado, apaga os cookies da sessão.
+pub async fn refresh(
+    state: State<AppState>,
+    headers: HeaderMap,
+    body: Option<Json<RefreshBody>>,
+) -> Response {
+    let token = match presented_refresh_token(&headers, body) {
+        Ok(Some(token)) => token,
+        Ok(None) => {
+            return crate::session_cookie::clear_session(ApiError::Unauthorized(
+                "Invalid refresh token".to_string(),
+            ))
+        }
+        Err(error) => return error.into_response(),
+    };
+    match refresh_inner(
+        state,
+        Json(RefreshBody {
+            refresh_token: token,
+        }),
+    )
+    .await
+    {
+        Ok(Json(tokens)) => session_response(&headers, json!(tokens)),
+        Err(error) => crate::session_cookie::clear_session(error),
+    }
+}
+
+/// POST /api/auth/logout — encerra a família do refresh token (corpo ou
+/// cookie) e apaga os cookies da sessão.
+pub async fn logout(
+    state: State<AppState>,
+    headers: HeaderMap,
+    body: Option<Json<RefreshBody>>,
+) -> Result<Response, ApiError> {
+    let Some(token) = presented_refresh_token(&headers, body)? else {
+        return Ok(crate::session_cookie::clear_session(Json(
+            json!({ "ok": true }),
+        )));
+    };
+    let value = logout_inner(
+        state,
+        Json(RefreshBody {
+            refresh_token: token,
+        }),
+    )
+    .await?;
+    Ok(crate::session_cookie::clear_session(value))
 }
 
 fn passwords_match(password: &str, confirm: &Option<String>) -> bool {
@@ -475,7 +614,7 @@ async fn finish_network_link(
 /// `{email_verification_required, email, username, message}` (sem JWT).
 ///
 /// Com flag desligada (testes): devolve tokens como antes.
-pub async fn register(
+async fn register_inner(
     State(state): State<AppState>,
     Json(body): Json<RegisterBody>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
@@ -613,7 +752,7 @@ pub async fn register(
 
 /// POST /api/auth/login
 /// Request: `{email, password}` → Response: `{token, mfa_required?}`
-pub async fn login(
+async fn login_inner(
     State(state): State<AppState>,
     Json(body): Json<LoginBody>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
@@ -752,7 +891,7 @@ pub async fn login(
 
 /// POST /api/auth/verify-email
 /// Request: `{email, code}` → tokens JWT se o código for válido.
-pub async fn verify_email(
+async fn verify_email_inner(
     State(state): State<AppState>,
     Json(body): Json<VerifyEmailBody>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
@@ -1006,7 +1145,7 @@ pub async fn reset_password(
 }
 
 /// Completes a password-authenticated login with a durable, single-use MFA challenge.
-pub async fn mfa_verify(
+async fn mfa_verify_inner(
     State(state): State<AppState>,
     Json(body): Json<MfaVerifyBody>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
@@ -1133,7 +1272,7 @@ pub async fn mfa_verify(
 ///
 /// O refresh token recebido deixa de valer: a resposta traz o substituto, e o
 /// cliente deve guardá-lo. Ver `refresh_tokens.rs`.
-pub async fn refresh(
+async fn refresh_inner(
     State(state): State<AppState>,
     Json(body): Json<RefreshBody>,
 ) -> Result<Json<TokenResponse>, ApiError> {
@@ -1200,7 +1339,7 @@ pub async fn refresh(
 /// Encerra a sessão no servidor: o refresh token apresentado e os demais da
 /// mesma família deixam de renovar. Responde `ok` também para token inválido
 /// ou vencido, que já não renova nada.
-pub async fn logout(
+async fn logout_inner(
     State(state): State<AppState>,
     Json(body): Json<RefreshBody>,
 ) -> Result<Json<serde_json::Value>, ApiError> {

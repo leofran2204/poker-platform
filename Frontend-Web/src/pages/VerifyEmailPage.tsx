@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { applyAuthTokens, resendVerification, verifyEmail } from "@/api/client";
+import { applyAuthTokens, hasSession, resendVerification, verifyEmail } from "@/api/client";
 import { saveUsername } from "@/lib/auth";
 
 export function VerifyEmailPage() {
@@ -24,12 +24,8 @@ export function VerifyEmailPage() {
         setInfo(res.message ?? "E-mail já verificado. Faça login.");
         return;
       }
-      if (res.token) {
-        applyAuthTokens({
-          token: res.token,
-          refresh_token: res.refresh_token,
-          expires_in: res.expires_in,
-        });
+      if (hasSession(res)) {
+        applyAuthTokens(res);
         if (res.username) saveUsername(res.username);
         navigate("/lobby");
         return;

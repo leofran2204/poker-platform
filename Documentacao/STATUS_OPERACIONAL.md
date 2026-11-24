@@ -25,7 +25,7 @@ Fonte máquina: [`STATUS_OPERACIONAL.json`](STATUS_OPERACIONAL.json). Verificaç
 | Omaha 0,50 | Omaha 4 Cartas | 0,50 / 0,50 | 6 | R$ 100 |
 | Brazilian Pineapple 0,50 (só Play Money) | Brazilian Pineapple | 0,50 / 0,50 | 6 | R$ 75 |
 
-Frentes fixas (`min_buy_in = max_buy_in`). Migrations até **064**.
+Frentes fixas (`min_buy_in = max_buy_in`). Migrations até **065**.
 
 ## Torneios
 

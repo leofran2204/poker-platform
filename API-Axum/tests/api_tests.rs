@@ -1883,3 +1883,197 @@ async fn test_contract_logout_revokes_only_that_session() {
 
     cleanup_contract_user(&state, &user.username).await;
 }
+
+/// Sessão por cookie (item 2 de segurança, 23/11/2026): o site entra com
+/// `X-ZT-Session: cookie`, recebe os tokens só em cookies HttpOnly, usa a conta
+/// pelo cookie, precisa do cabeçalho anti-CSRF nas escritas, renova pelo cookie
+/// e sai apagando os cookies. O Bearer continua valendo para scripts.
+#[tokio::test]
+#[ignore = "Requires PostgreSQL with migration 063 — set DATABASE_URL to run"]
+async fn test_contract_cookie_session_login_me_csrf_refresh_logout() {
+    async fn call(
+        app: &axum::Router,
+        method: Method,
+        uri: &str,
+        cookies: &str,
+        extra: &[(&str, &str)],
+        body: Option<&str>,
+    ) -> (StatusCode, Vec<String>, String) {
+        let mut builder = Request::builder().method(method).uri(uri);
+        if !cookies.is_empty() {
+            builder = builder.header("Cookie", cookies);
+        }
+        for (key, value) in extra {
+            builder = builder.header(*key, *value);
+        }
+        let request = match body {
+            Some(text) => builder
+                .header("Content-Type", "application/json")
+                .body(Body::from(text.to_string()))
+                .unwrap(),
+            None => builder.body(Body::empty()).unwrap(),
+        };
+        let response = app.clone().oneshot(request).await.unwrap();
+        let status = response.status();
+        let set_cookies = response
+            .headers()
+            .get_all("set-cookie")
+            .iter()
+            .map(|value| value.to_str().unwrap().to_string())
+            .collect();
+        let bytes = response.into_body().collect().await.unwrap().to_bytes();
+        (
+            status,
+            set_cookies,
+            String::from_utf8_lossy(&bytes).to_string(),
+        )
+    }
+    fn jar(set_cookies: &[String]) -> String {
+        set_cookies
+            .iter()
+            .map(|cookie| cookie.split(';').next().unwrap().to_string())
+            .collect::<Vec<_>>()
+            .join("; ")
+    }
+
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let user = register_refresh_contract_user(&state, &app, "cookie").await;
+    let credentials =
+        serde_json::json!({ "email": user.email, "password": user.password }).to_string();
+
+    let (status, set, body) = call(
+        &app,
+        Method::POST,
+        "/api/auth/login",
+        "",
+        &[("X-ZT-Session", "cookie")],
+        Some(&credentials),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    let json: serde_json::Value = serde_json::from_str(&body).unwrap();
+    assert!(json.get("token").is_none(), "token fora do corpo: {body}");
+    assert!(
+        json.get("refresh_token").is_none(),
+        "refresh fora do corpo: {body}"
+    );
+    assert_eq!(json["session"], "cookie");
+    assert_eq!(set.len(), 2, "{set:?}");
+    assert!(set
+        .iter()
+        .all(|c| c.contains("HttpOnly") && c.contains("SameSite=Strict") && c.contains("Secure")));
+    let cookies = jar(&set);
+
+    let (status, _, body) = call(&app, Method::GET, "/api/auth/me", &cookies, &[], None).await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    assert!(body.contains(&user.username), "{body}");
+
+    // Escrita pelo cookie sem o cabeçalho anti-CSRF: recusada antes do handler.
+    let mode = r#"{"mode":"play"}"#;
+    let (status, _, _) = call(
+        &app,
+        Method::POST,
+        "/api/wallet/mode",
+        &cookies,
+        &[],
+        Some(mode),
+    )
+    .await;
+    assert_eq!(status, StatusCode::FORBIDDEN);
+    let (status, _, body) = call(
+        &app,
+        Method::POST,
+        "/api/wallet/mode",
+        &cookies,
+        &[("X-ZT-CSRF", "1")],
+        Some(mode),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+
+    // Renovação pelo cookie, sem token no corpo; sem o cabeçalho, recusada.
+    let (status, _, _) = call(
+        &app,
+        Method::POST,
+        "/api/auth/refresh",
+        &cookies,
+        &[("X-ZT-Session", "cookie")],
+        Some("{}"),
+    )
+    .await;
+    assert_eq!(status, StatusCode::FORBIDDEN);
+    let (status, set, body) = call(
+        &app,
+        Method::POST,
+        "/api/auth/refresh",
+        &cookies,
+        &[("X-ZT-Session", "cookie"), ("X-ZT-CSRF", "1")],
+        Some("{}"),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    assert!(!body.contains("refresh_token"), "{body}");
+    let renewed = jar(&set);
+    assert_ne!(renewed, cookies);
+    let (status, _, _) = call(&app, Method::GET, "/api/auth/me", &renewed, &[], None).await;
+    assert_eq!(status, StatusCode::OK);
+
+    // Logout pelo cookie apaga os cookies e encerra a sessão no servidor.
+    let (status, set, _) = call(
+        &app,
+        Method::POST,
+        "/api/auth/logout",
+        &renewed,
+        &[("X-ZT-CSRF", "1")],
+        Some("{}"),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(set.len(), 2);
+    assert!(set.iter().all(|c| c.contains("Max-Age=0")), "{set:?}");
+    let (status, set, _) = call(
+        &app,
+        Method::POST,
+        "/api/auth/refresh",
+        &renewed,
+        &[("X-ZT-CSRF", "1")],
+        Some("{}"),
+    )
+    .await;
+    assert_eq!(
+        status,
+        StatusCode::UNAUTHORIZED,
+        "sessão encerrada não renova"
+    );
+    assert!(set.iter().all(|c| c.contains("Max-Age=0")));
+
+    // Scripts seguem com o Bearer: tokens no corpo e escrita sem cabeçalho extra.
+    let (status, _, body) = call(
+        &app,
+        Method::POST,
+        "/api/auth/login",
+        "",
+        &[],
+        Some(&credentials),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    let token = serde_json::from_str::<serde_json::Value>(&body).unwrap()["token"]
+        .as_str()
+        .unwrap()
+        .to_string();
+    let bearer = format!("Bearer {token}");
+    let (status, _, body) = call(
+        &app,
+        Method::POST,
+        "/api/wallet/mode",
+        "",
+        &[("Authorization", bearer.as_str())],
+        Some(mode),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+
+    cleanup_contract_user(&state, &user.username).await;
+}

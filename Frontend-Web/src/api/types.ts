@@ -1,7 +1,9 @@
 export interface TokenResponse {
-  token: string;
+  /** Só para scripts; o site recebe a sessão em cookie (`session: "cookie"`). */
+  token?: string;
   refresh_token?: string;
   expires_in?: number;
+  session?: string;
 }
 
 export type WalletMode = "play" | "real";

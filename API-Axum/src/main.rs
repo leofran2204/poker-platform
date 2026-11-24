@@ -425,7 +425,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cors = CorsLayer::new()
         .allow_origin(parse_https_cors_origins(&cors_origins)?)
         .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
-        .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE]);
+        .allow_headers([
+            header::AUTHORIZATION,
+            header::CONTENT_TYPE,
+            header::HeaderName::from_static(poker_api::session_cookie::CSRF_HEADER),
+            header::HeaderName::from_static(poker_api::session_cookie::SESSION_HEADER),
+        ]);
 
     // Build router
     let app = build_router(state)

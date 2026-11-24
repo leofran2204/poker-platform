@@ -25,7 +25,6 @@ pub(crate) struct TournamentRow {
     current_level: i32,
     players_remaining: i32,
     total_buyins: i32,
-    total_fees: i64,
     guaranteed_prize: i64,
     is_freeroll: bool,
     rebuy_cost: i64,
@@ -147,8 +146,12 @@ pub(crate) fn row_to_store(row: TournamentRow) -> TournamentStore {
     // DB `total_buyins` is entry count; engine tracks money collected.
     let entries = row.total_buyins.max(0) as u64;
     store.state.total_buyins = entries.saturating_mul(store.state.config.buy_in);
-    // Fee de inscrição já cobrado (15%), para o painel do admin não zerar depois de um reinício.
-    store.state.total_fees = row.total_fees.max(0) as u64;
+    // Fee de inscrição (15%) das entradas atuais, como o motor soma na inscrição e
+    // desconta no cancelamento. Vem da contagem, não da coluna: valores antigos
+    // da coluna podiam estar defasados (corrigidos pela migration 065).
+    store.state.total_fees = entries.saturating_mul(
+        poker_engine::tournament_engine::entry_fee_cents(store.state.config.buy_in),
+    );
     store.state.total_rebuys = row.total_rebuys.max(0) as u64;
     store.state.total_addons = row.total_addons.max(0) as u64;
     store.addon = crate::tournament_store::AddonTerms {
@@ -234,7 +237,7 @@ pub async fn load_tournaments_from_db(
         r#"
         SELECT id, name, buy_in, starting_stack, max_players, table_max_players,
                late_registration, late_reg_max_level, speed, status,
-               prize_pool, current_level, players_remaining, total_buyins, total_fees,
+               prize_pool, current_level, players_remaining, total_buyins,
                guaranteed_prize, is_freeroll,
                rebuy_cost, rebuy_chips, rebuy_max_count, rebuy_stack_threshold,
                rebuy_max_level, allow_rebuy, allow_addon, addon_cost, addon_chips,

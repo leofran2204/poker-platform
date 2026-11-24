@@ -433,3 +433,12 @@ Verificado em produção com bots (Play Money, contas de teste com e-mail tempor
 - Jogo Real sem dinheiro: saldo 0; mesa, torneio e saque recusados.
 
 Não fechado: `tournaments.total_fees` não registrava o fee das inscrições pelo site (corrigido localmente com teste, entra na próxima publicação). Loss Deflator raro em mesa cheia por causa da regra de oponentes no pagamento do all-in (decisão do proprietário).
+
+
+## Publicação: time no lugar do chrono e fee de inscrição — 24/11/2026
+
+Publicado `f6e91d9d0c45ae7e67ff360e71a9e6436160b809` às **00:09:00 UTC de 24/11 / 21:09 em São Paulo de 23/11** (etapa 3 autorizada pelo proprietário), com Rust CI e Container Supply Chain verdes e imagens assinadas; migrations 64; boot sem `ERROR`; `.env` preservado.
+
+Mudança: API sem `chrono` (RUSTSEC-2026-0543), com `time` e o módulo `clock.rs`; exceção retirada do `audit.toml` e `cargo audit` limpo. A inscrição pelo site passou a gravar o fee em `tournaments.total_fees` (`cf28cf8e`).
+
+Verificado em produção: login, extrato e inscrição com cancelamento numa conta de teste (fee de 225 cobrado e devolvido). A coluna `total_fees` desse torneio tinha resíduo antigo carregado pela reidratação (1.575 com 1 inscrito): corrigido na etapa 4 (entradas × fee e migration `065`).

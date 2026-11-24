@@ -1,6 +1,6 @@
 import { fetchMe } from "@/api/client";
 import type { MeResponse } from "@/api/types";
-import { getToken } from "@/lib/auth";
+import { isAuthenticated } from "@/lib/auth";
 
 let cache: MeResponse | null = null;
 let inflight: Promise<MeResponse> | null = null;
@@ -11,7 +11,7 @@ export function clearMeCache(): void {
 }
 
 export async function getMe(force = false): Promise<MeResponse | null> {
-  if (!getToken()) {
+  if (!isAuthenticated()) {
     clearMeCache();
     return null;
   }

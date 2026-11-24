@@ -32,10 +32,24 @@ where
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
         let app_state = AppState::from_ref(state);
 
-        // Extract token from Authorization header
-        let token = extract_bearer_token(&parts.headers).ok_or_else(|| {
-            ApiError::Unauthorized("Missing or invalid Authorization header".to_string())
-        })?;
+        // Bearer (scripts, bots, testes) ou o cookie da sessão do site. Pelo
+        // cookie, pedido que altera dados precisa do cabeçalho anti-CSRF.
+        let token = match extract_bearer_token(&parts.headers) {
+            Some(token) => token,
+            None => {
+                let token = crate::session_cookie::read_cookie(
+                    &parts.headers,
+                    crate::session_cookie::ACCESS_COOKIE,
+                )
+                .ok_or_else(|| {
+                    ApiError::Unauthorized("Missing or invalid Authorization header".to_string())
+                })?;
+                if !crate::session_cookie::csrf_ok(&parts.method, &parts.headers) {
+                    return Err(ApiError::Forbidden("Missing CSRF header".to_string()));
+                }
+                token
+            }
+        };
 
         // Validate token (parallel read lock)
         let auth = app_state.auth.read().await;

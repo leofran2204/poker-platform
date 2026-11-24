@@ -27,6 +27,7 @@ pub mod presence;
 pub mod refresh_tokens;
 pub mod responsible_gaming;
 pub mod seat_ip_guard;
+pub mod session_cookie;
 pub mod state;
 pub mod support;
 pub mod telemetry;

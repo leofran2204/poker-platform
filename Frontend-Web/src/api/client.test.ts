@@ -1,8 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SESSION_EXPIRED_EVENT } from "@/lib/sessionEvents";
 
-const TOKEN_KEY = "poker_jwt";
-const REFRESH_KEY = "poker_refresh";
+// Sessão por cookie (23/11/2026): os tokens ficam em cookies HttpOnly que o
+// fetch manda sozinho; no localStorage só há o marcador `poker_session`.
+// `poker_jwt` e `poker_refresh` são da sessão antiga, só para a migração.
+const SESSION_KEY = "poker_session";
+const LEGACY_TOKEN_KEY = "poker_jwt";
+const LEGACY_REFRESH_KEY = "poker_refresh";
+const REFRESHED_AT_KEY = "poker_session_refreshed_at";
 
 let store: Map<string, string>;
 let fetchMock: ReturnType<typeof vi.fn>;
@@ -18,9 +23,14 @@ function requestedPaths(): string[] {
   return fetchMock.mock.calls.map(([path]) => String(path));
 }
 
-function bearerOf(callIndex: number): string | null {
+function headersOf(callIndex: number): Headers {
   const init = fetchMock.mock.calls[callIndex][1] as RequestInit;
-  return new Headers(init.headers).get("Authorization");
+  return new Headers(init.headers);
+}
+
+function bodyOf(callIndex: number): unknown {
+  const init = fetchMock.mock.calls[callIndex][1] as RequestInit;
+  return JSON.parse(String(init.body));
 }
 
 /** `client.ts` guarda estado de módulo; cada teste carrega uma cópia nova. */
@@ -30,10 +40,7 @@ async function loadClient() {
 }
 
 beforeEach(() => {
-  store = new Map([
-    [TOKEN_KEY, "access-1"],
-    [REFRESH_KEY, "refresh-1"],
-  ]);
+  store = new Map([[SESSION_KEY, "1"]]);
   vi.stubGlobal("localStorage", {
     getItem: (key: string) => store.get(key) ?? null,
     setItem: (key: string, value: string) => void store.set(key, value),
@@ -49,49 +56,77 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("renovação da sessão", () => {
-  it("guarda o refresh token novo e repete a chamada com o access token novo", async () => {
+describe("sessão por cookie", () => {
+  it("não manda token e pede a sessão por cookie com o cabeçalho anti-CSRF", async () => {
+    fetchMock.mockResolvedValueOnce(json(200, { username: "ana" }));
+    const client = await loadClient();
+
+    await client.fetchMe();
+
+    const headers = headersOf(0);
+    expect(headers.get("Authorization")).toBeNull();
+    expect(headers.get("X-ZT-CSRF")).toBe("1");
+    expect(headers.get("X-ZT-Session")).toBe("cookie");
+  });
+
+  it("renova pelo cookie, sem token no corpo, e repete a chamada", async () => {
     fetchMock
       .mockResolvedValueOnce(json(401, { error: "Token expired" }))
-      .mockResolvedValueOnce(json(200, { token: "access-2", refresh_token: "refresh-2", expires_in: 900 }))
+      .mockResolvedValueOnce(json(200, { session: "cookie", expires_in: 900 }))
       .mockResolvedValueOnce(json(200, { username: "ana" }));
     const client = await loadClient();
 
     await expect(client.fetchMe()).resolves.toMatchObject({ username: "ana" });
 
     expect(requestedPaths()).toEqual(["/api/auth/me", "/api/auth/refresh", "/api/auth/me"]);
-    const refreshInit = fetchMock.mock.calls[1][1] as RequestInit;
-    expect(JSON.parse(String(refreshInit.body))).toEqual({ refresh_token: "refresh-1" });
-    expect(bearerOf(2)).toBe("Bearer access-2");
-    expect(store.get(TOKEN_KEY)).toBe("access-2");
-    expect(store.get(REFRESH_KEY)).toBe("refresh-2");
+    expect(bodyOf(1)).toEqual({});
+    expect(headersOf(1).get("X-ZT-CSRF")).toBe("1");
+    expect(store.get(SESSION_KEY)).toBe("1");
   });
 
-  it("chamadas simultâneas na mesma aba apresentam o refresh token uma única vez", async () => {
-    fetchMock.mockImplementation(async (path: string, init?: RequestInit) => {
+  it("migra a sessão antiga: usa o token guardado e troca pelo cookie na renovação", async () => {
+    store = new Map([
+      [LEGACY_TOKEN_KEY, "access-1"],
+      [LEGACY_REFRESH_KEY, "refresh-1"],
+    ]);
+    fetchMock
+      .mockResolvedValueOnce(json(401, { error: "Token expired" }))
+      .mockResolvedValueOnce(json(200, { session: "cookie", expires_in: 900 }))
+      .mockResolvedValueOnce(json(200, { username: "ana" }));
+    const client = await loadClient();
+
+    await expect(client.fetchMe()).resolves.toMatchObject({ username: "ana" });
+
+    expect(headersOf(0).get("Authorization")).toBe("Bearer access-1");
+    expect(bodyOf(1)).toEqual({ refresh_token: "refresh-1" });
+    expect(headersOf(2).get("Authorization")).toBeNull();
+    expect(store.has(LEGACY_TOKEN_KEY)).toBe(false);
+    expect(store.has(LEGACY_REFRESH_KEY)).toBe(false);
+    expect(store.get(SESSION_KEY)).toBe("1");
+  });
+
+  it("chamadas simultâneas na mesma aba renovam uma única vez", async () => {
+    let renewed = false;
+    fetchMock.mockImplementation(async (path: string) => {
       if (path === "/api/auth/refresh") {
-        return json(200, { token: "access-2", refresh_token: "refresh-2", expires_in: 900 });
+        renewed = true;
+        return json(200, { session: "cookie", expires_in: 900 });
       }
-      const bearer = new Headers(init?.headers).get("Authorization");
-      return bearer === "Bearer access-2"
-        ? json(200, { username: "ana" })
-        : json(401, { error: "Token expired" });
+      return renewed ? json(200, { username: "ana" }) : json(401, { error: "Token expired" });
     });
     const client = await loadClient();
 
     await Promise.all([client.fetchMe(), client.fetchMe(), client.fetchMe()]);
 
     expect(requestedPaths().filter((path) => path === "/api/auth/refresh")).toHaveLength(1);
-    expect(store.get(REFRESH_KEY)).toBe("refresh-2");
   });
 
-  it("não reapresenta o refresh token quando outra aba renovou enquanto esperava a vez", async () => {
+  it("não renova de novo quando outra aba acabou de renovar enquanto esperava a vez", async () => {
     vi.stubGlobal("navigator", {
       locks: {
-        // A outra aba segurava a trava e gravou os tokens novos antes de soltá-la.
+        // A outra aba segurava a trava e renovou os cookies antes de soltá-la.
         request: async (_name: string, task: () => Promise<unknown>) => {
-          store.set(TOKEN_KEY, "access-2");
-          store.set(REFRESH_KEY, "refresh-2");
+          store.set(REFRESHED_AT_KEY, String(Date.now()));
           return task();
         },
       },
@@ -104,11 +139,9 @@ describe("renovação da sessão", () => {
     await expect(client.fetchMe()).resolves.toMatchObject({ username: "ana" });
 
     expect(requestedPaths()).toEqual(["/api/auth/me", "/api/auth/me"]);
-    expect(bearerOf(1)).toBe("Bearer access-2");
-    expect(store.get(REFRESH_KEY)).toBe("refresh-2");
   });
 
-  it("encerra a sessão local quando o servidor recusa o refresh token", async () => {
+  it("encerra a sessão local quando o servidor recusa a renovação", async () => {
     fetchMock
       .mockResolvedValueOnce(json(401, { error: "Token expired" }))
       .mockResolvedValueOnce(json(401, { error: "Invalid refresh token" }));
@@ -118,14 +151,37 @@ describe("renovação da sessão", () => {
 
     await expect(client.fetchMe()).rejects.toMatchObject({ status: 401 });
 
-    expect(store.has(TOKEN_KEY)).toBe(false);
-    expect(store.has(REFRESH_KEY)).toBe(false);
+    expect(store.has(SESSION_KEY)).toBe(false);
     expect(expired).toHaveBeenCalledTimes(1);
+  });
+
+  it("reconhece a sessão aberta pelo corpo sem tokens", async () => {
+    const client = await loadClient();
+    expect(client.hasSession({ session: "cookie" })).toBe(true);
+    expect(client.hasSession({ token: "jwt" })).toBe(true);
+    expect(client.hasSession({})).toBe(false);
   });
 });
 
 describe("revokeSession", () => {
-  it("envia o refresh token guardado mesmo se o navegador for limpo em seguida", async () => {
+  it("encerra a sessão do cookie no servidor com o cabeçalho anti-CSRF", async () => {
+    fetchMock.mockResolvedValueOnce(json(200, { ok: true }));
+    const client = await loadClient();
+
+    await client.revokeSession();
+
+    expect(requestedPaths()).toEqual(["/api/auth/logout"]);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(bodyOf(0)).toEqual({});
+    expect(headersOf(0).get("X-ZT-CSRF")).toBe("1");
+  });
+
+  it("envia o refresh token da sessão antiga mesmo se o navegador for limpo em seguida", async () => {
+    store = new Map([
+      [LEGACY_TOKEN_KEY, "access-1"],
+      [LEGACY_REFRESH_KEY, "refresh-1"],
+    ]);
     fetchMock.mockResolvedValueOnce(json(200, { ok: true }));
     const client = await loadClient();
 
@@ -133,20 +189,12 @@ describe("revokeSession", () => {
     store.clear();
     await pending;
 
-    expect(requestedPaths()).toEqual(["/api/auth/logout"]);
-    const init = fetchMock.mock.calls[0][1] as RequestInit;
-    expect(init.method).toBe("POST");
-    expect(JSON.parse(String(init.body))).toEqual({ refresh_token: "refresh-1" });
+    expect(bodyOf(0)).toEqual({ refresh_token: "refresh-1" });
   });
 
-  it("não chama o servidor sem refresh token e não propaga falha de rede", async () => {
+  it("não propaga falha de rede", async () => {
     const client = await loadClient();
     fetchMock.mockRejectedValueOnce(new TypeError("network down"));
     await expect(client.revokeSession()).resolves.toBeUndefined();
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-
-    store.delete(REFRESH_KEY);
-    await client.revokeSession();
-    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

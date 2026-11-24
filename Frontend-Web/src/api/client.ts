@@ -1,4 +1,4 @@
-import { clearTokens, getRefreshToken, getToken, saveTokens } from "@/lib/auth";
+import { clearTokens, getLegacyRefreshToken, getLegacyToken, markSession } from "@/lib/auth";
 import { ApiError } from "./errors";
 import {
   emitConnectionStatus,
@@ -68,11 +68,15 @@ function connectionError(): ApiError {
 }
 
 /**
- * Cada refresh token vale uma única renovação, e as abas dividem o mesmo token
- * no `localStorage`. A trava entre abas deixa uma renovar por vez; as demais
- * reaproveitam o resultado em vez de reapresentar um token já gasto.
- * Navegador sem Web Locks segue sem a trava: a API tolera a corrida curta.
+ * Sessão por cookie: o par de tokens fica em cookies HttpOnly gravados pela
+ * API. Cada refresh token vale uma única renovação e as abas dividem os mesmos
+ * cookies; a trava entre abas deixa uma renovar por vez e as que esperavam
+ * reaproveitam a renovação recém-feita. Navegador sem Web Locks segue sem a
+ * trava: a API tolera a corrida curta.
  */
+const SESSION_HEADERS = { "X-ZT-CSRF": "1", "X-ZT-Session": "cookie" } as const;
+const REFRESHED_AT_KEY = "poker_session_refreshed_at";
+
 async function withRefreshLock(task: () => Promise<RefreshResult>): Promise<RefreshResult> {
   const locks = typeof navigator !== "undefined" ? navigator.locks : undefined;
   if (!locks) return task();
@@ -80,20 +84,19 @@ async function withRefreshLock(task: () => Promise<RefreshResult>): Promise<Refr
   return result;
 }
 
-async function refreshAccessToken(staleToken: string | null): Promise<RefreshResult> {
+async function refreshAccessToken(): Promise<RefreshResult> {
   // Outra aba renovou enquanto esta esperava a vez.
-  const currentToken = getToken();
-  if (staleToken && currentToken && currentToken !== staleToken) return "refreshed";
+  const refreshedAt = Number(localStorage.getItem(REFRESHED_AT_KEY) ?? 0);
+  if (Date.now() - refreshedAt < 5_000) return "refreshed";
 
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) return "invalid";
-
+  // Sessão antiga (tokens no localStorage): a renovação migra para o cookie.
+  const legacyRefresh = getLegacyRefreshToken();
   let res: Response;
   try {
     res = await fetch("/api/auth/refresh", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh_token: refreshToken }),
+      headers: { "Content-Type": "application/json", ...SESSION_HEADERS },
+      body: JSON.stringify(legacyRefresh ? { refresh_token: legacyRefresh } : {}),
     });
   } catch {
     emitConnectionStatus("offline");
@@ -108,18 +111,16 @@ async function refreshAccessToken(staleToken: string | null): Promise<RefreshRes
     throw new ApiError(await parseError(res), res.status);
   }
 
-  const tokens = (await res.json()) as TokenResponse;
-  if (!tokens.token) return "invalid";
-
-  saveTokens(tokens.token, tokens.refresh_token ?? refreshToken);
+  markSession();
+  localStorage.setItem(REFRESHED_AT_KEY, String(Date.now()));
   sessionExpiredNotified = false;
   emitSessionRestored();
   return "refreshed";
 }
 
-function tryRefreshAccessToken(staleToken: string | null): Promise<RefreshResult> {
+function tryRefreshAccessToken(): Promise<RefreshResult> {
   if (!refreshInFlight) {
-    refreshInFlight = withRefreshLock(() => refreshAccessToken(staleToken)).finally(() => {
+    refreshInFlight = withRefreshLock(() => refreshAccessToken()).finally(() => {
       refreshInFlight = null;
     });
   }
@@ -127,18 +128,18 @@ function tryRefreshAccessToken(staleToken: string | null): Promise<RefreshResult
 }
 
 /**
- * Encerra a sessão no servidor: o refresh token guardado deixa de renovar.
- * Lê o token antes de qualquer `await`; quem chama pode limpar o
- * `localStorage` logo em seguida. Sem rede, o token expira sozinho.
+ * Encerra a sessão no servidor: o refresh token do cookie (ou o da sessão
+ * antiga) deixa de renovar e a API apaga os cookies. Lê o token antigo antes de
+ * qualquer `await`; quem chama pode limpar o `localStorage` logo em seguida.
+ * Sem rede, a sessão expira sozinha.
  */
 export async function revokeSession(): Promise<void> {
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) return;
+  const legacyRefresh = getLegacyRefreshToken();
   try {
     await fetch("/api/auth/logout", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh_token: refreshToken }),
+      headers: { "Content-Type": "application/json", ...SESSION_HEADERS },
+      body: JSON.stringify(legacyRefresh ? { refresh_token: legacyRefresh } : {}),
       keepalive: true,
     });
   } catch {
@@ -163,8 +164,11 @@ async function request<T>(
   if (!headers.has("Content-Type") && init.body) {
     headers.set("Content-Type", "application/json");
   }
-  const token = auth ? getToken() : null;
-  if (token) headers.set("Authorization", `Bearer ${token}`);
+  // O cookie da sessão vai sozinho (mesma origem). Os cabeçalhos pedem a sessão
+  // por cookie e liberam as escritas na API (proteção contra CSRF).
+  for (const [name, value] of Object.entries(SESSION_HEADERS)) headers.set(name, value);
+  const legacyToken = auth ? getLegacyToken() : null;
+  if (legacyToken) headers.set("Authorization", `Bearer ${legacyToken}`);
 
   let res: Response;
   try {
@@ -177,7 +181,7 @@ async function request<T>(
   emitConnectionStatus("online");
   if (res.status === 401 && auth) {
     if (allowRefresh) {
-      const refreshed = await tryRefreshAccessToken(token);
+      const refreshed = await tryRefreshAccessToken();
       if (refreshed === "refreshed") {
         return request<T>(path, init, auth, false);
       }
@@ -192,6 +196,8 @@ async function request<T>(
 }
 
 export interface RegisterResult {
+  /** `cookie`: a sessão veio em cookies HttpOnly e o corpo não traz tokens. */
+  session?: string;
   email_verification_required?: boolean;
   email?: string;
   username?: string;
@@ -992,8 +998,15 @@ export async function rejectDepositRequest(
   });
 }
 
-export function applyAuthTokens(tokens: TokenResponse): void {
-  saveTokens(tokens.token, tokens.refresh_token ?? "");
+/** A resposta de entrada na conta abriu a sessão (cookies gravados pela API). */
+export function hasSession(response: { token?: string; session?: string }): boolean {
+  return response.session === "cookie" || Boolean(response.token);
+}
+
+/** Depois do login, da verificação ou do MFA: os cookies já vieram na resposta. */
+export function applyAuthTokens(_tokens?: Partial<TokenResponse>): void {
+  markSession();
+  localStorage.setItem(REFRESHED_AT_KEY, String(Date.now()));
   sessionExpiredNotified = false;
   emitSessionRestored();
 }

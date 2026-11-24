@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { applyAuthTokens, login, verifyMfa } from "@/api/client";
+import { applyAuthTokens, hasSession, login, verifyMfa } from "@/api/client";
 import { BrandMark } from "@/components/BrandMark";
 import { LiveHandShowcase } from "@/components/home/LiveHandShowcase";
 import { saveUsername } from "@/lib/auth";
@@ -49,15 +49,11 @@ export function LoginPage() {
         setPassword("");
         return;
       }
-      if (!res.token) {
+      if (!hasSession(res)) {
         setError(res.message ?? "Login incompleto");
         return;
       }
-      applyAuthTokens({
-        token: res.token,
-        refresh_token: res.refresh_token,
-        expires_in: res.expires_in,
-      });
+      applyAuthTokens(res);
       saveUsername(res.username ?? (email.trim().split("@")[0] || "jogador"));
       navigate(returnTo, { replace: true });
     } catch (err) {
