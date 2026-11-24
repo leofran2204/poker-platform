@@ -410,7 +410,8 @@ fn persisted_user_from_row(row: PersistedUserRow) -> Result<poker_engine::auth::
 
 async fn load_persisted_user(
     state: &AppState,
-    predicate: &str,
+    // `&'static str`: o predicado é sempre uma coluna fixa escrita no código.
+    predicate: &'static str,
     value: &str,
 ) -> Result<Option<poker_engine::auth::User>, ApiError> {
     let query = format!(
@@ -418,7 +419,7 @@ async fn load_persisted_user(
          mfa_enabled, mfa_secret, failed_login_attempts, locked_until, created_at, last_login, token_version \
          FROM users WHERE {predicate} = $1"
     );
-    let row: Option<PersistedUserRow> = sqlx::query_as(&query)
+    let row: Option<PersistedUserRow> = sqlx::query_as(sqlx::AssertSqlSafe(query))
         .bind(value)
         .fetch_optional(&state.db)
         .await?;

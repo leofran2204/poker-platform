@@ -1681,3 +1681,13 @@ Etapa 5 do plano do proprietário de 23/11 (aprovada, com amostra curta antes).
 - Regravados no padrão de narração de 19–21/11 (voz Macerio Multilingual da Azure, termos em inglês em `<lang en-US>`, "flóp", "ríver", "séti"): os episódios ep11–ep13 (m0l1–m0l3) e as aulas m0l4–m0l8, m1l1–m1l3, m2l1–m2l3, m3l1–m3l3, m4l1–m4l3, m5l1, m5l2, m6l1 e m6l2. A exceção `LEGACY_VOICE_LESSONS` ficou vazia em `render.py` e em `courseAudit.test.ts`.
 - A m2l3 falhava na Azure ("Invalid char '<'"): o `&` do título "Potes Multiway & Set Mining" quebrava o SSML. `speak()` passa a falar "e" no lugar do `&` (só essa aula tinha o caractere).
 - Conferência: `render.py --check` (30 publicações, 156,1 minutos), `test_narration.py`, Vitest 160/160 (inclui `courseAudit`), `tsc`, `eslint` e build. Azure: cerca de 107 mil caracteres nesta regravação (186 mil no mês, dentro do plano gratuito de 500 mil e do teto de 400 mil do `narrate.py`).
+
+## 2026-11-24 — Troca do sqlx para 0.9.1
+
+Pedido do proprietário em 24/11 ("pode fazer a troca do sqlx e publicar").
+
+- `API-Axum/Cargo.toml`: `sqlx` 0.8.6 → 0.9.1. A feature `runtime-tokio-rustls` deixou de existir e virou `runtime-tokio` + `tls-rustls` (mesmo rustls com ring e raízes webpki de antes).
+- Novidade do 0.9: `query*()` só aceita SQL fixo (`&'static str`); SQL montado em tempo de execução precisa de `AssertSqlSafe`. Eram só três pontos, todos com partes fixas: a coluna de saldo vinda de `WalletKind::column()` em `admin_panel.rs` e o predicado de `load_persisted_user` em `handlers/auth.rs`, que passou a ser `&'static str` (`"email"` ou `"id::text"`), para o compilador barrar texto vindo de fora.
+- `Cargo.lock`: `libsqlite3-sys` 0.30.1 → 0.40.0 (corrige o RUSTSEC-2026-0459) e o `rsa` saiu (RUSTSEC-2023-0071). Os dois pacotes nunca eram compilados (a API usa só PostgreSQL), mas o `cargo audit` olha o lockfile. `API-Axum/.cargo/audit.toml` foi apagado: nenhuma exceção restante.
+- Migrations: o 0.9.1 usa a mesma tabela `_sqlx_migrations` e o mesmo checksum (SHA-384 do SQL). Na prática: a API nova subiu numa cópia de `poker_ritual_local` (64 migrations gravadas pela API antiga), aceitou as 64 e aplicou a 065 e a 066.
+- Verificação: `fmt`, `clippy --all-targets -D warnings`, `cargo audit --deny warnings` sem exceções; banco novo com as 66 migrations e os mesmos testes do CI: 116 da biblioteca, 17 + 1 + 1 determinísticos, 20 contratos de `api_tests`, 5 de carteira, jornada do jogador, reembolso do agente, prêmios atômicos, rebuy/add-on, inscrição, admissão no torneio e limite de taxa.

@@ -507,11 +507,12 @@ pub async fn adjust_balance(
 
     // Trava a linha e garante que o usuário existe (credit_wallet sozinho
     // não falha para id inexistente).
+    // A coluna vem de `WalletKind::column()`, que só devolve nomes fixos.
     let balance_sql = format!(
         "SELECT {} FROM users WHERE id = $1::uuid FOR UPDATE",
         kind.column()
     );
-    let exists: Option<i64> = sqlx::query_scalar(&balance_sql)
+    let exists: Option<i64> = sqlx::query_scalar(sqlx::AssertSqlSafe(balance_sql.clone()))
         .bind(&user_id)
         .fetch_optional(&mut *tx)
         .await?;
@@ -541,7 +542,7 @@ pub async fn adjust_balance(
         .await?;
     }
 
-    let balance: i64 = sqlx::query_scalar(&balance_sql)
+    let balance: i64 = sqlx::query_scalar(sqlx::AssertSqlSafe(balance_sql.clone()))
         .bind(&user_id)
         .fetch_one(&mut *tx)
         .await?;

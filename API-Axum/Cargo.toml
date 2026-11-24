@@ -20,8 +20,9 @@ tower-http = { version = "0.6", features = ["cors", "trace"] }
 futures-util = "0.3"
 
 # ── Database ──
-sqlx = { version = "0.8", default-features = false, features = [
-    "runtime-tokio-rustls",
+sqlx = { version = "0.9.1", default-features = false, features = [
+    "runtime-tokio",
+    "tls-rustls",
     "postgres",
     "uuid",
     "time",
