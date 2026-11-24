@@ -3,77 +3,77 @@
   "filename": "zt-academy-m2l1-v3",
   "contentHash": "bd164b130b58838432e14d1517b35aebf399f1cad54587b94ad4c0ee506ebea6",
   "rendererVersion": 5,
-  "durationSeconds": 338.97,
+  "durationSeconds": 334.87,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9375923,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 9600528,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "86bbe273986f8b1fcfcf0d4488b285ad7f6a85776c60800def516a890a689aa6",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "248f260307f7be4a28667d6ffa7300429b435a5da7b7f6f6b849d55099adecc0",
   "chapters": [
     {
       "start": 0.0,
       "title": "C-bet no Flop: Boards Secos vs Molhados"
     },
     {
-      "start": 19.57,
+      "start": 19.17,
       "title": "Textura e ranges"
     },
     {
-      "start": 40.23,
+      "start": 40.0,
       "title": "Exemplo guiado"
     },
     {
-      "start": 68.97,
+      "start": 66.13,
       "title": "Tamanho como hipótese"
     },
     {
-      "start": 84.47,
+      "start": 80.2,
       "title": "Vantagem de range e vantagem de nuts"
     },
     {
-      "start": 116.8,
+      "start": 109.5,
       "title": "Um exemplo de textura"
     },
     {
-      "start": 149.37,
+      "start": 140.17,
       "title": "Check também constrói uma estratégia"
     },
     {
-      "start": 179.5,
+      "start": 170.13,
       "title": "Laboratório: Board conectado"
     },
     {
-      "start": 216.97,
+      "start": 206.87,
       "title": "Laboratório: Board conectado"
     },
     {
-      "start": 226.03,
+      "start": 215.17,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 245.3,
+      "start": 236.57,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 259.67,
+      "start": 252.7,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 294.23,
+      "start": 290.03,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 305.67,
+      "start": 303.8,
       "title": "Agora, pratique"
     }
   ],
   "scenes": [
     {
       "start": 0.0,
-      "duration": 19.566666666666666,
+      "duration": 19.166666666666668,
       "focusStarts": [
         0.0
       ],
@@ -105,8 +105,8 @@
       ]
     },
     {
-      "start": 19.566666666666666,
-      "duration": 20.666666666666668,
+      "start": 19.166666666666668,
+      "duration": 20.833333333333332,
       "focusStarts": [
         0.0
       ],
@@ -138,8 +138,8 @@
       ]
     },
     {
-      "start": 40.233333333333334,
-      "duration": 28.733333333333334,
+      "start": 40.0,
+      "duration": 26.133333333333333,
       "focusStarts": [
         0.0
       ],
@@ -171,8 +171,8 @@
       ]
     },
     {
-      "start": 68.96666666666667,
-      "duration": 15.5,
+      "start": 66.13333333333333,
+      "duration": 14.066666666666666,
       "focusStarts": [
         0.0
       ],
@@ -204,8 +204,8 @@
       ]
     },
     {
-      "start": 84.46666666666667,
-      "duration": 32.333333333333336,
+      "start": 80.19999999999999,
+      "duration": 29.3,
       "focusStarts": [
         0.0
       ],
@@ -237,8 +237,8 @@
       ]
     },
     {
-      "start": 116.80000000000001,
-      "duration": 32.56666666666667,
+      "start": 109.49999999999999,
+      "duration": 30.666666666666668,
       "focusStarts": [
         0.0
       ],
@@ -270,8 +270,8 @@
       ]
     },
     {
-      "start": 149.36666666666667,
-      "duration": 30.133333333333333,
+      "start": 140.16666666666666,
+      "duration": 29.966666666666665,
       "focusStarts": [
         0.0
       ],
@@ -303,8 +303,8 @@
       ]
     },
     {
-      "start": 179.5,
-      "duration": 37.46666666666667,
+      "start": 170.13333333333333,
+      "duration": 36.733333333333334,
       "focusStarts": [
         0.0
       ],
@@ -336,8 +336,8 @@
       ]
     },
     {
-      "start": 216.96666666666667,
-      "duration": 9.066666666666666,
+      "start": 206.86666666666667,
+      "duration": 8.3,
       "focusStarts": [
         0.0
       ],
@@ -369,8 +369,8 @@
       ]
     },
     {
-      "start": 226.03333333333333,
-      "duration": 19.266666666666666,
+      "start": 215.16666666666669,
+      "duration": 21.4,
       "focusStarts": [
         0.0
       ],
@@ -402,8 +402,8 @@
       ]
     },
     {
-      "start": 245.3,
-      "duration": 14.366666666666667,
+      "start": 236.5666666666667,
+      "duration": 16.133333333333333,
       "focusStarts": [
         0.0
       ],
@@ -435,8 +435,8 @@
       ]
     },
     {
-      "start": 259.6666666666667,
-      "duration": 34.56666666666667,
+      "start": 252.70000000000002,
+      "duration": 37.333333333333336,
       "focusStarts": [
         0.0
       ],
@@ -468,8 +468,8 @@
       ]
     },
     {
-      "start": 294.23333333333335,
-      "duration": 11.433333333333334,
+      "start": 290.03333333333336,
+      "duration": 13.766666666666667,
       "focusStarts": [
         0.0
       ],
@@ -501,8 +501,8 @@
       ]
     },
     {
-      "start": 305.6666666666667,
-      "duration": 33.3,
+      "start": 303.8,
+      "duration": 31.066666666666666,
       "focusStarts": [
         0.0
       ],
@@ -534,11 +534,11 @@
       ]
     }
   ],
-  "sha256": "43c10da4b6454ac5b0fd166b7f7edc3623e3467adc29f998f17f44fa82682aec",
+  "sha256": "7e6c623af760bf22c442c317a255ee0f55dc4421edac8e0a3fff17f5d68017a1",
   "assetHashes": {
-    "mp4": "43c10da4b6454ac5b0fd166b7f7edc3623e3467adc29f998f17f44fa82682aec",
-    "vtt": "6c885b0c40928d293f87b0b0d1d23ec894a5a38593a597bce91e685e546760b5",
+    "mp4": "7e6c623af760bf22c442c317a255ee0f55dc4421edac8e0a3fff17f5d68017a1",
+    "vtt": "69f38cef079cdb06c224199c78f821018b50bf8287eefbe9ad3a138d976ada8e",
     "webp": "015f68d3fe2b2a87aa304f407526d6b1b3cccdc82985e761b33f22924f8f853d"
   },
-  "mediaRevision": "00aa422105d7289ece908021858c644d3eedef6801e5f66e135e206325b89acf"
+  "mediaRevision": "68c5580e862410b339d0890ce994b1babb73c36a4fb60aa4e50ff301d8015812"
 }

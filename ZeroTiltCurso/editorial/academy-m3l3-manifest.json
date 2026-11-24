@@ -3,81 +3,81 @@
   "filename": "zt-academy-m3l3-v3",
   "contentHash": "8b64375f670a70f06556f0002279c4381480a3c1965aa179b7e1abd9801a11a6",
   "rendererVersion": 5,
-  "durationSeconds": 410.8,
+  "durationSeconds": 404.07,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 11057689,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 11212072,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "34c439583db3fe539ebb12ea7e9509330ca62b181c4268e5a11f2f86630c51ae",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "97517bf07adf57e4a0803b9c48500ec933c8a97c1f87c0afd2a6592a7cd2a092",
   "chapters": [
     {
       "start": 0.0,
       "title": "Draws, Outs e Matemática de Pot Odds no Turn"
     },
     {
-      "start": 20.17,
+      "start": 19.53,
       "title": "Preço do call"
     },
     {
-      "start": 47.33,
+      "start": 47.37,
       "title": "Outs não são garantia de vitória"
     },
     {
-      "start": 79.13,
+      "start": 76.77,
       "title": "Regra de bolso e limites"
     },
     {
-      "start": 103.23,
+      "start": 99.17,
       "title": "Exercício resolvido"
     },
     {
-      "start": 135.83,
+      "start": 132.0,
       "title": "Calcule uma chance sem atalhos"
     },
     {
-      "start": 163.53,
+      "start": 157.33,
       "title": "Outs contaminados e outras vitórias"
     },
     {
-      "start": 193.93,
+      "start": 187.17,
       "title": "Exemplo de EV condicionado"
     },
     {
-      "start": 228.8,
+      "start": 219.73,
       "title": "Laboratório: O preço de continuar"
     },
     {
-      "start": 268.93,
+      "start": 257.7,
       "title": "Laboratório: O preço de continuar"
     },
     {
-      "start": 278.0,
+      "start": 266.0,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 309.97,
+      "start": 298.83,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 327.73,
+      "start": 318.63,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 363.3,
+      "start": 356.93,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 377.43,
+      "start": 372.8,
       "title": "Agora, pratique"
     }
   ],
   "scenes": [
     {
       "start": 0.0,
-      "duration": 20.166666666666668,
+      "duration": 19.533333333333335,
       "focusStarts": [
         0.0
       ],
@@ -93,16 +93,16 @@
       ]
     },
     {
-      "start": 20.166666666666668,
-      "duration": 27.166666666666668,
+      "start": 19.533333333333335,
+      "duration": 27.833333333333332,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 47.333333333333336,
-      "duration": 31.8,
+      "start": 47.36666666666667,
+      "duration": 29.4,
       "focusStarts": [
         0.0
       ],
@@ -118,8 +118,8 @@
       ]
     },
     {
-      "start": 79.13333333333334,
-      "duration": 24.1,
+      "start": 76.76666666666667,
+      "duration": 22.4,
       "focusStarts": [
         0.0
       ],
@@ -135,8 +135,8 @@
       ]
     },
     {
-      "start": 103.23333333333335,
-      "duration": 32.6,
+      "start": 99.16666666666666,
+      "duration": 32.833333333333336,
       "focusStarts": [
         0.0
       ],
@@ -152,8 +152,8 @@
       ]
     },
     {
-      "start": 135.83333333333334,
-      "duration": 27.7,
+      "start": 132.0,
+      "duration": 25.333333333333332,
       "focusStarts": [
         0.0
       ],
@@ -169,40 +169,40 @@
       ]
     },
     {
-      "start": 163.53333333333333,
-      "duration": 30.4,
+      "start": 157.33333333333334,
+      "duration": 29.833333333333332,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 193.93333333333334,
-      "duration": 34.86666666666667,
+      "start": 187.16666666666669,
+      "duration": 32.56666666666667,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 228.8,
-      "duration": 40.13333333333333,
+      "start": 219.73333333333335,
+      "duration": 37.96666666666667,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 268.93333333333334,
-      "duration": 9.066666666666666,
+      "start": 257.70000000000005,
+      "duration": 8.3,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 278.0,
-      "duration": 31.966666666666665,
+      "start": 266.00000000000006,
+      "duration": 32.833333333333336,
       "focusStarts": [
         0.0
       ],
@@ -218,8 +218,8 @@
       ]
     },
     {
-      "start": 309.96666666666664,
-      "duration": 17.766666666666666,
+      "start": 298.83333333333337,
+      "duration": 19.8,
       "focusStarts": [
         0.0
       ],
@@ -235,8 +235,8 @@
       ]
     },
     {
-      "start": 327.7333333333333,
-      "duration": 35.56666666666667,
+      "start": 318.6333333333334,
+      "duration": 38.3,
       "focusStarts": [
         0.0
       ],
@@ -252,8 +252,8 @@
       ]
     },
     {
-      "start": 363.29999999999995,
-      "duration": 14.133333333333333,
+      "start": 356.9333333333334,
+      "duration": 15.866666666666667,
       "focusStarts": [
         0.0
       ],
@@ -269,8 +269,8 @@
       ]
     },
     {
-      "start": 377.4333333333333,
-      "duration": 33.36666666666667,
+      "start": 372.80000000000007,
+      "duration": 31.266666666666666,
       "focusStarts": [
         0.0
       ],
@@ -286,11 +286,11 @@
       ]
     }
   ],
-  "sha256": "bab6983f5b4d584db1fe878f8e4b5f1bcc63c5277e95839f132b0febf8646c6d",
+  "sha256": "5afa91c6a8d7dd5ce77ecd2be00766bb9d636aa806defdbd895abf1e5a090efd",
   "assetHashes": {
-    "mp4": "bab6983f5b4d584db1fe878f8e4b5f1bcc63c5277e95839f132b0febf8646c6d",
-    "vtt": "9cd43f0ef1a395f2cb1689f60ddeb2e04487e0ae39b6dfaf6679567775321f3e",
+    "mp4": "5afa91c6a8d7dd5ce77ecd2be00766bb9d636aa806defdbd895abf1e5a090efd",
+    "vtt": "314b97edbf774ac282e3c467ee837cc9bbd030ae8734f4df9d48d685ff63c3b5",
     "webp": "15a653dabc97ea4eb1c2aec22f9ab0426951a5de85f5e6ce45fc40d30cb3d10f"
   },
-  "mediaRevision": "05716269857aafd5bd9d62d745e77d8a40778250fb636e97d4085438c5ac59e7"
+  "mediaRevision": "1bf5b1f06532b4aaf708cd7cbbee62d194144a38e6660cd5f4841aebcce8aaed"
 }

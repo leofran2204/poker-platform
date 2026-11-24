@@ -21,7 +21,7 @@ const sha256 = (data: string | Buffer) => createHash("sha256").update(data).dige
  * (o teste falha se um vídeo da lista já estiver na voz nova). Mesma lista em
  * `ZeroTiltCurso/editorial/render.py` (`LEGACY_VOICE_LESSONS`).
  */
-const LEGACY_VOICE_LESSONS = ["m0l1", "m0l2", "m0l3", "m0l4", "m0l5", "m0l6", "m0l7", "m0l8", "m1l1", "m1l2", "m1l3", "m2l1", "m2l2", "m2l3", "m3l1", "m3l2", "m3l3", "m4l1", "m4l2", "m4l3", "m5l1", "m5l2", "m6l1", "m6l2"];
+const LEGACY_VOICE_LESSONS: string[] = []; // vazia desde 24/11/2026: as 24 foram regravadas
 const expectedVoice = (id: string) => LEGACY_VOICE_LESSONS.includes(id) ? "pt-BR-poker-v1" : "pt-BR-poker-v3-multilingual";
 
 describe("integridade da Academy", () => {

@@ -452,3 +452,11 @@ Mudança: sessão por cookie `HttpOnly; Secure; SameSite=Strict` (`zt_access`, `
 Verificado em produção com uma conta de teste: login com `X-ZT-Session: cookie` devolve 2 cookies com os três atributos e o corpo sem token; `me` pelo cookie; escrita sem `X-ZT-CSRF` = 403 e com ele = 200; refresh pelo cookie; logout apaga os cookies e o refresh seguinte dá 401. O bundle publicado envia `X-ZT-Session`. A 065 corrigiu 4 torneios (o "PM · Texas R$25" passou a mostrar 10.125 de fee, 27 × 375).
 
 Não verificado em produção: login pelo navegador de um jogador real.
+
+## Publicação: livro único do dinheiro — 24/11/2026
+
+Publicado `c5c6ac201aaacdd87355f7241b5119c6bcb8bc90` às **02:46:25 UTC de 24/11 / 23:46 em São Paulo de 23/11** (etapa 6 autorizada pelo proprietário, depois da campanha `full-validation` completa aprovada), com Rust CI e Container Supply Chain verdes e imagens assinadas; migrations 66; boot sem `ERROR`; `.env` preservado.
+
+Mudança: migration `066` (`wallet_ledger` só de inclusão, gatilho em `users`, saldo inicial, `wallet_ledger_mismatches`), motivo em todas as mudanças de saldo da API, extrato completo da carteira e conferência do admin.
+
+Verificado em produção: 261 linhas de saldo inicial na virada; numa conta de teste, entrada e saída de mesa Play Money gravaram −2.500 e +2.500 com a referência da mesa e o saldo resultante; nenhuma linha `unspecified` e nenhuma divergência entre saldo e livro.

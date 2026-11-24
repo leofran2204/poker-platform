@@ -1,4 +1,4 @@
-Zero Tilt Academy. 3-bet por Valor e 3-bet Light com Blockers. Nesta aula, nosso objetivo é: Construir uma 3-bet e distinguir o total do incremento. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+Esta é a Zero Tilt Academy, e a aula de hoje é: 3-bet por Valor e 3-bet Light com Blockers. Nesta aula, nosso objetivo é: Construir uma 3-bet e distinguir o total do incremento. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
 
 Valor, blefe e bloqueadores. Uma 3-bet é um aumento sobre o raise inicial. Seu range e tamanho dependem das posições, stack efetivo e respostas adversárias. ás e rei do mesmo naipe pode integrar a parte de valor; ás e cinco do mesmo naipe pode aparecer como blefe em determinados cenários, mas não é uma obrigação.
 
@@ -16,12 +16,12 @@ Laboratório: Reaumentar uma abertura. Objetivo: Construir uma 3-bet e distingui
 
 Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
 
-O que significa dizer que ás e cinco suited é uma excelente mão para 3-bet light por ter 'blocker'? A. Que você bloqueia o dealer de distribuir cartas B. Que ter um Ás na sua mão reduz matematicamente as chances do rival ter par de ases ou ás e rei C. Que você não pode tomar raise Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+O que significa dizer que ás e cinco suited é uma excelente mão para 3-bet light por ter 'blocker'? As alternativas são: A, Que você bloqueia o dealer de distribuir cartas; B, Que ter um Ás na sua mão reduz matematicamente as chances do rival ter par de ases ou ás e rei; C, Que você não pode tomar raise. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
 
-Resposta do exercício: Que ter um Ás na sua mão reduz matematicamente as chances do rival ter par de ases ou ás e rei. Ter um Ás na mão reduz em 50 por cento os combos de par de ases e em 25 por cento os combos de ás e rei do vilão.
+Vamos à resposta. A alternativa certa deste exercício é: Que ter um Ás na sua mão reduz matematicamente as chances do rival ter par de ases ou ás e rei. Ter um Ás na mão reduz em 50 por cento os combos de par de ases e em 25 por cento os combos de ás e rei do vilão.
 
-Suas cartas: ás de copas, rei de copas. Cartas comunitárias: ainda não reveladas. Texas cash 100 big blinds. cutoff abre 2,5 big blinds. No plano de 3-bet por valor desta aula, você tem A♥ K♥ no botão. Ação? A. fold B. call C. raise Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+Suas cartas: ás de copas, rei de copas. Cartas comunitárias: ainda não reveladas. O cenário é uma mesa de Texas cash, com 100 big blinds. o jogador do cutoff abre a ação com 2,5 big blinds. No plano de 3-bet por valor desta aula, você tem A♥ K♥ no botão. Ação? As alternativas são: A, fold; B, call; C, raise. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
 
-Resposta do exercício: raise. ás e rei do mesmo naipe é uma mão de valor premium: 3-bete para construir o pote em posição.
+Vamos à resposta. A alternativa certa deste exercício é: raise. ás e rei do mesmo naipe é uma mão de valor premium: 3-bete para construir o pote em posição.
 
 Abra o simulador da aula e escolha o cenário Reaumentar uma abertura. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

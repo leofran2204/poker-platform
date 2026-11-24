@@ -3,77 +3,77 @@
   "filename": "zt-academy-m4l2-v3",
   "contentHash": "5955e9ce2083e32baa482e9328828a7e702491e427c33ffbe7327e478ca910cd",
   "rendererVersion": 5,
-  "durationSeconds": 349.47,
+  "durationSeconds": 335.37,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9408008,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 9365491,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "559b4114b4cad41b5980b0a59c7b858558d7e170fd3327e56fe3f3ceeb1063c6",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "9281ec2bafb0dd77c14a919fc865e84b600a24f6d38c1bc59f56c207efd78dd3",
   "chapters": [
     {
       "start": 0.0,
       "title": "Bluff-Catchers e a Força dos Blockers"
     },
     {
-      "start": 19.2,
+      "start": 18.53,
       "title": "Bluff-catcher"
     },
     {
-      "start": 33.83,
+      "start": 33.97,
       "title": "Preço e frequência"
     },
     {
-      "start": 59.83,
+      "start": 57.73,
       "title": "Blockers"
     },
     {
-      "start": 80.13,
+      "start": 79.0,
       "title": "Derive o limite dos blefes"
     },
     {
-      "start": 113.13,
+      "start": 109.13,
       "title": "MDF responde a outra pergunta"
     },
     {
-      "start": 150.27,
+      "start": 142.97,
       "title": "Conte o que foi removido"
     },
     {
-      "start": 183.8,
+      "start": 173.93,
       "title": "Laboratório: Pagar pelo motivo certo"
     },
     {
-      "start": 222.57,
+      "start": 209.77,
       "title": "Laboratório: Pagar pelo motivo certo"
     },
     {
-      "start": 231.63,
+      "start": 218.07,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 254.27,
+      "start": 239.23,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 268.57,
+      "start": 254.93,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 303.4,
+      "start": 289.6,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 315.67,
+      "start": 303.8,
       "title": "Agora, pratique"
     }
   ],
   "scenes": [
     {
       "start": 0.0,
-      "duration": 19.2,
+      "duration": 18.533333333333335,
       "focusStarts": [
         0.0
       ],
@@ -89,8 +89,8 @@
       ]
     },
     {
-      "start": 19.2,
-      "duration": 14.633333333333333,
+      "start": 18.533333333333335,
+      "duration": 15.433333333333334,
       "focusStarts": [
         0.0
       ],
@@ -106,16 +106,16 @@
       ]
     },
     {
-      "start": 33.83333333333333,
-      "duration": 26.0,
+      "start": 33.96666666666667,
+      "duration": 23.766666666666666,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 59.83333333333333,
-      "duration": 20.3,
+      "start": 57.733333333333334,
+      "duration": 21.266666666666666,
       "focusStarts": [
         0.0
       ],
@@ -131,8 +131,8 @@
       ]
     },
     {
-      "start": 80.13333333333333,
-      "duration": 33.0,
+      "start": 79.0,
+      "duration": 30.133333333333333,
       "focusStarts": [
         0.0
       ],
@@ -148,8 +148,8 @@
       ]
     },
     {
-      "start": 113.13333333333333,
-      "duration": 37.13333333333333,
+      "start": 109.13333333333333,
+      "duration": 33.833333333333336,
       "focusStarts": [
         0.0
       ],
@@ -165,16 +165,16 @@
       ]
     },
     {
-      "start": 150.26666666666665,
-      "duration": 33.53333333333333,
+      "start": 142.96666666666667,
+      "duration": 30.966666666666665,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 183.79999999999998,
-      "duration": 38.766666666666666,
+      "start": 173.93333333333334,
+      "duration": 35.833333333333336,
       "focusStarts": [
         0.0
       ],
@@ -190,8 +190,8 @@
       ]
     },
     {
-      "start": 222.56666666666666,
-      "duration": 9.066666666666666,
+      "start": 209.76666666666668,
+      "duration": 8.3,
       "focusStarts": [
         0.0
       ],
@@ -207,8 +207,8 @@
       ]
     },
     {
-      "start": 231.63333333333333,
-      "duration": 22.633333333333333,
+      "start": 218.0666666666667,
+      "duration": 21.166666666666668,
       "focusStarts": [
         0.0
       ],
@@ -224,8 +224,8 @@
       ]
     },
     {
-      "start": 254.26666666666665,
-      "duration": 14.3,
+      "start": 239.23333333333335,
+      "duration": 15.7,
       "focusStarts": [
         0.0
       ],
@@ -241,8 +241,8 @@
       ]
     },
     {
-      "start": 268.56666666666666,
-      "duration": 34.833333333333336,
+      "start": 254.93333333333334,
+      "duration": 34.666666666666664,
       "focusStarts": [
         0.0
       ],
@@ -258,8 +258,8 @@
       ]
     },
     {
-      "start": 303.4,
-      "duration": 12.266666666666667,
+      "start": 289.6,
+      "duration": 14.2,
       "focusStarts": [
         0.0
       ],
@@ -275,8 +275,8 @@
       ]
     },
     {
-      "start": 315.66666666666663,
-      "duration": 33.8,
+      "start": 303.8,
+      "duration": 31.566666666666666,
       "focusStarts": [
         0.0
       ],
@@ -292,11 +292,11 @@
       ]
     }
   ],
-  "sha256": "e51a25de6b796a8d16ff990d5dfdf5934960bc9579c7017411bb7662c87a845f",
+  "sha256": "77f9b3afa5916348eff68079dabc660a43a2e236d4a73264076b1550b554864a",
   "assetHashes": {
-    "mp4": "e51a25de6b796a8d16ff990d5dfdf5934960bc9579c7017411bb7662c87a845f",
-    "vtt": "33ba7ee23dccecf463cbcc966c8f3b358175fbe46ffdbcffa9a6459a8d56657a",
+    "mp4": "77f9b3afa5916348eff68079dabc660a43a2e236d4a73264076b1550b554864a",
+    "vtt": "a507fbd6286cea41d66b5ad4bb8ab073bfb709ca78b319b92c4c8a391ec0e0e0",
     "webp": "972c71a17df376a58f1253ee1b6159ee15cd4a3437bf63d601fcfb53cfdfbaf5"
   },
-  "mediaRevision": "020a9dddd5c4f2d1d769afa6a94155d620e1a2cbb9e0ca0836223fcefe4cdaa1"
+  "mediaRevision": "1a45b3642a627c94f6260fc64da63a9ace36b128c1cc103515006fcbe8932c6d"
 }

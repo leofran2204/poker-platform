@@ -3,264 +3,264 @@
   "filename": "zt-academy-m0l5-v3",
   "contentHash": "80e4bcc3deaf9b2fce6e2772a46f65680f62dbe68ebd81f2bf811bb9a8ca77b7",
   "rendererVersion": 5,
-  "durationSeconds": 431.07,
+  "durationSeconds": 441.37,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 11132202,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 11858795,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "dc834c6126351fd6697475baebdebd2ff72870f915ec24d803324c84ca1c3577",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "315ef549965e2821ed689451331827b8b8bb252349629cf833cc67ea1ab8b320",
   "chapters": [
     {
       "start": 0.0,
       "title": "Suas primeiras decisões e posições"
     },
     {
-      "start": 18.73,
+      "start": 18.23,
       "title": "Posição é informação adicional"
     },
     {
-      "start": 42.17,
+      "start": 40.03,
       "title": "Um plano inicial de abertura"
     },
     {
-      "start": 70.43,
+      "start": 65.2,
       "title": "Separe preço e força"
     },
     {
-      "start": 92.6,
+      "start": 85.93,
       "title": "Uma volta completa ao botão"
     },
     {
-      "start": 127.53,
+      "start": 120.23,
       "title": "Stack efetivo e plano"
     },
     {
-      "start": 160.17,
+      "start": 152.0,
       "title": "Por que observar ajuda"
     },
     {
-      "start": 187.1,
+      "start": 177.13,
       "title": "Laboratório: Botão: observar antes de decidir"
     },
     {
-      "start": 223.57,
+      "start": 211.17,
       "title": "Laboratório: Botão: observar antes de decidir"
     },
     {
-      "start": 232.63,
+      "start": 219.47,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 258.53,
+      "start": 249.3,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 270.17,
+      "start": 262.97,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 297.17,
+      "start": 293.6,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 306.83,
+      "start": 305.63,
       "title": "Exercício resolvido 3"
     },
     {
-      "start": 331.0,
+      "start": 334.23,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 344.8,
+      "start": 351.27,
       "title": "Exercício resolvido 4"
     },
     {
-      "start": 362.27,
+      "start": 369.93,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 371.9,
+      "start": 381.83,
       "title": "Exercício resolvido 5"
     },
     {
-      "start": 386.53,
+      "start": 397.17,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 396.57,
+      "start": 409.13,
       "title": "Agora, pratique"
     }
   ],
   "scenes": [
     {
       "start": 0.0,
-      "duration": 18.733333333333334,
+      "duration": 18.233333333333334,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 18.733333333333334,
-      "duration": 23.433333333333334,
+      "start": 18.233333333333334,
+      "duration": 21.8,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 42.16666666666667,
-      "duration": 28.266666666666666,
+      "start": 40.03333333333333,
+      "duration": 25.166666666666668,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 70.43333333333334,
-      "duration": 22.166666666666668,
+      "start": 65.2,
+      "duration": 20.733333333333334,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 92.60000000000001,
-      "duration": 34.93333333333333,
+      "start": 85.93333333333334,
+      "duration": 34.3,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 127.53333333333333,
-      "duration": 32.63333333333333,
+      "start": 120.23333333333333,
+      "duration": 31.766666666666666,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 160.16666666666666,
-      "duration": 26.933333333333334,
+      "start": 152.0,
+      "duration": 25.133333333333333,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 187.1,
-      "duration": 36.46666666666667,
+      "start": 177.13333333333333,
+      "duration": 34.03333333333333,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 223.56666666666666,
-      "duration": 9.066666666666666,
+      "start": 211.16666666666666,
+      "duration": 8.3,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 232.63333333333333,
-      "duration": 25.9,
+      "start": 219.46666666666667,
+      "duration": 29.833333333333332,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 258.5333333333333,
-      "duration": 11.633333333333333,
+      "start": 249.3,
+      "duration": 13.666666666666666,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 270.16666666666663,
-      "duration": 27.0,
+      "start": 262.9666666666667,
+      "duration": 30.633333333333333,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 297.16666666666663,
-      "duration": 9.666666666666666,
+      "start": 293.6,
+      "duration": 12.033333333333333,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 306.8333333333333,
-      "duration": 24.166666666666668,
+      "start": 305.6333333333334,
+      "duration": 28.6,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 331.0,
-      "duration": 13.8,
+      "start": 334.2333333333334,
+      "duration": 17.033333333333335,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 344.8,
-      "duration": 17.466666666666665,
+      "start": 351.26666666666677,
+      "duration": 18.666666666666668,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 362.26666666666665,
-      "duration": 9.633333333333333,
+      "start": 369.93333333333345,
+      "duration": 11.9,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 371.9,
-      "duration": 14.633333333333333,
+      "start": 381.8333333333334,
+      "duration": 15.333333333333334,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 386.5333333333333,
-      "duration": 10.033333333333333,
+      "start": 397.16666666666674,
+      "duration": 11.966666666666667,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 396.56666666666666,
-      "duration": 34.5,
+      "start": 409.1333333333334,
+      "duration": 32.233333333333334,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     }
   ],
-  "sha256": "31c7c79fe9ab9c420be45a9ac9cdfabb3169c886034c1d5fddbbdf06bc6a65ba",
+  "sha256": "cf64641ffc0585c8f6fdbab5ca562e1fbf30aed3caeda53f3a84b1871970161d",
   "assetHashes": {
-    "mp4": "31c7c79fe9ab9c420be45a9ac9cdfabb3169c886034c1d5fddbbdf06bc6a65ba",
-    "vtt": "0d8d33ae5cf5d558f22971e6b64b3ea8dc727b7465cfefe6acda824abad2a4dc",
+    "mp4": "cf64641ffc0585c8f6fdbab5ca562e1fbf30aed3caeda53f3a84b1871970161d",
+    "vtt": "496056dd37f87e468dd31ba908daa4c3e47382f0d0e3116a5919ac536d9e5e4f",
     "webp": "5cce31126d58b142dc26b83a52546342b162553ee1eeea757e616719f67a4766"
   },
-  "mediaRevision": "f30db3efa9ccdb0c944def58521b349303296da03e3e27e28bea7029df310df9"
+  "mediaRevision": "9ea007834ea626aa2d310ee1cc18911a7228c871eb0100db32e406593a103014"
 }

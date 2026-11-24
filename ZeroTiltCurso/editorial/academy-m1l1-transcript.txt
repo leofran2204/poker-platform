@@ -1,6 +1,6 @@
-Zero Tilt Academy. Ranges de Abertura por Posição (9-max). Nesta aula, nosso objetivo é: Relacionar jogadores por agir, posição e plano de abertura. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+Esta é a Zero Tilt Academy, e a aula de hoje é: Ranges de Abertura por Posição (9-max). Nesta aula, nosso objetivo é: Relacionar jogadores por agir, posição e plano de abertura. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
 
-Range depende do cenário. Um range é um conjunto de mãos possíveis, podendo ter frequências diferentes. Na abertura 9-max, posição inicial enfrenta oito jogadores por agir; no botão, só os blinds. Isso costuma permitir mais aberturas no botão, sob hipóteses comparáveis de stacks, rake e respostas.
+Agora, o próximo tema é: Range depende do cenário. Um range é um conjunto de mãos possíveis, podendo ter frequências diferentes. Na abertura 9-max, posição inicial enfrenta oito jogadores por agir; no botão, só os blinds. Isso costuma permitir mais aberturas no botão, sob hipóteses comparáveis de stacks, rake e respostas.
 
 Posição pós-flop. posição inicial fica fora de posição contra callers à sua esquerda, mas em posição contra os blinds. O botão age por último pós-flop. Não confunda a ordem pré-flop com a pós-flop.
 
@@ -16,12 +16,12 @@ Laboratório: Posição e mãos de abertura. Objetivo: Relacionar jogadores por 
 
 Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
 
-Por que o range de abertura do posição inicial é muito mais fechado do que o do Botão? A. Porque o posição inicial é obrigado a apostar mais fichas B. Porque há mais adversários por agir e pode ficar fora de posição pós-flop C. Porque o dealer não permite blefes no posição inicial Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+Por que o range de abertura do posição inicial é muito mais fechado do que o do Botão? As alternativas são: A, Porque o posição inicial é obrigado a apostar mais fichas; B, Porque há mais adversários por agir e pode ficar fora de posição pós-flop; C, Porque o dealer não permite blefes no posição inicial. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
 
-Resposta do exercício: Porque há mais adversários por agir e pode ficar fora de posição pós-flop. Oito adversários ainda agem. posição inicial fica em posição contra os blinds e fora de posição contra jogadores à sua esquerda.
+Vamos à resposta. A alternativa certa deste exercício é: Porque há mais adversários por agir e pode ficar fora de posição pós-flop. Oito adversários ainda agem. posição inicial fica em posição contra os blinds e fora de posição contra jogadores à sua esquerda.
 
-Suas cartas: rei de paus, dama de paus. Cartas comunitárias: ainda não reveladas. Texas cash 9-max, 100 big blinds, todos deram fold. No plano básico de abertura, você está no botão com K♣ Q♣. Ação? A. fold B. call C. raise Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+Suas cartas: rei de paus, dama de paus. Cartas comunitárias: ainda não reveladas. O cenário é uma mesa de Texas cash 9-max, com 100 big blinds, e todos deram fold até você. No plano básico de abertura, você está no botão com K♣ Q♣. Ação? As alternativas são: A, fold; B, call; C, raise. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
 
-Resposta do exercício: raise. rei e dama do mesmo naipe no Botão é uma excelente mão para abrir, roubar blinds ou jogar em posição com vantagem.
+Vamos à resposta. A alternativa certa deste exercício é: raise. rei e dama do mesmo naipe no Botão é uma excelente mão para abrir, roubar blinds ou jogar em posição com vantagem.
 
 Abra o simulador da aula e escolha o cenário Posição e mãos de abertura. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

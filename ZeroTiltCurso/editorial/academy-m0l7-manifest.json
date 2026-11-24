@@ -3,116 +3,132 @@
   "filename": "zt-academy-m0l7-v3",
   "contentHash": "c110b4b14134a5f3379d1158ba34f05d588a805bbbfc60034433fafff6d03c7c",
   "rendererVersion": 5,
-  "durationSeconds": 324.23,
+  "durationSeconds": 313.4,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8578439,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 8479663,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "663a26fd69123af82e24195f19248c963120690eca2990d2fd0172568ece45dd",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "dc0c94a7986fb3b6eade35de9546e15ee4d573fce7095d3ee72baa7ddc829720",
   "chapters": [
     {
       "start": 0.0,
       "title": "Aumento ou descarte: a primeira decisão"
     },
     {
-      "start": 19.3,
+      "start": 19.4,
       "title": "Agressão seletiva"
     },
     {
-      "start": 39.57,
+      "start": 38.17,
       "title": "Pratique com um cenário definido"
     },
     {
-      "start": 66.33,
+      "start": 62.87,
       "title": "Revisão"
     },
     {
-      "start": 78.0,
+      "start": 73.33,
       "title": "A decisão anterior à ação"
     },
     {
-      "start": 114.5,
+      "start": 106.27,
       "title": "Calcule o risco do roubo"
     },
     {
-      "start": 150.9,
+      "start": 139.67,
       "title": "Um resultado não corrige o plano"
     },
     {
-      "start": 176.33,
+      "start": 163.33,
       "title": "Laboratório: Abrir com um plano"
     },
     {
-      "start": 214.77,
+      "start": 199.73,
       "title": "Laboratório: Abrir com um plano"
     },
     {
-      "start": 223.83,
+      "start": 208.03,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 246.2,
+      "start": 232.0,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 260.2,
+      "start": 247.9,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 279.9,
+      "start": 269.4,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 290.87,
+      "start": 282.37,
       "title": "Agora, pratique"
     }
   ],
   "scenes": [
     {
       "start": 0.0,
-      "duration": 19.3,
+      "duration": 19.4,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 19.3,
-      "duration": 20.266666666666666,
+      "start": 19.4,
+      "duration": 18.766666666666666,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 39.56666666666666,
-      "duration": 26.766666666666666,
+      "start": 38.166666666666664,
+      "duration": 24.7,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 66.33333333333333,
-      "duration": 11.666666666666666,
+      "start": 62.86666666666666,
+      "duration": 10.466666666666667,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 78.0,
-      "duration": 36.5,
+      "start": 73.33333333333333,
+      "duration": 32.93333333333333,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 114.5,
+      "start": 106.26666666666665,
+      "duration": 33.4,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 139.66666666666666,
+      "duration": 23.666666666666668,
+      "focusStarts": [
+        0.0
+      ],
+      "dealEvents": []
+    },
+    {
+      "start": 163.33333333333331,
       "duration": 36.4,
       "focusStarts": [
         0.0
@@ -120,75 +136,59 @@
       "dealEvents": []
     },
     {
-      "start": 150.9,
-      "duration": 25.433333333333334,
+      "start": 199.73333333333332,
+      "duration": 8.3,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 176.33333333333334,
-      "duration": 38.43333333333333,
+      "start": 208.03333333333333,
+      "duration": 23.966666666666665,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 214.76666666666668,
-      "duration": 9.066666666666666,
+      "start": 232.0,
+      "duration": 15.9,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 223.83333333333334,
-      "duration": 22.366666666666667,
+      "start": 247.9,
+      "duration": 21.5,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 246.20000000000002,
-      "duration": 14.0,
+      "start": 269.4,
+      "duration": 12.966666666666667,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 260.20000000000005,
-      "duration": 19.7,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 279.90000000000003,
-      "duration": 10.966666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 290.8666666666667,
-      "duration": 33.36666666666667,
+      "start": 282.3666666666666,
+      "duration": 31.033333333333335,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     }
   ],
-  "sha256": "873b14ba3d9fc7c34e856fd9a4ac5e9aa1987998520d8d1539ab1bee4cb375a7",
+  "sha256": "86ff95634517b51728431151f9978dbbb7b88ea3157ba3ca4eecf1ac001776d6",
   "assetHashes": {
-    "mp4": "873b14ba3d9fc7c34e856fd9a4ac5e9aa1987998520d8d1539ab1bee4cb375a7",
-    "vtt": "a0febcd9a808d6245125ce4304951f3489f2dd6c863900048ddccbd32a7c4200",
+    "mp4": "86ff95634517b51728431151f9978dbbb7b88ea3157ba3ca4eecf1ac001776d6",
+    "vtt": "e904a88e02659610da93f1937a1f125ff6985c81b7fead2851d371e4e2d7510a",
     "webp": "da8627c38f8ca8876a3870d0c198825b660ab5f0096f0698f058a0e04b8207e9"
   },
-  "mediaRevision": "5181d44b99b92fc8e3501224957103aaa013799d01e5fc437df8e6b8134cc182"
+  "mediaRevision": "882e6848db30b9e88c7102721dfacec623217004ed3f8a7a86b5e55a57bd40dd"
 }

@@ -3,168 +3,168 @@
   "filename": "zt-academy-m0l6-v3",
   "contentHash": "d7a0c0a20f425f79bb0f3a4d05e36f81131a7dc4d557c45bed0dd71e23e77d30",
   "rendererVersion": 5,
-  "durationSeconds": 283.33,
+  "durationSeconds": 273.23,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 7449886,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 7512606,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "d263aa699ae62e6e01a4c36e2f0f9c77a169684a350540c656368c465cb5c976",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "d8db4a4feba832fbeeda1c430c8e2627e2779edcf7f3027f142e4943fdcb111a",
   "chapters": [
     {
       "start": 0.0,
       "title": "Primeiros passos aqui"
     },
     {
-      "start": 18.93,
+      "start": 18.57,
       "title": "Conheça o ambiente"
     },
     {
-      "start": 41.77,
+      "start": 39.6,
       "title": "Conta e acesso"
     },
     {
-      "start": 61.27,
+      "start": 58.13,
       "title": "Mesas com outros jogadores"
     },
     {
-      "start": 80.57,
+      "start": 76.23,
       "title": "Entre na Academy"
     },
     {
-      "start": 113.07,
+      "start": 108.7,
       "title": "Três modos de praticar"
     },
     {
-      "start": 146.5,
+      "start": 139.63,
       "title": "Guarde o processo"
     },
     {
-      "start": 176.5,
+      "start": 167.63,
       "title": "Laboratório: Sua primeira mão completa"
     },
     {
-      "start": 213.3,
+      "start": 202.6,
       "title": "Laboratório: Sua primeira mão completa"
     },
     {
-      "start": 222.37,
+      "start": 210.9,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 238.07,
+      "start": 228.0,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 249.73,
+      "start": 241.73,
       "title": "Agora, pratique"
     }
   ],
   "scenes": [
     {
       "start": 0.0,
-      "duration": 18.933333333333334,
+      "duration": 18.566666666666666,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 18.933333333333334,
-      "duration": 22.833333333333332,
+      "start": 18.566666666666666,
+      "duration": 21.033333333333335,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 41.766666666666666,
-      "duration": 19.5,
+      "start": 39.6,
+      "duration": 18.533333333333335,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 61.266666666666666,
-      "duration": 19.3,
+      "start": 58.13333333333334,
+      "duration": 18.1,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 80.56666666666666,
-      "duration": 32.5,
+      "start": 76.23333333333335,
+      "duration": 32.46666666666667,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 113.06666666666666,
-      "duration": 33.43333333333333,
+      "start": 108.70000000000002,
+      "duration": 30.933333333333334,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 146.5,
-      "duration": 30.0,
+      "start": 139.63333333333335,
+      "duration": 28.0,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 176.5,
-      "duration": 36.8,
+      "start": 167.63333333333335,
+      "duration": 34.96666666666667,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 213.3,
-      "duration": 9.066666666666666,
+      "start": 202.60000000000002,
+      "duration": 8.3,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 222.36666666666667,
-      "duration": 15.7,
+      "start": 210.90000000000003,
+      "duration": 17.1,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 238.06666666666666,
-      "duration": 11.666666666666666,
+      "start": 228.00000000000003,
+      "duration": 13.733333333333333,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 249.73333333333332,
-      "duration": 33.6,
+      "start": 241.73333333333335,
+      "duration": 31.5,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     }
   ],
-  "sha256": "2ba859a103e043273f16ba2a32f9eb38f8b8184ac5c54e4604ec8f72a0bd6ee1",
+  "sha256": "45a02bf918cb309671c262cdba020a57ef914246510f9f6c3b54260d66742812",
   "assetHashes": {
-    "mp4": "2ba859a103e043273f16ba2a32f9eb38f8b8184ac5c54e4604ec8f72a0bd6ee1",
-    "vtt": "1cce41e8c95202ead271c14edbb218f12a1e4d87755f97ec91e9f92c35d5ea10",
+    "mp4": "45a02bf918cb309671c262cdba020a57ef914246510f9f6c3b54260d66742812",
+    "vtt": "59a95107c79a0a598f07aa3e21c6b1024350d7b20d59e9dc2cca4df4908a63df",
     "webp": "f7554b30f5a27a38ef4201a7a9f6c27e893e19dfa4d200272a5b8ba01201d7e9"
   },
-  "mediaRevision": "abf9b73d9a94a65729454285feb0833ae1a91a0bfaf774152a36affe561496b9"
+  "mediaRevision": "cfebd1a39920de32f9d255e54b870985b3e75f2430d9478aa6bd53079a532dba"
 }

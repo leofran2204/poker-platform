@@ -1672,3 +1672,12 @@ Etapa 6 do plano do proprietário de 23/11, na recomendação de 16/11.
 - Site: seção "Extrato completo" na carteira, com movimento, valor, carteira e saldo depois de cada linha, filtrada pelo modo (Play Money ou Jogo Real).
 - Testes: contratos PostgreSQL do crédito (linha com motivo e referência, crédito desfeito sem linha, saldo = livro, livro só de inclusão) e das duas rotas; testes do site para os rótulos e o filtro. Os testes de torneio com banco passaram a rodar um de cada vez (apagavam as sobras uns dos outros em paralelo) e as montagens de saldo dos testes marcam `test_fixture`.
 - Campanha `full-validation` completa aprovada em 24/11 (47 estágios, 26.000 mãos de cash, 440 pares, livro com 1.205 linhas sem divergência nem linha sem motivo). [Resultado](FULL_VALIDATION.md#campanha-completa-com-o-livro-único-do-dinheiro--24112026).
+
+## 2026-11-24 — Os 24 vídeos de voz antiga regravados (etapa 5)
+
+Etapa 5 do plano do proprietário de 23/11 (aprovada, com amostra curta antes).
+
+- Amostra: aula m1l1 regravada primeiro e um trecho de 60 s em `artifacts/voz-pronuncia/2026-11-23/m1l1-amostra-60s.mp3` (fora do git) para o proprietário ouvir.
+- Regravados no padrão de narração de 19–21/11 (voz Macerio Multilingual da Azure, termos em inglês em `<lang en-US>`, "flóp", "ríver", "séti"): os episódios ep11–ep13 (m0l1–m0l3) e as aulas m0l4–m0l8, m1l1–m1l3, m2l1–m2l3, m3l1–m3l3, m4l1–m4l3, m5l1, m5l2, m6l1 e m6l2. A exceção `LEGACY_VOICE_LESSONS` ficou vazia em `render.py` e em `courseAudit.test.ts`.
+- A m2l3 falhava na Azure ("Invalid char '<'"): o `&` do título "Potes Multiway & Set Mining" quebrava o SSML. `speak()` passa a falar "e" no lugar do `&` (só essa aula tinha o caractere).
+- Conferência: `render.py --check` (30 publicações, 156,1 minutos), `test_narration.py`, Vitest 160/160 (inclui `courseAudit`), `tsc`, `eslint` e build. Azure: cerca de 107 mil caracteres nesta regravação (186 mil no mês, dentro do plano gratuito de 500 mil e do teto de 400 mil do `narrate.py`).

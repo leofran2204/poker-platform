@@ -3,81 +3,81 @@
   "filename": "zt-academy-m2l2-v3",
   "contentHash": "64295cc91a3ed18c636c108e633960f067950155cd98b46556309fe0fb527a3c",
   "rendererVersion": 5,
-  "durationSeconds": 330.5,
+  "durationSeconds": 326.5,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9149970,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 9313629,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "79072b403ac50a9fc30d11a0069a954fe8d0cdc4a430d5782364985b57529f22",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "ffdd0380225f605530ca40671fdaac74e05a4b40a2c6b9d5d517166eb5e925ee",
   "chapters": [
     {
       "start": 0.0,
       "title": "Como responder a Check-Raise e a Arte do Float"
     },
     {
-      "start": 19.2,
+      "start": 18.5,
       "title": "Responder ao check-raise"
     },
     {
-      "start": 35.27,
+      "start": 35.13,
       "title": "Modelo explícito"
     },
     {
-      "start": 55.67,
+      "start": 53.9,
       "title": "Float"
     },
     {
-      "start": 71.53,
+      "start": 70.63,
       "title": "Refaça o preço após o raise"
     },
     {
-      "start": 105.1,
+      "start": 101.83,
       "title": "Refaça o preço após o raise"
     },
     {
-      "start": 109.7,
+      "start": 106.43,
       "title": "Força absoluta e força relativa"
     },
     {
-      "start": 140.57,
+      "start": 134.8,
       "title": "Um float precisa de plano"
     },
     {
-      "start": 166.1,
+      "start": 160.27,
       "title": "Laboratório: Responder ao check-raise"
     },
     {
-      "start": 203.3,
+      "start": 196.1,
       "title": "Laboratório: Responder ao check-raise"
     },
     {
-      "start": 212.37,
+      "start": 204.4,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 233.03,
+      "start": 226.03,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 247.17,
+      "start": 241.57,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 282.97,
+      "start": 280.77,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 296.67,
+      "start": 295.07,
       "title": "Agora, pratique"
     }
   ],
   "scenes": [
     {
       "start": 0.0,
-      "duration": 19.2,
+      "duration": 18.5,
       "focusStarts": [
         0.0
       ],
@@ -109,8 +109,8 @@
       ]
     },
     {
-      "start": 19.2,
-      "duration": 16.066666666666666,
+      "start": 18.5,
+      "duration": 16.633333333333333,
       "focusStarts": [
         0.0
       ],
@@ -142,8 +142,8 @@
       ]
     },
     {
-      "start": 35.266666666666666,
-      "duration": 20.4,
+      "start": 35.13333333333333,
+      "duration": 18.766666666666666,
       "focusStarts": [
         0.0
       ],
@@ -175,8 +175,8 @@
       ]
     },
     {
-      "start": 55.666666666666664,
-      "duration": 15.866666666666667,
+      "start": 53.9,
+      "duration": 16.733333333333334,
       "focusStarts": [
         0.0
       ],
@@ -208,15 +208,15 @@
       ]
     },
     {
-      "start": 71.53333333333333,
-      "duration": 33.56666666666667,
+      "start": 70.63333333333333,
+      "duration": 31.2,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 105.1,
+      "start": 101.83333333333333,
       "duration": 4.6,
       "focusStarts": [
         0.0
@@ -224,8 +224,8 @@
       "dealEvents": []
     },
     {
-      "start": 109.69999999999999,
-      "duration": 30.866666666666667,
+      "start": 106.43333333333332,
+      "duration": 28.366666666666667,
       "focusStarts": [
         0.0
       ],
@@ -257,8 +257,8 @@
       ]
     },
     {
-      "start": 140.56666666666666,
-      "duration": 25.533333333333335,
+      "start": 134.79999999999998,
+      "duration": 25.466666666666665,
       "focusStarts": [
         0.0
       ],
@@ -290,8 +290,8 @@
       ]
     },
     {
-      "start": 166.1,
-      "duration": 37.2,
+      "start": 160.26666666666665,
+      "duration": 35.833333333333336,
       "focusStarts": [
         0.0
       ],
@@ -323,8 +323,8 @@
       ]
     },
     {
-      "start": 203.3,
-      "duration": 9.066666666666666,
+      "start": 196.1,
+      "duration": 8.3,
       "focusStarts": [
         0.0
       ],
@@ -356,8 +356,8 @@
       ]
     },
     {
-      "start": 212.36666666666667,
-      "duration": 20.666666666666668,
+      "start": 204.4,
+      "duration": 21.633333333333333,
       "focusStarts": [
         0.0
       ],
@@ -389,8 +389,8 @@
       ]
     },
     {
-      "start": 233.03333333333333,
-      "duration": 14.133333333333333,
+      "start": 226.03333333333333,
+      "duration": 15.533333333333333,
       "focusStarts": [
         0.0
       ],
@@ -422,8 +422,8 @@
       ]
     },
     {
-      "start": 247.16666666666666,
-      "duration": 35.8,
+      "start": 241.56666666666666,
+      "duration": 39.2,
       "focusStarts": [
         0.0
       ],
@@ -455,8 +455,8 @@
       ]
     },
     {
-      "start": 282.96666666666664,
-      "duration": 13.7,
+      "start": 280.76666666666665,
+      "duration": 14.3,
       "focusStarts": [
         0.0
       ],
@@ -488,8 +488,8 @@
       ]
     },
     {
-      "start": 296.66666666666663,
-      "duration": 33.833333333333336,
+      "start": 295.06666666666666,
+      "duration": 31.433333333333334,
       "focusStarts": [
         0.0
       ],
@@ -521,11 +521,11 @@
       ]
     }
   ],
-  "sha256": "3abcfd43cc7dc17780377aa820c10cd4deb90a9acde17b58738d64be061f1eaf",
+  "sha256": "345aa335fc78d60fc9a9c605dda502c1f3422fe4de6d30545809e515d1606a84",
   "assetHashes": {
-    "mp4": "3abcfd43cc7dc17780377aa820c10cd4deb90a9acde17b58738d64be061f1eaf",
-    "vtt": "9970a894930cf740a16e2d7990a0e512adaeada26fe3c4acc9e6947fef43dffe",
+    "mp4": "345aa335fc78d60fc9a9c605dda502c1f3422fe4de6d30545809e515d1606a84",
+    "vtt": "cc12457834a7ae55b87fd10e0cc005a0cc5e8de5217187dec5d5070e18293508",
     "webp": "c0aad884fd630ce5ad13d9af3a6d717e19195541583cf5ea65ee9913d6dd6847"
   },
-  "mediaRevision": "348e687e58a4605cff2ffca5bf32322740704d6d3acf95cf4d37c439f42641e2"
+  "mediaRevision": "60a14241b0ecb9198c149993d914f34e208b7e1f959fbaf681757753a7f9c81c"
 }

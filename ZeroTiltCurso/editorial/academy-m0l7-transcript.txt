@@ -1,4 +1,4 @@
-Zero Tilt Academy. Aumento ou descarte: a primeira decisão. Nesta aula, nosso objetivo é: Distinguir uma mão de abertura de uma desistência disciplinada. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+Esta é a Zero Tilt Academy, e a aula de hoje é: Aumento ou descarte: a primeira decisão. Nesta aula, nosso objetivo é: Distinguir uma mão de abertura de uma desistência disciplinada. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
 
 Agressão seletiva. Em potes ainda fechados no Texas cash, um plano de raise ou fold pode simplificar as decisões iniciais. É uma estratégia didática com hipóteses, não uma lei do poker: completar no small blind e estratégias de limp podem existir em outros contextos.
 
@@ -16,12 +16,12 @@ Laboratório: Abrir com um plano. Objetivo: Distinguir uma mão de abertura de u
 
 Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
 
-No plano inicial de Texas cash 9-max, 100 big blinds, pote fechado, qual decisão treinamos com sete e dois de naipes diferentes no posição inicial? A. Aumentar para roubar os blinds B. Descartar C. Pagar para ver o flop Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+No plano inicial de Texas cash 9-max, 100 big blinds, pote fechado, qual decisão treinamos com sete e dois de naipes diferentes no posição inicial? As alternativas são: A, Aumentar para roubar os blinds; B, Descartar; C, Pagar para ver o flop. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
 
-Resposta do exercício: Descartar. O plano inicial exclui sete e dois de naipes diferentes desta posição. Isso não define uma estratégia universal para qualquer formato.
+Vamos à resposta. A alternativa certa deste exercício é: Descartar. O plano inicial exclui sete e dois de naipes diferentes desta posição. Isso não define uma estratégia universal para qualquer formato.
 
-No mesmo plano, todos deram fold e você tem par de ases no botão. Qual decisão treinamos? A. Limp para disfarçar a força B. Aumentar por valor C. Descartar de vez em quando Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+No mesmo plano, todos deram fold e você tem par de ases no botão. Qual decisão treinamos? As alternativas são: A, Limp para disfarçar a força; B, Aumentar por valor; C, Descartar de vez em quando. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
 
-Resposta do exercício: Aumentar por valor. par de ases quer pote grande e poucos oponentes; limp chama a mesa inteira barato.
+Vamos à resposta. A alternativa certa deste exercício é: Aumentar por valor. par de ases quer pote grande e poucos oponentes; limp chama a mesa inteira barato.
 
 Abra o simulador da aula e escolha o cenário Abrir com um plano. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

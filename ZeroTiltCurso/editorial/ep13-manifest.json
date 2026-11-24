@@ -1,44 +1,44 @@
 {
   "filename": "ep13-historia-pessoas-v2",
-  "durationSeconds": 80.1,
+  "durationSeconds": 75.03,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 2208123,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 2158751,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "chapters": [
     {
       "start": 0.0,
       "title": "Além do nome do campeão."
     },
     {
-      "start": 11.77,
+      "start": 10.9,
       "title": "Johnny Moss. Do voto ao torneio."
     },
     {
-      "start": 25.23,
+      "start": 23.3,
       "title": "O público cresce. O Brasil aparece."
     },
     {
-      "start": 43.9,
+      "start": 41.03,
       "title": "Até a palavra “resolvido” tem limites."
     },
     {
-      "start": 62.93,
+      "start": 58.97,
       "title": "Estude a decisão. Revise o raciocínio."
     }
   ],
   "episodeHash": "91cf9c96d0c6da63ed4146d82fa5c8cfd8979430057615035a555885da9b4a3f",
-  "sha256": "b6ba1e0adc71d85c5648ba4bcbc48c44f868c762853f9f2fd8921be0bb1a1cd6",
+  "sha256": "e385c5299ffc375c090cc9cceb7d572e2cc6bdc513eb4fd4b5d024926811a0ea",
   "rendererVersion": 4,
   "assetHashes": {
-    "mp4": "b6ba1e0adc71d85c5648ba4bcbc48c44f868c762853f9f2fd8921be0bb1a1cd6",
-    "vtt": "e70417531e67518f5d6970b789c6df5f741dfd77c5ef2439b676f730a1622925",
+    "mp4": "e385c5299ffc375c090cc9cceb7d572e2cc6bdc513eb4fd4b5d024926811a0ea",
+    "vtt": "f6a67337a71f11ea240f849f81231acb711acc8f68b7a08d7023e21919dc240f",
     "webp": "5f9ad9e44b94445f013753e745357dfc064760bb342da03234372622c2f5184d"
   },
-  "mediaRevision": "4e2bb950068cff1f237d0f092fde0704a298508281547da44e0c1c60c44a17b4",
+  "mediaRevision": "c11bf3b8e25ec583eebb31d5ba36e19ef4e4872a051369f5650ce2e07c0903e7",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "148e4e5c1b3513670fd5cd9fa370bff02fbe1ad51ad071d54b84f119b120ec34",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "24f1e263caf73a55d791279bc69eeef9145159fb9fc6e3129e7eb4b77b207428",
   "contentHash": "4e4c40ccadbc8b354ea2accb712d470218d8ad56f72b0ea25aafbfabebf9e8b0"
 }

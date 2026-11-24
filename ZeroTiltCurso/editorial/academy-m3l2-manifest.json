@@ -3,77 +3,77 @@
   "filename": "zt-academy-m3l2-v3",
   "contentHash": "24a41a912452ab0e7f5bbb4c4500e7ce57a557a44bea4d31a18ac61514756868",
   "rendererVersion": 5,
-  "durationSeconds": 325.53,
+  "durationSeconds": 321.33,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8600760,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 8879406,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "d48103962286e7e70a7323a3c9cd97dd985599ac9907952bb8786103070640af",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "59adb884b1a7a7020870c6e5c5e560d9cae9c1d476d6e44f1841b61b3176944f",
   "chapters": [
     {
       "start": 0.0,
       "title": "Pot Control vs. Apostas Polarizadas"
     },
     {
-      "start": 20.5,
+      "start": 18.83,
       "title": "Pot control"
     },
     {
-      "start": 34.83,
+      "start": 34.37,
       "title": "Polarização"
     },
     {
-      "start": 49.87,
+      "start": 47.93,
       "title": "Exercício"
     },
     {
-      "start": 70.9,
+      "start": 66.7,
       "title": "Relação entre stack e pote"
     },
     {
-      "start": 102.9,
+      "start": 98.9,
       "title": "Proteja a leitura do check"
     },
     {
-      "start": 130.0,
+      "start": 125.93,
       "title": "A polarização é uma composição"
     },
     {
-      "start": 162.9,
+      "start": 156.0,
       "title": "Laboratório: Controlar com mão intermediária"
     },
     {
-      "start": 201.3,
+      "start": 191.8,
       "title": "Laboratório: Controlar com mão intermediária"
     },
     {
-      "start": 210.37,
+      "start": 200.1,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 229.83,
+      "start": 220.73,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 245.0,
+      "start": 237.53,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 277.17,
+      "start": 273.1,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 291.5,
+      "start": 289.53,
       "title": "Agora, pratique"
     }
   ],
   "scenes": [
     {
       "start": 0.0,
-      "duration": 20.5,
+      "duration": 18.833333333333332,
       "focusStarts": [
         0.0
       ],
@@ -89,16 +89,16 @@
       ]
     },
     {
-      "start": 20.5,
-      "duration": 14.333333333333334,
+      "start": 18.833333333333332,
+      "duration": 15.533333333333333,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 34.833333333333336,
-      "duration": 15.033333333333333,
+      "start": 34.36666666666667,
+      "duration": 13.566666666666666,
       "focusStarts": [
         0.0
       ],
@@ -114,8 +114,8 @@
       ]
     },
     {
-      "start": 49.86666666666667,
-      "duration": 21.033333333333335,
+      "start": 47.93333333333334,
+      "duration": 18.766666666666666,
       "focusStarts": [
         0.0
       ],
@@ -131,8 +131,8 @@
       ]
     },
     {
-      "start": 70.9,
-      "duration": 32.0,
+      "start": 66.7,
+      "duration": 32.2,
       "focusStarts": [
         0.0
       ],
@@ -148,8 +148,8 @@
       ]
     },
     {
-      "start": 102.9,
-      "duration": 27.1,
+      "start": 98.9,
+      "duration": 27.033333333333335,
       "focusStarts": [
         0.0
       ],
@@ -165,8 +165,8 @@
       ]
     },
     {
-      "start": 130.0,
-      "duration": 32.9,
+      "start": 125.93333333333334,
+      "duration": 30.066666666666666,
       "focusStarts": [
         0.0
       ],
@@ -182,24 +182,24 @@
       ]
     },
     {
-      "start": 162.9,
-      "duration": 38.4,
+      "start": 156.0,
+      "duration": 35.8,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 201.3,
-      "duration": 9.066666666666666,
+      "start": 191.8,
+      "duration": 8.3,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 210.36666666666667,
-      "duration": 19.466666666666665,
+      "start": 200.10000000000002,
+      "duration": 20.633333333333333,
       "focusStarts": [
         0.0
       ],
@@ -215,8 +215,8 @@
       ]
     },
     {
-      "start": 229.83333333333334,
-      "duration": 15.166666666666666,
+      "start": 220.73333333333335,
+      "duration": 16.8,
       "focusStarts": [
         0.0
       ],
@@ -232,8 +232,8 @@
       ]
     },
     {
-      "start": 245.0,
-      "duration": 32.166666666666664,
+      "start": 237.53333333333336,
+      "duration": 35.56666666666667,
       "focusStarts": [
         0.0
       ],
@@ -249,8 +249,8 @@
       ]
     },
     {
-      "start": 277.1666666666667,
-      "duration": 14.333333333333334,
+      "start": 273.1,
+      "duration": 16.433333333333334,
       "focusStarts": [
         0.0
       ],
@@ -266,8 +266,8 @@
       ]
     },
     {
-      "start": 291.5,
-      "duration": 34.03333333333333,
+      "start": 289.53333333333336,
+      "duration": 31.8,
       "focusStarts": [
         0.0
       ],
@@ -283,11 +283,11 @@
       ]
     }
   ],
-  "sha256": "81393d88ad1c4a24088fa04c391166bf06a13ad65ae8de7b53f3b5e9af8a9da9",
+  "sha256": "9a005d5006875adcd6be14cc558b5d41b24ceaf32cacef14667e9524b2066c29",
   "assetHashes": {
-    "mp4": "81393d88ad1c4a24088fa04c391166bf06a13ad65ae8de7b53f3b5e9af8a9da9",
-    "vtt": "2efe310f7bb0a0d8fbf46af2eaf18828761d040ddc935190ee0d6db89622256a",
+    "mp4": "9a005d5006875adcd6be14cc558b5d41b24ceaf32cacef14667e9524b2066c29",
+    "vtt": "6fcef6489c6daca75a08554e746ba5e841b5ee69d4d41241ee2d49410a0dbabb",
     "webp": "0d95212562e7540225ff59a4029443d7be2a11b03e6327ed116ca878be7e33c9"
   },
-  "mediaRevision": "d0a2909278a3f9e4fff08c69c16f5b65fe28694a7e4b11b91dae07076940012a"
+  "mediaRevision": "26317ab0c007ed13ec71ce0b5c8a0b92ba99842e5e914c75aae366caa53e0175"
 }

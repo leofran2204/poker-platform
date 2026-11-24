@@ -1,253 +1,265 @@
 WEBVTT
 
-00:00:00.501 --> 00:00:06.083
-Zero Tilt Academy valor esperado e fold equity Nesta aula
+00:00:00.450 --> 00:00:02.989
+Esta é a Zero Tilt Academy e a aula de
 
-00:00:06.328 --> 00:00:09.743
-nosso objetivo é Separar a conta exata do preço de
+00:00:02.989 --> 00:00:07.293
+hoje é valor esperado e fold equity Nesta aula nosso
 
-00:00:09.756 --> 00:00:14.640
-uma hipótese de equity Vamos desenvolver a teoria resolver exemplos
+00:00:07.293 --> 00:00:10.527
+objetivo é Separar a conta exata do preço de uma
 
-00:00:14.653 --> 00:00:16.959
+00:00:10.527 --> 00:00:15.050
+hipótese de equity Vamos desenvolver a teoria resolver exemplos
+
+00:00:15.051 --> 00:00:17.319
 e aplicar a ideia na mesa deste módulo
 
-00:00:19.135 --> 00:00:23.982
+00:00:18.850 --> 00:00:23.747
 Valor esperado valor esperado é a média ponderada dos resultados
 
-00:00:23.995 --> 00:00:28.118
+00:00:23.747 --> 00:00:27.432
 de um modelo Para um call final sem rake valor
 
-00:00:28.131 --> 00:00:31.443
+00:00:27.432 --> 00:00:30.615
 esperado igual a equity vezes pote final menos custo do
 
-00:00:31.456 --> 00:00:35.850
+00:00:30.615 --> 00:00:34.533
 call valor esperado positivo não garante lucro em mil mãos
 
-00:00:35.863 --> 00:00:37.616
+00:00:34.533 --> 00:00:36.350
 nem em qualquer sequência finita
 
-00:00:39.802 --> 00:00:44.275
-Fold equity e semi-blefe Uma aposta com projeto pode ganhar
+00:00:37.883 --> 00:00:42.548
+Agora o próximo tema é Fold equity e semi-blefe Uma
 
-00:00:44.288 --> 00:00:48.231
-quando todos desistem ou no showdown Ter duas formas de
+00:00:42.548 --> 00:00:45.873
+aposta com projeto pode ganhar quando todos desistem ou no
 
-00:00:48.244 --> 00:00:52.625
-ganhar não prova que apostar é lucrativo Considere frequência
+00:00:45.873 --> 00:00:49.713
+showdown Ter duas formas de ganhar não prova que apostar
 
-00:00:52.638 --> 00:00:57.058
-de folds range que paga tamanho raises e futuras apostas
+00:00:49.713 --> 00:00:54.687
+é lucrativo Considere frequência de folds range que paga tamanho
 
-00:00:59.235 --> 00:01:04.133
+00:00:54.984 --> 00:00:56.788
+raises e futuras apostas
+
+00:00:58.317 --> 00:01:02.556
 Modelo simplificado Se o pote inicial é P sua aposta
 
-00:01:04.146 --> 00:01:07.419
+00:01:02.556 --> 00:01:05.662
 é B todos desistem com frequência F e quando há
 
-00:01:07.432 --> 00:01:11.595
+00:01:05.662 --> 00:01:09.734
 um call sua equity é e sem raises apostas posteriores
 
-00:01:11.608 --> 00:01:14.958
+00:01:09.734 --> 00:01:12.917
 ou rake valor esperado igual a F vezes P mais
 
-00:01:15.319 --> 00:01:19.610
+00:01:13.188 --> 00:01:17.118
 1 menos F vezes e vezes P mais 2B menos
 
-00:01:19.623 --> 00:01:22.974
+00:01:17.118 --> 00:01:20.894
 B As hipóteses fazem parte da fórmula
 
-00:01:25.135 --> 00:01:29.608
+00:01:22.417 --> 00:01:26.785
 Exercício P igual a 10 B igual a 5 F
 
-00:01:29.621 --> 00:01:32.688
+00:01:26.785 --> 00:01:29.775
 igual a 0 e igual a 20 por cento valor
 
-00:01:32.701 --> 00:01:36.309
+00:01:29.775 --> 00:01:33.190
 esperado igual a 0,2 vezes 20 menos 5 igual a
 
-00:01:36.322 --> 00:01:40.471
+00:01:33.190 --> 00:01:36.940
 menos 1 Um projeto pode ter valor esperado negativo se
 
-00:01:40.484 --> 00:01:42.881
+00:01:36.940 --> 00:01:39.543
 ninguém desiste e a equity não cobre o preço
 
-00:01:45.035 --> 00:01:49.779
+00:01:41.050 --> 00:01:45.650
 Derive as parcelas do modelo Se todos desistem você ganha
 
-00:01:49.792 --> 00:01:52.884
+00:01:45.651 --> 00:01:48.434
 o pote que já existia Se há um call e
 
-00:01:52.897 --> 00:01:56.364
+00:01:48.434 --> 00:01:51.952
 não existem outras ações o pote final inclui sua aposta
 
-00:01:56.377 --> 00:02:00.268
+00:01:51.952 --> 00:01:55.225
 e a aposta que o rival igualou Multiplique sua parcela
 
-00:02:00.281 --> 00:02:04.714
+00:01:55.225 --> 00:01:59.297
 esperada por esse pote e desconte seu investimento Só então
 
-00:02:04.727 --> 00:02:06.905
+00:01:59.297 --> 00:02:01.720
 pondere o ramo de fold e o ramo de call
 
-00:02:07.794 --> 00:02:10.771
+00:02:02.068 --> 00:02:05.096
 Se houver raise mais de um caller ou novas streets
 
-00:02:11.054 --> 00:02:13.116
+00:02:05.470 --> 00:02:07.609
 a árvore precisa ganhar esses ramos
 
-00:02:15.302 --> 00:02:20.355
+00:02:09.150 --> 00:02:14.111
 Compare duas hipóteses Com pote 10 aposta 5 e equity
 
-00:02:20.368 --> 00:02:22.996
+00:02:14.111 --> 00:02:16.818
 de 20 por cento quando pago o ramo de call
 
-00:02:23.009 --> 00:02:26.965
+00:02:16.818 --> 00:02:20.116
 vale menos 1 Se todos desistem 30 por cento das
 
-00:02:26.978 --> 00:02:31.355
+00:02:20.116 --> 00:02:24.314
 vezes o modelo resulta em 0,30 vezes 10 mais 0,70
 
-00:02:31.355 --> 00:02:37.687
+00:02:24.314 --> 00:02:30.258
 vezes menos 1 2,3 big blinds Se ninguém desiste vale
 
-00:02:37.700 --> 00:02:42.094
+00:02:30.258 --> 00:02:34.279
 menos 1 A mudança veio da hipótese de resposta não
 
-00:02:42.107 --> 00:02:46.463
+00:02:34.279 --> 00:02:38.003
 de uma garantia embutida nas cartas Não transporte esses 30
 
-00:02:46.463 --> 00:02:49.040
+00:02:38.003 --> 00:02:40.735
 por cento para o perfil do bot sem medição ou
 
-00:02:49.053 --> 00:02:49.723
+00:02:40.735 --> 00:02:41.470
 definição
 
-00:02:51.902 --> 00:02:56.504
+00:02:42.983 --> 00:02:47.378
 Margem e incerteza Pequenas diferenças de valor esperado podem
 
-00:02:56.516 --> 00:03:01.710
+00:02:47.378 --> 00:02:52.275
 desaparecer quando você altera rake ranges ou frequências Registre
 
-00:03:01.723 --> 00:03:06.388
+00:02:52.275 --> 00:02:56.888
 quais parâmetros mudariam sua decisão Em uma sessão curta a
 
-00:03:06.401 --> 00:03:10.937
+00:02:56.888 --> 00:03:00.960
 soma observada pode se afastar bastante da média prevista O
 
-00:03:10.950 --> 00:03:14.558
+00:03:00.960 --> 00:03:04.684
 treino avalia contas e leituras no contexto declarado e não
 
-00:03:14.571 --> 00:03:17.315
+00:03:04.684 --> 00:03:07.403
 premia a perseguição de resultados positivos
 
-00:03:19.502 --> 00:03:25.547
+00:03:08.917 --> 00:03:15.141
 Laboratório Preço hipótese e resultado Objetivo Separar a conta
 
-00:03:25.560 --> 00:03:29.039
+00:03:15.141 --> 00:03:18.375
 exata do preço de uma hipótese de equity Abra a
 
-00:03:29.052 --> 00:03:33.060
+00:03:18.375 --> 00:03:22.267
 mesa deste módulo e comece pelo treino guiado A tela
 
-00:03:33.073 --> 00:03:37.312
+00:03:22.267 --> 00:03:26.378
 informa o preço A equity depende do range o resultado
 
-00:03:37.325 --> 00:03:41.475
+00:03:26.378 --> 00:03:30.231
 desta mão não prova a rentabilidade do call Depois repita
 
-00:03:41.488 --> 00:03:45.405
+00:03:30.231 --> 00:03:34.252
 no modo desafio respondendo à pergunta objetiva antes de cada
 
-00:03:45.418 --> 00:03:49.529
+00:03:34.252 --> 00:03:38.143
 ação Use o replay para comparar uma alternativa na mesma
 
-00:03:49.542 --> 00:03:50.354
+00:03:38.143 --> 00:03:39.046
 distribuição
 
-00:03:52.502 --> 00:03:56.071
+00:03:40.583 --> 00:03:44.179
 Uma nova distribuição preserva as cartas que definem o cenário
 
-00:03:56.084 --> 00:04:01.240
+00:03:44.179 --> 00:03:48.857
 e varia as demais Registre sua justificativa no caderno acertar
 
-00:04:01.253 --> 00:04:04.410
+00:03:48.857 --> 00:03:51.949
 a leitura e respeitar as hipóteses importam mais que ganhar
 
-00:04:04.423 --> 00:04:04.913
+00:03:51.949 --> 00:03:52.529
 esta mão
 
-00:04:07.068 --> 00:04:12.327
-O que é valor esperado valor esperado A A média
+00:03:54.050 --> 00:03:58.934
+O que é valor esperado valor esperado As alternativas são
 
-00:04:12.340 --> 00:04:16.490
-de todos os futuros possíveis da jogada B O resultado
+00:03:59.192 --> 00:04:02.220
+A A média de todos os futuros possíveis da jogada
 
-00:04:16.503 --> 00:04:20.317
-da mão atual C O tamanho do pote dividido pelo
+00:04:02.620 --> 00:04:06.060
+B O resultado da mão atual C O tamanho do
 
-00:04:20.330 --> 00:04:23.526
-stack Pause o vídeo faça sua leitura e registre uma
+00:04:06.060 --> 00:04:10.236
+pote dividido pelo stack Pause o vídeo faça sua leitura
 
-00:04:23.539 --> 00:04:25.163
-resposta antes de continuar
+00:04:10.236 --> 00:04:12.658
+e registre uma resposta antes de continuar
 
-00:04:27.335 --> 00:04:31.149
-Resposta do exercício A média de todos os futuros possíveis
+00:04:14.183 --> 00:04:19.054
+Vamos à resposta A alternativa certa deste exercício é A
 
-00:04:31.162 --> 00:04:36.009
-da jogada valor esperado é uma média ponderada pelas probabilidades
+00:04:19.054 --> 00:04:23.307
+média de todos os futuros possíveis da jogada valor esperado
 
-00:04:36.022 --> 00:04:40.352
-do modelo A amostra observada pode divergir dessa média
+00:04:23.307 --> 00:04:27.534
+é uma média ponderada pelas probabilidades do modelo A amostra
 
-00:04:42.502 --> 00:04:46.368
+00:04:27.534 --> 00:04:30.072
+observada pode divergir dessa média
+
+00:04:31.617 --> 00:04:35.431
 No modelo sem raises rake ou apostas futuras P igual
 
-00:04:46.380 --> 00:04:49.538
+00:04:35.431 --> 00:04:38.537
 a 10 B igual a 5 ninguém desiste e sua
 
-00:04:49.550 --> 00:04:53.534
+00:04:38.537 --> 00:04:42.003
 equity quando pago é 20 por cento Qual valor esperado
 
-00:04:53.547 --> 00:04:57.037
-da aposta A mais 1 B 0 C menos 1
+00:04:42.003 --> 00:04:47.300
+da aposta As alternativas são A mais 1 B 0
 
-00:04:57.037 --> 00:05:00.544
-Pause o vídeo faça sua leitura e registre uma resposta
+00:04:47.699 --> 00:04:51.746
+C menos 1 Pause o vídeo faça sua leitura e
 
-00:05:00.557 --> 00:05:01.601
-antes de continuar
+00:04:51.746 --> 00:04:54.104
+registre uma resposta antes de continuar
 
-00:05:03.768 --> 00:05:09.563
-Resposta do exercício menos 1 0,20 vezes 10 mais 5
+00:04:55.617 --> 00:05:00.720
+Vamos à resposta A alternativa certa deste exercício é menos
 
-00:05:09.563 --> 00:05:14.002
-mais 5 menos 5 igual a menos 1 A existência
+00:05:00.720 --> 00:05:05.825
+1 0,20 vezes 10 mais 5 mais 5 menos 5
 
-00:05:14.015 --> 00:05:16.154
-de um draw não garante aposta lucrativa
+00:05:05.825 --> 00:05:09.148
+igual a menos 1 A existência de um draw não
 
-00:05:18.335 --> 00:05:21.067
+00:05:09.148 --> 00:05:10.900
+garante aposta lucrativa
+
+00:05:12.417 --> 00:05:15.226
 Abra o simulador da aula e escolha o cenário Preço
 
-00:05:21.325 --> 00:05:26.391
+00:05:15.548 --> 00:05:20.419
 hipótese e resultado Jogue uma mão completa responda às perguntas
 
-00:05:26.403 --> 00:05:30.488
+00:05:20.419 --> 00:05:24.221
 e registre seu plano Depois use o replay para comparar
 
-00:05:30.501 --> 00:05:34.702
+00:05:24.221 --> 00:05:28.254
 outra ação na mesma distribuição Volte em outra sessão no
 
-00:05:34.715 --> 00:05:39.548
+00:05:28.254 --> 00:05:32.636
 modo desafio Avalie o raciocínio com as informações disponíveis
 
-00:05:39.818 --> 00:05:43.942
+00:05:33.035 --> 00:05:36.824
 sem confundir uma vitória isolada com uma boa estratégia As
 
-00:05:43.955 --> 00:05:48.233
+00:05:36.824 --> 00:05:40.729
 fontes estão no material de apoio Este curso não promete
 
-00:05:48.246 --> 00:05:50.450
+00:05:40.729 --> 00:05:43.177
 lucro e o treino usa fichas sem valor

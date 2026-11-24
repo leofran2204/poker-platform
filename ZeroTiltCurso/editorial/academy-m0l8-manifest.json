@@ -3,192 +3,192 @@
   "filename": "zt-academy-m0l8-v3",
   "contentHash": "0b7accbe65f90f1c71a58ae6a26443db559ac49804385bf742a38d644e6a52e4",
   "rendererVersion": 5,
-  "durationSeconds": 310.77,
+  "durationSeconds": 304.57,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8121999,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 8138556,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "4d5954c9620f68f2243253c1aa251a46103f1cba2c4f89e2d93fe88fe9894b30",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "5b8e75ce2f378a37f735b5a089492a4ef8694b6cc4c976eabedbae832d9d48ca",
   "chapters": [
     {
       "start": 0.0,
       "title": "Sizing: o tamanho certo"
     },
     {
-      "start": 18.0,
+      "start": 17.9,
       "title": "Declare o tamanho e a unidade"
     },
     {
-      "start": 36.0,
+      "start": 34.2,
       "title": "Exemplo de plano"
     },
     {
-      "start": 66.47,
+      "start": 63.73,
       "title": "Pratique"
     },
     {
-      "start": 78.73,
+      "start": 74.87,
       "title": "Preço produzido pela aposta"
     },
     {
-      "start": 111.9,
+      "start": 105.77,
       "title": "Incremento e mínimo"
     },
     {
-      "start": 145.3,
+      "start": 136.53,
       "title": "Compare respostas"
     },
     {
-      "start": 171.1,
+      "start": 160.07,
       "title": "Laboratório: O raise é um total"
     },
     {
-      "start": 210.87,
+      "start": 197.07,
       "title": "Laboratório: O raise é um total"
     },
     {
-      "start": 219.93,
+      "start": 205.37,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 235.1,
+      "start": 223.9,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 248.07,
+      "start": 238.63,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 265.4,
+      "start": 259.53,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 277.4,
+      "start": 273.5,
       "title": "Agora, pratique"
     }
   ],
   "scenes": [
     {
       "start": 0.0,
-      "duration": 18.0,
+      "duration": 17.9,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 18.0,
-      "duration": 18.0,
+      "start": 17.9,
+      "duration": 16.3,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 36.0,
-      "duration": 30.466666666666665,
+      "start": 34.2,
+      "duration": 29.533333333333335,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 66.46666666666667,
-      "duration": 12.266666666666667,
+      "start": 63.733333333333334,
+      "duration": 11.133333333333333,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 78.73333333333333,
-      "duration": 33.166666666666664,
+      "start": 74.86666666666667,
+      "duration": 30.9,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 111.9,
-      "duration": 33.4,
+      "start": 105.76666666666668,
+      "duration": 30.766666666666666,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 145.3,
-      "duration": 25.8,
+      "start": 136.53333333333336,
+      "duration": 23.533333333333335,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 171.10000000000002,
-      "duration": 39.766666666666666,
+      "start": 160.0666666666667,
+      "duration": 37.0,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 210.86666666666667,
-      "duration": 9.066666666666666,
+      "start": 197.0666666666667,
+      "duration": 8.3,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 219.93333333333334,
-      "duration": 15.166666666666666,
+      "start": 205.3666666666667,
+      "duration": 18.533333333333335,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 235.1,
-      "duration": 12.966666666666667,
+      "start": 223.90000000000003,
+      "duration": 14.733333333333333,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 248.06666666666666,
-      "duration": 17.333333333333332,
+      "start": 238.63333333333335,
+      "duration": 20.9,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 265.4,
-      "duration": 12.0,
+      "start": 259.53333333333336,
+      "duration": 13.966666666666667,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 277.4,
-      "duration": 33.36666666666667,
+      "start": 273.5,
+      "duration": 31.066666666666666,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     }
   ],
-  "sha256": "26689e09075f7587e76c3b1776568cd600b3a17ca180aa9019675852699f6ea0",
+  "sha256": "77ab5f8e0414fda461a77ceaf15dfb44ca6b27ca5e554d31ff31c3956b4012b2",
   "assetHashes": {
-    "mp4": "26689e09075f7587e76c3b1776568cd600b3a17ca180aa9019675852699f6ea0",
-    "vtt": "c82a96527a30516991587ae29f9406a3819f1efec5fb5bb44481f46cf36f8887",
+    "mp4": "77ab5f8e0414fda461a77ceaf15dfb44ca6b27ca5e554d31ff31c3956b4012b2",
+    "vtt": "635f68e4da9c43e32fdedb89591bcdaed4de71d87901c6cd6877eb223973f96a",
     "webp": "d0eb132dc25d29d598a08df746d32c127a8046c23269b657db3edc52a2062ab3"
   },
-  "mediaRevision": "3a2071d209d6b69ecfaaaaee618c2bb485303c3b14c6fdbe7deaad8f31c20c28"
+  "mediaRevision": "76e34be3c18904528122cebced8657f3aa0e27ca92ff35ed5917239b46679c8f"
 }

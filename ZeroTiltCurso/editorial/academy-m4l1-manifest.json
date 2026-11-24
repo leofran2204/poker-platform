@@ -3,77 +3,77 @@
   "filename": "zt-academy-m4l1-v3",
   "contentHash": "fcabbcdfad51fc9b566055795f7018c12ede93e40129c5f21b5b945a5667b99d",
   "rendererVersion": 5,
-  "durationSeconds": 329.37,
+  "durationSeconds": 322.93,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8879782,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 9041069,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "58b4cc80d6d85dda973014aed9a3e03633df5687b96914e8c0b34a03c2b484d4",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "0c6b146d83b3b4e57762eb020208241b941ea110ccd51ef397fa65b4cb0f7039",
   "chapters": [
     {
       "start": 0.0,
       "title": "Thin Value Bet vs. Blefe Puro"
     },
     {
-      "start": 19.73,
+      "start": 18.27,
       "title": "Valor no river"
     },
     {
-      "start": 37.43,
+      "start": 34.5,
       "title": "Exemplo com hipótese"
     },
     {
-      "start": 58.43,
+      "start": 55.53,
       "title": "Ações legais"
     },
     {
-      "start": 72.6,
+      "start": 68.4,
       "title": "O range que paga é o relevante"
     },
     {
-      "start": 100.03,
+      "start": 93.93,
       "title": "Compare com dar check"
     },
     {
-      "start": 128.57,
+      "start": 122.8,
       "title": "Exercício controlado"
     },
     {
-      "start": 159.63,
+      "start": 151.9,
       "title": "Laboratório: Receber de mãos piores"
     },
     {
-      "start": 198.1,
+      "start": 188.1,
       "title": "Laboratório: Receber de mãos piores"
     },
     {
-      "start": 207.17,
+      "start": 196.4,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 230.67,
+      "start": 220.57,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 245.93,
+      "start": 237.7,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 283.7,
+      "start": 277.5,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 295.5,
+      "start": 291.33,
       "title": "Agora, pratique"
     }
   ],
   "scenes": [
     {
       "start": 0.0,
-      "duration": 19.733333333333334,
+      "duration": 18.266666666666666,
       "focusStarts": [
         0.0
       ],
@@ -89,8 +89,8 @@
       ]
     },
     {
-      "start": 19.733333333333334,
-      "duration": 17.7,
+      "start": 18.266666666666666,
+      "duration": 16.233333333333334,
       "focusStarts": [
         0.0
       ],
@@ -106,8 +106,8 @@
       ]
     },
     {
-      "start": 37.43333333333334,
-      "duration": 21.0,
+      "start": 34.5,
+      "duration": 21.033333333333335,
       "focusStarts": [
         0.0
       ],
@@ -123,8 +123,8 @@
       ]
     },
     {
-      "start": 58.43333333333334,
-      "duration": 14.166666666666666,
+      "start": 55.53333333333333,
+      "duration": 12.866666666666667,
       "focusStarts": [
         0.0
       ],
@@ -140,16 +140,16 @@
       ]
     },
     {
-      "start": 72.60000000000001,
-      "duration": 27.433333333333334,
+      "start": 68.4,
+      "duration": 25.533333333333335,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 100.03333333333335,
-      "duration": 28.533333333333335,
+      "start": 93.93333333333334,
+      "duration": 28.866666666666667,
       "focusStarts": [
         0.0
       ],
@@ -165,16 +165,16 @@
       ]
     },
     {
-      "start": 128.5666666666667,
-      "duration": 31.066666666666666,
+      "start": 122.80000000000001,
+      "duration": 29.1,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 159.63333333333335,
-      "duration": 38.46666666666667,
+      "start": 151.9,
+      "duration": 36.2,
       "focusStarts": [
         0.0
       ],
@@ -190,8 +190,8 @@
       ]
     },
     {
-      "start": 198.10000000000002,
-      "duration": 9.066666666666666,
+      "start": 188.10000000000002,
+      "duration": 8.3,
       "focusStarts": [
         0.0
       ],
@@ -207,8 +207,8 @@
       ]
     },
     {
-      "start": 207.16666666666669,
-      "duration": 23.5,
+      "start": 196.40000000000003,
+      "duration": 24.166666666666668,
       "focusStarts": [
         0.0
       ],
@@ -224,8 +224,8 @@
       ]
     },
     {
-      "start": 230.66666666666669,
-      "duration": 15.266666666666667,
+      "start": 220.5666666666667,
+      "duration": 17.133333333333333,
       "focusStarts": [
         0.0
       ],
@@ -241,8 +241,8 @@
       ]
     },
     {
-      "start": 245.93333333333337,
-      "duration": 37.766666666666666,
+      "start": 237.70000000000002,
+      "duration": 39.8,
       "focusStarts": [
         0.0
       ],
@@ -258,8 +258,8 @@
       ]
     },
     {
-      "start": 283.70000000000005,
-      "duration": 11.8,
+      "start": 277.5,
+      "duration": 13.833333333333334,
       "focusStarts": [
         0.0
       ],
@@ -275,8 +275,8 @@
       ]
     },
     {
-      "start": 295.50000000000006,
-      "duration": 33.86666666666667,
+      "start": 291.3333333333333,
+      "duration": 31.6,
       "focusStarts": [
         0.0
       ],
@@ -292,11 +292,11 @@
       ]
     }
   ],
-  "sha256": "66d35d5ab8ead36e1f0ebf4b6a3886522d7a4f5a4be33cfa6ee12cede2863d69",
+  "sha256": "035b0d1ddcc57e812a4b83761afce5adb9bfeda65a0a62559a71a67216d0070d",
   "assetHashes": {
-    "mp4": "66d35d5ab8ead36e1f0ebf4b6a3886522d7a4f5a4be33cfa6ee12cede2863d69",
-    "vtt": "c7126d0a65a2f656677b1a029dcedd7a8efe3975b23df58c3d5415a13a4b9127",
+    "mp4": "035b0d1ddcc57e812a4b83761afce5adb9bfeda65a0a62559a71a67216d0070d",
+    "vtt": "2bd095d7976d5c319b736b12660eafeca1ae850c42fe42807477e7e3398975af",
     "webp": "706e5b4d3e2f6e32fd707e70e9808b04e164ddaaef46e98aed037258367cb7b3"
   },
-  "mediaRevision": "35aebf19768933474f0c526a12aa2f3bf35d0fd923c0cdd597fdda02a6595d61"
+  "mediaRevision": "0401c55dba3cd867b4f320c7baadcaa560fab5bb666130bcea4a38a7d89ae368"
 }

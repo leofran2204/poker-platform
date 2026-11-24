@@ -3,73 +3,73 @@
   "filename": "zt-academy-m5l1-v3",
   "contentHash": "e7f0a57b7d2415a82e5f84c364ed3f952b2928ffbd3d3ffa927b11ad77727ca8",
   "rendererVersion": 5,
-  "durationSeconds": 363.0,
+  "durationSeconds": 355.13,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 10052551,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 10139704,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "463dea3a35846163be878330118eb1941fb7f702598721860d20464dfc378846",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "de9a957153812fe3a05a852bc4d5d74293fd428b5d7efc75df1d47a0c12727d9",
   "chapters": [
     {
       "start": 0.0,
       "title": "Texas Hold'em Short Deck: 36 cartas"
     },
     {
-      "start": 21.7,
+      "start": 21.13,
       "title": "Texas Hold'em Short Deck (8-max)"
     },
     {
-      "start": 58.03,
+      "start": 58.8,
       "title": "Não importe probabilidades do Texas tradicional"
     },
     {
-      "start": 86.37,
+      "start": 84.93,
       "title": "Ranking que muda decisões"
     },
     {
-      "start": 121.0,
+      "start": 118.07,
       "title": "Refaça o denominador"
     },
     {
-      "start": 157.5,
+      "start": 152.43,
       "title": "Não misture modalidades"
     },
     {
-      "start": 188.53,
+      "start": 181.07,
       "title": "Laboratório: O ás abaixo do seis"
     },
     {
-      "start": 227.63,
+      "start": 218.27,
       "title": "Laboratório: O ás abaixo do seis"
     },
     {
-      "start": 236.7,
+      "start": 226.57,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 257.53,
+      "start": 248.9,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 275.8,
+      "start": 269.0,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 317.03,
+      "start": 309.53,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 329.3,
+      "start": 323.77,
       "title": "Agora, pratique"
     }
   ],
   "scenes": [
     {
       "start": 0.0,
-      "duration": 21.7,
+      "duration": 21.133333333333333,
       "focusStarts": [
         0.0
       ],
@@ -101,8 +101,8 @@
       ]
     },
     {
-      "start": 21.7,
-      "duration": 36.333333333333336,
+      "start": 21.133333333333333,
+      "duration": 37.666666666666664,
       "focusStarts": [
         0.0
       ],
@@ -134,16 +134,16 @@
       ]
     },
     {
-      "start": 58.03333333333333,
-      "duration": 28.333333333333332,
+      "start": 58.8,
+      "duration": 26.133333333333333,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 86.36666666666666,
-      "duration": 34.63333333333333,
+      "start": 84.93333333333334,
+      "duration": 33.13333333333333,
       "focusStarts": [
         0.0
       ],
@@ -175,16 +175,16 @@
       ]
     },
     {
-      "start": 121.0,
-      "duration": 36.5,
+      "start": 118.06666666666666,
+      "duration": 34.36666666666667,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 157.5,
-      "duration": 31.033333333333335,
+      "start": 152.43333333333334,
+      "duration": 28.633333333333333,
       "focusStarts": [
         0.0
       ],
@@ -216,8 +216,8 @@
       ]
     },
     {
-      "start": 188.53333333333333,
-      "duration": 39.1,
+      "start": 181.06666666666666,
+      "duration": 37.2,
       "focusStarts": [
         0.0
       ],
@@ -249,8 +249,8 @@
       ]
     },
     {
-      "start": 227.63333333333333,
-      "duration": 9.066666666666666,
+      "start": 218.26666666666665,
+      "duration": 8.3,
       "focusStarts": [
         0.0
       ],
@@ -282,8 +282,8 @@
       ]
     },
     {
-      "start": 236.7,
-      "duration": 20.833333333333332,
+      "start": 226.56666666666666,
+      "duration": 22.333333333333332,
       "focusStarts": [
         0.0
       ],
@@ -315,8 +315,8 @@
       ]
     },
     {
-      "start": 257.5333333333333,
-      "duration": 18.266666666666666,
+      "start": 248.9,
+      "duration": 20.1,
       "focusStarts": [
         0.0
       ],
@@ -348,8 +348,8 @@
       ]
     },
     {
-      "start": 275.79999999999995,
-      "duration": 41.233333333333334,
+      "start": 269.0,
+      "duration": 40.53333333333333,
       "focusStarts": [
         0.0
       ],
@@ -365,8 +365,8 @@
       ]
     },
     {
-      "start": 317.0333333333333,
-      "duration": 12.266666666666667,
+      "start": 309.5333333333333,
+      "duration": 14.233333333333333,
       "focusStarts": [
         0.0
       ],
@@ -382,8 +382,8 @@
       ]
     },
     {
-      "start": 329.29999999999995,
-      "duration": 33.7,
+      "start": 323.76666666666665,
+      "duration": 31.366666666666667,
       "focusStarts": [
         0.0
       ],
@@ -415,11 +415,11 @@
       ]
     }
   ],
-  "sha256": "dfd77830b96f8324f678aa8bf0e23f61de87991fe2f7c2b2eb355135e5660b29",
+  "sha256": "b3410fddc1e6fa01bf72dcb4aaf4bf4d7031a569f2108652662675e5c4961d52",
   "assetHashes": {
-    "mp4": "dfd77830b96f8324f678aa8bf0e23f61de87991fe2f7c2b2eb355135e5660b29",
-    "vtt": "ab5514b3be9c76faf4efe3ccbe523b14160f76cc0a80b4ab15c8c3ece77a160d",
+    "mp4": "b3410fddc1e6fa01bf72dcb4aaf4bf4d7031a569f2108652662675e5c4961d52",
+    "vtt": "07e320501fad1520978ef1b095dc5f18a03ed87295a0045988b45b305520e00d",
     "webp": "1247fcb900dfb06a0175ce9646eae45ca0a3bcde9a729fd3300a55b44dc43e8c"
   },
-  "mediaRevision": "787062664ef25ccf1a8730ac0ef347c24b912b32a921838cbc9d5bec1d53e353"
+  "mediaRevision": "9024a2b31eee664f2cb82f35d51ee6a3c786b365667ae75fb3e5f66c82e8c356"
 }

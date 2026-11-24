@@ -1,4 +1,4 @@
-Zero Tilt Academy. Banca: o cinto de segurança. Nesta aula, nosso objetivo é: Decidir uma duração e um limite de treino antes de iniciar. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+Esta é a Zero Tilt Academy, e a aula de hoje é: Banca: o cinto de segurança. Nesta aula, nosso objetivo é: Decidir uma duração e um limite de treino antes de iniciar. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
 
 Variância e orçamento. Em cem situações independentes com 80 por cento de chance de vitória, a média esperada é oitenta vitórias, não uma contagem garantida. Sequências desfavoráveis podem acontecer. Nenhuma quantidade fixa de buy-ins garante segurança, principalmente se a estratégia tiver expectativa negativa.
 
@@ -18,12 +18,12 @@ Laboratório: Uma sessão com limite. Objetivo: Decidir uma duração e um limit
 
 Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
 
-Ter 30–50 buy-ins garante não perder a banca? A. Sim B. Não Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+Ter 30–50 buy-ins garante não perder a banca? As alternativas são: A, Sim; B, Não. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
 
-Resposta do exercício: Não. Risco depende de vantagem real, variância, formato e exposição. Uma quantidade fixa não garante proteção.
+Vamos à resposta. A alternativa certa deste exercício é: Não. Risco depende de vantagem real, variância, formato e exposição. Uma quantidade fixa não garante proteção.
 
-Ao alcançar o limite de perda definido antes da sessão, o que fazer? A. Aumentar apostas para recuperar B. Parar e reavaliar conforme o plano C. Depositar sem limite Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+Ao alcançar o limite de perda definido antes da sessão, o que fazer? As alternativas são: A, Aumentar apostas para recuperar; B, Parar e reavaliar conforme o plano; C, Depositar sem limite. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
 
-Resposta do exercício: Parar e reavaliar conforme o plano. Respeite o limite previamente estabelecido. Não há obrigação de recuperar as perdas na próxima sessão.
+Vamos à resposta. A alternativa certa deste exercício é: Parar e reavaliar conforme o plano. Respeite o limite previamente estabelecido. Não há obrigação de recuperar as perdas na próxima sessão.
 
 Abra o simulador da aula e escolha o cenário Uma sessão com limite. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

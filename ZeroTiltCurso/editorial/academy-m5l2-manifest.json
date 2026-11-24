@@ -3,73 +3,73 @@
   "filename": "zt-academy-m5l2-v3",
   "contentHash": "49b158e110719927259c375fb9def9ea47225e7c22b6979929105347d8d3e8f5",
   "rendererVersion": 5,
-  "durationSeconds": 363.97,
+  "durationSeconds": 353.63,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 10292103,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 10126620,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "3dbea737639cc92685886aa6e86051ba01d5bd61a5a2d519877e13e2b64674aa",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "2c87b3d1f856f66d1ffc659300f4a7ac27629d4d461405e986028483e97f4e9a",
   "chapters": [
     {
       "start": 0.0,
       "title": "Omaha 4 Cartas (baralho de 52)"
     },
     {
-      "start": 19.4,
+      "start": 19.97,
       "title": "Omaha 4 (6-max)"
     },
     {
-      "start": 38.23,
+      "start": 38.27,
       "title": "Contagem e leitura"
     },
     {
-      "start": 79.9,
+      "start": 76.63,
       "title": "Escolha pares privados"
     },
     {
-      "start": 116.43,
+      "start": 109.33,
       "title": "Nuts e possibilidades de melhorar"
     },
     {
-      "start": 145.07,
+      "start": 138.27,
       "title": "Preço com quatro cartas"
     },
     {
-      "start": 174.73,
+      "start": 165.77,
       "title": "Laboratório: Quatro privadas, apenas duas escolhidas"
     },
     {
-      "start": 217.33,
+      "start": 206.07,
       "title": "Laboratório: Quatro privadas, apenas duas escolhidas"
     },
     {
-      "start": 226.4,
+      "start": 214.37,
       "title": "Exercício resolvido 1"
     },
     {
-      "start": 253.67,
+      "start": 240.1,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 272.1,
+      "start": 259.8,
       "title": "Exercício resolvido 2"
     },
     {
-      "start": 306.43,
+      "start": 297.1,
       "title": "Confira o raciocínio"
     },
     {
-      "start": 328.8,
+      "start": 320.7,
       "title": "Agora, pratique"
     }
   ],
   "scenes": [
     {
       "start": 0.0,
-      "duration": 19.4,
+      "duration": 19.966666666666665,
       "focusStarts": [
         0.0
       ],
@@ -101,8 +101,8 @@
       ]
     },
     {
-      "start": 19.4,
-      "duration": 18.833333333333332,
+      "start": 19.966666666666665,
+      "duration": 18.3,
       "focusStarts": [
         0.0
       ],
@@ -134,16 +134,16 @@
       ]
     },
     {
-      "start": 38.233333333333334,
-      "duration": 41.666666666666664,
+      "start": 38.266666666666666,
+      "duration": 38.36666666666667,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 79.9,
-      "duration": 36.53333333333333,
+      "start": 76.63333333333333,
+      "duration": 32.7,
       "focusStarts": [
         0.0
       ],
@@ -175,8 +175,8 @@
       ]
     },
     {
-      "start": 116.43333333333334,
-      "duration": 28.633333333333333,
+      "start": 109.33333333333333,
+      "duration": 28.933333333333334,
       "focusStarts": [
         0.0
       ],
@@ -208,16 +208,16 @@
       ]
     },
     {
-      "start": 145.06666666666666,
-      "duration": 29.666666666666668,
+      "start": 138.26666666666665,
+      "duration": 27.5,
       "focusStarts": [
         0.0
       ],
       "dealEvents": []
     },
     {
-      "start": 174.73333333333332,
-      "duration": 42.6,
+      "start": 165.76666666666665,
+      "duration": 40.3,
       "focusStarts": [
         0.0
       ],
@@ -249,8 +249,8 @@
       ]
     },
     {
-      "start": 217.33333333333331,
-      "duration": 9.066666666666666,
+      "start": 206.06666666666666,
+      "duration": 8.3,
       "focusStarts": [
         0.0
       ],
@@ -282,8 +282,8 @@
       ]
     },
     {
-      "start": 226.39999999999998,
-      "duration": 27.266666666666666,
+      "start": 214.36666666666667,
+      "duration": 25.733333333333334,
       "focusStarts": [
         0.0
       ],
@@ -315,8 +315,8 @@
       ]
     },
     {
-      "start": 253.66666666666663,
-      "duration": 18.433333333333334,
+      "start": 240.10000000000002,
+      "duration": 19.7,
       "focusStarts": [
         0.0
       ],
@@ -348,8 +348,8 @@
       ]
     },
     {
-      "start": 272.09999999999997,
-      "duration": 34.333333333333336,
+      "start": 259.8,
+      "duration": 37.3,
       "focusStarts": [
         0.0
       ],
@@ -381,8 +381,8 @@
       ]
     },
     {
-      "start": 306.4333333333333,
-      "duration": 22.366666666666667,
+      "start": 297.1,
+      "duration": 23.6,
       "focusStarts": [
         0.0
       ],
@@ -414,8 +414,8 @@
       ]
     },
     {
-      "start": 328.79999999999995,
-      "duration": 35.166666666666664,
+      "start": 320.70000000000005,
+      "duration": 32.93333333333333,
       "focusStarts": [
         0.0
       ],
@@ -447,11 +447,11 @@
       ]
     }
   ],
-  "sha256": "5217757e8c388c16012eae6c86d3e4bc3096da710786ddb7117e9eb35ca253d5",
+  "sha256": "20c41ec154c7a1b2765dab9ce7da31d7055c90fa4cc7086d90fe86c951659d5c",
   "assetHashes": {
-    "mp4": "5217757e8c388c16012eae6c86d3e4bc3096da710786ddb7117e9eb35ca253d5",
-    "vtt": "2b1d2283c1a5ddc64e5fc4d688cec0ed38a902116fd2624375a016128eb7c41a",
+    "mp4": "20c41ec154c7a1b2765dab9ce7da31d7055c90fa4cc7086d90fe86c951659d5c",
+    "vtt": "9b88b4348baf050edf7156eaba2012e69b5c8e4b913fe21f7706f30506110465",
     "webp": "dd0a7f85ac099c7e24bb62d22ac9103b9c6e9c31257436a991c5ad8a3c6b2a8f"
   },
-  "mediaRevision": "6e14192c7e84c900153767774f05168193171233705b8b20f5b2f753df9e3fbe"
+  "mediaRevision": "13a17e5a6ea95a6df7eabdfd6ff77886fa711b7ee2ee4fd83f344f271c182355"
 }

@@ -575,6 +575,8 @@ def lesson_fingerprint(lesson, training):
 def speak(text):
     """Expand card notation/formulas for Portuguese narration; no hidden text."""
     text = re.sub(r'[*`#]', '', text)
+    # "&" no título ("Potes Multiway & Set Mining") quebrava o SSML da Azure; fala-se "e".
+    text = re.sub(r'\s*&\s*', ' e ', text)
     text = re.sub(r'^\s*(?:\d+\.|-)\s*', '', text, flags=re.M)
     ranks = {'A':'ás','K':'rei','Q':'dama','J':'valete','T':'dez',
              '2':'dois','3':'três','4':'quatro','5':'cinco','6':'seis','7':'sete','8':'oito','9':'nove'}
@@ -943,7 +945,7 @@ MOTION_LESSONS = ('m5l3', 'm5l4', 'm5l5')
 # publicados que seguem com a narração anterior até serem regravados. Só pode diminuir;
 # mesma lista em Frontend-Web/src/lib/courseAudit.test.ts.
 LEGACY_VOICE_VERSION = 'pt-BR-poker-v1'
-LEGACY_VOICE_LESSONS = ('m0l1', 'm0l2', 'm0l3', 'm0l4', 'm0l5', 'm0l6', 'm0l7', 'm0l8', 'm1l1', 'm1l2', 'm1l3', 'm2l1', 'm2l2', 'm2l3', 'm3l1', 'm3l2', 'm3l3', 'm4l1', 'm4l2', 'm4l3', 'm5l1', 'm5l2', 'm6l1', 'm6l2')
+LEGACY_VOICE_LESSONS = ()  # vazia desde 24/11/2026: as 24 foram regravadas
 MOTION = HERE / 'motion'
 FILMS_FILE = ROOT / 'Frontend-Web/src/data/pineappleDrawFilms.json'
 MOTION_RENDER_VERSION = 2  # igual a motion/produce.py

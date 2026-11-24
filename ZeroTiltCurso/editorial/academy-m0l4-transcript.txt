@@ -1,8 +1,8 @@
-Zero Tilt Academy. Regras e Hierarquia de Mãos. Nesta aula, nosso objetivo é: Classificar a mão e comparar kickers antes de agir. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+Esta é a Zero Tilt Academy, e a aula de hoje é: Regras e Hierarquia de Mãos. Nesta aula, nosso objetivo é: Classificar a mão e comparar kickers antes de agir. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
 
 O objetivo de uma mão. Você disputa potes. Se todos os adversários desistirem, vence sem mostrar: isso pode acontecer com uma aposta de valor ou um blefe. Quando há showdown, compare as melhores mãos de cinco cartas entre os jogadores elegíveis a cada pote. Empates dividem o pote; all-ins de valores diferentes podem criar side pots.
 
-Ranking clássico, do maior para o menor. Royal flush; straight flush; quadra; full house; flush; sequência; trinca; dois pares; um par; carta alta. Royal flush é a sequência de mesmo naipe de dez até ás. Na sequência ás, dois, três, quatro e cinco, o ás vale baixo: ela perde para dois, três, quatro, cinco e seis. Naipes não desempatarão mãos equivalentes.
+Ranking clássico, do maior para o menor. Da mais forte para a mais fraca, a ordem é esta: royal flush; straight flush; quadra; full house; flush; sequência; trinca; dois pares; um par; e, por último, carta alta. Royal flush é a sequência de mesmo naipe de dez até ás. Na sequência ás, dois, três, quatro e cinco, o ás vale baixo: ela perde para dois, três, quatro, cinco e seis. Naipes não desempatarão mãos equivalentes.
 
 Quatro modalidades da Zê Tê. Texas Hold’em usa 52 cartas e duas privadas; no showdown pode usar zero, uma ou duas delas. Short Deck usa 36 cartas, do 6 ao ás; na Zê Tê, trinca supera sequência e flush supera full house, com ás, seis, sete, oito e nove como sequência baixa. Omaha 4 usa o ranking clássico e exige exatamente duas cartas privadas mais três comunitárias. Brazilian Pineapple também usa o ranking clássico: começa com três privadas, termina com duas e forma a mão como no Hold’em.
 
@@ -24,12 +24,12 @@ Laboratório: As cinco cartas que contam. Objetivo: Classificar a mão e compara
 
 Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
 
-No showdown do Texas Hold'em, como é determinada a mão vencedora? A. Quem apostou mais fichas B. A melhor combinação de 5 cartas entre as 2 da mão e as 5 da mesa C. Quem tiver o maior par na mão fechada obrigatoriamente Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+No showdown do Texas Hold'em, como é determinada a mão vencedora? As alternativas são: A, Quem apostou mais fichas; B, A melhor combinação de 5 cartas entre as 2 da mão e as 5 da mesa; C, Quem tiver o maior par na mão fechada obrigatoriamente. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
 
-Resposta do exercício: A melhor combinação de 5 cartas entre as 2 da mão e as 5 da mesa. No Texas Hold'em, a mão é sempre a melhor combinação de 5 cartas possíveis.
+Vamos à resposta. A alternativa certa deste exercício é: A melhor combinação de 5 cartas entre as 2 da mão e as 5 da mesa. No Texas Hold'em, a mão é sempre a melhor combinação de 5 cartas possíveis.
 
-Qual mão é mais forte na hierarquia tradicional do Hold'em? A. Flush (5 cartas do mesmo naipe) B. Sequência / Straight C. Dois Pares Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+Qual mão é mais forte na hierarquia tradicional do Hold'em? As alternativas são: A, Flush (5 cartas do mesmo naipe); B, Sequência / Straight; C, Dois Pares. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
 
-Resposta do exercício: Flush (5 cartas do mesmo naipe). Flush vence Sequência e Dois Pares no poker tradicional.
+Vamos à resposta. A alternativa certa deste exercício é: Flush (5 cartas do mesmo naipe). Flush vence Sequência e Dois Pares no poker tradicional.
 
 Abra o simulador da aula e escolha o cenário As cinco cartas que contam. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.

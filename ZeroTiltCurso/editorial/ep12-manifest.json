@@ -1,76 +1,76 @@
 {
   "filename": "ep12-mississippi-omaha-v3",
-  "durationSeconds": 253.5,
+  "durationSeconds": 237.0,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 6146267,
-  "voice": "pt-BR-AntonioNeural (synthetic)",
+  "bytes": 5877549,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "chapters": [
     {
       "start": 0.0,
       "title": "Do rio à mesa mundial."
     },
     {
-      "start": 15.63,
+      "start": 14.53,
       "title": "Uma viagem. Um jogo chamado poker."
     },
     {
-      "start": 37.23,
+      "start": 34.47,
       "title": "O ás já aparece como carta alta."
     },
     {
-      "start": 54.5,
+      "start": 50.83,
       "title": "O primeiro campeão foi escolhido por voto."
     },
     {
-      "start": 71.83,
+      "start": 67.13,
       "title": "Omaha tinha mais de um caminho."
     },
     {
-      "start": 88.93,
+      "start": 83.27,
       "title": "Turner. Gwen. Boyd. Um marco de difusão."
     },
     {
-      "start": 109.3,
+      "start": 101.93,
       "title": "Omaha nasceu em Nebraska?"
     },
     {
-      "start": 126.77,
+      "start": 118.43,
       "title": "Limit: 1983. Pot-limit: 1984."
     },
     {
-      "start": 147.9,
+      "start": 137.57,
       "title": "Quatro privadas. Use duas mais três."
     },
     {
-      "start": 168.4,
+      "start": 158.37,
       "title": "Nome de cidade é prova de origem?"
     },
     {
-      "start": 186.43,
+      "start": 174.87,
       "title": "Uma vitória. Uma enorme repercussão."
     },
     {
-      "start": 206.67,
+      "start": 193.57,
       "title": "Omaha também chega à pesquisa."
     },
     {
-      "start": 227.1,
+      "start": 212.23,
       "title": "Relato, marco ou promessa?"
     }
   ],
-  "episodeHash": "02ba41b76f307f53c53d43e383a11e7d87d6d2c5e933372bca34d310b1453b5a",
-  "sha256": "5c3742aea137f09beac84cde72a7fd3a2c98d2b81bd117733a0ff77a4e2f739d",
+  "episodeHash": "7c0bca2eab67c91e6a50086e950b86af869ebd374ba44876f41ce17e9372b6d4",
+  "sha256": "713e6b04c2e6902a17c83faf340db08566868070b4ce588dec26d838d6305111",
   "rendererVersion": 4,
   "assetHashes": {
-    "mp4": "5c3742aea137f09beac84cde72a7fd3a2c98d2b81bd117733a0ff77a4e2f739d",
-    "vtt": "19926e5e09a8e5cfd32b74f4581b35ee1223995291684c9a4ecb6f102f4d84b7",
+    "mp4": "713e6b04c2e6902a17c83faf340db08566868070b4ce588dec26d838d6305111",
+    "vtt": "13cace72d32eedce65cb3ad2c2bc6878e4b48799550a27d31d1813ec2e5ed10f",
     "webp": "afb4c1c08c4b632583019f7648f3700935a8db0f8cf1d5496e825a8ec124b57d"
   },
-  "mediaRevision": "a1a79f947dd02208af5060f15036f316ab66fc1542add8d531e79e20c70f3e5b",
+  "mediaRevision": "f59f0410d7bf3d5d3f80ea14b3f21a0e17aefc742c410c227e79b20c08785a7f",
   "voiceRate": "-3%",
-  "pronunciationVersion": "pt-BR-poker-v1",
-  "narrationHash": "1e648bd8d6c54d9c5dfc59817de4127b192fbcbe77e1ad3dd98c112ef838001b",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "16cb0bd578fcfc03980c97c9c6f778c307db0e2900572fe7857a572eac0f63bc",
   "contentHash": "a9a49ed16636a5e979a698e6d69613f80406e8f2877df727b172f7af19c2643b"
 }

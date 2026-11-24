@@ -1,10 +1,10 @@
-Zero Tilt Academy. Bluff-Catchers e a Força dos Blockers. Nesta aula, nosso objetivo é: Calcular o preço e identificar o que par de ases bloqueia. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+Esta é a Zero Tilt Academy, e a aula de hoje é: Bluff-Catchers e a Força dos Blockers. Nesta aula, nosso objetivo é: Calcular o preço e identificar o que par de ases bloqueia. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
 
-Bluff-catcher. É uma mão que vence os blefes considerados e perde para as mãos de valor consideradas. A categoria depende do range: um overpair nem sempre é um bluff-catcher adequado.
+Agora, o próximo tema é: Bluff-catcher. É uma mão que vence os blefes considerados e perde para as mãos de valor consideradas. A categoria depende do range: um overpair nem sempre é um bluff-catcher adequado.
 
 Preço e frequência. River heads-up, pote 20 big blinds antes da aposta, rival aposta 20: pagar custa 20 para um pote final de 60, limiar de 33,33 por cento. Se você vence todos os blefes e perde para todo valor, sem empates nem rake, precisa de mais de um terço de blefes no range de aposta para valor esperado positivo.
 
-Blockers. Avalie quais combinações suas cartas removem. Em valete, dez, cinco, dois e nove, par de ases não bloqueia rei e dama, a sequência máxima. Uma carta pode remover blefes e piorar um call; “ter blocker” não é razão suficiente.
+Agora, o próximo tema é: Blockers. Avalie quais combinações suas cartas removem. Em valete, dez, cinco, dois e nove, par de ases não bloqueia rei e dama, a sequência máxima. Uma carta pode remover blefes e piorar um call; “ter blocker” não é razão suficiente.
 
 Derive o limite dos blefes. Com pote de 20 big blinds e aposta rival de 20, você acrescenta 20 a um pote que terminará em 60. Se sua mão perde para todo valor e ganha de todo blefe, sem empates, precisa vencer mais de um terço das vezes para o call ter expectativa positiva. No limite de um terço, a expectativa é zero. A frequência relevante é a proporção de blefes dentro do range que apostou, e não dentro de todas as mãos que o rival recebeu.
 
@@ -16,12 +16,12 @@ Laboratório: Pagar pelo motivo certo. Objetivo: Calcular o preço e identificar
 
 Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
 
-O que é um 'Bluff-Catcher' no poker? A. Um jogador que só aposta quando blefa B. Uma mão que não bate nenhuma mão de valor do rival, mas vence todos os blefes dele C. Um software para detectar trapaças Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+O que é um 'Bluff-Catcher' no poker? As alternativas são: A, Um jogador que só aposta quando blefa; B, Uma mão que não bate nenhuma mão de valor do rival, mas vence todos os blefes dele; C, Um software para detectar trapaças. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
 
-Resposta do exercício: Uma mão que não bate nenhuma mão de valor do rival, mas vence todos os blefes dele. Bluff-catcher é a mão que ganha exclusivamente das apostas de blefe do oponente.
+Vamos à resposta. A alternativa certa deste exercício é: Uma mão que não bate nenhuma mão de valor do rival, mas vence todos os blefes dele. Bluff-catcher é a mão que ganha exclusivamente das apostas de blefe do oponente.
 
-Suas cartas: ás de ouros, ás de paus. Cartas comunitárias: valete de espadas, dez de espadas, cinco de paus, dois de ouros, nove de copas. Texas, river valete de espadas dez de espadas cinco de paus dois de ouros nove de copas. Você tem ás de ouros ás de paus. Seus ases bloqueiam combinações de rei e dama? A. Sim B. Não Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+Suas cartas: ás de ouros, ás de paus. Cartas comunitárias: valete de espadas, dez de espadas, cinco de paus, dois de ouros, nove de copas. Texas, river valete de espadas dez de espadas cinco de paus dois de ouros nove de copas. Você tem ás de ouros ás de paus. Seus ases bloqueiam combinações de rei e dama? As alternativas são: A, Sim; B, Não. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
 
-Resposta do exercício: Não. par de ases não remove reis nem damas. Precisamos analisar o range e o preço antes de recomendar call.
+Vamos à resposta. A alternativa certa deste exercício é: Não. par de ases não remove reis nem damas. Precisamos analisar o range e o preço antes de recomendar call.
 
 Abra o simulador da aula e escolha o cenário Pagar pelo motivo certo. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.
