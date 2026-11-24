@@ -460,3 +460,13 @@ Publicado `c5c6ac201aaacdd87355f7241b5119c6bcb8bc90` às **02:46:25 UTC de 24/11
 Mudança: migration `066` (`wallet_ledger` só de inclusão, gatilho em `users`, saldo inicial, `wallet_ledger_mismatches`), motivo em todas as mudanças de saldo da API, extrato completo da carteira e conferência do admin.
 
 Verificado em produção: 261 linhas de saldo inicial na virada; numa conta de teste, entrada e saída de mesa Play Money gravaram −2.500 e +2.500 com a referência da mesa e o saldo resultante; nenhuma linha `unspecified` e nenhuma divergência entre saldo e livro.
+
+## Publicação: os 24 vídeos de voz antiga regravados — 24/11/2026
+
+Publicado `c14c82c1a419559b686a72b19577b447bfb630c1` às **04:21:48 UTC / 01:21 em São Paulo de 24/11** (etapa 5 autorizada pelo proprietário), com Rust CI e Container Supply Chain verdes e imagens assinadas; migrations 66; boot sem `ERROR`; `.env` preservado.
+
+Mudança: episódios ep11–ep13 e 21 aulas regravados no padrão de narração de 19–21/11; `LEGACY_VOICE_LESSONS` vazia; `&` falado como "e".
+
+Verificado em produção: `zt-academy-m1l1-v3.mp4`, `zt-academy-m2l3-v3.mp4` e `ep12-mississippi-omaha-v3.mp4` servidos com o mesmo tamanho dos arquivos renderizados.
+
+Não verificado: escuta dos vídeos pelo proprietário (amostra m1l1 de 60 s em `artifacts/voz-pronuncia/2026-11-23/`).
