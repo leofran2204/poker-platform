@@ -520,9 +520,25 @@ pub async fn adjust_balance(
     }
 
     if body.delta_cents > 0 {
-        crate::wallet::credit_wallet(&mut *tx, &user_id, body.delta_cents, kind).await?;
+        crate::wallet::credit_wallet(
+            &mut *tx,
+            &user_id,
+            body.delta_cents,
+            kind,
+            crate::wallet::LedgerReason::AdminAdjustment,
+            Some(&auth_user.user_id),
+        )
+        .await?;
     } else {
-        crate::wallet::debit_wallet(&mut *tx, &user_id, -body.delta_cents, kind).await?;
+        crate::wallet::debit_wallet(
+            &mut *tx,
+            &user_id,
+            -body.delta_cents,
+            kind,
+            crate::wallet::LedgerReason::AdminAdjustment,
+            Some(&auth_user.user_id),
+        )
+        .await?;
     }
 
     let balance: i64 = sqlx::query_scalar(&balance_sql)

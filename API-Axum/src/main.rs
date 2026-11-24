@@ -117,7 +117,8 @@ async fn reconcile_closed_table_seats(pool: &sqlx::PgPool) -> Result<u64, sqlx::
                 "UPDATE users SET \
                      balance_pm_cash = balance_pm_cash + CASE WHEN $1 = 'pm_cash' THEN $2 ELSE 0 END, \
                      balance = balance_pm_cash + CASE WHEN $1 = 'pm_cash' THEN $2 ELSE 0 END, \
-                     balance_real = balance_real + CASE WHEN $1 = 'real' THEN $2 ELSE 0 END \
+                     balance_real = balance_real + CASE WHEN $1 = 'real' THEN $2 ELSE 0 END, \
+                     ledger_reason = 'boot_cash_out' \
                  WHERE id = $3",
             )
             .bind(&wallet_kind)

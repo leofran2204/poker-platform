@@ -307,11 +307,13 @@ async fn wallet_deposit_webhook_is_atomic_and_idempotent() {
 async fn concurrent_withdrawals_cannot_reserve_the_same_balance_twice() {
     let username = unique_username("wallet_wdr");
     let (state, user_id, token) = make_persistent_state(&username).await;
-    sqlx::query("UPDATE users SET balance_real = 10000 WHERE id = $1::uuid")
-        .bind(&user_id)
-        .execute(&state.db)
-        .await
-        .unwrap();
+    sqlx::query(
+        "UPDATE users SET balance_real = 10000, ledger_reason = 'test_fixture' WHERE id = $1::uuid",
+    )
+    .bind(&user_id)
+    .execute(&state.db)
+    .await
+    .unwrap();
     let cpf = verify_kyc_with_unique_cpf(&state, &user_id).await;
     let request = || {
         Request::builder()
@@ -354,11 +356,13 @@ async fn concurrent_withdrawals_cannot_reserve_the_same_balance_twice() {
 async fn provisional_deposit_blocks_withdrawals() {
     let username = unique_username("wallet_hold");
     let (state, user_id, token) = make_persistent_state(&username).await;
-    sqlx::query("UPDATE users SET balance_real = 10000 WHERE id = $1::uuid")
-        .bind(&user_id)
-        .execute(&state.db)
-        .await
-        .unwrap();
+    sqlx::query(
+        "UPDATE users SET balance_real = 10000, ledger_reason = 'test_fixture' WHERE id = $1::uuid",
+    )
+    .bind(&user_id)
+    .execute(&state.db)
+    .await
+    .unwrap();
     sqlx::query(
         "INSERT INTO wallet_transactions \
          (user_id, amount, transaction_type, status, idempotency_key, provider, credited_amount_cents, provider_status) \
@@ -398,11 +402,13 @@ async fn provisional_deposit_blocks_withdrawals() {
 async fn withdrawal_to_another_holder_is_refused_without_debit() {
     let username = unique_username("wallet_3rd");
     let (state, user_id, token) = make_persistent_state(&username).await;
-    sqlx::query("UPDATE users SET balance_real = 10000 WHERE id = $1::uuid")
-        .bind(&user_id)
-        .execute(&state.db)
-        .await
-        .unwrap();
+    sqlx::query(
+        "UPDATE users SET balance_real = 10000, ledger_reason = 'test_fixture' WHERE id = $1::uuid",
+    )
+    .bind(&user_id)
+    .execute(&state.db)
+    .await
+    .unwrap();
     let cpf = verify_kyc_with_unique_cpf(&state, &user_id).await;
     // Chave de outro CPF (terceiro): mesmo comprimento, dígito final trocado.
     let mut other = cpf.into_bytes();

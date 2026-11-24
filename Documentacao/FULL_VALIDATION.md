@@ -210,3 +210,13 @@ Antes dela, os quatro validadores foram atualizados para a v4 e o relógio novo.
 
 1. [20261122T223029Z-2f137a](../artifacts/full-validation/20261122T223029Z-2f137a/): interrompida na compilação pelo Claude Code, por falta de memória no notebook (sem mão jogada).
 2. [20261123T015059Z-07eab4](../artifacts/full-validation/20261123T015059Z-07eab4/campaign.json) e [20261123T015714Z-f01488](../artifacts/full-validation/20261123T015714Z-f01488/campaign.json): sete estágios aprovados, mas "incomplete" por um par sem testemunha, `check_raise × stack short`. No gerador `cash_catalog_10k_hands`, todo stack curto do Pineapple que podia ir all-in pré-flop ia, e nunca chegava a dar check-raise. Enquanto esse par falta, o gerador agora deixa o stack curto ver o flop e dar check-raise do tamanho mínimo legal. Não é defeito do produto.
+
+## Campanha completa com o livro único do dinheiro — 24/11/2026
+
+Etapa 6 do plano do proprietário de 23/11 ("livro único do dinheiro, com campanha de validação"): fase `all`, 30 minutos, banco e rede exclusivos, com a migration `066_wallet_ledger.sql` e o estágio novo `ledger_audit` (saldo = soma do livro e nenhuma mudança sem motivo reprovam a campanha).
+
+**Aprovada**: [campanha final](../artifacts/full-validation/20261124T022220Z-2ff8d1/campaign.json), 47 de 47 estágios, 440 de 440 pares da matriz, todos os casos críticos (short all-in, devolução antes do rake, vencedores de potes paralelos, foto do Loss Deflator, centavos do cashback, liquidação única e reinício controlado da API).
+
+- Cash nas cinco configurações: 26.000 mãos; MTT até o campeão nas cinco; HTTPS/WSS com 1, 5 e 20 mesas, liquidação assinada e fichas conservadas.
+- Livro único: 1.205 linhas, nenhuma divergência entre saldo e livro, nenhuma linha `unspecified` ([auditoria](../artifacts/full-validation/20261124T022220Z-2ff8d1/wallet-ledger-audit.json)). Motivos vistos: abertura de conta, entrada e saída de mesa (inclusive na reinicialização), inscrição, fee, rebuy, add-on e prêmio de torneio, depósito e saque PIX, depósito manual, ajuste do admin e montagens dos testes (`test_fixture`).
+- Antes de passar, duas rodadas reprovaram por defeitos dos validadores, não do produto: os cinco testes de torneio com banco apagavam as sobras uns dos outros quando rodavam em paralelo (agora uma trava os serializa), e a conferência de fichas da rede de 20 mesas lia só assentos ativos e quebrava quando todos já tinham saído (agora soma assentos ativos e encerrados dos jogadores da rodada contra as compras deles). A auditoria do livro também precisou do `;` que o `psql` exige no stdin.

@@ -102,6 +102,7 @@ where
                 ), 0)
             ),
             last_pm_reset_date = $4,
+            ledger_reason = 'pm_daily_reset',
             pm_cash_rebuy_used_on = CASE
                 WHEN pm_cash_rebuy_used_on IS DISTINCT FROM $4 THEN NULL
                 ELSE pm_cash_rebuy_used_on
@@ -127,11 +128,61 @@ pub async fn ensure_pm_daily_reset_pool(pool: &PgPool, user_id: &str) -> Result<
     ensure_pm_daily_reset(pool, user_id).await
 }
 
+/// Motivo de cada linha do livro único do dinheiro (`wallet_ledger`, migration 066).
+/// Quem muda um saldo informa o motivo na mesma instrução (`users.ledger_reason`);
+/// o gatilho do banco grava a linha. Sem motivo, a linha sai `unspecified`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LedgerReason {
+    CashBuyIn,
+    CashOut,
+    BootCashOut,
+    TournamentBuyIn,
+    TournamentFee,
+    TournamentUnregisterRefund,
+    TournamentRebuy,
+    TournamentAddon,
+    TournamentPrize,
+    PixDeposit,
+    PixDepositReversal,
+    PixWithdraw,
+    PixWithdrawReversal,
+    ManualDeposit,
+    AdminAdjustment,
+    PmDailyReset,
+    BotTopUp,
+}
+
+impl LedgerReason {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::CashBuyIn => "cash_buy_in",
+            Self::CashOut => "cash_out",
+            Self::BootCashOut => "boot_cash_out",
+            Self::TournamentBuyIn => "tournament_buy_in",
+            Self::TournamentFee => "tournament_fee",
+            Self::TournamentUnregisterRefund => "tournament_unregister_refund",
+            Self::TournamentRebuy => "tournament_rebuy",
+            Self::TournamentAddon => "tournament_addon",
+            Self::TournamentPrize => "tournament_prize",
+            Self::PixDeposit => "pix_deposit",
+            Self::PixDepositReversal => "pix_deposit_reversal",
+            Self::PixWithdraw => "pix_withdraw",
+            Self::PixWithdrawReversal => "pix_withdraw_reversal",
+            Self::ManualDeposit => "manual_deposit",
+            Self::AdminAdjustment => "admin_adjustment",
+            Self::PmDailyReset => "pm_daily_reset",
+            Self::BotTopUp => "bot_top_up",
+        }
+    }
+}
+
 pub async fn debit_wallet<'e, E>(
     executor: E,
     user_id: &str,
     amount: i64,
     kind: WalletKind,
+    reason: LedgerReason,
+    reference: Option<&str>,
 ) -> Result<(), ApiError>
 where
     E: PgExecutor<'e>,
@@ -141,16 +192,17 @@ where
     }
     let sql = match kind {
         WalletKind::PmCash => {
-            "UPDATE users SET balance_pm_cash = balance_pm_cash - $1, balance = balance_pm_cash - $1 \
+            "UPDATE users SET balance_pm_cash = balance_pm_cash - $1, balance = balance_pm_cash - $1, \
+             ledger_reason = $3, ledger_ref = $4 \
              WHERE id = $2::uuid AND balance_pm_cash >= $1 RETURNING balance_pm_cash"
         }
         WalletKind::PmMtt => {
-            "UPDATE users SET balance_pm_mtt = balance_pm_mtt - $1 \
+            "UPDATE users SET balance_pm_mtt = balance_pm_mtt - $1, ledger_reason = $3, ledger_ref = $4 \
              WHERE id = $2::uuid AND balance_pm_mtt >= $1 RETURNING balance_pm_mtt"
         }
         WalletKind::Real => {
             // `NOT is_bot`: segunda barreira — bot nunca é debitado no Real.
-            "UPDATE users SET balance_real = balance_real - $1 \
+            "UPDATE users SET balance_real = balance_real - $1, ledger_reason = $3, ledger_ref = $4 \
              WHERE id = $2::uuid AND balance_real >= $1 AND NOT is_bot RETURNING balance_real"
         }
     };
@@ -160,6 +212,8 @@ where
     let updated: Option<(i64,)> = sqlx::query_as(sql)
         .bind(amount)
         .bind(user_id)
+        .bind(reason.as_str())
+        .bind(reference)
         .fetch_optional(executor)
         .await?;
     if updated.is_none() {
@@ -175,6 +229,8 @@ pub async fn credit_wallet<'e, E>(
     user_id: &str,
     amount: i64,
     kind: WalletKind,
+    reason: LedgerReason,
+    reference: Option<&str>,
 ) -> Result<(), ApiError>
 where
     E: PgExecutor<'e>,
@@ -187,19 +243,23 @@ where
     }
     let sql = match kind {
         WalletKind::PmCash => {
-            "UPDATE users SET balance_pm_cash = balance_pm_cash + $1, balance = balance_pm_cash + $1 \
-             WHERE id = $2::uuid"
+            "UPDATE users SET balance_pm_cash = balance_pm_cash + $1, balance = balance_pm_cash + $1, \
+             ledger_reason = $3, ledger_ref = $4 WHERE id = $2::uuid"
         }
         WalletKind::PmMtt => {
-            "UPDATE users SET balance_pm_mtt = balance_pm_mtt + $1 WHERE id = $2::uuid"
+            "UPDATE users SET balance_pm_mtt = balance_pm_mtt + $1, ledger_reason = $3, \
+             ledger_ref = $4 WHERE id = $2::uuid"
         }
         WalletKind::Real => {
-            "UPDATE users SET balance_real = balance_real + $1 WHERE id = $2::uuid"
+            "UPDATE users SET balance_real = balance_real + $1, ledger_reason = $3, \
+             ledger_ref = $4 WHERE id = $2::uuid"
         }
     };
     let credited = sqlx::query(sql)
         .bind(amount)
         .bind(user_id)
+        .bind(reason.as_str())
+        .bind(reference)
         .execute(executor)
         .await?
         .rows_affected();
@@ -329,4 +389,105 @@ pub async fn pm_rebuy_handler(
     pm_rebuy(&state.db, &auth_user.user_id, kind)
         .await
         .map(axum::Json)
+}
+
+// ─── Livro único do dinheiro (migration 066) ─────────────────────────────────
+
+#[derive(Debug, serde::Deserialize)]
+pub struct LedgerQuery {
+    /// `pm_cash`, `pm_mtt` ou `real`; sem filtro, as três carteiras.
+    pub wallet: Option<String>,
+    pub limit: Option<i64>,
+}
+
+#[derive(Debug, serde::Serialize, sqlx::FromRow)]
+pub struct LedgerEntry {
+    pub id: i64,
+    pub wallet: String,
+    pub amount_cents: i64,
+    pub balance_after_cents: i64,
+    pub reason: String,
+    pub reference: Option<String>,
+    #[serde(with = "time::serde::rfc3339")]
+    pub created_at: time::OffsetDateTime,
+}
+
+/// GET /api/wallet/ledger — extrato completo da própria conta (até 200 linhas,
+/// recentes primeiro): mesa, torneio, Loss Deflator na mesa, PIX, depósito
+/// manual, ajuste do admin e renovação diária do Play Money.
+pub async fn my_ledger(
+    crate::middleware::auth::RequireAuth(auth_user): crate::middleware::auth::RequireAuth,
+    axum::extract::State(state): axum::extract::State<crate::state::AppState>,
+    axum::extract::Query(query): axum::extract::Query<LedgerQuery>,
+) -> Result<axum::Json<Vec<LedgerEntry>>, ApiError> {
+    let wallet = query.wallet.map(|w| w.trim().to_ascii_lowercase());
+    if let Some(w) = wallet.as_deref() {
+        if !matches!(w, "pm_cash" | "pm_mtt" | "real") {
+            return Err(ApiError::BadRequest(
+                "wallet must be pm_cash, pm_mtt or real".into(),
+            ));
+        }
+    }
+    let limit = query.limit.unwrap_or(100).clamp(1, 200);
+    let rows: Vec<LedgerEntry> = sqlx::query_as(
+        "SELECT id, wallet, amount_cents, balance_after_cents, reason, reference, created_at \
+         FROM wallet_ledger WHERE user_id = $1::uuid AND ($2::text IS NULL OR wallet = $2) \
+         ORDER BY id DESC LIMIT $3",
+    )
+    .bind(&auth_user.user_id)
+    .bind(wallet)
+    .bind(limit)
+    .fetch_all(&state.db)
+    .await?;
+    Ok(axum::Json(rows))
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct LedgerReconciliation {
+    /// Contas e carteiras em que o saldo não bate com a soma do livro (até 100).
+    pub mismatches: Vec<serde_json::Value>,
+    pub mismatch_count: i64,
+    /// Linhas gravadas sem motivo (mudança de saldo fora das portas conhecidas).
+    pub unspecified_count: i64,
+    pub entries: i64,
+    pub ok: bool,
+}
+
+/// GET /api/admin/ledger/reconcile — saldo = soma do livro em todas as contas.
+pub async fn admin_ledger_reconcile(
+    crate::middleware::auth::RequireAuth(auth_user): crate::middleware::auth::RequireAuth,
+    axum::extract::State(state): axum::extract::State<crate::state::AppState>,
+) -> Result<axum::Json<LedgerReconciliation>, ApiError> {
+    crate::admin_panel::require_admin(&auth_user)?;
+    let rows: Vec<(uuid::Uuid, String, i64, i64)> = sqlx::query_as(
+        "SELECT user_id, wallet, balance_cents, ledger_cents::bigint FROM wallet_ledger_mismatches \
+         ORDER BY user_id LIMIT 100",
+    )
+    .fetch_all(&state.db)
+    .await?;
+    let mismatch_count: i64 = sqlx::query_scalar("SELECT count(*) FROM wallet_ledger_mismatches")
+        .fetch_one(&state.db)
+        .await?;
+    let (entries, unspecified_count): (i64, i64) = sqlx::query_as(
+        "SELECT count(*), count(*) FILTER (WHERE reason = 'unspecified') FROM wallet_ledger",
+    )
+    .fetch_one(&state.db)
+    .await?;
+    Ok(axum::Json(LedgerReconciliation {
+        mismatches: rows
+            .into_iter()
+            .map(|(user_id, wallet, balance, ledger)| {
+                serde_json::json!({
+                    "user_id": user_id,
+                    "wallet": wallet,
+                    "balance_cents": balance,
+                    "ledger_cents": ledger,
+                })
+            })
+            .collect(),
+        mismatch_count,
+        unspecified_count,
+        entries,
+        ok: mismatch_count == 0 && unspecified_count == 0,
+    }))
 }

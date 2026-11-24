@@ -454,9 +454,9 @@ async fn persist_tournament_prizes(
         return Err(invalid("Torneio não está running no banco"));
     }
     let credit = if mode == "real" {
-        "UPDATE users SET balance_real=balance_real+$1 WHERE id=$2::uuid"
+        "UPDATE users SET balance_real=balance_real+$1, ledger_reason='tournament_prize', ledger_ref=$3 WHERE id=$2::uuid"
     } else {
-        "UPDATE users SET balance_pm_mtt=balance_pm_mtt+$1 WHERE id=$2::uuid"
+        "UPDATE users SET balance_pm_mtt=balance_pm_mtt+$1, ledger_reason='tournament_prize', ledger_ref=$3 WHERE id=$2::uuid"
     };
     let mut ids = std::collections::HashSet::new();
     for winner in &result.winners {
@@ -467,6 +467,7 @@ async fn persist_tournament_prizes(
         let paid = sqlx::query(credit)
             .bind(prize)
             .bind(&winner.player_id)
+            .bind(&result.tournament_id)
             .execute(&mut *tx)
             .await?;
         if paid.rows_affected() != 1 {

@@ -1512,7 +1512,8 @@ async fn test_contract_mfa_challenge_lifecycle_is_durable_and_single_use() {
 #[tokio::test]
 #[ignore = "Requires PostgreSQL — set DATABASE_URL to run"]
 async fn test_contract_wallet_credit_fails_when_no_account_receives_it() {
-    use poker_api::wallet::{credit_wallet, WalletKind};
+    use poker_api::wallet::{credit_wallet, LedgerReason, WalletKind};
+    const WHY: LedgerReason = LedgerReason::AdminAdjustment;
 
     let state = make_test_state();
     let app = poker_api::build_router(state.clone());
@@ -1521,7 +1522,7 @@ async fn test_contract_wallet_credit_fails_when_no_account_receives_it() {
     // Conta inexistente: o crédito não pode "dar certo" sem chegar a ninguém.
     let missing = uuid::Uuid::new_v4().to_string();
     for kind in [WalletKind::PmCash, WalletKind::PmMtt, WalletKind::Real] {
-        let result = credit_wallet(&state.db, &missing, 500, kind).await;
+        let result = credit_wallet(&state.db, &missing, 500, kind, WHY, None).await;
         assert!(
             matches!(result, Err(poker_api::error::ApiError::Internal(_))),
             "{kind:?}: {result:?}"
@@ -1530,18 +1531,27 @@ async fn test_contract_wallet_credit_fails_when_no_account_receives_it() {
 
     // Dentro de uma transação, o erro desfaz o que veio antes dele.
     let mut tx = state.db.begin().await.unwrap();
-    credit_wallet(&mut *tx, &user.user_id, 700, WalletKind::Real)
+    credit_wallet(&mut *tx, &user.user_id, 700, WalletKind::Real, WHY, None)
         .await
         .unwrap();
-    assert!(credit_wallet(&mut *tx, &missing, 700, WalletKind::Real)
-        .await
-        .is_err());
+    assert!(
+        credit_wallet(&mut *tx, &missing, 700, WalletKind::Real, WHY, None)
+            .await
+            .is_err()
+    );
     tx.rollback().await.unwrap();
 
     // Conta existente recebe exatamente o valor.
-    credit_wallet(&state.db, &user.user_id, 500, WalletKind::Real)
-        .await
-        .unwrap();
+    credit_wallet(
+        &state.db,
+        &user.user_id,
+        500,
+        WalletKind::Real,
+        WHY,
+        Some("teste"),
+    )
+    .await
+    .unwrap();
     let balance_real: i64 =
         sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1::uuid")
             .bind(&user.user_id)
@@ -1549,6 +1559,39 @@ async fn test_contract_wallet_credit_fails_when_no_account_receives_it() {
             .await
             .unwrap();
     assert_eq!(balance_real, 500);
+
+    // Livro único (migration 066): só a linha do crédito que valeu, com motivo,
+    // referência e saldo resultante; o crédito desfeito não deixou linha.
+    let rows: Vec<(i64, i64, String, Option<String>)> = sqlx::query_as(
+        "SELECT amount_cents, balance_after_cents, reason, reference FROM wallet_ledger \
+         WHERE user_id = $1::uuid AND wallet = 'real' ORDER BY id",
+    )
+    .bind(&user.user_id)
+    .fetch_all(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(
+        rows,
+        vec![(
+            500,
+            500,
+            "admin_adjustment".to_string(),
+            Some("teste".to_string())
+        )]
+    );
+    let mismatches: i64 = sqlx::query_scalar(
+        "SELECT count(*) FROM wallet_ledger_mismatches WHERE user_id = $1::uuid",
+    )
+    .bind(&user.user_id)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(mismatches, 0, "saldo = soma do livro");
+    let tampered = sqlx::query("DELETE FROM wallet_ledger WHERE user_id = $1::uuid")
+        .bind(&user.user_id)
+        .execute(&state.db)
+        .await;
+    assert!(tampered.is_err(), "o livro é só de inclusão");
 
     cleanup_contract_user(&state, &user.username).await;
 }
@@ -2074,6 +2117,92 @@ async fn test_contract_cookie_session_login_me_csrf_refresh_logout() {
     )
     .await;
     assert_eq!(status, StatusCode::OK, "{body}");
+
+    cleanup_contract_user(&state, &user.username).await;
+}
+
+/// Livro único (migration 066): o extrato da carteira lê o livro, filtra por
+/// carteira e a conferência saldo = soma do livro é só do admin.
+#[tokio::test]
+#[ignore = "Requires PostgreSQL with migration 066 — set DATABASE_URL to run"]
+async fn test_contract_wallet_ledger_statement_and_reconcile() {
+    use poker_api::wallet::{credit_wallet, LedgerReason, WalletKind};
+
+    async fn get_json(
+        app: &axum::Router,
+        uri: &str,
+        token: &str,
+    ) -> (StatusCode, serde_json::Value) {
+        let request = Request::builder()
+            .method(Method::GET)
+            .uri(uri)
+            .header("Authorization", format!("Bearer {token}"))
+            .body(Body::empty())
+            .unwrap();
+        let response = app.clone().oneshot(request).await.unwrap();
+        let status = response.status();
+        let bytes = response.into_body().collect().await.unwrap().to_bytes();
+        (
+            status,
+            serde_json::from_slice(&bytes).unwrap_or(serde_json::Value::Null),
+        )
+    }
+    async fn login_token(app: &axum::Router, email: &str, password: &str) -> String {
+        let body = serde_json::json!({ "email": email, "password": password }).to_string();
+        let (status, text) =
+            send_request(app.clone(), Method::POST, "/api/auth/login", Some(body)).await;
+        assert_eq!(status, StatusCode::OK, "{text}");
+        serde_json::from_str::<serde_json::Value>(&text).unwrap()["token"]
+            .as_str()
+            .unwrap()
+            .to_string()
+    }
+
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let user = register_refresh_contract_user(&state, &app, "ledger").await;
+    credit_wallet(
+        &state.db,
+        &user.user_id,
+        900,
+        WalletKind::Real,
+        LedgerReason::ManualDeposit,
+        Some("req-ledger"),
+    )
+    .await
+    .unwrap();
+    let token = login_token(&app, &user.email, user.password).await;
+
+    let (status, rows) = get_json(&app, "/api/wallet/ledger?wallet=real", &token).await;
+    assert_eq!(status, StatusCode::OK, "{rows}");
+    let rows = rows.as_array().unwrap();
+    assert_eq!(rows.len(), 1, "{rows:?}");
+    assert_eq!(rows[0]["amount_cents"], 900);
+    assert_eq!(rows[0]["balance_after_cents"], 900);
+    assert_eq!(rows[0]["reason"], "manual_deposit");
+    assert_eq!(rows[0]["reference"], "req-ledger");
+    assert!(rows[0]["created_at"].as_str().unwrap().ends_with('Z'));
+
+    let (status, _) = get_json(&app, "/api/wallet/ledger?wallet=bogus", &token).await;
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+    let (status, _) = get_json(&app, "/api/admin/ledger/reconcile", &token).await;
+    assert_eq!(status, StatusCode::FORBIDDEN, "conferência só do admin");
+
+    sqlx::query("UPDATE users SET role = 'admin' WHERE id = $1::uuid")
+        .bind(&user.user_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+    // Mudar o papel revoga os tokens já emitidos (token_version): entra de novo.
+    let token = login_token(&app, &user.email, user.password).await;
+    let (status, report) = get_json(&app, "/api/admin/ledger/reconcile", &token).await;
+    assert_eq!(status, StatusCode::OK, "{report}");
+    assert!(report["entries"].as_i64().unwrap() >= 1);
+    assert!(report["mismatches"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .all(|row| row["user_id"] != user.user_id.as_str()));
 
     cleanup_contract_user(&state, &user.username).await;
 }

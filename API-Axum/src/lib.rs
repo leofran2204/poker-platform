@@ -444,6 +444,19 @@ pub fn build_router(state: AppState) -> Router {
                 )),
         )
         .route(
+            "/api/wallet/ledger",
+            get(wallet::my_ledger).route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                state.clone(),
+            )),
+        )
+        .route(
+            "/api/admin/ledger/reconcile",
+            get(wallet::admin_ledger_reconcile)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
             "/api/wallet/transactions",
             get(payments_routes::list_my_wallet_transactions).route_layer(
                 from_extractor_with_state::<RequireAuth, AppState>(state.clone()),

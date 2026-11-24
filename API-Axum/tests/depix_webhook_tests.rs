@@ -637,11 +637,13 @@ async fn depix_provisional_credit_settles_once_and_reverses() {
     .await;
     assert_eq!(reversed.1["status"], "REVERSED");
 
-    sqlx::query("UPDATE users SET balance_real = 1000 WHERE id = $1")
-        .bind(user_id)
-        .execute(&state.db)
-        .await
-        .unwrap();
+    sqlx::query(
+        "UPDATE users SET balance_real = 1000, ledger_reason = 'test_fixture' WHERE id = $1",
+    )
+    .bind(user_id)
+    .execute(&state.db)
+    .await
+    .unwrap();
     let short_event = format!("evt_{}", uuid::Uuid::new_v4().simple());
     let short_body = serde_json::json!({
         "event": "checkout.cancelled",

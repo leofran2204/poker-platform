@@ -207,6 +207,14 @@ async fn cleanup_mtt_table(db: &sqlx::PgPool, t: &MttTable) {
         .unwrap();
 }
 
+/// Os testes deste arquivo dividem o banco e apagam as sobras uns dos outros
+/// (`wipe_tact_leftovers`): rodam um de cada vez, mesmo com threads paralelas
+/// (a campanha `full-validation` roda o arquivo inteiro em paralelo).
+fn db_serial() -> &'static tokio::sync::Mutex<()> {
+    static SERIAL: std::sync::OnceLock<tokio::sync::Mutex<()>> = std::sync::OnceLock::new();
+    SERIAL.get_or_init(|| tokio::sync::Mutex::new(()))
+}
+
 async fn wipe_tact_leftovers(db: &sqlx::PgPool) {
     sqlx::query("DELETE FROM hand_participants WHERE user_id IN (SELECT id FROM users WHERE username LIKE 'tact%')")
         .execute(db).await.unwrap();
@@ -238,6 +246,7 @@ async fn mtt_actor_completes_hand_with_signed_settlement() {
         .with_test_writer()
         .try_init();
     let db = scratch_pool();
+    let _serial = db_serial().lock().await;
     wipe_tact_leftovers(&db).await;
     let (_state, _tx, t) = setup_mtt_table(&db, "base", 5000).await;
 
@@ -279,6 +288,7 @@ async fn mtt_actor_completes_hand_with_signed_settlement() {
 #[ignore = "Requires scratch PostgreSQL (migrated) via DATABASE_URL"]
 async fn mtt_actor_runs_out_allin_stall() {
     let db = scratch_pool();
+    let _serial = db_serial().lock().await;
     wipe_tact_leftovers(&db).await;
     // Stacks menores que os blinds: todos all-in na largada — sem run-out,
     // a mão travaria para sempre (fold inválido p/ quem não pode agir).
@@ -330,6 +340,7 @@ async fn mtt_rebuy_and_addon_deliver_chips_and_charge_wallet() {
     use poker_engine::tournament_engine::PlayerTournamentEntry;
 
     let db = scratch_pool();
+    let _serial = db_serial().lock().await;
     wipe_tact_leftovers(&db).await;
     let (state, _tx, t) = setup_mtt_table(&db, "rebuy", 5000).await;
     let u3 = uuid::Uuid::new_v4();
@@ -344,7 +355,7 @@ async fn mtt_rebuy_and_addon_deliver_chips_and_charge_wallet() {
             .await
             .unwrap();
     }
-    sqlx::query("UPDATE users SET balance_pm_mtt = 100000 WHERE id IN ($1, $2, $3)")
+    sqlx::query("UPDATE users SET balance_pm_mtt = 100000, ledger_reason = 'test_fixture' WHERE id IN ($1, $2, $3)")
         .bind(t.u1)
         .bind(t.u2)
         .bind(u3)
@@ -559,8 +570,9 @@ async fn mtt_websocket_admission_reads_the_tournament_seat() {
     use poker_api::handlers::websocket::tournament_seat_admission;
 
     let db = scratch_pool();
+    let _serial = db_serial().lock().await;
     wipe_tact_leftovers(&db).await;
-    let (_state, _tx, t) = setup_mtt_table(&db, "wsadmit", 5000).await;
+    let (state, tx, t) = setup_mtt_table(&db, "wsadmit", 5000).await;
     let table_id = t.table_id.to_string();
 
     let seat = tournament_seat_admission(&db, &table_id, &t.u1.to_string())
@@ -577,6 +589,11 @@ async fn mtt_websocket_admission_reads_the_tournament_seat() {
         .expect("consulta sem assento");
     assert!(stranger.is_none(), "quem não está sentado não entra");
 
+    // Para o ator antes de apagar a mesa: sem isso ele pode abrir uma mão (e gravar
+    // a guarda de recuperação) no meio da limpeza.
+    state.active_tables.write().await.remove(&table_id);
+    drop(tx);
+    tokio::time::sleep(std::time::Duration::from_millis(400)).await;
     cleanup_mtt_table(&db, &t).await;
 }
 
@@ -593,6 +610,7 @@ async fn mtt_registration_records_entry_fee() {
     use poker_api::middleware::auth::{AuthUser, RequireAuth};
 
     let db = scratch_pool();
+    let _serial = db_serial().lock().await;
     wipe_tact_leftovers(&db).await;
     let tid = uuid::Uuid::new_v4();
     let uid = uuid::Uuid::new_v4();

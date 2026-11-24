@@ -302,7 +302,15 @@ pub async fn join_table(
 
     let kind = crate::wallet::cash_kind_for_mode(mode);
     crate::wallet::ensure_pm_daily_reset(&mut *tx, &auth_user.user_id).await?;
-    crate::wallet::debit_wallet(&mut *tx, &auth_user.user_id, buy_in, kind).await?;
+    crate::wallet::debit_wallet(
+        &mut *tx,
+        &auth_user.user_id,
+        buy_in,
+        kind,
+        crate::wallet::LedgerReason::CashBuyIn,
+        Some(&table_id.to_string()),
+    )
+    .await?;
 
     let (seat_id,): (uuid::Uuid,) = sqlx::query_as(
         "INSERT INTO cash_game_seats \

@@ -442,3 +442,13 @@ Publicado `f6e91d9d0c45ae7e67ff360e71a9e6436160b809` às **00:09:00 UTC de 24/11
 Mudança: API sem `chrono` (RUSTSEC-2026-0543), com `time` e o módulo `clock.rs`; exceção retirada do `audit.toml` e `cargo audit` limpo. A inscrição pelo site passou a gravar o fee em `tournaments.total_fees` (`cf28cf8e`).
 
 Verificado em produção: login, extrato e inscrição com cancelamento numa conta de teste (fee de 225 cobrado e devolvido). A coluna `total_fees` desse torneio tinha resíduo antigo carregado pela reidratação (1.575 com 1 inscrito): corrigido na etapa 4 (entradas × fee e migration `065`).
+
+## Publicação: login por cookie e fee dos torneios — 24/11/2026
+
+Publicado `f5d690addc565f6c079d0ab9125b02762cfa31fb` às **00:34:54 UTC de 24/11 / 21:34 em São Paulo de 23/11** (etapa 4 autorizada pelo proprietário), com Rust CI e Container Supply Chain verdes e imagens assinadas; migrations 65; boot sem `ERROR`; `.env` preservado.
+
+Mudança: sessão por cookie `HttpOnly; Secure; SameSite=Strict` (`zt_access`, `zt_refresh`) com `X-ZT-CSRF` nas escritas; o site não guarda token no `localStorage`. Migration `065` corrige `tournaments.total_fees` (entradas × fee).
+
+Verificado em produção com uma conta de teste: login com `X-ZT-Session: cookie` devolve 2 cookies com os três atributos e o corpo sem token; `me` pelo cookie; escrita sem `X-ZT-CSRF` = 403 e com ele = 200; refresh pelo cookie; logout apaga os cookies e o refresh seguinte dá 401. O bundle publicado envia `X-ZT-Session`. A 065 corrigiu 4 torneios (o "PM · Texas R$25" passou a mostrar 10.125 de fee, 27 × 375).
+
+Não verificado em produção: login pelo navegador de um jogador real.

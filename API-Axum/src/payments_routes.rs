@@ -376,10 +376,14 @@ async fn credit_balance_real(
     transaction: &mut sqlx::Transaction<'_, sqlx::Postgres>,
     user_id: uuid::Uuid,
     cents: i64,
+    tx_id: &str,
 ) -> Result<(), ApiError> {
-    let credited = sqlx::query("UPDATE users SET balance_real = balance_real + $1 WHERE id = $2")
-        .bind(cents)
-        .bind(user_id)
+    let credited = sqlx::query(
+        "UPDATE users SET balance_real = balance_real + $1, ledger_reason = 'pix_deposit', ledger_ref = $3 WHERE id = $2",
+    )
+    .bind(cents)
+    .bind(user_id)
+    .bind(tx_id)
         .execute(&mut **transaction)
         .await?;
     if credited.rows_affected() != 1 {
@@ -395,6 +399,7 @@ async fn debit_balance_real_up_to(
     transaction: &mut sqlx::Transaction<'_, sqlx::Postgres>,
     user_id: uuid::Uuid,
     cents: i64,
+    tx_id: &str,
 ) -> Result<(i64, i64), ApiError> {
     let current: Option<i64> =
         sqlx::query_scalar("SELECT balance_real FROM users WHERE id = $1 FOR UPDATE")
@@ -406,9 +411,12 @@ async fn debit_balance_real_up_to(
     let debit = current.min(cents).max(0);
     let shortfall = cents - debit;
     if debit > 0 {
-        sqlx::query("UPDATE users SET balance_real = balance_real - $1 WHERE id = $2")
-            .bind(debit)
-            .bind(user_id)
+        sqlx::query(
+            "UPDATE users SET balance_real = balance_real - $1, ledger_reason = 'pix_deposit_reversal', ledger_ref = $3 WHERE id = $2",
+        )
+        .bind(debit)
+        .bind(user_id)
+        .bind(tx_id)
             .execute(&mut **transaction)
             .await?;
     }
@@ -848,7 +856,8 @@ pub async fn pix_webhook_handler(
                         ));
                     }
                     if face_eligible_for_instant_credit(amount) {
-                        credit_balance_real(&mut transaction, user_id, amount).await?;
+                        credit_balance_real(&mut transaction, user_id, amount, &payload.tx_id)
+                            .await?;
                         sqlx::query(
                             "UPDATE wallet_transactions \
                              SET provider_status = 'PROCESSING', credited_amount_cents = $1, \
@@ -887,9 +896,13 @@ pub async fn pix_webhook_handler(
                     }
                 } else if let Some(terminal_status) = terminal_status {
                     if let Some(credited_cents) = credited {
-                        let (debited, shortfall) =
-                            debit_balance_real_up_to(&mut transaction, user_id, credited_cents)
-                                .await?;
+                        let (debited, shortfall) = debit_balance_real_up_to(
+                            &mut transaction,
+                            user_id,
+                            credited_cents,
+                            &payload.tx_id,
+                        )
+                        .await?;
                         sqlx::query(
                             "UPDATE wallet_transactions \
                              SET status = 'CANCELLED', provider_status = $1, updated_at = NOW() \
@@ -1055,13 +1068,15 @@ pub async fn pix_webhook_handler(
     match already_credited {
         Some(previous) if previous == target => {}
         Some(previous) if previous > target => {
-            debit_balance_real_up_to(&mut transaction, user_id, previous - target).await?;
+            debit_balance_real_up_to(&mut transaction, user_id, previous - target, &payload.tx_id)
+                .await?;
         }
         Some(previous) => {
-            credit_balance_real(&mut transaction, user_id, target - previous).await?;
+            credit_balance_real(&mut transaction, user_id, target - previous, &payload.tx_id)
+                .await?;
         }
         None => {
-            credit_balance_real(&mut transaction, user_id, target).await?;
+            credit_balance_real(&mut transaction, user_id, target, &payload.tx_id).await?;
         }
     }
     sqlx::query(
@@ -1229,13 +1244,14 @@ async fn reconcile_deposit_status(
         match credited {
             Some(previous) if previous == target => {}
             Some(previous) if previous > target => {
-                debit_balance_real_up_to(&mut transaction, user_uuid, previous - target).await?;
+                debit_balance_real_up_to(&mut transaction, user_uuid, previous - target, tx_id)
+                    .await?;
             }
             Some(previous) => {
-                credit_balance_real(&mut transaction, user_uuid, target - previous).await?;
+                credit_balance_real(&mut transaction, user_uuid, target - previous, tx_id).await?;
             }
             None => {
-                credit_balance_real(&mut transaction, user_uuid, target).await?;
+                credit_balance_real(&mut transaction, user_uuid, target, tx_id).await?;
             }
         }
         ledger_status = "COMPLETED".to_string();
@@ -1267,7 +1283,7 @@ async fn reconcile_deposit_status(
         if let Some(credited_cents) = credited {
             let user_uuid = uuid::Uuid::parse_str(user_id)
                 .map_err(|_| ApiError::Internal("PIX deposit user id is invalid".to_string()))?;
-            debit_balance_real_up_to(&mut transaction, user_uuid, credited_cents).await?;
+            debit_balance_real_up_to(&mut transaction, user_uuid, credited_cents, tx_id).await?;
         }
         ledger_status = "CANCELLED".to_string();
     }
@@ -1473,7 +1489,7 @@ pub async fn create_pix_withdraw_handler(
     ensure_same_holder_payout(&kyc_status, kyc_tax_id_hash.as_deref(), &tax_number)?;
 
     let debited = sqlx::query(
-        "UPDATE users SET balance_real = balance_real - $1 \
+        "UPDATE users SET balance_real = balance_real - $1, ledger_reason = 'pix_withdraw' \
          WHERE id = $2::uuid AND balance_real >= $1 RETURNING balance_real",
     )
     .bind(amount)

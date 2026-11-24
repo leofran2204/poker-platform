@@ -560,3 +560,14 @@ export type ClientMessage =
   | { type: "get_table_info" }
   | { type: "sit_out" }
   | { type: "sit_in" };
+
+/** Linha do livro único do dinheiro (`GET /api/wallet/ledger`). */
+export interface WalletLedgerEntry {
+  id: number;
+  wallet: "pm_cash" | "pm_mtt" | "real";
+  amount_cents: number;
+  balance_after_cents: number;
+  reason: string;
+  reference?: string | null;
+  created_at: string;
+}

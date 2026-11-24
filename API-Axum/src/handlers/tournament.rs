@@ -391,8 +391,15 @@ pub async fn register_player(
             store.state.players.remove(&auth_user.user_id);
             return Err(e);
         }
-        if let Err(e) =
-            crate::wallet::debit_wallet(&mut *tx, &auth_user.user_id, buy_in_i, kind).await
+        if let Err(e) = crate::wallet::debit_wallet(
+            &mut *tx,
+            &auth_user.user_id,
+            buy_in_i,
+            kind,
+            crate::wallet::LedgerReason::TournamentBuyIn,
+            Some(&tournament_id),
+        )
+        .await
         {
             store.state.players.remove(&auth_user.user_id);
             return Err(e);
@@ -405,8 +412,15 @@ pub async fn register_player(
         i64::try_from(poker_engine::tournament_engine::entry_fee_cents(buy_in)).unwrap_or(0);
     if fee_cents > 0 {
         let kind = crate::wallet::mtt_kind_for_mode(mode);
-        if let Err(e) =
-            crate::wallet::debit_wallet(&mut *tx, &auth_user.user_id, fee_cents, kind).await
+        if let Err(e) = crate::wallet::debit_wallet(
+            &mut *tx,
+            &auth_user.user_id,
+            fee_cents,
+            kind,
+            crate::wallet::LedgerReason::TournamentFee,
+            Some(&tournament_id),
+        )
+        .await
         {
             store.state.players.remove(&auth_user.user_id);
             return Err(e);
@@ -545,10 +559,26 @@ pub async fn unregister_player(
     let db_result: Result<(), ApiError> = async {
         let mut tx = state.db.begin().await?;
         if buy_in_i > 0 {
-            crate::wallet::credit_wallet(&mut *tx, &auth_user.user_id, buy_in_i, kind).await?;
+            crate::wallet::credit_wallet(
+                &mut *tx,
+                &auth_user.user_id,
+                buy_in_i,
+                kind,
+                crate::wallet::LedgerReason::TournamentUnregisterRefund,
+                Some(&tournament_id),
+            )
+            .await?;
         }
         if fee_i > 0 {
-            crate::wallet::credit_wallet(&mut *tx, &auth_user.user_id, fee_i, kind).await?;
+            crate::wallet::credit_wallet(
+                &mut *tx,
+                &auth_user.user_id,
+                fee_i,
+                kind,
+                crate::wallet::LedgerReason::TournamentUnregisterRefund,
+                Some(&tournament_id),
+            )
+            .await?;
             // Dedução idempotente somente das receitas desta inscrição.
             let payer = uuid::Uuid::parse_str(&auth_user.user_id)
                 .map_err(|_| ApiError::BadRequest("Invalid player id".into()))?;
@@ -747,6 +777,11 @@ async fn purchase_chips(
                 user_id,
                 cost_i,
                 crate::wallet::mtt_kind_for_mode(mode),
+                match kind {
+                    ChipPurchase::Rebuy => crate::wallet::LedgerReason::TournamentRebuy,
+                    ChipPurchase::Addon => crate::wallet::LedgerReason::TournamentAddon,
+                },
+                Some(&tournament_id),
             )
             .await?;
         }

@@ -409,6 +409,8 @@ pub async fn approve_deposit_request(
         &user_id.to_string(),
         amount,
         crate::wallet::WalletKind::Real,
+        crate::wallet::LedgerReason::ManualDeposit,
+        Some(&id),
     )
     .await?;
 

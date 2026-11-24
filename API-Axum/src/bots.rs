@@ -411,7 +411,7 @@ impl BotFleet {
         // Garante marca/banca mesmo p/ nomes pre-existentes (ex. teste manual).
         sqlx::query(
             "UPDATE users SET is_bot = TRUE, status = 'active', \
-             balance_pm_cash = GREATEST(balance_pm_cash, $1) \
+             balance_pm_cash = GREATEST(balance_pm_cash, $1), ledger_reason = 'bot_top_up' \
              WHERE username LIKE 'bot\\_%'",
         )
         .bind(BOT_PM_BALANCE)
@@ -881,6 +881,8 @@ impl BotFleet {
                 bot_id,
                 buy_in_i,
                 crate::wallet::WalletKind::PmMtt,
+                crate::wallet::LedgerReason::TournamentBuyIn,
+                Some(tournament_id),
             )
             .await
             {
@@ -896,6 +898,8 @@ impl BotFleet {
                 bot_id,
                 fee_i,
                 crate::wallet::WalletKind::PmMtt,
+                crate::wallet::LedgerReason::TournamentFee,
+                Some(tournament_id),
             )
             .await
             {
@@ -1270,7 +1274,8 @@ impl BotFleet {
         };
         // Garante banca e debita.
         sqlx::query(
-            "UPDATE users SET balance_pm_cash = GREATEST(balance_pm_cash, $2) WHERE id = $1::uuid",
+            "UPDATE users SET balance_pm_cash = GREATEST(balance_pm_cash, $2), \
+             ledger_reason = 'bot_top_up' WHERE id = $1::uuid",
         )
         .bind(bot_id)
         .bind(BOT_PM_BALANCE)
@@ -1278,7 +1283,7 @@ impl BotFleet {
         .await
         .map_err(|e| BotError(format!("banca: {e}")))?;
         let debited = sqlx::query(
-            "UPDATE users SET balance_pm_cash = balance_pm_cash - $2 \
+            "UPDATE users SET balance_pm_cash = balance_pm_cash - $2, ledger_reason = 'cash_buy_in' \
              WHERE id = $1::uuid AND balance_pm_cash >= $2",
         )
         .bind(bot_id)

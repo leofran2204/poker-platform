@@ -42,9 +42,16 @@ pub async fn persist_cash_out_seat(
     .map_err(|error| error.to_string())?;
 
     if chips > 0 {
-        crate::wallet::credit_wallet(&mut *tx, user_id, chips, credit_kind)
-            .await
-            .map_err(|error| format!("{error:?}"))?;
+        crate::wallet::credit_wallet(
+            &mut *tx,
+            user_id,
+            chips,
+            credit_kind,
+            crate::wallet::LedgerReason::CashOut,
+            Some(&table_id.to_string()),
+        )
+        .await
+        .map_err(|error| format!("{error:?}"))?;
         sqlx::query(
             "INSERT INTO cash_game_ledger (user_id, table_id, seat_id, entry_type, amount) \
              VALUES ($1::uuid, $2, $3, 'CASH_OUT', $4)",

@@ -523,8 +523,14 @@ class Campaign:
                         if sum(p["amount"] for p in settlement["payouts"])+settlement["rake_collected"]!=settlement["pot_total"]:
                             raise RuntimeError("settlement chips diverged")
                         rake+=settlement["rake_collected"]
-                    chips=int(self.sql(f"SELECT sum(chips) FROM cash_game_seats WHERE table_id='{table['id']}' AND status='ACTIVE';").strip())
-                    if chips+rake!=table["cap"]*table["buy_in"]: raise RuntimeError("durable cash chips diverged")
+                    # Fichas na mesa ou já sacadas (o cash-out grava as fichas finais no assento)
+                    # dos jogadores desta rodada; a mesa do catálogo guarda assentos de rodadas antigas.
+                    users=",".join(f"'{user['id']}'" for user in table["users"])
+                    chips,escrow=(int(value) for value in self.sql(
+                        f"SELECT coalesce(sum(chips),0)||'|'||coalesce(sum(buy_in),0) FROM cash_game_seats "
+                        f"WHERE table_id='{table['id']}' AND user_id IN ({users});").strip().split("|"))
+                    if chips+rake!=escrow or escrow<table["cap"]*table["buy_in"]:
+                        raise RuntimeError("durable cash chips diverged")
                     for user in table["users"]:
                         balance=json.loads(self.sql(f"SELECT row_to_json(u) FROM (SELECT balance_pm_cash,balance_pm_mtt,balance_real FROM users WHERE id='{user['id']}') u;"))
                         if balance["balance_real"]!=15000 or balance["balance_pm_mtt"]!=15000:
@@ -592,6 +598,22 @@ class Campaign:
                           "Actor tests do not establish TLS/WSS coverage."]))
         return missing + [f"configuration {c['index']} has missing pairs" for c in configurations if c["missing_pairs"]]
 
+    def ledger_audit(self):
+        """Livro único (migration 066): saldo = soma do livro e nenhuma mudança sem motivo."""
+        row=self.sql("SELECT (SELECT count(*) FROM wallet_ledger_mismatches)||'|'||"
+                     "(SELECT count(*) FROM wallet_ledger WHERE reason='unspecified')||'|'||"
+                     "(SELECT count(*) FROM wallet_ledger);").strip()
+        mismatches,unspecified,entries=(int(value) for value in row.split("|"))
+        reasons=dict(line.split("|") for line in self.sql(
+            "SELECT reason||'|'||count(*) FROM wallet_ledger GROUP BY reason ORDER BY reason;").split())
+        save(self.out/"wallet-ledger-audit.json",dict(entries=entries,mismatches=mismatches,
+             unspecified=unspecified,reasons=reasons))
+        problems=[]
+        if not entries: problems.append("wallet ledger: no entries recorded")
+        if mismatches: problems.append(f"wallet ledger: {mismatches} balances differ from the ledger sum")
+        if unspecified: problems.append(f"wallet ledger: {unspecified} balance changes without reason")
+        return problems
+
     def close(self):
         for process in (self.api,self.gateway):
             if process and process.poll() is None:
@@ -638,6 +660,8 @@ def main():
             print("RUN",stage["name"],flush=True)
             campaign.execute(stage)
         missing=campaign.matrix()
+        ledger=campaign.ledger_audit()
+        campaign.gaps.extend(ledger)
         campaign.status="incomplete" if missing or campaign.gaps else "passed"
     except (Exception,KeyboardInterrupt) as error:
         campaign.status="incomplete" if isinstance(error,(KeyboardInterrupt,TimeoutError,subprocess.TimeoutExpired)) else "failed"

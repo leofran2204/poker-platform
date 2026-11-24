@@ -71,8 +71,15 @@ async fn reject_and_recredit(
 ) -> Result<(), ApiError> {
     // Falha se o recrédito não alcançar a conta: o saque não vira REJECTED sem
     // o dinheiro ter voltado.
-    crate::wallet::credit_wallet(&mut **tx, user_id, amount, crate::wallet::WalletKind::Real)
-        .await?;
+    crate::wallet::credit_wallet(
+        &mut **tx,
+        user_id,
+        amount,
+        crate::wallet::WalletKind::Real,
+        crate::wallet::LedgerReason::PixWithdrawReversal,
+        Some(tx_key),
+    )
+    .await?;
     sqlx::query(
         "UPDATE wallet_transactions SET status = 'REJECTED', provider_status = 'FAILED', updated_at = NOW() \
          WHERE id = $1",

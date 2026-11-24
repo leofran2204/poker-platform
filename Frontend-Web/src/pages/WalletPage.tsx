@@ -8,6 +8,7 @@ import {
   fetchDepositInfo,
   fetchKyc,
   fetchMe,
+  fetchWalletLedger,
   getPixDepositStatus,
   listMyDepositRequests,
   listMyWalletTransactions,
@@ -20,6 +21,7 @@ import type {
   MeResponse,
   PixDepositResponse,
   PixDepositStatusResponse,
+  WalletLedgerEntry,
   WalletTransactionItem,
 } from "@/api/types";
 import { NoIndex } from "@/components/NoIndex";
@@ -32,6 +34,7 @@ import {
   translateWithdrawError,
   type PixKeyType,
 } from "@/lib/pixWithdraw";
+import { ledgerForMode, ledgerReasonLabel, ledgerWalletLabel } from "@/lib/walletLedger";
 import { getWalletMode } from "@/lib/walletMode";
 
 function maskPixKey(key: string): string {
@@ -55,6 +58,7 @@ export function WalletPage() {
   const [info, setInfo] = useState<DepositInfoResponse | null>(null);
   const [requests, setRequests] = useState<DepositRequestResponse[]>([]);
   const [ledger, setLedger] = useState<WalletTransactionItem[]>([]);
+  const [movements, setMovements] = useState<WalletLedgerEntry[]>([]);
   const [openForm, setOpenForm] = useState(false);
   const [revealPix, setRevealPix] = useState(false);
   const [amountCents, setAmountCents] = useState(100_000);
@@ -138,6 +142,10 @@ export function WalletPage() {
     fetchKyc()
       .then(setKyc)
       .catch(() => setKyc(null));
+    // Extrato completo (livro único): falha aqui não bloqueia a carteira.
+    fetchWalletLedger()
+      .then(setMovements)
+      .catch(() => setMovements([]));
   }, []);
 
   useEffect(() => {
@@ -707,6 +715,49 @@ export function WalletPage() {
           Para depositar via PIX, mude o header para <strong className="text-cream">Jogo Real</strong>.
         </div>
       )}
+
+      <div className="zt-panel zt-wallet-statement overflow-hidden">
+        <div className="zt-panel-title">Extrato completo</div>
+        <p className="px-4 pt-2 text-xs text-felt-400">
+          Toda mudança de saldo, com o saldo depois de cada uma: mesa, torneio, PIX, depósitos,
+          ajustes e a renovação diária do Play Money.
+        </p>
+        <div className="zt-table-wrap">
+          <table className="zt-lobby-table">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Carteira</th>
+                <th>Movimento</th>
+                <th>Valor</th>
+                <th>Saldo depois</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ledgerForMode(movements, mode).length === 0 ? (
+                <tr className="cursor-default!">
+                  <td colSpan={5} className="text-felt-400">Nenhuma movimentação ainda</td>
+                </tr>
+              ) : (
+                ledgerForMode(movements, mode).map((row) => (
+                  <tr key={row.id} className="cursor-default!">
+                    <td className="text-xs text-felt-300">{formatDateTime(row.created_at)}</td>
+                    <td className="text-xs">{ledgerWalletLabel(row.wallet)}</td>
+                    <td className="text-xs">{ledgerReasonLabel(row.reason)}</td>
+                    <td className={`font-mono ${row.amount_cents < 0 ? "text-red-300" : "text-gold-soft"}`}>
+                      {row.amount_cents > 0 ? "+" : "−"}
+                      {formatBrlFromCents(Math.abs(row.amount_cents))}
+                    </td>
+                    <td className="font-mono text-xs text-felt-300">
+                      {formatBrlFromCents(row.balance_after_cents)}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

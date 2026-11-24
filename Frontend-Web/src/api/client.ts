@@ -39,6 +39,7 @@ import type {
   TableResponse,
   TokenResponse,
   TournamentInfoResponse,
+  WalletLedgerEntry,
   WalletTransactionItem,
   WebSocketTicketResponse,
 } from "./types";
@@ -1063,4 +1064,9 @@ export async function saveCourseProgress(
     method: "POST",
     body: JSON.stringify({ lesson_id: lessonId, completed, score }),
   });
+}
+
+/** Extrato completo da conta: toda mudança de saldo das três carteiras (até 200). */
+export async function fetchWalletLedger(): Promise<WalletLedgerEntry[]> {
+  return request("/api/wallet/ledger?limit=200");
 }
