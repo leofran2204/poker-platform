@@ -2183,3 +2183,30 @@ body {
     transform: none !important;
   }
 }
+
+/* Certificado da Academy: na impressão sai só o certificado, em fundo claro. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .zt-certificate,
+  .zt-certificate * {
+    visibility: visible;
+    color: #1a1a1a !important;
+  }
+  .zt-certificate {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #fff !important;
+    border-color: #8b6914 !important;
+  }
+  .zt-certificate .zt-cert-accent,
+  .zt-certificate .zt-cert-accent * {
+    color: #8b6914 !important;
+  }
+  .zt-no-print {
+    display: none !important;
+  }
+}

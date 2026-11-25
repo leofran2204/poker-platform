@@ -46,6 +46,7 @@ use std::sync::OnceLock;
 use std::time::Instant;
 
 use crate::handlers::course as course_handlers;
+use crate::handlers::course_exam as course_exam_handlers;
 use crate::handlers::course_watch as course_watch_handlers;
 use crate::handlers::estrutura as estrutura_api;
 use crate::handlers::presence as presence_handlers;
@@ -326,6 +327,35 @@ pub fn build_router(state: AppState) -> Router {
                 .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
                     state.clone(),
                 )),
+        )
+        .route(
+            "/api/course/certificate",
+            get(course_exam_handlers::get_status)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/course/exam/start",
+            post(course_exam_handlers::start_exam)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/course/exam/submit",
+            post(course_exam_handlers::submit_exam)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        // Verificação pública do certificado (sem login, com limite de pedidos).
+        .route(
+            "/api/certificate/verify",
+            get(course_exam_handlers::verify_certificate)
+                .route_layer(
+                    from_extractor_with_state::<EnforceAcademyRateLimit, AppState>(state.clone()),
+                ),
         )
         // ─── Lobby routes ───
         .route("/api/lobby/tables", get(lobby::list_tables))

@@ -1142,6 +1142,82 @@ export async function answerCourseCheck(
   });
 }
 
+/** Pergunta da prova final (sem gabarito; alternativas em ordem sorteada). */
+export interface CourseExamQuestion {
+  id: string;
+  kind: "theory" | "engine";
+  prompt: string;
+  options: string[];
+  hole: string[];
+  board: string[];
+}
+
+export interface CourseExam {
+  attempt_id: string;
+  holder_name: string;
+  deadline: string;
+  seconds_left: number;
+  questions: CourseExamQuestion[];
+}
+
+export interface CourseCertificate {
+  code: string;
+  holder_name: string;
+  /** `kyc` = nome conferido na verificação de identidade; `declared` = informado pelo aluno. */
+  name_source: "kyc" | "declared";
+  score: number;
+  lessons: number;
+  issued_at: string;
+  revoked_at: string | null;
+}
+
+export interface CourseCertificateStatus {
+  total_lessons: number;
+  /** `quiz` = falta passar no quiz; `video` = falta o vídeo com as perguntas surpresa. */
+  missing: { lesson_id: string; reason: "quiz" | "video" }[];
+  eligible: boolean;
+  verified_name: string | null;
+  exam_questions: number;
+  exam_minutes: number;
+  pass_score: number;
+  open_exam: CourseExam | null;
+  next_attempt_at: string | null;
+  last_attempt: { score: number; passed: boolean; timed_out: boolean; finished_at: string } | null;
+  certificate: CourseCertificate | null;
+}
+
+export interface CourseExamResult {
+  score: number;
+  passed: boolean;
+  timed_out: boolean;
+  review_lessons: string[];
+  next_attempt_at: string | null;
+  certificate: CourseCertificate | null;
+}
+
+export async function fetchCertificateStatus(): Promise<CourseCertificateStatus> {
+  return request<CourseCertificateStatus>("/api/course/certificate");
+}
+
+export async function startCourseExam(name: string | null): Promise<CourseExam> {
+  return request<CourseExam>("/api/course/exam/start", {
+    method: "POST",
+    body: JSON.stringify({ name }),
+  });
+}
+
+export async function submitCourseExam(attemptId: string, answers: Record<string, string>): Promise<CourseExamResult> {
+  return request<CourseExamResult>("/api/course/exam/submit", {
+    method: "POST",
+    body: JSON.stringify({ attempt_id: attemptId, answers }),
+  });
+}
+
+/** Verificação pública do certificado (sem login). */
+export async function verifyCertificate(code: string): Promise<CourseCertificate> {
+  return request<CourseCertificate>(`/api/certificate/verify?code=${encodeURIComponent(code)}`, {}, false);
+}
+
 /** Extrato completo da conta: toda mudança de saldo das três carteiras (até 200). */
 export async function fetchWalletLedger(): Promise<WalletLedgerEntry[]> {
   return request("/api/wallet/ledger?limit=200");

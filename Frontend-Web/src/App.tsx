@@ -17,6 +17,8 @@ import { WalletPage } from "@/pages/WalletPage";
 
 const CoursePage = lazy(() => import("@/pages/CoursePage").then(m => ({ default: m.CoursePage })));
 const LessonPage = lazy(() => import("@/pages/LessonPage").then(m => ({ default: m.LessonPage })));
+const CertificatePage = lazy(() => import("@/pages/CertificatePage").then(m => ({ default: m.CertificatePage })));
+const CertificateVerifyPage = lazy(() => import("@/pages/CertificateVerifyPage").then(m => ({ default: m.CertificateVerifyPage })));
 const TrainingPage = lazy(() => import("@/pages/TrainingPage").then(m => ({ default: m.TrainingPage })));
 const TablePage = lazy(() => import("@/pages/TablePage").then(m => ({ default: m.TablePage })));
 const TournamentPage = lazy(() => import("@/pages/TournamentPage").then(m => ({ default: m.TournamentPage })));
@@ -88,7 +90,10 @@ export default function App() {
           <Route path="verify-email" element={<VerifyEmailPage />} />
           <Route path="lobby" element={<LobbyPage />} />
           <Route path="curso" element={<Suspense fallback={<AdminFallback />}><CoursePage /></Suspense>} />
+          <Route path="curso/certificado" element={<Suspense fallback={<AdminFallback />}><CertificatePage /></Suspense>} />
           <Route path="curso/:lessonId" element={<Suspense fallback={<AdminFallback />}><LessonPage /></Suspense>} />
+          <Route path="certificado" element={<Suspense fallback={<AdminFallback />}><CertificateVerifyPage /></Suspense>} />
+          <Route path="certificado/:code" element={<Suspense fallback={<AdminFallback />}><CertificateVerifyPage /></Suspense>} />
           <Route path="curso/mesa/:moduleId" element={<Suspense fallback={<AdminFallback />}><TrainingPage /></Suspense>} />
           <Route
             path="noticias"

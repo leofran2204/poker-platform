@@ -91,6 +91,14 @@ export function CoursePage() {
         </p>
       )}
 
+      <p className="rounded-xl border border-gold/40 bg-felt-800/70 px-4 py-3 text-xs text-felt-200">
+        <strong className="text-cream">Certificado Zero Tilt Academy:</strong> conclua as aulas obrigatórias (vídeo e quiz) e passe na
+        prova final. A história do poker é opcional.{" "}
+        <Link to="/curso/certificado" className="text-gold-soft underline">
+          {authed ? "Ver o que falta →" : "Como funciona →"}
+        </Link>
+      </p>
+
       {COURSE.modules.map((m) => (
         <section key={m.id} id={`trilha-${m.id}`} className={`zt-track ${tone(m.id)} scroll-mt-20`} aria-labelledby={`track-${m.id}`}>
           <div className="zt-track-head">

@@ -195,11 +195,11 @@ async fn save(
 
 // ─── Regras (puras, testadas abaixo) ───
 
-fn rand_below(n: u32) -> u32 {
+pub(crate) fn rand_below(n: u32) -> u32 {
     (Uuid::new_v4().as_u128() % u128::from(n.max(1))) as u32
 }
 
-fn shuffle<T>(items: &mut [T], rand_below: &mut impl FnMut(u32) -> u32) {
+pub(crate) fn shuffle<T>(items: &mut [T], rand_below: &mut impl FnMut(u32) -> u32) {
     for i in (1..items.len()).rev() {
         let j = rand_below(i as u32 + 1) as usize;
         items.swap(i, j);

@@ -204,7 +204,7 @@ pub async fn save_progress(
            status = CASE WHEN $4 THEN 'completed' ELSE status END, \
            best_score = GREATEST(best_score, $5), \
            attempts = attempts + 1, \
-           last_failed_at = CASE WHEN $4 THEN NULL ELSE NOW() END, \
+           last_failed_at = CASE WHEN $4 THEN NULL ELSE NOW() END,            attended_at = CASE WHEN $4 THEN COALESCE(attended_at, NOW()) ELSE attended_at END, \
            updated_at = NOW() \
          WHERE user_id = $1::uuid AND lesson_id = $2 \
          RETURNING lesson_id, status, best_score, attempts, updated_at::text, ",
@@ -274,6 +274,8 @@ struct RawContent {
 
 #[derive(Deserialize)]
 struct RawModule {
+    #[serde(default)]
+    id: String,
     lessons: Vec<RawLesson>,
 }
 
@@ -312,6 +314,10 @@ struct RawQuestion {
     #[serde(default)]
     prompt: String,
     options: Vec<String>,
+    #[serde(default)]
+    hole: Vec<String>,
+    #[serde(default)]
+    board: Vec<String>,
     #[serde(rename = "expectedIndex")]
     expected_index: Option<usize>,
     expected: Option<String>,
@@ -325,6 +331,10 @@ pub(crate) struct QuestionKey {
     pub(crate) id: String,
     pub(crate) engine: bool,
     pub(crate) correct: String,
+    pub(crate) prompt: String,
+    pub(crate) options: Vec<String>,
+    pub(crate) hole: Vec<String>,
+    pub(crate) board: Vec<String>,
 }
 
 /// Vídeo publicado da aula: duração e capítulos (início em segundos, título).
@@ -362,6 +372,26 @@ pub(crate) fn quiz_key() -> &'static HashMap<String, LessonKey> {
     KEY.get_or_init(|| parse_key(COURSE_CONTENT))
 }
 
+/// Módulos fora do certificado (história do poker, opcional).
+pub(crate) const OPTIONAL_MODULES: &[&str] = &["m0"];
+
+/// Aulas exigidas para o certificado, na ordem do curso.
+pub(crate) fn certificate_lessons() -> &'static [String] {
+    static LESSONS: OnceLock<Vec<String>> = OnceLock::new();
+    LESSONS.get_or_init(|| required_lessons(COURSE_CONTENT))
+}
+
+fn required_lessons(json: &str) -> Vec<String> {
+    let content: RawContent =
+        serde_json::from_str(json).expect("courseContent.json válido (conferido nos testes)");
+    content
+        .modules
+        .into_iter()
+        .filter(|m| !OPTIONAL_MODULES.contains(&m.id.as_str()))
+        .flat_map(|m| m.lessons.into_iter().map(|l| l.id))
+        .collect()
+}
+
 fn parse_key(json: &str) -> HashMap<String, LessonKey> {
     let content: RawContent =
         serde_json::from_str(json).expect("courseContent.json válido (conferido nos testes)");
@@ -394,7 +424,7 @@ fn parse_key(json: &str) -> HashMap<String, LessonKey> {
                 };
                 review.push(ReviewItem {
                     id: q.id.clone(),
-                    prompt: q.prompt,
+                    prompt: q.prompt.clone(),
                     answer: correct.clone(),
                     explanation,
                 });
@@ -402,6 +432,10 @@ fn parse_key(json: &str) -> HashMap<String, LessonKey> {
                     id: q.id,
                     engine,
                     correct,
+                    prompt: q.prompt,
+                    options: q.options,
+                    hole: q.hole,
+                    board: q.board,
                 }
             })
             .collect();
@@ -531,6 +565,10 @@ mod tests {
             id: id.to_string(),
             engine,
             correct: "c".to_string(),
+            prompt: String::new(),
+            options: Vec::new(),
+            hole: Vec::new(),
+            board: Vec::new(),
         };
         let pick = |ids: &[&str]| -> HashMap<String, String> {
             ids.iter()

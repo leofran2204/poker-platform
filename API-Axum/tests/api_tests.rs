@@ -2580,6 +2580,299 @@ async fn test_contract_course_quiz_is_graded_by_the_server() {
     cleanup_contract_user(&state, &user.username).await;
 }
 
+/// Prova final e certificado: só com as 25 aulas cumpridas (quiz e vídeo),
+/// uma tentativa a cada 24 h, tempo esgotado reprova e o código é público.
+#[tokio::test]
+#[ignore = "Requires PostgreSQL with migration 069 — set DATABASE_URL to run"]
+async fn test_contract_course_certificate_needs_lessons_and_final_exam() {
+    async fn call(
+        app: &axum::Router,
+        token: Option<&str>,
+        method: Method,
+        uri: &str,
+        body: Option<serde_json::Value>,
+    ) -> (StatusCode, serde_json::Value, String) {
+        let mut builder = Request::builder().method(method).uri(uri);
+        if let Some(token) = token {
+            builder = builder.header("Authorization", format!("Bearer {token}"));
+        }
+        let request = match body {
+            Some(b) => builder
+                .header("Content-Type", "application/json")
+                .body(Body::from(b.to_string()))
+                .unwrap(),
+            None => builder.body(Body::empty()).unwrap(),
+        };
+        let response = app.clone().oneshot(request).await.unwrap();
+        let status = response.status();
+        let bytes = response.into_body().collect().await.unwrap().to_bytes();
+        let text = String::from_utf8_lossy(&bytes).to_string();
+        (
+            status,
+            serde_json::from_str(&text).unwrap_or(serde_json::Value::Null),
+            text,
+        )
+    }
+    let course: serde_json::Value = serde_json::from_str(include_str!(
+        "../../Frontend-Web/src/data/courseContent.json"
+    ))
+    .unwrap();
+    let mut required: Vec<String> = Vec::new();
+    let mut correct: std::collections::HashMap<String, String> = Default::default();
+    for module in course["modules"].as_array().unwrap() {
+        for lesson in module["lessons"].as_array().unwrap() {
+            if module["id"] != "m0" {
+                required.push(lesson["id"].as_str().unwrap().to_string());
+            }
+            for q in lesson["quiz"].as_array().unwrap() {
+                let answer = if q["kind"] == "engine" {
+                    q["expected"].as_str().unwrap().to_string()
+                } else {
+                    let i = q["expectedIndex"].as_u64().unwrap() as usize;
+                    q["options"][i].as_str().unwrap().to_string()
+                };
+                correct.insert(q["id"].as_str().unwrap().to_string(), answer);
+            }
+        }
+    }
+    assert_eq!(required.len(), 25);
+    let answers_for = |exam: &serde_json::Value, right: bool| -> serde_json::Value {
+        let mut map = serde_json::Map::new();
+        for q in exam["questions"].as_array().unwrap() {
+            let id = q["id"].as_str().unwrap();
+            let pick = if right {
+                correct[id].clone()
+            } else {
+                "errada".to_string()
+            };
+            map.insert(id.to_string(), pick.into());
+        }
+        serde_json::json!({ "attempt_id": exam["attempt_id"], "answers": map })
+    };
+
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let user = register_refresh_contract_user(&state, &app, "cert").await;
+    let login = serde_json::json!({ "email": user.email, "password": user.password }).to_string();
+    let (status, text) =
+        send_request(app.clone(), Method::POST, "/api/auth/login", Some(login)).await;
+    assert_eq!(status, StatusCode::OK, "{text}");
+    let token = serde_json::from_str::<serde_json::Value>(&text).unwrap()["token"]
+        .as_str()
+        .unwrap()
+        .to_string();
+    let token = Some(token.as_str());
+    let status_uri = "/api/course/certificate";
+    let start = "/api/course/exam/start";
+    let submit = "/api/course/exam/submit";
+    let name = serde_json::json!({ "name": "  Aluna   de Teste " });
+    let backdate = "UPDATE course_exam_attempts SET started_at = started_at - INTERVAL '25 hours' \
+                    WHERE user_id = $1::uuid";
+
+    let (status, _, _) = call(&app, None, Method::GET, status_uri, None).await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED);
+    let (status, _, _) = call(
+        &app,
+        None,
+        Method::GET,
+        "/api/certificate/verify?code=ZT-2222-2222-2222",
+        None,
+    )
+    .await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
+
+    let (status, body, _) = call(&app, token, Method::GET, status_uri, None).await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    assert_eq!(body["eligible"], false);
+    assert_eq!(body["missing"].as_array().unwrap().len(), 25);
+    assert_eq!(body["missing"][0]["reason"], "quiz");
+    let (status, _, _) = call(&app, token, Method::POST, start, Some(name.clone())).await;
+    assert_eq!(status, StatusCode::FORBIDDEN);
+
+    // Quiz aprovado antes da contagem do vídeo: a aula só vale com o vídeo.
+    sqlx::query(
+        "INSERT INTO course_progress (user_id, lesson_id, status, best_score, attempts) \
+         SELECT $1::uuid, unnest($2::text[]), 'completed', 100, 1",
+    )
+    .bind(&user.user_id)
+    .bind(&required)
+    .execute(&state.db)
+    .await
+    .unwrap();
+    let watched: Vec<&String> = required.iter().filter(|id| *id != "m1l1").collect();
+    sqlx::query(
+        "INSERT INTO course_watch (user_id, lesson_id, watched, checkpoints) \
+         SELECT $1::uuid, unnest($2::text[]), decode(repeat('ff', 1024), 'hex'), '{}'",
+    )
+    .bind(&user.user_id)
+    .bind(&watched)
+    .execute(&state.db)
+    .await
+    .unwrap();
+    let (_, body, _) = call(&app, token, Method::GET, status_uri, None).await;
+    assert_eq!(
+        body["missing"],
+        serde_json::json!([{ "lesson_id": "m1l1", "reason": "video" }])
+    );
+    sqlx::query(
+        "INSERT INTO course_watch (user_id, lesson_id, watched, checkpoints) \
+         VALUES ($1::uuid, 'm1l1', decode(repeat('ff', 1024), 'hex'), '{}')",
+    )
+    .bind(&user.user_id)
+    .execute(&state.db)
+    .await
+    .unwrap();
+    let (_, body, _) = call(&app, token, Method::GET, status_uri, None).await;
+    assert_eq!(body["eligible"], true, "{body}");
+    let attended: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM course_progress WHERE user_id = $1::uuid AND attended_at IS NOT NULL",
+    )
+    .bind(&user.user_id)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(attended, 25);
+
+    let (status, _, _) = call(
+        &app,
+        token,
+        Method::POST,
+        start,
+        Some(serde_json::json!({ "name": "Maria" })),
+    )
+    .await;
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+    let (status, exam, text) = call(&app, token, Method::POST, start, Some(name.clone())).await;
+    assert_eq!(status, StatusCode::OK, "{text}");
+    assert_eq!(exam["questions"].as_array().unwrap().len(), 20);
+    assert_eq!(exam["holder_name"], "Aluna de Teste");
+    assert!(exam["seconds_left"].as_i64().unwrap() > 1790, "{exam}");
+    // A prova não leva gabarito nem explicação.
+    for leak in ["expected", "correct", "explanation", "why"] {
+        assert!(!text.contains(&format!("\"{leak}\"")), "{leak}: {text}");
+    }
+    let (_, again, _) = call(&app, token, Method::POST, start, Some(name.clone())).await;
+    assert_eq!(again["attempt_id"], exam["attempt_id"]);
+
+    let (status, result, _) = call(
+        &app,
+        token,
+        Method::POST,
+        submit,
+        Some(answers_for(&exam, false)),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{result}");
+    assert_eq!(
+        (&result["passed"], &result["score"]),
+        (&serde_json::json!(false), &serde_json::json!(0))
+    );
+    assert_eq!(result["review_lessons"].as_array().unwrap().len(), 20);
+    assert!(result["next_attempt_at"].is_string(), "{result}");
+    assert!(result["certificate"].is_null());
+    let (status, _, _) = call(
+        &app,
+        token,
+        Method::POST,
+        submit,
+        Some(answers_for(&exam, true)),
+    )
+    .await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    let (status, _, _) = call(&app, token, Method::POST, start, Some(name.clone())).await;
+    assert_eq!(status, StatusCode::TOO_MANY_REQUESTS);
+
+    // Depois de 24 h, nova prova; entregue fora do tempo, reprova mesmo certa.
+    sqlx::query(backdate)
+        .bind(&user.user_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+    let (status, late_exam, _) = call(&app, token, Method::POST, start, Some(name.clone())).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_ne!(late_exam["attempt_id"], exam["attempt_id"]);
+    sqlx::query(
+        "UPDATE course_exam_attempts SET deadline = NOW() - INTERVAL '1 minute' \
+         WHERE user_id = $1::uuid AND finished_at IS NULL",
+    )
+    .bind(&user.user_id)
+    .execute(&state.db)
+    .await
+    .unwrap();
+    let (_, result, _) = call(
+        &app,
+        token,
+        Method::POST,
+        submit,
+        Some(answers_for(&late_exam, true)),
+    )
+    .await;
+    assert_eq!(
+        (&result["passed"], &result["timed_out"], &result["score"]),
+        (
+            &serde_json::json!(false),
+            &serde_json::json!(true),
+            &serde_json::json!(100)
+        ),
+        "{result}"
+    );
+
+    sqlx::query(backdate)
+        .bind(&user.user_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+    let (_, final_exam, _) = call(&app, token, Method::POST, start, Some(name.clone())).await;
+    let (status, result, _) = call(
+        &app,
+        token,
+        Method::POST,
+        submit,
+        Some(answers_for(&final_exam, true)),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{result}");
+    assert_eq!(result["passed"], true, "{result}");
+    assert!(result["review_lessons"].as_array().unwrap().is_empty());
+    let code = result["certificate"]["code"].as_str().unwrap().to_string();
+    assert!(code.starts_with("ZT-") && code.len() == 17, "{code}");
+
+    let typed = code.to_lowercase().replace('-', "");
+    let (status, cert, _) = call(
+        &app,
+        None,
+        Method::GET,
+        &format!("/api/certificate/verify?code={typed}"),
+        None,
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{cert}");
+    assert_eq!(
+        (
+            &cert["code"],
+            &cert["holder_name"],
+            &cert["name_source"],
+            &cert["score"],
+            &cert["lessons"]
+        ),
+        (
+            &serde_json::json!(code),
+            &serde_json::json!("Aluna de Teste"),
+            &serde_json::json!("declared"),
+            &serde_json::json!(100),
+            &serde_json::json!(25)
+        )
+    );
+    assert!(cert["revoked_at"].is_null());
+    let (status, _, _) = call(&app, token, Method::POST, start, Some(name.clone())).await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    let (_, body, _) = call(&app, token, Method::GET, status_uri, None).await;
+    assert_eq!(body["certificate"]["code"], serde_json::json!(code));
+    assert!(body["open_exam"].is_null());
+
+    cleanup_contract_user(&state, &user.username).await;
+}
+
 /// O tempo de vídeo é contado pelo servidor (até 2x, dentro do relógio) e a
 /// pergunta surpresa errada ou sem resposta apaga o trecho desde a anterior.
 #[tokio::test]
