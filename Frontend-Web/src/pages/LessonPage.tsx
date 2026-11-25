@@ -35,10 +35,10 @@ export function LessonPage() {
   }, [loadProgress]);
 
   const persist = useCallback(
-    async (completed: boolean, score: number) => {
+    async (answers: Record<string, string>) => {
       if (!authed || !lesson) return;
       try {
-        const saved = await saveCourseProgress(lesson.id, completed, score);
+        const saved = await saveCourseProgress(lesson.id, answers);
         setProgress((prev) => ({ ...prev, [lesson.id]: saved }));
         setMsg(
           saved.status === "completed"
@@ -154,10 +154,10 @@ export function LessonPage() {
           <CourseQuiz
             key={`quiz-${lesson.id}`}
             questions={lesson.quiz}
-            onFinish={(score, passed) => {
+            onFinish={(score, passed, answers) => {
               setLastScore(score);
               if (passed) setSessionPassed(true);
-              void persist(passed, score);
+              void persist(answers);
             }}
           />
           {mod && <div className="zt-panel p-5 space-y-3 border-gold-soft/30">

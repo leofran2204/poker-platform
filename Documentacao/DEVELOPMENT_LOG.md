@@ -1735,3 +1735,13 @@ Achado na etapa 3 e corrigido a pedido do proprietário ("corrija a inscrição 
 - Achado junto, na mesma função: quando a inscrição falhava depois do motor (saldo insuficiente, por exemplo), só o jogador saía da lista; prêmio, contagem de restantes e totais continuavam aumentados na memória e a inscrição seguinte gravava esse prêmio no banco. Agora o estado do torneio é copiado antes e restaurado em qualquer falha, como no rebuy.
 - Teste `mtt_late_registration_seats_player_and_failed_one_keeps_prize` (banco): inscrição sem saldo recusada com o motor idêntico ao de antes; inscrição tardia com saldo senta na mesa viva com 5.000 fichas e joga a mão seguinte.
 - Documentos: BUSINESS_RULES (inscrição tardia), ARQUITETURA_E_APIS (`/api/tournament/register`), DASHBOARD.
+
+## 2026-11-25 — Nota do quiz das aulas corrigida no servidor (etapa 4)
+
+Etapa 4 do plano de 24/11. Até aqui o site calculava a nota e mandava `completed` e `score` prontos para `POST /api/course/progress`, que gravava o que chegasse: um único pedido marcava qualquer aula como concluída com 100, sem pré-requisito.
+
+- A API embute `courseContent.json` (mesmo arquivo do site, copiado no Docker como o `courseTraining.json`) e corrige as respostas: mesma conta de `calculateQuizScores` (prática prevalece; arredondamento do `Math.round`; corte 70). Aula inexistente ou corpo antigo sem `answers` = 400; aula bloqueada pelo pré-requisito = 403, com a mesma regra do site (aula já concluída continua aberta).
+- O site passa a mandar só as respostas (`CourseQuiz` → `LessonPage` → `saveCourseProgress`); a tela continua mostrando a correção na hora e a mensagem usa a melhor nota devolvida pelo servidor.
+- Limite consciente: o gabarito continua no pacote do site, porque a tela mostra a alternativa certa e a explicação depois do envio. A mudança garante que a nota gravada vem de respostas e na ordem das aulas; esconder o gabarito exigiria correção remota até para quem não tem login, sem ganho real (uma tentativa errada mostra todas as respostas).
+- Testes: 3 de unidade em `handlers/course.rs` (gabarito de todas as 28 aulas, arredondamento e nota prática, pré-requisito implícito) e o contrato `test_contract_course_quiz_is_graded_by_the_server` (banco).
+- Documentos: ARQUITETURA_E_APIS (seção do quiz), DASHBOARD.

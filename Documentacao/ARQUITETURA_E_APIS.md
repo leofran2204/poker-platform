@@ -20,6 +20,10 @@ Limites: corpo 16 KiB; até 4 reconstruções simultâneas por processo; até 25
 
 Catálogo compartilhado: `Frontend-Web/src/data/courseTraining.json`; serviço: `API-Axum/src/academy.rs`; cliente: `/curso/mesa/:moduleId`. O Docker da API copia o catálogo antes de compilar. O exemplo `academy_preview` sobe somente essa rota em `127.0.0.1:3188`, sem inicializar o ambiente financeiro; instruções no README de scripts.
 
+### Quiz das aulas: progresso corrigido no servidor (25/11/2026)
+
+`GET /api/course/progress` (login) lista `lesson_id`, `status` (`started`/`completed`), `best_score`, `attempts` e `updated_at`. `POST /api/course/progress` (login) recebe `{ "lesson_id", "answers": { "<id da pergunta>": "<texto da alternativa>" } }`; a API corrige pelo gabarito de `Frontend-Web/src/data/courseContent.json`, embutido na compilação (o Docker da API copia o arquivo) e devolve a linha gravada. Nota: com perguntas práticas (`engine`) vale a nota delas, senão a geral; pergunta sem resposta conta como erro; arredondamento como `Math.round`; aprovação com 70 (`completed`, que não regride). Recusas: 400 para aula inexistente, corpo sem `answers` (formato antigo com `completed`/`score`) ou mais de 64 respostas/200 caracteres; 403 quando a aula ainda está bloqueada (pré-requisito sem `completed` nem nota ≥ 70, salvo aula já concluída). Serviço: `API-Axum/src/handlers/course.rs`.
+
 ### Catálogo e operação
 
 | Endpoint | Notas |

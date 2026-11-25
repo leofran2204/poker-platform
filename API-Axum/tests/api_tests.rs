@@ -2347,3 +2347,145 @@ async fn test_contract_wallet_ledger_statement_and_reconcile() {
 
     cleanup_contract_user(&state, &user.username).await;
 }
+
+// ─── Nota do quiz corrigida no servidor ───
+
+/// O servidor ignora nota pronta, corrige pelas respostas, confere o
+/// pré-requisito e guarda a melhor nota.
+#[tokio::test]
+#[ignore = "Requires PostgreSQL with migration 054 — set DATABASE_URL to run"]
+async fn test_contract_course_quiz_is_graded_by_the_server() {
+    async fn post(
+        app: &axum::Router,
+        token: &str,
+        body: serde_json::Value,
+    ) -> (StatusCode, serde_json::Value) {
+        let request = Request::builder()
+            .method(Method::POST)
+            .uri("/api/course/progress")
+            .header("Authorization", format!("Bearer {token}"))
+            .header("Content-Type", "application/json")
+            .body(Body::from(body.to_string()))
+            .unwrap();
+        let response = app.clone().oneshot(request).await.unwrap();
+        let status = response.status();
+        let bytes = response.into_body().collect().await.unwrap().to_bytes();
+        (
+            status,
+            serde_json::from_slice(&bytes).unwrap_or(serde_json::Value::Null),
+        )
+    }
+    let course: serde_json::Value = serde_json::from_str(include_str!(
+        "../../Frontend-Web/src/data/courseContent.json"
+    ))
+    .unwrap();
+    let lesson = |id: &str| -> serde_json::Value {
+        course["modules"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .flat_map(|m| m["lessons"].as_array().unwrap().iter())
+            .find(|l| l["id"] == id)
+            .cloned()
+            .unwrap()
+    };
+    let answers = |id: &str, right: bool| -> serde_json::Value {
+        let mut map = serde_json::Map::new();
+        for q in lesson(id)["quiz"].as_array().unwrap() {
+            let correct = if q["kind"] == "engine" {
+                q["expected"].as_str().unwrap().to_string()
+            } else {
+                let i = q["expectedIndex"].as_u64().unwrap() as usize;
+                q["options"][i].as_str().unwrap().to_string()
+            };
+            let pick = if right {
+                correct
+            } else {
+                format!("não {correct}")
+            };
+            map.insert(q["id"].as_str().unwrap().to_string(), pick.into());
+        }
+        serde_json::Value::Object(map)
+    };
+    assert_eq!(lesson("m0l5")["prerequisites"], serde_json::json!(["m0l4"]));
+
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let user = register_refresh_contract_user(&state, &app, "quiz").await;
+    let login = serde_json::json!({ "email": user.email, "password": user.password }).to_string();
+    let (status, text) =
+        send_request(app.clone(), Method::POST, "/api/auth/login", Some(login)).await;
+    assert_eq!(status, StatusCode::OK, "{text}");
+    let token = serde_json::from_str::<serde_json::Value>(&text).unwrap()["token"]
+        .as_str()
+        .unwrap()
+        .to_string();
+
+    // Nota pronta do navegador (formato antigo) não vale mais.
+    let (status, _) = post(
+        &app,
+        &token,
+        serde_json::json!({ "lesson_id": "m0l4", "completed": true, "score": 100 }),
+    )
+    .await;
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+    let (status, _) = post(
+        &app,
+        &token,
+        serde_json::json!({ "lesson_id": "m9l9", "answers": {} }),
+    )
+    .await;
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+    // Pré-requisito (m0l4) ainda não concluído.
+    let (status, _) = post(
+        &app,
+        &token,
+        serde_json::json!({ "lesson_id": "m0l5", "answers": answers("m0l5", true) }),
+    )
+    .await;
+    assert_eq!(status, StatusCode::FORBIDDEN);
+
+    let (status, body) = post(
+        &app,
+        &token,
+        serde_json::json!({ "lesson_id": "m0l4", "answers": answers("m0l4", false) }),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    assert_eq!(
+        (body["status"].as_str(), body["best_score"].as_i64()),
+        (Some("started"), Some(0))
+    );
+    let (status, body) = post(
+        &app,
+        &token,
+        serde_json::json!({ "lesson_id": "m0l4", "answers": answers("m0l4", true) }),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    assert_eq!(body["status"], "completed");
+    assert_eq!(body["best_score"], 100);
+    assert_eq!(body["attempts"], 2);
+    // Tentativa pior depois não rebaixa a aula concluída.
+    let (_, body) = post(
+        &app,
+        &token,
+        serde_json::json!({ "lesson_id": "m0l4", "answers": answers("m0l4", false) }),
+    )
+    .await;
+    assert_eq!(
+        (body["status"].as_str(), body["best_score"].as_i64()),
+        (Some("completed"), Some(100))
+    );
+    // Com o pré-requisito concluído, a aula seguinte aceita respostas.
+    let (status, body) = post(
+        &app,
+        &token,
+        serde_json::json!({ "lesson_id": "m0l5", "answers": answers("m0l5", false) }),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    assert_eq!(body["status"], "started");
+
+    cleanup_contract_user(&state, &user.username).await;
+}

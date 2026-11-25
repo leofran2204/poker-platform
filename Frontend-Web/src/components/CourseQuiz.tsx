@@ -12,7 +12,7 @@ export function CourseQuiz({
   onFinish,
 }: {
   questions: CourseQuizQuestion[];
-  onFinish: (score: number, passed: boolean) => void;
+  onFinish: (score: number, passed: boolean, answers: Record<string, string>) => void;
 }) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -30,7 +30,7 @@ export function CourseQuiz({
     setSubmitted(true);
     // Para persistência e nota do aluno: prioriza nota prática se houver, ou total
     const effectiveScore = hasEngineQuestions ? engineScore : totalScore;
-    onFinish(effectiveScore, passed);
+    onFinish(effectiveScore, passed, answers);
   }
 
   function retry() {
