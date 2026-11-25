@@ -490,6 +490,30 @@ async fn test_lobby_get_table_not_found() {
     );
 }
 
+/// Vídeo de aula só sai com sessão: o Caddy pergunta a esta rota antes.
+#[tokio::test]
+async fn test_media_check_without_session_returns_401() {
+    let app = poker_api::build_router(make_test_state());
+    let (status, _) = send_request(app.clone(), Method::GET, "/api/auth/check", None).await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED);
+    let (status, _) = send_request(
+        app.clone(),
+        Method::GET,
+        "/api/course/material?lesson_id=m0l4",
+        None,
+    )
+    .await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED);
+    let request = Request::builder()
+        .method(Method::GET)
+        .uri("/api/auth/check")
+        .header("Cookie", "zt_access=token-falso")
+        .body(Body::empty())
+        .unwrap();
+    let status = app.oneshot(request).await.unwrap().status();
+    assert_eq!(status, StatusCode::UNAUTHORIZED);
+}
+
 #[tokio::test]
 async fn test_protected_route_without_token_returns_401() {
     // POST /api/lobby/join — protected by RequireAuth middleware
@@ -2629,6 +2653,27 @@ async fn test_contract_course_video_is_counted_by_the_server() {
         }
     };
     let get_state = "/api/course/lesson?lesson_id=m0l4";
+    // Com sessão, o Caddy libera os vídeos das aulas.
+    let (status, _) = call(&app, &token, Method::GET, "/api/auth/check", None).await;
+    assert_eq!(status, StatusCode::NO_CONTENT);
+    // Texto da aula (fora do pacote do site) para quem entrou na conta.
+    let (status, body) = call(
+        &app,
+        &token,
+        Method::GET,
+        "/api/course/material?lesson_id=m0l4",
+        None,
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    assert!(
+        body["body"].as_str().is_some_and(|t| t.len() > 200),
+        "{body}"
+    );
+    assert!(
+        body["transcript"].as_str().is_some_and(|t| t.len() > 200),
+        "{body}"
+    );
 
     let (status, body) = call(&app, &token, Method::GET, get_state, None).await;
     assert_eq!(status, StatusCode::OK, "{body}");

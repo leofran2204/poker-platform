@@ -61,6 +61,41 @@ export function useLessonWatch(lessonId: string, enabled: boolean) {
     void refresh();
   }, [refresh]);
 
+  useEffect(() => {
+    // O vídeo da aula só sai com sessão (Caddy `@course_media`), e o cookie de
+    // acesso vale 15 min. Se ele venceu quando o vídeo pediu o arquivo, um
+    // pedido à API renova a sessão e o vídeo recarrega do mesmo ponto (uma vez
+    // por reprodução).
+    const video = videoRef.current;
+    if (!enabled || !video) return;
+    let retried = false;
+    const onError = async () => {
+      if (retried) return;
+      retried = true;
+      const at = video.currentTime;
+      const resume = !video.paused;
+      await refresh();
+      video.addEventListener(
+        "loadedmetadata",
+        () => {
+          video.currentTime = at;
+          if (resume) void video.play().catch(() => undefined);
+        },
+        { once: true },
+      );
+      video.load();
+    };
+    const onPlaying = () => {
+      retried = false;
+    };
+    video.addEventListener("error", onError);
+    video.addEventListener("playing", onPlaying);
+    return () => {
+      video.removeEventListener("error", onError);
+      video.removeEventListener("playing", onPlaying);
+    };
+  }, [enabled, refresh]);
+
   const current = state?.lesson_id === lessonId ? state : null;
   const tracking = enabled && current !== null && current.has_video && current.review === null;
 

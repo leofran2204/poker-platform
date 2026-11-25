@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { fetchCourseProgress, saveCourseProgress, type CourseLessonState, type CourseProgressItem } from "@/api/client";
+import { fetchCourseMaterial, fetchCourseProgress, saveCourseProgress, type CourseLessonState, type CourseProgressItem } from "@/api/client";
 import { CourseQuiz, CourseReview } from "@/components/CourseQuiz";
 import { CourseSources } from "@/components/CourseSources";
 import { CourseSurpriseCheck } from "@/components/CourseSurpriseCheck";
 import { CourseVideoPlayer } from "@/components/CourseVideoPlayer";
 import { TipRichText } from "@/components/TipRichText";
-import { allLessons, findLesson, isLessonUnlocked, lessonFormat, lessonPrerequisites, moduleOfLesson, PASS_SCORE } from "@/lib/course";
+import { allLessons, findLesson, isLessonUnlocked, isMembersOnlyVideo, lessonFormat, lessonPrerequisites, moduleOfLesson, PASS_SCORE } from "@/lib/course";
 import { isAuthenticated } from "@/lib/auth";
 import { TRAINING } from "@/lib/academy";
 import { clock, MAX_COUNTED_RATE, useLessonWatch } from "@/lib/useLessonWatch";
@@ -59,6 +59,24 @@ export function LessonPage() {
   useEffect(() => {
     void loadProgress();
   }, [loadProgress]);
+
+  // Texto das aulas de aluno: vem da API (o pacote do site não o traz).
+  const [material, setMaterial] = useState<{ lessonId: string; body: string; transcript: string } | null>(null);
+  const [materialFailed, setMaterialFailed] = useState(false);
+  const needsMaterial = authed && lesson !== undefined && lesson.body === undefined;
+  useEffect(() => {
+    if (!needsMaterial || !lesson) return;
+    let alive = true;
+    setMaterialFailed(false);
+    fetchCourseMaterial(lesson.id)
+      .then((loaded) => alive && setMaterial({ lessonId: lesson.id, ...loaded }))
+      .catch(() => alive && setMaterialFailed(true));
+    return () => {
+      alive = false;
+    };
+  }, [needsMaterial, lesson]);
+  const lessonMaterial = material && material.lessonId === lesson?.id ? material : null;
+  const lessonBody = lesson?.body ?? lessonMaterial?.body;
 
   const submitQuiz = useCallback(
     async (answers: Record<string, string>) => {
@@ -145,6 +163,18 @@ export function LessonPage() {
             </Link>
           )}
         </div>
+      ) : !authed && isMembersOnlyVideo(lesson) ? (
+        <div className="zt-panel space-y-3 border border-gold-soft/30 p-5 text-center">
+          <p className="text-sm font-semibold text-cream">Aula para alunos com conta</p>
+          <p className="text-xs text-felt-300">
+            Sem conta, dá para assistir aos vídeos de apresentação. Crie sua conta grátis para ver as aulas em vídeo,
+            ler o material, fazer o quiz e acompanhar o progresso.
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            <Link to="/register" className="zt-btn-primary text-xs!">Criar conta</Link>
+            <Link to="/login" className="zt-btn-secondary text-xs!">Entrar</Link>
+          </div>
+        </div>
       ) : (
         <>
           {!authed && (
@@ -161,6 +191,7 @@ export function LessonPage() {
             lessonTitle={lesson.title}
             playerRef={watch.videoRef}
             hideChapters={watch.state?.pending_check != null}
+            transcript={lessonMaterial?.transcript}
           >
             {watch.state?.pending_check && (
               <CourseSurpriseCheck
@@ -188,7 +219,11 @@ export function LessonPage() {
             <h2 className="text-xs font-mono uppercase tracking-wider text-gold-soft">
               Material Didático de Apoio
             </h2>
-            <TipRichText text={lesson.body} className="space-y-3 text-sm text-felt-100" />
+            {lessonBody !== undefined ? (
+              <TipRichText text={lessonBody} className="space-y-3 text-sm text-felt-100" />
+            ) : (
+              <p className="text-xs text-felt-400">{materialFailed ? "Não foi possível carregar o material agora. Recarregue a página." : "Carregando o material da aula…"}</p>
+            )}
             <CourseSources sourceIds={lesson.sources} />
           </div>
 

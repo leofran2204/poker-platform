@@ -1081,6 +1081,11 @@ export async function saveCourseProgress(
   });
 }
 
+/** Texto da aula só para alunos (o pacote do site não o traz). */
+export async function fetchCourseMaterial(lessonId: string): Promise<{ body: string; transcript: string }> {
+  return request(`/api/course/material?lesson_id=${encodeURIComponent(lessonId)}`);
+}
+
 export interface CourseSurpriseCheck {
   id: string;
   prompt: string;

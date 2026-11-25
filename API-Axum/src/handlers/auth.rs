@@ -1385,6 +1385,15 @@ pub struct MeResponse {
     pub referral_code: Option<String>,
 }
 
+/// GET /api/auth/check — 204 com sessão válida (cookie ou Bearer), 401 sem.
+/// O Caddy consulta esta rota (`forward_auth`) antes de entregar os vídeos das
+/// aulas: visitante só assiste aos vídeos de apresentação.
+pub async fn check(
+    crate::middleware::auth::RequireAuth(_auth_user): crate::middleware::auth::RequireAuth,
+) -> axum::http::StatusCode {
+    axum::http::StatusCode::NO_CONTENT
+}
+
 pub async fn me(
     crate::middleware::auth::RequireAuth(auth_user): crate::middleware::auth::RequireAuth,
     State(state): State<AppState>,

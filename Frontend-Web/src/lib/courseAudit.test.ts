@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
-import { allLessons, COURSE, type EditorialQuizQuestion, findLesson, isLessonUnlocked, lessonFormat, lessonPrerequisites } from "./course";
-import { ANSWER_KEY_FIELDS, stripCourseAnswerKey } from "./courseAnswerKey";
+import { allLessons, COURSE, type EditorialQuizQuestion, findLesson, isLessonUnlocked, isMembersOnlyVideo, lessonFormat, lessonPrerequisites, MEMBERS_ONLY_VIDEO } from "./course";
+import { ANSWER_KEY_FIELDS, MEMBERS_ONLY_LESSON_FIELDS, MEMBERS_ONLY_VIDEO_FIELDS, publicCourseContent } from "./coursePublicContent";
 import sources from "@/data/courseSources.json";
 import training from "@/data/courseTraining.json";
 import films from "@/data/pineappleDrawFilms.json";
@@ -128,16 +128,45 @@ describe("integridade da Academy", () => {
     }
   });
 
-  it("o site publicado recebe as aulas sem o gabarito do quiz", () => {
-    const stripped = stripCourseAnswerKey(COURSE);
-    const text = JSON.stringify(stripped);
+  it("visitante assiste só aos vídeos de apresentação; o Caddy aplica a mesma regra", () => {
+    const open = lessons.filter(l => !isMembersOnlyVideo(l)).map(l => l.id).sort();
+    expect(open).toEqual(["m0l1", "m0l2", "m0l3"]);
+    for (const lesson of lessons.filter(isMembersOnlyVideo)) {
+      expect(lesson.video?.captionsUrl ?? lesson.video!.url!.replace(/\.mp4$/, ".vtt"), lesson.id).toMatch(MEMBERS_ONLY_VIDEO);
+    }
+    const matcher = String.raw`^/videos/zt-academy-[^/]+\.(mp4|vtt)$`;
+    expect(MEMBERS_ONLY_VIDEO.source.replaceAll("\\/", "/")).toBe(matcher);
+    for (const name of ["Caddyfile", "Caddyfile.local-smoke", "Caddyfile.tls-internal", "Caddyfile.tunnel", "Caddyfile.tunnel-http-only"]) {
+      const caddy = readFileSync(new URL(`../../../Infraestrutura-Docker/${name}`, import.meta.url), "utf8");
+      expect(caddy, name).toContain(`@course_media path_regexp course_media ${matcher}`);
+      expect(caddy, name).toContain("uri /api/auth/check");
+    }
+  });
+
+  it("o site publicado recebe as aulas sem gabarito e sem o texto das aulas de aluno", () => {
+    const published = publicCourseContent(COURSE);
+    const text = JSON.stringify(published);
     for (const field of ANSWER_KEY_FIELDS) expect(text, field).not.toContain(`"${field}":`);
-    const sample = (lessons[0].quiz as EditorialQuizQuestion[]).find(q => q.kind === "theory");
-    if (sample?.kind === "theory") expect(text).not.toContain(JSON.stringify(sample.explanation));
-    const strippedLessons = stripped.modules.flatMap(m => m.lessons);
-    expect(strippedLessons.map(l => l.quiz.map(q => [q.id, q.prompt, q.options])))
+    const publishedLessons = published.modules.flatMap(m => m.lessons);
+    expect(publishedLessons.map(l => l.quiz.map(q => [q.id, q.prompt, q.options])))
       .toEqual(lessons.map(l => l.quiz.map(q => [q.id, q.prompt, q.options])));
-    // O original (testes e API) continua com o gabarito.
+    for (const [i, lesson] of lessons.entries()) {
+      const out = publishedLessons[i] as unknown as Record<string, unknown> & { video?: Record<string, unknown> };
+      const closed = isMembersOnlyVideo(lesson);
+      for (const field of MEMBERS_ONLY_LESSON_FIELDS) {
+        expect(out[field], `${lesson.id}.${field}`).toEqual(closed ? undefined : (lesson as unknown as Record<string, unknown>)[field]);
+      }
+      for (const field of MEMBERS_ONLY_VIDEO_FIELDS) {
+        if (closed) expect(out.video?.[field], `${lesson.id}.video.${field}`).toBeUndefined();
+      }
+      // Título, capa, capítulos e duração continuam (vitrine e contagem do vídeo).
+      expect(out.title, lesson.id).toBe(lesson.title);
+      expect(out.video?.chapters, lesson.id).toEqual(lesson.video?.chapters);
+      if (closed) expect(text, lesson.id).not.toContain(JSON.stringify(lesson.body!.slice(0, 80)).slice(1, -1));
+    }
+    // Episódios de apresentação seguem inteiros para o visitante.
+    expect(publishedLessons.find(l => l.id === "m0l1")?.body).toBe(findLesson("m0l1")?.body);
+    // O original (testes e API) continua completo.
     expect(JSON.stringify(COURSE)).toContain('"expectedIndex":');
   });
 

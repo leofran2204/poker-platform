@@ -44,6 +44,19 @@ http://zerotiltpoker.net, http://www.zerotiltpoker.net, http://localhost, http:/
 		reverse_proxy poker_api:3000
 	}
 
+	# Vídeos e legendas das aulas só com sessão; visitante assiste só aos de
+	# apresentação (episódios de história e filmes do Brazilian Pineapple).
+	# A regra do site é a mesma: Frontend-Web/src/lib/course.ts (MEMBERS_ONLY_VIDEO).
+	@course_media path_regexp course_media ^/videos/zt-academy-[^/]+\.(mp4|vtt)$
+	handle @course_media {
+		forward_auth poker_api:3000 {
+			uri /api/auth/check
+		}
+		header Cache-Control "private, max-age=3600"
+		root * /usr/share/caddy
+		file_server
+	}
+
 	handle {
 		root * /usr/share/caddy
 		try_files {path} /index.html

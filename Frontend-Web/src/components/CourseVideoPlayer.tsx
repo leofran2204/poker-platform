@@ -11,16 +11,18 @@ interface Props {
   children?: ReactNode;
   /** Esconde os capítulos (durante a pergunta surpresa eles dariam a resposta). */
   hideChapters?: boolean;
+  /** Transcrição vinda da API (aulas só para alunos). */
+  transcript?: string;
 }
 
 /** Player da aula: vídeo, legenda em pt-BR e transcrição completa da narração. */
-export function CourseVideoPlayer({ video, lessonTitle, playerRef, children, hideChapters }: Props) {
+export function CourseVideoPlayer({ video, lessonTitle, playerRef, children, hideChapters, transcript: loadedTranscript }: Props) {
   const [showScript, setShowScript] = useState(false);
   const ownPlayer = useRef<HTMLVideoElement>(null);
   const player = playerRef ?? ownPlayer;
   const pendingSeek = useRef<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
-  const transcript = video?.transcript?.trim() || video?.placeholderScript?.trim() || "";
+  const transcript = loadedTranscript?.trim() || video?.transcript?.trim() || video?.placeholderScript?.trim() || "";
   const durationLabel = video?.durationSeconds
     ? formatLessonDuration(video.durationSeconds)
     : null;

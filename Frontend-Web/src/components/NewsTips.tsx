@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { allLessons } from "@/lib/course";
+import { allLessons, type CourseLesson } from "@/lib/course";
 import { TipRichText } from "@/components/TipRichText";
 import { looksLikePortuguese, translateNewsFields, translateToPortuguese } from "@/lib/translatePt";
 import { parseJinaMarkdown, parseRssXml } from "@/lib/parseRss";
@@ -171,12 +171,18 @@ interface LocalTip {
 const LESSON_STREETS: Record<string, LocalTip["street"]> = {
   m1: "preflop", m2: "flop", m3: "turn", m4: "river",
 };
+function lessonTeaser(lesson: CourseLesson): string {
+  const topics = [...new Set((lesson.video?.chapters ?? []).slice(1).map((c) => c.title))].slice(0, 4);
+  return topics.length ? `Nesta aula: ${topics.join(" · ")}.` : "Aula da Zero Tilt Academy.";
+}
+
 const LOCAL_TIPS: LocalTip[] = allLessons().flatMap((lesson) => {
   const street = LESSON_STREETS[lesson.id.slice(0, 2)];
   return street ? [{
     id: lesson.id,
     title: lesson.title,
-    description: lesson.body,
+    // O texto das aulas de aluno não vem no pacote do site: a dica lista os temas.
+    description: lesson.body ?? lessonTeaser(lesson),
     street,
     category: "Zero Tilt Academy",
     link: `https://zerotiltpoker.net/curso/${lesson.id}`,

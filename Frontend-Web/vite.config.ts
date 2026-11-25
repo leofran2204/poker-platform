@@ -1,16 +1,16 @@
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath, URL } from "node:url";
-import { stripCourseAnswerKey } from "./src/lib/courseAnswerKey";
+import { publicCourseContent } from "./src/lib/coursePublicContent";
 
-/** O gabarito do quiz fica só na API: o site recebe as aulas sem ele. */
-function courseAnswerKeyOut(): Plugin {
+/** Gabarito do quiz e texto das aulas de aluno ficam só na API. */
+function coursePublicContentOnly(): Plugin {
   return {
-    name: "zt-course-answer-key-out",
+    name: "zt-course-public-content",
     enforce: "pre",
     transform(code, id) {
       if (!id.replace(/\\/g, "/").split("?")[0].endsWith("/src/data/courseContent.json")) return null;
-      return { code: JSON.stringify(stripCourseAnswerKey(JSON.parse(code))), map: null };
+      return { code: JSON.stringify(publicCourseContent(JSON.parse(code))), map: null };
     },
   };
 }
@@ -18,7 +18,7 @@ function courseAnswerKeyOut(): Plugin {
 const apiTarget = process.env.POKER_DEV_API_URL ?? "http://127.0.0.1:3000";
 
 export default defineConfig({
-  plugins: [courseAnswerKeyOut(), react()],
+  plugins: [coursePublicContentOnly(), react()],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

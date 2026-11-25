@@ -3,7 +3,7 @@
 //! O quiz só abre depois do vídeo assistido (`course_watch`) e, depois de uma
 //! reprovação, só depois da espera; o gabarito comentado sai só para quem passou.
 
-use axum::extract::State;
+use axum::extract::{Query, State};
 use axum::Json;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -233,6 +233,25 @@ pub async fn save_progress(
     }))
 }
 
+/// Texto da aula: leitura e transcrição da narração. O site publicado não traz
+/// esse texto nas aulas só para alunos (`Frontend-Web/src/lib/coursePublicContent.ts`).
+#[derive(Debug, Clone, Serialize)]
+pub struct LessonMaterial {
+    pub body: String,
+    pub transcript: String,
+}
+
+/// GET /api/course/material?lesson_id= — texto da aula para quem entrou na conta.
+pub async fn get_material(
+    RequireAuth(_auth_user): RequireAuth,
+    Query(query): Query<course_watch::LessonQuery>,
+) -> Result<Json<LessonMaterial>, ApiError> {
+    quiz_key()
+        .get(query.lesson_id.trim())
+        .map(|lesson| Json(lesson.material.clone()))
+        .ok_or_else(|| ApiError::BadRequest("Aula inexistente.".to_string()))
+}
+
 // ─── Gabarito do quiz ───
 //
 // O conteúdo das aulas mora no site (`courseContent.json`); a API embute o
@@ -261,6 +280,8 @@ struct RawModule {
 #[derive(Deserialize)]
 struct RawLesson {
     id: String,
+    #[serde(default)]
+    body: String,
     prerequisites: Option<Vec<String>>,
     quiz: Vec<RawQuestion>,
     video: Option<RawVideo>,
@@ -274,6 +295,8 @@ struct RawVideo {
     duration_seconds: Option<f64>,
     #[serde(default)]
     chapters: Vec<RawChapter>,
+    transcript: Option<String>,
+    placeholder_script: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -316,6 +339,7 @@ pub(crate) struct LessonKey {
     /// `None` = aula sem vídeo publicado (segue só pela leitura).
     pub(crate) video: Option<VideoKey>,
     pub(crate) review: Vec<ReviewItem>,
+    pub(crate) material: LessonMaterial,
 }
 
 /// Uma linha do gabarito comentado, mostrado depois da aprovação.
@@ -381,6 +405,19 @@ fn parse_key(json: &str) -> HashMap<String, LessonKey> {
                 }
             })
             .collect();
+        let transcript = lesson
+            .video
+            .as_ref()
+            .and_then(|v| {
+                v.transcript
+                    .clone()
+                    .or_else(|| v.placeholder_script.clone())
+            })
+            .unwrap_or_default();
+        let material = LessonMaterial {
+            body: lesson.body,
+            transcript: transcript.trim().to_string(),
+        };
         let video = lesson.video.and_then(|v| {
             let published = v.url.is_some() && v.publication_status.as_deref() != Some("review");
             let duration = v.duration_seconds.filter(|d| d.is_finite() && *d > 0.0)?;
@@ -397,6 +434,7 @@ fn parse_key(json: &str) -> HashMap<String, LessonKey> {
                 questions,
                 video,
                 review,
+                material,
             },
         );
     }
@@ -465,6 +503,11 @@ mod tests {
         for (id, lesson) in key {
             assert!(id.len() <= 32, "{id}: coluna lesson_id aceita 32");
             assert!(!lesson.questions.is_empty(), "{id} sem quiz");
+            assert!(!lesson.material.body.is_empty(), "{id} sem texto");
+            assert!(
+                !lesson.material.transcript.is_empty(),
+                "{id} sem transcrição"
+            );
             for p in &lesson.prerequisites {
                 assert!(key.contains_key(p), "{id}: pré-requisito {p} inexistente");
             }
@@ -498,6 +541,10 @@ mod tests {
             prerequisites: vec![],
             video: None,
             review: vec![],
+            material: LessonMaterial {
+                body: String::new(),
+                transcript: String::new(),
+            },
             questions: vec![q("t1", false), q("e1", true), q("e2", true), q("e3", true)],
         };
         // Teoria certa não compensa a prática: 1 de 3 práticas = 33.
@@ -511,6 +558,10 @@ mod tests {
             prerequisites: vec![],
             video: None,
             review: vec![],
+            material: LessonMaterial {
+                body: String::new(),
+                transcript: String::new(),
+            },
             questions: vec![q("t1", false), q("t2", false)],
         };
         assert_eq!(grade(&theory, &pick(&["t1"])).score, 50);
@@ -519,6 +570,10 @@ mod tests {
             prerequisites: vec![],
             video: None,
             review: vec![],
+            material: LessonMaterial {
+                body: String::new(),
+                transcript: String::new(),
+            },
             questions: (0..8).map(|i| q(&format!("t{i}"), false)).collect(),
         };
         assert_eq!(grade(&eight, &answers_for(&eight, 5)).score, 63);

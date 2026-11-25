@@ -1,4 +1,5 @@
 import courseData from "@/data/courseContent.json";
+import { MEMBERS_ONLY_VIDEO } from "./coursePublicContent";
 
 export interface CourseQuizQuestionBase {
   id: string;
@@ -71,7 +72,8 @@ export interface CourseLesson {
   variant?: "holdem" | "short_deck" | "omaha" | "pineapple_draw";
   title: string;
   minutes: number;
-  body: string;
+  /** Ausente no site publicado nas aulas só para alunos (`GET /api/course/material`). */
+  body?: string;
   /** Chaves bibliográficas de courseSources.json. */
   sources?: string[];
   video?: CourseVideoInfo;
@@ -122,6 +124,13 @@ export function lessonPrerequisites(lessonId: string): string[] {
   const idx = lessons.findIndex(l => l.id === lessonId);
   if (idx < 0) return [];
   return lessons[idx].prerequisites ?? (idx > 0 ? [lessons[idx - 1].id] : []);
+}
+
+export { MEMBERS_ONLY_VIDEO } from "./coursePublicContent";
+
+/** Aula só para alunos (vídeo, legenda e texto); as de apresentação são abertas. */
+export function isMembersOnlyVideo(lesson: CourseLesson): boolean {
+  return MEMBERS_ONLY_VIDEO.test(lesson.video?.url ?? "");
 }
 
 export function lessonFormat(lesson: CourseLesson): string {

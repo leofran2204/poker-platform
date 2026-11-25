@@ -169,6 +169,12 @@ pub fn build_router(state: AppState) -> Router {
                 )),
         )
         .route(
+            "/api/auth/check",
+            get(auth::check).route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                state.clone(),
+            )),
+        )
+        .route(
             "/api/auth/me",
             get(auth::me).route_layer(from_extractor_with_state::<RequireAuth, AppState>(
                 state.clone(),
@@ -289,6 +295,13 @@ pub fn build_router(state: AppState) -> Router {
             "/api/course/progress",
             get(course_handlers::get_progress)
                 .post(course_handlers::save_progress)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/course/material",
+            get(course_handlers::get_material)
                 .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
                     state.clone(),
                 )),
