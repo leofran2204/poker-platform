@@ -514,3 +514,11 @@ Publicado `62e76325a586902c88b2908eb2d19758a6fd31ca` às **03:45:05 UTC / 00:45 
 Mudança: a inscrição tardia senta o jogador na mesa viva com menos jogadores e o ator o coloca na mão seguinte; inscrição que falha restaura prêmio, contagem e totais do torneio. Antes da publicação, consulta só de leitura no banco de produção comparou o prêmio de cada torneio com buy-ins, rebuys, add-ons e garantido: 24 torneios, nenhum inflado (excesso 0). [Registro](DEVELOPMENT_LOG.md#2026-11-25--inscrição-tardia-passa-a-dar-assento).
 
 Verificação local antes do push: `fmt`, `clippy --all-targets -D warnings` da API, suíte inteira da API com `--include-ignored` no banco com as 67 migrations (10 binários verdes, incluindo o teste novo `mtt_late_registration_seats_player_and_failed_one_keeps_prize`) e `documentation-sync --check`.
+
+## Publicação: nota do quiz das aulas corrigida no servidor — 25/11/2026
+
+Publicado `15700afca92461824054e12a4311e9493ed2d88e` às **15:21:03 UTC / 12:21 em São Paulo de 25/11** (ordem do proprietário nesta sessão: "depois q terminar pode publicar"), com Rust CI e Container Supply Chain verdes no commit, imagens `ghcr.io/leofran2204/poker-api@sha256:2636f6a098e8cba914447c91558d04095cfe45aa38d568329bb9a15bc5113f79` e `ghcr.io/leofran2204/poker-web@sha256:55586257568cef7f06a56d71a47cb1a2802a85fa950384b00cea357cff1d6fca` assinadas e conferidas pelo `vps-release-attested.sh`, dois backups, migrations 67 (sem migration nova), boot com um "Migrations applied" e sem `ERROR`, `.env` preservado, os 4 serviços saudáveis. Por fora: `/api/health` 200, `/api/lobby/tournaments` 200, `/curso/m0l1` 200, `POST /api/course/progress` sem login 401.
+
+Mudança: `POST /api/course/progress` recebe as respostas e corrige pelo gabarito de `courseContent.json` embutido na API; nota pronta do navegador = 400; aula bloqueada pelo pré-requisito = 403. [Registro](DEVELOPMENT_LOG.md#2026-11-25--nota-do-quiz-das-aulas-corrigida-no-servidor-etapa-4).
+
+Verificação local antes do push: `fmt`, `clippy --all-targets -D warnings` da API, suíte da API (126 da biblioteca, 3 deles novos do gabarito) e os 22 contratos de `api_tests` com banco (`poker_test_067`), incluindo o novo `test_contract_course_quiz_is_graded_by_the_server`; site com `tsc`, ESLint, Vitest (160) e build do Vite.
