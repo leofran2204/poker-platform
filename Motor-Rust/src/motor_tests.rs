@@ -581,12 +581,14 @@ mod csprng_tests {
 
         /// Propriedade: secure_random_bytes preenche todo o buffer
         #[test]
-        fn prop_bytes_preenche_buffer(len in 1usize..500) {
+        fn prop_bytes_preenche_buffer(len in 16usize..500) {
             let mut buf = vec![0u8; len];
             secure_random_bytes(&mut buf);
-            // Pelo menos um byte deve ser não-zero (probabilisticamente certo)
+            // Pelo menos um byte deve ser não-zero. Começa em 16 bytes: com
+            // 1 byte, `0` sai 1 vez em 256 e o teste falhava ao acaso no CI
+            // (24/11/2026); com 16, a chance de tudo zero é 2^-128.
             let non_zero = buf.iter().filter(|&&b| b != 0).count();
-            prop_assert!(non_zero > 0 || len == 0);
+            prop_assert!(non_zero > 0);
         }
     }
 }
