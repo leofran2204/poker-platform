@@ -8,8 +8,6 @@ export interface CourseQuizQuestionBase {
 export interface CourseTheoryQuestion extends CourseQuizQuestionBase {
   kind: "theory";
   options: string[];
-  expectedIndex: number;
-  explanation: string;
 }
 
 export interface CourseEngineQuestion extends CourseQuizQuestionBase {
@@ -17,12 +15,18 @@ export interface CourseEngineQuestion extends CourseQuizQuestionBase {
   hole: string[];
   board: string[];
   options: string[];
-  expected: string;
-  engine: string;
-  why: string;
 }
 
+/** Pergunta como o site a recebe: sem gabarito (a API corrige). */
 export type CourseQuizQuestion = CourseTheoryQuestion | CourseEngineQuestion;
+
+/**
+ * Pergunta com o gabarito editorial. Só existe no arquivo `courseContent.json`
+ * (testes e API); o site publicado não recebe estes campos (`vite.config.ts`).
+ */
+export type EditorialQuizQuestion =
+  | (CourseTheoryQuestion & { expectedIndex: number; explanation: string })
+  | (CourseEngineQuestion & { expected: string; engine: string; why: string });
 
 export interface CourseVideoInfo {
   contentHash?: string;
@@ -103,11 +107,6 @@ export function moduleOfLesson(lessonId: string): CourseModule | undefined {
   return COURSE.modules.find((m) => m.lessons.some((l) => l.id === lessonId));
 }
 
-export function isQuestionCorrect(q: CourseQuizQuestion, answer: string): boolean {
-  if (q.kind === "theory") return q.options.indexOf(answer) === q.expectedIndex;
-  return answer === q.expected;
-}
-
 export function isLessonUnlocked(
   lessonId: string,
   progress: Record<string, { status: string; best_score: number }>,
@@ -129,33 +128,4 @@ export function lessonFormat(lesson: CourseLesson): string {
   return lesson.video?.url && lesson.video.publicationStatus !== "review"
     ? "Vídeo • leitura • quiz"
     : "Leitura • quiz";
-}
-
-export function calculateQuizScores(
-  questions: CourseQuizQuestion[],
-  answers: Record<string, string>,
-): { totalScore: number; engineScore: number; hasEngineQuestions: boolean; passed: boolean } {
-  if (questions.length === 0) {
-    return { totalScore: 100, engineScore: 100, hasEngineQuestions: false, passed: true };
-  }
-
-  const answeredQuestions = questions.filter((q) => answers[q.id] !== undefined);
-  const totalCorrect = answeredQuestions.filter((q) => isQuestionCorrect(q, answers[q.id])).length;
-  const totalScore = Math.round((totalCorrect / questions.length) * 100);
-
-  const engineQuestions = questions.filter((q) => q.kind === "engine");
-  const hasEngineQuestions = engineQuestions.length > 0;
-  let engineScore = 100;
-
-  if (hasEngineQuestions) {
-    const engineCorrect = engineQuestions.filter(
-      (q) => answers[q.id] !== undefined && isQuestionCorrect(q, answers[q.id]),
-    ).length;
-    engineScore = Math.round((engineCorrect / engineQuestions.length) * 100);
-  }
-
-  // Regra aprovada: 70% nos exercícios práticos (gabarito editorial) ou 70% geral.
-  const passed = hasEngineQuestions ? engineScore >= PASS_SCORE : totalScore >= PASS_SCORE;
-
-  return { totalScore, engineScore, hasEngineQuestions, passed };
 }

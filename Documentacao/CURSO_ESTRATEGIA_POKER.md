@@ -1,7 +1,7 @@
 # Curso de Estratégia de Poker — Zero Tilt (conteúdo exclusivo da plataforma)
 
 > Produto educacional: teoria, exercícios e prática por módulo nas quatro modalidades da plataforma.
-> Versão interativa atual: `Frontend-Web/src/data/courseContent.json`, rota `/curso`. O quiz atual compara respostas com gabaritos locais; não consulta um solver nem o motor Rust para avaliar estratégias.
+> Versão interativa atual: `Frontend-Web/src/data/courseContent.json`, rota `/curso`. O quiz é corrigido pela API com o gabarito editorial desse arquivo (o site publicado não recebe o gabarito); não consulta um solver nem o motor Rust para avaliar estratégias.
 
 ## Reformulação integral — diretriz de 27/09/2026
 
@@ -91,7 +91,7 @@ As cartas que definem cada exercício são fixadas antes da mão. Nova seed vari
 - Reiniciar o cenário, repetir a mesma distribuição, usar nova seed ou escolher outra situação/posição; comparar alternativas e consultar replay. Feedback distingue regras exatas e contas sob hipóteses; nenhuma nota estratégica ótima é alegada.
 - Nenhuma consulta paga a LLM ou solver por ação por padrão. Produzir cenários e referências previamente, executar políticas locais/servidor com limites de recursos e cachear avaliações reutilizáveis. Estimar custo por sessão antes de escalar.
 - Não chamar os bots de GTO sem prova específica. Não apresentar frequências, EV ou equidade como exatos quando forem estimativas. O coach planejado para mãos reais continua separado e exclusivamente pós-mão.
-- O caderno local registra cenário, seed, ações, respostas e anotações, com reabertura/exportação de até 50 sessões. As perguntas da mesa são corrigidas no servidor; o endpoint de progresso do quiz de aula ainda recebe a nota informada pelo cliente. Nenhum dos dois contratos constitui certificação de competência estratégica.
+- O caderno local registra cenário, seed, ações, respostas e anotações, com reabertura/exportação de até 50 sessões. As perguntas da mesa e o quiz de aula são corrigidos no servidor. Nenhum dos dois contratos constitui certificação de competência estratégica.
 
 ### Pesquisa: profundidade e atualização
 
@@ -136,7 +136,7 @@ Teoria e fontes revisadas; exemplos e exercícios específicos da variante; víd
 | Consolidação | m6 | EV após matemática; orçamento disponível desde o início |
 | História opcional | m0l1–m0l3 | Acesso independente, inclusive visitante |
 
-Conclusões anteriores mantêm acesso mesmo se a ordem mudar. IDs inexistentes não liberam aula. Quiz e estado do player reiniciam ao mudar de aula. O backend atual registra a nota declarada pelo cliente; isso é acompanhamento de estudo, não certificação de domínio ou avaliação antifraude. A avaliação futura precisa ser validada no servidor.
+Conclusões anteriores mantêm acesso mesmo se a ordem mudar. IDs inexistentes não liberam aula. Quiz e estado do player reiniciam ao mudar de aula. Desde 25/11/2026 a aula só conta como cumprida pelo servidor: quiz corrigido na API, aberto depois de 90% do vídeo assistido (aba visível, sem pular, até 2x) e de 1 a 3 perguntas surpresa sobre o trecho recém-passado; na reprovação, só a nota e o tema a revisar, nova tentativa 15 min depois e alternativas em outra ordem; gabarito comentado só depois da aprovação. Aulas concluídas antes da mudança continuam concluídas. Isso é acompanhamento de estudo, não certificação de domínio. A avaliação futura precisa ser validada no servidor.
 
 ### Base matemática do Brazilian Pineapple
 

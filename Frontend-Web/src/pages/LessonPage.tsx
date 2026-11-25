@@ -1,22 +1,48 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { fetchCourseProgress, saveCourseProgress, type CourseProgressItem } from "@/api/client";
-import { CourseQuiz } from "@/components/CourseQuiz";
+import { fetchCourseProgress, saveCourseProgress, type CourseLessonState, type CourseProgressItem } from "@/api/client";
+import { CourseQuiz, CourseReview } from "@/components/CourseQuiz";
 import { CourseSources } from "@/components/CourseSources";
+import { CourseSurpriseCheck } from "@/components/CourseSurpriseCheck";
 import { CourseVideoPlayer } from "@/components/CourseVideoPlayer";
 import { TipRichText } from "@/components/TipRichText";
 import { allLessons, findLesson, isLessonUnlocked, lessonFormat, lessonPrerequisites, moduleOfLesson, PASS_SCORE } from "@/lib/course";
 import { isAuthenticated } from "@/lib/auth";
 import { TRAINING } from "@/lib/academy";
+import { clock, MAX_COUNTED_RATE, useLessonWatch } from "@/lib/useLessonWatch";
+
+/** Quiz fechado até o vídeo ser assistido: quanto falta e como conta. */
+function WatchGate({ state }: { state: CourseLessonState }) {
+  const percent = Math.min(100, Math.round((state.watched_percent / state.required_percent) * 100));
+  return (
+    <div className="zt-panel space-y-2 p-4">
+      <div className="zt-panel-title">Quiz liberado depois do vídeo</div>
+      <div className="h-2 w-full overflow-hidden rounded-full bg-felt-800" role="progressbar" aria-valuemin={0} aria-valuemax={state.required_percent} aria-valuenow={state.watched_percent} aria-label="Vídeo assistido">
+        <div className="h-full bg-gold-bright" style={{ width: `${percent}%` }} />
+      </div>
+      <p className="text-sm text-cream">
+        Vídeo assistido: {state.watched_percent}% de {state.required_percent}% necessários.
+      </p>
+      <p className="text-xs text-felt-300">
+        Conta o vídeo tocando com esta aba visível, sem pular trechos e em até {MAX_COUNTED_RATE}x.
+        {state.checks_left > 0 &&
+          ` Durante o vídeo ${state.checks_left === 1 ? "aparece 1 pergunta surpresa" : `aparecem ${state.checks_left} perguntas surpresa`} sobre o trecho que acabou de passar.`}
+      </p>
+      {state.missing_check_near !== null && (
+        <p className="text-xs text-amber-300">Falta assistir o trecho perto de {clock(state.missing_check_near)}.</p>
+      )}
+    </div>
+  );
+}
 
 export function LessonPage() {
   const { lessonId } = useParams();
   const lesson = lessonId ? findLesson(lessonId) : undefined;
-  const [msg, setMsg] = useState<string | null>(null);
   const [lastScore, setLastScore] = useState<number | null>(null);
   const [progress, setProgress] = useState<Record<string, CourseProgressItem>>({});
   const [sessionPassed, setSessionPassed] = useState(false);
   const authed = isAuthenticated();
+  const watch = useLessonWatch(lesson?.id ?? "", authed && lesson !== undefined);
 
   const loadProgress = useCallback(async () => {
     if (!authed) return;
@@ -34,26 +60,22 @@ export function LessonPage() {
     void loadProgress();
   }, [loadProgress]);
 
-  const persist = useCallback(
+  const submitQuiz = useCallback(
     async (answers: Record<string, string>) => {
-      if (!authed || !lesson) return;
-      try {
-        const saved = await saveCourseProgress(lesson.id, answers);
-        setProgress((prev) => ({ ...prev, [lesson.id]: saved }));
-        setMsg(
-          saved.status === "completed"
-            ? `Progresso salvo: concluída (melhor nota ${saved.best_score}%). Próxima aula desbloqueada!`
-            : `Progresso salvo: nota ${saved.best_score}%. Requer ${PASS_SCORE}% para liberar a próxima aula.`,
-        );
-      } catch {
-        setMsg("Não foi possível salvar agora — tente de novo logado.");
+      if (!lesson) throw new Error("Aula não encontrada.");
+      const saved = await saveCourseProgress(lesson.id, answers);
+      setProgress((prev) => ({ ...prev, [lesson.id]: saved }));
+      if (saved.passed) {
+        setLastScore(saved.score);
+        setSessionPassed(true);
+        void watch.refresh();
       }
+      return saved;
     },
-    [authed, lesson],
+    [lesson, watch],
   );
 
   useEffect(() => {
-    setMsg(null);
     setLastScore(null);
     setSessionPassed(false);
   }, [lessonId]);
@@ -102,8 +124,6 @@ export function LessonPage() {
 
       {lesson.video?.publicationStatus === "prior_rules" && <div className="zt-panel p-4 text-sm">Vídeo da regra anterior de apostas. Para jogar hoje: todas as rodadas limitam o aumento ao pote antes do call; sem ante; no Brazilian Pineapple, a troca e o descarte vêm na vez de cada jogador, antes da aposta. As regras de cartas continuam válidas. A leitura e a mesa de treino abaixo já seguem a estrutura vigente.</div>}
 
-      {msg && <p className="text-sm text-emerald-200 rounded-sm bg-felt-900/80 p-2 border border-felt-700">{msg}</p>}
-
       {!unlocked ? (
         <div className="zt-panel space-y-3 p-4 text-center">
           <p className="text-3xl" aria-hidden>
@@ -130,7 +150,7 @@ export function LessonPage() {
           {!authed && (
             <p className="rounded-sm border border-felt-700 bg-felt-800 px-3 py-2 text-xs text-felt-200">
               Você está lendo como visitante. <Link to="/login" className="text-gold-soft">Entre</Link> para
-              salvar progresso e valer nota para desbloquear as próximas aulas.
+              fazer o quiz, salvar o progresso e desbloquear as próximas aulas.
             </p>
           )}
 
@@ -139,7 +159,29 @@ export function LessonPage() {
             key={`video-${lesson.id}`}
             video={lesson.video}
             lessonTitle={lesson.title}
-          />
+            playerRef={watch.videoRef}
+            hideChapters={watch.state?.pending_check != null}
+          >
+            {watch.state?.pending_check && (
+              <CourseSurpriseCheck
+                key={watch.state.pending_check.id}
+                check={watch.state.pending_check}
+                onAnswer={(option) => void watch.answer(watch.state!.pending_check!.id, option)}
+                onTimeout={() => {
+                  watch.videoRef.current?.pause();
+                  void watch.answer(watch.state!.pending_check!.id, null);
+                }}
+              />
+            )}
+            {watch.notice && (
+              <p role="status" className="flex items-start justify-between gap-2 border-t border-felt-800 bg-felt-900 px-4 py-2 text-xs text-cream">
+                {watch.notice}
+                <button type="button" className="text-gold-soft" onClick={watch.clearNotice} aria-label="Fechar aviso">
+                  ✕
+                </button>
+              </p>
+            )}
+          </CourseVideoPlayer>
 
           {/* Conteúdo Textual Estruturado */}
           <div className="zt-panel space-y-3 p-4">
@@ -151,15 +193,25 @@ export function LessonPage() {
           </div>
 
           {/* Quiz de Fixação Bloqueante */}
-          <CourseQuiz
-            key={`quiz-${lesson.id}`}
-            questions={lesson.quiz}
-            onFinish={(score, passed, answers) => {
-              setLastScore(score);
-              if (passed) setSessionPassed(true);
-              void persist(answers);
-            }}
-          />
+          {!authed ? (
+            <p className="zt-panel p-4 text-xs text-felt-300">
+              <Link to="/login" className="text-gold-soft">Entre</Link> para fazer o quiz desta aula.
+            </p>
+          ) : !watch.state ? (
+            <p className="text-xs text-felt-400">Carregando o quiz…</p>
+          ) : watch.state.review ? (
+            <CourseReview items={watch.state.review} score={watch.state.best_score} />
+          ) : !watch.state.quiz_open ? (
+            <WatchGate state={watch.state} />
+          ) : (
+            <CourseQuiz
+              key={`quiz-${lesson.id}`}
+              questions={lesson.quiz}
+              lessonTitle={lesson.title}
+              retryAt={watch.state.retry_at}
+              onSubmit={submitQuiz}
+            />
+          )}
           {mod && <div className="zt-panel p-5 space-y-3 border-gold-soft/30">
             <h2 className="font-semibold text-gold-bright">Leve esta ideia para a mesa</h2>
             <p className="text-sm text-felt-200">Bots, ações reais e replay. Pratique com fichas sem valor e compare suas decisões.</p>

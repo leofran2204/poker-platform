@@ -2445,6 +2445,33 @@ async fn test_contract_course_quiz_is_graded_by_the_server() {
     .await;
     assert_eq!(status, StatusCode::FORBIDDEN);
 
+    // Sem o vídeo assistido, o quiz não abre.
+    let (status, _) = post(
+        &app,
+        &token,
+        serde_json::json!({ "lesson_id": "m0l4", "answers": answers("m0l4", true) }),
+    )
+    .await;
+    assert_eq!(status, StatusCode::FORBIDDEN);
+    let watched_all = |lesson: &'static str| {
+        let db = state.db.clone();
+        let user_id = user.user_id.clone();
+        async move {
+            sqlx::query(
+                "INSERT INTO course_watch (user_id, lesson_id, watched, checkpoints) \
+                 VALUES ($1::uuid, $2, decode(repeat('ff', 64), 'hex'), '{}') \
+                 ON CONFLICT (user_id, lesson_id) DO UPDATE SET watched = EXCLUDED.watched, \
+                   checkpoints = '{}', check_id = NULL",
+            )
+            .bind(&user_id)
+            .bind(lesson)
+            .execute(&db)
+            .await
+            .unwrap();
+        }
+    };
+    watched_all("m0l4").await;
+
     let (status, body) = post(
         &app,
         &token,
@@ -2456,6 +2483,24 @@ async fn test_contract_course_quiz_is_graded_by_the_server() {
         (body["status"].as_str(), body["best_score"].as_i64()),
         (Some("started"), Some(0))
     );
+    // Reprovado: só a nota e a hora da nova tentativa, sem gabarito.
+    assert!(body["retry_at"].is_string(), "{body}");
+    assert!(body.get("review").is_none(), "{body}");
+    let (status, _) = post(
+        &app,
+        &token,
+        serde_json::json!({ "lesson_id": "m0l4", "answers": answers("m0l4", true) }),
+    )
+    .await;
+    assert_eq!(status, StatusCode::TOO_MANY_REQUESTS);
+    sqlx::query(
+        "UPDATE course_progress SET last_failed_at = NOW() - INTERVAL '16 minutes' \
+         WHERE user_id = $1::uuid AND lesson_id = 'm0l4'",
+    )
+    .bind(&user.user_id)
+    .execute(&state.db)
+    .await
+    .unwrap();
     let (status, body) = post(
         &app,
         &token,
@@ -2466,7 +2511,16 @@ async fn test_contract_course_quiz_is_graded_by_the_server() {
     assert_eq!(body["status"], "completed");
     assert_eq!(body["best_score"], 100);
     assert_eq!(body["attempts"], 2);
-    // Tentativa pior depois não rebaixa a aula concluída.
+    assert!(body.get("retry_at").is_none(), "{body}");
+    let review = body["review"].as_array().unwrap();
+    assert_eq!(
+        review.len(),
+        lesson("m0l4")["quiz"].as_array().unwrap().len()
+    );
+    assert!(review
+        .iter()
+        .all(|r| r["explanation"].as_str().is_some_and(|e| !e.is_empty())));
+    // Aula concluída não é corrigida de novo nem rebaixada.
     let (_, body) = post(
         &app,
         &token,
@@ -2474,10 +2528,22 @@ async fn test_contract_course_quiz_is_graded_by_the_server() {
     )
     .await;
     assert_eq!(
-        (body["status"].as_str(), body["best_score"].as_i64()),
-        (Some("completed"), Some(100))
+        (
+            body["status"].as_str(),
+            body["best_score"].as_i64(),
+            body["attempts"].as_i64()
+        ),
+        (Some("completed"), Some(100), Some(2))
     );
-    // Com o pré-requisito concluído, a aula seguinte aceita respostas.
+    // Com o pré-requisito concluído, a aula seguinte pede o próprio vídeo.
+    let (status, _) = post(
+        &app,
+        &token,
+        serde_json::json!({ "lesson_id": "m0l5", "answers": answers("m0l5", false) }),
+    )
+    .await;
+    assert_eq!(status, StatusCode::FORBIDDEN);
+    watched_all("m0l5").await;
     let (status, body) = post(
         &app,
         &token,
@@ -2486,6 +2552,251 @@ async fn test_contract_course_quiz_is_graded_by_the_server() {
     .await;
     assert_eq!(status, StatusCode::OK, "{body}");
     assert_eq!(body["status"], "started");
+
+    cleanup_contract_user(&state, &user.username).await;
+}
+
+/// O tempo de vídeo é contado pelo servidor (até 2x, dentro do relógio) e a
+/// pergunta surpresa errada ou sem resposta apaga o trecho desde a anterior.
+#[tokio::test]
+#[ignore = "Requires PostgreSQL with migration 068 — set DATABASE_URL to run"]
+async fn test_contract_course_video_is_counted_by_the_server() {
+    async fn call(
+        app: &axum::Router,
+        token: &str,
+        method: Method,
+        uri: &str,
+        body: Option<serde_json::Value>,
+    ) -> (StatusCode, serde_json::Value) {
+        let mut request = Request::builder()
+            .method(method)
+            .uri(uri)
+            .header("Authorization", format!("Bearer {token}"));
+        if body.is_some() {
+            request = request.header("Content-Type", "application/json");
+        }
+        let request = request
+            .body(Body::from(body.map(|b| b.to_string()).unwrap_or_default()))
+            .unwrap();
+        let response = app.clone().oneshot(request).await.unwrap();
+        let status = response.status();
+        let bytes = response.into_body().collect().await.unwrap().to_bytes();
+        (
+            status,
+            serde_json::from_slice(&bytes).unwrap_or(serde_json::Value::Null),
+        )
+    }
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let user = register_refresh_contract_user(&state, &app, "watch").await;
+    let login = serde_json::json!({ "email": user.email, "password": user.password }).to_string();
+    let (status, text) =
+        send_request(app.clone(), Method::POST, "/api/auth/login", Some(login)).await;
+    assert_eq!(status, StatusCode::OK, "{text}");
+    let token = serde_json::from_str::<serde_json::Value>(&text).unwrap()["token"]
+        .as_str()
+        .unwrap()
+        .to_string();
+    let watch = |from: f64, to: f64, rate: f64| serde_json::json!({ "lesson_id": "m0l4", "from": from, "to": to, "rate": rate });
+    let reply = |id: &serde_json::Value, answer: serde_json::Value| serde_json::json!({ "lesson_id": "m0l4", "check_id": id, "answer": answer });
+    let db = state.db.clone();
+    let user_id = user.user_id.clone();
+    let sql = |statement: &'static str| {
+        let db = db.clone();
+        let user_id = user_id.clone();
+        async move {
+            sqlx::query(statement)
+                .bind(&user_id)
+                .execute(&db)
+                .await
+                .unwrap();
+        }
+    };
+    let rewind_clock = "UPDATE course_watch SET last_beat_at = NOW() - INTERVAL '20 seconds' \
+                        WHERE user_id = $1::uuid AND lesson_id = 'm0l4'";
+    let answer = || {
+        let db = db.clone();
+        let user_id = user_id.clone();
+        async move {
+            sqlx::query_scalar::<_, String>(
+                "SELECT check_answer FROM course_watch \
+                 WHERE user_id = $1::uuid AND lesson_id = 'm0l4'",
+            )
+            .bind(&user_id)
+            .fetch_one(&db)
+            .await
+            .unwrap()
+        }
+    };
+    let get_state = "/api/course/lesson?lesson_id=m0l4";
+
+    let (status, body) = call(&app, &token, Method::GET, get_state, None).await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    assert_eq!(
+        (body["has_video"].as_bool(), body["quiz_open"].as_bool()),
+        (Some(true), Some(false))
+    );
+    assert_eq!(body["watched_percent"], 0);
+    assert!(body["checks_left"].as_u64().unwrap() >= 1);
+
+    // Início da reprodução e, logo em seguida, 20 s de vídeo: rápido demais para o relógio.
+    let (_, body) = call(
+        &app,
+        &token,
+        Method::POST,
+        "/api/course/watch",
+        Some(watch(0.0, 0.0, 1.0)),
+    )
+    .await;
+    assert_eq!(body["accepted"], false);
+    let (_, body) = call(
+        &app,
+        &token,
+        Method::POST,
+        "/api/course/watch",
+        Some(watch(0.0, 20.0, 1.0)),
+    )
+    .await;
+    assert_eq!(
+        (body["accepted"].as_bool(), body["watched_percent"].as_i64()),
+        (Some(false), Some(0))
+    );
+    // Acima de 2x não conta, mesmo com relógio de sobra.
+    sql(
+        "UPDATE course_watch SET last_beat_at = NOW() - INTERVAL '20 seconds', \
+           checkpoints = '{15}' WHERE user_id = $1::uuid AND lesson_id = 'm0l4'",
+    )
+    .await;
+    let (_, body) = call(
+        &app,
+        &token,
+        Method::POST,
+        "/api/course/watch",
+        Some(watch(0.0, 20.0, 3.0)),
+    )
+    .await;
+    assert_eq!(body["accepted"], false);
+
+    // Trecho válido que passa pelo momento sorteado: abre a pergunta surpresa.
+    sql(rewind_clock).await;
+    let (_, body) = call(
+        &app,
+        &token,
+        Method::POST,
+        "/api/course/watch",
+        Some(watch(0.0, 20.0, 1.0)),
+    )
+    .await;
+    assert_eq!(body["accepted"], true, "{body}");
+    assert!(body["watched_percent"].as_i64().unwrap() > 0);
+    let check = body["pending_check"].clone();
+    let options = check["options"].as_array().unwrap();
+    assert_eq!(options.len(), 4, "{check}");
+    assert!(check["seconds_left"].as_i64().unwrap() > 50);
+    let right = answer().await;
+    let wrong = options
+        .iter()
+        .find(|o| **o != right.as_str())
+        .unwrap()
+        .clone();
+
+    // Errou: o trecho deixa de contar e o vídeo volta ao início do trecho.
+    let (_, body) = call(
+        &app,
+        &token,
+        Method::POST,
+        "/api/course/check",
+        Some(reply(&check["id"], wrong)),
+    )
+    .await;
+    assert_eq!(body["check_result"], "wrong", "{body}");
+    assert_eq!(
+        (body["rewind_to"].as_f64(), body["watched_percent"].as_i64()),
+        (Some(0.0), Some(0))
+    );
+    assert_eq!(body["checks_left"], 1);
+    assert!(body["pending_check"].is_null());
+
+    // Reviu o trecho: a pergunta volta; sem resposta em 60 s, também não conta.
+    sql(rewind_clock).await;
+    let (_, body) = call(
+        &app,
+        &token,
+        Method::POST,
+        "/api/course/watch",
+        Some(watch(0.0, 20.0, 1.0)),
+    )
+    .await;
+    assert!(body["pending_check"].is_object(), "{body}");
+    sql(
+        "UPDATE course_watch SET check_issued_at = NOW() - INTERVAL '2 minutes', \
+           last_beat_at = NOW() - INTERVAL '20 seconds' \
+         WHERE user_id = $1::uuid AND lesson_id = 'm0l4'",
+    )
+    .await;
+    let (_, body) = call(
+        &app,
+        &token,
+        Method::POST,
+        "/api/course/watch",
+        Some(watch(20.0, 30.0, 1.0)),
+    )
+    .await;
+    assert_eq!(
+        (body["check_result"].as_str(), body["accepted"].as_bool()),
+        (Some("expired"), Some(false))
+    );
+    assert_eq!(body["watched_percent"], 0);
+
+    // Terceira passagem com a resposta certa: a pergunta sai da lista.
+    sql(rewind_clock).await;
+    let (_, body) = call(
+        &app,
+        &token,
+        Method::POST,
+        "/api/course/watch",
+        Some(watch(0.0, 20.0, 1.0)),
+    )
+    .await;
+    let check = body["pending_check"].clone();
+    let right = answer().await;
+    let (_, body) = call(
+        &app,
+        &token,
+        Method::POST,
+        "/api/course/check",
+        Some(reply(&check["id"], right.clone().into())),
+    )
+    .await;
+    assert_eq!(body["check_result"], "right", "{body}");
+    assert_eq!(body["checks_left"], 0);
+    assert!(body["watched_percent"].as_i64().unwrap() > 0);
+    // Resposta repetida para pergunta já encerrada não muda nada.
+    let (_, body) = call(
+        &app,
+        &token,
+        Method::POST,
+        "/api/course/check",
+        Some(reply(&check["id"], right.into())),
+    )
+    .await;
+    assert_eq!(body["check_result"], "stale");
+    assert_eq!(body["quiz_open"], false, "vídeo ainda abaixo de 90%");
+
+    // Com 90% do vídeo marcado, o quiz abre.
+    sql(
+        "UPDATE course_watch SET watched = decode(repeat('ff', 64), 'hex') \
+         WHERE user_id = $1::uuid AND lesson_id = 'm0l4'",
+    )
+    .await;
+    let (_, body) = call(&app, &token, Method::GET, get_state, None).await;
+    assert_eq!(
+        (
+            body["watched_percent"].as_i64(),
+            body["quiz_open"].as_bool()
+        ),
+        (Some(100), Some(true))
+    );
 
     cleanup_contract_user(&state, &user.username).await;
 }

@@ -46,6 +46,7 @@ use std::sync::OnceLock;
 use std::time::Instant;
 
 use crate::handlers::course as course_handlers;
+use crate::handlers::course_watch as course_watch_handlers;
 use crate::handlers::estrutura as estrutura_api;
 use crate::handlers::presence as presence_handlers;
 use crate::handlers::{auth, bots as bots_handlers, hand_history, lobby, tournament, websocket};
@@ -288,6 +289,27 @@ pub fn build_router(state: AppState) -> Router {
             "/api/course/progress",
             get(course_handlers::get_progress)
                 .post(course_handlers::save_progress)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/course/lesson",
+            get(course_watch_handlers::get_lesson_state)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/course/watch",
+            post(course_watch_handlers::post_watch)
+                .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
+                    state.clone(),
+                )),
+        )
+        .route(
+            "/api/course/check",
+            post(course_watch_handlers::post_check)
                 .route_layer(from_extractor_with_state::<RequireAuth, AppState>(
                     state.clone(),
                 )),

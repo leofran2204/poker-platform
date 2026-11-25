@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
-import { allLessons, calculateQuizScores, COURSE, findLesson, isLessonUnlocked, lessonFormat, lessonPrerequisites } from "./course";
+import { allLessons, COURSE, type EditorialQuizQuestion, findLesson, isLessonUnlocked, lessonFormat, lessonPrerequisites } from "./course";
+import { ANSWER_KEY_FIELDS, stripCourseAnswerKey } from "./courseAnswerKey";
 import sources from "@/data/courseSources.json";
 import training from "@/data/courseTraining.json";
 import films from "@/data/pineappleDrawFilms.json";
@@ -38,7 +39,7 @@ describe("integridade da Academy", () => {
     for (const lesson of lessons) {
       expect(lesson.quiz.length, lesson.id).toBeGreaterThan(0);
       const prompts = new Set<string>();
-      for (const q of lesson.quiz) {
+      for (const q of lesson.quiz as EditorialQuizQuestion[]) {
         expect(prompts.has(q.prompt), q.id).toBe(false);
         prompts.add(q.prompt);
         expect(q.options.length, q.id).toBeGreaterThan(1);
@@ -127,12 +128,17 @@ describe("integridade da Academy", () => {
     }
   });
 
-  it("gabaritos completos passam e respostas vazias não passam", () => {
-    for (const lesson of lessons) {
-      const answers = Object.fromEntries(lesson.quiz.map(q => [q.id, q.kind === "theory" ? q.options[q.expectedIndex] : q.expected]));
-      expect(calculateQuizScores(lesson.quiz, answers).passed, lesson.id).toBe(true);
-      expect(calculateQuizScores(lesson.quiz, {}).passed, lesson.id).toBe(false);
-    }
+  it("o site publicado recebe as aulas sem o gabarito do quiz", () => {
+    const stripped = stripCourseAnswerKey(COURSE);
+    const text = JSON.stringify(stripped);
+    for (const field of ANSWER_KEY_FIELDS) expect(text, field).not.toContain(`"${field}":`);
+    const sample = (lessons[0].quiz as EditorialQuizQuestion[]).find(q => q.kind === "theory");
+    if (sample?.kind === "theory") expect(text).not.toContain(JSON.stringify(sample.explanation));
+    const strippedLessons = stripped.modules.flatMap(m => m.lessons);
+    expect(strippedLessons.map(l => l.quiz.map(q => [q.id, q.prompt, q.options])))
+      .toEqual(lessons.map(l => l.quiz.map(q => [q.id, q.prompt, q.options])));
+    // O original (testes e API) continua com o gabarito.
+    expect(JSON.stringify(COURSE)).toContain('"expectedIndex":');
   });
 
   it("verifica os 25 vídeos técnicos publicados, inclusive as 3 aulas do Brazilian Pineapple em Remotion", () => {

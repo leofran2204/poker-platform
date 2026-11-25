@@ -3,6 +3,7 @@
 pub mod auth;
 pub mod bots;
 pub mod course;
+pub mod course_watch;
 pub mod estrutura;
 pub mod hand_history;
 pub mod lobby;

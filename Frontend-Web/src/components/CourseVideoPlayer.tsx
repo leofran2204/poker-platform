@@ -1,16 +1,23 @@
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode, type RefObject } from "react";
 import type { CourseVideoInfo } from "@/lib/course";
 import { formatLessonDuration } from "@/lib/courseDuration";
 
 interface Props {
   video?: CourseVideoInfo;
   lessonTitle: string;
+  /** Referência do `<video>` para quem conta o tempo assistido. */
+  playerRef?: RefObject<HTMLVideoElement | null>;
+  /** Painel logo abaixo do vídeo (pergunta surpresa, avisos). */
+  children?: ReactNode;
+  /** Esconde os capítulos (durante a pergunta surpresa eles dariam a resposta). */
+  hideChapters?: boolean;
 }
 
 /** Player da aula: vídeo, legenda em pt-BR e transcrição completa da narração. */
-export function CourseVideoPlayer({ video, lessonTitle }: Props) {
+export function CourseVideoPlayer({ video, lessonTitle, playerRef, children, hideChapters }: Props) {
   const [showScript, setShowScript] = useState(false);
-  const player = useRef<HTMLVideoElement>(null);
+  const ownPlayer = useRef<HTMLVideoElement>(null);
+  const player = playerRef ?? ownPlayer;
   const pendingSeek = useRef<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const transcript = video?.transcript?.trim() || video?.placeholderScript?.trim() || "";
@@ -87,7 +94,9 @@ export function CourseVideoPlayer({ video, lessonTitle }: Props) {
         )}
       </div>
 
-      {video?.chapters && video.url && (
+      {children}
+
+      {video?.chapters && video.url && !hideChapters && (
         <nav aria-label="Capítulos do vídeo" className="flex flex-wrap gap-2 border-t border-felt-800 px-4 py-3">
           {video.chapters.map((chapter, index, chapters) => (
             <button key={chapter.start} type="button" aria-current={currentTime >= chapter.start && currentTime < (chapters[index + 1]?.start ?? Infinity) ? "true" : undefined} className="min-h-11 rounded-sm border border-felt-700 px-3 py-2 text-left text-xs text-gold-soft hover:bg-felt-800 aria-current:border-gold-soft aria-current:bg-felt-800 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-gold-soft" onClick={() => {

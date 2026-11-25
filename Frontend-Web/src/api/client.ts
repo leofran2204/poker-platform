@@ -1054,14 +1054,86 @@ export async function fetchCourseProgress(): Promise<CourseProgressItem[]> {
   return request<CourseProgressItem[]>("/api/course/progress");
 }
 
-/** Envia as respostas do quiz; o servidor corrige e devolve a melhor nota da aula. */
+export interface CourseReviewItem {
+  id: string;
+  prompt: string;
+  answer: string;
+  explanation: string;
+}
+
+/** Resultado do quiz: nota desta tentativa; gabarito só para quem passou. */
+export interface CourseQuizResult extends CourseProgressItem {
+  score: number;
+  passed: boolean;
+  /** Próxima tentativa (UTC), depois de reprovar. */
+  retry_at?: string;
+  review?: CourseReviewItem[];
+}
+
+/** Envia as respostas do quiz; o servidor corrige e devolve a nota. */
 export async function saveCourseProgress(
   lessonId: string,
   answers: Record<string, string>,
-): Promise<CourseProgressItem> {
-  return request<CourseProgressItem>("/api/course/progress", {
+): Promise<CourseQuizResult> {
+  return request<CourseQuizResult>("/api/course/progress", {
     method: "POST",
     body: JSON.stringify({ lesson_id: lessonId, answers }),
+  });
+}
+
+export interface CourseSurpriseCheck {
+  id: string;
+  prompt: string;
+  options: string[];
+  seconds_left: number;
+}
+
+/** Estado da aula no servidor: vídeo assistido, pergunta surpresa, quiz e espera. */
+export interface CourseLessonState {
+  lesson_id: string;
+  status: string;
+  best_score: number;
+  attempts: number;
+  has_video: boolean;
+  watched_percent: number;
+  required_percent: number;
+  checks_left: number;
+  missing_check_near: number | null;
+  pending_check: CourseSurpriseCheck | null;
+  quiz_open: boolean;
+  retry_at: string | null;
+  review: CourseReviewItem[] | null;
+  accepted?: boolean;
+  check_result?: "right" | "wrong" | "expired" | "stale";
+  rewind_to?: number;
+}
+
+export async function fetchCourseLessonState(lessonId: string): Promise<CourseLessonState> {
+  return request<CourseLessonState>(`/api/course/lesson?lesson_id=${encodeURIComponent(lessonId)}`);
+}
+
+/** Trecho assistido sem pulo (`from === to` só marca o início da reprodução). */
+export async function sendCourseWatch(
+  lessonId: string,
+  from: number,
+  to: number,
+  rate: number,
+): Promise<CourseLessonState> {
+  return request<CourseLessonState>("/api/course/watch", {
+    method: "POST",
+    body: JSON.stringify({ lesson_id: lessonId, from, to, rate }),
+  });
+}
+
+/** Resposta da pergunta surpresa (`null` = o tempo acabou). */
+export async function answerCourseCheck(
+  lessonId: string,
+  checkId: string,
+  answer: string | null,
+): Promise<CourseLessonState> {
+  return request<CourseLessonState>("/api/course/check", {
+    method: "POST",
+    body: JSON.stringify({ lesson_id: lessonId, check_id: checkId, answer }),
   });
 }
 

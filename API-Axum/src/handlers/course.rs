@@ -1,5 +1,7 @@
 //! Course progress — aulas concluídas e melhor nota de quiz por usuário.
 //! A nota é calculada aqui, a partir das respostas, com o gabarito do servidor.
+//! O quiz só abre depois do vídeo assistido (`course_watch`) e, depois de uma
+//! reprovação, só depois da espera; o gabarito comentado sai só para quem passou.
 
 use axum::extract::State;
 use axum::Json;
@@ -7,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::OnceLock;
 
+use super::course_watch;
 use crate::error::ApiError;
 use crate::middleware::auth::RequireAuth;
 use crate::state::AppState;
@@ -58,13 +61,39 @@ pub struct SaveProgressBody {
     pub answers: Option<HashMap<String, String>>,
 }
 
+#[derive(Debug, Serialize)]
+pub struct SaveProgressResponse {
+    #[serde(flatten)]
+    pub progress: CourseProgressItem,
+    /// Nota desta tentativa (a melhor fica em `best_score`).
+    pub score: i16,
+    pub passed: bool,
+    /// Quando abre a próxima tentativa (só depois de reprovar), em UTC.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub retry_at: Option<String>,
+    /// Gabarito comentado: só para quem já passou na aula.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub review: Option<Vec<ReviewItem>>,
+}
+
+/// SQL do horário da próxima tentativa (texto UTC), `NULL` se já liberada.
+/// `$3` = espera em segundos.
+macro_rules! retry_at_sql {
+    () => {
+        "CASE WHEN last_failed_at + make_interval(secs => $3) > NOW() \
+         THEN to_char((last_failed_at + make_interval(secs => $3)) AT TIME ZONE 'UTC', \
+                      'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') END"
+    };
+}
+pub(crate) use retry_at_sql;
+
 /// POST /api/course/progress — corrige o quiz pelo gabarito do servidor e
 /// registra conclusão e melhor nota da aula.
 pub async fn save_progress(
     State(state): State<AppState>,
     RequireAuth(auth_user): RequireAuth,
     Json(body): Json<SaveProgressBody>,
-) -> Result<Json<CourseProgressItem>, ApiError> {
+) -> Result<Json<SaveProgressResponse>, ApiError> {
     let lesson_id = body.lesson_id.trim();
     let Some(lesson) = quiz_key().get(lesson_id) else {
         return Err(ApiError::BadRequest("Aula inexistente.".to_string()));
@@ -78,6 +107,7 @@ pub async fn save_progress(
         return Err(ApiError::BadRequest("Respostas inválidas.".to_string()));
     }
 
+    let mut tx = state.db.begin().await?;
     let mut ids: Vec<&str> = lesson.prerequisites.iter().map(String::as_str).collect();
     ids.push(lesson_id);
     let passed_rows: Vec<String> = sqlx::query_scalar(
@@ -88,7 +118,7 @@ pub async fn save_progress(
     .bind(&auth_user.user_id)
     .bind(&ids)
     .bind(PASS_SCORE)
-    .fetch_all(&state.db)
+    .fetch_all(&mut *tx)
     .await?;
     let passed = |id: &str| passed_rows.iter().any(|p| p == id);
     // Uma reorganização editorial nunca retira acesso a uma aula já concluída.
@@ -98,31 +128,108 @@ pub async fn save_progress(
         ));
     }
 
-    let grade = grade(lesson, &answers);
-    let status = if grade.passed { "completed" } else { "started" };
-    let row: ProgressRow = sqlx::query_as(
-        "INSERT INTO course_progress (user_id, lesson_id, status, best_score, attempts, updated_at) \
-         VALUES ($1::uuid, $2, $3, $4, 1, NOW()) \
-         ON CONFLICT (user_id, lesson_id) DO UPDATE SET \
-           status = CASE WHEN EXCLUDED.status = 'completed' THEN 'completed' ELSE course_progress.status END, \
-           best_score = GREATEST(course_progress.best_score, EXCLUDED.best_score), \
-           attempts = course_progress.attempts + 1, \
-           updated_at = NOW() \
-         RETURNING lesson_id, status, best_score, attempts, updated_at::text",
+    // Trava a linha da aula: duas tentativas ao mesmo tempo não furam a espera.
+    sqlx::query(
+        "INSERT INTO course_progress (user_id, lesson_id) VALUES ($1::uuid, $2) \
+         ON CONFLICT (user_id, lesson_id) DO NOTHING",
     )
     .bind(&auth_user.user_id)
     .bind(lesson_id)
-    .bind(status)
-    .bind(grade.score)
-    .fetch_one(&state.db)
+    .execute(&mut *tx)
     .await?;
-    let (lesson_id, status, best_score, attempts, updated_at) = row;
-    Ok(Json(CourseProgressItem {
-        lesson_id,
-        status,
-        best_score,
-        attempts,
-        updated_at,
+    let (row, retry_at): (ProgressRow, Option<String>) = {
+        let (id, status, best, attempts, updated, retry): (
+            String,
+            String,
+            i16,
+            i32,
+            String,
+            Option<String>,
+        ) = sqlx::query_as(concat!(
+            "SELECT lesson_id, status, best_score, attempts, updated_at::text, ",
+            retry_at_sql!(),
+            " FROM course_progress WHERE user_id = $1::uuid AND lesson_id = $2 FOR UPDATE"
+        ))
+        .bind(&auth_user.user_id)
+        .bind(lesson_id)
+        .bind(RETRY_WAIT_SECONDS)
+        .fetch_one(&mut *tx)
+        .await?;
+        ((id, status, best, attempts, updated), retry)
+    };
+
+    if passed(lesson_id) {
+        // Aula já concluída: nada a corrigir de novo; devolve o gabarito comentado.
+        let (lesson_id, status, best_score, attempts, updated_at) = row;
+        return Ok(Json(SaveProgressResponse {
+            progress: CourseProgressItem {
+                lesson_id,
+                status,
+                best_score,
+                attempts,
+                updated_at,
+            },
+            score: best_score,
+            passed: true,
+            retry_at: None,
+            review: Some(lesson.review.clone()),
+        }));
+    }
+    if let Some(video) = &lesson.video {
+        if !course_watch::quiz_unlocked(&mut tx, &auth_user.user_id, lesson_id, video).await? {
+            return Err(ApiError::Forbidden(
+                "Assista ao vídeo (pelo menos 90%, sem pular) e responda às perguntas \
+                 surpresa antes do quiz."
+                    .to_string(),
+            ));
+        }
+    }
+    if retry_at.is_some() {
+        return Err(ApiError::TooManyRequests(format!(
+            "Nova tentativa liberada {} min depois da anterior. Use a espera para rever a aula.",
+            RETRY_WAIT_SECONDS as i64 / 60
+        )));
+    }
+
+    let grade = grade(lesson, &answers);
+    let (lesson_id, status, best_score, attempts, updated_at, retry_at): (
+        String,
+        String,
+        i16,
+        i32,
+        String,
+        Option<String>,
+    ) = sqlx::query_as(concat!(
+        "UPDATE course_progress SET \
+           status = CASE WHEN $4 THEN 'completed' ELSE status END, \
+           best_score = GREATEST(best_score, $5), \
+           attempts = attempts + 1, \
+           last_failed_at = CASE WHEN $4 THEN NULL ELSE NOW() END, \
+           updated_at = NOW() \
+         WHERE user_id = $1::uuid AND lesson_id = $2 \
+         RETURNING lesson_id, status, best_score, attempts, updated_at::text, ",
+        retry_at_sql!()
+    ))
+    .bind(&auth_user.user_id)
+    .bind(lesson_id)
+    .bind(RETRY_WAIT_SECONDS)
+    .bind(grade.passed)
+    .bind(grade.score)
+    .fetch_one(&mut *tx)
+    .await?;
+    tx.commit().await?;
+    Ok(Json(SaveProgressResponse {
+        progress: CourseProgressItem {
+            lesson_id,
+            status,
+            best_score,
+            attempts,
+            updated_at,
+        },
+        score: grade.score,
+        passed: grade.passed,
+        retry_at,
+        review: grade.passed.then(|| lesson.review.clone()),
     }))
 }
 
@@ -130,11 +237,14 @@ pub async fn save_progress(
 //
 // O conteúdo das aulas mora no site (`courseContent.json`); a API embute o
 // mesmo arquivo na compilação, como já faz com `courseTraining.json`, para que
-// gabarito e pré-requisitos sejam sempre os da versão publicada do site.
+// gabarito, pré-requisitos e capítulos dos vídeos sejam sempre os da versão
+// publicada do site. O site publica o arquivo sem o gabarito (`vite.config.ts`).
 
 const COURSE_CONTENT: &str = include_str!("../../../Frontend-Web/src/data/courseContent.json");
 /// Mesmo corte de `PASS_SCORE` em `Frontend-Web/src/lib/course.ts`.
-const PASS_SCORE: i16 = 70;
+pub(crate) const PASS_SCORE: i16 = 70;
+/// Espera para nova tentativa depois de reprovar (15 min).
+pub(crate) const RETRY_WAIT_SECONDS: f64 = 900.0;
 const MAX_ANSWERS: usize = 64;
 const MAX_ANSWER_LEN: usize = 200;
 
@@ -153,27 +263,68 @@ struct RawLesson {
     id: String,
     prerequisites: Option<Vec<String>>,
     quiz: Vec<RawQuestion>,
+    video: Option<RawVideo>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RawVideo {
+    url: Option<String>,
+    publication_status: Option<String>,
+    duration_seconds: Option<f64>,
+    #[serde(default)]
+    chapters: Vec<RawChapter>,
+}
+
+#[derive(Deserialize)]
+struct RawChapter {
+    start: f64,
+    title: String,
 }
 
 #[derive(Deserialize)]
 struct RawQuestion {
     id: String,
     kind: String,
+    #[serde(default)]
+    prompt: String,
     options: Vec<String>,
     #[serde(rename = "expectedIndex")]
     expected_index: Option<usize>,
     expected: Option<String>,
+    explanation: Option<String>,
+    /// Critério do motor nas perguntas práticas.
+    engine: Option<String>,
+    why: Option<String>,
 }
 
-struct QuestionKey {
-    id: String,
-    engine: bool,
-    correct: String,
+pub(crate) struct QuestionKey {
+    pub(crate) id: String,
+    pub(crate) engine: bool,
+    pub(crate) correct: String,
 }
 
-struct LessonKey {
-    prerequisites: Vec<String>,
-    questions: Vec<QuestionKey>,
+/// Vídeo publicado da aula: duração e capítulos (início em segundos, título).
+pub(crate) struct VideoKey {
+    pub(crate) duration: f64,
+    pub(crate) chapters: Vec<(f64, String)>,
+}
+
+pub(crate) struct LessonKey {
+    pub(crate) prerequisites: Vec<String>,
+    pub(crate) questions: Vec<QuestionKey>,
+    /// `None` = aula sem vídeo publicado (segue só pela leitura).
+    pub(crate) video: Option<VideoKey>,
+    pub(crate) review: Vec<ReviewItem>,
+}
+
+/// Uma linha do gabarito comentado, mostrado depois da aprovação.
+#[derive(Debug, Clone, Serialize)]
+pub struct ReviewItem {
+    pub id: String,
+    pub prompt: String,
+    pub answer: String,
+    pub explanation: String,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -182,7 +333,7 @@ struct Grade {
     passed: bool,
 }
 
-fn quiz_key() -> &'static HashMap<String, LessonKey> {
+pub(crate) fn quiz_key() -> &'static HashMap<String, LessonKey> {
     static KEY: OnceLock<HashMap<String, LessonKey>> = OnceLock::new();
     KEY.get_or_init(|| parse_key(COURSE_CONTENT))
 }
@@ -197,6 +348,7 @@ fn parse_key(json: &str) -> HashMap<String, LessonKey> {
         let prerequisites = lesson
             .prerequisites
             .unwrap_or_else(|| previous.iter().cloned().collect());
+        let mut review = Vec::new();
         let questions = lesson
             .quiz
             .into_iter()
@@ -207,6 +359,21 @@ fn parse_key(json: &str) -> HashMap<String, LessonKey> {
                 } else {
                     q.options[q.expected_index.expect("pergunta theory com expectedIndex")].clone()
                 };
+                let explanation = if engine {
+                    format!(
+                        "Critério: {}. {}",
+                        q.engine.unwrap_or_default(),
+                        q.why.unwrap_or_default()
+                    )
+                } else {
+                    q.explanation.unwrap_or_default()
+                };
+                review.push(ReviewItem {
+                    id: q.id.clone(),
+                    prompt: q.prompt,
+                    answer: correct.clone(),
+                    explanation,
+                });
                 QuestionKey {
                     id: q.id,
                     engine,
@@ -214,12 +381,22 @@ fn parse_key(json: &str) -> HashMap<String, LessonKey> {
                 }
             })
             .collect();
+        let video = lesson.video.and_then(|v| {
+            let published = v.url.is_some() && v.publication_status.as_deref() != Some("review");
+            let duration = v.duration_seconds.filter(|d| d.is_finite() && *d > 0.0)?;
+            published.then(|| VideoKey {
+                duration,
+                chapters: v.chapters.into_iter().map(|c| (c.start, c.title)).collect(),
+            })
+        });
         previous = Some(lesson.id.clone());
         key.insert(
             lesson.id,
             LessonKey {
                 prerequisites,
                 questions,
+                video,
+                review,
             },
         );
     }
@@ -319,6 +496,8 @@ mod tests {
         };
         let mixed = LessonKey {
             prerequisites: vec![],
+            video: None,
+            review: vec![],
             questions: vec![q("t1", false), q("e1", true), q("e2", true), q("e3", true)],
         };
         // Teoria certa não compensa a prática: 1 de 3 práticas = 33.
@@ -330,12 +509,16 @@ mod tests {
         // Só teoria: 1 de 2 = 50.
         let theory = LessonKey {
             prerequisites: vec![],
+            video: None,
+            review: vec![],
             questions: vec![q("t1", false), q("t2", false)],
         };
         assert_eq!(grade(&theory, &pick(&["t1"])).score, 50);
         // Meio para cima, como Math.round: 5 de 8 = 62,5 → 63; 7 de 8 = 87,5 → 88.
         let eight = LessonKey {
             prerequisites: vec![],
+            video: None,
+            review: vec![],
             questions: (0..8).map(|i| q(&format!("t{i}"), false)).collect(),
         };
         assert_eq!(grade(&eight, &answers_for(&eight, 5)).score, 63);

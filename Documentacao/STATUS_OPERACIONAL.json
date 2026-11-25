@@ -172,7 +172,7 @@
         "showdown_sticky": true,
         "disconnect_not_leave": true
     },
-    "migrations_latest": 67,
+    "migrations_latest": 68,
     "email_verification": true,
     "regulation_target": "2027-01"
 }
