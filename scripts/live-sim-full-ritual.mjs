@@ -662,7 +662,7 @@ function onBotState(t, bot, msg) {
     t.cov.pineapple_keep += 1;
   }
   const sig = JSON.stringify([msg.hand_id, msg.stage, msg.drawing === true, msg.discarding === true, msg.current_bet_to_match, me?.chips, me?.bet, me?.draw_count, me?.folded, actions.join()]);
-  // Tempo esgotado: o servidor agiu pelo bot (fold; no Pineapple sem aposta, mantém, descarta e dá check).
+  // Tempo esgotado: o servidor agiu pelo bot (fold com aposta a pagar; sem aposta, check; no Pineapple, mantém e descarta antes).
   const tt = bot.turn;
   if (tt?.timeout && !tt.sent && Date.now() - tt.start >= TURN_MS - 500 && (!myTurn || sig !== tt.sig0)) {
     if (me?.folded) t.cov.timeout_fold += 1;

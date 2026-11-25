@@ -1691,3 +1691,12 @@ Pedido do proprietário em 24/11 ("pode fazer a troca do sqlx e publicar").
 - `Cargo.lock`: `libsqlite3-sys` 0.30.1 → 0.40.0 (corrige o RUSTSEC-2026-0459) e o `rsa` saiu (RUSTSEC-2023-0071). Os dois pacotes nunca eram compilados (a API usa só PostgreSQL), mas o `cargo audit` olha o lockfile. `API-Axum/.cargo/audit.toml` foi apagado: nenhuma exceção restante.
 - Migrations: o 0.9.1 usa a mesma tabela `_sqlx_migrations` e o mesmo checksum (SHA-384 do SQL). Na prática: a API nova subiu numa cópia de `poker_ritual_local` (64 migrations gravadas pela API antiga), aceitou as 64 e aplicou a 065 e a 066.
 - Verificação: `fmt`, `clippy --all-targets -D warnings`, `cargo audit --deny warnings` sem exceções; banco novo com as 66 migrations e os mesmos testes do CI: 116 da biblioteca, 17 + 1 + 1 determinísticos, 20 contratos de `api_tests`, 5 de carteira, jornada do jogador, reembolso do agente, prêmios atômicos, rebuy/add-on, inscrição, admissão no torneio e limite de taxa.
+
+## 2026-11-24 — Tempo esgotado sem aposta vira check em todas as modalidades (etapa 1)
+
+Etapa 1 do plano de 24/11, decidida pela delegação do proprietário (é o padrão das salas, e quem cai da conexão não perde a mão de graça).
+
+- `API-Axum/src/game_actor.rs`, `automatic_timeout_action`: a regra do Brazilian Pineapple passou a valer para Hold'em, Short Deck e Omaha, em cash e torneio (o `tournament_actor` usa a mesma função): com aposta a pagar, fold; sem aposta, check. No Pineapple nada muda (mantém, descarta no river e dá check).
+- Saída voluntária da mesa cash (sair ou sentar out no meio da mão): fold direto, em qualquer modalidade. Antes, no Pineapple, a saída dava check e o jogador ausente segurava a mesa até o relógio acabar nas ruas seguintes. Quem cai da conexão continua com a ação automática depois dos 15 s (sem tempo extra).
+- Testes novos: `overdue_turn_without_a_bet_to_pay_checks_in_every_variant` (Hold'em, big blind com a opção: tempo esgotado dá check e a mão vai ao flop com ele) e `leaving_the_table_folds_even_without_a_bet_to_pay`. A testemunha de tempo esgotado da campanha de rede é a primeira vez da mão (sempre com aposta a pagar) e continua exigindo fold.
+- Documentos: BUSINESS_RULES (Pineapple, regras gerais, 10.2 e 10.3) e FULL_VALIDATION. Os Termos (9.2) já falavam em "check/fold".

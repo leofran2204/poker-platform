@@ -471,14 +471,15 @@ impl TableActor {
             {
                 player.left_hand = false;
             }
-            let automatic = self.automatic_timeout_action();
+            // Saída voluntária da mesa: desiste da mão em qualquer modalidade
+            // (o check automático é para quem ficou sem tempo ou caiu da conexão).
             tracing::warn!(
                 table_id = %self.table_id,
                 player_id = %player_id,
-                action = automatic,
-                "Player out of seat during active hand; applying automatic action"
+                action = "fold",
+                "Player out of seat during active hand; folding"
             );
-            self.handle_automatic_action(player_id).await;
+            self.handle_action(player_id, "fold".to_string(), 0).await;
             return;
         }
         let disconnected_active_player = self.game_loop.as_ref().and_then(|game_loop| {
@@ -525,8 +526,8 @@ impl TableActor {
             (started_at.elapsed() >= limit).then_some(player_id)
         });
         if let Some(player_id) = timed_out_player {
-            // Brazilian Pineapple: o tempo esgotado mantém as cartas e dá check
-            // (ou desiste, se houver aposta a pagar).
+            // Tempo esgotado: check sem aposta a pagar, desistência com aposta
+            // (no Brazilian Pineapple, mantém as cartas antes do check).
             let automatic = self.automatic_timeout_action();
             tracing::warn!(
                 table_id = %self.table_id,
@@ -1427,21 +1428,21 @@ pub(crate) async fn resolve_hand_off_runtime(
     }
 }
 
-/// Ação automática (tempo esgotado, saída ou desconexão). Desiste nas apostas.
-/// No Brazilian Pineapple, com aposta a pagar, desiste já no passo de troca;
-/// sem aposta, mantém as cartas, no river descarta deixando as duas melhores
-/// (o motor escolhe) e em seguida dá check.
+/// Ação automática (tempo esgotado, saída ou desconexão), igual em todas as
+/// modalidades: com aposta a pagar, desiste; sem aposta, dá check. No
+/// Brazilian Pineapple, com aposta a pagar, desiste já no passo de troca; sem
+/// aposta, mantém as cartas, no river descarta deixando as duas melhores (o
+/// motor escolhe) e em seguida dá check.
 pub(crate) fn automatic_timeout_action(
     game_loop: Option<&poker_engine::game_loop::GameLoop>,
 ) -> &'static str {
     let Some(gl) = game_loop.filter(|gl| !gl.state.is_finished) else {
         return "fold";
     };
-    let bet_to_pay = gl
-        .state
-        .active_player()
-        .is_some_and(|p| gl.state.current_bet_to_match > p.current_bet);
-    if bet_to_pay || !gl.config.poker_variant.has_draw_rounds() {
+    let Some(active) = gl.state.active_player() else {
+        return "fold";
+    };
+    if gl.state.current_bet_to_match > active.current_bet {
         "fold"
     } else if gl.state.drawing {
         "keep"
@@ -1506,8 +1507,8 @@ pub(crate) fn card_to_string(card: &poker_engine::deck::Card) -> String {
 #[cfg(test)]
 mod tests {
     use super::{
-        settlement_signature_valid, sign_settlement, validate_chip_conservation, TableActor,
-        TablePlayer,
+        automatic_timeout_action, settlement_signature_valid, sign_settlement,
+        validate_chip_conservation, TableActor, TablePlayer,
     };
     use tokio::sync::{broadcast, mpsc};
 
@@ -1609,6 +1610,65 @@ mod tests {
                     .active_player()
                     .is_some_and(|player| player.id != active_before)
         );
+    }
+
+    /// Hold'em com três jogadores: os dois primeiros pagam o big blind e a vez
+    /// fica com o big blind, sem aposta a pagar.
+    async fn holdem_big_blind_option() -> (TableActor, String) {
+        let (_tx_cmd, rx_cmd) = mpsc::channel(1);
+        let (tx_broadcast, _) = broadcast::channel(1);
+        let mut actor = TableActor::new(
+            "table".to_string(),
+            "Test".to_string(),
+            rx_cmd,
+            tx_broadcast,
+        )
+        .with_turn_timeout(tokio::time::Duration::from_millis(1))
+        .without_time_bank();
+        actor.players = vec![player("a", 0), player("b", 1), player("c", 2)];
+        actor.start_new_hand().await;
+        for _ in 0..2 {
+            let caller = active_id(&actor).expect("hand should have an active player");
+            assert_eq!(automatic_timeout_action(actor.game_loop.as_ref()), "fold");
+            actor.handle_action(caller, "call".to_string(), 0).await;
+        }
+        let big_blind = active_id(&actor).expect("big blind has the option");
+        (actor, big_blind)
+    }
+
+    fn has_folded(actor: &TableActor, player_id: &str) -> bool {
+        actor
+            .game_loop
+            .as_ref()
+            .and_then(|gl| gl.state.players.iter().find(|p| p.id == player_id))
+            .is_some_and(|p| p.has_folded)
+    }
+
+    #[tokio::test]
+    async fn overdue_turn_without_a_bet_to_pay_checks_in_every_variant() {
+        let (mut actor, big_blind) = holdem_big_blind_option().await;
+        assert_eq!(automatic_timeout_action(actor.game_loop.as_ref()), "check");
+        actor.last_turn_start = Some(
+            tokio::time::Instant::now()
+                .checked_sub(tokio::time::Duration::from_secs(1))
+                .expect("instant supports one second subtraction"),
+        );
+
+        actor.tick().await;
+
+        let gl = actor.game_loop.as_ref().expect("hand continues");
+        assert_eq!(gl.state.phase, poker_engine::types::GamePhase::Flop);
+        assert!(!has_folded(&actor, &big_blind));
+    }
+
+    #[tokio::test]
+    async fn leaving_the_table_folds_even_without_a_bet_to_pay() {
+        let (mut actor, big_blind) = holdem_big_blind_option().await;
+
+        actor.handle_leave(big_blind.clone());
+        actor.tick().await;
+
+        assert!(has_folded(&actor, &big_blind));
     }
 
     /// Mesa com mão iniciada e o turno do jogador da vez aberto há `turn_age` segundos.

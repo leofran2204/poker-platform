@@ -59,7 +59,7 @@ Cada execução grava em `artifacts/full-validation/<UTC-id>/`:
 
 Zero testes, testes todos ignorados, timeout ou ausência de resumo não viram sucesso. Etapas posteriores a uma falha ficam `not_run`. Falha de regra/conservação, cartas impossíveis, vazamento ou liquidação duplicada interrompe a campanha; a reprodução repete somente o caso falho. Checkpoints preservam o progresso, mas não autorizam pular uma falha na próxima execução.
 
-Aprovação exige situações obrigatórias cobertas, expectativas verificadas, nenhuma divergência inexplicada e nenhuma ambiguidade pendente. O cliente exige timeout observado por WSS e persistido como fold, além de repetição imediata de call com apenas uma ação no histórico. Esse teste não garante idempotência de mensagens atrasadas que reapareçam em outra vez do jogador. Resultados não executados permanecem lacunas. Resultado local não é promessa de capacidade da VPS.
+Aprovação exige situações obrigatórias cobertas, expectativas verificadas, nenhuma divergência inexplicada e nenhuma ambiguidade pendente. O cliente exige timeout observado por WSS e persistido como fold (a testemunha é a primeira vez da mão, sempre com aposta a pagar; sem aposta, o tempo esgotado dá check, BUSINESS_RULES 10.2), além de repetição imediata de call com apenas uma ação no histórico. Esse teste não garante idempotência de mensagens atrasadas que reapareçam em outra vez do jogador. Resultados não executados permanecem lacunas. Resultado local não é promessa de capacidade da VPS.
 
 ## Primeira execução de 02/10/2026 (antes das correções)
 
