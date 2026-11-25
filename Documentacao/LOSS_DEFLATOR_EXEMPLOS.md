@@ -15,6 +15,13 @@ O motor habilita o mecanismo em todas as modalidades, no cash e nos torneios, em
 - **Omaha 4, all-in no flop:** herói Ah Ad Kc Qc contra 7s 6d 3c 2h, flop Ac 7h 6c. A equity exata percorre os C(41, 2) = 820 pares turn/river e fica acima de 86% (faixa de 35%). Turn 6h e river 6s dão quadra ao vilão; com pote líquido de 200 centavos, o herói recebe 70. Teste: `omaha_flop_all_in_bad_beat_pays_deflator`.
 - **Brazilian Pineapple, troca no flop e all-in no turn:** na vez dele no flop, o herói troca 7d e recebe Kd; no turn, mantém e vai all-in com As Ad Kd contra 6c 5s 9c, board Ah 7c 2d 3h. O snapshot usa exatamente essas três privadas e a equity exata percorre os 42 rivers possíveis; trocas futuras não entram, porque quem está all-in não troca. River 4h dá sequência ao vilão e o herói recebe o deflator. Teste: `pineapple_draw_turn_all_in_uses_cards_held_at_payment`.
 
+### Mesa cheia: quem conta como oponente (regra de 24/11/2026)
+
+Contam os jogadores que ainda estavam na mão no fim da rodada de apostas em que o all-in foi pago. Testes: `fold_na_mesma_rodada_sai_dos_oponentes_do_all_in` e `fold_em_rodada_seguinte_continua_entre_os_oponentes`.
+
+- **Fold na mesma rodada:** mesa de 4, Texas. Dave abre o pré-flop all-in com As Ah e Alice paga com 7d 7h; Bob (3c 2c) e Carol (4c 2h) ainda não tinham agido e desistem. A equity de Dave é a de AA contra 77 heads-up (cerca de 80%, faixa de 25%), não a de AA contra três mãos. Board 7s Kd 9c 5s Jd: trinca de 7 para Alice, e Dave recebe a devolução.
+- **Fold numa rodada seguinte:** mesmas cartas, Dave all-in curto pago por Alice, Bob e Carol. No flop, Bob aposta e Carol desiste. Carol estava na mão no fim da rodada do all-in, então continua no cálculo: são 3 oponentes.
+
 ## 2. Um exemplo exato com cartas
 
 Texas tradicional, heads-up, all-in no turn:

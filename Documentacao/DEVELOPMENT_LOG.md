@@ -1700,3 +1700,18 @@ Etapa 1 do plano de 24/11, decidida pela delegação do proprietário (é o padr
 - Saída voluntária da mesa cash (sair ou sentar out no meio da mão): fold direto, em qualquer modalidade. Antes, no Pineapple, a saída dava check e o jogador ausente segurava a mesa até o relógio acabar nas ruas seguintes. Quem cai da conexão continua com a ação automática depois dos 15 s (sem tempo extra).
 - Testes novos: `overdue_turn_without_a_bet_to_pay_checks_in_every_variant` (Hold'em, big blind com a opção: tempo esgotado dá check e a mão vai ao flop com ele) e `leaving_the_table_folds_even_without_a_bet_to_pay`. A testemunha de tempo esgotado da campanha de rede é a primeira vez da mão (sempre com aposta a pagar) e continua exigindo fold.
 - Documentos: BUSINESS_RULES (Pineapple, regras gerais, 10.2 e 10.3) e FULL_VALIDATION. Os Termos (9.2) já falavam em "check/fold".
+
+## 2026-11-24 — Loss Deflator em mesa cheia: oponentes no fim da rodada do all-in (etapa 2)
+
+Etapa 2 do plano de 24/11, decidida pela delegação do proprietário. Antes, os oponentes do all-in eram fixados no primeiro pagamento: quem ainda não tinha agido e desistia em seguida entrava no cálculo e derrubava a equity do favorito, e na mesa cheia a devolução quase não acontecia.
+
+- `Motor-Rust/src/game_loop.rs`: o snapshot guarda o id de cada oponente e é fechado (`seal_all_in_snapshots`) quando a rodada de apostas do all-in termina (`close_betting_round` e `run_out_board`). Quem desistiu nessa rodada sai; folds de rodadas seguintes não mexem mais na lista. Board e privadas continuam sendo os do pagamento. Vale para todas as modalidades, cash e torneio.
+- Testes novos em `game_loop_tests.rs` (`all_in_round_opponents_tests`): fold na mesma rodada sai (AA x 77 heads-up, faixa de 25%) e fold no flop continua contando (3 oponentes). Medição `medir_loss_deflator_mesa_cheia` (ignorada no CI; `ZT_MEDIR_MAOS`), mesmas mãos e decisões nas duas versões, jogadores automáticos agressivos (all-in em cerca de uma mão a cada três), BB 100 centavos, rake 5% com teto de 3 BB, build release no WSL:
+
+| 2.000 mãos | Devoluções (antes → depois) | Valor devolvido (antes → depois) | Tempo total de fechamento | Pior mão |
+|---|---:|---:|---:|---:|
+| Mesa de 9 | 35 → 87 | 67.228 → 216.363 centavos | 2.208 s → 1.197 s | 22,2 s → 15,2 s |
+| Mesa de 6 | 42 → 74 | 96.892 → 183.962 centavos | 774 s → 489 s | 12,8 s → 11,9 s |
+
+  Depois da mudança, as devoluções da mesa de 9 têm 1 oponente em 74 casos e 2 em 13 (antes iam até 4). O valor sai do pote de quem venceu, não da plataforma; a proporção sobre o rake da simulação não representa mesa real, porque os jogadores simulados vão all-in muito mais que pessoas. O fechamento ficou mais rápido porque há menos mãos no cálculo; a mão mais pesada (all-in pré-flop de vários jogadores) ainda leva segundos.
+- Documentos: BUSINESS_RULES 11 (equity multiway e snapshot), LOSS_DEFLATOR_EXEMPLOS (mesa cheia) e Termos 6.4, no documento e na página `/termos` (atualização de 24/11/2026).

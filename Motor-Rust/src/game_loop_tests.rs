@@ -4307,3 +4307,273 @@ mod resolve_showdown_errors_tests {
         }
     }
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// Loss Deflator em mesa cheia: oponentes = quem estava na mão no fim da
+// rodada de apostas do all-in (plano de 24/11, etapa 2)
+// ═══════════════════════════════════════════════════════════════════
+#[cfg(test)]
+mod all_in_round_opponents_tests {
+    use super::*;
+    use crate::deck::create_deck;
+    use crate::loss_deflator::LossDeflatorTier;
+
+    fn c(rank: Rank, suit: Suit) -> Card {
+        Card { rank, suit }
+    }
+
+    /// Mesa de 4 (alice no botão; dave abre a ação pré-flop) com mãos e board
+    /// fixos: dave AA, alice 77, bob 32, carol 42; board 7♠ K♦ 9♣ 5♠ J♦.
+    fn fixed_4p(dave_stack: u64) -> GameLoop {
+        let mut gl = make_game_loop_4p();
+        gl.state.players[3].stack = dave_stack;
+        gl.start_hand().unwrap();
+        let hands = [
+            (
+                "alice",
+                [c(Rank::Seven, Suit::Diamonds), c(Rank::Seven, Suit::Hearts)],
+            ),
+            (
+                "bob",
+                [c(Rank::Two, Suit::Clubs), c(Rank::Three, Suit::Diamonds)],
+            ),
+            (
+                "carol",
+                [c(Rank::Four, Suit::Clubs), c(Rank::Two, Suit::Hearts)],
+            ),
+            (
+                "dave",
+                [c(Rank::Ace, Suit::Spades), c(Rank::Ace, Suit::Hearts)],
+            ),
+        ];
+        for (id, cards) in hands {
+            let p = gl.state.players.iter_mut().find(|p| p.id == id).unwrap();
+            p.hole_cards = cards.to_vec();
+        }
+        // queima, flop, queima, turn, queima, river
+        gl.state.deck = vec![
+            c(Rank::Two, Suit::Spades),
+            c(Rank::Seven, Suit::Spades),
+            c(Rank::King, Suit::Diamonds),
+            c(Rank::Nine, Suit::Clubs),
+            c(Rank::Three, Suit::Spades),
+            c(Rank::Five, Suit::Spades),
+            c(Rank::Six, Suit::Spades),
+            c(Rank::Jack, Suit::Diamonds),
+        ];
+        gl
+    }
+
+    #[test]
+    fn fold_na_mesma_rodada_sai_dos_oponentes_do_all_in() {
+        let mut gl = fixed_4p(1000);
+        gl.player_action("dave", PlayerMove::AllIn).unwrap();
+        gl.player_action("alice", PlayerMove::Call).unwrap();
+        // Pago o all-in, bob e carol ainda não tinham agido e desistem.
+        gl.player_action("bob", PlayerMove::Fold).unwrap();
+        gl.player_action("carol", PlayerMove::Fold).unwrap();
+        assert!(gl.state.is_finished);
+        let res = gl.resolve_hand().unwrap();
+        let d = res
+            .loss_deflators
+            .iter()
+            .find(|d| d.loser_id == "dave")
+            .expect("AA contra 77 heads-up dá direito ao Loss Deflator");
+        assert_eq!(d.opponents_counted, 1);
+        assert!((0.76..0.86).contains(&d.loser_equity), "{}", d.loser_equity);
+        assert_eq!(d.tier, LossDeflatorTier::TwentyFivePercent);
+    }
+
+    #[test]
+    fn fold_em_rodada_seguinte_continua_entre_os_oponentes() {
+        let mut gl = fixed_4p(100);
+        gl.player_action("dave", PlayerMove::AllIn).unwrap();
+        gl.player_action("alice", PlayerMove::Call).unwrap();
+        gl.player_action("bob", PlayerMove::Call).unwrap();
+        gl.player_action("carol", PlayerMove::Call).unwrap();
+        assert_eq!(gl.state.phase, GamePhase::Flop);
+        // No flop, carol desiste: ela estava na mão no fim da rodada do all-in.
+        gl.player_action("bob", PlayerMove::Bet(50)).unwrap();
+        gl.player_action("carol", PlayerMove::Fold).unwrap();
+        gl.player_action("alice", PlayerMove::Call).unwrap();
+        for _ in 0..4 {
+            let id = gl.state.active_player().unwrap().id.clone();
+            gl.player_action(&id, PlayerMove::Check).unwrap();
+        }
+        assert!(gl.state.is_finished);
+        let res = gl.resolve_hand().unwrap();
+        let d = res
+            .loss_deflators
+            .iter()
+            .find(|d| d.loser_id == "dave")
+            .expect("AA contra 77 e duas mãos fracas passa de 56%");
+        assert_eq!(d.opponents_counted, 3);
+    }
+
+    /// Medição (fora do CI): `ZT_MEDIR_MAOS=2000 cargo test --release --lib
+    /// medir_loss_deflator_mesa_cheia -- --ignored --nocapture`. Mesmas mãos e
+    /// mesmas decisões em qualquer versão do motor: compara quantas devoluções
+    /// saem, quanto custam e quanto tempo o fechamento da mão leva.
+    #[test]
+    #[ignore]
+    fn medir_loss_deflator_mesa_cheia() {
+        let hands: u64 = std::env::var("ZT_MEDIR_MAOS")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(2000);
+        for seats in [9usize, 6] {
+            medir(seats, hands);
+        }
+    }
+
+    struct Rng(u64);
+    impl Rng {
+        fn next(&mut self) -> u64 {
+            self.0 ^= self.0 << 13;
+            self.0 ^= self.0 >> 7;
+            self.0 ^= self.0 << 17;
+            self.0
+        }
+    }
+
+    fn ranks(cards: &[Card]) -> (u8, u8, bool) {
+        let a = cards[0].rank as u8;
+        let b = cards[1].rank as u8;
+        (a.max(b), a.min(b), cards[0].suit == cards[1].suit)
+    }
+
+    /// Pré-flop: 3 = premium (TT+, AK), 2 = forte (77–99, AQ, AJ, KQ naipado),
+    /// 1 = especulativa (par, ás naipado, duas figuras), 0 = lixo.
+    fn preflop_class(cards: &[Card]) -> u8 {
+        let (hi, lo, suited) = ranks(cards);
+        if (hi == lo && hi >= 10) || (hi == 14 && lo == 13) {
+            3
+        } else if (hi == lo && hi >= 7)
+            || (hi == 14 && lo >= 11)
+            || (hi == 13 && lo == 12 && suited)
+        {
+            2
+        } else if hi == lo || (hi == 14 && suited) || lo >= 10 {
+            1
+        } else {
+            0
+        }
+    }
+
+    fn medir(seats: usize, hands: u64) {
+        let bb = 100u64;
+        let mut rng = Rng(0x5EED_0000 + seats as u64);
+        let (mut losers, mut triggers, mut cashback, mut rake, mut pots) = (0u64, 0, 0, 0, 0);
+        let mut opp_hist = [0u64; 9];
+        let mut resolve_ms = 0u128;
+        let mut slowest_ms = 0u128;
+        for h in 0..hands {
+            let mut gl = GameLoop::new(
+                TableConfig::new(bb, 500, 3 * bb),
+                format!("medir-{seats}-{h}"),
+                "Medicao".to_string(),
+                GameType::Cash,
+            );
+            for s in 0..seats {
+                let stack = bb * (40 + rng.next() % 111);
+                gl.add_player(format!("p{s}"), stack);
+            }
+            gl.set_dealer((h as usize) % seats);
+            let mut deck = create_deck();
+            for i in (1..deck.len()).rev() {
+                let j = (rng.next() % (i as u64 + 1)) as usize;
+                deck.swap(i, j);
+            }
+            gl.start_hand_with_deck(deck).unwrap();
+            let mut steps = 0;
+            while !gl.state.is_finished && steps < 500 {
+                steps += 1;
+                let Some(p) = gl.state.active_player().cloned() else {
+                    break;
+                };
+                let to_call = gl.state.current_bet_to_match.saturating_sub(p.current_bet);
+                let shove_faced = gl
+                    .state
+                    .players
+                    .iter()
+                    .any(|o| o.is_all_in && !o.has_folded);
+                let loose = rng.next() % 100 < 8;
+                let mv = if gl.state.phase == GamePhase::Preflop {
+                    let class = preflop_class(&p.hole_cards);
+                    if shove_faced {
+                        if class == 3 || loose {
+                            PlayerMove::Call
+                        } else {
+                            PlayerMove::Fold
+                        }
+                    } else if class >= 2 {
+                        PlayerMove::AllIn
+                    } else if to_call == 0 {
+                        PlayerMove::Check
+                    } else if (class == 1 && to_call <= bb) || loose {
+                        PlayerMove::Call
+                    } else {
+                        PlayerMove::Fold
+                    }
+                } else {
+                    let board = &gl.state.community_cards;
+                    let (hi, lo, _) = ranks(&p.hole_cards);
+                    let hits = hi == lo
+                        || p.hole_cards
+                            .iter()
+                            .any(|hc| board.iter().any(|b| b.rank == hc.rank));
+                    if shove_faced || to_call > 0 {
+                        if hits || loose {
+                            PlayerMove::Call
+                        } else {
+                            PlayerMove::Fold
+                        }
+                    } else if hits {
+                        PlayerMove::AllIn
+                    } else {
+                        PlayerMove::Check
+                    }
+                };
+                if gl.player_action(&p.id, mv).is_err() {
+                    let fallback = if to_call == 0 {
+                        PlayerMove::Check
+                    } else {
+                        PlayerMove::Fold
+                    };
+                    gl.player_action(&p.id, fallback).unwrap();
+                }
+            }
+            assert!(gl.state.is_finished, "mão {h} travou");
+            let start = std::time::Instant::now();
+            let res = gl.resolve_hand().unwrap();
+            let ms = start.elapsed().as_millis();
+            resolve_ms += ms;
+            slowest_ms = slowest_ms.max(ms);
+            rake += res.rake;
+            pots += res.pots.iter().map(|p| p.amount).sum::<u64>();
+            losers += gl
+                .state
+                .players
+                .iter()
+                .filter(|p| {
+                    p.is_all_in
+                        && !p.has_folded
+                        && res.payouts.get(&p.id).copied().unwrap_or(0) < p.total_bet
+                })
+                .count() as u64;
+            for d in &res.loss_deflators {
+                if d.cashback > 0 {
+                    triggers += 1;
+                    cashback += d.cashback;
+                    opp_hist[(d.opponents_counted as usize).min(8)] += 1;
+                }
+            }
+        }
+        println!(
+            "MEDICAO {seats}-max: {hands} mãos | all-in perdidos {losers} | devoluções {triggers} | cashback {cashback} centavos ({:.2}% do rake, {:.3}% dos potes) | oponentes [1..8] {:?} | resolve total {resolve_ms} ms, pior mão {slowest_ms} ms",
+            100.0 * cashback as f64 / rake.max(1) as f64,
+            100.0 * cashback as f64 / pots.max(1) as f64,
+            &opp_hist[1..]
+        );
+    }
+}

@@ -369,7 +369,12 @@ struct AllInSnapshot {
     /// Privadas do jogador no pagamento do all-in. Quem está all-in não troca
     /// mais cartas; a equity usa exatamente as privadas daquele instante.
     hero: Vec<Card>,
-    opponents: Vec<Vec<Card>>,
+    /// Oponentes vivos no pagamento (id e privadas daquele instante). Quem
+    /// desiste ainda na rodada de apostas do all-in sai da lista quando a
+    /// rodada fecha; depois disso a lista fica fixa.
+    opponents: Vec<(String, Vec<Card>)>,
+    /// Fechado no fim da rodada de apostas do all-in.
+    sealed: bool,
 }
 
 /// Máquina de estados que orquestra uma mão completa de Texas Hold'em (em centavos u64)
@@ -395,7 +400,7 @@ pub struct GameLoop {
     /// Bet faced/completed by each player on this street. A short all-in can
     /// require another response without reopening that player's raise rights.
     acted_bets: HashMap<String, u64>,
-    /// Frozen at the first payment, before advancing the board or any later fold.
+    /// Taken at the first payment; opponents are sealed when that betting round closes.
     all_in_snapshots: HashMap<String, AllInSnapshot>,
     /// Arredondamento aplicado às frações de centavo do rake.
     pub rake_rounding: RakeRounding,
@@ -744,8 +749,9 @@ impl GameLoop {
         Ok(())
     }
 
-    /// Preserve every live opponent when an all-in is first covered (including
-    /// a shorter all-in payment). Later actions cannot rewrite this information.
+    /// Record the all-in when it is first covered (including a shorter all-in
+    /// payment): board, hero cards and every live opponent at that instant.
+    /// The opponent list is sealed when the betting round closes.
     fn capture_paid_all_ins(&mut self) {
         for hero in &self.state.players {
             if !hero.is_all_in
@@ -773,8 +779,9 @@ impl GameLoop {
                             .players
                             .iter()
                             .filter(|other| other.id != hero.id && other.is_in_hand())
-                            .map(|other| other.hole_cards.clone())
+                            .map(|other| (other.id.clone(), other.hole_cards.clone()))
                             .collect(),
+                        sealed: false,
                     },
                 );
             }
@@ -1192,7 +1199,24 @@ impl GameLoop {
     }
 
     /// Recolhe as apostas da rodada que fechou e zera os direitos de aumento.
+    /// Loss Deflator em mesa cheia: contam como oponentes do all-in só os que
+    /// ainda estavam na mão no fim da rodada de apostas em que ele foi pago.
+    /// Folds de rodadas seguintes não mexem mais na lista.
+    fn seal_all_in_snapshots(&mut self) {
+        let players = &self.state.players;
+        for snapshot in self.all_in_snapshots.values_mut() {
+            if snapshot.sealed {
+                continue;
+            }
+            snapshot
+                .opponents
+                .retain(|(id, _)| players.iter().any(|p| p.id == *id && p.is_in_hand()));
+            snapshot.sealed = true;
+        }
+    }
+
     fn close_betting_round(&mut self) {
+        self.seal_all_in_snapshots();
         self.acted_bets.clear();
         for player in &mut self.state.players {
             player.reset_round_bet();
@@ -1492,6 +1516,7 @@ impl GameLoop {
 
     /// Distribui as cartas comunitárias restantes (quando todos estão all-in)
     fn run_out_board(&mut self) -> Result<(), GameLoopError> {
+        self.seal_all_in_snapshots();
         // Sem apostas possíveis também não há trocas nem escolha de descarte.
         self.state.drawing = false;
         self.state.discarding = false;
@@ -1934,13 +1959,27 @@ impl GameLoop {
                 continue;
             }
             // Hand-state-only analytical fixtures retain their explicitly supplied
-            // phase/opponents. Every played hand uses its immutable payment snapshot.
-            let villain_refs: Vec<&[crate::deck::Card]> = snapshot
-                .map(|s| &s.opponents)
-                .unwrap_or(&villain_owned)
-                .iter()
-                .map(|h| h.as_slice())
-                .collect();
+            // phase/opponents. Every played hand uses its payment snapshot, with the
+            // opponents sealed at the end of that betting round.
+            let villain_refs: Vec<&[crate::deck::Card]> = match snapshot {
+                Some(s) => s
+                    .opponents
+                    .iter()
+                    .filter(|(id, _)| {
+                        s.sealed
+                            || self
+                                .state
+                                .players
+                                .iter()
+                                .any(|p| p.id == *id && p.is_in_hand())
+                    })
+                    .map(|(_, h)| h.as_slice())
+                    .collect(),
+                None => villain_owned.iter().map(|h| h.as_slice()).collect(),
+            };
+            if villain_refs.is_empty() {
+                continue;
+            }
             let opponents_counted = villain_refs.len() as u8;
             let hero_cards = snapshot
                 .map(|s| s.hero.as_slice())
