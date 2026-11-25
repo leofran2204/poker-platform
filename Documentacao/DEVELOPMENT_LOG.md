@@ -1726,3 +1726,12 @@ Etapa 3 do plano de 24/11, decidida pela delegação do proprietário. Até aqui
 - Sem como separar (mesa final consolidada, torneio cujos inscritos cabem numa mesa, rebuy sem mesa alternativa): o jogo segue e fica `TOURNAMENT_SAME_NETWORK_SHARED_TABLE` em `audit_logs`, só com contagem e ids. Recusar a segunda inscrição da rede em todo torneio foi descartado: bloquearia amigos e redes móveis em torneios grandes, onde a separação resolve.
 - Testes: 5 unitários novos em `seat_ip_guard.rs` (round-robin preservado, separação com mesas desiguais, separação impossível, escolha da mesa do rebuy) e o contrato `test_contract_tournament_register_refuses_fourth_account_of_same_network` (3 contas da mesma /24 entram, a quarta recebe 403, outra rede entra, IP em claro nunca gravado, gatilho limpa as impressões no fim).
 - Documentos: Termos 2.3 no documento e na página `/termos` (atualização de 25/11/2026), BUSINESS_RULES 15.5, ARQUITETURA_E_APIS, DEMO_AMIGOS, STATUS com migrations 67.
+
+## 2026-11-25 — Inscrição tardia passa a dar assento
+
+Achado na etapa 3 e corrigido a pedido do proprietário ("corrija a inscrição tardia e depois pode publicar"). Os 20 torneios do catálogo aceitam inscrição tardia até o nível 4 e o lobby mostra "Inscrever" com o torneio em andamento. A API cobrava buy-in e fee, mas assentos só nasciam na distribuição inicial, no rebuy e na mesa final: quem entrava depois do início pagava e não jogava.
+
+- `POST /api/tournament/register` com o torneio em andamento cria o assento na mesma transação do débito, na mesa viva com menos jogadores e assento livre, pela mesma escolha do rebuy (`choose_return_seat`, que evita mesa com conta da mesma rede), e avisa o ator da mesa (`sit_in_live_table`, agora compartilhado com o rebuy). Mesa final cheia recusa sem débito.
+- Achado junto, na mesma função: quando a inscrição falhava depois do motor (saldo insuficiente, por exemplo), só o jogador saía da lista; prêmio, contagem de restantes e totais continuavam aumentados na memória e a inscrição seguinte gravava esse prêmio no banco. Agora o estado do torneio é copiado antes e restaurado em qualquer falha, como no rebuy.
+- Teste `mtt_late_registration_seats_player_and_failed_one_keeps_prize` (banco): inscrição sem saldo recusada com o motor idêntico ao de antes; inscrição tardia com saldo senta na mesa viva com 5.000 fichas e joga a mão seguinte.
+- Documentos: BUSINESS_RULES (inscrição tardia), ARQUITETURA_E_APIS (`/api/tournament/register`), DASHBOARD.

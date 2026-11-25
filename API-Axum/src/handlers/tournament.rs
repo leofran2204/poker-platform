@@ -399,6 +399,17 @@ pub async fn register_player(
         }
     }
 
+    // Inscrição tardia (torneio já em andamento): o jogador recebe assento na
+    // hora, na mesa viva com menos jogadores, como quem volta pelo rebuy. Antes
+    // de 25/11/2026 ninguém sentava quem entrava depois do início.
+    let late = store.state.status == poker_engine::tournament_engine::TournamentStatus::Running;
+    let seat_cap = return_seat_cap(store);
+    let live_table_ids = store.live_table_ids.clone();
+    let tournament_name = store.state.config.name.clone();
+
+    // Se algo falhar depois do motor, o estado volta inteiro (prêmio, contagem e
+    // totais), não só a lista de jogadores.
+    let before = store.state.clone();
     poker_engine::tournament_engine::register_player(
         &mut store.state,
         &auth_user.user_id,
@@ -406,129 +417,174 @@ pub async fn register_player(
     )
     .map_err(ApiError::BadRequest)?;
 
-    let mut tx = state.db.begin().await.inspect_err(|_| {
-        store.state.players.remove(&auth_user.user_id);
-    })?;
-
-    if buy_in > 0 {
-        let buy_in_i = i64::try_from(buy_in).map_err(|_| {
-            store.state.players.remove(&auth_user.user_id);
-            ApiError::BadRequest("Invalid buy-in".into())
-        })?;
+    let persisted: Result<(i64, Option<(usize, i16)>), ApiError> = async {
+        let mut tx = state.db.begin().await?;
         let kind = crate::wallet::mtt_kind_for_mode(mode);
-        if let Err(e) = crate::wallet::ensure_pm_daily_reset(&mut *tx, &auth_user.user_id).await {
-            store.state.players.remove(&auth_user.user_id);
-            return Err(e);
+        if buy_in > 0 {
+            let buy_in_i =
+                i64::try_from(buy_in).map_err(|_| ApiError::BadRequest("Invalid buy-in".into()))?;
+            crate::wallet::ensure_pm_daily_reset(&mut *tx, &auth_user.user_id).await?;
+            crate::wallet::debit_wallet(
+                &mut *tx,
+                &auth_user.user_id,
+                buy_in_i,
+                kind,
+                crate::wallet::LedgerReason::TournamentBuyIn,
+                Some(&tournament_id),
+            )
+            .await?;
         }
-        if let Err(e) = crate::wallet::debit_wallet(
-            &mut *tx,
-            &auth_user.user_id,
-            buy_in_i,
-            kind,
-            crate::wallet::LedgerReason::TournamentBuyIn,
-            Some(&tournament_id),
+
+        // Taxa 15% por cima do buy-in: debita junto e registra o NGR do agente direto.
+        // Freeroll (buy-in zero) não tem fee.
+        let fee_cents =
+            i64::try_from(poker_engine::tournament_engine::entry_fee_cents(buy_in)).unwrap_or(0);
+        if fee_cents > 0 {
+            crate::wallet::debit_wallet(
+                &mut *tx,
+                &auth_user.user_id,
+                fee_cents,
+                kind,
+                crate::wallet::LedgerReason::TournamentFee,
+                Some(&tournament_id),
+            )
+            .await?;
+            let payer = uuid::Uuid::parse_str(&auth_user.user_id)
+                .map_err(|_| ApiError::BadRequest("Invalid player id".into()))?;
+            let source_reference_id = uuid::Uuid::parse_str(&tournament_id)
+                .map_err(|_| ApiError::BadRequest("Invalid tournament id".into()))?;
+            crate::estrutura::distribute_fee(
+                &mut tx,
+                payer,
+                fee_cents,
+                source_reference_id,
+                mode.as_str(),
+            )
+            .await
+            .map_err(|e| ApiError::Internal(format!("fee split failed: {e}")))?;
+        }
+
+        sqlx::query(
+            r#"
+            INSERT INTO tournament_players
+                (tournament_id, player_id, player_name, stack, registered_at, subnet_fingerprint)
+            VALUES ($1::uuid, $2, $3, $4, EXTRACT(EPOCH FROM NOW())::BIGINT, $5)
+            ON CONFLICT (tournament_id, player_id) DO NOTHING
+            "#,
         )
-        .await
-        {
-            store.state.players.remove(&auth_user.user_id);
-            return Err(e);
-        }
+        .bind(&tournament_id)
+        .bind(&auth_user.user_id)
+        .bind(&auth_user.username)
+        .bind(starting_stack as i64)
+        .bind(network.as_ref().map(|n| n.subnet_fingerprint.as_str()))
+        .execute(&mut *tx)
+        .await?;
+
+        let seat = if late {
+            let (idx, seat, shared_network) = choose_return_seat(
+                &mut tx,
+                &tournament_id,
+                &auth_user.user_id,
+                &live_table_ids,
+                seat_cap,
+            )
+            .await?;
+            if shared_network {
+                sqlx::query(
+                    "INSERT INTO audit_logs (user_id, action, metadata) \
+                     VALUES ($1, 'TOURNAMENT_SAME_NETWORK_SHARED_TABLE', $2)",
+                )
+                .bind(&auth_user.user_id)
+                .bind(serde_json::json!({
+                    "tournament_id": tournament_id,
+                    "table_id": live_table_ids[idx],
+                    "reason": "late_registration",
+                }))
+                .execute(&mut *tx)
+                .await?;
+            }
+            sqlx::query(
+                "INSERT INTO tournament_seats (tournament_id, table_id, seat, player_id, player_name, stack) \
+                 VALUES ($1::uuid, $2::uuid, $3, $4, $5, $6)",
+            )
+            .bind(&tournament_id)
+            .bind(&live_table_ids[idx])
+            .bind(seat)
+            .bind(&auth_user.user_id)
+            .bind(&auth_user.username)
+            .bind(starting_stack as i64)
+            .execute(&mut *tx)
+            .await?;
+            Some((idx, seat))
+        } else {
+            None
+        };
+
+        sqlx::query(
+            r#"
+            UPDATE tournaments
+            SET prize_pool = $2,
+                players_remaining = $3,
+                total_buyins = $4,
+                total_fees = $5
+            WHERE id = $1::uuid
+            "#,
+        )
+        .bind(&tournament_id)
+        .bind(store.state.prize_pool as i64)
+        .bind(store.state.players_remaining as i32)
+        .bind(store.state.players.len() as i32)
+        .bind(i64::try_from(store.state.total_fees).unwrap_or(i64::MAX))
+        .execute(&mut *tx)
+        .await?;
+
+        tx.commit().await?;
+        Ok((fee_cents, seat))
     }
+    .await;
 
-    // Taxa 15% por cima do buy-in: debita junto e registra o NGR do agente direto.
-    // Freeroll (buy-in zero) não tem fee.
-    let fee_cents =
-        i64::try_from(poker_engine::tournament_engine::entry_fee_cents(buy_in)).unwrap_or(0);
-    if fee_cents > 0 {
-        let kind = crate::wallet::mtt_kind_for_mode(mode);
-        if let Err(e) = crate::wallet::debit_wallet(
-            &mut *tx,
-            &auth_user.user_id,
-            fee_cents,
-            kind,
-            crate::wallet::LedgerReason::TournamentFee,
-            Some(&tournament_id),
-        )
-        .await
-        {
-            store.state.players.remove(&auth_user.user_id);
-            return Err(e);
+    let (fee_cents, seat) = match persisted {
+        Ok(done) => done,
+        Err(error) => {
+            store.state = before;
+            return Err(error);
         }
-        let payer = uuid::Uuid::parse_str(&auth_user.user_id).map_err(|_| {
-            store.state.players.remove(&auth_user.user_id);
-            ApiError::BadRequest("Invalid player id".into())
-        })?;
-        let source_reference_id = uuid::Uuid::parse_str(&tournament_id).map_err(|_| {
-            store.state.players.remove(&auth_user.user_id);
-            ApiError::BadRequest("Invalid tournament id".into())
-        })?;
-        if let Err(e) = crate::estrutura::distribute_fee(
-            &mut tx,
-            payer,
-            fee_cents,
-            source_reference_id,
-            mode.as_str(),
-        )
-        .await
-        {
-            store.state.players.remove(&auth_user.user_id);
-            return Err(ApiError::Internal(format!("fee split failed: {e}")));
-        }
+    };
+    if let (Some((idx, seat)), Some(entry)) =
+        (seat, store.state.players.get_mut(&auth_user.user_id))
+    {
+        entry.table_id = Some(idx as u32);
+        entry.seat = Some(seat.max(0) as u32);
     }
-
-    sqlx::query(
-        r#"
-        INSERT INTO tournament_players
-            (tournament_id, player_id, player_name, stack, registered_at, subnet_fingerprint)
-        VALUES ($1::uuid, $2, $3, $4, EXTRACT(EPOCH FROM NOW())::BIGINT, $5)
-        ON CONFLICT (tournament_id, player_id) DO NOTHING
-        "#,
-    )
-    .bind(&tournament_id)
-    .bind(&auth_user.user_id)
-    .bind(&auth_user.username)
-    .bind(starting_stack as i64)
-    .bind(network.as_ref().map(|n| n.subnet_fingerprint.as_str()))
-    .execute(&mut *tx)
-    .await
-    .inspect_err(|_| {
-        store.state.players.remove(&auth_user.user_id);
-    })?;
-
-    sqlx::query(
-        r#"
-        UPDATE tournaments
-        SET prize_pool = $2,
-            players_remaining = $3,
-            total_buyins = $4,
-            total_fees = $5
-        WHERE id = $1::uuid
-        "#,
-    )
-    .bind(&tournament_id)
-    .bind(store.state.prize_pool as i64)
-    .bind(store.state.players_remaining as i32)
-    .bind(store.state.players.len() as i32)
-    .bind(i64::try_from(store.state.total_fees).unwrap_or(i64::MAX))
-    .execute(&mut *tx)
-    .await
-    .inspect_err(|_| {
-        store.state.players.remove(&auth_user.user_id);
-    })?;
-
-    tx.commit().await.inspect_err(|_| {
-        store.state.players.remove(&auth_user.user_id);
-    })?;
-
-    Ok(Json(RegisterResponse {
-        tournament_id,
-        player_id: auth_user.user_id,
+    let response = RegisterResponse {
+        tournament_id: tournament_id.clone(),
+        player_id: auth_user.user_id.clone(),
         stack: starting_stack,
         registered: true,
         gameplay_ready: gameplay_ready(store),
         fee_cents,
         total_debited_cents: buy_in as i64 + fee_cents,
-    }))
+    };
+    drop(tournaments);
+
+    if let Some((idx, seat)) = seat {
+        sit_in_live_table(
+            &state,
+            &tournament_id,
+            &tournament_name,
+            &NewSeat {
+                table_id: &live_table_ids[idx],
+                table_index: idx,
+                seat,
+                player_id: &auth_user.user_id,
+                player_name: &auth_user.username,
+                chips: starting_stack,
+            },
+        )
+        .await;
+    }
+
+    Ok(Json(response))
 }
 
 #[derive(Debug, Deserialize)]
@@ -741,9 +797,72 @@ async fn choose_return_seat(
         .collect();
     crate::seat_ip_guard::pick_return_table(&tables)
         .and_then(|(idx, shared)| tables[idx].1.map(|seat| (idx, seat, shared)))
-        .ok_or_else(|| {
-            ApiError::BadRequest("Sem assento livre nas mesas do torneio para o rebuy".into())
-        })
+        .ok_or_else(|| ApiError::BadRequest("Sem assento livre nas mesas do torneio".into()))
+}
+
+/// Assentos por mesa para quem senta com o torneio em andamento: o da mesa
+/// comum enquanto há várias mesas; na mesa final, o limite dela.
+fn return_seat_cap(store: &crate::tournament_store::TournamentStore) -> i16 {
+    i16::from(if store.live_table_ids.len() > 1 {
+        store.table_max_players
+    } else {
+        store
+            .final_table_max_players
+            .unwrap_or(store.table_max_players)
+    })
+}
+
+/// Assento novo criado com o torneio em andamento (rebuy de eliminado ou
+/// inscrição tardia), já gravado em `tournament_seats`.
+struct NewSeat<'a> {
+    table_id: &'a str,
+    table_index: usize,
+    seat: i16,
+    player_id: &'a str,
+    player_name: &'a str,
+    chips: u64,
+}
+
+/// Leva o assento novo ao ator da mesa; a mão em andamento segue sem o jogador.
+/// Sem ator vivo, sobe um, que lê os assentos do banco.
+async fn sit_in_live_table(
+    state: &AppState,
+    tournament_id: &str,
+    tournament_name: &str,
+    new_seat: &NewSeat<'_>,
+) {
+    let handle = state
+        .active_tables
+        .read()
+        .await
+        .get(new_seat.table_id)
+        .cloned();
+    match handle {
+        Some(handle) => {
+            let (tx_resp, rx_resp) = tokio::sync::oneshot::channel();
+            let _ = handle
+                .tx_cmd
+                .send(crate::game_actor::PlayerCommand::Sit {
+                    player_id: new_seat.player_id.to_string(),
+                    username: new_seat.player_name.to_string(),
+                    seat: Some(new_seat.seat.max(0) as usize),
+                    chips: new_seat.chips,
+                    respond_to: tx_resp,
+                })
+                .await;
+            let _ = tokio::time::timeout(std::time::Duration::from_secs(5), rx_resp).await;
+        }
+        None => {
+            crate::tournament_actor::ensure_tournament_actor(
+                state,
+                tournament_id,
+                new_seat.table_id,
+                new_seat.table_index as u32,
+                format!("{tournament_name} mesa {}", new_seat.table_index + 1),
+            )
+            .await;
+        }
+    }
 }
 
 /// Rebuy ou add-on: valida no motor, debita a carteira do torneio, entrega as
@@ -786,13 +905,7 @@ async fn purchase_chips(
     let chips_i =
         i64::try_from(chips).map_err(|_| ApiError::BadRequest("Fichas inválidas".into()))?;
     let cost_i = i64::try_from(cost).map_err(|_| ApiError::BadRequest("Preço inválido".into()))?;
-    let seat_cap = i16::from(if store.live_table_ids.len() > 1 {
-        store.table_max_players
-    } else {
-        store
-            .final_table_max_players
-            .unwrap_or(store.table_max_players)
-    });
+    let seat_cap = return_seat_cap(store);
     let live_table_ids = store.live_table_ids.clone();
     let tournament_name = store.state.config.name.clone();
 
@@ -962,33 +1075,20 @@ async fn purchase_chips(
 
     // Quem voltou do zero senta já; a mão em andamento segue sem ele.
     if let (Some((idx, seat)), Some(table_id)) = (seat, table_id.as_ref()) {
-        let handle = state.active_tables.read().await.get(table_id).cloned();
-        match handle {
-            Some(handle) => {
-                let (tx_resp, rx_resp) = tokio::sync::oneshot::channel();
-                let _ = handle
-                    .tx_cmd
-                    .send(crate::game_actor::PlayerCommand::Sit {
-                        player_id: user_id.to_string(),
-                        username: player_name.clone(),
-                        seat: Some(seat.max(0) as usize),
-                        chips,
-                        respond_to: tx_resp,
-                    })
-                    .await;
-                let _ = tokio::time::timeout(std::time::Duration::from_secs(5), rx_resp).await;
-            }
-            None => {
-                crate::tournament_actor::ensure_tournament_actor(
-                    state,
-                    &tournament_id,
-                    table_id,
-                    idx as u32,
-                    format!("{tournament_name} mesa {}", idx + 1),
-                )
-                .await;
-            }
-        }
+        sit_in_live_table(
+            state,
+            &tournament_id,
+            &tournament_name,
+            &NewSeat {
+                table_id,
+                table_index: idx,
+                seat,
+                player_id: user_id,
+                player_name: &player_name,
+                chips,
+            },
+        )
+        .await;
     }
 
     Ok(ChipPurchaseResponse {

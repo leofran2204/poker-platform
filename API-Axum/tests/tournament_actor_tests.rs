@@ -683,3 +683,130 @@ async fn mtt_registration_records_entry_fee() {
         .await
         .unwrap();
 }
+
+/// Inscrição tardia (25/11/2026): com o torneio em andamento, quem se inscreve
+/// paga e senta na hora numa mesa viva, e o ator o coloca na próxima mão. Antes
+/// ninguém dava assento a quem entrava depois do início. A inscrição que falha
+/// (aqui, por saldo) devolve o motor ao estado anterior: prêmio, contagem e
+/// totais não ficam inflados para a próxima gravação.
+#[tokio::test]
+#[ignore = "Requires scratch PostgreSQL (migrated) via DATABASE_URL"]
+async fn mtt_late_registration_seats_player_and_failed_one_keeps_prize() {
+    use axum::extract::State;
+    use axum::Json;
+    use poker_api::handlers::tournament::{register_player, RegisterBody};
+    use poker_api::middleware::auth::{AuthUser, RequireAuth};
+    use poker_api::middleware::rate_limit::ClientIp;
+
+    let db = scratch_pool();
+    let _serial = db_serial().lock().await;
+    wipe_tact_leftovers(&db).await;
+    let (state, _tx, t) = setup_mtt_table(&db, "late", 5000).await;
+    let tkey = t.tid.to_string();
+    let (rich, poor) = (uuid::Uuid::new_v4(), uuid::Uuid::new_v4());
+    for (uid, name) in [(rich, "tact-late-3"), (poor, "tact-late-4")] {
+        sqlx::query("INSERT INTO users (id, username, email, password_hash, role, status) VALUES ($1, $2, $2, 'x', 'player', 'active')")
+            .bind(uid).bind(name).execute(&db).await.unwrap();
+        poker_api::wallet::ensure_pm_daily_reset_pool(&db, &uid.to_string())
+            .await
+            .unwrap();
+    }
+    sqlx::query("UPDATE users SET balance_pm_mtt = CASE WHEN id = $1 THEN 100000 ELSE 0 END, ledger_reason = 'test_fixture' WHERE id IN ($1, $2)")
+        .bind(rich).bind(poor).execute(&db).await.unwrap();
+    sqlx::query("UPDATE tournaments SET status = 'running' WHERE id = $1")
+        .bind(t.tid)
+        .execute(&db)
+        .await
+        .unwrap();
+    let snapshot = |s: &poker_engine::tournament_engine::TournamentState| {
+        (
+            s.prize_pool,
+            s.players_remaining,
+            s.players.len(),
+            s.total_buyins,
+            s.total_fees,
+        )
+    };
+    let before = {
+        let mut stores = state.tournaments.write().await;
+        let store = stores.get_mut(&tkey).unwrap();
+        store.state.config.buy_in = 2_500;
+        store.state.config.starting_stack = 5_000;
+        snapshot(&store.state)
+    };
+    let register = |uid: uuid::Uuid, name: &str| {
+        register_player(
+            State(state.clone()),
+            RequireAuth(AuthUser {
+                user_id: uid.to_string(),
+                username: name.to_string(),
+                role: "player".to_string(),
+            }),
+            ClientIp("127.0.0.1".to_string()),
+            Json(RegisterBody {
+                tournament_id: tkey.clone(),
+                player_id: None,
+                player_name: None,
+                wallet_mode: Some("play".into()),
+            }),
+        )
+    };
+
+    // Sem saldo: recusada, e o motor volta exatamente ao que era.
+    assert!(register(poor, "tact-late-4").await.is_err());
+    {
+        let stores = state.tournaments.read().await;
+        assert_eq!(snapshot(&stores[&tkey].state), before);
+    }
+
+    // Com saldo, já em andamento: assento na mesa viva, com o stack inicial.
+    let response = register(rich, "tact-late-3")
+        .await
+        .expect("inscrição tardia");
+    assert!(response.0.registered);
+    let (table_id, stack): (uuid::Uuid, i64) = sqlx::query_as(
+        "SELECT table_id, stack FROM tournament_seats \
+         WHERE tournament_id = $1 AND player_id = $2 AND status = 'ACTIVE'",
+    )
+    .bind(t.tid)
+    .bind(rich.to_string())
+    .fetch_one(&db)
+    .await
+    .expect("assento do inscrito tardio");
+    assert_eq!((table_id, stack), (t.table_id, 5_000));
+    {
+        let stores = state.tournaments.read().await;
+        let s = &stores[&tkey].state;
+        assert_eq!(s.players[&rich.to_string()].table_id, Some(0));
+        assert_eq!(s.players_remaining, before.1 + 1);
+        assert!(s.prize_pool > before.0, "o buy-in tardio entra no prêmio");
+    }
+
+    // O ator recebe o jogador: ele entra numa mão completa.
+    let deadline = tokio::time::Instant::now() + std::time::Duration::from_secs(30);
+    let mut hands = 0i64;
+    while tokio::time::Instant::now() < deadline {
+        hands = sqlx::query_scalar("SELECT COUNT(*) FROM hand_participants WHERE user_id = $1")
+            .bind(rich)
+            .fetch_one(&db)
+            .await
+            .unwrap();
+        if hands >= 1 {
+            break;
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+    }
+    assert!(hands >= 1, "o inscrito tardio joga a próxima mão");
+
+    sqlx::query("DELETE FROM hand_participants WHERE user_id = $1")
+        .bind(rich)
+        .execute(&db)
+        .await
+        .unwrap();
+    cleanup_mtt_table(&db, &t).await;
+    sqlx::query("DELETE FROM users WHERE id = $1")
+        .bind(poor)
+        .execute(&db)
+        .await
+        .unwrap();
+}
