@@ -490,3 +490,11 @@ Publicado `679eb7c15449eec2c40b03b5760b0b08ff401877` às **00:54:05 UTC de 25/11
 Mudança (etapa 1 do plano de 24/11): tempo esgotado sem aposta a pagar dá check em todas as modalidades, em cash e torneio; com aposta, fold; saída voluntária da mesa cash desiste direto (BUSINESS_RULES 10.2 e 10.3).
 
 Verificação local antes do push: `fmt`, `clippy --all-targets -D warnings`, `cargo test` da API (118 da biblioteca, com os dois testes novos do `game_actor`) e os 5 testes de torneio com PostgreSQL (`tournament_actor_tests -- --ignored`) num banco novo com as 66 migrations.
+
+## Publicação: Loss Deflator em mesa cheia — 24/11/2026
+
+Publicado `809bc84a0b347b3b90b72da43862027e97e7126b` às **02:41:06 UTC de 25/11 / 23:41 em São Paulo de 24/11** (ordem do proprietário nesta sessão: "prossiga etapa 2 e em seguida pode publicar"), com Rust CI e Container Supply Chain verdes no commit, imagens `ghcr.io/leofran2204/poker-api@sha256:fdc7e70fcc33ec70639cafea41f3d0cce506b0925f1361512d847f80e5b2d07f` e `ghcr.io/leofran2204/poker-web@sha256:3b0067e78873fcc478b2df1a3c7d3d66d252211bc874956aaaf919df7e28f5a7` assinadas e conferidas, dois dumps, migrations 66, boot com um "Migrations applied" e sem `ERROR`, `.env` preservado, health HTTPS 200 e `/termos` com o texto novo da 6.4 no pacote publicado.
+
+Mudança (etapa 2 do plano de 24/11): os oponentes do all-in no Loss Deflator são os que ainda estavam na mão no fim da rodada de apostas em que ele foi pago (BUSINESS_RULES 11, Termos 6.4). Medição com as mesmas 2.000 mãos por mesa: devoluções 35 → 87 na mesa de 9 e 42 → 74 na de 6; fechamento mais rápido (pior mão 22,2 s → 15,2 s na mesa de 9). [Registro](DEVELOPMENT_LOG.md#2026-11-24--loss-deflator-em-mesa-cheia-oponentes-no-fim-da-rodada-do-all-in-etapa-2).
+
+Verificação local antes do push: `fmt`, `clippy --all-targets -D warnings` do motor, 1.486 testes do motor (`game_loop`, `loss_deflator`, `side_pots`, `tournament`) com os 2 novos, Vitest da página de Termos, `tsc`, build do Vite e `documentation-sync --check`.
