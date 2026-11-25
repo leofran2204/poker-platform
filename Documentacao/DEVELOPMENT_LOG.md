@@ -1745,3 +1745,7 @@ Etapa 4 do plano de 24/11. Até aqui o site calculava a nota e mandava `complete
 - Limite consciente: o gabarito continua no pacote do site, porque a tela mostra a alternativa certa e a explicação depois do envio. A mudança garante que a nota gravada vem de respostas e na ordem das aulas; esconder o gabarito exigiria correção remota até para quem não tem login, sem ganho real (uma tentativa errada mostra todas as respostas).
 - Testes: 3 de unidade em `handlers/course.rs` (gabarito de todas as 28 aulas, arredondamento e nota prática, pré-requisito implícito) e o contrato `test_contract_course_quiz_is_graded_by_the_server` (banco).
 - Documentos: ARQUITETURA_E_APIS (seção do quiz), DASHBOARD.
+
+## 2026-11-25 — Auditoria das mãos antigas de Short Deck (etapa 5)
+
+Etapa 5 do plano de 24/11, só relatório. Consultas somente leitura no banco de produção (autorizadas pelo proprietário nesta sessão) sobre as 6.369 mãos anteriores à correção do wheel e da equity (`2bd14a0e`, em produção desde 01/10/2026). Resultado: impacto zero em dinheiro real (3 mãos de teste, nenhuma com wheel possível) e nenhuma devolução do Loss Deflator antes do corte; em Play Money, até 84 mãos podem ter tido vencedor errado e 1 teve com certeza. Nada a devolver. Detalhes e método em [QUALITY](QUALITY.md#auditoria-mãos-antigas-com-o-wheel-e-a-equity-de-short-deck--25112026).
