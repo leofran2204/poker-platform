@@ -482,3 +482,11 @@ Mudança: `sqlx` 0.8.6 → 0.9.1; `AssertSqlSafe` nos três SQL montados com par
 Verificado em produção: a API nova aceitou as 66 migrations gravadas pela versão antiga (mesmo checksum), como já tinha feito antes numa cópia local de `poker_ritual_local`.
 
 Não verificado: login e mãos jogadas no site depois da publicação.
+
+## Publicação: tempo esgotado sem aposta vira check — 24/11/2026
+
+Publicado `679eb7c15449eec2c40b03b5760b0b08ff401877` às **00:54:05 UTC de 25/11 / 21:54 em São Paulo de 24/11** (autorização do plano de 24/11 e ordem do proprietário nesta sessão: "pode publicar"), com Rust CI e Container Supply Chain verdes no commit, imagem `ghcr.io/leofran2204/poker-api@sha256:727e563ddccc24e23f9d20c983ffe01d2a567ea08fa8beea4199fd5be582150d` assinada e conferida, dois dumps, migrations 66, boot com um "Migrations applied" e sem `ERROR`, `.env` preservado e health HTTPS 200.
+
+Mudança (etapa 1 do plano de 24/11): tempo esgotado sem aposta a pagar dá check em todas as modalidades, em cash e torneio; com aposta, fold; saída voluntária da mesa cash desiste direto (BUSINESS_RULES 10.2 e 10.3).
+
+Verificação local antes do push: `fmt`, `clippy --all-targets -D warnings`, `cargo test` da API (118 da biblioteca, com os dois testes novos do `game_actor`) e os 5 testes de torneio com PostgreSQL (`tournament_actor_tests -- --ignored`) num banco novo com as 66 migrations.
