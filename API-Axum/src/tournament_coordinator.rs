@@ -167,18 +167,51 @@ async fn assign_tournament_tables(
             .map(|e| e.registered_at)
             .unwrap_or(u64::MAX)
     });
+    // Quantos jogadores cada mesa recebe vem do motor (round-robin balanceado);
+    // quem senta em qual mesa separa as contas da mesma rede (Termos 2.3).
     let plan = engine::assign_initial_tables(order.len(), table_max);
-    for ((pid, pname, stack), (_, table_idx, seat)) in order.iter().zip(plan.iter()) {
+    let mut capacities = vec![0usize; table_ids.len()];
+    for (_, table_idx, _) in &plan {
+        capacities[*table_idx as usize] += 1;
+    }
+    let subnets: std::collections::HashMap<String, String> = sqlx::query_as(
+        "SELECT player_id, subnet_fingerprint FROM tournament_players \
+         WHERE tournament_id = $1::uuid AND subnet_fingerprint IS NOT NULL",
+    )
+    .bind(tid)
+    .fetch_all(&state.db)
+    .await?
+    .into_iter()
+    .collect();
+    let player_subnets: Vec<Option<&str>> = order
+        .iter()
+        .map(|(pid, _, _)| subnets.get(pid).map(String::as_str))
+        .collect();
+    let (tables_of, shared) = crate::seat_ip_guard::spread_by_network(&player_subnets, &capacities);
+    if shared > 0 {
+        let _ = sqlx::query(
+            "INSERT INTO audit_logs (user_id, action, metadata) \
+             VALUES ('system', 'TOURNAMENT_SAME_NETWORK_SHARED_TABLE', $1)",
+        )
+        .bind(serde_json::json!({"tournament_id": tid, "reason": "initial", "players": shared}))
+        .execute(&state.db)
+        .await;
+    }
+    let mut next_seat = vec![0u32; table_ids.len()];
+    for ((pid, pname, stack), &table_idx) in order.iter().zip(tables_of.iter()) {
+        let seat = next_seat[table_idx];
+        next_seat[table_idx] += 1;
+        let table_idx = table_idx as u32;
         if let Some(entry) = store.state.players.get_mut(pid) {
-            entry.table_id = Some(*table_idx);
-            entry.seat = Some(*seat);
+            entry.table_id = Some(table_idx);
+            entry.seat = Some(seat);
         }
         let _ = sqlx::query(
             "INSERT INTO tournament_seats (tournament_id, table_id, seat, player_id, player_name, stack) VALUES ($1::uuid,$2::uuid,$3,$4,$5,$6) ON CONFLICT DO NOTHING",
         )
         .bind(tid)
-        .bind(table_ids[*table_idx as usize])
-        .bind(*seat as i16)
+        .bind(table_ids[table_idx as usize])
+        .bind(seat as i16)
         .bind(pid)
         .bind(pname)
         .bind(*stack as i64)
@@ -225,17 +258,35 @@ async fn rebalance_tournament_tables(state: &AppState) {
             continue;
         };
         // Move o jogador do maior assento da origem para o próximo assento livre do destino.
-        let victim: Option<(String, i16)> = sqlx::query_as(
-            "SELECT player_id, seat FROM tournament_seats \
-             WHERE tournament_id=$1::uuid AND table_id=$2::uuid AND status='ACTIVE' \
-             ORDER BY seat DESC LIMIT 1",
+        // Pula quem tem conta da mesma rede no destino (Termos 2.3); sem ninguém
+        // que possa ir, o desnível fica para o próximo tick.
+        let seated: Vec<(String, String, Option<String>)> = sqlx::query_as(
+            "SELECT s.table_id::text, s.player_id, p.subnet_fingerprint FROM tournament_seats s \
+             LEFT JOIN tournament_players p \
+               ON p.tournament_id = s.tournament_id AND p.player_id = s.player_id \
+             WHERE s.tournament_id=$1::uuid AND s.table_id IN ($2::uuid, $3::uuid) \
+               AND s.status='ACTIVE' \
+             ORDER BY s.seat DESC",
         )
         .bind(&tid)
         .bind(&tables[from])
-        .fetch_optional(&state.db)
+        .bind(&tables[to])
+        .fetch_all(&state.db)
         .await
-        .unwrap_or(None);
-        let Some((pid, _seat)) = victim else { continue };
+        .unwrap_or_default();
+        let destination_subnets: Vec<&str> = seated
+            .iter()
+            .filter(|(table, _, _)| table == &tables[to])
+            .filter_map(|(_, _, subnet)| subnet.as_deref())
+            .collect();
+        let victim = seated.iter().find(|(table, _, subnet)| {
+            table == &tables[from]
+                && subnet
+                    .as_deref()
+                    .is_none_or(|s| !destination_subnets.contains(&s))
+        });
+        let Some((_, pid, _)) = victim else { continue };
+        let pid = pid.clone();
         let taken: Vec<i16> = sqlx::query_as(
             "SELECT seat FROM tournament_seats \
              WHERE tournament_id=$1::uuid AND table_id=$2::uuid AND status='ACTIVE'",
@@ -365,6 +416,36 @@ async fn consolidate_final_tables(state: &AppState) {
         .bind(serde_json::json!({"tournament_id":tid,"tables":tables.len(),"remaining":remaining}))
         .execute(&state.db)
         .await;
+        // Na mesa final não há como separar redes (Termos 2.3): fica registrado
+        // para revisão, só com a contagem de redes repetidas.
+        let shared_networks: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM ( \
+                 SELECT p.subnet_fingerprint FROM tournament_seats s \
+                 JOIN tournament_players p \
+                   ON p.tournament_id = s.tournament_id AND p.player_id = s.player_id \
+                 WHERE s.tournament_id=$1::uuid AND s.status='ACTIVE' \
+                   AND p.subnet_fingerprint IS NOT NULL \
+                 GROUP BY p.subnet_fingerprint HAVING COUNT(*) > 1 \
+             ) repeated",
+        )
+        .bind(&tid)
+        .fetch_one(&state.db)
+        .await
+        .unwrap_or(0);
+        if shared_networks > 0 {
+            let _ = sqlx::query(
+                "INSERT INTO audit_logs (user_id, action, metadata) \
+                 VALUES ('system', 'TOURNAMENT_SAME_NETWORK_SHARED_TABLE', $1)",
+            )
+            .bind(serde_json::json!({
+                "tournament_id": tid,
+                "table_id": first,
+                "reason": "final_table",
+                "networks": shared_networks,
+            }))
+            .execute(&state.db)
+            .await;
+        }
         tracing::info!(tournament_id=%tid, remaining, "mesa final consolidada");
     }
 }

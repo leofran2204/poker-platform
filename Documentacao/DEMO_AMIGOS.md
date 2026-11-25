@@ -19,7 +19,7 @@ Casa: **ZT Poker** (header **Zero Tilt**). Slogan: **Estude. Jogue. Sem tilt.** 
 
 > **Importante:** 1 pessoa sozinha **não** inicia mão. Precisa de **≥ 2 assentos** na mesma mesa. Chame os amigos para o mesmo horário.
 >
-> **Mesma rede, mesas diferentes:** por regra antifraude (Termos 2.3), duas contas no mesmo IP ou na mesma sub-rede — por exemplo, o mesmo Wi-Fi de casa — não sentam na mesma mesa cash; a segunda recebe o aviso “Já existe nesta mesa um jogador conectado pela mesma rede”. Para jogarem juntos, cada um usa sua própria conexão (uma pode ser o 4G do celular).
+> **Mesma rede, mesas diferentes:** por regra antifraude (Termos 2.3), duas contas no mesmo IP ou na mesma sub-rede — por exemplo, o mesmo Wi-Fi de casa — não sentam na mesma mesa cash; a segunda recebe o aviso “Já existe nesta mesa um jogador conectado pela mesma rede”. Nos torneios, essas contas ficam em mesas diferentes até a mesa final, e a quarta inscrição da mesma rede é recusada. Para jogarem juntos, cada um usa sua própria conexão (uma pode ser o 4G do celular).
 
 ## Catálogo cash (Play Money e Jogo Real)
 

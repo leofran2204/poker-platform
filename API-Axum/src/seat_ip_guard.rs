@@ -106,11 +106,158 @@ fn fingerprint(pepper: &str, kind: &str, value: &str) -> String {
     format!("{:x}", mac.finalize().into_bytes())
 }
 
+/// Recusa da inscrição no torneio: já há uma conta da mesma rede em cada mesa.
+pub const SAME_NETWORK_TOURNAMENT_MESSAGE: &str = "Este torneio já tem, em todas as mesas, um jogador conectado pela mesma rede que você (mesmo IP ou sub-rede). Por regra antifraude, inscreva-se por outra conexão, como o 4G do celular, ou escolha outro torneio.";
+
+/// Distribuição inicial do torneio separando contas da mesma rede (Termos 2.3).
+///
+/// `subnets[i]` é a impressão da sub-rede do i-ésimo inscrito, em ordem de
+/// inscrição (`None` = sem impressão, nunca conflita); `capacities[t]` é quantos
+/// jogadores a mesa `t` recebe. Devolve a mesa de cada inscrito e quantos
+/// ficaram junto de alguém da mesma rede por falta de mesa.
+///
+/// Grupos maiores escolhem primeiro, cada membro numa mesa diferente, sempre as
+/// mesas com mais vagas sobrando; pela construção de Gale–Ryser, isso separa
+/// todos sempre que a separação é possível. O desempate (menos jogadores, depois
+/// menor índice) reproduz o round-robin 0, 1, 2, 0, 1, 2... quando não há rede
+/// repetida.
+pub fn spread_by_network(subnets: &[Option<&str>], capacities: &[usize]) -> (Vec<usize>, usize) {
+    let mut groups: Vec<Vec<usize>> = Vec::new();
+    let mut by_subnet: std::collections::HashMap<&str, usize> = std::collections::HashMap::new();
+    for (player, &subnet) in subnets.iter().enumerate() {
+        match subnet.and_then(|s| by_subnet.get(s).copied()) {
+            Some(group) => groups[group].push(player),
+            None => {
+                if let Some(s) = subnet {
+                    by_subnet.insert(s, groups.len());
+                }
+                groups.push(vec![player]);
+            }
+        }
+    }
+    // Ordem estável: maior grupo primeiro; empate pela inscrição mais antiga.
+    groups.sort_by_key(|members| (std::cmp::Reverse(members.len()), members[0]));
+
+    let mut assigned = vec![0usize; capacities.len()];
+    let mut table_of = vec![0usize; subnets.len()];
+    let mut shared = 0usize;
+    for members in &groups {
+        let mut used: Vec<usize> = Vec::with_capacity(members.len());
+        for &player in members {
+            let pick = |allow_used: bool| {
+                (0..capacities.len())
+                    .filter(|&t| assigned[t] < capacities[t])
+                    .filter(|t| allow_used || !used.contains(t))
+                    .min_by_key(|&t| {
+                        (
+                            std::cmp::Reverse(capacities[t] - assigned[t]),
+                            assigned[t],
+                            t,
+                        )
+                    })
+            };
+            let table = match pick(false) {
+                Some(t) => t,
+                None => {
+                    shared += 1;
+                    pick(true).unwrap_or(0)
+                }
+            };
+            assigned[table] += 1;
+            used.push(table);
+            table_of[player] = table;
+        }
+    }
+    (table_of, shared)
+}
+
+/// Escolha da mesa de quem volta pelo rebuy: a mesa com menos jogadores e assento
+/// livre, evitando as que já têm alguém da mesma rede. Cada item é
+/// `(jogadores, assento livre, tem alguém da mesma rede)`. Devolve o índice e se
+/// a única saída foi uma mesa com a mesma rede.
+pub fn pick_return_table(tables: &[(usize, Option<i16>, bool)]) -> Option<(usize, bool)> {
+    let best = |avoid_shared: bool| {
+        tables
+            .iter()
+            .enumerate()
+            .filter(|(_, (_, free, shared))| free.is_some() && !(avoid_shared && *shared))
+            .min_by_key(|(idx, (count, _, _))| (*count, *idx))
+            .map(|(idx, (_, _, shared))| (idx, *shared))
+    };
+    best(true).or_else(|| best(false))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     const PEPPER: &str = "test-pepper";
+
+    #[test]
+    fn spread_without_repeated_networks_is_round_robin() {
+        let subnets = [None, Some("a"), Some("b"), None, Some("c")];
+        let (tables, shared) = spread_by_network(&subnets, &[2, 2, 1]);
+        assert_eq!(tables, vec![0, 1, 2, 0, 1]);
+        assert_eq!(shared, 0);
+    }
+
+    #[test]
+    fn spread_separates_same_network_and_keeps_balance() {
+        // Três contas da rede "casa" inscritas em sequência cairiam 0, 1, 2 no
+        // round-robin; com "casa" em 0, 3 e 6 cairiam todas na mesa 0.
+        let subnets = [
+            Some("casa"),
+            None,
+            Some("x"),
+            Some("casa"),
+            None,
+            Some("y"),
+            Some("casa"),
+            Some("z"),
+            Some("w"),
+        ];
+        let (tables, shared) = spread_by_network(&subnets, &[3, 3, 3]);
+        assert_eq!(shared, 0);
+        let casa: Vec<usize> = [0, 3, 6].iter().map(|&p| tables[p]).collect();
+        let mut distinct = casa.clone();
+        distinct.sort_unstable();
+        distinct.dedup();
+        assert_eq!(distinct.len(), 3, "uma conta da rede por mesa: {casa:?}");
+        for t in 0..3 {
+            assert_eq!(tables.iter().filter(|&&x| x == t).count(), 3);
+        }
+    }
+
+    #[test]
+    fn spread_handles_two_groups_with_uneven_tables() {
+        // 4 inscritos, mesas com 2/1/1 vagas: os dois pares ficam separados.
+        let subnets = [Some("a"), Some("b"), Some("a"), Some("b")];
+        let (tables, shared) = spread_by_network(&subnets, &[2, 1, 1]);
+        assert_eq!(shared, 0);
+        assert_ne!(tables[0], tables[2]);
+        assert_ne!(tables[1], tables[3]);
+        assert_eq!(tables.iter().filter(|&&t| t == 0).count(), 2);
+    }
+
+    #[test]
+    fn spread_reports_when_separation_is_impossible() {
+        // Quatro contas da mesma rede e três mesas: uma fica acompanhada.
+        let subnets = [Some("a"); 4];
+        let (tables, shared) = spread_by_network(&subnets, &[2, 1, 1]);
+        assert_eq!(shared, 1);
+        assert_eq!(tables.len(), 4);
+    }
+
+    #[test]
+    fn return_table_avoids_same_network_when_possible() {
+        // Mesa 0 é a mais vazia, mas tem alguém da mesma rede.
+        let tables = [(3, Some(4), true), (5, Some(6), false), (4, None, false)];
+        assert_eq!(pick_return_table(&tables), Some((1, false)));
+        // Sem alternativa livre, volta para a mesa da mesma rede e avisa.
+        let only_shared = [(3, Some(4), true), (5, None, false)];
+        assert_eq!(pick_return_table(&only_shared), Some((0, true)));
+        assert_eq!(pick_return_table(&[(9, None, false)]), None);
+    }
 
     fn network(ip: &str) -> Option<SeatNetwork> {
         seat_network_with(ip, "", PEPPER)

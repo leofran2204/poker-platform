@@ -647,6 +647,7 @@ async fn mtt_registration_records_entry_fee() {
             username: name.clone(),
             role: "player".to_string(),
         }),
+        poker_api::middleware::rate_limit::ClientIp("127.0.0.1".to_string()),
         Json(RegisterBody {
             tournament_id: tkey.clone(),
             player_id: None,

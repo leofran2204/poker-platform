@@ -1,6 +1,6 @@
 # TERMOS DE USO E CONDIÇÕES DO SERVIÇO - PLATAFORMA DE POKER ONLINE
 
-**Última Atualização: 24 de novembro de 2026**
+**Última Atualização: 25 de novembro de 2026**
 
 Este contrato de Termos de Uso ("Contrato") rege o uso da plataforma de poker online ("Plataforma") por qualquer usuário cadastrado ("Jogador"). Ao criar uma conta ou utilizar os serviços da Plataforma, o Jogador aceita integralmente os termos aqui descritos.
 
@@ -17,7 +17,7 @@ Este contrato de Termos de Uso ("Contrato") rege o uso da plataforma de poker on
 ## 2. REGRAS DE CONDUTA, ANTIFRAUDE E PROIBIÇÃO DE RTA
 2.1. **Proibição de Assistência em Tempo Real (RTA) e Bots:** É expressamente vedado o uso de robôs (*bots*), inteligência artificial em tempo real (RTA), softwares de automação ou assistência ilícita durante o jogo ao vivo em mesas com outros jogadores humanos. Ferramentas de estudo restringem-se à área de treino da Zero Tilt Academy (quiz e exercícios), nunca durante mãos ao vivo.
 2.2. **Proibição de Conluio (*Collusion*):** É proibida qualquer combinação prévia, compartilhamento de informações de cartas ou cooperação ilícita entre Jogadores na mesma mesa para obter vantagem indevida sobre terceiros.
-2.3. **Restrição de IP e Sub-Rede:** Nas mesas cash, o sistema antifraude da Plataforma recusa automaticamente a entrada de um Jogador na mesa em que outra conta já tenha assento ativo a partir do mesmo endereço IP público ou da mesma sub-rede (/24 em IPv4; /64 em IPv6). Jogadores que compartilham a mesma rede, como o mesmo Wi-Fi, devem escolher mesas diferentes. A Plataforma guarda apenas impressões criptográficas desses endereços, e somente enquanto o assento estiver ativo.
+2.3. **Restrição de IP e Sub-Rede:** Nas mesas cash, o sistema antifraude da Plataforma recusa automaticamente a entrada de um Jogador na mesa em que outra conta já tenha assento ativo a partir do mesmo endereço IP público ou da mesma sub-rede (/24 em IPv4; /64 em IPv6). Nos torneios, a rede considerada é a da inscrição: contas da mesma rede são sentadas em mesas diferentes enquanto o torneio tiver mais de uma mesa, e a inscrição é recusada quando já houver uma conta da mesma rede em cada mesa. Quando os jogadores restantes cabem numa mesa só (a mesa final, ou desde o início em torneios pequenos), essas contas podem jogar na mesma mesa, e a Plataforma registra o fato para revisão. Jogadores que compartilham a mesma rede, como o mesmo Wi-Fi, devem escolher mesas diferentes. A Plataforma guarda apenas impressões criptográficas desses endereços, e somente enquanto o assento estiver ativo ou o torneio estiver em andamento.
 2.4. **Penalidades:** O descumprimento destas regras resultará na suspensão imediata da conta, perda do saldo de prêmios obtidos ilicitamente e congelamento dos fundos no Ledger imutável para investigação.
 
 ---

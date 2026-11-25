@@ -1715,3 +1715,14 @@ Etapa 2 do plano de 24/11, decidida pela delegação do proprietário. Antes, os
 
   Depois da mudança, as devoluções da mesa de 9 têm 1 oponente em 74 casos e 2 em 13 (antes iam até 4). O valor sai do pote de quem venceu, não da plataforma; a proporção sobre o rake da simulação não representa mesa real, porque os jogadores simulados vão all-in muito mais que pessoas. O fechamento ficou mais rápido porque há menos mãos no cálculo; a mão mais pesada (all-in pré-flop de vários jogadores) ainda leva segundos.
 - Documentos: BUSINESS_RULES 11 (equity multiway e snapshot), LOSS_DEFLATOR_EXEMPLOS (mesa cheia) e Termos 6.4, no documento e na página `/termos` (atualização de 24/11/2026).
+
+## 2026-11-25 — Guarda de rede nos torneios (etapa 3)
+
+Etapa 3 do plano de 24/11, decidida pela delegação do proprietário. Até aqui só a mesa cash aplicava os Termos 2.3; no torneio, duas contas do mesmo Wi-Fi podiam cair na mesma mesa pelo round-robin.
+
+- Migration 067: `tournament_players.subnet_fingerprint` (impressão HMAC da sub-rede, a mesma função do cash; mesmo IP implica mesma sub-rede) e gatilho que apaga as impressões quando o torneio termina ou é cancelado.
+- `POST /api/tournament/register` grava a impressão e recusa com 403, sem débito, a quarta conta da mesma rede (3 mesas = no máximo uma por mesa). Auditoria `TOURNAMENT_SAME_NETWORK_BLOCKED`.
+- Coordenador: a distribuição inicial mantém quantos jogadores o motor põe em cada mesa e separa as redes (`seat_ip_guard::spread_by_network`, grupos maiores primeiro nas mesas com mais vagas; sem rede repetida o resultado é o round-robin de antes). O rebalanceamento pula quem tem conta da mesma rede no destino; o rebuy de quem foi eliminado evita essas mesas (`pick_return_table`).
+- Sem como separar (mesa final consolidada, torneio cujos inscritos cabem numa mesa, rebuy sem mesa alternativa): o jogo segue e fica `TOURNAMENT_SAME_NETWORK_SHARED_TABLE` em `audit_logs`, só com contagem e ids. Recusar a segunda inscrição da rede em todo torneio foi descartado: bloquearia amigos e redes móveis em torneios grandes, onde a separação resolve.
+- Testes: 5 unitários novos em `seat_ip_guard.rs` (round-robin preservado, separação com mesas desiguais, separação impossível, escolha da mesa do rebuy) e o contrato `test_contract_tournament_register_refuses_fourth_account_of_same_network` (3 contas da mesma /24 entram, a quarta recebe 403, outra rede entra, IP em claro nunca gravado, gatilho limpa as impressões no fim).
+- Documentos: Termos 2.3 no documento e na página `/termos` (atualização de 25/11/2026), BUSINESS_RULES 15.5, ARQUITETURA_E_APIS, DEMO_AMIGOS, STATUS com migrations 67.

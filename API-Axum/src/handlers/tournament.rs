@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::ApiError;
 use crate::middleware::auth::RequireAuth;
+use crate::middleware::rate_limit::ClientIp;
 use crate::state::AppState;
 
 #[derive(Debug, Deserialize)]
@@ -334,6 +335,7 @@ pub async fn get_tournament(
 pub async fn register_player(
     State(state): State<AppState>,
     RequireAuth(auth_user): RequireAuth,
+    ClientIp(client_ip): ClientIp,
     Json(body): Json<RegisterBody>,
 ) -> Result<Json<RegisterResponse>, ApiError> {
     if let Some(ref pid) = body.player_id {
@@ -368,6 +370,33 @@ pub async fn register_player(
     }
     if mode_is_real {
         crate::responsible_gaming::ensure_real_money_allowed(&state.db, &auth_user.user_id).await?;
+    }
+
+    // Guarda de rede (Termos 2.3): o coordenador senta contas da mesma rede em
+    // mesas diferentes; com uma conta da rede em cada mesa, não há como separar
+    // a próxima. O lock de escrita do torneio serializa as inscrições.
+    let network = crate::seat_ip_guard::seat_network(&client_ip);
+    if let Some(network) = &network {
+        let (same_network,): (i64,) = sqlx::query_as(
+            "SELECT COUNT(*) FROM tournament_players              WHERE tournament_id = $1::uuid AND player_id <> $2 AND subnet_fingerprint = $3",
+        )
+        .bind(&tournament_id)
+        .bind(&auth_user.user_id)
+        .bind(&network.subnet_fingerprint)
+        .fetch_one(&state.db)
+        .await?;
+        if same_network >= i64::from(poker_engine::tournament_engine::TOURNAMENT_TABLE_COUNT) {
+            let _ = sqlx::query(
+                "INSERT INTO audit_logs (user_id, action, metadata)                  VALUES ($1, 'TOURNAMENT_SAME_NETWORK_BLOCKED', $2)",
+            )
+            .bind(&auth_user.user_id)
+            .bind(serde_json::json!({ "tournament_id": tournament_id }))
+            .execute(&state.db)
+            .await;
+            return Err(ApiError::Forbidden(
+                crate::seat_ip_guard::SAME_NETWORK_TOURNAMENT_MESSAGE.to_string(),
+            ));
+        }
     }
 
     poker_engine::tournament_engine::register_player(
@@ -450,8 +479,8 @@ pub async fn register_player(
     sqlx::query(
         r#"
         INSERT INTO tournament_players
-            (tournament_id, player_id, player_name, stack, registered_at)
-        VALUES ($1::uuid, $2, $3, $4, EXTRACT(EPOCH FROM NOW())::BIGINT)
+            (tournament_id, player_id, player_name, stack, registered_at, subnet_fingerprint)
+        VALUES ($1::uuid, $2, $3, $4, EXTRACT(EPOCH FROM NOW())::BIGINT, $5)
         ON CONFLICT (tournament_id, player_id) DO NOTHING
         "#,
     )
@@ -459,6 +488,7 @@ pub async fn register_player(
     .bind(&auth_user.user_id)
     .bind(&auth_user.username)
     .bind(starting_stack as i64)
+    .bind(network.as_ref().map(|n| n.subnet_fingerprint.as_str()))
     .execute(&mut *tx)
     .await
     .inspect_err(|_| {
@@ -674,37 +704,46 @@ impl ChipPurchase {
 }
 
 /// Onde o jogador eliminado volta a sentar: a mesa viva com menos jogadores e
-/// o menor assento livre. Mesa final cheia recusa o rebuy.
+/// o menor assento livre, evitando mesa com conta da mesma rede (Termos 2.3).
+/// Mesa final cheia recusa o rebuy. O terceiro valor diz se a única mesa possível
+/// já tinha alguém da mesma rede.
 async fn choose_return_seat(
     tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
     tournament_id: &str,
+    user_id: &str,
     live_table_ids: &[String],
     seat_cap: i16,
-) -> Result<(usize, i16), ApiError> {
-    let occupied: Vec<(String, i16)> = sqlx::query_as(
-        "SELECT table_id::text, seat FROM tournament_seats \
-         WHERE tournament_id = $1::uuid AND status = 'ACTIVE' FOR UPDATE",
+) -> Result<(usize, i16, bool), ApiError> {
+    let occupied: Vec<(String, i16, Option<String>)> = sqlx::query_as(
+        "SELECT s.table_id::text, s.seat, p.subnet_fingerprint FROM tournament_seats s          LEFT JOIN tournament_players p            ON p.tournament_id = s.tournament_id AND p.player_id = s.player_id          WHERE s.tournament_id = $1::uuid AND s.status = 'ACTIVE' FOR UPDATE OF s",
     )
     .bind(tournament_id)
     .fetch_all(&mut **tx)
     .await?;
-    let mut best: Option<(usize, usize, i16)> = None;
-    for (idx, table_id) in live_table_ids.iter().enumerate() {
-        let taken: Vec<i16> = occupied
-            .iter()
-            .filter(|(t, _)| t == table_id)
-            .map(|(_, seat)| *seat)
-            .collect();
-        let Some(free) = (0..seat_cap).find(|s| !taken.contains(s)) else {
-            continue;
-        };
-        if best.is_none_or(|(_, count, _)| taken.len() < count) {
-            best = Some((idx, taken.len(), free));
-        }
-    }
-    best.map(|(idx, _, seat)| (idx, seat)).ok_or_else(|| {
-        ApiError::BadRequest("Sem assento livre nas mesas do torneio para o rebuy".into())
-    })
+    let own_subnet: Option<String> = sqlx::query_scalar(
+        "SELECT subnet_fingerprint FROM tournament_players          WHERE tournament_id = $1::uuid AND player_id = $2",
+    )
+    .bind(tournament_id)
+    .bind(user_id)
+    .fetch_optional(&mut **tx)
+    .await?
+    .flatten();
+    let tables: Vec<(usize, Option<i16>, bool)> = live_table_ids
+        .iter()
+        .map(|table_id| {
+            let at_table: Vec<&(String, i16, Option<String>)> =
+                occupied.iter().filter(|(t, _, _)| t == table_id).collect();
+            let free = (0..seat_cap).find(|s| !at_table.iter().any(|(_, seat, _)| seat == s));
+            let shared =
+                own_subnet.is_some() && at_table.iter().any(|(_, _, subnet)| subnet == &own_subnet);
+            (at_table.len(), free, shared)
+        })
+        .collect();
+    crate::seat_ip_guard::pick_return_table(&tables)
+        .and_then(|(idx, shared)| tables[idx].1.map(|seat| (idx, seat, shared)))
+        .ok_or_else(|| {
+            ApiError::BadRequest("Sem assento livre nas mesas do torneio para o rebuy".into())
+        })
 }
 
 /// Rebuy ou add-on: valida no motor, debita a carteira do torneio, entrega as
@@ -786,8 +825,27 @@ async fn purchase_chips(
             .await?;
         }
         let (seat, table_id) = if was_eliminated {
-            let (idx, seat) =
-                choose_return_seat(&mut tx, &tournament_id, &live_table_ids, seat_cap).await?;
+            let (idx, seat, shared_network) = choose_return_seat(
+                &mut tx,
+                &tournament_id,
+                user_id,
+                &live_table_ids,
+                seat_cap,
+            )
+            .await?;
+            if shared_network {
+                sqlx::query(
+                    "INSERT INTO audit_logs (user_id, action, metadata)                      VALUES ($1, 'TOURNAMENT_SAME_NETWORK_SHARED_TABLE', $2)",
+                )
+                .bind(user_id)
+                .bind(serde_json::json!({
+                    "tournament_id": tournament_id,
+                    "table_id": live_table_ids[idx],
+                    "reason": "rebuy",
+                }))
+                .execute(&mut *tx)
+                .await?;
+            }
             sqlx::query(
                 "INSERT INTO tournament_seats (tournament_id, table_id, seat, player_id, player_name, stack) \
                  VALUES ($1::uuid, $2::uuid, $3, $4, $5, $6)",

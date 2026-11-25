@@ -1196,6 +1196,147 @@ async fn test_contract_cash_join_refuses_same_network_at_same_table() {
     }
 }
 
+/// Termos 2.3 nos torneios: com uma conta da mesma rede em cada uma das 3 mesas,
+/// a próxima inscrição da rede é recusada; a impressão some quando o torneio acaba.
+#[tokio::test]
+#[ignore = "Requires PostgreSQL with migration 067 — set DATABASE_URL to run"]
+async fn test_contract_tournament_register_refuses_fourth_account_of_same_network() {
+    use axum::extract::connect_info::ConnectInfo;
+    use std::net::SocketAddr;
+
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+    let uid = uuid::Uuid::new_v4().simple().to_string();
+    let tournament_id = uuid::Uuid::new_v4();
+    sqlx::query(
+        "INSERT INTO tournaments (id, name, buy_in, starting_stack, max_players, status, money_mode, prize_pool) \
+         VALUES ($1, $2, 0, 1000, 27, 'registering', 'play', 0)",
+    )
+    .bind(tournament_id)
+    .bind(format!("Guarda de rede {}", &uid[..8]))
+    .execute(&state.db)
+    .await
+    .expect("torneio de contrato");
+    {
+        let mut stores = state.tournaments.write().await;
+        let store = TournamentStore::with_mode_and_variant(
+            tournament_id.to_string(),
+            TournamentConfig {
+                buy_in: 0,
+                max_players: 27,
+                is_freeroll: true,
+                ..Default::default()
+            },
+            "play".into(),
+            "holdem".into(),
+        );
+        stores.insert(tournament_id.to_string(), store);
+    }
+
+    let mut usernames = Vec::new();
+    let mut tokens = Vec::new();
+    for index in 0..5 {
+        let username = format!("mttnet{index}_{}", &uid[..10]);
+        let body = serde_json::json!({
+            "email": format!("{username}@example.com"),
+            "password": "StrongPass123!",
+            "username": username,
+        })
+        .to_string();
+        let (status, body) =
+            send_request(app.clone(), Method::POST, "/api/auth/register", Some(body)).await;
+        assert_eq!(status, StatusCode::OK, "cadastro: {body}");
+        let json: serde_json::Value = serde_json::from_str(&body).unwrap();
+        tokens.push(json["token"].as_str().unwrap().to_string());
+        usernames.push(username);
+    }
+
+    let register = |token: &str, peer: [u8; 4]| {
+        let mut request = Request::builder()
+            .method(Method::POST)
+            .uri("/api/tournament/register")
+            .header("Authorization", format!("Bearer {token}"))
+            .header("Content-Type", "application/json")
+            .body(Body::from(
+                serde_json::json!({
+                    "tournament_id": tournament_id.to_string(),
+                    "wallet_mode": "play",
+                })
+                .to_string(),
+            ))
+            .unwrap();
+        request
+            .extensions_mut()
+            .insert(ConnectInfo(SocketAddr::from((peer, 443))));
+        request
+    };
+
+    // Três contas da mesma /24 cabem, uma por mesa.
+    for (index, last) in [10u8, 11, 200].into_iter().enumerate() {
+        let response = app
+            .clone()
+            .oneshot(register(&tokens[index], [203, 0, 113, last]))
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK, "conta {index}");
+    }
+    // A quarta da mesma rede é recusada, sem inscrição.
+    let blocked = app
+        .clone()
+        .oneshot(register(&tokens[3], [203, 0, 113, 77]))
+        .await
+        .unwrap();
+    assert_eq!(blocked.status(), StatusCode::FORBIDDEN);
+    let body = blocked.into_body().collect().await.unwrap().to_bytes();
+    assert!(String::from_utf8_lossy(&body).contains("mesma rede"));
+    // Outra rede entra normalmente.
+    let other = app
+        .clone()
+        .oneshot(register(&tokens[4], [198, 51, 100, 10]))
+        .await
+        .unwrap();
+    assert_eq!(other.status(), StatusCode::OK);
+
+    let (players, fingerprints, plain): (i64, i64, i64) = sqlx::query_as(
+        "SELECT COUNT(*), COUNT(subnet_fingerprint), \
+                COUNT(*) FILTER (WHERE subnet_fingerprint LIKE '203.%' OR subnet_fingerprint LIKE '198.%') \
+         FROM tournament_players WHERE tournament_id = $1",
+    )
+    .bind(tournament_id)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!((players, fingerprints, plain), (4, 4, 0));
+    {
+        let stores = state.tournaments.read().await;
+        assert_eq!(stores[&tournament_id.to_string()].state.players.len(), 4);
+    }
+
+    // Fim do torneio: o gatilho da migration 067 apaga as impressões.
+    sqlx::query("UPDATE tournaments SET status = 'finished' WHERE id = $1")
+        .bind(tournament_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+    let (left,): (i64,) = sqlx::query_as(
+        "SELECT COUNT(subnet_fingerprint) FROM tournament_players WHERE tournament_id = $1",
+    )
+    .bind(tournament_id)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert_eq!(left, 0);
+
+    sqlx::query("DELETE FROM tournaments WHERE id = $1")
+        .bind(tournament_id)
+        .execute(&state.db)
+        .await
+        .unwrap();
+    for username in &usernames {
+        cleanup_contract_user(&state, username).await;
+    }
+}
+
 #[tokio::test]
 async fn test_websocket_upgrade_success() {
     let state = make_test_state();

@@ -455,11 +455,12 @@ Um exemplo de equity exata com cartas e regressão automatizada está em [`LOSS_
 - **Fingerprinting**: Coleta de IP, User-Agent e Hardware ID.
 - **Alerta de Duplicidade**: Bloquear ou alertar administradores quando múltiplas contas ativas compartilham o mesmo identificador de hardware ou IP em mesas diferentes simultaneamente.
 
-### 15.5 🌐 Guarda de rede na mesa cash (Termos 2.3) — ativa
+### 15.5 🌐 Guarda de rede nas mesas cash e nos torneios (Termos 2.3) — ativa
 - **Regra:** `POST /api/lobby/join` recusa com 403 a entrada quando outra conta tem assento `ACTIVE` na mesma mesa com o mesmo IP público ou a mesma sub-rede (/24 em IPv4, /64 em IPv6). Repetir a entrada da própria conta continua idempotente.
 - **Privacidade:** só impressões HMAC (`KYC_DATA_PEPPER`, domínio `zero-tilt-seat-network-v1`) ficam em `cash_game_seats` (migration 061) e são apagadas por gatilho quando o assento deixa de estar ativo. O endereço em claro não é gravado; a recusa gera `CASH_SEAT_SAME_NETWORK_BLOCKED` em `audit_logs` só com o id da mesa.
 - **Fora da comparação:** endereços não públicos (loopback, rede privada, link-local, CGNAT) e os listados em `SEAT_IP_GUARD_EXEMPT_IPS`. O IP vem da mesma regra do rate limit (cabeçalhos do proxy só com `TRUST_PROXY_HEADERS`).
-- **Limites conhecidos:** redes móveis e empresas podem colocar desconhecidos atrás do mesmo IP público (falso positivo: o jogador escolhe outra mesa). Torneios ainda não aplicam a guarda, porque o coordenador distribui os assentos.
+- **Torneios (desde 25/11/2026, migration 067):** `POST /api/tournament/register` grava a impressão da sub-rede em `tournament_players.subnet_fingerprint` (mesmo IP implica mesma sub-rede, então a sub-rede basta). O coordenador senta contas da mesma rede em mesas diferentes na distribuição inicial (`seat_ip_guard::spread_by_network`: quantos jogadores cada mesa recebe continua vindo do motor; grupos maiores escolhem primeiro), o rebalanceamento pula quem tem conta da mesma rede na mesa de destino e quem volta pelo rebuy evita essas mesas (`pick_return_table`). Como são 3 mesas, a inscrição é recusada com 403, sem débito, quando já há 3 contas inscritas da mesma rede (`TOURNAMENT_SAME_NETWORK_BLOCKED` em `audit_logs`, só com o id do torneio). Quando os restantes cabem numa mesa (mesa final, ou desde o início em torneio com até uma mesa de inscritos), a separação é impossível: a mesa final consolidada, a distribuição sem saída e o rebuy sem mesa alternativa gravam `TOURNAMENT_SAME_NETWORK_SHARED_TABLE` (contagem e ids, sem endereço) para revisão. As impressões do torneio são apagadas por gatilho quando ele termina ou é cancelado.
+- **Limites conhecidos:** redes móveis e empresas podem colocar desconhecidos atrás do mesmo IP público (falso positivo: o jogador escolhe outra mesa ou outra conexão). No torneio vale a rede da inscrição; quem se inscreve por uma rede e joga por outra não é reavaliado.
 
 ---
 
