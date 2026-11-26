@@ -254,6 +254,13 @@ describe("integridade da Academy", () => {
     expect(films["pineapple-draw-rules"].transcript).toContain("três trocas");
   }, 30_000);
 
+  it("a legenda começa desligada: só aparece quando o aluno liga no player", () => {
+    const player = readFileSync(new URL("../components/CourseVideoPlayer.tsx", import.meta.url), "utf8");
+    const track = player.match(/<track[\s\S]*?\/>/)?.[0] ?? "";
+    expect(track).toContain('kind="captions"');
+    expect(track).not.toMatch(/\bdefault\b/);
+  });
+
   it("a pasta pública contém só a grade vigente, sem mídia de formatos retirados", () => {
     const active = lessons.flatMap(l => [l.video?.url, l.video?.captionsUrl, l.video?.posterUrl]);
     const names = new Set(active.filter(Boolean).map(url => url!.split("/").pop()));

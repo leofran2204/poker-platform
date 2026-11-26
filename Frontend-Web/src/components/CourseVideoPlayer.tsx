@@ -73,13 +73,13 @@ export function CourseVideoPlayer({ video, lessonTitle, playerRef, children, hid
             }}
             className="h-full w-full object-contain"
           >
+            {/* Legenda desligada por padrão: o aluno liga no botão de legendas do player. */}
             {captionsUrl && (
               <track
                 kind="captions"
                 src={captionsUrl}
                 srcLang="pt-BR"
                 label="Português"
-                default
               />
             )}
             Seu navegador não suporta reprodução de vídeo HTML5.
