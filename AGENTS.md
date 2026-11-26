@@ -82,11 +82,11 @@ Trabalho local (editar, testar, “prosseguir”) **não** autoriza `git commit`
 ## Ambiente Windows (esta máquina)
 
 1. **Rust/Cargo:** WSL2 Ubuntu, projeto em `/mnt/c/Users/leofr/Projetos/Poker_Project`, `CARGO_TARGET_DIR` no disco Linux (ex. `$HOME/poker-build/root-target`, `api-target`, `motor-target`). Não gerar `target` em `/mnt/c`. Windows nativo só se o WSL estiver indisponível.
-2. **Frontend:** não confiar em `node`/`npm` do PATH (pode ser Node 18). Usar o Node empacotado do harness, `Frontend-Web/package-lock.json`, cache `C:\tmp\poker-npm-cache`. Sem `pnpm` nesse diretório.
+2. **Frontend:** Node ≥ 22.22 (`engines` do `package.json`); o Vite 8 não roda no Node 18. Desde 26/11/2026 o `node`/`npm` do PATH é o Node 26 (`C:\Program Files\nodejs`), testado com tsc, ESLint, Vitest, build do Vite e Remotion. O CI (GitHub) e o Docker da VPS também usam o Node 26; o Node 24 empacotado do harness ainda serve localmente. Confira `node --version` antes de usar. Use `Frontend-Web/package-lock.json` e o cache `C:\tmp\poker-npm-cache`. Sem `pnpm` nesse diretório.
 3. **Codex:** se `apply_patch` falhar com `helper_unknown_error` em arquivo existente, usar o contorno PowerShell UTF-8 sem BOM descrito no histórico deste contrato (criar script temporário que se autoexclui). Outros harnesses usam as ferramentas deles.
 4. Sandbox `E_ACCESSDENIED` em WSL/git/SSH: repetir o **mesmo** comando com elevação estreita; não trocar a estratégia.
 
-Antes de concluir entrega local: `git diff --check`; frontend `tsc` + Vite com Node empacotado se mexeu em `Frontend-Web`; Rust `fmt`/`clippy -D warnings`/testes relevantes no WSL.
+Antes de concluir entrega local: `git diff --check`; frontend `tsc` + Vite com Node ≥ 22.22 (item 2) se mexeu em `Frontend-Web`; Rust `fmt`/`clippy -D warnings`/testes relevantes no WSL.
 
 ## Perfil de atuação permanente
 

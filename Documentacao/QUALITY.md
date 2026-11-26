@@ -19,7 +19,7 @@ Workflow `.github/workflows/rust-ci.yml` (não inflar com carga massiva):
 
 Campanha local por situações reais de jogo (contagens somente do que foi executado): [`FULL_VALIDATION.md`](FULL_VALIDATION.md), **só** com autorização explícita. Scripts: [`../scripts/README.md`](../scripts/README.md).
 
-Frontend local: `npm run lint` (`tsc` + ESLint) e `npm test` (Vitest) em `Frontend-Web/`, com o Node do `AGENTS.md` — nunca Node 18 do PATH.
+Frontend local: `npm run lint` (`tsc` + ESLint) e `npm test` (Vitest) em `Frontend-Web/`, com o Node do `AGENTS.md` (≥ 22.22; o CI e o Docker usam o 26).
 
 ### Exceção temporária de build — 05/10/2026 a 18/10/2026
 
@@ -44,7 +44,7 @@ Uma mudança está pronta **localmente** quando:
 
 1. Compila e clippy `-D warnings` no crate tocado (WSL).
 2. Testes determinísticos relevantes passam (sem disparar full-validation).
-3. Frontend tocado: `tsc` + lint + Vitest + build Vite com Node empacotado.
+3. Frontend tocado: `tsc` + lint + Vitest + build Vite com o Node do `AGENTS.md`.
 4. Fatos operacionais: JSON schema v3 + `documentation-sync --write` e `--check`. Prosa única só no arquivo dono (`AGENTS.md`).
 5. Sem regressão óbvia no fluxo alterado.
 

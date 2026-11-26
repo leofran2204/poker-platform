@@ -1826,3 +1826,12 @@ Decisão do proprietário em 26/11: "tá aprovado o jogo real de Brazilian Pinea
 - STATUS (`money_modes: play` retirado da mesa e do torneio, `migrations_latest` 71), BUSINESS_RULES 2.5 e DEMO_AMIGOS sem "só Play Money".
 - Teste `test_contract_pineapple_draw_opens_in_real_money`. Banco local `poker_test_071` recriado com as 71 migrations aplicadas em ordem, como no CI.
 - Limpeza: renders brutos de `motion/out` apagados (830 MB, intermediários ignorados), ramos locais `aulas-remotion` e `pineapple-jogo-real` apagados (já no master), bancos de teste antigos removidos.
+
+## 2026-11-26 — Node 26 no build do site e no CI
+
+O proprietário instalou o Node 26.13.1 no notebook e pediu que ele fosse também o da VPS ("autorizo" commit, push e deploy). Em produção a VPS não roda Node: o site é servido como arquivos estáticos pelo Caddy, e o Node só compila o site dentro da imagem.
+
+- `Frontend-Web/Dockerfile`: estágio `builder` em `node:26-alpine`, fixado por digest (`sha256:6bd9ab43…`).
+- `rust-ci.yml` e `full-validation.yml`: `setup-node` com `node-version: 26`.
+- `AGENTS.md` (item 2 do ambiente Windows) e `QUALITY.md` aceitam Node ≥ 22.22 (o `engines` do site), incluindo o do PATH. Antes, o `AGENTS.md` mandava não usar o `node` do PATH, que era o Node 18.
+- Verificação local: Vitest 162/162, `tsc`, ESLint, build do Vite e um quadro do Remotion com o Node 26 do PATH. `docker build --target builder` em imagem limpa: `npm ci` (318 pacotes) e build do Vite, com `node --version` v26.13.1 dentro da imagem.
