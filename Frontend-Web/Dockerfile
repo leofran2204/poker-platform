@@ -12,7 +12,7 @@ RUN npm run build
 # Stage 2: rebuild the latest stable Caddy with patched Go/dependencies.
 # The upstream v2.11.4 binary predates fixes released after the tag, so the
 # source commit and every security-sensitive dependency are pinned here.
-FROM golang:1.26.11-alpine@sha256:ecb67f987aa1a57794c91d19ade7ae0209f2f0f5496aaef9e6ae85ddf92d02ab AS caddy-builder
+FROM golang:1.27.4-alpine@sha256:70bd7ddea8b6cbe5d6943cde279d6b67feb10cc924fb9100d1d8757c1575b280 AS caddy-builder
 
 RUN go install github.com/caddyserver/xcaddy/cmd/xcaddy@e0e8f68a0f4bef11bfd04c4fb3091052ad36132f \
     && CGO_ENABLED=0 xcaddy build v2.11.4 \
