@@ -1,0 +1,547 @@
+{
+  "version": 1,
+  "note": "Banco da prova final da Zero Tilt Academy. Fica só na API: não vai para o pacote do site. Cada pergunta sai do conteúdo da aula indicada em lesson e não repete o quiz da aula. Na prova, as alternativas (correct + wrong) aparecem em ordem sorteada.",
+  "questions": [
+    {
+      "id": "xm0l4a",
+      "lesson": "m0l4",
+      "prompt": "Três jogadores vão all-in com 20, 50 e 100 fichas, sem outros participantes nem taxas. Quanto vale o pote principal?",
+      "correct": "60 fichas",
+      "wrong": ["150 fichas", "170 fichas", "100 fichas"]
+    },
+    {
+      "id": "xm0l4b",
+      "lesson": "m0l4",
+      "prompt": "No Texas Hold'em, a sequência A-2-3-4-5 enfrenta a sequência 2-3-4-5-6. Qual vence?",
+      "correct": "2-3-4-5-6: na sequência A-2-3-4-5 o ás vale baixo",
+      "wrong": ["A-2-3-4-5, porque tem o ás", "Empate, porque as duas são sequências"]
+    },
+    {
+      "id": "xm0l4c",
+      "lesson": "m0l4",
+      "prompt": "Você tem A♠ K♦ e o rival A♦ J♣. Board A♥ Q♣ 8♠ 4♦ 2♣. O que decide o pote?",
+      "correct": "O rei: A-A-K-Q-8 vence A-A-Q-J-8",
+      "wrong": ["O naipe do ás de cada um", "Nada: é empate, os dois têm par de ases", "O dois da mesa"]
+    },
+    {
+      "id": "xm0l5a",
+      "lesson": "m0l5",
+      "prompt": "Em heads-up, como fica a ordem de ação do botão?",
+      "correct": "Age primeiro no pré-flop e por último depois do flop",
+      "wrong": ["Age por último no pré-flop e primeiro depois do flop", "Age sempre por último, em todas as streets"]
+    },
+    {
+      "id": "xm0l5b",
+      "lesson": "m0l5",
+      "prompt": "Heads-up: você tem 100 BB e o rival tem 40 BB. Qual é o máximo que você pode ganhar desse rival nesta mão?",
+      "correct": "40 BB, o stack efetivo",
+      "wrong": ["100 BB", "140 BB", "60 BB"]
+    },
+    {
+      "id": "xm0l5c",
+      "lesson": "m0l5",
+      "prompt": "Um jogador que foi all-in continua na mão?",
+      "correct": "Sim: disputa o pote, mas não recebe novos turnos de aposta",
+      "wrong": ["Não: sai da mão até o showdown", "Sim, e volta a apostar nas streets seguintes"]
+    },
+    {
+      "id": "xm0l6a",
+      "lesson": "m0l6",
+      "prompt": "As fichas das mesas de estudo da Academy:",
+      "correct": "Não têm valor e não movimentam a sua carteira",
+      "wrong": ["Vão para a carteira de Play Money", "Viram saldo de Jogo Real quando a aula é aprovada"]
+    },
+    {
+      "id": "xm0l6b",
+      "lesson": "m0l6",
+      "prompt": "Salvar uma sessão de treino na mesa de estudo conclui a aula?",
+      "correct": "Não: a nota da aula e a prática têm funções diferentes",
+      "wrong": ["Sim, conclui automaticamente", "Sim, desde que você termine a sessão com lucro"]
+    },
+    {
+      "id": "xm0l6c",
+      "lesson": "m0l6",
+      "prompt": "No modo desafio da mesa de estudo, o que muda em relação ao treino guiado?",
+      "correct": "As dicas ficam escondidas e você responde à pergunta objetiva com as suas próprias contas",
+      "wrong": ["Os bots passam a jogar com as cartas abertas", "As fichas passam a valer dinheiro"]
+    },
+    {
+      "id": "xm0l7a",
+      "lesson": "m0l7",
+      "prompt": "Modelo simplificado: há 1,5 BB nos blinds e você abre para 2,5 BB, perdendo a aposta sempre que alguém continua. Com que frequência todos precisam desistir para o blefe puro empatar?",
+      "correct": "62,5%",
+      "wrong": ["37,5%", "50%", "25%"]
+    },
+    {
+      "id": "xm0l7b",
+      "lesson": "m0l7",
+      "prompt": "O plano de raise ou fold com pote fechado também responde a uma 3-bet?",
+      "correct": "Não: diante de um aumento, fold, call e 3-bet dependem de range, tamanho e stacks",
+      "wrong": ["Sim: depois de abrir, sempre pague", "Sim: depois de abrir, sempre desista"]
+    },
+    {
+      "id": "xm0l7c",
+      "lesson": "m0l7",
+      "prompt": "Uma mão fraca ganhou o pote depois de uma abertura ruim. O que a revisão deve concluir?",
+      "correct": "O resultado não muda a informação que você tinha; revise o ponto da decisão",
+      "wrong": ["A abertura estava certa, porque ganhou", "Essa mão passa a entrar no plano de abertura"]
+    },
+    {
+      "id": "xm0l8a",
+      "lesson": "m0l8",
+      "prompt": "A aposta vigente é de 100 fichas e o último aumento completo foi de 100. Qual é o total mínimo de um novo raise completo?",
+      "correct": "200",
+      "wrong": ["100", "300", "150"]
+    },
+    {
+      "id": "xm0l8b",
+      "lesson": "m0l8",
+      "prompt": "Houve um raise de 100 para 300. Qual é o próximo total mínimo de raise?",
+      "correct": "500",
+      "wrong": ["400", "600", "300"]
+    },
+    {
+      "id": "xm0l8c",
+      "lesson": "m0l8",
+      "prompt": "Pote de 10 BB e aposta de 10 BB. Num call final sem taxas, de quanta equity o caller precisa?",
+      "correct": "33,33%",
+      "wrong": ["25%", "50%", "10%"]
+    },
+    {
+      "id": "xm5l3a",
+      "lesson": "m5l3",
+      "prompt": "Brazilian Pineapple: quando acontece a troca de carta no flop?",
+      "correct": "Na sua vez, antes de agir, só na primeira vez que você age na street",
+      "wrong": ["Numa rodada de troca separada, depois das apostas", "Sempre que a vez voltar, inclusive depois de um aumento"]
+    },
+    {
+      "id": "xm5l3b",
+      "lesson": "m5l3",
+      "prompt": "Brazilian Pineapple: o que os outros jogadores veem da carta que você descarta no river?",
+      "correct": "Ela fica aberta para todos por cerca de dois segundos e sai do jogo",
+      "wrong": ["Nada: o descarte é escondido, como a troca", "Ela fica aberta na mesa até o fim da mão e pode ser usada por todos"]
+    },
+    {
+      "id": "xm5l3c",
+      "lesson": "m5l3",
+      "prompt": "Brazilian Pineapple com quatro jogadores e blinds R$ 0,50/R$ 1. Ninguém agiu. Qual é a abertura máxima do primeiro a falar?",
+      "correct": "R$ 2,50",
+      "wrong": ["R$ 4,00", "R$ 3,50", "R$ 1,50"]
+    },
+    {
+      "id": "xm5l3d",
+      "lesson": "m5l3",
+      "prompt": "Brazilian Pineapple: o seu tempo acaba no flop sem aposta a pagar. O que acontece?",
+      "correct": "Você mantém as cartas e dá check",
+      "wrong": ["O sistema troca uma carta ao acaso e dá check", "Você desiste da mão"]
+    },
+    {
+      "id": "xm5l4a",
+      "lesson": "m5l4",
+      "prompt": "Brazilian Pineapple, turn: quantas mãos de cinco cartas usam no máximo duas das suas três privadas?",
+      "correct": "15",
+      "wrong": ["12", "46", "3"]
+    },
+    {
+      "id": "xm5l4b",
+      "lesson": "m5l4",
+      "prompt": "Há 46 cartas desconhecidas e duas delas são ases. Olhando duas posições do baralho, sem outra informação, qual é a chance de pelo menos um ás?",
+      "correct": "1 − (44/46 × 43/45), cerca de 8,60%",
+      "wrong": ["2 × 2/46, cerca de 8,70%", "2/46, cerca de 4,35%"]
+    },
+    {
+      "id": "xm5l4c",
+      "lesson": "m5l4",
+      "prompt": "Brazilian Pineapple: no river, um oponente descartou o 9♣. Como tratar essa carta nas suas contas?",
+      "correct": "Como conhecida: saiu do jogo e deixa de ser carta desconhecida",
+      "wrong": ["Como desconhecida, igual às cartas trocadas", "Como se voltasse para o baralho"]
+    },
+    {
+      "id": "xm5l5a",
+      "lesson": "m5l5",
+      "prompt": "Em quatro resultados igualmente prováveis você tem uma vitória, uma derrota e dois empates entre dois jogadores. Qual é a sua equity?",
+      "correct": "50%",
+      "wrong": ["25%", "75%"]
+    },
+    {
+      "id": "xm5l5b",
+      "lesson": "m5l5",
+      "prompt": "Brazilian Pineapple: o board é um royal flush aberto. Quem leva o pote?",
+      "correct": "Todos que chegaram ao showdown dividem o pote",
+      "wrong": ["Quem tem a maior carta na mão", "Quem apostou por último"]
+    },
+    {
+      "id": "xm5l5c",
+      "lesson": "m5l5",
+      "prompt": "Repetir a mesma seed numa simulação de equity:",
+      "correct": "Reproduz a mesma distribuição; não cria uma amostra nova",
+      "wrong": ["Dobra a precisão da estimativa", "Corrige um range de oponente errado"]
+    },
+    {
+      "id": "xm5l5d",
+      "lesson": "m5l5",
+      "prompt": "Brazilian Pineapple: um jogador vai all-in no turn com três privadas. Que cartas o Loss Deflator considera?",
+      "correct": "As três privadas, contando em cada desfecho as duas que formam a melhor mão, e completa só o board",
+      "wrong": ["Só as duas melhores no instante do all-in", "As cartas que ele teria depois das trocas que ainda poderia fazer"]
+    },
+    {
+      "id": "xm5l1a",
+      "lesson": "m5l1",
+      "prompt": "Texas Hold'em Short Deck da ZT: qual é a ordem entre flush e full house?",
+      "correct": "Flush vence full house",
+      "wrong": ["Full house vence flush", "Empatam"]
+    },
+    {
+      "id": "xm5l1b",
+      "lesson": "m5l1",
+      "prompt": "Short Deck, turn: duas privadas e quatro comunitárias conhecidas, quatro delas de copas. Sem outra informação, qual é a chance de copas no river?",
+      "correct": "5/30, cerca de 16,67%",
+      "wrong": ["9/46, cerca de 19,57%", "5/46, cerca de 10,87%"]
+    },
+    {
+      "id": "xm5l1c",
+      "lesson": "m5l1",
+      "prompt": "Short Deck da ZT: A-6-7-8-9 contra 6-7-8-9-T. Qual vence?",
+      "correct": "6-7-8-9-T, que termina no dez",
+      "wrong": ["A-6-7-8-9, porque tem o ás", "Empate"]
+    },
+    {
+      "id": "xm5l2a",
+      "lesson": "m5l2",
+      "prompt": "Omaha 4, no river: quantas combinações candidatas de duas privadas e três comunitárias existem?",
+      "correct": "60",
+      "wrong": ["6", "10", "21"]
+    },
+    {
+      "id": "xm5l2b",
+      "lesson": "m5l2",
+      "prompt": "Omaha 4, river. A mesa tem quatro copas. Você tem flush?",
+      "correct": "Não: com uma só copa na mão não há flush, porque são exatamente duas privadas",
+      "wrong": ["Sim, flush de ás", "Sim, mas só se ninguém tiver outra copa"],
+      "hole": ["Ah", "Qs", "Jd", "9c"],
+      "board": ["Kh", "8h", "5h", "2h", "7c"]
+    },
+    {
+      "id": "xm5l2c",
+      "lesson": "m5l2",
+      "prompt": "Qual ranking o Omaha 4 da ZT usa?",
+      "correct": "O clássico: sequência vence trinca e full house vence flush",
+      "wrong": ["O do Short Deck da ZT", "Um próprio, em que flush vence full house"]
+    },
+    {
+      "id": "xm1l1a",
+      "lesson": "m1l1",
+      "prompt": "Sem nenhuma carta conhecida, quantas combinações tem AK?",
+      "correct": "16",
+      "wrong": ["12", "4", "6"]
+    },
+    {
+      "id": "xm1l1b",
+      "lesson": "m1l1",
+      "prompt": "Sem nenhuma carta conhecida, quantas combinações tem um par como 77?",
+      "correct": "6",
+      "wrong": ["4", "12", "16"]
+    },
+    {
+      "id": "xm1l1c",
+      "lesson": "m1l1",
+      "prompt": "Por que os resultados das mesas de estudo não servem de tabela pronta para qualquer mesa do lobby?",
+      "correct": "Porque os treinos isolam o conceito com rake zero e stacks declarados",
+      "wrong": ["Porque os bots veem as suas cartas", "Porque as mesas do lobby usam outro ranking"]
+    },
+    {
+      "id": "xm1l2a",
+      "lesson": "m1l2",
+      "prompt": "Blinds 0,5/1. Todos desistem e o small blind completa. O que o big blind precisa pagar para ver o flop?",
+      "correct": "Nada: pode dar check",
+      "wrong": ["0,5 BB", "1 BB"]
+    },
+    {
+      "id": "xm1l2b",
+      "lesson": "m1l2",
+      "prompt": "Depois do limp do small blind, o big blind aumenta para 4 BB. Quanto o big blind coloca a mais?",
+      "correct": "3 BB",
+      "wrong": ["4 BB", "3,5 BB"]
+    },
+    {
+      "id": "xm1l2c",
+      "lesson": "m1l2",
+      "prompt": "Antes de explorar uma tendência de limp do small blind, o que a aula manda observar?",
+      "correct": "A frequência de limp, de fold para raise e de limp-reraise",
+      "wrong": ["Só o tamanho do stack do small blind", "O resultado da última mão"]
+    },
+    {
+      "id": "xm1l3a",
+      "lesson": "m1l3",
+      "prompt": "Você segura um ás. Sem outras cartas conhecidas, quantas combinações de AA o rival ainda pode ter?",
+      "correct": "3",
+      "wrong": ["6", "1", "4"]
+    },
+    {
+      "id": "xm1l3b",
+      "lesson": "m1l3",
+      "prompt": "Você segura um ás e nenhum rei. Sem outras cartas conhecidas, quantas combinações de AK restam?",
+      "correct": "12",
+      "wrong": ["16", "9", "8"]
+    },
+    {
+      "id": "xm1l3c",
+      "lesson": "m1l3",
+      "prompt": "O rival abre para 2,5 BB e você faz 3-bet para 8 BB no total. Qual foi o incremento sobre a abertura?",
+      "correct": "5,5 BB",
+      "wrong": ["8 BB", "10,5 BB", "2,5 BB"]
+    },
+    {
+      "id": "xm2l1a",
+      "lesson": "m2l1",
+      "prompt": "Flop 9♥ 8♥ 7♣. Que projeto Q♠ J♠ tem?",
+      "correct": "Uma broca: só os dez completam a sequência",
+      "wrong": ["Um projeto aberto de sequência com oito outs", "Um projeto de flush"]
+    },
+    {
+      "id": "xm2l1b",
+      "lesson": "m2l1",
+      "prompt": "Qual é a diferença entre vantagem de range e vantagem de nuts?",
+      "correct": "Range compara a distribuição de forças; nuts compara a presença das combinações mais fortes",
+      "wrong": ["São a mesma coisa", "Vantagem de nuts é sempre de quem abriu o pré-flop"]
+    },
+    {
+      "id": "xm2l1c",
+      "lesson": "m2l1",
+      "prompt": "O BB deu check no flop. Por que call não é uma opção para você?",
+      "correct": "Porque call só existe quando há valor a pagar",
+      "wrong": ["Porque quem abriu o pré-flop não pode pagar", "Porque o pote fica fechado depois do check"]
+    },
+    {
+      "id": "xm2l2a",
+      "lesson": "m2l2",
+      "prompt": "Pote de 10 BB, você aposta 3 BB e o rival aumenta para 12 BB. Sem taxas e com a ação encerrada no call, qual é o limiar de equity para pagar?",
+      "correct": "9/34, cerca de 26,47%",
+      "wrong": ["12/37, cerca de 32,43%", "9/25, 36%", "12/25, 48%"]
+    },
+    {
+      "id": "xm2l2b",
+      "lesson": "m2l2",
+      "prompt": "O que a aula quer dizer com força absoluta e força relativa?",
+      "correct": "A mesma mão pode ser forte contra um range amplo e fraca contra um range só de mãos fortes",
+      "wrong": ["Uma mão forte é forte contra qualquer range", "Força relativa só vale no pré-flop"]
+    },
+    {
+      "id": "xm2l2c",
+      "lesson": "m2l2",
+      "prompt": "Qual destas descreve um float com plano?",
+      "correct": "Pagar com equity, de preferência em posição, sabendo quais cartas e apostas futuras permitem continuar",
+      "wrong": ["Pagar qualquer mão para ver o que o rival faz", "Pagar fora de posição esperando que o rival desista sozinho"]
+    },
+    {
+      "id": "xm2l3a",
+      "lesson": "m2l3",
+      "prompt": "Com um par na mão e só as suas duas cartas conhecidas, qual é a chance de o flop trazer pelo menos uma carta do seu valor?",
+      "correct": "Cerca de 11,76%",
+      "wrong": ["Cerca de 25%", "Cerca de 4%", "Cerca de 50%"]
+    },
+    {
+      "id": "xm2l3b",
+      "lesson": "m2l3",
+      "prompt": "Modelo artificial: você blefa contra dois adversários e cada um desiste metade das vezes, de forma independente. Qual é a chance de os dois desistirem?",
+      "correct": "25%",
+      "wrong": ["50%", "100%", "75%"]
+    },
+    {
+      "id": "xm2l3c",
+      "lesson": "m2l3",
+      "prompt": "Você paga 1 BB só para buscar a trinca no flop (11,76%), sem outros custos e sem ganhar quando erra. Quanto precisa ganhar, em média, quando acerta para equilibrar?",
+      "correct": "Mais de cerca de 7,5 BB líquidos",
+      "wrong": ["Mais de 1 BB", "Exatamente 20 BB, sempre"]
+    },
+    {
+      "id": "xm3l1a",
+      "lesson": "m3l1",
+      "prompt": "Você tem A♠ Q♦, o flop é Q♠ 8♣ 3♥ e o turn é K♦. O que aconteceu com a sua mão?",
+      "correct": "Passou de top pair para segundo par",
+      "wrong": ["Virou top pair com o melhor kicker", "Formou uma sequência"]
+    },
+    {
+      "id": "xm3l1b",
+      "lesson": "m3l1",
+      "prompt": "Depois de uma c-bet paga no flop, como fica o range do caller no turn?",
+      "correct": "Filtrado: parte das mãos desistiu e parte continuou",
+      "wrong": ["Igual ao range do pré-flop", "Só com mãos fracas"]
+    },
+    {
+      "id": "xm3l1c",
+      "lesson": "m3l1",
+      "prompt": "Pela aula, o que sozinho não justifica uma segunda aposta no turn?",
+      "correct": "A iniciativa de ter apostado no flop",
+      "wrong": ["Receber pagamento de mãos piores", "Fazer mãos melhores desistirem"]
+    },
+    {
+      "id": "xm3l2a",
+      "lesson": "m3l2",
+      "prompt": "Restam 60 BB efetivos e há 20 BB no pote. Qual é o SPR?",
+      "correct": "3",
+      "wrong": ["0,33", "80", "40"]
+    },
+    {
+      "id": "xm3l2b",
+      "lesson": "m3l2",
+      "prompt": "O que torna um range de aposta polarizado?",
+      "correct": "A composição: mãos fortes para valor e blefes",
+      "wrong": ["Apostar 75% do pote ou mais", "Ter só mãos de força média"]
+    },
+    {
+      "id": "xm3l2c",
+      "lesson": "m3l2",
+      "prompt": "Você dá check no turn para controlar o pote. Isso garante um showdown barato?",
+      "correct": "Não: o rival ainda pode apostar depois",
+      "wrong": ["Sim, sempre", "Sim, quando você está em posição"]
+    },
+    {
+      "id": "xm3l3a",
+      "lesson": "m3l3",
+      "prompt": "O pote tem 12 BB e o rival aposta 3 BB. Qual é o preço do call?",
+      "correct": "3/18, cerca de 16,67%",
+      "wrong": ["3/15, 20%", "3/12, 25%"]
+    },
+    {
+      "id": "xm3l3b",
+      "lesson": "m3l3",
+      "prompt": "Call final: o pote tem 150 antes do seu call de 50 e a sua equity hipotética é 30%. Qual é o EV do call?",
+      "correct": "+10 fichas",
+      "wrong": ["−10 fichas", "+45 fichas", "Zero"]
+    },
+    {
+      "id": "xm3l3c",
+      "lesson": "m3l3",
+      "prompt": "No turn, você busca flush com 9 copas entre 46 cartas desconhecidas. As duas cartas do rival são reveladas e uma delas é de copas. Como fica a conta?",
+      "correct": "8/44: o denominador cai para 44 e a copa revelada sai dos outs",
+      "wrong": ["9/44: só o denominador muda", "9/46: nada muda"]
+    },
+    {
+      "id": "xm4l1a",
+      "lesson": "m4l1",
+      "prompt": "Numa aposta de valor no river, qual range importa?",
+      "correct": "O range que paga a aposta",
+      "wrong": ["O range inteiro do rival no começo da mão", "Só as mãos melhores que a sua"]
+    },
+    {
+      "id": "xm4l1b",
+      "lesson": "m4l1",
+      "prompt": "Se o rival só paga a sua aposta com mãos melhores que a sua, apostar no river:",
+      "correct": "Não é aposta de valor: você perde para quem paga",
+      "wrong": ["É thin value", "É sempre certo, por proteção"]
+    },
+    {
+      "id": "xm4l1c",
+      "lesson": "m4l1",
+      "prompt": "Uma mão fraca do rival, que já perderia no showdown, desiste diante da sua aposta. O que a aposta ganhou em relação ao check?",
+      "correct": "Nada a mais: você já ganharia esse pote no showdown",
+      "wrong": ["Um pagamento extra dessa mão", "O dobro do pote"]
+    },
+    {
+      "id": "xm4l2a",
+      "lesson": "m4l2",
+      "prompt": "River heads-up: pote de 20 BB e aposta rival de 20 BB. Seu bluff-catcher vence todos os blefes e perde para todo valor, sem empates nem rake. Que proporção de blefes no range de aposta torna o call lucrativo?",
+      "correct": "Mais de um terço",
+      "wrong": ["Mais da metade", "Mais de um quarto"]
+    },
+    {
+      "id": "xm4l2b",
+      "lesson": "m4l2",
+      "prompt": "No modelo simplificado de river, qual é a frequência mínima de defesa (MDF) contra uma aposta do tamanho do pote?",
+      "correct": "50%",
+      "wrong": ["33%", "67%", "25%"]
+    },
+    {
+      "id": "xm4l2c",
+      "lesson": "m4l2",
+      "prompt": "Board J♠ T♠ 5♣ 2♦ 9♥. Você tem uma dama na mão. Que efeito ela tem nas combinações de KQ do rival?",
+      "correct": "Remove algumas combinações de KQ, mas também pode remover blefes com dama",
+      "wrong": ["Remove todas as combinações de KQ", "Nenhum efeito"]
+    },
+    {
+      "id": "xm4l3a",
+      "lesson": "m4l3",
+      "prompt": "Pote de 100 e aposta de 150. Sem taxas nem apostas futuras, qual é o limiar de equity de quem paga?",
+      "correct": "37,5%",
+      "wrong": ["60%", "50%", "40%"]
+    },
+    {
+      "id": "xm4l3b",
+      "lesson": "m4l3",
+      "prompt": "No mesmo modelo, um blefe puro de 150 num pote de 100, que perde sempre quando é pago, precisa de folds acima de quanto?",
+      "correct": "60%",
+      "wrong": ["37,5%", "40%", "50%"]
+    },
+    {
+      "id": "xm4l3c",
+      "lesson": "m4l3",
+      "prompt": "Uma blocking bet pequena fora de posição fixa o preço do showdown?",
+      "correct": "Não: o rival ainda pode aumentar",
+      "wrong": ["Sim: ninguém pode aumentar uma aposta pequena", "Sim, quando ela é menor que 25% do pote"]
+    },
+    {
+      "id": "xm6l1a",
+      "lesson": "m6l1",
+      "prompt": "Pote 10, aposta 5, equity de 20% quando pago, todos desistem 30% das vezes, sem raises, rake nem apostas futuras. Qual é o EV?",
+      "correct": "+2,3 BB",
+      "wrong": ["−1 BB", "+3 BB", "+0,7 BB"]
+    },
+    {
+      "id": "xm6l1b",
+      "lesson": "m6l1",
+      "prompt": "Uma decisão de EV positivo garante lucro em mil mãos?",
+      "correct": "Não: EV é a média do modelo e resultados finitos variam",
+      "wrong": ["Sim", "Sim, quando a equity passa de 50%"]
+    },
+    {
+      "id": "xm6l1c",
+      "lesson": "m6l1",
+      "prompt": "Um semi-blefe tem duas formas de ganhar. Isso prova que apostar é lucrativo?",
+      "correct": "Não: depende da frequência de folds, do range que paga, do tamanho e das ações futuras",
+      "wrong": ["Sim, sempre", "Sim, quando o projeto é de flush"]
+    },
+    {
+      "id": "xm6l2a",
+      "lesson": "m6l2",
+      "prompt": "Em cem situações independentes com 80% de chance de vitória, o que se pode afirmar?",
+      "correct": "A média esperada é de oitenta vitórias, mas a contagem não é garantida",
+      "wrong": ["Você vence exatamente oitenta", "Você nunca perde três seguidas"]
+    },
+    {
+      "id": "xm6l2b",
+      "lesson": "m6l2",
+      "prompt": "O que é o limite de perda definido antes da sessão?",
+      "correct": "Uma barreira para encerrar a exposição, não uma meta",
+      "wrong": ["Um valor que você precisa recuperar antes de parar", "Uma meta de perda diária"]
+    },
+    {
+      "id": "xm6l2c",
+      "lesson": "m6l2",
+      "prompt": "O estudo de Palomäki e colaboradores sobre tilt, citado na aula, é:",
+      "correct": "Evidência qualitativa de relatos, não prova de causa nem tratamento",
+      "wrong": ["Um ensaio clínico que prova a cura do tilt", "Uma tabela de buy-ins recomendados"]
+    },
+    {
+      "id": "xm6l3a",
+      "lesson": "m6l3",
+      "prompt": "Na primeira passagem da revisão de uma mão, o que fazer?",
+      "correct": "Esconder o resultado e reconstruir a informação disponível",
+      "wrong": ["Ver o resultado e procurar o erro", "Ir direto às contas de equity"]
+    },
+    {
+      "id": "xm6l3b",
+      "lesson": "m6l3",
+      "prompt": "No teste de regras dos quatro jogos, o que conferir primeiro no Omaha?",
+      "correct": "Exatamente duas privadas entre as quatro",
+      "wrong": ["Se o board pode jogar sozinho", "O universo de 36 cartas"]
+    },
+    {
+      "id": "xm6l3c",
+      "lesson": "m6l3",
+      "prompt": "Segundo a revisão de Dunlosky e colaboradores citada na aula, quais técnicas têm alta utilidade?",
+      "correct": "Testes de prática e estudo distribuído",
+      "wrong": ["Releitura e grifos", "Uma sessão longa só na véspera"]
+    }
+  ]
+}

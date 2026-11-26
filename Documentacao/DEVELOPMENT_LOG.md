@@ -1783,3 +1783,13 @@ Segunda sessão da etapa 6 do plano de 24/11 (aprovada pelo proprietário: "pode
 - Testes: 5 de unidade em `course_exam.rs` (25 aulas sem a história, sorteio de 20 aulas diferentes em 50 sementes, nota e aulas a rever, nome, código); contrato com banco `test_contract_course_certificate_needs_lessons_and_final_exam` (sem aulas = 403, aula antiga sem vídeo, prova sem gabarito, reabrir devolve a mesma, reprovação, entrega repetida = 409, 24 h = 429, tempo esgotado reprova com 100%, aprovação, verificação pública com código digitado em minúsculas e sem hífen, segunda prova = 409). Bateria da API: 135 de unidade e 24 contratos com banco verdes; Vitest 161 verdes; `tsc`, ESLint e build do site limpos; pacote sem `expectedIndex`. Não feita: conferência visual das páginas novas (sem navegador nesta sessão).
 - Limite conhecido: as perguntas da prova saem do mesmo banco dos quizzes (68), cujo gabarito comentado o aluno vê depois de passar em cada aula. Um banco próprio da prova fica como trabalho de conteúdo.
 - Documentos: ARQUITETURA_E_APIS, CURSO_ESTRATEGIA_POKER, Frontend-Web/README, STATUS (migrations 69), DASHBOARD, Termos.
+
+## 2026-11-25 — Banco próprio da prova final
+
+Pedido do proprietário depois da publicação da etapa 6b: "então faça antes do próximo assunto". A prova sorteava as perguntas do quiz das aulas, cujo gabarito comentado o aluno vê depois de passar em cada aula.
+
+- Banco novo `API-Axum/data/course_exam_bank.json`: 77 perguntas, 3 por aula obrigatória e 4 nas aulas centrais do Brazilian Pineapple (m5l3 regras, m5l5 showdown e Loss Deflator). Cada uma sai do texto da própria aula (regras, contas de pote e preço, combinações, ranking de cada modalidade, banca e método de revisão), com as contas conferidas, e nenhuma repete enunciado do quiz. Formato com a alternativa certa separada das erradas (`correct`, `wrong`); a prova embaralha na entrega.
+- API (`course_exam.rs`): a prova sorteia uma pergunta do banco por aula; a correção procura no banco e, para provas abertas antes da troca, ainda no quiz. O banco é embutido na compilação (`include_str!`) e não entra no pacote do site.
+- Testes: `banco_da_prova_cobre_as_aulas_sem_repetir_o_quiz` (3 ou mais por aula, ids únicos e diferentes dos do quiz, enunciado diferente do quiz, 3 ou 4 alternativas sem repetição, cartas válidas); o sorteio em 50 sementes só usa o banco; o contrato com banco responde pelo banco novo. Verdes: 13 testes de unidade do curso e os 3 contratos do curso com banco.
+- Limite: o repositório no GitHub é público, então o banco pode ser lido lá (o gabarito do quiz já podia). Fechar o repositório é decisão do proprietário.
+- Documentos: CURSO_ESTRATEGIA_POKER, ARQUITETURA_E_APIS, DASHBOARD.

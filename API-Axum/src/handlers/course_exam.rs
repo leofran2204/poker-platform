@@ -3,7 +3,9 @@
 //! O certificado sai só pelo servidor: todas as aulas exigidas cumpridas pelas
 //! regras da 6a (quiz aprovado com o vídeo assistido) e prova final com tempo,
 //! uma pergunta sorteada de cada uma de 20 aulas sorteadas, alternativas
-//! embaralhadas e uma tentativa a cada 24 h. O código do certificado é público:
+//! embaralhadas e uma tentativa a cada 24 h. As perguntas saem de um banco só
+//! da prova (`API-Axum/data/course_exam_bank.json`), que não vai para o site e
+//! não repete o quiz das aulas. O código do certificado é público:
 //! `GET /api/certificate/verify` confirma nome, nota e data.
 
 use axum::extract::{Query, State};
@@ -11,6 +13,7 @@ use axum::Json;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use std::collections::HashMap;
+use std::sync::OnceLock;
 use uuid::Uuid;
 
 use super::course::{certificate_lessons, quiz_key, QuestionKey, PASS_SCORE};
@@ -85,31 +88,87 @@ pub(crate) fn normalize_code(raw: &str) -> Option<String> {
         .then(|| format!("ZT-{}-{}-{}", &body[0..4], &body[4..8], &body[8..12]))
 }
 
-/// Uma pergunta de cada uma de até 20 aulas exigidas, sorteadas.
+const EXAM_BANK: &str = include_str!("../../data/course_exam_bank.json");
+
+#[derive(Deserialize)]
+struct RawBank {
+    questions: Vec<RawBankQuestion>,
+}
+
+#[derive(Deserialize)]
+struct RawBankQuestion {
+    id: String,
+    lesson: String,
+    prompt: String,
+    correct: String,
+    wrong: Vec<String>,
+    #[serde(default)]
+    hole: Vec<String>,
+    #[serde(default)]
+    board: Vec<String>,
+}
+
+/// Banco da prova por aula, na ordem do arquivo. As alternativas ficam com a
+/// certa primeiro; a prova embaralha na entrega.
+pub(crate) fn exam_bank() -> &'static HashMap<String, Vec<QuestionKey>> {
+    static BANK: OnceLock<HashMap<String, Vec<QuestionKey>>> = OnceLock::new();
+    BANK.get_or_init(|| parse_bank(EXAM_BANK))
+}
+
+fn parse_bank(json: &str) -> HashMap<String, Vec<QuestionKey>> {
+    let raw: RawBank =
+        serde_json::from_str(json).expect("course_exam_bank.json válido (conferido nos testes)");
+    let mut bank: HashMap<String, Vec<QuestionKey>> = HashMap::new();
+    for q in raw.questions {
+        let mut options = vec![q.correct.clone()];
+        options.extend(q.wrong);
+        bank.entry(q.lesson).or_default().push(QuestionKey {
+            id: q.id,
+            engine: !q.hole.is_empty(),
+            correct: q.correct,
+            prompt: q.prompt,
+            options,
+            hole: q.hole,
+            board: q.board,
+        });
+    }
+    bank
+}
+
+/// Uma pergunta do banco da prova de cada uma de até 20 aulas exigidas, sorteadas.
 pub(crate) fn draw_questions(rand: &mut impl FnMut(u32) -> u32) -> Vec<String> {
-    let key = quiz_key();
+    let bank = exam_bank();
     let mut lessons: Vec<&String> = certificate_lessons()
         .iter()
-        .filter(|id| key.get(*id).is_some_and(|l| !l.questions.is_empty()))
+        .filter(|id| bank.get(*id).is_some_and(|qs| !qs.is_empty()))
         .collect();
     shuffle(&mut lessons, rand);
     lessons
         .into_iter()
         .take(EXAM_QUESTIONS)
         .map(|id| {
-            let questions = &key[id].questions;
+            let questions = &bank[id];
             questions[rand(questions.len() as u32) as usize].id.clone()
         })
         .collect()
 }
 
+/// Procura no banco da prova e, para provas abertas antes do banco, no quiz.
 fn find_question(id: &str) -> Option<(&'static str, &'static QuestionKey)> {
-    quiz_key().iter().find_map(|(lesson_id, lesson)| {
-        lesson
-            .questions
+    let in_bank = exam_bank().iter().find_map(|(lesson_id, questions)| {
+        questions
             .iter()
             .find(|q| q.id == id)
             .map(|q| (lesson_id.as_str(), q))
+    });
+    in_bank.or_else(|| {
+        quiz_key().iter().find_map(|(lesson_id, lesson)| {
+            lesson
+                .questions
+                .iter()
+                .find(|q| q.id == id)
+                .map(|q| (lesson_id.as_str(), q))
+        })
     })
 }
 
@@ -669,6 +728,61 @@ mod tests {
     }
 
     #[test]
+    fn banco_da_prova_cobre_as_aulas_sem_repetir_o_quiz() {
+        let bank = exam_bank();
+        let quiz = quiz_key();
+        let quiz_prompts: Vec<&str> = quiz
+            .values()
+            .flat_map(|l| l.questions.iter().map(|q| q.prompt.as_str()))
+            .collect();
+        for lesson in certificate_lessons() {
+            assert!(
+                bank.get(lesson).is_some_and(|qs| qs.len() >= 3),
+                "aula {lesson} com menos de 3 perguntas na prova"
+            );
+        }
+        let mut ids = std::collections::HashSet::new();
+        let cards = |cs: &[String]| {
+            cs.iter().all(|c| {
+                c.len() == 2 && "23456789TJQKA".contains(&c[..1]) && "shdc".contains(&c[1..])
+            })
+        };
+        for (lesson, questions) in bank {
+            assert!(
+                certificate_lessons().iter().any(|l| l == lesson),
+                "aula {lesson} fora do certificado"
+            );
+            for q in questions {
+                assert!(ids.insert(q.id.as_str()), "id repetido: {}", q.id);
+                assert!(!quiz
+                    .values()
+                    .any(|l| l.questions.iter().any(|k| k.id == q.id)));
+                assert!(!quiz_prompts.contains(&q.prompt.as_str()), "{}", q.id);
+                assert!((3..=4).contains(&q.options.len()), "{}", q.id);
+                let mut unique = q.options.clone();
+                unique.sort();
+                unique.dedup();
+                assert_eq!(
+                    unique.len(),
+                    q.options.len(),
+                    "alternativa repetida em {}",
+                    q.id
+                );
+                assert!(q
+                    .options
+                    .iter()
+                    .all(|o| !o.trim().is_empty() && o.len() <= 200));
+                assert!(
+                    cards(&q.hole) && cards(&q.board),
+                    "carta inválida em {}",
+                    q.id
+                );
+            }
+        }
+        assert!(ids.len() >= 75);
+    }
+
+    #[test]
     fn prova_sorteia_20_perguntas_de_aulas_diferentes() {
         for seed in 0..50u32 {
             let mut state = seed;
@@ -685,6 +799,10 @@ mod tests {
             assert!(lessons
                 .iter()
                 .all(|l| certificate_lessons().iter().any(|r| r == l)));
+            assert!(
+                ids.iter().all(|id| id.starts_with('x')),
+                "fora do banco: {ids:?}"
+            );
             lessons.sort_unstable();
             lessons.dedup();
             assert_eq!(lessons.len(), EXAM_QUESTIONS);

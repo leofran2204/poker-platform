@@ -2618,23 +2618,27 @@ async fn test_contract_course_certificate_needs_lessons_and_final_exam() {
     ))
     .unwrap();
     let mut required: Vec<String> = Vec::new();
-    let mut correct: std::collections::HashMap<String, String> = Default::default();
     for module in course["modules"].as_array().unwrap() {
         for lesson in module["lessons"].as_array().unwrap() {
             if module["id"] != "m0" {
                 required.push(lesson["id"].as_str().unwrap().to_string());
             }
-            for q in lesson["quiz"].as_array().unwrap() {
-                let answer = if q["kind"] == "engine" {
-                    q["expected"].as_str().unwrap().to_string()
-                } else {
-                    let i = q["expectedIndex"].as_u64().unwrap() as usize;
-                    q["options"][i].as_str().unwrap().to_string()
-                };
-                correct.insert(q["id"].as_str().unwrap().to_string(), answer);
-            }
         }
     }
+    // A prova usa o banco próprio, não o quiz das aulas.
+    let bank: serde_json::Value =
+        serde_json::from_str(include_str!("../data/course_exam_bank.json")).unwrap();
+    let correct: std::collections::HashMap<String, String> = bank["questions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|q| {
+            (
+                q["id"].as_str().unwrap().to_string(),
+                q["correct"].as_str().unwrap().to_string(),
+            )
+        })
+        .collect();
     assert_eq!(required.len(), 25);
     let answers_for = |exam: &serde_json::Value, right: bool| -> serde_json::Value {
         let mut map = serde_json::Map::new();
@@ -2745,6 +2749,11 @@ async fn test_contract_course_certificate_needs_lessons_and_final_exam() {
     let (status, exam, text) = call(&app, token, Method::POST, start, Some(name.clone())).await;
     assert_eq!(status, StatusCode::OK, "{text}");
     assert_eq!(exam["questions"].as_array().unwrap().len(), 20);
+    assert!(exam["questions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .all(|q| correct.contains_key(q["id"].as_str().unwrap())));
     assert_eq!(exam["holder_name"], "Aluna de Teste");
     assert!(exam["seconds_left"].as_i64().unwrap() > 1790, "{exam}");
     // A prova não leva gabarito nem explicação.
