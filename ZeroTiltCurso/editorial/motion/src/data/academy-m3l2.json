@@ -1,0 +1,445 @@
+{
+ "id": "academy-m3l2",
+ "title": "Aula m3l2 — Pot control e apostas polarizadas",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m3l2",
+ "scenes": [
+  {
+   "id": "m3l2-01",
+   "chapter": "Abertura",
+   "title": "Pot control e apostas polarizadas",
+   "voice": "Esta é a Zero Tilt Academy. Na aula dois do módulo três, vamos comparar o controle do pote com as apostas polarizadas. O objetivo é decidir entre check-back e aposta com uma mão intermediária, num board de três paus.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 3 · Aula 2",
+    "lines": [
+     "Objetivo: comparar check-back e aposta com mão intermediária"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m3l2-02",
+   "chapter": "Pot control",
+   "title": "O que o check preserva",
+   "voice": "Dar check pode preservar mãos de força intermediária e evita aumentar a exposição naquela rodada. Mas o check não garante um showdown barato: o rival ainda pode apostar depois.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Preserva mãos intermediárias",
+     "Evita aumentar a exposição",
+     "Não garante showdown barato"
+    ],
+    "cues": [
+     "força intermediária",
+     "a exposição",
+     "não garante"
+    ]
+   }
+  },
+  {
+   "id": "m3l2-03",
+   "chapter": "Polarização",
+   "title": "Polarizar é compor o range",
+   "voice": "Um range polarizado reúne mãos fortes, que apostam por valor, e blefes. Ele não se define por apostar setenta e cinco por cento do pote ou mais: uma aposta grande só com mãos médias não fica polarizada por causa do tamanho. Tudo depende da composição do range e do contexto.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Polarizado",
+      "items": [
+       "Mãos fortes por valor",
+       "E blefes"
+      ],
+      "cues": [
+       "mãos fortes",
+       "e blefes"
+      ],
+      "tone": "mint"
+     },
+     {
+      "title": "Não basta",
+      "items": [
+       "Apostar 75% ou mais",
+       "Aposta grande só com mãos médias"
+      ],
+      "cues": [
+       "setenta e cinco por cento",
+       "só com mãos médias"
+      ],
+      "tone": "danger"
+     }
+    ],
+    "note": "Composição e contexto, não só tamanho",
+    "noteCue": "Tudo depende"
+   }
+  },
+  {
+   "id": "m3l2-04",
+   "chapter": "Exercício guiado",
+   "title": "Top pair no flop",
+   "voice": "Veja o exercício. Os blinds entram, e você abre no botão com valete de copas e dez de ouros, para dois big blinds e meio. O jogador do small blind desiste, e quem está no big blind paga. No flop, valete de paus, oito de ouros e quatro de paus, o big blind dá check, você aposta dois big blinds com top pair, e ele paga.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 10000,
+      "cards": [
+       "Jh",
+       "Td"
+      ]
+     },
+     {
+      "name": "SB",
+      "stack": 10000,
+      "cards": [
+       "Kd",
+       "2s"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 10000,
+      "cards": [
+       "As",
+       "8s"
+      ]
+     }
+    ],
+    "board": [],
+    "pot": 0,
+    "events": [
+     {
+      "type": "post",
+      "cue": "Os blinds entram",
+      "player": 1,
+      "to": 50,
+      "label": "SB"
+     },
+     {
+      "type": "post",
+      "player": 2,
+      "to": 100,
+      "label": "BB"
+     },
+     {
+      "type": "raise",
+      "cue": "você abre",
+      "player": 0,
+      "to": 250
+     },
+     {
+      "type": "fold",
+      "cue": "small blind desiste",
+      "player": 1
+     },
+     {
+      "type": "call",
+      "cue": "big blind paga",
+      "player": 2,
+      "to": 250
+     },
+     {
+      "type": "collect"
+     },
+     {
+      "type": "board",
+      "cue": "No flop",
+      "cards": [
+       "Jc",
+       "8d",
+       "4c"
+      ]
+     },
+     {
+      "type": "check",
+      "cue": "o big blind dá check",
+      "player": 2
+     },
+     {
+      "type": "bet",
+      "cue": "você aposta dois",
+      "player": 0,
+      "to": 200
+     },
+     {
+      "type": "call",
+      "cue": "e ele paga",
+      "player": 2,
+      "to": 200
+     },
+     {
+      "type": "collect"
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     1,
+     2
+    ],
+    "banner": "Flop · c-bet paga"
+   }
+  },
+  {
+   "id": "m3l2-05",
+   "chapter": "Exercício guiado",
+   "title": "Chega o terceiro paus",
+   "voice": "No turn chega o nove de paus. Agora você tem top pair e um projeto aberto de sequência: um sete ou uma dama completam. Mas a mesa tem três paus, e um rival com dois paus já tem flush. Depois disso, o big blind dá check de novo. No exercício, o plano é controlar o pote com check-back. Call não existe aqui, porque não há aposta para pagar.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 9550,
+      "cards": [
+       "Jh",
+       "Td"
+      ]
+     },
+     {
+      "name": "SB",
+      "stack": 9950,
+      "cards": [
+       "Kd",
+       "2s"
+      ],
+      "folded": true
+     },
+     {
+      "name": "BB",
+      "stack": 9550,
+      "cards": [
+       "As",
+       "8s"
+      ]
+     }
+    ],
+    "board": [
+     "Jc",
+     "8d",
+     "4c"
+    ],
+    "pot": 950,
+    "events": [
+     {
+      "type": "board",
+      "cue": "chega o nove",
+      "cards": [
+       "9c"
+      ]
+     },
+     {
+      "type": "check",
+      "cue": "dá check de novo",
+      "player": 2
+     },
+     {
+      "type": "check",
+      "cue": "com check-back",
+      "player": 0
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     1,
+     2
+    ],
+    "banner": "Turn · 9♣ · três paus na mesa",
+    "note": "Projeto aberto: 7 ou Q completam"
+   }
+  },
+  {
+   "id": "m3l2-06",
+   "chapter": "Exercício guiado",
+   "title": "Classifique antes de decidir",
+   "voice": "Antes de decidir, classifique a mão. Top pair e projeto aberto dão uma força intermediária. Os três paus põem flushes possíveis no range do rival. Apostar pode cobrar dos projetos, mas expõe a mão a um check-raise; o check-back preserva o showdown e mantém o pote menor. Compare a exposição criada por cada tamanho.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Top pair e projeto aberto: força média",
+     "Três paus: flushes possíveis",
+     "Check-back preserva o showdown"
+    ],
+    "cues": [
+     "classifique a mão",
+     "Os três paus",
+     "o check-back preserva"
+    ]
+   }
+  },
+  {
+   "id": "m3l2-07",
+   "chapter": "Stack e pote",
+   "title": "SPR: stack sobre pote",
+   "voice": "Uma medida ajuda a planejar: o SPR, que é o stack efetivo dividido pelo pote. Neste turn, restam noventa e cinco big blinds e meio, e o pote tem nove e meio: o SPR fica perto de dez. Esse número mostra quantas apostas grandes ainda cabem, mas não manda ir all-in nem proíbe nada. A mesma relação pede estratégias diferentes conforme o board, a modalidade, a posição e as forças.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "STACK EFETIVO",
+      "95,5 BB"
+     ],
+     [
+      "POTE NO TURN",
+      "9,5 BB"
+     ],
+     [
+      "SPR",
+      "≈ 10"
+     ]
+    ],
+    "cues": [
+     "noventa e cinco",
+     "nove e meio",
+     "perto de dez"
+    ],
+    "note": "O SPR orienta, não ordena"
+   }
+  },
+  {
+   "id": "m3l2-08",
+   "chapter": "Leitura do check",
+   "title": "O check também tem mãos fortes",
+   "voice": "Cuidado com a leitura do check do rival. Um range de check pode ter mãos fracas, médias e fortes. Se você presumir que todo check permite blefar sem resistência, vai ficar exposto a calls e raises. O bot de valor do treino mostra uma dessas possibilidades: ele pode dar check com mão forte e reagir à sua aposta.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Fracas, médias e fortes",
+     "Nem todo check é desistência",
+     "O bot de valor pode reagir"
+    ],
+    "cues": [
+     "mãos fracas",
+     "todo check",
+     "O bot de valor"
+    ]
+   }
+  },
+  {
+   "id": "m3l2-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. Com valete de copas e dez de ouros, num board de valete de paus, oito de ouros, quatro de paus e nove de paus, quantas cartas do river completam a sua sequência sem colocar o quarto paus na mesa? A: oito. B: seis. C: quatro. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Board J♣ 8♦ 4♣ 9♣, você tem J♥ 10♦. Quantas cartas do river completam a sua sequência sem pôr o quarto paus na mesa?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Oito",
+      "cue": "A oito"
+     },
+     {
+      "key": "B",
+      "text": "Seis",
+      "cue": "B seis"
+     },
+     {
+      "key": "C",
+      "text": "Quatro",
+      "cue": "C quatro"
+     }
+    ],
+    "correct": "B",
+    "hole": [
+     "Jh",
+     "Td"
+    ],
+    "board": [
+     "Jc",
+     "8d",
+     "4c",
+     "9c"
+    ]
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m3l2-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B, seis. Um sete ou uma dama completam a sequência: oito cartas. Tirando o sete e a dama de paus, que põem o quarto paus na mesa, sobram seis. E lembre: um rival com dois paus já tem flush agora.",
+   "visual": {
+    "mode": "answer",
+    "question": "Board J♣ 8♦ 4♣ 9♣, você tem J♥ 10♦. Quantas cartas do river completam a sua sequência sem pôr o quarto paus na mesa?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Oito",
+      "cue": "A oito"
+     },
+     {
+      "key": "B",
+      "text": "Seis",
+      "cue": "B seis"
+     },
+     {
+      "key": "C",
+      "text": "Quatro",
+      "cue": "C quatro"
+     }
+    ],
+    "correct": "B",
+    "hole": [
+     "Jh",
+     "Td"
+    ],
+    "board": [
+     "Jc",
+     "8d",
+     "4c",
+     "9c"
+    ],
+    "cue": "Resposta",
+    "explanation": "7 ou Q: 8 cartas · sem 7♣ e Q♣: 6"
+   }
+  },
+  {
+   "id": "m3l2-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino e compare check-back e aposta num board de três paus. Top pair e um projeto aberto de sequência convivem com flushes possíveis, e a composição do range importa mais que o nome da mão. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Board de três paus",
+     "A composição importa mais que o nome",
+     "Guiado, desafio e replay"
+    ],
+    "cues": [
+     "três paus",
+     "a composição do range",
+     "Comece pelo treino guiado"
+    ]
+   }
+  },
+  {
+   "id": "m3l2-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

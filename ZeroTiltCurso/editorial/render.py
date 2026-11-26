@@ -940,7 +940,12 @@ async def render(key):
 
 # Aulas do Brazilian Pineapple: vídeo produzido em Remotion (`motion/produce.py --publish`).
 # Este renderizador não as regrava; `--check` confere o manifesto de lá.
-MOTION_LESSONS = ('m5l3', 'm5l4', 'm5l5')
+PINEAPPLE_MOTION_LESSONS = ('m5l3', 'm5l4', 'm5l5')
+# Aulas no Remotion: as do Pineapple (build_scripts.py) e as de estratégia (build_academy.py).
+MOTION_LESSONS = ('m0l1', 'm0l2', 'm0l3', 'm0l4', 'm0l5', 'm0l6', 'm0l7', 'm0l8', 'm1l1', 'm1l2', 'm1l3', 'm2l1', 'm2l2', 'm2l3', 'm3l1', 'm3l2', 'm3l3',
+                  'm4l1', 'm4l2', 'm4l3', 'm5l1', 'm5l2', 'm6l1', 'm6l2', 'm6l3') + PINEAPPLE_MOTION_LESSONS
+# Apresentação aberta ao visitante: o arquivo não pode começar com `zt-academy-` (o Caddy pede login nesses).
+PRESENTATION_LESSONS = ('m0l1', 'm0l2', 'm0l3')
 # Exceção temporária aprovada pelo proprietário em 22/11/2026 (DASHBOARD S28): vídeos já
 # publicados que seguem com a narração anterior até serem regravados. Só pode diminuir;
 # mesma lista em Frontend-Web/src/lib/courseAudit.test.ts.
@@ -959,7 +964,8 @@ def check_motion(manifest, video, key):
     assert manifest['scriptHash']==motion_script_fingerprint(script), f'{key}: roteiro mudou depois da publicação'
     assert manifest['narrationHash']==video['narrationHash']==motion_narration_fingerprint(script), key
     assert manifest['pronunciationVersion']==video['pronunciationVersion']==MOTION_PRONUNCIATION_VERSION, key
-    assert manifest['bettingRuleVersion']==video['bettingRuleVersion']==script['bettingRuleVersion']=='pineapple_draw_v4', key
+    rule = script.get('bettingRuleVersion')
+    assert manifest.get('bettingRuleVersion')==video.get('bettingRuleVersion')==rule in (None, 'pineapple_draw_v4'), key
     assert video['transcript']=='\n\n'.join(s['voice'] for s in script['scenes']), key
     return script
 
@@ -979,6 +985,8 @@ def check_publications(decode=False, ready_only=False, only=None):
             if lesson['id'] in MOTION_LESSONS:
                 manifest=json.loads((HERE/f"academy-{lesson['id']}-manifest.json").read_text(encoding='utf-8'))
                 script=check_motion(manifest, video, lesson['id'])
+                if lesson['id'] in PINEAPPLE_MOTION_LESSONS:
+                    assert script['bettingRuleVersion']=='pineapple_draw_v4', lesson['id']
                 assert script['lesson']==manifest['lessonId']==lesson['id'], lesson['id']
                 assert video['contentHash']==manifest['contentHash']==lesson_fingerprint(lesson,training), f"{lesson['id']}: texto da aula mudou depois do vídeo"
             elif module['id']!='m0':

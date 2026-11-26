@@ -136,13 +136,13 @@ class NarrationStandardTests(unittest.TestCase):
             for lesson in module['lessons']:
                 if module['id'] != 'm0' and lesson['id'] not in render.MOTION_LESSONS:
                     voices[lesson['id']] = [s['voice'] for s in render.academy_scenes(lesson, training)]
-        episodes = json.loads((here / 'episodes.json').read_text(encoding='utf-8'))
-        for key in ('ep11', 'ep12', 'ep13'):
-            voices[key] = [s['voice'] for s in episodes[key]['scenes']]
-        for name in ('pineapple-draw-rules', 'pineapple-draw-trailer', 'academy-m5l3', 'academy-m5l4', 'academy-m5l5'):
+        # ep11–ep13 saíram do site em 26/11: a apresentação (m0l1–m0l3) agora é Remotion.
+        motion = ['pineapple-draw-rules', 'pineapple-draw-trailer'] + [f'academy-{lesson}' for lesson in render.MOTION_LESSONS]
+        for name in motion:
             script = json.loads((here / 'motion/src/data' / f'{name}.json').read_text(encoding='utf-8'))
             self.assertEqual(script['voice'], render.NARRATION_VOICE, name)
             voices[name] = [s['voice'] for s in script['scenes']]
+        # 2 filmes do Pineapple + 28 aulas no Remotion.
         self.assertEqual(len(voices), 30)
         for key, texts in voices.items():
             self.assertEqual([s for t in texts for s in render.heavy_english_sentences(t)], [], key)

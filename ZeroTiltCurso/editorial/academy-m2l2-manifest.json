@@ -1,531 +1,61 @@
 {
   "lessonId": "m2l2",
-  "filename": "zt-academy-m2l2-v3",
   "contentHash": "64295cc91a3ed18c636c108e633960f067950155cd98b46556309fe0fb527a3c",
-  "rendererVersion": 5,
-  "durationSeconds": 326.5,
+  "filename": "zt-academy-m2l2-v4",
+  "title": "Aula m2l2 — Como responder a check-raise e o float",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM2L2",
+  "script": "src/data/academy-m2l2.json",
+  "scriptHash": "3387e74dd1194a884023100d9d0510500e922e453a041c3731b24251e2fb4ba5",
+  "durationSeconds": 241.34,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9313629,
+  "bytes": 13960849,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "ffdd0380225f605530ca40671fdaac74e05a4b40a2c6b9d5d517166eb5e925ee",
+  "narrationHash": "7b7daaf79cc1db1c5560bebaffbe6e35374f993dac2a63904d854cca012f1bc8",
   "chapters": [
     {
       "start": 0.0,
-      "title": "Como responder a Check-Raise e a Arte do Float"
+      "title": "Abertura"
     },
     {
-      "start": 18.5,
-      "title": "Responder ao check-raise"
+      "start": 14.83,
+      "title": "Check-raise"
     },
     {
-      "start": 35.13,
-      "title": "Modelo explícito"
+      "start": 51.8,
+      "title": "O preço depois do raise"
     },
     {
-      "start": 53.9,
+      "start": 78.23,
+      "title": "Modelo do rival"
+    },
+    {
+      "start": 122.17,
       "title": "Float"
     },
     {
-      "start": 70.63,
-      "title": "Refaça o preço após o raise"
+      "start": 160.53,
+      "title": "Exercício"
     },
     {
-      "start": 101.83,
-      "title": "Refaça o preço após o raise"
+      "start": 206.87,
+      "title": "Laboratório"
     },
     {
-      "start": 106.43,
-      "title": "Força absoluta e força relativa"
-    },
-    {
-      "start": 134.8,
-      "title": "Um float precisa de plano"
-    },
-    {
-      "start": 160.27,
-      "title": "Laboratório: Responder ao check-raise"
-    },
-    {
-      "start": 196.1,
-      "title": "Laboratório: Responder ao check-raise"
-    },
-    {
-      "start": 204.4,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 226.03,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 241.57,
-      "title": "Exercício resolvido 2"
-    },
-    {
-      "start": 280.77,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 295.07,
-      "title": "Agora, pratique"
+      "start": 227.27,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 18.5,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 18.5,
-      "duration": 16.633333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 35.13333333333333,
-      "duration": 18.766666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 53.9,
-      "duration": 16.733333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 70.63333333333333,
-      "duration": 31.2,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 101.83333333333333,
-      "duration": 4.6,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 106.43333333333332,
-      "duration": 28.366666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 134.79999999999998,
-      "duration": 25.466666666666665,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 160.26666666666665,
-      "duration": 35.833333333333336,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 196.1,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 204.4,
-      "duration": 21.633333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 226.03333333333333,
-      "duration": 15.533333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 241.56666666666666,
-      "duration": 39.2,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 280.76666666666665,
-      "duration": 14.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 295.06666666666666,
-      "duration": 31.433333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    }
-  ],
-  "sha256": "345aa335fc78d60fc9a9c605dda502c1f3422fe4de6d30545809e515d1606a84",
+  "sha256": "59e3a98caac7aeadf618509ef7af7a628ac6008101bf992069b0e2e5a786f941",
   "assetHashes": {
-    "mp4": "345aa335fc78d60fc9a9c605dda502c1f3422fe4de6d30545809e515d1606a84",
-    "vtt": "cc12457834a7ae55b87fd10e0cc005a0cc5e8de5217187dec5d5070e18293508",
-    "webp": "c0aad884fd630ce5ad13d9af3a6d717e19195541583cf5ea65ee9913d6dd6847"
+    "mp4": "59e3a98caac7aeadf618509ef7af7a628ac6008101bf992069b0e2e5a786f941",
+    "vtt": "1a0a8c7148c6898057b856ccb95bce924b5fc2511fc44ef32ea36f1d80551f9c",
+    "webp": "b85336359607c0b9b6254473f666eee7bfddd6af9480fcab13926924ba8f0ff5"
   },
-  "mediaRevision": "60a14241b0ecb9198c149993d914f34e208b7e1f959fbaf681757753a7f9c81c"
+  "mediaRevision": "f972e708402a6a9c7777293f3f841f2e799264b012bff4bf2574932c941f0afc"
 }

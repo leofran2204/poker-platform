@@ -1,0 +1,451 @@
+{
+ "id": "academy-m2l1",
+ "title": "Aula m2l1 — C-bet no flop: boards secos e molhados",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m2l1",
+ "scenes": [
+  {
+   "id": "m2l1-01",
+   "chapter": "Abertura",
+   "title": "C-bet no flop: boards secos e molhados",
+   "voice": "Esta é a Zero Tilt Academy. Na primeira aula do módulo dois, vamos estudar a c-bet no flop em boards secos e molhados. O objetivo é ler a textura e os ranges antes de decidir entre apostar e dar check.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 2 · Aula 1",
+    "lines": [
+     "Objetivo: ler textura e ranges antes de apostar ou dar check"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m2l1-02",
+   "chapter": "Textura",
+   "title": "Seco ou molhado",
+   "voice": "Compare dois flops. Ás, sete e dois de naipes diferentes é um board seco: há poucos projetos diretos de sequência ou de flush. Nove, oito e sete com duas copas é um board molhado: conectado e com duas cartas do mesmo naipe, ele oferece muitos projetos aos dois jogadores. Mas a textura sozinha não decide a frequência nem o tamanho da c-bet.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "A♠ 7♦ 2♣ · seco",
+      "items": [
+       "Cartas distantes, naipes diferentes",
+       "Poucos projetos diretos"
+      ],
+      "cues": [
+       "naipes diferentes",
+       "poucos projetos"
+      ],
+      "tone": "mint"
+     },
+     {
+      "title": "9♥ 8♥ 7♣ · molhado",
+      "items": [
+       "Conectado, com duas copas",
+       "Projetos para os dois jogadores"
+      ],
+      "cues": [
+       "conectado",
+       "muitos projetos"
+      ],
+      "tone": "gold"
+     }
+    ],
+    "note": "A textura sozinha não decide frequência nem tamanho",
+    "noteCue": "a textura sozinha"
+   }
+  },
+  {
+   "id": "m2l1-03",
+   "chapter": "Textura",
+   "title": "O que entra na decisão",
+   "voice": "Antes de apostar, compare os ranges dos dois jogadores, a vantagem de nuts, a posição e o número de jogadores no pote. A textura é só uma parte desse cenário.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Os ranges dos dois jogadores",
+     "A vantagem de nuts",
+     "Posição e número de jogadores"
+    ],
+    "cues": [
+     "compare os ranges",
+     "a vantagem de nuts",
+     "a posição"
+    ],
+    "note": "A textura é só uma parte do cenário"
+   }
+  },
+  {
+   "id": "m2l1-04",
+   "chapter": "Exemplo guiado",
+   "title": "Dama e valete de espadas no botão",
+   "voice": "Agora o exemplo guiado, numa mesa de Texas cash com cem big blinds. Os blinds entram, todos desistem até você, no botão, com dama e valete de espadas, e você abre para dois big blinds e meio. O jogador do small blind desiste, e quem está no big blind paga. O pote do flop fica com cinco big blinds e meio.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 10000,
+      "cards": [
+       "Qs",
+       "Js"
+      ]
+     },
+     {
+      "name": "SB",
+      "stack": 10000,
+      "cards": [
+       "Kd",
+       "3s"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 10000,
+      "cards": [
+       "Ac",
+       "4d"
+      ]
+     }
+    ],
+    "board": [],
+    "pot": 0,
+    "events": [
+     {
+      "type": "post",
+      "cue": "Os blinds entram",
+      "player": 1,
+      "to": 50,
+      "label": "SB"
+     },
+     {
+      "type": "post",
+      "player": 2,
+      "to": 100,
+      "label": "BB"
+     },
+     {
+      "type": "raise",
+      "cue": "você abre",
+      "player": 0,
+      "to": 250
+     },
+     {
+      "type": "fold",
+      "cue": "small blind desiste",
+      "player": 1
+     },
+     {
+      "type": "call",
+      "cue": "big blind paga",
+      "player": 2,
+      "to": 250
+     },
+     {
+      "type": "collect",
+      "cue": "O pote do flop"
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     1,
+     2
+    ],
+    "banner": "Pré-flop · todos desistiram até você"
+   }
+  },
+  {
+   "id": "m2l1-05",
+   "chapter": "Exemplo guiado",
+   "title": "O big blind dá check",
+   "voice": "O flop vem nove de copas, oito de copas e sete de paus, e o big blind dá check. Você tem uma broca: só um dez completa a sequência, da dama até o oito. Este board conecta com várias mãos de quem pagou, e não existe aposta para pagar, então call é ilegal neste momento. No exercício, treinamos o check-back: você vê o turn sem aumentar o pote.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 9750,
+      "cards": [
+       "Qs",
+       "Js"
+      ]
+     },
+     {
+      "name": "SB",
+      "stack": 9950,
+      "cards": [
+       "Kd",
+       "3s"
+      ],
+      "folded": true
+     },
+     {
+      "name": "BB",
+      "stack": 9750,
+      "cards": [
+       "Ac",
+       "4d"
+      ]
+     }
+    ],
+    "board": [],
+    "pot": 550,
+    "events": [
+     {
+      "type": "board",
+      "cue": "O flop vem",
+      "cards": [
+       "9h",
+       "8h",
+       "7c"
+      ]
+     },
+     {
+      "type": "check",
+      "cue": "o big blind dá check",
+      "player": 2
+     },
+     {
+      "type": "check",
+      "cue": "treinamos o check-back",
+      "player": 0
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     1,
+     2
+    ],
+    "banner": "Flop · nada a pagar",
+    "note": "Sem aposta a pagar: check ou aposta"
+   }
+  },
+  {
+   "id": "m2l1-06",
+   "chapter": "Exemplo guiado",
+   "title": "Broca, não projeto aberto",
+   "voice": "Atenção à contagem. Com dama e valete em nove, oito e sete, só os quatro dez completam a sequência: é uma broca, e não um projeto aberto com oito outs. E mesmo quando o dez chega, analise o resto: quem também tiver dama e valete empata, e outras mãos mudam de força conforme os pares e os naipes.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Só os quatro dez completam",
+     "Broca: não são oito outs",
+     "Mesmo o dez exige análise"
+    ],
+    "cues": [
+     "só os quatro dez",
+     "não um projeto aberto",
+     "mesmo quando o dez chega"
+    ]
+   }
+  },
+  {
+   "id": "m2l1-07",
+   "chapter": "Vantagens",
+   "title": "Vantagem de range e vantagem de nuts",
+   "voice": "Separe duas ideias. Vantagem de range compara a distribuição de forças dos dois conjuntos de mãos. Vantagem de nuts olha a presença das combinações mais fortes. As duas podem apontar para lados diferentes, e quem abriu no pré-flop não tem sempre as duas. Pergunte quais pares, conectores e mãos do mesmo naipe chegam a esse board por cada linha.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Vantagem de range",
+      "items": [
+       "Distribuição de forças dos dois ranges"
+      ],
+      "cues": [
+       "compara a distribuição"
+      ],
+      "tone": "mint"
+     },
+     {
+      "title": "Vantagem de nuts",
+      "items": [
+       "Presença das combinações mais fortes"
+      ],
+      "cues": [
+       "presença das combinações"
+      ],
+      "tone": "gold"
+     }
+    ],
+    "note": "Quem abriu não tem sempre as duas",
+    "noteCue": "quem abriu"
+   }
+  },
+  {
+   "id": "m2l1-08",
+   "chapter": "Tamanho",
+   "title": "Tamanho como hipótese",
+   "voice": "E o tamanho? Em certos boards secos, apostar entre um quarto e um terço do pote é uma referência frequente de estudo, e não uma regra para todo flop. Num pote de cinco big blinds e meio, isso fica entre um vírgula quatro e um vírgula oito big blinds. Apostar mais também muda quais mãos podem continuar.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "POTE",
+      "5,5 BB"
+     ],
+     [
+      "UM QUARTO (25%)",
+      "≈ 1,4 BB"
+     ],
+     [
+      "UM TERÇO (33%)",
+      "≈ 1,8 BB"
+     ]
+    ],
+    "cues": [
+     "cinco big blinds e meio",
+     "um vírgula quatro",
+     "um vírgula oito"
+    ],
+    "note": "Referência de estudo, não regra"
+   }
+  },
+  {
+   "id": "m2l1-09",
+   "chapter": "Check ou aposta",
+   "title": "Check também é estratégia",
+   "voice": "Dar check pode preservar equity, proteger a parte do range que também dá check e deixar a decisão para depois. Apostar cobra dos projetos e pode gerar folds, mas expõe a mão a um check-raise. No simulador, compare o tamanho do pote que chega ao turn em cada linha. Nenhum tamanho de c-bet é uma solução universal.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Check",
+      "items": [
+       "Preserva equity",
+       "Protege o range de check",
+       "Decide depois"
+      ],
+      "cues": [
+       "preservar equity",
+       "proteger a parte",
+       "deixar a decisão"
+      ],
+      "tone": "mint"
+     },
+     {
+      "title": "Aposta",
+      "items": [
+       "Cobra dos projetos",
+       "Pode gerar folds",
+       "Expõe a check-raise"
+      ],
+      "cues": [
+       "cobra dos projetos",
+       "pode gerar folds",
+       "expõe a mão"
+      ],
+      "tone": "gold"
+     }
+    ],
+    "note": "Compare o pote que chega ao turn",
+    "noteCue": "compare o tamanho"
+   }
+  },
+  {
+   "id": "m2l1-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. Qual destes três flops é o mais seco? A: valete de copas, dez de copas e oito de espadas. B: rei de paus, sete de ouros e dois de espadas. C: sete de espadas, seis de espadas e cinco de ouros. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Qual destes flops é o mais seco?",
+    "options": [
+     {
+      "key": "A",
+      "text": "J♥ 10♥ 8♠",
+      "cue": "A valete"
+     },
+     {
+      "key": "B",
+      "text": "K♣ 7♦ 2♠",
+      "cue": "B rei"
+     },
+     {
+      "key": "C",
+      "text": "7♠ 6♠ 5♦",
+      "cue": "C sete"
+     }
+    ],
+    "correct": "B"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m2l1-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B. Rei, sete e dois de naipes diferentes não têm duas cartas do mesmo naipe nem cartas próximas, então quase não há projetos diretos. Os outros dois flops são conectados e têm duas cartas de um mesmo naipe.",
+   "visual": {
+    "mode": "answer",
+    "question": "Qual destes flops é o mais seco?",
+    "options": [
+     {
+      "key": "A",
+      "text": "J♥ 10♥ 8♠",
+      "cue": "A valete"
+     },
+     {
+      "key": "B",
+      "text": "K♣ 7♦ 2♠",
+      "cue": "B rei"
+     },
+     {
+      "key": "C",
+      "text": "7♠ 6♠ 5♦",
+      "cue": "C sete"
+     }
+    ],
+    "correct": "B",
+    "cue": "Resposta",
+    "explanation": "Naipes diferentes e cartas distantes: quase nenhum projeto"
+   }
+  },
+  {
+   "id": "m2l1-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. No board conectado, reconheça a broca antes de apostar ou dar check: um dez completa a sequência, e o flop oferece várias mãos fortes a quem pagou. Ninguém é obrigado a fazer a c-bet. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Reconheça a broca antes de agir",
+     "Nenhuma c-bet é obrigatória",
+     "Guiado, desafio e replay"
+    ],
+    "cues": [
+     "reconheça a broca",
+     "Ninguém é obrigado",
+     "Comece pelo treino guiado"
+    ]
+   }
+  },
+  {
+   "id": "m2l1-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

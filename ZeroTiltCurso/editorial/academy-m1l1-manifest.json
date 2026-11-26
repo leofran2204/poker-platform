@@ -1,194 +1,73 @@
 {
   "lessonId": "m1l1",
-  "filename": "zt-academy-m1l1-v3",
   "contentHash": "929d3352d266c3b7d3c6361ffa200629930871edfd8ae1296e272260834b8120",
-  "rendererVersion": 5,
-  "durationSeconds": 336.43,
+  "filename": "zt-academy-m1l1-v4",
+  "title": "Aula m1l1 — Ranges de abertura por posição",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM1L1",
+  "script": "src/data/academy-m1l1.json",
+  "scriptHash": "83dd05a1033fd6274aebe6cdea9fa78519599d4aa6e47c25fbacee4088e6c201",
+  "durationSeconds": 302.42,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9127038,
+  "bytes": 18735210,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "ae2c55339aadc73955a9a5df8952ae0f545aa104601f2dc8d5ed6e012c3cca62",
+  "narrationHash": "b31c906faeee6bc91f9236f029385af43e91e19b6e148b9419c4e534468be001",
   "chapters": [
     {
       "start": 0.0,
-      "title": "Ranges de Abertura por Posição (9-max)"
+      "title": "Abertura"
     },
     {
-      "start": 20.2,
-      "title": "Range depende do cenário"
+      "start": 16.57,
+      "title": "Range e cenário"
     },
     {
-      "start": 44.73,
-      "title": "Posição pós-flop"
+      "start": 32.03,
+      "title": "Posições"
     },
     {
-      "start": 60.47,
+      "start": 76.57,
+      "title": "Pós-flop"
+    },
+    {
+      "start": 93.93,
       "title": "Exercício guiado"
     },
     {
-      "start": 79.53,
-      "title": "Conte combinações e frequências"
+      "start": 138.9,
+      "title": "Combinações"
     },
     {
-      "start": 111.9,
-      "title": "Stack, rake e número de jogadores"
+      "start": 183.83,
+      "title": "Outros fatores"
     },
     {
-      "start": 141.17,
-      "title": "Construa uma pergunta estudável"
+      "start": 210.8,
+      "title": "Pergunta estudável"
     },
     {
-      "start": 169.13,
-      "title": "Laboratório: Posição e mãos de abertura"
+      "start": 232.7,
+      "title": "Exercício"
     },
     {
-      "start": 206.6,
-      "title": "Laboratório: Posição e mãos de abertura"
+      "start": 268.5,
+      "title": "Laboratório"
     },
     {
-      "start": 214.9,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 239.5,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 257.97,
-      "title": "Exercício resolvido 2"
-    },
-    {
-      "start": 291.17,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 304.8,
-      "title": "Agora, pratique"
+      "start": 288.33,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 20.2,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 20.2,
-      "duration": 24.533333333333335,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 44.733333333333334,
-      "duration": 15.733333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 60.46666666666667,
-      "duration": 19.066666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 79.53333333333333,
-      "duration": 32.36666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 111.9,
-      "duration": 29.266666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 141.16666666666669,
-      "duration": 27.966666666666665,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 169.13333333333335,
-      "duration": 37.46666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 206.60000000000002,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 214.90000000000003,
-      "duration": 24.6,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 239.50000000000003,
-      "duration": 18.466666666666665,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 257.9666666666667,
-      "duration": 33.2,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 291.1666666666667,
-      "duration": 13.633333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 304.8,
-      "duration": 31.633333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    }
-  ],
-  "sha256": "983d70775564b36f23dfac078a3ae7d763c8987df38114f714d34c2f575c7983",
+  "sha256": "bb562336f5b46749ef0fde39b9998fcfa126f56f52885c198ef41bf0652bb7c8",
   "assetHashes": {
-    "mp4": "983d70775564b36f23dfac078a3ae7d763c8987df38114f714d34c2f575c7983",
-    "vtt": "75d7cf5ce52753990a21247467a81d88458c91c6d65f3098a1f9f4e817aa14ab",
-    "webp": "20874d66027ccd4eee10f1f3e4f4a4cac6b8e1dc106f4f19d039202c643a34fa"
+    "mp4": "bb562336f5b46749ef0fde39b9998fcfa126f56f52885c198ef41bf0652bb7c8",
+    "vtt": "f2030db6fe847f52bb1dc8c6894cf86df4c1eadd359e34995298855b6d4d306f",
+    "webp": "92dc39fc31acb70c52068a027e94db85ee0e9119ae56811a745c66df4b090c1a"
   },
-  "mediaRevision": "0438fb0620f53f28116e62df09e2c8382e3babe31f2d5f1fb9ed3f57d07a1eed"
+  "mediaRevision": "dc686a756f821363c7ff67d8f983eceef55c969d68eff1f74e2ef0edc47ac1d4"
 }

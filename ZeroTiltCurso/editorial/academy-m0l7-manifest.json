@@ -1,194 +1,69 @@
 {
   "lessonId": "m0l7",
-  "filename": "zt-academy-m0l7-v3",
   "contentHash": "c110b4b14134a5f3379d1158ba34f05d588a805bbbfc60034433fafff6d03c7c",
-  "rendererVersion": 5,
-  "durationSeconds": 313.4,
+  "filename": "zt-academy-m0l7-v4",
+  "title": "Aula m0l7 — Aumento ou descarte: a primeira decisão",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM0L7",
+  "script": "src/data/academy-m0l7.json",
+  "scriptHash": "b71132abe58542c2de0089b0d9f419446a830b12869f3566bcfd161dd0bae691",
+  "durationSeconds": 214.91,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8479663,
+  "bytes": 12538547,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "dc0c94a7986fb3b6eade35de9546e15ee4d573fce7095d3ee72baa7ddc829720",
+  "narrationHash": "04599bda0625fc5042bad3f6d3850dbe49ec2413f165ffbcf4be23d7a368de28",
   "chapters": [
     {
       "start": 0.0,
-      "title": "Aumento ou descarte: a primeira decisão"
+      "title": "Abertura"
     },
     {
-      "start": 19.4,
+      "start": 15.03,
       "title": "Agressão seletiva"
     },
     {
-      "start": 38.17,
-      "title": "Pratique com um cenário definido"
+      "start": 32.17,
+      "title": "Os dois extremos"
     },
     {
-      "start": 62.87,
+      "start": 60.1,
+      "title": "O plano na mesa"
+    },
+    {
+      "start": 80.47,
+      "title": "Risco do roubo"
+    },
+    {
+      "start": 99.77,
+      "title": "O modelo isola uma parte"
+    },
+    {
+      "start": 121.87,
       "title": "Revisão"
     },
     {
-      "start": 73.33,
-      "title": "A decisão anterior à ação"
+      "start": 136.77,
+      "title": "Exercício"
     },
     {
-      "start": 106.27,
-      "title": "Calcule o risco do roubo"
+      "start": 181.1,
+      "title": "Laboratório"
     },
     {
-      "start": 139.67,
-      "title": "Um resultado não corrige o plano"
-    },
-    {
-      "start": 163.33,
-      "title": "Laboratório: Abrir com um plano"
-    },
-    {
-      "start": 199.73,
-      "title": "Laboratório: Abrir com um plano"
-    },
-    {
-      "start": 208.03,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 232.0,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 247.9,
-      "title": "Exercício resolvido 2"
-    },
-    {
-      "start": 269.4,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 282.37,
-      "title": "Agora, pratique"
+      "start": 200.83,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 19.4,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 19.4,
-      "duration": 18.766666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 38.166666666666664,
-      "duration": 24.7,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 62.86666666666666,
-      "duration": 10.466666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 73.33333333333333,
-      "duration": 32.93333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 106.26666666666665,
-      "duration": 33.4,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 139.66666666666666,
-      "duration": 23.666666666666668,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 163.33333333333331,
-      "duration": 36.4,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 199.73333333333332,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 208.03333333333333,
-      "duration": 23.966666666666665,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 232.0,
-      "duration": 15.9,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 247.9,
-      "duration": 21.5,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 269.4,
-      "duration": 12.966666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 282.3666666666666,
-      "duration": 31.033333333333335,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    }
-  ],
-  "sha256": "86ff95634517b51728431151f9978dbbb7b88ea3157ba3ca4eecf1ac001776d6",
+  "sha256": "83feaef8466c1f889f9fa92035fc3de73b25f146b089e59369d490eda7788c70",
   "assetHashes": {
-    "mp4": "86ff95634517b51728431151f9978dbbb7b88ea3157ba3ca4eecf1ac001776d6",
-    "vtt": "e904a88e02659610da93f1937a1f125ff6985c81b7fead2851d371e4e2d7510a",
-    "webp": "da8627c38f8ca8876a3870d0c198825b660ab5f0096f0698f058a0e04b8207e9"
+    "mp4": "83feaef8466c1f889f9fa92035fc3de73b25f146b089e59369d490eda7788c70",
+    "vtt": "3f577a9828b71bdac0c9891778fd9869f514d511e9773ea5189ab6967bb90434",
+    "webp": "356faa0a921b2a67a7354b26a30582296ac15ed7068cb324c966f5b3707a0bdd"
   },
-  "mediaRevision": "882e6848db30b9e88c7102721dfacec623217004ed3f8a7a86b5e55a57bd40dd"
+  "mediaRevision": "5dbc80f5d9a5ba00d97834b72d008d45eaaed5535d4c54b9ff9c1d1577437780"
 }

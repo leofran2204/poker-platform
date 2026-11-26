@@ -1,0 +1,268 @@
+WEBVTT
+
+00:00:00.517 --> 00:00:02.832
+Esta é a Zero Tilt Academy.
+
+00:00:03.030 --> 00:00:07.721
+Na aula dois do módulo três, vamos
+comparar o controle do pote com as apostas
+
+00:00:07.721 --> 00:00:08.927
+polarizadas.
+
+00:00:09.125 --> 00:00:13.193
+O objetivo é decidir entre check-back
+e aposta com uma mão intermediária,
+
+00:00:13.404 --> 00:00:14.997
+num board de três paus.
+
+00:00:16.350 --> 00:00:20.242
+Dar check pode preservar mãos de força
+intermediária e evita aumentar a
+
+00:00:20.242 --> 00:00:21.977
+exposição naquela rodada.
+
+00:00:22.175 --> 00:00:24.670
+Mas o check não garante
+um showdown barato:
+
+00:00:24.855 --> 00:00:27.247
+o rival ainda pode apostar depois.
+
+00:00:28.583 --> 00:00:33.810
+Um range polarizado reúne mãos fortes,
+que apostam por valor, e blefes.
+
+00:00:34.008 --> 00:00:37.805
+Ele não se define por apostar setenta
+e cinco por cento do pote ou mais:
+
+00:00:38.029 --> 00:00:42.419
+uma aposta grande só com mãos médias não
+fica polarizada por causa do tamanho.
+
+00:00:42.617 --> 00:00:45.872
+Tudo depende da composição
+do range e do contexto.
+
+00:00:47.217 --> 00:00:48.991
+Veja o exercício.
+
+00:00:49.189 --> 00:00:53.849
+Os blinds entram, e você abre no botão
+com valete de copas e dez de ouros,
+
+00:00:54.060 --> 00:00:55.859
+para dois big blinds e meio.
+
+00:00:56.057 --> 00:01:00.460
+O jogador do small blind desiste,
+e quem está no big blind paga.
+
+00:01:00.658 --> 00:01:05.374
+No flop, valete de paus, oito de ouros
+e quatro de paus, o big blind dá
+
+00:01:05.374 --> 00:01:09.429
+check, você aposta dois big
+blinds com top pair, e ele paga.
+
+00:01:10.750 --> 00:01:13.052
+No turn chega o nove de paus.
+
+00:01:13.250 --> 00:01:16.480
+Agora você tem top pair e um
+projeto aberto de sequência:
+
+00:01:16.678 --> 00:01:18.787
+um sete ou uma dama completam.
+
+00:01:18.985 --> 00:01:23.374
+Mas a mesa tem três paus, e um
+rival com dois paus já tem flush.
+
+00:01:23.572 --> 00:01:26.944
+Depois disso, o big
+blind dá check de novo.
+
+00:01:27.142 --> 00:01:31.068
+No exercício, o plano é
+controlar o pote com check-back.
+
+00:01:31.265 --> 00:01:34.766
+Call não existe aqui, porque
+não há aposta para pagar.
+
+00:01:36.117 --> 00:01:38.922
+Antes de decidir, classifique a mão.
+
+00:01:39.120 --> 00:01:42.685
+Top pair e projeto aberto
+dão uma força intermediária.
+
+00:01:42.882 --> 00:01:46.396
+Os três paus põem flushes
+possíveis no range do rival.
+
+00:01:46.594 --> 00:01:51.452
+Apostar pode cobrar dos projetos, mas
+expõe a mão a um check-raise; o check-back
+
+00:01:51.452 --> 00:01:53.883
+preserva o showdown e mantém o pote menor.
+
+00:01:54.081 --> 00:01:57.143
+Compare a exposição
+criada por cada tamanho.
+
+00:01:58.483 --> 00:02:00.205
+Uma medida ajuda a planejar:
+
+00:02:00.429 --> 00:02:04.174
+o SPR, que é o stack
+efetivo dividido pelo pote.
+
+00:02:04.372 --> 00:02:08.754
+Neste turn, restam noventa e cinco
+big blinds e meio, e o pote tem nove
+
+00:02:08.754 --> 00:02:09.316
+e meio:
+
+00:02:09.475 --> 00:02:11.661
+o SPR fica perto de dez.
+
+00:02:11.859 --> 00:02:16.292
+Esse número mostra quantas apostas
+grandes ainda cabem, mas não manda ir
+
+00:02:16.292 --> 00:02:17.821
+all-in nem proíbe nada.
+
+00:02:18.019 --> 00:02:22.847
+A mesma relação pede estratégias
+diferentes conforme o board, a modalidade,
+
+00:02:22.955 --> 00:02:24.741
+a posição e as forças.
+
+00:02:26.083 --> 00:02:28.707
+Cuidado com a leitura do check do rival.
+
+00:02:28.905 --> 00:02:32.908
+Um range de check pode ter
+mãos fracas, médias e fortes.
+
+00:02:33.106 --> 00:02:37.436
+Se você presumir que todo check permite
+blefar sem resistência, vai ficar
+
+00:02:37.436 --> 00:02:39.313
+exposto a calls e raises.
+
+00:02:39.511 --> 00:02:42.908
+O bot de valor do treino mostra
+uma dessas possibilidades:
+
+00:02:43.132 --> 00:02:46.285
+ele pode dar check com mão
+forte e reagir à sua aposta.
+
+00:02:47.617 --> 00:02:48.875
+Exercício.
+
+00:02:49.073 --> 00:02:53.326
+Com valete de copas e dez de ouros,
+num board de valete de paus, oito de
+
+00:02:53.326 --> 00:02:57.694
+ouros, quatro de paus e nove de paus,
+quantas cartas do river completam
+
+00:02:57.694 --> 00:03:00.267
+a sua sequência sem colocar
+o quarto paus na mesa?
+
+00:03:00.465 --> 00:03:00.950
+A:
+
+00:03:01.328 --> 00:03:02.058
+oito.
+
+00:03:02.256 --> 00:03:02.844
+B:
+
+00:03:02.978 --> 00:03:03.914
+seis.
+
+00:03:04.112 --> 00:03:04.764
+C:
+
+00:03:05.014 --> 00:03:05.834
+quatro.
+
+00:03:06.032 --> 00:03:08.025
+Pause o vídeo e responda.
+
+00:03:11.683 --> 00:03:12.684
+Resposta:
+
+00:03:12.959 --> 00:03:14.488
+B, seis.
+
+00:03:14.686 --> 00:03:17.542
+Um sete ou uma dama completam a sequência:
+
+00:03:17.778 --> 00:03:18.946
+oito cartas.
+
+00:03:19.144 --> 00:03:23.680
+Tirando o sete e a dama de paus, que
+põem o quarto paus na mesa, sobram
+
+00:03:23.680 --> 00:03:24.449
+seis.
+
+00:03:24.647 --> 00:03:25.441
+E lembre:
+
+00:03:25.601 --> 00:03:28.315
+um rival com dois paus já tem flush agora.
+
+00:03:29.650 --> 00:03:33.374
+Agora leve a aula para a mesa de treino
+e compare check-back e aposta num
+
+00:03:33.374 --> 00:03:34.839
+board de três paus.
+
+00:03:35.037 --> 00:03:39.272
+Top pair e um projeto aberto de sequência
+convivem com flushes possíveis,
+
+00:03:39.495 --> 00:03:42.403
+e a composição do range importa
+mais que o nome da mão.
+
+00:03:42.601 --> 00:03:47.459
+Comece pelo treino guiado, repita no modo
+desafio e use o replay para comparar
+
+00:03:47.459 --> 00:03:49.607
+a outra linha na mesma distribuição.
+
+00:03:50.950 --> 00:03:53.432
+Registre sua justificativa no caderno:
+
+00:03:53.630 --> 00:03:57.277
+acertar a leitura e respeitar as
+hipóteses importa mais do que ganhar a
+
+00:03:57.277 --> 00:03:57.775
+mão.
+
+00:03:57.973 --> 00:04:02.337
+O treino usa fichas sem valor,
+e este curso não promete lucro.

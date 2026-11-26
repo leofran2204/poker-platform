@@ -1,0 +1,268 @@
+WEBVTT
+
+00:00:00.517 --> 00:00:02.832
+Esta é a Zero Tilt Academy.
+
+00:00:03.030 --> 00:00:08.077
+Na aula um do módulo seis, vamos estudar
+o valor esperado e a fold equity.
+
+00:00:08.275 --> 00:00:12.733
+O objetivo é montar a conta de uma
+aposta com projeto, ramo por ramo, e
+
+00:00:12.733 --> 00:00:15.048
+ver como as premissas mudam o resultado.
+
+00:00:16.383 --> 00:00:21.701
+O valor esperado, ou EV, é a média
+ponderada dos resultados de um modelo.
+
+00:00:21.898 --> 00:00:26.821
+Para um call final, sem rake, o EV é
+a equity vezes o pote final, menos
+
+00:00:26.821 --> 00:00:27.963
+o custo do call.
+
+00:00:28.161 --> 00:00:32.556
+E um EV positivo não garante lucro em
+mil mãos, nem em nenhuma sequência
+
+00:00:32.556 --> 00:00:33.286
+finita.
+
+00:00:34.617 --> 00:00:36.919
+Agora uma aposta com projeto.
+
+00:00:37.117 --> 00:00:42.104
+Chame de P o pote, de B a sua aposta, de
+F a frequência com que todos desistem
+
+00:00:42.104 --> 00:00:43.994
+e de e a sua equity quando há call.
+
+00:00:44.192 --> 00:00:49.901
+Sem raises, apostas futuras nem rake,
+o EV é F vezes P, mais um menos F
+
+00:00:49.901 --> 00:00:51.339
+vezes o ramo do call.
+
+00:00:51.537 --> 00:00:56.172
+E o ramo do call vale e vezes
+P mais duas vezes B, menos B.
+
+00:00:57.517 --> 00:01:01.146
+Veja um exemplo no turn,
+a quarta carta da mesa.
+
+00:01:01.344 --> 00:01:06.138
+O pote tem dez big blinds, e a mesa
+mostra rei e valete de copas, dois
+
+00:01:06.138 --> 00:01:07.976
+de paus e nove de espadas.
+
+00:01:08.174 --> 00:01:10.425
+Você tem seis e cinco de copas:
+
+00:01:10.623 --> 00:01:12.126
+um projeto de flush.
+
+00:01:12.324 --> 00:01:15.450
+O rival dá check, e você aposta cinco.
+
+00:01:15.648 --> 00:01:17.744
+No ramo do fold, ele desiste:
+
+00:01:17.904 --> 00:01:21.602
+você recebe a sua aposta de volta e
+ganha os dez big blinds que já estavam
+
+00:01:21.602 --> 00:01:22.396
+no pote.
+
+00:01:23.750 --> 00:01:27.160
+Agora o outro ramo, com as mesmas cartas.
+
+00:01:27.358 --> 00:01:31.065
+Você aposta cinco, e o
+rival paga com rei e dama.
+
+00:01:31.263 --> 00:01:34.261
+O pote final fica com vinte big blinds.
+
+00:01:34.459 --> 00:01:37.431
+Contra essa mão, só uma
+copa no river vence:
+
+00:01:37.603 --> 00:01:41.258
+nove cartas entre quarenta e
+quatro, cerca de vinte por cento.
+
+00:01:42.583 --> 00:01:43.983
+Agora a conta.
+
+00:01:44.181 --> 00:01:49.426
+No ramo do call, zero vírgula dois
+vezes vinte, menos cinco, dá menos um
+
+00:01:49.426 --> 00:01:50.349
+big blind.
+
+00:01:50.547 --> 00:01:54.035
+Se ninguém desiste, a
+aposta vale menos um.
+
+00:01:54.232 --> 00:01:58.665
+Se todos desistem trinta por cento das
+vezes, vale zero vírgula três vezes
+
+00:01:58.665 --> 00:02:01.792
+dez, mais zero vírgula
+sete vezes menos um:
+
+00:02:01.964 --> 00:02:04.138
+mais dois vírgula três big blinds.
+
+00:02:05.483 --> 00:02:09.924
+Uma aposta com projeto pode ganhar
+quando todos desistem ou no showdown.
+
+00:02:10.122 --> 00:02:14.164
+Mas ter duas formas de ganhar não
+prova que apostar é lucrativo.
+
+00:02:14.362 --> 00:02:19.169
+Considere a frequência de folds, o
+range que paga, o tamanho, os raises
+
+00:02:19.169 --> 00:02:20.788
+e as apostas futuras.
+
+00:02:22.117 --> 00:02:26.408
+Pequenas diferenças de EV podem
+desaparecer quando você muda o rake, os
+
+00:02:26.408 --> 00:02:28.195
+ranges ou as frequências.
+
+00:02:28.393 --> 00:02:32.104
+Não transporte esses trinta por cento
+para o perfil do bot sem medir ou
+
+00:02:32.104 --> 00:02:33.337
+definir antes.
+
+00:02:33.535 --> 00:02:38.483
+E lembre que, numa sessão curta, a soma
+observada pode se afastar bastante
+
+00:02:38.483 --> 00:02:39.741
+da média prevista.
+
+00:02:41.083 --> 00:02:42.341
+Exercício.
+
+00:02:42.539 --> 00:02:45.743
+Um blefe puro, sem equity quando é pago.
+
+00:02:45.941 --> 00:02:50.928
+O pote tem dez big blinds, a aposta
+é de dez, e todos desistem quarenta
+
+00:02:50.928 --> 00:02:52.328
+por cento das vezes.
+
+00:02:52.526 --> 00:02:55.408
+Sem raises nem rake, qual é o EV?
+
+00:02:55.606 --> 00:02:56.065
+A:
+
+00:02:56.238 --> 00:02:58.785
+o EV é de mais quatro big blinds.
+
+00:02:58.982 --> 00:02:59.532
+B:
+
+00:02:59.820 --> 00:03:01.091
+menos dois.
+
+00:03:01.289 --> 00:03:01.916
+C:
+
+00:03:02.243 --> 00:03:02.986
+zero.
+
+00:03:03.184 --> 00:03:05.176
+Pause o vídeo e responda.
+
+00:03:08.850 --> 00:03:09.902
+Resposta:
+
+00:03:10.139 --> 00:03:10.675
+B.
+
+00:03:10.873 --> 00:03:14.992
+No ramo do fold, você ganha dez
+em quarenta por cento das vezes:
+
+00:03:15.164 --> 00:03:16.165
+mais quatro.
+
+00:03:16.363 --> 00:03:19.747
+No ramo do call, perde dez
+em sessenta por cento:
+
+00:03:19.920 --> 00:03:21.010
+menos seis.
+
+00:03:21.208 --> 00:03:23.149
+A soma é menos dois.
+
+00:03:23.347 --> 00:03:27.935
+Para uma aposta do tamanho do pote, o
+blefe puro precisa de mais de cinquenta
+
+00:03:27.935 --> 00:03:29.271
+por cento de folds.
+
+00:03:30.617 --> 00:03:33.344
+Agora leve a aula para a mesa de treino.
+
+00:03:33.542 --> 00:03:35.471
+A tela informa o preço.
+
+00:03:35.669 --> 00:03:40.321
+A equity depende do range, e o resultado
+desta mão não prova a rentabilidade
+
+00:03:40.321 --> 00:03:41.025
+do call.
+
+00:03:41.223 --> 00:03:44.852
+Separe a conta exata do
+preço da hipótese de equity.
+
+00:03:45.050 --> 00:03:49.908
+Comece pelo treino guiado, repita no modo
+desafio e use o replay para comparar
+
+00:03:49.908 --> 00:03:52.056
+a outra linha na mesma distribuição.
+
+00:03:53.383 --> 00:03:55.865
+Registre sua justificativa no caderno:
+
+00:03:56.063 --> 00:03:59.710
+acertar a leitura e respeitar as
+hipóteses importa mais do que ganhar a
+
+00:03:59.710 --> 00:04:00.208
+mão.
+
+00:04:00.406 --> 00:04:04.770
+O treino usa fichas sem valor,
+e este curso não promete lucro.

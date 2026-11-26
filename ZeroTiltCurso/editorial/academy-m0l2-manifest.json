@@ -1,0 +1,81 @@
+{
+  "lessonId": "m0l2",
+  "contentHash": "a9a49ed16636a5e979a698e6d69613f80406e8f2877df727b172f7af19c2643b",
+  "filename": "zt-intro-m0l2-v4",
+  "title": "Aula m0l2 — Do Mississippi ao mundo",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM0L2",
+  "script": "src/data/academy-m0l2.json",
+  "scriptHash": "931ae47495b67ea35ad12599492885b7105cfbbd9ae2b5a4d0441462df801d1a",
+  "durationSeconds": 276.67,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 15713149,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "25206cdcf881f3173c7f30131f1b5551023e627ffa6da4098ae83029b22540e3",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Abertura"
+    },
+    {
+      "start": 16.13,
+      "title": "Um relato de 1844"
+    },
+    {
+      "start": 39.87,
+      "title": "Cuidado com datas absolutas"
+    },
+    {
+      "start": 60.43,
+      "title": "1970 e 1971"
+    },
+    {
+      "start": 73.1,
+      "title": "Omaha antes dos cassinos"
+    },
+    {
+      "start": 97.63,
+      "title": "Turner, Gwen e Bill Boyd"
+    },
+    {
+      "start": 118.47,
+      "title": "O nome Omaha"
+    },
+    {
+      "start": 138.73,
+      "title": "Omaha na WSOP"
+    },
+    {
+      "start": 159.83,
+      "title": "O que muda entre os formatos"
+    },
+    {
+      "start": 181.57,
+      "title": "Pesquisa e fontes"
+    },
+    {
+      "start": 206.37,
+      "title": "2003"
+    },
+    {
+      "start": 223.13,
+      "title": "Exercício"
+    },
+    {
+      "start": 262.6,
+      "title": "Fechamento"
+    }
+  ],
+  "sha256": "36d0115ce8a0a546c5c1238f33a3be8cd34b5fd8a1f57c26b3acb23062f1e41d",
+  "assetHashes": {
+    "mp4": "36d0115ce8a0a546c5c1238f33a3be8cd34b5fd8a1f57c26b3acb23062f1e41d",
+    "vtt": "badc31f1cdc3561a428bb51c6eb8580e816eb45d72f20f0c18893c15349b9daa",
+    "webp": "cf9aa0989069942eafdc05866572751dd1cc421755226e0f2bddaa8b47101a88"
+  },
+  "mediaRevision": "79bed499105f751215a50598e02b84364c8b87af22439084f665a524d7772f03"
+}

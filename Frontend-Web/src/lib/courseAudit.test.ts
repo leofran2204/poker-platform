@@ -12,7 +12,11 @@ const lessons = allLessons();
 const passed = { status: "completed", best_score: 100 };
 const assetExists = (url: string) => existsSync(fileURLToPath(new URL(`../../public${url}`, import.meta.url)));
 /** Aulas do Brazilian Pineapple: vídeo produzido em Remotion (ZeroTiltCurso/editorial/motion). */
-const MOTION_LESSONS = ["m5l3", "m5l4", "m5l5"];
+const PINEAPPLE_MOTION_LESSONS = ["m5l3", "m5l4", "m5l5"];
+const MOTION_LESSONS = [
+  "m0l1", "m0l2", "m0l3", "m0l4", "m0l5", "m0l6", "m0l7", "m0l8", "m1l1", "m1l2", "m1l3", "m2l1", "m2l2", "m2l3", "m3l1", "m3l2", "m3l3",
+  "m4l1", "m4l2", "m4l3", "m5l1", "m5l2", "m6l1", "m6l2", "m6l3", ...PINEAPPLE_MOTION_LESSONS,
+];
 const editorial = (file: string) => fileURLToPath(new URL(`../../../ZeroTiltCurso/editorial/${file}`, import.meta.url));
 const sha256 = (data: string | Buffer) => createHash("sha256").update(data).digest("hex");
 /**
@@ -180,8 +184,9 @@ describe("integridade da Academy", () => {
         expect(manifest.renderer, lesson.id).toBe("remotion");
         expect(manifest.lessonId, lesson.id).toBe(lesson.id);
         expect(manifest.scriptHash, lesson.id).toMatch(/^[a-f0-9]{64}$/);
-        expect(lesson.video?.bettingRuleVersion, lesson.id).toBe("pineapple_draw_v4");
-        expect(manifest.bettingRuleVersion, lesson.id).toBe("pineapple_draw_v4");
+        const rule = PINEAPPLE_MOTION_LESSONS.includes(lesson.id) ? "pineapple_draw_v4" : undefined;
+        expect(lesson.video?.bettingRuleVersion, lesson.id).toBe(rule);
+        expect(manifest.bettingRuleVersion, lesson.id).toBe(rule);
         expect(lesson.video?.url, lesson.id).toBe(`/videos/zt-academy-${lesson.id}-v4.mp4`);
       }
       const payload = { id: lesson.id, title: lesson.title, body: lesson.body, quiz: lesson.quiz,

@@ -1,0 +1,333 @@
+{
+ "id": "academy-m0l6",
+ "title": "Aula m0l6 — Primeiros passos aqui",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m0l6",
+ "scenes": [
+  {
+   "id": "m0l6-01",
+   "chapter": "Abertura",
+   "title": "Primeiros passos aqui",
+   "voice": "Esta é a Zero Tilt Academy. Na aula seis do módulo zero, vamos conhecer o ambiente da plataforma e da Academy. O objetivo é saber onde praticar, com que fichas e como guardar o seu processo de estudo.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 0 · Aula 6",
+    "lines": [
+     "Objetivo: onde praticar, com que fichas e como guardar o processo"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m0l6-02",
+   "chapter": "Conheça o ambiente",
+   "title": "Vídeo, leitura, exercícios e mesas",
+   "voice": "A Academy combina vídeo, leitura, exercícios e mesas de estudo. Comece pelas regras comuns e depois escolha a modalidade. O lobby identifica separadamente as mesas de Play Money e as de Jogo Real, e nenhuma delas se mistura com as fichas sem valor dos simuladores.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Vídeo, leitura, exercícios e mesas",
+     "Regras comuns, depois a modalidade",
+     "Play Money, Jogo Real e simulador: separados"
+    ],
+    "cues": [
+     "A Academy combina",
+     "Comece pelas regras",
+     "O lobby identifica"
+    ]
+   }
+  },
+  {
+   "id": "m0l6-03",
+   "chapter": "Conta e acesso",
+   "title": "Cadastro e progresso",
+   "voice": "No cadastro, informe o código de convite exigido pela plataforma e conclua a verificação de e-mail. Na Academy, a conta registra o progresso das aulas. E as mesas de estudo estão disponíveis para praticar sem depósito.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Código de convite e verificação de e-mail",
+     "A conta registra o progresso",
+     "Mesas de estudo sem depósito"
+    ],
+    "cues": [
+     "No cadastro",
+     "a conta registra",
+     "as mesas de estudo"
+    ]
+   }
+  },
+  {
+   "id": "m0l6-04",
+   "chapter": "Mesas",
+   "title": "Mesa do lobby e mesa do módulo",
+   "voice": "Uma mesa do lobby precisa de pelo menos dois participantes para começar uma mão. Antes de ocupar o assento, confira a modalidade, os blinds, o tipo de saldo e a frente exigida. Já a mesa do módulo cria os bots do exercício, para você estudar sozinho, com fichas sem valor que não movimentam a sua carteira.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Mesa do lobby",
+      "items": [
+       "Pelo menos dois participantes",
+       "Modalidade, blinds e saldo"
+      ],
+      "cues": [
+       "pelo menos dois",
+       "confira a modalidade"
+      ],
+      "tone": "gold"
+     },
+     {
+      "title": "Mesa do módulo",
+      "items": [
+       "Bots do exercício",
+       "Fichas sem valor"
+      ],
+      "cues": [
+       "cria os bots",
+       "fichas sem valor"
+      ],
+      "tone": "mint"
+     }
+    ]
+   }
+  },
+  {
+   "id": "m0l6-05",
+   "chapter": "Três modos de praticar",
+   "title": "Guiado, desafio e prática variada",
+   "voice": "Há três modos de praticar. No treino guiado, leia o objetivo e a dica antes de agir. No desafio, as dicas ficam escondidas, e você responde à pergunta objetiva com as suas contas. Na prática variada, você circula pelas situações do módulo e se concentra no plano de jogo.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Treino guiado: objetivo e dica",
+     "Desafio: sem dicas, com pergunta objetiva",
+     "Prática variada: plano de jogo"
+    ],
+    "cues": [
+     "No treino guiado",
+     "No desafio",
+     "Na prática variada"
+    ]
+   }
+  },
+  {
+   "id": "m0l6-06",
+   "chapter": "Uma mão completa",
+   "title": "Os bots respondem a ações reais",
+   "voice": "Os bots respondem a ações reais. Veja uma mão até o fim. No flop, o pote tem cinco big blinds, e o bot aposta dois. Pagar custa dois, porque o call cobre a aposta: você paga. No turn, o bot dá check, e você também dá check, que não custa fichas. No river, os dois dão check, e o showdown mostra as cartas: o seu par de damas leva o pote.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 9750,
+      "cards": [
+       "Qs",
+       "Js"
+      ]
+     },
+     {
+      "name": "Bot · BB",
+      "stack": 9750,
+      "cards": [
+       "Th",
+       "9h"
+      ]
+     }
+    ],
+    "board": [
+     "Qh",
+     "7c",
+     "2d"
+    ],
+    "pot": 500,
+    "events": [
+     {
+      "type": "bet",
+      "cue": "o bot aposta dois",
+      "player": 1,
+      "to": 200
+     },
+     {
+      "type": "call",
+      "cue": "você paga",
+      "player": 0,
+      "to": 200
+     },
+     {
+      "type": "collect"
+     },
+     {
+      "type": "board",
+      "cue": "No turn",
+      "cards": [
+       "5s"
+      ]
+     },
+     {
+      "type": "check",
+      "cue": "o bot dá check",
+      "player": 1
+     },
+     {
+      "type": "check",
+      "cue": "você também dá check",
+      "player": 0
+     },
+     {
+      "type": "board",
+      "cue": "No river",
+      "cards": [
+       "Kc"
+      ]
+     },
+     {
+      "type": "check",
+      "cue": "os dois dão check",
+      "player": 1
+     },
+     {
+      "type": "check",
+      "player": 0
+     },
+     {
+      "type": "reveal",
+      "cue": "o showdown mostra",
+      "players": [
+       1
+      ]
+     },
+     {
+      "type": "award",
+      "cue": "leva o pote",
+      "player": 0
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     2
+    ],
+    "banner": "Flop · pote de 5 BB"
+   }
+  },
+  {
+   "id": "m0l6-07",
+   "chapter": "Guarde o processo",
+   "title": "Caderno e replay",
+   "voice": "O caderno registra as suas observações neste navegador. Anote a hipótese sobre o rival, a ação escolhida e uma alternativa. Use o replay para rever o que estava visível em cada instante. E lembre que o resultado do treino não é promessa de retorno em mesas reais.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Caderno: neste navegador",
+     "Hipótese, ação e alternativa",
+     "Replay: o que estava visível"
+    ],
+    "cues": [
+     "O caderno registra",
+     "Anote a hipótese",
+     "Use o replay"
+    ]
+   }
+  },
+  {
+   "id": "m0l6-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. Onde ficam as anotações que você faz no caderno da Academy? A: na sua carteira. B: neste navegador. C: no replay que a mesa guarda. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Onde ficam as anotações que você faz no caderno da Academy?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Na sua carteira",
+      "cue": "A na sua carteira"
+     },
+     {
+      "key": "B",
+      "text": "Neste navegador",
+      "cue": "B neste navegador"
+     },
+     {
+      "key": "C",
+      "text": "No replay da mesa",
+      "cue": "C no replay"
+     }
+    ],
+    "correct": "B"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m0l6-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B. O caderno registra as observações neste navegador. O replay mostra o que estava visível em cada instante, e a carteira não tem relação com as fichas sem valor das mesas de estudo.",
+   "visual": {
+    "mode": "answer",
+    "question": "Onde ficam as anotações que você faz no caderno da Academy?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Na sua carteira",
+      "cue": "A na sua carteira"
+     },
+     {
+      "key": "B",
+      "text": "Neste navegador",
+      "cue": "B neste navegador"
+     },
+     {
+      "key": "C",
+      "text": "No replay da mesa",
+      "cue": "C no replay"
+     }
+    ],
+    "correct": "B",
+    "cue": "Resposta",
+    "explanation": "Caderno: neste navegador"
+   }
+  },
+  {
+   "id": "m0l6-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. Percorra o pré-flop, o flop, o turn e o river com ações legais. Leia quanto falta pagar: check não custa fichas, e call cobre uma aposta. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Pré-flop, flop, turn e river",
+     "Leia quanto falta pagar",
+     "Check não custa; call cobre"
+    ],
+    "cues": [
+     "Percorra o pré-flop",
+     "Leia quanto falta",
+     "check não custa"
+    ]
+   }
+  },
+  {
+   "id": "m0l6-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

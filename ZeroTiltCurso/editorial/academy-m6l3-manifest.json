@@ -1,469 +1,65 @@
 {
   "lessonId": "m6l3",
-  "filename": "zt-academy-m6l3-v3",
   "contentHash": "db96b2a0c4185fd6f5099a6a81bbf0fa333d84cbdae2597603a44adff63b7eee",
-  "rendererVersion": 5,
-  "durationSeconds": 348.3,
+  "filename": "zt-academy-m6l3-v4",
+  "title": "Aula m6l3 — Revisão final: o método completo",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM6L3",
+  "script": "src/data/academy-m6l3.json",
+  "scriptHash": "b123d771591828139f34c72d189e31a10f4bada60fce9bac9c8f98a6e4406d09",
+  "durationSeconds": 269.85,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9979829,
+  "bytes": 15974469,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "e6f73952a249f7ed6a1d98cd64aa81aa199dd651808ab3433781e37e70629c4c",
+  "narrationHash": "073725ee870e392c6ce473bdbc7551b17bd1d922b5595eabfc9a2b9c635b085e",
   "chapters": [
     {
       "start": 0.0,
-      "title": "Revisão final: o método completo"
+      "title": "Abertura"
     },
     {
-      "start": 20.17,
+      "start": 16.57,
       "title": "Método de revisão"
     },
     {
-      "start": 46.93,
+      "start": 47.8,
+      "title": "Decisão e resultado"
+    },
+    {
+      "start": 93.63,
+      "title": "Duas passagens"
+    },
+    {
+      "start": 117.47,
+      "title": "Quatro jogos"
+    },
+    {
+      "start": 144.67,
       "title": "Prática distribuída"
     },
     {
-      "start": 68.87,
-      "title": "Pratique e revise"
+      "start": 187.43,
+      "title": "Exercício"
     },
     {
-      "start": 85.23,
-      "title": "Revise em duas passagens"
+      "start": 238.23,
+      "title": "Laboratório"
     },
     {
-      "start": 117.0,
-      "title": "Use os quatro jogos como teste de regras"
-    },
-    {
-      "start": 148.53,
-      "title": "Um ciclo de aprendizagem"
-    },
-    {
-      "start": 175.63,
-      "title": "Laboratório: Explique a decisão antes do river"
-    },
-    {
-      "start": 213.0,
-      "title": "Laboratório: Explique a decisão antes do river"
-    },
-    {
-      "start": 221.3,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 246.2,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 263.9,
-      "title": "Exercício resolvido 2"
-    },
-    {
-      "start": 297.87,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 316.5,
-      "title": "Agora, pratique"
+      "start": 255.77,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 20.166666666666668,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 20.166666666666668,
-      "duration": 26.766666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 46.93333333333334,
-      "duration": 21.933333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 68.86666666666667,
-      "duration": 16.366666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 85.23333333333335,
-      "duration": 31.766666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 117.00000000000001,
-      "duration": 31.533333333333335,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 148.53333333333336,
-      "duration": 27.1,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 175.63333333333335,
-      "duration": 37.36666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 213.00000000000003,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 221.30000000000004,
-      "duration": 24.9,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 246.20000000000005,
-      "duration": 17.7,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 263.90000000000003,
-      "duration": 33.96666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 297.8666666666667,
-      "duration": 18.633333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 316.5,
-      "duration": 31.8,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    }
-  ],
-  "sha256": "6e9435ff4971fd78665c8de1888fd40f128c71722cde028efce8b17885bfbf00",
+  "sha256": "91723b853a00d2b2948a803b19818a42d21591bd9848e6fdfe89127b233fa7d6",
   "assetHashes": {
-    "mp4": "6e9435ff4971fd78665c8de1888fd40f128c71722cde028efce8b17885bfbf00",
-    "vtt": "4fb3b600719a8a2edfbbb732e5746006f4d4ebdabc6c6f3518892e878480b645",
-    "webp": "487551c86f48e58bed1184a9f353ee9402b9c4068f7f2a6d18ef71b5e8d2ce8c"
+    "mp4": "91723b853a00d2b2948a803b19818a42d21591bd9848e6fdfe89127b233fa7d6",
+    "vtt": "878af011dcb4d51d5e49772ea4579506d7233c343e0082e88cacde5787139f95",
+    "webp": "a3752d10a71428d787537f464ea094f01322a4db5040254a6852273a8a2f4615"
   },
-  "mediaRevision": "d76eaf4423afb3d1c82fd95f61c9be033824ce7f6fd5b0eaaa8c2977edbe3eb0"
+  "mediaRevision": "31fc264730d47f04f279d74f7a4c69d88becd6201d6a164353aecd30a6fa7789"
 }

@@ -1,0 +1,366 @@
+{
+ "id": "academy-m6l3",
+ "title": "Aula m6l3 — Revisão final: o método completo",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m6l3",
+ "scenes": [
+  {
+   "id": "m6l3-01",
+   "chapter": "Abertura",
+   "title": "Revisão final: o método completo",
+   "voice": "Esta é a Zero Tilt Academy. Na aula três do módulo seis, vamos juntar o curso num método de revisão. O objetivo é registrar a informação, as alternativas e a justificativa de cada decisão, separando a decisão do resultado.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 6 · Aula 3",
+    "lines": [
+     "Objetivo: separar a decisão do resultado"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m6l3-02",
+   "chapter": "Método de revisão",
+   "title": "Cinco passos",
+   "voice": "O método tem cinco passos. Primeiro, identifique a modalidade e as regras de formação da mão. Segundo, registre a fase, a posição, os stacks, as ações e as informações disponíveis. Terceiro, defina ranges ou hipóteses, sem atribuir equity sem um modelo. Quarto, compare as ações legais, o preço e as continuações. Quinto, respeite o orçamento e o tempo, e avalie a decisão separada do resultado.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "1. Modalidade e formação da mão",
+     "2. Fase, posição, stacks e ações",
+     "3. Ranges ou hipóteses",
+     "4. Ações legais, preço e continuações",
+     "5. Orçamento, tempo e resultado à parte"
+    ],
+    "cues": [
+     "Primeiro",
+     "Segundo",
+     "Terceiro",
+     "Quarto",
+     "Quinto"
+    ]
+   }
+  },
+  {
+   "id": "m6l3-03",
+   "chapter": "Decisão e resultado",
+   "title": "Uma boa decisão que perde",
+   "voice": "Veja uma mão para revisar. No turn, o pote tem quarenta big blinds, e a mesa mostra valete e sete de copas, dois de paus e cinco de espadas. Você tem dois ases. O rival vai all-in com oitenta, e você paga. Ele mostra rei e dama de copas, um projeto de flush. O river traz o três de copas, e o pote vai para ele.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 8000,
+      "cards": [
+       "As",
+       "Ad"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 8000,
+      "cards": [
+       "Kh",
+       "Qh"
+      ]
+     }
+    ],
+    "board": [
+     "Jh",
+     "7h",
+     "2c",
+     "5s"
+    ],
+    "pot": 4000,
+    "events": [
+     {
+      "type": "allin",
+      "cue": "O rival vai all-in",
+      "player": 1,
+      "to": 8000
+     },
+     {
+      "type": "call",
+      "cue": "e você paga",
+      "player": 0,
+      "to": 8000
+     },
+     {
+      "type": "collect"
+     },
+     {
+      "type": "reveal",
+      "cue": "Ele mostra",
+      "players": [
+       1
+      ]
+     },
+     {
+      "type": "board",
+      "cue": "O river traz",
+      "cards": [
+       "3h"
+      ]
+     },
+     {
+      "type": "award",
+      "cue": "o pote vai para ele",
+      "player": 1
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     2
+    ],
+    "banner": "Turn · pote de 40 BB"
+   }
+  },
+  {
+   "id": "m6l3-04",
+   "chapter": "Decisão e resultado",
+   "title": "O que se sabia no call",
+   "voice": "Agora revise com o que se sabia no momento do call. Contra rei e dama de copas, os seus ases venciam cerca de setenta e nove vírgula cinco por cento das vezes. O rival precisava de uma das nove copas entre quarenta e quatro cartas. A derrota veio da carta do river, e não de um erro na decisão.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "SEUS ASES NO CALL",
+      "≈ 79,5%"
+     ],
+     [
+      "COPAS DO RIVAL",
+      "9 de 44"
+     ],
+     [
+      "RESULTADO",
+      "Perdeu"
+     ]
+    ],
+    "cues": [
+     "setenta e nove",
+     "nove copas",
+     "A derrota veio"
+    ],
+    "note": "Decisão boa, resultado ruim"
+   }
+  },
+  {
+   "id": "m6l3-05",
+   "chapter": "Duas passagens",
+   "title": "Revise em duas passagens",
+   "voice": "Revise em duas passagens. Na primeira, esconda o resultado e reconstrua a informação disponível: modalidade, cartas, board, posições, stacks e ações. Escreva pelo menos duas alternativas legais. Na segunda, veja a continuação e identifique o que foi resultado aleatório, mudança de informação ou falha no raciocínio.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Primeira passagem",
+      "items": [
+       "Esconda o resultado",
+       "Duas alternativas legais"
+      ],
+      "cues": [
+       "esconda o resultado",
+       "duas alternativas"
+      ],
+      "tone": "mint"
+     },
+     {
+      "title": "Segunda passagem",
+      "items": [
+       "Veja a continuação",
+       "Sorte, informação ou raciocínio?"
+      ],
+      "cues": [
+       "veja a continuação",
+       "falha no raciocínio"
+      ],
+      "tone": "gold"
+     }
+    ],
+    "note": "Nem toda vitória é boa decisão"
+   }
+  },
+  {
+   "id": "m6l3-06",
+   "chapter": "Quatro jogos",
+   "title": "Use os quatro jogos como teste de regras",
+   "voice": "Use os quatro jogos como teste de regras. No Hold'em, pergunte se a mesa pode jogar sozinha. No Short Deck, refaça o universo de cartas e o ranking. No Omaha, confirme duas privadas entre quatro. E no Brazilian Pineapple, decida a troca na sua vez, antes de agir, no flop, no turn e no river; no river, depois da troca, escolha as duas privadas que ficam.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Hold'em: a mesa joga sozinha?",
+     "Short Deck: universo e ranking",
+     "Omaha: duas privadas entre quatro",
+     "Pineapple: troca na sua vez"
+    ],
+    "cues": [
+     "pergunte se a mesa",
+     "No Short Deck",
+     "No Omaha",
+     "no Brazilian Pineapple"
+    ]
+   }
+  },
+  {
+   "id": "m6l3-07",
+   "chapter": "Prática distribuída",
+   "title": "Teste antes de reler",
+   "voice": "Responda aos exercícios antes de abrir as explicações, e volte em outra sessão para explicar o raciocínio com as suas palavras. Dunlosky e colaboradores classificam os testes de prática e o estudo distribuído como técnicas de alta utilidade, numa revisão educacional. Essa revisão não mediu ganhos financeiros neste curso.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Responda antes da explicação",
+     "Volte em outra sessão",
+     "Alta utilidade, sem medir ganhos"
+    ],
+    "cues": [
+     "Responda aos exercícios",
+     "Dunlosky",
+     "não mediu ganhos"
+    ]
+   }
+  },
+  {
+   "id": "m6l3-08",
+   "chapter": "Prática distribuída",
+   "title": "Um ciclo de aprendizagem",
+   "voice": "Assista ao capítulo, resolva o exemplo sem ajuda e jogue o cenário correspondente. Salve a justificativa e volte em outra sessão no modo desafio. Se errar o preço ou a formação da mão, refaça a conta antes de aumentar a dificuldade. O registro de estudo não certifica habilidade profissional nem prevê lucro contra pessoas.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Capítulo, exemplo e cenário",
+     "Errou? Refaça a conta",
+     "Registro não é certificação"
+    ],
+    "cues": [
+     "Assista ao capítulo",
+     "Se errar o preço",
+     "O registro de estudo"
+    ]
+   }
+  },
+  {
+   "id": "m6l3-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. Texas, no river. A mesa tem rei de espadas, rei de ouros, sete de paus, sete de copas e dois de espadas. Você tem ás de paus e três de ouros, e o rival tem dama de paus e valete de ouros. Quem leva o pote? A: divisão, porque a mesa joga para os dois. B: você, pelo ás. C: o rival, pela dama e pelo valete. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Texas, river: a mesa tem K♠ K♦ 7♣ 7♥ 2♠. Você tem A♣ 3♦, e o rival tem Q♣ J♦. Quem leva o pote?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Divisão: a mesa joga para os dois",
+      "cue": "A divisão"
+     },
+     {
+      "key": "B",
+      "text": "Você, pelo ás",
+      "cue": "B você, pelo ás"
+     },
+     {
+      "key": "C",
+      "text": "O rival, pela dama e pelo valete",
+      "cue": "C o rival"
+     }
+    ],
+    "correct": "B",
+    "hole": [
+     "Ac",
+     "3d"
+    ],
+    "board": [
+     "Ks",
+     "Kd",
+     "7c",
+     "7h",
+     "2s"
+    ]
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m6l3-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B. Os dois têm dois pares, reis e setes, que vêm da mesa. A quinta carta decide: o seu ás vence a dama do rival. A mesa só jogaria sozinha se ninguém tivesse uma carta maior que o dois de espadas para a quinta posição.",
+   "visual": {
+    "mode": "answer",
+    "question": "Texas, river: a mesa tem K♠ K♦ 7♣ 7♥ 2♠. Você tem A♣ 3♦, e o rival tem Q♣ J♦. Quem leva o pote?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Divisão: a mesa joga para os dois",
+      "cue": "A divisão"
+     },
+     {
+      "key": "B",
+      "text": "Você, pelo ás",
+      "cue": "B você, pelo ás"
+     },
+     {
+      "key": "C",
+      "text": "O rival, pela dama e pelo valete",
+      "cue": "C o rival"
+     }
+    ],
+    "correct": "B",
+    "hole": [
+     "Ac",
+     "3d"
+    ],
+    "board": [
+     "Ks",
+     "Kd",
+     "7c",
+     "7h",
+     "2s"
+    ],
+    "cue": "Resposta",
+    "explanation": "Reis e setes da mesa · ás vence a dama"
+   }
+  },
+  {
+   "id": "m6l3-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. Comece pelo treino guiado, depois use o modo desafio e escreva a sua justificativa antes de cada decisão. Em seguida, reveja a mesma distribuição com outra linha no replay, e separe a decisão do resultado.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Treino guiado, depois desafio",
+     "Escreva a justificativa antes",
+     "Replay com outra linha"
+    ],
+    "cues": [
+     "Comece pelo treino guiado",
+     "escreva a sua justificativa",
+     "reveja a mesma distribuição"
+    ]
+   }
+  },
+  {
+   "id": "m6l3-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

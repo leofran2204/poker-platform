@@ -1,206 +1,65 @@
 {
   "lessonId": "m6l2",
-  "filename": "zt-academy-m6l2-v3",
   "contentHash": "ff6e867684dba928b3bb94582e0b2624fd5b0b8a741980e1b29f36ac8acac10b",
-  "rendererVersion": 5,
-  "durationSeconds": 335.57,
+  "filename": "zt-academy-m6l2-v4",
+  "title": "Aula m6l2 — Banca: o cinto de segurança",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM6L2",
+  "script": "src/data/academy-m6l2.json",
+  "scriptHash": "243c25618e6e9698e370e08e271a6ad8810d70ebe728ff83e031408e10982b19",
+  "durationSeconds": 212.88,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9230682,
+  "bytes": 12159082,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "320ed999bb6edee46ef0c864a395f0e468936dba80dab91a0dd2f14689a5999f",
+  "narrationHash": "ac8d2722e3af7db7635d1f11f1923501b0ff3b466a4c34754709b4382c1f4605",
   "chapters": [
     {
       "start": 0.0,
-      "title": "Banca: o cinto de segurança"
+      "title": "Abertura"
     },
     {
-      "start": 18.6,
-      "title": "Variância e orçamento"
+      "start": 15.7,
+      "title": "Variância"
     },
     {
-      "start": 40.97,
+      "start": 58.3,
       "title": "Limites pessoais"
     },
     {
-      "start": 69.03,
+      "start": 80.2,
       "title": "Decisão após perdas"
     },
     {
-      "start": 86.2,
+      "start": 98.0,
       "title": "Pesquisa sobre tilt"
     },
     {
-      "start": 107.77,
-      "title": "Defina o que pode ser perdido"
+      "start": 117.9,
+      "title": "Sessão de treino"
     },
     {
-      "start": 138.07,
-      "title": "Uma sessão de treino com começo e fim"
+      "start": 140.6,
+      "title": "Exercício"
     },
     {
-      "start": 164.8,
-      "title": "Não converta exemplos em garantias"
+      "start": 178.73,
+      "title": "Laboratório"
     },
     {
-      "start": 194.53,
-      "title": "Laboratório: Uma sessão com limite"
-    },
-    {
-      "start": 230.77,
-      "title": "Laboratório: Uma sessão com limite"
-    },
-    {
-      "start": 239.07,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 253.3,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 268.5,
-      "title": "Exercício resolvido 2"
-    },
-    {
-      "start": 288.67,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 304.27,
-      "title": "Agora, pratique"
+      "start": 198.8,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 18.6,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 18.6,
-      "duration": 22.366666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 40.96666666666667,
-      "duration": 28.066666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 69.03333333333333,
-      "duration": 17.166666666666668,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 86.2,
-      "duration": 21.566666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 107.76666666666667,
-      "duration": 30.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 138.06666666666666,
-      "duration": 26.733333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 164.8,
-      "duration": 29.733333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 194.53333333333336,
-      "duration": 36.233333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 230.7666666666667,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 239.06666666666672,
-      "duration": 14.233333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 253.30000000000004,
-      "duration": 15.2,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 268.50000000000006,
-      "duration": 20.166666666666668,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 288.66666666666674,
-      "duration": 15.6,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 304.26666666666677,
-      "duration": 31.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    }
-  ],
-  "sha256": "51339333ca1fc99619d8f0418226d521dbdd5f4ec0f0d14d96efb4468a8e05bc",
+  "sha256": "f3b6d4979f41de9255b142d9c1aec0be24459c35ca413ae32a53a6fd8ba08f7e",
   "assetHashes": {
-    "mp4": "51339333ca1fc99619d8f0418226d521dbdd5f4ec0f0d14d96efb4468a8e05bc",
-    "vtt": "f41aedd32b5c5414d8b65627e93816e2af41f0149a39b5bed42bf38c09603bfd",
-    "webp": "24b3896d02406d8f975cad728dff4dc85f83ec9aa3cacfbf51565107435b6889"
+    "mp4": "f3b6d4979f41de9255b142d9c1aec0be24459c35ca413ae32a53a6fd8ba08f7e",
+    "vtt": "df81df0d720266bddf93628cfea2fb7d4ec17f318793de63990e0d336d1577f8",
+    "webp": "e11b9ce2a7846ed1f64ce11863a690a6ce45fb4599731c1600b04adebdd073d6"
   },
-  "mediaRevision": "f80e8e7e75e1772f2cee8d3dd12e45a694d982a5609c62e0aedb10aebc98e671"
+  "mediaRevision": "6fe24aff2d21f5f7efb468f85bb577610756a425662d7632de88b920face2628"
 }

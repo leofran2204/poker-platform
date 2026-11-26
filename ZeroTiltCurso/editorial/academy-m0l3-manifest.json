@@ -1,0 +1,53 @@
+{
+  "lessonId": "m0l3",
+  "contentHash": "4e4c40ccadbc8b354ea2accb712d470218d8ad56f72b0ea25aafbfabebf9e8b0",
+  "filename": "zt-intro-m0l3-v4",
+  "title": "Aula m0l3 — Nomes que fizeram história",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM0L3",
+  "script": "src/data/academy-m0l3.json",
+  "scriptHash": "7ad59af3fffbe89a9d798bbd96366adf17c89f71f3899a597c3bbc3162291085",
+  "durationSeconds": 117.8,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 7381641,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "c640113c495ae16c9e7b1953678397e113be73c2c470b685f20a990d7bc23788",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Abertura"
+    },
+    {
+      "start": 15.1,
+      "title": "Feito e contexto"
+    },
+    {
+      "start": 34.13,
+      "title": "Ciência e contexto"
+    },
+    {
+      "start": 49.13,
+      "title": "Resultado e processo"
+    },
+    {
+      "start": 67.53,
+      "title": "Exercício"
+    },
+    {
+      "start": 103.73,
+      "title": "Fechamento"
+    }
+  ],
+  "sha256": "41f82247cc374065e2b4c45be258820b4ff73332932c19011c527f2c843e1cae",
+  "assetHashes": {
+    "mp4": "41f82247cc374065e2b4c45be258820b4ff73332932c19011c527f2c843e1cae",
+    "vtt": "e3697de5302bce8ff9dadb69188a109dba058afc5524c2bd174f32bef81ddba6",
+    "webp": "05fec927e31b567b3d55d03f558a8b455410016b6319c8626831fcb1cf2b8ef1"
+  },
+  "mediaRevision": "63d8b46eab31e79f41ff4ba39e1687d74bca05726bd91c7fe4ab2f838c6a2082"
+}

@@ -1,194 +1,69 @@
 {
   "lessonId": "m1l3",
-  "filename": "zt-academy-m1l3-v3",
   "contentHash": "470bc06a215489dcf6ea2a1b5cb73719f41d57f676c8b337baedb3fd78c8963a",
-  "rendererVersion": 5,
-  "durationSeconds": 351.07,
+  "filename": "zt-academy-m1l3-v4",
+  "title": "Aula m1l3 — 3-bet por valor e 3-bet light com bloqueadores",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM1L3",
+  "script": "src/data/academy-m1l3.json",
+  "scriptHash": "d077535dacc74a248a4f5444f63f71a05ac31ada86f8afcdf1258e127b783630",
+  "durationSeconds": 206.91,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9516111,
+  "bytes": 12206643,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "fffaed11f771d2b715f1991a8c03818acc119af623577289aaa98759d2bc9a64",
+  "narrationHash": "10d1dfe7546c5c26257f3fdca13b52c24877653902471efdfc315febb3051d29",
   "chapters": [
     {
       "start": 0.0,
-      "title": "3-bet por Valor e 3-bet Light com Blockers"
+      "title": "Abertura"
     },
     {
-      "start": 19.03,
+      "start": 13.9,
       "title": "Valor, blefe e bloqueadores"
     },
     {
-      "start": 41.73,
+      "start": 33.93,
+      "title": "A 3-bet na prática"
+    },
+    {
+      "start": 59.1,
+      "title": "Três tamanhos"
+    },
+    {
+      "start": 84.1,
       "title": "Contagem de combinações"
     },
     {
-      "start": 73.83,
-      "title": "Exercício"
-    },
-    {
-      "start": 95.63,
-      "title": "Três tamanhos diferentes"
-    },
-    {
-      "start": 124.33,
+      "start": 101.13,
       "title": "Bloqueadores têm dois lados"
     },
     {
-      "start": 153.33,
+      "start": 120.47,
       "title": "Planeje a próxima decisão"
     },
     {
-      "start": 182.8,
-      "title": "Laboratório: Reaumentar uma abertura"
+      "start": 136.97,
+      "title": "Exercício"
     },
     {
-      "start": 219.67,
-      "title": "Laboratório: Reaumentar uma abertura"
+      "start": 172.93,
+      "title": "Laboratório"
     },
     {
-      "start": 227.97,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 252.8,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 270.43,
-      "title": "Exercício resolvido 2"
-    },
-    {
-      "start": 306.7,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 319.63,
-      "title": "Agora, pratique"
+      "start": 192.83,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 19.033333333333335,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 19.033333333333335,
-      "duration": 22.7,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 41.733333333333334,
-      "duration": 32.1,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 73.83333333333334,
-      "duration": 21.8,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 95.63333333333334,
-      "duration": 28.7,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 124.33333333333334,
-      "duration": 29.0,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 153.33333333333334,
-      "duration": 29.466666666666665,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 182.8,
-      "duration": 36.86666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 219.66666666666669,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 227.9666666666667,
-      "duration": 24.833333333333332,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 252.80000000000004,
-      "duration": 17.633333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 270.4333333333334,
-      "duration": 36.266666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 306.70000000000005,
-      "duration": 12.933333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 319.6333333333334,
-      "duration": 31.433333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    }
-  ],
-  "sha256": "32c721f19b6d6072ded745fe443259163343ff79e67ff01bfd45a634582d9427",
+  "sha256": "df5b9fe6bad87b3318c5bdd6d83a6ac00a18b0bf15953ddc03262214af2a639c",
   "assetHashes": {
-    "mp4": "32c721f19b6d6072ded745fe443259163343ff79e67ff01bfd45a634582d9427",
-    "vtt": "c792e7144689dd1a3151329fe9b092f525c4f664fa6e693323d75d5564e04334",
-    "webp": "5b447e2db348efc92337966356008360429d94d65197c04a62d9ef10396a9564"
+    "mp4": "df5b9fe6bad87b3318c5bdd6d83a6ac00a18b0bf15953ddc03262214af2a639c",
+    "vtt": "3c768f3aa18478477487f86f11dbd73a893023b9d6d5b8c8ccd5d5f623c26578",
+    "webp": "ef34a6acacc8e2d47186cca0319b52379dc3a339126d27c9df2b8b1a03890974"
   },
-  "mediaRevision": "815b879cf69b043c696d13244a4b73fdce00db6016fe43acaeef13121d465643"
+  "mediaRevision": "ee3a00085d4afe7a30ee5131b4b50271ccada6df35f750f9486018f33f8cbb7a"
 }

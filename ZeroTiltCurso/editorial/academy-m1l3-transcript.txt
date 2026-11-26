@@ -1,27 +1,21 @@
-Esta é a Zero Tilt Academy, e a aula de hoje é: 3-bet por Valor e 3-bet Light com Blockers. Nesta aula, nosso objetivo é: Construir uma 3-bet e distinguir o total do incremento. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+Esta é a Zero Tilt Academy. Na aula três do módulo um, vamos estudar a 3-bet por valor e a 3-bet light com bloqueadores. O objetivo é construir uma 3-bet e distinguir o total do incremento.
 
-Valor, blefe e bloqueadores. Uma 3-bet é um aumento sobre o raise inicial. Seu range e tamanho dependem das posições, stack efetivo e respostas adversárias. ás e rei do mesmo naipe pode integrar a parte de valor; ás e cinco do mesmo naipe pode aparecer como blefe em determinados cenários, mas não é uma obrigação.
+Uma 3-bet é um aumento sobre o raise inicial. O range e o tamanho dependem das posições, do stack efetivo e das respostas dos adversários. Ás e rei do mesmo naipe pode fazer parte do valor. Ás e cinco do mesmo naipe pode aparecer como blefe em certos cenários, mas não é obrigação.
 
-Contagem de combinações. Sem cartas conhecidas, existem combinação de 4 elementos tomados 2 a 2 igual a 6 combinações de par de ases e 4 vezes 4 igual a 16 de ás e rei. Ao segurar um ás, sem conhecer outras cartas dessas classes, restam combinação de 3 elementos tomados 2 a 2 igual a 3 combinações de par de ases e 3 vezes 4 igual a 12 de ás e rei. Reduzir combinações não prova que um blefe é lucrativo: importam também as mãos que o rival paga e as que descarta.
+Veja o exercício. A mesa é de Texas cash, com cem big blinds de stack. O cutoff abre para dois big blinds e meio, e você está no botão com ás e rei de copas. No plano de treino, isso é uma 3-bet por valor, com referência de sete e meio a oito big blinds. Você aumenta para oito no total. Os blinds desistem, e o cutoff paga.
 
-Exercício. Texas cash 100 big blinds: cutoff abre 2,5 big blinds e o botão tem ás e rei do mesmo naipe. No plano de treino, usamos 3-bet por valor, com referência de 7,5–8 big blinds. Compare o plano com um stack de 20 big blinds: não transplante o tamanho automaticamente.
+Repare nos três números. A sua 3-bet é de oito big blinds no total. O incremento sobre a abertura foi de cinco big blinds e meio. E, como você não tinha fichas na rodada, o seu custo também foi de oito. No big blind, parte já estaria comprometida. Essa diferença importa para as pot odds, o stack efetivo e a resposta a uma 4-bet.
 
-Três tamanhos diferentes. Se o rival abre para 2,5 big blinds e você aumenta para 8, sua 3-bet é de 8 big blinds no total. O incremento sobre a abertura foi 5,5 big blinds. Se você não tinha fichas investidas, o custo inicial é 8 big blinds; se era big blind, parte já estava comprometida. A diferença importa para pot odds, stack efetivo e planejamento de respostas a uma 4-bet.
+Agora, os bloqueadores. Sem cartas conhecidas, existem seis combinações de par de ases e dezesseis de ás e rei. Se você segura um ás, sem conhecer outras cartas, restam três combinações de par de ases e doze de ás e rei.
 
-Bloqueadores têm dois lados. Segurar um ás reduz certas combinações fortes do adversário, mas também pode reduzir mãos que ele desistiria. Um blocker não fornece por si só a frequência de fold. Liste primeiro o range de abertura, depois quais mãos pagam e quais reaumentam. Sem essa decomposição, dizer que ás e cinco do mesmo naipe bloqueia ases é verdadeiro, porém insuficiente para provar que o blefe tem valor esperado positivo.
+Mas o bloqueador tem dois lados. Segurar um ás reduz certas mãos fortes do rival, e também algumas mãos com que ele desistiria. Um bloqueador, sozinho, não dá a frequência de fold. Liste primeiro o range de abertura, depois as mãos que pagam e as que aumentam de novo.
 
-Planeje a próxima decisão. Ao escolher a 3-bet, antecipe o stack que restará se houver call. Com 100 big blinds, você ainda pode enfrentar várias apostas pós-flop. Com 20 big blinds, a relação entre pote e stack muda muito. No exercício, pratique o total legal do raise e descreva quais respostas fariam você continuar. Os bots não são um solver e uma vitória contra eles não valida automaticamente o range escolhido.
+Ao escolher a 3-bet, antecipe o stack que vai restar se houver call. Com cem big blinds, ainda cabem várias apostas depois do flop. Com vinte, a relação entre o pote e o stack muda muito: não transplante o tamanho automaticamente.
 
-Laboratório: Reaumentar uma abertura. Objetivo: Construir uma 3-bet e distinguir o total do incremento. Abra a mesa deste módulo e comece pelo treino guiado. A abertura adversária foi para 2,5 big blinds. No exercício, compare uma 3-bet de valor com apenas pagar. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+Exercício. O cutoff abre para dois big blinds e meio, e você faz 3-bet para sete e meio. Os blinds desistem, e o cutoff paga. Quantos big blinds haverá no pote do flop? A: quinze. B: dezesseis e meio. C: dezoito. Pause o vídeo e responda.
 
-Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+Resposta: B, dezesseis e meio. São sete e meio de cada um de vocês, mais o meio do small blind e o um do big blind, que desistiram.
 
-O que significa dizer que ás e cinco suited é uma excelente mão para 3-bet light por ter 'blocker'? As alternativas são: A, Que você bloqueia o dealer de distribuir cartas; B, Que ter um Ás na sua mão reduz matematicamente as chances do rival ter par de ases ou ás e rei; C, Que você não pode tomar raise. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+Agora leve a aula para a mesa de treino. A abertura adversária é de dois big blinds e meio: compare uma 3-bet por valor com apenas pagar. Pratique o total legal do raise e diga quais respostas fariam você continuar. Os bots não são um solver, e uma vitória contra eles não valida o range.
 
-Vamos à resposta. A alternativa certa deste exercício é: Que ter um Ás na sua mão reduz matematicamente as chances do rival ter par de ases ou ás e rei. Ter um Ás na mão reduz em 50 por cento os combos de par de ases e em 25 por cento os combos de ás e rei do vilão.
-
-Suas cartas: ás de copas, rei de copas. Cartas comunitárias: ainda não reveladas. O cenário é uma mesa de Texas cash, com 100 big blinds. o jogador do cutoff abre a ação com 2,5 big blinds. No plano de 3-bet por valor desta aula, você tem A♥ K♥ no botão. Ação? As alternativas são: A, fold; B, call; C, raise. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
-
-Vamos à resposta. A alternativa certa deste exercício é: raise. ás e rei do mesmo naipe é uma mão de valor premium: 3-bete para construir o pote em posição.
-
-Abra o simulador da aula e escolha o cenário Reaumentar uma abertura. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.
+Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.

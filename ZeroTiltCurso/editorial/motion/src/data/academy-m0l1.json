@@ -1,0 +1,213 @@
+{
+ "id": "academy-m0l1",
+ "title": "Aula m0l1 — De onde vêm as cartas",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m0l1",
+ "scenes": [
+  {
+   "id": "m0l1-01",
+   "chapter": "Abertura",
+   "title": "De onde vêm as cartas",
+   "voice": "Esta é a Zero Tilt Academy. Na primeira aula do módulo zero, vamos ver de onde vêm as cartas e por que o poker é um jogo de informação incompleta. O objetivo é diferenciar o que uma fonte comprova do que ela não comprova.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 0 · Aula 1",
+    "lines": [
+     "Objetivo: separar o que a fonte comprova do que ela não comprova"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m0l1-02",
+   "chapter": "Um objeto, muitas perguntas",
+   "title": "O baralho do Met",
+   "voice": "O Met, museu de arte de Nova York, preserva um baralho completo de cinquenta e duas cartas dos Países Baixos meridionais, datado de cerca de mil quatrocentos e setenta e cinco a mil quatrocentos e oitenta. Os naipes representam equipamentos de caça. A peça comprova a existência desse baralho, mas não o nascimento do poker. E o museu informa que as regras exatas dos jogos associados não são conhecidas.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "A peça comprova",
+      "items": [
+       "Um baralho de 52 cartas",
+       "Datado de c. 1475–1480"
+      ],
+      "cues": [
+       "cinquenta e duas cartas",
+       "cerca de mil"
+      ],
+      "tone": "mint"
+     },
+     {
+      "title": "A peça não comprova",
+      "items": [
+       "O nascimento do poker",
+       "As regras dos jogos da época"
+      ],
+      "cues": [
+       "não o nascimento",
+       "regras exatas"
+      ],
+      "tone": "danger"
+     }
+    ],
+    "note": "Naipes com equipamentos de caça"
+   }
+  },
+  {
+   "id": "m0l1-03",
+   "chapter": "O baralho de hoje",
+   "title": "A regra vem antes da estratégia",
+   "voice": "No Hold'em tradicional, são treze valores vezes quatro naipes: cinquenta e duas cartas, sem curingas. O Short Deck usa trinta e seis. A regra da modalidade vem antes da estratégia.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "VALORES × NAIPES",
+      "13 × 4"
+     ],
+     [
+      "HOLD'EM TRADICIONAL",
+      "52 cartas"
+     ],
+     [
+      "SHORT DECK",
+      "36 cartas"
+     ]
+    ],
+    "cues": [
+     "treze valores",
+     "cinquenta e duas cartas",
+     "trinta e seis"
+    ],
+    "note": "Sem curingas"
+   }
+  },
+  {
+   "id": "m0l1-04",
+   "chapter": "Informação incompleta",
+   "title": "Três cartas bastam para estudar",
+   "voice": "No modelo de Kuhn, três cartas e dois jogadores já bastam para estudar decisões com informação privada. O modelo não equivale ao Hold'em, mas ajuda a formular uma pergunta: o que você sabe, e o que ainda precisa estimar?",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Kuhn: três cartas, dois jogadores",
+     "Não equivale ao Hold'em",
+     "O que você sabe? O que precisa estimar?"
+    ],
+    "cues": [
+     "No modelo de Kuhn",
+     "não equivale",
+     "o que você sabe"
+    ]
+   }
+  },
+  {
+   "id": "m0l1-05",
+   "chapter": "Para pensar",
+   "title": "Observação e inferência",
+   "voice": "Para pensar depois da aula, diferencie observação de inferência. Ver uma carta é uma observação. Estimar quais mãos um adversário aposta é uma inferência, que pode estar errada e precisa ser revista.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Observação",
+      "items": [
+       "Ver uma carta"
+      ],
+      "cues": [
+       "Ver uma carta"
+      ],
+      "tone": "mint"
+     },
+     {
+      "title": "Inferência",
+      "items": [
+       "Estimar as mãos que o rival aposta"
+      ],
+      "cues": [
+       "Estimar quais mãos"
+      ],
+      "tone": "gold"
+     }
+    ]
+   }
+  },
+  {
+   "id": "m0l1-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. Qual destas frases descreve uma inferência? A: o flop mostra o sete de paus. B: o rival apostou cinco big blinds. C: o rival costuma apostar com pares médios. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Qual destas frases descreve uma inferência?",
+    "options": [
+     {
+      "key": "A",
+      "text": "O flop mostra o sete de paus",
+      "cue": "A o flop mostra"
+     },
+     {
+      "key": "B",
+      "text": "O rival apostou 5 BB",
+      "cue": "B o rival apostou"
+     },
+     {
+      "key": "C",
+      "text": "O rival costuma apostar com pares médios",
+      "cue": "C o rival costuma"
+     }
+    ],
+    "correct": "C"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m0l1-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: C. A carta do flop e o valor da aposta são observações: estão na mesa. Dizer com que mãos o rival costuma apostar é uma estimativa, que pode estar errada e deve ser revista.",
+   "visual": {
+    "mode": "answer",
+    "question": "Qual destas frases descreve uma inferência?",
+    "options": [
+     {
+      "key": "A",
+      "text": "O flop mostra o sete de paus",
+      "cue": "A o flop mostra"
+     },
+     {
+      "key": "B",
+      "text": "O rival apostou 5 BB",
+      "cue": "B o rival apostou"
+     },
+     {
+      "key": "C",
+      "text": "O rival costuma apostar com pares médios",
+      "cue": "C o rival costuma"
+     }
+    ],
+    "correct": "C",
+    "cue": "Resposta",
+    "explanation": "Carta e aposta: observação · hábito do rival: inferência"
+   }
+  },
+  {
+   "id": "m0l1-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

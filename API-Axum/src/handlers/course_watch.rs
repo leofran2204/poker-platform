@@ -6,6 +6,10 @@
 //! sorteados por aula, abre uma pergunta sobre o capítulo que acabou de passar;
 //! errar ou deixar 60 s sem resposta apaga o trecho desde a pergunta anterior.
 //! O quiz abre com 90% do vídeo marcado e todas as perguntas acertadas.
+//! Cada linha guarda o endereço do vídeo em que foi contada: se a aula ganhar
+//! um vídeo novo, a contagem e as perguntas (marcadas em segundos do vídeo
+//! antigo) recomeçam do zero. Linha sem endereço (anterior à migration 070) é
+//! adotada pelo vídeo atual.
 
 use axum::extract::{Query, State};
 use axum::Json;
@@ -55,6 +59,26 @@ struct WatchRow {
     checkpoints: Vec<f64>,
     stretch_from: f64,
     check: Option<OpenCheck>,
+    /// Vídeo em que a linha foi contada (`None` = linha antiga, ainda sem endereço).
+    video_url: Option<String>,
+}
+
+impl WatchRow {
+    fn fresh(video: &VideoKey) -> Self {
+        WatchRow {
+            watched: Vec::new(),
+            last_position: 0.0,
+            beat_age: None,
+            checkpoints: plan_checkpoints(video, &mut rand_below),
+            stretch_from: 0.0,
+            check: None,
+            video_url: Some(video.url.clone()),
+        }
+    }
+
+    fn counts_for(&self, video: &VideoKey) -> bool {
+        self.video_url.as_deref().is_none_or(|url| url == video.url)
+    }
 }
 
 type RawRow = (
@@ -69,6 +93,7 @@ type RawRow = (
     Option<String>,
     Option<Vec<String>>,
     Option<f64>,
+    Option<String>,
 );
 
 macro_rules! select_row {
@@ -77,7 +102,7 @@ macro_rules! select_row {
                 EXTRACT(EPOCH FROM (NOW() - last_beat_at))::float8, \
                 checkpoints, stretch_from, check_id, check_at, check_answer, \
                 check_prompt, check_options, \
-                EXTRACT(EPOCH FROM (NOW() - check_issued_at))::float8 \
+                EXTRACT(EPOCH FROM (NOW() - check_issued_at))::float8, video_url \
          FROM course_watch WHERE user_id = $1::uuid AND lesson_id = $2"
     };
 }
@@ -96,6 +121,7 @@ impl From<RawRow> for WatchRow {
             prompt,
             options,
             age,
+            video_url,
         ) = raw;
         let check = match (id, at, answer, prompt, options) {
             (Some(id), Some(at), Some(answer), Some(prompt), Some(options)) => Some(OpenCheck {
@@ -115,38 +141,43 @@ impl From<RawRow> for WatchRow {
             checkpoints,
             stretch_from,
             check,
+            video_url,
         }
     }
 }
 
+/// Linha do aluno para o vídeo atual (a de outro vídeo conta como inexistente).
 async fn load(
     conn: &mut PgConnection,
     user_id: &str,
     lesson_id: &str,
+    video: &VideoKey,
 ) -> Result<Option<WatchRow>, ApiError> {
     let raw: Option<RawRow> = sqlx::query_as(select_row!())
         .bind(user_id)
         .bind(lesson_id)
         .fetch_optional(&mut *conn)
         .await?;
-    Ok(raw.map(WatchRow::from))
+    Ok(raw.map(WatchRow::from).filter(|row| row.counts_for(video)))
 }
 
 /// Cria a linha na primeira vez (sorteando os momentos das perguntas) e a trava.
+/// Se ela foi contada em outro vídeo, recomeça do zero com novas perguntas.
 async fn load_for_update(
     conn: &mut PgConnection,
     user_id: &str,
     lesson_id: &str,
     video: &VideoKey,
 ) -> Result<WatchRow, ApiError> {
-    let checkpoints = plan_checkpoints(video, &mut rand_below);
+    let fresh = WatchRow::fresh(video);
     sqlx::query(
-        "INSERT INTO course_watch (user_id, lesson_id, checkpoints) VALUES ($1::uuid, $2, $3) \
-         ON CONFLICT (user_id, lesson_id) DO NOTHING",
+        "INSERT INTO course_watch (user_id, lesson_id, checkpoints, video_url) \
+         VALUES ($1::uuid, $2, $3, $4) ON CONFLICT (user_id, lesson_id) DO NOTHING",
     )
     .bind(user_id)
     .bind(lesson_id)
-    .bind(&checkpoints)
+    .bind(&fresh.checkpoints)
+    .bind(&video.url)
     .execute(&mut *conn)
     .await?;
     let raw: RawRow = sqlx::query_as(concat!(select_row!(), " FOR UPDATE"))
@@ -154,7 +185,19 @@ async fn load_for_update(
         .bind(lesson_id)
         .fetch_one(&mut *conn)
         .await?;
-    Ok(raw.into())
+    let row = WatchRow::from(raw);
+    if row.counts_for(video) {
+        return Ok(row);
+    }
+    sqlx::query(
+        "UPDATE course_watch SET last_beat_at = NULL WHERE user_id = $1::uuid AND lesson_id = $2",
+    )
+    .bind(user_id)
+    .bind(lesson_id)
+    .execute(&mut *conn)
+    .await?;
+    save(conn, user_id, lesson_id, &fresh, false).await?;
+    Ok(fresh)
 }
 
 async fn save(
@@ -173,7 +216,7 @@ async fn save(
                                   WHEN check_id IS DISTINCT FROM $7::uuid THEN NOW() \
                                   ELSE check_issued_at END, \
            last_beat_at = CASE WHEN $12 THEN NOW() ELSE last_beat_at END, \
-           updated_at = NOW() \
+           video_url = $13, updated_at = NOW() \
          WHERE user_id = $1::uuid AND lesson_id = $2",
     )
     .bind(user_id)
@@ -188,6 +231,7 @@ async fn save(
     .bind(check.map(|c| c.prompt.as_str()))
     .bind(check.map(|c| c.options.clone()))
     .bind(beat)
+    .bind(&row.video_url)
     .execute(&mut *conn)
     .await?;
     Ok(())
@@ -391,7 +435,7 @@ pub(crate) async fn quiz_unlocked(
     lesson_id: &str,
     video: &VideoKey,
 ) -> Result<bool, ApiError> {
-    Ok(load(conn, user_id, lesson_id)
+    Ok(load(conn, user_id, lesson_id, video)
         .await?
         .is_some_and(|row| quiz_ready(&row, video)))
 }
@@ -480,7 +524,7 @@ async fn lesson_state(
     let Some(video) = &lesson.video else {
         return Ok(state);
     };
-    if let Some(row) = load(conn, user_id, lesson_id).await? {
+    if let Some(row) = load(conn, user_id, lesson_id, video).await? {
         state.watched_percent = watched_percent(&row.watched, total_seconds(video));
         state.checks_left = row.checkpoints.len();
         state.quiz_open = completed || quiz_ready(&row, video);
@@ -747,11 +791,26 @@ mod tests {
             checkpoints: vec![120.0, 200.0],
             stretch_from: 40.0,
             check: None,
+            video_url: None,
         };
         set_range(&mut row.watched, 300, 0, 130, true);
         assert_eq!(fail_check(&mut row, 300), 40.0);
         assert_eq!(watched_percent(&row.watched, 300), 13);
         assert_eq!(row.last_position, 40.0);
         assert_eq!(row.checkpoints, vec![120.0, 200.0]);
+    }
+
+    #[test]
+    fn contagem_de_outro_video_nao_vale() {
+        let (_, video) = videos()[0];
+        let mut row = WatchRow::fresh(video);
+        assert!(row.counts_for(video) && row.watched.is_empty() && row.check.is_none());
+        row.video_url = None;
+        assert!(
+            row.counts_for(video),
+            "linha antiga é adotada pelo vídeo atual"
+        );
+        row.video_url = Some(format!("{}?versao-antiga", video.url));
+        assert!(!row.counts_for(video));
     }
 }

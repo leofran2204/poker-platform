@@ -1,29 +1,23 @@
-Esta é a Zero Tilt Academy, e a aula de hoje é: valor esperado e fold equity. Nesta aula, nosso objetivo é: Separar a conta exata do preço de uma hipótese de equity. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+Esta é a Zero Tilt Academy. Na aula um do módulo seis, vamos estudar o valor esperado e a fold equity. O objetivo é montar a conta de uma aposta com projeto, ramo por ramo, e ver como as premissas mudam o resultado.
 
-Valor esperado. valor esperado é a média ponderada dos resultados de um modelo. Para um call final, sem rake, valor esperado igual a equity vezes pote final menos custo do call. valor esperado positivo não garante lucro em mil mãos nem em qualquer sequência finita.
+O valor esperado, ou EV, é a média ponderada dos resultados de um modelo. Para um call final, sem rake, o EV é a equity vezes o pote final, menos o custo do call. E um EV positivo não garante lucro em mil mãos, nem em nenhuma sequência finita.
 
-Agora, o próximo tema é: Fold equity e semi-blefe. Uma aposta com projeto pode ganhar quando todos desistem ou no showdown. Ter duas formas de ganhar não prova que apostar é lucrativo. Considere frequência de folds, range que paga, tamanho, raises e futuras apostas.
+Agora uma aposta com projeto. Chame de P o pote, de B a sua aposta, de F a frequência com que todos desistem e de e a sua equity quando há call. Sem raises, apostas futuras nem rake, o EV é F vezes P, mais um menos F vezes o ramo do call. E o ramo do call vale e vezes P mais duas vezes B, menos B.
 
-Modelo simplificado. Se o pote inicial é P, sua aposta é B, todos desistem com frequência F e, quando há um call, sua equity é e, sem raises, apostas posteriores ou rake: valor esperado igual a F vezes P mais (1 menos F) vezes [e vezes (P mais 2B) menos B]. As hipóteses fazem parte da fórmula.
+Veja um exemplo no turn, a quarta carta da mesa. O pote tem dez big blinds, e a mesa mostra rei e valete de copas, dois de paus e nove de espadas. Você tem seis e cinco de copas: um projeto de flush. O rival dá check, e você aposta cinco. No ramo do fold, ele desiste: você recebe a sua aposta de volta e ganha os dez big blinds que já estavam no pote.
 
-Exercício. P igual a 10, B igual a 5, F igual a 0, e igual a 20 por cento: valor esperado igual a 0,2 vezes 20 menos 5 igual a menos 1. Um projeto pode ter valor esperado negativo se ninguém desiste e a equity não cobre o preço.
+Agora o outro ramo, com as mesmas cartas. Você aposta cinco, e o rival paga com rei e dama. O pote final fica com vinte big blinds. Contra essa mão, só uma copa no river vence: nove cartas entre quarenta e quatro, cerca de vinte por cento.
 
-Derive as parcelas do modelo. Se todos desistem, você ganha o pote que já existia. Se há um call e não existem outras ações, o pote final inclui sua aposta e a aposta que o rival igualou. Multiplique sua parcela esperada por esse pote e desconte seu investimento. Só então pondere o ramo de fold e o ramo de call. Se houver raise, mais de um caller ou novas streets, a árvore precisa ganhar esses ramos.
+Agora a conta. No ramo do call, zero vírgula dois vezes vinte, menos cinco, dá menos um big blind. Se ninguém desiste, a aposta vale menos um. Se todos desistem trinta por cento das vezes, vale zero vírgula três vezes dez, mais zero vírgula sete vezes menos um: mais dois vírgula três big blinds.
 
-Compare duas hipóteses. Com pote 10, aposta 5 e equity de 20 por cento quando pago, o ramo de call vale menos 1. Se todos desistem 30 por cento das vezes, o modelo resulta em 0,30 vezes 10 mais 0,70 vezes menos 1: 2,3 big blinds. Se ninguém desiste, vale menos 1. A mudança veio da hipótese de resposta, não de uma garantia embutida nas cartas. Não transporte esses 30 por cento para o perfil do bot sem medição ou definição.
+Uma aposta com projeto pode ganhar quando todos desistem ou no showdown. Mas ter duas formas de ganhar não prova que apostar é lucrativo. Considere a frequência de folds, o range que paga, o tamanho, os raises e as apostas futuras.
 
-Margem e incerteza. Pequenas diferenças de valor esperado podem desaparecer quando você altera rake, ranges ou frequências. Registre quais parâmetros mudariam sua decisão. Em uma sessão curta, a soma observada pode se afastar bastante da média prevista. O treino avalia contas e leituras no contexto declarado, e não premia a perseguição de resultados positivos.
+Pequenas diferenças de EV podem desaparecer quando você muda o rake, os ranges ou as frequências. Não transporte esses trinta por cento para o perfil do bot sem medir ou definir antes. E lembre que, numa sessão curta, a soma observada pode se afastar bastante da média prevista.
 
-Laboratório: Preço, hipótese e resultado. Objetivo: Separar a conta exata do preço de uma hipótese de equity. Abra a mesa deste módulo e comece pelo treino guiado. A tela informa o preço. A equity depende do range; o resultado desta mão não prova a rentabilidade do call. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição.
+Exercício. Um blefe puro, sem equity quando é pago. O pote tem dez big blinds, a aposta é de dez, e todos desistem quarenta por cento das vezes. Sem raises nem rake, qual é o EV? A: o EV é de mais quatro big blinds. B: menos dois. C: zero. Pause o vídeo e responda.
 
-Uma nova distribuição preserva as cartas que definem o cenário e varia as demais. Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+Resposta: B. No ramo do fold, você ganha dez em quarenta por cento das vezes: mais quatro. No ramo do call, perde dez em sessenta por cento: menos seis. A soma é menos dois. Para uma aposta do tamanho do pote, o blefe puro precisa de mais de cinquenta por cento de folds.
 
-O que é valor esperado (valor esperado)? As alternativas são: A, A média de todos os futuros possíveis da jogada; B, O resultado da mão atual; C, O tamanho do pote dividido pelo stack. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+Agora leve a aula para a mesa de treino. A tela informa o preço. A equity depende do range, e o resultado desta mão não prova a rentabilidade do call. Separe a conta exata do preço da hipótese de equity. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.
 
-Vamos à resposta. A alternativa certa deste exercício é: A média de todos os futuros possíveis da jogada. valor esperado é uma média ponderada pelas probabilidades do modelo. A amostra observada pode divergir dessa média.
-
-No modelo sem raises, rake ou apostas futuras: P igual a 10, B igual a 5, ninguém desiste e sua equity quando pago é 20 por cento. Qual valor esperado da aposta? As alternativas são: A, mais 1; B, 0; C, menos 1. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
-
-Vamos à resposta. A alternativa certa deste exercício é: menos 1. 0,20 vezes (10 mais 5 mais 5) menos 5 igual a menos 1. A existência de um draw não garante aposta lucrativa.
-
-Abra o simulador da aula e escolha o cenário Preço, hipótese e resultado. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.
+Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.

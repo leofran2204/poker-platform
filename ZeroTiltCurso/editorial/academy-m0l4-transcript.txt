@@ -1,35 +1,25 @@
-Esta é a Zero Tilt Academy, e a aula de hoje é: Regras e Hierarquia de Mãos. Nesta aula, nosso objetivo é: Classificar a mão e comparar kickers antes de agir. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+Esta é a Zero Tilt Academy. Na aula quatro do módulo zero, vamos estudar as regras comuns e a hierarquia de mãos. O objetivo é montar as cinco cartas que contam antes de anunciar um vencedor.
 
-O objetivo de uma mão. Você disputa potes. Se todos os adversários desistirem, vence sem mostrar: isso pode acontecer com uma aposta de valor ou um blefe. Quando há showdown, compare as melhores mãos de cinco cartas entre os jogadores elegíveis a cada pote. Empates dividem o pote; all-ins de valores diferentes podem criar side pots.
+Você disputa potes. Se todos os adversários desistirem, você vence sem mostrar as cartas, e isso pode acontecer com uma aposta de valor ou com um blefe. Quando há showdown, comparam-se as melhores mãos de cinco cartas entre os jogadores que disputam cada pote. Empates dividem o pote, e all-ins de valores diferentes podem criar potes paralelos.
 
-Ranking clássico, do maior para o menor. Da mais forte para a mais fraca, a ordem é esta: royal flush; straight flush; quadra; full house; flush; sequência; trinca; dois pares; um par; e, por último, carta alta. Royal flush é a sequência de mesmo naipe de dez até ás. Na sequência ás, dois, três, quatro e cinco, o ás vale baixo: ela perde para dois, três, quatro, cinco e seis. Naipes não desempatarão mãos equivalentes.
+O ranking clássico, do maior para o menor, começa pelo royal flush, a sequência do mesmo naipe do dez ao ás. Depois vêm o straight flush, a quadra, o full house e, em seguida, o flush, com cinco cartas do mesmo naipe.
 
-Quatro modalidades da Zê Tê. Texas Hold’em usa 52 cartas e duas privadas; no showdown pode usar zero, uma ou duas delas. Short Deck usa 36 cartas, do 6 ao ás; na Zê Tê, trinca supera sequência e flush supera full house, com ás, seis, sete, oito e nove como sequência baixa. Omaha 4 usa o ranking clássico e exige exatamente duas cartas privadas mais três comunitárias. Brazilian Pineapple também usa o ranking clássico: começa com três privadas, termina com duas e forma a mão como no Hold’em.
+Abaixo do flush vêm a sequência, a trinca, os dois pares, um par e, por último, a carta alta. Na sequência ás, dois, três, quatro e cinco, o ás vale baixo: ela perde para a sequência do dois ao seis. E os naipes nunca desempatam mãos equivalentes.
 
-Estude a trilha da modalidade antes de jogar.
+A ZT tem quatro modalidades. O Texas Hold'em usa cinquenta e duas cartas e duas privadas, e no showdown pode usar zero, uma ou duas delas. O Short Deck usa trinta e seis cartas, do seis ao ás, e na ZT a trinca vence a sequência e o flush vence o full house. O Omaha de quatro cartas usa o ranking clássico e exige exatamente duas privadas e três comunitárias. E o Brazilian Pineapple começa com três privadas, termina com duas e forma a mão como no Hold'em.
 
-Ações e ordem. Check só existe quando não há valor a pagar. Call cobre a aposta; bet inicia uma aposta na rodada; raise aumenta uma aposta existente. Os limites e o valor mínimo são mostrados pela mesa. Pré-flop, com três ou mais participantes, a ação começa à esquerda do big blind; pós-flop, no primeiro jogador ainda ativo à esquerda do botão. Em heads-up, o botão é small blind e age primeiro pré-flop, depois age por último.
+Check só existe quando não há valor a pagar. Call cobre a aposta, bet inicia uma aposta na rodada e raise aumenta uma aposta existente. No pré-flop, com três ou mais jogadores, a ação começa à esquerda do big blind; depois do flop, no primeiro jogador ativo à esquerda do botão. Em heads-up, o botão é o small blind: age primeiro no pré-flop e por último depois. E, na ZT, os blinds podem ter o mesmo valor: confira a mesa.
 
-Na Zê Tê, os blinds podem ter o mesmo valor: confira a mesa.
+Agora o desempate. No river, a mesa mostra ás, dama, oito, quatro e dois, e o pote tem vinte big blinds. Você tem ás e rei; o rival tem ás e valete, e os dois vão ao showdown. Compare primeiro a categoria: os dois têm um par de ases. Depois os kickers: as suas cinco cartas são ás, ás, rei, dama e oito, e as dele são ás, ás, dama, valete e oito. O rei decide o confronto, e o dois não entra em nenhuma das duas mãos.
 
-Desempate sem uma sexta carta. Compare primeiro a categoria. Com um par igual, compare o maior kicker, depois o segundo e o terceiro. Por exemplo, ás de espadas rei de ouros em ás de copas dama de paus oito de espadas quatro de ouros dois de paus forma ás, ás, rei, dama e oito. Um adversário com ás de ouros valete de paus forma ás, ás, dama, valete e oito: o rei decide o confronto. A carta dois não entra em nenhuma dessas mãos. Em um empate das cinco cartas relevantes, o naipe não cria um vencedor. No Hold’em, se as cinco melhores cartas estiverem na mesa, todos os elegíveis podem usá-las.
+Agora os potes paralelos. Imagine três jogadores comprometendo vinte, cinquenta e cem fichas, sem outros participantes nem taxas. O pote principal tem sessenta: vinte de cada um. Há um pote paralelo de sessenta: trinta dos dois que mais investiram. E as cinquenta fichas sem cobertura voltam ao maior apostador. Quem só investiu vinte não pode ganhar o paralelo.
 
-Entenda os potes paralelos. Imagine três jogadores comprometendo 20, 50 e 100 fichas, sem outros participantes nem taxas. O pote principal tem 60: vinte de cada jogador. Há um pote paralelo de 60: trinta dos dois jogadores com maior contribuição. As cinquenta fichas sem cobertura retornam ao maior apostador. A melhor mão entre os três disputa o principal; o jogador que só investiu vinte não pode ganhar o paralelo.
+Monte uma rotina de leitura. Antes de agir, diga a modalidade, a street e o valor que falta pagar. Antes de anunciar um vencedor, monte cinco cartas legais. Essa sequência evita confundir uma mão visualmente bonita com uma mão permitida pelas regras.
 
-Faça a soma: 60 mais 60 mais 50 devolvidas conserva as 170 fichas comprometidas.
+Exercício. Três jogadores vão all-in com dez, quarenta e quarenta fichas, sem outros participantes nem taxas. Quanto vale o pote paralelo? A: sessenta fichas. B: oitenta fichas. C: noventa fichas. Pause o vídeo e responda.
 
-Sua rotina de leitura. Antes de agir, diga a modalidade, a street e o valor que falta pagar. Antes de anunciar um vencedor, monte cinco cartas legais. Essa sequência evita confundir uma mão visualmente bonita com uma mão permitida pelas regras. No simulador, acompanhe os blinds e cada aposta no replay, inclusive as ações de preparação do exercício.
+Resposta: A. O pote principal junta dez de cada jogador: trinta fichas. O paralelo junta os trinta restantes dos dois maiores: sessenta fichas. Nenhuma ficha volta, porque os dois maiores investiram o mesmo valor.
 
-Laboratório: As cinco cartas que contam. Objetivo: Classificar a mão e comparar kickers antes de agir. Abra a mesa deste módulo e comece pelo treino guiado. Um par de ases usa K, Q e 8 como kickers. Observe se a aposta adversária muda o preço. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+Agora leve a aula para a mesa de treino. Classifique a mão e compare os kickers antes de agir: um par de ases usa rei, dama e oito como kickers. Observe também se a aposta do adversário muda o preço. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.
 
-Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
-
-No showdown do Texas Hold'em, como é determinada a mão vencedora? As alternativas são: A, Quem apostou mais fichas; B, A melhor combinação de 5 cartas entre as 2 da mão e as 5 da mesa; C, Quem tiver o maior par na mão fechada obrigatoriamente. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
-
-Vamos à resposta. A alternativa certa deste exercício é: A melhor combinação de 5 cartas entre as 2 da mão e as 5 da mesa. No Texas Hold'em, a mão é sempre a melhor combinação de 5 cartas possíveis.
-
-Qual mão é mais forte na hierarquia tradicional do Hold'em? As alternativas são: A, Flush (5 cartas do mesmo naipe); B, Sequência / Straight; C, Dois Pares. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
-
-Vamos à resposta. A alternativa certa deste exercício é: Flush (5 cartas do mesmo naipe). Flush vence Sequência e Dois Pares no poker tradicional.
-
-Abra o simulador da aula e escolha o cenário As cinco cartas que contam. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.
+Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.

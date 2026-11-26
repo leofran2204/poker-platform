@@ -1,386 +1,69 @@
 {
   "lessonId": "m0l4",
-  "filename": "zt-academy-m0l4-v3",
   "contentHash": "781cc6917ef137fcc4e3ba74c03b9a1bf7aebfa45529b9a540e122542d775a1a",
-  "rendererVersion": 5,
-  "durationSeconds": 406.77,
+  "filename": "zt-academy-m0l4-v4",
+  "title": "Aula m0l4 — Regras e hierarquia de mãos",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM0L4",
+  "script": "src/data/academy-m0l4.json",
+  "scriptHash": "3fbcd164381d514bd88bf0a5ab698da611b6a2c3948ba395c864fa04c4e16010",
+  "durationSeconds": 291.54,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 11671117,
+  "bytes": 16490825,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "a1190cdcc0b9ae82a4803cf950fb1bbee74c1d105226c5b07145ca18ffb1a403",
+  "narrationHash": "368065dd0c7b1af47cc5f0bda44f98632a660ad44699fd56b7610b1cccf89298",
   "chapters": [
     {
       "start": 0.0,
-      "title": "Regras e Hierarquia de Mãos"
+      "title": "Abertura"
     },
     {
-      "start": 17.9,
+      "start": 14.07,
       "title": "O objetivo de uma mão"
     },
     {
-      "start": 42.3,
-      "title": "Ranking clássico, do maior para o menor"
+      "start": 37.83,
+      "title": "Ranking clássico"
     },
     {
-      "start": 77.23,
-      "title": "Quatro modalidades da ZT"
+      "start": 74.1,
+      "title": "Modalidades e ações"
     },
     {
-      "start": 114.0,
-      "title": "Quatro modalidades da ZT"
+      "start": 135.37,
+      "title": "Desempate"
     },
     {
-      "start": 118.47,
-      "title": "Ações e ordem"
+      "start": 169.3,
+      "title": "Potes paralelos"
     },
     {
-      "start": 148.83,
-      "title": "Ações e ordem"
+      "start": 195.97,
+      "title": "Rotina de leitura"
     },
     {
-      "start": 154.63,
-      "title": "Desempate sem uma sexta carta"
+      "start": 214.57,
+      "title": "Exercício"
     },
     {
-      "start": 197.57,
-      "title": "Entenda os potes paralelos"
+      "start": 255.87,
+      "title": "Laboratório"
     },
     {
-      "start": 228.03,
-      "title": "Entenda os potes paralelos"
-    },
-    {
-      "start": 236.0,
-      "title": "Sua rotina de leitura"
-    },
-    {
-      "start": 261.3,
-      "title": "Laboratório: As cinco cartas que contam"
-    },
-    {
-      "start": 296.5,
-      "title": "Laboratório: As cinco cartas que contam"
-    },
-    {
-      "start": 304.8,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 327.73,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 343.3,
-      "title": "Exercício resolvido 2"
-    },
-    {
-      "start": 362.13,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 375.27,
-      "title": "Agora, pratique"
+      "start": 277.47,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 17.9,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 17.9,
-      "duration": 24.4,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 42.3,
-      "duration": 34.93333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 77.23333333333332,
-      "duration": 36.766666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 113.99999999999999,
-      "duration": 4.466666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 118.46666666666665,
-      "duration": 30.366666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 148.83333333333331,
-      "duration": 5.8,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 154.63333333333333,
-      "duration": 42.93333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 197.56666666666666,
-      "duration": 30.466666666666665,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 228.03333333333333,
-      "duration": 7.966666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 236.0,
-      "duration": 25.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 261.3,
-      "duration": 35.2,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 296.5,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 304.8,
-      "duration": 22.933333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 327.73333333333335,
-      "duration": 15.566666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 343.3,
-      "duration": 18.833333333333332,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 362.1333333333333,
-      "duration": 13.133333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 375.26666666666665,
-      "duration": 31.5,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    }
-  ],
-  "sha256": "807a18b356e492b95358e037a915cdae707d726e91a5675595bd6f57bc65e9cf",
+  "sha256": "65a1169fb4e8a1c4ec457dbeb506ddd5cea8b2069c90ffb38c5a5f8e8240f02b",
   "assetHashes": {
-    "mp4": "807a18b356e492b95358e037a915cdae707d726e91a5675595bd6f57bc65e9cf",
-    "vtt": "58181010e4bb1bdd36f5d87240e93c79792b03c1d7981160610d452b340921c8",
-    "webp": "da0e6391762bd1997f2499aa643e219665ec6d753f0b37d1b827fddb1813af29"
+    "mp4": "65a1169fb4e8a1c4ec457dbeb506ddd5cea8b2069c90ffb38c5a5f8e8240f02b",
+    "vtt": "ca09408f24ceed5cecfa8d000da5fc7c775cb5bb191552b7d1c67c89e1eda778",
+    "webp": "eb89f34e7fc04c07b6ef110f66cf52f47c9e00d999060056bc2e3f24e2834e02"
   },
-  "mediaRevision": "e17e9036469862c56288d4c411daa827746606ddd85f8ec85efa43c7a194e316"
+  "mediaRevision": "33c08e84b2612f760a8e147ec2d471c1bccc65978093981ae84e36cac0d806c8"
 }

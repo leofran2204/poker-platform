@@ -1,320 +1,65 @@
 {
   "lessonId": "m3l1",
-  "filename": "zt-academy-m3l1-v3",
   "contentHash": "d819e4918375f26849341c76ef5dad18c34b78db36ddcf59f4c1373aa4fafcaa",
-  "rendererVersion": 5,
-  "durationSeconds": 317.33,
+  "filename": "zt-academy-m3l1-v4",
+  "title": "Aula m3l1 — Double barrel: cartas que assustam e tamanho no turn",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM3L1",
+  "script": "src/data/academy-m3l1.json",
+  "scriptHash": "23215d28a5f418f36482f47baa1f85496467d9acdd081ca14abe74939081cd20",
+  "durationSeconds": 226.15,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8898821,
+  "bytes": 13301030,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "aaec9220ffeb079f80b9109d61e031d7dbab912c44d6bca816d2158193ddcad6",
+  "narrationHash": "b6b653912238ef08ba618558f548e0407aac0bcbdda653c391ae185b5853304c",
   "chapters": [
     {
       "start": 0.0,
-      "title": "Double Barrel: Scare Cards e Sizing de Turn"
+      "title": "Abertura"
     },
     {
-      "start": 19.1,
+      "start": 16.37,
       "title": "O segundo barril"
     },
     {
-      "start": 35.2,
-      "title": "A carta favorece qual range?"
+      "start": 34.07,
+      "title": "Exemplo guiado"
     },
     {
-      "start": 55.17,
+      "start": 76.4,
+      "title": "Leitura do turn"
+    },
+    {
+      "start": 111.67,
+      "title": "Valor, blefe ou proteção"
+    },
+    {
+      "start": 138.03,
+      "title": "Plano para o river"
+    },
+    {
+      "start": 157.6,
       "title": "Exercício"
     },
     {
-      "start": 76.23,
-      "title": "Atualize os ranges, não só o board"
+      "start": 194.1,
+      "title": "Laboratório"
     },
     {
-      "start": 104.63,
-      "title": "Aposta por valor, blefe ou proteção"
-    },
-    {
-      "start": 131.97,
-      "title": "Planeje dois tipos de river"
-    },
-    {
-      "start": 155.07,
-      "title": "Laboratório: Quando chega uma carta maior"
-    },
-    {
-      "start": 188.9,
-      "title": "Laboratório: Quando chega uma carta maior"
-    },
-    {
-      "start": 197.2,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 218.03,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 232.93,
-      "title": "Exercício resolvido 2"
-    },
-    {
-      "start": 270.77,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 285.73,
-      "title": "Agora, pratique"
+      "start": 212.07,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 19.1,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 19.1,
-      "duration": 16.1,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 35.2,
-      "duration": 19.966666666666665,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 55.16666666666667,
-      "duration": 21.066666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 76.23333333333333,
-      "duration": 28.4,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 104.63333333333333,
-      "duration": 27.333333333333332,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 131.96666666666667,
-      "duration": 23.1,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 155.06666666666666,
-      "duration": 33.833333333333336,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 188.9,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 197.20000000000002,
-      "duration": 20.833333333333332,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 218.03333333333336,
-      "duration": 14.9,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 232.93333333333337,
-      "duration": 37.833333333333336,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 270.7666666666667,
-      "duration": 14.966666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 285.73333333333335,
-      "duration": 31.6,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    }
-  ],
-  "sha256": "c43903cf18ed8b33a47854ec4119f1b34f8baa65df2758ebfe3258f1a344fd07",
+  "sha256": "2bb841ebae4fa90539843f4507a8f7b614f64d7fc192234ce991079ee9198e51",
   "assetHashes": {
-    "mp4": "c43903cf18ed8b33a47854ec4119f1b34f8baa65df2758ebfe3258f1a344fd07",
-    "vtt": "0ef7967438af9cee414eebb137f08dc4c8b57354a5dc3121466e5ab2e1f779a0",
-    "webp": "94a0db9245a5b7b60b9da08858a4d3591dd23379bfd4c4dde2209276b8dc2c16"
+    "mp4": "2bb841ebae4fa90539843f4507a8f7b614f64d7fc192234ce991079ee9198e51",
+    "vtt": "1fdb8cbb515b205478da7fa3e14a033e585ea12a994e8cd07879ce5564fa7dea",
+    "webp": "33673d4fbb0cf329102c4124bb55947299c74e11feee45e825b7174235bf993f"
   },
-  "mediaRevision": "e26ff58ee6a90b9353b7c0b4ea0fb829ca72eaef8e00b111b5fb9c5e1625e393"
+  "mediaRevision": "736a71abc9fea21264676870bad6e48341a31db629eda3ba58dcc11442edf28a"
 }

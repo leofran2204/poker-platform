@@ -1,23 +1,21 @@
-Esta é a Zero Tilt Academy, e a aula de hoje é: Primeiros passos aqui. Nesta aula, nosso objetivo é: Percorrer pré-flop, flop, turn e river com ações legais. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+Esta é a Zero Tilt Academy. Na aula seis do módulo zero, vamos conhecer o ambiente da plataforma e da Academy. O objetivo é saber onde praticar, com que fichas e como guardar o seu processo de estudo.
 
-Conheça o ambiente. A Academy combina vídeo, leitura, exercícios e mesas de estudo. Comece pelas regras comuns e depois escolha a modalidade. O lobby identifica separadamente mesas de Play Money e de Jogo Real. Não misture essas carteiras com as fichas sem valor dos simuladores.
+A Academy combina vídeo, leitura, exercícios e mesas de estudo. Comece pelas regras comuns e depois escolha a modalidade. O lobby identifica separadamente as mesas de Play Money e as de Jogo Real, e nenhuma delas se mistura com as fichas sem valor dos simuladores.
 
-Conta e acesso. No cadastro, informe o código de convite exigido pela plataforma e conclua a verificação de e-mail. Na Academy, a conta permite registrar o progresso das aulas. As mesas de estudo estão disponíveis para praticar conceitos sem depósito.
+No cadastro, informe o código de convite exigido pela plataforma e conclua a verificação de e-mail. Na Academy, a conta registra o progresso das aulas. E as mesas de estudo estão disponíveis para praticar sem depósito.
 
-Mesas com outros jogadores. Uma mesa do lobby precisa de pelo menos dois participantes para iniciar uma mão. Confira a modalidade e os valores antes de ocupar o assento. Já a mesa do módulo cria os bots do exercício para que você possa estudar individualmente.
+Uma mesa do lobby precisa de pelo menos dois participantes para começar uma mão. Antes de ocupar o assento, confira a modalidade, os blinds, o tipo de saldo e a frente exigida. Já a mesa do módulo cria os bots do exercício, para você estudar sozinho, com fichas sem valor que não movimentam a sua carteira.
 
-Agora, o próximo tema é: Entre na Academy. O índice reúne regras comuns, quatro modalidades, decisões por street e consolidação. Cada grupo possui uma mesa de estudo própria. As mesas de estudo funcionam com fichas sem valor e não movimentam sua carteira. Você pode abrir um cenário, jogar contra bots e repetir a distribuição. Nas mesas do lobby, confira separadamente a modalidade, os blinds, o tipo de saldo e a frente exigida antes de entrar.
+Há três modos de praticar. No treino guiado, leia o objetivo e a dica antes de agir. No desafio, as dicas ficam escondidas, e você responde à pergunta objetiva com as suas contas. Na prática variada, você circula pelas situações do módulo e se concentra no plano de jogo.
 
-Três modos de praticar. No treino guiado, leia o objetivo e a dica antes de agir. No desafio, esconda as dicas e responda à pergunta objetiva com suas próprias contas. Na prática variada, circule pelas situações do módulo e concentre-se no plano de jogo. Os bots respondem a ações reais: você pode dar check, pagar, apostar, aumentar ou desistir quando a ação for permitida. A mão continua até o encerramento e a divisão de fichas.
+Os bots respondem a ações reais. Veja uma mão até o fim. No flop, o pote tem cinco big blinds, e o bot aposta dois. Pagar custa dois, porque o call cobre a aposta: você paga. No turn, o bot dá check, e você também dá check, que não custa fichas. No river, os dois dão check, e o showdown mostra as cartas: o seu par de damas leva o pote.
 
-Guarde o processo. O caderno registra suas observações neste navegador. Anote a hipótese sobre o rival, a ação escolhida e uma alternativa. Use o replay para rever o que estava visível em cada instante. Salvar uma sessão de treino não equivale a concluir automaticamente uma aula; a nota da aula e a prática têm funções diferentes. Não use resultado de treino como promessa de retorno em mesas reais.
+O caderno registra as suas observações neste navegador. Anote a hipótese sobre o rival, a ação escolhida e uma alternativa. Use o replay para rever o que estava visível em cada instante. E lembre que o resultado do treino não é promessa de retorno em mesas reais.
 
-Laboratório: Sua primeira mão completa. Objetivo: Percorrer pré-flop, flop, turn e river com ações legais. Abra a mesa deste módulo e comece pelo treino guiado. Leia quanto falta pagar. Check não custa fichas; call cobre uma aposta. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+Exercício. Onde ficam as anotações que você faz no caderno da Academy? A: na sua carteira. B: neste navegador. C: no replay que a mesa guarda. Pause o vídeo e responda.
 
-Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+Resposta: B. O caderno registra as observações neste navegador. O replay mostra o que estava visível em cada instante, e a carteira não tem relação com as fichas sem valor das mesas de estudo.
 
-Para a mão começar, o que é preciso? As alternativas são: A, Só entrar na mesa; B, 2 mais pessoas na MESMA mesa; C, Ser VIP. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+Agora leve a aula para a mesa de treino. Percorra o pré-flop, o flop, o turn e o river com ações legais. Leia quanto falta pagar: check não custa fichas, e call cobre uma aposta. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.
 
-Vamos à resposta. A alternativa certa deste exercício é: 2 mais pessoas na MESMA mesa. Poker precisa de 2 mais assentos na mesma mesa — combine o horário com os amigos.
-
-Abra o simulador da aula e escolha o cenário Sua primeira mão completa. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.
+Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.

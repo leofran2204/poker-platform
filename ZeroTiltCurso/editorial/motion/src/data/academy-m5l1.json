@@ -1,0 +1,299 @@
+{
+ "id": "academy-m5l1",
+ "title": "Aula m5l1 — Texas Hold'em Short Deck: 36 cartas",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m5l1",
+ "scenes": [
+  {
+   "id": "m5l1-01",
+   "chapter": "Abertura",
+   "title": "Short Deck: 36 cartas",
+   "voice": "Esta é a Zero Tilt Academy. Na aula um do módulo cinco, vamos estudar o Texas Hold'em Short Deck, com trinta e seis cartas. O objetivo é refazer o ranking e o denominador com o baralho curto, sem importar probabilidades do Texas tradicional.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 5 · Aula 1",
+    "lines": [
+     "Objetivo: refazer ranking e denominador com 36 cartas"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m5l1-02",
+   "chapter": "Regras",
+   "title": "Texas Hold'em Short Deck",
+   "voice": "No Short Deck da ZT, para até oito jogadores, o baralho tem trinta e seis cartas: saem os dois, os três, os quatros e os cincos. Cada jogador recebe duas cartas fechadas, como no Texas tradicional, e no showdown vale a melhor combinação de cinco entre as duas da mão e as cinco da mesa. Mas o ranking muda: trinca vence sequência, e flush vence full house. As regras de Short Deck variam entre plataformas, e aqui estudamos as da ZT.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "36 cartas: sem 2, 3, 4 e 5",
+     "Duas privadas, melhor mão de cinco",
+     "Trinca > sequência · flush > full house"
+    ],
+    "cues": [
+     "trinta e seis cartas",
+     "duas cartas fechadas",
+     "trinca vence sequência"
+    ]
+   }
+  },
+  {
+   "id": "m5l1-03",
+   "chapter": "Ranking local",
+   "title": "Do menor para o maior",
+   "voice": "A ordem local, do menor para o maior, é carta alta, par, dois pares, sequência, trinca, full house, flush, quadra, straight flush e royal flush.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Carta alta · par · dois pares",
+     "Sequência",
+     "Trinca",
+     "Full house · flush",
+     "Quadra · straight flush · royal"
+    ],
+    "cues": [
+     "carta alta",
+     "sequência",
+     "trinca",
+     "full house",
+     "quadra"
+    ]
+   }
+  },
+  {
+   "id": "m5l1-04",
+   "chapter": "O ás abaixo do seis",
+   "title": "Ás, seis, sete, oito e nove",
+   "voice": "Veja o ás abaixo do seis. A mesa mostra sete, oito, nove, rei e dama. Você tem ás e seis: a sequência baixa do Short Deck, ás, seis, sete, oito e nove, que termina no nove. Ela não vira uma sequência de ás alto. O rival tem dez e seis: seis, sete, oito, nove e dez, que termina no dez e vence.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 9000,
+      "cards": [
+       "Ad",
+       "6s"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 9000,
+      "cards": [
+       "Th",
+       "6c"
+      ]
+     }
+    ],
+    "board": [
+     "7c",
+     "8d",
+     "9h",
+     "Ks",
+     "Qd"
+    ],
+    "pot": 2000,
+    "events": [
+     {
+      "type": "highlight",
+      "cue": "a sequência baixa",
+      "player": 0,
+      "hole": [
+       0,
+       1
+      ],
+      "boardPick": [
+       0,
+       1,
+       2
+      ],
+      "text": "A-6-7-8-9"
+     },
+     {
+      "type": "reveal",
+      "cue": "O rival tem",
+      "players": [
+       1
+      ]
+     },
+     {
+      "type": "award",
+      "cue": "termina no dez e vence",
+      "player": 1
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     2
+    ],
+    "banner": "River · Short Deck · pote de 20 BB"
+   }
+  },
+  {
+   "id": "m5l1-05",
+   "chapter": "Refaça o denominador",
+   "title": "Trinta cartas desconhecidas",
+   "voice": "Agora refaça o denominador. No turn, você conhece duas privadas e quatro comunitárias. Do baralho de trinta e seis, restam trinta desconhecidas. Se quatro copas estão entre as seis conhecidas, restam cinco copas, porque cada naipe tem nove cartas. A chance de uma copa no river é cinco sobre trinta, cerca de dezesseis vírgula sete por cento.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "DESCONHECIDAS · 36 − 6",
+      "30"
+     ],
+     [
+      "COPAS RESTANTES · 9 − 4",
+      "5"
+     ],
+     [
+      "COPA NO RIVER · 5/30",
+      "≈ 16,67%"
+     ]
+    ],
+    "cues": [
+     "restam trinta",
+     "restam cinco copas",
+     "cinco sobre trinta"
+    ],
+    "note": "Mede a carta do river, não a vitória"
+   }
+  },
+  {
+   "id": "m5l1-06",
+   "chapter": "Não misture modalidades",
+   "title": "Baralho, ranking e seleção",
+   "voice": "O nome Short Deck não altera a formação do Texas: você pode usar zero, uma ou duas privadas. Já o Omaha e o Brazilian Pineapple da plataforma usam cinquenta e duas cartas: o Omaha exige exatamente duas privadas, e o Pineapple termina com duas e forma a mão como no Texas. No treino, identifique baralho, ranking e seleção antes de calcular preços.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Short Deck",
+      "items": [
+       "36 cartas, ranking próprio",
+       "Usa 0, 1 ou 2 privadas"
+      ],
+      "cues": [
+       "não altera a formação",
+       "zero, uma ou duas"
+      ],
+      "tone": "gold"
+     },
+     {
+      "title": "Omaha e Pineapple",
+      "items": [
+       "52 cartas",
+       "Omaha: exatamente 2"
+      ],
+      "cues": [
+       "cinquenta e duas cartas",
+       "exige exatamente duas"
+      ],
+      "tone": "mint"
+     }
+    ],
+    "note": "Baralho, ranking e seleção antes do preço",
+    "noteCue": "identifique baralho"
+   }
+  },
+  {
+   "id": "m5l1-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. No Short Deck, ainda no flop, você conhece as suas duas cartas e as três comunitárias. Quantas cartas continuam desconhecidas? A: quarenta e sete. B: trinta e uma. C: trinta. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Short Deck, flop: você conhece as suas duas cartas e as três comunitárias. Quantas cartas continuam desconhecidas?",
+    "options": [
+     {
+      "key": "A",
+      "text": "47",
+      "cue": "A quarenta e sete"
+     },
+     {
+      "key": "B",
+      "text": "31",
+      "cue": "B trinta e uma"
+     },
+     {
+      "key": "C",
+      "text": "30",
+      "cue": "C trinta"
+     }
+    ],
+    "correct": "B"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m5l1-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B. O baralho tem trinta e seis cartas, e você conhece cinco: restam trinta e uma. Quarenta e sete seria a conta do baralho de cinquenta e duas, e trinta é o número do turn.",
+   "visual": {
+    "mode": "answer",
+    "question": "Short Deck, flop: você conhece as suas duas cartas e as três comunitárias. Quantas cartas continuam desconhecidas?",
+    "options": [
+     {
+      "key": "A",
+      "text": "47",
+      "cue": "A quarenta e sete"
+     },
+     {
+      "key": "B",
+      "text": "31",
+      "cue": "B trinta e uma"
+     },
+     {
+      "key": "C",
+      "text": "30",
+      "cue": "C trinta"
+     }
+    ],
+    "correct": "B",
+    "cue": "Resposta",
+    "explanation": "36 − 5 = 31 desconhecidas"
+   }
+  },
+  {
+   "id": "m5l1-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. Leia ás, seis, sete, oito e nove como a sequência baixa do Short Deck, que termina no nove. Uma sequência até o dez é maior, e a trinca supera a sequência na ZT. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "A-6-7-8-9 termina no nove",
+     "Até o dez é maior",
+     "Trinca supera sequência"
+    ],
+    "cues": [
+     "Leia ás, seis",
+     "Uma sequência até o dez",
+     "a trinca supera"
+    ]
+   }
+  },
+  {
+   "id": "m5l1-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

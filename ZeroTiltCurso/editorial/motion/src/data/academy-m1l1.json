@@ -1,0 +1,619 @@
+{
+ "id": "academy-m1l1",
+ "title": "Aula m1l1 — Ranges de abertura por posição",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m1l1",
+ "scenes": [
+  {
+   "id": "m1l1-01",
+   "chapter": "Abertura",
+   "title": "Ranges de abertura por posição",
+   "voice": "Esta é a Zero Tilt Academy. Na primeira aula do módulo um, vamos estudar ranges de abertura por posição, na mesa de nove jogadores. O objetivo é relacionar quantos jogadores ainda vão agir, a sua posição e o plano de abertura.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 1 · Aula 1",
+    "lines": [
+     "Objetivo: relacionar posição, jogadores por agir e abertura"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m1l1-02",
+   "chapter": "Range e cenário",
+   "title": "O que é um range",
+   "voice": "Um range é um conjunto de mãos possíveis, e cada mão pode aparecer com uma frequência diferente. Por isso, a pergunta não é só qual mão abrir, mas em que cenário: posição, stacks, rake e as respostas dos outros jogadores.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Range: um conjunto de mãos possíveis",
+     "Cada mão pode ter uma frequência",
+     "Depende de posição, stacks, rake e respostas"
+    ],
+    "cues": [
+     "Um range é",
+     "frequência diferente",
+     "em que cenário"
+    ]
+   }
+  },
+  {
+   "id": "m1l1-03",
+   "chapter": "Posições",
+   "title": "Quantos ainda vão agir",
+   "voice": "Na mesa de nove, quem abre primeiro é a posição inicial, logo à esquerda do big blind. Ela ainda enfrenta oito jogadores por agir. A cada lugar para a esquerda, falta um a menos. Quando a vez chega ao cutoff, ainda faltam três jogadores. No botão, faltam só os dois blinds.",
+   "visual": {
+    "mode": "positions",
+    "seats": [
+     {
+      "label": "BTN · você",
+      "value": "2 por agir",
+      "cue": "No botão",
+      "hero": true
+     },
+     {
+      "label": "SB",
+      "value": "1 por agir"
+     },
+     {
+      "label": "BB",
+      "value": "último"
+     },
+     {
+      "label": "UTG",
+      "value": "8 por agir",
+      "cue": "posição inicial"
+     },
+     {
+      "label": "UTG+1",
+      "value": "7 por agir"
+     },
+     {
+      "label": "UTG+2",
+      "value": "6 por agir"
+     },
+     {
+      "label": "LJ",
+      "value": "5 por agir"
+     },
+     {
+      "label": "HJ",
+      "value": "4 por agir"
+     },
+     {
+      "label": "CO",
+      "value": "3 por agir",
+      "cue": "chega ao cutoff"
+     }
+    ],
+    "button": 0,
+    "note": "Pré-flop: a ação começa à esquerda do big blind"
+   }
+  },
+  {
+   "id": "m1l1-04",
+   "chapter": "Posições",
+   "title": "Os dois extremos",
+   "voice": "Compare os dois extremos. Na posição inicial, oito jogadores ainda podem ter uma mão forte, e quem pagar à sua esquerda terá posição depois do flop. No botão, só os blinds ficam por agir, e você fala por último depois do flop. Por isso o botão costuma abrir mais mãos, desde que stacks, rake e respostas sejam comparáveis.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Posição inicial (UTG)",
+      "items": [
+       "Oito jogadores por agir",
+       "Quem pagar terá posição"
+      ],
+      "cues": [
+       "oito jogadores",
+       "quem pagar"
+      ],
+      "tone": "danger"
+     },
+     {
+      "title": "Botão",
+      "items": [
+       "Só os blinds por agir",
+       "Fala por último no pós-flop"
+      ],
+      "cues": [
+       "só os blinds",
+       "você fala por último"
+      ],
+      "tone": "ok"
+     }
+    ],
+    "note": "Mais aberturas no botão, com hipóteses comparáveis",
+    "noteCue": "Por isso o botão"
+   }
+  },
+  {
+   "id": "m1l1-05",
+   "chapter": "Pós-flop",
+   "title": "A ordem muda depois do flop",
+   "voice": "Atenção à ordem depois do flop. A posição inicial fica fora de posição contra quem pagar à sua esquerda, mas fica em posição contra os blinds, porque do flop em diante os blinds falam primeiro e o botão fala por último. Não confunda a ordem do pré-flop com a do pós-flop.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "UTG: fora de posição contra quem está à esquerda",
+     "UTG: em posição contra os blinds",
+     "Do flop em diante, o botão fala por último"
+    ],
+    "cues": [
+     "fora de posição",
+     "em posição contra os blinds",
+     "o botão fala por último"
+    ]
+   }
+  },
+  {
+   "id": "m1l1-06",
+   "chapter": "Exercício guiado",
+   "title": "Rei e dama do mesmo naipe no botão",
+   "voice": "Agora o exercício guiado. A mesa é de Texas cash, com nove jogadores e cem big blinds de stack. Os blinds entram, e todos desistem até você, no botão, com rei e dama de espadas. No plano básico, essa mão entra na abertura. Você abre para dois big blinds e meio, um tamanho comum de referência. O jogador do small blind desiste, e quem está no big blind paga a diferença: mais um big blind e meio. O pote do flop fica com cinco big blinds e meio.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 10000,
+      "cards": [
+       "Ks",
+       "Qs"
+      ]
+     },
+     {
+      "name": "SB",
+      "stack": 10000,
+      "cards": [
+       "9d",
+       "4c"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 10000,
+      "cards": [
+       "Jh",
+       "8h"
+      ]
+     }
+    ],
+    "board": [],
+    "pot": 0,
+    "events": [
+     {
+      "type": "post",
+      "cue": "Os blinds entram",
+      "player": 1,
+      "to": 50,
+      "label": "SB"
+     },
+     {
+      "type": "post",
+      "player": 2,
+      "to": 100,
+      "label": "BB"
+     },
+     {
+      "type": "raise",
+      "cue": "Você abre",
+      "player": 0,
+      "to": 250
+     },
+     {
+      "type": "fold",
+      "cue": "small blind desiste",
+      "player": 1
+     },
+     {
+      "type": "call",
+      "cue": "paga a diferença",
+      "player": 2,
+      "to": 250
+     },
+     {
+      "type": "collect",
+      "cue": "O pote do flop"
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     1,
+     2
+    ],
+    "banner": "Pré-flop · todos desistiram até você"
+   }
+  },
+  {
+   "id": "m1l1-07",
+   "chapter": "Exercício guiado",
+   "title": "Registre o plano",
+   "voice": "Antes de agir, registre duas coisas: o tamanho da abertura e o que você vai fazer diante de uma 3-bet. Um quadro de ranges sem essas hipóteses fica incompleto.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "O tamanho da abertura",
+     "O plano diante de uma 3-bet",
+     "Sem hipóteses, o quadro é incompleto"
+    ],
+    "cues": [
+     "o tamanho da abertura",
+     "diante de uma 3-bet",
+     "Um quadro"
+    ]
+   }
+  },
+  {
+   "id": "m1l1-08",
+   "chapter": "Combinações",
+   "title": "Cento e sessenta e nove classes",
+   "voice": "Agora, conte combinações. A grade mostra as cento e sessenta e nove classes de mãos iniciais. Na diagonal ficam os pares: cada um tem seis combinações. Acima dela, as mãos do mesmo naipe, com quatro combinações cada. Abaixo, as de naipes diferentes, com doze. Somando tudo, são mil trezentas e vinte e seis mãos possíveis.",
+   "visual": {
+    "mode": "grid",
+    "groups": [
+     {
+      "label": "Pares",
+      "hands": [
+       "AA",
+       "KK",
+       "QQ",
+       "JJ",
+       "TT",
+       "99",
+       "88",
+       "77",
+       "66",
+       "55",
+       "44",
+       "33",
+       "22"
+      ],
+      "cue": "Na diagonal",
+      "detail": "13 classes × 6 = 78 combinações"
+     },
+     {
+      "label": "Mesmo naipe (suited)",
+      "hands": [
+       "AKs",
+       "AQs",
+       "AJs",
+       "ATs",
+       "A9s",
+       "A8s",
+       "A7s",
+       "A6s",
+       "A5s",
+       "A4s",
+       "A3s",
+       "A2s",
+       "KQs",
+       "KJs",
+       "KTs",
+       "K9s",
+       "K8s",
+       "K7s",
+       "K6s",
+       "K5s",
+       "K4s",
+       "K3s",
+       "K2s",
+       "QJs",
+       "QTs",
+       "Q9s",
+       "Q8s",
+       "Q7s",
+       "Q6s",
+       "Q5s",
+       "Q4s",
+       "Q3s",
+       "Q2s",
+       "JTs",
+       "J9s",
+       "J8s",
+       "J7s",
+       "J6s",
+       "J5s",
+       "J4s",
+       "J3s",
+       "J2s",
+       "T9s",
+       "T8s",
+       "T7s",
+       "T6s",
+       "T5s",
+       "T4s",
+       "T3s",
+       "T2s",
+       "98s",
+       "97s",
+       "96s",
+       "95s",
+       "94s",
+       "93s",
+       "92s",
+       "87s",
+       "86s",
+       "85s",
+       "84s",
+       "83s",
+       "82s",
+       "76s",
+       "75s",
+       "74s",
+       "73s",
+       "72s",
+       "65s",
+       "64s",
+       "63s",
+       "62s",
+       "54s",
+       "53s",
+       "52s",
+       "43s",
+       "42s",
+       "32s"
+      ],
+      "cue": "Acima dela",
+      "detail": "78 classes × 4 = 312 combinações"
+     },
+     {
+      "label": "Naipes diferentes (offsuit)",
+      "hands": [
+       "AKo",
+       "AQo",
+       "AJo",
+       "ATo",
+       "A9o",
+       "A8o",
+       "A7o",
+       "A6o",
+       "A5o",
+       "A4o",
+       "A3o",
+       "A2o",
+       "KQo",
+       "KJo",
+       "KTo",
+       "K9o",
+       "K8o",
+       "K7o",
+       "K6o",
+       "K5o",
+       "K4o",
+       "K3o",
+       "K2o",
+       "QJo",
+       "QTo",
+       "Q9o",
+       "Q8o",
+       "Q7o",
+       "Q6o",
+       "Q5o",
+       "Q4o",
+       "Q3o",
+       "Q2o",
+       "JTo",
+       "J9o",
+       "J8o",
+       "J7o",
+       "J6o",
+       "J5o",
+       "J4o",
+       "J3o",
+       "J2o",
+       "T9o",
+       "T8o",
+       "T7o",
+       "T6o",
+       "T5o",
+       "T4o",
+       "T3o",
+       "T2o",
+       "98o",
+       "97o",
+       "96o",
+       "95o",
+       "94o",
+       "93o",
+       "92o",
+       "87o",
+       "86o",
+       "85o",
+       "84o",
+       "83o",
+       "82o",
+       "76o",
+       "75o",
+       "74o",
+       "73o",
+       "72o",
+       "65o",
+       "64o",
+       "63o",
+       "62o",
+       "54o",
+       "53o",
+       "52o",
+       "43o",
+       "42o",
+       "32o"
+      ],
+      "cue": "Abaixo",
+      "detail": "78 classes × 12 = 936 combinações"
+     }
+    ],
+    "note": "Total: 1.326 combinações",
+    "noteCue": "Somando tudo"
+   }
+  },
+  {
+   "id": "m1l1-09",
+   "chapter": "Combinações",
+   "title": "Frequência é por combinação",
+   "voice": "Um exemplo: ás e rei têm quatro combinações do mesmo naipe e doze de naipes diferentes, dezesseis no total. Abrir uma classe em metade das vezes não quer dizer que cada combinação apareceu metade das vezes. Primeiro defina quais classes entram, e em que cenário.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "AK SUITED",
+      "4"
+     ],
+     [
+      "AK OFFSUIT",
+      "12"
+     ],
+     [
+      "AK NO TOTAL",
+      "16"
+     ]
+    ],
+    "cues": [
+     "quatro combinações",
+     "doze",
+     "dezesseis no total"
+    ],
+    "note": "Primeiro as classes, depois as frequências"
+   }
+  },
+  {
+   "id": "m1l1-10",
+   "chapter": "Outros fatores",
+   "title": "Stack, rake e jogadores",
+   "voice": "Os outros fatores também mudam a conta. Uma abertura pode receber call, raise ou fold. Stacks menores deixam as decisões seguintes mais rasas; stacks maiores aumentam o peso da posição e das mãos que formam combinações fortes. Rake e cap mudam o valor de continuar. Por isso, os treinos usam rake zero e stacks declarados, e o resultado não é uma tabela pronta para qualquer mesa do lobby.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Stacks menores: decisões mais rasas",
+     "Stacks maiores: a posição pesa mais",
+     "Treino: rake zero e stacks declarados"
+    ],
+    "cues": [
+     "Stacks menores",
+     "stacks maiores",
+     "os treinos usam"
+    ],
+    "note": "Não é uma tabela pronta para o lobby"
+   }
+  },
+  {
+   "id": "m1l1-11",
+   "chapter": "Pergunta estudável",
+   "title": "Monte uma pergunta estudável",
+   "voice": "Então, em vez de perguntar se rei e dama do mesmo naipe é sempre abertura, monte uma pergunta estudável. Defina a posição, o número de jogadores, o stack efetivo e o tamanho. Depois pergunte quais respostas dos blinds tornariam outra linha melhor. Não usamos tabelas de fornecedores como gabarito deste treino.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Posição e número de jogadores",
+     "Stack efetivo e tamanho",
+     "Que resposta mudaria a linha?"
+    ],
+    "cues": [
+     "Defina a posição",
+     "o stack efetivo",
+     "quais respostas"
+    ]
+   }
+  },
+  {
+   "id": "m1l1-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. Na mesa de nove, todos desistiram até você, no cutoff. Quantos jogadores ainda vão agir no pré-flop? A: dois. B: três. C: quatro. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Todos desistiram até você, no cutoff. Quantos jogadores ainda vão agir no pré-flop?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Dois",
+      "cue": "A dois"
+     },
+     {
+      "key": "B",
+      "text": "Três",
+      "cue": "B três"
+     },
+     {
+      "key": "C",
+      "text": "Quatro",
+      "cue": "C quatro"
+     }
+    ],
+    "correct": "B"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m1l1-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B, três. Depois do cutoff ainda falam o botão, o small blind e o big blind. Com mais jogadores por agir, o cutoff costuma abrir menos mãos que o botão, com as mesmas hipóteses.",
+   "visual": {
+    "mode": "answer",
+    "question": "Todos desistiram até você, no cutoff. Quantos jogadores ainda vão agir no pré-flop?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Dois",
+      "cue": "A dois"
+     },
+     {
+      "key": "B",
+      "text": "Três",
+      "cue": "B três"
+     },
+     {
+      "key": "C",
+      "text": "Quatro",
+      "cue": "C quatro"
+     }
+    ],
+    "correct": "B",
+    "cue": "Resposta",
+    "explanation": "Botão, small blind e big blind ainda falam"
+   }
+  },
+  {
+   "id": "m1l1-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino da Academy. A mesa didática começa com três jogadores: ajuste o range ao número real de oponentes, sem copiar um quadro de nove. Comece pelo treino guiado, depois repita no modo desafio e use o replay para comparar uma alternativa na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "A mesa didática começa com três",
+     "Ajuste o range aos oponentes reais",
+     "Guiado, desafio e replay"
+    ],
+    "cues": [
+     "começa com três jogadores",
+     "ajuste o range",
+     "Comece pelo treino guiado"
+    ]
+   }
+  },
+  {
+   "id": "m1l1-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

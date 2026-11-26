@@ -1,266 +1,69 @@
 {
   "lessonId": "m0l5",
-  "filename": "zt-academy-m0l5-v3",
   "contentHash": "80e4bcc3deaf9b2fce6e2772a46f65680f62dbe68ebd81f2bf811bb9a8ca77b7",
-  "rendererVersion": 5,
-  "durationSeconds": 441.37,
+  "filename": "zt-academy-m0l5-v4",
+  "title": "Aula m0l5 — Suas primeiras decisões e posições",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM0L5",
+  "script": "src/data/academy-m0l5.json",
+  "scriptHash": "9652ce07b5667619917e2dcf0b575eb44a859017d1188428b2d9e99d6f6d6539",
+  "durationSeconds": 224.41,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 11858795,
+  "bytes": 12988237,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "315ef549965e2821ed689451331827b8b8bb252349629cf833cc67ea1ab8b320",
+  "narrationHash": "15729b3c1eee8e80ced61b40286e5c2f3f4579597f5590ad81947149628fd329",
   "chapters": [
     {
       "start": 0.0,
-      "title": "Suas primeiras decisões e posições"
+      "title": "Abertura"
     },
     {
-      "start": 18.23,
-      "title": "Posição é informação adicional"
+      "start": 14.8,
+      "title": "Uma volta ao botão"
     },
     {
-      "start": 40.03,
-      "title": "Um plano inicial de abertura"
+      "start": 34.57,
+      "title": "Posição"
     },
     {
-      "start": 65.2,
-      "title": "Separe preço e força"
+      "start": 59.07,
+      "title": "Plano inicial"
     },
     {
-      "start": 85.93,
-      "title": "Uma volta completa ao botão"
+      "start": 81.13,
+      "title": "Preço e força"
     },
     {
-      "start": 120.23,
-      "title": "Stack efetivo e plano"
+      "start": 112.27,
+      "title": "Stack efetivo"
     },
     {
-      "start": 152.0,
-      "title": "Por que observar ajuda"
+      "start": 128.8,
+      "title": "Plano e observação"
     },
     {
-      "start": 177.13,
-      "title": "Laboratório: Botão: observar antes de decidir"
+      "start": 150.4,
+      "title": "Exercício"
     },
     {
-      "start": 211.17,
-      "title": "Laboratório: Botão: observar antes de decidir"
+      "start": 189.37,
+      "title": "Laboratório"
     },
     {
-      "start": 219.47,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 249.3,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 262.97,
-      "title": "Exercício resolvido 2"
-    },
-    {
-      "start": 293.6,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 305.63,
-      "title": "Exercício resolvido 3"
-    },
-    {
-      "start": 334.23,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 351.27,
-      "title": "Exercício resolvido 4"
-    },
-    {
-      "start": 369.93,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 381.83,
-      "title": "Exercício resolvido 5"
-    },
-    {
-      "start": 397.17,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 409.13,
-      "title": "Agora, pratique"
+      "start": 210.33,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 18.233333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 18.233333333333334,
-      "duration": 21.8,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 40.03333333333333,
-      "duration": 25.166666666666668,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 65.2,
-      "duration": 20.733333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 85.93333333333334,
-      "duration": 34.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 120.23333333333333,
-      "duration": 31.766666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 152.0,
-      "duration": 25.133333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 177.13333333333333,
-      "duration": 34.03333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 211.16666666666666,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 219.46666666666667,
-      "duration": 29.833333333333332,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 249.3,
-      "duration": 13.666666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 262.9666666666667,
-      "duration": 30.633333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 293.6,
-      "duration": 12.033333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 305.6333333333334,
-      "duration": 28.6,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 334.2333333333334,
-      "duration": 17.033333333333335,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 351.26666666666677,
-      "duration": 18.666666666666668,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 369.93333333333345,
-      "duration": 11.9,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 381.8333333333334,
-      "duration": 15.333333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 397.16666666666674,
-      "duration": 11.966666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 409.1333333333334,
-      "duration": 32.233333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    }
-  ],
-  "sha256": "cf64641ffc0585c8f6fdbab5ca562e1fbf30aed3caeda53f3a84b1871970161d",
+  "sha256": "3ba5f2424ad180d687a709a1951afd93601d0269be442669a1779de323bf8bbd",
   "assetHashes": {
-    "mp4": "cf64641ffc0585c8f6fdbab5ca562e1fbf30aed3caeda53f3a84b1871970161d",
-    "vtt": "496056dd37f87e468dd31ba908daa4c3e47382f0d0e3116a5919ac536d9e5e4f",
-    "webp": "5cce31126d58b142dc26b83a52546342b162553ee1eeea757e616719f67a4766"
+    "mp4": "3ba5f2424ad180d687a709a1951afd93601d0269be442669a1779de323bf8bbd",
+    "vtt": "a97d84524086d11daa08512c06ef40b47ef31b06a2026f2c15160996bd98d2e4",
+    "webp": "b39c792167befd01302a7f9dd093f0ec6beaf61574e1a5720b65ab7d41046c95"
   },
-  "mediaRevision": "9ea007834ea626aa2d310ee1cc18911a7228c871eb0100db32e406593a103014"
+  "mediaRevision": "6529ccefbb9e4d9545bab329d8faf85964b1847d32c1ce952745ff5520bf0166"
 }

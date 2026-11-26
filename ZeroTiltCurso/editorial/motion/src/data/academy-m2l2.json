@@ -1,0 +1,367 @@
+{
+ "id": "academy-m2l2",
+ "title": "Aula m2l2 — Como responder a check-raise e o float",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m2l2",
+ "scenes": [
+  {
+   "id": "m2l2-01",
+   "chapter": "Abertura",
+   "title": "Check-raise e float",
+   "voice": "Esta é a Zero Tilt Academy. Na aula dois do módulo dois, vamos estudar como responder a um check-raise e quando um float tem plano. O objetivo é refazer o preço depois do aumento e decidir com um modelo explícito do rival.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 2 · Aula 2",
+    "lines": [
+     "Objetivo: refazer o preço após o raise e decidir com um modelo do rival"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m2l2-02",
+   "chapter": "Check-raise",
+   "title": "O que cabe num check-raise",
+   "voice": "Um check-raise pode conter mãos de valor e blefes. Antes de responder, compare o total a pagar, os stacks, a textura e o range plausível do rival. Por isso, ter top pair não obriga você a pagar sempre, nem a desistir sempre.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Valor e blefes",
+     "Total a pagar, stacks, textura e range",
+     "Top pair: nem sempre paga, nem sempre desiste"
+    ],
+    "cues": [
+     "mãos de valor e blefes",
+     "compare o total",
+     "ter top pair"
+    ]
+   }
+  },
+  {
+   "id": "m2l2-03",
+   "chapter": "Check-raise",
+   "title": "O rival aumenta",
+   "voice": "Veja um exemplo. O pote tem dez big blinds, e o flop traz rei de paus, oito de espadas e três de copas. Você está no botão com rei e nove de ouros, um top pair. Quem está no big blind dá check, e você aposta três, menos de um terço do pote. Ele aumenta para doze.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 9500,
+      "cards": [
+       "Kd",
+       "9d"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 9500,
+      "cards": [
+       "8h",
+       "8d"
+      ]
+     }
+    ],
+    "board": [],
+    "pot": 1000,
+    "events": [
+     {
+      "type": "board",
+      "cue": "o flop traz",
+      "cards": [
+       "Kc",
+       "8s",
+       "3h"
+      ]
+     },
+     {
+      "type": "check",
+      "cue": "dá check",
+      "player": 1
+     },
+     {
+      "type": "bet",
+      "cue": "você aposta",
+      "player": 0,
+      "to": 300
+     },
+     {
+      "type": "raise",
+      "cue": "Ele aumenta",
+      "player": 1,
+      "to": 1200
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     2
+    ],
+    "banner": "Flop · pote de 10 BB"
+   }
+  },
+  {
+   "id": "m2l2-04",
+   "chapter": "O preço depois do raise",
+   "title": "Refaça o preço",
+   "voice": "Agora refaça o preço. Antes da sua decisão, há vinte e cinco big blinds no centro: dez do pote, três seus e doze do rival. Você já colocou três, então precisa acrescentar nove, e não doze. Depois do call, o pote terá trinta e quatro. O limiar é nove sobre trinta e quatro, cerca de vinte e seis e meio por cento, sem taxas e supondo que o call encerre as apostas.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "A ACRESCENTAR",
+      "9 BB"
+     ],
+     [
+      "POTE APÓS O CALL",
+      "34 BB"
+     ],
+     [
+      "LIMIAR · 9/34",
+      "≈ 26,47%"
+     ]
+    ],
+    "cues": [
+     "acrescentar nove",
+     "o pote terá trinta e quatro",
+     "nove sobre trinta e quatro"
+    ],
+    "note": "O custo é o que falta, não o total do raise"
+   }
+  },
+  {
+   "id": "m2l2-05",
+   "chapter": "Modelo do rival",
+   "title": "Decida pelo modelo",
+   "voice": "Agora o modelo do exercício: este rival só dá check-raise grande com dois pares ou melhor, e quase nunca blefa. Contra esse range, rei e nove perde para quase todas as mãos que aumentam, e a decisão conservadora é desistir. Se as frequências mudarem, refaça a análise.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 9200,
+      "bet": 300,
+      "cards": [
+       "Kd",
+       "9d"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 8300,
+      "bet": 1200,
+      "cards": [
+       "8h",
+       "8d"
+      ]
+     }
+    ],
+    "board": [
+     "Kc",
+     "8s",
+     "3h"
+    ],
+    "pot": 1000,
+    "events": [
+     {
+      "type": "fold",
+      "cue": "a decisão conservadora é desistir",
+      "player": 0
+     },
+     {
+      "type": "collect"
+     },
+     {
+      "type": "award",
+      "player": 1
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     2
+    ],
+    "banner": "Modelo: check-raise grande = dois pares ou melhor",
+    "note": "Frequências mudaram? Refaça a análise"
+   }
+  },
+  {
+   "id": "m2l2-06",
+   "chapter": "Modelo do rival",
+   "title": "Força absoluta e força relativa",
+   "voice": "Top pair pode ser forte contra um range amplo, com muitas mãos piores que pagam. Mas fica fraca contra um range só de dois pares, trincas e mãos melhores. No treino, o bot de valor só aumenta quando a mão dele cumpre a política declarada, e é isso que torna a leitura estudável. Contra um rival que também blefa e aumenta com projetos, você teria de reconstruir esse range.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Contra um range amplo",
+      "items": [
+       "Top pair é forte",
+       "Muitas mãos piores pagam"
+      ],
+      "cues": [
+       "range amplo",
+       "muitas mãos piores"
+      ],
+      "tone": "mint"
+     },
+     {
+      "title": "Contra dois pares ou melhor",
+      "items": [
+       "Top pair é fraca",
+       "Quase nada pior continua"
+      ],
+      "cues": [
+       "fica fraca",
+       "trincas"
+      ],
+      "tone": "danger"
+     }
+    ],
+    "note": "Rival que blefa? Reconstrua o range",
+    "noteCue": "reconstruir esse range"
+   }
+  },
+  {
+   "id": "m2l2-07",
+   "chapter": "Float",
+   "title": "O que é um float",
+   "voice": "Agora vamos ao float, uma ideia diferente. Float é pagar com o plano de disputar o pote numa rodada seguinte, muitas vezes em posição. Ele exige equity, preço e leitura do que o rival faz depois. Não é pagar qualquer mão esperando um check.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Pagar com plano para uma rodada seguinte",
+     "Exige equity, preço e leitura",
+     "Não é pagar esperando um check"
+    ],
+    "cues": [
+     "disputar o pote",
+     "exige equity",
+     "Não é pagar"
+    ]
+   }
+  },
+  {
+   "id": "m2l2-08",
+   "chapter": "Float",
+   "title": "Um float precisa de plano",
+   "voice": "Pagar uma aposta pequena em posição pode preservar opções, quando a sua mão tem equity e o rival abandona certas linhas depois. Mas você não sabe se ele vai dar check no turn. Então registre quais cartas permitem continuar e qual nova aposta tornaria o plano ruim. Um call só por curiosidade não é float.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Quais cartas permitem continuar",
+     "Que aposta tornaria o plano ruim",
+     "Call por curiosidade não é float"
+    ],
+    "cues": [
+     "quais cartas permitem",
+     "qual nova aposta",
+     "só por curiosidade"
+    ]
+   }
+  },
+  {
+   "id": "m2l2-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. O pote tem oito big blinds. Você aposta quatro, e o rival aumenta para catorze. Sem taxas e com o call encerrando as apostas, qual é o limiar de equity para pagar? A: dez sobre vinte e seis. B: dez sobre trinta e seis. C: catorze sobre trinta e seis. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Pote de 8 BB. Você aposta 4 BB e o rival aumenta para 14 BB. Qual é o limiar de equity para pagar?",
+    "options": [
+     {
+      "key": "A",
+      "text": "10/26 ≈ 38%",
+      "cue": "A dez sobre vinte e seis"
+     },
+     {
+      "key": "B",
+      "text": "10/36 ≈ 28%",
+      "cue": "B dez sobre trinta e seis"
+     },
+     {
+      "key": "C",
+      "text": "14/36 ≈ 39%",
+      "cue": "C catorze"
+     }
+    ],
+    "correct": "B"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m2l2-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B. Antes da decisão, há vinte e seis no centro: oito do pote, quatro seus e catorze do rival. Você acrescenta dez, e o pote depois do call fica com trinta e seis. Dez sobre trinta e seis dá cerca de vinte e oito por cento.",
+   "visual": {
+    "mode": "answer",
+    "question": "Pote de 8 BB. Você aposta 4 BB e o rival aumenta para 14 BB. Qual é o limiar de equity para pagar?",
+    "options": [
+     {
+      "key": "A",
+      "text": "10/26 ≈ 38%",
+      "cue": "A dez sobre vinte e seis"
+     },
+     {
+      "key": "B",
+      "text": "10/36 ≈ 28%",
+      "cue": "B dez sobre trinta e seis"
+     },
+     {
+      "key": "C",
+      "text": "14/36 ≈ 39%",
+      "cue": "C catorze"
+     }
+    ],
+    "correct": "B",
+    "cue": "Resposta",
+    "explanation": "Acrescentar 10 · pote após o call 36 · 10/36 ≈ 27,8%"
+   }
+  },
+  {
+   "id": "m2l2-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. O bot de valor dá check-raise com dois pares ou melhor, e uma aposta sua pode provocar essa resposta. Recalcule o preço depois da agressão. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "O bot de valor: dois pares ou melhor",
+     "Recalcule o preço após o raise",
+     "Guiado, desafio e replay"
+    ],
+    "cues": [
+     "O bot de valor",
+     "Recalcule o preço",
+     "Comece pelo treino guiado"
+    ]
+   }
+  },
+  {
+   "id": "m2l2-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

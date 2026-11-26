@@ -1,12 +1,10 @@
 import React from "react";
 import { Composition } from "remotion";
-import m2l2Script from "./data/m2l2.json";
 import m5l3Script from "./data/academy-m5l3.json";
 import m5l4Script from "./data/academy-m5l4.json";
 import m5l5Script from "./data/academy-m5l5.json";
 import rulesScript from "./data/pineapple-draw-rules.json";
 import trailerScript from "./data/pineapple-draw-trailer.json";
-import m2l2Timings from "./generated/academy-m2l2.timings.json";
 import m5l3Timings from "./generated/academy-m5l3.timings.json";
 import m5l4Timings from "./generated/academy-m5l4.timings.json";
 import m5l5Timings from "./generated/academy-m5l5.timings.json";
@@ -15,7 +13,8 @@ import trailerTimings from "./generated/pineapple-draw-trailer.timings.json";
 import { Script, Timings } from "./lib/timeline";
 import { H, W } from "./theme";
 import { totalFrames, Video } from "./Video";
-import { M2L2_SCENES } from "./videos/AcademyM2L2";
+import { ACADEMY_LESSONS } from "./generated/academy-index";
+import { ACADEMY_SCENES } from "./videos/AcademyScenes";
 import { PINEAPPLE_DRAW_SCENES } from "./videos/PineappleDrawRules";
 import type { SceneMap } from "./Video";
 
@@ -23,7 +22,6 @@ type Entry = { id: string; script: Script; timings: Timings; scenes: SceneMap; l
 
 /* Um vídeo = roteiro (src/data) + tempos da narração (src/generated) + cenas. */
 const VIDEOS: Entry[] = [
-  { id: "AcademyM2L2", script: m2l2Script as Script, timings: m2l2Timings as Timings, scenes: M2L2_SCENES, label: "ZT ACADEMY · M2 · AULA 2" },
   {
     id: "PineappleDrawRules",
     script: rulesScript as Script,
@@ -42,6 +40,14 @@ const VIDEOS: Entry[] = [
   { id: "AcademyM5L3", script: m5l3Script as Script, timings: m5l3Timings as Timings, scenes: PINEAPPLE_DRAW_SCENES, label: "ZT ACADEMY · BRAZILIAN PINEAPPLE · AULA 1" },
   { id: "AcademyM5L4", script: m5l4Script as Script, timings: m5l4Timings as Timings, scenes: PINEAPPLE_DRAW_SCENES, label: "ZT ACADEMY · BRAZILIAN PINEAPPLE · AULA 2" },
   { id: "AcademyM5L5", script: m5l5Script as Script, timings: m5l5Timings as Timings, scenes: PINEAPPLE_DRAW_SCENES, label: "ZT ACADEMY · BRAZILIAN PINEAPPLE · AULA 3" },
+  // Aulas de estratégia (Texas, Short Deck e Omaha): roteiros de tools/build_academy.py.
+  ...ACADEMY_LESSONS.map((lesson) => ({
+    id: lesson.id,
+    script: lesson.script as Script,
+    timings: lesson.timings as Timings,
+    scenes: ACADEMY_SCENES,
+    label: lesson.label,
+  })),
 ];
 
 const COMPONENTS = VIDEOS.map((entry) => {

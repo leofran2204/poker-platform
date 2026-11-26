@@ -1,0 +1,373 @@
+{
+ "id": "academy-m4l1",
+ "title": "Aula m4l1 — Thin value bet e blefe puro",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m4l1",
+ "scenes": [
+  {
+   "id": "m4l1-01",
+   "chapter": "Abertura",
+   "title": "Thin value bet e blefe puro",
+   "voice": "Esta é a Zero Tilt Academy. Na aula um do módulo quatro, vamos estudar a aposta por valor no river, inclusive a de margem fina. O objetivo é medir a aposta contra as mãos que continuam, e não contra todas as mãos do rival.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 4 · Aula 1",
+    "lines": [
+     "Objetivo: medir a aposta contra as mãos que continuam"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m4l1-02",
+   "chapter": "Valor no river",
+   "title": "Quem paga é o que importa",
+   "voice": "Uma aposta por valor busca ser paga por mãos piores. Quando a margem contra as mãos que pagam é pequena, chamamos de thin value. Ser forte contra o range inteiro do rival não basta: compare a sua mão com a parte que vai continuar.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Valor: ser pago por mãos piores",
+     "Thin value: margem pequena",
+     "Compare com quem continua"
+    ],
+    "cues": [
+     "ser paga por mãos piores",
+     "chamamos de thin value",
+     "compare a sua mão"
+    ]
+   }
+  },
+  {
+   "id": "m4l1-03",
+   "chapter": "Exemplo com hipótese",
+   "title": "Um pagador com ás menor",
+   "voice": "Veja um exemplo. No river, a mesa mostra ás, nove, quatro, dois e sete, sem três cartas do mesmo naipe, e o pote tem doze big blinds. Você tem ás e valete: top pair com valete. O jogador do big blind dá check, e a ação chega a você. Para este exercício, sabemos que ele paga uma aposta pequena com vários ases menores. Você aposta quatro big blinds, e ele paga.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 9400,
+      "cards": [
+       "Ad",
+       "Jd"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 9400,
+      "cards": [
+       "Ah",
+       "5c"
+      ]
+     }
+    ],
+    "board": [
+     "As",
+     "9c",
+     "4d",
+     "2h",
+     "7s"
+    ],
+    "pot": 1200,
+    "events": [
+     {
+      "type": "check",
+      "cue": "dá check",
+      "player": 1
+     },
+     {
+      "type": "bet",
+      "cue": "Você aposta",
+      "player": 0,
+      "to": 400
+     },
+     {
+      "type": "call",
+      "cue": "e ele paga",
+      "player": 1,
+      "to": 400
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     2
+    ],
+    "banner": "River · pote de 12 BB",
+    "note": "Hipótese do exercício, não leitura garantida"
+   }
+  },
+  {
+   "id": "m4l1-04",
+   "chapter": "Exemplo com hipótese",
+   "title": "Recebeu de uma mão pior",
+   "voice": "No showdown, o rival mostra ás e cinco. Os dois têm um par de ases, mas o seu valete vence o nove que acompanha a mão dele. A aposta recebeu de uma mão pior, exatamente o que a hipótese previa. Se ele só pagasse com mãos melhores, a conclusão mudaria.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 9000,
+      "bet": 400,
+      "cards": [
+       "Ad",
+       "Jd"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 9000,
+      "bet": 400,
+      "cards": [
+       "Ah",
+       "5c"
+      ]
+     }
+    ],
+    "board": [
+     "As",
+     "9c",
+     "4d",
+     "2h",
+     "7s"
+    ],
+    "pot": 1200,
+    "events": [
+     {
+      "type": "collect"
+     },
+     {
+      "type": "reveal",
+      "cue": "o rival mostra",
+      "players": [
+       1
+      ]
+     },
+     {
+      "type": "highlight",
+      "cue": "o seu valete vence",
+      "player": 0,
+      "hole": [
+       0,
+       1
+      ],
+      "boardPick": [
+       0,
+       1,
+       4
+      ],
+      "text": "Par de ases, valete"
+     },
+     {
+      "type": "award",
+      "cue": "recebeu de uma mão pior",
+      "player": 0
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     2
+    ],
+    "banner": "Showdown · pote de 20 BB"
+   }
+  },
+  {
+   "id": "m4l1-05",
+   "chapter": "Ações legais",
+   "title": "O que a mesa permite",
+   "voice": "Antes de escolher o tamanho, confira as ações legais. Depois de um check, você pode dar check ou apostar. Diante de uma aposta, as opções passam a ser fold, call ou raise, respeitando os stacks e as regras da mesa.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Depois de um check: check ou bet",
+     "Diante de aposta: fold, call ou raise",
+     "Respeite stacks e regras da mesa"
+    ],
+    "cues": [
+     "dar check ou apostar",
+     "Diante de uma aposta",
+     "respeitando os stacks"
+    ]
+   }
+  },
+  {
+   "id": "m4l1-06",
+   "chapter": "O range que paga",
+   "title": "Força contra o range que continua",
+   "voice": "Agora imagine um rival que chega ao river com muitos pares fracos, mas desiste de todos diante de uma aposta grande. A força da sua mão contra o conjunto inicial não prova que a aposta grande seja por valor. Uma aposta pequena pode receber calls mais amplos, mas também oferece ao rival a opção de aumentar.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Aposta grande",
+      "items": [
+       "Pares fracos desistem",
+       "Força inicial não prova valor"
+      ],
+      "cues": [
+       "desiste de todos",
+       "não prova"
+      ],
+      "tone": "danger"
+     },
+     {
+      "title": "Aposta pequena",
+      "items": [
+       "Calls mais amplos",
+       "O rival ainda pode aumentar"
+      ],
+      "cues": [
+       "calls mais amplos",
+       "opção de aumentar"
+      ],
+      "tone": "mint"
+     }
+    ],
+    "note": "Identifique mãos piores que continuam"
+   }
+  },
+  {
+   "id": "m4l1-07",
+   "chapter": "O range que paga",
+   "title": "O ganho é a diferença",
+   "voice": "O valor de apostar deve ser comparado ao que aconteceria se você desse check. Se você já venceria o showdown contra uma mão fraca que sempre desiste, o fold dela não acrescenta nada. Receber de mãos piores aumenta o ganho, e pagar raises de mãos melhores aumenta o custo. Um call sozinho não prova que a aposta foi boa.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Compare com o check",
+     "Fold de mão pior não acrescenta",
+     "Raise de mão melhor aumenta o custo"
+    ],
+    "cues": [
+     "comparado ao que aconteceria",
+     "o fold dela",
+     "pagar raises"
+    ]
+   }
+  },
+  {
+   "id": "m4l1-08",
+   "chapter": "Uma amostra só",
+   "title": "Uma amostra não estima um range",
+   "voice": "No treino, o cenário fixa um pagador com um ás menor. É uma condição didática, e não uma leitura garantida sobre jogadores reais. Repita a mão com tamanhos diferentes e anote em que ponto a política do bot deixa de continuar. Uma única amostra não estima o range de uma população.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Pagador fixo: condição didática",
+     "Varie o tamanho e anote",
+     "Uma amostra não estima um range"
+    ],
+    "cues": [
+     "condição didática",
+     "Repita a mão",
+     "Uma única amostra"
+    ]
+   }
+  },
+  {
+   "id": "m4l1-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. No modelo, o rival paga uma aposta de quatro big blinds com pares médios e ases menores, mas só paga doze big blinds com mãos que vencem você. Que aposta cumpre o papel de valor? A: a aposta grande, de doze big blinds. B: a aposta pequena, de quatro big blinds. C: nenhum tamanho serve. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Modelo do exercício: o rival paga 4 BB com pares médios e ases menores, e só paga 12 BB com mãos que vencem você. Que aposta cumpre o papel de valor?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Apostar 12 BB",
+      "cue": "A a aposta grande"
+     },
+     {
+      "key": "B",
+      "text": "Apostar 4 BB",
+      "cue": "B a aposta pequena"
+     },
+     {
+      "key": "C",
+      "text": "Nenhum tamanho",
+      "cue": "C nenhum tamanho"
+     }
+    ],
+    "correct": "B"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m4l1-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B. Na aposta pequena, mãos piores continuam e pagam você. Na aposta grande, só as melhores pagam, e a aposta deixa de ser por valor. O tamanho certo depende de quem continua, e o rival ainda pode aumentar.",
+   "visual": {
+    "mode": "answer",
+    "question": "Modelo do exercício: o rival paga 4 BB com pares médios e ases menores, e só paga 12 BB com mãos que vencem você. Que aposta cumpre o papel de valor?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Apostar 12 BB",
+      "cue": "A a aposta grande"
+     },
+     {
+      "key": "B",
+      "text": "Apostar 4 BB",
+      "cue": "B a aposta pequena"
+     },
+     {
+      "key": "C",
+      "text": "Nenhum tamanho",
+      "cue": "C nenhum tamanho"
+     }
+    ],
+    "correct": "B",
+    "cue": "Resposta",
+    "explanation": "4 BB: mãos piores pagam · 12 BB: só as melhores"
+   }
+  },
+  {
+   "id": "m4l1-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. O bot pagador continua com pares a preços moderados. A hipótese de receber de mãos piores precisa sustentar a sua aposta. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Bot pagador: pares a preços moderados",
+     "Receber de pior sustenta a aposta",
+     "Guiado, desafio e replay"
+    ],
+    "cues": [
+     "O bot pagador",
+     "receber de mãos piores",
+     "Comece pelo treino guiado"
+    ]
+   }
+  },
+  {
+   "id": "m4l1-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

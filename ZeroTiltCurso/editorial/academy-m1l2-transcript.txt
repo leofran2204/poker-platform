@@ -1,27 +1,21 @@
-Esta é a Zero Tilt Academy, e a aula de hoje é: Como punir o Limp do Small Blind. Nesta aula, nosso objetivo é: Comparar check e isolamento após o limp. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+Esta é a Zero Tilt Academy. Na aula dois do módulo um, vamos estudar como punir o limp do small blind. O objetivo é comparar o check e o isolamento depois que o small blind completa.
 
-Agora, o próximo tema é: Limp do small blind. Quando todos desistiram e o small blind completa, o big blind pode dar check se nada falta pagar, ou aumentar dentro dos limites legais. O limp pode conter mãos fracas e fortes; não identifica sozinho um jogador fraco.
+Todos desistiram até o small blind. Ele já tinha meio big blind e completa com mais meio. Agora os dois têm um big blind comprometido. Você, no big blind, não precisa pagar nada para ver o flop: pode dar check. Ou pode aumentar, dentro dos limites legais.
 
-Plano do exercício. Texas cash 100 big blinds, blinds 0,5 dividido por 1: o small blind completa e tende a pagar isolamentos com mãos piores, sem muitas armadilhas. Treinamos raise com ás e cinco do mesmo naipe, usando 3,5–4 big blinds como referência de tamanho. Contra outras frequências ou stacks, check pode integrar a estratégia.
+Cuidado com o rótulo. O limp pode conter mãos fracas e mãos fortes. Sozinho, ele não identifica um jogador fraco: é preciso observar o que o rival faz depois.
 
-Revise a hipótese. Observe frequência de limp, fold para raise e limp-reraise antes de explorar uma tendência.
+No exercício, a mesa é de Texas cash, com blinds de meio e um, e cem big blinds de stack. O small blind completa e tende a pagar isolamentos com mãos piores, sem muitas armadilhas. Contra esse perfil, treinamos o raise com ás e cinco de espadas, usando de três e meio a quatro big blinds como referência de tamanho.
 
-Agora, o próximo tema é: A opção do big blind. Com os blinds de 0,5 e 1 big blind, quem está no small blind já pagou a metade de um blind. Ao completar mais meio, os dois jogadores têm 1 big blind comprometido. O big blind não precisa pagar novamente para ver o flop: pode dar check. Aumentar para 4 big blinds exige que o jogador do big blind coloque mais 3 big blinds e oferece ao jogador do small blind a decisão de acrescentar outros 3 big blinds. Não confunda o custo adicional com o total da aposta.
+Você aumenta para quatro big blinds no total. Como já tinha um na frente, coloca mais três. O small blind então decide se acrescenta outros três big blinds. Não confunda o custo adicional com o total da aposta.
 
-O tamanho depende da resposta. Se o rival paga aumentos com muitas mãos fracas, aumentar uma mão que joga bem contra essa faixa pode construir valor. Se ele inclui armadilhas e aumenta de volta, a avaliação muda. Um raise com ás e cinco do mesmo naipe pode combinar força, bloqueadores e potencial de formar flush, mas não deve ser rotulado automaticamente como valor contra qualquer range de call. O perfil é uma hipótese do exercício.
+O tamanho depende da resposta do rival. Se ele paga aumentos com muitas mãos fracas, aumentar uma mão que joga bem contra essa faixa pode construir valor. Ás e cinco do mesmo naipe combina força, bloqueador de ás e a chance de formar flush. Mas, se ele tem armadilhas e aumenta de volta, a avaliação muda, e o check também pode fazer parte da estratégia.
 
-Observe sem concluir cedo. Registre quantas vezes o rival completou, desistiu para aumento e fez limp-reraise. Amostras pequenas oscilam bastante. No simulador, o perfil é declarado para tornar o exercício reproduzível; em uma mesa real essa informação teria de ser inferida. Compare check e raise na mesma distribuição sem usar as cartas reveladas no final como justificativa retroativa.
+Antes de explorar uma tendência, observe. Registre quantas vezes o rival completou, quantas desistiu para um aumento e quantas fez limp-reraise. Amostras pequenas oscilam bastante. No simulador, o perfil é declarado para o exercício ser reproduzível; numa mesa real, você teria de inferir essa informação.
 
-Agora vamos para o laboratório: O small blind completa. Objetivo: Comparar check e isolamento após o limp. Abra a mesa deste módulo e comece pelo treino guiado. Nesta mão, você está sentado no big blind. Se nada falta pagar, check é legal; o isolamento aumenta o total da aposta. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+Exercício. Você aumenta para quatro big blinds, e o small blind paga. Quantos big blinds haverá no pote do flop? A: cinco. B: sete. C: oito. Pause o vídeo e responda.
 
-Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+Resposta: C, oito. Cada jogador termina a rodada com quatro na frente, e as duas apostas vão para o pote.
 
-Qual referência de iso-raise foi adotada no exercício desta aula, com Texas cash e 100 big blinds? As alternativas são: A, 2.0 big blinds; B, 3.5x a 4x o big blind; C, All-in direto. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+Agora leve a aula para a mesa de treino. Você está no big blind: se nada falta pagar, o check é legal, e o isolamento aumenta o total da aposta. Comece pelo treino guiado e repita no modo desafio. No replay, compare check e raise na mesma distribuição, sem usar as cartas do final como justificativa.
 
-Vamos à resposta. A alternativa certa deste exercício é: 3.5x a 4x o big blind. 3,5–4 big blinds é a referência do exercício, a ajustar conforme posição, stacks e resposta do adversário.
-
-Suas cartas: ás de espadas, cinco de espadas. Cartas comunitárias: ainda não reveladas. O cenário é uma mesa de Texas cash, com 100 big blinds. small blind completa e, no modelo do exercício, paga raises com várias mãos piores. Qual ação por valor/semi-blefe treinamos no big blind com A♠ 5♠? As alternativas são: A, fold; B, check; C, raise. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
-
-Vamos à resposta. A alternativa certa deste exercício é: raise. ás e cinco do mesmo naipe tem excelente jogabilidade, bloqueador de Ás e posição para isolar o Small Blind.
-
-Abra o simulador da aula e escolha o cenário O small blind completa. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.
+Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.

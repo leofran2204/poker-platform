@@ -3145,5 +3145,40 @@ async fn test_contract_course_video_is_counted_by_the_server() {
         (Some(100), Some(true))
     );
 
+    // A aula ganhou um vídeo novo: a contagem do vídeo antigo não vale mais,
+    // e o primeiro aviso recomeça a linha do zero, com o endereço atual.
+    sql(
+        "UPDATE course_watch SET video_url = '/videos/versao-antiga.mp4' \
+         WHERE user_id = $1::uuid AND lesson_id = 'm0l4'",
+    )
+    .await;
+    let (_, body) = call(&app, &token, Method::GET, get_state, None).await;
+    assert_eq!(
+        (
+            body["watched_percent"].as_i64(),
+            body["quiz_open"].as_bool()
+        ),
+        (Some(0), Some(false))
+    );
+    let (status, body) = call(
+        &app,
+        &token,
+        Method::POST,
+        "/api/course/watch",
+        Some(watch(0.0, 0.0, 1.0)),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    assert_eq!(body["watched_percent"], 0);
+    let (url, watched): (Option<String>, Vec<u8>) = sqlx::query_as(
+        "SELECT video_url, watched FROM course_watch WHERE user_id = $1::uuid AND lesson_id = 'm0l4'",
+    )
+    .bind(&user.user_id)
+    .fetch_one(&state.db)
+    .await
+    .unwrap();
+    assert!(url.is_some_and(|u| u.starts_with("/videos/") && u != "/videos/versao-antiga.mp4"));
+    assert!(watched.iter().all(|b| *b == 0));
+
     cleanup_contract_user(&state, &user.username).await;
 }

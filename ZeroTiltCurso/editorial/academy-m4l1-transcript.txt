@@ -1,27 +1,23 @@
-Esta é a Zero Tilt Academy, e a aula de hoje é: Thin Value Bet versus Blefe Puro. Nesta aula, nosso objetivo é: Escolher valor fino de acordo com o perfil que paga. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+Esta é a Zero Tilt Academy. Na aula um do módulo quatro, vamos estudar a aposta por valor no river, inclusive a de margem fina. O objetivo é medir a aposta contra as mãos que continuam, e não contra todas as mãos do rival.
 
-Valor no river. Uma aposta por valor busca ser paga por mãos piores. Thin value descreve uma margem menor contra o range que paga. Ser forte contra o range inteiro do rival não basta: compare com a parte que continuará.
+Uma aposta por valor busca ser paga por mãos piores. Quando a margem contra as mãos que pagam é pequena, chamamos de thin value. Ser forte contra o range inteiro do rival não basta: compare a sua mão com a parte que vai continuar.
 
-Exemplo com hipótese. ás e valete em ás, nove, quatro, dois e sete rainbow, rival dá check e sabemos, para este exercício, que pagará uma aposta pequena com vários ases menores. Aqui, o que treinamos é a bet por valor. Se ele só pagar mãos melhores, a conclusão muda.
+Veja um exemplo. No river, a mesa mostra ás, nove, quatro, dois e sete, sem três cartas do mesmo naipe, e o pote tem doze big blinds. Você tem ás e valete: top pair com valete. O jogador do big blind dá check, e a ação chega a você. Para este exercício, sabemos que ele paga uma aposta pequena com vários ases menores. Você aposta quatro big blinds, e ele paga.
 
-Ações legais. Após check, você pode dar check ou bet. Diante de aposta, as opções passam a fold, call ou raise, respeitando stacks e regras da mesa.
+No showdown, o rival mostra ás e cinco. Os dois têm um par de ases, mas o seu valete vence o nove que acompanha a mão dele. A aposta recebeu de uma mão pior, exatamente o que a hipótese previa. Se ele só pagasse com mãos melhores, a conclusão mudaria.
 
-O range que paga é o relevante. Suponha que o rival chegue ao river com muitos pares fracos, mas desista de todos diante de uma aposta grande. A força da sua mão contra o conjunto inicial não prova que a aposta grande seja por valor. Você precisa identificar mãos piores que continuem. Uma aposta pequena pode receber calls mais amplos; também oferece ao rival a opção de aumentar.
+Antes de escolher o tamanho, confira as ações legais. Depois de um check, você pode dar check ou apostar. Diante de uma aposta, as opções passam a ser fold, call ou raise, respeitando os stacks e as regras da mesa.
 
-Agora, o próximo tema é: Compare com dar check. O valor incremental de apostar deve ser comparado ao que aconteceria ao dar check. Se você já venceria o showdown contra uma mão fraca que sempre desiste para a aposta, o fold dessa mão não acrescenta o pagamento desejado. Em contrapartida, receber de mãos piores aumenta o ganho, e pagar raises de mãos melhores aumenta o custo. Não julgue uma value bet apenas pela ocorrência de um call.
+Agora imagine um rival que chega ao river com muitos pares fracos, mas desiste de todos diante de uma aposta grande. A força da sua mão contra o conjunto inicial não prova que a aposta grande seja por valor. Uma aposta pequena pode receber calls mais amplos, mas também oferece ao rival a opção de aumentar.
 
-Exercício controlado. ás e valete em ás, nove, quatro, dois e sete tem top pair com valete. O cenário fixa um pagador com um ás menor para estudar recebimento de valor. Isso é uma condição didática, não uma leitura garantida sobre usuários reais. Repita a mão com tamanhos distintos e registre em que ponto a política do bot deixa de continuar. Depois descreva por que uma única amostra não estima um range de população.
+O valor de apostar deve ser comparado ao que aconteceria se você desse check. Se você já venceria o showdown contra uma mão fraca que sempre desiste, o fold dela não acrescenta nada. Receber de mãos piores aumenta o ganho, e pagar raises de mãos melhores aumenta o custo. Um call sozinho não prova que a aposta foi boa.
 
-Laboratório: Receber de mãos piores. Objetivo: Escolher valor fino de acordo com o perfil que paga. Abra a mesa deste módulo e comece pelo treino guiado. O bot pagador continua com pares a preços moderados. A hipótese de receber de pior precisa sustentar sua aposta. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+No treino, o cenário fixa um pagador com um ás menor. É uma condição didática, e não uma leitura garantida sobre jogadores reais. Repita a mão com tamanhos diferentes e anote em que ponto a política do bot deixa de continuar. Uma única amostra não estima o range de uma população.
 
-Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+Exercício. No modelo, o rival paga uma aposta de quatro big blinds com pares médios e ases menores, mas só paga doze big blinds com mãos que vencem você. Que aposta cumpre o papel de valor? A: a aposta grande, de doze big blinds. B: a aposta pequena, de quatro big blinds. C: nenhum tamanho serve. Pause o vídeo e responda.
 
-Qual a definição correta de um 'Thin Value Bet' no river? As alternativas são: A, Apostar com os nuts absolutos esperando tomar call de all-in; B, Apostar uma mão de força média esperando ser pago por mãos marginalmente piores do adversário; C, Blefar quando você tem certeza de que vai perder. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+Resposta: B. Na aposta pequena, mãos piores continuam e pagam você. Na aposta grande, só as melhores pagam, e a aposta deixa de ser por valor. O tamanho certo depende de quem continua, e o rival ainda pode aumentar.
 
-Vamos à resposta. A alternativa certa deste exercício é: Apostar uma mão de força média esperando ser pago por mãos marginalmente piores do adversário. Thin value é a aposta precisa para extrair fichas de mãos inferiores que pagam por curiosidade.
+Agora leve a aula para a mesa de treino. O bot pagador continua com pares a preços moderados. A hipótese de receber de mãos piores precisa sustentar a sua aposta. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.
 
-Suas cartas: ás de ouros, valete de ouros. Cartas comunitárias: ás de espadas, nove de paus, quatro de ouros, dois de copas, sete de espadas. Texas, river ás de espadas nove de paus quatro de ouros dois de copas sete de espadas, você tem A♦ J♦. O rival checa e, no modelo do exercício, paga uma aposta pequena com vários ases menores. Qual ação treinamos por valor? As alternativas são: A, check; B, bet. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
-
-Vamos à resposta. A alternativa certa deste exercício é: bet. A hipótese fornece mãos piores que pagam. A aposta é bet, pois ninguém apostou nesta rodada.
-
-Abra o simulador da aula e escolha o cenário Receber de mãos piores. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.
+Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.

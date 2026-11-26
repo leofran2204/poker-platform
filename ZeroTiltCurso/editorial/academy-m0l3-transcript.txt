@@ -1,0 +1,13 @@
+Esta é a Zero Tilt Academy. Na aula três do módulo zero, vamos ler alguns feitos da história do poker junto com o contexto. O objetivo é separar o resultado de um campeão do processo de decisão que você pode estudar.
+
+Johnny Moss foi eleito campeão da WSOP em mil novecentos e setenta e venceu o torneio de mil novecentos e setenta e um. Chris Moneymaker marcou a expansão do público em dois mil e três. E Alexandre Gomes conquistou o primeiro bracelete brasileiro em dois mil e oito, conforme o registro retrospectivo da WSOP.
+
+Em dois mil e quinze, Bowling e colaboradores publicaram um resultado para o heads-up limit Hold'em: uma solução essencialmente fraca daquele jogo. Isso não significa resolver o no-limit, mesas com mais jogadores ou ganhar toda mão.
+
+Uma vitória isolada não revela todo o processo de decisão. No exercício da Academy, registre as informações disponíveis, as alternativas consideradas e a justificativa da escolha. Essa é uma proposta de estudo, e não uma afirmação sobre a rotina pessoal dos campeões.
+
+Exercício. O resultado publicado por Bowling e colaboradores em dois mil e quinze vale para qual jogo? A: todas as modalidades de poker. B: só o limit Hold'em com dois jogadores. C: mesas cheias de no-limit Hold'em. Pause o vídeo e responda.
+
+Resposta: B. O resultado vale para o limit Hold'em disputado por dois jogadores, e é uma solução essencialmente fraca. Ele não resolve o no-limit, nem mesas com mais jogadores.
+
+Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.

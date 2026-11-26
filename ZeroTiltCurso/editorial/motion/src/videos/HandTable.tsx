@@ -10,12 +10,13 @@ import { flight, Point } from "../lib/deal";
 import { C, UI } from "../theme";
 import { SceneProps } from "../Video";
 
-// Cena "hand": uma mesa oval com quatro jogadores, fichas e cartas, guiada por
+// Cena "hand": uma mesa oval com quatro (ou seis) jogadores, fichas e cartas, guiada por
 // eventos do roteiro (src/data/*.json). Cada evento acontece na frase indicada em
 // `cue`: apostas saem do jogador e vão para a frente dele, as apostas da rodada
 // são recolhidas para o pote, cartas são trocadas ou descartadas e o pote vai
 // para o vencedor. As mãos e os valores são conferidos pelo motor do jogo
-// (Motor-Rust/tests/pineapple_draw_film_examples.rs).
+// (Motor-Rust/tests/pineapple_draw_film_examples.rs). Com `variant: "holdem"` a mesma cena
+// mostra Texas, Short Deck e Omaha (sem troca), e com `unit: "bb"` os valores saem em big blinds.
 
 export type HandPlayer = {
   name: string;
@@ -87,6 +88,14 @@ export type HandVisual = {
   banner?: string;
   note?: string;
   events?: HandEvent[];
+  /** "holdem" (Texas, Short Deck e Omaha): sem etapa de troca nem descarte. Padrão: "pineapple". */
+  variant?: "pineapple" | "holdem";
+  /** "bb": valores em centésimos de big blind (100 = 1 BB), exibidos como "3,5 BB". Padrão: reais. */
+  unit?: "brl" | "bb";
+  /** Mesa de 4 (padrão) ou 6 lugares. */
+  layout?: 4 | 6;
+  /** Lugar de cada jogador no layout (padrão: na ordem). Ex.: [0, 2] = você embaixo, rival em cima. */
+  seats?: number[];
 };
 
 // Layout das mesas da plataforma (decisão do dono em 20/11/2026, inspirado nas mesas
@@ -96,12 +105,24 @@ export type HandVisual = {
 // As apostas saem da placa e o pote ganho volta para ela.
 // `show`: onde a carta descartada no river fica aberta antes de ir para o muck.
 type SeatSpot = { plate: Point; cards: Point; bet: Point; show: Point };
-const SEATS: SeatSpot[] = [
+const FOUR: SeatSpot[] = [
   { plate: { x: 960, y: 990 }, cards: { x: 960, y: 868 }, bet: { x: 745, y: 800 }, show: { x: 1175, y: 790 } },
   { plate: { x: 330, y: 640 }, cards: { x: 330, y: 582 }, bet: { x: 548, y: 668 }, show: { x: 505, y: 555 } },
   { plate: { x: 960, y: 318 }, cards: { x: 960, y: 260 }, bet: { x: 1196, y: 440 }, show: { x: 690, y: 400 } },
   { plate: { x: 1590, y: 640 }, cards: { x: 1590, y: 582 }, bet: { x: 1372, y: 668 }, show: { x: 1415, y: 555 } },
 ];
+/** Mesa de 6 (Texas e Omaha): você embaixo; os demais em sentido horário. */
+const SIX: SeatSpot[] = [
+  { plate: { x: 960, y: 990 }, cards: { x: 960, y: 868 }, bet: { x: 760, y: 800 }, show: { x: 1175, y: 790 } },
+  { plate: { x: 400, y: 860 }, cards: { x: 400, y: 802 }, bet: { x: 600, y: 770 }, show: { x: 560, y: 700 } },
+  { plate: { x: 400, y: 400 }, cards: { x: 400, y: 342 }, bet: { x: 560, y: 500 }, show: { x: 560, y: 520 } },
+  { plate: { x: 960, y: 318 }, cards: { x: 960, y: 260 }, bet: { x: 1196, y: 440 }, show: { x: 690, y: 400 } },
+  { plate: { x: 1520, y: 400 }, cards: { x: 1520, y: 342 }, bet: { x: 1360, y: 500 }, show: { x: 1360, y: 520 } },
+  { plate: { x: 1520, y: 860 }, cards: { x: 1520, y: 802 }, bet: { x: 1320, y: 770 }, show: { x: 1360, y: 700 } },
+];
+const LAYOUTS: Record<number, SeatSpot[]> = { 4: FOUR, 6: SIX };
+const bbs = (value: number) => `${(value / 100).toFixed(value % 100 === 0 ? 0 : value % 10 === 0 ? 1 : 2).replace(".", ",")} BB`;
+const reais = (value: number) => brl(value / 100);
 const TABLE = { x: 960, y: 620, width: 1380, height: 560 };
 const BOARD: Point = { x: 960, y: 598 };
 const TOTAL: Point = { x: 960, y: 462 };
@@ -177,6 +198,10 @@ export const HandScene: React.FC<SceneProps> = (props) => {
   const players = visual.players;
   const hero = visual.hero ?? 0;
   const count = (visual.events ?? []).length;
+  const layout = LAYOUTS[visual.layout ?? 4] ?? FOUR;
+  const SEATS = players.map((_, i) => layout[visual.seats?.[i] ?? i]);
+  const money = visual.unit === "bb" ? bbs : reais;
+  const holdem = visual.variant === "holdem";
 
   // Quadro de cada evento: a frase da narração; sem frase, logo depois do anterior.
   const events: Timed[] = [];
@@ -221,7 +246,7 @@ export const HandScene: React.FC<SceneProps> = (props) => {
           const floor = previous ? previous.steps[previous.steps.length - 1].at + 6 : props.audioAt;
           const mine: Timed | null = explicit && explicit.player === who ? explicit : null;
           const start: number = mine ? mine.at : Math.max(floor, Math.min(boundary, event.at - 12));
-          const draws: boolean = boardCount >= 3 && !drew[who];
+          const draws: boolean = !holdem && boardCount >= 3 && !drew[who];
           const facing: number = Math.max(...roundBets) - roundBets[who];
           open = {
             player: who,
@@ -473,7 +498,7 @@ export const HandScene: React.FC<SceneProps> = (props) => {
     const fade = Math.min(ramp(frame, turn.start, 8), 1 - ramp(frame, last.at + PRESS + LINGER - 8, 8));
     bar = {
       name: players[turn.player].name.split(" · ")[0],
-      buttons: buttonsFor(turn.stages[current], turn, pressed),
+      buttons: buttonsFor(turn.stages[current], turn, pressed, money),
       pressed: pressed ? pressedKey(pressed, turn) : null,
       opacity: fade,
     };
@@ -499,10 +524,12 @@ export const HandScene: React.FC<SceneProps> = (props) => {
 
       <Table x={TABLE.x} y={TABLE.y} width={TABLE.width} height={TABLE.height} opacity={ramp(frame, 0, 14)} />
 
-      {/* Baralho e descarte */}
-      <div style={{ position: "absolute", left: DECK.x - 27, top: DECK.y - 38, opacity: 0.9 }}>
-        <Card face={0} width={54} />
-      </div>
+      {/* Baralho (no Texas, só quando a cena distribui cartas) e descarte */}
+      {(!holdem || events.some((e) => e.type === "board" || e.type === "deal")) && (
+        <div style={{ position: "absolute", left: DECK.x - 27, top: DECK.y - 38, opacity: 0.9 }}>
+          <Card face={0} width={54} />
+        </div>
+      )}
       {(removed.some((item) => frame >= item.at) || events.some((e) => (e.type === "swap" || e.type === "fold") && frame >= e.at + 16)) && (
         <div style={{ position: "absolute", left: MUCK.x - 27, top: MUCK.y - 38, opacity: 0.55, transform: "rotate(8deg)" }}>
           <Card face={0} width={54} dim={0.5} />
@@ -529,13 +556,13 @@ export const HandScene: React.FC<SceneProps> = (props) => {
             boxShadow: "0 10px 24px rgba(0,0,0,0.45)",
           }}
         >
-          Pote total: {brl(total / 100)}
+          Pote total: {money(total)}
         </div>
       )}
       {/* Fichas do pote, abaixo das comunitárias */}
       {pot > 0 && (
         <div style={{ position: "absolute", left: POT.x, top: POT.y, transform: "translate(-50%, -50%)" }}>
-          <ChipStack count={chipCount(pot, big * 2)} color="gold" size={36} label={brl(pot / 100)} />
+          <ChipStack count={chipCount(pot, big * 2)} color="gold" size={36} label={money(pot)} />
         </div>
       )}
 
@@ -644,7 +671,7 @@ export const HandScene: React.FC<SceneProps> = (props) => {
       {bets.map((bet, i) =>
         bet > 0 ? (
           <div key={`bet-${i}`} style={{ position: "absolute", left: SEATS[i].bet.x, top: SEATS[i].bet.y, transform: "translate(-50%, -50%)" }}>
-            <ChipStack count={chipCount(bet, big)} color="red" size={38} label={brl(bet / 100)} />
+            <ChipStack count={chipCount(bet, big)} color="red" size={38} label={money(bet)} />
           </div>
         ) : null,
       )}
@@ -678,7 +705,7 @@ export const HandScene: React.FC<SceneProps> = (props) => {
             x={SEATS[i].plate.x}
             y={SEATS[i].plate.y}
             name={player.name}
-            stack={stacks[i] <= 0 && (player.allIn || bets[i] > 0 || pot > 0) ? "All-in" : brl(stacks[i] / 100)}
+            stack={stacks[i] <= 0 && (player.allIn || bets[i] > 0 || pot > 0) ? "All-in" : money(stacks[i])}
             hero={i === hero}
             dealer={visual.dealer === i}
             folded={folded[i]}
@@ -762,10 +789,10 @@ type Clock = { pct: number; extra: boolean; secs: number };
 type Button = { key: string; label: string; tone: "fold" | "call" | "raise" | "draw" };
 
 /** Botões de cada etapa da vez (rótulos pedidos pelo dono: Check, Aposta, Call, Raise e Fold). */
-const buttonsFor = (stage: Stage, turn: Turn, pressed: Timed | null): Button[] => {
+const buttonsFor = (stage: Stage, turn: Turn, pressed: Timed | null, money: (value: number) => string): Button[] => {
   const toCall = turn.toCall;
   const fold: Button = { key: "fold", label: "Fold", tone: "fold" };
-  const amount = pressed?.to !== undefined && pressed.to > 0 ? ` ${brl(pressed.to / 100)}` : "";
+  const amount = pressed?.to !== undefined && pressed.to > 0 ? ` ${money(pressed.to)}` : "";
   if (stage === "draw") {
     return [...(toCall > 0 ? [fold] : []), { key: "keep", label: "Manter", tone: "draw" }, { key: "swap", label: "Trocar", tone: "draw" }];
   }
@@ -774,8 +801,15 @@ const buttonsFor = (stage: Stage, turn: Turn, pressed: Timed | null): Button[] =
   if (toCall > 0) {
     return [
       fold,
-      { key: "call", label: allin && pressedKey(pressed, turn) === "call" ? "All-in" : `Call ${brl(toCall / 100)}`, tone: "call" },
+      { key: "call", label: allin && pressedKey(pressed, turn) === "call" ? "All-in" : `Call ${money(toCall)}`, tone: "call" },
       { key: "raise", label: allin && pressedKey(pressed, turn) === "raise" ? "All-in" : pressed?.type === "raise" ? `Raise${amount}` : "Raise", tone: "raise" },
+    ];
+  }
+  // Opção do big blind: já há aposta na rodada (o blind), então o aumento é Raise.
+  if (turn.maxBet > 0) {
+    return [
+      { key: "check", label: "Check", tone: "call" },
+      { key: "raise", label: allin ? "All-in" : pressed?.type === "raise" ? `Raise${amount}` : "Raise", tone: "raise" },
     ];
   }
   return [
@@ -788,7 +822,7 @@ const buttonsFor = (stage: Stage, turn: Turn, pressed: Timed | null): Button[] =
 const pressedKey = (step: Timed, turn: Turn) => {
   if (step.type !== "allin") return step.type;
   if ((step.to ?? 0) <= turn.maxBet) return "call";
-  return turn.toCall > 0 ? "raise" : "bet";
+  return turn.toCall > 0 || turn.maxBet > 0 ? "raise" : "bet";
 };
 
 const TONES: Record<Button["tone"], string> = { fold: C.danger, call: C.ok, raise: C.gold, draw: C.mint };
@@ -796,7 +830,7 @@ const TONES: Record<Button["tone"], string> = { fold: C.danger, call: C.ok, rais
 /** Barra de botões da vez, no canto inferior direito, como nas mesas de app. */
 const ActionBar: React.FC<{ name: string; buttons: Button[]; pressed: string | null; opacity: number }> = ({ name, buttons, pressed, opacity }) => (
   <div style={{ position: "absolute", right: 64, bottom: 44, opacity, zIndex: 7, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
-    <div style={{ fontFamily: UI, fontWeight: 700, fontSize: 22, color: C.muted, letterSpacing: 1 }}>Vez de {name}</div>
+    <div style={{ fontFamily: UI, fontWeight: 700, fontSize: 22, color: C.muted, letterSpacing: 1 }}>{name.toLowerCase() === "você" ? "Sua vez" : `Vez de ${name}`}</div>
     <div style={{ display: "flex", gap: 12 }}>
       {buttons.map((button) => {
         const on = pressed === button.key;

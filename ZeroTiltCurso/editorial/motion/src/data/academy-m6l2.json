@@ -1,0 +1,257 @@
+{
+ "id": "academy-m6l2",
+ "title": "Aula m6l2 — Banca: o cinto de segurança",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m6l2",
+ "scenes": [
+  {
+   "id": "m6l2-01",
+   "chapter": "Abertura",
+   "title": "Banca: o cinto de segurança",
+   "voice": "Esta é a Zero Tilt Academy. Na aula dois do módulo seis, vamos falar de variância, orçamento e limites pessoais. O objetivo é decidir o tempo e o limite de uma sessão antes de começar, e respeitar esse limite.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 6 · Aula 2",
+    "lines": [
+     "Objetivo: decidir tempo e limite antes de começar"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m6l2-02",
+   "chapter": "Variância",
+   "title": "Média não é garantia",
+   "voice": "Pense em cem situações independentes, cada uma com oitenta por cento de chance de vitória. A média esperada é de oitenta vitórias, e não uma contagem garantida. Nesse modelo, terminar com setenta e cinco vitórias ou menos acontece em cerca de treze por cento das séries de cem. Sequências desfavoráveis fazem parte do jogo, mesmo quando a chance de cada situação é boa.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "SITUAÇÕES · 80% CADA",
+      "100"
+     ],
+     [
+      "MÉDIA ESPERADA",
+      "80"
+     ],
+     [
+      "75 OU MENOS",
+      "≈ 13%"
+     ]
+    ],
+    "cues": [
+     "cem situações independentes",
+     "A média esperada",
+     "setenta e cinco vitórias"
+    ],
+    "note": "Modelo binomial, situações independentes"
+   }
+  },
+  {
+   "id": "m6l2-03",
+   "chapter": "Variância",
+   "title": "Nenhum número fixo protege",
+   "voice": "Nenhuma quantidade fixa de buy-ins garante segurança, principalmente se a estratégia tiver expectativa negativa. Recomendações como trinta a cinquenta buy-ins são heurísticas de certas situações de cash game, e não uma regra universal para variantes, torneios ou jogadores.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Nenhum número fixo garante",
+     "Expectativa negativa: risco maior",
+     "30–50 buy-ins: heurística, não regra"
+    ],
+    "cues": [
+     "Nenhuma quantidade fixa",
+     "expectativa negativa",
+     "trinta a cinquenta"
+    ]
+   }
+  },
+  {
+   "id": "m6l2-04",
+   "chapter": "Limites pessoais",
+   "title": "Defina o que pode ser perdido",
+   "voice": "Separe um orçamento que você possa perder sem afetar as despesas essenciais, e não use crédito nem valores de terceiros. Defina o tempo e o limite de perda antes de jogar. Um limite não é uma meta de perda: é uma barreira para encerrar a exposição. Para estudar este curso, o Play Money permite praticar sem depósito.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Orçamento separado do essencial",
+     "Tempo e limite antes de jogar",
+     "Limite é barreira, não meta"
+    ],
+    "cues": [
+     "Separe um orçamento",
+     "Defina o tempo",
+     "Um limite não é uma meta"
+    ]
+   }
+  },
+  {
+   "id": "m6l2-05",
+   "chapter": "Decisão após perdas",
+   "title": "Depois de perder",
+   "voice": "Depois de uma sequência de perdas, reduzir a exposição ou interromper a sessão são escolhas válidas. Já aumentar as apostas para recuperar não é uma justificativa técnica. E, quando precisar, use as ferramentas de limites e de autoexclusão da plataforma.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Escolhas válidas",
+      "items": [
+       "Reduzir a exposição",
+       "Interromper a sessão"
+      ],
+      "cues": [
+       "reduzir a exposição",
+       "interromper a sessão"
+      ],
+      "tone": "mint"
+     },
+     {
+      "title": "Sem justificativa técnica",
+      "items": [
+       "Aumentar para recuperar"
+      ],
+      "cues": [
+       "aumentar as apostas"
+      ],
+      "tone": "danger"
+     }
+    ],
+    "note": "Limites e autoexclusão estão na plataforma",
+    "noteCue": "ferramentas de limites"
+   }
+  },
+  {
+   "id": "m6l2-06",
+   "chapter": "Pesquisa sobre tilt",
+   "title": "O que a pesquisa mostra",
+   "voice": "Palomäki e colaboradores analisaram as narrativas de sessenta jogadores finlandeses e associaram a indignação à perseguição de perdas nos relatos. É uma evidência qualitativa, e não uma prova causal nem um tratamento. O nosso exercício é registrar o estado emocional e decidir os limites antes da sessão.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Narrativas de 60 jogadores",
+     "Evidência qualitativa, não causal",
+     "Registre o estado e os limites"
+    ],
+    "cues": [
+     "Palomäki",
+     "evidência qualitativa",
+     "registrar o estado emocional"
+    ]
+   }
+  },
+  {
+   "id": "m6l2-07",
+   "chapter": "Sessão de treino",
+   "title": "Uma sessão com começo e fim",
+   "voice": "Antes de abrir a mesa, escreva o objetivo, um número de mãos ou um tempo, e o limite. Ao terminar, conte quais decisões você conseguiu explicar. Se estiver repetindo apostas para recuperar fichas perdidas, encerre e reveja o registro depois. As fichas não têm valor, mas respeitar o plano faz parte do exercício.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Objetivo, mãos ou tempo e limite",
+     "Conte as decisões explicadas",
+     "Recuperando fichas? Encerre"
+    ],
+    "cues": [
+     "escreva o objetivo",
+     "conte quais decisões",
+     "encerre e reveja"
+    ]
+   }
+  },
+  {
+   "id": "m6l2-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. Antes de abrir a mesa de treino, qual destes é um plano de sessão completo? A: jogar até recuperar o que perdeu ontem. B: objetivo, número de mãos ou tempo, e limite de perda. C: aumentar o stack sempre que perder. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Antes de abrir a mesa de treino, qual destes é um plano de sessão completo?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Jogar até recuperar o que perdeu ontem",
+      "cue": "A jogar até recuperar"
+     },
+     {
+      "key": "B",
+      "text": "Objetivo, número de mãos ou tempo e limite de perda",
+      "cue": "B objetivo, número de mãos"
+     },
+     {
+      "key": "C",
+      "text": "Aumentar o stack sempre que perder",
+      "cue": "C aumentar o stack"
+     }
+    ],
+    "correct": "B"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m6l2-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B. O plano diz o que treinar, quando parar e quanto você aceita perder, tudo decidido antes. As outras duas opções amarram a sessão à recuperação das perdas, e não ao estudo.",
+   "visual": {
+    "mode": "answer",
+    "question": "Antes de abrir a mesa de treino, qual destes é um plano de sessão completo?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Jogar até recuperar o que perdeu ontem",
+      "cue": "A jogar até recuperar"
+     },
+     {
+      "key": "B",
+      "text": "Objetivo, número de mãos ou tempo e limite de perda",
+      "cue": "B objetivo, número de mãos"
+     },
+     {
+      "key": "C",
+      "text": "Aumentar o stack sempre que perder",
+      "cue": "C aumentar o stack"
+     }
+    ],
+    "correct": "B",
+    "cue": "Resposta",
+    "explanation": "Objetivo + mãos ou tempo + limite, antes de jogar"
+   }
+  },
+  {
+   "id": "m6l2-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. Registre no caderno o limite da sessão. Ao atingir esse limite, use o botão Encerrar treino, e não aumente o stack para recuperar. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Registre o limite no caderno",
+     "Atingiu? Encerrar treino",
+     "Não aumente o stack"
+    ],
+    "cues": [
+     "Registre no caderno",
+     "Encerrar treino",
+     "não aumente o stack"
+    ]
+   }
+  },
+  {
+   "id": "m6l2-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

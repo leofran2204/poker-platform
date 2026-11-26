@@ -1,0 +1,325 @@
+{
+ "id": "academy-m0l2",
+ "title": "Aula m0l2 — Do Mississippi ao mundo",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m0l2",
+ "scenes": [
+  {
+   "id": "m0l2-01",
+   "chapter": "Abertura",
+   "title": "Do Mississippi ao mundo",
+   "voice": "Esta é a Zero Tilt Academy. Na aula dois do módulo zero, vamos percorrer a história do poker e do Omaha pelas fontes. O objetivo é distinguir relato, registro e modelo, sem transformar popularização em prova de invenção.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 0 · Aula 2",
+    "lines": [
+     "Objetivo: distinguir relato, registro e modelo"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m0l2-02",
+   "chapter": "Um relato de 1844",
+   "title": "Uma partida num barco",
+   "voice": "Em mil oitocentos e quarenta e quatro, Joe Cowell publicou uma memória em que descreve, na parte dois, página noventa e quatro, uma partida de poker num barco: cartas escondidas, apostas e desistências. Ele já coloca o ás no topo dos valores. É uma memória autobiográfica, publicada depois dos acontecimentos, e não uma certidão de nascimento do jogo.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Joe Cowell, 1844: partida num barco",
+     "Cartas escondidas, apostas e desistências",
+     "Memória, não certidão de nascimento"
+    ],
+    "cues": [
+     "Joe Cowell",
+     "cartas escondidas",
+     "não uma certidão"
+    ]
+   }
+  },
+  {
+   "id": "m0l2-03",
+   "chapter": "Cuidado com datas absolutas",
+   "title": "O que esta aula não afirma",
+   "voice": "Esta aula não atribui a invenção do poker ou do blefe a mil oitocentos e vinte e nove. Também não afirma uma origem comprovada do Hold'em em mil novecentos e vinte e cinco, nem uma mudança do valor do ás em mil novecentos e sessenta e sete. Essas afirmações, de material anterior, não tinham sustentação nas fontes consultadas.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "1829: sem prova de invenção",
+     "1925: sem origem comprovada do Hold'em",
+     "1967: sem mudança comprovada do ás"
+    ],
+    "cues": [
+     "mil oitocentos e vinte e nove",
+     "mil novecentos e vinte e cinco",
+     "mil novecentos e sessenta e sete"
+    ]
+   }
+  },
+  {
+   "id": "m0l2-04",
+   "chapter": "1970 e 1971",
+   "title": "Formatos diferentes",
+   "voice": "Segundo a WSOP, Johnny Moss foi escolhido por voto em mil novecentos e setenta e venceu o torneio em mil novecentos e setenta e um. Preservar essa diferença ajuda a entender a evolução da competição.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "CAMPEÃO NOS DOIS ANOS",
+      "Johnny Moss"
+     ],
+     [
+      "1970",
+      "Por voto"
+     ],
+     [
+      "1971",
+      "Torneio"
+     ]
+    ],
+    "cues": [
+     "Johnny Moss",
+     "escolhido por voto",
+     "venceu o torneio"
+    ]
+   }
+  },
+  {
+   "id": "m0l2-05",
+   "chapter": "Omaha antes dos cassinos",
+   "title": "Relatos, não certidões",
+   "voice": "Bob Ciaffone recorda ter jogado no Michigan, nos anos setenta, uma variante chamada two by three, com as comunitárias expostas uma a uma. Em mil novecentos e oitenta e dois, encontrou o Omaha no Golden Nugget de Las Vegas, promovido por Robert Turner e por Gwen, de Seattle. O relato dele, de dois mil e sete, também registra nomes regionais, como nine-card.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Ciaffone: two by three no Michigan, anos 1970",
+     "1982: Omaha no Golden Nugget",
+     "Relato de 2007, com nomes regionais"
+    ],
+    "cues": [
+     "Bob Ciaffone",
+     "Em mil novecentos e oitenta e dois",
+     "O relato dele"
+    ]
+   }
+  },
+  {
+   "id": "m0l2-06",
+   "chapter": "Turner, Gwen e Bill Boyd",
+   "title": "Difusão em cassinos",
+   "voice": "Numa memória publicada em dois mil e catorze, Turner descreve a participação de Gwen e de Bill Boyd, responsável pela sala do Golden Nugget, na oferta do jogo de quatro cartas. Boyd o divulgou como Nugget Hold'em. Esse marco ajuda a documentar a difusão em cassinos, mas não determina a primeira partida da história.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Turner: memória de 2014",
+     "Bill Boyd: Nugget Hold'em",
+     "Difusão, não primeira partida"
+    ],
+    "cues": [
+     "Turner descreve",
+     "Boyd o divulgou",
+     "não determina"
+    ]
+   }
+  },
+  {
+   "id": "m0l2-07",
+   "chapter": "O nome Omaha",
+   "title": "O nome não comprova Nebraska",
+   "voice": "Na entrevista de janeiro de dois mil e catorze, Turner disse não conhecer uma ligação do nome com Nebraska, e lembrou, com incerteza, um frequentador de Omaha. Isso não sustenta que a modalidade recebeu o nome porque nasceu naquela cidade. A origem exata do nome permanece incerta nas fontes consultadas.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "O que Turner disse",
+      "items": [
+       "Não conhece ligação com Nebraska",
+       "Lembra, com incerteza, um frequentador"
+      ],
+      "cues": [
+       "não conhecer uma ligação",
+       "com incerteza"
+      ],
+      "tone": "gold"
+     },
+     {
+      "title": "Conclusão",
+      "items": [
+       "Origem do nome: incerta"
+      ],
+      "cues": [
+       "permanece incerta"
+      ],
+      "tone": "mint"
+     }
+    ]
+   }
+  },
+  {
+   "id": "m0l2-08",
+   "chapter": "Omaha na WSOP",
+   "title": "Dois marcos, dois formatos",
+   "voice": "A retrospectiva de Chad Holloway registra a estreia do Limit Omaha em mil novecentos e oitenta e três, com vitória de David Sklansky. Um relatório oficial da WSOP situa a primeira presença do Pot-Limit Omaha em mil novecentos e oitenta e quatro, com dois eventos. São formatos e marcos diferentes: não troque essas datas.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "1983 · Limit Omaha",
+      "items": [
+       "Vitória de David Sklansky"
+      ],
+      "cues": [
+       "David Sklansky"
+      ],
+      "tone": "gold"
+     },
+     {
+      "title": "1984 · Pot-Limit Omaha",
+      "items": [
+       "Dois eventos"
+      ],
+      "cues": [
+       "dois eventos"
+      ],
+      "tone": "mint"
+     }
+    ],
+    "note": "Formatos diferentes, datas diferentes",
+    "noteCue": "não troque"
+   }
+  },
+  {
+   "id": "m0l2-09",
+   "chapter": "O que muda entre os formatos",
+   "title": "Nomes que não são intercambiáveis",
+   "voice": "No Omaha de quatro cartas, a identidade é receber quatro privadas e formar a mão com exatamente duas privadas e três comunitárias. Limit e pot-limit descrevem limites de aposta; high e hi-lo descrevem a disputa do pote. Esses nomes não são intercambiáveis, e a ZT segue as suas próprias regras de Omaha de quatro cartas.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Omaha 4: exatamente 2 + 3",
+     "Limit e pot-limit: limites de aposta",
+     "High e hi-lo: disputa do pote"
+    ],
+    "cues": [
+     "exatamente duas",
+     "descrevem limites",
+     "descrevem a disputa"
+    ]
+   }
+  },
+  {
+   "id": "m0l2-10",
+   "chapter": "Pesquisa e fontes",
+   "title": "Modelos e testemunhos",
+   "voice": "Em dois mil e quinze, Kenneth Ho estudou o Omaha Hi-Lo numa dissertação da Harvard Extension School, com dois jogadores e as escolhas de all-in ou desistir. É pesquisa computacional com regras delimitadas, e não uma solução de todo o Omaha. Testemunhos retrospectivos ajudam a reconstruir a circulação do jogo, mas podem divergir: Turner e Ciaffone diferem em detalhes da passagem para o pot-limit.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Ho, 2015: modelo de Omaha Hi-Lo",
+     "Pesquisa delimitada, não solução",
+     "Testemunhos podem divergir"
+    ],
+    "cues": [
+     "Kenneth Ho",
+     "pesquisa computacional",
+     "Testemunhos retrospectivos"
+    ]
+   }
+  },
+  {
+   "id": "m0l2-11",
+   "chapter": "2003",
+   "title": "Uma vitória de grande repercussão",
+   "voice": "Em dois mil e três, Chris Moneymaker venceu o Main Event depois de se classificar num satélite online. A organizadora associa essa vitória à expansão do público. Mas um caso excepcional não estima a chance de vitória nem o retorno financeiro de um iniciante.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "2003: Moneymaker, via satélite online",
+     "Marco de expansão do público",
+     "Um caso não estima chances"
+    ],
+    "cues": [
+     "Chris Moneymaker",
+     "associa essa vitória",
+     "um caso excepcional"
+    ]
+   }
+  },
+  {
+   "id": "m0l2-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. O que um registro oficial de torneio, como o da WSOP de mil novecentos e oitenta e quatro, documenta? A: a invenção da modalidade. B: um evento, aquele torneio. C: a origem do nome da modalidade. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "O que um registro oficial de torneio, como o da WSOP de 1984, documenta?",
+    "options": [
+     {
+      "key": "A",
+      "text": "A invenção da modalidade",
+      "cue": "A a invenção"
+     },
+     {
+      "key": "B",
+      "text": "Um evento: aquele torneio",
+      "cue": "B um evento"
+     },
+     {
+      "key": "C",
+      "text": "A origem do nome da modalidade",
+      "cue": "C a origem do nome"
+     }
+    ],
+    "correct": "B"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m0l2-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B. Registros de torneios documentam um evento. Testemunhos ajudam a reconstruir a circulação do jogo, e modelos estudam decisões sob hipóteses. Nenhuma dessas evidências transforma popularização em prova de invenção.",
+   "visual": {
+    "mode": "answer",
+    "question": "O que um registro oficial de torneio, como o da WSOP de 1984, documenta?",
+    "options": [
+     {
+      "key": "A",
+      "text": "A invenção da modalidade",
+      "cue": "A a invenção"
+     },
+     {
+      "key": "B",
+      "text": "Um evento: aquele torneio",
+      "cue": "B um evento"
+     },
+     {
+      "key": "C",
+      "text": "A origem do nome da modalidade",
+      "cue": "C a origem do nome"
+     }
+    ],
+    "correct": "B",
+    "cue": "Resposta",
+    "explanation": "Registro: evento · testemunho: circulação · modelo: hipóteses"
+   }
+  },
+  {
+   "id": "m0l2-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

@@ -1,293 +1,65 @@
 {
   "lessonId": "m3l2",
-  "filename": "zt-academy-m3l2-v3",
-  "contentHash": "24a41a912452ab0e7f5bbb4c4500e7ce57a557a44bea4d31a18ac61514756868",
-  "rendererVersion": 5,
-  "durationSeconds": 321.33,
+  "contentHash": "5f002a75d22a852a3465cf7ac640e175eccbb84765cebb1ffbdc0c870ce582ac",
+  "filename": "zt-academy-m3l2-v4",
+  "title": "Aula m3l2 — Pot control e apostas polarizadas",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM3L2",
+  "script": "src/data/academy-m3l2.json",
+  "scriptHash": "e07d6635a89746b032da7fe71e5b870a3fce411c925f93c2249ce9a20c7fad93",
+  "durationSeconds": 244.5,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8879406,
+  "bytes": 14944487,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "59adb884b1a7a7020870c6e5c5e560d9cae9c1d476d6e44f1841b61b3176944f",
+  "narrationHash": "e18c16454ed388c975de47eefa90cf6f1cd8540b1668d26548ef37eb437ec6fd",
   "chapters": [
     {
       "start": 0.0,
-      "title": "Pot Control vs. Apostas Polarizadas"
+      "title": "Abertura"
     },
     {
-      "start": 18.83,
+      "start": 15.83,
       "title": "Pot control"
     },
     {
-      "start": 34.37,
+      "start": 28.07,
       "title": "Polarização"
     },
     {
-      "start": 47.93,
+      "start": 46.7,
+      "title": "Exercício guiado"
+    },
+    {
+      "start": 117.97,
+      "title": "Stack e pote"
+    },
+    {
+      "start": 145.57,
+      "title": "Leitura do check"
+    },
+    {
+      "start": 167.1,
       "title": "Exercício"
     },
     {
-      "start": 66.7,
-      "title": "Relação entre stack e pote"
+      "start": 209.13,
+      "title": "Laboratório"
     },
     {
-      "start": 98.9,
-      "title": "Proteja a leitura do check"
-    },
-    {
-      "start": 125.93,
-      "title": "A polarização é uma composição"
-    },
-    {
-      "start": 156.0,
-      "title": "Laboratório: Controlar com mão intermediária"
-    },
-    {
-      "start": 191.8,
-      "title": "Laboratório: Controlar com mão intermediária"
-    },
-    {
-      "start": 200.1,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 220.73,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 237.53,
-      "title": "Exercício resolvido 2"
-    },
-    {
-      "start": 273.1,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 289.53,
-      "title": "Agora, pratique"
+      "start": 230.43,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 18.833333333333332,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 18.833333333333332,
-      "duration": 15.533333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 34.36666666666667,
-      "duration": 13.566666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 47.93333333333334,
-      "duration": 18.766666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 66.7,
-      "duration": 32.2,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 98.9,
-      "duration": 27.033333333333335,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 125.93333333333334,
-      "duration": 30.066666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 156.0,
-      "duration": 35.8,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 191.8,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 200.10000000000002,
-      "duration": 20.633333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 220.73333333333335,
-      "duration": 16.8,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 237.53333333333336,
-      "duration": 35.56666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 273.1,
-      "duration": 16.433333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 289.53333333333336,
-      "duration": 31.8,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 3,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    }
-  ],
-  "sha256": "9a005d5006875adcd6be14cc558b5d41b24ceaf32cacef14667e9524b2066c29",
+  "sha256": "16939d26c37511bd3a05a24bfeb73b62a4ebdce3276b71d94a2c40aab8a29e74",
   "assetHashes": {
-    "mp4": "9a005d5006875adcd6be14cc558b5d41b24ceaf32cacef14667e9524b2066c29",
-    "vtt": "6fcef6489c6daca75a08554e746ba5e841b5ee69d4d41241ee2d49410a0dbabb",
-    "webp": "0d95212562e7540225ff59a4029443d7be2a11b03e6327ed116ca878be7e33c9"
+    "mp4": "16939d26c37511bd3a05a24bfeb73b62a4ebdce3276b71d94a2c40aab8a29e74",
+    "vtt": "3b40fd4be9b9e08033db8966aed9bd890975aec928151d2d5541605c2c63c230",
+    "webp": "a016337fd9a1e683c74c2ee04b0638605f1bcdb91fb7fbe33727f3123c26662b"
   },
-  "mediaRevision": "26317ab0c007ed13ec71ce0b5c8a0b92ba99842e5e914c75aae366caa53e0175"
+  "mediaRevision": "add1740220306f8fd595529c79dce0f844c914efc3c25807a25d3c254011148d"
 }

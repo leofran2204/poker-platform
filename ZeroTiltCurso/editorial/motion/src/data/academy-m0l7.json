@@ -1,0 +1,327 @@
+{
+ "id": "academy-m0l7",
+ "title": "Aula m0l7 — Aumento ou descarte: a primeira decisão",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m0l7",
+ "scenes": [
+  {
+   "id": "m0l7-01",
+   "chapter": "Abertura",
+   "title": "Aumento ou descarte",
+   "voice": "Esta é a Zero Tilt Academy. Na aula sete do módulo zero, vamos estudar a primeira decisão: aumentar ou descartar a mão num pote fechado. O objetivo é abrir com um plano e calcular o risco de um roubo de blinds.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 0 · Aula 7",
+    "lines": [
+     "Objetivo: abrir com um plano e calcular o risco do roubo"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m0l7-02",
+   "chapter": "Agressão seletiva",
+   "title": "Raise ou fold no pote fechado",
+   "voice": "Em potes ainda fechados no Texas cash, um plano de raise ou fold pode simplificar as decisões iniciais. É uma estratégia didática, com hipóteses, e não uma lei do poker: completar no small blind e estratégias de limp podem existir em outros contextos.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Pote fechado: raise ou fold",
+     "Estratégia didática, não lei",
+     "Limp e completar: outros contextos"
+    ],
+    "cues": [
+     "Em potes ainda fechados",
+     "estratégia didática",
+     "completar no small blind"
+    ]
+   }
+  },
+  {
+   "id": "m0l7-03",
+   "chapter": "Os dois extremos",
+   "title": "Dois ases no botão, sete e dois no UTG",
+   "voice": "No cenário da aula, a mesa tem nove jogadores e cem big blinds, sem ante. Com dois ases no botão, depois de todos desistirem, a intenção é construir valor contra mãos piores. Com sete e dois de naipes diferentes no UTG, a dificuldade de realizar equity contra muitos adversários sustenta o descarte. Entre esses extremos existe uma região que depende das condições do jogo, e não uma fronteira universal.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "AA no botão",
+      "items": [
+       "Todos desistiram até você",
+       "Aumentar por valor"
+      ],
+      "cues": [
+       "depois de todos desistirem",
+       "construir valor"
+      ],
+      "tone": "mint"
+     },
+     {
+      "title": "72o no UTG",
+      "items": [
+       "Muitos adversários por agir",
+       "Descartar"
+      ],
+      "cues": [
+       "contra muitos adversários",
+       "sustenta o descarte"
+      ],
+      "tone": "danger"
+     }
+    ],
+    "note": "Entre os extremos: depende do jogo",
+    "noteCue": "Entre esses extremos"
+   }
+  },
+  {
+   "id": "m0l7-04",
+   "chapter": "O plano na mesa",
+   "title": "Todos desistem até você",
+   "voice": "Veja o plano na mesa. Os blinds entram com meio e com um big blind, como sempre nesta mesa. Todos desistem até você, no botão, com dois ases. Você aumenta para dois big blinds e meio. O small blind desiste, o big blind também, e você leva o pote.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 10000,
+      "cards": [
+       "Ah",
+       "As"
+      ]
+     },
+     {
+      "name": "SB",
+      "stack": 10000,
+      "cards": [
+       "9c",
+       "4d"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 10000,
+      "cards": [
+       "Jd",
+       "6s"
+      ]
+     }
+    ],
+    "board": [],
+    "pot": 0,
+    "events": [
+     {
+      "type": "post",
+      "cue": "Os blinds entram",
+      "player": 1,
+      "to": 50,
+      "label": "SB"
+     },
+     {
+      "type": "post",
+      "player": 2,
+      "to": 100,
+      "label": "BB"
+     },
+     {
+      "type": "raise",
+      "cue": "Você aumenta",
+      "player": 0,
+      "to": 250
+     },
+     {
+      "type": "fold",
+      "cue": "O small blind desiste",
+      "player": 1
+     },
+     {
+      "type": "fold",
+      "cue": "o big blind também",
+      "player": 2
+     },
+     {
+      "type": "collect"
+     },
+     {
+      "type": "award",
+      "cue": "você leva o pote",
+      "player": 0
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     1,
+     2
+    ],
+    "banner": "Pré-flop · pote fechado"
+   }
+  },
+  {
+   "id": "m0l7-05",
+   "chapter": "Risco do roubo",
+   "title": "Quantos folds o roubo exige",
+   "voice": "Agora o risco desse roubo, num modelo simplificado. Há um big blind e meio nos blinds, e você abre arriscando dois e meio, supondo que perde a aposta sempre que alguém continua. O blefe puro empata quando todos desistem em dois e meio sobre quatro: sessenta e dois e meio por cento das vezes.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "NOS BLINDS",
+      "1,5 BB"
+     ],
+     [
+      "RISCO DA ABERTURA",
+      "2,5 BB"
+     ],
+     [
+      "FOLDS · 2,5/4",
+      "62,5%"
+     ]
+    ],
+    "cues": [
+     "Há um big blind e meio",
+     "abre arriscando",
+     "dois e meio sobre quatro"
+    ],
+    "note": "Modelo: perde sempre que alguém continua"
+   }
+  },
+  {
+   "id": "m0l7-06",
+   "chapter": "O modelo isola uma parte",
+   "title": "A mão real tem mais ramos",
+   "voice": "Na mão real, você ainda pode ganhar depois de receber um call, e também pode enfrentar uma 3-bet. Esse modelo isola uma parte da decisão e não descreve toda a rentabilidade de abrir. E um plano de abertura não responde automaticamente a um aumento: diante de uma 3-bet, fold, call e nova agressão dependem do range, do tamanho e dos stacks.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Depois do call, ainda pode ganhar",
+     "O modelo isola uma parte",
+     "Diante de 3-bet: outro plano"
+    ],
+    "cues": [
+     "ainda pode ganhar",
+     "isola uma parte",
+     "diante de uma 3-bet"
+    ]
+   }
+  },
+  {
+   "id": "m0l7-07",
+   "chapter": "Revisão",
+   "title": "O resultado não corrige o plano",
+   "voice": "Anote o plano antes de ver o resultado. Ganhar uma mão não torna qualquer decisão correta, e perder não prova um erro. Se uma mão fraca ganhar depois de uma abertura ruim, faça a revisão no ponto da decisão.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Plano antes do resultado",
+     "Ganhar não prova acerto",
+     "Revise no ponto da decisão"
+    ],
+    "cues": [
+     "Anote o plano",
+     "Ganhar uma mão",
+     "faça a revisão"
+    ]
+   }
+  },
+  {
+   "id": "m0l7-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. No mesmo modelo, há um big blind e meio nos blinds, e você abre para três big blinds. Com que frequência todos precisam desistir para o blefe puro empatar? A: cinquenta por cento. B: cerca de sessenta e seis vírgula sete por cento. C: setenta e cinco por cento. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "No mesmo modelo, há 1,5 BB nos blinds e você abre para 3 BB. Com que frequência todos precisam desistir para o blefe puro empatar?",
+    "options": [
+     {
+      "key": "A",
+      "text": "50%",
+      "cue": "A cinquenta"
+     },
+     {
+      "key": "B",
+      "text": "≈ 66,7%",
+      "cue": "B cerca de sessenta e seis"
+     },
+     {
+      "key": "C",
+      "text": "75%",
+      "cue": "C setenta e cinco"
+     }
+    ],
+    "correct": "B"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m0l7-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B. Você arrisca três para ganhar um e meio. O total em jogo é quatro e meio, e três sobre quatro e meio dá dois terços, cerca de sessenta e seis vírgula sete por cento. Nesse modelo, abrir maior exige mais folds.",
+   "visual": {
+    "mode": "answer",
+    "question": "No mesmo modelo, há 1,5 BB nos blinds e você abre para 3 BB. Com que frequência todos precisam desistir para o blefe puro empatar?",
+    "options": [
+     {
+      "key": "A",
+      "text": "50%",
+      "cue": "A cinquenta"
+     },
+     {
+      "key": "B",
+      "text": "≈ 66,7%",
+      "cue": "B cerca de sessenta e seis"
+     },
+     {
+      "key": "C",
+      "text": "75%",
+      "cue": "C setenta e cinco"
+     }
+    ],
+    "correct": "B",
+    "cue": "Resposta",
+    "explanation": "3 / (3 + 1,5) ≈ 66,7%"
+   }
+  },
+  {
+   "id": "m0l7-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. O cenário tem três lugares, e a política do treino é seletiva. Não transforme duas cartas ruins em obrigação de blefar. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Três lugares, política seletiva",
+     "Cartas ruins não obrigam blefe",
+     "Guiado, desafio e replay"
+    ],
+    "cues": [
+     "três lugares",
+     "Não transforme",
+     "Comece pelo treino guiado"
+    ]
+   }
+  },
+  {
+   "id": "m0l7-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

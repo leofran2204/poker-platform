@@ -43,6 +43,7 @@ export const C = {
   red: "#c8102e",
   danger: "#ef6a5f",
   ok: "#5fd394",
+  sky: "#86b4f0",
   panel: "rgba(7, 20, 13, 0.82)",
   line: "rgba(236, 217, 154, 0.22)",
 } as const;

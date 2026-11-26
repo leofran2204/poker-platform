@@ -1,27 +1,23 @@
-Esta é a Zero Tilt Academy, e a aula de hoje é: Pot Control versus Apostas Polarizadas. Nesta aula, nosso objetivo é: Comparar check-back e aposta em board de três paus. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+Esta é a Zero Tilt Academy. Na aula dois do módulo três, vamos comparar o controle do pote com as apostas polarizadas. O objetivo é decidir entre check-back e aposta com uma mão intermediária, num board de três paus.
 
-Agora, o próximo tema é: Pot control. Dar check pode preservar mãos de força intermediária e evitar ampliar a exposição naquela rodada. Isso não garante um showdown barato: o rival pode apostar depois.
+Dar check pode preservar mãos de força intermediária e evita aumentar a exposição naquela rodada. Mas o check não garante um showdown barato: o rival ainda pode apostar depois.
 
-Polarização. Um range polarizado reúne mãos fortes para valor e blefes. Não se define apenas por apostar 75 por cento ou mais: depende da composição do range e do contexto.
+Um range polarizado reúne mãos fortes, que apostam por valor, e blefes. Ele não se define por apostar setenta e cinco por cento do pote ou mais: uma aposta grande só com mãos médias não fica polarizada por causa do tamanho. Tudo depende da composição do range e do contexto.
 
-Exercício. valete de copas dez de ouros em valete de paus oito de ouros quatro de paus nove de paus tem top pair e uma broca para sequência, em um board com três paus. Após check do rival, check-back é o plano de controle do exercício. Call exige uma aposta a enfrentar.
+Veja o exercício. Os blinds entram, e você abre no botão com valete de copas e dez de ouros, para dois big blinds e meio. O jogador do small blind desiste, e quem está no big blind paga. No flop, valete de paus, oito de ouros e quatro de paus, o big blind dá check, você aposta dois big blinds com top pair, e ele paga.
 
-Agora, o próximo tema é: Relação entre stack e pote. relação entre stack efetivo e pote é o stack efetivo dividido pelo pote. Se restam 60 big blinds efetivos e há 20 no pote, o relação entre stack efetivo e pote é três. Esse número ajuda a visualizar quantas apostas grandes ainda cabem, mas não ordena um all-in automaticamente. A mesma relação pode exigir estratégias diferentes conforme board, modalidade, posição e distribuição de forças.
+No turn chega o nove de paus. Agora você tem top pair e um projeto aberto de sequência: um sete ou uma dama completam. Mas a mesa tem três paus, e um rival com dois paus já tem flush. Depois disso, o big blind dá check de novo. No exercício, o plano é controlar o pote com check-back. Call não existe aqui, porque não há aposta para pagar.
 
-Agora, o próximo tema é: Proteja a leitura do check. Check não significa sempre desistência futura. Um range de check pode incluir mãos fracas, médias e fortes. Se você presumir que todo check permite blefar sem resistência, ficará vulnerável a calls e raises. O bot de valor do treino demonstra uma dessas possibilidades: pode dar check com uma mão forte e reagir à sua aposta.
+Antes de decidir, classifique a mão. Top pair e projeto aberto dão uma força intermediária. Os três paus põem flushes possíveis no range do rival. Apostar pode cobrar dos projetos, mas expõe a mão a um check-raise; o check-back preserva o showdown e mantém o pote menor. Compare a exposição criada por cada tamanho.
 
-A polarização é uma composição. Uma aposta grande com apenas mãos médias não se torna polarizada por causa do tamanho. A ideia envolve uma parte forte para valor e uma parte de blefes, com proporções dependentes do modelo. Com valete de copas dez de ouros em valete de paus oito de ouros quatro de paus nove de paus, classifique top pair, broca e riscos dos três paus antes de decidir. Compare a preservação de showdown com a exposição criada por cada tamanho.
+Uma medida ajuda a planejar: o SPR, que é o stack efetivo dividido pelo pote. Neste turn, restam noventa e cinco big blinds e meio, e o pote tem nove e meio: o SPR fica perto de dez. Esse número mostra quantas apostas grandes ainda cabem, mas não manda ir all-in nem proíbe nada. A mesma relação pede estratégias diferentes conforme o board, a modalidade, a posição e as forças.
 
-Laboratório: Controlar com mão intermediária. Objetivo: Comparar check-back e aposta em board de três paus. Abra a mesa deste módulo e comece pelo treino guiado. Top pair e uma broca coexistem com possíveis flushes. A composição do range importa mais que o nome da mão. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+Cuidado com a leitura do check do rival. Um range de check pode ter mãos fracas, médias e fortes. Se você presumir que todo check permite blefar sem resistência, vai ficar exposto a calls e raises. O bot de valor do treino mostra uma dessas possibilidades: ele pode dar check com mão forte e reagir à sua aposta.
 
-Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+Exercício. Com valete de copas e dez de ouros, num board de valete de paus, oito de ouros, quatro de paus e nove de paus, quantas cartas do river completam a sua sequência sem colocar o quarto paus na mesa? A: oito. B: seis. C: quatro. Pause o vídeo e responda.
 
-Qual o principal objetivo do 'Pot Control' no turn? As alternativas são: A, Fazer o vilão desistir na hora; B, Evitar inflar o pote com mãos de força intermediária e chegar barato ao showdown; C, Aumentar o valor do rake. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+Resposta: B, seis. Um sete ou uma dama completam a sequência: oito cartas. Tirando o sete e a dama de paus, que põem o quarto paus na mesa, sobram seis. E lembre: um rival com dois paus já tem flush agora.
 
-Vamos à resposta. A alternativa certa deste exercício é: Evitar inflar o pote com mãos de força intermediária e chegar barato ao showdown. Mãos de força média jogam melhor em potes controlados, evitando decisões difíceis contra raises.
+Agora leve a aula para a mesa de treino e compare check-back e aposta num board de três paus. Top pair e um projeto aberto de sequência convivem com flushes possíveis, e a composição do range importa mais que o nome da mão. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.
 
-Suas cartas: valete de copas, dez de ouros. Cartas comunitárias: valete de paus, oito de ouros, quatro de paus, nove de paus. Board valete de paus oito de ouros quatro de paus nove de paus. Você tem J♥ 10♦ no botão. O vilão, que está no big blind, checa quando chega o turn. Ação? As alternativas são: A, check; B, bet. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
-
-Vamos à resposta. A alternativa certa deste exercício é: check. Check-back evita colocar mais fichas nesta rodada; não há aposta para pagar. A mão também tem uma broca, mas o board já permite flush.
-
-Abra o simulador da aula e escolha o cenário Controlar com mão intermediária. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.
+Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.

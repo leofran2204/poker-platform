@@ -1,0 +1,57 @@
+{
+  "lessonId": "m0l1",
+  "contentHash": "6f0bf3ac51c89dec17d8482440a46da8c850b28b40696b23fe3cf12057ff7bb0",
+  "filename": "zt-intro-m0l1-v4",
+  "title": "Aula m0l1 — De onde vêm as cartas",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM0L1",
+  "script": "src/data/academy-m0l1.json",
+  "scriptHash": "6b68505bd4c4078e9978ebda0f15b374deb21c2142d60afc6a20141adc5b254a",
+  "durationSeconds": 133.97,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "bytes": 7763194,
+  "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
+  "voiceRate": "-3%",
+  "pronunciationVersion": "pt-BR-poker-v3-multilingual",
+  "narrationHash": "023a068dcdcd9e7a30381b70f39b5a5fa7ba71895fe5820db147e26c72a31e76",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Abertura"
+    },
+    {
+      "start": 15.07,
+      "title": "Um objeto, muitas perguntas"
+    },
+    {
+      "start": 41.4,
+      "title": "O baralho de hoje"
+    },
+    {
+      "start": 55.7,
+      "title": "Informação incompleta"
+    },
+    {
+      "start": 70.47,
+      "title": "Para pensar"
+    },
+    {
+      "start": 85.0,
+      "title": "Exercício"
+    },
+    {
+      "start": 119.9,
+      "title": "Fechamento"
+    }
+  ],
+  "sha256": "9a56bf496770b0cc90b85909d19d5b10ce2f5fafa28d4a2cda91a3a85dfae10a",
+  "assetHashes": {
+    "mp4": "9a56bf496770b0cc90b85909d19d5b10ce2f5fafa28d4a2cda91a3a85dfae10a",
+    "vtt": "cf7d30bf04ca46e6fbe376d152949d4a3ce28714b7891781b7c0b6bdc805ac9a",
+    "webp": "82ca94504cd9d1e38c4a960afa560c5e4eb45a59297abcdcf7bb661af7cd74fe"
+  },
+  "mediaRevision": "beec4206ceae8b7e66ca9d83766fee18e0d8fc87620c6bd5d7d8549bc4ffe5ad"
+}

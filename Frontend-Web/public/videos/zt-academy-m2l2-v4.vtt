@@ -1,0 +1,264 @@
+WEBVTT
+
+00:00:00.517 --> 00:00:02.832
+Esta é a Zero Tilt Academy.
+
+00:00:03.030 --> 00:00:07.192
+Na aula dois do módulo dois, vamos
+estudar como responder a um check-raise
+
+00:00:07.192 --> 00:00:08.708
+e quando um float tem plano.
+
+00:00:08.906 --> 00:00:12.682
+O objetivo é refazer o preço depois
+do aumento e decidir com um modelo
+
+00:00:12.682 --> 00:00:14.005
+explícito do rival.
+
+00:00:15.350 --> 00:00:18.580
+Um check-raise pode conter
+mãos de valor e blefes.
+
+00:00:18.778 --> 00:00:23.701
+Antes de responder, compare o total a
+pagar, os stacks, a textura e o range
+
+00:00:23.701 --> 00:00:25.023
+plausível do rival.
+
+00:00:25.221 --> 00:00:30.371
+Por isso, ter top pair não obriga você
+a pagar sempre, nem a desistir sempre.
+
+00:00:31.717 --> 00:00:33.285
+Veja um exemplo.
+
+00:00:33.482 --> 00:00:38.315
+O pote tem dez big blinds, e o flop
+traz rei de paus, oito de espadas e
+
+00:00:38.315 --> 00:00:39.457
+três de copas.
+
+00:00:39.655 --> 00:00:43.529
+Você está no botão com rei e
+nove de ouros, um top pair.
+
+00:00:43.727 --> 00:00:48.160
+Quem está no big blind dá check, e
+você aposta três, menos de um terço
+
+00:00:48.160 --> 00:00:48.955
+do pote.
+
+00:00:49.153 --> 00:00:50.978
+Ele aumenta para doze.
+
+00:00:52.317 --> 00:00:54.323
+Agora refaça o preço.
+
+00:00:54.521 --> 00:00:58.111
+Antes da sua decisão, há vinte
+e cinco big blinds no centro:
+
+00:00:58.283 --> 00:01:01.101
+dez do pote, três seus e doze do rival.
+
+00:01:01.299 --> 00:01:06.204
+Você já colocou três, então precisa
+acrescentar nove, e não doze.
+
+00:01:06.402 --> 00:01:09.709
+Depois do call, o pote
+terá trinta e quatro.
+
+00:01:09.907 --> 00:01:13.541
+O limiar é nove sobre trinta e quatro,
+cerca de vinte e seis e meio por
+
+00:01:13.541 --> 00:01:17.403
+cento, sem taxas e supondo que
+o call encerre as apostas.
+
+00:01:18.750 --> 00:01:20.537
+Agora o modelo do exercício:
+
+00:01:20.709 --> 00:01:24.923
+este rival só dá check-raise grande com
+dois pares ou melhor, e quase nunca
+
+00:01:24.923 --> 00:01:25.614
+blefa.
+
+00:01:25.812 --> 00:01:30.343
+Contra esse range, rei e nove perde
+para quase todas as mãos que aumentam,
+
+00:01:30.606 --> 00:01:32.792
+e a decisão conservadora é desistir.
+
+00:01:32.990 --> 00:01:36.348
+Se as frequências mudarem,
+refaça a análise.
+
+00:01:37.683 --> 00:01:42.026
+Top pair pode ser forte contra um range
+amplo, com muitas mãos piores que
+
+00:01:42.026 --> 00:01:42.717
+pagam.
+
+00:01:42.915 --> 00:01:47.794
+Mas fica fraca contra um range só de
+dois pares, trincas e mãos melhores.
+
+00:01:47.992 --> 00:01:51.974
+No treino, o bot de valor só aumenta
+quando a mão dele cumpre a política
+
+00:01:51.974 --> 00:01:55.281
+declarada, e é isso que
+torna a leitura estudável.
+
+00:01:55.479 --> 00:01:59.655
+Contra um rival que também blefa e
+aumenta com projetos, você teria de
+
+00:01:59.655 --> 00:02:01.325
+reconstruir esse range.
+
+00:02:02.683 --> 00:02:06.055
+Agora vamos ao float, uma ideia diferente.
+
+00:02:06.253 --> 00:02:10.557
+Float é pagar com o plano de disputar
+o pote numa rodada seguinte, muitas
+
+00:02:10.557 --> 00:02:11.905
+vezes em posição.
+
+00:02:12.103 --> 00:02:16.312
+Ele exige equity, preço e leitura
+do que o rival faz depois.
+
+00:02:16.510 --> 00:02:19.263
+Não é pagar qualquer
+mão esperando um check.
+
+00:02:20.617 --> 00:02:24.560
+Pagar uma aposta pequena em posição
+pode preservar opções, quando a sua
+
+00:02:24.560 --> 00:02:28.022
+mão tem equity e o rival
+abandona certas linhas depois.
+
+00:02:28.220 --> 00:02:31.218
+Mas você não sabe se ele
+vai dar check no turn.
+
+00:02:31.416 --> 00:02:35.707
+Então registre quais cartas permitem
+continuar e qual nova aposta tornaria
+
+00:02:35.707 --> 00:02:36.669
+o plano ruim.
+
+00:02:36.867 --> 00:02:39.697
+Um call só por curiosidade não é float.
+
+00:02:41.050 --> 00:02:42.308
+Exercício.
+
+00:02:42.506 --> 00:02:44.873
+O pote tem oito big blinds.
+
+00:02:45.071 --> 00:02:48.958
+Você aposta quatro, e o
+rival aumenta para catorze.
+
+00:02:49.156 --> 00:02:53.550
+Sem taxas e com o call encerrando as
+apostas, qual é o limiar de equity
+
+00:02:53.550 --> 00:02:54.306
+para pagar?
+
+00:02:54.504 --> 00:02:54.976
+A:
+
+00:02:55.122 --> 00:02:57.076
+dez sobre vinte e seis.
+
+00:02:57.274 --> 00:02:57.824
+B:
+
+00:02:57.970 --> 00:03:00.014
+dez sobre trinta e seis.
+
+00:03:00.212 --> 00:03:00.852
+C:
+
+00:03:01.024 --> 00:03:03.313
+catorze sobre trinta e seis.
+
+00:03:03.511 --> 00:03:05.504
+Pause o vídeo e responda.
+
+00:03:09.183 --> 00:03:10.235
+Resposta:
+
+00:03:10.472 --> 00:03:11.008
+B.
+
+00:03:11.206 --> 00:03:13.972
+Antes da decisão, há
+vinte e seis no centro:
+
+00:03:14.144 --> 00:03:17.323
+oito do pote, quatro
+seus e catorze do rival.
+
+00:03:17.521 --> 00:03:22.207
+Você acrescenta dez, e o pote depois
+do call fica com trinta e seis.
+
+00:03:22.405 --> 00:03:26.047
+Dez sobre trinta e seis dá cerca
+de vinte e oito por cento.
+
+00:03:27.383 --> 00:03:30.110
+Agora leve a aula para a mesa de treino.
+
+00:03:30.308 --> 00:03:34.587
+O bot de valor dá check-raise com dois
+pares ou melhor, e uma aposta sua
+
+00:03:34.587 --> 00:03:36.399
+pode provocar essa resposta.
+
+00:03:36.597 --> 00:03:39.234
+Recalcule o preço depois da agressão.
+
+00:03:39.432 --> 00:03:44.290
+Comece pelo treino guiado, repita no modo
+desafio e use o replay para comparar
+
+00:03:44.290 --> 00:03:46.438
+a outra linha na mesma distribuição.
+
+00:03:47.783 --> 00:03:50.265
+Registre sua justificativa no caderno:
+
+00:03:50.463 --> 00:03:54.110
+acertar a leitura e respeitar as
+hipóteses importa mais do que ganhar a
+
+00:03:54.110 --> 00:03:54.608
+mão.
+
+00:03:54.806 --> 00:03:59.170
+O treino usa fichas sem valor,
+e este curso não promete lucro.

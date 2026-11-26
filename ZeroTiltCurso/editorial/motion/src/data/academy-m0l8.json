@@ -1,0 +1,320 @@
+{
+ "id": "academy-m0l8",
+ "title": "Aula m0l8 — Sizing: o tamanho certo",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m0l8",
+ "scenes": [
+  {
+   "id": "m0l8-01",
+   "chapter": "Abertura",
+   "title": "Sizing: o tamanho certo",
+   "voice": "Esta é a Zero Tilt Academy. Na aula oito do módulo zero, vamos estudar o tamanho das apostas. O objetivo é declarar o total da aposta, saber o mínimo de um raise e ver o preço que cada tamanho oferece.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 0 · Aula 8",
+    "lines": [
+     "Objetivo: total da aposta, mínimo do raise e preço de cada tamanho"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m0l8-02",
+   "chapter": "Tamanho e unidade",
+   "title": "Declare o total",
+   "voice": "Uma abertura para dois big blinds e meio significa um total de dois e meio, e não acrescentar esse valor a uma aposta anterior. Quando já houver aposta, confira o mínimo de raise e o stack efetivo. E lembre que bet e raise são ações diferentes: bet inicia a aposta, e raise aumenta uma aposta existente.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "2,5 BB é o total",
+     "Confira o mínimo e o stack efetivo",
+     "Bet inicia, raise aumenta"
+    ],
+    "cues": [
+     "significa um total",
+     "confira o mínimo",
+     "bet e raise"
+    ]
+   }
+  },
+  {
+   "id": "m0l8-03",
+   "chapter": "Exemplo de plano",
+   "title": "Isolar um limper",
+   "voice": "Veja o plano de isolamento. Os blinds entram, e o jogador do cutoff apenas completa um big blind: um limp. No botão, o plano da aula soma um big blind por limper à abertura de dois e meio. Com um limper, você aumenta para três e meio. Os blinds desistem, o cutoff paga, e o pote do flop fica com oito big blinds e meio.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 10000,
+      "cards": [
+       "Ac",
+       "Qd"
+      ]
+     },
+     {
+      "name": "SB",
+      "stack": 10000,
+      "cards": [
+       "8c",
+       "3d"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 10000,
+      "cards": [
+       "Ks",
+       "4h"
+      ]
+     },
+     {
+      "name": "CO",
+      "stack": 10000,
+      "cards": [
+       "7h",
+       "7d"
+      ]
+     }
+    ],
+    "board": [],
+    "pot": 0,
+    "events": [
+     {
+      "type": "post",
+      "cue": "Os blinds entram",
+      "player": 1,
+      "to": 50,
+      "label": "SB"
+     },
+     {
+      "type": "post",
+      "player": 2,
+      "to": 100,
+      "label": "BB"
+     },
+     {
+      "type": "call",
+      "cue": "apenas completa",
+      "player": 3,
+      "to": 100,
+      "label": "Limp"
+     },
+     {
+      "type": "raise",
+      "cue": "você aumenta para três e meio",
+      "player": 0,
+      "to": 350
+     },
+     {
+      "type": "fold",
+      "cue": "Os blinds desistem",
+      "player": 1
+     },
+     {
+      "type": "fold",
+      "player": 2
+     },
+     {
+      "type": "call",
+      "cue": "o cutoff paga",
+      "player": 3,
+      "to": 350
+     },
+     {
+      "type": "collect",
+      "cue": "o pote do flop"
+     }
+    ],
+    "dealer": 0,
+    "banner": "Pré-flop · um limper"
+   }
+  },
+  {
+   "id": "m0l8-04",
+   "chapter": "Exemplo de plano",
+   "title": "Uma heurística de treino",
+   "voice": "Com dois limpers, a mesma regra leva a quatro e meio. Mas essa regra de treino não prova que o tamanho é ótimo: posição, rake, stacks, adversários e estrutura de apostas mudam a análise.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Dois limpers: 4,5 BB",
+     "Regra de treino, não tamanho ótimo",
+     "Posição, rake, stacks e rivais mudam"
+    ],
+    "cues": [
+     "Com dois limpers",
+     "não prova",
+     "posição, rake"
+    ]
+   }
+  },
+  {
+   "id": "m0l8-05",
+   "chapter": "Preço produzido",
+   "title": "Cada tamanho oferece um preço",
+   "voice": "Agora o preço que cada tamanho oferece. Com pote de dez big blinds e aposta de cinco, o rival paga cinco para um pote final de vinte: precisa de vinte e cinco por cento de equity num call final sem taxas. Com aposta de dez, o pote final é de trinta, e o preço sobe para trinta e três vírgula três por cento. Apostar maior oferece preço pior a quem paga, mas arrisca mais e pode fazer mãos piores desistirem.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "POTE ANTES DA APOSTA",
+      "10 BB"
+     ],
+     [
+      "APOSTA DE 5 · 5/20",
+      "25%"
+     ],
+     [
+      "APOSTA DE 10 · 10/30",
+      "33,33%"
+     ]
+    ],
+    "cues": [
+     "pote de dez big blinds",
+     "vinte e cinco por cento",
+     "trinta e três"
+    ],
+    "note": "Maior: preço pior para quem paga e risco maior"
+   }
+  },
+  {
+   "id": "m0l8-06",
+   "chapter": "Incremento e mínimo",
+   "title": "O mínimo de um raise",
+   "voice": "Se a aposta vigente é de cem fichas e o último aumento completo foi de cem, o próximo raise completo precisa chegar a pelo menos duzentas. Depois de um raise de cem para trezentas, o incremento é de duzentas, e o próximo total mínimo é quinhentas. A interface mostra o total da rodada: subtraia o que você já investiu para saber o adicional.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Aposta 100, aumento 100: mínimo 200",
+     "De 100 para 300: mínimo 500",
+     "Total menos o investido = adicional"
+    ],
+    "cues": [
+     "a aposta vigente",
+     "Depois de um raise",
+     "subtraia"
+    ]
+   }
+  },
+  {
+   "id": "m0l8-07",
+   "chapter": "Compare respostas",
+   "title": "Dois tamanhos, a mesma distribuição",
+   "voice": "Repita uma distribuição e experimente dois tamanhos legais. Observe quais bots pagam, desistem ou aumentam. Uma única resposta não estima a frequência real de um perfil. Registre também o stack que sobra para a próxima street.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Dois tamanhos legais",
+     "Quem paga, desiste ou aumenta",
+     "Registre o stack que sobra"
+    ],
+    "cues": [
+     "experimente dois tamanhos",
+     "Observe quais bots",
+     "Registre também"
+    ]
+   }
+  },
+  {
+   "id": "m0l8-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. Você está no big blind, com um big blind já investido. O botão abriu para dois e meio, e você quer aumentar para nove big blinds no total. Quanto entra a mais? A: os nove big blinds inteiros. B: oito big blinds a mais. C: seis big blinds e meio. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Você está no big blind com 1 BB investido. O botão abriu para 2,5 BB, e você quer aumentar para 9 BB no total. Quanto entra a mais?",
+    "options": [
+     {
+      "key": "A",
+      "text": "9 BB",
+      "cue": "A os nove"
+     },
+     {
+      "key": "B",
+      "text": "8 BB",
+      "cue": "B oito"
+     },
+     {
+      "key": "C",
+      "text": "6,5 BB",
+      "cue": "C seis"
+     }
+    ],
+    "correct": "B"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m0l8-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B. O controle mostra o total da rodada, nove big blinds. Como você já tinha um big blind investido, entram mais oito. A conta de seis e meio usa a diferença para a abertura, que não é o que você coloca.",
+   "visual": {
+    "mode": "answer",
+    "question": "Você está no big blind com 1 BB investido. O botão abriu para 2,5 BB, e você quer aumentar para 9 BB no total. Quanto entra a mais?",
+    "options": [
+     {
+      "key": "A",
+      "text": "9 BB",
+      "cue": "A os nove"
+     },
+     {
+      "key": "B",
+      "text": "8 BB",
+      "cue": "B oito"
+     },
+     {
+      "key": "C",
+      "text": "6,5 BB",
+      "cue": "C seis"
+     }
+    ],
+    "correct": "B",
+    "cue": "Resposta",
+    "explanation": "Total 9 − 1 já investido = 8 BB a mais"
+   }
+  },
+  {
+   "id": "m0l8-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. Para subir a três big blinds com meio big blind já investido, entram mais dois e meio. O controle mostra o total. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Subir a 3 BB com 0,5 investido",
+     "Entram mais 2,5 BB",
+     "O controle mostra o total"
+    ],
+    "cues": [
+     "Para subir a três",
+     "entram mais dois e meio",
+     "O controle mostra"
+    ]
+   }
+  },
+  {
+   "id": "m0l8-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

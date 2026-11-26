@@ -1,0 +1,348 @@
+{
+ "id": "academy-m1l3",
+ "title": "Aula m1l3 — 3-bet por valor e 3-bet light com bloqueadores",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m1l3",
+ "scenes": [
+  {
+   "id": "m1l3-01",
+   "chapter": "Abertura",
+   "title": "3-bet por valor e 3-bet light",
+   "voice": "Esta é a Zero Tilt Academy. Na aula três do módulo um, vamos estudar a 3-bet por valor e a 3-bet light com bloqueadores. O objetivo é construir uma 3-bet e distinguir o total do incremento.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 1 · Aula 3",
+    "lines": [
+     "Objetivo: construir uma 3-bet e separar total e incremento"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m1l3-02",
+   "chapter": "Valor, blefe e bloqueadores",
+   "title": "O que é uma 3-bet",
+   "voice": "Uma 3-bet é um aumento sobre o raise inicial. O range e o tamanho dependem das posições, do stack efetivo e das respostas dos adversários. Ás e rei do mesmo naipe pode fazer parte do valor. Ás e cinco do mesmo naipe pode aparecer como blefe em certos cenários, mas não é obrigação.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "3-bet: um aumento sobre o raise inicial",
+     "Valor: AKs pode fazer parte",
+     "Blefe: A5s pode aparecer, sem obrigação"
+    ],
+    "cues": [
+     "Uma 3-bet é",
+     "Ás e rei",
+     "Ás e cinco"
+    ]
+   }
+  },
+  {
+   "id": "m1l3-03",
+   "chapter": "A 3-bet na prática",
+   "title": "A 3-bet por valor",
+   "voice": "Veja o exercício. A mesa é de Texas cash, com cem big blinds de stack. O cutoff abre para dois big blinds e meio, e você está no botão com ás e rei de copas. No plano de treino, isso é uma 3-bet por valor, com referência de sete e meio a oito big blinds. Você aumenta para oito no total. Os blinds desistem, e o cutoff paga.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 10000,
+      "cards": [
+       "Ah",
+       "Kh"
+      ]
+     },
+     {
+      "name": "SB",
+      "stack": 10000,
+      "cards": [
+       "Tc",
+       "6d"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 10000,
+      "cards": [
+       "8s",
+       "3s"
+      ]
+     },
+     {
+      "name": "CO",
+      "stack": 10000,
+      "cards": [
+       "Qd",
+       "Jd"
+      ]
+     }
+    ],
+    "board": [],
+    "pot": 0,
+    "events": [
+     {
+      "type": "post",
+      "player": 1,
+      "to": 50,
+      "label": "SB"
+     },
+     {
+      "type": "post",
+      "player": 2,
+      "to": 100,
+      "label": "BB"
+     },
+     {
+      "type": "raise",
+      "cue": "O cutoff abre",
+      "player": 3,
+      "to": 250
+     },
+     {
+      "type": "raise",
+      "cue": "Você aumenta",
+      "player": 0,
+      "to": 800
+     },
+     {
+      "type": "fold",
+      "cue": "Os blinds desistem",
+      "player": 1
+     },
+     {
+      "type": "fold",
+      "player": 2
+     },
+     {
+      "type": "call",
+      "cue": "o cutoff paga",
+      "player": 3,
+      "to": 800
+     },
+     {
+      "type": "collect"
+     }
+    ],
+    "dealer": 0,
+    "banner": "Pré-flop · Texas cash · 100 BB"
+   }
+  },
+  {
+   "id": "m1l3-04",
+   "chapter": "Três tamanhos",
+   "title": "Total, incremento e custo",
+   "voice": "Repare nos três números. A sua 3-bet é de oito big blinds no total. O incremento sobre a abertura foi de cinco big blinds e meio. E, como você não tinha fichas na rodada, o seu custo também foi de oito. No big blind, parte já estaria comprometida. Essa diferença importa para as pot odds, o stack efetivo e a resposta a uma 4-bet.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "TOTAL DA 3-BET",
+      "8 BB"
+     ],
+     [
+      "INCREMENTO",
+      "5,5 BB"
+     ],
+     [
+      "SEU CUSTO",
+      "8 BB"
+     ]
+    ],
+    "cues": [
+     "oito big blinds no total",
+     "O incremento",
+     "o seu custo"
+    ],
+    "note": "No big blind, parte já estaria comprometida"
+   }
+  },
+  {
+   "id": "m1l3-05",
+   "chapter": "Contagem de combinações",
+   "title": "O ás na sua mão",
+   "voice": "Agora, os bloqueadores. Sem cartas conhecidas, existem seis combinações de par de ases e dezesseis de ás e rei. Se você segura um ás, sem conhecer outras cartas, restam três combinações de par de ases e doze de ás e rei.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Sem cartas conhecidas",
+      "items": [
+       "AA: 6 combinações",
+       "AK: 16 combinações"
+      ],
+      "cues": [
+       "seis combinações",
+       "dezesseis"
+      ],
+      "tone": "mint"
+     },
+     {
+      "title": "Com um ás na sua mão",
+      "items": [
+       "AA: 3 combinações",
+       "AK: 12 combinações"
+      ],
+      "cues": [
+       "restam três",
+       "doze de ás e rei"
+      ],
+      "tone": "gold"
+     }
+    ]
+   }
+  },
+  {
+   "id": "m1l3-06",
+   "chapter": "Bloqueadores têm dois lados",
+   "title": "Bloqueadores têm dois lados",
+   "voice": "Mas o bloqueador tem dois lados. Segurar um ás reduz certas mãos fortes do rival, e também algumas mãos com que ele desistiria. Um bloqueador, sozinho, não dá a frequência de fold. Liste primeiro o range de abertura, depois as mãos que pagam e as que aumentam de novo.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Reduz mãos fortes do rival",
+     "Também reduz mãos que desistiriam",
+     "Liste: abre, paga, aumenta de novo"
+    ],
+    "cues": [
+     "reduz certas mãos",
+     "e também algumas",
+     "Liste primeiro"
+    ],
+    "note": "Bloquear ases não prova que o blefe lucra"
+   }
+  },
+  {
+   "id": "m1l3-07",
+   "chapter": "Planeje a próxima decisão",
+   "title": "Antecipe o stack que resta",
+   "voice": "Ao escolher a 3-bet, antecipe o stack que vai restar se houver call. Com cem big blinds, ainda cabem várias apostas depois do flop. Com vinte, a relação entre o pote e o stack muda muito: não transplante o tamanho automaticamente.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Com 100 BB",
+      "items": [
+       "Ainda cabem várias apostas"
+      ],
+      "cues": [
+       "ainda cabem"
+      ],
+      "tone": "mint"
+     },
+     {
+      "title": "Com 20 BB",
+      "items": [
+       "Pote e stack mudam muito",
+       "Não transplante o tamanho"
+      ],
+      "cues": [
+       "Com vinte",
+       "não transplante"
+      ],
+      "tone": "gold"
+     }
+    ]
+   }
+  },
+  {
+   "id": "m1l3-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. O cutoff abre para dois big blinds e meio, e você faz 3-bet para sete e meio. Os blinds desistem, e o cutoff paga. Quantos big blinds haverá no pote do flop? A: quinze. B: dezesseis e meio. C: dezoito. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "O CO abre 2,5 BB; você faz 3-bet para 7,5 BB, os blinds desistem e o CO paga. Qual é o pote do flop?",
+    "options": [
+     {
+      "key": "A",
+      "text": "15 BB",
+      "cue": "A quinze"
+     },
+     {
+      "key": "B",
+      "text": "16,5 BB",
+      "cue": "B dezesseis e meio"
+     },
+     {
+      "key": "C",
+      "text": "18 BB",
+      "cue": "C dezoito"
+     }
+    ],
+    "correct": "B"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m1l3-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B, dezesseis e meio. São sete e meio de cada um de vocês, mais o meio do small blind e o um do big blind, que desistiram.",
+   "visual": {
+    "mode": "answer",
+    "question": "O CO abre 2,5 BB; você faz 3-bet para 7,5 BB, os blinds desistem e o CO paga. Qual é o pote do flop?",
+    "options": [
+     {
+      "key": "A",
+      "text": "15 BB",
+      "cue": "A quinze"
+     },
+     {
+      "key": "B",
+      "text": "16,5 BB",
+      "cue": "B dezesseis e meio"
+     },
+     {
+      "key": "C",
+      "text": "18 BB",
+      "cue": "C dezoito"
+     }
+    ],
+    "correct": "B",
+    "cue": "Resposta",
+    "explanation": "7,5 + 7,5 + 0,5 + 1 = 16,5 BB"
+   }
+  },
+  {
+   "id": "m1l3-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. A abertura adversária é de dois big blinds e meio: compare uma 3-bet por valor com apenas pagar. Pratique o total legal do raise e diga quais respostas fariam você continuar. Os bots não são um solver, e uma vitória contra eles não valida o range.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Compare a 3-bet com apenas pagar",
+     "Pratique o total legal do raise",
+     "Vencer os bots não valida o range"
+    ],
+    "cues": [
+     "compare uma 3-bet",
+     "Pratique o total",
+     "Os bots não são"
+    ]
+   }
+  },
+  {
+   "id": "m1l3-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

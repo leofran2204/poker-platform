@@ -1,170 +1,69 @@
 {
   "lessonId": "m0l6",
-  "filename": "zt-academy-m0l6-v3",
   "contentHash": "d7a0c0a20f425f79bb0f3a4d05e36f81131a7dc4d557c45bed0dd71e23e77d30",
-  "rendererVersion": 5,
-  "durationSeconds": 273.23,
+  "filename": "zt-academy-m0l6-v4",
+  "title": "Aula m0l6 — Primeiros passos aqui",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM0L6",
+  "script": "src/data/academy-m0l6.json",
+  "scriptHash": "fcb8f0587e3d9122a6a84ba6eeadd9b7a7700975460a38de8653831a606eea0b",
+  "durationSeconds": 204.01,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 7512606,
+  "bytes": 12018716,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "d8db4a4feba832fbeeda1c430c8e2627e2779edcf7f3027f142e4943fdcb111a",
+  "narrationHash": "4049753a3d3f5a5391f3721fdc099e1ee6baeb3753754efed59d4218c763f7e7",
   "chapters": [
     {
       "start": 0.0,
-      "title": "Primeiros passos aqui"
+      "title": "Abertura"
     },
     {
-      "start": 18.57,
+      "start": 14.63,
       "title": "Conheça o ambiente"
     },
     {
-      "start": 39.6,
+      "start": 32.9,
       "title": "Conta e acesso"
     },
     {
-      "start": 58.13,
-      "title": "Mesas com outros jogadores"
+      "start": 48.83,
+      "title": "Mesas"
     },
     {
-      "start": 76.23,
-      "title": "Entre na Academy"
-    },
-    {
-      "start": 108.7,
+      "start": 69.57,
       "title": "Três modos de praticar"
     },
     {
-      "start": 139.63,
+      "start": 89.67,
+      "title": "Uma mão completa"
+    },
+    {
+      "start": 116.97,
       "title": "Guarde o processo"
     },
     {
-      "start": 167.63,
-      "title": "Laboratório: Sua primeira mão completa"
+      "start": 135.53,
+      "title": "Exercício"
     },
     {
-      "start": 202.6,
-      "title": "Laboratório: Sua primeira mão completa"
+      "start": 168.6,
+      "title": "Laboratório"
     },
     {
-      "start": 210.9,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 228.0,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 241.73,
-      "title": "Agora, pratique"
+      "start": 189.93,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 18.566666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 18.566666666666666,
-      "duration": 21.033333333333335,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 39.6,
-      "duration": 18.533333333333335,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 58.13333333333334,
-      "duration": 18.1,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 76.23333333333335,
-      "duration": 32.46666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 108.70000000000002,
-      "duration": 30.933333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 139.63333333333335,
-      "duration": 28.0,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 167.63333333333335,
-      "duration": 34.96666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 202.60000000000002,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 210.90000000000003,
-      "duration": 17.1,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 228.00000000000003,
-      "duration": 13.733333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 241.73333333333335,
-      "duration": 31.5,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    }
-  ],
-  "sha256": "45a02bf918cb309671c262cdba020a57ef914246510f9f6c3b54260d66742812",
+  "sha256": "830a2c7e1abfb96013664d9916bc4ac364383ae0d9ea6c320aa72b68b158b8c6",
   "assetHashes": {
-    "mp4": "45a02bf918cb309671c262cdba020a57ef914246510f9f6c3b54260d66742812",
-    "vtt": "59a95107c79a0a598f07aa3e21c6b1024350d7b20d59e9dc2cca4df4908a63df",
-    "webp": "f7554b30f5a27a38ef4201a7a9f6c27e893e19dfa4d200272a5b8ba01201d7e9"
+    "mp4": "830a2c7e1abfb96013664d9916bc4ac364383ae0d9ea6c320aa72b68b158b8c6",
+    "vtt": "1274cc20ea12241f599e308d1ef699c97f643a4e235b56e6555742d4e5e51b53",
+    "webp": "f1f16d39bece69b2c85aeb188e7e6095f75021f57b15d5fb620f3f14a0abb3db"
   },
-  "mediaRevision": "cfebd1a39920de32f9d255e54b870985b3e75f2430d9478aa6bd53079a532dba"
+  "mediaRevision": "f4258e761ee2cfc06d0739dc9bced1a9a8d9d8c2f9ce352d7d08dd1792bfde13"
 }

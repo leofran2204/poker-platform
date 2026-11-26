@@ -1,0 +1,249 @@
+WEBVTT
+
+00:00:00.517 --> 00:00:02.832
+Esta é a Zero Tilt Academy.
+
+00:00:03.030 --> 00:00:07.342
+Na aula um do módulo quatro, vamos
+estudar a aposta por valor no river,
+
+00:00:07.618 --> 00:00:09.378
+inclusive a de margem fina.
+
+00:00:09.576 --> 00:00:13.764
+O objetivo é medir a aposta contra
+as mãos que continuam, e não contra
+
+00:00:13.764 --> 00:00:15.306
+todas as mãos do rival.
+
+00:00:16.650 --> 00:00:20.279
+Uma aposta por valor busca
+ser paga por mãos piores.
+
+00:00:20.477 --> 00:00:25.138
+Quando a margem contra as mãos que pagam
+é pequena, chamamos de thin value.
+
+00:00:25.336 --> 00:00:28.411
+Ser forte contra o range
+inteiro do rival não basta:
+
+00:00:28.609 --> 00:00:31.194
+compare a sua mão com a
+parte que vai continuar.
+
+00:00:32.550 --> 00:00:34.118
+Veja um exemplo.
+
+00:00:34.315 --> 00:00:40.076
+No river, a mesa mostra ás, nove,
+quatro, dois e sete, sem três cartas
+
+00:00:40.076 --> 00:00:43.254
+do mesmo naipe, e o pote
+tem doze big blinds.
+
+00:00:43.452 --> 00:00:45.148
+Você tem ás e valete:
+
+00:00:45.308 --> 00:00:46.849
+top pair com valete.
+
+00:00:47.047 --> 00:00:50.896
+O jogador do big blind dá
+check, e a ação chega a você.
+
+00:00:51.094 --> 00:00:55.205
+Para este exercício, sabemos que ele
+paga uma aposta pequena com vários
+
+00:00:55.205 --> 00:00:56.592
+ases menores.
+
+00:00:56.790 --> 00:01:00.252
+Você aposta quatro big blinds, e ele paga.
+
+00:01:01.583 --> 00:01:04.723
+No showdown, o rival mostra ás e cinco.
+
+00:01:04.921 --> 00:01:09.186
+Os dois têm um par de ases, mas o seu
+valete vence o nove que acompanha
+
+00:01:09.186 --> 00:01:10.006
+a mão dele.
+
+00:01:10.204 --> 00:01:14.864
+A aposta recebeu de uma mão pior,
+exatamente o que a hipótese previa.
+
+00:01:15.062 --> 00:01:19.143
+Se ele só pagasse com mãos
+melhores, a conclusão mudaria.
+
+00:01:20.483 --> 00:01:24.228
+Antes de escolher o tamanho,
+confira as ações legais.
+
+00:01:24.426 --> 00:01:27.875
+Depois de um check, você
+pode dar check ou apostar.
+
+00:01:28.073 --> 00:01:33.138
+Diante de uma aposta, as opções passam
+a ser fold, call ou raise, respeitando
+
+00:01:33.138 --> 00:01:34.898
+os stacks e as regras da mesa.
+
+00:01:36.217 --> 00:01:40.366
+Agora imagine um rival que chega ao
+river com muitos pares fracos, mas
+
+00:01:40.366 --> 00:01:43.016
+desiste de todos diante
+de uma aposta grande.
+
+00:01:43.214 --> 00:01:47.196
+A força da sua mão contra o conjunto
+inicial não prova que a aposta grande
+
+00:01:47.196 --> 00:01:48.300
+seja por valor.
+
+00:01:48.498 --> 00:01:52.841
+Uma aposta pequena pode receber calls
+mais amplos, mas também oferece ao
+
+00:01:52.841 --> 00:01:54.537
+rival a opção de aumentar.
+
+00:01:55.883 --> 00:01:59.620
+O valor de apostar deve ser comparado
+ao que aconteceria se você desse
+
+00:01:59.620 --> 00:02:00.247
+check.
+
+00:02:00.445 --> 00:02:04.525
+Se você já venceria o showdown contra
+uma mão fraca que sempre desiste,
+
+00:02:04.762 --> 00:02:06.806
+o fold dela não acrescenta nada.
+
+00:02:07.004 --> 00:02:11.398
+Receber de mãos piores aumenta o
+ganho, e pagar raises de mãos melhores
+
+00:02:11.398 --> 00:02:12.644
+aumenta o custo.
+
+00:02:12.842 --> 00:02:15.891
+Um call sozinho não prova
+que a aposta foi boa.
+
+00:02:17.250 --> 00:02:20.892
+No treino, o cenário fixa
+um pagador com um ás menor.
+
+00:02:21.090 --> 00:02:26.176
+É uma condição didática, e não uma
+leitura garantida sobre jogadores reais.
+
+00:02:26.374 --> 00:02:29.995
+Repita a mão com tamanhos diferentes
+e anote em que ponto a política do
+
+00:02:29.995 --> 00:02:31.575
+bot deixa de continuar.
+
+00:02:31.773 --> 00:02:35.299
+Uma única amostra não estima
+o range de uma população.
+
+00:02:36.650 --> 00:02:37.908
+Exercício.
+
+00:02:38.106 --> 00:02:42.088
+No modelo, o rival paga uma aposta de
+quatro big blinds com pares médios
+
+00:02:42.088 --> 00:02:46.620
+e ases menores, mas só paga doze big
+blinds com mãos que vencem você.
+
+00:02:46.818 --> 00:02:49.081
+Que aposta cumpre o papel de valor?
+
+00:02:49.279 --> 00:02:49.738
+A:
+
+00:02:50.001 --> 00:02:53.114
+a aposta grande, de doze big blinds.
+
+00:02:53.312 --> 00:02:53.823
+B:
+
+00:02:54.163 --> 00:02:57.277
+a aposta pequena, de quatro big blinds.
+
+00:02:57.475 --> 00:02:58.063
+C:
+
+00:02:58.235 --> 00:02:59.906
+nenhum tamanho serve.
+
+00:03:00.104 --> 00:03:02.096
+Pause o vídeo e responda.
+
+00:03:05.783 --> 00:03:06.835
+Resposta:
+
+00:03:07.072 --> 00:03:07.608
+B.
+
+00:03:07.806 --> 00:03:11.809
+Na aposta pequena, mãos piores
+continuam e pagam você.
+
+00:03:12.007 --> 00:03:17.054
+Na aposta grande, só as melhores pagam,
+e a aposta deixa de ser por valor.
+
+00:03:17.252 --> 00:03:21.977
+O tamanho certo depende de quem
+continua, e o rival ainda pode aumentar.
+
+00:03:23.317 --> 00:03:26.044
+Agora leve a aula para a mesa de treino.
+
+00:03:26.242 --> 00:03:30.078
+O bot pagador continua com
+pares a preços moderados.
+
+00:03:30.276 --> 00:03:34.743
+A hipótese de receber de mãos piores
+precisa sustentar a sua aposta.
+
+00:03:34.941 --> 00:03:39.799
+Comece pelo treino guiado, repita no modo
+desafio e use o replay para comparar
+
+00:03:39.799 --> 00:03:41.946
+a outra linha na mesma distribuição.
+
+00:03:43.283 --> 00:03:45.765
+Registre sua justificativa no caderno:
+
+00:03:45.963 --> 00:03:49.610
+acertar a leitura e respeitar as
+hipóteses importa mais do que ganhar a
+
+00:03:49.610 --> 00:03:50.108
+mão.
+
+00:03:50.306 --> 00:03:54.670
+O treino usa fichas sem valor,
+e este curso não promete lucro.

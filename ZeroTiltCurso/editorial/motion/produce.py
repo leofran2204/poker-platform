@@ -11,7 +11,7 @@ manifesto e a transcrição em ZeroTiltCurso/editorial/ e o bloco de vídeo do s
 Uso:
     python produce.py PineappleDrawRules src/data/pineapple-draw-rules.json --poster 31 --publish
     python produce.py AcademyM5L3 src/data/academy-m5l3.json --publish
-    python produce.py AcademyM2L2 src/data/m2l2.json          (piloto, sem publicar)
+    python produce.py AcademyM2L1 src/data/academy-m2l1.json --publish --concurrency 4
 """
 from __future__ import annotations
 
@@ -99,7 +99,11 @@ def captions(scenes: list[dict], fps: int) -> str:
             words = text.split()
             best = min(range(1, len(words)), key=lambda k: abs(len(" ".join(words[:k])) - len(text) / 2))
             text = " ".join(words[:best]) + "\n" + " ".join(words[best:])
-        lines += [f"{stamp(start)} --> {stamp(max(hold, start + 0.2))}", text, ""]
+        until = max(hold, start + 0.2)
+        if index + 1 < len(cues):
+            # O mínimo de 0,2 s não pode invadir a legenda seguinte (sobreposição de até 45 ms em 4 aulas).
+            until = min(until, cues[index + 1][0])
+        lines += [f"{stamp(start)} --> {stamp(until)}", text, ""]
     return "\n".join(lines)
 
 
@@ -169,7 +173,8 @@ def publish(
     """Grava a versão web no site (do render bruto: uma só compressão de áudio) e o manifesto."""
     lesson_id = script.get("lesson")
     if lesson_id:
-        name = f"zt-academy-{lesson_id}-v4"
+        prefix = "zt-intro" if lesson_id in render.PRESENTATION_LESSONS else "zt-academy"
+        name = f"{prefix}-{lesson_id}-v4"
         manifest_path = EDITORIAL / f"academy-{lesson_id}-manifest.json"
         transcript_path = EDITORIAL / f"academy-{lesson_id}-transcript.txt"
         course = json.loads(COURSE_FILE.read_text(encoding="utf-8"))
@@ -199,7 +204,8 @@ def publish(
         "composition": composition,
         "script": script_path.as_posix(),
         "scriptHash": render.motion_script_fingerprint(script),
-        "bettingRuleVersion": script.get("bettingRuleVersion"),
+        # Só os vídeos do Brazilian Pineapple têm versão de regra de apostas própria.
+        **({"bettingRuleVersion": script["bettingRuleVersion"]} if script.get("bettingRuleVersion") else {}),
         "durationSeconds": round(duration_of(target), 2),
         "width": 1920,
         "height": 1080,
@@ -227,7 +233,7 @@ def publish(
         "pronunciationVersion": render.MOTION_PRONUNCIATION_VERSION,
         "narrationHash": narration_hash,
         "mediaRevision": assets["mediaRevision"],
-        "bettingRuleVersion": script.get("bettingRuleVersion"),
+        **({"bettingRuleVersion": script["bettingRuleVersion"]} if script.get("bettingRuleVersion") else {}),
     }
     if lesson_id:
         # Relê o curso: um texto alterado durante o render cancela a publicação.
@@ -237,6 +243,11 @@ def publish(
             raise SystemExit(f"Aula {lesson_id} mudou durante a produção: publicação cancelada")
         lesson["video"] = {**video, "contentHash": content_hash}
         write_json(COURSE_FILE, course)
+        # Versões anteriores do vídeo desta aula (renderizador antigo) saem do site.
+        for prefix in ("zt-academy", "zt-intro"):
+            for old in VIDEOS.glob(f"{prefix}-{lesson_id}-v*.*"):
+                if old.stem != name:
+                    old.unlink()
     else:
         films = json.loads(FILMS_FILE.read_text(encoding="utf-8")) if FILMS_FILE.exists() else {}
         films[script["id"]] = {"filename": name, "title": script["title"], **{k: v for k, v in video.items() if k not in ("url", "captionsUrl", "posterUrl")}}

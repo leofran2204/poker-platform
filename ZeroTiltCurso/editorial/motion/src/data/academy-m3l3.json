@@ -1,0 +1,332 @@
+{
+ "id": "academy-m3l3",
+ "title": "Aula m3l3 — Projetos, outs e pot odds no turn",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m3l3",
+ "scenes": [
+  {
+   "id": "m3l3-01",
+   "chapter": "Abertura",
+   "title": "Draws, outs e pot odds no turn",
+   "voice": "Esta é a Zero Tilt Academy. Na aula três do módulo três, vamos estudar projetos, outs e pot odds no turn. O objetivo é calcular o limiar do call e separar a chance de completar um flush da chance de vencer.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 3 · Aula 3",
+    "lines": [
+     "Objetivo: calcular o limiar do call e separar completar de vencer"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m3l3-02",
+   "chapter": "Exemplo guiado",
+   "title": "Projeto de flush no turn",
+   "voice": "Veja agora uma decisão tomada no turn. O pote tem doze big blinds, e a mesa mostra rei de copas, nove de copas e quatro de paus. Você tem sete e seis de copas: um projeto de flush. O turn traz o dois de espadas, e o rival aposta três big blinds.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 9400,
+      "cards": [
+       "7h",
+       "6h"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 9400,
+      "cards": [
+       "Kc",
+       "Td"
+      ]
+     }
+    ],
+    "board": [
+     "Kh",
+     "9h",
+     "4c"
+    ],
+    "pot": 1200,
+    "events": [
+     {
+      "type": "board",
+      "cue": "O turn traz",
+      "cards": [
+       "2s"
+      ]
+     },
+     {
+      "type": "bet",
+      "cue": "o rival aposta",
+      "player": 1,
+      "to": 300
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     2
+    ],
+    "banner": "Turn · pote de 12 BB"
+   }
+  },
+  {
+   "id": "m3l3-03",
+   "chapter": "O preço do call",
+   "title": "Limiar: C sobre P mais C",
+   "voice": "Agora o preço. Chame de P o pote que já inclui a aposta do rival: quinze big blinds. Pagar custa C, que aqui são três big blinds. Sem rake, o limiar é C sobre P mais C: três sobre dezoito, cerca de dezesseis vírgula sete por cento. O denominador inclui o seu próprio call.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "P · POTE COM A APOSTA",
+      "15 BB"
+     ],
+     [
+      "C · CUSTO DO CALL",
+      "3 BB"
+     ],
+     [
+      "LIMIAR · 3/18",
+      "≈ 16,67%"
+     ]
+    ],
+    "cues": [
+     "quinze big blinds",
+     "três big blinds",
+     "três sobre dezoito"
+    ],
+    "note": "O denominador inclui o seu call"
+   }
+  },
+  {
+   "id": "m3l3-04",
+   "chapter": "Outs",
+   "title": "Nove copas em quarenta e seis",
+   "voice": "Quantas copas ainda podem vir? Você conhece seis cartas: as suas duas e as quatro da mesa. Restam quarenta e seis desconhecidas. Com quatro copas à vista, sobram nove. Então a chance de uma copa no river é nove sobre quarenta e seis, cerca de dezenove vírgula seis por cento, numa distribuição uniforme.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "DESCONHECIDAS · 52 − 6",
+      "46"
+     ],
+     [
+      "COPAS RESTANTES · 13 − 4",
+      "9"
+     ],
+     [
+      "COPA NO RIVER · 9/46",
+      "≈ 19,57%"
+     ]
+    ],
+    "cues": [
+     "quarenta e seis desconhecidas",
+     "sobram nove",
+     "nove sobre quarenta e seis"
+    ]
+   }
+  },
+  {
+   "id": "m3l3-05",
+   "chapter": "Outs",
+   "title": "Completar não é vencer",
+   "voice": "Mas completar o flush e ter equity são medidas diferentes. Algumas copas podem não vencer: num board pareado, a carta que completa o seu flush pode dar full house ao rival. E, em outros cenários, cartas fora do projeto também podem dar a melhor mão. Por isso, a equity não é automaticamente a chance de acertar o projeto.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Outs contaminados",
+      "items": [
+       "Seu flush, full house do rival"
+      ],
+      "cues": [
+       "full house"
+      ],
+      "tone": "danger"
+     },
+     {
+      "title": "Outras vitórias",
+      "items": [
+       "Cartas fora do projeto também ganham"
+      ],
+      "cues": [
+       "cartas fora do projeto"
+      ],
+      "tone": "mint"
+     }
+    ],
+    "note": "Equity não é a chance de completar",
+    "noteCue": "a equity não é"
+   }
+  },
+  {
+   "id": "m3l3-06",
+   "chapter": "Regra de bolso",
+   "title": "Outs vezes dois, outs vezes quatro",
+   "voice": "Há uma regra de bolso: outs vezes dois para uma carta, e outs vezes quatro para duas cartas. Com nove outs no turn, dá dezoito por cento, perto dos dezenove vírgula seis da conta exata. Mas ver só o flop não garante chegar ao river pelo preço de uma aposta. Considere apostas futuras, rake, posição e outs contaminados.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Uma carta: outs × 2",
+     "Duas cartas: outs × 4",
+     "Ver o flop não garante o river"
+    ],
+    "cues": [
+     "outs vezes dois",
+     "outs vezes quatro",
+     "ver só o flop"
+    ]
+   }
+  },
+  {
+   "id": "m3l3-07",
+   "chapter": "Valor esperado",
+   "title": "Valor esperado com premissas",
+   "voice": "A conta do valor esperado mostra o papel da equity. Suponha, só como premissa, que nada mais seja apostado no river e que a sua equity seja de vinte por cento: zero vírgula dois vezes dezoito, menos três, dá mais zero vírgula seis big blind. Com quinze por cento, o resultado seria menos zero vírgula três. Repare que o limiar, de dezesseis vírgula sete por cento, fica entre os dois. Esses números são premissas para exercitar a fórmula, e não a equity real das cartas da mesa.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "EQUITY 20% · 0,2 × 18 − 3",
+      "+0,6 BB"
+     ],
+     [
+      "EQUITY 15% · 0,15 × 18 − 3",
+      "−0,3 BB"
+     ],
+     [
+      "LIMIAR · 3/18",
+      "≈ 16,67%"
+     ]
+    ],
+    "cues": [
+     "vinte por cento",
+     "quinze por cento",
+     "Repare que o limiar"
+    ],
+    "note": "Premissas, não a equity das cartas da mesa"
+   }
+  },
+  {
+   "id": "m3l3-08",
+   "chapter": "Cartas reveladas",
+   "title": "Revise o evento, não só o denominador",
+   "voice": "E se duas cartas do rival forem reveladas, como num all-in? O denominador cai de quarenta e seis para quarenta e quatro. Mas também retire do numerador qualquer copa que apareceu entre elas. Não reduza o denominador e esqueça de revisar o evento.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Duas reveladas: 44 desconhecidas",
+     "Copa revelada sai do numerador",
+     "Revise o evento inteiro"
+    ],
+    "cues": [
+     "quarenta e quatro",
+     "retire do numerador",
+     "Não reduza"
+    ]
+   }
+  },
+  {
+   "id": "m3l3-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. Ainda no flop, você tem nove outs para flush. Pela regra de bolso, qual é a chance aproximada de completar até o river, vendo as duas cartas? A: cerca de dezoito por cento. B: cerca de trinta e seis por cento. C: cerca de nove por cento. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Ainda no flop, você tem nove outs para flush. Pela regra de bolso, qual é a chance aproximada de completar até o river, vendo as duas cartas?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Cerca de 18%",
+      "cue": "A cerca de dezoito"
+     },
+     {
+      "key": "B",
+      "text": "Cerca de 36%",
+      "cue": "B cerca de trinta e seis"
+     },
+     {
+      "key": "C",
+      "text": "Cerca de 9%",
+      "cue": "C cerca de nove"
+     }
+    ],
+    "correct": "B"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m3l3-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B. Nove vezes quatro dá trinta e seis por cento. A conta exata, com quarenta e sete cartas desconhecidas no flop, dá cerca de trinta e cinco. E ela só vale se você vir as duas cartas pelo preço de agora, o que nenhuma aposta garante.",
+   "visual": {
+    "mode": "answer",
+    "question": "Ainda no flop, você tem nove outs para flush. Pela regra de bolso, qual é a chance aproximada de completar até o river, vendo as duas cartas?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Cerca de 18%",
+      "cue": "A cerca de dezoito"
+     },
+     {
+      "key": "B",
+      "text": "Cerca de 36%",
+      "cue": "B cerca de trinta e seis"
+     },
+     {
+      "key": "C",
+      "text": "Cerca de 9%",
+      "cue": "C cerca de nove"
+     }
+    ],
+    "correct": "B",
+    "cue": "Resposta",
+    "explanation": "9 × 4 = 36% · conta exata ≈ 35%"
+   }
+  },
+  {
+   "id": "m3l3-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. Com quatro copas conhecidas, restam nove em quarenta e seis cartas desconhecidas: isso descreve completar uma copa, e não uma equity garantida. Calcule o limiar do call antes de decidir. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Nove copas em 46 cartas",
+     "Completar não é vencer",
+     "Calcule o limiar do call"
+    ],
+    "cues": [
+     "restam nove",
+     "não uma equity garantida",
+     "Calcule o limiar"
+    ]
+   }
+  },
+  {
+   "id": "m3l3-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

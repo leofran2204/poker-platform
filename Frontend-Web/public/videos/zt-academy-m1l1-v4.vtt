@@ -1,0 +1,314 @@
+WEBVTT
+
+00:00:00.517 --> 00:00:02.832
+Esta é a Zero Tilt Academy.
+
+00:00:03.030 --> 00:00:07.445
+Na primeira aula do módulo um, vamos
+estudar ranges de abertura por posição,
+
+00:00:07.618 --> 00:00:09.559
+na mesa de nove jogadores.
+
+00:00:09.757 --> 00:00:14.409
+O objetivo é relacionar quantos
+jogadores ainda vão agir, a sua posição
+
+00:00:14.409 --> 00:00:15.744
+e o plano de abertura.
+
+00:00:17.083 --> 00:00:21.168
+Um range é um conjunto de mãos
+possíveis, e cada mão pode aparecer com
+
+00:00:21.168 --> 00:00:22.723
+uma frequência diferente.
+
+00:00:22.921 --> 00:00:26.872
+Por isso, a pergunta não é só qual
+mão abrir, mas em que cenário:
+
+00:00:27.044 --> 00:00:31.215
+posição, stacks, rake e as
+respostas dos outros jogadores.
+
+00:00:32.550 --> 00:00:37.254
+Na mesa de nove, quem abre primeiro
+é a posição inicial, logo à esquerda
+
+00:00:37.254 --> 00:00:38.331
+do big blind.
+
+00:00:38.529 --> 00:00:41.489
+Ela ainda enfrenta oito
+jogadores por agir.
+
+00:00:41.687 --> 00:00:45.406
+A cada lugar para a
+esquerda, falta um a menos.
+
+00:00:45.604 --> 00:00:49.762
+Quando a vez chega ao cutoff,
+ainda faltam três jogadores.
+
+00:00:49.960 --> 00:00:53.035
+No botão, faltam só os dois blinds.
+
+00:00:54.383 --> 00:00:56.646
+Compare os dois extremos.
+
+00:00:56.844 --> 00:01:01.393
+Na posição inicial, oito jogadores
+ainda podem ter uma mão forte, e quem
+
+00:01:01.393 --> 00:01:04.198
+pagar à sua esquerda terá
+posição depois do flop.
+
+00:01:04.396 --> 00:01:08.945
+No botão, só os blinds ficam por agir,
+e você fala por último depois do
+
+00:01:08.945 --> 00:01:09.546
+flop.
+
+00:01:09.744 --> 00:01:14.370
+Por isso o botão costuma abrir mais
+mãos, desde que stacks, rake e respostas
+
+00:01:14.370 --> 00:01:15.731
+sejam comparáveis.
+
+00:01:17.083 --> 00:01:19.424
+Atenção à ordem depois do flop.
+
+00:01:19.622 --> 00:01:23.535
+A posição inicial fica fora de posição
+contra quem pagar à sua esquerda,
+
+00:01:23.732 --> 00:01:27.367
+mas fica em posição contra os blinds,
+porque do flop em diante os blinds
+
+00:01:27.367 --> 00:01:29.669
+falam primeiro e o botão fala por último.
+
+00:01:29.867 --> 00:01:33.096
+Não confunda a ordem do
+pré-flop com a do pós-flop.
+
+00:01:34.450 --> 00:01:36.572
+Agora o exercício guiado.
+
+00:01:36.770 --> 00:01:41.649
+A mesa é de Texas cash, com nove
+jogadores e cem big blinds de stack.
+
+00:01:41.847 --> 00:01:46.963
+Os blinds entram, e todos desistem
+até você, no botão, com rei e dama de
+
+00:01:46.963 --> 00:01:47.925
+espadas.
+
+00:01:48.123 --> 00:01:51.481
+No plano básico, essa
+mão entra na abertura.
+
+00:01:51.679 --> 00:01:56.353
+Você abre para dois big blinds e
+meio, um tamanho comum de referência.
+
+00:01:56.551 --> 00:02:01.082
+O jogador do small blind desiste, e quem
+está no big blind paga a diferença:
+
+00:02:01.293 --> 00:02:02.873
+mais um big blind e meio.
+
+00:02:03.071 --> 00:02:06.353
+O pote do flop fica com
+cinco big blinds e meio.
+
+00:02:07.717 --> 00:02:10.496
+Antes de agir, registre duas coisas:
+
+00:02:10.681 --> 00:02:14.169
+o tamanho da abertura e o que você
+vai fazer diante de uma 3-bet.
+
+00:02:14.366 --> 00:02:18.086
+Um quadro de ranges sem essas
+hipóteses fica incompleto.
+
+00:02:19.417 --> 00:02:22.106
+Agora, conte combinações.
+
+00:02:22.304 --> 00:02:26.500
+A grade mostra as cento e sessenta
+e nove classes de mãos iniciais.
+
+00:02:26.698 --> 00:02:28.600
+Na diagonal ficam os pares:
+
+00:02:28.786 --> 00:02:30.933
+cada um tem seis combinações.
+
+00:02:31.131 --> 00:02:36.062
+Acima dela, as mãos do mesmo naipe,
+com quatro combinações cada.
+
+00:02:36.260 --> 00:02:40.095
+Abaixo, as de naipes diferentes, com doze.
+
+00:02:40.293 --> 00:02:44.696
+Somando tudo, são mil trezentas
+e vinte e seis mãos possíveis.
+
+00:02:46.050 --> 00:02:46.960
+Um exemplo:
+
+00:02:47.120 --> 00:02:51.471
+ás e rei têm quatro combinações do mesmo
+naipe e doze de naipes diferentes,
+
+00:02:51.630 --> 00:02:52.953
+dezesseis no total.
+
+00:02:53.151 --> 00:02:57.120
+Abrir uma classe em metade das vezes
+não quer dizer que cada combinação
+
+00:02:57.120 --> 00:02:59.048
+apareceu metade das vezes.
+
+00:02:59.246 --> 00:03:03.004
+Primeiro defina quais classes
+entram, e em que cenário.
+
+00:03:04.350 --> 00:03:07.193
+Os outros fatores também mudam a conta.
+
+00:03:07.391 --> 00:03:10.943
+Uma abertura pode receber
+call, raise ou fold.
+
+00:03:11.141 --> 00:03:15.445
+Stacks menores deixam as decisões
+seguintes mais rasas; stacks maiores
+
+00:03:15.445 --> 00:03:19.474
+aumentam o peso da posição e das
+mãos que formam combinações fortes.
+
+00:03:19.672 --> 00:03:22.387
+Rake e cap mudam o valor de continuar.
+
+00:03:22.585 --> 00:03:27.224
+Por isso, os treinos usam rake zero
+e stacks declarados, e o resultado
+
+00:03:27.224 --> 00:03:29.977
+não é uma tabela pronta para
+qualquer mesa do lobby.
+
+00:03:31.317 --> 00:03:35.784
+Então, em vez de perguntar se rei e
+dama do mesmo naipe é sempre abertura,
+
+00:03:36.033 --> 00:03:37.717
+monte uma pergunta estudável.
+
+00:03:37.915 --> 00:03:42.975
+Defina a posição, o número de
+jogadores, o stack efetivo e o tamanho.
+
+00:03:43.173 --> 00:03:47.562
+Depois pergunte quais respostas dos
+blinds tornariam outra linha melhor.
+
+00:03:47.760 --> 00:03:51.879
+Não usamos tabelas de fornecedores
+como gabarito deste treino.
+
+00:03:53.217 --> 00:03:54.475
+Exercício.
+
+00:03:54.673 --> 00:03:59.205
+Na mesa de nove, todos
+desistiram até você, no cutoff.
+
+00:03:59.403 --> 00:04:02.478
+Quantos jogadores ainda
+vão agir no pré-flop?
+
+00:04:02.676 --> 00:04:03.174
+A:
+
+00:04:03.281 --> 00:04:04.153
+dois.
+
+00:04:04.351 --> 00:04:04.913
+B:
+
+00:04:05.150 --> 00:04:05.880
+três.
+
+00:04:06.078 --> 00:04:06.730
+C:
+
+00:04:06.980 --> 00:04:07.800
+quatro.
+
+00:04:07.998 --> 00:04:09.991
+Pause o vídeo e responda.
+
+00:04:13.683 --> 00:04:14.684
+Resposta:
+
+00:04:14.946 --> 00:04:16.436
+B, três.
+
+00:04:16.634 --> 00:04:21.140
+Depois do cutoff ainda falam o
+botão, o small blind e o big blind.
+
+00:04:21.338 --> 00:04:25.779
+Com mais jogadores por agir, o cutoff
+costuma abrir menos mãos que o botão,
+
+00:04:25.951 --> 00:04:27.673
+com as mesmas hipóteses.
+
+00:04:29.017 --> 00:04:32.324
+Agora leve a aula para a
+mesa de treino da Academy.
+
+00:04:32.522 --> 00:04:35.314
+A mesa didática começa com três jogadores:
+
+00:04:35.512 --> 00:04:39.914
+ajuste o range ao número real de
+oponentes, sem copiar um quadro de nove.
+
+00:04:40.112 --> 00:04:44.597
+Comece pelo treino guiado, depois
+repita no modo desafio e use o replay
+
+00:04:44.597 --> 00:04:47.530
+para comparar uma alternativa
+na mesma distribuição.
+
+00:04:48.850 --> 00:04:51.332
+Registre sua justificativa no caderno:
+
+00:04:51.530 --> 00:04:55.177
+acertar a leitura e respeitar as
+hipóteses importa mais do que ganhar a
+
+00:04:55.177 --> 00:04:55.675
+mão.
+
+00:04:55.873 --> 00:05:00.237
+O treino usa fichas sem valor,
+e este curso não promete lucro.

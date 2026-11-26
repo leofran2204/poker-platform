@@ -1,0 +1,426 @@
+{
+ "id": "academy-m3l1",
+ "title": "Aula m3l1 — Double barrel: cartas que assustam e tamanho no turn",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m3l1",
+ "scenes": [
+  {
+   "id": "m3l1-01",
+   "chapter": "Abertura",
+   "title": "Double barrel no turn",
+   "voice": "Esta é a Zero Tilt Academy. Na primeira aula do módulo três, vamos estudar o segundo barril: a aposta no turn depois de apostar no flop. O objetivo é atualizar a força relativa da sua mão quando chega uma carta nova e planejar o river.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 3 · Aula 1",
+    "lines": [
+     "Objetivo: atualizar a força relativa e planejar o river"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m3l1-02",
+   "chapter": "O segundo barril",
+   "title": "Uma aposta precisa de razão",
+   "voice": "Uma aposta no turn, depois de apostar no flop, precisa de uma razão. Ela pode receber de mãos piores, fazer mãos melhores desistirem, ou somar fold equity à chance de melhorar. A iniciativa, sozinha, não justifica a segunda aposta.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Receber de mãos piores",
+     "Fazer mãos melhores desistirem",
+     "Fold equity mais chance de melhorar"
+    ],
+    "cues": [
+     "receber de mãos piores",
+     "fazer mãos melhores",
+     "somar fold equity"
+    ],
+    "note": "A iniciativa sozinha não justifica"
+   }
+  },
+  {
+   "id": "m3l1-03",
+   "chapter": "Exemplo guiado",
+   "title": "Top pair no flop",
+   "voice": "Veja o exemplo. Os blinds entram, e você abre no botão com ás de espadas e dama de ouros, para dois big blinds e meio. O jogador do small blind desiste, e quem está no big blind paga. O flop vem dama de espadas, oito de paus e três de copas. Quem está no big blind dá check, você aposta dois com top pair, e ele paga.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 10000,
+      "cards": [
+       "As",
+       "Qd"
+      ]
+     },
+     {
+      "name": "SB",
+      "stack": 10000,
+      "cards": [
+       "Jc",
+       "4d"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 10000,
+      "cards": [
+       "8h",
+       "7h"
+      ]
+     }
+    ],
+    "board": [],
+    "pot": 0,
+    "events": [
+     {
+      "type": "post",
+      "cue": "Os blinds entram",
+      "player": 1,
+      "to": 50,
+      "label": "SB"
+     },
+     {
+      "type": "post",
+      "player": 2,
+      "to": 100,
+      "label": "BB"
+     },
+     {
+      "type": "raise",
+      "cue": "você abre",
+      "player": 0,
+      "to": 250
+     },
+     {
+      "type": "fold",
+      "cue": "small blind desiste",
+      "player": 1
+     },
+     {
+      "type": "call",
+      "cue": "big blind paga",
+      "player": 2,
+      "to": 250
+     },
+     {
+      "type": "collect"
+     },
+     {
+      "type": "board",
+      "cue": "O flop vem",
+      "cards": [
+       "Qs",
+       "8c",
+       "3h"
+      ]
+     },
+     {
+      "type": "check",
+      "cue": "big blind dá check",
+      "player": 2
+     },
+     {
+      "type": "bet",
+      "cue": "você aposta dois",
+      "player": 0,
+      "to": 200
+     },
+     {
+      "type": "call",
+      "cue": "e ele paga",
+      "player": 2,
+      "to": 200
+     },
+     {
+      "type": "collect"
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     1,
+     2
+    ],
+    "banner": "Flop · c-bet paga"
+   }
+  },
+  {
+   "id": "m3l1-04",
+   "chapter": "Exemplo guiado",
+   "title": "Chega um rei",
+   "voice": "No turn chega o rei de ouros, e o big blind dá check de novo. A sua mão mudou: com o rei na mesa, a dama deixou de ser o par mais alto, e você passou de top pair a segundo par. Se o plano declarado é controlar o pote e preservar o valor de showdown, o check-back cumpre esse plano.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 9550,
+      "cards": [
+       "As",
+       "Qd"
+      ]
+     },
+     {
+      "name": "SB",
+      "stack": 9950,
+      "cards": [
+       "Jc",
+       "4d"
+      ],
+      "folded": true
+     },
+     {
+      "name": "BB",
+      "stack": 9550,
+      "cards": [
+       "8h",
+       "7h"
+      ]
+     }
+    ],
+    "board": [
+     "Qs",
+     "8c",
+     "3h"
+    ],
+    "pot": 950,
+    "events": [
+     {
+      "type": "board",
+      "cue": "chega o rei",
+      "cards": [
+       "Kd"
+      ]
+     },
+     {
+      "type": "check",
+      "cue": "dá check de novo",
+      "player": 2
+     },
+     {
+      "type": "check",
+      "cue": "o check-back cumpre",
+      "player": 0
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     1,
+     2
+    ],
+    "banner": "Turn · K♦",
+    "note": "Top pair virou segundo par"
+   }
+  },
+  {
+   "id": "m3l1-05",
+   "chapter": "Leitura do turn",
+   "title": "O rei favorece quem?",
+   "voice": "Um rei pode ajudar parte do range de quem abriu, como ás e rei. Mas também melhora quem pagou: rei e dama vira dois pares, e outros reis que pagaram o flop passam na frente da sua dama. Por isso, não trate toda carta alta como uma carta que assusta automaticamente.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Quem abriu (botão)",
+      "items": [
+       "Alguns reis fortes, como AK"
+      ],
+      "cues": [
+       "como ás e rei"
+      ],
+      "tone": "mint"
+     },
+     {
+      "title": "Quem pagou (big blind)",
+      "items": [
+       "KQ vira dois pares",
+       "Outros reis passam na frente"
+      ],
+      "cues": [
+       "rei e dama vira",
+       "outros reis"
+      ],
+      "tone": "gold"
+     }
+    ],
+    "note": "Nenhuma carta assusta automaticamente",
+    "noteCue": "não trate toda carta"
+   }
+  },
+  {
+   "id": "m3l1-06",
+   "chapter": "Leitura do turn",
+   "title": "Atualize os ranges, não só o board",
+   "voice": "Depois de uma c-bet paga, o range de quem pagou já não é o do pré-flop: parte das mãos desistiu, e parte continuou. A carta do turn age sobre essa distribuição filtrada. A história da iniciativa não substitui a contagem das mãos plausíveis.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Parte desistiu, parte continuou",
+     "O turn age sobre o range filtrado",
+     "Conte as mãos plausíveis"
+    ],
+    "cues": [
+     "parte das mãos desistiu",
+     "distribuição filtrada",
+     "não substitui"
+    ]
+   }
+  },
+  {
+   "id": "m3l1-07",
+   "chapter": "Valor, blefe ou proteção",
+   "title": "Diga quem paga e quem desiste",
+   "voice": "Antes de apostar, diga quais mãos piores pagam e quais melhores desistem. Com ás e dama neste turn, algumas damas piores e alguns projetos podem pagar, mas quase nenhuma mão melhor desiste. Negar equity aos projetos pode fazer parte da razão, mas compare isso com o risco de enfrentar um raise e com o valor do check. Apostar aqui não vira, automaticamente, um segundo barril polarizado.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Quais piores pagam?",
+     "Quais melhores desistem?",
+     "Proteção: compare com o risco de raise"
+    ],
+    "cues": [
+     "quais mãos piores pagam",
+     "quais melhores desistem",
+     "Negar equity"
+    ]
+   }
+  },
+  {
+   "id": "m3l1-08",
+   "chapter": "Plano para o river",
+   "title": "Planeje dois tipos de river",
+   "voice": "Se escolher apostar no turn, descreva antes o que fará num river favorável e num river que complete um projeto do rival. Use os stacks e o pote para saber quais tamanhos ainda cabem. No replay, compare o que você sabia antes do river com o que veio depois, sem usar o resultado para reescrever a hipótese.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "River favorável: qual plano?",
+     "River que completa projeto: qual plano?",
+     "Não reescreva a hipótese pelo resultado"
+    ],
+    "cues": [
+     "num river favorável",
+     "complete um projeto",
+     "No replay"
+    ]
+   }
+  },
+  {
+   "id": "m3l1-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. O flop foi dama, oito e três, e o turn trouxe o rei de ouros. Qual destas mãos de quem pagou melhorou com o rei? A: oito e sete de copas. B: rei de paus e dama de copas. C: ás e cinco de paus. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Flop Q♠ 8♣ 3♥, turn K♦. Qual destas mãos de quem pagou melhorou com o rei?",
+    "options": [
+     {
+      "key": "A",
+      "text": "8♥ 7♥",
+      "cue": "A oito"
+     },
+     {
+      "key": "B",
+      "text": "K♣ Q♥",
+      "cue": "B rei"
+     },
+     {
+      "key": "C",
+      "text": "A♣ 5♣",
+      "cue": "C ás"
+     }
+    ],
+    "correct": "B",
+    "board": [
+     "Qs",
+     "8c",
+     "3h",
+     "Kd"
+    ]
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m3l1-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B. Rei e dama tinha top pair no flop e virou dois pares no turn. Oito e sete continua com o mesmo par de oitos, e ás e cinco continua sem par. O rei também melhora o range de quem pagou.",
+   "visual": {
+    "mode": "answer",
+    "question": "Flop Q♠ 8♣ 3♥, turn K♦. Qual destas mãos de quem pagou melhorou com o rei?",
+    "options": [
+     {
+      "key": "A",
+      "text": "8♥ 7♥",
+      "cue": "A oito"
+     },
+     {
+      "key": "B",
+      "text": "K♣ Q♥",
+      "cue": "B rei"
+     },
+     {
+      "key": "C",
+      "text": "A♣ 5♣",
+      "cue": "C ás"
+     }
+    ],
+    "correct": "B",
+    "board": [
+     "Qs",
+     "8c",
+     "3h",
+     "Kd"
+    ],
+    "cue": "Resposta",
+    "explanation": "KQ: top pair no flop, dois pares no turn"
+   }
+  },
+  {
+   "id": "m3l1-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. Ás e dama passou a segundo par: o rei no turn não obriga você a apostar, nem acaba com o valor de showdown. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "AQ virou segundo par",
+     "O rei não obriga a apostar",
+     "Guiado, desafio e replay"
+    ],
+    "cues": [
+     "passou a segundo par",
+     "não obriga você",
+     "Comece pelo treino guiado"
+    ]
+   }
+  },
+  {
+   "id": "m3l1-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

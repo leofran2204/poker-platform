@@ -1,311 +1,65 @@
 {
   "lessonId": "m4l3",
-  "filename": "zt-academy-m4l3-v3",
   "contentHash": "5432467144ba836f676379ed782a0849d234ae9f1ce144acdc654ddce651166c",
-  "rendererVersion": 5,
-  "durationSeconds": 348.13,
+  "filename": "zt-academy-m4l3-v4",
+  "title": "Aula m4l3 — Overbet polarizada e blocking bet",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM4L3",
+  "script": "src/data/academy-m4l3.json",
+  "scriptHash": "353932ba24f7c8ab4a3eea8895a8a74f757b74f31793d7e0d7829ad89c810970",
+  "durationSeconds": 218.99,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9740482,
+  "bytes": 12857602,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "25b27adfdaba99b00c5f076bbb19bc99a83473609c4603e15f3690f40e1454f9",
+  "narrationHash": "722055eba671fa803c1046929b4bf3dcb56c7f16d7c186d9ba594dc3ca095db8",
   "chapters": [
     {
       "start": 0.0,
-      "title": "Overbet Polarizada vs. Blocking Bet"
+      "title": "Abertura"
     },
     {
-      "start": 18.87,
-      "title": "Overbet"
-    },
-    {
-      "start": 37.2,
-      "title": "Blocking bet"
-    },
-    {
-      "start": 52.63,
+      "start": 16.87,
       "title": "Primeiro classifique a mão"
     },
     {
-      "start": 75.13,
+      "start": 60.47,
+      "title": "Dois tamanhos"
+    },
+    {
+      "start": 86.1,
       "title": "O preço de uma overbet"
     },
     {
-      "start": 108.67,
-      "title": "Uma aposta pequena não fecha a ação"
+      "start": 109.9,
+      "title": "Aposta pequena"
     },
     {
-      "start": 132.13,
-      "title": "Não confunda força com invulnerabilidade"
+      "start": 128.93,
+      "title": "Força não é invulnerabilidade"
     },
     {
-      "start": 164.17,
-      "title": "Laboratório: Identifique o flush antes do sizing"
+      "start": 140.03,
+      "title": "Exercício"
     },
     {
-      "start": 203.0,
-      "title": "Laboratório: Identifique o flush antes do sizing"
+      "start": 179.93,
+      "title": "Laboratório"
     },
     {
-      "start": 211.3,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 239.13,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 258.67,
-      "title": "Exercício resolvido 2"
-    },
-    {
-      "start": 295.8,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 316.17,
-      "title": "Agora, pratique"
+      "start": 204.9,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 18.866666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 18.866666666666667,
-      "duration": 18.333333333333332,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 37.2,
-      "duration": 15.433333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 52.63333333333334,
-      "duration": 22.5,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 75.13333333333334,
-      "duration": 33.53333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 108.66666666666667,
-      "duration": 23.466666666666665,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 132.13333333333333,
-      "duration": 32.03333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 164.16666666666666,
-      "duration": 38.833333333333336,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 203.0,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 211.3,
-      "duration": 27.833333333333332,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 239.13333333333335,
-      "duration": 19.533333333333335,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 258.6666666666667,
-      "duration": 37.13333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 295.8,
-      "duration": 20.366666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 316.1666666666667,
-      "duration": 31.966666666666665,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    }
-  ],
-  "sha256": "f5f9bc3c296e6e4cce9a6e1b3a1bd727c01aff092c714f501e07667545bcf653",
+  "sha256": "5a7410184a5ed81dba7ffb6496c695100fe5e63f11ca0883f939b36f320f0831",
   "assetHashes": {
-    "mp4": "f5f9bc3c296e6e4cce9a6e1b3a1bd727c01aff092c714f501e07667545bcf653",
-    "vtt": "e5f898c313f89a1b38f149d947f28597c0c955633333381228a02f9c4c6da9ea",
-    "webp": "435741d1e0a497c204589628ce968f929c064e3380c3c00fe80d7c11f6ed9567"
+    "mp4": "5a7410184a5ed81dba7ffb6496c695100fe5e63f11ca0883f939b36f320f0831",
+    "vtt": "87eab42714c3f0cbc9def696882ea2e90a66ae557411a8baf017d9b6c5a0a6a8",
+    "webp": "e9e717c6ba26ce4c252349419d6bea7e6726b82f39a857f83d2fb7308b2c3b8a"
   },
-  "mediaRevision": "7cf57f1d1956c695a8d13df03255d67f29a2aadb9d4247ec5dfd92e12c161bea"
+  "mediaRevision": "014c41eedfad8c36e6589421d7f4ea5269b759a36b876e7afd8f60d87ebb3290"
 }

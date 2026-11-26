@@ -1,194 +1,61 @@
 {
   "lessonId": "m1l2",
-  "filename": "zt-academy-m1l2-v3",
   "contentHash": "8ba3c88095f16ddc99acbbbed374ec75ca4475a3b662efc54038761ce656fb61",
-  "rendererVersion": 5,
-  "durationSeconds": 327.0,
+  "filename": "zt-academy-m1l2-v4",
+  "title": "Aula m1l2 — Como punir o limp do small blind",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM1L2",
+  "script": "src/data/academy-m1l2.json",
+  "scriptHash": "9ba07758f959d2fe010e372d886189c9a63354bebb21638f0ea8e36f742a0f88",
+  "durationSeconds": 195.97,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8884242,
+  "bytes": 11511101,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "0dd85bf3462d49cba87b3748505ee49a16a0377ff719e7465a8b60c695ca9d70",
+  "narrationHash": "8aaff2beef5bbd9ca06705405c43dda16ac285207f3545028b71e7168b04bd5e",
   "chapters": [
     {
       "start": 0.0,
-      "title": "Como punir o Limp do Small Blind"
+      "title": "Abertura"
     },
     {
-      "start": 17.53,
+      "start": 13.33,
       "title": "Limp do small blind"
     },
     {
-      "start": 36.9,
+      "start": 46.4,
       "title": "Plano do exercício"
     },
     {
-      "start": 61.37,
-      "title": "Revise a hipótese"
-    },
-    {
-      "start": 70.03,
-      "title": "A opção do big blind"
-    },
-    {
-      "start": 104.93,
+      "start": 84.3,
       "title": "O tamanho depende da resposta"
     },
     {
-      "start": 133.67,
+      "start": 108.3,
       "title": "Observe sem concluir cedo"
     },
     {
-      "start": 160.77,
-      "title": "Laboratório: O small blind completa"
+      "start": 130.17,
+      "title": "Exercício"
     },
     {
-      "start": 197.9,
-      "title": "Laboratório: O small blind completa"
+      "start": 160.37,
+      "title": "Laboratório"
     },
     {
-      "start": 206.2,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 228.2,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 245.0,
-      "title": "Exercício resolvido 2"
-    },
-    {
-      "start": 281.8,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 295.63,
-      "title": "Agora, pratique"
+      "start": 181.9,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 17.533333333333335,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 17.533333333333335,
-      "duration": 19.366666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 36.900000000000006,
-      "duration": 24.466666666666665,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 61.366666666666674,
-      "duration": 8.666666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 70.03333333333335,
-      "duration": 34.9,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 104.93333333333334,
-      "duration": 28.733333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 133.66666666666669,
-      "duration": 27.1,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 160.76666666666668,
-      "duration": 37.13333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 197.9,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 206.20000000000002,
-      "duration": 22.0,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 228.20000000000002,
-      "duration": 16.8,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 245.00000000000003,
-      "duration": 36.8,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 281.8,
-      "duration": 13.833333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 295.6333333333333,
-      "duration": 31.366666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    }
-  ],
-  "sha256": "d81e2975ca81334c7fc6f2900b8dcf07174bbe114e8cfd4ad0b8b2b878a825cc",
+  "sha256": "888f99b3434d2e9e13d718caf9f259a8e55f14b6eb8597fd5c5049e98c9006bb",
   "assetHashes": {
-    "mp4": "d81e2975ca81334c7fc6f2900b8dcf07174bbe114e8cfd4ad0b8b2b878a825cc",
-    "vtt": "796164f195625964c50c02235a45d0506ef6318a7554d9b01167368de5e67c29",
-    "webp": "70ec9001e32064883b57eff0a02d4d1886192965c021431b73ba20cdc37faf62"
+    "mp4": "888f99b3434d2e9e13d718caf9f259a8e55f14b6eb8597fd5c5049e98c9006bb",
+    "vtt": "333f6af936d354f3d97a2103b1892256442026e80b92205623baf1145af939ea",
+    "webp": "1040ca1f5360ca94d7f88be54c46ebe2d35929fb4623ccc5f05e311c869dbded"
   },
-  "mediaRevision": "4bdaad833e3f3d2d1139f673014d7b9fa38e70e6ca8bac35696a7f6a2c9cd7de"
+  "mediaRevision": "97fe2eeb1a0cc7700d41d455e84c3077b0bea37d6fa59062743a6801dc414ac1"
 }

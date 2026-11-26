@@ -1,0 +1,405 @@
+{
+ "id": "academy-m2l3",
+ "title": "Aula m2l3 — Potes multiway e set mining",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m2l3",
+ "scenes": [
+  {
+   "id": "m2l3-01",
+   "chapter": "Abertura",
+   "title": "Potes multiway e set mining",
+   "voice": "Esta é a Zero Tilt Academy. Na aula três do módulo dois, vamos estudar os potes com vários jogadores, os potes multiway, e o set mining. O objetivo é buscar valor e escolher blefes sem esquecer os jogadores a mais na mão.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 2 · Aula 3",
+    "lines": [
+     "Objetivo: buscar valor sem ignorar os jogadores a mais"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m2l3-02",
+   "chapter": "Potes multiway",
+   "title": "O blefe precisa passar por todos",
+   "voice": "Num pote multiway, o blefe só ganha na hora se todos os adversários que ainda disputam desistirem. As frequências de defesa e o valor das mãos mudam com mais jogadores. Mesmo assim, não presuma fold equity zero, nem copie uma estratégia de dois jogadores.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "O blefe exige que todos desistam",
+     "Defesa e valor mudam",
+     "Nem fold equity zero, nem cópia do heads-up"
+    ],
+    "cues": [
+     "todos os adversários",
+     "frequências de defesa",
+     "não presuma"
+    ]
+   }
+  },
+  {
+   "id": "m2l3-03",
+   "chapter": "Potes multiway",
+   "title": "Um modelo artificial",
+   "voice": "Um modelo artificial ajuda a ver o efeito. Se um adversário desiste metade das vezes, o blefe passa metade das vezes. Com dois adversários, cada um desistindo metade das vezes e de forma independente, a chance conjunta cai para um quarto. Mas, no pôquer, as decisões podem ser ligadas: o segundo jogador vê o que o primeiro fez. O produto ilustra uma hipótese, e não uma fórmula.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "UM ADVERSÁRIO",
+      "50%"
+     ],
+     [
+      "DOIS · ½ × ½",
+      "25%"
+     ],
+     [
+      "DECISÕES LIGADAS",
+      "Hipótese"
+     ]
+    ],
+    "cues": [
+     "passa metade das vezes",
+     "um quarto",
+     "o segundo jogador"
+    ],
+    "note": "Ilustra uma hipótese, não uma fórmula"
+   }
+  },
+  {
+   "id": "m2l3-04",
+   "chapter": "Set mining",
+   "title": "A chance de acertar a trinca",
+   "voice": "Agora vamos ao set mining, a busca pela trinca. Com um par na mão, e só as suas duas cartas conhecidas, restam duas cartas do seu valor entre cinquenta. A chance de o flop trazer pelo menos uma delas é de cerca de onze vírgula oito por cento. Mais ou menos um flop a cada oito e meio.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "CARTAS DO SEU VALOR",
+      "2 de 50"
+     ],
+     [
+      "FLOP COM PELO MENOS UMA",
+      "≈ 11,76%"
+     ],
+     [
+      "UM FLOP A CADA",
+      "≈ 8,5"
+     ]
+    ],
+    "cues": [
+     "restam duas cartas",
+     "pelo menos uma delas",
+     "a cada oito e meio"
+    ],
+    "note": "1 − C(48,3) / C(50,3)"
+   }
+  },
+  {
+   "id": "m2l3-05",
+   "chapter": "Set mining",
+   "title": "Quanto precisa ganhar",
+   "voice": "Quanto você precisa ganhar quando acerta? Num modelo simples, você paga um big blind só para buscar a trinca, nunca ganha quando erra e não tem custos depois. Errando em oitenta e oito por cento das vezes, o ganho líquido médio nos acertos precisa passar de uns sete big blinds e meio só para empatar. O modelo ignora as derrotas depois de acertar, o rake e as ações futuras. Um stack grande do rival, sozinho, não garante esse pagamento.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "CUSTO",
+      "1 BB"
+     ],
+     [
+      "ACERTO",
+      "≈ 11,76%"
+     ],
+     [
+      "GANHO NOS ACERTOS",
+      "> 7,5 BB"
+     ]
+    ],
+    "cues": [
+     "paga um big blind",
+     "oitenta e oito por cento",
+     "sete big blinds e meio"
+    ],
+    "note": "Um stack grande não garante pagamento"
+   }
+  },
+  {
+   "id": "m2l3-06",
+   "chapter": "Set mining",
+   "title": "Uma heurística, não uma prova",
+   "voice": "A regra de pagar com vinte vezes o valor do call é uma heurística, e não uma prova de rentabilidade. Acertar a trinca não garante vitória nem pagamento. O stack efetivo, a posição, o rake e o risco de uma trinca maior entram na decisão.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Vinte vezes o call: heurística",
+     "Acertar não garante pagamento",
+     "Stack, posição, rake e trinca maior"
+    ],
+    "cues": [
+     "vinte vezes",
+     "Acertar a trinca",
+     "O stack efetivo"
+    ]
+   }
+  },
+  {
+   "id": "m2l3-07",
+   "chapter": "Exemplo guiado",
+   "title": "Top set com três jogadores",
+   "voice": "Agora um exemplo com três jogadores. Os blinds entram, e você abre no botão com um par de oitos, para dois big blinds e meio. Os dois blinds pagam, e o pote do flop tem sete big blinds e meio. O flop vem oito de copas, sete de espadas e dois de paus: você tem top set, a maior trinca possível neste flop. Depois do flop, os dois jogadores dos blinds dão check.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 10000,
+      "cards": [
+       "8c",
+       "8d"
+      ]
+     },
+     {
+      "name": "SB",
+      "stack": 10000,
+      "cards": [
+       "9s",
+       "9h"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 10000,
+      "cards": [
+       "6h",
+       "5h"
+      ]
+     }
+    ],
+    "board": [],
+    "pot": 0,
+    "events": [
+     {
+      "type": "post",
+      "cue": "Os blinds entram",
+      "player": 1,
+      "to": 50,
+      "label": "SB"
+     },
+     {
+      "type": "post",
+      "player": 2,
+      "to": 100,
+      "label": "BB"
+     },
+     {
+      "type": "raise",
+      "cue": "você abre",
+      "player": 0,
+      "to": 250
+     },
+     {
+      "type": "call",
+      "cue": "Os dois blinds pagam",
+      "player": 1,
+      "to": 250
+     },
+     {
+      "type": "call",
+      "player": 2,
+      "to": 250
+     },
+     {
+      "type": "collect",
+      "cue": "o pote do flop"
+     },
+     {
+      "type": "board",
+      "cue": "O flop vem",
+      "cards": [
+       "8h",
+       "7s",
+       "2c"
+      ]
+     },
+     {
+      "type": "check",
+      "cue": "dão check",
+      "player": 1
+     },
+     {
+      "type": "check",
+      "player": 2
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     1,
+     2
+    ],
+    "banner": "Pote multiway · três jogadores"
+   }
+  },
+  {
+   "id": "m2l3-08",
+   "chapter": "Exemplo guiado",
+   "title": "Aposta por valor",
+   "voice": "Com os dois checks, treinamos a aposta por valor contra adversários que pagam com pares e projetos. Aqui você aposta cinco big blinds, dois terços do pote. Antes de escolher o tamanho, pergunte quais pares e projetos pagariam cada aposta, e quantas cartas do turn podem mudar a força relativa.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 9750,
+      "cards": [
+       "8c",
+       "8d"
+      ]
+     },
+     {
+      "name": "SB",
+      "stack": 9750,
+      "cards": [
+       "9s",
+       "9h"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 9750,
+      "cards": [
+       "6h",
+       "5h"
+      ]
+     }
+    ],
+    "board": [
+     "8h",
+     "7s",
+     "2c"
+    ],
+    "pot": 750,
+    "events": [
+     {
+      "type": "bet",
+      "cue": "você aposta cinco",
+      "player": 0,
+      "to": 500
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     1,
+     2
+    ],
+    "banner": "Flop · dois checks até você",
+    "note": "Quais pares e projetos pagam este tamanho?"
+   }
+  },
+  {
+   "id": "m2l3-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. Num modelo artificial, você blefa contra três adversários, e cada um desiste metade das vezes, de forma independente. Qual é a chance de todos desistirem? A: metade. B: um terço. C: um oitavo. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Modelo artificial: você blefa contra três adversários, e cada um desiste metade das vezes, de forma independente. Qual é a chance de todos desistirem?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Metade",
+      "cue": "A metade"
+     },
+     {
+      "key": "B",
+      "text": "Um terço",
+      "cue": "B um terço"
+     },
+     {
+      "key": "C",
+      "text": "Um oitavo",
+      "cue": "C um oitavo"
+     }
+    ],
+    "correct": "C"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m2l3-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: C, um oitavo. Metade vezes metade vezes metade dá um oitavo, doze e meio por cento. Na mesa de verdade, as decisões podem ser ligadas, então use esse número como hipótese, e não como regra.",
+   "visual": {
+    "mode": "answer",
+    "question": "Modelo artificial: você blefa contra três adversários, e cada um desiste metade das vezes, de forma independente. Qual é a chance de todos desistirem?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Metade",
+      "cue": "A metade"
+     },
+     {
+      "key": "B",
+      "text": "Um terço",
+      "cue": "B um terço"
+     },
+     {
+      "key": "C",
+      "text": "Um oitavo",
+      "cue": "C um oitavo"
+     }
+    ],
+    "correct": "C",
+    "cue": "Resposta",
+    "explanation": "½ × ½ × ½ = 1/8 = 12,5%"
+   }
+  },
+  {
+   "id": "m2l3-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino, com top set contra dois bots. A sua trinca é a maior possível neste flop: pense em quais pares e projetos pagariam cada tamanho. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Top set contra dois bots",
+     "Quem paga cada tamanho?",
+     "Guiado, desafio e replay"
+    ],
+    "cues": [
+     "top set contra dois bots",
+     "pense em quais pares",
+     "Comece pelo treino guiado"
+    ]
+   }
+  },
+  {
+   "id": "m2l3-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

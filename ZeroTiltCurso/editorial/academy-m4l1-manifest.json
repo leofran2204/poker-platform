@@ -1,302 +1,65 @@
 {
   "lessonId": "m4l1",
-  "filename": "zt-academy-m4l1-v3",
   "contentHash": "fcabbcdfad51fc9b566055795f7018c12ede93e40129c5f21b5b945a5667b99d",
-  "rendererVersion": 5,
-  "durationSeconds": 322.93,
+  "filename": "zt-academy-m4l1-v4",
+  "title": "Aula m4l1 — Thin value bet e blefe puro",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM4L1",
+  "script": "src/data/academy-m4l1.json",
+  "scriptHash": "3cc3a3db6331ad1dd290d3d3072ba64cddadc49a930e971b7768baea8d148f42",
+  "durationSeconds": 236.84,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 9041069,
+  "bytes": 14472551,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "0c6b146d83b3b4e57762eb020208241b941ea110ccd51ef397fa65b4cb0f7039",
+  "narrationHash": "36ebf46d010e65f969affda539e96e4982cb0548cb565078467ebae2f8d04e4a",
   "chapters": [
     {
       "start": 0.0,
-      "title": "Thin Value Bet vs. Blefe Puro"
+      "title": "Abertura"
     },
     {
-      "start": 18.27,
+      "start": 16.13,
       "title": "Valor no river"
     },
     {
-      "start": 34.5,
+      "start": 32.03,
       "title": "Exemplo com hipótese"
     },
     {
-      "start": 55.53,
+      "start": 79.97,
       "title": "Ações legais"
     },
     {
-      "start": 68.4,
-      "title": "O range que paga é o relevante"
+      "start": 95.7,
+      "title": "O range que paga"
     },
     {
-      "start": 93.93,
-      "title": "Compare com dar check"
+      "start": 136.73,
+      "title": "Uma amostra só"
     },
     {
-      "start": 122.8,
-      "title": "Exercício controlado"
+      "start": 156.13,
+      "title": "Exercício"
     },
     {
-      "start": 151.9,
-      "title": "Laboratório: Receber de mãos piores"
+      "start": 202.8,
+      "title": "Laboratório"
     },
     {
-      "start": 188.1,
-      "title": "Laboratório: Receber de mãos piores"
-    },
-    {
-      "start": 196.4,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 220.57,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 237.7,
-      "title": "Exercício resolvido 2"
-    },
-    {
-      "start": 277.5,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 291.33,
-      "title": "Agora, pratique"
+      "start": 222.77,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 18.266666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 18.266666666666666,
-      "duration": 16.233333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 34.5,
-      "duration": 21.033333333333335,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 55.53333333333333,
-      "duration": 12.866666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 68.4,
-      "duration": 25.533333333333335,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 93.93333333333334,
-      "duration": 28.866666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 122.80000000000001,
-      "duration": 29.1,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 151.9,
-      "duration": 36.2,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 188.10000000000002,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 196.40000000000003,
-      "duration": 24.166666666666668,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 220.5666666666667,
-      "duration": 17.133333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 237.70000000000002,
-      "duration": 39.8,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 277.5,
-      "duration": 13.833333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    },
-    {
-      "start": 291.3333333333333,
-      "duration": 31.6,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 4,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        }
-      ]
-    }
-  ],
-  "sha256": "035b0d1ddcc57e812a4b83761afce5adb9bfeda65a0a62559a71a67216d0070d",
+  "sha256": "87bbd10876854c11f158164cf29f078cbf8c478e48d80b2d643e6796e1d6e878",
   "assetHashes": {
-    "mp4": "035b0d1ddcc57e812a4b83761afce5adb9bfeda65a0a62559a71a67216d0070d",
-    "vtt": "2bd095d7976d5c319b736b12660eafeca1ae850c42fe42807477e7e3398975af",
-    "webp": "706e5b4d3e2f6e32fd707e70e9808b04e164ddaaef46e98aed037258367cb7b3"
+    "mp4": "87bbd10876854c11f158164cf29f078cbf8c478e48d80b2d643e6796e1d6e878",
+    "vtt": "723bab05d74faae56610462a225965de47d177941bde12bd150243b9f70caeff",
+    "webp": "8b414188553a9d32b366e02b030d66ee7d208bae4c1a9a1ede809dd44c6add35"
   },
-  "mediaRevision": "0401c55dba3cd867b4f320c7baadcaa560fab5bb666130bcea4a38a7d89ae368"
+  "mediaRevision": "93ac48e9c2761751a6844bf74ce82ad93cbe4732c6fd7ea23d4e01500e1cd1dc"
 }

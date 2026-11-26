@@ -1,27 +1,25 @@
-Esta é a Zero Tilt Academy, e a aula de hoje é: C-bet no Flop: Boards Secos vs Molhados. Nesta aula, nosso objetivo é: Reconhecer a broca antes de apostar ou dar check. Vamos desenvolver a teoria, resolver exemplos e aplicar a ideia na mesa deste módulo.
+Esta é a Zero Tilt Academy. Na primeira aula do módulo dois, vamos estudar a c-bet no flop em boards secos e molhados. O objetivo é ler a textura e os ranges antes de decidir entre apostar e dar check.
 
-Agora, o próximo tema é: Textura e ranges. Um flop seco oferece menos projetos diretos; um flop conectado e com duas cartas de um naipe oferece mais. A textura sozinha não determina frequência nem tamanho da c-bet: compare ranges, vantagem de nuts, posição e número de jogadores.
+Compare dois flops. Ás, sete e dois de naipes diferentes é um board seco: há poucos projetos diretos de sequência ou de flush. Nove, oito e sete com duas copas é um board molhado: conectado e com duas cartas do mesmo naipe, ele oferece muitos projetos aos dois jogadores. Mas a textura sozinha não decide a frequência nem o tamanho da c-bet.
 
-Exemplo guiado. botão abre dama de espadas valete de espadas, big blind paga, flop nove de copas oito de copas sete de paus e big blind dá check. Você tem uma broca: um dez completa uma sequência. O board pode favorecer várias mãos do caller; treine check-back para observar uma continuação sem inflar o pote. Não há aposta para pagar: call é ilegal neste estado.
+Antes de apostar, compare os ranges dos dois jogadores, a vantagem de nuts, a posição e o número de jogadores no pote. A textura é só uma parte desse cenário.
 
-Tamanho como hipótese. 25–33 por cento em certos boards secos é uma referência frequente de estudo, não uma regra para todo flop. Apostar maior também muda quais mãos podem continuar.
+Agora o exemplo guiado, numa mesa de Texas cash com cem big blinds. Os blinds entram, todos desistem até você, no botão, com dama e valete de espadas, e você abre para dois big blinds e meio. O jogador do small blind desiste, e quem está no big blind paga. O pote do flop fica com cinco big blinds e meio.
 
-Vantagem de range e vantagem de nuts. Vantagem de range descreve uma comparação da distribuição de forças dos dois conjuntos de mãos. Vantagem de nuts se refere à presença relativa das combinações mais fortes. As duas coisas podem apontar em direções diferentes. Não conclua que quem abriu pré-flop sempre possui as duas vantagens. Pergunte quais pares, conectores e mãos suited poderiam chegar a esse board por cada linha.
+O flop vem nove de copas, oito de copas e sete de paus, e o big blind dá check. Você tem uma broca: só um dez completa a sequência, da dama até o oito. Este board conecta com várias mãos de quem pagou, e não existe aposta para pagar, então call é ilegal neste momento. No exercício, treinamos o check-back: você vê o turn sem aumentar o pote.
 
-Um exemplo de textura. Em nove de copas oito de copas sete de paus, dama de espadas valete de espadas tem uma broca: os dez completam sequência. Não é um projeto aberto com oito outs nominais. Mesmo a chegada de um dez precisa ser analisada: alguns adversários podem empatar ou fazer mãos diferentes conforme seus pares e naipes. Em um flop ás, sete e dois rainbow, a textura oferece outros projetos e conecta de outra maneira com os ranges pré-flop.
+Atenção à contagem. Com dama e valete em nove, oito e sete, só os quatro dez completam a sequência: é uma broca, e não um projeto aberto com oito outs. E mesmo quando o dez chega, analise o resto: quem também tiver dama e valete empata, e outras mãos mudam de força conforme os pares e os naipes.
 
-Agora, o próximo tema é: Check também constrói uma estratégia. Dar check pode preservar equity, proteger parte do range de check e permitir uma decisão posterior. Apostar cobra de projetos e pode gerar folds, mas expõe a mão a check-raises. No simulador, observe o tamanho do pote que chega ao turn sob as duas linhas. A comparação serve para entender consequências, sem apresentar um único tamanho de c-bet como solução universal.
+Separe duas ideias. Vantagem de range compara a distribuição de forças dos dois conjuntos de mãos. Vantagem de nuts olha a presença das combinações mais fortes. As duas podem apontar para lados diferentes, e quem abriu no pré-flop não tem sempre as duas. Pergunte quais pares, conectores e mãos do mesmo naipe chegam a esse board por cada linha.
 
-Agora vamos para o laboratório: Board conectado. Objetivo: Reconhecer a broca antes de apostar ou dar check. Abra a mesa deste módulo e comece pelo treino guiado. Um dez completa sequência; este flop permite diversas mãos fortes ao caller. Ninguém é obrigado a fazer uma c-bet. Depois repita no modo desafio, respondendo à pergunta objetiva antes de cada ação. Use o replay para comparar uma alternativa na mesma distribuição. Uma nova distribuição preserva as cartas que definem o cenário e varia as demais.
+E o tamanho? Em certos boards secos, apostar entre um quarto e um terço do pote é uma referência frequente de estudo, e não uma regra para todo flop. Num pote de cinco big blinds e meio, isso fica entre um vírgula quatro e um vírgula oito big blinds. Apostar mais também muda quais mãos podem continuar.
 
-Registre sua justificativa no caderno; acertar a leitura e respeitar as hipóteses importam mais que ganhar esta mão.
+Dar check pode preservar equity, proteger a parte do range que também dá check e deixar a decisão para depois. Apostar cobra dos projetos e pode gerar folds, mas expõe a mão a um check-raise. No simulador, compare o tamanho do pote que chega ao turn em cada linha. Nenhum tamanho de c-bet é uma solução universal.
 
-O que deve ser avaliado antes de escolher o tamanho da c-bet? As alternativas são: A, Somente se o flop parece seco; B, Ranges, textura, posição, stacks e adversários; C, Apenas a força da sua mão. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+Exercício. Qual destes três flops é o mais seco? A: valete de copas, dez de copas e oito de espadas. B: rei de paus, sete de ouros e dois de espadas. C: sete de espadas, seis de espadas e cinco de ouros. Pause o vídeo e responda.
 
-Vamos à resposta. A alternativa certa deste exercício é: Ranges, textura, posição, stacks e adversários. A textura é uma parte do cenário. Nenhum tamanho funciona como regra universal.
+Resposta: B. Rei, sete e dois de naipes diferentes não têm duas cartas do mesmo naipe nem cartas próximas, então quase não há projetos diretos. Os outros dois flops são conectados e têm duas cartas de um mesmo naipe.
 
-Suas cartas: dama de espadas, valete de espadas. Cartas comunitárias: nove de copas, oito de copas, sete de paus. Texas, botão abre Q♠ J♠ e big blind paga. O flop vem 9♥ 8♥ 7♣, e o jogador do big blind dá check. Neste exercício, qual ação controla o pote sem apostar? As alternativas são: A, check; B, bet. Pause o vídeo, faça sua leitura e registre uma resposta antes de continuar.
+Agora leve a aula para a mesa de treino. No board conectado, reconheça a broca antes de apostar ou dar check: um dez completa a sequência, e o flop oferece várias mãos fortes a quem pagou. Ninguém é obrigado a fazer a c-bet. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.
 
-Vamos à resposta. A alternativa certa deste exercício é: check. Não existe aposta para pagar. Um dez completa sua broca, mas isso não obriga uma c-bet.
-
-Abra o simulador da aula e escolha o cenário Board conectado. Jogue uma mão completa, responda às perguntas e registre seu plano. Depois use o replay para comparar outra ação na mesma distribuição. Volte em outra sessão no modo desafio. Avalie o raciocínio com as informações disponíveis, sem confundir uma vitória isolada com uma boa estratégia. As fontes estão no material de apoio. Este curso não promete lucro e o treino usa fichas sem valor.
+Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.

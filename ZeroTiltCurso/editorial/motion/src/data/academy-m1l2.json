@@ -1,0 +1,319 @@
+{
+ "id": "academy-m1l2",
+ "title": "Aula m1l2 — Como punir o limp do small blind",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m1l2",
+ "scenes": [
+  {
+   "id": "m1l2-01",
+   "chapter": "Abertura",
+   "title": "Como punir o limp do small blind",
+   "voice": "Esta é a Zero Tilt Academy. Na aula dois do módulo um, vamos estudar como punir o limp do small blind. O objetivo é comparar o check e o isolamento depois que o small blind completa.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 1 · Aula 2",
+    "lines": [
+     "Objetivo: comparar check e isolamento após o limp"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m1l2-02",
+   "chapter": "Limp do small blind",
+   "title": "O small blind completa",
+   "voice": "Todos desistiram até o small blind. Ele já tinha meio big blind e completa com mais meio. Agora os dois têm um big blind comprometido. Você, no big blind, não precisa pagar nada para ver o flop: pode dar check. Ou pode aumentar, dentro dos limites legais.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BB",
+      "stack": 10000,
+      "cards": [
+       "As",
+       "5s"
+      ]
+     },
+     {
+      "name": "SB",
+      "stack": 10000,
+      "cards": [
+       "Qd",
+       "7c"
+      ]
+     }
+    ],
+    "board": [],
+    "pot": 0,
+    "events": [
+     {
+      "type": "post",
+      "player": 1,
+      "to": 50,
+      "label": "SB"
+     },
+     {
+      "type": "post",
+      "player": 0,
+      "to": 100,
+      "label": "BB"
+     },
+     {
+      "type": "call",
+      "cue": "completa com mais meio",
+      "player": 1,
+      "to": 100,
+      "label": "Limp"
+     }
+    ],
+    "seats": [
+     0,
+     2
+    ],
+    "banner": "Pré-flop · todos desistiram até o small blind",
+    "note": "Check é legal: nada falta pagar"
+   }
+  },
+  {
+   "id": "m1l2-03",
+   "chapter": "Limp do small blind",
+   "title": "O limp não define o jogador",
+   "voice": "Cuidado com o rótulo. O limp pode conter mãos fracas e mãos fortes. Sozinho, ele não identifica um jogador fraco: é preciso observar o que o rival faz depois.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "O limp pode ter mãos fracas",
+     "E também mãos fortes",
+     "Sozinho, não identifica um jogador fraco"
+    ],
+    "cues": [
+     "mãos fracas",
+     "mãos fortes",
+     "Sozinho"
+    ]
+   }
+  },
+  {
+   "id": "m1l2-04",
+   "chapter": "Plano do exercício",
+   "title": "O perfil do exercício",
+   "voice": "No exercício, a mesa é de Texas cash, com blinds de meio e um, e cem big blinds de stack. O small blind completa e tende a pagar isolamentos com mãos piores, sem muitas armadilhas. Contra esse perfil, treinamos o raise com ás e cinco de espadas, usando de três e meio a quatro big blinds como referência de tamanho.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Texas cash · 100 BB · blinds 0,5/1",
+     "Rival paga com mãos piores, poucas armadilhas",
+     "Plano: raise com A5s, de 3,5 a 4 BB"
+    ],
+    "cues": [
+     "a mesa é de Texas",
+     "tende a pagar",
+     "treinamos o raise"
+    ]
+   }
+  },
+  {
+   "id": "m1l2-05",
+   "chapter": "Plano do exercício",
+   "title": "Total da aposta e custo adicional",
+   "voice": "Você aumenta para quatro big blinds no total. Como já tinha um na frente, coloca mais três. O small blind então decide se acrescenta outros três big blinds. Não confunda o custo adicional com o total da aposta.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BB",
+      "stack": 9900,
+      "bet": 100,
+      "cards": [
+       "As",
+       "5s"
+      ]
+     },
+     {
+      "name": "SB",
+      "stack": 9900,
+      "bet": 100,
+      "cards": [
+       "Qd",
+       "7c"
+      ]
+     }
+    ],
+    "board": [],
+    "pot": 0,
+    "events": [
+     {
+      "type": "raise",
+      "cue": "Você aumenta",
+      "player": 0,
+      "to": 400
+     }
+    ],
+    "seats": [
+     0,
+     2
+    ],
+    "note": "Total: 4 BB · a mais: 3 BB"
+   }
+  },
+  {
+   "id": "m1l2-06",
+   "chapter": "O tamanho depende da resposta",
+   "title": "O tamanho depende da resposta",
+   "voice": "O tamanho depende da resposta do rival. Se ele paga aumentos com muitas mãos fracas, aumentar uma mão que joga bem contra essa faixa pode construir valor. Ás e cinco do mesmo naipe combina força, bloqueador de ás e a chance de formar flush. Mas, se ele tem armadilhas e aumenta de volta, a avaliação muda, e o check também pode fazer parte da estratégia.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Paga com mãos piores",
+      "items": [
+       "O raise pode construir valor",
+       "A5s: bloqueador e flush possível"
+      ],
+      "cues": [
+       "pode construir valor",
+       "bloqueador de ás"
+      ],
+      "tone": "ok"
+     },
+     {
+      "title": "Tem armadilhas e reaumenta",
+      "items": [
+       "A avaliação muda",
+       "O check também entra"
+      ],
+      "cues": [
+       "a avaliação muda",
+       "o check também"
+      ],
+      "tone": "danger"
+     }
+    ],
+    "note": "O perfil é uma hipótese do exercício"
+   }
+  },
+  {
+   "id": "m1l2-07",
+   "chapter": "Observe sem concluir cedo",
+   "title": "Observe antes de explorar",
+   "voice": "Antes de explorar uma tendência, observe. Registre quantas vezes o rival completou, quantas desistiu para um aumento e quantas fez limp-reraise. Amostras pequenas oscilam bastante. No simulador, o perfil é declarado para o exercício ser reproduzível; numa mesa real, você teria de inferir essa informação.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Quantas vezes completou",
+     "Quantas desistiu para um aumento",
+     "Quantas fez limp-reraise"
+    ],
+    "cues": [
+     "quantas vezes o rival completou",
+     "quantas desistiu",
+     "quantas fez"
+    ],
+    "note": "Amostras pequenas oscilam bastante"
+   }
+  },
+  {
+   "id": "m1l2-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. Você aumenta para quatro big blinds, e o small blind paga. Quantos big blinds haverá no pote do flop? A: cinco. B: sete. C: oito. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Você aumenta para 4 BB e o small blind paga. Quanto haverá no pote do flop?",
+    "options": [
+     {
+      "key": "A",
+      "text": "5 BB",
+      "cue": "A cinco"
+     },
+     {
+      "key": "B",
+      "text": "7 BB",
+      "cue": "B sete"
+     },
+     {
+      "key": "C",
+      "text": "8 BB",
+      "cue": "C oito"
+     }
+    ],
+    "correct": "C"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m1l2-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: C, oito. Cada jogador termina a rodada com quatro na frente, e as duas apostas vão para o pote.",
+   "visual": {
+    "mode": "answer",
+    "question": "Você aumenta para 4 BB e o small blind paga. Quanto haverá no pote do flop?",
+    "options": [
+     {
+      "key": "A",
+      "text": "5 BB",
+      "cue": "A cinco"
+     },
+     {
+      "key": "B",
+      "text": "7 BB",
+      "cue": "B sete"
+     },
+     {
+      "key": "C",
+      "text": "8 BB",
+      "cue": "C oito"
+     }
+    ],
+    "correct": "C",
+    "cue": "Resposta",
+    "explanation": "4 BB de cada jogador = 8 BB no pote"
+   }
+  },
+  {
+   "id": "m1l2-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. Você está no big blind: se nada falta pagar, o check é legal, e o isolamento aumenta o total da aposta. Comece pelo treino guiado e repita no modo desafio. No replay, compare check e raise na mesma distribuição, sem usar as cartas do final como justificativa.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Você está no big blind",
+     "Compare check e raise no replay",
+     "As cartas do final não justificam a decisão"
+    ],
+    "cues": [
+     "Você está no big blind",
+     "compare check e raise",
+     "sem usar as cartas"
+    ]
+   }
+  },
+  {
+   "id": "m1l2-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

@@ -337,8 +337,10 @@ pub(crate) struct QuestionKey {
     pub(crate) board: Vec<String>,
 }
 
-/// Vídeo publicado da aula: duração e capítulos (início em segundos, título).
+/// Vídeo publicado da aula: endereço, duração e capítulos (início em segundos, título).
 pub(crate) struct VideoKey {
+    /// Muda a cada nova versão do vídeo; o progresso contado em outra versão não vale.
+    pub(crate) url: String,
     pub(crate) duration: f64,
     pub(crate) chapters: Vec<(f64, String)>,
 }
@@ -453,9 +455,12 @@ fn parse_key(json: &str) -> HashMap<String, LessonKey> {
             transcript: transcript.trim().to_string(),
         };
         let video = lesson.video.and_then(|v| {
-            let published = v.url.is_some() && v.publication_status.as_deref() != Some("review");
+            let url = v
+                .url
+                .filter(|_| v.publication_status.as_deref() != Some("review"))?;
             let duration = v.duration_seconds.filter(|d| d.is_finite() && *d > 0.0)?;
-            published.then(|| VideoKey {
+            Some(VideoKey {
+                url,
                 duration,
                 chapters: v.chapters.into_iter().map(|c| (c.start, c.title)).collect(),
             })

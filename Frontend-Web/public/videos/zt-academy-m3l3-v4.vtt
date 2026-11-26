@@ -1,0 +1,278 @@
+WEBVTT
+
+00:00:00.517 --> 00:00:02.832
+Esta é a Zero Tilt Academy.
+
+00:00:03.030 --> 00:00:07.708
+Na aula três do módulo três, vamos
+estudar projetos, outs e pot odds no
+
+00:00:07.708 --> 00:00:08.322
+turn.
+
+00:00:08.520 --> 00:00:12.398
+O objetivo é calcular o limiar do
+call e separar a chance de completar
+
+00:00:12.398 --> 00:00:14.133
+um flush da chance de vencer.
+
+00:00:15.483 --> 00:00:18.416
+Veja agora uma decisão tomada no turn.
+
+00:00:18.614 --> 00:00:23.614
+O pote tem doze big blinds, e a mesa
+mostra rei de copas, nove de copas
+
+00:00:23.614 --> 00:00:24.924
+e quatro de paus.
+
+00:00:25.122 --> 00:00:27.205
+Você tem sete e seis de copas:
+
+00:00:27.416 --> 00:00:28.919
+um projeto de flush.
+
+00:00:29.117 --> 00:00:33.803
+O turn traz o dois de espadas, e
+o rival aposta três big blinds.
+
+00:00:35.150 --> 00:00:36.589
+Agora o preço.
+
+00:00:36.787 --> 00:00:39.823
+Chame de P o pote que já
+inclui a aposta do rival:
+
+00:00:39.995 --> 00:00:41.434
+quinze big blinds.
+
+00:00:41.632 --> 00:00:45.261
+Pagar custa C, que aqui
+são três big blinds.
+
+00:00:45.459 --> 00:00:48.483
+Sem rake, o limiar é C sobre P mais C:
+
+00:00:48.707 --> 00:00:52.555
+três sobre dezoito, cerca de
+dezesseis vírgula sete por cento.
+
+00:00:52.753 --> 00:00:55.455
+O denominador inclui o seu próprio call.
+
+00:00:56.783 --> 00:00:59.008
+Quantas copas ainda podem vir?
+
+00:00:59.206 --> 00:01:01.134
+Você conhece seis cartas:
+
+00:01:01.319 --> 00:01:03.454
+as suas duas e as quatro da mesa.
+
+00:01:03.652 --> 00:01:06.456
+Restam quarenta e seis desconhecidas.
+
+00:01:06.654 --> 00:01:09.884
+Com quatro copas à vista, sobram nove.
+
+00:01:10.082 --> 00:01:14.180
+Então a chance de uma copa no river
+é nove sobre quarenta e seis, cerca
+
+00:01:14.180 --> 00:01:18.106
+de dezenove vírgula seis por
+cento, numa distribuição uniforme.
+
+00:01:19.450 --> 00:01:23.221
+Mas completar o flush e ter
+equity são medidas diferentes.
+
+00:01:23.419 --> 00:01:25.438
+Algumas copas podem não vencer:
+
+00:01:25.597 --> 00:01:29.489
+num board pareado, a carta que completa
+o seu flush pode dar full house
+
+00:01:29.489 --> 00:01:30.206
+ao rival.
+
+00:01:30.404 --> 00:01:34.991
+E, em outros cenários, cartas fora
+do projeto também podem dar a melhor
+
+00:01:34.991 --> 00:01:35.515
+mão.
+
+00:01:35.713 --> 00:01:40.386
+Por isso, a equity não é automaticamente
+a chance de acertar o projeto.
+
+00:01:41.717 --> 00:01:43.117
+Há uma regra de bolso:
+
+00:01:43.263 --> 00:01:47.898
+outs vezes dois para uma carta, e
+outs vezes quatro para duas cartas.
+
+00:01:48.096 --> 00:01:52.838
+Com nove outs no turn, dá dezoito por
+cento, perto dos dezenove vírgula
+
+00:01:52.838 --> 00:01:54.341
+seis da conta exata.
+
+00:01:54.539 --> 00:01:58.774
+Mas ver só o flop não garante chegar
+ao river pelo preço de uma aposta.
+
+00:01:58.972 --> 00:02:03.877
+Considere apostas futuras, rake,
+posição e outs contaminados.
+
+00:02:05.217 --> 00:02:08.602
+A conta do valor esperado
+mostra o papel da equity.
+
+00:02:08.799 --> 00:02:12.833
+Suponha, só como premissa, que nada
+mais seja apostado no river e que a
+
+00:02:12.833 --> 00:02:14.800
+sua equity seja de vinte por cento:
+
+00:02:15.191 --> 00:02:19.586
+zero vírgula dois vezes dezoito,
+menos três, dá mais zero vírgula seis
+
+00:02:19.586 --> 00:02:20.470
+big blind.
+
+00:02:20.668 --> 00:02:25.290
+Com quinze por cento, o resultado
+seria menos zero vírgula três.
+
+00:02:25.488 --> 00:02:30.075
+Repare que o limiar, de dezesseis
+vírgula sete por cento, fica entre os
+
+00:02:30.075 --> 00:02:30.818
+dois.
+
+00:02:31.016 --> 00:02:35.423
+Esses números são premissas para
+exercitar a fórmula, e não a equity real
+
+00:02:35.423 --> 00:02:36.772
+das cartas da mesa.
+
+00:02:38.117 --> 00:02:42.236
+E se duas cartas do rival forem
+reveladas, como num all-in?
+
+00:02:42.434 --> 00:02:45.999
+O denominador cai de quarenta
+e seis para quarenta e quatro.
+
+00:02:46.197 --> 00:02:50.432
+Mas também retire do numerador
+qualquer copa que apareceu entre elas.
+
+00:02:50.630 --> 00:02:54.311
+Não reduza o denominador e
+esqueça de revisar o evento.
+
+00:02:55.650 --> 00:02:56.908
+Exercício.
+
+00:02:57.106 --> 00:03:00.568
+Ainda no flop, você tem
+nove outs para flush.
+
+00:03:00.766 --> 00:03:05.156
+Pela regra de bolso, qual é a chance
+aproximada de completar até o river,
+
+00:03:05.289 --> 00:03:06.779
+vendo as duas cartas?
+
+00:03:06.977 --> 00:03:07.411
+A:
+
+00:03:07.622 --> 00:03:09.602
+cerca de dezoito por cento.
+
+00:03:09.799 --> 00:03:10.310
+B:
+
+00:03:10.508 --> 00:03:12.681
+cerca de trinta e seis por cento.
+
+00:03:12.879 --> 00:03:13.468
+C:
+
+00:03:13.653 --> 00:03:15.478
+cerca de nove por cento.
+
+00:03:15.676 --> 00:03:17.669
+Pause o vídeo e responda.
+
+00:03:21.350 --> 00:03:22.247
+Resposta:
+
+00:03:22.432 --> 00:03:22.664
+B.
+
+00:03:22.664 --> 00:03:25.778
+Nove vezes quatro dá
+trinta e seis por cento.
+
+00:03:25.976 --> 00:03:30.886
+A conta exata, com quarenta e sete
+cartas desconhecidas no flop, dá cerca
+
+00:03:30.886 --> 00:03:32.054
+de trinta e cinco.
+
+00:03:32.252 --> 00:03:36.865
+E ela só vale se você vir as duas cartas
+pelo preço de agora, o que nenhuma
+
+00:03:36.865 --> 00:03:38.059
+aposta garante.
+
+00:03:39.417 --> 00:03:42.144
+Agora leve a aula para a mesa de treino.
+
+00:03:42.342 --> 00:03:47.183
+Com quatro copas conhecidas, restam nove
+em quarenta e seis cartas desconhecidas:
+
+00:03:47.471 --> 00:03:51.307
+isso descreve completar uma copa,
+e não uma equity garantida.
+
+00:03:51.505 --> 00:03:54.348
+Calcule o limiar do call antes de decidir.
+
+00:03:54.546 --> 00:03:59.404
+Comece pelo treino guiado, repita no modo
+desafio e use o replay para comparar
+
+00:03:59.404 --> 00:04:01.552
+a outra linha na mesma distribuição.
+
+00:04:02.883 --> 00:04:05.365
+Registre sua justificativa no caderno:
+
+00:04:05.563 --> 00:04:09.210
+acertar a leitura e respeitar as
+hipóteses importa mais do que ganhar a
+
+00:04:09.210 --> 00:04:09.708
+mão.
+
+00:04:09.906 --> 00:04:14.270
+O treino usa fichas sem valor,
+e este curso não promete lucro.

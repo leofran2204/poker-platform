@@ -1,0 +1,300 @@
+{
+ "id": "academy-m5l2",
+ "title": "Aula m5l2 — Omaha de quatro cartas",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m5l2",
+ "scenes": [
+  {
+   "id": "m5l2-01",
+   "chapter": "Abertura",
+   "title": "Omaha de quatro cartas",
+   "voice": "Esta é a Zero Tilt Academy. Na aula dois do módulo cinco, vamos estudar o Omaha de quatro cartas, com baralho de cinquenta e duas. O objetivo é escolher duas privadas e três comunitárias, e contar as combinações sem confundir com chances de vencer.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 5 · Aula 2",
+    "lines": [
+     "Objetivo: duas privadas, três comunitárias e a contagem certa"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m5l2-02",
+   "chapter": "Omaha 4",
+   "title": "Duas da mão, três da mesa",
+   "voice": "No Omaha de quatro cartas da ZT, para até seis jogadores, cada um recebe quatro cartas fechadas no pré-flop. A mão é formada com exatamente duas cartas da mão e três da mesa. O baralho tem cinquenta e duas cartas, e o ranking é o clássico: sequência vence trinca, e full house vence flush.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Quatro cartas fechadas",
+     "Exatamente 2 da mão + 3 da mesa",
+     "52 cartas, ranking clássico"
+    ],
+    "cues": [
+     "quatro cartas fechadas",
+     "exatamente duas",
+     "o ranking é o clássico"
+    ]
+   }
+  },
+  {
+   "id": "m5l2-03",
+   "chapter": "Escolha pares privados",
+   "title": "Qual par forma a mão",
+   "voice": "Veja um exemplo. No flop, a mesa mostra dez e nove de copas e oito de paus. Você tem ás e rei de copas, dama e valete de paus. Com o par dama e valete, você forma uma sequência até a dama. Já o par ás e rei de copas ainda não forma flush: há duas copas na mão, mas só duas na mesa.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 9500,
+      "cards": [
+       "Ah",
+       "Kh",
+       "Qc",
+       "Jc"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 9500,
+      "cards": [
+       "Ks",
+       "Kd",
+       "7s",
+       "6d"
+      ]
+     }
+    ],
+    "board": [
+     "Th",
+     "9h",
+     "8c"
+    ],
+    "pot": 1000,
+    "events": [
+     {
+      "type": "highlight",
+      "cue": "uma sequência até a dama",
+      "player": 0,
+      "hole": [
+       2,
+       3
+      ],
+      "boardPick": [
+       0,
+       1,
+       2
+      ],
+      "text": "Sequência até a dama"
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     2
+    ],
+    "banner": "Flop · Omaha de 4 cartas"
+   }
+  },
+  {
+   "id": "m5l2-04",
+   "chapter": "Contagem e leitura",
+   "title": "Sessenta candidatas no river",
+   "voice": "Agora conte as combinações. As quatro privadas formam seis pares. No river, as cinco comunitárias formam dez trios. São sessenta candidatas, correlacionadas, para escolher a melhor mão legal. Isso não significa sessenta chances independentes de vencer.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "PARES PRIVADOS · C(4,2)",
+      "6"
+     ],
+     [
+      "TRIOS NO RIVER · C(5,3)",
+      "10"
+     ],
+     [
+      "CANDIDATAS · 6 × 10",
+      "60"
+     ]
+    ],
+    "cues": [
+     "seis pares",
+     "dez trios",
+     "sessenta candidatas"
+    ],
+    "note": "Não são 60 chances de vencer"
+   }
+  },
+  {
+   "id": "m5l2-05",
+   "chapter": "Contagem e leitura",
+   "title": "Um ás sozinho não faz flush",
+   "voice": "Um único ás de copas na mão não basta para flush, nem com quatro copas na mesa, porque a mão usa exatamente duas privadas. Esse ás pode remover combinações dos rivais, mas não fabrica um flush seu. E ter uma mão feita e um projeto ao mesmo tempo não permite usar as quatro privadas na mesma combinação.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Um ás de copas sozinho",
+      "items": [
+       "Não faz flush",
+       "Remove combinações rivais"
+      ],
+      "cues": [
+       "não basta para flush",
+       "remover combinações"
+      ],
+      "tone": "gold"
+     },
+     {
+      "title": "Mão feita e projeto",
+      "items": [
+       "Não usam as quatro privadas juntas"
+      ],
+      "cues": [
+       "usar as quatro"
+      ],
+      "tone": "danger"
+     }
+    ]
+   }
+  },
+  {
+   "id": "m5l2-06",
+   "chapter": "Nuts e melhoras",
+   "title": "Nuts agora não garante depois",
+   "voice": "Ter a melhor mão possível numa street não garante continuar na frente nas cartas seguintes. Uma mesa que pareia pode permitir full house, e uma carta do terceiro naipe pode permitir flush. Por isso, nenhuma sequência é all-in automático: a análise depende das cartas e dos ranges.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Nuts agora não garante depois",
+     "Mesa pareada: full house possível",
+     "Sequência não é all-in automático"
+    ],
+    "cues": [
+     "Ter a melhor mão",
+     "Uma mesa que pareia",
+     "nenhuma sequência"
+    ]
+   }
+  },
+  {
+   "id": "m5l2-07",
+   "chapter": "Preço com quatro cartas",
+   "title": "O preço continua o mesmo conceito",
+   "voice": "As pot odds continuam sendo uma relação entre o custo e o pote. O que muda é a distribuição de mãos e a forma de estimar a equity. E confira na mesa a estrutura de apostas, sem presumir um limite de pote.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Pot odds: custo e pote",
+     "Muda a distribuição de mãos",
+     "Confira a estrutura de apostas"
+    ],
+    "cues": [
+     "As pot odds",
+     "O que muda",
+     "confira na mesa"
+    ]
+   }
+  },
+  {
+   "id": "m5l2-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. No Omaha de quatro cartas, ainda no flop, quantas combinações candidatas de duas privadas e três comunitárias existem? A: seis. B: dez. C: sessenta. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Omaha de quatro cartas, ainda no flop: quantas combinações candidatas de duas privadas e três comunitárias existem?",
+    "options": [
+     {
+      "key": "A",
+      "text": "6",
+      "cue": "A seis"
+     },
+     {
+      "key": "B",
+      "text": "10",
+      "cue": "B dez"
+     },
+     {
+      "key": "C",
+      "text": "60",
+      "cue": "C sessenta"
+     }
+    ],
+    "correct": "A"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m5l2-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: A. No flop há só três comunitárias, então existe um único trio da mesa. Os seis pares privados vezes esse trio dão seis candidatas. As sessenta aparecem só no river.",
+   "visual": {
+    "mode": "answer",
+    "question": "Omaha de quatro cartas, ainda no flop: quantas combinações candidatas de duas privadas e três comunitárias existem?",
+    "options": [
+     {
+      "key": "A",
+      "text": "6",
+      "cue": "A seis"
+     },
+     {
+      "key": "B",
+      "text": "10",
+      "cue": "B dez"
+     },
+     {
+      "key": "C",
+      "text": "60",
+      "cue": "C sessenta"
+     }
+    ],
+    "correct": "A",
+    "cue": "Resposta",
+    "explanation": "6 pares × 1 trio = 6 candidatas"
+   }
+  },
+  {
+   "id": "m5l2-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. Conte os seis pares privados e reconheça a sequência feita: dama e valete de paus, com dez, nove e oito, formam sequência até a dama. Ás e rei de copas oferecem um projeto diferente. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Conte seis pares privados",
+     "Q♣ J♣: sequência até a dama",
+     "A♥ K♥: outro projeto"
+    ],
+    "cues": [
+     "Conte os seis pares",
+     "dama e valete de paus",
+     "Ás e rei de copas"
+    ]
+   }
+  },
+  {
+   "id": "m5l2-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

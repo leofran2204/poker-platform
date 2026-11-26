@@ -1,0 +1,171 @@
+{
+ "id": "academy-m0l3",
+ "title": "Aula m0l3 — Nomes que fizeram história",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m0l3",
+ "scenes": [
+  {
+   "id": "m0l3-01",
+   "chapter": "Abertura",
+   "title": "Nomes que fizeram história",
+   "voice": "Esta é a Zero Tilt Academy. Na aula três do módulo zero, vamos ler alguns feitos da história do poker junto com o contexto. O objetivo é separar o resultado de um campeão do processo de decisão que você pode estudar.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 0 · Aula 3",
+    "lines": [
+     "Objetivo: separar o resultado do processo de decisão"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m0l3-02",
+   "chapter": "Feito e contexto",
+   "title": "Leia o feito junto com o contexto",
+   "voice": "Johnny Moss foi eleito campeão da WSOP em mil novecentos e setenta e venceu o torneio de mil novecentos e setenta e um. Chris Moneymaker marcou a expansão do público em dois mil e três. E Alexandre Gomes conquistou o primeiro bracelete brasileiro em dois mil e oito, conforme o registro retrospectivo da WSOP.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Moss: eleito em 1970, campeão em 1971",
+     "Moneymaker: expansão do público, 2003",
+     "Alexandre Gomes: 1º bracelete brasileiro, 2008"
+    ],
+    "cues": [
+     "Johnny Moss",
+     "Moneymaker marcou",
+     "Alexandre Gomes"
+    ]
+   }
+  },
+  {
+   "id": "m0l3-03",
+   "chapter": "Ciência e contexto",
+   "title": "A ciência também precisa de contexto",
+   "voice": "Em dois mil e quinze, Bowling e colaboradores publicaram um resultado para o heads-up limit Hold'em: uma solução essencialmente fraca daquele jogo. Isso não significa resolver o no-limit, mesas com mais jogadores ou ganhar toda mão.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "O que foi resolvido",
+      "items": [
+       "Limit Hold'em com dois jogadores",
+       "Solução essencialmente fraca"
+      ],
+      "cues": [
+       "publicaram um resultado",
+       "essencialmente fraca"
+      ],
+      "tone": "mint"
+     },
+     {
+      "title": "O que não foi",
+      "items": [
+       "No-limit e mesas maiores",
+       "Ganhar toda mão"
+      ],
+      "cues": [
+       "Isso não significa",
+       "ganhar toda mão"
+      ],
+      "tone": "danger"
+     }
+    ]
+   }
+  },
+  {
+   "id": "m0l3-04",
+   "chapter": "Resultado e processo",
+   "title": "Uma vitória não revela o processo",
+   "voice": "Uma vitória isolada não revela todo o processo de decisão. No exercício da Academy, registre as informações disponíveis, as alternativas consideradas e a justificativa da escolha. Essa é uma proposta de estudo, e não uma afirmação sobre a rotina pessoal dos campeões.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Vitória isolada não revela o processo",
+     "Informação, alternativas e justificativa",
+     "Proposta de estudo, não rotina de campeões"
+    ],
+    "cues": [
+     "Uma vitória isolada",
+     "registre as informações",
+     "Essa é uma proposta"
+    ]
+   }
+  },
+  {
+   "id": "m0l3-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. O resultado publicado por Bowling e colaboradores em dois mil e quinze vale para qual jogo? A: todas as modalidades de poker. B: só o limit Hold'em com dois jogadores. C: mesas cheias de no-limit Hold'em. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "O resultado publicado por Bowling e colaboradores em 2015 vale para qual jogo?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Todas as modalidades de poker",
+      "cue": "A todas as modalidades"
+     },
+     {
+      "key": "B",
+      "text": "Limit Hold'em com dois jogadores",
+      "cue": "B só o limit"
+     },
+     {
+      "key": "C",
+      "text": "Mesas cheias de no-limit Hold'em",
+      "cue": "C mesas cheias"
+     }
+    ],
+    "correct": "B"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m0l3-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B. O resultado vale para o limit Hold'em disputado por dois jogadores, e é uma solução essencialmente fraca. Ele não resolve o no-limit, nem mesas com mais jogadores.",
+   "visual": {
+    "mode": "answer",
+    "question": "O resultado publicado por Bowling e colaboradores em 2015 vale para qual jogo?",
+    "options": [
+     {
+      "key": "A",
+      "text": "Todas as modalidades de poker",
+      "cue": "A todas as modalidades"
+     },
+     {
+      "key": "B",
+      "text": "Limit Hold'em com dois jogadores",
+      "cue": "B só o limit"
+     },
+     {
+      "key": "C",
+      "text": "Mesas cheias de no-limit Hold'em",
+      "cue": "C mesas cheias"
+     }
+    ],
+    "correct": "B",
+    "cue": "Resposta",
+    "explanation": "Limit Hold'em com dois jogadores · solução essencialmente fraca"
+   }
+  },
+  {
+   "id": "m0l3-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

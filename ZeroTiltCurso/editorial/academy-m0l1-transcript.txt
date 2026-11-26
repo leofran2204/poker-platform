@@ -1,0 +1,15 @@
+Esta é a Zero Tilt Academy. Na primeira aula do módulo zero, vamos ver de onde vêm as cartas e por que o poker é um jogo de informação incompleta. O objetivo é diferenciar o que uma fonte comprova do que ela não comprova.
+
+O Met, museu de arte de Nova York, preserva um baralho completo de cinquenta e duas cartas dos Países Baixos meridionais, datado de cerca de mil quatrocentos e setenta e cinco a mil quatrocentos e oitenta. Os naipes representam equipamentos de caça. A peça comprova a existência desse baralho, mas não o nascimento do poker. E o museu informa que as regras exatas dos jogos associados não são conhecidas.
+
+No Hold'em tradicional, são treze valores vezes quatro naipes: cinquenta e duas cartas, sem curingas. O Short Deck usa trinta e seis. A regra da modalidade vem antes da estratégia.
+
+No modelo de Kuhn, três cartas e dois jogadores já bastam para estudar decisões com informação privada. O modelo não equivale ao Hold'em, mas ajuda a formular uma pergunta: o que você sabe, e o que ainda precisa estimar?
+
+Para pensar depois da aula, diferencie observação de inferência. Ver uma carta é uma observação. Estimar quais mãos um adversário aposta é uma inferência, que pode estar errada e precisa ser revista.
+
+Exercício. Qual destas frases descreve uma inferência? A: o flop mostra o sete de paus. B: o rival apostou cinco big blinds. C: o rival costuma apostar com pares médios. Pause o vídeo e responda.
+
+Resposta: C. A carta do flop e o valor da aposta são observações: estão na mesa. Dizer com que mãos o rival costuma apostar é uma estimativa, que pode estar errada e deve ser revista.
+
+Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.

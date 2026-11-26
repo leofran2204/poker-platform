@@ -1,0 +1,344 @@
+{
+ "id": "academy-m0l4",
+ "title": "Aula m0l4 — Regras e hierarquia de mãos",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m0l4",
+ "scenes": [
+  {
+   "id": "m0l4-01",
+   "chapter": "Abertura",
+   "title": "Regras e hierarquia de mãos",
+   "voice": "Esta é a Zero Tilt Academy. Na aula quatro do módulo zero, vamos estudar as regras comuns e a hierarquia de mãos. O objetivo é montar as cinco cartas que contam antes de anunciar um vencedor.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 0 · Aula 4",
+    "lines": [
+     "Objetivo: montar as cinco cartas que contam"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m0l4-02",
+   "chapter": "O objetivo de uma mão",
+   "title": "Você disputa potes",
+   "voice": "Você disputa potes. Se todos os adversários desistirem, você vence sem mostrar as cartas, e isso pode acontecer com uma aposta de valor ou com um blefe. Quando há showdown, comparam-se as melhores mãos de cinco cartas entre os jogadores que disputam cada pote. Empates dividem o pote, e all-ins de valores diferentes podem criar potes paralelos.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Todos desistem: vence sem mostrar",
+     "Showdown: melhor mão de cinco cartas",
+     "Empate divide; all-ins criam potes paralelos"
+    ],
+    "cues": [
+     "Se todos os adversários desistirem",
+     "Quando há showdown",
+     "Empates dividem"
+    ]
+   }
+  },
+  {
+   "id": "m0l4-03",
+   "chapter": "Ranking clássico",
+   "title": "Do maior para o menor",
+   "voice": "O ranking clássico, do maior para o menor, começa pelo royal flush, a sequência do mesmo naipe do dez ao ás. Depois vêm o straight flush, a quadra, o full house e, em seguida, o flush, com cinco cartas do mesmo naipe.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Royal flush: T-J-Q-K-A do mesmo naipe",
+     "Straight flush",
+     "Quadra",
+     "Full house",
+     "Flush"
+    ],
+    "cues": [
+     "royal flush",
+     "straight flush",
+     "a quadra",
+     "o full house",
+     "em seguida, o flush"
+    ]
+   }
+  },
+  {
+   "id": "m0l4-04",
+   "chapter": "Ranking clássico",
+   "title": "E as cinco seguintes",
+   "voice": "Abaixo do flush vêm a sequência, a trinca, os dois pares, um par e, por último, a carta alta. Na sequência ás, dois, três, quatro e cinco, o ás vale baixo: ela perde para a sequência do dois ao seis. E os naipes nunca desempatam mãos equivalentes.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Sequência · trinca · dois pares",
+     "Um par · carta alta",
+     "A-2-3-4-5: o ás vale baixo",
+     "Naipes não desempatam"
+    ],
+    "cues": [
+     "Abaixo do flush",
+     "um par e",
+     "o ás vale baixo",
+     "os naipes nunca desempatam"
+    ]
+   }
+  },
+  {
+   "id": "m0l4-05",
+   "chapter": "Modalidades e ações",
+   "title": "As modalidades da ZT",
+   "voice": "A ZT tem quatro modalidades. O Texas Hold'em usa cinquenta e duas cartas e duas privadas, e no showdown pode usar zero, uma ou duas delas. O Short Deck usa trinta e seis cartas, do seis ao ás, e na ZT a trinca vence a sequência e o flush vence o full house. O Omaha de quatro cartas usa o ranking clássico e exige exatamente duas privadas e três comunitárias. E o Brazilian Pineapple começa com três privadas, termina com duas e forma a mão como no Hold'em.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Texas: 52 cartas, usa 0, 1 ou 2 privadas",
+     "Short Deck: 36 cartas, ranking próprio",
+     "Omaha 4: exatamente 2 + 3",
+     "Pineapple: começa com 3, termina com 2"
+    ],
+    "cues": [
+     "cinquenta e duas cartas",
+     "O Short Deck",
+     "O Omaha de quatro cartas",
+     "o Brazilian Pineapple"
+    ]
+   }
+  },
+  {
+   "id": "m0l4-06",
+   "chapter": "Modalidades e ações",
+   "title": "Ações e ordem de ação",
+   "voice": "Check só existe quando não há valor a pagar. Call cobre a aposta, bet inicia uma aposta na rodada e raise aumenta uma aposta existente. No pré-flop, com três ou mais jogadores, a ação começa à esquerda do big blind; depois do flop, no primeiro jogador ativo à esquerda do botão. Em heads-up, o botão é o small blind: age primeiro no pré-flop e por último depois. E, na ZT, os blinds podem ter o mesmo valor: confira a mesa.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Check: só sem valor a pagar",
+     "Call, bet e raise",
+     "Pré-flop: à esquerda do BB · depois: à esquerda do botão",
+     "Dois jogadores: o botão é o SB"
+    ],
+    "cues": [
+     "Check só existe",
+     "Call cobre",
+     "No pré-flop",
+     "o botão é o small blind"
+    ]
+   }
+  },
+  {
+   "id": "m0l4-07",
+   "chapter": "Desempate",
+   "title": "Sem uma sexta carta",
+   "voice": "Agora o desempate. No river, a mesa mostra ás, dama, oito, quatro e dois, e o pote tem vinte big blinds. Você tem ás e rei; o rival tem ás e valete, e os dois vão ao showdown. Compare primeiro a categoria: os dois têm um par de ases. Depois os kickers: as suas cinco cartas são ás, ás, rei, dama e oito, e as dele são ás, ás, dama, valete e oito. O rei decide o confronto, e o dois não entra em nenhuma das duas mãos.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 9000,
+      "cards": [
+       "As",
+       "Kd"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 9000,
+      "cards": [
+       "Ad",
+       "Jc"
+      ]
+     }
+    ],
+    "board": [
+     "Ah",
+     "Qc",
+     "8s",
+     "4d",
+     "2c"
+    ],
+    "pot": 2000,
+    "events": [
+     {
+      "type": "reveal",
+      "cue": "os dois vão ao showdown",
+      "players": [
+       1
+      ]
+     },
+     {
+      "type": "highlight",
+      "cue": "as suas cinco cartas",
+      "player": 0,
+      "hole": [
+       0,
+       1
+      ],
+      "boardPick": [
+       0,
+       1,
+       2
+      ],
+      "text": "A-A-K-Q-8"
+     },
+     {
+      "type": "award",
+      "cue": "O rei decide",
+      "player": 0
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     2
+    ],
+    "banner": "River · pote de 20 BB"
+   }
+  },
+  {
+   "id": "m0l4-08",
+   "chapter": "Potes paralelos",
+   "title": "Vinte, cinquenta e cem",
+   "voice": "Agora os potes paralelos. Imagine três jogadores comprometendo vinte, cinquenta e cem fichas, sem outros participantes nem taxas. O pote principal tem sessenta: vinte de cada um. Há um pote paralelo de sessenta: trinta dos dois que mais investiram. E as cinquenta fichas sem cobertura voltam ao maior apostador. Quem só investiu vinte não pode ganhar o paralelo.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "POTE PRINCIPAL · 20 × 3",
+      "60"
+     ],
+     [
+      "PARALELO · 30 × 2",
+      "60"
+     ],
+     [
+      "DEVOLVIDAS",
+      "50"
+     ]
+    ],
+    "cues": [
+     "O pote principal tem sessenta",
+     "Há um pote paralelo",
+     "as cinquenta fichas"
+    ],
+    "note": "60 + 60 + 50 = 170 fichas comprometidas"
+   }
+  },
+  {
+   "id": "m0l4-09",
+   "chapter": "Rotina de leitura",
+   "title": "Antes de agir e antes do vencedor",
+   "voice": "Monte uma rotina de leitura. Antes de agir, diga a modalidade, a street e o valor que falta pagar. Antes de anunciar um vencedor, monte cinco cartas legais. Essa sequência evita confundir uma mão visualmente bonita com uma mão permitida pelas regras.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Modalidade, street e valor a pagar",
+     "Cinco cartas legais antes do vencedor",
+     "Bonita não é o mesmo que permitida"
+    ],
+    "cues": [
+     "Antes de agir",
+     "Antes de anunciar",
+     "Essa sequência evita"
+    ]
+   }
+  },
+  {
+   "id": "m0l4-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. Três jogadores vão all-in com dez, quarenta e quarenta fichas, sem outros participantes nem taxas. Quanto vale o pote paralelo? A: sessenta fichas. B: oitenta fichas. C: noventa fichas. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Três jogadores vão all-in com 10, 40 e 40 fichas, sem outros participantes nem taxas. Quanto vale o pote paralelo?",
+    "options": [
+     {
+      "key": "A",
+      "text": "60 fichas",
+      "cue": "A sessenta"
+     },
+     {
+      "key": "B",
+      "text": "80 fichas",
+      "cue": "B oitenta"
+     },
+     {
+      "key": "C",
+      "text": "90 fichas",
+      "cue": "C noventa"
+     }
+    ],
+    "correct": "A"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m0l4-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: A. O pote principal junta dez de cada jogador: trinta fichas. O paralelo junta os trinta restantes dos dois maiores: sessenta fichas. Nenhuma ficha volta, porque os dois maiores investiram o mesmo valor.",
+   "visual": {
+    "mode": "answer",
+    "question": "Três jogadores vão all-in com 10, 40 e 40 fichas, sem outros participantes nem taxas. Quanto vale o pote paralelo?",
+    "options": [
+     {
+      "key": "A",
+      "text": "60 fichas",
+      "cue": "A sessenta"
+     },
+     {
+      "key": "B",
+      "text": "80 fichas",
+      "cue": "B oitenta"
+     },
+     {
+      "key": "C",
+      "text": "90 fichas",
+      "cue": "C noventa"
+     }
+    ],
+    "correct": "A",
+    "cue": "Resposta",
+    "explanation": "Principal 10 × 3 = 30 · paralelo 30 × 2 = 60"
+   }
+  },
+  {
+   "id": "m0l4-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. Classifique a mão e compare os kickers antes de agir: um par de ases usa rei, dama e oito como kickers. Observe também se a aposta do adversário muda o preço. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Classifique a mão",
+     "Par de ases: K, Q e 8 de kickers",
+     "A aposta muda o preço?"
+    ],
+    "cues": [
+     "Classifique a mão",
+     "um par de ases usa",
+     "Observe também"
+    ]
+   }
+  },
+  {
+   "id": "m0l4-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

@@ -1,0 +1,318 @@
+{
+ "id": "academy-m4l3",
+ "title": "Aula m4l3 — Overbet polarizada e blocking bet",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m4l3",
+ "scenes": [
+  {
+   "id": "m4l3-01",
+   "chapter": "Abertura",
+   "title": "Overbet polarizada e blocking bet",
+   "voice": "Esta é a Zero Tilt Academy. Na aula três do módulo quatro, vamos comparar a aposta acima do pote, a overbet, com a aposta pequena fora de posição. O objetivo é classificar a mão antes de escolher o tamanho e calcular o preço de cada aposta.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 4 · Aula 3",
+    "lines": [
+     "Objetivo: classificar a mão antes do tamanho e calcular o preço"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m4l3-02",
+   "chapter": "Primeiro classifique a mão",
+   "title": "Qual é a sua mão?",
+   "voice": "Comece pela mão. A mesa mostra nove e oito de copas, sete de paus e dois de ouros, e o pote tem vinte big blinds. Você tem valete e dez de copas. O river traz o ás de copas. Agora as suas cinco melhores cartas são ás, valete, dez, nove e oito de copas: um flush, e não apenas uma sequência.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BB",
+      "stack": 9000,
+      "cards": [
+       "Jh",
+       "Th"
+      ]
+     },
+     {
+      "name": "BTN",
+      "stack": 9000,
+      "cards": [
+       "Kc",
+       "Kd"
+      ]
+     }
+    ],
+    "board": [
+     "9h",
+     "8h",
+     "7c",
+     "2d"
+    ],
+    "pot": 2000,
+    "events": [
+     {
+      "type": "board",
+      "cue": "O river traz",
+      "cards": [
+       "Ah"
+      ]
+     },
+     {
+      "type": "highlight",
+      "cue": "um flush",
+      "player": 0,
+      "hole": [
+       0,
+       1
+      ],
+      "boardPick": [
+       0,
+       1,
+       4
+      ],
+      "text": "Flush A-J-T-9-8"
+     }
+    ],
+    "dealer": 1,
+    "seats": [
+     0,
+     2
+    ],
+    "banner": "River · pote de 20 BB"
+   }
+  },
+  {
+   "id": "m4l3-03",
+   "chapter": "Primeiro classifique a mão",
+   "title": "Flush, mas não o nut flush",
+   "voice": "Mas esse flush ainda não é o nut flush, o maior possível. Com rei e dama de copas, o rival teria ás, rei, dama, nove e oito: um flush maior. E não há straight flush, porque falta uma carta de copas em sequência. Uma categoria errada contamina todo o plano de aposta.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "SUA MÃO · FLUSH",
+      "A-J-T-9-8"
+     ],
+     [
+      "K♥ Q♥ · FLUSH MAIOR",
+      "A-K-Q-9-8"
+     ],
+     [
+      "STRAIGHT FLUSH",
+      "Não há"
+     ]
+    ],
+    "cues": [
+     "não é o nut flush",
+     "um flush maior",
+     "não há straight flush"
+    ],
+    "note": "Classifique antes de escolher o tamanho"
+   }
+  },
+  {
+   "id": "m4l3-04",
+   "chapter": "Dois tamanhos",
+   "title": "Overbet e blocking bet",
+   "voice": "Agora os dois tamanhos. Uma aposta maior que o pote pode fazer parte de uma estratégia polarizada, quando ranges e stacks sustentam valor forte e blefes adequados. Ela não maximiza o retorno em qualquer cenário. Já uma aposta pequena fora de posição pode buscar valor fino ou induzir certas respostas. Mas ela não fixa o preço do showdown: o rival continua podendo aumentar.",
+   "visual": {
+    "mode": "compare",
+    "columns": [
+     {
+      "title": "Overbet polarizada",
+      "items": [
+       "Valor forte e blefes",
+       "Não vale em qualquer cenário"
+      ],
+      "cues": [
+       "valor forte",
+       "qualquer cenário"
+      ],
+      "tone": "gold"
+     },
+     {
+      "title": "Blocking bet",
+      "items": [
+       "Valor fino ou induzir",
+       "Não fixa o preço"
+      ],
+      "cues": [
+       "valor fino",
+       "não fixa o preço"
+      ],
+      "tone": "mint"
+     }
+    ],
+    "note": "O rival ainda pode aumentar",
+    "noteCue": "continua podendo aumentar"
+   }
+  },
+  {
+   "id": "m4l3-05",
+   "chapter": "O preço de uma overbet",
+   "title": "Pote de 100, aposta de 150",
+   "voice": "Agora o preço de uma overbet. Com um pote de cem e uma aposta de cento e cinquenta, pagar custa cento e cinquenta, para um total de quatrocentos: o limiar é trinta e sete e meio por cento, sem taxas e sem apostas futuras. E um blefe puro, que perde sempre quando é pago, precisa de folds acima de cento e cinquenta sobre duzentos e cinquenta: sessenta por cento.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "POTE · APOSTA",
+      "100 · 150"
+     ],
+     [
+      "CALL · 150/400",
+      "37,5%"
+     ],
+     [
+      "BLEFE · 150/250",
+      "> 60%"
+     ]
+    ],
+    "cues": [
+     "pote de cem",
+     "o limiar é trinta e sete",
+     "sessenta por cento"
+    ],
+    "note": "Aposta maior: mais equity para pagar, mais risco no blefe"
+   }
+  },
+  {
+   "id": "m4l3-06",
+   "chapter": "Aposta pequena",
+   "title": "Uma aposta pequena não fecha a ação",
+   "voice": "A blocking bet pode buscar pagamento de mãos piores ou influenciar respostas, mas o rival pode aumentar. Se você aposta pequeno sem plano contra o raise, só transfere a dificuldade para a próxima decisão. Registre antes se a sua mão pretende pagar, desistir ou aumentar de volta.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "O rival pode aumentar",
+     "Sem plano: a dificuldade só muda de lugar",
+     "Pagar, desistir ou aumentar de volta?"
+    ],
+    "cues": [
+     "o rival pode aumentar",
+     "sem plano contra o raise",
+     "Registre antes"
+    ]
+   }
+  },
+  {
+   "id": "m4l3-07",
+   "chapter": "Força não é invulnerabilidade",
+   "title": "A leitura certa é o ponto de partida",
+   "voice": "Ler a mão certa é só o ponto de partida. Escolher uma overbet ainda exige justificar quais mãos piores vão pagar e quais mãos melhores podem continuar ou aumentar.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Leitura certa: ponto de partida",
+     "Quais mãos piores pagam",
+     "Quais melhores continuam ou aumentam"
+    ],
+    "cues": [
+     "ponto de partida",
+     "quais mãos piores",
+     "quais mãos melhores"
+    ]
+   }
+  },
+  {
+   "id": "m4l3-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. O pote tem dez big blinds, e o rival faz uma overbet de vinte. Sem taxas e sem apostas futuras, qual é o limiar de equity para pagar? A: vinte sobre trinta. B: vinte sobre cinquenta. C: dez sobre trinta. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "O pote tem 10 BB, e o rival faz uma overbet de 20 BB. Sem taxas e sem apostas futuras, qual é o limiar de equity para pagar?",
+    "options": [
+     {
+      "key": "A",
+      "text": "20/30 ≈ 67%",
+      "cue": "A vinte sobre trinta"
+     },
+     {
+      "key": "B",
+      "text": "20/50 = 40%",
+      "cue": "B vinte sobre cinquenta"
+     },
+     {
+      "key": "C",
+      "text": "10/30 ≈ 33%",
+      "cue": "C dez sobre trinta"
+     }
+    ],
+    "correct": "B"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m4l3-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B. Pagar custa vinte, e o pote final fica com cinquenta: vinte sobre cinquenta, quarenta por cento. A conta de vinte sobre trinta é a do rival: o blefe dele precisa de folds acima de dois terços.",
+   "visual": {
+    "mode": "answer",
+    "question": "O pote tem 10 BB, e o rival faz uma overbet de 20 BB. Sem taxas e sem apostas futuras, qual é o limiar de equity para pagar?",
+    "options": [
+     {
+      "key": "A",
+      "text": "20/30 ≈ 67%",
+      "cue": "A vinte sobre trinta"
+     },
+     {
+      "key": "B",
+      "text": "20/50 = 40%",
+      "cue": "B vinte sobre cinquenta"
+     },
+     {
+      "key": "C",
+      "text": "10/30 ≈ 33%",
+      "cue": "C dez sobre trinta"
+     }
+    ],
+    "correct": "B",
+    "cue": "Resposta",
+    "explanation": "Call 20 · pote final 50 · 20/50 = 40%"
+   }
+  },
+  {
+   "id": "m4l3-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. Você tem um flush com ás, valete, dez, nove e oito. Um adversário com rei e dama de copas tem um flush maior, então a sua mão não é o nuts. Classifique a mão antes de comparar os tamanhos. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Seu flush: A-J-T-9-8",
+     "Kh Qh: flush maior",
+     "Classifique antes do tamanho"
+    ],
+    "cues": [
+     "Você tem um flush",
+     "flush maior",
+     "Classifique a mão"
+    ]
+   }
+  },
+  {
+   "id": "m4l3-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}

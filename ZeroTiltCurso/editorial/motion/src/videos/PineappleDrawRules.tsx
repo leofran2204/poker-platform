@@ -44,10 +44,10 @@ type Visual = {
   rows?: string[][];
 };
 
-const visualOf = (props: SceneProps) => (props.data.visual ?? {}) as Visual;
+export const visualOf = (props: SceneProps) => (props.data.visual ?? {}) as Visual;
 
 /** Deixa robusta: se a frase não estiver na narração, usa uma posição proporcional. */
-const safeCue = (props: SceneProps, phrase: string | undefined, fallback: number) => {
+export const safeCue = (props: SceneProps, phrase: string | undefined, fallback: number) => {
   if (!phrase) return fallback;
   try {
     return props.cue(phrase);
@@ -55,7 +55,7 @@ const safeCue = (props: SceneProps, phrase: string | undefined, fallback: number
     return fallback;
   }
 };
-const spaced = (props: SceneProps, index: number, count: number) =>
+export const spaced = (props: SceneProps, index: number, count: number) =>
   Math.round(props.audioAt + (props.speechEnd - props.audioAt) * (0.1 + (0.75 * index) / Math.max(1, count - 1)));
 
 const Abs: React.FC<{ x: number; y: number; children: React.ReactNode; style?: React.CSSProperties }> = ({ x, y, children, style }) => (
@@ -65,7 +65,7 @@ const Abs: React.FC<{ x: number; y: number; children: React.ReactNode; style?: R
 );
 
 /** Cabeçalho comum: capítulo, título da cena e etiqueta do exemplo. */
-const Header: React.FC<{ props: SceneProps }> = ({ props }) => {
+export const Header: React.FC<{ props: SceneProps }> = ({ props }) => {
   const visual = visualOf(props);
   return (
     <>
@@ -84,7 +84,7 @@ const Header: React.FC<{ props: SceneProps }> = ({ props }) => {
   );
 };
 
-const Note: React.FC<{ text?: string; at: number; tone?: "gold" | "muted" | "danger" }> = ({ text, at, tone = "gold" }) =>
+export const Note: React.FC<{ text?: string; at: number; tone?: "gold" | "muted" | "danger" }> = ({ text, at, tone = "gold" }) =>
   text ? (
     <Abs x={960} y={995}>
       <Pill tone={tone} at={at} size={24}>

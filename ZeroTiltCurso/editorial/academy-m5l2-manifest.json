@@ -1,457 +1,65 @@
 {
   "lessonId": "m5l2",
-  "filename": "zt-academy-m5l2-v3",
   "contentHash": "49b158e110719927259c375fb9def9ea47225e7c22b6979929105347d8d3e8f5",
-  "rendererVersion": 5,
-  "durationSeconds": 353.63,
+  "filename": "zt-academy-m5l2-v4",
+  "title": "Aula m5l2 — Omaha de quatro cartas",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM5L2",
+  "script": "src/data/academy-m5l2.json",
+  "scriptHash": "b78be37c76cc68e902eeefa0591cfc58c5020a5250948484327329bb7c0a1a3a",
+  "durationSeconds": 206.42,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 10126620,
+  "bytes": 11934373,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "2c87b3d1f856f66d1ffc659300f4a7ac27629d4d461405e986028483e97f4e9a",
+  "narrationHash": "181f29f0329102a182b02e525604e8e34e21dfb423da054164de7b6204c834df",
   "chapters": [
     {
       "start": 0.0,
-      "title": "Omaha 4 Cartas (baralho de 52)"
+      "title": "Abertura"
     },
     {
-      "start": 19.97,
-      "title": "Omaha 4 (6-max)"
+      "start": 17.67,
+      "title": "Omaha 4"
     },
     {
-      "start": 38.27,
-      "title": "Contagem e leitura"
-    },
-    {
-      "start": 76.63,
+      "start": 38.1,
       "title": "Escolha pares privados"
     },
     {
-      "start": 109.33,
-      "title": "Nuts e possibilidades de melhorar"
+      "start": 60.27,
+      "title": "Contagem e leitura"
     },
     {
-      "start": 138.27,
+      "start": 100.7,
+      "title": "Nuts e melhoras"
+    },
+    {
+      "start": 119.7,
       "title": "Preço com quatro cartas"
     },
     {
-      "start": 165.77,
-      "title": "Laboratório: Quatro privadas, apenas duas escolhidas"
+      "start": 134.2,
+      "title": "Exercício"
     },
     {
-      "start": 206.07,
-      "title": "Laboratório: Quatro privadas, apenas duas escolhidas"
+      "start": 168.6,
+      "title": "Laboratório"
     },
     {
-      "start": 214.37,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 240.1,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 259.8,
-      "title": "Exercício resolvido 2"
-    },
-    {
-      "start": 297.1,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 320.7,
-      "title": "Agora, pratique"
+      "start": 192.33,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 19.966666666666665,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 19.966666666666665,
-      "duration": 18.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 38.266666666666666,
-      "duration": 38.36666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 76.63333333333333,
-      "duration": 32.7,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 109.33333333333333,
-      "duration": 28.933333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 138.26666666666665,
-      "duration": 27.5,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 165.76666666666665,
-      "duration": 40.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 206.06666666666666,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 214.36666666666667,
-      "duration": 25.733333333333334,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 240.10000000000002,
-      "duration": 19.7,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 259.8,
-      "duration": 37.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 297.1,
-      "duration": 23.6,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    },
-    {
-      "start": 320.70000000000005,
-      "duration": 32.93333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": [
-        {
-          "kind": "board",
-          "index": 0,
-          "start": 0.5,
-          "land": 1.1,
-          "flip": 2.1,
-          "end": 2.9000000000000004
-        },
-        {
-          "kind": "board",
-          "index": 1,
-          "start": 0.85,
-          "land": 1.45,
-          "flip": 2.45,
-          "end": 3.25
-        },
-        {
-          "kind": "board",
-          "index": 2,
-          "start": 1.2,
-          "land": 1.7999999999999998,
-          "flip": 2.8,
-          "end": 3.5999999999999996
-        }
-      ]
-    }
-  ],
-  "sha256": "20c41ec154c7a1b2765dab9ce7da31d7055c90fa4cc7086d90fe86c951659d5c",
+  "sha256": "1fa3279fb3d449d180a80bd62f12bc5b90923466250173941925f0f95a1af34a",
   "assetHashes": {
-    "mp4": "20c41ec154c7a1b2765dab9ce7da31d7055c90fa4cc7086d90fe86c951659d5c",
-    "vtt": "9b88b4348baf050edf7156eaba2012e69b5c8e4b913fe21f7706f30506110465",
-    "webp": "dd0a7f85ac099c7e24bb62d22ac9103b9c6e9c31257436a991c5ad8a3c6b2a8f"
+    "mp4": "1fa3279fb3d449d180a80bd62f12bc5b90923466250173941925f0f95a1af34a",
+    "vtt": "e36180704c996050a97466f8f8e4c222495157980a419a6152460a5cad19503a",
+    "webp": "393ccc12c5ea8bd20f1f4d9fa994e6617bd3c543702dd2151a03b7ca449a6cc8"
   },
-  "mediaRevision": "13a17e5a6ea95a6df7eabdfd6ff77886fa711b7ee2ee4fd83f344f271c182355"
+  "mediaRevision": "886f3aaa1f345866d03cbf26da03c0df2a4d0f889129286ea5dee3b6b951161a"
 }

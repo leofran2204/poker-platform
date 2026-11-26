@@ -1,194 +1,65 @@
 {
   "lessonId": "m0l8",
-  "filename": "zt-academy-m0l8-v3",
   "contentHash": "0b7accbe65f90f1c71a58ae6a26443db559ac49804385bf742a38d644e6a52e4",
-  "rendererVersion": 5,
-  "durationSeconds": 304.57,
+  "filename": "zt-academy-m0l8-v4",
+  "title": "Aula m0l8 — Sizing: o tamanho certo",
+  "renderer": "remotion",
+  "rendererVersion": 2,
+  "composition": "AcademyM0L8",
+  "script": "src/data/academy-m0l8.json",
+  "scriptHash": "6db053eb27d6b8ef177f1a928ee94df7d4487163bd6e2915ee9661e0f17f31e2",
+  "durationSeconds": 215.4,
   "width": 1920,
   "height": 1080,
   "fps": 30,
-  "bytes": 8138556,
+  "bytes": 12553692,
   "voice": "pt-BR-MacerioMultilingualNeural (synthetic)",
   "voiceRate": "-3%",
   "pronunciationVersion": "pt-BR-poker-v3-multilingual",
-  "narrationHash": "5b8e75ce2f378a37f735b5a089492a4ef8694b6cc4c976eabedbae832d9d48ca",
+  "narrationHash": "9fdf13fd25cd87a08991255d062917d829218caf8d1939b53da16169d2e33ab8",
   "chapters": [
     {
       "start": 0.0,
-      "title": "Sizing: o tamanho certo"
+      "title": "Abertura"
     },
     {
-      "start": 17.9,
-      "title": "Declare o tamanho e a unidade"
+      "start": 14.77,
+      "title": "Tamanho e unidade"
     },
     {
-      "start": 34.2,
+      "start": 34.43,
       "title": "Exemplo de plano"
     },
     {
-      "start": 63.73,
-      "title": "Pratique"
+      "start": 71.97,
+      "title": "Preço produzido"
     },
     {
-      "start": 74.87,
-      "title": "Preço produzido pela aposta"
-    },
-    {
-      "start": 105.77,
+      "start": 99.0,
       "title": "Incremento e mínimo"
     },
     {
-      "start": 136.53,
+      "start": 121.0,
       "title": "Compare respostas"
     },
     {
-      "start": 160.07,
-      "title": "Laboratório: O raise é um total"
+      "start": 137.83,
+      "title": "Exercício"
     },
     {
-      "start": 197.07,
-      "title": "Laboratório: O raise é um total"
+      "start": 182.17,
+      "title": "Laboratório"
     },
     {
-      "start": 205.37,
-      "title": "Exercício resolvido 1"
-    },
-    {
-      "start": 223.9,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 238.63,
-      "title": "Exercício resolvido 2"
-    },
-    {
-      "start": 259.53,
-      "title": "Confira o raciocínio"
-    },
-    {
-      "start": 273.5,
-      "title": "Agora, pratique"
+      "start": 201.33,
+      "title": "Fechamento"
     }
   ],
-  "scenes": [
-    {
-      "start": 0.0,
-      "duration": 17.9,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 17.9,
-      "duration": 16.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 34.2,
-      "duration": 29.533333333333335,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 63.733333333333334,
-      "duration": 11.133333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 74.86666666666667,
-      "duration": 30.9,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 105.76666666666668,
-      "duration": 30.766666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 136.53333333333336,
-      "duration": 23.533333333333335,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 160.0666666666667,
-      "duration": 37.0,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 197.0666666666667,
-      "duration": 8.3,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 205.3666666666667,
-      "duration": 18.533333333333335,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 223.90000000000003,
-      "duration": 14.733333333333333,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 238.63333333333335,
-      "duration": 20.9,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 259.53333333333336,
-      "duration": 13.966666666666667,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    },
-    {
-      "start": 273.5,
-      "duration": 31.066666666666666,
-      "focusStarts": [
-        0.0
-      ],
-      "dealEvents": []
-    }
-  ],
-  "sha256": "77ab5f8e0414fda461a77ceaf15dfb44ca6b27ca5e554d31ff31c3956b4012b2",
+  "sha256": "915da0c9d92d596e338435051686d454a1661e07ea071fa6d31cfafde4ce0f2c",
   "assetHashes": {
-    "mp4": "77ab5f8e0414fda461a77ceaf15dfb44ca6b27ca5e554d31ff31c3956b4012b2",
-    "vtt": "635f68e4da9c43e32fdedb89591bcdaed4de71d87901c6cd6877eb223973f96a",
-    "webp": "d0eb132dc25d29d598a08df746d32c127a8046c23269b657db3edc52a2062ab3"
+    "mp4": "915da0c9d92d596e338435051686d454a1661e07ea071fa6d31cfafde4ce0f2c",
+    "vtt": "bb3b0e9c2ea9f4aa92fadf21b0fac6a1da8de61ea79406f3a0e296c69d61437f",
+    "webp": "9496661ab1266192c5f4a769ecd053430dbbc80ef136b4aacf35a48c059ef543"
   },
-  "mediaRevision": "76e34be3c18904528122cebced8657f3aa0e27ca92ff35ed5917239b46679c8f"
+  "mediaRevision": "46f939f9ee4396cd1c2496c47b63bfcd04f475086b2624c491679c509711bd9e"
 }

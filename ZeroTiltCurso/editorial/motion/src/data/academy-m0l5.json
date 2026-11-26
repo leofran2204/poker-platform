@@ -1,0 +1,311 @@
+{
+ "id": "academy-m0l5",
+ "title": "Aula m0l5 — Suas primeiras decisões e posições",
+ "voice": "pt-BR-MacerioMultilingualNeural",
+ "rate": "-3%",
+ "fps": 30,
+ "lesson": "m0l5",
+ "scenes": [
+  {
+   "id": "m0l5-01",
+   "chapter": "Abertura",
+   "title": "Suas primeiras decisões e posições",
+   "voice": "Esta é a Zero Tilt Academy. Na aula cinco do módulo zero, vamos estudar as primeiras decisões e a posição. O objetivo é saber quem age depois de você em cada street e separar o preço de um call da força da mão.",
+   "visual": {
+    "mode": "intro",
+    "kicker": "Zero Tilt Academy · Módulo 0 · Aula 5",
+    "lines": [
+     "Objetivo: ordem de ação por street e preço separado da força"
+    ],
+    "badge": "Fichas sem valor · este curso não promete lucro"
+   }
+  },
+  {
+   "id": "m0l5-02",
+   "chapter": "Uma volta ao botão",
+   "title": "A ordem muda com a street",
+   "voice": "Considere uma mesa com três lugares: o botão, o small blind e o big blind, nessa ordem. No pré-flop, o botão age primeiro, porque está logo depois do big blind, e os blinds ainda agem depois dele. No flop, o small blind começa e o botão termina, se os três continuarem.",
+   "visual": {
+    "mode": "positions",
+    "seats": [
+     {
+      "label": "BTN · você",
+      "value": "1º no pré-flop · último no flop",
+      "cue": "o botão termina",
+      "hero": true
+     },
+     {
+      "label": "SB",
+      "value": "1º no flop",
+      "cue": "o small blind começa"
+     },
+     {
+      "label": "BB",
+      "value": "último no pré-flop",
+      "cue": "logo depois do big blind"
+     }
+    ],
+    "button": 0,
+    "note": "A mesma cadeira muda de ordem conforme a street"
+   }
+  },
+  {
+   "id": "m0l5-03",
+   "chapter": "Posição",
+   "title": "Posição é informação adicional",
+   "voice": "O botão age por último depois do flop, quando continua na mão. Já a posição inicial, o UTG, tem mais adversários por agir no pré-flop, mas fica em posição depois do flop contra os blinds. E posição não revela cartas escondidas, nem garante lucro. Um jogador em all-in continua disputando o pote, mas não recebe novos turnos de aposta.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Botão: último depois do flop",
+     "UTG: em posição contra os blinds",
+     "Posição não revela cartas"
+    ],
+    "cues": [
+     "age por último",
+     "a posição inicial",
+     "não revela cartas"
+    ]
+   }
+  },
+  {
+   "id": "m0l5-04",
+   "chapter": "Plano inicial",
+   "title": "Um plano inicial de abertura",
+   "voice": "Para o exercício, a mesa é de Texas cash com nove jogadores, cem big blinds de stack e blinds de meio e de um big blind. Abrir com dois ases no botão e desistir de sete e dois de naipes diferentes no UTG são escolhas do plano didático. O tamanho de abertura é uma hipótese de treino: rake, stacks e respostas dos adversários mudam o range.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Texas cash, 9 jogadores, 100 BB",
+     "AA no botão abre · 72o no UTG desiste",
+     "Tamanho: hipótese de treino"
+    ],
+    "cues": [
+     "Para o exercício",
+     "Abrir com dois ases",
+     "O tamanho de abertura"
+    ]
+   }
+  },
+  {
+   "id": "m0l5-05",
+   "chapter": "Preço e força",
+   "title": "O rival aposta metade do pote",
+   "voice": "Agora separe o preço da força. No flop, o pote tem dez big blinds, e a mesa mostra rei, sete e três. Você tem rei e valete, um top pair. O rival aposta cinco big blinds.",
+   "visual": {
+    "mode": "hand",
+    "variant": "holdem",
+    "unit": "bb",
+    "layout": 4,
+    "hero": 0,
+    "players": [
+     {
+      "name": "Você · BTN",
+      "stack": 9500,
+      "cards": [
+       "Kh",
+       "Jd"
+      ]
+     },
+     {
+      "name": "BB",
+      "stack": 9500,
+      "cards": [
+       "Ac",
+       "Kc"
+      ]
+     }
+    ],
+    "board": [
+     "Ks",
+     "7d",
+     "3c"
+    ],
+    "pot": 1000,
+    "events": [
+     {
+      "type": "bet",
+      "cue": "O rival aposta",
+      "player": 1,
+      "to": 500
+     }
+    ],
+    "dealer": 0,
+    "seats": [
+     0,
+     2
+    ],
+    "banner": "Flop · pote de 10 BB"
+   }
+  },
+  {
+   "id": "m0l5-06",
+   "chapter": "Preço e força",
+   "title": "Preço não é força",
+   "voice": "Pagar cinco forma um pote final de vinte big blinds: o preço é cinco sobre vinte, vinte e cinco por cento. Mas ter top pair não informa sozinho a sua equity contra o range do rival, e no flop as apostas futuras também influenciam a decisão.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "CUSTO DO CALL",
+      "5 BB"
+     ],
+     [
+      "POTE FINAL",
+      "20 BB"
+     ],
+     [
+      "PREÇO · 5/20",
+      "25%"
+     ]
+    ],
+    "cues": [
+     "Pagar cinco",
+     "pote final de vinte",
+     "cinco sobre vinte"
+    ],
+    "note": "Top pair não informa a equity sozinho"
+   }
+  },
+  {
+   "id": "m0l5-07",
+   "chapter": "Stack efetivo",
+   "title": "O menor stack limita a disputa",
+   "voice": "Agora vamos ao stack efetivo, o menor dos dois stacks. Em heads-up, se você tem cem big blinds e o rival tem quarenta, o máximo que vocês disputam entre si é quarenta de cada lado. O excesso não pode ser ganho desse rival nesta mão.",
+   "visual": {
+    "mode": "money",
+    "metrics": [
+     [
+      "SEU STACK",
+      "100 BB"
+     ],
+     [
+      "STACK DO RIVAL",
+      "40 BB"
+     ],
+     [
+      "STACK EFETIVO",
+      "40 BB"
+     ]
+    ],
+    "cues": [
+     "cem big blinds",
+     "o rival tem quarenta",
+     "quarenta de cada lado"
+    ]
+   }
+  },
+  {
+   "id": "m0l5-08",
+   "chapter": "Plano e observação",
+   "title": "Planeje e observe",
+   "voice": "Antes de abrir, planeje uma resposta para um call e para um raise. Identifique quais flops permitem valor, quais exigem cautela e quanto você aceita investir em cada hipótese. E lembre: agir depois revela uma ação, e não a mão escondida. Um check pode vir de fraqueza, de controle do pote ou de armadilha.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Plano para call e para raise",
+     "Flops de valor e de cautela",
+     "Uma ação não revela a mão"
+    ],
+    "cues": [
+     "planeje uma resposta",
+     "Identifique quais flops",
+     "agir depois revela"
+    ]
+   }
+  },
+  {
+   "id": "m0l5-quiz",
+   "chapter": "Exercício",
+   "title": "Sua vez",
+   "voice": "Exercício. Numa mesa de seis, o UTG abre, o botão paga, o small blind desiste e o big blind paga. Quem age primeiro no flop? A: o UTG, que abriu a ação. B: o jogador do big blind. C: o botão, que pagou. Pause o vídeo e responda.",
+   "visual": {
+    "mode": "quiz",
+    "question": "Mesa de seis: o UTG abre, o botão paga, o small blind desiste e o big blind paga. Quem age primeiro no flop?",
+    "options": [
+     {
+      "key": "A",
+      "text": "O UTG, que abriu",
+      "cue": "A o UTG"
+     },
+     {
+      "key": "B",
+      "text": "O big blind",
+      "cue": "B o jogador do big blind"
+     },
+     {
+      "key": "C",
+      "text": "O botão, que pagou",
+      "cue": "C o botão"
+     }
+    ],
+    "correct": "B"
+   },
+   "padAfter": 3.0
+  },
+  {
+   "id": "m0l5-answer",
+   "chapter": "Exercício",
+   "title": "Resposta",
+   "voice": "Resposta: B. Depois do flop, a ação começa no primeiro jogador ainda ativo à esquerda do botão. O small blind desistiu, então quem começa é o big blind, e o botão fala por último.",
+   "visual": {
+    "mode": "answer",
+    "question": "Mesa de seis: o UTG abre, o botão paga, o small blind desiste e o big blind paga. Quem age primeiro no flop?",
+    "options": [
+     {
+      "key": "A",
+      "text": "O UTG, que abriu",
+      "cue": "A o UTG"
+     },
+     {
+      "key": "B",
+      "text": "O big blind",
+      "cue": "B o jogador do big blind"
+     },
+     {
+      "key": "C",
+      "text": "O botão, que pagou",
+      "cue": "C o botão"
+     }
+    ],
+    "correct": "B",
+    "cue": "Resposta",
+    "explanation": "Depois do flop: primeiro ativo à esquerda do botão"
+   }
+  },
+  {
+   "id": "m0l5-30",
+   "chapter": "Laboratório",
+   "title": "Leve a aula para a mesa",
+   "voice": "Agora leve a aula para a mesa de treino. Reconheça quem age antes e depois do flop. Com dois jogadores, o botão paga o small blind: age primeiro no pré-flop e por último depois do flop. Comece pelo treino guiado, repita no modo desafio e use o replay para comparar a outra linha na mesma distribuição.",
+   "visual": {
+    "mode": "steps",
+    "lines": [
+     "Quem age antes e depois do flop",
+     "Dois jogadores: o botão é o SB",
+     "Primeiro no pré-flop, último depois"
+    ],
+    "cues": [
+     "Reconheça quem age",
+     "Com dois jogadores",
+     "age primeiro no pré-flop"
+    ]
+   }
+  },
+  {
+   "id": "m0l5-99",
+   "chapter": "Fechamento",
+   "title": "Comece pelo treino",
+   "voice": "Registre sua justificativa no caderno: acertar a leitura e respeitar as hipóteses importa mais do que ganhar a mão. O treino usa fichas sem valor, e este curso não promete lucro.",
+   "visual": {
+    "mode": "outro",
+    "lines": [
+     "Registre a justificativa no caderno",
+     "Fichas sem valor no treino",
+     "Este curso não promete lucro"
+    ]
+   },
+   "padAfter": 2.0
+  }
+ ]
+}
