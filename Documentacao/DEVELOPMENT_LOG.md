@@ -1817,3 +1817,12 @@ Ordem do proprietário: "pode executar tudo nessa sessão" (madrugada de 26/11) 
 - Legendas desligadas por padrão (pedido do proprietário em 26/11: "as legendas só devem aparecer com o aluno escolhendo essa opção"): o `<track>` do `CourseVideoPlayer` perdeu o `default`, e o aluno liga no botão de legendas do player (aulas e filmes do Pineapple). Teste novo no `courseAudit.test.ts`.
 - Memória: com render `--concurrency 4` e compilação no WSL ao mesmo tempo, o Claude Code encerrou as tarefas por falta de memória (26/11, 01:58 e 08:34; a m0l4 caiu com ffmpeg 0xC0000142 e foi refeita com `--concurrency 2`). Render e cargo rodam um de cada vez.
 - Verificação local: `render.py --check` (30 publicações, 118,1 min), `test_narration.py` (13 testes; conta 30 narrações publicadas), Vitest 162/162, `tsc`, ESLint, build do Vite sem `expectedIndex` no pacote, `cargo fmt`/`clippy -D warnings` e testes `course` da API.
+
+## 2026-11-26 — Brazilian Pineapple no Jogo Real
+
+Decisão do proprietário em 26/11: "tá aprovado o jogo real de Brazilian Pineapple", seguida de "pode fazer commit, push e deploy". O trabalho estava preparado desde 25/11 fora do master, e a abertura foi aprovada antes da rodada com amigos no Play Money.
+
+- Migration `071_pineapple_draw_real_money.sql`, preparada como 070 e renumerada porque a 070 virou `070_course_watch_video.sql`. Abre no Jogo Real com os valores do Play Money: mesa cash 6-max 0,50/0,50, buy-in R$ 75, rake igual ao da Short Deck real (id `b2000070-0001-4000-8000-000000000001`); torneio R$ 10, GTD R$ 100, até 18 jogadores e 1 rebuy (`c3000001-...-041`). Registro `CATALOG_PINEAPPLE_DRAW_REAL_071` em `audit_logs`.
+- STATUS (`money_modes: play` retirado da mesa e do torneio, `migrations_latest` 71), BUSINESS_RULES 2.5 e DEMO_AMIGOS sem "só Play Money".
+- Teste `test_contract_pineapple_draw_opens_in_real_money`. Banco local `poker_test_071` recriado com as 71 migrations aplicadas em ordem, como no CI.
+- Limpeza: renders brutos de `motion/out` apagados (830 MB, intermediários ignorados), ramos locais `aulas-remotion` e `pineapple-jogo-real` apagados (já no master), bancos de teste antigos removidos.

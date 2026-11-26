@@ -3182,3 +3182,44 @@ async fn test_contract_course_video_is_counted_by_the_server() {
 
     cleanup_contract_user(&state, &user.username).await;
 }
+
+/// Migration 071: o Brazilian Pineapple abre no Jogo Real com os mesmos valores do
+/// Play Money (mesa 0,50/0,50 6-max, buy-in R$ 75; torneio R$ 10) e 1 rebuy no torneio.
+#[tokio::test]
+#[ignore = "Requires PostgreSQL with migration 071 — set DATABASE_URL to run"]
+async fn test_contract_pineapple_draw_opens_in_real_money() {
+    let state = make_test_state();
+    let app = poker_api::build_router(state.clone());
+
+    let (status, body) = send_request(app, Method::GET, "/api/lobby/tables?mode=real", None).await;
+    assert_eq!(status, StatusCode::OK);
+    let tables: Vec<serde_json::Value> = serde_json::from_str(&body).unwrap();
+    let pineapple: Vec<_> = tables
+        .iter()
+        .filter(|t| t["poker_variant"] == "pineapple_draw")
+        .collect();
+    assert_eq!(
+        pineapple.len(),
+        1,
+        "uma mesa cash real do Pineapple: {body}"
+    );
+    let table = pineapple[0];
+    assert_eq!(table["money_mode"], "real");
+    assert_eq!(table["small_blind"], 50);
+    assert_eq!(table["big_blind"], 50);
+    assert_eq!(table["max_buy_in"], 7500);
+
+    let catalog = poker_api::tournament_catalog::load_tournaments_from_db(&state.db)
+        .await
+        .unwrap();
+    let real: Vec<_> = catalog
+        .values()
+        .filter(|s| s.money_mode == "real" && s.active_poker_variant() == "pineapple_draw")
+        .collect();
+    assert_eq!(real.len(), 1, "um torneio real do Pineapple");
+    let config = &real[0].state.config;
+    assert_eq!(config.buy_in, 1000);
+    assert_eq!(config.starting_stack, 10000);
+    assert_eq!(config.rebuy_max_count, 1);
+    assert!(!config.blind_levels.is_empty());
+}

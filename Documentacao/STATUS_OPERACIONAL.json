@@ -56,10 +56,7 @@
             "small_blind_cents": 50,
             "big_blind_cents": 50,
             "max_players": 6,
-            "buy_in_cents": 7500,
-            "money_modes": [
-                "play"
-            ]
+            "buy_in_cents": 7500
         }
     ],
     "tournament": {
@@ -126,10 +123,7 @@
                 "max_players": 18,
                 "reentries": 1,
                 "freeroll": false,
-                "play_reentries": 0,
-                "money_modes": [
-                    "play"
-                ]
+                "play_reentries": 0
             }
         ]
     },
@@ -172,7 +166,7 @@
         "showdown_sticky": true,
         "disconnect_not_leave": true
     },
-    "migrations_latest": 70,
+    "migrations_latest": 71,
     "email_verification": true,
     "regulation_target": "2027-01"
 }

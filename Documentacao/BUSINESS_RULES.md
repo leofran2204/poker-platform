@@ -76,9 +76,9 @@ Plataforma de poker online inspirada no Full Tilt Poker (skin moderna, lobby den
 - Ranking **clássico** (igual ao Hold’em: sequência > trinca, full house > flush; wheel A-2-3-4-5)
 - Implementação: `evaluate_hand_omaha`
 
-### 2.5 🍍 Brazilian Pineapple — `pineapple_draw` (6-max cash + torneio; Play Money primeiro)
+### 2.5 🍍 Brazilian Pineapple — `pineapple_draw` (6-max cash + torneio; Play Money e Jogo Real)
 - **Nome e identificador:** o jogador vê **Brazilian Pineapple** (decisão do proprietário em 11/11/2026: o nome marca uma modalidade criada no Brasil). No código, no banco e nos históricos o identificador é `pineapple_draw`. O identificador `brazilian_pineapple` pertence ao formato antigo (2 privadas + 1 a cada street, sem descarte), que saiu do catálogo e permanece só no histórico.
-- Substitui o formato antigo (decisão do proprietário em 09/11/2026). A migration 062 tira mesas e torneios do formato antigo do catálogo e abre o Brazilian Pineapple atual só no Play Money; o Jogo Real exige nova decisão e nova migration. Mãos, settlements e torneios antigos ficam preservados no histórico, identificados por `betting_rule_version`.
+- Substitui o formato antigo (decisão do proprietário em 09/11/2026). A migration 062 tira mesas e torneios do formato antigo do catálogo e abre o Brazilian Pineapple atual só no Play Money. A migration 070 abre o Jogo Real com os mesmos valores (mesa 0,50/0,50 com buy-in de R$ 75 e torneio de R$ 10 com garantido de R$ 100), com 1 rebuy por jogador no torneio, como os outros torneios reais (decisão do proprietário em 25/11/2026: publicar só depois da validação no Play Money com pessoas). Mãos, settlements e torneios antigos ficam preservados no histórico, identificados por `betting_rule_version`.
 - Baralho tradicional de **52** cartas (ranks 2–A); até **6 jogadores**.
 - **Ordem da mão (decisões do proprietário em 20 e 21/11/2026, que substituem a de 11/11):**
   1. Cada jogador recebe **3** cartas privadas. Rodada de apostas. Não há troca no pré-flop.

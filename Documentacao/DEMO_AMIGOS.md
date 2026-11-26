@@ -30,7 +30,7 @@ Casa: **ZT Poker** (header **Zero Tilt**). Slogan: **Estude. Jogue. Sem tilt.** 
 | NL 0,75/1,50 | Texas Hold’em | 0,75 / 1,50 | 9 | R$ 150 |
 | Texas Short Deck 0,50 | Texas Hold’em Short Deck | 0,50 / 0,50 | 8 | R$ 100 |
 | Omaha 0,50 | Omaha 4 Cartas | 0,50 / 0,50 | 6 | R$ 100 |
-| Brazilian Pineapple 0,50 (só Play Money) | Brazilian Pineapple | 0,50 / 0,50 | 6 | R$ 75 |
+| Brazilian Pineapple 0,50 | Brazilian Pineapple | 0,50 / 0,50 | 6 | R$ 75 |
 <!-- DOCUMENTATION_SYNC:CASH_CATALOG:END -->
 
 - **Omaha 4:** baralho 52; 4 cartas na mão; showdown exatamente 2 hole + 3 board; ranking clássico
@@ -54,7 +54,7 @@ Casa: **ZT Poker** (header **Zero Tilt**). Slogan: **Estude. Jogue. Sem tilt.** 
 | Texas R$25 | Texas Hold’em | R$ 25 | — | 9 | 27 | 1 | 1 |
 | Texas Hold’em Freeroll | Texas Hold’em | Grátis | R$ 75 | 9 | 27 | ilimitadas | 1 |
 | Omaha 4 Cartas | Omaha 4 Cartas | R$ 10 | R$ 100 | 6 | 18 | ilimitadas | 1 |
-| Brazilian Pineapple (só Play Money) | Brazilian Pineapple | R$ 10 | R$ 100 | 6 | 18 | ilimitadas | — |
+| Brazilian Pineapple | Brazilian Pineapple | R$ 10 | R$ 100 | 6 | 18 | ilimitadas | 1 |
 <!-- DOCUMENTATION_SYNC:MTT_CATALOG:END -->
 
 Data e horário definidos pelo **admin** em `America/Sao_Paulo`, com auto-start para **5+** jogadores. Inscrição no lobby com **taxa 15% por cima** (freeroll grátis) — **mãos MTT ao vivo em 3 mesas**; a página lista `live_table_ids` (não só a mesa 0). Cancelar inscrição devolve buy-in + taxa antes do start.
