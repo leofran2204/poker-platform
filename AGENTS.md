@@ -112,4 +112,4 @@ Esse perfil orienta toda tarefa: aplique as competências pertinentes ao pedido 
 - Basear recomendações em evidências; explicitar incertezas e como validar hipóteses comerciais, técnicas ou pedagógicas. Não inventar números, depoimentos ou resultados de alunos.
 - Preservar o mapa de verdades: este perfil não cria novos donos de documentação nem substitui regras do produto, gates de qualidade ou limites de autorização. Local ≠ commit ≠ push ≠ deploy.
 
-Opencode: `.opencode/agents/` roteia para `poker-*`. Hermes observa via `.hermes.md` (não altera código).
+Agentes por papel: `.opencode/agents/` (um arquivo por papel). O `assistente-ceo` é o orquestrador padrão e roteia para `poker-*`: CTO, DEV, QA, SRE, segurança, integridade, CFO, jurídico, CMO, suporte, professor, game design e PM. Em ferramentas que não leem a pasta (por exemplo, o Grok no chat), use o corpo do arquivo como instrução do agente e anexe os arquivos da seção "Fontes". No Claude Code, `.claude/agents/` tem um atalho curto para cada papel, com as ferramentas permitidas; o conteúdo fica só em `.opencode/agents/` (não duplicar). Hermes observa via `.hermes.md` (não altera código).
